@@ -384,25 +384,29 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
-        public async Task<IActionResult> Catalog(CatalogSettings catalogSettings, PriceSettings priceSettings)
+        public async Task<IActionResult> Catalog(int storeScope, CatalogSettings catalogSettings, PriceSettings priceSettings)
         {
             var model = await MapperFactory.MapAsync<CatalogSettings, CatalogSettingsModel>(catalogSettings);
             await MapperFactory.MapAsync(priceSettings, model.PriceSettings);
 
             await PrepareCatalogConfigurationModelAsync(model);
 
-            // TODO: (mh) (core) Add locales
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.OfferBadgeLabel = priceSettings.GetLocalizedSetting(x => x.OfferBadgeLabel, languageId, storeScope, false, false);
+                locale.LimitedOfferBadgeLabel = priceSettings.GetLocalizedSetting(x => x.LimitedOfferBadgeLabel, languageId, storeScope, false, false);
+            });
 
             return View(model);
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> Catalog(CatalogSettings catalogSettings, PriceSettings priceSettings, CatalogSettingsModel model)
+        public async Task<IActionResult> Catalog(int storeScope, CatalogSettings catalogSettings, PriceSettings priceSettings, CatalogSettingsModel model)
         {
             if (!ModelState.IsValid)
             {
-                return await Catalog(catalogSettings, priceSettings);
+                return await Catalog(storeScope, catalogSettings, priceSettings);
             }
 
             ModelState.Clear();
@@ -415,14 +419,13 @@ namespace Smartstore.Admin.Controllers
             }
 
             await MapperFactory.MapAsync(model, catalogSettings);
-
             await MapperFactory.MapAsync(model.PriceSettings, priceSettings);
 
-            // TODO: (mh) (core) Add locales
-            //foreach (var localized in model.Locales)
-            //{
-            //    await _localizedEntityService.ApplyLocalizedSettingAsync(addressSettings, x => x.Salutations, localized.Salutations, localized.LanguageId, storeScope);
-            //}
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(priceSettings, x => x.OfferBadgeLabel, localized.OfferBadgeLabel, localized.LanguageId, storeScope);
+                await _localizedEntityService.ApplyLocalizedSettingAsync(priceSettings, x => x.LimitedOfferBadgeLabel, localized.LimitedOfferBadgeLabel, localized.LanguageId, storeScope);
+            }
 
             return NotifyAndRedirect("Catalog");
         }

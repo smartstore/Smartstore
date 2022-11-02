@@ -5,7 +5,7 @@ using Smartstore.Core.Catalog.Products;
 namespace Smartstore.Admin.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Catalog.")]
-    public class CatalogSettingsModel
+    public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>
     {
         #region General
 
@@ -284,5 +284,6 @@ namespace Smartstore.Admin.Models
         #endregion
 
         public PriceSettingsModel PriceSettings { get; set; } = new();
+        public List<PriceSettingsLocalizedModel> Locales { get; set; } = new();
     }
 }

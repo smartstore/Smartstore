@@ -62,14 +62,12 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowOfferBadge")]
         public bool ShowOfferBadge { get; set; } = true;
 
-        // TODO: (mh) (core) Add localization
         [LocalizedDisplay("*OfferBadgeLabel")]
         public string OfferBadgeLabel { get; set; }
 
         [LocalizedDisplay("*OfferBadgeStyle")]
         public string OfferBadgeStyle { get; set; } = "dark";
 
-        // TODO: (mh) (core) Add localization
         [LocalizedDisplay("*LimitedOfferBadgeLabel")]
         public string LimitedOfferBadgeLabel { get; set; }
 
@@ -77,5 +75,17 @@ namespace Smartstore.Admin.Models
         public string LimitedOfferBadgeStyle { get; set; } = "dark";
 
         #endregion
+    }
+
+    [LocalizedDisplay("Admin.Configuration.Settings.Price.")]
+    public class PriceSettingsLocalizedModel : ILocalizedLocaleModel
+    {
+        public int LanguageId { get; set; }
+
+        [LocalizedDisplay("*OfferBadgeLabel")]
+        public string OfferBadgeLabel { get; set; }
+
+        [LocalizedDisplay("*LimitedOfferBadgeLabel")]
+        public string LimitedOfferBadgeLabel { get; set; }
     }
 }
