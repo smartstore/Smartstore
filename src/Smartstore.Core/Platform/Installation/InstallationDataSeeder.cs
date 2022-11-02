@@ -106,6 +106,7 @@ namespace Smartstore.Core.Installation
             await PopulateAsync("PopulateScheduleTasks", _data.TaskDescriptors());
             await PopulateAsync("PopulateLocaleResources", async () => await PopulateLocaleResources(_config.Language));
             await PopulateAsync("PopulateMenus", _data.Menus());
+            await PopulateAsync("PopulatePriceLabels", _data.PriceLabels());
 
             if (_config.SeedSampleData)
             {

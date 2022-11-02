@@ -1,5 +1,4 @@
 ﻿using FluentMigrator;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 

@@ -32,7 +32,6 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            // TODO: (mh) (core) Install DataSeeder
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
 
             var defaultLanguage = await context.Languages.OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();

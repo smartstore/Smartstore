@@ -3,6 +3,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Checkout.Orders;
@@ -1944,6 +1945,10 @@ namespace Smartstore.Core.Installation
                     x.EuVatAllowVatExemption = true;
                     x.EuVatUseWebService = false;
                     x.EuVatEmailAdminWhenNewVatSubmitted = true;
+                })
+                .Alter<PriceSettings>(x =>
+                {
+                    x.LimitedOfferBadgeLabel = "Befristetes Angebot";
                 });
         }
 
@@ -3196,6 +3201,34 @@ namespace Smartstore.Core.Installation
                 {
                     x.Name = "Inaktive Neukunden";
                     x.Description = "Eine abgeschlossene, mindestens 90 Tage zurückliegende Bestellung.";
+                });
+        }
+
+        protected override void Alter(IList<PriceLabel> entities)
+        {
+            base.Alter(entities);
+
+            entities.WithKey(x => x.ShortName)
+                .Alter("MSRP", x =>
+                {
+                    x.ShortName = "UVP";
+                    x.Name = "Unverb. Preisempf.";
+                    x.Description = "Die UVP ist der vorgeschlagene oder empfohlene Verkaufspreis eines Produkts, wie er vom Hersteller angegeben und vom Hersteller, einem Lieferanten oder Händler zur Verfügung gestellt wird.";
+                    x.IsRetailPrice = true;
+                    x.DisplayShortNameInLists = true;
+                })
+                .Alter("Lowest", x =>
+                {
+                    x.ShortName = "Niedrigster";
+                    x.Name = "Zuletzt niedrigster Preis";
+                    x.Description = "Es handelt sich um den niedrigsten Preis des Produktes in den letzten 30 Tagen vor der Anwendung der Preisermäßigung.";
+                    x.IsRetailPrice = true;
+                })
+                .Alter("Regular", x =>
+                {
+                    x.ShortName = "Regulär";
+                    x.Name = "Regulär";
+                    x.Description = "Es handelt sich um den mittleren Verkaufspreis, den Kunden für ein Produkt in unserem Shop zahlen, ausgenommen Aktionspreise.";
                 });
         }
     }

@@ -5,6 +5,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Checkout.Orders;
@@ -590,8 +591,8 @@ namespace Smartstore.Core.Installation
                 localizationSettings.DefaultAdminLanguageId = defaultLanguageId;
             }
 
-            var defaultDimensionId = (_db.MeasureDimensions.FirstOrDefault(x => x.SystemKeyword == "inch"))?.Id ?? 0;
-            var defaultWeightId = (_db.MeasureWeights.FirstOrDefault(x => x.SystemKeyword == "lb"))?.Id ?? 0;
+            var defaultDimensionId = _db.MeasureDimensions.FirstOrDefault(x => x.SystemKeyword == "inch")?.Id ?? 0;
+            var defaultWeightId = _db.MeasureWeights.FirstOrDefault(x => x.SystemKeyword == "lb")?.Id ?? 0;
             var measureSettings = settings.OfType<MeasureSettings>().FirstOrDefault();
             if (measureSettings != null)
             {
@@ -627,6 +628,13 @@ namespace Smartstore.Core.Installation
                     currencySettings.PrimaryCurrencyId = currency.Id;
                     currencySettings.PrimaryExchangeCurrencyId = currency.Id;
                 }
+            }
+
+            var priceSettings = settings.OfType<PriceSettings>().FirstOrDefault();
+            if (priceSettings != null)
+            {
+                priceSettings.OfferBadgeLabel = "Deal";
+                priceSettings.LimitedOfferBadgeLabel = "Limited time deal";
             }
 
             Alter(settings);
@@ -774,6 +782,37 @@ namespace Smartstore.Core.Installation
                     Type = nameof(ProductRuleEvaluatorTask),
                     Enabled = true,
                     StopOnError = false
+                }
+            };
+
+            Alter(entities);
+            return entities;
+        }
+
+        public IList<PriceLabel> PriceLabels()
+        {
+            var entities = new List<PriceLabel>
+            {
+                new PriceLabel
+                {
+                    ShortName = "MSRP",
+                    Name = "Suggested retail price",
+                    Description = "The Suggested Retail Price (MSRP) is the suggested or recommended retail price of a product set by the manufacturer and provided by a manufacturer, supplier, or seller.",
+                    IsRetailPrice = true,
+                    DisplayShortNameInLists = true
+                },
+                new PriceLabel
+                {
+                    ShortName = "Lowest",
+                    Name = "Lowest recent price",
+                    Description = "This is the lowest price of the product in the past 30 days prior to the application of the price reduction.",
+                    DisplayShortNameInLists = true
+                },
+                new PriceLabel
+                {
+                    ShortName = "Regular",
+                    Name = "Regular price",
+                    Description = "The Regular Price is the median selling price paid by customers for a product, excluding promotional prices"
                 }
             };
 
@@ -1256,6 +1295,10 @@ namespace Smartstore.Core.Installation
         }
 
         protected virtual void Alter(UrlRecord entity)
+        {
+        }
+
+        protected virtual void Alter(IList<PriceLabel> entities)
         {
         }
 

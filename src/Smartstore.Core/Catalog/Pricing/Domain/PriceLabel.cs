@@ -45,23 +45,5 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Gets or sets the display order
         /// </summary>
         public int DisplayOrder { get; set; }
-
-        //private static PriceSettings SeedPriceSettingsGerman()
-        //{
-        //    return new PriceSettings
-        //    {
-        //        OfferBadgeLabel = "Deal",
-        //        LimitedOfferBadgeLabel = "Befristetes Angebot"
-        //    };
-        //}
-
-        //private static PriceSettings SeedPriceSettingsEnglish()
-        //{
-        //    return new PriceSettings
-        //    {
-        //        OfferBadgeLabel = "Deal",
-        //        LimitedOfferBadgeLabel = "Limited time deal"
-        //    };
-        //}
     }
 }
