@@ -29,14 +29,14 @@ namespace Smartstore.Core.Data.Migrations
         private static async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
         {
             var defaultLanguage = await db.Languages.OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
-            var offerBadgeLabelSettings = await db.Settings.Where(x => x.Name == $"PriceSettings.OfferBadgeLabel").ToListAsync();
-            var limitedOfferBadgeLabelSettings = await db.Settings.Where(x => x.Name == $"PriceSettings.LimitedOfferBadgeLabel").ToListAsync();
+            var offerBadgeLabelSettings = await db.Settings.Where(x => x.Name == "PriceSettings.OfferBadgeLabel").ToListAsync();
+            var limitedOfferBadgeLabelSettings = await db.Settings.Where(x => x.Name == "PriceSettings.LimitedOfferBadgeLabel").ToListAsync();
 
             if (offerBadgeLabelSettings.Count == 0)
             {
                 // Setting isn't saved yet. Lets create it.
                 db.Settings.Add(new Setting { 
-                    Name = $"PriceSettings.OfferBadgeLabel", 
+                    Name = "PriceSettings.OfferBadgeLabel", 
                     Value = "Deal", 
                     StoreId = 0 
                 });
@@ -55,7 +55,7 @@ namespace Smartstore.Core.Data.Migrations
                 //Setting isn't saved yet. Lets create it.
                 db.Settings.Add(new Setting
                 {
-                    Name = $"PriceSettings.LimitedOfferBadgeLabel",
+                    Name = "PriceSettings.LimitedOfferBadgeLabel",
                     Value = limitedOfferBadgeLabelValue,
                     StoreId = 0
                 });
