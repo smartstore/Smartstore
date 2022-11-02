@@ -1593,7 +1593,7 @@ namespace Smartstore.Web.Controllers
 
         private void PrepareRegularPriceModel(ProductDetailsModel.ProductPriceModel model, CalculatedPrice price)
         {
-            if (!price.Saving.HasSaving)
+            if (!price.Saving.HasSaving || !price.RegularPrice.HasValue)
             {
                 return;
             }
@@ -1604,7 +1604,7 @@ namespace Smartstore.Web.Controllers
             // TODO: (price) Apply localization.
             model.RegularPrice = new ProductDetailsModel.PriceModel
             {
-                Price = price.RegularPrice,
+                Price = price.RegularPrice.Value,
                 Label = priceLabel.Name.NullEmpty() ?? priceLabel.ShortName,
                 Description = priceLabel.Description
             };

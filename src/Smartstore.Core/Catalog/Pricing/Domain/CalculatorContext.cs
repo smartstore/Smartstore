@@ -10,11 +10,10 @@ namespace Smartstore.Core.Catalog.Pricing
     /// </summary>
     public class CalculatorContext : PriceCalculationContext
     {
-        public CalculatorContext(PriceCalculationContext context, decimal regularPrice)
+        public CalculatorContext(PriceCalculationContext context, decimal finalPrice)
             : base(context)
         {
-            RegularPrice = regularPrice;
-            FinalPrice = regularPrice;
+            FinalPrice = finalPrice;
         }
 
         /// <summary>
@@ -35,14 +34,20 @@ namespace Smartstore.Core.Catalog.Pricing
         public ProductVariantAttributeCombination AppliedAttributeCombination { get; set; }
 
         /// <summary>
-        /// The regular price of the input <see cref="Product"/>, in the primary currency, usually <see cref="Product.Price"/>
-        /// </summary>
-        public decimal RegularPrice { get; private set; }
-
-        /// <summary>
         /// The final price of the product. A calculator should set this property if any adjustment has been made to the price.
         /// </summary>
         public decimal FinalPrice { get; set; }
+
+        /// <summary>
+        /// The regular price of the product,
+        /// usually <see cref="Product.Price"/>, <see cref="Product.ComparePrice"/> or <see cref="Product.SpecialPrice"/>.
+        /// </summary>
+        public decimal? RegularPrice { get; set; }
+
+        /// <summary>
+        /// The retail unit price (MSRP) of the product.
+        /// </summary>
+        public decimal? RetailPrice { get; set; }
 
         /// <summary>
         /// A value indicating whether the price has a range, which is mostly the case if the lowest price
@@ -108,6 +113,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             target.Product = Product;
             target.RegularPrice = RegularPrice;
+            target.RetailPrice = RetailPrice;
             target.FinalPrice = FinalPrice;
             target.HasPriceRange = HasPriceRange;
             target.OfferPrice = OfferPrice;

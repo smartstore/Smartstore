@@ -4,6 +4,7 @@ using Microsoft.OData.ModelBuilder;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
@@ -36,6 +37,8 @@ namespace Smartstore.Web.Api
             builder.EntitySet<Manufacturer>("Manufacturers");
             builder.EntitySet<MeasureDimension>("MeasureDimensions");
             builder.EntitySet<MeasureWeight>("MeasureWeights");
+
+            builder.EntitySet<PriceLabel>("PriceLabels");
 
             BuildDeliveryTimes(builder);
             BuildMediaFiles(builder);

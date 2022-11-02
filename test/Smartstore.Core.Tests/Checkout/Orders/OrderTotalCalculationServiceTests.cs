@@ -131,6 +131,8 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             currencyServiceMock.Setup(x => x.PrimaryCurrency).Returns(_currency);
             currencyServiceMock.Setup(x => x.PrimaryExchangeCurrency).Returns(_currency);
 
+            var priceLabelService = new Mock<IPriceLabelService>();
+
             var localizationServiceMock = new Mock<ILocalizationService>();
             _localizationService = localizationServiceMock.Object;
 
@@ -161,6 +163,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _productAttributeMaterializer,
                 _taxService,
                 _currencyService,
+                priceLabelService.Object,
                 _priceSettings,
                 _taxSettings);
 

@@ -40,8 +40,12 @@ namespace Smartstore.Core.Catalog.Pricing
         /// The regular unit price of the input <see cref="Product"/> in the target currency, 
         /// usually <see cref="Product.Price"/>, <see cref="Product.ComparePrice"/> or <see cref="Product.SpecialPrice"/>.
         /// </summary>
-        //// TODO: (mg) (pricing) Either Price, ComparePrice or SpecialPrice (make Nullable)
-        public Money RegularPrice { get; set; }
+        public Money? RegularPrice { get; set; }
+
+        /// <summary>
+        /// The regular price label.
+        /// </summary>
+        public PriceLabel? RegularPriceLabel { get; set; }
 
         /// <summary>
         /// The retail unit price (MSRP) of the input <see cref="Product"/>.
@@ -50,9 +54,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         //// TODO: (mg) (pricing) Implement
         public Money? RetailPrice { get; set; }
-
-        //// TODO: (mg) (pricing) Implement
-        public PriceLabel? RegularPriceLabel { get; set; }
 
         //// TODO: (mg) (pricing) Implement
         public PriceLabel? RetailPriceLabel { get; set; }

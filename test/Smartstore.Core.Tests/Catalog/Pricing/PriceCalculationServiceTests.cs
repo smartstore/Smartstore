@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
-using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -108,6 +107,8 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             currencyServiceMock.Setup(x => x.PrimaryCurrency).Returns(_currency);
             currencyServiceMock.Setup(x => x.PrimaryExchangeCurrency).Returns(_currency);
 
+            var priceLabelService = new Mock<IPriceLabelService>();
+
             _priceSettings = new PriceSettings();
             _taxSettings = new TaxSettings();
 
@@ -127,6 +128,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 _productAttributeMaterializer,
                 _taxService,
                 _currencyService,
+                priceLabelService.Object,
                 _priceSettings,
                 _taxSettings);
         }

@@ -1,5 +1,4 @@
 ﻿using System.Linq.Dynamic.Core;
-
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -24,6 +23,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
+        private readonly IPriceLabelService _priceLabelService;
         private readonly PriceSettings _priceSettings;
         private readonly TaxSettings _taxSettings;
         private readonly Currency _primaryCurrency;
@@ -38,6 +38,7 @@ namespace Smartstore.Core.Catalog.Pricing
             IProductAttributeMaterializer productAttributeMaterializer,
             ITaxService taxService,
             ICurrencyService currencyService,
+            IPriceLabelService priceLabelService,
             PriceSettings priceSettings,
             TaxSettings taxSettings)
         {
@@ -50,6 +51,7 @@ namespace Smartstore.Core.Catalog.Pricing
             _productAttributeMaterializer = productAttributeMaterializer;
             _taxService = taxService;
             _currencyService = currencyService;
+            _priceLabelService = priceLabelService;
             _priceSettings = priceSettings;
             _taxSettings = taxSettings;
 
@@ -309,7 +311,11 @@ namespace Smartstore.Core.Catalog.Pricing
             var result = new CalculatedPrice(context)
             {
                 Product = product,
-                RegularPrice = ConvertAmount(context.RegularPrice, context, taxRate, false, out _).Value,
+                RegularPrice = ConvertAmount(context.RegularPrice, context, taxRate, false, out _),
+                RegularPriceLabel = context.RegularPrice.HasValue ? _priceLabelService.GetRegularPriceLabel(product) : null,
+                RetailPrice = ConvertAmount(context.RetailPrice, context, taxRate, false, out _),
+                // TODO: (mg) (pricing) comment out RetailPriceLabel code when Product entity is ready:
+                //RetailPriceLabel = context.RetailPrice.HasValue ? product.ComparePriceLabel : null,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
                 OfferEndDateUtc = context.OfferEndDateUtc,
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
