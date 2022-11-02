@@ -2,7 +2,7 @@
 
 @{
     var gridViewData = new ViewDataDictionary(this.ViewData);
-    @if (Model.Id > 0)
+    if (Model.Id > 0)
     {
         gridViewData["Parent"] = Model;
     }

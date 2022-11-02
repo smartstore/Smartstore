@@ -7,11 +7,10 @@
 <datagrid id="crosssellproducts-grid"
           allow-resize="true"
           allow-row-selection="true"
-          allow-edit="true"
+          allow-edit="false"
           max-height="500px">
     <datasource read="@Url.Action("CrossSellProductList", new { productId = parentModel.Id })"
-                delete="@Url.Action("CrossSellProductDelete")"
-                update="@Url.Action("CrossSellProductUpdate")" />
+                delete="@Url.Action("CrossSellProductDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
     <toolbar>
         <toolbar-group>
@@ -26,13 +25,6 @@
                     class="btn btn-light btn-flat">
                 <i class="fa fa-random"></i>
                 <span>@T("Admin.Common.CreateMutuallyAssociations")</span>
-            </button>
-            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-                <i class="fa fa-check"></i>
-                <span>@T("Admin.Common.SaveChanges")</span>
-            </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
-                <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
