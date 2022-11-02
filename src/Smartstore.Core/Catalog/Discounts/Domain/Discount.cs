@@ -214,7 +214,7 @@ namespace Smartstore.Core.Catalog.Discounts
         ///// A value set here overwrites the system default <see cref="PriceSettings.ShowOfferCountdownRemainingHours"/>.
         ///// </summary>
         ///// <summary>
-        //// TODO: (mh) (pricing) Migration, UI
+        //// TODO: (mg) (pricing) Migration, UI
         //public int? ShowCountdownRemainingHours { get; set; }
 
         ///// <summary>
@@ -222,7 +222,7 @@ namespace Smartstore.Core.Catalog.Discounts
         ///// A value set here overwrites the system default <see cref="PriceSettings.OfferBadgeLabel"/>
         ///// or <see cref="PriceSettings.LimitedOfferBadgeLabel"/> accordingly.
         ///// </summary>
-        //// TODO: (mh) (pricing) Migration, UI
+        //// TODO: (mg) (pricing) Migration, UI
         //[LocalizedProperty]
         //[StringLength(16)]
         //public string OfferBadgeLabel { get; set; }

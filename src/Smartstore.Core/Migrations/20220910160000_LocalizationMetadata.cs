@@ -1,8 +1,7 @@
 ﻿using FluentMigrator;
-using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.OutputCache.Migrations
+namespace Smartstore.Core.Data.Migrations
 {
     [MigrationVersion("2022-09-10 16:00:00", "Core: LocalizationMetadata")]
     internal class LocalizationMetadata : AutoReversingMigration

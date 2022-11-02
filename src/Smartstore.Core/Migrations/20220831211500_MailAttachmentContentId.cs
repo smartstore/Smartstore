@@ -1,8 +1,7 @@
 ﻿using FluentMigrator;
-using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Messaging;
 
-namespace Smartstore.OutputCache.Migrations
+namespace Smartstore.Core.Data.Migrations
 {
     [MigrationVersion("2022-08-31 21:15:00", "Core: MailAttachmentContentId")]
     internal class MailAttachmentContentId : Migration

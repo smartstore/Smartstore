@@ -1,8 +1,7 @@
 ﻿using FluentMigrator;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data.Migrations;
 
-namespace Smartstore.OutputCache.Migrations
+namespace Smartstore.Core.Data.Migrations
 {
     [MigrationVersion("2022-08-31 22:30:00", "Core: MediaFileAdminComment")]
     internal class MediaFileAdminComment : Migration
