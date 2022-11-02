@@ -36,7 +36,6 @@ namespace Smartstore.Core.Data.Migrations
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
 
             var defaultLanguage = await context.Languages.OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
-
             var priceLabels = context.Set<PriceLabel>();
 
             if (defaultLanguage.UniqueSeoCode == "de")
@@ -97,8 +96,8 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            // TODO: (mh) (core) Permission localization missing
-            
+            builder.AddOrUpdate("Permissions.DisplayName.PriceLabel", "Price labels", "Preis Labels");
+
             builder.AddOrUpdate("Admin.Configuration.PriceLabels", "Price Labels", "Preis Labels");
             builder.AddOrUpdate("Admin.Configuration.PriceLabels.EditPriceLabelDetails", "Edit Price Label", "Preis Label bearbeiten");
             builder.AddOrUpdate("Admin.Configuration.PriceLabels.AddNew", "Add Price Label", "Preis Label hinzufügen");
