@@ -1,5 +1,6 @@
 ﻿using FluentMigrator;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Localization;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
@@ -7,6 +8,13 @@ namespace Smartstore.Core.Data.Migrations
     [MigrationVersion("2022-10-28 12:00:00", "Core: PriceSettings")]
     internal class PriceSettingsMigration : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
+        private readonly ILanguageService _languageService;
+        
+        public PriceSettingsMigration(ILanguageService languageService)
+        {
+            _languageService = languageService;
+        }
+
         public override void Up()
         {
         }
@@ -26,16 +34,21 @@ namespace Smartstore.Core.Data.Migrations
         /// <summary>
         /// Moves some setting properties from CatalogSettings to PriceSettings class.
         /// </summary>
-        private static async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
+        private async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
         {
-            var defaultLanguage = await db.Languages.OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
-            var offerBadgeLabelSettings = await db.Settings.Where(x => x.Name == "PriceSettings.OfferBadgeLabel").ToListAsync();
-            var limitedOfferBadgeLabelSettings = await db.Settings.Where(x => x.Name == "PriceSettings.LimitedOfferBadgeLabel").ToListAsync();
+            var masterLanguageCode = await _languageService.GetMasterLanguageSeoCodeAsync();
+            var offerBadgeLabelSettings = await db.Settings
+                .Where(x => x.Name == "PriceSettings.OfferBadgeLabel")
+                .ToListAsync(cancelToken);
+            var limitedOfferBadgeLabelSettings = await db.Settings
+                .Where(x => x.Name == "PriceSettings.LimitedOfferBadgeLabel")
+                .ToListAsync(cancelToken);
 
             if (offerBadgeLabelSettings.Count == 0)
             {
                 // Setting isn't saved yet. Lets create it.
-                db.Settings.Add(new Setting { 
+                db.Settings.Add(new Setting 
+                { 
                     Name = "PriceSettings.OfferBadgeLabel", 
                     Value = "Deal", 
                     StoreId = 0 
@@ -49,10 +62,10 @@ namespace Smartstore.Core.Data.Migrations
                 }
             }
 
-            var limitedOfferBadgeLabelValue = defaultLanguage.UniqueSeoCode == "de" ? "Befristetes Angebot" : "Limited time deal";
+            var limitedOfferBadgeLabelValue = masterLanguageCode == "de" ? "Befristetes Angebot" : "Limited time deal";
             if (limitedOfferBadgeLabelSettings.Count == 0)
             {
-                //Setting isn't saved yet. Lets create it.
+                // Setting isn't saved yet. Lets create it.
                 db.Settings.Add(new Setting
                 {
                     Name = "PriceSettings.LimitedOfferBadgeLabel",
@@ -89,11 +102,9 @@ namespace Smartstore.Core.Data.Migrations
             }
 
             // Remove PriceDisplayStyle setting
-            var priceDisplayStyleSettings = await db.Settings.Where(x => x.Name == "CatalogSettings.PriceDisplayStyle").ToListAsync(cancellationToken: cancelToken);
-            if (priceDisplayStyleSettings.Count > 0)
-            {
-                db.Settings.RemoveRange(priceDisplayStyleSettings);
-            }
+            await db.Settings
+                .Where(x => x.Name == "CatalogSettings.PriceDisplayStyle")
+                .BatchDeleteAsync(cancelToken);
 
             await db.SaveChangesAsync(cancelToken);
         }

@@ -3214,15 +3214,12 @@ namespace Smartstore.Core.Installation
                     x.ShortName = "UVP";
                     x.Name = "Unverb. Preisempf.";
                     x.Description = "Die UVP ist der vorgeschlagene oder empfohlene Verkaufspreis eines Produkts, wie er vom Hersteller angegeben und vom Hersteller, einem Lieferanten oder Händler zur Verfügung gestellt wird.";
-                    x.IsRetailPrice = true;
-                    x.DisplayShortNameInLists = true;
                 })
                 .Alter("Lowest", x =>
                 {
                     x.ShortName = "Niedrigster";
                     x.Name = "Zuletzt niedrigster Preis";
                     x.Description = "Es handelt sich um den niedrigsten Preis des Produktes in den letzten 30 Tagen vor der Anwendung der Preisermäßigung.";
-                    x.IsRetailPrice = true;
                 })
                 .Alter("Regular", x =>
                 {
