@@ -35,13 +35,15 @@
                 <section class="row pd-section pd-section-top">
                     <!-- Picture -->
                     <div class="col-12 col-md-6 col-lg-7 pd-data-col">
-                        <zone name="productdetails_pictures_top" />
+                        <div id="pd-sticky-gallery-container">
+                            <zone name="productdetails_pictures_top" />
 
-                        <div id="pd-gallery-container">
-                            <partial name="Product.Media" model="Model.MediaGalleryModel" />
+                            <div id="pd-gallery-container">
+                                <partial name="Product.Media" model="Model.MediaGalleryModel" />
+                            </div>
+
+                            <zone name="productdetails_pictures_bottom" />
                         </div>
-
-                        <zone name="productdetails_pictures_bottom" />
                     </div>
 
                     <!-- Sidebar: Info, Price, Buttons etc. -->
