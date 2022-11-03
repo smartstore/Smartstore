@@ -120,7 +120,7 @@ namespace Smartstore.Admin.Models.Discounts
         public DiscountValidator()
         {
             RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.OfferBadgeLabel).MaximumLength(16);
+            RuleFor(x => x.OfferBadgeLabel).MaximumLength(50);
         }
     }
 

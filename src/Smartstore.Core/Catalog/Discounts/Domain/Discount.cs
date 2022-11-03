@@ -223,7 +223,7 @@ namespace Smartstore.Core.Catalog.Discounts
         /// or <see cref="PriceSettings.LimitedOfferBadgeLabel"/> accordingly.
         /// </summary>
         [LocalizedProperty]
-        [StringLength(16)]
+        [StringLength(50)]
         public string OfferBadgeLabel { get; set; }
 
         private ICollection<RuleSetEntity> _ruleSets;

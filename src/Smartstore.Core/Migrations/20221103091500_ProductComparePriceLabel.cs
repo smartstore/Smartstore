@@ -37,7 +37,7 @@ namespace Smartstore.Core.Data.Migrations
 
             if (!Schema.Table(DiscountTable).Column(BadgeLabelColumn).Exists())
             {
-                Create.Column(BadgeLabelColumn).OnTable(DiscountTable).AsString(16).Nullable();
+                Create.Column(BadgeLabelColumn).OnTable(DiscountTable).AsString(50).Nullable();
             }
         }
 
