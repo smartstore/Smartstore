@@ -10,7 +10,7 @@
         return;
     }
 
-    async Task RenderPromoPriceLine(ProductDetailsModel.PriceModel priceModel)
+    async Task RenderPromoPriceLine(ComparePriceModel priceModel)
     {
         <div sm-if="priceModel != null" class="pd-promoprice-line">
             <span class="pd-promoprice-label">@(priceModel.Label):</span>
@@ -42,6 +42,7 @@
     {
         var isBundleItem = Model.IsBundlePart;
         var priceModel = Model.ProductPrice;
+        var priceModel2 = Model.Price;
         var basePriceEnabled = isBundleItem ? priceModel.BundleItemShowBasePrice : Model.IsBasePriceEnabled;
 
         var currentPriceValue = priceModel.PriceWithDiscount > 0 ? priceModel.PriceWithDiscount : priceModel.Price;
@@ -84,38 +85,38 @@
         <!-- Price -->
         <div class="pd-group">
             <!-- NEW price group -->
-            <div class="pd-price-group mb-3 d-none">
+            <div class="pd-price-group mb-3 x-d-none">
 
                 @* Final price *@
                 <div class="pd-finalprice">
                     <meta sm-if="!isBundleItem" itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />
-                    @foreach (var badge in priceModel.Badges.OrderBy(x => x.DisplayOrder))
+                    @foreach (var badge in priceModel2.Badges.OrderBy(x => x.DisplayOrder))
                     {
                         <span class="badge badge-@badge.Style">@badge.Label</span>
                     }
-                    <div class="@artPriceClasses">
-                        <meta sm-if="!priceModel.CallForPrice && !isBundleItem" itemprop="price" content="@priceModel.FinalPrice.Price" />
+                    <div class="pd-price" attr-class='(priceModel2.Saving.HasSaving, "pd-price-offer")'>
+                        <meta sm-if="!priceModel2.CallForPrice && !isBundleItem" itemprop="price" content="@priceModel2.FinalPrice" />
                         <span>
-                            @Html.Raw(priceModel.FinalPrice.Price)
+                            @Html.Raw(priceModel2.FinalPrice)
                         </span>
                     </div>
                 </div>
 
-                <div sm-if="priceModel.RegularPrice != null || priceModel.RetailPrice != null" class="pd-promoprice-group">
+                <div sm-if="priceModel2.RegularPrice != null || priceModel2.RetailPrice != null" class="pd-promoprice-group">
                     @{ 
                         // Regular price
-                        await RenderPromoPriceLine(priceModel.RegularPrice);
+                        await RenderPromoPriceLine(priceModel2.RegularPrice);
 
                         // Retail price
-                        await RenderPromoPriceLine(priceModel.RetailPrice);
+                        await RenderPromoPriceLine(priceModel2.RetailPrice);
                     }
 
                     <!-- You save -->
-                    <div sm-if="priceModel.SavingAmount > 0" class="pd-promoprice-line">
+                    <div sm-if="priceModel2.Saving.SavingAmount.HasValue" class="pd-promoprice-line">
                         <span class="pd-promoprice-label">@T("ShoppingCart.ItemYouSave"):</span>
                         <span class="pd-promosaving pl-1 d-flex">
-                            <span>@priceModel.SavingAmount</span> 
-                            <span class="badge badge-danger pd-promosaving-percent">- @priceModel.SavingPercent.ToString("N0") %</span></span>
+                            <span>@priceModel2.Saving.SavingAmount.Value</span> 
+                            <span class="badge badge-danger pd-promosaving-percent">@T("Products.SavingBadgeLabel", priceModel2.Saving.SavingPercent.ToString("N0"))</span></span>
                     </div>
                 </div>
             </div>

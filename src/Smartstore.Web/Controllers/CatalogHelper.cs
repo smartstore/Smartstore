@@ -1511,6 +1511,14 @@ namespace Smartstore.Web.Controllers
 
             var priceWithDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
+            #region New Pricing
+
+            var priceModel = new DetailsPriceModel(priceWithDiscount);
+            await priceWithDiscount.MapDetailsAsync(priceModel);
+            model.Price = priceModel;
+
+            #endregion
+
             // INFO: original code difference. Adjustments of priceWithoutDiscount were calculated with quantity of 1. Why? Makes little sense to me.
             // Be careful, options are shallow copied! 'calculationOptions.IgnoreDiscounts = true' would not work.
             // TODO: (pricing) WTF is this here? Why call pipeline twice?!
@@ -1525,7 +1533,6 @@ namespace Smartstore.Web.Controllers
                 if (comparePrice > 0 && comparePrice > priceWithoutDiscount.FinalPrice)
                 {
                     model.ProductPrice.OldPrice = comparePrice;
-                    PrepareRetailPriceModel(model.ProductPrice, priceWithDiscount, comparePrice);
                 }
                 
                 applyDiscountNote = priceWithoutDiscount.FinalPrice != priceWithDiscount.FinalPrice;
@@ -1538,19 +1545,9 @@ namespace Smartstore.Web.Controllers
 
             // Regular price
             model.ProductPrice.Price = priceWithoutDiscount.FinalPrice;
-            if (priceWithDiscount.Saving.HasSaving)
-            {
-                PrepareRegularPriceModel(model.ProductPrice, priceWithDiscount);
-            }
 
             // Final price
             model.ProductPrice.PriceWithDiscount = priceWithDiscount.FinalPrice;
-
-            model.ProductPrice.FinalPrice = new ProductDetailsModel.PriceModel
-            {
-                Price = priceWithDiscount.FinalPrice,
-            };
-            PreparePromoBadge(model.ProductPrice, priceWithDiscount);
 
             model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, priceWithDiscount.FinalPrice, currency);
 
@@ -1573,60 +1570,6 @@ namespace Smartstore.Web.Controllers
             }
 
             model.TierPrices = await CreateTierPriceModelAsync(modelContext, product);
-        }
-
-        private void PreparePromoBadge(ProductDetailsModel.ProductPriceModel model, CalculatedPrice price)
-        {
-            // TODO: (pricing) Add label for bundle (formerly *Notes)
-            var (label, style) = _priceLabelService.GetPricePromoBadge(price);
-            
-            if (label.HasValue())
-            {
-                model.Badges.Add(new ProductDetailsModel.PriceBadgeModel
-                {
-                    Label = label,
-                    Style = style ?? "dark"
-                });
-            }
-        }
-
-        private void PrepareRegularPriceModel(ProductDetailsModel.ProductPriceModel model, CalculatedPrice price)
-        {
-            if (!price.Saving.HasSaving || !price.RegularPrice.HasValue)
-            {
-                return;
-            }
-            
-            // TODO: (price) Should we pass origin product or is CalculatedPrice.Product sufficient? 
-            var priceLabel = _priceLabelService.GetRegularPriceLabel(price.Product);
-
-            // TODO: (price) Apply localization.
-            model.RegularPrice = new ProductDetailsModel.PriceModel
-            {
-                Price = price.RegularPrice.Value,
-                Label = priceLabel.Name.NullEmpty() ?? priceLabel.ShortName,
-                Description = priceLabel.Description
-            };
-        }
-
-        private void PrepareRetailPriceModel(ProductDetailsModel.ProductPriceModel model, CalculatedPrice price, Money comparePrice)
-        {
-            // TODO: (price) Should we pass origin product or is CalculatedPrice.Product sufficient? 
-            var priceLabel = _priceLabelService.GetComparePriceLabel(price.Product);
-
-            if (price.Saving.HasSaving && priceLabel.IsRetailPrice && !_priceSettings.AlwaysDisplayRetailPrice)
-            {
-                // TODO: (pricing) does not feel right and surely it isn't!
-                return;
-            }
-
-            // TODO: (price) Check and apply MSRP flag and label with localization.
-            model.RetailPrice = new ProductDetailsModel.PriceModel
-            {
-                Price = comparePrice,
-                Label = priceLabel.Name.NullEmpty() ?? priceLabel.ShortName,
-                Description = priceLabel.Description
-            };
         }
 
         protected void PrepareProductCartModel(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)

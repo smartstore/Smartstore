@@ -27,6 +27,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public bool BundleItemShowBasePrice { get; set; }
 
+        // TODO: (mh) (pricing) Rename to ShowDiscountBadge
         public bool ShowDiscountSign { get; set; } = true;
 
         /// <summary>
@@ -96,6 +97,13 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool ShowOfferBadge { get; set; } = true;
 
         /// <summary>
+        /// If TRUE, displays a badge in product lists if an offer price is active.
+        /// <see cref="ShowOfferBadge"/> must be TRUE for this to take effect.
+        /// </summary>
+        // TODO: (mh) (pricing) UI
+        public bool ShowOfferBadgeInLists { get; set; } = true;
+
+        /// <summary>
         /// The label of the offer badge, e.g. "Deal".
         /// </summary>
         [LocalizedProperty]
@@ -117,8 +125,13 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public string LimitedOfferBadgeStyle { get; set; } = "dark";
 
+        /// <summary>
+        /// If TRUE, displays the compare price label's short name in product lists.
+        /// </summary>
+        // TODO: (mh) (pricing) UI
+        public bool ShowPriceLabelInLists { get; set; } = true;
 
-        // TBD: ShowSaving, SavingDisplayStyle
+        // TBD: SavingDisplayStyle
 
         #endregion
     }

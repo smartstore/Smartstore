@@ -5,7 +5,6 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Engine.Modularity;
 
@@ -13,10 +12,8 @@ namespace Smartstore.Web.Models.Checkout
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this ShoppingCart cart, CheckoutPaymentMethodModel model)
-        {
-            await MapperFactory.MapAsync(cart, model, null);
-        }
+        public static Task MapAsync(this ShoppingCart cart, CheckoutPaymentMethodModel model)
+            => MapperFactory.MapAsync(cart, model, null);
     }
 
     public class CheckoutPaymentMethodMapper : Mapper<ShoppingCart, CheckoutPaymentMethodModel>

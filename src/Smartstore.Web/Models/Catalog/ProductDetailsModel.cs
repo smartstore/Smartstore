@@ -96,6 +96,7 @@ namespace Smartstore.Web.Models.Catalog
         public bool BackInStockAlreadySubscribed { get; set; }
 
         public ProductPriceModel ProductPrice { get; set; } = new();
+        public DetailsPriceModel Price { get; set; }
         public List<TierPriceModel> TierPrices { get; set; } = new();
 
         public AddToCartModel AddToCart { get; set; } = new();
@@ -222,12 +223,6 @@ namespace Smartstore.Web.Models.Catalog
 
         public partial class ProductPriceModel : ModelBase
         {
-            public List<PriceBadgeModel> Badges { get; } = new();
-            
-            public PriceModel FinalPrice { get; set; }
-            public PriceModel RegularPrice { get; set; }
-            public PriceModel RetailPrice { get; set; }
-
             public Money OldPrice { get; set; }
             public Money Price { get; set; }
             public Money PriceWithDiscount { get; set; }
