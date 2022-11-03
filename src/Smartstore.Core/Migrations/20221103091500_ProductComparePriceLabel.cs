@@ -89,7 +89,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.ShowCountdownRemainingHours",
                 "Remaining offer time after which a countdown should be displayed",
-                "Angebots Restzeit, ab der ein Countdown angezeigt werden soll",
+                "Angebotsrestzeit, ab der ein Countdown angezeigt werden soll",
                 "Sets remaining time (in hours) of the offer from which a countdown should be displayed on product detail pages, e.g. \"ends in 3 hours, 23 min.\". " +
                 "Only applies to limited time discounts with an end date. This value overwrites the system default setting.",
                 "Legt die verbleibende Zeit (in Stunden) eines Angebotes fest, ab der ein Countdown auf der Produktdetailseite angezeigt werden soll, z.B. \"endet in 3 Stunden, 23 Min.\". " +
@@ -98,8 +98,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.OfferBadgeLabel",
                 "Offer badge label",
                 "Angebots-Badge Text",
-                "The label of the offer badge, e.g. \"Deal\".",
-                "Text für das Angebots-Badge, z.B. \"Deal\".");
+                "The label of the offer badge, e.g. \"Deal\". This value overwrites the system default setting.",
+                "Text für das Angebots-Badge, z.B. \"Deal\". Dieser Wert überschreibt die Standardeinstellung des Systems.");
         }
     }
 }

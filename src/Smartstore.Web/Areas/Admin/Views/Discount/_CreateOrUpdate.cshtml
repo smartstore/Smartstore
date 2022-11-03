@@ -121,6 +121,49 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
+                    <smart-label asp-for="ShowCountdownRemainingHours" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="ShowCountdownRemainingHours" sm-postfix="@T("Time.Hours")" />
+                    <span asp-validation-for="ShowCountdownRemainingHours"></span>
+                </div>
+            </div>
+        </div>
+
+        @(Html.LocalizedEditor<DiscountModel, DiscountLocalizedModel>("discount-localized",
+	    @<text>
+            <div class="adminContent">
+		        <div class="adminRow">
+			        <div class="adminTitle">
+				        <smart-label asp-for="Locales[item].OfferBadgeLabel" />
+			        </div>
+			        <div class="adminData">
+				        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" type="hidden" />
+                        <input asp-for="Locales[item].OfferBadgeLabel" />
+				        <span asp-validation-for="Locales[item].OfferBadgeLabel"></span>
+			        </div>
+		        </div>
+	        </div>
+        </text>
+        ,
+	    @<text>
+            <div class="adminContent">
+		        <div class="adminRow">
+			        <div class="adminTitle">
+				        <smart-label asp-for="OfferBadgeLabel" />
+			        </div>
+			        <div class="adminData">
+                        <input asp-for="OfferBadgeLabel" />
+				        <span asp-validation-for="OfferBadgeLabel"></span>
+			        </div>
+		        </div>
+	        </div>
+	    </text>))
+
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
                     <smart-label asp-for="RequiresCouponCode" />
                 </div>
                 <div class="adminData">

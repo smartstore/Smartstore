@@ -208,8 +208,6 @@ namespace Smartstore.Core.Catalog.Discounts
         /// </summary>
         public int LimitationTimes { get; set; }
 
-        // TODO: (mg) (pricing) ShowCountdownRemainingHours, OfferBadgeLabel: migration, UI
-
         /// <summary>
         /// Sets the discount remaining time (in hours) from which a countdown should be displayed in product detail,
         /// e.g. "ends in 3 hours, 23 min.". Only applies to limited time discounts with a non-null <see cref="EndDateUtc"/>.

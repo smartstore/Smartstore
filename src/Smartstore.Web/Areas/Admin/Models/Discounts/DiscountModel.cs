@@ -6,24 +6,8 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Admin.Models.Discounts
 {
-    [LocalizedDisplay("Admin.Promotions.Discounts.List.")]
-    public class DiscountListModel
-    {
-        [LocalizedDisplay("*Name")]
-        public string SearchName { get; set; }
-
-        [LocalizedDisplay("*DiscountType")]
-        public int? SearchDiscountTypeId { get; set; }
-
-        [LocalizedDisplay("*UsePercentage")]
-        public bool? SearchUsePercentage { get; set; }
-
-        [LocalizedDisplay("*RequiresCouponCode")]
-        public bool? SearchRequiresCouponCode { get; set; }
-    }
-
     [LocalizedDisplay("Admin.Promotions.Discounts.Fields.")]
-    public class DiscountModel : EntityModelBase
+    public class DiscountModel : EntityModelBase, ILocalizedModel<DiscountLocalizedModel>
     {
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
@@ -92,27 +76,16 @@ namespace Smartstore.Admin.Models.Discounts
         public int NumberOfRules { get; set; }
 
         public string EditUrl { get; set; }
+        public List<DiscountLocalizedModel> Locales { get; set; } = new();
     }
 
-    public class DiscountAppliedToEntityModel : EntityModelBase
+    [LocalizedDisplay("Admin.Promotions.Discounts.Fields.")]
+    public class DiscountLocalizedModel : ILocalizedLocaleModel
     {
-        public string Name { get; set; }
-    }
+        public int LanguageId { get; set; }
 
-    public class DiscountUsageHistoryModel : EntityModelBase
-    {
-        public int DiscountId { get; set; }
-        public string OrderEditUrl { get; set; }
-        public string OrderEditLinkText { get; set; }
-
-        [LocalizedDisplay("Admin.Promotions.Discounts.History.Order")]
-        public int OrderId { get; set; }
-
-        [LocalizedDisplay("Common.CreatedOn")]
-        public DateTime CreatedOnUtc { get; set; }
-
-        [LocalizedDisplay("Common.CreatedOn")]
-        public DateTime CreatedOn { get; set; }
+        [LocalizedDisplay("*OfferBadgeLabel")]
+        public string OfferBadgeLabel { get; set; }
     }
 
     public partial class DiscountValidator : AbstractValidator<DiscountModel>

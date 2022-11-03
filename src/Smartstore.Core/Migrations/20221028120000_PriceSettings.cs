@@ -156,7 +156,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowOfferCountdownRemainingHours",
                 "Remaining offer time after which a countdown should be displayed",
-                "Angebots Restzeit, ab der ein Countdown angezeigt werden soll",
+                "Angebotsrestzeit, ab der ein Countdown angezeigt werden soll",
                 "Sets remaining time (in hours) of the offer from which a countdown should be displayed in product detail, e.g. \"ends in 3 hours, 23 min.\". " +
                 "To hide the countdown, don't enter anything. " +
                 "Only applies to limited time offers with an end date.",

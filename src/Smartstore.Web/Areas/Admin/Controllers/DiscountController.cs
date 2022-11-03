@@ -18,15 +18,18 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IRuleService _ruleService;
         private readonly ICurrencyService _currencyService;
+        private readonly ILocalizedEntityService _localizedEntityService;
 
         public DiscountController(
             SmartDbContext db,
             IRuleService ruleService,
-            ICurrencyService currencyService)
+            ICurrencyService currencyService,
+            ILocalizedEntityService localizedEntityService)
         {
             _db = db;
             _ruleService = ruleService;
             _currencyService = currencyService;
+            _localizedEntityService = localizedEntityService;
         }
 
         /// <summary>
@@ -123,6 +126,7 @@ namespace Smartstore.Admin.Controllers
                 LimitationTimes = 1
             };
 
+            AddLocales(model.Locales);
             PrepareDiscountModel(model, null);
 
             return View(model);
@@ -138,6 +142,7 @@ namespace Smartstore.Admin.Controllers
                 _db.Discounts.Add(discount);
                 await _db.SaveChangesAsync();
 
+                await ApplyLocales(model, discount);
                 await _ruleService.ApplyRuleSetMappingsAsync(discount, model.SelectedRuleSetIds);
                 await _db.SaveChangesAsync();
 
@@ -174,6 +179,11 @@ namespace Smartstore.Admin.Controllers
 
             PrepareDiscountModel(model, discount);
 
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.OfferBadgeLabel = discount.GetLocalized(x => x.OfferBadgeLabel, languageId, false, false);
+            });
+
             return View(model);
         }
 
@@ -197,7 +207,9 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model, discount);
+                await ApplyLocales(model, discount);
                 await _ruleService.ApplyRuleSetMappingsAsync(discount, model.SelectedRuleSetIds);
+
                 await _db.SaveChangesAsync();
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditDiscount, T("ActivityLog.EditDiscount"), discount.Name);
@@ -317,6 +329,14 @@ namespace Smartstore.Admin.Controllers
             }
 
             ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
+        }
+
+        private async Task ApplyLocales(DiscountModel model, Discount discount)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(discount, x => x.OfferBadgeLabel, localized.OfferBadgeLabel, localized.LanguageId);
+            }
         }
     }
 }
