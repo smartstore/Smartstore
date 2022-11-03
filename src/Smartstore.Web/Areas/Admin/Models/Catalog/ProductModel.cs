@@ -309,10 +309,10 @@ namespace Smartstore.Admin.Models.Catalog
         public class AddProductSpecificationAttributeModel : ModelBase
         {
             [LocalizedDisplay("*SpecificationAttribute")]
-            public int SpecificationAttributeId { get; set; }
+            public int? SpecificationAttributeId { get; set; }
 
             [LocalizedDisplay("*SpecificationAttributeOption")]
-            public int SpecificationAttributeOptionId { get; set; }
+            public int? SpecificationAttributeOptionId { get; set; }
 
             [LocalizedDisplay("*AllowFiltering")]
             public bool? AllowFiltering { get; set; }
