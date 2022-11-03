@@ -29,6 +29,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             // TODO: (mg) (pricing) comment out Retail Price code when Product entity is ready.
 
             // Retail price.
+            //// INFO: (mg) (pricing) we cannot determine labels here. Only IPriceLabelService can compute/provide labels.
+            //// INFO: (mg) (pricing) The setting "AlwaysDisplayRetailPrice" is UI-bound. No need to check for it here.
             //if (product.ComparePrice > product.Price
             //    && product.ComparePriceLabelId.HasValue
             //    && (!context.RegularPrice.HasValue || _priceSettings.AlwaysDisplayRetailPrice))
@@ -40,6 +42,17 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             //        context.RetailPrice = product.ComparePrice;
             //    }
             //}
+
+            #region Temp only (remove later)
+
+            var product = context.Product;
+
+            if (product.ComparePrice > product.Price && (context.RegularPrice == null || product.ComparePrice != context.RegularPrice))
+            {
+                context.RetailPrice = product.ComparePrice;
+            }
+
+            #endregion
         }
 
         protected virtual decimal? GetRegularPrice(CalculatorContext context)
