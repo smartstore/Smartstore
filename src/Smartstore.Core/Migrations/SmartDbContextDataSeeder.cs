@@ -104,6 +104,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.PleaseSelect",
                 "Please select the attribute that should be added.",
                 "Bitte wählen Sie das Attribut, dass hinzugefügt werden soll.");
+
+            builder.AddOrUpdate("Admin.Theme.GoogleFonts.Gdpr.Hint",
+                "Please note that the use of this feature within the EU violates the GDPR.",
+                "Bitte beachten Sie, dass die Nutzung dieses Features innerhalb der EU gegen die DSGVO verstößt.");            
         }
     }
 }

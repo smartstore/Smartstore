@@ -543,6 +543,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var newName = copyModel.NumberOfCopies > 1 ? $"{copyModel.Name} {i}" : copyModel.Name;
                     newProduct = await _productCloner.Value.CloneProductAsync(product, newName, copyModel.Published);
+
                     await _eventPublisher.PublishAsync(new ProductCopiedEvent(product, newProduct));
                 }
 
