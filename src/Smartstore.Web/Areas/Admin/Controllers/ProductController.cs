@@ -528,7 +528,7 @@ namespace Smartstore.Admin.Controllers
             var copyModel = model.CopyProductModel;
             try
             {
-                Product newProduct = null;
+                Product clone = null;
                 // Lets just load this untracked as nearly all navigation properties are needed in order to copy successfully.
                 // We just eager load the most common properties.
                 var product = await _db.Products
@@ -542,15 +542,15 @@ namespace Smartstore.Admin.Controllers
                 for (var i = 1; i <= copyModel.NumberOfCopies; ++i)
                 {
                     var newName = copyModel.NumberOfCopies > 1 ? $"{copyModel.Name} {i}" : copyModel.Name;
-                    newProduct = await _productCloner.Value.CloneProductAsync(product, newName, copyModel.Published);
+                    clone = await _productCloner.Value.CloneProductAsync(product, newName, copyModel.Published);
 
-                    await _eventPublisher.PublishAsync(new ProductCopiedEvent(product, newProduct));
+                    await _eventPublisher.PublishAsync(new ProductClonedEvent(product, clone));
                 }
 
-                if (newProduct != null)
+                if (clone != null)
                 {
                     NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
-                    return RedirectToAction(nameof(Edit), new { id = newProduct.Id });
+                    return RedirectToAction(nameof(Edit), new { id = clone.Id });
                 }
             }
             catch (Exception ex)
