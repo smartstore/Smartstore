@@ -1,78 +1,164 @@
-﻿using Smartstore.Core.Catalog.Products;
+﻿using Humanizer;
+using Humanizer.Localisation;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
     public class PriceLabelService : IPriceLabelService
     {
+        private readonly SmartDbContext _db;
         private readonly PriceSettings _priceSettings;
 
-        public PriceLabelService(PriceSettings priceSettings)
+        private Dictionary<int, PriceLabel> _allPriceLabels;
+        private PriceLabel _defaultComparePriceLabel;
+        private PriceLabel _defaultRegularPriceLabel;
+
+        public PriceLabelService(SmartDbContext db, PriceSettings priceSettings)
         {
+            _db = db;
             _priceSettings = priceSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
         
-        public PriceLabel GetComparePriceLabel(Product product)
+        public virtual PriceLabel GetDefaultComparePriceLabel()
         {
-            // TODO: (mh) (pricing) Implement
-            // TODO: (mh) (pricing) This should NEVER return null, even if there's no record in db.
-            return new PriceLabel
-            {
-                ShortName = "MSRP",
-                Name = "Suggested retail price",
-                Description = "The Suggested Retail Price (MSRP) is the suggested or recommended retail price of a product set by the manufacturer and provided by a manufacturer, supplier, or seller.",
-                IsRetailPrice = true,
-                DisplayShortNameInLists = true
-            };
+            return _defaultComparePriceLabel ??= GetPriceLabel(_priceSettings.DefaultComparePriceLabelId, true);
         }
 
-        public PriceLabel GetRegularPriceLabel(Product product)
+        public virtual PriceLabel GetDefaultRegularPriceLabel()
         {
-            // TODO: (mh) (pricing) Implement
-            // TODO: (mh) (pricing) This should NEVER return null, even if there's no record in db.
-            return new PriceLabel
-            {
-                ShortName = "Lowest",
-                Name = "Lowest recent price",
-                Description = "This is the lowest price of the product in the past 30 days prior to the application of the price reduction.",
-                DisplayShortNameInLists = true
-            };
+            return _defaultRegularPriceLabel ??= GetPriceLabel(_priceSettings.DefaultRegularPriceLabelId, false);
         }
 
-        public (LocalizedValue<string>, string) GetPricePromoBadge(CalculatedPrice price)
+        private PriceLabel GetPriceLabel(int? id, bool forComparePrice)
+        {
+            var allLabels = GetAllPriceLabels();
+
+            if (id > 0 && allLabels.TryGetValue(id.Value, out var label))
+            {
+                return label;
+            }
+
+            label = forComparePrice
+                ? allLabels.Values.FirstOrDefault(x => x.IsRetailPrice)
+                : allLabels.Values.FirstOrDefault(x => !x.IsRetailPrice);
+
+            return label ?? allLabels.Values.FirstOrDefault();
+        }
+
+        private Dictionary<int, PriceLabel> GetAllPriceLabels()
+        {
+            if (_allPriceLabels == null)
+            {
+                _allPriceLabels = _db.PriceLabels
+                    .AsNoTracking()
+                    .OrderBy(x => x.DisplayOrder)
+                    .ToDictionary(x => x.Id);
+            }
+
+            return _allPriceLabels;
+        }
+
+        public virtual PriceLabel GetComparePriceLabel(Product product)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            var labelId = product.ComparePriceLabelId.GetValueOrDefault();
+            if (labelId == 0)
+            {
+                return GetDefaultComparePriceLabel();
+            }
+
+            if (_db.IsReferenceLoaded(product, x => x.ComparePriceLabel, out var entry))
+            {
+                return entry.CurrentValue;
+            }
+
+            return GetPriceLabel(labelId, true);
+        }
+
+        public virtual PriceLabel GetRegularPriceLabel(Product product)
+        {
+            return GetDefaultRegularPriceLabel();
+        }
+
+        public virtual (LocalizedValue<string>, string) GetPricePromoBadge(CalculatedPrice price)
         {
             Guard.NotNull(price, nameof(price));
             
-            // TODO: (mh) (pricing) Properly implement
-            if (!_priceSettings.ShowOfferBadge || !price.Saving.HasSaving)
+            if (!price.Saving.HasSaving)
             {
                 return (null, null);
             }
 
-            // TODO: (mh) (pricing) Get data from here on from offer OR applied discount.
-            var endDate = price.OfferEndDateUtc;
+            var validUntilUtc = price.ValidUntilUtc;
+            var isLimitedOffer = validUntilUtc.HasValue && validUntilUtc > DateTime.UtcNow;
+            var badgeStyle = isLimitedOffer ? _priceSettings.LimitedOfferBadgeStyle : _priceSettings.OfferBadgeStyle;
 
-            // TODO: (mh) (pricing) Get localized settings.
-            if (endDate.HasValue)
+            LocalizedValue<string> badgeLabel;
+
+            // TODO: (mg) (pricing) Is this correct? Hmmm... I don't think so. TBD with MC.
+            foreach (var discount in price.AppliedDiscounts)
             {
-                return (new LocalizedValue<string>("Limited time deal"), _priceSettings.LimitedOfferBadgeStyle);
+                badgeLabel = discount.GetLocalized(x => x.OfferBadgeLabel);
+                if (badgeLabel.HasValue())
+                {
+                    return (badgeLabel, badgeStyle);
+                }
             }
-            else
+
+            badgeLabel = isLimitedOffer
+                ? _priceSettings.GetLocalizedSetting(x => x.LimitedOfferBadgeLabel)
+                : _priceSettings.GetLocalizedSetting(x => x.OfferBadgeLabel);
+
+            if (isLimitedOffer && !badgeLabel.HasValue())
             {
-                return (new LocalizedValue<string>("Deal"), _priceSettings.OfferBadgeStyle);
+                // If LimitedOfferBadgeLabel is empty, fall back to OfferBadgeLabel.
+                badgeLabel = _priceSettings.GetLocalizedSetting(x => x.OfferBadgeLabel);
             }
+
+            return (badgeLabel, badgeStyle);
         }
 
-        public LocalizedValue<string> GetPromoCountdownText(CalculatedPrice price)
+        public virtual LocalizedString GetPromoCountdownText(CalculatedPrice price)
         {
             Guard.NotNull(price, nameof(price));
 
-            // TODO: (mh) (pricing) Properly implement:
-            // Get end date of offer OR applied discount, check CountdownRemainingHours,
-            // humanize (EndDate - Now) etc.
-            return null;
+            if (price.ValidUntilUtc == null)
+            {
+                return null;
+            }
+
+            var threshold = _priceSettings.ShowOfferCountdownRemainingHours;
+
+            // TODO: (mg) (pricing) Is this correct? Hmmm... I don't think so. TBD with MC.
+            foreach (var discount in price.AppliedDiscounts)
+            {
+                if (discount.ShowCountdownRemainingHours.HasValue)
+                {
+                    threshold = discount.ShowCountdownRemainingHours;
+                    break;
+                }
+            }
+
+            if (threshold.GetValueOrDefault() < 1)
+            {
+                return null;
+            }
+
+            var maxTime = TimeSpan.FromHours(threshold.Value);
+            var remainingTime = price.ValidUntilUtc.Value - DateTime.UtcNow;
+
+            if (remainingTime > maxTime)
+            {
+                return null;
+            }
+
+            var humanizedTimeString = remainingTime.Humanize(precision: 2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Minute);
+            return T("Products.Price.OfferCountdown", humanizedTimeString);
         }
     }
 }

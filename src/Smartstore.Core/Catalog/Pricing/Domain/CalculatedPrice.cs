@@ -70,9 +70,10 @@ namespace Smartstore.Core.Catalog.Pricing
         public Money? OfferPrice { get; set; }
 
         /// <summary>
-        /// The end date of the offer (if any).
+        /// The date until <see cref="FinalPrice"/> is valid.
         /// </summary>
-        public DateTime? OfferEndDateUtc { get; set; }
+        // TODO: (mg) (pricing) CalculatedPrice.ValidUntilUtc must also respect applied discount's end date, not just SpecialPriceEndDate.
+        public DateTime? ValidUntilUtc { get; set; }
 
         /// <summary>
         /// The price that is initially displayed on the product detail page, if any.

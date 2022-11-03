@@ -57,14 +57,6 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     var skip = searchQuery.PageIndex * searchQuery.Take;
 
-                    //var query2 = query
-                    //    .Select(x => x.Id)
-                    //    .Distinct()
-                    //    .Skip(skip)
-                    //    .Take(searchQuery.Take);
-                    //query2.ToQueryString().Dump();
-                    //hitsEntityIds = query2.ToArray();
-
                     query = query
                         .Skip(skip)
                         .Take(searchQuery.Take);
@@ -77,7 +69,7 @@ namespace Smartstore.Core.Catalog.Search
                     facets = await GetFacetsAsync(searchQuery, totalHits);
                 }
             }
-
+            
             var result = new CatalogSearchResult(
                 null,
                 searchQuery,

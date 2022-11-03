@@ -27,7 +27,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public bool BundleItemShowBasePrice { get; set; }
 
-        // TODO: (mh) (pricing) Rename to ShowDiscountBadge
+        // TODO: (mh) (pricing) Rename to ShowSavingBadgeInLists
         public bool ShowDiscountSign { get; set; } = true;
 
         /// <summary>
@@ -64,12 +64,16 @@ namespace Smartstore.Core.Catalog.Pricing
         /// The system default id of PriceLabel entity for product compare prices.
         /// Takes effect when a product does not override the ComparePrice label.
         /// </summary>
+        //// TODO: (mh) (pricing) Implement Hook: prevent deletion of assigned PriceLabel entity
+        //// TODO: (mh) (pricing) Make row action in datagrid: "Make default compare price label"
         public int? DefaultComparePriceLabelId { get; set; }
 
         /// <summary>
         /// The system default id of PriceLabel entity to use for the crossed out regular price.
         /// Takes effect when there is an offer or a discount has been applied to a product.
         /// </summary>
+        //// TODO: (mh) (pricing) Implement Hook: prevent deletion of assigned PriceLabel entity
+        //// TODO: (mh) (pricing) Make row action in datagrid: "Make default regular price label"
         public int? DefaultRegularPriceLabelId { get; set; }
 
         /// <summary>

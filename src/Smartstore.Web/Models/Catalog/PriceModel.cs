@@ -22,7 +22,7 @@ namespace Smartstore.Web.Models.Catalog
 
         public DateTime? ValidUntilUtc
         {
-            get => CalculatedPrice.OfferEndDateUtc;
+            get => CalculatedPrice.ValidUntilUtc;
         }
 
         public PriceSaving Saving

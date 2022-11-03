@@ -317,7 +317,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 // TODO: (mg) (pricing) Hide/show RetailPrice according to settings and "Spickzettel"
                 RetailPriceLabel = context.RetailPrice.HasValue ? _priceLabelService.GetComparePriceLabel(product) : null,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
-                OfferEndDateUtc = context.OfferEndDateUtc,
+                ValidUntilUtc = context.OfferEndDateUtc,
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
                 LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
                 DiscountAmount = ConvertAmount(context.DiscountAmount, context, taxRate, false, out _).Value,

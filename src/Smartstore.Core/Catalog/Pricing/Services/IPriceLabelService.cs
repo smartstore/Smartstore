@@ -6,6 +6,16 @@ namespace Smartstore.Core.Catalog.Pricing
     public interface IPriceLabelService
     {
         /// <summary>
+        /// Gets the system default compare price label as defined by <see cref="PriceSettings.DefaultComparePriceLabelId"/>.
+        /// </summary>
+        PriceLabel GetDefaultComparePriceLabel();
+
+        /// <summary>
+        /// Gets the system default regular price label as defined by <see cref="PriceSettings.DefaultRegularPriceLabelId"/>.
+        /// </summary>
+        PriceLabel GetDefaultRegularPriceLabel();
+
+        /// <summary>
         /// Gets the compare price label for a given product. Falls back to
         /// system default compare label if product has no label.
         /// </summary>
@@ -17,6 +27,9 @@ namespace Smartstore.Core.Catalog.Pricing
         /// system default price label if product has no label.
         /// </summary>
         /// <param name="product">The product to get label for.</param>
+        /// <remarks>
+        /// Currently this method just returns the default label by calling <see cref="GetDefaultRegularPriceLabel"/>.
+        /// </remarks>
         PriceLabel GetRegularPriceLabel(Product product);
 
         /// <summary>
@@ -27,10 +40,13 @@ namespace Smartstore.Core.Catalog.Pricing
         (LocalizedValue<string>, string) GetPricePromoBadge(CalculatedPrice price);
 
         /// <summary>
-        /// Gets a promotion countdown text for the given the calculated price as defined by countdown configuration.
+        /// Gets a promotion countdown text for the given calculated price as defined by countdown configuration.
         /// </summary>
         /// <param name="price">The calculated price to get a countdown text for.</param>
-        /// <returns>The localized and humanized countdown text, e.g.: "Ends in 3 h, 12 min."</returns>
-        LocalizedValue<string> GetPromoCountdownText(CalculatedPrice price);
+        /// <returns>
+        /// The localized and humanized countdown text, e.g.: "Ends in 3 h, 12 min.".
+        /// Returns <c>null</c> if offer is not limited or remaining time is larger than threshold.
+        /// </returns>
+        LocalizedString GetPromoCountdownText(CalculatedPrice price);
     }
 }
