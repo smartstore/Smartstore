@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
-
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
@@ -368,6 +368,30 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             dynamic result = new DynamicEntity(store);
+            return result;
+        }
+
+        private static dynamic ToDynamic(PriceLabel priceLabel, DataExporterContext ctx)
+        {
+            if (priceLabel == null)
+            {
+                return null;
+            }
+
+            dynamic result = new DynamicEntity(priceLabel);
+
+            if (!ctx.IsPreview)
+            {
+                result.ShortName = ctx.GetTranslation(priceLabel, nameof(priceLabel.ShortName), priceLabel.ShortName);
+                result.Name = ctx.GetTranslation(priceLabel, nameof(priceLabel.Name), priceLabel.Name);
+                result.Description = ctx.GetTranslation(priceLabel, nameof(priceLabel.Description), priceLabel.Description);
+
+                result._Localized = GetLocalized(ctx, priceLabel,
+                    x => x.ShortName,
+                    x => x.Name,
+                    x => x.Description);
+            }
+
             return result;
         }
 

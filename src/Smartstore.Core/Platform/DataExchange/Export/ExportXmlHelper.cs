@@ -275,6 +275,34 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             }
         }
 
+        public void WritePriceLabel(dynamic priceLabel, string node)
+        {
+            if (priceLabel == null)
+                return;
+
+            PriceLabel entity = priceLabel.Entity;
+
+            if (node.HasValue())
+            {
+                _writer.WriteStartElement(node);
+            }
+
+            _writer.WriteElementString(nameof(PriceLabel.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(PriceLabel.ShortName), (string)priceLabel.ShortName);
+            _writer.WriteElementString(nameof(PriceLabel.Name), (string)priceLabel.Name);
+            _writer.WriteElementString(nameof(PriceLabel.Description), (string)priceLabel.Description);
+            _writer.WriteElementString(nameof(PriceLabel.IsRetailPrice), entity.IsRetailPrice.ToString());
+            _writer.WriteElementString(nameof(PriceLabel.DisplayShortNameInLists), entity.DisplayShortNameInLists.ToString());
+            _writer.WriteElementString(nameof(PriceLabel.DisplayOrder), entity.DisplayOrder.ToString());
+
+            WriteLocalized(priceLabel);
+
+            if (node.HasValue())
+            {
+                _writer.WriteEndElement();
+            }
+        }
+
         public void WriteDeliveryTime(dynamic deliveryTime, string node)
         {
             if (deliveryTime == null)
@@ -695,6 +723,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString(nameof(Product.CustomsTariffNumber), entity.CustomsTariffNumber);
 
             WriteLocalized(product);
+            WritePriceLabel(product.ComparePriceLabel, nameof(Product.ComparePriceLabel));
             WriteDeliveryTime(product.DeliveryTime, nameof(Product.DeliveryTime));
             WriteQuantityUnit(product.QuantityUnit, nameof(Product.QuantityUnit));
             WriteCountry(product.CountryOfOrigin, nameof(Product.CountryOfOrigin));

@@ -241,6 +241,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*AttributeChoiceBehaviour")]
         public AttributeChoiceBehaviour AttributeChoiceBehaviour { get; set; }
 
+        [LocalizedDisplay("*ComparePriceLabelId")]
+        public int? ComparePriceLabelId { get; set; }
+
         public string PrimaryStoreCurrencyCode { get; set; }
         public string BaseDimensionIn { get; set; }
         public string BaseWeightIn { get; set; }

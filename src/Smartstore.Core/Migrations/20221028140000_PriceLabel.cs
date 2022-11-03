@@ -108,13 +108,13 @@ namespace Smartstore.Core.Data.Migrations
                 "Name",
                 "Name",
                 "Specifies the optional name that is displayed on product detail pages, e.g. 'Retail price', 'Lowest recent price'.",
-                "Der optionale Name, der auf der Produktdetailseite angezeigt wird, z. B. 'Unverb. Preisempf.', 'Zuletzt niedrigster Preis'.");
+                "Der optionale Name, der auf der Produktdetailseite angezeigt wird, z.B. 'Unverb. Preisempf.', 'Zuletzt niedrigster Preis'.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.ShortName",
                 "Name (short)",
                 "Name (kurz)",
                 "The short name that is displayed in product lists, e.g. 'MSRP', 'Lowest'.",
-                "Kurzbezeichnung, die in Produktlisten angezeigt wird, z. B. 'UVP', 'Niedrigster'.");
+                "Kurzbezeichnung, die in Produktlisten angezeigt wird, z.B. 'UVP', 'Niedrigster'.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.Description",
                 "Description",

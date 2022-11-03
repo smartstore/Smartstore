@@ -154,8 +154,12 @@ namespace Smartstore.Core.DataExchange.Export
                     ? ToDynamic(quantityUnit, ctx)
                     : null;
 
-                result.CountryOfOrigin = product.CountryOfOriginId.HasValue
-                    ? ToDynamic(product.CountryOfOrigin, ctx)
+                result.CountryOfOrigin = ctx.Countries.TryGetValue(product.CountryOfOriginId ?? 0, out var countryOfOrigin)
+                    ? ToDynamic(countryOfOrigin, ctx)
+                    : null;
+
+                result.ComparePriceLabel = ctx.PriceLabels.TryGetValue(product.ComparePriceLabelId ?? 0, out var priceLabel)
+                    ? ToDynamic(product.ComparePriceLabel, ctx)
                     : null;
 
                 result._Localized = GetLocalized(ctx, product,

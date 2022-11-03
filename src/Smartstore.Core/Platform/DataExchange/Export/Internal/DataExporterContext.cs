@@ -70,6 +70,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
         public Dictionary<int, DeliveryTime> DeliveryTimes { get; set; } = new();
         public Dictionary<int, QuantityUnit> QuantityUnits { get; set; } = new();
+        public Dictionary<int, PriceLabel> PriceLabels { get; set; } = new();
         public Dictionary<int, Store> Stores { get; set; } = new();
         public Dictionary<int, Language> Languages { get; set; } = new();
         public Dictionary<int, Country> Countries { get; set; } = new();

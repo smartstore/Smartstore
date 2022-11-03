@@ -163,7 +163,7 @@
             <smart-label asp-for="PriceSettings.ShowOfferCountdownRemainingHours" />
         </div>
         <div class="adminData">
-            <setting-editor asp-for="PriceSettings.ShowOfferCountdownRemainingHours"></setting-editor>
+            <setting-editor asp-for="PriceSettings.ShowOfferCountdownRemainingHours" sm-postfix="@T("Time.Hours")"></setting-editor>
             <span asp-validation-for="PriceSettings.ShowOfferCountdownRemainingHours"></span>
         </div>
     </div>

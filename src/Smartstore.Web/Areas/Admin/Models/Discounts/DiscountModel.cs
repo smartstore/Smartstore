@@ -76,6 +76,12 @@ namespace Smartstore.Admin.Models.Discounts
         [LocalizedDisplay("*LimitationTimes")]
         public int LimitationTimes { get; set; }
 
+        [LocalizedDisplay("*ShowCountdownRemainingHours")]
+        public int? ShowCountdownRemainingHours { get; set; }
+
+        [LocalizedDisplay("*OfferBadgeLabel")]
+        public string OfferBadgeLabel { get; set; }
+
         [UIHint("RuleSets")]
         [AdditionalMetadata("multiple", true)]
         [AdditionalMetadata("scope", RuleScope.Cart)]
@@ -114,6 +120,7 @@ namespace Smartstore.Admin.Models.Discounts
         public DiscountValidator()
         {
             RuleFor(x => x.Name).NotEmpty();
+            RuleFor(x => x.OfferBadgeLabel).MaximumLength(16);
         }
     }
 

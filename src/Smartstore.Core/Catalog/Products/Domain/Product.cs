@@ -48,10 +48,10 @@ namespace Smartstore.Core.Catalog.Products
                 .HasForeignKey(c => c.CountryOfOriginId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            //builder.HasOne(c => c.ComparePriceLabel)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.ComparePriceLabelId)
-            //    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(c => c.ComparePriceLabel)
+                .WithMany()
+                .HasForeignKey(c => c.ComparePriceLabelId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder
                 .HasMany(c => c.ProductTags)
@@ -652,17 +652,17 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the label id for <see cref="ComparePrice"/>. 
         /// A value set here overwrites the system default <see cref="PriceSettings.DefaultComparePriceLabelId"/>.
         /// </summary>
-        //public int? ComparePriceLabelId { get; set; }
+        public int? ComparePriceLabelId { get; set; }
 
-        //private PriceLabel _comparePriceLabel;
+        private PriceLabel _comparePriceLabel;
         /// <summary>
         /// Gets or sets the compare price label.
         /// </summary>
-        //public PriceLabel ComparePriceLabel
-        //{
-        //    get => _comparePriceLabel ?? LazyLoader?.Load(this, ref _comparePriceLabel);
-        //    set => _comparePriceLabel = value;
-        //}
+        public PriceLabel ComparePriceLabel
+        {
+            get => _comparePriceLabel ?? LazyLoader?.Load(this, ref _comparePriceLabel);
+            set => _comparePriceLabel = value;
+        }
 
         /// <summary>
         /// Gets or sets the product cost.
