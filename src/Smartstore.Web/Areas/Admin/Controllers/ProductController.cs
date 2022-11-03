@@ -27,6 +27,7 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Events;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -66,6 +67,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SeoSettings _seoSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly SearchSettings _searchSettings;
+        private readonly IEventPublisher _eventPublisher;
 
         public ProductController(
             SmartDbContext db,
@@ -97,7 +99,8 @@ namespace Smartstore.Admin.Controllers
             MeasureSettings measureSettings,
             SeoSettings seoSettings,
             MediaSettings mediaSettings,
-            SearchSettings searchSettings)
+            SearchSettings searchSettings,
+            IEventPublisher eventPublisher)
         {
             _db = db;
             _productService = productService;
@@ -129,6 +132,7 @@ namespace Smartstore.Admin.Controllers
             _seoSettings = seoSettings;
             _mediaSettings = mediaSettings;
             _searchSettings = searchSettings;
+            _eventPublisher = eventPublisher;
         }
 
         #region Product list / create / edit / delete
@@ -539,6 +543,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var newName = copyModel.NumberOfCopies > 1 ? $"{copyModel.Name} {i}" : copyModel.Name;
                     newProduct = await _productCloner.Value.CloneProductAsync(product, newName, copyModel.Published);
+                    await _eventPublisher.PublishAsync(new ProductCopiedEvent(product, newProduct));
                 }
 
                 if (newProduct != null)
