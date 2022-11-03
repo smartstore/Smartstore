@@ -69,24 +69,31 @@ namespace Smartstore.Admin.Controllers
             var success = false;
             var message = string.Empty;
 
-            var psa = new ProductSpecificationAttribute
+            if (specificationAttributeOptionId != 0)
             {
-                SpecificationAttributeOptionId = specificationAttributeOptionId,
-                ProductId = productId,
-                AllowFiltering = allowFiltering,
-                ShowOnProductPage = showOnProductPage,
-                DisplayOrder = displayOrder,
-            };
+                var psa = new ProductSpecificationAttribute
+                {
+                    SpecificationAttributeOptionId = specificationAttributeOptionId,
+                    ProductId = productId,
+                    AllowFiltering = allowFiltering,
+                    ShowOnProductPage = showOnProductPage,
+                    DisplayOrder = displayOrder,
+                };
 
-            try
-            {
-                _db.ProductSpecificationAttributes.Add(psa);
-                await _db.SaveChangesAsync();
-                success = true;
+                try
+                {
+                    _db.ProductSpecificationAttributes.Add(psa);
+                    await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    message = ex.Message;
+                }
             }
-            catch (Exception ex)
+            else
             {
-                message = ex.Message;
+                message = T("Admin.Catalog.Attributes.SpecificationAttributes.PleaseSelect").Value;
             }
 
             return Json(new { success, message });

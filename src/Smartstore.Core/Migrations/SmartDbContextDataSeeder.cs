@@ -100,6 +100,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Zeige Badge für verifizierte Käufe",
                 "Displays a badge on product reviews to indicate whether the writer is a verified buyer.",
                 "Zeigt bei Produktrezensionen einen Badge an, der anzeigt, ob der Verfasser ein verifizierter Käufer ist.");
+
+            builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.PleaseSelect",
+                "Please select the attribute that should be added.",
+                "Bitte wählen Sie das Attribut, dass hinzugefügt werden soll.");
         }
     }
 }
