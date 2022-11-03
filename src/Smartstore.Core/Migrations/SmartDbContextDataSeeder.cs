@@ -106,8 +106,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Bitte wählen Sie das Attribut, dass hinzugefügt werden soll.");
 
             builder.AddOrUpdate("Admin.Theme.GoogleFonts.Gdpr.Hint",
-                "Please note that the use of this feature within the EU violates the GDPR.",
-                "Bitte beachten Sie, dass die Nutzung dieses Features innerhalb der EU gegen die DSGVO verstößt.");            
+                "Please note that the use of Google Fonts without local upload violates the EU GDPR according to a ruling of the LG Munich (20.01.2022, Az. 3 O 17493/20). Please inform yourself about the current legal situation before using web fonts. Smartstore is not liable for any possible consequences.",
+                "Bitte beachten Sie, dass der Einsatz von Google Fonts ohne lokale Einbindung laut Urteil vom LG München (20.01.2022, Az. 3 O 17493/20) gegen die DSGVO verstößt. Bitte informieren Sie sich über die aktuelle Rechtslage, bevor Sie Web Fonts einsetzen. Smartstore übernimmt keinerlei Haftung.");            
         }
     }
 }
