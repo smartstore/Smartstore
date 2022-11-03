@@ -291,196 +291,196 @@ namespace Smartstore.Core.Localization
             _db.DetachEntities<LocalizedProperty>();
         }
 
-        /// <summary>
-        /// Verfolgt Änderungen an lokalisierbaren Standardtexten. 
-        /// Ist als "Important" markiert, damit er auch während 
-        /// eines Import-Vorganges ausgeführt wird. Muss im Plugin
-        /// implementiert werden.
-        /// </summary>
-        [Important]
-        internal class LocalizedEntityChangeHook : AsyncDbSaveHook<ILocalizedEntity>
-        {
-            private readonly SmartDbContext _db;
-            private readonly ILocalizedEntityDescriptorProvider _provider;
+        ///// <summary>
+        ///// Verfolgt Änderungen an lokalisierbaren Standardtexten. 
+        ///// Ist als "Important" markiert, damit er auch während 
+        ///// eines Import-Vorganges ausgeführt wird. Muss im Plugin
+        ///// implementiert werden.
+        ///// </summary>
+        //[Important]
+        //internal class LocalizedEntityChangeHook : AsyncDbSaveHook<ILocalizedEntity>
+        //{
+        //    private readonly SmartDbContext _db;
+        //    private readonly ILocalizedEntityDescriptorProvider _provider;
 
-            public LocalizedEntityChangeHook(SmartDbContext db, ILocalizedEntityDescriptorProvider provider)
-            {
-                _db = db;
-                _provider = provider;
-            }
+        //    public LocalizedEntityChangeHook(SmartDbContext db, ILocalizedEntityDescriptorProvider provider)
+        //    {
+        //        _db = db;
+        //        _provider = provider;
+        //    }
 
-            protected override Task<HookResult> OnInsertedAsync(ILocalizedEntity entity, IHookedEntity entry, CancellationToken cancelToken)
-            {
-                // (perf) Wir hätten auch alles hier erledigen können. Aber in Long-Running Processes,
-                // die stapelweise massenhaft Daten importieren, ist das langsam.
-                // Nur EINMAL SaveChangesAsync ausführen ist deutlich schneller,
-                // siehe OnAfterSaveCompletedAsync().
+        //    protected override Task<HookResult> OnInsertedAsync(ILocalizedEntity entity, IHookedEntity entry, CancellationToken cancelToken)
+        //    {
+        //        // (perf) Wir hätten auch alles hier erledigen können. Aber in Long-Running Processes,
+        //        // die stapelweise massenhaft Daten importieren, ist das langsam.
+        //        // Nur EINMAL SaveChangesAsync ausführen ist deutlich schneller,
+        //        // siehe OnAfterSaveCompletedAsync().
 
-                // Signalisiere dem HookHandler, dass er diesen Hook künftig nur noch für
-                // ILocalizedEntity Typen aufrufen soll, die auch einen Descriptor haben.
-                // Der Batch-Methode unten (OnAfterSaveCompletedAsync) werden nur Entries
-                // übergeben, die hier mit HookResult.Ok quittiert wurden.
-                return Task.FromResult(
-                    _provider.GetDescriptorByEntityType(entity.GetType()) != null
-                        ? HookResult.Ok
-                        : HookResult.Void);
-            }
+        //        // Signalisiere dem HookHandler, dass er diesen Hook künftig nur noch für
+        //        // ILocalizedEntity Typen aufrufen soll, die auch einen Descriptor haben.
+        //        // Der Batch-Methode unten (OnAfterSaveCompletedAsync) werden nur Entries
+        //        // übergeben, die hier mit HookResult.Ok quittiert wurden.
+        //        return Task.FromResult(
+        //            _provider.GetDescriptorByEntityType(entity.GetType()) != null
+        //                ? HookResult.Ok
+        //                : HookResult.Void);
+        //    }
 
-            protected override Task<HookResult> OnUpdatingAsync(ILocalizedEntity entity, IHookedEntity entry, CancellationToken cancelToken)
-            {
-                // Muss ein PRESave-Hook sein, weil wir nach dem Speichern Infos über geänderte Props verlieren.
-                // Weitere Erläuterungen siehe OnInsertedAsync().
-                return Task.FromResult(
-                    _provider.GetDescriptorByEntityType(entity.GetType()) != null
-                        ? HookResult.Ok
-                        : HookResult.Void);
-            }
+        //    protected override Task<HookResult> OnUpdatingAsync(ILocalizedEntity entity, IHookedEntity entry, CancellationToken cancelToken)
+        //    {
+        //        // Muss ein PRESave-Hook sein, weil wir nach dem Speichern Infos über geänderte Props verlieren.
+        //        // Weitere Erläuterungen siehe OnInsertedAsync().
+        //        return Task.FromResult(
+        //            _provider.GetDescriptorByEntityType(entity.GetType()) != null
+        //                ? HookResult.Ok
+        //                : HookResult.Void);
+        //    }
 
-            public override async Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-            {
-                // ID der Mastersprache besorgen
-                var masterLanguageId = 1;
+        //    public override async Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        //    {
+        //        // ID der Mastersprache besorgen
+        //        var masterLanguageId = 1;
 
-                // (perf) Alle Entries nach KeyGroup gruppieren,
-                // um weniger DB-Lookups durchführen zu müssen.
-                var updatedEntitiesGrouped = entries
-                    // SoftDeleted Entities interessieren uns nicht, die werden eh von einem anderen Hook abgeräumt.
-                    .Where(x => !x.IsSoftDeleted.GetValueOrDefault())
-                    .Select(x => x.Entity)
-                    .GroupBy(x => x.GetEntityName());
+        //        // (perf) Alle Entries nach KeyGroup gruppieren,
+        //        // um weniger DB-Lookups durchführen zu müssen.
+        //        var updatedEntitiesGrouped = entries
+        //            // SoftDeleted Entities interessieren uns nicht, die werden eh von einem anderen Hook abgeräumt.
+        //            .Where(x => !x.IsSoftDeleted.GetValueOrDefault())
+        //            .Select(x => x.Entity)
+        //            .GroupBy(x => x.GetEntityName());
 
-                foreach (var group in updatedEntitiesGrouped)
-                {
-                    // Alle Entity-Ids in Gruppe extrahieren
-                    var entityIds = group.Select(x => x.Id).ToArray();
-                    // Descriptor für Gruppe besorgen
-                    var descriptor = _provider.GetDescriptorByEntityType(group.First().GetType());
-                    var keyGroup = group.Key;
+        //        foreach (var group in updatedEntitiesGrouped)
+        //        {
+        //            // Alle Entity-Ids in Gruppe extrahieren
+        //            var entityIds = group.Select(x => x.Id).ToArray();
+        //            // Descriptor für Gruppe besorgen
+        //            var descriptor = _provider.GetDescriptorByEntityType(group.First().GetType());
+        //            var keyGroup = group.Key;
 
-                    var existingLocProps = await _db.LocalizedProperties
-                        .Where(x => x.LocaleKeyGroup == keyGroup && x.LanguageId == masterLanguageId && entityIds.Contains(x.EntityId))
-                        // Composite PropertyKey als Key benutzen für einfache und schnelle Lookups später
-                        .ToDictionaryAsync(x => new PropertyKey(x.EntityId, x.LocaleKey, x.LanguageId));
+        //            var existingLocProps = await _db.LocalizedProperties
+        //                .Where(x => x.LocaleKeyGroup == keyGroup && x.LanguageId == masterLanguageId && entityIds.Contains(x.EntityId))
+        //                // Composite PropertyKey als Key benutzen für einfache und schnelle Lookups später
+        //                .ToDictionaryAsync(x => new PropertyKey(x.EntityId, x.LocaleKey, x.LanguageId));
 
-                    foreach (var updatedEntity in group)
-                    {
-                        // Alle lokalisierbaren Props iterieren
-                        foreach (var prop in descriptor.Properties)
-                        {
-                            // Evtl. existierende LocProp per Lookup ermitteln
-                            var existingLocProp = existingLocProps.Get(new PropertyKey(updatedEntity.Id, prop.Name, masterLanguageId));
+        //            foreach (var updatedEntity in group)
+        //            {
+        //                // Alle lokalisierbaren Props iterieren
+        //                foreach (var prop in descriptor.Properties)
+        //                {
+        //                    // Evtl. existierende LocProp per Lookup ermitteln
+        //                    var existingLocProp = existingLocProps.Get(new PropertyKey(updatedEntity.Id, prop.Name, masterLanguageId));
                             
-                            if (existingLocProp == null)
-                            {
-                                // LocProp existiert noch nicht in DB, daher versuchen anzulegen.
-                                TryInsertLocalizedProperty(updatedEntity, masterLanguageId, prop);
-                            }
-                            else
-                            {
-                                // (perf) FastProperty für updatedEntity.Prop besorgen, z.B. "Product.Name"
-                                var fastProp = FastProperty.GetProperty(prop, PropertyCachingStrategy.EagerCached);
+        //                    if (existingLocProp == null)
+        //                    {
+        //                        // LocProp existiert noch nicht in DB, daher versuchen anzulegen.
+        //                        TryInsertLocalizedProperty(updatedEntity, masterLanguageId, prop);
+        //                    }
+        //                    else
+        //                    {
+        //                        // (perf) FastProperty für updatedEntity.Prop besorgen, z.B. "Product.Name"
+        //                        var fastProp = FastProperty.GetProperty(prop, PropertyCachingStrategy.EagerCached);
 
-                                // Wert per Reflection besorgen
-                                var value = fastProp.GetValue(updatedEntity);
-                                var valueStr = value.Convert<string>();
+        //                        // Wert per Reflection besorgen
+        //                        var value = fastProp.GetValue(updatedEntity);
+        //                        var valueStr = value.Convert<string>();
 
-                                if (valueStr != existingLocProp.LocaleValue)
-                                {
-                                    // Entity-Wert ist ungleich LocalizedProperty.LocaleValue und wurde somit geändert.
+        //                        if (valueStr != existingLocProp.LocaleValue)
+        //                        {
+        //                            // Entity-Wert ist ungleich LocalizedProperty.LocaleValue und wurde somit geändert.
 
-                                    // Autor ermitteln
-                                    var author = existingLocProp.UpdatedBy ?? existingLocProp.CreatedBy;
+        //                            // Autor ermitteln
+        //                            var author = existingLocProp.UpdatedBy ?? existingLocProp.CreatedBy;
 
-                                    // Wenn der Autor dieses Eintrags NICHT der Translator war,
-                                    // hat der User zuvor im Backend explizit was geändert.
-                                    // I.d.F. machen wir lieber gar nichts.
-                                    if (author == null || author == "CRS.TranslationService")
-                                    {
-                                        // Neuen Value übertragen
-                                        existingLocProp.LocaleValue = valueStr;
+        //                            // Wenn der Autor dieses Eintrags NICHT der Translator war,
+        //                            // hat der User zuvor im Backend explizit was geändert.
+        //                            // I.d.F. machen wir lieber gar nichts.
+        //                            if (author == null || author == "CRS.TranslationService")
+        //                            {
+        //                                // Neuen Value übertragen
+        //                                existingLocProp.LocaleValue = valueStr;
                                         
-                                        // Bei der nächsten Translation-Session muss dieser Eintrag also neu übersetzt werden.
-                                        existingLocProp.TranslatedOnUtc = null;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        //                                // Bei der nächsten Translation-Session muss dieser Eintrag also neu übersetzt werden.
+        //                                existingLocProp.TranslatedOnUtc = null;
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
 
-                // INFO: SaveChanges an dieser Stelle nicht notwendig, da wir in einem PreSave-Hook.
-                // Commit steht also kurz bevor.
-                // SaveChanges wird hier eh unterdrückt, um Zirkularitätsprobleme zu vermeiden.
-            }
+        //        // INFO: SaveChanges an dieser Stelle nicht notwendig, da wir in einem PreSave-Hook.
+        //        // Commit steht also kurz bevor.
+        //        // SaveChanges wird hier eh unterdrückt, um Zirkularitätsprobleme zu vermeiden.
+        //    }
 
-            public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-            {
-                // ID der Mastersprache besorgen
-                var masterLanguageId = 1;
+        //    public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        //    {
+        //        // ID der Mastersprache besorgen
+        //        var masterLanguageId = 1;
 
-                // Im PostSave-Szenario interessieren uns nur NEUE Entities,
-                // die über mind. eine lokalisierbare Prop verfügen.
-                // INFO: Das Löschen verwaister LocalizedProperties nimmt bereits ein
-                // anderer Hook im Core vor.
-                var newEntities = entries
-                    .Select(x => x.Entity)
-                    .ToList();
+        //        // Im PostSave-Szenario interessieren uns nur NEUE Entities,
+        //        // die über mind. eine lokalisierbare Prop verfügen.
+        //        // INFO: Das Löschen verwaister LocalizedProperties nimmt bereits ein
+        //        // anderer Hook im Core vor.
+        //        var newEntities = entries
+        //            .Select(x => x.Entity)
+        //            .ToList();
 
-                var isDirty = false;
+        //        var isDirty = false;
 
-                foreach (var newEntity in newEntities)
-                {
-                    var descriptor = _provider.GetDescriptorByEntityType(newEntity.GetType());
+        //        foreach (var newEntity in newEntities)
+        //        {
+        //            var descriptor = _provider.GetDescriptorByEntityType(newEntity.GetType());
 
-                    // Alle lokalisierbaren Props iterieren
-                    foreach (var prop in descriptor.Properties)
-                    {
-                        isDirty = TryInsertLocalizedProperty(newEntity, masterLanguageId, prop) || isDirty;
-                    }
-                }
+        //            // Alle lokalisierbaren Props iterieren
+        //            foreach (var prop in descriptor.Properties)
+        //            {
+        //                isDirty = TryInsertLocalizedProperty(newEntity, masterLanguageId, prop) || isDirty;
+        //            }
+        //        }
 
-                // Alle neuen LocalizedProperty Entities speichern
-                if (isDirty)
-                {
-                    await _db.SaveChangesAsync(cancelToken);
-                }     
-            }
+        //        // Alle neuen LocalizedProperty Entities speichern
+        //        if (isDirty)
+        //        {
+        //            await _db.SaveChangesAsync(cancelToken);
+        //        }     
+        //    }
 
-            /// <summary>
-            /// Fügt eine neue LocalizedProperty Instanz hinzu, wenn prop nicht leer ist.
-            /// </summary>
-            private bool TryInsertLocalizedProperty(BaseEntity forEntity, int langId, PropertyInfo prop)
-            {
-                // (perf) FastProperty für entity.Prop besorgen, z.B. "Product.Name"
-                var fastProp = FastProperty.GetProperty(prop, PropertyCachingStrategy.EagerCached);
+        //    /// <summary>
+        //    /// Fügt eine neue LocalizedProperty Instanz hinzu, wenn prop nicht leer ist.
+        //    /// </summary>
+        //    private bool TryInsertLocalizedProperty(BaseEntity forEntity, int langId, PropertyInfo prop)
+        //    {
+        //        // (perf) FastProperty für entity.Prop besorgen, z.B. "Product.Name"
+        //        var fastProp = FastProperty.GetProperty(prop, PropertyCachingStrategy.EagerCached);
 
-                // Wert per Reflection besorgen
-                var value = fastProp.GetValue(forEntity);
-                var hasValue = value != null && (value is not string str || str.HasValue());
+        //        // Wert per Reflection besorgen
+        //        var value = fastProp.GetValue(forEntity);
+        //        var hasValue = value != null && (value is not string str || str.HasValue());
 
-                if (hasValue)
-                {
-                    // Lokalisierbare Property hat einen Wert:
-                    // müssen wir also als LocalizedProperty abbilden und ablegen.
-                    _db.LocalizedProperties.Add(new LocalizedProperty
-                    {
-                        LocaleKeyGroup = forEntity.GetEntityName(),
-                        LanguageId = langId,
-                        LocaleKey = prop.Name,
-                        EntityId = forEntity.Id,
-                        LocaleValue = value.Convert<string>(),
-                        // SEHR WICHTIG! Wollen wir nicht in UI sehen.
-                        IsHidden = true,
-                        // Befüllen der Audit-Daten nicht dem Hook überlassen, selber zuweisen.
-                        CreatedOnUtc = DateTime.UtcNow,
-                        CreatedBy = "CRS.TranslationService"
-                    });
+        //        if (hasValue)
+        //        {
+        //            // Lokalisierbare Property hat einen Wert:
+        //            // müssen wir also als LocalizedProperty abbilden und ablegen.
+        //            _db.LocalizedProperties.Add(new LocalizedProperty
+        //            {
+        //                LocaleKeyGroup = forEntity.GetEntityName(),
+        //                LanguageId = langId,
+        //                LocaleKey = prop.Name,
+        //                EntityId = forEntity.Id,
+        //                LocaleValue = value.Convert<string>(),
+        //                // SEHR WICHTIG! Wollen wir nicht in UI sehen.
+        //                IsHidden = true,
+        //                // Befüllen der Audit-Daten nicht dem Hook überlassen, selber zuweisen.
+        //                CreatedOnUtc = DateTime.UtcNow,
+        //                CreatedBy = "CRS.TranslationService"
+        //            });
 
-                    return true;
-                }
+        //            return true;
+        //        }
 
-                return false;
-            }
-        }
+        //        return false;
+        //    }
+        //}
     }
 }
