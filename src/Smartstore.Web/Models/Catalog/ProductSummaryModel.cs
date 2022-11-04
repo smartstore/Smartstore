@@ -1,6 +1,5 @@
 ﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Localization;

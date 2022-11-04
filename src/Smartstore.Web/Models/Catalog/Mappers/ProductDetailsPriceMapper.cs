@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Catalog.Mappers
@@ -10,11 +11,55 @@ namespace Smartstore.Web.Models.Catalog.Mappers
         {
         }
 
-        protected override Task MapCoreAsync(CalculatedPrice source, DetailsPriceModel model, dynamic parameters = null)
+        protected override Task<bool> MapCoreAsync(CalculatedPrice price, DetailsPriceModel model, dynamic parameters = null)
         {
-            model.CountdownText = _labelService.GetPromoCountdownText(source);
+            var modelContext = (ProductDetailsModelContext)parameters.ModelContext;
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var isBundleItemPricing = productBundleItem != null && productBundleItem.BundleProduct.BundlePerItemPricing;
+            var isBundle = product.ProductType == ProductType.BundledProduct;
+
+            model.HidePrices = !modelContext.DisplayPrices;
+            model.ShowLoginNote = !modelContext.DisplayPrices && productBundleItem == null && _priceSettings.ShowLoginForPriceNote;
+
+            if (!modelContext.DisplayPrices)
+            {
+                return Task.FromResult(false);
+            }
+
+            if (product.CustomerEntersPrice && !isBundleItemPricing)
+            {
+                model.CustomerEntersPrice = true;
+                return Task.FromResult(false);
+            }
+
+            if (product.CallForPrice && !isBundleItemPricing)
+            {
+                model.CallForPrice = true;
+                return Task.FromResult(false);
+            }
+
+            model.BundleItemShowBasePrice = _priceSettings.BundleItemShowBasePrice;
+            model.CountdownText = _labelService.GetPromoCountdownText(price);
             
-            return Task.FromResult(model);
+            if (_priceSettings.ShowOfferBadge)
+            {
+                AddPromoBadge(price, model);
+            }
+            
+            if (isBundle && product.BundlePerItemPricing && price.Saving.HasSaving && !product.HasTierPrices)
+            {
+                // Add promo badge for bundle: "As bundle only"
+                model.Badges.Add(new PriceBadgeModel
+                {
+                    Label = T("Products.Bundle.PriceWithDiscount.Note"),
+                    Style = "warning"
+                });
+
+                // TODO: (mc) (pricing) Label for bundle regular price should be "Instead of" / "Statt"
+            }
+
+            return Task.FromResult(true);
         }
 
         protected override bool ShouldMapRetailPrice(CalculatedPrice price)
@@ -31,15 +76,6 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                 Label = priceLabel.GetLocalized(x => x.Name).Value.NullEmpty() ?? priceLabel.GetLocalized(x => x.ShortName),
                 Description = priceLabel.GetLocalized(x => x.Description)
             };
-        }
-
-        protected override void AddPromoBadges(CalculatedPrice price, DetailsPriceModel model)
-        {
-            // Add default badges first
-            base.AddPromoBadges(price, model);
-
-            // Then handle bundle product badge
-            // TODO: (mg) (pricing) Add badge for bundle (formerly *Notes --> "Im Set nur")
         }
     }
 }

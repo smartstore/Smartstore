@@ -6,8 +6,12 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 {
     public static partial class CalculatedPriceMappingExtensions
     {
-        public static Task MapDetailsAsync(this CalculatedPrice price, DetailsPriceModel model)
-            => MapperFactory.MapAsync(price, model, new { ForListing = false });
+        public static Task MapDetailsAsync(this CalculatedPrice price, DetailsPriceModel model, ProductDetailsModelContext modelContext)
+            => MapperFactory.MapAsync(price, model, new 
+            { 
+                ModelContext = Guard.NotNull(modelContext, nameof(modelContext)), 
+                ForListing = false 
+            });
 
         public static Task MapSummaryAsync(this CalculatedPrice price, SummaryPriceModel model)
             => MapperFactory.MapAsync(price, model, new { ForListing = true });
@@ -27,8 +31,13 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public Task MapAsync(CalculatedPrice from, TTo to, dynamic parameters = null)
+        public async Task MapAsync(CalculatedPrice from, TTo to, dynamic parameters = null)
         {
+            if (!await MapCoreAsync(from, to, parameters))
+            {
+                return;
+            }
+            
             var forListing = parameters.ForListing ?? false;
             var price = from;
             var model = to;
@@ -44,29 +53,20 @@ namespace Smartstore.Web.Models.Catalog.Mappers
             {
                 model.RetailPrice = GetComparePriceModel(price.RetailPrice.Value, price.RetailPriceLabel);
             }
-
-            // Promo badges
-            AddPromoBadges(price, model);
-
-            return MapCoreAsync(price, model, parameters);
         }
 
-        protected virtual void AddPromoBadges(CalculatedPrice price, TTo model)
+        protected void AddPromoBadge(CalculatedPrice price, TTo model)
         {
-            if (_priceSettings.ShowOfferBadge)
-            {
-                // Add default promo badges as configured
-                var (label, style) = _labelService.GetPricePromoBadge(price);
+            // Add default promo badges as configured
+            var (label, style) = _labelService.GetPricePromoBadge(price);
 
-                if (label.HasValue())
+            if (label.HasValue())
+            {
+                model.Badges.Add(new PriceBadgeModel
                 {
-                    model.Badges.Add(new PriceBadgeModel
-                    {
-                        Label = label,
-                        Style = style ?? "dark",
-                        DisplayOrder = 1
-                    });
-                }
+                    Label = label,
+                    Style = style ?? "dark"
+                });
             }
         }
 
@@ -74,6 +74,6 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
         protected abstract ComparePriceModel GetComparePriceModel(Money comparePrice, PriceLabel priceLabel);
 
-        protected abstract Task MapCoreAsync(CalculatedPrice source, TTo model, dynamic parameters = null);
+        protected abstract Task<bool> MapCoreAsync(CalculatedPrice price, TTo model, dynamic parameters = null);
     }
 }

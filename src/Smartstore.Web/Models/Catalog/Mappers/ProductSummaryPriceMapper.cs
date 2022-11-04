@@ -10,9 +10,23 @@ namespace Smartstore.Web.Models.Catalog.Mappers
         {
         }
 
-        protected override Task MapCoreAsync(CalculatedPrice source, SummaryPriceModel model, dynamic parameters = null)
+        protected override Task<bool> MapCoreAsync(CalculatedPrice price, SummaryPriceModel model, dynamic parameters = null)
         {
-            return Task.FromResult(model);
+            if (_priceSettings.ShowDiscountSign && price.Saving.HasSaving)
+            {
+                model.Badges.Add(new PriceBadgeModel
+                {
+                    Label = T("Products.SavingBadgeLabel", price.Saving.SavingPercent.ToString("N0")),
+                    Style = "danger"
+                });
+            }
+
+            if (_priceSettings.ShowOfferBadge && _priceSettings.ShowOfferBadgeInLists)
+            {
+                AddPromoBadge(price, model);
+            }
+
+            return Task.FromResult(true);
         }
 
         protected override bool ShouldMapRetailPrice(CalculatedPrice price)
@@ -29,23 +43,6 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                 Price = comparePrice,
                 Label = priceLabel.GetLocalized(x => x.ShortName)
             };
-        }
-
-        protected override void AddPromoBadges(CalculatedPrice price, SummaryPriceModel model)
-        {
-            if (_priceSettings.ShowDiscountSign && price.Saving.HasSaving)
-            {
-                model.Badges.Add(new PriceBadgeModel
-                {
-                    Label = T("Products.SavingBadgeLabel", price.Saving.SavingPercent.ToString("N0")),
-                    Style = "danger"
-                });
-            }
-            
-            if (_priceSettings.ShowOfferBadgeInLists)
-            {
-                base.AddPromoBadges(price, model);
-            }
         }
     }
 }

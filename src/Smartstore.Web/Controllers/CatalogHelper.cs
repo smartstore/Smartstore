@@ -1514,14 +1514,14 @@ namespace Smartstore.Web.Controllers
             #region New Pricing
 
             var priceModel = new DetailsPriceModel(priceWithDiscount);
-            await priceWithDiscount.MapDetailsAsync(priceModel);
+            await priceWithDiscount.MapDetailsAsync(priceModel, modelContext);
             model.Price = priceModel;
 
             #endregion
 
             // INFO: original code difference. Adjustments of priceWithoutDiscount were calculated with quantity of 1. Why? Makes little sense to me.
             // Be careful, options are shallow copied! 'calculationOptions.IgnoreDiscounts = true' would not work.
-            // TODO: (pricing) WTF is this here? Why call pipeline twice?!
+            // TODO: (mg) (pricing) WTF is this here? Why call pipeline twice?!
             calculationContext.Options.IgnoreDiscounts = true;
             var priceWithoutDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
