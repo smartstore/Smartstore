@@ -27,8 +27,10 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public bool BundleItemShowBasePrice { get; set; }
 
-        // TODO: (mh) (pricing) Rename to ShowSavingBadgeInLists
-        public bool ShowDiscountSign { get; set; } = true;
+        /// <summary>
+        /// Gets or sets a value indicating whether to show savings badge in product lists
+        /// </summary>
+        public bool ShowSavingBadgeInLists { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the price display type for prices in product lists

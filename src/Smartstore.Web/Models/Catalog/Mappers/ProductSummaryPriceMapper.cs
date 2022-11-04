@@ -12,7 +12,7 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
         protected override Task<bool> MapCoreAsync(CalculatedPrice price, SummaryPriceModel model, dynamic parameters = null)
         {
-            if (_priceSettings.ShowDiscountSign && price.Saving.HasSaving)
+            if (_priceSettings.ShowSavingBadgeInLists && price.Saving.HasSaving)
             {
                 model.Badges.Add(new PriceBadgeModel
                 {

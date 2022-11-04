@@ -115,6 +115,11 @@ namespace Smartstore.Core.Data.Migrations
 
             foreach (var setting in sourceSettings)
             {
+                if (propName == "ShowDiscountSign")
+                {
+                    propName = "ShowSavingBadgeInLists";
+                }
+
                 db.Settings.Add(new Setting { Name = $"PriceSettings.{propName}", Value = setting.Value, StoreId = setting.StoreId });
             }
 
@@ -224,7 +229,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.Delete("Admin.Configuration.Settings.Catalog.ShowDiscountSign");
             builder.Delete("Admin.Configuration.Settings.Catalog.ShowDiscountSign.Hint");
-            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowDiscountSign",
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowSavingBadgeInLists",
                 "Show discount sign",
                 "Rabattzeichen anzeigen",
                 "Specifies whether a badge with a discount sign should be displayed on the product image in product lists when discounts have been applied.",

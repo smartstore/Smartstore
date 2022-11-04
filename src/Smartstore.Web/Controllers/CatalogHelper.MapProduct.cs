@@ -183,7 +183,7 @@ namespace Smartstore.Web.Controllers
                     WishlistEnabled = _services.Permissions.Authorize(Permissions.Cart.AccessWishlist),
                     BuyEnabled = !_catalogSettings.HideBuyButtonInLists,
                     ThumbSize = settings.ThumbnailSize,
-                    ShowDiscountBadge = _priceSettings.ShowDiscountSign,
+                    ShowDiscountBadge = _priceSettings.ShowSavingBadgeInLists,
                     ShowNewBadge = _catalogSettings.LabelAsNewForMaxDays.HasValue,
                     DeliveryTimesPresentation = settings.DeliveryTimesPresentation,
                 };

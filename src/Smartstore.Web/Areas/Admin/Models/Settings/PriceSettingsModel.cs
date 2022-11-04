@@ -19,8 +19,8 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*BundleItemShowBasePrice")]
         public bool BundleItemShowBasePrice { get; set; }
 
-        [LocalizedDisplay("*ShowDiscountSign")]
-        public bool ShowDiscountSign { get; set; }
+        [LocalizedDisplay("*ShowSavingBadgeInLists")]
+        public bool ShowSavingBadgeInLists { get; set; }
 
         [LocalizedDisplay("*PriceDisplayType")]
         public PriceDisplayType PriceDisplayType { get; set; }
