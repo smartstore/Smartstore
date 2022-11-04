@@ -110,27 +110,27 @@ namespace Smartstore.Core.Data.Migrations
                 "Bitte beachten Sie, dass der Einsatz von Google Fonts ohne lokale Einbindung laut Urteil vom LG München (20.01.2022, Az. 3 O 17493/20) gegen die DSGVO verstößt. Bitte informieren Sie sich über die aktuelle Rechtslage, bevor Sie Web Fonts einsetzen. Smartstore übernimmt keinerlei Haftung.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.SetDefaultComparePriceLabel",
-                "Set as default compare price label",
-                "Als Standard Label für den Vergleichspreis festlegen");
+                "Make default for compare price",
+                "Ist Standard für Vergleichspreis");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.SetDefaultRegularPriceLabel",
-                "Set as default regular price label",
-                "Als Standard Label für den regulären Preis festlegen");
+                "Make default for regular price",
+                "Ist Standard für regulären Streichpreis");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.IsDefaultComparePriceLabel",
-                "Default for compare price label",
-                "Standard Label für den Vergleichspreis");
+                "Is compare price default",
+                "Ist Standard für Vergleichspreis");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.IsDefaultRegularPriceLabel",
-                "Default for regular price label",
-                "Standard Label für den regulären Preis");
+                "Is regular price default",
+                "Ist Standard für regulärer Preis");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.CantDeleteDefaultComparePriceLabel",
-                "Can't delete default label for compare price.",
+                "Cannot delete default label for compare price.",
                 "Das Standard Label für den Vergleichspreis kann nicht gelöscht werden.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.CantDeleteDefaultRegularPriceLabel",
-                "Can't delete default label for regular price.",
+                "Cannot delete default label for regular price.",
                 "Das Standard Label für den regulären Preis kann nicht gelöscht werden.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowOfferBadgeInLists",
