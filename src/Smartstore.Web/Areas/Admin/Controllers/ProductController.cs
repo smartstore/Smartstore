@@ -1727,7 +1727,7 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => new SelectListItem
                 {
                     Value = x.Id.ToString(),
-                    Text = x.GetLocalized(x => x.Name).Value.NullEmpty() ?? x.GetLocalized(x => x.ShortName),
+                    Text = x.GetLocalized(x => x.ShortName),
                     Selected = !setPredefinedValues && product != null && x.Id == product.ComparePriceLabelId.GetValueOrDefault()
                 })
                 .ToList();

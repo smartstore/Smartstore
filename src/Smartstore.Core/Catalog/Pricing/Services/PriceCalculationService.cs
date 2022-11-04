@@ -299,6 +299,7 @@ namespace Smartstore.Core.Catalog.Pricing
             // - RetailPrice is: ComparePrice, if > Price and Label = MSRP
             // - RegularPrice is: Special or Discount price, but not RetailPrice (see "Spickzettel" for details)
             // RE: this must be a mistake. How can a regular price be a special or discount price? Comparing to "Spickzettel" below GetRegularPrice looks OK to me.
+            // RE: (mc) Yes, mistake, sorry. I meant something like "Special/Discount price is FinalPrice". Below method seems ok.
             // - Saving refers to: RegularPrice. If no RegularPrice exists, then to RetailPrice.
             // - ValidUntilUtc is: Either SpecialPriceEndDate or the applied discount's EndDate.
 
@@ -322,6 +323,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 RegularPrice = ConvertAmount(regularPrice, context, taxRate, false, out _),
                 RegularPriceLabel = regularPrice.HasValue ? _priceLabelService.GetRegularPriceLabel(product) : null,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
+                // TODO: (mg) (pricing) But a discount has higher prio than the offer, doesn't it? TBD with MC.
                 ValidUntilUtc = context.OfferEndDateUtc ?? context.AppliedDiscounts.Select(x => x.EndDateUtc).FirstOrDefault(x => x.HasValue),
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
                 LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
@@ -350,6 +352,7 @@ namespace Smartstore.Core.Catalog.Pricing
             // Retail price.
             if (product.ComparePrice > product.Price && (regularPrice == null || product.ComparePrice != regularPrice))
             {
+                // TODO: (mg) (pricing) Collision detection missing (both labels are same)?
                 var comparePriceLabel = _priceLabelService.GetComparePriceLabel(product);
                 if (comparePriceLabel.IsRetailPrice)
                 {

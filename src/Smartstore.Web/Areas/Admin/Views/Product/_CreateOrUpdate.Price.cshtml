@@ -25,6 +25,7 @@
                 <smart-label asp-for="ComparePriceLabelId" />
             </div>
             <div class="adminData">
+                @* TODO: (mg) (pricing) Display system default label's short name as placeholder' *@
                 <select asp-for="ComparePriceLabelId" asp-items="ViewBag.PriceLabels" asp-placeholder="@T("Common.Unspecified")"></select>
                 <span asp-validation-for="ComparePriceLabelId"></span>
             </div>
