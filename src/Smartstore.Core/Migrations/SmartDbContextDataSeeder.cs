@@ -124,6 +124,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.IsDefaultRegularPriceLabel",
                 "Default for regular price label",
                 "Standard Label für den regulären Preis");
+
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.CantDeleteDefaultComparePriceLabel",
+                "Can't delete default label for compare price.",
+                "Das Standard Label für den Vergleichspreis kann nicht gelöscht werden.");
+
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.CantDeleteDefaultRegularPriceLabel",
+                "Can't delete default label for regular price.",
+                "Das Standard Label für den regulären Preis kann nicht gelöscht werden.");
         }
     }
 }

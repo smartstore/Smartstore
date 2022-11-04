@@ -183,9 +183,9 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost, LoadSetting]
+        [HttpPost, LoadSetting, SaveSetting]
         [Permission(Permissions.Configuration.PriceLabel.Update)]
-        public async Task<IActionResult> SetDefault(int id, string type, PriceSettings priceSettings)
+        public IActionResult SetDefault(int id, string type, PriceSettings priceSettings)
         {
             Guard.NotZero(id, nameof(id));
 
@@ -198,8 +198,6 @@ namespace Smartstore.Admin.Controllers
                 priceSettings.DefaultRegularPriceLabelId = id;
             }
             
-            await _db.SaveChangesAsync();
-
             return Json(new { Success = true });
         }
 

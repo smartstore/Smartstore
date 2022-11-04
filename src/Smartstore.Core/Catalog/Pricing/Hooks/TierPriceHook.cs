@@ -24,7 +24,7 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             // Process products that have assigned tier prices.
             var addedTierPrices = entries
-                .Where(x => x.State == Smartstore.Data.EntityState.Added)
+                .Where(x => x.State == EntityState.Added)
                 .Select(x => x.Entity)
                 .OfType<TierPrice>()
                 .ToList();
@@ -43,7 +43,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             // Process products that have not assigned tier prices.
             var deletedTierPrices = entries
-                .Where(x => x.State == Smartstore.Data.EntityState.Deleted)
+                .Where(x => x.State == EntityState.Deleted)
                 .Select(x => x.Entity)
                 .OfType<TierPrice>()
                 .ToList();
