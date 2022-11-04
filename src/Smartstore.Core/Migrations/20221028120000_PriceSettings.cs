@@ -227,8 +227,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowDiscountSign",
                 "Show discount sign",
                 "Rabattzeichen anzeigen",
-                "Specifies whether a discount sign should be displayed on product pictures when discounts were applied.",
-                "Legt fest, ob ein Rabattzeichen auf dem Produktbild angezeigt werden soll, wenn Rabatte angewendet wurden.");
+                "Specifies whether a badge with a discount sign should be displayed on the product image in product lists when discounts have been applied.",
+                "Legt fest, ob ein Badge mit Rabattzeichen auf dem Produktbild in Produktlisten angezeigt werden soll, wenn Rabatte angewendet wurden.");
 
             builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayType");
             builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayType.Hint");

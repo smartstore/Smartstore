@@ -635,6 +635,12 @@ namespace Smartstore.Core.Installation
             {
                 priceSettings.OfferBadgeLabel = "Deal";
                 priceSettings.LimitedOfferBadgeLabel = "Limited time deal";
+
+                var msrpPriceLabel = _db.PriceLabels.FirstOrDefault(x => x.ShortName == "MSRP" || x.ShortName == "UVP") ?? _db.PriceLabels.First();
+                var lowestPriceLabel = _db.PriceLabels.FirstOrDefault(x => x.ShortName == "Lowest" || x.ShortName == "Niedrigster") ?? _db.PriceLabels.First();
+
+                priceSettings.DefaultComparePriceLabelId = msrpPriceLabel.Id;
+                priceSettings.DefaultRegularPriceLabelId = lowestPriceLabel.Id;
             }
 
             Alter(settings);
