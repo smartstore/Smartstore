@@ -1314,6 +1314,7 @@ namespace Smartstore.Web.Controllers
             model.BundlePerItemShoppingCart = product.BundlePerItemShoppingCart;
 
             var basePricePricingOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
+            basePricePricingOptions.TaxFormat = null;
             model.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(product, basePricePricingOptions);
 
             var taxDisplayType = await _services.WorkContext.GetTaxDisplayTypeAsync(customer, store.Id);

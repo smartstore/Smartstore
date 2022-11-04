@@ -2,10 +2,10 @@
 
 $pd-offer-bg:                   $product-detail-addtocart-box-bg;
 $pd-price-color:                $product-price-color;
-$pd-price-offer-color:          $body-color; // $danger;
+$pd-price-offer-color:          $product-price-color;
 $pd-line-height:                1.3;
 
-$pd-offer-muted-color:          mix($body-color, $pd-offer-bg, 50%);
+$pd-offer-muted-color:          mix($body-color, $pd-offer-bg, 72%);
 $pd-offer-spacing:              $grid-gutter-width / 2;
 
 //
@@ -26,6 +26,11 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-data-col {
     // turn off flex 'cause of carousel
     display: block !important;
+}
+
+.pd-data-col-inner {
+    position: sticky;
+    top: 4px;
 }
 
 .pd-group {
@@ -49,11 +54,6 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 // Gallery
 // =====================================================
-
-.pd-data-col-inner {
-    position: sticky;
-    top: 4px;
-}
 
 .pd-picture {
     display: block;
@@ -174,6 +174,9 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     line-height: $pd-line-height;
     width: 100%;
     border-radius: $border-radius;
+    --pd-finalprice-color: #{$pd-price-color};
+    --pd-finalprice-offer-color: #{$pd-price-offer-color};
+    --pd-offer-muted-color: #{$pd-offer-muted-color};
 }
 
 .row.pd-offer-actions {
@@ -260,11 +263,6 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     font-size: 1.2rem;
 }
 
-.pd-legalinfo {
-    font-size: $font-size-sm;
-}
-
-
 .pd-finalprice {
     display: flex;
     align-items: center;
@@ -273,8 +271,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-finalprice-amount {
     font-size: 1.8rem;
     font-weight: $font-weight-medium;
-    color: $pd-price-color;
+    color: var(--pd-finalprice-color);
     margin-right: 0.75rem;
+
+    .pd-finalprice-offer & {
+        color: var(--pd-finalprice-offer-color);
+    }
 }
 
 .pd-offer-countdown {
@@ -289,11 +291,17 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .pd-promoprice-line {
     display: flex;
+    color: var(--pd-offer-muted-color);
 }
 
 .pd-promoprice {
     display: inline-block;
     text-decoration: line-through;
+}
+
+.pd-promoprice-tip {
+    padding-left: 0.5rem;
+    color: $gray-600 !important;
 }
 
 .pd-promosaving {
@@ -302,6 +310,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .pd-promosaving-percent {
     margin-left: 6px;
+}
+
+.pd-pangv,
+.pd-legalinfo {
+    color: var(--pd-offer-muted-color);
+    font-size: $font-size-sm;
 }
 
 
@@ -468,16 +482,23 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     max-width: 100%;
     @include text-truncate();
 }
+
 .delivery-time .delivery-time-status {
     font-size: 0.85em;
     padding-right: 0.2rem;
     margin-left: 0.025rem;
 }
+
 .pd-offer .delivery-date-block {
     padding-top: 0.5rem;
 }
+
 .delivery-date > b {
     font-weight: $font-weight-medium;
+}
+
+.deliverytime-label {
+    color: var(--pd-offer-muted-color);
 }
 
 

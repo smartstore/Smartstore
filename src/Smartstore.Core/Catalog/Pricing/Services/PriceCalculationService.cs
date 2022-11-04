@@ -247,6 +247,8 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             var basePrice = Convert.ToDecimal((price / product.BasePriceAmount) * product.BasePriceBaseAmount);
+            // TODO: (mg) (pricing) Does not respect Money.PostFormat. Always appends tax format, even if not desired.
+            //  See CatalogHelper.PrepareProductPropertiesModelAsync() --> basePricePricingOptions.TaxFormat = null;
             var basePriceAmount = _taxService.ApplyTaxFormat(
                 new Money(basePrice, targetCurrency ?? _workContext.WorkingCurrency),
                 includePackageContentPerUnit ? null : false,

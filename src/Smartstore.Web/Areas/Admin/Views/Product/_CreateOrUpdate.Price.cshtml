@@ -18,10 +18,11 @@
             <div class="adminData">
                 <div class="row xs-gutters">
                     <div class="col-auto" style="width: 200px">
-                        <select asp-for="ComparePriceLabelId" asp-items="ViewBag.PriceLabels" asp-placeholder="@ViewBag.DefaultComparePriceLabelName"></select>
+                        <editor asp-for="ComparePrice" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
                     </div>
                     <div class="col">
-                        <editor asp-for="ComparePrice" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                        
+                        <select asp-for="ComparePriceLabelId" asp-items="ViewBag.PriceLabels" asp-placeholder="@ViewBag.DefaultComparePriceLabelName"></select>
                     </div>
                 </div>
 
@@ -41,7 +42,7 @@
                     <div class="col">
                         <div class="row xs-gutters align-items-center">
                             <div class="col">
-                                <editor asp-for="SpecialPriceStartDateTimeUtc" placeholder="@T("Common.From")" />
+                                <editor asp-for="SpecialPriceStartDateTimeUtc" placeholder="@T("Common.From")" title="Yodele" />
                                 <span asp-validation-for="SpecialPriceStartDateTimeUtc"></span>
                             </div>
                             <div class="col">

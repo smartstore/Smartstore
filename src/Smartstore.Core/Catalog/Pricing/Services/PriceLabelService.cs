@@ -89,7 +89,7 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(price, nameof(price));
             
-            if (!price.Saving.HasSaving)
+            if (!price.Saving.HasSaving || price.RegularPrice == null)
             {
                 return (null, null);
             }
