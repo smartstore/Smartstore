@@ -49,13 +49,15 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// The retail unit price (MSRP) of the input <see cref="Product"/>.
-        /// A retail price is given if <see cref="Product.ComparePrice"/> is not null
-        /// and 'Product.ComparePriceLabelId' referes to an MSRP label.
+        /// A retail price is given if <see cref="Product.ComparePrice"/> is not 0
+        /// and <see cref="Product.ComparePriceLabelId"/> referes to an MSRP label.
         /// </summary>
-        //// TODO: (mg) (pricing) Implement
         public Money? RetailPrice { get; set; }
 
-        //// TODO: (mg) (pricing) Implement
+        /// <summary>
+        /// The retail price label if the <see cref="Product.ComparePrice"/> is not 0
+        /// and <see cref="Product.ComparePriceLabelId"/> referes to an MSRP label.
+        /// </summary>
         public PriceLabel? RetailPriceLabel { get; set; }
 
         /// <summary>
@@ -72,7 +74,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// The date until <see cref="FinalPrice"/> is valid.
         /// </summary>
-        // TODO: (mg) (pricing) CalculatedPrice.ValidUntilUtc must also respect applied discount's end date, not just SpecialPriceEndDate.
         public DateTime? ValidUntilUtc { get; set; }
 
         /// <summary>

@@ -20,6 +20,15 @@
                 <span asp-validation-for="ComparePrice"></span>
             </div>
         </div>
+        <div id="pnlComparePriceLabelId" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ComparePriceLabelId" />
+            </div>
+            <div class="adminData">
+                <select asp-for="ComparePriceLabelId" asp-items="ViewBag.PriceLabels" asp-placeholder="@T("Common.Unspecified")"></select>
+                <span asp-validation-for="ComparePriceLabelId"></span>
+            </div>
+        </div>
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="ProductCost" />
@@ -201,7 +210,13 @@
 </div>
 
 <script>
-	$(function () {
+    $(function () {
+
+        $('#@(Html.IdFor(x => x.ComparePrice))').change(function () {
+            console.log(parseFloat($(this).val()));
+            $('#pnlComparePriceLabelId').toggle(parseFloat($(this).val()) != 0);
+        }).trigger('change');
+
 		var fieldBasePriceMeasureUnit = $("#@Html.IdFor(model => model.BasePriceMeasureUnit)");
         var fieldBasePriceAmount = $("#@Html.IdFor(model => model.BasePriceAmount)");
         var fieldBasePriceBaseAmount = $("#@Html.IdFor(model => model.BasePriceBaseAmount)");

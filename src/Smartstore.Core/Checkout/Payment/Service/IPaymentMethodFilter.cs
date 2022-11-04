@@ -24,7 +24,7 @@ namespace Smartstore.Core.Checkout.Payment
         public Provider<IPaymentMethod> PaymentMethod { get; set; }
 
         /// <summary>
-        /// The context shopping cart.
+        /// The context shopping cart. Can be <c>null</c>.
         /// </summary>
         public ShoppingCart Cart { get; set; }
 

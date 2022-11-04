@@ -39,17 +39,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public decimal FinalPrice { get; set; }
 
         /// <summary>
-        /// The regular price of the product,
-        /// usually <see cref="Product.Price"/>, <see cref="Product.ComparePrice"/> or <see cref="Product.SpecialPrice"/>.
-        /// </summary>
-        public decimal? RegularPrice { get; set; }
-
-        /// <summary>
-        /// The retail unit price (MSRP) of the product.
-        /// </summary>
-        public decimal? RetailPrice { get; set; }
-
-        /// <summary>
         /// A value indicating whether the price has a range, which is mostly the case if the lowest price
         /// was determined or any tier price was applied.
         /// </summary>
@@ -112,8 +101,6 @@ namespace Smartstore.Core.Catalog.Pricing
             Guard.NotNull(target, nameof(target));
 
             target.Product = Product;
-            target.RegularPrice = RegularPrice;
-            target.RetailPrice = RetailPrice;
             target.FinalPrice = FinalPrice;
             target.HasPriceRange = HasPriceRange;
             target.OfferPrice = OfferPrice;

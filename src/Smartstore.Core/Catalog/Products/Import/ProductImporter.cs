@@ -414,6 +414,7 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.CallForPrice);
                 row.SetProperty(context.Result, (x) => x.Price);
                 row.SetProperty(context.Result, (x) => x.ComparePrice);
+                row.SetProperty(context.Result, (x) => x.ComparePriceLabelId);
                 row.SetProperty(context.Result, (x) => x.ProductCost);
                 row.SetProperty(context.Result, (x) => x.SpecialPrice);
                 row.SetProperty(context.Result, (x) => x.SpecialPriceStartDateTimeUtc);

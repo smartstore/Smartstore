@@ -1522,6 +1522,8 @@ namespace Smartstore.Web.Controllers
             // INFO: original code difference. Adjustments of priceWithoutDiscount were calculated with quantity of 1. Why? Makes little sense to me.
             // Be careful, options are shallow copied! 'calculationOptions.IgnoreDiscounts = true' would not work.
             // TODO: (mg) (pricing) WTF is this here? Why call pipeline twice?!
+            // RE: it's ported classic code, where the price without any discounts was used as regular price. Obsolete because CalculatedPrice.RegularPrice
+            // is now the regular price. Actually, this should have been removed\resolved when creating the pricing pipeline (to avoid exactly this second CalculatePriceAsync call).
             calculationContext.Options.IgnoreDiscounts = true;
             var priceWithoutDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 

@@ -36,6 +36,7 @@ namespace Smartstore.Core.Catalog.Products
                     softDeletedProduct.DeliveryTimeId = null;
                     softDeletedProduct.QuantityUnitId = null;
                     softDeletedProduct.CountryOfOriginId = null;
+                    softDeletedProduct.ComparePriceLabelId = null;
                 }
 
                 await _db.SaveChangesAsync(cancelToken);

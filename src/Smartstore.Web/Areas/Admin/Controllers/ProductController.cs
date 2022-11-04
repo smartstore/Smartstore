@@ -1718,6 +1718,20 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.AvailableCountries = countries.ToSelectListItems(product?.CountryOfOriginId ?? 0);
 
+            var priceLabels = await _db.PriceLabels
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            ViewBag.PriceLabels = priceLabels
+                .Select(x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.GetLocalized(x => x.Name).Value.NullEmpty() ?? x.GetLocalized(x => x.ShortName),
+                    Selected = !setPredefinedValues && product != null && x.Id == product.ComparePriceLabelId.GetValueOrDefault()
+                })
+                .ToList();
+
             if (setPredefinedValues)
             {
                 // TODO: These should be hidden settings.
@@ -2093,6 +2107,7 @@ namespace Smartstore.Admin.Controllers
 
             p.Price = m.Price;
             p.ComparePrice = m.ComparePrice ?? 0;
+            p.ComparePriceLabelId = m.ComparePriceLabelId == 0 ? null : m.ComparePriceLabelId;
             p.ProductCost = m.ProductCost ?? 0;
             p.SpecialPrice = m.SpecialPrice;
 

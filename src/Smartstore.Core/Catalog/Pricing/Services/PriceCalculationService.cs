@@ -295,7 +295,15 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             product ??= context.Product;
 
+            // Here are the rules:
+            // - RetailPrice is: ComparePrice, if > Price and Label = MSRP
+            // - RegularPrice is: Special or Discount price, but not RetailPrice (see "Spickzettel" for details)
+            // RE: this must be a mistake. How can a regular price be a special or discount price? Comparing to "Spickzettel" below GetRegularPrice looks OK to me.
+            // - Saving refers to: RegularPrice. If no RegularPrice exists, then to RetailPrice.
+            // - ValidUntilUtc is: Either SpecialPriceEndDate or the applied discount's EndDate.
+
             var options = context.Options;
+            var regularPrice = GetRegularPrice(context);
 
             // Calculate the subtotal price instead of the unit price.
             if (subtotalQuantity > 1 && context.FinalPrice > 0)
@@ -311,19 +319,16 @@ namespace Smartstore.Core.Catalog.Pricing
             var result = new CalculatedPrice(context)
             {
                 Product = product,
-                RegularPrice = ConvertAmount(context.RegularPrice, context, taxRate, false, out _),
-                RegularPriceLabel = context.RegularPrice.HasValue ? _priceLabelService.GetRegularPriceLabel(product) : null,
-                RetailPrice = ConvertAmount(context.RetailPrice, context, taxRate, false, out _),
-                // TODO: (mg) (pricing) Hide/show RetailPrice according to settings and "Spickzettel"
-                RetailPriceLabel = context.RetailPrice.HasValue ? _priceLabelService.GetComparePriceLabel(product) : null,
+                RegularPrice = ConvertAmount(regularPrice, context, taxRate, false, out _),
+                RegularPriceLabel = regularPrice.HasValue ? _priceLabelService.GetRegularPriceLabel(product) : null,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
-                ValidUntilUtc = context.OfferEndDateUtc,
+                ValidUntilUtc = context.OfferEndDateUtc ?? context.AppliedDiscounts.Select(x => x.EndDateUtc).FirstOrDefault(x => x.HasValue),
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
                 LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
                 DiscountAmount = ConvertAmount(context.DiscountAmount, context, taxRate, false, out _).Value,
                 FinalPrice = ConvertAmount(context.FinalPrice, context, taxRate, true, out var tax).Value,
                 Tax = tax
-            };
+            };            
 
             if (tax.HasValue && _primaryCurrency != options.TargetCurrency)
             {
@@ -342,14 +347,26 @@ namespace Smartstore.Core.Catalog.Pricing
             // Convert attribute price adjustments.
             context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
 
-            // Calculate price saving.
+            // Retail price.
+            if (product.ComparePrice > product.Price && (regularPrice == null || product.ComparePrice != regularPrice))
+            {
+                var comparePriceLabel = _priceLabelService.GetComparePriceLabel(product);
+                if (comparePriceLabel.IsRetailPrice)
+                {
+                    result.RetailPriceLabel = comparePriceLabel;
+                    result.RetailPrice = ConvertAmount(product.ComparePrice, context, taxRate, false, out _);
+                }
+            }
+
+            // Saving price.
             // TODO: (mg) (core) find a way to avoid differing percentage discount in product lists and detail page.
-            var priceWithoutDiscount = result.FinalPrice + result.DiscountAmount;
+            //var priceWithoutDiscount = result.FinalPrice + result.DiscountAmount;
 
-            var savingPrice = result.FinalPrice < priceWithoutDiscount
-                ? priceWithoutDiscount
-                : ConvertAmount(product.ComparePrice, context, taxRate, false, out _).Value;
+            //var savingPrice = result.FinalPrice < priceWithoutDiscount
+            //    ? priceWithoutDiscount
+            //    : ConvertAmount(product.ComparePrice, context, taxRate, false, out _).Value;
 
+            var savingPrice = result.RegularPrice ?? result.RetailPrice ?? Money.Zero;
             var hasSaving = savingPrice > 0 && result.FinalPrice < savingPrice;
 
             result.Saving = new PriceSaving
@@ -376,6 +393,57 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             return result;
+        }
+
+        private static decimal? GetRegularPrice(CalculatorContext context)
+        {
+            var product = context.Product;
+
+            if (context.DiscountAmount > 0)
+            {
+                if (context.OfferPrice.HasValue)
+                {
+                    if (product.ComparePrice > 0)
+                    {
+                        return Math.Min(context.OfferPrice.Value, product.ComparePrice);
+                    }
+                    else
+                    {
+                        return Math.Min(context.OfferPrice.Value, product.Price);
+                    }
+                }
+                else
+                {
+                    if (product.ComparePrice > 0)
+                    {
+                        return Math.Min(product.Price, product.ComparePrice);
+                    }
+                    else
+                    {
+                        return product.Price;
+                    }
+                }
+            }
+
+            if (context.OfferPrice.HasValue)
+            {
+                if (product.ComparePrice > 0)
+                {
+                    // PAngV: "Price" would not be allowed if greater than "ComparePrice".
+                    return Math.Min(product.Price, product.ComparePrice);
+                }
+                else
+                {
+                    return product.Price;
+                }
+            }
+
+            if (product.ComparePrice > product.Price)
+            {
+                return product.ComparePrice;
+            }
+
+            return null;
         }
 
         private Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)
