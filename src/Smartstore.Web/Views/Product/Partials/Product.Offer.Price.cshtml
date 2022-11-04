@@ -87,24 +87,30 @@
             <!-- NEW price group -->
             <div class="pd-price-group mb-3 x-d-none">
 
-                @* Final price *@
-                <div class="pd-finalprice">
-                    <meta sm-if="!isBundleItem" itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />
+                @* Promo badges *@
+                <div sm-if="priceModel2.Badges.Count > 0" class="pd-promobadges">
                     @foreach (var badge in priceModel2.Badges.OrderBy(x => x.DisplayOrder))
                     {
                         <span class="badge badge-@badge.Style">@badge.Label</span>
                     }
-                    <div class="pd-price" attr-class='(priceModel2.Saving.HasSaving, "pd-price-offer")'>
-                        <meta sm-if="!priceModel2.CallForPrice && !isBundleItem" itemprop="price" content="@priceModel2.FinalPrice" />
-                        <span>
-                            @Html.Raw(priceModel2.FinalPrice)
-                        </span>
-                        @* TODO: (mc) (pricing) Render offer countdown *@
-                    </div>
                 </div>
 
+                @* Final price *@
+                <div class="pd-finalprice" attr-class='(priceModel2.Saving.HasSaving, "pd-finalprice-offer")'>
+                    <meta itemprop="priceCurrency" sm-if="!isBundleItem" content="@WorkContext.WorkingCurrency.CurrencyCode" />
+                    <meta itemprop="price" sm-if="!priceModel2.CallForPrice && !isBundleItem" content="@priceModel2.FinalPrice.RoundedAmount.ToStringInvariant()" />
+                    <meta itemprop="priceValidUntil" sm-if="priceModel2.ValidUntilUtc.HasValue" content="@priceModel2.ValidUntilUtc.Value.ToString("u")" />
+                    <span class="pd-finalprice-amount">
+                        @Html.Raw(priceModel2.FinalPrice)
+                    </span>
+                    <span sm-if="priceModel2.CountdownText != null" class="pd-offer-countdown">
+                        @Html.Raw(priceModel2.CountdownText)
+                    </span>
+                </div>
+
+                @* Compare prices *@
                 <div sm-if="priceModel2.RegularPrice != null || priceModel2.RetailPrice != null" class="pd-promoprice-group">
-                    @{ 
+                    @{
                         // Regular price
                         await RenderPromoPriceLine(priceModel2.RegularPrice);
 
@@ -112,12 +118,13 @@
                         await RenderPromoPriceLine(priceModel2.RetailPrice);
                     }
 
-                    <!-- You save -->
+                    @* You save *@
                     <div sm-if="priceModel2.Saving.SavingAmount.HasValue" class="pd-promoprice-line">
                         <span class="pd-promoprice-label">@T("ShoppingCart.ItemYouSave"):</span>
                         <span class="pd-promosaving pl-1 d-flex">
-                            <span>@priceModel2.Saving.SavingAmount.Value</span> 
-                            <span class="badge badge-danger pd-promosaving-percent">@T("Products.SavingBadgeLabel", priceModel2.Saving.SavingPercent.ToString("N0"))</span></span>
+                            <span>@priceModel2.Saving.SavingAmount.Value</span>
+                            <span class="badge badge-danger pd-promosaving-percent">@T("Products.SavingBadgeLabel", priceModel2.Saving.SavingPercent.ToString("N0"))</span>
+                        </span>
                     </div>
                 </div>
             </div>

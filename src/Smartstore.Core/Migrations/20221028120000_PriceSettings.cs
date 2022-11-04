@@ -148,10 +148,10 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.AlwaysDisplayRetailPrice",
                 "Always display retail price",
-                "Immer den UVP anzeigen",
+                "UVP immer anzeigen",
                 "If active, the MSRP will be displayed in product detail even if there is already an offer or a discount. " +
                 "In this case the MSRP will appear as another crossed out price alongside the discounted price.",
-                "Wenn aktiv, wird der UVP in den Produktdetails angezeigt, auch wenn es bereits eine Preisermäßigung gibt. " +
+                "Wenn aktiv, wird die unverbindliche Preisempfehlung (UVP) in den Produktdetails angezeigt, auch wenn es bereits eine Preisermäßigung gibt. " +
                 "In diesem Fall wird der UVP als weiterer durchgestrichener Preis angezeigt.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowOfferCountdownRemainingHours",

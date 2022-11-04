@@ -110,8 +110,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Bitte beachten Sie, dass der Einsatz von Google Fonts ohne lokale Einbindung laut Urteil vom LG München (20.01.2022, Az. 3 O 17493/20) gegen die DSGVO verstößt. Bitte informieren Sie sich über die aktuelle Rechtslage, bevor Sie Web Fonts einsetzen. Smartstore übernimmt keinerlei Haftung.");
 
             builder.AddOrUpdate("Products.Price.OfferCountdown",
-                "Ends in {0}",
-                "Endet in {0}");
+                "Ends in <b class=\"fwm\">{0}</b>",
+                "Endet in <b class=\"fwm\">{0}</b>");
         }
     }
 }

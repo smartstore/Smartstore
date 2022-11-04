@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Catalog
 {
@@ -52,7 +53,7 @@ namespace Smartstore.Web.Models.Catalog
         {
         }
 
-        public string CountdownText { get; set; }
+        public LocalizedString CountdownText { get; set; }
         public bool CustomerEntersPrice { get; set; }
         public bool HidePrices { get; set; }
         public bool ShowLoginNote { get; set; }

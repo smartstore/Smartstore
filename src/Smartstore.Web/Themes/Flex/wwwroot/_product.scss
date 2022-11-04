@@ -265,6 +265,23 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 
+.pd-finalprice {
+    display: flex;
+    align-items: center;
+}
+
+.pd-finalprice-amount {
+    font-size: 1.8rem;
+    font-weight: $font-weight-medium;
+    color: $pd-price-color;
+    margin-right: 0.75rem;
+}
+
+.pd-offer-countdown {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-normal;
+    color: $warning;
+}
 
 .pd-promoprice-group {
     font-size: $font-size-sm;

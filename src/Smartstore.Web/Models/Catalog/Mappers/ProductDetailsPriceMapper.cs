@@ -12,6 +12,8 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
         protected override Task MapCoreAsync(CalculatedPrice source, DetailsPriceModel model, dynamic parameters = null)
         {
+            model.CountdownText = _labelService.GetPromoCountdownText(source);
+            
             return Task.FromResult(model);
         }
 

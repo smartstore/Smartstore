@@ -43,8 +43,6 @@
         }
     }
 
-    <meta sm-if="Model.ProductPrice.PriceValidUntilUtc.HasValue()" itemprop="priceValidUntil" content="@Model.ProductPrice.PriceValidUntilUtc" />
-
     <div class="pd-stock-info-container" data-partial="Stock">
         <partial name="Product.StockInfo" model="Model" />
     </div>
