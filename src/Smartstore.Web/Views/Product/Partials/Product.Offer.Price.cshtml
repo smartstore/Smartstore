@@ -99,7 +99,10 @@
                 <div class="pd-finalprice" attr-class='(priceModel2.Saving.HasSaving, "pd-finalprice-offer")'>
                     <meta itemprop="priceCurrency" sm-if="!isBundleItem" content="@WorkContext.WorkingCurrency.CurrencyCode" />
                     <meta itemprop="price" sm-if="!priceModel2.CallForPrice && !isBundleItem" content="@priceModel2.FinalPrice.RoundedAmount.ToStringInvariant()" />
-                    <meta itemprop="priceValidUntil" sm-if="priceModel2.ValidUntilUtc.HasValue" content="@priceModel2.ValidUntilUtc.Value.ToString("u")" />
+                    @if (priceModel2.ValidUntilUtc.HasValue)
+                    {
+                        <meta itemprop="priceValidUntil" content="@priceModel2.ValidUntilUtc.Value.ToString("u")" />
+                    }
                     <span class="pd-finalprice-amount">
                         @Html.Raw(priceModel2.FinalPrice)
                     </span>
