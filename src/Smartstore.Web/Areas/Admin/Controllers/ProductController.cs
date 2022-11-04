@@ -49,6 +49,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ICurrencyService _currencyService;
         private readonly IDiscountService _discountService;
+        private readonly IPriceLabelService _priceLabelService;
         private readonly Lazy<IProductCloner> _productCloner;
         private readonly Lazy<ICategoryService> _categoryService;
         private readonly Lazy<IManufacturerService> _manufacturerService;
@@ -82,6 +83,7 @@ namespace Smartstore.Admin.Controllers
             IDateTimeHelper dateTimeHelper,
             ICurrencyService currencyService,
             IDiscountService discountService,
+            IPriceLabelService priceLabelService,
             Lazy<IProductCloner> productCloner,
             Lazy<ICategoryService> categoryService,
             Lazy<IManufacturerService> manufacturerService,
@@ -117,6 +119,7 @@ namespace Smartstore.Admin.Controllers
             _dateTimeHelper = dateTimeHelper;
             _currencyService = currencyService;
             _discountService = discountService;
+            _priceLabelService = priceLabelService;
             _productAttributeService = productAttributeService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _stockSubscriptionService = stockSubscriptionService;
@@ -1731,6 +1734,10 @@ namespace Smartstore.Admin.Controllers
                     Selected = !setPredefinedValues && product != null && x.Id == product.ComparePriceLabelId.GetValueOrDefault()
                 })
                 .ToList();
+
+            ViewBag.DefaultComparePriceLabelName = 
+                _priceLabelService.GetDefaultComparePriceLabel()?.GetLocalized(x => x.ShortName)?.Value ?? 
+                T("Common.Unspecified").Value;
 
             if (setPredefinedValues)
             {

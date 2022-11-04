@@ -3,7 +3,7 @@
 @{
     var id = "rule-value-" + Model.Id;
     var format = (Model.Descriptor.Metadata.Get("DateTimeFormat") as string).NullEmpty() ?? "L LT";
-    var iconClass = format == "LT" ? "fa-clock" : "fa-calendar-alt";
+    var iconClass = format == "LT" ? "fa-clock" : "fa-calendar";
 
     DateTime? value = null;
     if (Model.Value != null)

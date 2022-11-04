@@ -16,18 +16,51 @@
                 <smart-label asp-for="ComparePrice" />
             </div>
             <div class="adminData">
-                <editor asp-for="ComparePrice" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                <div class="row xs-gutters">
+                    <div class="col-auto" style="width: 200px">
+                        <select asp-for="ComparePriceLabelId" asp-items="ViewBag.PriceLabels" asp-placeholder="@ViewBag.DefaultComparePriceLabelName"></select>
+                    </div>
+                    <div class="col">
+                        <editor asp-for="ComparePrice" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                    </div>
+                </div>
+
                 <span asp-validation-for="ComparePrice"></span>
             </div>
         </div>
-        <div id="pnlComparePriceLabelId" class="adminRow">
+        <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="ComparePriceLabelId" />
+                <smart-label asp-for="SpecialPrice" />
             </div>
             <div class="adminData">
-                @* TODO: (mg) (pricing) Display system default label's short name as placeholder' *@
-                <select asp-for="ComparePriceLabelId" asp-items="ViewBag.PriceLabels" asp-placeholder="@T("Common.Unspecified")"></select>
-                <span asp-validation-for="ComparePriceLabelId"></span>
+                <div class="row xs-gutters">
+                    <div class="col-auto" style="width: 200px">
+                        <editor asp-for="SpecialPrice" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                        <span asp-validation-for="SpecialPrice"></span>
+                    </div>
+                    <div class="col">
+                        <div class="row xs-gutters align-items-center">
+                            <div class="col">
+                                <editor asp-for="SpecialPriceStartDateTimeUtc" placeholder="@T("Common.From")" />
+                                <span asp-validation-for="SpecialPriceStartDateTimeUtc"></span>
+                            </div>
+                            <div class="col">
+                                <editor asp-for="SpecialPriceEndDateTimeUtc" placeholder="@T("Common.To")" />
+                                <span asp-validation-for="SpecialPriceEndDateTimeUtc"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pnlPriceDiscounts" class="adminRow" attr-class='(Model.IsBundleWithItemPricing, "d-none")'>
+            <div class="adminTitle">
+                <smart-label asp-for="SelectedDiscountIds" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="SelectedDiscountIds" />
+                <span asp-validation-for="SelectedDiscountIds"></span>
             </div>
         </div>
         <div class="adminRow">
@@ -39,41 +72,8 @@
                 <span asp-validation-for="ProductCost"></span>
             </div>
         </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="SpecialPrice" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="SpecialPrice" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
-                <span asp-validation-for="SpecialPrice"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="SpecialPriceStartDateTimeUtc" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="SpecialPriceStartDateTimeUtc" />
-                <span asp-validation-for="SpecialPriceStartDateTimeUtc"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="SpecialPriceEndDateTimeUtc" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="SpecialPriceEndDateTimeUtc" />
-                <span asp-validation-for="SpecialPriceEndDateTimeUtc"></span>
-            </div>
-        </div>
-        <div id="pnlPriceDiscounts" class="adminRow" attr-class='(Model.IsBundleWithItemPricing, "d-none")'>
-            <div class="adminTitle">
-                <smart-label asp-for="SelectedDiscountIds" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="SelectedDiscountIds" />
-                <span asp-validation-for="SelectedDiscountIds"></span>
-            </div>
+        <div class="adminSeparator">
+            <hr />
         </div>
         <div class="adminRow">
             <div class="adminTitle">
@@ -212,11 +212,6 @@
 
 <script>
     $(function () {
-
-        $('#@(Html.IdFor(x => x.ComparePrice))').change(function () {
-            console.log(parseFloat($(this).val()));
-            $('#pnlComparePriceLabelId').toggle(parseFloat($(this).val()) != 0);
-        }).trigger('change');
 
 		var fieldBasePriceMeasureUnit = $("#@Html.IdFor(model => model.BasePriceMeasureUnit)");
         var fieldBasePriceAmount = $("#@Html.IdFor(model => model.BasePriceAmount)");
