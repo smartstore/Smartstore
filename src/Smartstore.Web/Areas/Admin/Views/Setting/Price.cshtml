@@ -158,6 +158,15 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="PriceSettings.ShowPriceLabelInLists" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="PriceSettings.ShowPriceLabelInLists" />
+            <span asp-validation-for="PriceSettings.ShowPriceLabelInLists"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="PriceSettings.ShowOfferCountdownRemainingHours" />
         </div>
         <div class="adminData">
@@ -243,6 +252,15 @@
                     <select asp-for="PriceSettings.LimitedOfferBadgeStyle" asp-items="ViewBag.LimitedOfferBadgeStyles"></select>
                 </setting-editor>
                 <span asp-validation-for="PriceSettings.LimitedOfferBadgeStyle"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PriceSettings.ShowOfferBadgeInLists" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PriceSettings.ShowOfferBadgeInLists" />
+                <span asp-validation-for="PriceSettings.ShowOfferBadgeInLists"></span>
             </div>
         </div>
     </div>

@@ -99,8 +99,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// If TRUE, displays a badge in product lists if an offer price is active.
         /// <see cref="ShowOfferBadge"/> must be TRUE for this to take effect.
-        /// </summary>
-        // TODO: (mh) (pricing) UI
+        /// </summary>  
         public bool ShowOfferBadgeInLists { get; set; } = true;
 
         /// <summary>
@@ -128,7 +127,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// If TRUE, displays the compare price label's short name in product lists.
         /// </summary>
-        // TODO: (mh) (pricing) UI
         public bool ShowPriceLabelInLists { get; set; } = true;
 
         // TBD: SavingDisplayStyle

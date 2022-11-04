@@ -132,6 +132,18 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.CantDeleteDefaultRegularPriceLabel",
                 "Can't delete default label for regular price.",
                 "Das Standard Label für den regulären Preis kann nicht gelöscht werden.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowOfferBadgeInLists",
+                "Show offer badge in lists",
+                "Angebots-Badge in Listen anzeigen",
+                "Specifies whether to display offer badge in product lists.",
+                "Bestimmt, ob Angebots-Badges in Produkt-Listen angezeigt werden.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowPriceLabelInLists",
+                "Show price label in lists",
+                "Zeige Preis-Label in Listen",
+                "Specifies whether the label of the compare price is displayed in product lists.",
+                "Bestimmt, ob das Label des Vergleichspreises in Produkt-Listen angezeigt wird.");
         }
     }
 }

@@ -51,25 +51,31 @@ namespace Smartstore.Admin.Models
         public bool OfferPriceReplacesRegularPrice { get; set; }
 
         [LocalizedDisplay("*AlwaysDisplayRetailPrice")]
-        public bool AlwaysDisplayRetailPrice { get; set; } = true;
+        public bool AlwaysDisplayRetailPrice { get; set; }
         
         [LocalizedDisplay("*ShowOfferCountdownRemainingHours")]
-        public int? ShowOfferCountdownRemainingHours { get; set; } = 72;
+        public int? ShowOfferCountdownRemainingHours { get; set; }
 
         [LocalizedDisplay("*ShowOfferBadge")]
-        public bool ShowOfferBadge { get; set; } = true;
+        public bool ShowOfferBadge { get; set; }
+
+        [LocalizedDisplay("*ShowOfferBadgeInLists")]
+        public bool ShowOfferBadgeInLists { get; set; }
 
         [LocalizedDisplay("*OfferBadgeLabel")]
         public string OfferBadgeLabel { get; set; }
 
         [LocalizedDisplay("*OfferBadgeStyle")]
-        public string OfferBadgeStyle { get; set; } = "dark";
+        public string OfferBadgeStyle { get; set; }
 
         [LocalizedDisplay("*LimitedOfferBadgeLabel")]
         public string LimitedOfferBadgeLabel { get; set; }
 
         [LocalizedDisplay("*LimitedOfferBadgeStyle")]
-        public string LimitedOfferBadgeStyle { get; set; } = "dark";
+        public string LimitedOfferBadgeStyle { get; set; }
+
+        [LocalizedDisplay("*ShowPriceLabelInLists")]
+        public bool ShowPriceLabelInLists { get; set; }
 
         #endregion
     }
