@@ -94,6 +94,9 @@ namespace Smartstore.Admin.Models.Discounts
         {
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.OfferBadgeLabel).MaximumLength(50);
+            RuleFor(x => x.ShowCountdownRemainingHours)
+                .GreaterThan(0)
+                .When(x => x.ShowCountdownRemainingHours != null);
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
 
@@ -285,5 +286,15 @@ namespace Smartstore.Admin.Models
 
         public PriceSettingsModel PriceSettings { get; set; } = new();
         public List<PriceSettingsLocalizedModel> Locales { get; set; } = new();
+    }
+
+    public partial class CatalogSettingsValidator : SettingModelValidator<CatalogSettingsModel, CatalogSettings>
+    {
+        public CatalogSettingsValidator()
+        {
+            RuleFor(x => x.PriceSettings.ShowOfferCountdownRemainingHours)
+                .GreaterThan(0)
+                .When(x => x.PriceSettings.ShowOfferCountdownRemainingHours != null);
+        }
     }
 }

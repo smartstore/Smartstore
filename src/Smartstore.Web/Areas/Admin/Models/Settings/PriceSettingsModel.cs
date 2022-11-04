@@ -53,7 +53,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*AlwaysDisplayRetailPrice")]
         public bool AlwaysDisplayRetailPrice { get; set; } = true;
         
-        // TODO: (mh) (pricing) Validation missing: must be positive if not null. Also applies to DiscountModel.
         [LocalizedDisplay("*ShowOfferCountdownRemainingHours")]
         public int? ShowOfferCountdownRemainingHours { get; set; } = 72;
 
