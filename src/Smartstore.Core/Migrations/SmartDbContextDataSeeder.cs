@@ -109,9 +109,21 @@ namespace Smartstore.Core.Data.Migrations
                 "Please note that the use of Google Fonts without local upload violates the EU GDPR according to a ruling of the LG Munich (20.01.2022, Az. 3 O 17493/20). Please inform yourself about the current legal situation before using web fonts. Smartstore is not liable for any possible consequences.",
                 "Bitte beachten Sie, dass der Einsatz von Google Fonts ohne lokale Einbindung laut Urteil vom LG München (20.01.2022, Az. 3 O 17493/20) gegen die DSGVO verstößt. Bitte informieren Sie sich über die aktuelle Rechtslage, bevor Sie Web Fonts einsetzen. Smartstore übernimmt keinerlei Haftung.");
 
-            builder.AddOrUpdate("Products.Price.OfferCountdown",
-                "Ends in <b class=\"fwm\">{0}</b>",
-                "Endet in <b class=\"fwm\">{0}</b>");
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.SetDefaultComparePriceLabel",
+                "Set as default compare price label",
+                "Als Standard Label für den Vergleichspreis festlegen");
+
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.SetDefaultRegularPriceLabel",
+                "Set as default regular price label",
+                "Als Standard Label für den regulären Preis festlegen");
+
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.IsDefaultComparePriceLabel",
+                "Default for compare price label",
+                "Standard Label für den Vergleichspreis");
+
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.IsDefaultRegularPriceLabel",
+                "Default for regular price label",
+                "Standard Label für den regulären Preis");
         }
     }
 }

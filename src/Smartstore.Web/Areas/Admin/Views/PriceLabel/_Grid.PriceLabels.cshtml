@@ -40,10 +40,19 @@
         <column for="IsRetailPrice" halign="center" />
         <column for="DisplayShortNameInLists" halign="center" />
         <column for="DisplayOrder" halign="center" />
+        <column for="IsDefaultComparePriceLabel" halign="center" visible="false" />
+        <column for="IsDefaultRegularPriceLabel" halign="center" visible="false" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-price-label" :data-key="item.row.Id">@T("Common.Edit")</a>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default-compare-price-label" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsDefaultComparePriceLabel }">
+            @T("Admin.Configuration.PriceLabel.SetDefaultComparePriceLabel")
+        </a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default-regular-price-label" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsDefaultRegularPriceLabel }">
+            @T("Admin.Configuration.PriceLabel.SetDefaultRegularPriceLabel")
+        </a>
     </row-commands>
 </datagrid>
 
@@ -63,6 +72,27 @@
             var id = $(this).data("key");
             var href = "@Url.Content("~/Admin/PriceLabel/EditPriceLabelPopup/")" + id + "?btnId=btnRefresh&formId=price-labels";
             openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-set-default-compare-price-label,.grid-set-default-regular-price-label', function (e) {
+            e.preventDefault();
+
+            var type = $(this).hasClass("grid-set-default-compare-price-label") ? "compare-price" : "regular-price";
+
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '@(Url.Action("SetDefault", "PriceLabel"))',
+                data: {
+                    "id": $(this).data("key"),
+                    "type": type
+                },
+                success: function () {
+                    window["price-label-grid"].$children[0].read();
+                }
+            });
+
             return false;
         });
 

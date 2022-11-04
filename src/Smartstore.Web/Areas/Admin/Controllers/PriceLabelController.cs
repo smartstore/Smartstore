@@ -4,7 +4,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Web.Models;
+using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -12,13 +12,11 @@ namespace Smartstore.Admin.Controllers
     public class PriceLabelController : AdminController
     {
         private readonly SmartDbContext _db;
-        //private readonly IPriceLabelService _priceLabelService;
         private readonly ILocalizedEntityService _localizedEntityService;
 
-        public PriceLabelController(SmartDbContext db, /*IPriceLabelService priceLabelService,*/ ILocalizedEntityService localizedEntityService)
+        public PriceLabelController(SmartDbContext db, ILocalizedEntityService localizedEntityService)
         {
             _db = db;
-            //_priceLabelService = priceLabelService;
             _localizedEntityService = localizedEntityService;
         }
 
@@ -183,6 +181,26 @@ namespace Smartstore.Admin.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost, LoadSetting]
+        [Permission(Permissions.Configuration.PriceLabel.Update)]
+        public async Task<IActionResult> SetDefault(int id, string type, PriceSettings priceSettings)
+        {
+            Guard.NotZero(id, nameof(id));
+
+            if (type == "compare-price")
+            {
+                priceSettings.DefaultComparePriceLabelId = id;
+            }
+            else
+            {
+                priceSettings.DefaultRegularPriceLabelId = id;
+            }
+            
+            await _db.SaveChangesAsync();
+
+            return Json(new { Success = true });
         }
 
         private async Task UpdateLocalesAsync(PriceLabel priceLabel, PriceLabelModel model)

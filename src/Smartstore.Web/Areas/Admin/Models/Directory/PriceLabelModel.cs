@@ -23,6 +23,11 @@ namespace Smartstore.Admin.Models.Common
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
+        [LocalizedDisplay("Admin.Configuration.PriceLabel.IsDefaultComparePriceLabel")]
+        public bool IsDefaultComparePriceLabel { get; set; } = false;
+
+        [LocalizedDisplay("Admin.Configuration.PriceLabel.IsDefaultRegularPriceLabel")]
+        public bool IsDefaultRegularPriceLabel { get; set; } = false;
         public List<PriceLabelLocalizedModel> Locales { get; set; } = new();
     }
 

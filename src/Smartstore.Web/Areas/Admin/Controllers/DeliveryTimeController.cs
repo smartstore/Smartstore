@@ -218,7 +218,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Measure.Update)]
+        [Permission(Permissions.Configuration.DeliveryTime.Update)]
         public async Task<IActionResult> SetDefault(int id)
         {
             Guard.NotZero(id, nameof(id));
