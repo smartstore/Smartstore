@@ -21,6 +21,16 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {
+            // TODO: (mg) (pricing)
+            // Your first approach was correct. There is nothing to calculate here, just post-processing,
+            // which shouldn't be done in a calculator, but in PriceCalculationService.CreateCalculatedPrice().
+            // Here are the rules:
+            // - RetailPrice is: ComparePrice, if > Price and Label = MSRP
+            // - RegularPrice is: Special or Discount price, but not RetailPrice (see "Spickzettel" for details)
+            // - Saving refers to: RegularPrice. If no RegularPrice exists, then to RetailPrice.
+            // - ValidUntilUtc is: Either SpecialPriceEndDate or the applied discount's EndDate.
+            // Remove this class when done.
+
             // Process the whole pipeline.
             await next(context);
 
