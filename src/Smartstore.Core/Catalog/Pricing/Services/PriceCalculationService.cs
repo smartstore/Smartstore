@@ -297,16 +297,7 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             product ??= context.Product;
 
-            // Here are the rules:
-            // - RetailPrice is: ComparePrice, if > Price and Label = MSRP
-            // - RegularPrice is: Special or Discount price, but not RetailPrice (see "Spickzettel" for details)
-            // RE: this must be a mistake. How can a regular price be a special or discount price? Comparing to "Spickzettel" below GetRegularPrice looks OK to me.
-            // RE: (mc) Yes, mistake, sorry. I meant something like "Special/Discount price is FinalPrice". Below method seems ok.
-            // - Saving refers to: RegularPrice. If no RegularPrice exists, then to RetailPrice.
-            // - ValidUntilUtc is: Either SpecialPriceEndDate or the applied discount's EndDate.
-
             var options = context.Options;
-            var regularPrice = GetRegularPrice(context);
 
             // Calculate the subtotal price instead of the unit price.
             if (subtotalQuantity > 1 && context.FinalPrice > 0)
@@ -322,8 +313,6 @@ namespace Smartstore.Core.Catalog.Pricing
             var result = new CalculatedPrice(context)
             {
                 Product = product,
-                RegularPrice = ConvertAmount(regularPrice, context, taxRate, false, out _),
-                RegularPriceLabel = regularPrice.HasValue ? _priceLabelService.GetRegularPriceLabel(product) : null,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
                 // TODO: (mg) (pricing) But a discount has higher prio than the offer, doesn't it? TBD with MC.
                 ValidUntilUtc = context.OfferEndDateUtc ?? context.AppliedDiscounts.Select(x => x.EndDateUtc).FirstOrDefault(x => x.HasValue),
@@ -351,17 +340,8 @@ namespace Smartstore.Core.Catalog.Pricing
             // Convert attribute price adjustments.
             context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
 
-            // Retail price.
-            if (product.ComparePrice > product.Price && (regularPrice == null || product.ComparePrice != regularPrice))
-            {
-                // TODO: (mg) (pricing) Collision detection missing (both labels are same)?
-                var comparePriceLabel = _priceLabelService.GetComparePriceLabel(product);
-                if (comparePriceLabel.IsRetailPrice)
-                {
-                    result.RetailPriceLabel = comparePriceLabel;
-                    result.RetailPrice = ConvertAmount(product.ComparePrice, context, taxRate, false, out _);
-                }
-            }
+            // Detect retail & regular price.
+            DetectComparePrices(context, result, taxRate);
 
             // Saving price.
             // TODO: (mg) (core) find a way to avoid differing percentage discount in product lists and detail page.
@@ -398,6 +378,42 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             return result;
+        }
+
+        private void DetectComparePrices(CalculatorContext context, CalculatedPrice result, TaxRate taxRate)
+        {
+            var product = result.Product;
+            var retailPrice = (decimal?)null;
+            var hasComparePrice = product.ComparePrice > 0;
+            var hasDiscount = context.DiscountAmount > 0 || (context.OfferPrice.HasValue && context.OfferPrice < product.Price);
+
+            PriceLabel comparePriceLabel = null;
+
+            if (hasComparePrice)
+            {
+                comparePriceLabel = _priceLabelService.GetComparePriceLabel(product);
+                if (comparePriceLabel.IsRetailPrice && product.ComparePrice > product.Price)
+                {
+                    retailPrice = product.ComparePrice;
+                    result.RetailPriceLabel = comparePriceLabel;
+                    result.RetailPrice = ConvertAmount(product.ComparePrice, context, taxRate, false, out _);
+                }
+            }
+
+            if (hasComparePrice && retailPrice == null && !hasDiscount)
+            {
+                // A compare price which is NOT the retail price is the regular price (if no discounts are present)
+                result.RegularPriceLabel = comparePriceLabel;
+                result.RegularPrice = ConvertAmount(product.ComparePrice, context, taxRate, false, out _);
+                return;
+            }
+
+            var regularPrice = GetRegularPrice(context);
+            if (regularPrice != null && regularPrice != retailPrice)
+            {
+                result.RegularPriceLabel = _priceLabelService.GetRegularPriceLabel(product);
+                result.RegularPrice = ConvertAmount(regularPrice, context, taxRate, false, out _);
+            }
         }
 
         private static decimal? GetRegularPrice(CalculatorContext context)

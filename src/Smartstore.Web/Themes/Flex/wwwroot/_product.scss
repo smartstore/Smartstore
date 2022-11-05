@@ -5,7 +5,7 @@ $pd-price-color:                $product-price-color;
 $pd-price-offer-color:          $product-price-color;
 $pd-line-height:                1.3;
 
-$pd-offer-muted-color:          mix($body-color, $pd-offer-bg, 72%);
+$pd-offer-muted-color:          mix($body-color, $pd-offer-bg, 76%);
 $pd-offer-spacing:              $grid-gutter-width / 2;
 
 //
@@ -490,7 +490,8 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-offer .delivery-date-block {
-    padding-top: 0.5rem;
+    // Looks bad
+    //padding-top: 0.5rem;
 }
 
 .delivery-date > b {

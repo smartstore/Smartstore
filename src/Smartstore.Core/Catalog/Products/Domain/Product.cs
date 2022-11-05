@@ -98,6 +98,7 @@ namespace Smartstore.Core.Catalog.Products
     [Index(nameof(Published), nameof(Id), nameof(Visibility), nameof(Deleted), nameof(IsSystemProduct), nameof(AvailableStartDateTimeUtc), nameof(AvailableEndDateTimeUtc), Name = "IX_SeekExport1")]
     [Index(nameof(Visibility), Name = "IX_Visibility")]
     [LocalizedEntity("Published and !Deleted")]
+    [DebuggerDisplay("{Id} - {Name}")]
     public partial class Product : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
         #region Static
