@@ -131,7 +131,10 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public bool ShowPriceLabelInLists { get; set; } = true;
 
-        // TBD: SavingDisplayStyle
+        /// <summary>
+        /// If TRUE, displays price saving even if the reference price is the retail price only.
+        /// </summary>
+        public bool ShowRetailPriceSaving { get; set; } = true;
 
         #endregion
     }

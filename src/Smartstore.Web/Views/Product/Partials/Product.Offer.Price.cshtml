@@ -44,6 +44,7 @@
         var priceModel = Model.ProductPrice;
         var priceModel2 = Model.Price;
         var basePriceEnabled = isBundlePart ? priceModel.BundleItemShowBasePrice : Model.IsBasePriceEnabled;
+        var showPriceSaving = priceModel2.Saving.SavingAmount.HasValue && (priceModel2.ShowRetailPriceSaving || priceModel2.RegularPrice != null);
 
         var currentPriceValue = priceModel.PriceWithDiscount > 0 ? priceModel.PriceWithDiscount : priceModel.Price;
         var currentPrice = currentPriceValue.ToString();
@@ -122,7 +123,7 @@
                     }
 
                     @* You save *@
-                    <div sm-if="priceModel2.Saving.SavingAmount.HasValue" class="pd-promoprice-line">
+                    <div sm-if="showPriceSaving" class="pd-promoprice-line">
                         <span class="pd-promoprice-label">@T("ShoppingCart.ItemYouSave"):</span>
                         <span class="pd-promosaving pl-1 d-flex">
                             <span>@priceModel2.Saving.SavingAmount.Value</span>
@@ -133,7 +134,7 @@
             </div>
 
             <!-- Old price group -->
-            <div class="x-d-none">
+            <div class="d-none">
                 <div class="row sm-gutters pd-price-group">
                     <div class="col-auto pd-price-block">
                         <meta sm-if="!isBundlePart" itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />

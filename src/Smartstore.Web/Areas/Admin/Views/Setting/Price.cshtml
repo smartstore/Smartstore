@@ -127,6 +127,15 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="PriceSettings.ShowRetailPriceSaving" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="PriceSettings.ShowRetailPriceSaving"></setting-editor>
+            <span asp-validation-for="PriceSettings.ShowRetailPriceSaving"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="PriceSettings.AlwaysDisplayRetailPrice" />
         </div>
         <div class="adminData">

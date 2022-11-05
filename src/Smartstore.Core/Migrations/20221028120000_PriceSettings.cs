@@ -191,6 +191,12 @@ namespace Smartstore.Core.Data.Migrations
                 "The label of the offer badge if the offer is limited, e.g. \"Limited time deal\"",
                 "Text für das Angebots-Badge, wenn das Angebot zeitlich befristet ist, z. B. \"Befristetes Angebot\" oder \"Nur noch kurze Zeit\"");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowRetailPriceSaving",
+                "Show price saving against retail price",
+                "Preisersparnis gegenüber UVP anzeigen",
+                "Specifies whether the price saving should be displayed even if the discount was applied to the MSRP only.",
+                "Legt fest, ob die Preisersparnis auch dann angezeigt werden soll, wenn die Ermäßigung lediglich auf den UVP angewandt wurde.");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.LimitedOfferBadgeStyle",
                 "Limited offer badge style",
                 "Angebots-Badge Stil für zeitlich begrenztes Angebot");

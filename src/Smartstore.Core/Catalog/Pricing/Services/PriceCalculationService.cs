@@ -427,6 +427,7 @@ namespace Smartstore.Core.Catalog.Pricing
             // TODO: (mg) (pricing) Does not respect variant combination price
             // TODO: (mg) (pricing) Wrong regular price when product is Bundle and "BundlePerItemPricing" is true
             // TODO: (mg) (pricing) Wrong tier prices (!!!) Every tier displays the same regular price.
+            // TODO: (mg) (core) Does not respect PriceSettings.OfferPriceReplacesRegularPrice
             var product = context.Product;
 
             if (context.DiscountAmount > 0)

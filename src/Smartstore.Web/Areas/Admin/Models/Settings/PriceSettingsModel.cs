@@ -77,6 +77,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowPriceLabelInLists")]
         public bool ShowPriceLabelInLists { get; set; }
 
+        [LocalizedDisplay("*ShowRetailPriceSaving")]
+        public bool ShowRetailPriceSaving { get; set; }
+
         #endregion
     }
 

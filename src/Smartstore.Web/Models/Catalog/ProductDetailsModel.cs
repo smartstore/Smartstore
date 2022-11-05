@@ -205,22 +205,6 @@ namespace Smartstore.Web.Models.Catalog
             public bool AvailableForPreOrder { get; set; }
         }
 
-        // TODO: (pricing) Move to somewhere global
-        public partial class PriceModel
-        {
-            public string Label { get; set; }
-            public string Description { get; set; }
-            public Money Price { get; set; }
-        }
-
-        // TODO: (pricing) Move to somewhere global (and combine with ProductSummaryModel.BadgeModel)
-        public partial class PriceBadgeModel
-        {
-            public string Label { get; set; }
-            public string Style { get; set; }
-            public int DisplayOrder { get; set; }
-        }
-
         public partial class ProductPriceModel : ModelBase
         {
             public Money OldPrice { get; set; }

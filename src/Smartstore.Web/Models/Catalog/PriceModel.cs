@@ -32,6 +32,7 @@ namespace Smartstore.Web.Models.Catalog
         }
 
         public bool CallForPrice { get; set; }
+        public bool ShowRetailPriceSaving { get; set; }
     }
 
     public class SummaryPriceModel : PriceModel

@@ -42,6 +42,8 @@ namespace Smartstore.Web.Models.Catalog.Mappers
             var price = from;
             var model = to;
             
+            model.ShowRetailPriceSaving = _priceSettings.ShowRetailPriceSaving;
+
             // Regular price
             if (model.RegularPrice == null && price.Saving.HasSaving && price.RegularPrice.HasValue)
             {
