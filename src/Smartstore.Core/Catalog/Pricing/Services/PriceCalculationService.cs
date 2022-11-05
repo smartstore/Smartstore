@@ -394,9 +394,13 @@ namespace Smartstore.Core.Catalog.Pricing
                 comparePriceLabel = _priceLabelService.GetComparePriceLabel(product);
                 if (comparePriceLabel.IsRetailPrice && product.ComparePrice > product.Price)
                 {
-                    retailPrice = product.ComparePrice;
-                    result.RetailPriceLabel = comparePriceLabel;
-                    result.RetailPrice = ConvertAmount(product.ComparePrice, context, taxRate, false, out _);
+                    if (product.ProductType != ProductType.BundledProduct || !product.BundlePerItemPricing)
+                    {
+                        // A bundle with computed item pricing cannot have a retail price
+                        retailPrice = product.ComparePrice;
+                        result.RetailPriceLabel = comparePriceLabel;
+                        result.RetailPrice = ConvertAmount(product.ComparePrice, context, taxRate, false, out _);
+                    }
                 }
             }
 
@@ -418,6 +422,11 @@ namespace Smartstore.Core.Catalog.Pricing
 
         private static decimal? GetRegularPrice(CalculatorContext context)
         {
+            // INFO: (mg) (pricing) All in all: totally untested and bad implementation.
+            // TODO: (mg) (pricing) Does not respect attribute price surcharge
+            // TODO: (mg) (pricing) Does not respect variant combination price
+            // TODO: (mg) (pricing) Wrong regular price when product is Bundle and "BundlePerItemPricing" is true
+            // TODO: (mg) (pricing) Wrong tier prices (!!!) Every tier displays the same regular price.
             var product = context.Product;
 
             if (context.DiscountAmount > 0)

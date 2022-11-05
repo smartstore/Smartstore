@@ -277,6 +277,10 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     .pd-finalprice-offer & {
         color: var(--pd-finalprice-offer-color);
     }
+
+    &.pd-finalprice-sm {
+        font-size: 1.5rem;
+    }
 }
 
 .pd-offer-countdown {

@@ -3,14 +3,14 @@
 @model ProductDetailsModel
 
 <div class="pd-bundle-price alert alert-success m-b-0">
-    @if (Model.ProductPrice.PriceWithDiscount != Model.ProductPrice.Price)
+    @if (Model.Price.RegularPrice != null)
     {
         @Html.Raw(T("Products.Bundle.YouSave",
-            $"<span class='pd-bundle-price-offer lrm'>{Model.ProductPrice.PriceWithDiscount}</span>",
-            $"<span class='pd-bundle-price-regular lrm'>{Model.ProductPrice.Price}</span>"));
+            $"<span class='pd-bundle-price-offer lrm'>{Model.Price.FinalPrice}</span>",
+            $"<span class='pd-bundle-price-regular lrm'>{Model.Price.RegularPrice.Price}</span>"));
     }
     else
     {
-        @Html.Raw(T("Products.Bundle.YouSaveWithoutDiscount", $"<span class='pd-bundle-price-offer'>{Model.ProductPrice.Price}</span>"));
+        @Html.Raw(T("Products.Bundle.YouSaveWithoutDiscount", $"<span class='pd-bundle-price-offer'>{Model.Price.FinalPrice}</span>"));
     }
 </div>

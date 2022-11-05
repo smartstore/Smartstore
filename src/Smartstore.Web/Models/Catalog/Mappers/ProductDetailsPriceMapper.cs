@@ -46,17 +46,27 @@ namespace Smartstore.Web.Models.Catalog.Mappers
             {
                 AddPromoBadge(price, model);
             }
-            
-            if (isBundle && product.BundlePerItemPricing && price.Saving.HasSaving && !product.HasTierPrices)
-            {
-                // Add promo badge for bundle: "As bundle only"
-                model.Badges.Add(new PriceBadgeModel
-                {
-                    Label = T("Products.Bundle.PriceWithDiscount.Note"),
-                    Style = "warning"
-                });
 
-                // TODO: (mc) (pricing) Label for bundle regular price should be "Instead of" / "Statt"
+            if (isBundle && product.BundlePerItemPricing)
+            {
+                if (price.RegularPrice.HasValue)
+                {
+                    model.RegularPrice = new ComparePriceModel
+                    {
+                        Price = price.RegularPrice.Value,
+                        Label = T("Products.Bundle.PriceWithoutDiscount.Note"),
+                    };
+                }
+                
+                if (price.Saving.HasSaving && !product.HasTierPrices)
+                {
+                    // Add promo badge for bundle: "As bundle only"
+                    model.Badges.Add(new PriceBadgeModel
+                    {
+                        Label = T("Products.Bundle.PriceWithDiscount.Note"),
+                        Style = "success"
+                    });
+                }
             }
 
             return Task.FromResult(true);

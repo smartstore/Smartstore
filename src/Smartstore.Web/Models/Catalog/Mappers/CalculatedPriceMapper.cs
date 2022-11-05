@@ -43,13 +43,13 @@ namespace Smartstore.Web.Models.Catalog.Mappers
             var model = to;
             
             // Regular price
-            if (price.Saving.HasSaving && price.RegularPrice.HasValue)
+            if (model.RegularPrice == null && price.Saving.HasSaving && price.RegularPrice.HasValue)
             {
                 model.RegularPrice = GetComparePriceModel(price.RegularPrice.Value, price.RegularPriceLabel);
             }
 
             // Retail price
-            if (price.RetailPrice.HasValue && ShouldMapRetailPrice(price))
+            if (model.RetailPrice == null && price.RetailPrice.HasValue && ShouldMapRetailPrice(price))
             {
                 model.RetailPrice = GetComparePriceModel(price.RetailPrice.Value, price.RetailPriceLabel);
             }
