@@ -385,7 +385,8 @@ namespace Smartstore.Core.Catalog.Pricing
             var product = result.Product;
             var retailPrice = (decimal?)null;
             var hasComparePrice = product.ComparePrice > 0;
-            var hasDiscount = context.DiscountAmount > 0 || (context.OfferPrice.HasValue && context.OfferPrice < product.Price);
+            var hasDiscount = context.FinalPrice < context.RegularPrice;
+            //var hasDiscount = context.DiscountAmount > 0 || (context.OfferPrice.HasValue && context.OfferPrice < product.Price);// lacks of tier prices
 
             PriceLabel comparePriceLabel = null;
 
@@ -404,7 +405,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
             }
 
-            if (hasComparePrice && retailPrice == null && !hasDiscount)
+            if (hasComparePrice && product.ComparePrice > context.FinalPrice && retailPrice == null && !hasDiscount)
             {
                 // A compare price which is NOT the retail price is the regular price (if no discounts are present)
                 result.RegularPriceLabel = comparePriceLabel;
@@ -413,68 +414,63 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             var regularPrice = GetRegularPrice(context);
-            if (regularPrice != null && regularPrice != retailPrice)
+            if (regularPrice != null && regularPrice != retailPrice && regularPrice > context.FinalPrice)
             {
+                // A regular price is valid if it is not the retail price and greater than the final price.
                 result.RegularPriceLabel = _priceLabelService.GetRegularPriceLabel(product);
                 result.RegularPrice = ConvertAmount(regularPrice, context, taxRate, false, out _);
             }
         }
 
-        private static decimal? GetRegularPrice(CalculatorContext context)
+        private decimal? GetRegularPrice(CalculatorContext context)
         {
             // INFO: (mg) (pricing) All in all: totally untested and bad implementation.
-            // TODO: (mg) (pricing) Does not respect attribute price surcharge
-            // TODO: (mg) (pricing) Does not respect variant combination price
             // TODO: (mg) (pricing) Wrong regular price when product is Bundle and "BundlePerItemPricing" is true
+            // RE: the only bug I found was missing ComparePrice > FinalPrice in DetectComparePrices.
             // TODO: (mg) (pricing) Wrong tier prices (!!!) Every tier displays the same regular price.
             // TODO: (mg) (core) Does not respect PriceSettings.OfferPriceReplacesRegularPrice
             var product = context.Product;
+            var regularPrice = (decimal?)null;
+            var hasComparePrice = product.ComparePrice > 0;
+            var hasOfferPrice = context.OfferPrice.HasValue;
+            var price = context.RegularPrice;
 
-            if (context.DiscountAmount > 0)
+            if (regularPrice == null && hasOfferPrice && _priceSettings.OfferPriceReplacesRegularPrice)
             {
-                if (context.OfferPrice.HasValue)
+                // TODO: (mg) (core) priority: return "price" if tier price was applied.
+                return null;
+            }
+
+            if (context.Quantity > 1 && context.FinalPrice < price)
+            {
+                // Tier price applied -> unit final price is the regular price.
+                regularPrice = price;
+            }
+
+            if (regularPrice == null && context.DiscountAmount > 0)
+            {
+                if (hasOfferPrice)
                 {
-                    if (product.ComparePrice > 0)
-                    {
-                        return Math.Min(context.OfferPrice.Value, product.ComparePrice);
-                    }
-                    else
-                    {
-                        return Math.Min(context.OfferPrice.Value, product.Price);
-                    }
+                    regularPrice = Math.Min(context.OfferPrice.Value, hasComparePrice ? product.ComparePrice : price);
                 }
                 else
                 {
-                    if (product.ComparePrice > 0)
-                    {
-                        return Math.Min(product.Price, product.ComparePrice);
-                    }
-                    else
-                    {
-                        return product.Price;
-                    }
+                    regularPrice = hasComparePrice ? Math.Min(product.ComparePrice, price) : price;
                 }
             }
 
-            if (context.OfferPrice.HasValue)
+            if (regularPrice == null && hasOfferPrice)
             {
-                if (product.ComparePrice > 0)
-                {
-                    // PAngV: "Price" would not be allowed if greater than "ComparePrice".
-                    return Math.Min(product.Price, product.ComparePrice);
-                }
-                else
-                {
-                    return product.Price;
-                }
+                // PAngV: price would not be allowed if greater than compare price.
+                regularPrice = hasComparePrice ? Math.Min(product.ComparePrice, price) : price;
             }
 
-            if (product.ComparePrice > product.Price)
+            if (regularPrice == null && hasComparePrice && product.ComparePrice > price)
             {
-                return product.ComparePrice;
+                regularPrice = product.ComparePrice;
             }
 
-            return null;
+            return regularPrice;
         }
 
         private Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)

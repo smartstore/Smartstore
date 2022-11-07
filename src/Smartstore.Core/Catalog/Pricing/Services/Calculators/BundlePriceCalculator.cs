@@ -38,6 +38,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 await EnsureBundleItemsAreLoaded(product, context);
 
                 context.FinalPrice = decimal.Zero;
+                context.RegularPrice = decimal.Zero;
 
                 foreach (var bundleItem in context.BundleItems)
                 {
@@ -53,6 +54,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                     // Add price of part to root final price (unit price * contained quantity in this bundle).
                     context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice, bundleItem.Quantity);
+                    context.RegularPrice += decimal.Multiply(childCalculation.RegularPrice, bundleItem.Quantity);
 
                     /// No copying of discounts to <see cref="CalculatorContext.AppliedDiscounts"/>. For BundlePerItemPricing they are only
                     /// virtual stub discounts (<see cref="DiscountPriceCalculator"/> and <see cref="ProductBundleItem.Discount"/>).

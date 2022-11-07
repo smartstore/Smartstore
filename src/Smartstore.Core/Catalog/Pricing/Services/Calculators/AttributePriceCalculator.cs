@@ -101,6 +101,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     if (hasSelectedValues)
                     {
                         context.FinalPrice += adjustment;
+                        context.RegularPrice += adjustment;
                         context.AdditionalCharge += adjustment;
                     }
 

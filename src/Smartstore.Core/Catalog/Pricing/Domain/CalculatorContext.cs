@@ -14,6 +14,7 @@ namespace Smartstore.Core.Catalog.Pricing
             : base(context)
         {
             FinalPrice = finalPrice;
+            RegularPrice = context.Product.Price;
         }
 
         /// <summary>
@@ -37,6 +38,12 @@ namespace Smartstore.Core.Catalog.Pricing
         /// The final price of the product. A calculator should set this property if any adjustment has been made to the price.
         /// </summary>
         public decimal FinalPrice { get; set; }
+
+        /// <summary>
+        /// Pipeline emitted candidate for the regular price (unit price).
+        /// The actual regular price is determined later in <see cref="PriceCalculationService.GetRegularPrice(CalculatorContext)"/>.
+        /// </summary>
+        public decimal RegularPrice { get; set; }
 
         /// <summary>
         /// A value indicating whether the price has a range, which is mostly the case if the lowest price
