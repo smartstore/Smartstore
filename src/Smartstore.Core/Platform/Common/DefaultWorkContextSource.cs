@@ -426,7 +426,7 @@ namespace Smartstore.Core
             }
 
             var attributes = customer.GenericAttributes;
-            attributes.Set(name, value);
+            attributes.Set(name, value, attributes.CurrentStoreId);
 
             if (async)
             {
