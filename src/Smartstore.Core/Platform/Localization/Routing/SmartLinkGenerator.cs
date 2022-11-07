@@ -160,8 +160,9 @@ namespace Smartstore.Core.Localization.Routing
             var endpoints = addressingScheme.FindEndpoints(address).OfType<RouteEndpoint>();
 
             // Check whether current address contains a non-empty area token (either ambient or explicit)
-            var hasArea = address.AmbientValues.TryGetValue(AreaParam, out var area) || address.ExplicitValues.TryGetValue(AreaParam, out area);
-            hasArea = hasArea && area is string str && !string.IsNullOrEmpty(str);
+            var hasArea =
+                (address.ExplicitValues.TryGetValueAs(AreaParam, out string area) && area.Length > 0) ||
+                (address.AmbientValues.TryGetValueAs(AreaParam, out area) && area.Length > 0);
 
             // Reduce the set of candidate endpoints by evaluating area:
             // Both current address and candidate endpoint must contain or NOT contain area.
