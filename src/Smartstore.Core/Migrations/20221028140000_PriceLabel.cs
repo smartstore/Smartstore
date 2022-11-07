@@ -7,7 +7,6 @@ namespace Smartstore.Core.Data.Migrations
     [MigrationVersion("2022-10-28 14:00:00", "Core: PriceLabels")]
     internal class PriceLabelInitial : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
-        // TODO: (mh) (core) Add a hook that fixes FK props (like it's done for delivery times, quantity units etc.) 
         public override void Up()
         {
             var propTableName = nameof(PriceLabel);

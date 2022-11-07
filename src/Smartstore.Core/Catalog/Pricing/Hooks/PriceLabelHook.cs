@@ -35,6 +35,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             // Remove associations to products.
             // TODO: (mh) (pricing) This should't be necessary because the database sets the FKs to null because of the constraint, doesn't it? Please check, verify and remove code.
+            // RE: No. It won't be set to null automatically.
             var productsQuery = _db.Products
                 .IgnoreQueryFilters()
                 .Where(x => x.ComparePriceLabelId == entity.Id);
