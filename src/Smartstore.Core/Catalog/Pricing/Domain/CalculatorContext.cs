@@ -35,6 +35,11 @@ namespace Smartstore.Core.Catalog.Pricing
         public ProductVariantAttributeCombination AppliedAttributeCombination { get; set; }
 
         /// <summary>
+        /// The tier price applied during calculation of the final price.
+        /// </summary>
+        public TierPrice AppliedTierPrice { get; set; }
+
+        /// <summary>
         /// The final price of the product. A calculator should set this property if any adjustment has been made to the price.
         /// </summary>
         public decimal FinalPrice { get; set; }

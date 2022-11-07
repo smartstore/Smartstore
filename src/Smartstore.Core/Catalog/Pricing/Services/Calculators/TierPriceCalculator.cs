@@ -13,6 +13,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var product = context.Product;
             var options = context.Options;
+            var tierPriceEntity = (TierPrice)null;
             var processTierPrices = !options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices && context.BundleItem == null;
 
             if (processTierPrices)
@@ -20,7 +21,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 var tierPrices = await context.GetTierPricesAsync();
 
                 // Put minimum tier price to context because it's required for discount calculation.
-                context.MinTierPrice = GetMinimumTierPrice(product, tierPrices, context.Quantity);
+                var (amount, tp) = GetMinimumTierPrice(product, tierPrices, context.Quantity);
+                context.MinTierPrice = amount;
+                tierPriceEntity = tp;
 
                 if (context.Options.DetermineLowestPrice && !context.HasPriceRange)
                 {
@@ -43,6 +46,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 if (context.MinTierPrice.Value < context.FinalPrice)
                 {
                     context.FinalPrice = context.MinTierPrice.Value;
+                    context.AppliedTierPrice = tierPriceEntity;
 
                     // Apply discount on minimum tier price (if any).
                     var discountOnTierPrice = context.CalculatedDiscounts
@@ -62,35 +66,37 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             }
         }
 
-        protected virtual decimal? GetMinimumTierPrice(Product product, IEnumerable<TierPrice> tierPrices, int quantity)
+        protected virtual (decimal? Amount, TierPrice TierPrice) GetMinimumTierPrice(Product product, IEnumerable<TierPrice> tierPrices, int quantity)
         {
-            decimal? result = null;
+            var amount = (decimal?)null;
+            var tierPrice = (TierPrice)null;
             var previousQty = 1;
 
-            foreach (var tierPrice in tierPrices)
+            foreach (var tp in tierPrices)
             {
-                if (quantity < tierPrice.Quantity || tierPrice.Quantity < previousQty)
+                if (quantity < tp.Quantity || tp.Quantity < previousQty)
                 {
                     continue;
                 }
 
-                if (tierPrice.CalculationMethod == TierPriceCalculationMethod.Fixed)
+                if (tp.CalculationMethod == TierPriceCalculationMethod.Fixed)
                 {
-                    result = tierPrice.Price;
+                    amount = tp.Price;
                 }
-                else if (tierPrice.CalculationMethod == TierPriceCalculationMethod.Percental)
+                else if (tp.CalculationMethod == TierPriceCalculationMethod.Percental)
                 {
-                    result = product.Price - (product.Price / 100m * tierPrice.Price);
+                    amount = product.Price - (product.Price / 100m * tp.Price);
                 }
                 else
                 {
-                    result = product.Price - tierPrice.Price;
+                    amount = product.Price - tp.Price;
                 }
 
-                previousQty = tierPrice.Quantity;
+                tierPrice = tp;
+                previousQty = tp.Quantity;
             }
 
-            return result;
+            return (amount, tierPrice);
         }
     }
 }

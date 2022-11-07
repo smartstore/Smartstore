@@ -416,7 +416,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var regularPrice = GetRegularPrice(context);
             if (regularPrice != null && regularPrice != retailPrice && regularPrice > context.FinalPrice)
             {
-                // A regular price is valid if it is not the retail price and greater than the final price.
+                // Apply regular price if it's not the retail price and greater than the final price.
                 result.RegularPriceLabel = _priceLabelService.GetRegularPriceLabel(product);
                 result.RegularPrice = ConvertAmount(regularPrice, context, taxRate, false, out _);
             }
@@ -428,26 +428,14 @@ namespace Smartstore.Core.Catalog.Pricing
             // TODO: (mg) (pricing) Wrong regular price when product is Bundle and "BundlePerItemPricing" is true
             // RE: the only bug I found was missing ComparePrice > FinalPrice in DetectComparePrices.
             // TODO: (mg) (pricing) Wrong tier prices (!!!) Every tier displays the same regular price.
-            // TODO: (mg) (core) Does not respect PriceSettings.OfferPriceReplacesRegularPrice
             var product = context.Product;
             var regularPrice = (decimal?)null;
             var hasComparePrice = product.ComparePrice > 0;
             var hasOfferPrice = context.OfferPrice.HasValue;
+            var hasTierPrice = context.AppliedTierPrice != null;
             var price = context.RegularPrice;
 
-            if (regularPrice == null && hasOfferPrice && _priceSettings.OfferPriceReplacesRegularPrice)
-            {
-                // TODO: (mg) (core) priority: return "price" if tier price was applied.
-                return null;
-            }
-
-            if (context.Quantity > 1 && context.FinalPrice < price)
-            {
-                // Tier price applied -> unit final price is the regular price.
-                regularPrice = price;
-            }
-
-            if (regularPrice == null && context.DiscountAmount > 0)
+            if (regularPrice == null && (context.DiscountAmount > 0 || hasTierPrice))
             {
                 if (hasOfferPrice)
                 {
@@ -461,6 +449,11 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (regularPrice == null && hasOfferPrice)
             {
+                if (_priceSettings.OfferPriceReplacesRegularPrice && !hasTierPrice)
+                {
+                    return null;
+                }
+
                 // PAngV: price would not be allowed if greater than compare price.
                 regularPrice = hasComparePrice ? Math.Min(product.ComparePrice, price) : price;
             }
