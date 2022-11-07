@@ -12,6 +12,7 @@
 - (NEW) *File Manager* (commercial plugin)
 - (NEW) *GiroCode* (commercial plugin)
 - (NEW) *BizUrlMapper* (commercial plugin)
+- (NEW) *EmailReminder* (commercial plugin)
 - *PayPal*
 	- Added *RatePay* widget
 	- Added *Pay per invoice* payment method 
