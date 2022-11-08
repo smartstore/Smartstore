@@ -20,7 +20,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        protected override async Task<HookResult> OnDeletingAsync(PriceLabel entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnDeletingAsync(PriceLabel entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             if (entity.Id == _priceSettings.DefaultRegularPriceLabelId)
             {
@@ -33,29 +33,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 _hookErrorMessage = T("Admin.Configuration.PriceLabel.CantDeleteDefaultComparePriceLabel");
             }
 
-            // Remove associations to products.
-            // TODO: (mh) (pricing) This should't be necessary because the database sets the FKs to null because of the constraint, doesn't it? Please check, verify and remove code.
-            // RE: No. It won't be set to null automatically.
-            var productsQuery = _db.Products
-                .IgnoreQueryFilters()
-                .Where(x => x.ComparePriceLabelId == entity.Id);
-
-            var productsPager = new FastPager<Product>(productsQuery, 500);
-            while ((await productsPager.ReadNextPageAsync<Product>(cancelToken)).Out(out var products))
-            {
-                if (cancelToken.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                if (products.Any())
-                {
-                    products.Each(x => x.ComparePriceLabelId = null);
-                    await _db.SaveChangesAsync(cancelToken);
-                }
-            }
-
-            return HookResult.Ok;
+            return Task.FromResult(HookResult.Ok);
         }
 
         public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
