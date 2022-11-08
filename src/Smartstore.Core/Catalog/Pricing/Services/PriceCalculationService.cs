@@ -237,7 +237,8 @@ namespace Smartstore.Core.Catalog.Pricing
             Money price,
             Currency targetCurrency = null,
             Language language = null,
-            bool includePackageContentPerUnit = true)
+            bool includePackageContentPerUnit = true,
+            bool? displayTaxSuffix = null)
         {
             Guard.NotNull(product, nameof(product));
 
@@ -246,12 +247,10 @@ namespace Smartstore.Core.Catalog.Pricing
                 return string.Empty;
             }
 
-            var basePrice = Convert.ToDecimal((price / product.BasePriceAmount) * product.BasePriceBaseAmount);
-            // TODO: (mg) (pricing) Does not respect Money.PostFormat. Always appends tax format, even if not desired.
-            //  See CatalogHelper.PrepareProductPropertiesModelAsync() --> basePricePricingOptions.TaxFormat = null;
-            var basePriceAmount = _taxService.ApplyTaxFormat(
-                new Money(basePrice, targetCurrency ?? _workContext.WorkingCurrency),
-                includePackageContentPerUnit ? null : false,
+            var basePriceAmount = Convert.ToDecimal((price / product.BasePriceAmount) * product.BasePriceBaseAmount);
+            var basePrice = _taxService.ApplyTaxFormat(
+                new Money(basePriceAmount, targetCurrency ?? _workContext.WorkingCurrency),
+                displayTaxSuffix,
                 null,
                 language);
 
@@ -262,13 +261,13 @@ namespace Smartstore.Core.Catalog.Pricing
                 return T("Products.BasePriceInfo").Value.FormatInvariant(
                     packageContentPerUnit,
                     product.BasePriceMeasureUnit,
-                    basePriceAmount,
+                    basePrice,
                     product.BasePriceBaseAmount);
             }
             else
             {
                 return T("Products.BasePriceInfo.LanguageInsensitive").Value.FormatInvariant(
-                    basePriceAmount,
+                    basePrice,
                     product.BasePriceBaseAmount,
                     product.BasePriceMeasureUnit);
             }
@@ -315,7 +314,8 @@ namespace Smartstore.Core.Catalog.Pricing
                 Product = product,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
                 // TODO: (mg) (pricing) But a discount has higher prio than the offer, doesn't it? TBD with MC.
-                ValidUntilUtc = context.OfferEndDateUtc ?? context.AppliedDiscounts.Select(x => x.EndDateUtc).FirstOrDefault(x => x.HasValue),
+                // RE: yes that's right. Since "Savings" always refers to the discount (it's applied "on top"), the discount end date is more accurate. I have changed it.
+                ValidUntilUtc = context.AppliedDiscounts.Select(x => x.EndDateUtc).FirstOrDefault(x => x.HasValue) ?? context.OfferEndDateUtc,
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
                 LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
                 DiscountAmount = ConvertAmount(context.DiscountAmount, context, taxRate, false, out _).Value,
@@ -343,14 +343,8 @@ namespace Smartstore.Core.Catalog.Pricing
             // Detect retail & regular price.
             DetectComparePrices(context, result, taxRate);
 
+            // TODO: (mg) (core) find a way to avoid differing percentage discount in product lists and detail page. Is this still present?
             // Saving price.
-            // TODO: (mg) (core) find a way to avoid differing percentage discount in product lists and detail page.
-            //var priceWithoutDiscount = result.FinalPrice + result.DiscountAmount;
-
-            //var savingPrice = result.FinalPrice < priceWithoutDiscount
-            //    ? priceWithoutDiscount
-            //    : ConvertAmount(product.ComparePrice, context, taxRate, false, out _).Value;
-
             var savingPrice = result.RegularPrice ?? result.RetailPrice ?? Money.Zero;
             var hasSaving = savingPrice > 0 && result.FinalPrice < savingPrice;
 
@@ -385,8 +379,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var product = result.Product;
             var retailPrice = (decimal?)null;
             var hasComparePrice = product.ComparePrice > 0;
-            var hasDiscount = context.FinalPrice < context.RegularPrice;
-            //var hasDiscount = context.DiscountAmount > 0 || (context.OfferPrice.HasValue && context.OfferPrice < product.Price);// lacks of tier prices
+            var hasDiscount = context.DiscountAmount > 0 || context.AppliedTierPrice != null || (context.OfferPrice.HasValue && context.OfferPrice < product.Price);
 
             PriceLabel comparePriceLabel = null;
 
@@ -424,10 +417,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
         private decimal? GetRegularPrice(CalculatorContext context)
         {
-            // INFO: (mg) (pricing) All in all: totally untested and bad implementation.
-            // TODO: (mg) (pricing) Wrong regular price when product is Bundle and "BundlePerItemPricing" is true
-            // RE: the only bug I found was missing ComparePrice > FinalPrice in DetectComparePrices.
-            // TODO: (mg) (pricing) Wrong tier prices (!!!) Every tier displays the same regular price.
             var product = context.Product;
             var regularPrice = (decimal?)null;
             var hasComparePrice = product.ComparePrice > 0;
@@ -435,7 +424,13 @@ namespace Smartstore.Core.Catalog.Pricing
             var hasTierPrice = context.AppliedTierPrice != null;
             var price = context.RegularPrice;
 
-            if (regularPrice == null && (context.DiscountAmount > 0 || hasTierPrice))
+            if (hasOfferPrice && _priceSettings.OfferPriceReplacesRegularPrice && !hasTierPrice)
+            {
+                // Hide regular price, unless there is a tier price (higher priority).
+                return null;
+            }
+
+            if (context.DiscountAmount > 0 || hasTierPrice)
             {
                 if (hasOfferPrice)
                 {
@@ -449,11 +444,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (regularPrice == null && hasOfferPrice)
             {
-                if (_priceSettings.OfferPriceReplacesRegularPrice && !hasTierPrice)
-                {
-                    return null;
-                }
-
                 // PAngV: price would not be allowed if greater than compare price.
                 regularPrice = hasComparePrice ? Math.Min(product.ComparePrice, price) : price;
             }

@@ -1,4 +1,5 @@
 ﻿
+using System.Runtime.Intrinsics.X86;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
@@ -1644,7 +1645,8 @@ namespace Smartstore.Web.Controllers
             // Final price
             model.ProductPrice.PriceWithDiscount = priceWithDiscount.FinalPrice;
 
-            model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, priceWithDiscount.FinalPrice, currency);
+            // Duplicate, see PrepareProductPropertiesModelAsync.
+            //model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, priceWithDiscount.FinalPrice, currency);
 
             if (model.ProductPrice.OldPrice > 0 || applyDiscountNote)
             {

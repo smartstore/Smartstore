@@ -77,12 +77,17 @@ namespace Smartstore.Core.Catalog.Pricing
         /// A value indicating whether to include the package content per unit information in the base price info.
         /// <c>false</c> provides a simple, language-neutral base price information, e.g. "24,90 € / 100 g".
         /// </param>
+        /// <param name="displayTaxSuffix">
+        /// A value indicating whether to display the tax suffix.
+        /// If <c>null</c>, current setting will be obtained from <see cref="TaxSettings"/>.
+        /// </param>
         /// <returns>The base price info.</returns>
         string GetBasePriceInfo(
             Product product,
             Money price,
             Currency targetCurrency = null,
             Language language = null,
-            bool includePackageContentPerUnit = true);
+            bool includePackageContentPerUnit = true,
+            bool? displayTaxSuffix = null);
     }
 }

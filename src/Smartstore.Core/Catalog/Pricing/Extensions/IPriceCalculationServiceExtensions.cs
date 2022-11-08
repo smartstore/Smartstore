@@ -62,7 +62,11 @@ namespace Smartstore.Core.Catalog.Pricing
             var context = new PriceCalculationContext(product, options);
             var price = await priceCalculationService.CalculatePriceAsync(context);
 
-            return priceCalculationService.GetBasePriceInfo(product, price.FinalPrice, options.TargetCurrency);
+            return priceCalculationService.GetBasePriceInfo(
+                product,
+                price.FinalPrice,
+                options.TargetCurrency,
+                displayTaxSuffix: options.TaxFormat.IsEmpty() ? false : null);
         }
     }
 }

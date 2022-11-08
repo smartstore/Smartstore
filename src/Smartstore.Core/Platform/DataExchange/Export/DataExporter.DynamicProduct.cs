@@ -139,7 +139,7 @@ namespace Smartstore.Core.DataExchange.Export
                         price = productPrice.FinalPrice;
                     }
 
-                    result._BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, price.Value, ctx.ContextCurrency, ctx.ContextLanguage, false);
+                    result._BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, price.Value, ctx.ContextCurrency, ctx.ContextLanguage, false, false);
                 }
                 else
                 {
