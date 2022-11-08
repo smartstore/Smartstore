@@ -26,6 +26,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
+using Smartstore.Web.Bundling;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
@@ -794,7 +795,7 @@ namespace Smartstore.Web.Controllers
                     };
                 }
 
-                if (model.AskQuestionEnabled && !model.ProductPrice.CallForPrice)
+                if (model.AskQuestionEnabled && !model.Price.CallForPrice)
                 {
                     model.ActionItems["ask"] = new ProductDetailsModel.ActionItemModel
                     {
@@ -871,6 +872,9 @@ namespace Smartstore.Web.Controllers
 
             // General properties.
             await PrepareProductPropertiesModelAsync(model, modelContext);
+
+            // Price.
+            await PrepareProductPriceModelOldAsync(model, modelContext, selectedQuantity);
 
             // Price.
             await PrepareProductPriceModelAsync(model, modelContext, selectedQuantity);
@@ -1435,14 +1439,102 @@ namespace Smartstore.Web.Controllers
 
         protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
+            // TODO: (mc) (pricing) Remove PrepareProductPriceModelAsync later
+            // TODO: (mc) (core) Remove CreateTierPriceModelAsync later (it's in mapper now)
+            // TODO: (mc) (pricing) Remove Model.IsBasePriceEnabled later
+            // TODO: (mc) (pricing) Remove Model.BasePriceInfo later
             var customer = modelContext.Customer;
             var currency = modelContext.Currency;
             var product = modelContext.Product;
             var productBundleItem = modelContext.ProductBundleItem;
             var bundleItemId = productBundleItem?.Id;
+            var isBundle = product.ProductType == ProductType.BundledProduct;
             var isBundleItemPricing = productBundleItem != null && productBundleItem.BundleProduct.BundlePerItemPricing;
             var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
+
+            if (!modelContext.DisplayPrices)
+            {
+                await NoPrice();
+                return;
+            }
+
+            if (product.CustomerEntersPrice && !isBundleItemPricing)
+            {
+                await NoPrice();
+                return;
+            }
+
+            if (product.CallForPrice && !isBundleItemPricing)
+            {
+                await NoPrice();
+                model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
+                return;
+            }
+
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
+            var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
+            {
+                AssociatedProducts = modelContext.AssociatedProducts,
+                BundleItem = productBundleItem
+            };
+
+            // Apply price adjustments of attributes.
+            if (!isBundlePricing)
+            {
+                if (modelContext.SelectedAttributes != null)
+                {
+                    // Apply price adjustments of selected attributes.
+                    calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, bundleItemId);
+                }
+                else if (isBundle && product.BundlePerItemPricing && modelContext.VariantQuery.Variants.Any())
+                {
+                    // Apply price adjustments of selected bundle items attributes.
+                    // INFO: bundles themselves don't have attributes, that's why modelContext.SelectedAttributes is null.
+                    calculationContext.BundleItems = await modelContext.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
+
+                    modelContext.BatchContext.Collect(calculationContext.BundleItems.Select(x => x.ProductId).ToArray());
+
+                    foreach (var bundleItem in calculationContext.BundleItems)
+                    {
+                        var bundleItemAttributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(bundleItem.ProductId);
+                        var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(modelContext.VariantQuery, bundleItemAttributes, bundleItem.ProductId, bundleItem.Id, false);
+
+                        calculationContext.AddSelectedAttributes(selection, bundleItem.ProductId, bundleItem.Id);
+
+                        // Apply attribute combination price if any.
+                        await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Product, selection);
+                    }
+                }
+                else
+                {
+                    // Apply price adjustments of attributes preselected by merchant.
+                    calculationContext.Options.ApplyPreselectedAttributes = true;
+                }
+            }
+
+            // Calculate unit price now
+            var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+            model.Price = new DetailsPriceModel(calculatedPrice);
+            await calculatedPrice.MapDetailsAsync(model.Price, modelContext);
+
+            async Task NoPrice()
+            {
+                var price = new CalculatedPrice(product);
+                model.Price = new DetailsPriceModel(price);
+                await price.MapDetailsAsync(model.Price, modelContext);
+            }
+        }
+
+        protected async Task PrepareProductPriceModelOldAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
+        {
+            var customer = modelContext.Customer;
+            var currency = modelContext.Currency;
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var bundleItemId = productBundleItem?.Id;
             var isBundle = product.ProductType == ProductType.BundledProduct;
+            var isBundleItemPricing = productBundleItem != null && productBundleItem.BundleProduct.BundlePerItemPricing;
+            var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
 
             model.ProductPrice.ProductId = product.Id;
             model.ProductPrice.HidePrices = !modelContext.DisplayPrices;

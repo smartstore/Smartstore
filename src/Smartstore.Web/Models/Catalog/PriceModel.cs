@@ -31,6 +31,9 @@ namespace Smartstore.Web.Models.Catalog
             get => CalculatedPrice.Saving;
         }
 
+        public bool IsBasePriceEnabled { get; set; }
+        public string BasePriceInfo { get; set; }
+
         public bool CallForPrice { get; set; }
         public bool ShowRetailPriceSaving { get; set; }
     }
@@ -59,6 +62,8 @@ namespace Smartstore.Web.Models.Catalog
         public bool HidePrices { get; set; }
         public bool ShowLoginNote { get; set; }
         public bool BundleItemShowBasePrice { get; set; }
+
+        public List<TierPriceModel> TierPrices { get; set; } = new();
     }
 
     public class ComparePriceModel
@@ -73,5 +78,11 @@ namespace Smartstore.Web.Models.Catalog
         public string Label { get; set; }
         public string Style { get; set; }
         public int DisplayOrder { get; set; }
+    }
+
+    public class TierPriceModel
+    {
+        public int Quantity { get; set; }
+        public Money Price { get; set; }
     }
 }

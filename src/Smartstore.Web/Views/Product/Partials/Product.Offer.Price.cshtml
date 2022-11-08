@@ -5,7 +5,7 @@
 @model ProductDetailsModel
 
 @{
-    if (Model.AddToCart.DisableBuyButton && Model.AddToCart.DisableWishlistButton && !Model.ProductPrice.ShowLoginNote)
+    if (Model.AddToCart.DisableBuyButton && Model.AddToCart.DisableWishlistButton && !Model.Price.ShowLoginNote)
     {
         return;
     }
@@ -30,11 +30,11 @@
 }
 
 <div class="pd-offer-price">
-    @if (Model.ProductPrice.ShowLoginNote)
+    @if (Model.Price.ShowLoginNote)
     {
         <h4 class="pd-price pd-loginforprice">@T("Products.LoginForPrice")</h4>
     }
-    else if (Model.ProductPrice.CallForPrice)
+    else if (Model.Price.CallForPrice)
     {
         <h4 class="pd-price pd-callforprice">@T("Products.CallForPrice")</h4>
     }
@@ -43,7 +43,7 @@
         var isBundlePart = Model.IsBundlePart;
         var priceModel = Model.ProductPrice;
         var priceModel2 = Model.Price;
-        var basePriceEnabled = isBundlePart ? priceModel.BundleItemShowBasePrice : Model.IsBasePriceEnabled;
+        var basePriceEnabled = isBundlePart ? priceModel2.BundleItemShowBasePrice : priceModel2.IsBasePriceEnabled;
         var showPriceSaving = priceModel2.Saving.SavingAmount.HasValue && (priceModel2.ShowRetailPriceSaving || priceModel2.RegularPrice != null);
 
         var currentPriceValue = priceModel.PriceWithDiscount > 0 ? priceModel.PriceWithDiscount : priceModel.Price;
@@ -174,13 +174,13 @@
 
         <!-- Tier prices -->
         <div sm-if="!isBundlePart" class="pd-tierprices">
-            <partial name="Product.TierPrices" model="Model.TierPrices" />
+            <partial name="Product.TierPrices" model="Model.Price.TierPrices" />
         </div>
 
         <!-- Pangv & legal info -->
-        <div class="pd-group" sm-if="(basePriceEnabled && Model.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())">
-            <div class="pd-pangv" sm-if="basePriceEnabled && Model.BasePriceInfo.HasValue()">
-                @Html.Raw(LocalizedValue.FixBrackets(Model.BasePriceInfo, WorkContext.WorkingLanguage))
+        <div class="pd-group" sm-if="(basePriceEnabled && priceModel2.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())">
+            <div class="pd-pangv" sm-if="basePriceEnabled && priceModel2.BasePriceInfo.HasValue()">
+                @Html.Raw(LocalizedValue.FixBrackets(priceModel2.BasePriceInfo, WorkContext.WorkingLanguage))
             </div>
             <div class="pd-legalinfo" sm-if="Model.ShowLegalInfo && Model.LegalInfo.HasValue() && currentPriceValue != 0">
                 @Html.Raw(Model.LegalInfo)

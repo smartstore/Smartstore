@@ -6,12 +6,15 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 {
     public class ProductDetailsPriceMapper : CalculatedPriceMapper<DetailsPriceModel>
     {
-        public ProductDetailsPriceMapper(IPriceLabelService labelService, PriceSettings priceSettings)
-            : base(labelService, priceSettings)
+        public ProductDetailsPriceMapper(
+            IPriceCalculationService priceCalculationService, 
+            IPriceLabelService labelService, 
+            PriceSettings priceSettings)
+            : base(priceCalculationService, labelService, priceSettings)
         {
         }
 
-        protected override Task<bool> MapCoreAsync(CalculatedPrice price, DetailsPriceModel model, dynamic parameters = null)
+        protected override async Task<bool> MapCoreAsync(CalculatedPrice price, DetailsPriceModel model, dynamic parameters = null)
         {
             var modelContext = (ProductDetailsModelContext)parameters.ModelContext;
             var product = modelContext.Product;
@@ -21,25 +24,15 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
             model.HidePrices = !modelContext.DisplayPrices;
             model.ShowLoginNote = !modelContext.DisplayPrices && productBundleItem == null && _priceSettings.ShowLoginForPriceNote;
-
-            if (!modelContext.DisplayPrices)
-            {
-                return Task.FromResult(false);
-            }
-
-            if (product.CustomerEntersPrice && !isBundleItemPricing)
-            {
-                model.CustomerEntersPrice = true;
-                return Task.FromResult(false);
-            }
-
-            if (product.CallForPrice && !isBundleItemPricing)
-            {
-                model.CallForPrice = true;
-                return Task.FromResult(false);
-            }
-
+            model.CustomerEntersPrice = product.CustomerEntersPrice && !isBundleItemPricing;
+            model.CallForPrice = product.CallForPrice && !isBundleItemPricing;
             model.BundleItemShowBasePrice = _priceSettings.BundleItemShowBasePrice;
+
+            if (!modelContext.DisplayPrices || model.CustomerEntersPrice || model.CallForPrice)
+            {
+                return false;
+            }
+            
             model.CountdownText = _labelService.GetPromoCountdownText(price);
             
             if (_priceSettings.ShowOfferBadge)
@@ -69,7 +62,10 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                 }
             }
 
-            return Task.FromResult(true);
+            // Tier Prices
+            await CreateTierPriceModelAsync(model, modelContext);
+
+            return true;
         }
 
         protected override bool ShouldMapRetailPrice(CalculatedPrice price)
@@ -86,6 +82,55 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                 Label = priceLabel.GetLocalized(x => x.Name).Value.NullEmpty() ?? priceLabel.GetLocalized(x => x.ShortName),
                 Description = priceLabel.GetLocalized(x => x.Description)
             };
+        }
+
+        private async Task CreateTierPriceModelAsync(DetailsPriceModel model, ProductDetailsModelContext modelContext)
+        {
+            var product = modelContext.Product;
+            var tierPrices = product.TierPrices
+                .FilterByStore(modelContext.Store.Id)
+                .FilterForCustomer(modelContext.Customer)
+                .OrderBy(x => x.Quantity)
+                .ToList()
+                .RemoveDuplicatedQuantities();
+            
+            if (!tierPrices.Any())
+            {
+                return;
+            }
+
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, modelContext.Customer, modelContext.Currency, modelContext.BatchContext);
+            calculationOptions.TaxFormat = null;
+
+            var calculationContext = new PriceCalculationContext(product, 1, calculationOptions)
+            {
+                AssociatedProducts = modelContext.AssociatedProducts,
+                BundleItem = modelContext.ProductBundleItem
+            };
+
+            calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Id);
+
+            var tierPriceModels = await tierPrices
+                .SelectAwait(async (tierPrice) =>
+                {
+                    calculationContext.Quantity = tierPrice.Quantity;
+
+                    var price = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+                    var tierPriceModel = new TierPriceModel
+                    {
+                        Quantity = tierPrice.Quantity,
+                        Price = price.FinalPrice
+                    };
+
+                    return tierPriceModel;
+                })
+                .AsyncToList();
+
+            if (tierPriceModels.Count > 0)
+            {
+                model.TierPrices.AddRange(tierPriceModels);
+            }
         }
     }
 }

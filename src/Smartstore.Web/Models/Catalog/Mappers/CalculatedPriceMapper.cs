@@ -1,6 +1,9 @@
 ﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
+using Smartstore.Web.Bundling;
+using static Smartstore.Core.Security.Permissions.Catalog;
 
 namespace Smartstore.Web.Models.Catalog.Mappers
 {
@@ -20,11 +23,16 @@ namespace Smartstore.Web.Models.Catalog.Mappers
     public abstract class CalculatedPriceMapper<TTo> : IMapper<CalculatedPrice, TTo>
         where TTo : PriceModel
     {
+        protected readonly IPriceCalculationService _priceCalculationService;
         protected readonly IPriceLabelService _labelService;
         protected readonly PriceSettings _priceSettings;
 
-        protected CalculatedPriceMapper(IPriceLabelService labelService, PriceSettings priceSettings)
+        protected CalculatedPriceMapper(
+            IPriceCalculationService priceCalculationService,
+            IPriceLabelService labelService,
+            PriceSettings priceSettings)
         {
+            _priceCalculationService = priceCalculationService;
             _labelService = labelService;
             _priceSettings = priceSettings;
         }
@@ -41,7 +49,7 @@ namespace Smartstore.Web.Models.Catalog.Mappers
             var forListing = parameters.ForListing ?? false;
             var price = from;
             var model = to;
-            
+
             model.ShowRetailPriceSaving = _priceSettings.ShowRetailPriceSaving;
 
             // Regular price
@@ -54,6 +62,16 @@ namespace Smartstore.Web.Models.Catalog.Mappers
             if (model.RetailPrice == null && price.RetailPrice.HasValue && ShouldMapRetailPrice(price))
             {
                 model.RetailPrice = GetComparePriceModel(price.RetailPrice.Value, price.RetailPriceLabel);
+            }
+
+            // BasePrice (PanGV)
+            model.IsBasePriceEnabled =
+                from.Product.BasePriceEnabled &&
+                !(from.Product.ProductType == ProductType.BundledProduct && from.Product.BundlePerItemPricing);
+
+            if (model.IsBasePriceEnabled)
+            {
+                model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(from.Product, price.FinalPrice, price.FinalPrice.Currency);
             }
         }
 

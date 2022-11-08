@@ -25,6 +25,18 @@ namespace Smartstore.Core.Catalog.Pricing
         }
 
         /// <summary>
+        /// For testing or skipped calculations.
+        /// </summary>
+        public CalculatedPrice(Product product)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            Product = product;
+            AppliedDiscounts = new List<Discount>();
+            AttributePriceAdjustments = new List<CalculatedPriceAdjustment>();
+        }
+
+        /// <summary>
         /// The product for which a price was calculated. Not necessarily the input product,
         /// can also be a child of a grouped product, if the lowest price should be calculated.
         /// In that case this property refers to the lowest price child product.

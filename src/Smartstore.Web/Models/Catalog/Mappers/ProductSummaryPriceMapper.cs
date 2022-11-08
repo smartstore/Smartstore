@@ -5,8 +5,11 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 {
     public class ProductSummaryPriceMapper : CalculatedPriceMapper<SummaryPriceModel>
     {
-        public ProductSummaryPriceMapper(IPriceLabelService labelService, PriceSettings priceSettings)
-            : base(labelService, priceSettings)
+        public ProductSummaryPriceMapper(
+            IPriceCalculationService priceCalculationService, 
+            IPriceLabelService labelService, 
+            PriceSettings priceSettings)
+            : base(priceCalculationService, labelService, priceSettings)
         {
         }
 
