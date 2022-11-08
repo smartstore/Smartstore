@@ -304,7 +304,7 @@ namespace Smartstore.Web.Controllers
                 // Don't perform discount limitation and coupon code check in list rendering as it can have heavy impact on performance.
                 calculationOptions.CheckDiscountValidity = false;
 
-                var mapItemContext = new MapProductSummaryItemContext
+                var mapItemContext = new ProductSummaryItemContext
                 {
                     BatchContext = batchContext,
                     CalculationOptions = calculationOptions,
@@ -360,7 +360,7 @@ namespace Smartstore.Web.Controllers
             return Task.CompletedTask;
         }
 
-        private async Task MapProductSummaryItem(Product product, MapProductSummaryItemContext ctx)
+        private async Task MapProductSummaryItem(Product product, ProductSummaryItemContext ctx)
         {
             var contextProduct = product;
             var finalPrice = default(Money);
@@ -369,7 +369,7 @@ namespace Smartstore.Web.Controllers
             var options = ctx.CalculationOptions;
             var slug = await product.GetActiveSlugAsync();
 
-            var item = new ProductSummaryModel.SummaryItem(ctx.Model)
+            var item = new ProductSummaryItemModel(ctx.Model)
             {
                 Id = product.Id,
                 Name = product.GetLocalized(x => x.Name),
@@ -413,7 +413,7 @@ namespace Smartstore.Web.Controllers
                             var attr = x.ProductVariantAttribute.ProductAttribute;
                             var attrName = cachedAttributeNames.Get(attr.Id) ?? (cachedAttributeNames[attr.Id] = attr.GetLocalized(l => l.Name));
 
-                            return new ProductSummaryModel.ColorAttributeValue
+                            return new ProductSummaryItemModel.ColorAttributeValue
                             {
                                 Id = x.Id,
                                 Color = x.Color,
@@ -444,7 +444,7 @@ namespace Smartstore.Web.Controllers
                     foreach (var attr in attributes)
                     {
                         var pa = attr.ProductAttribute;
-                        item.Attributes.Add(new ProductSummaryModel.Attribute
+                        item.Attributes.Add(new ProductSummaryItemModel.Attribute
                         {
                             Id = attr.Id,
                             Alias = pa.Alias,
@@ -589,7 +589,7 @@ namespace Smartstore.Web.Controllers
             // New Badge
             if (product.IsNew(_catalogSettings))
             {
-                item.Badges.Add(new ProductSummaryModel.Badge
+                item.Badges.Add(new ProductSummaryItemModel.Badge
                 {
                     Label = T("Common.New"),
                     Style = BadgeStyle.Success
@@ -601,14 +601,14 @@ namespace Smartstore.Web.Controllers
 
         /// <param name="contextProduct">The product or the first associated product of a group.</param>
         /// <returns>The final price</returns>
-        private async Task<(Money FinalPrice, Product ContextProduct)> MapSummaryItemPrice(Product product, ProductSummaryModel.SummaryItem item, MapProductSummaryItemContext ctx)
+        private async Task<(Money FinalPrice, Product ContextProduct)> MapSummaryItemPrice(Product product, ProductSummaryItemModel item, ProductSummaryItemContext ctx)
         {
             var options = ctx.CalculationOptions;
             var batchContext = ctx.BatchContext;
             var contextProduct = product;
             ICollection<Product> associatedProducts = null;
 
-            var priceModel = new ProductSummaryModel.PriceModel();
+            var priceModel = new ProductSummaryItemModel.PriceModel();
             item.Price = priceModel;
 
             if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !batchContext.ProductBundleItems.FullyLoaded)
@@ -697,7 +697,7 @@ namespace Smartstore.Web.Controllers
 
                 if (ctx.Model.ShowDiscountBadge)
                 {
-                    item.Badges.Add(new ProductSummaryModel.Badge
+                    item.Badges.Add(new ProductSummaryItemModel.Badge
                     {
                         Label = T("Products.SavingBadgeLabel", priceModel.SavingPercent.ToString("N0")),
                         Style = BadgeStyle.Danger
@@ -737,38 +737,18 @@ namespace Smartstore.Web.Controllers
         #region Utils
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Money ToWorkingCurrency(decimal amount, MapProductSummaryItemContext ctx, bool showCurrency = true)
+        private Money ToWorkingCurrency(decimal amount, ProductSummaryItemContext ctx, bool showCurrency = true)
         {
             return _currencyService.ConvertToCurrency(new Money(amount, ctx.PrimaryCurrency, !showCurrency), ctx.CalculationOptions.TargetCurrency);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Money ToWorkingCurrency(Money amount, MapProductSummaryItemContext ctx)
+        private Money ToWorkingCurrency(Money amount, ProductSummaryItemContext ctx)
         {
             return _currencyService.ConvertToCurrency(amount, ctx.CalculationOptions.TargetCurrency);
         }
 
         #endregion
-
-        private class MapProductSummaryItemContext
-        {
-            public ProductSummaryModel Model { get; set; }
-            public ProductSummaryMappingSettings MappingSettings { get; set; }
-            public ProductBatchContext BatchContext { get; set; }
-            public PriceCalculationOptions CalculationOptions { get; set; }
-            public ProductBatchContext AssociatedProductBatchContext { get; set; }
-            public Multimap<int, Product> GroupedProducts { get; set; }
-            public Dictionary<int, BrandOverviewModel> CachedBrandModels { get; set; }
-            public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();
-            public Dictionary<string, LocalizedString> Resources { get; set; }
-            public string LegalInfo { get; set; }
-            public Currency PrimaryCurrency { get; set; }
-
-            public bool AllowPrices { get; set; }
-            public bool AllowShoppingCart { get; set; }
-            public bool AllowWishlist { get; set; }
-            public string ShippingChargeTaxFormat { get; set; }
-        }
     }
 
     public class ProductSummaryMappingSettings

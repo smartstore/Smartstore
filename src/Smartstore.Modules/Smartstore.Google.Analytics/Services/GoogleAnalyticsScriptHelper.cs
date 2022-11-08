@@ -248,7 +248,7 @@ namespace Smartstore.Google.Analytics.Services
         /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
         /// <param name="categoryId">First category of the product, when called form category view.</param>
         /// <returns>Script part to fire GA event view_item_list</returns>
-        public async Task<string> GetListScriptAsync(List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0)
+        public async Task<string> GetListScriptAsync(List<ProductSummaryItemModel> products, string listName, int categoryId = 0)
         {
             return @$"
                 let eventData{listName} = {{
@@ -269,7 +269,7 @@ namespace Smartstore.Google.Analytics.Services
         /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
         /// <param name="categoryId">First category of the product, when called form category view.</param>
         /// <returns>e.g.: items: [{item_id: "SKU_12345",...}, {...}, n] </returns>
-        private async Task<string> GetItemsScriptAsync(List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0)
+        private async Task<string> GetItemsScriptAsync(List<ProductSummaryItemModel> products, string listName, int categoryId = 0)
         {
             var productsScript = string.Empty;
             var categoryPathScript = categoryId != 0 ? await GetCategoryPathAsync(categoryId) : string.Empty;

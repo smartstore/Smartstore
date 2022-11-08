@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Identity;
@@ -8,7 +7,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
-using Smartstore.Web.Rendering;
 using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Web.Models.Catalog

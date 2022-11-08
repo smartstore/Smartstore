@@ -64,7 +64,7 @@ namespace Smartstore.Google.Analytics.Components
                         else if (controller.EqualsNoCase("catalog"))
                         {
                             var catId = 0;
-                            var productList = new List<ProductSummaryModel.SummaryItem>();
+                            var productList = new List<ProductSummaryItemModel>();
 
                             // Category, Manufacturer, RecentlyViewedProducts, RecentlyAddedProducts & CompareProducts pages
                             if (action.EqualsNoCase("category"))
