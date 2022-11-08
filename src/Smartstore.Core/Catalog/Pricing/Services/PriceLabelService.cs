@@ -100,7 +100,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
             LocalizedValue<string> badgeLabel;
 
-            // TODO: (mg) (pricing) Is this correct? Hmmm... I don't think so. TBD with MC.
             foreach (var discount in price.AppliedDiscounts)
             {
                 badgeLabel = discount.GetLocalized(x => x.OfferBadgeLabel);
@@ -134,7 +133,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var threshold = _priceSettings.ShowOfferCountdownRemainingHours;
 
-            // TODO: (mg) (pricing) Is this correct? Hmmm... I don't think so. TBD with MC.
             foreach (var discount in price.AppliedDiscounts)
             {
                 if (discount.ShowCountdownRemainingHours.HasValue)

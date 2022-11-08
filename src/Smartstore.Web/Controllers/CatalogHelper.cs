@@ -1,10 +1,6 @@
-﻿
-using System.Runtime.Intrinsics.X86;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
-using Parlot.Fluent;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog;
@@ -27,12 +23,10 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
-using Smartstore.Web.Bundling;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
 using Smartstore.Web.Models.Media;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
@@ -1613,11 +1607,6 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
-            // INFO: original code difference. Adjustments of priceWithoutDiscount were calculated with quantity of 1. Why? Makes little sense to me.
-            // Be careful, options are shallow copied! 'calculationOptions.IgnoreDiscounts = true' would not work.
-            // TODO: (mg) (pricing) WTF is this here? Why call pipeline twice?!
-            // RE: it's ported classic code, where the price without any discounts was used as regular price. Obsolete because CalculatedPrice.RegularPrice
-            // is now the regular price. Actually, this should have been removed\resolved when creating the pricing pipeline (to avoid exactly this second CalculatePriceAsync call).
             calculationContext.Options.IgnoreDiscounts = true;
             var priceWithoutDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 

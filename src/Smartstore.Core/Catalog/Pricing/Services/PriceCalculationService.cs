@@ -313,8 +313,6 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 Product = product,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
-                // TODO: (mg) (pricing) But a discount has higher prio than the offer, doesn't it? TBD with MC.
-                // RE: yes that's right. Since "Savings" always refers to the discount (it's applied "on top"), the discount end date is more accurate. I have changed it.
                 ValidUntilUtc = context.AppliedDiscounts.Select(x => x.EndDateUtc).FirstOrDefault(x => x.HasValue) ?? context.OfferEndDateUtc,
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
                 LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
