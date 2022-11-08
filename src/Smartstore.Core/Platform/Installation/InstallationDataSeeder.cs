@@ -97,6 +97,7 @@ namespace Smartstore.Core.Installation
             await PopulateAsync("PopulateEmailAccounts", _data.EmailAccounts());
             await PopulateAsync("PopulateMessageTemplates", PopulateMessageTemplates);
             await PopulateAsync("PopulateTopics", PopulateTopics);
+            await PopulateAsync("PopulatePriceLabels", _data.PriceLabels());
             await PopulateAsync("PopulateSettings", PopulateSettings);
             await PopulateAsync("PopulateActivityLogTypes", _data.ActivityLogTypes());
             await PopulateAsync("PopulateCustomersAndUsers", async () => await HashDefaultCustomerPassword(_config.DefaultUserName, _config.DefaultUserPassword));
@@ -106,8 +107,7 @@ namespace Smartstore.Core.Installation
             await PopulateAsync("PopulateScheduleTasks", _data.TaskDescriptors());
             await PopulateAsync("PopulateLocaleResources", async () => await PopulateLocaleResources(_config.Language));
             await PopulateAsync("PopulateMenus", _data.Menus());
-            await PopulateAsync("PopulatePriceLabels", _data.PriceLabels());
-
+            
             if (_config.SeedSampleData)
             {
                 Logger.Info("Seeding sample data");
