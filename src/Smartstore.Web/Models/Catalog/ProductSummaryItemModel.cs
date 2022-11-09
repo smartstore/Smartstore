@@ -83,7 +83,7 @@ namespace Smartstore.Web.Models.Catalog
         public BrandOverviewModel Brand { get; set; }
         public PriceModel Price { get; set; }
         // TODO: (mc) (pricing) Remove "Price" later
-        public SummaryPriceModel Price2 { get; set; }
+        public ProductSummaryPriceModel Price2 { get; set; }
         public ImageModel Image { get; set; }
         public IList<Attribute> Attributes { get; set; }
         // TODO: (mc) Let the user specify in attribute manager which spec attributes are

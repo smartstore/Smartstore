@@ -412,8 +412,8 @@ namespace Smartstore.Web.Controllers
                     Stock = await InvokePartialViewAsync("Product.StockInfo", model),
                     Variants = await InvokePartialViewAsync("Product.Variants", model.ProductVariantAttributes),
                     OfferActions = await InvokePartialViewAsync("Product.Offer.Actions", dataDictAddToCart),
-                    TierPrices = await InvokePartialViewAsync("Product.TierPrices", model.TierPrices),
-                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model) : null
+                    TierPrices = await InvokePartialViewAsync("Product.TierPrices", model.Price.TierPrices),
+                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model.Price.TierPrices) : null
                 };
             }
 

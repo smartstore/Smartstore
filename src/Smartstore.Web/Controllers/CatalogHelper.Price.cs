@@ -1,0 +1,393 @@
+﻿using System.Runtime.CompilerServices;
+using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Localization;
+using Smartstore.Web.Models.Catalog;
+
+namespace Smartstore.Web.Controllers
+{
+    public partial class CatalogHelper
+    {
+        #region Details price modelling
+
+        protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
+        {
+            // TODO: (mc) (pricing) Remove PrepareProductPriceModelAsync later
+            // TODO: (mc) (pricing) Remove Model.IsBasePriceEnabled later
+            // TODO: (mc) (pricing) Remove Model.BasePriceInfo later
+            var priceModel = model.Price;
+            var customer = modelContext.Customer;
+            var currency = modelContext.Currency;
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var bundleItemId = productBundleItem?.Id;
+            var isBundle = product.ProductType == ProductType.BundledProduct;
+            var isBundleItemPricing = productBundleItem != null && productBundleItem.BundleProduct.BundlePerItemPricing;
+            var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
+
+            priceModel.HidePrices = !modelContext.DisplayPrices;
+            priceModel.ShowLoginNote = !modelContext.DisplayPrices && productBundleItem == null && _priceSettings.ShowLoginForPriceNote;
+            priceModel.BundleItemShowBasePrice = _priceSettings.BundleItemShowBasePrice;
+
+            if (!modelContext.DisplayPrices)
+            {
+                return;
+            }
+
+            if (product.CustomerEntersPrice && !isBundleItemPricing)
+            {
+                priceModel.CustomerEntersPrice = true;
+                return;
+            }
+
+            if (product.CallForPrice && !isBundleItemPricing)
+            {
+                priceModel.CallForPrice = true;
+                model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
+                return;
+            }
+
+            if (isBundlePricing)
+            {
+                // Do not show any bundle item price for parent bundle with specific bundle pricing.
+                return;
+            }
+
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
+            var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
+            {
+                AssociatedProducts = modelContext.AssociatedProducts,
+                BundleItem = productBundleItem
+            };
+
+            // Apply price adjustments of attributes.
+            if (modelContext.SelectedAttributes != null)
+            {
+                // Apply price adjustments of selected attributes.
+                calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, bundleItemId);
+            }
+            else if (isBundle && product.BundlePerItemPricing && modelContext.VariantQuery.Variants.Any())
+            {
+                // Apply price adjustments of selected bundle items attributes.
+                // INFO: bundles themselves don't have attributes, that's why modelContext.SelectedAttributes is null.
+                calculationContext.BundleItems = await modelContext.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
+
+                modelContext.BatchContext.Collect(calculationContext.BundleItems.Select(x => x.ProductId).ToArray());
+
+                foreach (var bundleItem in calculationContext.BundleItems)
+                {
+                    var bundleItemAttributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(bundleItem.ProductId);
+                    var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(modelContext.VariantQuery, bundleItemAttributes, bundleItem.ProductId, bundleItem.Id, false);
+
+                    calculationContext.AddSelectedAttributes(selection, bundleItem.ProductId, bundleItem.Id);
+
+                    // Apply attribute combination price if any.
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Product, selection);
+                }
+            }
+            else
+            {
+                // Apply price adjustments of attributes preselected by merchant.
+                calculationContext.Options.ApplyPreselectedAttributes = true;
+            }
+
+            // Calculate unit price now
+            var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+            // Map base
+            MapPriceBase(calculatedPrice, priceModel);
+
+            // Countdown text
+            priceModel.CountdownText = _priceLabelService.GetPromoCountdownText(calculatedPrice);
+
+            // Offer badges
+            if (_priceSettings.ShowOfferBadge)
+            {
+                // Add default promo badges as configured
+                AddPromoBadge(calculatedPrice, priceModel);
+            }
+
+            // Bundle per item pricing stuff
+            if (isBundle && product.BundlePerItemPricing)
+            {
+                if (priceModel.RegularPrice != null)
+                {
+                    // Change regular price label: "Regular/Lowest" --> "Instead of"
+                    priceModel.RegularPrice.Label = T("Products.Bundle.PriceWithoutDiscount.Note");
+                }
+                
+                // Add promo badge for bundle: "As bundle only"
+                if (calculatedPrice.Saving.HasSaving && !product.HasTierPrices)
+                {
+                    priceModel.Badges.Add(new ProductBadgeModel
+                    {
+                        Label = T("Products.Bundle.PriceWithDiscount.Note"),
+                        Style = "success"
+                    });
+                }
+            }
+            else
+            {
+                // Tier prices are ignored for bundles with per-item pricing
+                await PrepareTierPriceModelAsync(priceModel, modelContext);
+            }
+        }
+
+        private async Task PrepareTierPriceModelAsync(ProductDetailsPriceModel model, ProductDetailsModelContext modelContext)
+        {
+            var product = modelContext.Product;
+
+            var tierPrices = product.TierPrices
+                .FilterByStore(modelContext.Store.Id)
+                .FilterForCustomer(modelContext.Customer)
+                .OrderBy(x => x.Quantity)
+                .ToList()
+                .RemoveDuplicatedQuantities();
+
+            if (!tierPrices.Any())
+            {
+                return;
+            }
+
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, modelContext.Customer, modelContext.Currency, modelContext.BatchContext);
+            calculationOptions.TaxFormat = null;
+
+            var calculationContext = new PriceCalculationContext(product, 1, calculationOptions)
+            {
+                AssociatedProducts = modelContext.AssociatedProducts,
+                BundleItem = modelContext.ProductBundleItem
+            };
+
+            calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Id);
+
+            var tierPriceModels = await tierPrices
+                .SelectAwait(async (tierPrice) =>
+                {
+                    calculationContext.Quantity = tierPrice.Quantity;
+
+                    var price = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+                    var tierPriceModel = new TierPriceModel
+                    {
+                        Quantity = tierPrice.Quantity,
+                        Price = price.FinalPrice
+                    };
+
+                    return tierPriceModel;
+                })
+                .AsyncToList();
+
+            if (tierPriceModels.Count > 0)
+            {
+                model.TierPrices.AddRange(tierPriceModels);
+            }
+        }
+
+        #endregion
+
+        #region Summary price modelling
+
+        /// <returns>
+        /// The context product: either passed <paramref name="product"/> or the first associated product of a group
+        /// </returns>
+        protected async Task<Product> MapSummaryItemPrice(Product product, ProductSummaryItemModel model, ProductSummaryItemContext context)
+        {
+            var options = context.CalculationOptions;
+            var batchContext = context.BatchContext;
+            var contextProduct = product;
+            var priceModel = model.Price2 = new ProductSummaryPriceModel();
+
+            ICollection<Product> associatedProducts = null;
+
+            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !batchContext.ProductBundleItems.FullyLoaded)
+            {
+                await batchContext.ProductBundleItems.LoadAllAsync();
+            }
+
+            priceModel.DisplayTextForZeroPrices = _priceSettings.DisplayTextForZeroPrices;
+
+            if (product.ProductType == ProductType.GroupedProduct)
+            {
+                priceModel.DisableBuyButton = true;
+                priceModel.DisableWishlistButton = true;
+                priceModel.AvailableForPreOrder = false;
+
+                if (context.GroupedProducts == null)
+                {
+                    // One-time batched retrieval of all associated products.
+                    var searchQuery = new CatalogSearchQuery()
+                        .PublishedOnly(true)
+                        .HasStoreId(options.Store.Id)
+                        .HasParentGroupedProduct(batchContext.ProductIds.ToArray());
+
+                    // Get all associated products for this batch grouped by ParentGroupedProductId.
+                    var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
+                    var allAssociatedProducts = (await searchResult.GetHitsAsync())
+                        .OrderBy(x => x.ParentGroupedProductId)
+                        .ThenBy(x => x.DisplayOrder);
+
+                    context.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
+                    context.AssociatedProductBatchContext = _productService.CreateProductBatchContext(allAssociatedProducts, options.Store, options.Customer, false);
+
+                    options.ChildProductsBatchContext = context.AssociatedProductBatchContext;
+                }
+
+                associatedProducts = context.GroupedProducts[product.Id];
+                if (associatedProducts.Any())
+                {
+                    contextProduct = associatedProducts.OrderBy(x => x.DisplayOrder).First();
+                    _services.DisplayControl.Announce(contextProduct);
+                }
+            }
+            else
+            {
+                priceModel.DisableBuyButton = product.DisableBuyButton || !context.AllowShoppingCart || !context.AllowPrices;
+                priceModel.DisableWishlistButton = product.DisableWishlistButton || !context.AllowWishlist || !context.AllowPrices;
+                priceModel.AvailableForPreOrder = product.AvailableForPreOrder;
+            }
+
+            // Return if there's no pricing at all.
+            if (contextProduct == null || contextProduct.CustomerEntersPrice || !context.AllowPrices || _priceSettings.PriceDisplayType == PriceDisplayType.Hide)
+            {
+                return contextProduct;
+            }
+
+            // Return if group has no associated products.
+            if (product.ProductType == ProductType.GroupedProduct && !associatedProducts.Any())
+            {
+                return contextProduct;
+            }
+
+            // Call for price.
+            // TODO: (mc) (pricing) Move this to base somehow
+            priceModel.CallForPrice = contextProduct.CallForPrice;
+            if (contextProduct.CallForPrice)
+            {
+                priceModel.FinalPrice = new Money(options.TargetCurrency).WithPostFormat(context.Resources["Products.CallForPrice"]);
+                return contextProduct;
+            }
+
+            var calculationContext = new PriceCalculationContext(product, options)
+            {
+                AssociatedProducts = associatedProducts
+            };
+
+            // -----> Perform calculation <-------
+            var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+            // Map base
+            MapPriceBase(calculatedPrice, priceModel);
+
+            priceModel.ShowPriceLabel = _priceSettings.ShowPriceLabelInLists;
+
+            // Badges
+            priceModel.ShowSavingBadge = _priceSettings.ShowSavingBadgeInLists && priceModel.Saving.HasSaving;
+            if (_priceSettings.ShowOfferBadge && _priceSettings.ShowOfferBadgeInLists)
+            {
+                AddPromoBadge(calculatedPrice, priceModel);
+            }
+
+            return contextProduct;
+        }
+
+        #endregion
+
+        #region Utils
+
+        protected void MapPriceBase(CalculatedPrice price, PriceModel model)
+        {
+            model.CalculatedPrice = price;
+            model.FinalPrice = price.FinalPrice;
+            model.Saving = price.Saving;
+            model.ValidUntilUtc = price.ValidUntilUtc;
+            model.ShowRetailPriceSaving = _priceSettings.ShowRetailPriceSaving;
+            // TODO: (mc) (pricing) Move CallForPrice here somehow
+
+            var product = price.Product;
+            var forSummary = model is ProductSummaryPriceModel;
+            var shouldMapRetailPrice = forSummary
+                // Never show retail price in listings if we have a regular price already
+                ? !price.RegularPrice.HasValue
+                : !price.RegularPrice.HasValue || _priceSettings.AlwaysDisplayRetailPrice;
+
+            // Regular price
+            if (model.RegularPrice == null && price.Saving.HasSaving && price.RegularPrice.HasValue)
+            {
+                model.RegularPrice = GetComparePriceModel(price.RegularPrice.Value, price.RegularPriceLabel, forSummary);
+            }
+
+            // Retail price
+            if (model.RetailPrice == null && price.RetailPrice.HasValue && shouldMapRetailPrice)
+            {
+                model.RetailPrice = GetComparePriceModel(price.RetailPrice.Value, price.RetailPriceLabel, forSummary);
+            }
+
+            // BasePrice (PanGV)
+            // TODO: (mc) (pricing) distinguish between summary and details and respect PanGV setting
+            model.IsBasePriceEnabled =
+                price.FinalPrice != decimal.Zero &&
+                product.BasePriceEnabled &&
+                !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing);
+
+            if (model.IsBasePriceEnabled)
+            {
+                model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(
+                    product: product,
+                    price: price.FinalPrice,
+                    targetCurrency: price.FinalPrice.Currency,
+                    // Don't diaplay tax suffix in detail
+                    displayTaxSuffix: forSummary ? null : false);
+            }
+        }
+
+        private void AddPromoBadge(CalculatedPrice price, PriceModel model)
+        {
+            // Add default promo badges as configured
+            var (label, style) = _priceLabelService.GetPricePromoBadge(price);
+
+            if (label.HasValue())
+            {
+                model.Badges.Add(new ProductBadgeModel
+                {
+                    Label = label,
+                    Style = style ?? "dark"
+                });
+            }
+        }
+
+        private static ComparePriceModel GetComparePriceModel(Money comparePrice, PriceLabel priceLabel, bool forSummary)
+        {
+            // TODO: (mc) (pricing) Check if label should be displayed in listings?
+
+            var model = new ComparePriceModel { Price = comparePrice };
+
+            if (forSummary)
+            {
+                model.Label = priceLabel.GetLocalized(x => x.ShortName);
+            }
+            else
+            {
+                // In product detail we should fallback to ShortName if Name is empty.
+                model.Label = priceLabel.GetLocalized(x => x.Name).Value.NullEmpty() ?? priceLabel.GetLocalized(x => x.ShortName);
+                model.Description = priceLabel.GetLocalized(x => x.Description);
+            }
+
+            return model;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected Money ToWorkingCurrency(decimal amount, ProductSummaryItemContext ctx, bool showCurrency = true)
+        {
+            return _currencyService.ConvertToCurrency(new Money(amount, ctx.PrimaryCurrency, !showCurrency), ctx.CalculationOptions.TargetCurrency);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected Money ToWorkingCurrency(Money amount, ProductSummaryItemContext ctx)
+        {
+            return _currencyService.ConvertToCurrency(amount, ctx.CalculationOptions.TargetCurrency);
+        }
+
+        #endregion
+    }
+}

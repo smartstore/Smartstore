@@ -94,8 +94,7 @@ namespace Smartstore.Web.Models.Catalog
         public bool BackInStockAlreadySubscribed { get; set; }
 
         public ProductPriceModel ProductPrice { get; set; } = new();
-        public DetailsPriceModel Price { get; set; }
-        public List<TierPriceModel> TierPrices { get; set; } = new();
+        public ProductDetailsPriceModel Price { get; set; } = new();
 
         public AddToCartModel AddToCart { get; set; } = new();
         public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = new();

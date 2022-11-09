@@ -5,47 +5,30 @@ namespace Smartstore.Web.Models.Catalog
 {
     public class PriceModel : ModelBase
     {
-        public PriceModel(CalculatedPrice price)
-        {
-            CalculatedPrice = Guard.NotNull(price, nameof(price));
-        }
-
-        public CalculatedPrice CalculatedPrice { get; }
-        public List<PriceBadgeModel> Badges { get; } = new();
-
+        public CalculatedPrice CalculatedPrice { get; set; }
+        public Money FinalPrice { get; set; }
         public ComparePriceModel RegularPrice { get; set; }
         public ComparePriceModel RetailPrice { get; set; }
 
-        public Money FinalPrice
-        {
-            get => CalculatedPrice.FinalPrice;
-            set => CalculatedPrice.FinalPrice = value;
-        }
-
-        public DateTime? ValidUntilUtc
-        {
-            get => CalculatedPrice.ValidUntilUtc;
-        }
-
-        public PriceSaving Saving
-        {
-            get => CalculatedPrice.Saving;
-        }
+        public DateTime? ValidUntilUtc { get; set; }
+        public PriceSaving Saving { get; set; }
 
         public bool IsBasePriceEnabled { get; set; }
         public string BasePriceInfo { get; set; }
 
         public bool CallForPrice { get; set; }
         public bool ShowRetailPriceSaving { get; set; }
+
+        public List<ProductBadgeModel> Badges { get; } = new();
+
+        public bool HasCalculation
+        {
+            get => CalculatedPrice != null;
+        }
     }
 
-    public class SummaryPriceModel : PriceModel
+    public class ProductSummaryPriceModel : PriceModel
     {
-        public SummaryPriceModel(CalculatedPrice price)
-            : base(price)
-        {
-        }
-
         public bool ShowSavingBadge { get; set; }
         public bool ShowPriceLabel { get; set; }
         public bool DisableBuyButton { get; set; }
@@ -54,13 +37,8 @@ namespace Smartstore.Web.Models.Catalog
         public bool DisplayTextForZeroPrices { get; set; }
     }
 
-    public class DetailsPriceModel : PriceModel
+    public class ProductDetailsPriceModel : PriceModel
     {
-        public DetailsPriceModel(CalculatedPrice price)
-            : base(price)
-        {
-        }
-
         public LocalizedString CountdownText { get; set; }
         public bool CustomerEntersPrice { get; set; }
         public bool HidePrices { get; set; }
@@ -77,7 +55,7 @@ namespace Smartstore.Web.Models.Catalog
         public string Description { get; set; }
     }
 
-    public class PriceBadgeModel
+    public class ProductBadgeModel
     {
         public string Label { get; set; }
         public string Style { get; set; }
