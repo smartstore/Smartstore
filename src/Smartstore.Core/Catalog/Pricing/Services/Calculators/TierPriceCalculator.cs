@@ -6,7 +6,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     /// Calculates the minimum tier price and applies it if it is lower than the FinalPrice.
     /// Tier prices of bundle items are ignored if per-item pricing is activated for the bundle.
     /// </summary>
-    [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 100)]
+    [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.Bundle, CalculatorOrdering.Default + 100)]
     public class TierPriceCalculator : IPriceCalculator
     {
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)

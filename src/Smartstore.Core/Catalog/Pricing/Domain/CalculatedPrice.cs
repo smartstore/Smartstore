@@ -103,6 +103,10 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// List of discount entities that have been applied during calculation.
         /// </summary>
+        /// <remarks>
+        /// May contain multiple discounts if both the product and a tier price have been discounted.
+        /// Without a tier price applied, the list will contain no discount or exactly one discount (detected via <see cref="DiscountExtensions.GetPreferredDiscount"/>).
+        /// </remarks>
         public ICollection<Discount> AppliedDiscounts { get; init; }
 
         /// <summary>

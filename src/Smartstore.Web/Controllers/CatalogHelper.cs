@@ -1505,12 +1505,17 @@ namespace Smartstore.Web.Controllers
                     // Apply price adjustments of attributes preselected by merchant.
                     calculationContext.Options.ApplyPreselectedAttributes = true;
                 }
-            }
 
-            // Calculate unit price now
-            var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
-            model.Price = new DetailsPriceModel(calculatedPrice);
-            await calculatedPrice.MapDetailsAsync(model.Price, modelContext);
+                // Calculate unit price now
+                var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+                model.Price = new DetailsPriceModel(calculatedPrice);
+                await calculatedPrice.MapDetailsAsync(model.Price, modelContext);
+            }
+            else
+            {
+                // Do not show any bundle item price for bundle with bundle pricing.
+                await NoPrice();
+            }
 
             async Task NoPrice()
             {
@@ -1556,16 +1561,19 @@ namespace Smartstore.Web.Controllers
             }
 
             var applyDiscountNote = false;
-            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
-            var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
-            {
-                AssociatedProducts = modelContext.AssociatedProducts,
-                BundleItem = productBundleItem
-            };
+            CalculatedPrice priceWithDiscount = null;
+            CalculatedPrice priceWithoutDiscount = null;
 
             // Apply price adjustments of attributes.
             if (!isBundlePricing)
             {
+                var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
+                var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
+                {
+                    AssociatedProducts = modelContext.AssociatedProducts,
+                    BundleItem = productBundleItem
+                };
+
                 if (modelContext.SelectedAttributes != null)
                 {
                     // Apply price adjustments of selected attributes.
@@ -1595,9 +1603,18 @@ namespace Smartstore.Web.Controllers
                     // Apply price adjustments of attributes preselected by merchant.
                     calculationContext.Options.ApplyPreselectedAttributes = true;
                 }
-            }
 
-            var priceWithDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+                priceWithDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+                calculationContext.Options.IgnoreDiscounts = true;
+                priceWithoutDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+            }
+            else
+            {
+                // Do not show any bundle item price for bundle with bundle pricing.
+                priceWithDiscount = new CalculatedPrice(product);
+                priceWithoutDiscount = new CalculatedPrice(product);
+            }
 
             #region New Pricing
 
@@ -1606,9 +1623,6 @@ namespace Smartstore.Web.Controllers
             model.Price = priceModel;
 
             #endregion
-
-            calculationContext.Options.IgnoreDiscounts = true;
-            var priceWithoutDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
             var comparePriceBase = await _taxCalculator.CalculateProductTaxAsync(product, product.ComparePrice, null, customer, currency);
             var comparePrice = _currencyService.ConvertFromPrimaryCurrency(comparePriceBase.Price, currency);
@@ -1945,6 +1959,11 @@ namespace Smartstore.Web.Controllers
 
         protected async Task<List<ProductDetailsModel.TierPriceModel>> CreateTierPriceModelAsync(ProductDetailsModelContext modelContext, Product product)
         {
+            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
+            {
+                return new List<ProductDetailsModel.TierPriceModel>();
+            }
+
             var tierPrices = product.TierPrices
                 .FilterByStore(modelContext.Store.Id)
                 .FilterForCustomer(modelContext.Customer)

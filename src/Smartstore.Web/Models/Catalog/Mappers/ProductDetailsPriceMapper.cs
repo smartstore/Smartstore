@@ -87,6 +87,13 @@ namespace Smartstore.Web.Models.Catalog.Mappers
         private async Task CreateTierPriceModelAsync(DetailsPriceModel model, ProductDetailsModelContext modelContext)
         {
             var product = modelContext.Product;
+
+            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
+            {
+                // Tier prices are ignored for bundles with per-item pricing.
+                return;
+            }
+
             var tierPrices = product.TierPrices
                 .FilterByStore(modelContext.Store.Id)
                 .FilterForCustomer(modelContext.Customer)

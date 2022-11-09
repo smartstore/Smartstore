@@ -47,6 +47,7 @@
         var showPriceSaving = priceModel2.Saving.SavingAmount.HasValue && (priceModel2.ShowRetailPriceSaving || priceModel2.RegularPrice != null);
 
         var currentPriceValue = priceModel.PriceWithDiscount > 0 ? priceModel.PriceWithDiscount : priceModel.Price;
+        var showPrice = !(isBundlePart && currentPriceValue == 0);
         var currentPrice = currentPriceValue.ToString();
         var currentPriceLabel = priceModel.NoteWithDiscount;
 
@@ -97,7 +98,7 @@
                 </div>
 
                 @* Final price *@
-                <div class="pd-finalprice" attr-class='(priceModel2.Saving.HasSaving, "pd-finalprice-offer")'>
+                <div sm-if="showPrice" class="pd-finalprice" attr-class='(priceModel2.Saving.HasSaving, "pd-finalprice-offer")'>
                     <meta itemprop="priceCurrency" sm-if="!isBundlePart" content="@WorkContext.WorkingCurrency.CurrencyCode" />
                     <meta itemprop="price" sm-if="!priceModel2.CallForPrice && !isBundlePart" content="@priceModel2.FinalPrice.RoundedAmount.ToStringInvariant()" />
                     @if (priceModel2.ValidUntilUtc.HasValue)
@@ -136,7 +137,7 @@
             <!-- Old price group -->
             <div class="x-d-none">
                 <div class="row sm-gutters pd-price-group">
-                    <div class="col-auto pd-price-block">
+                    <div sm-if="showPrice" class="col-auto pd-price-block">
                         <meta sm-if="!isBundlePart" itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />
                         <div sm-if="blocksHaveLabel" class="pd-price-label">@currentPriceLabel</div>
                         <div class="@artPriceClasses">
