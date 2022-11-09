@@ -329,8 +329,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> MoveFile(int key, 
-            [FromODataBody, Required] string destinationFileName, 
+        public async Task<IActionResult> MoveFile(int key,
+            [FromODataBody, Required] string destinationFileName,
             [FromODataBody] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
         {
             try
@@ -427,14 +427,19 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
-        // TODO: (mg) (core) Swagger needs an uploader.
-
         /// <summary>
         /// Saves a file.
         /// </summary>
+        /// <remarks>
+        /// Supports the following optional file content-disposition headers:
+        /// 
+        /// **path**: the path of the file, e.g. file/my-file.jpg    
+        /// **isTransient**: a value indicating whether the file is transient/preliminary.    
+        /// **duplicateFileHandling**: a value of type DuplicateFileHandling indicating how to proceed if the uploaded file already exists.
+        /// </remarks>
         [HttpPost, ApiQueryable]
         [Permission(Permissions.Media.Upload)]
-        [Consumes("multipart/form-data"), Produces(Json)]
+        [ApiUpload, Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status415UnsupportedMediaType)]
@@ -457,6 +462,7 @@ namespace Smartstore.Web.Api.Controllers.OData
                     return BadRequest("Send one file per request, not multiple.");
                 }
 
+                // INFO: "file" as method parameter would always be null. We can get it only via Request.Form.Files.
                 var file = Request.Form.Files[0];
 
                 if (file.ContentDisposition.IsEmpty())

@@ -6,12 +6,31 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Smartstore.ComponentModel;
 using Smartstore.Web.Api.Models.Media;
+using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger
 {
     internal class SwaggerOperationHelper
     {
+        private static readonly string[] _descriptionsToReplace = new[]
+        {
+            "Success", "No Content", "Bad Request", "Not Found", "Client Error"
+        };
+
+        private static readonly Dictionary<int, string> _statusDescriptions = new()
+        {
+            { Status200OK, "The request has succeeded." },
+            { Status204NoContent, "The request has succeeded. There is no content provided." },
+            { Status400BadRequest, "Bad request. The reason is assumed to be a client error, like incorrect data, data formatting or request syntax." },
+            { Status401Unauthorized, $"Unauthorized API request. The exact reason is provided by the **{BasicAuthenticationHandler.ResultDescriptionHeader}** response header." },
+            { Status404NotFound, "The requested resource was not found." },
+            { Status409Conflict, "The request failed due to a conflict. The most common cause of this failure is a concurrency violation at the related entity." },
+            { Status415UnsupportedMediaType, "The request failed due to an unsupported content type." },
+            { Status422UnprocessableEntity, "The processing of the associated entity failed. Details about the reason can be found in the response message." },
+            { Status500InternalServerError, "Internal server error. Indicates that the server has encountered an unexpected error." }
+        };
+
         private static readonly Dictionary<string, string> _entityAliasNames = new(StringComparer.OrdinalIgnoreCase)
         {
             { nameof(FileItemInfo), "file" },
@@ -84,7 +103,7 @@ namespace Smartstore.Web.Api.Swagger
                 Required = required,
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    [MediaTypeNames.Application.Json] = new OpenApiMediaType
+                    [Json] = new OpenApiMediaType
                     {
                         Schema = GenerateSchema(EntityType)
                     }
@@ -116,7 +135,7 @@ namespace Smartstore.Web.Api.Swagger
                 Description = description,
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    [MediaTypeNames.Application.Json] = new OpenApiMediaType
+                    [Json] = new OpenApiMediaType
                     {
                         Schema = GenerateSchema(modelType)
                     }
@@ -124,27 +143,27 @@ namespace Smartstore.Web.Api.Swagger
             };
         }
 
-        public OpenApiResponse CreateSucccessResponse(Type modelType)
-        {
-            var returnStr = modelType == null
-                ? "Returns a value of varying type."
-                : $"Returns a value of type {modelType.Name}";
+        //public OpenApiResponse CreateSucccessResponse(Type modelType)
+        //{
+        //    var returnStr = modelType == null
+        //        ? "Returns a value of varying type."
+        //        : $"Returns a value of type {modelType.Name}";
 
-            // "string" is fine because it is just an example value.
-            modelType ??= typeof(string);
+        //    // "string" is fine because it is just an example value.
+        //    modelType ??= typeof(string);
 
-            return new OpenApiResponse
-            {
-                Description = $"The request has succeeded. {returnStr}",
-                Content = new Dictionary<string, OpenApiMediaType>
-                {
-                    [MediaTypeNames.Application.Json] = new OpenApiMediaType
-                    {
-                        Schema = GenerateSchema(modelType)
-                    }
-                }
-            };
-        }
+        //    return new OpenApiResponse
+        //    {
+        //        Description = $"The request has succeeded. {returnStr}",
+        //        Content = new Dictionary<string, OpenApiMediaType>
+        //        {
+        //            [Json] = new OpenApiMediaType
+        //            {
+        //                Schema = GenerateSchema(modelType)
+        //            }
+        //        }
+        //    };
+        //}
 
         public void AddKeyParameter()
         {
@@ -192,6 +211,30 @@ namespace Smartstore.Web.Api.Swagger
             if (addParameter)
             {
                 Op.Parameters.Add(parameter);
+            }
+        }
+
+        public void AddResponse(params int[] statusCodes)
+        {
+            foreach (var statusCode in statusCodes)
+            {
+                if (_statusDescriptions.TryGetValue(statusCode, out var description))
+                {
+                    Op.Responses[statusCode.ToString()] = new() { Description = description };
+                }
+            }
+        }
+
+        public void ReplaceResponses()
+        {
+            var responses = Op.Responses.Where(x => _descriptionsToReplace.Contains(x.Value.Description, StringComparer.OrdinalIgnoreCase));
+
+            foreach (var response in responses)
+            {
+                if (int.TryParse(response.Key, out int statusCode) && _statusDescriptions.TryGetValue(statusCode, out var description))
+                {
+                    response.Value.Description = description;
+                }
             }
         }
 

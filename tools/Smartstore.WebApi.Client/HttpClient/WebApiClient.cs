@@ -152,19 +152,19 @@ namespace Smartstore.WebApi.Client
                 // Add file parameters. Omit default values (let the server apply them).
                 if (file.Id != 0)
                 {
-                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("PictureId", file.Id.ToString()));
+                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("pictureId", file.Id.ToString()));
                 }
                 if (file.Path.HasValue())
                 {
-                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("Path", file.Path));
+                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("path", file.Path));
                 }
                 if (!file.IsTransient)
                 {
-                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("IsTransient", file.IsTransient.ToString()));
+                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("isTransient", file.IsTransient.ToString()));
                 }
                 if (file.DuplicateFileHandling != DuplicateFileHandling.ThrowError)
                 {
-                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("DuplicateFileHandling", ((int)file.DuplicateFileHandling).ToString()));
+                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("duplicateFileHandling", ((int)file.DuplicateFileHandling).ToString()));
                 }
 
                 // Test passing of custom parameters. Smartstore does not use them. The API ignores them anyway.

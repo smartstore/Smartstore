@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using static Microsoft.ClearScript.V8.V8CpuProfile;
 
 namespace Smartstore.Web.Api.Swagger
 {
@@ -18,6 +17,9 @@ namespace Smartstore.Web.Api.Swagger
     /// </summary>
     internal class SwaggerOperationFilter : IOperationFilter
     {
+        private static readonly Regex _pathsToIgnore = new(@"\/default\.",
+            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         private static readonly string[] _knownMethodNames = new[] { "Get", "Post", "Put", "Patch", "Delete" };
         private static readonly Type[] _parametersToRemove = new[] { typeof(ODataQueryOptions) };
 
@@ -44,14 +46,18 @@ namespace Smartstore.Web.Api.Swagger
                 // Skip what is not inherited from our SmartODataController.
                 if (context.MethodInfo.DeclaringType.BaseType.IsClosedGenericTypeOf(typeof(SmartODataController<>)))
                 {
-                    var helper = new SwaggerOperationHelper(operation, context);
+                    if (!_pathsToIgnore.IsMatch(context.ApiDescription.RelativePath))
+                    {
+                        var helper = new SwaggerOperationHelper(operation, context);
 
-                    AddOperationInfo(helper);
-                    AddParameterInfo(helper);
-                    AddQueryParameters(helper);
-                    FixOdataActions(helper);
-                    FixOdataFunctions(helper);
-                    RemoveParameters(helper);
+                        AddOperationInfo(helper);
+                        AddParameterInfo(helper);
+                        AddQueryParameters(helper);
+                        AddUploader(helper);
+                        FixOdataActions(helper);
+                        FixOdataFunctions(helper);
+                        RemoveParameters(helper);
+                    }
                 }
             }
             catch (Exception ex)
@@ -80,20 +86,22 @@ namespace Smartstore.Web.Api.Swagger
             if (canProcess)
             {
                 helper.Op.Responses.Clear();
+                helper.AddResponse(Status400BadRequest, Status500InternalServerError);
+            }
+            else
+            {
+                helper.ReplaceResponses();
             }
 
             if (mi.DeclaringType.HasAttribute<AuthorizeAttribute>(true) || mi.HasAttribute<AuthorizeAttribute>(true))
             {
-                helper.Op.Responses[Status401Unauthorized.ToString()] = CreateUnauthorizedResponse();
-                helper.Op.Responses[Status500InternalServerError.ToString()] = CreateInternalServerResponse();
+                helper.AddResponse(Status401Unauthorized);
             }
 
             if (!canProcess)
             {
                 return;
             }
-
-            helper.Op.Responses[Status400BadRequest.ToString()] = CreateBadRequestResponse();
 
             var entityName = PrefixArticle(helper.EntityAliasName);
 
@@ -103,14 +111,13 @@ namespace Smartstore.Web.Api.Swagger
                     if (helper.HasKeyParameter)
                     {
                         helper.Op.Summary ??= $"Gets {entityName} by identifier.";
-                        helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(true);
-                        helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
+                        helper.AddResponse(Status200OK, Status404NotFound);
                         helper.AddKeyParameter();
                     }
                     else
                     {
                         helper.Op.Summary ??= $"Gets {entityName} list.";
-                        helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(false);
+                        helper.AddResponse(Status200OK);
                     }
                     break;
 
@@ -137,17 +144,13 @@ namespace Smartstore.Web.Api.Swagger
 
                     helper.Op.RequestBody = helper.CreateRequestBody();
                     helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(true);
-                    helper.Op.Responses[Status204NoContent.ToString()] = CreateNoContentResponse();
-                    helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
-                    helper.Op.Responses[Status409Conflict.ToString()] = CreateConflictResponse();
-                    helper.Op.Responses[Status422UnprocessableEntity.ToString()] = CreateUnprocessableEntityResponse();
+                    helper.AddResponse(Status204NoContent, Status404NotFound, Status409Conflict, Status422UnprocessableEntity);
                     helper.AddKeyParameter();
                     break;
 
                 case "Delete":
                     helper.Op.Summary ??= $"Deletes {entityName}.";
-                    helper.Op.Responses[Status204NoContent.ToString()] = CreateNoContentResponse();
-                    helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
+                    helper.AddResponse(Status204NoContent, Status404NotFound);
                     helper.AddKeyParameter();
                     break;
 
@@ -164,7 +167,7 @@ namespace Smartstore.Web.Api.Swagger
 
                         if (isSingleResult)
                         {
-                            helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
+                            helper.AddResponse(Status404NotFound);
                         }
                     }
                     break;
@@ -282,6 +285,66 @@ namespace Smartstore.Web.Api.Swagger
 
                 helper.Op.Parameters.Add(p);
             }
+        }
+
+        /// <summary>
+        /// Adds a file uploader for methods decorated with <see cref="ApiUploadAttribute"/>.
+        /// </summary>
+        protected virtual void AddUploader(SwaggerOperationHelper helper)
+        {
+            var attribute = (ApiUploadAttribute)helper.Context.MethodInfo.GetCustomAttributes(typeof(ApiUploadAttribute), false).FirstOrDefault();
+            if (attribute == null)
+            {
+                return;
+            }
+
+            attribute.PropertyName ??= "file";
+
+            var mediaType = new OpenApiMediaType
+            {
+                Schema = new OpenApiSchema
+                {
+                    Type = "object",
+                    Required = new HashSet<string> { attribute.PropertyName },
+                    Properties = new Dictionary<string, OpenApiSchema>
+                    {
+                        {
+                            attribute.PropertyName, new OpenApiSchema
+                            {
+                                Type = "string",
+                                Format = "binary"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var content = new Dictionary<string, OpenApiMediaType>
+            {
+                { attribute.ContentTypes.FirstOrDefault() ?? "multipart/form-data", mediaType }
+            };
+
+            helper.Op.RequestBody = new OpenApiRequestBody
+            {
+                Content = content,
+                Required = !attribute.IsOptional
+            };
+
+            //foreach (var contentType in attribute.ContentTypes)
+            //{
+            //    if (body.Content.TryGetValue(contentType, out var mediaType))
+            //    {
+            //        if (attribute.SchemaType != null)
+            //        {
+            //            mediaType.Schema = helper.GenerateSchema(attribute.SchemaType);
+            //        }
+
+            //        if (mediaType.Example == null && attribute.Example.HasValue())
+            //        {
+            //            mediaType.Example = new OpenApiString(attribute.Example);
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
@@ -428,96 +491,7 @@ namespace Smartstore.Web.Api.Swagger
             });
         }
 
-        //protected virtual void ApplyConsumesExample(SwaggerOperationHelper helper)
-        //{
-        //    //if (helper.HttpMethod.EqualsNoCase("POST")
-        //    //    && helper.ActionDescriptor.Parameters.Any(x => x.ParameterType == typeof(ODataActionParameters)))
-
-        //    if (helper.ActionName.EqualsNoCase("SaveFile"))
-        //    {
-        //        var mediaType = new OpenApiMediaType
-        //        {
-        //            Schema = new OpenApiSchema
-        //            {
-        //                Type = "object",
-        //                Required = new HashSet<string> { "File" },
-        //                Properties = new Dictionary<string, OpenApiSchema>
-        //                {
-        //                    {
-        //                        "File", new OpenApiSchema
-        //                        {
-        //                            Type = "string",
-        //                            Format = "binary"
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        };
-
-        //        var content = new Dictionary<string, OpenApiMediaType>
-        //        {
-        //            { "multipart/form-data", mediaType }
-        //        };
-
-        //        helper.Op.RequestBody = new OpenApiRequestBody
-        //        {
-        //            Content = content
-        //        };
-        //    }
-
-        //    var body = helper.Op.RequestBody;
-        //    if (body == null)
-        //    {
-        //        return;
-        //    }
-
-        //    var attribute = (ApiConsumesAttribute)helper.ActionDescriptor.MethodInfo.GetCustomAttributes(typeof(ApiConsumesAttribute), false).FirstOrDefault();
-        //    if (attribute == null)
-        //    {
-        //        return;
-        //    }
-
-        //    body.Required = attribute.Required;
-
-        //    foreach (var contentType in attribute.ContentTypes)
-        //    {
-        //        if (body.Content.TryGetValue(contentType, out var mediaType))
-        //        {
-        //            if (attribute.SchemaType != null)
-        //            {
-        //                mediaType.Schema = helper.GenerateSchema(attribute.SchemaType);
-        //            }
-                    
-        //            if (mediaType.Example == null && attribute.Example.HasValue())
-        //            {
-        //                mediaType.Example = new OpenApiString(attribute.Example);
-        //            }
-        //        }
-        //    }
-        //}
-
         #region Utilities
-
-        private static OpenApiResponse CreateUnauthorizedResponse()
-            => new() { Description = $"Unauthorized API request. The exact reason is provided by the **{BasicAuthenticationHandler.ResultDescriptionHeader}** response header." };
-
-        private static OpenApiResponse CreateNotFoundResponse()
-            => new() { Description = "The requested resource was not found." };
-
-        private static OpenApiResponse CreateBadRequestResponse()
-            => new() { Description = "Bad request. The reason is assumed to be a client error, like incorrect data, data formatting or request syntax." };
-
-        private static OpenApiResponse CreateInternalServerResponse()
-            => new() { Description = "Internal server error. Indicates that the server has encountered an unexpected error." };
-
-        private static OpenApiResponse CreateNoContentResponse()
-            => new() { Description = "The request has succeeded. There is no content provided." };
-
-        private static OpenApiResponse CreateConflictResponse()
-            => new() { Description = "The request failed due to a conflict. The most common cause of this failure is a concurrency violation at the related entity." };
-
-        private static OpenApiResponse CreateUnprocessableEntityResponse()
-            => new() { Description = "The processing of the associated entity failed. Details about the reason can be found in the response message." };
 
         private static string PrefixArticle(string str)
         {
