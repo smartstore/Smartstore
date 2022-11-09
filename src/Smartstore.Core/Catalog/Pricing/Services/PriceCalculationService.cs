@@ -308,15 +308,17 @@ namespace Smartstore.Core.Catalog.Pricing
             // Determine tax rate for product.
             var taxRate = await _taxService.GetTaxRateAsync(product, null, options.Customer);
 
-            var endDates = context.AppliedDiscounts.Select(x => x.EndDateUtc).ToList();
-            endDates.Add(context.OfferEndDateUtc);
+            var endDates = context.AppliedDiscounts.Select(x => x.EndDateUtc)
+                .Concat(new[] { context.OfferEndDateUtc })
+                .Where(x => x.HasValue)
+                .ToArray();
 
             // Prepare result by converting price amounts.
             var result = new CalculatedPrice(context)
             {
                 Product = product,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
-                ValidUntilUtc = endDates.Where(x => x != null).Min(),
+                ValidUntilUtc = endDates.Min(),
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
                 LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
                 DiscountAmount = ConvertAmount(context.DiscountAmount, context, taxRate, false, out _).Value,
