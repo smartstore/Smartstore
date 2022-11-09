@@ -72,12 +72,27 @@ namespace Smartstore.Core.Installation
 
         #region Mandatory data creators
 
-        public IList<MediaFile> Pictures()
+        public IList<MediaFile> Pictures(bool includeSamples)
         {
             var entities = new List<MediaFile>
             {
                 CreatePicture("company-logo.png")
             };
+
+            if (includeSamples)
+            {
+                entities.AddRange(new[]
+                {
+                    CreatePicture("product/allstar_charcoal.jpg"),
+                    CreatePicture("product/allstar_maroon.jpg"),
+                    CreatePicture("product/allstar_navy.jpg"),
+                    CreatePicture("product/allstar_purple.jpg"),
+                    CreatePicture("product/allstar_white.jpg"),
+                    CreatePicture("product/wayfarer_havana.png"),
+                    CreatePicture("product/wayfarer_havana_black.png"),
+                    CreatePicture("product/wayfarer_rayban-black.png")
+                });
+            }
 
             Alter(entities);
             return entities;

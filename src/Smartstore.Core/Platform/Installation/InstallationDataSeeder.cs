@@ -82,7 +82,7 @@ namespace Smartstore.Core.Installation
             // because SampleMediaUtility depends on it.
             _data.Initialize(Context, _config, EngineContext.Current.Application);
 
-            Populate("PopulatePictures", () => _data.Pictures());
+            Populate("PopulatePictures", () => _data.Pictures(_config.SeedSampleData));
             await PopulateAsync("PopulateCurrencies", PopulateCurrencies);
             await PopulateAsync("PopulateStores", PopulateStores);
             await PopulateAsync("InstallLanguages", () => PopulateLanguage(_config.Language));
