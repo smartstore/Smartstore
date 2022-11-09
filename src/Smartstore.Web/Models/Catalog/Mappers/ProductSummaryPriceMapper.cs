@@ -1,5 +1,7 @@
 ﻿using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
+using static Smartstore.Web.Models.Catalog.ProductSummaryItemModel;
 
 namespace Smartstore.Web.Models.Catalog.Mappers
 {
@@ -15,14 +17,40 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
         protected override Task<bool> MapCoreAsync(CalculatedPrice price, SummaryPriceModel model, dynamic parameters = null)
         {
-            if (_priceSettings.ShowSavingBadgeInLists && price.Saving.HasSaving)
+            var context = (ProductSummaryItemContext)parameters.ModelContext;
+            var contextProduct = (Product)parameters.ContextProduct;
+            var options = context.CalculationOptions;
+            var product = price.Product;
+
+            model.DisplayTextForZeroPrices = _priceSettings.DisplayTextForZeroPrices;
+
+            if (product.ProductType == ProductType.GroupedProduct)
             {
-                model.Badges.Add(new PriceBadgeModel
-                {
-                    Label = T("Products.SavingBadgeLabel", price.Saving.SavingPercent.ToString("N0")),
-                    Style = "danger"
-                });
+                model.DisableBuyButton = true;
+                model.DisableWishlistButton = true;
+                model.AvailableForPreOrder = false;
             }
+            else
+            {
+                model.DisableBuyButton = product.DisableBuyButton || !context.AllowShoppingCart || !context.AllowPrices;
+                model.DisableWishlistButton = product.DisableWishlistButton || !context.AllowWishlist || !context.AllowPrices;
+                model.AvailableForPreOrder = product.AvailableForPreOrder;
+            }
+
+            if (contextProduct.CallForPrice)
+            {
+                model.CallForPrice = true;
+                model.FinalPrice = new Money(options.TargetCurrency).WithPostFormat(context.Resources["Products.CallForPrice"]);
+                return Task.FromResult(false);
+            }
+
+            if (contextProduct.CustomerEntersPrice || !context.AllowPrices || _priceSettings.PriceDisplayType == PriceDisplayType.Hide)
+            {
+                return Task.FromResult(false);
+            }
+
+            model.ShowSavingBadge = _priceSettings.ShowSavingBadgeInLists && price.Saving.HasSaving;
+            model.ShowPriceLabel = _priceSettings.ShowPriceLabelInLists;
 
             if (_priceSettings.ShowOfferBadge && _priceSettings.ShowOfferBadgeInLists)
             {

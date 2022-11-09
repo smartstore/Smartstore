@@ -1,0 +1,43 @@
+﻿@using Smartstore.Core.Common;
+@using Smartstore.Web.Models.Catalog;
+
+@model ProductSummaryItemModel
+
+@{
+    var deliveryPresentation = Model.Parent.DeliveryTimesPresentation;
+    if (deliveryPresentation == DeliveryTimesPresentation.None)
+    {
+        return;
+    }
+}
+
+<div class="art-delivery-info">
+    @if (Model.IsShippingEnabled && !Model.HideDeliveryTime)
+    {
+        var showStatusLabel =
+            deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
+            deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
+            !Model.DeliveryTimeDate.HasValue();
+
+        var showDeliveryDate =
+            (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
+            Model.DeliveryTimeDate.HasValue();
+
+        var statusLabel = Model.DisplayDeliveryTimeAccordingToStock ? Model.DeliveryTimeName : Model.StockAvailablity;
+
+        if (showStatusLabel)
+        {
+            <span class="delivery-time" title="@T("Products.DeliveryTime") @statusLabel" attr-style='(Model.DisplayDeliveryTimeAccordingToStock, "color:" + Model.DeliveryTimeHexValue)'>
+                <i class="fa fa-circle delivery-time-status"></i>
+                <span dir="auto">@statusLabel</span>
+            </span>
+        }
+        if (showDeliveryDate)
+        {
+            <span class="delivery-date-block" title="@T("Products.DeliveryDate") @Model.DeliveryTimeDate.RemoveHtml()">
+                <span sm-if="!showStatusLabel">@T("Products.DeliveryDate")</span>
+                <span class="delivery-date" dir="auto">@Html.Raw(Model.DeliveryTimeDate)</span>
+            </span>
+        }
+    }
+</div>

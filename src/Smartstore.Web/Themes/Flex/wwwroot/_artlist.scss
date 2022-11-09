@@ -6,7 +6,8 @@
 
 $art-line-height:               1.3;
 $art-price-color:               $product-price-color;
-$art-price-offer-color:         $red;
+$art-price-offer-color:         $product-price-color;
+$art-muted-color:               mix($body-color, #fff, 60%);
 $art-border-color:              transparent;
 $art-divider-color:             $gray-300;
 $art-border-radius:             $border-radius-sm;
@@ -165,6 +166,9 @@ $art-box-shadow:                $box-shadow-sm-var;
     --art-font-size: #{$font-size-sm};
     --art-font-size-sm: #{$font-size-xs};
     --art-font-size-xs: #{$font-size-xs};
+    --art-finalprice-color: #{$art-price-color};
+    --art-finalprice-offer-color: #{$art-price-offer-color};
+    --art-muted-color: #{$art-muted-color};
 
     position: relative;
     margin-bottom: 1.5rem;
@@ -292,17 +296,40 @@ $art-box-shadow:                $box-shadow-sm-var;
 }
 
 .art-price {
-    display: inline-block;  
-    font-weight: $font-weight-medium;
-    font-size: 1rem;
-    color: $art-price-color;
+    display: inline-flex;
+    align-items: center;
 
     &.art-price--offer {
-        color: $art-price-offer-color;
+        color: var(--art-finalprice-offer-color);
     }
     &.badge {
-        color: $white;
+        color: #fff;
     }
+}
+
+.art-price-value {
+    font-weight: $font-weight-medium;
+    font-size: 1rem;
+    color: var(--art-finalprice-color);
+    white-space: nowrap;
+}
+
+.art-saving-badge {
+    margin-left: 6px;
+}
+
+.art-promoprice-line {
+    font-size: $font-size-sm;
+    color: var(--art-muted-color);
+}
+
+.art-promoprice-label {
+    margin-right: 3px;
+}
+
+.art-promoprice {
+    display: inline-block;
+    text-decoration: line-through;
 }
 
 .art-oldprice {

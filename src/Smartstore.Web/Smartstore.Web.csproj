@@ -73,6 +73,7 @@
     
     <!-- Don't publish static/raw files -->
 	<ItemGroup>
+        <Content Remove="Views\Shared\Partials\Product.List.Item.Delivery.cshtml" />
         <Content Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
         <Content Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
 	</ItemGroup>

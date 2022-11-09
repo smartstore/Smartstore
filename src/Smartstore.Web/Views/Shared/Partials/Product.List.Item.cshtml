@@ -56,11 +56,11 @@
             <div class="art-info-group@(list.ShowRatings && list.ShowBrand ? " floating" : "")">
                 @if (list.ShowBrand)
                 {
-                    await Html.RenderPartialAsync("Product.List.Item.Brand", Model);
+                    <partial name="Product.List.Item.Brand" model="Model" />
                 }
                 @if (list.ShowRatings)
                 {
-                    await Html.RenderPartialAsync("Product.List.Item.Rating", Model);
+                    <partial name="Product.List.Item.Rating" model="Model" />
                 }
             </div>
         }
@@ -68,11 +68,11 @@
         {
             if (list.ShowRatings)
             {
-                await Html.RenderPartialAsync("Product.List.Item.Rating", Model);
+                <partial name="Product.List.Item.Rating" model="Model" />
             }
             if (list.ShowBrand)
             {
-                await Html.RenderPartialAsync("Product.List.Item.Brand", Model);
+                <partial name="Product.List.Item.Brand" model="Model" />
             }
         }
     }
@@ -119,12 +119,13 @@
 
     @if (list.ViewMode != ProductSummaryViewMode.List)
     {
-        await Html.RenderPartialAsync("Product.List.Item.Price", Model);
+        <partial name="Product.List.Item.Delivery" model="Model" />
+        <partial name="Product.List.Item.Price" model="Model" />
     }
 
     @if (list.ViewMode == ProductSummaryViewMode.List && showVariants)
     {
-        await Html.RenderPartialAsync("Product.List.Item.Variants", Model);
+        <partial name="Product.List.Item.Variants" model="Model" />
     }
 
     @if (list.ShowLegalInfo)
@@ -140,10 +141,11 @@
         @Html.Raw("</div>")
 
         <div class="art-actions-block">
-            @{ await Html.RenderPartialAsync("Product.List.Item.Price", Model); }
+            <partial name="Product.List.Item.Delivery" model="Model" />
+            <partial name="Product.List.Item.Price" model="Model" />
             @if (showButtons)
             {
-                await Html.RenderPartialAsync("Product.List.Item.Buttons", Model);
+                <partial name="Product.List.Item.Buttons" model="Model" />
             }
         </div>
 
@@ -159,11 +161,11 @@
                 <div class="art-drop">
                     @if (showVariants)
                     {
-                        await Html.RenderPartialAsync("Product.List.Item.Variants", Model);
+                        <partial name="Product.List.Item.Variants" model="Model" />
                     }
                     @if (showButtons)
                     {
-                        await Html.RenderPartialAsync("Product.List.Item.Buttons", Model);
+                        <partial name="Product.List.Item.Buttons" model="Model" />
                     }
                 </div>
             }

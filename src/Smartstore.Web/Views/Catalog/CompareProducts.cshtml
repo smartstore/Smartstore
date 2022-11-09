@@ -131,6 +131,7 @@
                             @foreach (var product in Model.Items)
                             {
                                 <td>
+                                    <partial name="Product.List.Item.Delivery" model="product" />
                                     <partial name="Product.List.Item.Price" model="product" />
                                 </td>
                             }

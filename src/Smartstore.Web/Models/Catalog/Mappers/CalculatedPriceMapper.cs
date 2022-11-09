@@ -2,22 +2,29 @@
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Bundling;
-using static Smartstore.Core.Security.Permissions.Catalog;
 
 namespace Smartstore.Web.Models.Catalog.Mappers
 {
     public static partial class CalculatedPriceMappingExtensions
     {
-        public static Task MapDetailsAsync(this CalculatedPrice price, DetailsPriceModel model, ProductDetailsModelContext modelContext)
-            => MapperFactory.MapAsync(price, model, new 
-            { 
-                ModelContext = Guard.NotNull(modelContext, nameof(modelContext)), 
-                ForListing = false 
+        public static Task MapDetailsAsync(this CalculatedPrice price, DetailsPriceModel model, ProductDetailsModelContext context)
+        {
+            return MapperFactory.MapAsync(price, model, new
+            {
+                ModelContext = Guard.NotNull(context, nameof(context)),
+                ForListing = false
             });
+        }
 
-        public static Task MapSummaryAsync(this CalculatedPrice price, SummaryPriceModel model)
-            => MapperFactory.MapAsync(price, model, new { ForListing = true });
+        public static Task MapSummaryAsync(this CalculatedPrice price, Product contextProduct, SummaryPriceModel model, ProductSummaryItemContext context)
+        {
+            return MapperFactory.MapAsync(price, model, new
+            {
+                ContextProduct = Guard.NotNull(contextProduct, nameof(contextProduct)),
+                ModelContext = Guard.NotNull(context, nameof(context)),
+                ForListing = true
+            });
+        }
     }
 
     public abstract class CalculatedPriceMapper<TTo> : IMapper<CalculatedPrice, TTo>
@@ -66,12 +73,17 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
             // BasePrice (PanGV)
             model.IsBasePriceEnabled =
+                price.FinalPrice != decimal.Zero &&
                 from.Product.BasePriceEnabled &&
                 !(from.Product.ProductType == ProductType.BundledProduct && from.Product.BundlePerItemPricing);
 
             if (model.IsBasePriceEnabled)
             {
-                model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(from.Product, price.FinalPrice, price.FinalPrice.Currency);
+                model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(
+                    product: from.Product, 
+                    price: price.FinalPrice, 
+                    targetCurrency: price.FinalPrice.Currency,
+                    displayTaxSuffix: forListing ? null : false);
             }
         }
 

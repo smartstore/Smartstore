@@ -14,6 +14,7 @@ using Smartstore.Data;
 using Smartstore.Diagnostics;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
+using Smartstore.Web.Models.Catalog.Mappers;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Rendering;
 
@@ -390,7 +391,10 @@ namespace Smartstore.Web.Controllers
             // Price
             if (settings.MapPrices)
             {
-                (finalPrice, contextProduct) = await MapSummaryItemPrice(product, item, ctx);
+                contextProduct = await MapSummaryItemPrice(product, item, ctx);
+
+                // TODO: (mc) (pricing) Remove this later
+                (finalPrice, contextProduct) = await MapSummaryItemPriceOld(product, item, ctx);
             }
 
             // (Color) Attributes
@@ -599,10 +603,90 @@ namespace Smartstore.Web.Controllers
             model.Items.Add(item);
         }
 
+        /// <returns>
+        /// The context product: either passed <paramref name="product"/> or the first associated product of a group
+        /// </returns>
+        private async Task<Product> MapSummaryItemPrice(Product product, ProductSummaryItemModel model, ProductSummaryItemContext context)
+        {
+            var options = context.CalculationOptions;
+            var batchContext = context.BatchContext;
+            var contextProduct = product;
+            ICollection<Product> associatedProducts = null;
+
+            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !batchContext.ProductBundleItems.FullyLoaded)
+            {
+                await batchContext.ProductBundleItems.LoadAllAsync();
+            }
+
+            if (product.ProductType == ProductType.GroupedProduct)
+            {
+                if (context.GroupedProducts == null)
+                {
+                    // One-time batched retrieval of all associated products.
+                    var searchQuery = new CatalogSearchQuery()
+                        .PublishedOnly(true)
+                        .HasStoreId(options.Store.Id)
+                        .HasParentGroupedProduct(batchContext.ProductIds.ToArray());
+
+                    // Get all associated products for this batch grouped by ParentGroupedProductId.
+                    var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
+                    var allAssociatedProducts = (await searchResult.GetHitsAsync())
+                        .OrderBy(x => x.ParentGroupedProductId)
+                        .ThenBy(x => x.DisplayOrder);
+
+                    context.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
+                    context.AssociatedProductBatchContext = _productService.CreateProductBatchContext(allAssociatedProducts, options.Store, options.Customer, false);
+
+                    options.ChildProductsBatchContext = context.AssociatedProductBatchContext;
+                }
+
+                associatedProducts = context.GroupedProducts[product.Id];
+                if (associatedProducts.Any())
+                {
+                    contextProduct = associatedProducts.OrderBy(x => x.DisplayOrder).First();
+                    _services.DisplayControl.Announce(contextProduct);
+                }
+            }
+
+            // Return if there's no pricing at all.
+            if (contextProduct == null || contextProduct.CustomerEntersPrice || !context.AllowPrices || _priceSettings.PriceDisplayType == PriceDisplayType.Hide)
+            {
+                await NoPrice();
+                return contextProduct;
+            }
+
+            // Return if group has no associated products.
+            if (product.ProductType == ProductType.GroupedProduct && !associatedProducts.Any())
+            {
+                await NoPrice();
+                return contextProduct;
+            }
+
+            var calculationContext = new PriceCalculationContext(product, options)
+            {
+                AssociatedProducts = associatedProducts
+            };
+
+            // -----> Perform calculation <-------
+            var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+            model.Price2 = new SummaryPriceModel(calculatedPrice);
+            await calculatedPrice.MapSummaryAsync(contextProduct, model.Price2, context);
+
+            return contextProduct;
+
+            async Task NoPrice()
+            {
+                var price = new CalculatedPrice(contextProduct);
+                model.Price2 = new SummaryPriceModel(price);
+                await price.MapSummaryAsync(contextProduct, model.Price2, context);
+            }
+        }
+
         /// <param name="contextProduct">The product or the first associated product of a group.</param>
         /// <returns>The final price</returns>
-        private async Task<(Money FinalPrice, Product ContextProduct)> MapSummaryItemPrice(Product product, ProductSummaryItemModel item, ProductSummaryItemContext ctx)
+        private async Task<(Money FinalPrice, Product ContextProduct)> MapSummaryItemPriceOld(Product product, ProductSummaryItemModel item, ProductSummaryItemContext ctx)
         {
+            // TODO: (mc) (pricing) Remove later
             var options = ctx.CalculationOptions;
             var batchContext = ctx.BatchContext;
             var contextProduct = product;
@@ -697,11 +781,12 @@ namespace Smartstore.Web.Controllers
 
                 if (ctx.Model.ShowDiscountBadge)
                 {
-                    item.Badges.Add(new ProductSummaryItemModel.Badge
-                    {
-                        Label = T("Products.SavingBadgeLabel", priceModel.SavingPercent.ToString("N0")),
-                        Style = BadgeStyle.Danger
-                    });
+                    // TODO: (mc) (pricing) Remove badge later
+                    //item.Badges.Add(new ProductSummaryItemModel.Badge
+                    //{
+                    //    Label = T("Products.SavingBadgeLabel", priceModel.SavingPercent.ToString("N0")),
+                    //    Style = BadgeStyle.Danger
+                    //});
                 }
             }
 

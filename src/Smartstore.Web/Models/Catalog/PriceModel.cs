@@ -19,6 +19,7 @@ namespace Smartstore.Web.Models.Catalog
         public Money FinalPrice
         {
             get => CalculatedPrice.FinalPrice;
+            set => CalculatedPrice.FinalPrice = value;
         }
 
         public DateTime? ValidUntilUtc
@@ -45,9 +46,12 @@ namespace Smartstore.Web.Models.Catalog
         {
         }
 
+        public bool ShowSavingBadge { get; set; }
+        public bool ShowPriceLabel { get; set; }
         public bool DisableBuyButton { get; set; }
         public bool DisableWishlistButton { get; set; }
         public bool AvailableForPreOrder { get; set; }
+        public bool DisplayTextForZeroPrices { get; set; }
     }
 
     public class DetailsPriceModel : PriceModel
