@@ -319,7 +319,7 @@ $art-box-shadow:                $box-shadow-sm-var;
 }
 
 .art-promoprice-line {
-    font-size: $font-size-sm;
+    font-size: var(--art-font-size-sm);
     color: var(--art-muted-color);
 }
 
