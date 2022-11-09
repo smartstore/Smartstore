@@ -183,7 +183,7 @@ Creates a composite Docker container containing the **smartstore** application i
 We have set up a live online demo for you so you are able to test Smartstore without local installation. Get a first impression and test all available features in the front- and in the backend. Please keep in mind that the backend demo is shared and other testers can modify data at the same time.
 
 * [**Frontend**](https://core.smartstore.com/frontend/en) (User: demo, PWD: 1234)
-* [**Backend**](https://core.smartstore.com/backend/en/login) (User: demo, PWD: 1234)
+* [**Backend**](https://core.smartstore.com/backend/admin/) (User: demo, PWD: 1234)
 <p>&nbsp;</p>
 
 ## License
