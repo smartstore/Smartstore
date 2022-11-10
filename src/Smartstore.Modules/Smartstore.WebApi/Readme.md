@@ -15,6 +15,9 @@ status code 200 with entity content response. This is the default behavior of AS
 - **GET /MediaFiles** returns type FileItemInfo instead of MediaFile which wraps and enriches MediaFile entity. 
 **GET /MediaFolders** returns type FolderNodeInfo instead of MediaFolder which wraps and enriches MediaFolder entity.
 
+- FolderNodeInfo returns subfolders via the property **Children**. The action methods of MediaFolders 
+accordingly return a single FolderNodeInfo object and no longer a list.
+
 - Request parameters are always written in camel case, for example for OData actions.    
 Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/MediaFiles/GetFileByPath {"path":"catalog/my-image.jpg"}`.
 

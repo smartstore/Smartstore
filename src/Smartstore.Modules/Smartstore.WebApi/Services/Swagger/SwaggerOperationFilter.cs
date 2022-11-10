@@ -53,7 +53,6 @@ namespace Smartstore.Web.Api.Swagger
                         AddOperationInfo(helper);
                         AddParameterInfo(helper);
                         AddQueryParameters(helper);
-                        AddUploader(helper);
                         FixOdataActions(helper);
                         FixOdataFunctions(helper);
                         RemoveParameters(helper);
@@ -290,66 +289,133 @@ namespace Smartstore.Web.Api.Swagger
         /// <summary>
         /// Adds a file uploader for methods decorated with <see cref="ApiUploadAttribute"/>.
         /// </summary>
-        protected virtual void AddUploader(SwaggerOperationHelper helper)
-        {
-            var attribute = (ApiUploadAttribute)helper.Context.MethodInfo.GetCustomAttributes(typeof(ApiUploadAttribute), false).FirstOrDefault();
-            if (attribute == null)
-            {
-                return;
-            }
+        //protected virtual void AddUploader(SwaggerOperationHelper helper)
+        //{
+        //    var attribute = (ApiUploadAttribute)helper.Context.MethodInfo.GetCustomAttributes(typeof(ApiUploadAttribute), false).FirstOrDefault();
+        //    if (attribute == null)
+        //    {
+        //        return;
+        //    }
 
-            attribute.PropertyName ??= "file";
+        //    attribute.PropertyName ??= "file";
 
-            var mediaType = new OpenApiMediaType
-            {
-                Schema = new OpenApiSchema
-                {
-                    Type = "object",
-                    Required = new HashSet<string> { attribute.PropertyName },
-                    Properties = new Dictionary<string, OpenApiSchema>
-                    {
-                        {
-                            attribute.PropertyName, new OpenApiSchema
-                            {
-                                Type = "string",
-                                Format = "binary"
-                            }
-                        }
-                    }
-                }
-            };
+        //    var mediaType = new OpenApiMediaType
+        //    {
+        //        Schema = new OpenApiSchema
+        //        {
+        //            Type = "object",
+        //            Required = new HashSet<string> { attribute.PropertyName },
+        //            Properties = new Dictionary<string, OpenApiSchema>
+        //            {
+        //                {
+        //                    attribute.PropertyName, new OpenApiSchema
+        //                    {
+        //                        Type = "string",
+        //                        Format = "binary"
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    };
 
-            var content = new Dictionary<string, OpenApiMediaType>
-            {
-                { attribute.ContentTypes.FirstOrDefault() ?? "multipart/form-data", mediaType }
-            };
+        //    var content = new Dictionary<string, OpenApiMediaType>
+        //    {
+        //        { attribute.ContentTypes.FirstOrDefault() ?? "multipart/form-data", mediaType }
+        //    };
 
-            helper.Op.RequestBody = new OpenApiRequestBody
-            {
-                Content = content,
-                Required = !attribute.IsOptional
-            };
+        //    helper.Op.RequestBody = new OpenApiRequestBody
+        //    {
+        //        Content = content,
+        //        Required = !attribute.IsOptional
+        //    };
 
-            //foreach (var contentType in attribute.ContentTypes)
-            //{
-            //    if (body.Content.TryGetValue(contentType, out var mediaType))
-            //    {
-            //        if (attribute.SchemaType != null)
-            //        {
-            //            mediaType.Schema = helper.GenerateSchema(attribute.SchemaType);
-            //        }
+        //    //foreach (var contentType in attribute.ContentTypes)
+        //    //{
+        //    //    if (body.Content.TryGetValue(contentType, out var mediaType))
+        //    //    {
+        //    //        if (attribute.SchemaType != null)
+        //    //        {
+        //    //            mediaType.Schema = helper.GenerateSchema(attribute.SchemaType);
+        //    //        }
 
-            //        if (mediaType.Example == null && attribute.Example.HasValue())
-            //        {
-            //            mediaType.Example = new OpenApiString(attribute.Example);
-            //        }
-            //    }
-            //}
-        }
+        //    //        if (mediaType.Example == null && attribute.Example.HasValue())
+        //    //        {
+        //    //            mediaType.Example = new OpenApiString(attribute.Example);
+        //    //        }
+        //    //    }
+        //    //}
+        //}
+
+        //protected virtual void FixUploads(SwaggerOperationHelper helper)
+        //{
+        //    if (!helper.HttpMethod.EqualsNoCase("Post") || helper.Op.RequestBody == null)
+        //    {
+        //        return;
+        //    }
+
+        //    var consumesForm = helper.ActionDescriptor.FilterDescriptors
+        //        .Where(x => x.Filter is ConsumesAttribute)
+        //        .Select(x => x.Filter as ConsumesAttribute)
+        //        .FirstOrDefault(x => x.ContentTypes.Any(type => type.EqualsNoCase("multipart/form-data")));
+
+        //    if (consumesForm == null)
+        //    {
+        //        return;
+        //    }
+
+        //    var actionParams = helper.ActionDescriptor.Parameters
+        //        .Select(p => p as ControllerParameterDescriptor)
+        //        .ToList();
+
+        //    if (actionParams.Count == 0)
+        //    {
+        //        return;
+        //    }
+
+        //    var swaggerParams = helper.Op.Parameters
+        //        .Where(p => actionParams.Any(d => d.Name == p.Name))
+        //        .ToDictionarySafe(p => p.Name, p => p);
+
+        //    if (swaggerParams.Count == 0)
+        //    {
+        //        return;
+        //    }
+
+        //    var body = helper.Op.RequestBody.Content["multipart/form-data"];
+
+        //    foreach (var p in actionParams)
+        //    {
+        //        if (swaggerParams.TryGetValue(p.Name, out var swaggerParam))
+        //        {
+        //            var type = swaggerParam.Schema?.Type ?? MapType(p.ParameterType);
+
+        //            var schema = type.EqualsNoCase("object") && swaggerParam.Example == null
+        //                ? helper.GenerateSchema(p.ParameterType)
+        //                : new OpenApiSchema { Type = type };
+
+        //            schema.Example = swaggerParam.Example;
+        //            schema.Description = swaggerParam.Description;
+
+        //            body.Schema.Properties[p.Name] = schema;
+
+        //            if (swaggerParam.Required && !body.Schema.Required.Contains(p.Name))
+        //            {
+        //                body.Schema.Required.Add(p.Name);
+        //            }
+        //        }
+        //    }
+
+        //    //var description = string.Join("<br><br>", body.Schema.Properties.Select(p => $"**{p.Key}**: {FirstCharToLower(p.Value.Description)}"));
+        //    //helper.Op.RequestBody.Description = helper.Op.RequestBody.Description.Grow(description, "<br><br>");
+
+        //    // Remove falsely query parameters.
+        //    swaggerParams.Each(p => helper.Op.Parameters.Remove(p.Value));
+        //}
 
         /// <summary>
         /// Adds missing request body. Removes parameters for FromODataBody that are falsely offered as query parameters.
         /// </summary>
+        /// <remarks>This is a workaround that will probably become obsolete in future Swashbuckle versions.</remarks>
         protected virtual void FixOdataActions(SwaggerOperationHelper helper)
         {
             if (!helper.HttpMethod.EqualsNoCase("Post") || helper.Op.RequestBody != null)
@@ -367,18 +433,18 @@ namespace Smartstore.Web.Api.Swagger
                 return;
             }
 
-            var odataParams = helper.ActionDescriptor.Parameters
+            var actionParams = helper.ActionDescriptor.Parameters
                 .Select(p => p as ControllerParameterDescriptor)
                 .Where(p => p?.ParameterInfo?.CustomAttributes?.Any(a => a.AttributeType == typeof(FromODataBodyAttribute)) ?? false)
                 .ToList();
 
-            if (odataParams.Count == 0)
+            if (actionParams.Count == 0)
             {
                 return;
             }
 
             var swaggerParams = helper.Op.Parameters
-                .Where(p => p.In == ParameterLocation.Query && odataParams.Any(d => d.Name == p.Name))
+                .Where(p => p.In == ParameterLocation.Query && actionParams.Any(d => d.Name == p.Name))
                 .ToDictionarySafe(p => p.Name, p => p);
 
             if (swaggerParams.Count == 0)
@@ -397,7 +463,7 @@ namespace Smartstore.Web.Api.Swagger
                 }
             };
 
-            foreach (var p in odataParams)
+            foreach (var p in actionParams)
             {
                 if (swaggerParams.TryGetValue(p.Name, out var swaggerParam))
                 {
@@ -436,6 +502,7 @@ namespace Smartstore.Web.Api.Swagger
         /// <summary>
         /// Fixes wrong identifier arrays in OData URL path.
         /// </summary>
+        /// <remarks>This is a workaround that will probably become obsolete in future Swashbuckle versions.</remarks>
         protected virtual void FixOdataFunctions(SwaggerOperationHelper helper)
         {
             if (!helper.HttpMethod.EqualsNoCase("Get"))

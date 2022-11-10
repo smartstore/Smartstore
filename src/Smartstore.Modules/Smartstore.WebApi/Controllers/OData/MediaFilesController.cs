@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.IO;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
@@ -19,6 +20,8 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// <summary>
     /// The endpoint for operations on MediaFile entity. Returns type FileItemInfo which wraps and enriches MediaFile.
     /// </summary>
+    [ProducesResponseType(Status400BadRequest)]
+    [ProducesResponseType(Status422UnprocessableEntity)]
     public class MediaFilesController : WebApiController<FileItemInfo>
     {
         private readonly IMediaService _mediaService;
@@ -92,9 +95,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpPost("MediaFiles/GetFileByPath"), ApiQueryable]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> GetFileByPath([FromODataBody, Required] string path, ODataQueryOptions<MediaFile> options)
         {
             try
@@ -122,8 +123,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpGet("MediaFiles/GetFilesByIds(ids={ids})"), ApiQueryable]
         [Produces(Json)]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> GetFilesByIds([FromODataUri, Required] int[] ids, ODataQueryOptions<MediaFile> options)
         {
             if (ids.IsNullOrEmpty())
@@ -150,9 +149,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         [HttpGet("MediaFiles/Download(id={id})")]
         [ProducesResponseType(Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> Download(int id)
         {
             var file = await _mediaService.GetFileByIdAsync(id, MediaLoadFlags.WithBlob);
@@ -183,8 +180,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpPost("MediaFiles/SearchFiles"), ApiQueryable]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> SearchFiles([FromODataBody] MediaSearchQuery query, ODataQueryOptions<MediaFile> options)
         {
             try
@@ -213,7 +208,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(int), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> CountFiles([FromODataBody] MediaSearchQuery query)
         {
             try
@@ -235,8 +229,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpPost("MediaFiles/CountFilesGrouped")]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(MediaCountResult), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> CountFilesGrouped([FromODataBody] MediaFilesFilter filter)
         {
             try
@@ -274,8 +266,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpPost("MediaFiles/FileExists")]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(bool), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> FileExists([FromODataBody, Required] string path)
         {
             try
@@ -297,8 +287,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpPost("MediaFiles/CheckUniqueFileName")]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(CheckUniquenessResult), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> CheckUniqueFileName([FromODataBody, Required] string path)
         {
             try
@@ -326,9 +314,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Permission(Permissions.Media.Update)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> MoveFile(int key,
             [FromODataBody, Required] string destinationFileName,
             [FromODataBody] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
@@ -360,9 +346,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Permission(Permissions.Media.Update)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(MediaFileOperationResult), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> CopyFile(int key,
             [FromODataBody, Required] string destinationFileName,
             [FromODataBody] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
@@ -402,9 +386,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Permission(Permissions.Media.Delete)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(Status204NoContent)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteFile(int key,
             [FromODataBody, Required] bool permanent,
             [FromODataBody] bool force = false)
@@ -427,24 +409,26 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
+        // INFO: bug in Swashbuckle 6.4.0: code comments of parameters decorated with "FromFormAttribute" do not show up in Swagger.
+        // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2519
+
         /// <summary>
         /// Saves a file.
         /// </summary>
-        /// <remarks>
-        /// Supports the following optional file content-disposition headers:
-        /// 
-        /// **path**: the path of the file, e.g. file/my-file.jpg    
-        /// **isTransient**: a value indicating whether the file is transient/preliminary.    
-        /// **duplicateFileHandling**: a value of type DuplicateFileHandling indicating how to proceed if the uploaded file already exists.
-        /// </remarks>
-        [HttpPost, ApiQueryable]
+        /// <param name="file">The file to be saved.</param>
+        /// <param name="path" example="file/my-file.jpg">The path of the file.</param>
+        /// <param name="isTransient" example="true">A value indicating whether the file is transient/preliminary.</param>
+        /// <param name="duplicateFileHandling">A value of indicating how to proceed if the uploaded file already exists.</param>
+        [HttpPost("MediaFiles/SaveFile"), ApiQueryable]
         [Permission(Permissions.Media.Upload)]
-        [ApiUpload, Produces(Json)]
+        [Consumes("multipart/form-data"), Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status415UnsupportedMediaType)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> SaveFile()
+        public async Task<IActionResult> SaveFile(
+            [Required] IFormFile file,
+            [FromForm] string path,
+            [FromForm] bool isTransient = true,
+            [FromForm] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
         {
             if (Request.ContentType.IsEmpty() || !Request.ContentType.StartsWithNoCase("multipart/"))
             {
@@ -462,20 +446,24 @@ namespace Smartstore.Web.Api.Controllers.OData
                     return BadRequest("Send one file per request, not multiple.");
                 }
 
-                // INFO: "file" as method parameter would always be null. We can get it only via Request.Form.Files.
-                var file = Request.Form.Files[0];
+                file ??= Request.Form.Files[0];
 
                 if (file.ContentDisposition.IsEmpty())
                 {
                     return BadRequest("Missing file parameters in content-disposition header.");
                 }
 
+                // Content disposition header values take precedence over form values.
                 var cd = ContentDispositionHeaderValue.Parse(file.ContentDisposition);
-                var isTransient = cd.GetParameterValue("isTransient", true);
-                var path = cd.GetParameterValue("path", $"{SystemAlbumProvider.Files}/{file.FileName}");
+
+                isTransient = cd.GetParameterValue("isTransient", isTransient);
+                path = cd.GetParameterValue("path", path.NullEmpty() ?? $"{SystemAlbumProvider.Files}/{Path.GetFileName(file.FileName)}");
 
                 var rawDuplicateFileHandling = cd.GetParameterValue<string>("duplicateFileHandling");
-                _ = Enum.TryParse<DuplicateFileHandling>(rawDuplicateFileHandling.EmptyNull(), out var duplicateFileHandling);
+                if (Enum.TryParse<DuplicateFileHandling>(rawDuplicateFileHandling.EmptyNull(), out var tmp))
+                {
+                    duplicateFileHandling = tmp;
+                }
 
                 using var stream = file.OpenReadStream();
 
