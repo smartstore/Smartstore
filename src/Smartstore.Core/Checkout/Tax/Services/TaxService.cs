@@ -13,6 +13,8 @@ namespace Smartstore.Core.Checkout.Tax
 {
     public partial class TaxService : ITaxService
     {
+        const string DefaultTaxFormat = "{0} *";
+
         private readonly Dictionary<TaxRateCacheKey, TaxRate> _cachedTaxRates = new();
         private readonly Dictionary<TaxAddressKey, Address> _cachedTaxAddresses = new();
         private readonly IGeoCountryLookup _geoCountryLookup;
@@ -210,7 +212,7 @@ namespace Smartstore.Core.Checkout.Tax
                 language ??= _workContext.WorkingLanguage;
 
                 string resource = _localizationService.GetResource(priceIncludesTax.Value ? "Products.InclTaxSuffix" : "Products.ExclTaxSuffix", language.Id, false);
-                var postFormat = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
+                var postFormat = resource.NullEmpty() ?? DefaultTaxFormat;
 
                 return postFormat;
             }

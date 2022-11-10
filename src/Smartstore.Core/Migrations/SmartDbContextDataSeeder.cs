@@ -144,6 +144,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Zeige Preis-Label in Listen",
                 "Specifies whether the label of the compare price is displayed in product lists.",
                 "Bestimmt, ob das Label des Vergleichspreises in Produkt-Listen angezeigt wird.");
+
+            builder.AddOrUpdate("Products.InclTaxSuffix", "{0} *", "{0} *");
+            builder.AddOrUpdate("Products.ExclTaxSuffix", "{0} *", "{0} *");
         }
     }
 }
