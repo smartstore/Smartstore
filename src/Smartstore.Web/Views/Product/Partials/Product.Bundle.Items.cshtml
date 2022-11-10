@@ -39,13 +39,13 @@
                     @if (item.ShortDescription.HasValue())
                     {
                         var shortDescription = item.ShortDescription.Value.Truncate(120, "...");
-                        <div class="pd-bundle-item-description" sm-language-attributes-for="item.ShortDescription" attr-title="(item.ShortDescription != shortDescription, item.ShortDescription)">
+                        <div class="pd-bundle-item-description mt-1" sm-language-attributes-for="item.ShortDescription" attr-title="(item.ShortDescription != shortDescription, item.ShortDescription)">
                             @Html.Raw(shortDescription)
                         </div>
                     }
 
                     <div class="pd-bundle-item-offer pt-2">
-                        <div class="pd-bundle-item-attribute-info">
+                        <div sm-if="item.AttributeInfo.HasValue()" class="pd-bundle-item-attribute-info">
                             @Html.Raw(item.AttributeInfo)
                         </div>
                         <div class="pd-offer-price-container" data-partial="BundleItemPrice">

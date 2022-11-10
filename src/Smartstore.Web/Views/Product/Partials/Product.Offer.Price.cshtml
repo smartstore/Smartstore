@@ -128,14 +128,14 @@
                         <span class="pd-promoprice-label">@T("ShoppingCart.ItemYouSave"):</span>
                         <span class="pd-promosaving pl-1 d-flex">
                             <span>@priceModel2.Saving.SavingAmount.Value</span>
-                            <span class="badge badge-danger pd-promosaving-percent">@T("Products.SavingBadgeLabel", priceModel2.Saving.SavingPercent.ToString("N0"))</span>
+                            <span class="badge badge-danger pd-saving-badge">@T("Products.SavingBadgeLabel", priceModel2.Saving.SavingPercent.ToString("N0"))</span>
                         </span>
                     </div>
                 </div>
             </div>
 
             <!-- Old price group -->
-            <div class="x-d-none">
+            <div class="d-none">
                 <div class="row sm-gutters pd-price-group">
                     <div sm-if="showPrice" class="col-auto pd-price-block">
                         <meta sm-if="!isBundlePart" itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />

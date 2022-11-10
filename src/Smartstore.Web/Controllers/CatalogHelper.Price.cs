@@ -279,6 +279,13 @@ namespace Smartstore.Web.Controllers
             // Map base
             MapPriceBase(calculatedPrice, priceModel);
 
+            // Display "Free" instead 0.00
+            // TODO: (mc) (pricing) Make common
+            if (priceModel.DisplayTextForZeroPrices && priceModel.FinalPrice == 0 && !priceModel.CallForPrice)
+            {
+                priceModel.FinalPrice = priceModel.FinalPrice.WithPostFormat(T("Products.Free"));
+            }
+
             priceModel.ShowPriceLabel = _priceSettings.ShowPriceLabelInLists;
 
             // Badges
@@ -315,6 +322,11 @@ namespace Smartstore.Web.Controllers
             if (model.RegularPrice == null && price.Saving.HasSaving && price.RegularPrice.HasValue)
             {
                 model.RegularPrice = GetComparePriceModel(price.RegularPrice.Value, price.RegularPriceLabel, forSummary);
+                if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
+                {
+                    // Change regular price label: "Regular/Lowest" --> "Instead of"
+                    model.RegularPrice.Label = T("Products.Bundle.PriceWithoutDiscount.Note");
+                }
             }
 
             // Retail price

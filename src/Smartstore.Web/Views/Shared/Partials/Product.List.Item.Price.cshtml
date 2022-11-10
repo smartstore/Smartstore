@@ -12,56 +12,78 @@
     }
 
     var price = Model.Price2;
-    var artPriceClasses = "art-price";
-
-    if (price.DisplayTextForZeroPrices && price.FinalPrice == 0 && !price.CallForPrice)
-    {
-        price.FinalPrice = price.FinalPrice.WithPostFormat(T("Products.Free"));
-    }
+    var isListMode = list.ViewMode == ProductSummaryViewMode.List;
+    var artPriceClass = "art-price";
 
     if (price.Saving.HasSaving)
     {
-        artPriceClasses += " art-price--offer";
+        artPriceClass += " art-price-offer";
     }
 
     if (price.CallForPrice)
     {
-        artPriceClasses += " art-price--call";
+        artPriceClass += " art-price-call";
+    }
+
+    async Task RenderComparePrice(ComparePriceModel priceModel)
+    {
+        if (priceModel != null)
+        {
+            if (isListMode)
+            {
+
+            }
+            else
+            {
+                <span class="art-compareprice">
+                    @if (isListMode || price.ShowPriceLabel)
+                    {
+                        <span class="art-compareprice-label">@(priceModel.Label):</span>
+                    }
+                    <span class="art-compareprice-value">@priceModel.Price</span>
+                </span>
+            }
+        }
     }
 }
 
+@*<div class="art-info-group">
+    <div>
+        <span>@T("Products.Price.OldPrice"):</span>
+        <span class="art-oldprice">@Model.Price.RegularPrice.Value</span>
+    </div>
+    <div sm-if="Model.Price.SavingAmount.HasValue" class="d-flex">
+        <span>@T("ShoppingCart.ItemYouSave"):</span>
+        <span class="pl-2">@Model.Price.SavingAmount <span class="lrm">(@Model.Price.SavingPercent.ToString("N0") %)</span></span>
+    </div>
+</div>*@
+
 <div class="art-price-block x-mb-2">
-    <span class="@artPriceClasses">
-        <span class="art-price-value">
-            @Html.Raw(price.FinalPrice)
+    <span class="@artPriceClass">
+        <span class="art-finalprice">
+            <span class="art-price-value">
+                @Html.Raw(price.FinalPrice)
+            </span>
+            <span sm-if="!isListMode && price.ShowSavingBadge" class="art-saving-badge badge badge-danger">
+                @T("Products.SavingBadgeLabel", price.Saving.SavingPercent.ToString("N0"))
+            </span>
         </span>
-        <span sm-if="price.ShowSavingBadge" class="badge badge-danger art-saving-badge">
-            @T("Products.SavingBadgeLabel", price.Saving.SavingPercent.ToString("N0"))
+
+        @* Compare prices *@
+        <span sm-if="price.RegularPrice != null || price.RetailPrice != null" class="art-compareprice-group">
+            @{ 
+                // Regular price
+                await RenderComparePrice(price.RegularPrice);
+
+                // Retail price
+                if (isListMode || price.RegularPrice == null)
+                {
+                    // Don't render retail price in compact mode if we have a regular price already
+                    await RenderComparePrice(price.RetailPrice);
+                }
+            }
         </span>
     </span>
-    @if (price.RegularPrice != null)
-    {
-        if (list.ViewMode == ProductSummaryViewMode.List)
-        {
-            <div class="art-info-group">
-                <div>
-                    <span>@T("Products.Price.OldPrice"):</span>
-                    <span class="art-oldprice">@Model.Price.RegularPrice.Value</span>
-                </div>
-                <div sm-if="Model.Price.SavingAmount.HasValue" class="d-flex">
-                    <span>@T("ShoppingCart.ItemYouSave"):</span>
-                    <span class="pl-2">@Model.Price.SavingAmount <span class="lrm">(@Model.Price.SavingPercent.ToString("N0") %)</span></span>
-                </div>
-            </div>
-        }
-        else
-        {
-            <span class="art-promoprice-line">
-                <span class="art-promoprice-label">@(price.RegularPrice.Label):</span>
-                <span class="art-promoprice">@price.RegularPrice.Price</span>
-            </span>
-        }
-    }
 
     <div sm-if="list.ShowShippingSurcharge && Model.TransportSurcharge.HasValue" class="art-shipsurcharge">
         @Model.TransportSurcharge.Value
@@ -77,7 +99,7 @@
 
 @* Old price block *@
 <div class="art-price-block d-none">
-    <span class="@artPriceClasses">
+    <span class="@artPriceClass">
         @(Model.Price.SavingAmount.HasValue ? "% " : "")@Model.Price.Price
     </span>
     @if (Model.Price.RegularPrice.HasValue)

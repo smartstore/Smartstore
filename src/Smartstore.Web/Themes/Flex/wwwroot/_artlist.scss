@@ -296,10 +296,7 @@ $art-box-shadow:                $box-shadow-sm-var;
 }
 
 .art-price {
-    display: inline-flex;
-    align-items: center;
-
-    &.art-price--offer {
+    &.art-price-offer {
         color: var(--art-finalprice-offer-color);
     }
     &.badge {
@@ -311,6 +308,10 @@ $art-box-shadow:                $box-shadow-sm-var;
     font-weight: $font-weight-medium;
     font-size: 1rem;
     color: var(--art-finalprice-color);
+}
+
+.art-price-value,
+.art-compareprice-value {
     white-space: nowrap;
 }
 
@@ -318,16 +319,22 @@ $art-box-shadow:                $box-shadow-sm-var;
     margin-left: 6px;
 }
 
-.art-promoprice-line {
+.art-finalprice,
+.art-compareprice {
+    display: inline-flex;
+    align-items: center;
+}
+
+.art-compareprice {
     font-size: var(--art-font-size-sm);
     color: var(--art-muted-color);
 }
 
-.art-promoprice-label {
+.art-compareprice-label {
     margin-right: 3px;
 }
 
-.art-promoprice {
+.art-compareprice-value {
     display: inline-block;
     text-decoration: line-through;
 }
@@ -543,13 +550,13 @@ $art-box-shadow:                $box-shadow-sm-var;
     }
 
     .art-price {
-        @include font-size(1.5rem);
+        @include font-size(1.25rem);
         font-weight: $font-weight-medium;
         display: block;
         margin-bottom: 0.25rem;
     }
 
-    .art-price--call {
+    .art-price-call {
         font-size: 1rem;
         color: $text-muted;
         font-weight: 400;
