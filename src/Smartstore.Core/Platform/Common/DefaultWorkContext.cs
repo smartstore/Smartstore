@@ -174,17 +174,8 @@ namespace Smartstore.Core
                 }
 
                 var httpContext = _httpContextAccessor.HttpContext;
-                if (httpContext == null)
-                {
-                    _isAdminArea = false;
-                }
+                _isAdminArea = httpContext?.Request?.IsAdminArea() == true;
 
-                if (httpContext.Request.IsAdminArea())
-                {
-                    _isAdminArea = true;
-                }
-
-                _isAdminArea ??= false;
                 return _isAdminArea.Value;
             }
             set => _isAdminArea = value;
