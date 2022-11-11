@@ -14,17 +14,6 @@ namespace Smartstore.Web.Api
     /// <summary>
     /// Smart base controller class for OData endpoints.
     /// </summary>
-    /// <remarks>
-    /// - Accurate examples: https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData
-    /// - Routing conventions (only partly applicable for version > 8): https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions
-    /// - $ref: https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities
-    /// - Swashbuckle: https://github.com/domaindrivendev/Swashbuckle.AspNetCore
-    /// 
-    /// - ActionResult<T> vs. IActionResult: IActionResult is used when multiple return types are possible.
-    /// For ActionResult<T> ProducesResponseTypeAttribute's type property can be excluded.
-    /// - Explicit "From" parameter bindings are required otherwise Swagger will describe them as "query" params by default.
-    /// - OData functions can be only HttpGet, actions only HttpPost.
-    /// </remarks>
     [Authorize(AuthenticationSchemes = "Api"), IgnoreAntiforgeryToken]
     public abstract class SmartODataController<TEntity> : ODataController
         where TEntity : BaseEntity, new()

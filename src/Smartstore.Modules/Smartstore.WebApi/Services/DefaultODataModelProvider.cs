@@ -9,6 +9,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Engine;
 using Smartstore.Web.Api.Controllers.OData;
 using Smartstore.Web.Api.Models;
@@ -37,6 +38,7 @@ namespace Smartstore.Web.Api
             builder.EntitySet<Manufacturer>("Manufacturers");
             builder.EntitySet<MeasureDimension>("MeasureDimensions");
             builder.EntitySet<MeasureWeight>("MeasureWeights");
+            builder.EntitySet<NewsletterSubscription>("NewsletterSubscriptions");
 
             builder.EntitySet<PriceLabel>("PriceLabels");
 
@@ -78,7 +80,7 @@ namespace Smartstore.Web.Api
                 .CollectionParameter<int>("ids")
                 .Required();
 
-            config.Function(nameof(MediaFilesController.Download))
+            config.Function(nameof(MediaFilesController.DownloadFile))
                 .Returns<StreamContent>()
                 .Parameter<int>("id")
                 .Required();
@@ -206,7 +208,7 @@ namespace Smartstore.Web.Api
 
             deleteFolder.Parameter<string>("path")
                 .Required();
-            deleteFolder.Parameter<FileHandling>("FileHandling")
+            deleteFolder.Parameter<FileHandling>("fileHandling")
                 .Optional();
         }
     }

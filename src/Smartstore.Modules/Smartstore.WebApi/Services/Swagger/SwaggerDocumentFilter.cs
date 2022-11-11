@@ -65,6 +65,11 @@ namespace Smartstore.Web.Api.Swagger
                 {
                     swaggerDoc.Paths.Remove(path);
                 }
+                else if (path.EndsWith("()") && swaggerDoc.Paths.Any(x => x.Key == path[..^2]))
+                {
+                    // Duplicate.
+                    swaggerDoc.Paths.Remove(path);
+                }
 
                 //$"{removePath} {item.Key} {string.Join(",", item.Value.Operations.Select(x => x.Key))}".Dump();
             }

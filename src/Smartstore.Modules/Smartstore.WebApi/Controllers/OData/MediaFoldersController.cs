@@ -86,7 +86,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Gets a value indicating whether a folder exists.
         /// </summary>
-        /// <param name="path" example="my-folder">The path of the folder.</param>
+        /// <param name="path" example="content/my-folder">The path of the folder.</param>
         [HttpPost("MediaFolders/FolderExists")]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(bool), Status200OK)]
@@ -132,7 +132,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Gets the root folder node.
         /// </summary>
-        [HttpGet("MediaFolders/GetRootNode")]
+        [HttpGet("MediaFolders/GetRootNode"), ApiQueryable]
         [Produces(Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status200OK)]
         public IActionResult GetRootNode()
@@ -153,7 +153,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// Gets a folder node by path.
         /// </summary>
         /// <param name="path" example="content/my-folder">The path of the folder.</param>
-        [HttpPost("MediaFolders/GetNodeByPath")]
+        [HttpPost("MediaFolders/GetNodeByPath"), ApiQueryable]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]

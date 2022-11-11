@@ -6,12 +6,12 @@
     public partial class SimpleRange<T>
     {
         /// <summary>
-        /// Gets or sets the minimum value.
+        /// The minimum value.
         /// </summary>
         public T Minimum { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum value.
+        /// The maximum value.
         /// </summary>
         public T Maximum { get; set; }
     }

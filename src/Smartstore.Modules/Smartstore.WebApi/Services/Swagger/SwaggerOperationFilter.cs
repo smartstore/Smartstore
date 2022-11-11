@@ -488,7 +488,8 @@ namespace Smartstore.Web.Api.Swagger
             helper.Op.RequestBody = new OpenApiRequestBody
             {
                 Required = body.Schema.Required.Count > 0,
-                Description = string.Join("<br><br>", body.Schema.Properties.Select(p => $"**{p.Key}**: {FirstCharToLower(p.Value.Description)}")),
+                // Redundant. Just click "Schema" to see property descriptions:
+                //Description = string.Join("<br><br>", body.Schema.Properties.Select(p => $"**{p.Key}**: {FirstCharToLower(p.Value.Description)}")),
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
                     { Json, body }

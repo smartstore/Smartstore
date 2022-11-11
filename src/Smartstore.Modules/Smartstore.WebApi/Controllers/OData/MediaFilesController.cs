@@ -147,10 +147,10 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Downloads a file.
         /// </summary>
-        [HttpGet("MediaFiles/Download(id={id})")]
+        [HttpGet("MediaFiles/DownloadFile(id={id})")]
         [ProducesResponseType(Status200OK)]
         [ProducesResponseType(Status404NotFound)]
-        public async Task<IActionResult> Download(int id)
+        public async Task<IActionResult> DownloadFile(int id)
         {
             var file = await _mediaService.GetFileByIdAsync(id, MediaLoadFlags.WithBlob);
             if (file == null)

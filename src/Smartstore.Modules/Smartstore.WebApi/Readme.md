@@ -21,6 +21,20 @@ accordingly return a single FolderNodeInfo object and no longer a list.
 - Request parameters are always written in camel case, for example for OData actions.    
 Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/MediaFiles/GetFileByPath {"path":"catalog/my-image.jpg"}`.
 
+- Changed names of endpoints:
+<table>
+    <tr>
+        <th>Old name</th>
+        <th>New name</th>
+        <th>Remarks</th>
+    </tr>
+    <tr>
+        <td>MediaFiles.Download</td>
+        <td>MediaFiles.DownloadFile</td>
+        <td>Avoids naming conflicts since part of the default action namespace.</td>
+    </tr>
+</table>
+
 - The prefix of response headers changed from **SmartStore-Net-Api-** to **Smartstore-Api-**. More changes:
 <table>
     <tr>
@@ -47,3 +61,19 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
 
 - The query string parameter **SmNetFulfill** has been renamed to **SmApiFulfill**.
 
+## General information
+### OData
+- Accurate OData <a href="https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData">examples</a>.
+- <a href="https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions">Routing conventions</a> (only partly applicable for AspNetCore.OData v.8).
+- <a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities">$ref</a> (not supported).
+
+- **IActionResult** is used when multiple return types are possible, otherwise **ActionResult&lt;T&gt;** can be used. 
+The type property of ProducesResponseTypeAttribute can be excluded for **ActionResult&lt;T&gt;**.
+
+- OData **functions** can be only HttpGet, OData **actions** only HttpPost.
+
+- By protocol specification **enums** are serialized using the enum member string, not the enum member value.
+
+### <a href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore">Swashbuckle</a>
+- Explicit **From** parameter bindings are required otherwise Swashbuckle will describe them as query parameters by default.
+Code comments of parameters decorated with **FromForm** do not show up (<a href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2519">#2519</a>).
