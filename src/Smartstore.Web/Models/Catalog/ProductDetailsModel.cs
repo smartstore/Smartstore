@@ -93,9 +93,7 @@ namespace Smartstore.Web.Models.Catalog
         public bool DisplayBackInStockSubscription { get; set; }
         public bool BackInStockAlreadySubscribed { get; set; }
 
-        public ProductPriceModel ProductPrice { get; set; } = new();
         public ProductDetailsPriceModel Price { get; set; } = new();
-
         public AddToCartModel AddToCart { get; set; } = new();
         public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = new();
         public string AttributeInfo { get; set; }
@@ -202,31 +200,6 @@ namespace Smartstore.Web.Models.Catalog
             public bool AvailableForPreOrder { get; set; }
         }
 
-        public partial class ProductPriceModel : ModelBase
-        {
-            public Money OldPrice { get; set; }
-            public Money Price { get; set; }
-            public Money PriceWithDiscount { get; set; }
-
-            public float SavingPercent { get; set; }
-            public Money SavingAmount { get; set; }
-
-            public bool CustomerEntersPrice { get; set; }
-            public bool CallForPrice { get; set; }
-
-            public int ProductId { get; set; }
-
-            public bool HidePrices { get; set; }
-            public bool ShowLoginNote { get; set; }
-
-            public bool BundleItemShowBasePrice { get; set; }
-
-            public string NoteWithDiscount { get; set; }
-            public string NoteWithoutDiscount { get; set; }
-
-            public string PriceValidUntilUtc { get; set; }
-        }
-
         [LocalizedDisplay("Products.GiftCard.")]
         public partial class GiftCardModel : ModelBase
         {
@@ -249,12 +222,6 @@ namespace Smartstore.Web.Models.Catalog
             public string Message { get; set; }
 
             public GiftCardType GiftCardType { get; set; }
-        }
-
-        public partial class TierPriceModel : ModelBase
-        {
-            public Money Price { get; set; }
-            public int Quantity { get; set; }
         }
 
         public partial class ProductVariantAttributeModel : ChoiceModel

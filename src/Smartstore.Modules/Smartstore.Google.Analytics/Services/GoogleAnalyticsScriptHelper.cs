@@ -93,9 +93,9 @@ namespace Smartstore.Google.Analytics.Services
                 model.Id,
                 model.Sku,
                 model.Name,
-                model.ProductPrice.SavingAmount.Amount.ToStringInvariant("n2"),
+                !model.Price.HasDiscount ? string.Empty : model.Price.Saving.SavingAmount.Value.Amount.ToStringInvariant("n2"),
                 brand != null ? brand.Name : string.Empty,
-                model.ProductPrice.Price.Amount.ToStringInvariant("n2"),
+                model.Price.FinalPrice.Amount.ToStringInvariant("n2"),
                 categoryPathScript, addComma: false);
 
             var eventScript = @$"
@@ -109,7 +109,7 @@ namespace Smartstore.Google.Analytics.Services
             
                 gtag('event', 'view_item', {{
                   currency: '{_workContext.WorkingCurrency.CurrencyCode}',
-                  value: {model.ProductPrice.Price.Amount.ToStringInvariant("n2")},
+                  value: {model.Price.FinalPrice.Amount.ToStringInvariant("n2")},
                   items: [pdItem]
                 }});";
 

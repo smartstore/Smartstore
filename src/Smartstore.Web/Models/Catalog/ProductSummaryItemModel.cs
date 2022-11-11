@@ -36,13 +36,6 @@ namespace Smartstore.Web.Models.Catalog
         {
             //Parent = parent;
             _parent = new WeakReference<ProductSummaryModel>(parent);
-
-            Weight = string.Empty;
-            Price = new PriceModel();
-            Image = new ImageModel();
-            Attributes = new List<Attribute>();
-            SpecificationAttributes = new List<ProductSpecificationModel>();
-            Badges = new List<Badge>();
         }
 
         public ProductSummaryModel Parent
@@ -60,7 +53,7 @@ namespace Smartstore.Web.Models.Catalog
         public string SeName { get; set; }
         public string DetailUrl { get; set; }
         public string Sku { get; set; }
-        public string Weight { get; set; }
+        public string Weight { get; set; } = string.Empty;
         public string Dimensions { get; set; }
         public string DimensionMeasureUnit { get; set; }
         public string LegalInfo { get; set; }
@@ -81,17 +74,17 @@ namespace Smartstore.Web.Models.Catalog
         public int MinPriceProductId { get; set; } // Internal
 
         public BrandOverviewModel Brand { get; set; }
-        public PriceModel Price { get; set; }
+        public PriceModel Price { get; set; } = new();
         // TODO: (mc) (pricing) Remove "Price" later
         public ProductSummaryPriceModel Price2 { get; set; }
-        public ImageModel Image { get; set; }
-        public IList<Attribute> Attributes { get; set; }
+        public ImageModel Image { get; set; } = new();
+        public List<Attribute> Attributes { get; set; } = new();
         // TODO: (mc) Let the user specify in attribute manager which spec attributes are
         // important. According to it's importance, show attribute value in grid or list mode.
         // E.g. perfect for "Energy label" > "EEK A++", or special material (e.g. "Leather") etc.
-        public IList<ProductSpecificationModel> SpecificationAttributes { get; set; }
-        public IList<ColorAttributeValue> ColorAttributes { get; set; }
-        public IList<Badge> Badges { get; set; }
+        public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = new();
+        public List<ColorAttributeValue> ColorAttributes { get; set; }
+        public List<ProductBadgeModel> Badges { get; set; } = new();
 
         public class PriceModel
         {
@@ -141,13 +134,9 @@ namespace Smartstore.Web.Models.Catalog
             public override bool Equals(object obj)
             {
                 var equals = base.Equals(obj);
-                if (!equals)
+                if (!equals && obj is ColorAttributeValue o2)
                 {
-                    var o2 = obj as ColorAttributeValue;
-                    if (o2 != null)
-                    {
-                        equals = Color.EqualsNoCase(o2.Color);
-                    }
+                    equals = Color.EqualsNoCase(o2.Color);
                 }
 
                 return equals;
@@ -159,13 +148,6 @@ namespace Smartstore.Web.Models.Catalog
             public int Id { get; set; }
             public LocalizedValue<string> Name { get; set; }
             public string Alias { get; set; }
-        }
-
-        public class Badge
-        {
-            public string Label { get; set; }
-            public BadgeStyle Style { get; set; }
-            public int DisplayOrder { get; set; }
         }
     }
 }

@@ -105,7 +105,7 @@ namespace Smartstore.Web.Controllers
             if (_priceSettings.ShowOfferBadge)
             {
                 // Add default promo badges as configured
-                AddPromoBadge(calculatedPrice, priceModel);
+                AddPromoBadge(calculatedPrice, priceModel.Badges);
             }
 
             // Bundle per item pricing stuff
@@ -205,8 +205,6 @@ namespace Smartstore.Web.Controllers
                 await batchContext.ProductBundleItems.LoadAllAsync();
             }
 
-            priceModel.DisplayTextForZeroPrices = _priceSettings.DisplayTextForZeroPrices;
-
             if (product.ProductType == ProductType.GroupedProduct)
             {
                 priceModel.DisableBuyButton = true;
@@ -275,24 +273,22 @@ namespace Smartstore.Web.Controllers
 
             // -----> Perform calculation <-------
             var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
-
+            
             // Map base
             MapPriceBase(calculatedPrice, priceModel);
-
-            // Display "Free" instead 0.00
-            // TODO: (mc) (pricing) Make common
-            if (priceModel.DisplayTextForZeroPrices && priceModel.FinalPrice == 0 && !priceModel.CallForPrice)
-            {
-                priceModel.FinalPrice = priceModel.FinalPrice.WithPostFormat(T("Products.Free"));
-            }
 
             priceModel.ShowPriceLabel = _priceSettings.ShowPriceLabelInLists;
 
             // Badges
             priceModel.ShowSavingBadge = _priceSettings.ShowSavingBadgeInLists && priceModel.Saving.HasSaving;
+            if (priceModel.ShowSavingBadge)
+            {
+                model.Badges.Add(new ProductBadgeModel { Label = T("Products.SavingBadgeLabel", priceModel.Saving.SavingPercent.ToString("N0")), Style = "danger" });
+            }
+
             if (_priceSettings.ShowOfferBadge && _priceSettings.ShowOfferBadgeInLists)
             {
-                AddPromoBadge(calculatedPrice, priceModel);
+                AddPromoBadge(calculatedPrice, model.Badges);
             }
 
             return contextProduct;
@@ -313,10 +309,14 @@ namespace Smartstore.Web.Controllers
 
             var product = price.Product;
             var forSummary = model is ProductSummaryPriceModel;
-            var shouldMapRetailPrice = forSummary
-                // Never show retail price in listings if we have a regular price already
-                ? !price.RegularPrice.HasValue
-                : !price.RegularPrice.HasValue || _priceSettings.AlwaysDisplayRetailPrice;
+            // Never show retail price in grid style listings if we have a regular price already
+            var canMapRetailPrice = !price.RegularPrice.HasValue || _priceSettings.AlwaysDisplayRetailPrice;
+
+            // Display "Free" instead of 0.00
+            if (_priceSettings.DisplayTextForZeroPrices && price.FinalPrice == 0 && !model.CallForPrice)
+            {
+                model.FinalPrice = model.FinalPrice.WithPostFormat(T("Products.Free"));
+            }
 
             // Regular price
             if (model.RegularPrice == null && price.Saving.HasSaving && price.RegularPrice.HasValue)
@@ -330,7 +330,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Retail price
-            if (model.RetailPrice == null && price.RetailPrice.HasValue && shouldMapRetailPrice)
+            if (model.RetailPrice == null && price.RetailPrice.HasValue && canMapRetailPrice)
             {
                 model.RetailPrice = GetComparePriceModel(price.RetailPrice.Value, price.RetailPriceLabel, forSummary);
             }
@@ -353,17 +353,18 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        private void AddPromoBadge(CalculatedPrice price, PriceModel model)
+        private void AddPromoBadge(CalculatedPrice price, List<ProductBadgeModel> badges)
         {
             // Add default promo badges as configured
             var (label, style) = _priceLabelService.GetPricePromoBadge(price);
 
             if (label.HasValue())
             {
-                model.Badges.Add(new ProductBadgeModel
+                badges.Add(new ProductBadgeModel
                 {
                     Label = label,
-                    Style = style ?? "dark"
+                    Style = style ?? "dark",
+                    DisplayOrder = 10
                 });
             }
         }

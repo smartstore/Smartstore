@@ -30,7 +30,7 @@ namespace Smartstore.PayPal.Components
             var productDetailsModel = (ProductDetailsModel)model;
 
             // PayPal allows pay later only for amount between 99€ und 5.000€.
-            if (productDetailsModel != null && productDetailsModel.ProductPrice.Price.Amount >= 99 && productDetailsModel.ProductPrice.Price.Amount <= 5000)
+            if (productDetailsModel != null && productDetailsModel.Price.FinalPrice.Amount >= 99 && productDetailsModel.Price.FinalPrice.Amount <= 5000)
             {
                 var scriptUrl = $"https://www.paypal.com/sdk/js" +
                     $"?client-id={_settings.ClientId}" +
@@ -40,7 +40,7 @@ namespace Smartstore.PayPal.Components
                     $"&components=messages";
 
                 ViewBag.ScriptUrl = scriptUrl;
-                ViewBag.Price = productDetailsModel.ProductPrice.Price.Amount.ToStringInvariant();
+                ViewBag.Price = productDetailsModel.Price.FinalPrice.Amount.ToStringInvariant();
                 return View();
             }
 

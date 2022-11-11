@@ -374,16 +374,12 @@ namespace Smartstore.Web.Controllers
 
             model.WeightValue = product.Weight;
             model.IsBundlePart = product.ProductType != ProductType.BundledProduct && modelContext.ProductBundleItem != null;
-            model.ProductPrice.BundleItemShowBasePrice = _priceSettings.BundleItemShowBasePrice;
 
             // Attributes and attribute combination.
             await PrepareProductAttributesModelAsync(model, modelContext, selectedQuantity);
 
             // General properties.
             await PrepareProductPropertiesModelAsync(model, modelContext);
-
-            // Price.
-            await PrepareProductPriceModelOldAsync(model, modelContext, selectedQuantity);
 
             // Price.
             await PrepareProductPriceModelAsync(model, modelContext, selectedQuantity);

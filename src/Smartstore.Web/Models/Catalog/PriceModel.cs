@@ -25,6 +25,11 @@ namespace Smartstore.Web.Models.Catalog
         {
             get => CalculatedPrice != null;
         }
+
+        public bool HasDiscount
+        {
+            get => Saving.HasSaving;
+        }
     }
 
     public class ProductSummaryPriceModel : PriceModel
@@ -34,7 +39,6 @@ namespace Smartstore.Web.Models.Catalog
         public bool DisableBuyButton { get; set; }
         public bool DisableWishlistButton { get; set; }
         public bool AvailableForPreOrder { get; set; }
-        public bool DisplayTextForZeroPrices { get; set; }
     }
 
     public class ProductDetailsPriceModel : PriceModel

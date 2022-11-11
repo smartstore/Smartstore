@@ -591,10 +591,11 @@ namespace Smartstore.Web.Controllers
             // New Badge
             if (product.IsNew(_catalogSettings))
             {
-                item.Badges.Add(new ProductSummaryItemModel.Badge
+                item.Badges.Add(new ProductBadgeModel
                 {
                     Label = T("Common.New"),
-                    Style = BadgeStyle.Success
+                    Style = "warning",
+                    DisplayOrder = -10
                 });
             }
 

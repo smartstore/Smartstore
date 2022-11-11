@@ -41,133 +41,58 @@
     else
     {
         var isBundlePart = Model.IsBundlePart;
-        var priceModel = Model.ProductPrice;
-        var priceModel2 = Model.Price;
-        var basePriceEnabled = isBundlePart ? priceModel2.BundleItemShowBasePrice : priceModel2.IsBasePriceEnabled;
-        var showPriceSaving = priceModel2.Saving.SavingAmount.HasValue && (priceModel2.ShowRetailPriceSaving || priceModel2.RegularPrice != null);
-
-        var currentPriceValue = priceModel.PriceWithDiscount > 0 ? priceModel.PriceWithDiscount : priceModel.Price;
-        var showPrice = !(isBundlePart && currentPriceValue == 0);
-        var currentPrice = currentPriceValue.ToString();
-        var currentPriceLabel = priceModel.NoteWithDiscount;
-
-        var oldPrice1 = priceModel.OldPrice;
-        var oldPrice1Label = T("Products.Price.OldPrice").Value;
-
-        var oldPrice2 = priceModel.PriceWithDiscount < priceModel.Price ? priceModel.Price : new Money();
-        var oldPrice2Label = priceModel.NoteWithoutDiscount;
-
-        if (oldPrice2 > 0 && oldPrice1 == 0)
-        {
-            oldPrice1 = oldPrice2;
-            oldPrice2 = new Money();
-            oldPrice2Label = null;
-        }
-
-        if (priceModel.Price == 0 && Model.DisplayTextForZeroPrices)
-        {
-            currentPrice = T("Products.Free").Value;
-            oldPrice1 = new Money();
-            oldPrice2 = new Money();
-            oldPrice2Label = null;
-        }
-
-        var blocksHaveLabel = currentPriceLabel.HasValue() && oldPrice2Label.HasValue();
-
-        var artPriceClasses = "pd-price";
-        if (isBundlePart)
-        {
-            artPriceClasses += " pd-price-sm";
-        }
-        if (priceModel.OldPrice > 0)
-        {
-            artPriceClasses += " pd-price--offer";
-        }
+        var priceModel = Model.Price;
+        var basePriceEnabled = isBundlePart ? priceModel.BundleItemShowBasePrice : priceModel.IsBasePriceEnabled;
+        var showPriceSaving = priceModel.Saving.SavingAmount.HasValue && (priceModel.ShowRetailPriceSaving || priceModel.RegularPrice != null);
+        var showPrice = !(isBundlePart && priceModel.FinalPrice == 0);
 
         <!-- Price -->
         <div class="pd-group">
-            <!-- NEW price group -->
-            <div class="pd-price-group mb-3 x-d-none">
+            <div class="pd-price-group mb-3">
 
                 @* Promo badges *@
-                <div sm-if="priceModel2.Badges.Count > 0" class="pd-promobadges">
-                    @foreach (var badge in priceModel2.Badges.OrderBy(x => x.DisplayOrder))
+                <div sm-if="priceModel.Badges.Count > 0" class="pd-promobadges">
+                    @foreach (var badge in priceModel.Badges.OrderBy(x => x.DisplayOrder))
                     {
                         <span class="badge badge-@badge.Style">@badge.Label</span>
                     }
                 </div>
 
                 @* Final price *@
-                <div sm-if="showPrice" class="pd-finalprice" attr-class='(priceModel2.Saving.HasSaving, "pd-finalprice-offer")'>
+                <div sm-if="showPrice" class="pd-finalprice" attr-class='(priceModel.Saving.HasSaving, "pd-finalprice-offer")'>
                     <meta itemprop="priceCurrency" sm-if="!isBundlePart" content="@WorkContext.WorkingCurrency.CurrencyCode" />
-                    <meta itemprop="price" sm-if="!priceModel2.CallForPrice && !isBundlePart" content="@priceModel2.FinalPrice.RoundedAmount.ToStringInvariant()" />
-                    @if (priceModel2.ValidUntilUtc.HasValue)
+                    <meta itemprop="price" sm-if="!priceModel.CallForPrice && !isBundlePart" content="@priceModel.FinalPrice.RoundedAmount.ToStringInvariant()" />
+                    @if (priceModel.ValidUntilUtc.HasValue)
                     {
-                        <meta itemprop="priceValidUntil" content="@priceModel2.ValidUntilUtc.Value.ToString("u")" />
+                        <meta itemprop="priceValidUntil" content="@priceModel.ValidUntilUtc.Value.ToString("u")" />
                     }
                     <span class="pd-finalprice-amount" attr-class='(isBundlePart, "pd-finalprice-sm")'>
-                        @Html.Raw(priceModel2.FinalPrice)
+                        @Html.Raw(priceModel.FinalPrice)
                     </span>
-                    <span sm-if="priceModel2.CountdownText != null" class="pd-offer-countdown">
-                        @Html.Raw(priceModel2.CountdownText)
+                    <span sm-if="priceModel.CountdownText != null" class="pd-offer-countdown">
+                        @Html.Raw(priceModel.CountdownText)
                     </span>
                 </div>
 
                 @* Compare prices *@
-                <div sm-if="priceModel2.RegularPrice != null || priceModel2.RetailPrice != null" class="pd-promoprice-group">
+                <div sm-if="priceModel.RegularPrice != null || priceModel.RetailPrice != null" class="pd-promoprice-group">
                     @{
                         // Regular price
-                        await RenderPromoPriceLine(priceModel2.RegularPrice);
+                        await RenderPromoPriceLine(priceModel.RegularPrice);
 
                         // Retail price
-                        await RenderPromoPriceLine(priceModel2.RetailPrice);
+                        await RenderPromoPriceLine(priceModel.RetailPrice);
                     }
 
                     @* You save *@
                     <div sm-if="showPriceSaving" class="pd-promoprice-line">
                         <span class="pd-promoprice-label">@T("ShoppingCart.ItemYouSave"):</span>
                         <span class="pd-promosaving pl-1 d-flex">
-                            <span>@priceModel2.Saving.SavingAmount.Value</span>
-                            <span class="badge badge-danger pd-saving-badge">@T("Products.SavingBadgeLabel", priceModel2.Saving.SavingPercent.ToString("N0"))</span>
+                            <span>@priceModel.Saving.SavingAmount.Value</span>
+                            <span class="badge badge-danger pd-saving-badge">@T("Products.SavingBadgeLabel", priceModel.Saving.SavingPercent.ToString("N0"))</span>
                         </span>
                     </div>
                 </div>
-            </div>
-
-            <!-- Old price group -->
-            <div class="d-none">
-                <div class="row sm-gutters pd-price-group">
-                    <div sm-if="showPrice" class="col-auto pd-price-block">
-                        <meta sm-if="!isBundlePart" itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />
-                        <div sm-if="blocksHaveLabel" class="pd-price-label">@currentPriceLabel</div>
-                        <div class="@artPriceClasses">
-                            <meta sm-if="!priceModel.CallForPrice && !isBundlePart" itemprop="price" content="@currentPriceValue.ToString()" />
-                            <span>
-                                @Html.Raw(currentPrice)
-                            </span>
-                        </div>
-                    </div>
-
-                    <div sm-if="oldPrice2 > 0" class="col-auto pd-price-block">
-                        <div sm-if="blocksHaveLabel" class="pd-price-label">@oldPrice2Label</div>
-                        <div class="pd-price@(isBundlePart ? " pd-price-sm" : "")">
-                            @Html.Raw(oldPrice2)
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Regular price -->
-                @if (oldPrice1 > 0 || priceModel.SavingAmount > 0)
-                {
-                    <div sm-if="oldPrice1 > 0" class="pd-oldprice-line d-flex">
-                        <span sm-if="oldPrice1Label.HasValue()">@Html.Raw(oldPrice1Label):</span>
-                        <span class="pd-oldprice pl-1">@Html.Raw(oldPrice1)</span>
-                    </div>
-                    <div sm-if="priceModel.SavingAmount > 0" class="pd-oldprice-line d-flex">
-                        <span>@T("ShoppingCart.ItemYouSave"):</span>
-                        <span class="pl-1">@priceModel.SavingAmount <span class="pd-saving-percent">(@priceModel.SavingPercent.ToString("N0") %)</span></span>
-                    </div>
-                }
             </div>
 
             <zone name="@("productdetails_add_info{0}".FormatWith(isBundlePart ? "_bundle" : string.Empty))" />
@@ -179,11 +104,11 @@
         </div>
 
         <!-- Pangv & legal info -->
-        <div class="pd-group" sm-if="(basePriceEnabled && priceModel2.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())">
-            <div class="pd-pangv" sm-if="basePriceEnabled && priceModel2.BasePriceInfo.HasValue()">
-                @Html.Raw(LocalizedValue.FixBrackets(priceModel2.BasePriceInfo, WorkContext.WorkingLanguage))
+        <div class="pd-group" sm-if="(basePriceEnabled && priceModel.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())">
+            <div class="pd-pangv" sm-if="basePriceEnabled && priceModel.BasePriceInfo.HasValue()">
+                @Html.Raw(LocalizedValue.FixBrackets(priceModel.BasePriceInfo, WorkContext.WorkingLanguage))
             </div>
-            <div class="pd-legalinfo" sm-if="Model.ShowLegalInfo && Model.LegalInfo.HasValue() && currentPriceValue != 0">
+            <div class="pd-legalinfo" sm-if="Model.ShowLegalInfo && Model.LegalInfo.HasValue() && priceModel.FinalPrice != 0">
                 @Html.Raw(Model.LegalInfo)
             </div>
         </div>

@@ -286,9 +286,9 @@ namespace Smartstore.Web.Api.Swagger
             }
         }
 
-        /// <summary>
-        /// Adds a file uploader for methods decorated with <see cref="ApiUploadAttribute"/>.
-        /// </summary>
+        ///// <summary>
+        ///// Adds a file uploader for methods decorated with <see cref="ApiUploadAttribute"/>.
+        ///// </summary>
         //protected virtual void AddUploader(SwaggerOperationHelper helper)
         //{
         //    var attribute = (ApiUploadAttribute)helper.Context.MethodInfo.GetCustomAttributes(typeof(ApiUploadAttribute), false).FirstOrDefault();
