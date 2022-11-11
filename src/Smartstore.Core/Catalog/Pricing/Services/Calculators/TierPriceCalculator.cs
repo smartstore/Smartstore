@@ -14,7 +14,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var product = context.Product;
             var options = context.Options;
             var tierPriceEntity = (TierPrice)null;
-            var processTierPrices = !options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices && context.BundleItem == null;
+            var processTierPrices = !options.IgnoreTierPrices
+                && !options.IgnoreDiscounts
+                && product.HasTierPrices
+                && context.BundleItem == null
+                && !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing);
 
             if (processTierPrices)
             {
