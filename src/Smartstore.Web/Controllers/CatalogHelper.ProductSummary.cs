@@ -576,8 +576,6 @@ namespace Smartstore.Web.Controllers
                 {
                     item.TransportSurcharge = addShippingPrice.WithPostFormat(ctx.Resources["Common.AdditionalShippingSurcharge"]);
                 }
-
-                item.DisplayTextForZeroPrices = _priceSettings.DisplayTextForZeroPrices;
             }
 
             if (model.ShowWeight && contextProduct.Weight > 0)

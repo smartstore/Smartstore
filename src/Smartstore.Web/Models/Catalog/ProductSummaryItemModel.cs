@@ -61,7 +61,6 @@ namespace Smartstore.Web.Models.Catalog
         public int RatingSum { get; set; }
         public int TotalReviews { get; set; }
         public string BasePriceInfo { get; set; }
-        public bool DisplayTextForZeroPrices { get; set; }
 
         public bool IsShippingEnabled { get; set; }
         public bool HideDeliveryTime { get; set; }

@@ -385,8 +385,6 @@ namespace Smartstore.Web.Controllers
                     galleryStartIndex = mediaModel.GalleryStartIndex;
                     galleryHtml = await InvokePartialViewAsync("Product.Media", mediaModel);
                 }
-
-                model.DisplayTextForZeroPrices = _priceSettings.DisplayTextForZeroPrices;
             }
 
             object partials = null;

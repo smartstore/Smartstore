@@ -100,8 +100,7 @@ namespace Smartstore.Web.Controllers
                     IsAssociatedProduct = isAssociatedProduct,
                     CompareEnabled = !isAssociatedProduct && _catalogSettings.CompareProductsEnabled,
                     TellAFriendEnabled = !isAssociatedProduct && _catalogSettings.EmailAFriendEnabled,
-                    AskQuestionEnabled = !isAssociatedProduct && _catalogSettings.AskQuestionEnabled,
-                    DisplayTextForZeroPrices = _priceSettings.DisplayTextForZeroPrices
+                    AskQuestionEnabled = !isAssociatedProduct && _catalogSettings.AskQuestionEnabled
                 };
 
                 #region Bundles / Grouped products
