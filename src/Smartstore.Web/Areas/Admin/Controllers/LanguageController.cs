@@ -532,7 +532,6 @@ namespace Smartstore.Admin.Controllers
                 var ctx = new LanguageDownloadContext(setId)
                 {
                     AvailableResources = resources,
-                    AppShutdownCancellationToken = _asyncRunner.AppShutdownCancellationToken,
                     StoreUrl = Services.StoreContext.CurrentStore.Url,
                     StringResouces = new()
                     {
@@ -558,21 +557,19 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 // 1. Download resources.
-                var cts = CancellationTokenSource.CreateLinkedTokenSource(context.AppShutdownCancellationToken, cancelToken);
-
                 var state = new LanguageDownloadState
                 {
                     Id = context.SetId,
                     ProgressMessage = context.StringResouces["Admin.Configuration.Languages.DownloadingResources"]
                 };
 
-                await asyncState.CreateAsync(state, null, false, cts);
+                await asyncState.CreateAsync(state, null, false, CancellationTokenSource.CreateLinkedTokenSource(cancelToken));
 
                 var client = httpClientFactory.CreateClient();
                 var resources = context.AvailableResources.Resources.First(x => x.Id == context.SetId);
                 var xmlDoc = await DownloadAvailableResources(client, resources.DownloadUrl, context.StoreUrl, cancelToken);
 
-                if (!cts.Token.IsCancellationRequested)
+                if (!cancelToken.IsCancellationRequested)
                 {
                     using var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential);
                     await asyncState.UpdateAsync<LanguageDownloadState>(state => state.ProgressMessage = context.StringResouces["Admin.Configuration.Languages.ImportResources"]);
