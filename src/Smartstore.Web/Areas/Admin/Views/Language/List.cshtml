@@ -120,7 +120,7 @@
                 var tr = el.closest('tr');
 
                 $('#AvailableLanguages').find('a.download-language').addClass('hide');
-                $('body, html').animate({ scrollTop: tr.offset().top }, 'slow');
+                $('body, html').animate({ scrollTop: tr.offset().top - 70 }, 'slow');
             },
             onTaskCompleted: function (taskId, el) {
                window.location = '@Url.Action("List")';

@@ -168,6 +168,27 @@ namespace Smartstore.Threading
             return t;
         }
 
+        public Task RunTask(
+            Func<ILifetimeScope, CancellationToken, object, Task> function,
+            object state,
+            CancellationToken cancellationToken = default)
+        {
+            Guard.NotNull(function, nameof(function));
+            Guard.NotNull(state, nameof(state));
+
+            var cancelToken = CreateCompositeCancellationToken(cancellationToken);
+
+            var t = Task.Factory.StartNew(async (o) =>
+            {
+                using var scope = CreateScope();
+                await function(scope, cancelToken, o);
+            }, state, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+
+            t.ContinueWith(t => TaskContinuation(t), cancelToken);
+
+            return t;
+        }
+
         private ILifetimeScope CreateScope()
         {
             var scope = _scopeAccessor.CreateLifetimeScope();

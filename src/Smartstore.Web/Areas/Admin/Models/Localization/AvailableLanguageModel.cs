@@ -44,5 +44,7 @@
         public int SetId { get; }
         public CancellationToken AppShutdownCancellationToken { get; set; }
         public CheckAvailableResourcesResult AvailableResources { get; set; }
+        public string StoreUrl { get; set; }
+        public Dictionary<string, string> StringResouces { get; set; }
     }
 }

@@ -97,7 +97,9 @@
                     <smart-label asp-for="LastResourcesImportOnString" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="LastResourcesImportOnString" sm-plaintext="true" readonly />
+                    <div class="form-control-plaintext">
+                        <span title="@Model.LastResourcesImportOn.Value.ToString()">@Model.LastResourcesImportOnString</span>
+                    </div>
                 </div>
             </div>
         </div>

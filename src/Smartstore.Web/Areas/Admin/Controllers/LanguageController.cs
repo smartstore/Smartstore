@@ -5,7 +5,6 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Xml;
 using Autofac;
-
 using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -17,6 +16,8 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.Engine.Modularity;
 using Smartstore.Threading;
 using Smartstore.Web.Models.DataGrid;
@@ -74,8 +75,8 @@ namespace Smartstore.Admin.Controllers
 
                 if (lastImportInfos.TryGetValue(x.Id, out LastResourcesImportInfo info))
                 {
-                    m.LastResourcesImportOn = info.ImportedOn;
-                    m.LastResourcesImportOnString = info.ImportedOn.Humanize(true);
+                    m.LastResourcesImportOn = Services.DateTimeHelper.ConvertToUserTime(info.ImportedOn, DateTimeKind.Utc);
+                    m.LastResourcesImportOnString = m.LastResourcesImportOn.Humanize(false);
                 }
 
                 if (x.Id == masterLanguageId)
@@ -524,94 +525,122 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Language.EditResource)]
         public async Task<IActionResult> Download(int setId)
         {
-            var ctx = new LanguageDownloadContext(setId)
-            {
-                AvailableResources = await CheckAvailableResources(),
-                AppShutdownCancellationToken = _asyncRunner.AppShutdownCancellationToken
-            };
+            var resources = await CheckAvailableResources();
 
-            if (ctx.AvailableResources.Resources.Any())
+            if (resources.Resources.Count > 0)
             {
-                _ = _asyncRunner.Run((scope, ct, state) => DownloadCore(scope, state as LanguageDownloadContext, ct), ctx);
+                var ctx = new LanguageDownloadContext(setId)
+                {
+                    AvailableResources = resources,
+                    AppShutdownCancellationToken = _asyncRunner.AppShutdownCancellationToken,
+                    StoreUrl = Services.StoreContext.CurrentStore.Url,
+                    StringResouces = new()
+                    {
+                        { "Admin.Configuration.Languages.ImportResources", T("Admin.Configuration.Languages.ImportResources") },
+                        { "Admin.Configuration.Languages.DownloadingResources", T("Admin.Configuration.Languages.DownloadingResources") }
+                    }
+                };
+
+                _ = _asyncRunner.RunTask((scope, ct, state) => DownloadCore(scope, state as LanguageDownloadContext, ct), ctx);
             }
 
             return RedirectToAction(nameof(List));
         }
 
-        private static void DownloadCore(ILifetimeScope scope, LanguageDownloadContext context, CancellationToken cancelToken)
+        private static async Task DownloadCore(ILifetimeScope scope, LanguageDownloadContext context, CancellationToken cancelToken)
         {
+            var appContext = scope.Resolve<IApplicationContext>();
             var asyncState = scope.Resolve<IAsyncState>();
             var httpClientFactory = scope.Resolve<IHttpClientFactory>();
-            var services = scope.Resolve<ICommonServices>();
             var xmlResourceManager = scope.Resolve<IXmlResourceManager>();
-            var logger = scope.Resolve<ILogger>();
-            var db = services.DbContext;
-            var loc = services.Localization;
+            var db = scope.Resolve<SmartDbContext>();
 
             try
             {
                 // 1. Download resources.
-                var importResourcesString = loc.GetResource("Admin.Configuration.Languages.ImportResources");
                 var cts = CancellationTokenSource.CreateLinkedTokenSource(context.AppShutdownCancellationToken, cancelToken);
 
                 var state = new LanguageDownloadState
                 {
                     Id = context.SetId,
-                    ProgressMessage = loc.GetResource("Admin.Configuration.Languages.DownloadingResources")
+                    ProgressMessage = context.StringResouces["Admin.Configuration.Languages.DownloadingResources"]
                 };
 
-                asyncState.Create(state, null, false, cts);
+                await asyncState.CreateAsync(state, null, false, cts);
 
                 var client = httpClientFactory.CreateClient();
                 var resources = context.AvailableResources.Resources.First(x => x.Id == context.SetId);
-                var xmlDoc = DownloadAvailableResources(client, resources.DownloadUrl, services.StoreContext.CurrentStore.Url, cancelToken).Await();
+                var xmlDoc = await DownloadAvailableResources(client, resources.DownloadUrl, context.StoreUrl, cancelToken);
 
                 if (!cts.Token.IsCancellationRequested)
                 {
-                    asyncState.Update<LanguageDownloadState>(state => state.ProgressMessage = importResourcesString);
+                    using var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential);
+                    await asyncState.UpdateAsync<LanguageDownloadState>(state => state.ProgressMessage = context.StringResouces["Admin.Configuration.Languages.ImportResources"]);
 
                     // 2. Create language entity (if required).
-                    var language = db.Languages
+                    var language = await db.Languages
                         .Where(x => x.LanguageCulture == resources.Language.Culture)
-                        .FirstOrDefault();
+                        .FirstOrDefaultAsync(cancelToken);
 
                     if (language == null)
                     {
-                        var maxDisplayOrder = db.Languages
+                        var maxDisplayOrder = await db.Languages
                             .Where(x => x.Published)
-                            .Max(x => (int?)x.DisplayOrder);
+                            .MaxAsync(x => (int?)x.DisplayOrder, cancelToken);
 
                         language = new Language
                         {
                             LanguageCulture = resources.Language.Culture,
                             UniqueSeoCode = resources.Language.TwoLetterIsoCode,
                             Name = GetCultureDisplayName(resources.Language.Culture) ?? resources.Name,
-                            FlagImageFileName = GetFlagFileName(resources.Language.Culture, services.ApplicationContext),
+                            FlagImageFileName = GetFlagFileName(resources.Language.Culture, appContext),
                             Rtl = resources.Language.Rtl,
                             Published = false,
                             DisplayOrder = maxDisplayOrder.HasValue ? maxDisplayOrder.Value + 1 : 0
                         };
 
                         db.Languages.Add(language);
-                        db.SaveChanges();
+                        await dbScope.CommitAsync(cancelToken);
                     }
 
                     // 3. Import resources.
-                    xmlResourceManager.ImportResourcesFromXmlAsync(language, xmlDoc).Await();
+                    await xmlResourceManager.ImportResourcesFromXmlAsync(language, xmlDoc);
 
+                    // 4. Save import info.
                     var serializedImportInfo = JsonConvert.SerializeObject(new LastResourcesImportInfo
                     {
                         TranslatedPercentage = resources.TranslatedPercentage,
                         ImportedOn = DateTime.UtcNow
                     });
 
-                    language.GenericAttributes.Set("LastResourcesImportInfo", serializedImportInfo);
-                    db.SaveChanges();
+                    var attribute = await db.GenericAttributes.FirstOrDefaultAsync(x =>
+                        x.Key == "LastResourcesImportInfo" &&
+                        x.KeyGroup == nameof(Language) &&
+                        x.EntityId == language.Id &&
+                        x.StoreId == 0, cancelToken);
+
+                    if (attribute == null)
+                    {
+                        db.GenericAttributes.Add(new()
+                        {
+                            Key = "LastResourcesImportInfo",
+                            KeyGroup = nameof(Language),
+                            EntityId = language.Id,
+                            StoreId = 0,
+                            Value = serializedImportInfo
+                        });
+                    }
+                    else
+                    {
+                        attribute.Value = serializedImportInfo;
+                    }
+
+                    await dbScope.CommitAsync(cancelToken);
                 }
             }
             catch (Exception ex)
             {
-                logger.ErrorsAll(ex);
+                scope.Resolve<ILogger>().ErrorsAll(ex);
             }
             finally
             {
@@ -815,8 +844,8 @@ namespace Smartstore.Admin.Controllers
 
                 if (lastImportInfos.TryGetValue(language.Id, out LastResourcesImportInfo info))
                 {
-                    model.LastResourcesImportOn = info.ImportedOn;
-                    model.LastResourcesImportOnString = info.ImportedOn.Humanize(true);
+                    model.LastResourcesImportOn = Services.DateTimeHelper.ConvertToUserTime(info.ImportedOn, DateTimeKind.Utc);
+                    model.LastResourcesImportOnString = model.LastResourcesImportOn.Humanize(false);
                 }
 
                 // Provide downloadable resources.
@@ -906,8 +935,8 @@ namespace Smartstore.Admin.Controllers
                     model.TranslatedPercentageAtLastImport = percentAtLastImport;
                 }
 
-                model.LastResourcesImportOn = info.ImportedOn;
-                model.LastResourcesImportOnString = info.ImportedOn.Humanize(true);
+                model.LastResourcesImportOn = Services.DateTimeHelper.ConvertToUserTime(info.ImportedOn, DateTimeKind.Utc);
+                model.LastResourcesImportOnString = model.LastResourcesImportOn.Humanize(false);
             }
         }
 

@@ -1,5 +1,4 @@
-﻿
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
@@ -74,6 +73,22 @@ namespace Smartstore.Core.Localization
             await _cache.RemoveAsync(STORE_LANGUAGE_MAP_KEY);
 
             return HookResult.Ok;
+        }
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            var deletedLanguageIds = entries
+                .Where(x => x.InitialState == EntityState.Deleted)
+                .Select(x => x.Entity)
+                .OfType<Language>()
+                .ToDistinctArray(x => x.Id);
+
+            if (deletedLanguageIds.Length > 0)
+            {
+                await _db.GenericAttributes
+                    .Where(x => deletedLanguageIds.Contains(x.EntityId) && x.KeyGroup == nameof(Language))
+                    .BatchDeleteAsync(cancelToken);
+            }
         }
 
         #endregion
