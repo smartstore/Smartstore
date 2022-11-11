@@ -277,7 +277,7 @@ namespace Smartstore.Google.Analytics.Services
             var i = 0;
             foreach (var product in products)
             {
-                var discount = product.Price.SavingAmount;
+                var discount = product.Price.Saving.SavingAmount;
 
                 productsScript += GetItemScript(
                     product.Id,
@@ -285,7 +285,7 @@ namespace Smartstore.Google.Analytics.Services
                     product.Name,
                     discount != null ? discount.Value.Amount.ToStringInvariant("n2") : "0",
                     product.Brand != null ? product.Brand.Name : string.Empty,
-                    product.Price.Price.Amount.ToStringInvariant(),
+                    product.Price.FinalPrice.Amount.ToStringInvariant(),
                     categoryPathScript,
                     listName,
                     ++i);

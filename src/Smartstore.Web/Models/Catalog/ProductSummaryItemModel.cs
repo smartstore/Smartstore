@@ -74,9 +74,7 @@ namespace Smartstore.Web.Models.Catalog
         public int MinPriceProductId { get; set; } // Internal
 
         public BrandOverviewModel Brand { get; set; }
-        public PriceModel Price { get; set; } = new();
-        // TODO: (mc) (pricing) Remove "Price" later
-        public ProductSummaryPriceModel Price2 { get; set; }
+        public ProductSummaryPriceModel Price { get; set; }
         public ImageModel Image { get; set; } = new();
         public List<Attribute> Attributes { get; set; } = new();
         // TODO: (mc) Let the user specify in attribute manager which spec attributes are
@@ -85,22 +83,6 @@ namespace Smartstore.Web.Models.Catalog
         public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = new();
         public List<ColorAttributeValue> ColorAttributes { get; set; }
         public List<ProductBadgeModel> Badges { get; set; } = new();
-
-        public class PriceModel
-        {
-            public Money? RegularPrice { get; set; }
-            public Money Price { get; set; }
-
-            public bool HasDiscount { get; set; }
-            public float SavingPercent { get; set; }
-            public Money? SavingAmount { get; set; }
-
-            public bool DisableBuyButton { get; set; }
-            public bool DisableWishlistButton { get; set; }
-
-            public bool AvailableForPreOrder { get; set; }
-            public bool CallForPrice { get; set; }
-        }
 
         public class ColorAttribute
         {

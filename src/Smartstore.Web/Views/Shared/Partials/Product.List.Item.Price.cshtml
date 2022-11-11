@@ -11,7 +11,7 @@
         return;
     }
 
-    var price = Model.Price2;
+    var price = Model.Price;
     var isLinesMode = list.ViewMode == ProductSummaryViewMode.List;
     var showPriceSaving = isLinesMode && price.Saving.SavingAmount.HasValue && (price.ShowRetailPriceSaving || price.RegularPrice != null);
     var artPriceClass = "art-price";
@@ -28,36 +28,15 @@
 
     async Task RenderComparePrice(ComparePriceModel priceModel)
     {
-        if (priceModel != null)
-        {
-            if (false)
+        <span sm-if="priceModel != null" class="art-compareprice">
+            @if (isLinesMode || price.ShowPriceLabel)
             {
-
+                <span class="art-compareprice-label">@(priceModel.Label):</span>
             }
-            else
-            {
-                <span class="art-compareprice">
-                    @if (isLinesMode || price.ShowPriceLabel)
-                    {
-                        <span class="art-compareprice-label">@(priceModel.Label):</span>
-                    }
-                    <span class="art-compareprice-value">@priceModel.Price</span>
-                </span>
-            }
-        }
+            <span class="art-compareprice-value">@priceModel.Price</span>
+        </span>
     }
 }
-
-@*<div class="art-info-group">
-    <div>
-        <span>@T("Products.Price.OldPrice"):</span>
-        <span class="art-oldprice">@Model.Price.RegularPrice.Value</span>
-    </div>
-    <div sm-if="Model.Price.SavingAmount.HasValue" class="d-flex">
-        <span>@T("ShoppingCart.ItemYouSave"):</span>
-        <span class="pl-2">@Model.Price.SavingAmount <span class="lrm">(@Model.Price.SavingPercent.ToString("N0") %)</span></span>
-    </div>
-</div>*@
 
 <div class="art-price-block x-mb-2">
     <span class="@artPriceClass">

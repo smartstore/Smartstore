@@ -196,7 +196,7 @@ namespace Smartstore.Web.Controllers
             var options = context.CalculationOptions;
             var batchContext = context.BatchContext;
             var contextProduct = product;
-            var priceModel = model.Price2 = new ProductSummaryPriceModel();
+            var priceModel = model.Price = new ProductSummaryPriceModel();
 
             ICollection<Product> associatedProducts = null;
 

@@ -390,9 +390,7 @@ namespace Smartstore.Web.Controllers
             if (settings.MapPrices)
             {
                 contextProduct = await MapSummaryItemPrice(product, item, ctx);
-
-                // TODO: (mc) (pricing) Remove this later
-                (finalPrice, contextProduct) = await MapSummaryItemPriceOld(product, item, ctx);
+                finalPrice = item.Price.FinalPrice;
             }
 
             // (Color) Attributes
