@@ -29,7 +29,7 @@
     }
 }
 
-<div class="pd-offer-price">
+<div class="pd-offer-price" sm-suppress-if-empty="true">
     @if (Model.Price.ShowLoginNote)
     {
         <h4 class="pd-price pd-loginforprice">@T("Products.LoginForPrice")</h4>
@@ -43,12 +43,13 @@
         var isBundlePart = Model.IsBundlePart;
         var priceModel = Model.Price;
         var basePriceEnabled = isBundlePart ? priceModel.BundleItemShowBasePrice : priceModel.IsBasePriceEnabled;
+        var isBundleItemPricing = Model.BundlePerItemPricing;
         var showPriceSaving = priceModel.Saving.SavingAmount.HasValue && (priceModel.ShowRetailPriceSaving || priceModel.RegularPrice != null);
         var showPrice = !(isBundlePart && priceModel.FinalPrice == 0);
 
-        <!-- Price -->
-        <div class="pd-group">
-            <div class="pd-price-group mb-3">
+        @* Price *@
+        <div class="pd-group" sm-suppress-if-empty="true">
+            <div class="pd-price-group mb-3" sm-suppress-if-empty="true">
 
                 @* Promo badges *@
                 <div sm-if="priceModel.Badges.Count > 0" class="pd-promobadges">
@@ -98,13 +99,13 @@
             <zone name="@("productdetails_add_info{0}".FormatWith(isBundlePart ? "_bundle" : string.Empty))" />
         </div>
 
-        <!-- Tier prices -->
         <div sm-if="!isBundlePart" class="pd-tierprices">
+            <!-- Tier prices -->
             <partial name="Product.TierPrices" model="Model.Price.TierPrices" />
         </div>
 
-        <!-- Pangv & legal info -->
         <div class="pd-group" sm-if="(basePriceEnabled && priceModel.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())">
+            <!-- Pangv & legal info -->
             <div class="pd-pangv" sm-if="basePriceEnabled && priceModel.BasePriceInfo.HasValue()">
                 @Html.Raw(LocalizedValue.FixBrackets(priceModel.BasePriceInfo, WorkContext.WorkingLanguage))
             </div>

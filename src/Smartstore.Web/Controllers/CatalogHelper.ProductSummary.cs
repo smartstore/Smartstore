@@ -564,20 +564,6 @@ namespace Smartstore.Web.Controllers
             item.TotalReviews = product.ApprovedTotalReviews;
             item.IsShippingEnabled = contextProduct.IsShippingEnabled;
 
-            if (finalPrice != decimal.Zero && model.ShowBasePrice)
-            {
-                item.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(contextProduct, finalPrice, options.TargetCurrency);
-            }
-
-            if (settings.MapPrices)
-            {
-                var addShippingPrice = ToWorkingCurrency(contextProduct.AdditionalShippingCharge, ctx);
-                if (addShippingPrice > 0)
-                {
-                    item.TransportSurcharge = addShippingPrice.WithPostFormat(ctx.Resources["Common.AdditionalShippingSurcharge"]);
-                }
-            }
-
             if (model.ShowWeight && contextProduct.Weight > 0)
             {
                 var measureWeightName = (await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false))?.GetLocalized(x => x.Name) ?? string.Empty;

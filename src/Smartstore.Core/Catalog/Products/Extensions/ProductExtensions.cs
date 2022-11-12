@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Attributes;
+﻿using System.Globalization;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Products
@@ -101,7 +102,7 @@ namespace Smartstore.Core.Catalog.Products
                     if (product.DisplayStockQuantity)
                     {
                         var str = localizationService.GetResource("Products.Availability.InStockWithQuantity");
-                        stockMessage = string.Format(str, product.StockQuantity);
+                        stockMessage = str.FormatCurrent(product.StockQuantity);
                     }
                     else
                     {

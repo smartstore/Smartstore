@@ -2,9 +2,20 @@
 
 @model ProductDetailsModel
 
+@{ 
+    var id = $"{Html.IdForModel()}{Html.IdAttributeDotReplacement}{nameof(Model.AddToCart.CustomerEnteredPrice)}";
+    var name = $"{Html.IdForModel()}.{nameof(Model.AddToCart.CustomerEnteredPrice)}";
+}
+
 <div class="form-group">
-    <label for="@($"{Html.IdForModel()}{Html.IdAttributeDotReplacement}{nameof(Model.AddToCart.CustomerEnteredPrice)}")">
+    <label for="@id">
         @Html.DisplayNameFor(x => x.AddToCart.CustomerEnteredPrice)
     </label>
-    @Html.TextBox("CustomerEnteredPrice", Convert.ToInt32(Math.Ceiling(Model.AddToCart.CustomerEnteredPrice)), new { @class = "form-control" })
+    <input type="number" 
+           sm-postfix="@WorkContext.WorkingCurrency.CurrencyCode"
+           sm-decimals="2"
+           id="@id" 
+           name="@name" 
+           class="form-control" 
+           value="@Convert.ToInt32(Math.Ceiling(Model.AddToCart.CustomerEnteredPrice))" />
 </div>

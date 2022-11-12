@@ -6,12 +6,13 @@
 @{
     var list = Model.Parent;
     var price = Model.Price;
+    var isLinesMode = list.ViewMode == ProductSummaryViewMode.List;
     string artDetailUrl = ViewBag.ArtDetailUrl;
 
     void RenderBuyButton(bool blockStyle)
     {
         var cssClasses = blockStyle ? "btn-block d-none d-md-block" : "btn-lg art-btn col";
-        if (!blockStyle && Model.Parent.ViewMode == ProductSummaryViewMode.List)
+        if (!blockStyle && isLinesMode)
         {
             cssClasses += " d-md-none";
         }
@@ -33,7 +34,7 @@
                 {
                     <span>@title</span>
                 }
-                else if (Model.Parent.ViewMode == ProductSummaryViewMode.List)
+                else if (isLinesMode)
                 {
                     <span class="d-none d-sm-inline">@title</span>
                 }
@@ -42,16 +43,16 @@
         else
         {
             <a href="@Url.Action("AskQuestion", "Product", new { id = Model.Id, area = "" })"
-               class="btn @(blockStyle ? "btn-secondary" : "btn-gray") @cssClasses"
+               class="btn @(blockStyle ? "btn-light" : "btn-gray") @cssClasses"
                data-toggle='@(!blockStyle ? "tooltip" : "")' data-placement="bottom"
                rel="nofollow"
                title="@T("Products.CallForPrice.GoToForm")">
-                <i class="fa fa-envelope"></i>
+                <i class="fa fa-question"></i>
                 @if (blockStyle)
                 {
                     <span>@T("Products.CallForPrice.GoToForm")</span>
                 }
-                else if (Model.Parent.ViewMode == ProductSummaryViewMode.List)
+                else if (isLinesMode)
                 {
                     @* Show "Call for price" label on sm-only (enough space!) *@
                     <span class="d-none d-sm-inline">@T("Products.CallForPrice.GoToForm")</span>
@@ -61,14 +62,14 @@
     }
 }
 
-@if (list.ViewMode == ProductSummaryViewMode.List && !price.DisableBuyButton && list.BuyEnabled)
+@if (isLinesMode && !price.DisableBuyButton && list.BuyEnabled)
 {
-    <div class="my-3">
+    <div class="mt-3">
         @{ RenderBuyButton(true); }
     </div>
 }
 
-<div class="row no-gutters art-btn-group">
+<div class="row no-gutters art-btn-group" attr-class='(isLinesMode, "mt-3")'>
     @if (!price.DisableBuyButton && list.BuyEnabled)
     {
         RenderBuyButton(false);
@@ -87,7 +88,7 @@
             <i class="fal fa-heart"></i>
         </a>
     }
-    else if (list.ViewMode == ProductSummaryViewMode.List)
+    else if (isLinesMode)
     {
         <span class="art-btn-spacer col"></span>
     }
@@ -105,7 +106,7 @@
             <i class="fa fa-retweet"></i>
         </a>
     }
-    else if (list.ViewMode == ProductSummaryViewMode.List)
+    else if (isLinesMode)
     {
         <span class="art-btn-spacer col"></span>
     }

@@ -147,6 +147,10 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Products.InclTaxSuffix", "{0} *", "{0} *");
             builder.AddOrUpdate("Products.ExclTaxSuffix", "{0} *", "{0} *");
+
+            builder.AddOrUpdate("ShoppingCart.OutOfStock").Value("de", "Ausverkauft");
+            builder.AddOrUpdate("Products.Availability.InStockWithQuantity").Value("de", "{0} auf Lager");
+            builder.AddOrUpdate("Products.Availability.Backordering").Value("de", "Ausverkauft - wird nachgeliefert, sobald wieder auf Lager.");
         }
     }
 }

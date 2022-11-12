@@ -111,10 +111,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Product quantity from category is in range",
                 "Produktmenge aus Warengruppe liegt in folgendem Bereich");
 
-            builder.AddOrUpdate("PDFInvoice.TaxNumber")
-                .Value("en", "Tax Number:");
-            builder.AddOrUpdate("PDFInvoice.VatId")
-                .Value("en", "Vat-ID:");
+            builder.AddOrUpdate("PDFInvoice.TaxNumber").Value("en", "Tax Number:");
+            builder.AddOrUpdate("PDFInvoice.VatId").Value("en", "Vat-ID:");
 
             builder.AddOrUpdate("Admin.Catalog.Products.List.SearchProductType", "Product type", "Produkttyp");
             builder.AddOrUpdate("Admin.Catalog.Products.List.SearchCategory", "Category", "Warengruppe");

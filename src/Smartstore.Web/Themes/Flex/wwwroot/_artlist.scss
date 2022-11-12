@@ -318,6 +318,11 @@
     font-size: var(--art-finalprice-font-size);
     color: var(--art-finalprice-color);
     margin-right: 0.4rem;
+
+    .art-price-call & {
+        font-size: var(--art-font-size-sm);
+        color: var(--art-muted-color-2);
+    }
 }
 
 .art-price-value,
@@ -391,9 +396,13 @@
         display: block;
         border-radius: 0;
         border: none;
-        box-shadow: none;
+        outline: none;
         transition: none;
         padding: 0.65rem 0;
+
+        &:focus:not(:active) {
+            box-shadow: none !important;
+        }
 
         &.btn-secondary {
             color: #666;
@@ -561,12 +570,6 @@
 
     .art-compareprice-group {
         margin-bottom: 0.25rem;
-    }
-
-    .art-price-call {
-        font-size: 1rem;
-        color: var(--art-muted-color);
-        font-weight: 400;
     }
 
     .art-variant-info {

@@ -60,7 +60,6 @@ namespace Smartstore.Web.Models.Catalog
         public Money? TransportSurcharge { get; set; }
         public int RatingSum { get; set; }
         public int TotalReviews { get; set; }
-        public string BasePriceInfo { get; set; }
 
         public bool IsShippingEnabled { get; set; }
         public bool HideDeliveryTime { get; set; }

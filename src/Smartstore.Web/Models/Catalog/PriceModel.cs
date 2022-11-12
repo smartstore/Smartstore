@@ -9,6 +9,7 @@ namespace Smartstore.Web.Models.Catalog
         public Money FinalPrice { get; set; }
         public ComparePriceModel RegularPrice { get; set; }
         public ComparePriceModel RetailPrice { get; set; }
+        public Money? ShippingSurcharge { get; set; }
 
         public DateTime? ValidUntilUtc { get; set; }
         public PriceSaving Saving { get; set; }

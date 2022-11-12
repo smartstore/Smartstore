@@ -19,6 +19,12 @@
             this.createGallery(opts.galleryStartIndex);
             this.initPopovers();
 
+            $(document).on('click', '.stock-subscriber', function (e) {
+                e.preventDefault();
+                openPopup({ url: $(this).attr('href'), large: false, flex: false });
+                return false;
+            });
+
             // Update product data and gallery
             $(el).on('change', ':input:not(.skip-update)', function (e) {
                 var inputCtrl = $(this);

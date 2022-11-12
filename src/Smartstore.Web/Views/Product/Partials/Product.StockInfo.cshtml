@@ -33,7 +33,7 @@
     var statusColor = Model.DisplayDeliveryTimeAccordingToStock && !displayStock ? Model.DeliveryTimeHexValue : string.Empty;
 }
 
-<div class="pd-stock-info" attr-class='(!isBundleItem, "pd-group")'>
+<div class="pd-stock-info" attr-class='(!isBundleItem, "pd-group")' sm-suppress-if-empty="true">
     @if (displayStock)
     {
         <meta sm-if="!isBundleItem" itemprop="availability" content="http://schema.org/@(Model.IsAvailable ? "InStock" : "OutOfStock")" />
@@ -71,15 +71,6 @@
             <a asp-action="BackInStockSubscribe" asp-controller="Product" asp-route-id="@Model.Id" class="stock-subscriber" data-toggle="modal" rel="nofollow">
                 @T("BackInStockSubscriptions.NotifyMeWhenAvailable")
             </a>
-            <script sm-target-zone="scripts" data-origin="product-detail-stock-info">
-                $(function () {
-                    $(".stock-subscriber").on('click', function (e) {
-                        e.preventDefault();
-                        openPopup({ url: $(this).attr('href'), large: false, flex: false });
-                        return false;
-                    });
-                });
-            </script>
         }
     </div>
 </div>

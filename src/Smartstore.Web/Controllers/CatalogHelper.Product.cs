@@ -374,14 +374,14 @@ namespace Smartstore.Web.Controllers
             model.WeightValue = product.Weight;
             model.IsBundlePart = product.ProductType != ProductType.BundledProduct && modelContext.ProductBundleItem != null;
 
-            // Attributes and attribute combination.
+            // Attributes and attribute combination
             await PrepareProductAttributesModelAsync(model, modelContext, selectedQuantity);
 
-            // General properties.
-            await PrepareProductPropertiesModelAsync(model, modelContext);
-
-            // Price.
+            // Price
             await PrepareProductPriceModelAsync(model, modelContext, selectedQuantity);
+
+            // General properties (must come after price mapping)
+            await PrepareProductPropertiesModelAsync(model, modelContext);
 
             // AddToCart
             PrepareProductCartModel(model, modelContext, selectedQuantity);
@@ -835,19 +835,19 @@ namespace Smartstore.Web.Controllers
                 if (taxRate.Rate != 0)
                 {
                     var formattedTaxRate = _taxService.FormatTaxRate(taxRate.Rate);
-                    defaultTaxRate = $"({formattedTaxRate}%)";
+                    defaultTaxRate = $"({formattedTaxRate}%), ";
                 }
             }
 
             var additionalShippingCosts = string.Empty;
-            var addShippingPrice = _currencyService.ConvertFromPrimaryCurrency(product.AdditionalShippingCharge, currency);
+            var shippingSurcharge = model.Price.ShippingSurcharge;
 
-            if (addShippingPrice > 0)
+            if (shippingSurcharge.GetValueOrDefault() > 0)
             {
-                additionalShippingCosts = T("Common.AdditionalShippingSurcharge", addShippingPrice.ToString(true)) + ", ";
+                additionalShippingCosts = shippingSurcharge.Value.ToString(true) + ", ";
             }
 
-            if (!product.IsShippingEnabled || (addShippingPrice == 0 && product.IsFreeShipping))
+            if (!product.IsShippingEnabled || (shippingSurcharge.GetValueOrDefault() == 0 && product.IsFreeShipping))
             {
                 model.LegalInfo += product.IsTaxExempt
                     ? T("Common.FreeShipping")

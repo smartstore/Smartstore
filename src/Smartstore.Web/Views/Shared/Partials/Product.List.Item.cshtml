@@ -24,17 +24,13 @@
 <article class="art" data-id="@Model.Id">
 
     <div class="art-picture-block">
-        @if (Model.Badges.Any())
-        {
-            @* TODO: (mc) Let user define one free badge per product in backend *@
-            <div class="art-badges">
-                @foreach (var badge in Model.Badges.OrderBy(x => x.DisplayOrder))
-                {
-                    @* TODO: (mc) Move BS4 label/tag class definitions to art-badge.art-badge-[style] (?)  *@
-                    <span class="art-badge badge badge-@badge.Style">@Html.Raw(badge.Label)</span>
-                }
-            </div>
-        }
+        @* TODO: (mc) Let user define one free badge per product in backend *@
+        <div sm-if="Model.Badges.Count > 0" class="art-badges">
+            @foreach (var badge in Model.Badges.OrderBy(x => x.DisplayOrder))
+            {
+                <span class="art-badge badge badge-@badge.Style">@Html.Raw(badge.Label)</span>
+            }
+        </div>
         @if (image.Title.HasValue())
         {
             var linkTitle = T("Media.Product.ImageLinkTitleFormat", Model.Name);

@@ -38,10 +38,10 @@
     }
 }
 
-<div class="art-price-block x-mb-2">
+<div class="art-price-block">
     <span class="@artPriceClass">
         <span class="art-finalprice">
-            <span class="art-price-value">
+            <span sm-if="price.HasCalculation" class="art-price-value">
                 @Html.Raw(price.FinalPrice)
             </span>
         </span>
@@ -68,14 +68,14 @@
         </span>
     </span>
 
-    <div sm-if="list.ShowShippingSurcharge && Model.TransportSurcharge.HasValue" class="art-shipsurcharge">
-        @Model.TransportSurcharge.Value
+    <div sm-if="list.ShowShippingSurcharge && price.ShippingSurcharge.HasValue" class="art-shipsurcharge">
+        @price.ShippingSurcharge.Value
     </div>
 
-    @if (list.ShowBasePrice && Model.BasePriceInfo.HasValue())
+    @if (list.ShowBasePrice && price.BasePriceInfo.HasValue())
     {
-        <div class="art-pangv" attr-title='(Model.BasePriceInfo.HasValue(), Model.BasePriceInfo)'>
-            @Html.Raw(LocalizedValue.FixBrackets(Model.BasePriceInfo, WorkContext.WorkingLanguage) ?? "&nbsp;")
+        <div class="art-pangv" title="@price.BasePriceInfo">
+            @Html.Raw(LocalizedValue.FixBrackets(price.BasePriceInfo, WorkContext.WorkingLanguage) ?? "&nbsp;")
         </div>
     }
 </div>

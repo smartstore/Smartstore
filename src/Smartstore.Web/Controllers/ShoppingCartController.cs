@@ -20,6 +20,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Cart;
 
@@ -547,7 +548,7 @@ namespace Smartstore.Web.Controllers
                 {
                     if (formKey.EqualsNoCase($"addtocart_{productId}.CustomerEnteredPrice"))
                     {
-                        if (decimal.TryParse(form[formKey], out var customerEnteredPrice))
+                        if (ConvertUtility.TryConvert<decimal>(form[formKey].First(), out var customerEnteredPrice))
                         {
                             customerEnteredPriceConverted = _currencyService.ConvertToPrimaryCurrency(new Money(customerEnteredPrice, Services.WorkContext.WorkingCurrency));
                         }

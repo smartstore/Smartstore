@@ -14,6 +14,7 @@
 
         var gallery = item.MediaGalleryModel;
         var img = gallery.Files?.FirstOrDefault();
+        var isBundleItemPricing = item.BundlePerItemPricing;
 
         <div class="pd-bundle-item card-body update-container" data-url="@updateUrl">
             <div class="pd-bundle-item-top row no-gutters">
@@ -44,14 +45,14 @@
                         </div>
                     }
 
-                    <div class="pd-bundle-item-offer pt-2">
-                        <div sm-if="item.AttributeInfo.HasValue()" class="pd-bundle-item-attribute-info">
+                    <div class="pd-bundle-item-offer pt-2" sm-suppress-if-empty="!isBundleItemPricing">
+                        <div sm-if="item.AttributeInfo.HasValue()" class="pd-bundle-item-attribute-info fs-sm">
                             @Html.Raw(item.AttributeInfo)
                         </div>
-                        <div class="pd-offer-price-container" data-partial="BundleItemPrice">
+                        <div class="pd-offer-price-container" data-partial="BundleItemPrice" sm-suppress-if-empty="!isBundleItemPricing">
                             <partial name="Product.Offer.Price" model="item" />
                         </div>
-                        <div class="pd-stock-info-container" data-partial="BundleItemStock">
+                        <div class="pd-stock-info-container" data-partial="BundleItemStock" sm-suppress-if-empty="!isBundleItemPricing">
                             <partial name="Product.StockInfo" model="item" />
                         </div>
                     </div>

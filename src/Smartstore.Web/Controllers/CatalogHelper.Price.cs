@@ -13,9 +13,6 @@ namespace Smartstore.Web.Controllers
 
         protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
-            // TODO: (mc) (pricing) Remove PrepareProductPriceModelAsync later
-            // TODO: (mc) (pricing) Remove Model.IsBasePriceEnabled later
-            // TODO: (mc) (pricing) Remove Model.BasePriceInfo later
             var priceModel = model.Price;
             var customer = modelContext.Customer;
             var currency = modelContext.Currency;
@@ -44,6 +41,7 @@ namespace Smartstore.Web.Controllers
             if (product.CallForPrice && !isBundleItemPricing)
             {
                 priceModel.CallForPrice = true;
+                priceModel.FinalPrice = new Money(currency).WithPostFormat(T("Products.CallForPrice"));
                 model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
                 return;
             }
@@ -94,9 +92,9 @@ namespace Smartstore.Web.Controllers
 
             // Calculate unit price now
             var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
-
+            
             // Map base
-            MapPriceBase(calculatedPrice, priceModel);
+            MapPriceBase(calculatedPrice, priceModel, true);
 
             // Countdown text
             priceModel.CountdownText = _priceLabelService.GetPromoCountdownText(calculatedPrice);
@@ -257,11 +255,10 @@ namespace Smartstore.Web.Controllers
                 return contextProduct;
             }
 
-            // Call for price.
-            // TODO: (mc) (pricing) Move this to base somehow
-            priceModel.CallForPrice = contextProduct.CallForPrice;
+            // Call for price
             if (contextProduct.CallForPrice)
             {
+                priceModel.CallForPrice = true;
                 priceModel.FinalPrice = new Money(options.TargetCurrency).WithPostFormat(context.Resources["Products.CallForPrice"]);
                 return contextProduct;
             }
@@ -275,7 +272,7 @@ namespace Smartstore.Web.Controllers
             var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
             
             // Map base
-            MapPriceBase(calculatedPrice, priceModel);
+            MapPriceBase(calculatedPrice, priceModel, model.Parent.ShowBasePrice);
 
             priceModel.ShowPriceLabel = _priceSettings.ShowPriceLabelInLists;
 
@@ -298,14 +295,13 @@ namespace Smartstore.Web.Controllers
 
         #region Utils
 
-        protected void MapPriceBase(CalculatedPrice price, PriceModel model)
+        protected void MapPriceBase(CalculatedPrice price, PriceModel model, bool mapBasePrice = true)
         {
             model.CalculatedPrice = price;
             model.FinalPrice = price.FinalPrice;
             model.Saving = price.Saving;
             model.ValidUntilUtc = price.ValidUntilUtc;
             model.ShowRetailPriceSaving = _priceSettings.ShowRetailPriceSaving;
-            // TODO: (mc) (pricing) Move CallForPrice here somehow
 
             var product = price.Product;
             var forSummary = model is ProductSummaryPriceModel;
@@ -333,11 +329,16 @@ namespace Smartstore.Web.Controllers
             if (model.RetailPrice == null && price.RetailPrice.HasValue && canMapRetailPrice)
             {
                 model.RetailPrice = GetComparePriceModel(price.RetailPrice.Value, price.RetailPriceLabel, forSummary);
+
+                // Don't show saving if there is no actual discount and ShowRetailPriceSaving is FALSE
+                if (model.RegularPrice == null && !model.ShowRetailPriceSaving)
+                {
+                    model.Saving = new PriceSaving { SavingPrice = new Money(0, price.FinalPrice.Currency) };
+                }
             }
 
             // BasePrice (PanGV)
-            // TODO: (mc) (pricing) distinguish between summary and details and respect PanGV setting
-            model.IsBasePriceEnabled =
+            model.IsBasePriceEnabled = mapBasePrice &&
                 price.FinalPrice != decimal.Zero &&
                 product.BasePriceEnabled &&
                 !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing);
@@ -350,6 +351,13 @@ namespace Smartstore.Web.Controllers
                     targetCurrency: price.FinalPrice.Currency,
                     // Don't diaplay tax suffix in detail
                     displayTaxSuffix: forSummary ? null : false);
+            }
+
+            // Shipping surcharge
+            if (product.AdditionalShippingCharge > 0)
+            {
+                var charge = _currencyService.ConvertFromPrimaryCurrency(product.AdditionalShippingCharge, model.FinalPrice.Currency);
+                model.ShippingSurcharge = charge.WithPostFormat(T("Common.AdditionalShippingSurcharge"));
             }
         }
 
@@ -371,8 +379,6 @@ namespace Smartstore.Web.Controllers
 
         private static ComparePriceModel GetComparePriceModel(Money comparePrice, PriceLabel priceLabel, bool forSummary)
         {
-            // TODO: (mc) (pricing) Check if label should be displayed in listings?
-
             var model = new ComparePriceModel { Price = comparePrice };
 
             if (forSummary)

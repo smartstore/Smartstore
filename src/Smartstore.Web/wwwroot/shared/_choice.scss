@@ -180,8 +180,8 @@
 
 	.choice-box-control-native:checked + .choice-box-content {
         .choice-box-element {
-            border-color: rgba(0,0,0, 0.7);
-            outline: 1px solid rgba(0,0,0, 0.7);
+            border-color: rgba(#000, 0.4);
+            box-shadow: 0 0 5px #aaa;
         }
 
         &:after {
