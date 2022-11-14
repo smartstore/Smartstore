@@ -31,7 +31,7 @@ namespace Smartstore.Bootstrapping
         {
             Guard.NotNull(app, nameof(app));
 
-            return app.Map("/taskscheduler", branch =>
+            return app.Map("/taskscheduler", preserveMatchedPathSegment: true, branch =>
             {
                 configure?.Invoke(branch);
                 branch.UseMiddleware<TaskSchedulerMiddleware>();

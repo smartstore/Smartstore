@@ -19,7 +19,7 @@ namespace Smartstore.Scheduling
         public async Task Invoke(HttpContext context, ITaskStore taskStore, ITaskExecutor executor)
         {
             var urlSegments = context.Request.Path.Value.Trim('/').SplitSafe('/').ToArray();
-            var action = urlSegments.Length > 0 ? urlSegments[0] : string.Empty;
+            var action = urlSegments.Length > 1 ? urlSegments[1] : string.Empty;
 
             if (action == PollAction || action == RunAction)
             {
@@ -39,7 +39,7 @@ namespace Smartstore.Scheduling
 
                 if (action == RunAction)
                 {
-                    var taskId = urlSegments.Length > 1 ? urlSegments[1].Convert(0) : 0;
+                    var taskId = urlSegments.Length > 2 ? urlSegments[2].Convert(0) : 0;
                     await Run(taskId, context, taskStore, executor, taskParameters);
                 }
                 else
