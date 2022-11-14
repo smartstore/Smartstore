@@ -47,30 +47,31 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Order.EditItem)]
-        public async Task<IActionResult> Post([FromBody] OrderItem entity)
+        public Task<IActionResult> Post([FromBody] OrderItem entity)
         {
-            return await PostAsync(entity);
+            // TODO: (mg) (core) (code style) Remove "await" from every one-liner async call
+            return PostAsync(entity);
         }
 
         [HttpPut]
         [Permission(Permissions.Order.EditItem)]
-        public async Task<IActionResult> Put(int key, Delta<OrderItem> model)
+        public Task<IActionResult> Put(int key, Delta<OrderItem> model)
         {
-            return await PutAsync(key, model);
+            return PutAsync(key, model);
         }
 
         [HttpPatch]
         [Permission(Permissions.Order.EditItem)]
-        public async Task<IActionResult> Patch(int key, Delta<OrderItem> model)
+        public Task<IActionResult> Patch(int key, Delta<OrderItem> model)
         {
-            return await PatchAsync(key, model);
+            return PatchAsync(key, model);
         }
 
         [HttpDelete]
         [Permission(Permissions.Order.EditItem)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key);
+            return DeleteAsync(key);
         }
 
         #region Actions and functions
