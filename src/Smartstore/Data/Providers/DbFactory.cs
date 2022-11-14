@@ -37,6 +37,22 @@ namespace Smartstore.Data.Providers
             string password);
 
         /// <summary>
+        /// Tries to fix the given connection string, e.g. by checking for mandatory parameters.
+        /// </summary>
+        /// <param name="connectionString">The source connection string</param>
+        /// <param name="normalizedConnectionString">The fixed connection string or <c>null</c> if no fix has been applied.</param>
+        /// <returns><c>true</c> if any fix has been applied and the source connection string changed.</returns>
+        /// <remarks>
+        /// In case of SqlServer, this method will ensure that MARS is enabled and encryption
+        /// is disabled on connection string level.
+        /// </remarks>
+        public virtual bool TryNormalizeConnectionString(string connectionString, out string normalizedConnectionString)
+        {
+            normalizedConnectionString = null;
+            return false;
+        }
+
+        /// <summary>
         /// Creates a <see cref="DataProvider"/> instance for the current database system.
         /// </summary>
         public abstract DataProvider CreateDataProvider(DatabaseFacade database);

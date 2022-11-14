@@ -170,13 +170,39 @@ namespace Smartstore.Data
                     {
                         RawDataSettings.AddRange(settings);
 
+                        // AppVersion
+                        var currentVersion = SmartstoreVersion.Version;
+                        if (!Version.TryParse(settings.Get("AppVersion"), out var previousVersion))
+                        {
+                            previousVersion = currentVersion;
+                        }
+
+                        AppVersion = previousVersion;
+                        var shouldSave = currentVersion > previousVersion;
+
+                        // DbFactory
                         DbFactory = DbFactory.Load(settings.Get("DataProvider"), _appContext.TypeScanner);
 
-                        ConnectionString = settings.Get("DataConnectionString");
-
-                        if (settings.ContainsKey("AppVersion"))
+                        // ConnectionString
+                        var connectionString = settings.Get("DataConnectionString");
+                        if (DbFactory.TryNormalizeConnectionString(connectionString, out var normalizedConnectionString))
                         {
-                            AppVersion = new Version(settings["AppVersion"]);
+                            connectionString = normalizedConnectionString;
+                            shouldSave = true;
+                        }
+
+                        ConnectionString = connectionString;
+
+                        if (shouldSave)
+                        {
+                            new DataSettings 
+                            { 
+                                TenantName = TenantName,
+                                TenantRoot = TenantRoot,
+                                AppVersion = currentVersion,
+                                ConnectionString = ConnectionString,
+                                DbFactory = DbFactory
+                            }.Save();
                         }
 
                         return IsValid();

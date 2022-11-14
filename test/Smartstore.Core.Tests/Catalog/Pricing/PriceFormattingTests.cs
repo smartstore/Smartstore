@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Globalization;
-using System.Threading;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Core.Catalog.Pricing;
@@ -104,8 +102,8 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             var formatIncl = _taxService.GetTaxFormat(true, true, PricingTarget.Product, language);
             var formatExcl = _taxService.GetTaxFormat(true, false, PricingTarget.Product, language);
 
-            new Money(1234.5M, _currencyUSD, false, formatIncl).ToString().ShouldEqual("$1,234.50 incl. tax");
-            new Money(1234.5M, _currencyUSD, false, formatExcl).ToString().ShouldEqual("$1,234.50 excl. tax");
+            new Money(1234.5M, _currencyUSD, false, formatIncl).ToString().ShouldEqual("$1,234.50 *");
+            new Money(1234.5M, _currencyUSD, false, formatExcl).ToString().ShouldEqual("$1,234.50 *");
         }
 
         [Test]

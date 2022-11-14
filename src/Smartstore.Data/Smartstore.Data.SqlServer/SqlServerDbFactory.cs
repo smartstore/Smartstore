@@ -33,7 +33,8 @@ namespace Smartstore.Data.SqlServer
                 MinPoolSize = 1,
                 MaxPoolSize = 1024,
                 Enlist = false,
-                MultipleActiveResultSets = true
+                MultipleActiveResultSets = true,
+                Encrypt = false
             };
 
             if (!builder.IntegratedSecurity)
@@ -45,6 +46,38 @@ namespace Smartstore.Data.SqlServer
             return builder;
         }
 
+        public override bool TryNormalizeConnectionString(string connectionString, out string normalizedConnectionString)
+        {
+            normalizedConnectionString = null;
+            bool normalized = false;
+
+            if (connectionString.HasValue())
+            {
+                connectionString = connectionString.Trim();
+
+                // Ensure that MARS is enabled
+                if (!connectionString.ContainsNoCase("MultipleActiveResultSets="))
+                {
+                    connectionString = connectionString.EnsureEndsWith(';') + "MultipleActiveResultSets=True";
+                    normalized = true;
+                }
+
+                // Ensure that Encrypt is false, othwerwise SqlClient will reject connection.
+                if (!connectionString.ContainsNoCase("Encrypt="))
+                {
+                    connectionString = connectionString.EnsureEndsWith(';') + "Encrypt=False";
+                    normalized = true;
+                }
+            }
+
+            if (normalized)
+            {
+                normalizedConnectionString = connectionString;
+            }
+
+            return normalized;
+        }
+
         public override DataProvider CreateDataProvider(DatabaseFacade database)
             => new SqlServerDataProvider(database);
 
@@ -53,7 +86,7 @@ namespace Smartstore.Data.SqlServer
             Guard.NotEmpty(connectionString, nameof(connectionString));
 
             var optionsBuilder = new DbContextOptionsBuilder<TContext>()
-                .UseSqlServer(EnsureMARS(connectionString), sql =>
+                .UseSqlServer(connectionString, sql =>
                 {
                     sql.CommandTimeout(commandTimeout).UseBulk();
                 })
@@ -67,7 +100,7 @@ namespace Smartstore.Data.SqlServer
             Guard.NotNull(builder, nameof(builder));
             Guard.NotEmpty(connectionString, nameof(connectionString));
 
-            return builder.UseSqlServer(EnsureMARS(connectionString), sql =>
+            return builder.UseSqlServer(connectionString, sql =>
             {
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
 
@@ -92,16 +125,6 @@ namespace Smartstore.Data.SqlServer
                 }
             })
             .ReplaceService<IMethodCallTranslatorProvider, SqlServerMappingMethodCallTranslatorProvider>();
-        }
-
-        private static string EnsureMARS(string conString)
-        {
-            if (conString.ContainsNoCase("MultipleActiveResultSets="))
-            {
-                return conString;
-            }
-            
-            return conString.Trim().EnsureEndsWith(';') + "MultipleActiveResultSets=True";
         }
     }
 }

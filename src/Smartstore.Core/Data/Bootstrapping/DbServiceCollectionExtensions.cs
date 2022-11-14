@@ -37,7 +37,7 @@ namespace Smartstore.Core.Bootstrapping
                 })
                 .Configure<FluentMigratorLoggerOptions>(o =>
                 {
-                    o.ShowSql = false;  // TODO: (mg) (core) Security risk logging SQL. Find a way to get configuration working. Loggs like crazy.
+                    o.ShowSql = false;  // TODO: (mg) (core) Security risk logging SQL. Find a way to get configuration working. Logs like crazy.
                     o.ShowElapsedTime = false;
                 });
 
