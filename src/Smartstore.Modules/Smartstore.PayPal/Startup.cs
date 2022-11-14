@@ -21,7 +21,7 @@ namespace Smartstore.PayPal
         {
             services.Configure<MvcOptions>(o =>
             {
-                o.Filters.AddConditional<MiniBasketFilter>(
+                o.Filters.AddConditional<OffCanvasShoppingCartFilter>(
                     context => context.ControllerIs<ShoppingCartController>(x => x.OffCanvasShoppingCart()));
                 o.Filters.AddConditional<CheckoutFilter>(
                     context => context.ControllerIs<CheckoutController>(x => x.PaymentMethod()) && !context.HttpContext.Request.IsAjax() 

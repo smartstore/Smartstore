@@ -92,7 +92,7 @@ namespace Smartstore.PayPal.Settings
         public string CustomerServiceInstructions { get; set; }
 
         /// <summary>
-        /// Specifies whether to display the checkout button in mini shopping cart.
+        /// Specifies whether to display the checkout button in offcanvas shopping cart.
         /// </summary>
         public bool ShowButtonInMiniShoppingCart { get; set; } = true;
     }

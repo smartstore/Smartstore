@@ -5,7 +5,7 @@
         <Value>PayPal</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.Smartstore.PayPal" AppendRootKey="false">
-        <Value>Erweitert den Shop um die Zahlungsfunktionen von PayPal</Value>
+        <Value>Erweitert den Shop um die Zahlungsfunktionen von PayPal.</Value>
     </LocaleResource>
 
     <!-- Friendly provider name & description -->
@@ -21,8 +21,8 @@
     <LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
             <![CDATA[
-				        Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei PayPal durchgeführt wird.
-              ]]>
+			    Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei PayPal durchgeführt wird.
+            ]]>
         </Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.Payments.PayPalPayUponInvoice" AppendRootKey="false">

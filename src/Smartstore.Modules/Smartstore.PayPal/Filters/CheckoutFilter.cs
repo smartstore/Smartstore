@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
@@ -16,6 +15,7 @@ namespace Smartstore.PayPal.Filters
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
+        private readonly IPaymentService _paymentService;
         private readonly PayPalSettings _settings;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -24,6 +24,7 @@ namespace Smartstore.PayPal.Filters
         public CheckoutFilter(
             SmartDbContext db,
             ICommonServices services,
+            IPaymentService paymentService,
             PayPalSettings settings,
             ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
@@ -31,6 +32,7 @@ namespace Smartstore.PayPal.Filters
         {
             _db = db;
             _services = services;
+            _paymentService = paymentService;
             _settings = settings;
             _checkoutStateAccessor = checkoutStateAccessor;
             _httpContextAccessor = httpContextAccessor;
@@ -39,6 +41,12 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
+            if (await IsPayPalStandardActive())
+            {
+                await next();
+                return;
+            }
+
             // If client id or secret haven't been configured yet, don't do anything.
             if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
             {
@@ -95,5 +103,8 @@ namespace Smartstore.PayPal.Filters
 
             await next();
         }
+
+        private Task<bool> IsPayPalStandardActive()
+            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalStandard", null, _services.StoreContext.CurrentStore.Id);
     }
 }
