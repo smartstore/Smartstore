@@ -41,7 +41,7 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
-            if (await IsPayPalStandardActive())
+            if (!await IsPayPalStandardActive())
             {
                 await next();
                 return;

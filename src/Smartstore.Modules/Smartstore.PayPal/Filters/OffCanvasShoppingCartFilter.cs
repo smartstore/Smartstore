@@ -24,7 +24,7 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
-            if (await IsPayPalStandardActive())
+            if (!await IsPayPalStandardActive())
             {
                 await next();
                 return;
@@ -43,7 +43,7 @@ namespace Smartstore.PayPal.Filters
                 return;
             }
 
-            // should only run on a full view rendering result or HTML ContentResult
+            // Should only run on a full view rendering result or HTML ContentResult.
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
             {
                 _widgetProvider.RegisterViewComponent<PayPalViewComponent>("offcanvas_cart_summary");
