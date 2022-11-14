@@ -389,6 +389,7 @@ namespace Smartstore.Web.Controllers
             // Price
             if (settings.MapPrices)
             {
+                // INFO: for a grouped product "contextProduct" is the first associated product, otherwise it is "product".
                 contextProduct = await MapSummaryItemPrice(product, item, ctx);
                 finalPrice = item.Price.FinalPrice;
             }
@@ -503,8 +504,11 @@ namespace Smartstore.Web.Controllers
             }
 
             // Delivery Times.
-            item.HideDeliveryTime = product.ProductType == ProductType.GroupedProduct;
-            if (!item.HideDeliveryTime && model.DeliveryTimesPresentation != DeliveryTimesPresentation.None)
+            item.HideDeliveryTime = model.DeliveryTimesPresentation == DeliveryTimesPresentation.None
+                || product.ProductType == ProductType.GroupedProduct 
+                || !product.IsShippingEnabled;
+
+            if (!item.HideDeliveryTime)
             {
                 // We cannot include ManageInventoryMethod.ManageStockByAttributes because it's only functional with MergeWithCombination.
                 // INFO: (core) Don't uncomment this part
@@ -518,13 +522,11 @@ namespace Smartstore.Web.Controllers
                 //	item.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
                 //}
 
-                var deliveryTimeId = product.DeliveryTimeId ?? 0;
-                if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock && product.StockQuantity <= 0 && _catalogSettings.DeliveryTimeIdForEmptyStock.HasValue)
-                {
-                    deliveryTimeId = _catalogSettings.DeliveryTimeIdForEmptyStock.Value;
-                }
+                var deliveryTimeId = product.ManageInventoryMethod == ManageInventoryMethod.ManageStock && product.StockQuantity <= 0
+                    ? _catalogSettings.DeliveryTimeIdForEmptyStock
+                    : product.DeliveryTimeId;
 
-                var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(deliveryTimeId, false);
+                var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(deliveryTimeId ?? 0, false);
                 if (deliveryTime != null)
                 {
                     item.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
@@ -538,9 +540,8 @@ namespace Smartstore.Web.Controllers
                     }
                 }
 
-                item.DisplayDeliveryTimeAccordingToStock = product.ManageInventoryMethod == ManageInventoryMethod.ManageStock
-                    ? product.StockQuantity > 0 || (product.StockQuantity <= 0 && _catalogSettings.DeliveryTimeIdForEmptyStock.HasValue)
-                    : true;
+                item.DisplayDeliveryTimeAccordingToStock = product.ManageInventoryMethod != ManageInventoryMethod.ManageStock
+                    || product.StockQuantity > 0 || (product.StockQuantity <= 0 && _catalogSettings.DeliveryTimeIdForEmptyStock.HasValue);
 
                 if (product.DisplayStockAvailability && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
                 {
@@ -570,7 +571,7 @@ namespace Smartstore.Web.Controllers
                 item.Weight = $"{contextProduct.Weight.ToString("N2")} {measureWeightName}";
             }
 
-            // New Badge
+            // "New" badge.
             if (product.IsNew(_catalogSettings))
             {
                 item.Badges.Add(new ProductBadgeModel

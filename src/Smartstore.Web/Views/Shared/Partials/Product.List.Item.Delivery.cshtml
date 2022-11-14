@@ -4,8 +4,8 @@
 @model ProductSummaryItemModel
 
 @{
-    var deliveryPresentation = Model.Parent.DeliveryTimesPresentation;
-    if (deliveryPresentation == DeliveryTimesPresentation.None)
+    var presentation = Model.Parent.DeliveryTimesPresentation;
+    if (presentation == DeliveryTimesPresentation.None)
     {
         return;
     }
@@ -14,16 +14,13 @@
 <div class="art-delivery-info">
     @if (Model.IsShippingEnabled && !Model.HideDeliveryTime)
     {
-        var showStatusLabel =
-            deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
-            deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
-            !Model.DeliveryTimeDate.HasValue();
-
-        var showDeliveryDate =
-            (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
-            Model.DeliveryTimeDate.HasValue();
-
+        var hasDate = Model.DeliveryTimeDate.HasValue();
         var statusLabel = Model.DisplayDeliveryTimeAccordingToStock ? Model.DeliveryTimeName : Model.StockAvailablity;
+
+        var showStatusLabel = statusLabel.HasValue() &&
+            (!hasDate || presentation == DeliveryTimesPresentation.LabelOnly || presentation == DeliveryTimesPresentation.LabelAndDate);
+
+        var showDeliveryDate = hasDate && (presentation == DeliveryTimesPresentation.DateOnly || presentation == DeliveryTimesPresentation.LabelAndDate);
 
         if (showStatusLabel)
         {
