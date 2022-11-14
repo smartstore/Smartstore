@@ -23,30 +23,30 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Configuration.PriceLabel.Create)]
-        public async Task<IActionResult> Post([FromBody] PriceLabel entity)
+        public Task<IActionResult> Post([FromBody] PriceLabel entity)
         {
-            return await PostAsync(entity);
+            return PostAsync(entity);
         }
 
         [HttpPut]
         [Permission(Permissions.Configuration.PriceLabel.Update)]
-        public async Task<IActionResult> Put(int key, Delta<PriceLabel> model)
+        public Task<IActionResult> Put(int key, Delta<PriceLabel> model)
         {
-            return await PutAsync(key, model);
+            return PutAsync(key, model);
         }
 
         [HttpPatch]
         [Permission(Permissions.Configuration.PriceLabel.Update)]
-        public async Task<IActionResult> Patch(int key, Delta<PriceLabel> model)
+        public Task<IActionResult> Patch(int key, Delta<PriceLabel> model)
         {
-            return await PatchAsync(key, model);
+            return PatchAsync(key, model);
         }
 
         [HttpDelete]
         [Permission(Permissions.Configuration.PriceLabel.Delete)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key);
+            return DeleteAsync(key);
         }
     }
 }

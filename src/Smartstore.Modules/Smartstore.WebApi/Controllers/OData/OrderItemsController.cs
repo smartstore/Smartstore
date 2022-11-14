@@ -1,6 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api.Controllers.OData
@@ -49,7 +48,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Permission(Permissions.Order.EditItem)]
         public Task<IActionResult> Post([FromBody] OrderItem entity)
         {
-            // TODO: (mg) (core) (code style) Remove "await" from every one-liner async call
             return PostAsync(entity);
         }
 

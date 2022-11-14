@@ -30,30 +30,30 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Media.Download.Create)]
-        public async Task<IActionResult> Post([FromBody] Download entity)
+        public Task<IActionResult> Post([FromBody] Download entity)
         {
-            return await PostAsync(entity);
+            return PostAsync(entity);
         }
 
         [HttpPut]
         [Permission(Permissions.Media.Download.Update)]
-        public async Task<IActionResult> Put(int key, Delta<Download> model)
+        public Task<IActionResult> Put(int key, Delta<Download> model)
         {
-            return await PutAsync(key, model);
+            return PutAsync(key, model);
         }
 
         [HttpPatch]
         [Permission(Permissions.Media.Download.Update)]
-        public async Task<IActionResult> Patch(int key, Delta<Download> model)
+        public Task<IActionResult> Patch(int key, Delta<Download> model)
         {
-            return await PatchAsync(key, model);
+            return PatchAsync(key, model);
         }
 
         [HttpDelete]
         [Permission(Permissions.Media.Download.Delete)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key);
+            return DeleteAsync(key);
         }
     }
 }

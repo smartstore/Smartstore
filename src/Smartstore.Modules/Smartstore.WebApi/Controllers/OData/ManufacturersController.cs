@@ -47,9 +47,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Catalog.Manufacturer.Create)]
-        public async Task<IActionResult> Post([FromBody] Manufacturer entity)
+        public Task<IActionResult> Post([FromBody] Manufacturer entity)
         {
-            return await PostAsync(entity, async () =>
+            return PostAsync(entity, async () =>
             {
                 await Db.SaveChangesAsync();
                 await UpdateSlug(entity);
@@ -58,9 +58,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPut]
         [Permission(Permissions.Catalog.Manufacturer.Update)]
-        public async Task<IActionResult> Put(int key, Delta<Manufacturer> model)
+        public Task<IActionResult> Put(int key, Delta<Manufacturer> model)
         {
-            return await PutAsync(key, model, async (entity) =>
+            return PutAsync(key, model, async (entity) =>
             {
                 await Db.SaveChangesAsync();
                 await UpdateSlug(entity);
@@ -69,9 +69,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPatch]
         [Permission(Permissions.Catalog.Manufacturer.Update)]
-        public async Task<IActionResult> Patch(int key, Delta<Manufacturer> model)
+        public Task<IActionResult> Patch(int key, Delta<Manufacturer> model)
         {
-            return await PatchAsync(key, model, async (entity) =>
+            return PatchAsync(key, model, async (entity) =>
             {
                 await Db.SaveChangesAsync();
                 await UpdateSlug(entity);
@@ -80,9 +80,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpDelete]
         [Permission(Permissions.Catalog.Manufacturer.Delete)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key);
+            return DeleteAsync(key);
         }
 
         private async Task UpdateSlug(Manufacturer entity)

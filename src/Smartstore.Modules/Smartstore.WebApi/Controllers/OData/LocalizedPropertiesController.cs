@@ -26,27 +26,27 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] LocalizedProperty entity)
+        public Task<IActionResult> Post([FromBody] LocalizedProperty entity)
         {
-            return await PostAsync(entity);
+            return PostAsync(entity);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put(int key, Delta<LocalizedProperty> model)
+        public Task<IActionResult> Put(int key, Delta<LocalizedProperty> model)
         {
-            return await PutAsync(key, model);
+            return PutAsync(key, model);
         }
 
         [HttpPatch]
-        public async Task<IActionResult> Patch(int key, Delta<LocalizedProperty> model)
+        public Task<IActionResult> Patch(int key, Delta<LocalizedProperty> model)
         {
-            return await PatchAsync(key, model);
+            return PatchAsync(key, model);
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key);
+            return DeleteAsync(key);
         }
     }
 }

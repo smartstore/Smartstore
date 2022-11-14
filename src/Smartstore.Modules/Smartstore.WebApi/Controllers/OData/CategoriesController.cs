@@ -51,9 +51,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Catalog.Category.Create)]
-        public async Task<IActionResult> Post([FromBody] Category entity)
+        public Task<IActionResult> Post([FromBody] Category entity)
         {
-            return await PostAsync(entity, async () =>
+            return PostAsync(entity, async () =>
             {
                 await Db.SaveChangesAsync();
                 await UpdateSlug(entity);
@@ -62,9 +62,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPut]
         [Permission(Permissions.Catalog.Category.Update)]
-        public async Task<IActionResult> Put(int key, Delta<Category> model)
+        public Task<IActionResult> Put(int key, Delta<Category> model)
         {
-            return await PutAsync(key, model, async (entity) =>
+            return PutAsync(key, model, async (entity) =>
             {
                 await Db.SaveChangesAsync();
                 await UpdateSlug(entity);
@@ -73,9 +73,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPatch]
         [Permission(Permissions.Catalog.Category.Update)]
-        public async Task<IActionResult> Patch(int key, Delta<Category> model)
+        public Task<IActionResult> Patch(int key, Delta<Category> model)
         {
-            return await PatchAsync(key, model, async (entity) =>
+            return PatchAsync(key, model, async (entity) =>
             {
                 await Db.SaveChangesAsync();
                 await UpdateSlug(entity);
@@ -84,9 +84,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpDelete]
         [Permission(Permissions.Catalog.Category.Delete)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key, async (entity) =>
+            return DeleteAsync(key, async (entity) =>
             {
                 await _categoryService.Value.DeleteCategoryAsync(entity);
             });

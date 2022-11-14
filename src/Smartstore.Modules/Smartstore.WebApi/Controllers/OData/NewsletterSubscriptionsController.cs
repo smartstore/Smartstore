@@ -44,23 +44,23 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPut]
         [Permission(Permissions.Promotion.Newsletter.Update)]
-        public async Task<IActionResult> Put(int key, Delta<NewsletterSubscription> model)
+        public Task<IActionResult> Put(int key, Delta<NewsletterSubscription> model)
         {
-            return await PutAsync(key, model);
+            return PutAsync(key, model);
         }
 
         [HttpPatch]
         [Permission(Permissions.Promotion.Newsletter.Update)]
-        public async Task<IActionResult> Patch(int key, Delta<NewsletterSubscription> model)
+        public Task<IActionResult> Patch(int key, Delta<NewsletterSubscription> model)
         {
-            return await PatchAsync(key, model);
+            return PatchAsync(key, model);
         }
 
         [HttpDelete]
         [Permission(Permissions.Promotion.Newsletter.Delete)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key);
+            return DeleteAsync(key);
         }
 
         #region Actions and functions
@@ -75,9 +75,9 @@ namespace Smartstore.Web.Api.Controllers.OData
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> Subscribe(int key)
+        public Task<IActionResult> Subscribe(int key)
         {
-            return await SubscribeInternal(key, true);
+            return SubscribeInternal(key, true);
         }
 
         /// <summary>
@@ -90,9 +90,9 @@ namespace Smartstore.Web.Api.Controllers.OData
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> Unsubscribe(int key)
+        public Task<IActionResult> Unsubscribe(int key)
         {
-            return await SubscribeInternal(key, false);
+            return SubscribeInternal(key, false);
         }
 
         private async Task<IActionResult> SubscribeInternal(int key, bool subscribe)

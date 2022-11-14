@@ -109,9 +109,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPut]
         [Permission(Permissions.Customer.Update)]
-        public async Task<IActionResult> Put(int key, Delta<Customer> model)
+        public Task<IActionResult> Put(int key, Delta<Customer> model)
         {
-            return await PutAsync(key, model, async (entity) =>
+            return PutAsync(key, model, async (entity) =>
             {
                 CheckCustomer(entity);
 
@@ -125,9 +125,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPatch]
         [Permission(Permissions.Customer.Update)]
-        public async Task<IActionResult> Patch(int key, Delta<Customer> model)
+        public Task<IActionResult> Patch(int key, Delta<Customer> model)
         {
-            return await PatchAsync(key, model, async (entity) =>
+            return PatchAsync(key, model, async (entity) =>
             {
                 CheckCustomer(entity);
 
@@ -141,9 +141,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpDelete]
         [Permission(Permissions.Customer.Delete)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key, async (entity) =>
+            return DeleteAsync(key, async (entity) =>
             {
                 CheckCustomer(entity);
 

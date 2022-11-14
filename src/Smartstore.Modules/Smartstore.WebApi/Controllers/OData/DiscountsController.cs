@@ -47,30 +47,30 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Promotion.Discount.Create)]
-        public async Task<IActionResult> Post([FromBody] Discount entity)
+        public Task<IActionResult> Post([FromBody] Discount entity)
         {
-            return await PostAsync(entity);
+            return PostAsync(entity);
         }
 
         [HttpPut]
         [Permission(Permissions.Promotion.Discount.Update)]
-        public async Task<IActionResult> Put(int key, Delta<Discount> model)
+        public Task<IActionResult> Put(int key, Delta<Discount> model)
         {
-            return await PutAsync(key, model);
+            return PutAsync(key, model);
         }
 
         [HttpPatch]
         [Permission(Permissions.Promotion.Discount.Update)]
-        public async Task<IActionResult> Patch(int key, Delta<Discount> model)
+        public Task<IActionResult> Patch(int key, Delta<Discount> model)
         {
-            return await PatchAsync(key, model);
+            return PatchAsync(key, model);
         }
 
         [HttpDelete]
         [Permission(Permissions.Promotion.Discount.Delete)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key);
+            return DeleteAsync(key);
         }
     }
 }

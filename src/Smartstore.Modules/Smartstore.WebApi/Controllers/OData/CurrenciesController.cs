@@ -23,30 +23,30 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Configuration.Currency.Create)]
-        public async Task<IActionResult> Post([FromBody] Currency entity)
+        public Task<IActionResult> Post([FromBody] Currency entity)
         {
-            return await PostAsync(entity);
+            return PostAsync(entity);
         }
 
         [HttpPut]
         [Permission(Permissions.Configuration.Currency.Update)]
-        public async Task<IActionResult> Put(int key, Delta<Currency> model)
+        public Task<IActionResult> Put(int key, Delta<Currency> model)
         {
-            return await PutAsync(key, model);
+            return PutAsync(key, model);
         }
 
         [HttpPatch]
         [Permission(Permissions.Configuration.Currency.Update)]
-        public async Task<IActionResult> Patch(int key, Delta<Currency> model)
+        public Task<IActionResult> Patch(int key, Delta<Currency> model)
         {
-            return await PatchAsync(key, model);
+            return PatchAsync(key, model);
         }
 
         [HttpDelete]
         [Permission(Permissions.Configuration.Currency.Delete)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key);
+            return DeleteAsync(key);
         }
     }
 }

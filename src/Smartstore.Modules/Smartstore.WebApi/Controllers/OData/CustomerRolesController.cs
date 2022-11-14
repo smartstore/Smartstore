@@ -24,16 +24,16 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Customer.Role.Create)]
-        public async Task<IActionResult> Post([FromBody] CustomerRole entity)
+        public Task<IActionResult> Post([FromBody] CustomerRole entity)
         {
-            return await PostAsync(entity);
+            return PostAsync(entity);
         }
 
         [HttpPut]
         [Permission(Permissions.Customer.Role.Update)]
-        public async Task<IActionResult> Put(int key, Delta<CustomerRole> model)
+        public Task<IActionResult> Put(int key, Delta<CustomerRole> model)
         {
-            return await PutAsync(key, model, async (entity) =>
+            return PutAsync(key, model, async (entity) =>
             {
                 CheckCustomerRole(entity);
                 await Db.SaveChangesAsync();
@@ -42,9 +42,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPatch]
         [Permission(Permissions.Customer.Role.Update)]
-        public async Task<IActionResult> Patch(int key, Delta<CustomerRole> model)
+        public Task<IActionResult> Patch(int key, Delta<CustomerRole> model)
         {
-            return await PatchAsync(key, model, async (entity) =>
+            return PatchAsync(key, model, async (entity) =>
             {
                 CheckCustomerRole(entity);
                 await Db.SaveChangesAsync();
@@ -53,9 +53,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpDelete]
         [Permission(Permissions.Customer.Role.Delete)]
-        public async Task<IActionResult> Delete(int key)
+        public Task<IActionResult> Delete(int key)
         {
-            return await DeleteAsync(key, async (entity) =>
+            return DeleteAsync(key, async (entity) =>
             {
                 CheckCustomerRole(entity);
                 await Db.SaveChangesAsync();
