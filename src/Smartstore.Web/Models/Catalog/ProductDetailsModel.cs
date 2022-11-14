@@ -165,6 +165,7 @@ namespace Smartstore.Web.Models.Catalog
             public string Title { get; set; }
             public string Tooltip { get; set; }
             public string Href { get; set; }
+            public string Target { get; set; }
             public string CssClass { get; set; }
             public string IconCssClass { get; set; }
             public bool IsPrimary { get; set; }

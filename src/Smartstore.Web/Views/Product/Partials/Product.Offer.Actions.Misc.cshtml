@@ -62,7 +62,9 @@
                     }
                     else
                     {
-                        <a class="pd-action-link@(isSpecial ? " pd-action-link-special" : "") @(action.CssClass)" href="@action.Href" rel="nofollow" title="@action.Tooltip">
+                        <a class="pd-action-link @action.CssClass" href="@action.Href" rel="nofollow" title="@action.Tooltip"
+                            attr-class='(isSpecial, "pd-action-link-special")'
+                            attr-target="(action.Target.HasValue(), action.Target)">
                             <i class="pd-action-icon @action.IconCssClass"></i>
                             <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : "")">@action.Title</span>
                         </a>
