@@ -21,17 +21,22 @@ accordingly return a single FolderNodeInfo object and no longer a list.
 - Request parameters are always written in camel case, for example for OData actions.    
 Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/MediaFiles/GetFileByPath {"path":"catalog/my-image.jpg"}`.
 
-- Changed names of endpoints:
+- Changed endpoints:
 <table>
     <tr>
-        <th>Old name</th>
-        <th>New name</th>
+        <th>Old endpoint</th>
+        <th>New endpoint</th>
         <th>Remarks</th>
     </tr>
     <tr>
-        <td>MediaFiles.Download</td>
-        <td>MediaFiles.DownloadFile</td>
-        <td>Avoids naming conflicts since part of the default action namespace.</td>
+        <td>GET MediaFiles/Download(Id=id)</td>
+        <td>GET MediaFiles/DownloadFile(id={id})</td>
+        <td>Avoids naming conflicts.</td>
+    </tr>
+    <tr>
+        <td>POST OrderItems({id})/Infos</td>
+        <td>GET OrderItems/GetShipmentInfo(id={id})</td>
+        <td>Avoids naming conflicts.</td>
     </tr>
 </table>
 

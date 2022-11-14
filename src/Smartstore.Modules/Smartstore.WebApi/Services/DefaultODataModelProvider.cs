@@ -5,6 +5,8 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
@@ -39,12 +41,17 @@ namespace Smartstore.Web.Api
             builder.EntitySet<MeasureDimension>("MeasureDimensions");
             builder.EntitySet<MeasureWeight>("MeasureWeights");
             builder.EntitySet<NewsletterSubscription>("NewsletterSubscriptions");
-
+            builder.EntitySet<OrderItem>("OrderItems");
+            
+            builder.EntitySet<Order>("Orders");
             builder.EntitySet<PriceLabel>("PriceLabels");
+            builder.EntitySet<Product>("Products");
 
             BuildDeliveryTimes(builder);
             BuildMediaFiles(builder);
             BuildMediaFolders(builder);
+            BuildNewsletterSubscriptions(builder);
+            BuildOrderItems(builder);
 
             builder.EntitySet<StateProvince>("StateProvinces");
         }
@@ -210,6 +217,31 @@ namespace Smartstore.Web.Api
                 .Required();
             deleteFolder.Parameter<FileHandling>("fileHandling")
                 .Optional();
+        }
+
+        private static void BuildNewsletterSubscriptions(ODataModelBuilder builder)
+        {
+            const string setName = "NewsletterSubscriptions";
+            var set = builder.EntitySet<NewsletterSubscription>(setName);
+
+            set.EntityType
+                .Action(nameof(NewsletterSubscriptionsController.Subscribe))
+                .ReturnsFromEntitySet<NewsletterSubscription>(setName);
+
+            set.EntityType
+                .Action(nameof(NewsletterSubscriptionsController.Unsubscribe))
+                .ReturnsFromEntitySet<NewsletterSubscription>(setName);
+        }
+
+        private static void BuildOrderItems(ODataModelBuilder builder)
+        {
+            const string setName = "OrderItems";
+            var set = builder.EntitySet<OrderItem>(setName);
+
+            set.EntityType.Collection.Function(nameof(OrderItemsController.GetShipmentInfo))
+                .Returns<OrderItemShipmentInfo>()
+                .Parameter<int>("id")
+                .Required();
         }
     }
 }

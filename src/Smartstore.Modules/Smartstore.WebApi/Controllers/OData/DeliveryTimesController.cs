@@ -65,7 +65,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         [HttpGet("DeliveryTimes/GetDeliveryDate(Id={id})")]
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
-        [Produces(MediaTypeNames.Application.Json)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(SimpleRange<DateTime?>), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> GetDeliveryDate(int id)

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
@@ -129,11 +128,11 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (dispatched)
             {
-                return SumUpQuantity(orderItem, x => x.ShippedDateUtc.HasValue, true);
+                return SumUpQuantity(orderItem, x => x.ShippedDateUtc.HasValue);
             }
             else
             {
-                return SumUpQuantity(orderItem, x => !x.ShippedDateUtc.HasValue, true);
+                return SumUpQuantity(orderItem, x => !x.ShippedDateUtc.HasValue);
             }
         }
 
@@ -162,11 +161,11 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (delivered)
             {
-                return SumUpQuantity(orderItem, x => x.DeliveryDateUtc.HasValue, true);
+                return SumUpQuantity(orderItem, x => x.DeliveryDateUtc.HasValue);
             }
             else
             {
-                return SumUpQuantity(orderItem, x => !x.DeliveryDateUtc.HasValue, true);
+                return SumUpQuantity(orderItem, x => !x.DeliveryDateUtc.HasValue);
             }
         }
 
@@ -202,7 +201,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(orderItem, nameof(orderItem));
 
-            return SumUpQuantity(orderItem, null, true);
+            return SumUpQuantity(orderItem, null);
         }
 
         public virtual async Task<bool> CanAddItemsToShipmentAsync(Order order)
@@ -927,14 +926,11 @@ namespace Smartstore.Core.Checkout.Orders
             await scope.CommitAsync();
         }
 
-        private async Task<int> SumUpQuantity(OrderItem orderItem, Func<Shipment, bool> predicate, bool load = false)
+        private async Task<int> SumUpQuantity(OrderItem orderItem, Func<Shipment, bool> predicate)
         {
-            if (load)
-            {
-                await _db.LoadReferenceAsync(orderItem, x => x.Order, false, q => q
-                    .Include(x => x.Shipments)
-                    .ThenInclude(x => x.ShipmentItems));
-            }
+            await _db.LoadReferenceAsync(orderItem, x => x.Order, false, q => q
+                .Include(x => x.Shipments)
+                .ThenInclude(x => x.ShipmentItems));
 
             var result = 0;
             var shipments = predicate != null
