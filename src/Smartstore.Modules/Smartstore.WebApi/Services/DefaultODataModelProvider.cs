@@ -263,6 +263,22 @@ namespace Smartstore.Web.Api
                 .Returns<StreamContent>()
                 .Parameter<int>("id")
                 .Required();
+
+            set.EntityType
+                .Action(nameof(OrdersController.PaymentPending))
+                .ReturnsFromEntitySet<Order>(setName);
+
+            set.EntityType
+                .Action(nameof(OrdersController.PaymentPaid))
+                .ReturnsFromEntitySet<Order>(setName)
+                .Parameter<string>("paymentMethodName")
+                .Optional();
+
+            set.EntityType
+                .Action(nameof(OrdersController.PaymentRefund))
+                .ReturnsFromEntitySet<Order>(setName)
+                .Parameter<bool>("online")
+                .Required();
         }
     }
 }

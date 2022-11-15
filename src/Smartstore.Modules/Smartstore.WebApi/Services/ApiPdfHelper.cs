@@ -52,10 +52,10 @@ namespace Smartstore.Web.Api
             var pdfSettings = _settingFactory.LoadSettings<PdfSettings>(order.StoreId);
             var model = new List<OrderDetailsModel> { await _orderHelper.PrepareOrderDetailsModelAsync(order) };
 
-            //ViewBag.PdfMode = true;
             var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
             {
-                Model = model
+                Model = model,
+                ["PdfMode"] = true
             };
 
             var orderHtml = await _viewInvoker.InvokeViewAsync("~/Views/Order/Details.Print.cshtml", null, viewData);

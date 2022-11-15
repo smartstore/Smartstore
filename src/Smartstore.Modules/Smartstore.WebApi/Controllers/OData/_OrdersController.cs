@@ -1,4 +1,7 @@
-﻿using Smartstore.Core.Checkout.Orders;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.OData.Formatter;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Identity;
 using Smartstore.Web.Api.Models;
@@ -120,7 +123,9 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpGet("Orders/GetShipmentInfo(id={id})")]
         [Permission(Permissions.Order.Read)]
         [ProducesResponseType(typeof(OrderShipmentInfo), Status200OK)]
+        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> GetShipmentInfo(int id)
         {
             var entity = await Entities
@@ -161,7 +166,9 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Produces(MediaTypeNames.Application.Pdf)]
         [Permission(Permissions.Order.Read)]
         [ProducesResponseType(Status200OK)]
+        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> DownloadPdf(int id)
         {
             var entity = await Entities
@@ -181,6 +188,121 @@ namespace Smartstore.Web.Api.Controllers.OData
                 var fileName = _apiPdfHelper.Value.GetFileName(entity);
 
                 return File(stream, MediaTypeNames.Application.Pdf, fileName);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Sets the payment status of an order to pending.
+        /// </summary>
+        [HttpPost("Orders({key})/PaymentPending"), ApiQueryable]
+        [Permission(Permissions.Order.Update)]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(Order), Status200OK)]
+        [ProducesResponseType(Status400BadRequest)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> PaymentPending(int key)
+        {
+            var entity = await Entities.FindByIdAsync(key);
+            if (entity == null)
+            {
+                return NotFound(key);
+            }
+
+            try
+            {
+                entity.PaymentStatus = PaymentStatus.Pending;
+                await Db.SaveChangesAsync();
+
+                return Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Sets the payment status of an order to paid.
+        /// </summary>
+        /// <param name="paymentMethodName" example="Payments.PayPalStandard">The system name of a payment methid to be set.</param>
+        [HttpPost("Orders({key})/PaymentPaid"), ApiQueryable]
+        [Permission(Permissions.Order.Update)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(Order), Status200OK)]
+        [ProducesResponseType(Status400BadRequest)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> PaymentPaid(int key,
+            [FromODataBody] string paymentMethodName)
+        {
+            var entity = await Entities.FindByIdAsync(key);
+            if (entity == null)
+            {
+                return NotFound(key);
+            }
+
+            try
+            {
+                if (paymentMethodName != null)
+                {
+                    entity.PaymentMethodSystemName = paymentMethodName;
+                }
+
+                await _orderProcessingService.Value.MarkOrderAsPaidAsync(entity);
+
+                return Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Refunds an order.
+        /// </summary>
+        /// <param name="online" example="true">
+        /// A value indicating whether to refund online (refunding via payment provider) 
+        /// or offline (just mark as refunded without calling the payment provider).
+        /// </param>
+        [HttpPost("Orders({key})/PaymentRefund"), ApiQueryable]
+        [Permission(Permissions.Order.Update)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(Order), Status200OK)]
+        [ProducesResponseType(Status400BadRequest)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> PaymentRefund(int key,
+            [FromODataBody, Required] bool online)
+        {
+            var entity = await Entities.FindByIdAsync(key);
+            if (entity == null)
+            {
+                return NotFound(key);
+            }
+
+            try
+            {
+                if (online)
+                {
+                    var errors = await _orderProcessingService.Value.RefundAsync(entity);
+                    if (errors.Any())
+                    {
+                        return ErrorResult(null, string.Join(". ", errors));
+                    }
+                }
+                else
+                {
+
+                    await _orderProcessingService.Value.RefundOfflineAsync(entity);
+                }
+
+                return Ok(entity);
             }
             catch (Exception ex)
             {
