@@ -61,7 +61,7 @@ namespace Smartstore.Core.Widgets
             _zoneExpressionWidgetsMap.Add(zonePattern, widget);
         }
 
-        public bool HasContent(string zone)
+        public bool HasWidgets(string zone)
         {
             if (zone.IsEmpty())
             {
@@ -92,14 +92,15 @@ namespace Smartstore.Core.Widgets
         {
             if (zone.IsEmpty())
             {
-                return Enumerable.Empty<WidgetInvoker>();
+                yield break;
             }
-
-            var result = new List<WidgetInvoker>();
 
             if (_zoneWidgetsMap != null && _zoneWidgetsMap.TryGetValues(zone, out var widgets))
             {
-                result.AddRange(widgets);
+                foreach (var widget in widgets)
+                {
+                    yield return widget;
+                }
             }
 
             if (_zoneExpressionWidgetsMap != null)
@@ -109,12 +110,13 @@ namespace Smartstore.Core.Widgets
                     var rg = entry.Key;
                     if (rg.IsMatch(zone))
                     {
-                        result.AddRange(entry.Value);
+                        foreach (var widget in entry.Value)
+                        {
+                            yield return widget;
+                        }
                     }
                 }
             }
-
-            return result;
         }
 
         public bool ContainsWidget(string zone, string widgetKey)

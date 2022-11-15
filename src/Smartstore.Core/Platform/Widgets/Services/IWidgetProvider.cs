@@ -29,10 +29,16 @@ namespace Smartstore.Core.Widgets
         void RegisterWidget(Regex zonePattern, WidgetInvoker widget);
 
         /// <summary>
-        /// Checks whether a given zone has content (contains at least one widget),
+        /// Checks whether a given zone contains at least one widget.
         /// </summary>
+        /// <remarks>
+        /// Because of deferred result invocation this method cannot check whether 
+        /// the widget actually PRODUCES content. E.g., 
+        /// if a zone contained a <see cref="ComponentWidgetInvoker"/> with an empty 
+        /// result after invocation, this method would still return <c>true</c>.
+        /// </remarks>
         /// <param name="zone">The zone name to check.</param>
-        bool HasContent(string zone);
+        bool HasWidgets(string zone);
 
         /// <summary>
         /// Enumerates all injected widgets for a given zone.
