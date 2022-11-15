@@ -29,6 +29,7 @@
 - Added *IsVerifiedPurchase* flag for product reviews
 - (DEV) Embedded/Inline mail attachments
 - (DEV) Localized entity metadata: `ILocalizedEntityDescriptorProvider`, `ILocalizedEntityLoader`
+- (DEV) New setting `SmtpServerTimeout` in *appsettings.json*
 
 ### Improvements
 

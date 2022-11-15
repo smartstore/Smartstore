@@ -9,24 +9,29 @@ namespace Smartstore.Net.Mail
 {
     public partial class DefaultMailService : IMailService
     {
-        public virtual ISmtpClient Connect(IMailAccount account)
+        private readonly int _smtpTimeout;
+        
+        public DefaultMailService(SmartConfiguration appConfig)
         {
-            return ConnectCore(account, false).Await();
+            _smtpTimeout = appConfig.SmtpServerTimeout;
         }
 
-        public virtual Task<ISmtpClient> ConnectAsync(IMailAccount account)
+        public virtual ISmtpClient Connect(IMailAccount account, int? timeout)
         {
-            return ConnectCore(account, true);
+            return ConnectCore(account, timeout, false).Await();
         }
 
-        protected virtual async Task<ISmtpClient> ConnectCore(IMailAccount account, bool async)
+        public virtual Task<ISmtpClient> ConnectAsync(IMailAccount account, int? timeout)
         {
-            var timeout = EngineContext.Current?.Application?.AppConfiguration?.SmtpServerTimeout ?? 1000;
+            return ConnectCore(account, timeout, true);
+        }
 
+        protected virtual async Task<ISmtpClient> ConnectCore(IMailAccount account, int? timeout, bool async)
+        {
             var smtpClient = new SmtpClient
             {
                 ServerCertificateValidationCallback = OnValidateServerCertificate,
-                Timeout = timeout
+                Timeout = timeout ?? _smtpTimeout
             };
 
             var client = new MailKitSmtpClient(smtpClient, account);

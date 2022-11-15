@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Net.Mail
+﻿using Smartstore.Engine;
+
+namespace Smartstore.Net.Mail
 {
     /// <summary>
     /// Mail service abstraction. Responsible for connecting to SMTP hosts.
@@ -9,15 +11,17 @@
         /// Connects to the SMTP host with data provided by <paramref name="account"/>
         /// </summary>
         /// <param name="account">The mail account</param>
+        /// <param name="timeout">Connection timeout in milliseconds or <c>null</c> to fall back to <see cref="SmartConfiguration.SmtpServerTimeout"/></param>
         /// <returns>An SMTP client instance that can send mails.</returns>
-        ISmtpClient Connect(IMailAccount account);
+        ISmtpClient Connect(IMailAccount account, int? timeout = null);
 
         /// <summary>
         /// Connects to the SMTP host with data provided by <paramref name="account"/>
         /// </summary>
         /// <param name="account">The mail account</param>
+        /// <param name="timeout">Connection timeout in milliseconds or <c>null</c> to fall back to <see cref="SmartConfiguration.SmtpServerTimeout"/></param>
         /// <returns>An SMTP client instance that can send mails.</returns>
-        Task<ISmtpClient> ConnectAsync(IMailAccount account);
+        Task<ISmtpClient> ConnectAsync(IMailAccount account, int? timeout = null);
 
         /// <summary>
         /// Saves a mail message to the specified pickup directory on local disk.

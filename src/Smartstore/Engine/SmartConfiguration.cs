@@ -5,7 +5,7 @@
         public string ApplicationName { get; set; }
         public bool EnableDynamicDiscovery { get; set; } = true;
         public string ThemesBasePath { get; set; } = "/Themes";
-        public string ModulesBasePath { get; set; } = "/Plugins";
+        public string ModulesBasePath { get; set; } = "/Modules";
         public string TempDirectory { get; set; } = "/App_Data/_temp";
         public string TranslateCheckUrl { get; set; } = "https://translate.smartstore.com/StringResource/CheckAvailableResources?version={0}";
 
@@ -128,9 +128,9 @@
         public long? MaxRequestBodySize { get; set; }
 
         /// <summary>
-        /// Gets or sets the timeout for the smtp client.
+        /// Gets or sets the timeout for the mail client. Default = 5000 ms.
         /// </summary>
-        public int SmtpServerTimeout { get; set; }
+        public int SmtpServerTimeout { get; set; } = 5000;
 
         public GoogleConfiguration Google { get; set; } = new();
 
