@@ -3,12 +3,12 @@
 @{
     var parentModel = ViewData["Parent"] as ManufacturerListModel;
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
-    var hasToolbarZoneContent = Display.ZoneHasContent("datagrid_toolbar_omega");
+    var hasToolbarZoneWidgets = Display.ZoneHasWidgets("datagrid_toolbar_omega");
 }
 
 <datagrid id="manufacturers-grid" class="h-100"
           allow-resize="true"
-          allow-row-selection="hasToolbarZoneContent"
+          allow-row-selection="hasToolbarZoneWidgets"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true"
           onrowclass="manufacturersGrid_onRowClass">

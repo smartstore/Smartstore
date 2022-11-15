@@ -3,8 +3,8 @@
 @{
     Layout = "_Document";
 
-    var hasLeftCol = Display.ZoneHasContent("left");
-    var hasRightCol = Display.ZoneHasContent("right");
+    var hasLeftCol = Display.ZoneHasWidgets("left");
+    var hasRightCol = Display.ZoneHasWidgets("right");
     var hideLeftCol = ViewBag.HideLeftCol == true;
     var hideRightCol = ViewBag.HideRightCol == true;
 

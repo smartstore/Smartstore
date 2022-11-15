@@ -14,7 +14,7 @@ namespace Smartstore
         /// result after invocation, this method would still return <c>true</c>.
         /// </remarks>
         /// <param name="zone">The zone name to check.</param>
-        public static bool ZoneHasContent(this IDisplayHelper displayHelper, string zone)
+        public static bool ZoneHasWidgets(this IDisplayHelper displayHelper, string zone)
         {
             return displayHelper.Resolve<IWidgetProvider>().HasContent(zone);
         }

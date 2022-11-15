@@ -3,7 +3,7 @@
 @{
     Layout = "_AdminRoot";
 
-    var hasLeftSideBar = Display.ZoneHasContent("sidebar_left");
+    var hasLeftSideBar = Display.ZoneHasWidgets("sidebar_left");
     if (hasLeftSideBar)
     {
         Assets.BodyAttributes.AppendCssClass("has-left-sidebar");
