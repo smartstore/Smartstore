@@ -8,25 +8,47 @@
 
 ### New Features
 
-- (NEW) *cXmlPunchout* (commercial plugin)
-- (NEW) *OCI Punchout* (commercial plugin)
-- (NEW) *Ipayment* (commercial plugin)
-- (NEW) *Google Remarketing* (commercial plugin)
-- (NEW) *File Manager* (commercial plugin)
-- (NEW) *GiroCode* (commercial plugin)
-- (NEW) *BizUrlMapper* (commercial plugin)
-- (NEW) *EmailReminder* (commercial plugin)
-- (NEW) *DirectOrder* (commercial plugin)
-- *PayPal*
-	- Added *RatePay* widget
-	- Added *Pay per invoice* payment method 
-	- Added PayPal onboarding to module configuration (handles simple configuration via direct email login without the need to create an app on the PayPal developer page). 
-- (DEV) Added Barcode encoding and generation infrastructure:
+- Pricing & GDPR
+  - Compliance with Omnibus Directive
+    - Product reviews: display a **Verified Purchase** badge
+    - Label crossed out compare prices with "Lowest" or "Lowest recent price"
+  - Free configuration of compare **price labels**, e.g. "MSRP", "Regular", "Before", "Instead of", "Lowest" etc.
+  - **Discount badges**, e.g. "Deal", "Limited offer", "Black Friday" etc.
+  - **Offer countdown**, e.g. "Ends in 2 days, 3 hours"
+  - New pricing settings
+    - Always display retail price
+    - Default compare price label
+    - Default regular price label
+    - Offer price replaces regular price
+    - Always display retail price
+    - Show offer countdown remaining hours
+    - Show offer badge
+    - Show offer badge in lists
+    - Show saving badge in lists
+    - Offer badge label
+    - Offer badge style
+    - Limited offer badge label
+    - Limited offer badge style
+    - Show price label in lists
+    - Show retail price saving
+- **EmailReminder** (commercial plugin)
+- **DirectOrder** (commercial plugin)
+- **Google Remarketing** (commercial plugin)
+- **File Manager** (commercial plugin)
+- **GiroCode** (commercial plugin)
+- **IPayment** (commercial plugin)
+- PayPal
+	- Added **RatePay** widget
+	- Added **Pay per invoice** payment method 
+	- Added **PayPal onboarding** to module configuration (handles simple configuration via direct email login without the need to create an app on the PayPal developer page). 
+- **cXmlPunchout** (commercial plugin)
+- **OCI Punchout** (commercial plugin)
+- **BizUrlMapper** (commercial plugin)
+- Added **Barcode** encoding and generation infrastructure:
   - Can encode: EAN, QRCode, UPCA, UPCE, Aztec, Codabar, Code128, Code39, Code93, DataMatric, KixCode, PDF417, RoyalMail, TwoToFive
   - Can generate: Image (any type), SVG drawing
-- MediaManager: display image IPTC and EXIF metadata
+- MediaManager: display image **IPTC and EXIF metadata**
 - MediaManager: added internal admin comment field
-- Added *IsVerifiedPurchase* flag for product reviews
 - (DEV) Embedded/Inline mail attachments
 - (DEV) Localized entity metadata: `ILocalizedEntityDescriptorProvider`, `ILocalizedEntityLoader`
 - (DEV) New setting `SmtpServerTimeout` in *appsettings.json*
@@ -50,7 +72,7 @@
 
 ### Bugfixes
 
-- `LocalFile` did not implement `CreateFileAsync()` correctly, which led to PackageInstaller, PageBuilder thumbnail cache and PublicFolderPublisher throwing NotImplementedException
+- `LocalFile` did not implement `CreateFileAsync()` correctly, which led to PackageInstaller, PageBuilder thumbnail cache and PublicFolderPublisher throwing `NotImplementedException`
 - Media legacy url redirection did not work: `TemplateMatcher` does not evaluate inline constraints anymore
 - *MediaManager* always displayed current date instead of file's last updated date
 - *MegaMenu*: fixed badge styling issues
