@@ -1,6 +1,4 @@
-﻿using Smartstore.Core.Common;
-
-namespace Smartstore.Web.Api.Controllers.OData
+﻿namespace Smartstore.Web.Api.Controllers.OData
 {
     /// <summary>
     /// The endpoint for operations on Address entity.

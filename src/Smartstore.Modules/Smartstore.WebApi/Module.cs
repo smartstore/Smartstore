@@ -8,6 +8,7 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.OData.Deltas;
 global using Microsoft.AspNetCore.OData.Results;
 global using Microsoft.EntityFrameworkCore;
+global using Smartstore.Core.Common;
 global using Smartstore.Core.Data;
 global using Smartstore.Core.Security;
 global using static Microsoft.AspNetCore.Http.StatusCodes;

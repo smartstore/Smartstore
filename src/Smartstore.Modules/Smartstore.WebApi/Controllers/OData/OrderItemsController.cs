@@ -74,9 +74,12 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         #region Actions and functions
 
+        /// <summary>
+        /// Gets additional shipment information for an order item.
+        /// </summary>
         [HttpGet("OrderItems/GetShipmentInfo(id={id})")]
         [Permission(Permissions.Order.Read)]
-        [ProducesResponseType(Status200OK)]
+        [ProducesResponseType(typeof(OrderItemShipmentInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> GetShipmentInfo(int id)
         {

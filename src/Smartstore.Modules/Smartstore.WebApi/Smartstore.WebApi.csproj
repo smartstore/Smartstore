@@ -20,4 +20,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.4.0" />
   </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+            <Private>False</Private>
+            <CopyLocal>False</CopyLocal>
+            <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+        </ProjectReference>
+    </ItemGroup>
 </Project>

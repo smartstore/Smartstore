@@ -29,6 +29,7 @@ namespace Smartstore.Web.Api
         {
             services.AddSingleton<IApiUserStore, ApiUserStore>();
             services.AddScoped<IWebApiService, WebApiService>();
+            services.AddScoped<ApiPdfHelper>();
 
             services.Configure<AuthenticationOptions>((options) =>
             {

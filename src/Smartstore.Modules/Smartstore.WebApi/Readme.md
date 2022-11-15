@@ -26,17 +26,22 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
     <tr>
         <th>Old endpoint</th>
         <th>New endpoint</th>
-        <th>Remarks</th>
     </tr>
     <tr>
         <td>GET MediaFiles/Download(Id=id)</td>
         <td>GET MediaFiles/DownloadFile(id={id})</td>
-        <td>Avoids naming conflicts.</td>
     </tr>
     <tr>
         <td>POST OrderItems({id})/Infos</td>
         <td>GET OrderItems/GetShipmentInfo(id={id})</td>
-        <td>Avoids naming conflicts.</td>
+    </tr>
+    <tr>
+        <td>POST Orders({id})/Infos</td>
+        <td>GET Orders/GetShipmentInfo(id={id})</td>
+    </tr>
+    <tr>
+        <td>POST Orders({id})/Pdf</td>
+        <td>GET Orders/DownloadPdf(id={id})</td>
     </tr>
 </table>
 

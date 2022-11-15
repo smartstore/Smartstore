@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.OData;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Web.Api.Controllers.OData

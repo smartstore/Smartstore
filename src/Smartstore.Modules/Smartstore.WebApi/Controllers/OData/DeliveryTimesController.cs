@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
+﻿using Smartstore.Core.Common.Services;
 using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api.Controllers.OData

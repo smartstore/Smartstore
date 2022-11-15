@@ -7,7 +7,7 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -42,16 +42,20 @@ namespace Smartstore.Web.Api
             builder.EntitySet<MeasureWeight>("MeasureWeights");
             builder.EntitySet<NewsletterSubscription>("NewsletterSubscriptions");
             builder.EntitySet<OrderItem>("OrderItems");
-            
+            builder.EntitySet<OrderNote>("OrderNotes");
             builder.EntitySet<Order>("Orders");
+
             builder.EntitySet<PriceLabel>("PriceLabels");
             builder.EntitySet<Product>("Products");
+            builder.EntitySet<RewardPointsHistory>("RewardPointsHistory");
+            builder.EntitySet<Shipment>("Shipments");
 
             BuildDeliveryTimes(builder);
             BuildMediaFiles(builder);
             BuildMediaFolders(builder);
             BuildNewsletterSubscriptions(builder);
             BuildOrderItems(builder);
+            BuildOrders(builder);
 
             builder.EntitySet<StateProvince>("StateProvinces");
         }
@@ -240,6 +244,23 @@ namespace Smartstore.Web.Api
 
             set.EntityType.Collection.Function(nameof(OrderItemsController.GetShipmentInfo))
                 .Returns<OrderItemShipmentInfo>()
+                .Parameter<int>("id")
+                .Required();
+        }
+
+        private static void BuildOrders(ODataModelBuilder builder)
+        {
+            const string setName = "Orders";
+            var set = builder.EntitySet<Order>(setName);
+            var config = set.EntityType.Collection;
+
+            config.Function(nameof(OrdersController.GetShipmentInfo))
+                .Returns<OrderShipmentInfo>()
+                .Parameter<int>("id")
+                .Required();
+
+            config.Function(nameof(OrdersController.DownloadPdf))
+                .Returns<StreamContent>()
                 .Parameter<int>("id")
                 .Required();
         }
