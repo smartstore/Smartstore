@@ -8,6 +8,9 @@
 
 ### New Features
 
+- (NEW) *cXmlPunchout* (commercial plugin)
+- (NEW) *OCI Punchout* (commercial plugin)
+- (NEW) *Ipayment* (commercial plugin)
 - (NEW) *Google Remarketing* (commercial plugin)
 - (NEW) *File Manager* (commercial plugin)
 - (NEW) *GiroCode* (commercial plugin)
