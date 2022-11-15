@@ -103,19 +103,6 @@ namespace Smartstore.Core.Widgets
             return GetWidgets(zone).Any(x => x.Key == widgetKey);
         }
 
-        //public async Task<bool> HasContentAsync(string zone, ViewContext viewContext)
-        //{
-        //    Guard.NotNull(viewContext, nameof(viewContext));
-            
-        //    var widgets = GetWidgets(zone);
-
-        //    foreach (var widget in widgets)
-        //    {
-        //        var content = await widget.InvokeAsync(viewContext);
-                
-        //    }
-        //}
-
         public async Task<dynamic> GetAllKnownWidgetZonesAsync()
         {
             var fileName = "widgetzones.json";

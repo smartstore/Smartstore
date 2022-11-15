@@ -48,7 +48,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (DataSettings.DatabaseIsInstalled())
             {
                 return await services.GetRequiredService<IWidgetSelector>()
-                    .GetWidgetsAsync(ZoneName, ViewContext, Model ?? ViewContext.ViewData.Model);
+                    .GetWidgetsAsync(ZoneName, Model ?? ViewContext.ViewData.Model);
             }
             else
             {

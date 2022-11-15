@@ -14,7 +14,7 @@
     var disclaimerLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("disclaimer", true));
     var privacyLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("privacyinfo", true));
     var terms = T("Checkout.TermsOfService.IAccept", termsLink, "</a>", disclaimerLink, privacyLink);
-    var consentZoneHasWidgets = Display.ZoneHasWidgets("checkout_submit_data_consent");
+    var consentZoneHasWidgets = await Display.ZoneHasWidgetsAsync("checkout_submit_data_consent");
 }
 
 <widget target-zone="order_progress">

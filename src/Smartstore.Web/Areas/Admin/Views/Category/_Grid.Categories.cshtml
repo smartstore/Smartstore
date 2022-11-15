@@ -3,7 +3,7 @@
 @{
     var parentModel = ViewData["Parent"] as CategoryListModel;
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
-    var hasToolbarZoneWidgets = Display.ZoneHasWidgets("datagrid_toolbar_omega");
+    var hasToolbarZoneWidgets = await Display.ZoneHasWidgetsAsync("datagrid_toolbar_omega");
 }
 
 <datagrid id="categories-grid"

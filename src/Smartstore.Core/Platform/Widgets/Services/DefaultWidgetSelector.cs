@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Caching;
 using Smartstore.Collections;
@@ -42,6 +43,7 @@ namespace Smartstore.Core.Widgets
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly IDisplayControl _displayControl;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DefaultWidgetSelector(
             SmartDbContext db,
@@ -51,7 +53,8 @@ namespace Smartstore.Core.Widgets
             IWidgetProvider widgetProvider,
             IWorkContext workContext,
             IStoreContext storeContext,
-            IDisplayControl displayControl)
+            IDisplayControl displayControl,
+            IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _cache = cache;
@@ -61,6 +64,7 @@ namespace Smartstore.Core.Widgets
             _workContext = workContext;
             _storeContext = storeContext;
             _displayControl = displayControl;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #region Hook
@@ -91,7 +95,36 @@ namespace Smartstore.Core.Widgets
 
         #endregion
 
-        public async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, ViewContext viewContext, object model = null)
+        public async Task<bool> HasContentAsync(string zone, ViewContext viewContext)
+        {
+            Guard.NotNull(viewContext, nameof(viewContext));
+
+            var widgets = await GetWidgetsAsync(zone);
+
+            foreach (var widget in widgets)
+            {
+                try
+                {
+                    var htmlContent = await widget.InvokeAsync(viewContext);
+                    if (htmlContent.HasContent())
+                    {
+                        return true;
+                    }
+                }
+                catch
+                {
+                    // An exception indicates that most probably something went wrong
+                    // with view rendering (wrong model type etc.). Although not really
+                    // 100% bulletproof, the fact that we came so far should indicate that
+                    // there is something to render.
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, object model = null)
         {
             Guard.NotEmpty(zone, nameof(zone));
 
@@ -101,7 +134,8 @@ namespace Smartstore.Core.Widgets
             }
 
             var storeId = _storeContext.CurrentStore.Id;
-            var isPublicArea = viewContext.HttpContext.GetRouteData().Values.GetAreaName().IsEmpty();
+            var httpContext = _httpContextAccessor.HttpContext;
+            var isPublicArea = httpContext != null && httpContext.GetRouteData().Values.GetAreaName().IsEmpty();
             var widgets = Enumerable.Empty<WidgetInvoker>();
 
             #region Module Widgets

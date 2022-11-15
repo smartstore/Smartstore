@@ -177,11 +177,11 @@
 
     <zone name="offcanvas_cart_footer_after" />
         
-    <div sm-if="@Display.ZoneHasWidgets("offcanvas_cart_summary")" class="offcanvas-cart-external-checkout">
+    <div sm-if="@await Display.ZoneHasContentAsync("offcanvas_cart_summary", ViewContext)" class="offcanvas-cart-external-checkout">
         <div class="heading heading-center py-0">
             <h6 class="heading-title fs-h5 fwn">@T("Common.Or")</h6>
         </div>
-        @*INFO: written like this so pseudo selector :not(:empty) can work and surpress padding, in case we need to return Empty() from ViewComponent directly*@
+        @*INFO: written like this so pseudo selector :not(:empty) can work and suppress padding, in case we need to return Empty() from ViewComponent directly*@
         <div class="d-flex justify-content-center align-items-center flex-wrap flex-column"><zone name="offcanvas_cart_summary" /></div>
     </div>
 </div>

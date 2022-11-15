@@ -766,7 +766,7 @@ namespace Smartstore.Web.Rendering
 
             var viewContext = helper.ViewContext;
             var widgetSelector = viewContext.HttpContext.RequestServices.GetRequiredService<IWidgetSelector>();
-            var widgets = await widgetSelector.GetWidgetsAsync(zoneName, viewContext, viewContext.ViewData.Model);
+            var widgets = await widgetSelector.GetWidgetsAsync(zoneName, viewContext.ViewData.Model);
 
             if (widgets.Any())
             {
