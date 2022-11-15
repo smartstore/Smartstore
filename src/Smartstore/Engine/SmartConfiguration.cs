@@ -127,6 +127,11 @@
         /// </summary>
         public long? MaxRequestBodySize { get; set; }
 
+        /// <summary>
+        /// Gets or sets the timeout for the smtp client.
+        /// </summary>
+        public int SmtpServerTimeout { get; set; }
+
         public GoogleConfiguration Google { get; set; } = new();
 
         public class GoogleConfiguration

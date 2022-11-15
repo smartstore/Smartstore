@@ -9,17 +9,15 @@
         /// Connects to the SMTP host with data provided by <paramref name="account"/>
         /// </summary>
         /// <param name="account">The mail account</param>
-        /// <param name="timeout">Connection timeout in milliseconds.</param>
         /// <returns>An SMTP client instance that can send mails.</returns>
-        ISmtpClient Connect(IMailAccount account, int timeout = 1000);
+        ISmtpClient Connect(IMailAccount account);
 
         /// <summary>
         /// Connects to the SMTP host with data provided by <paramref name="account"/>
         /// </summary>
         /// <param name="account">The mail account</param>
-        /// <param name="timeout">Connection timeout in milliseconds.</param>
         /// <returns>An SMTP client instance that can send mails.</returns>
-        Task<ISmtpClient> ConnectAsync(IMailAccount account, int timeout = 1000);
+        Task<ISmtpClient> ConnectAsync(IMailAccount account);
 
         /// <summary>
         /// Saves a mail message to the specified pickup directory on local disk.

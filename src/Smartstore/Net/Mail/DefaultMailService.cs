@@ -3,30 +3,33 @@ using System.Security.Cryptography.X509Certificates;
 using MailKit.Net.Smtp;
 using MimeKit;
 using MimeKit.IO;
+using Smartstore.Engine;
 
 namespace Smartstore.Net.Mail
 {
     public partial class DefaultMailService : IMailService
     {
-        public virtual ISmtpClient Connect(IMailAccount account, int timeout = 1000)
+        public virtual ISmtpClient Connect(IMailAccount account)
         {
-            return ConnectCore(account, timeout, false).Await();
+            return ConnectCore(account, false).Await();
         }
 
-        public virtual Task<ISmtpClient> ConnectAsync(IMailAccount account, int timeout = 1000)
+        public virtual Task<ISmtpClient> ConnectAsync(IMailAccount account)
         {
-            return ConnectCore(account, timeout, true);
+            return ConnectCore(account, true);
         }
 
-        protected virtual async Task<ISmtpClient> ConnectCore(IMailAccount account, int timeout, bool async)
+        protected virtual async Task<ISmtpClient> ConnectCore(IMailAccount account, bool async)
         {
-            var mClient = new SmtpClient
+            var timeout = EngineContext.Current?.Application?.AppConfiguration?.SmtpServerTimeout ?? 1000;
+
+            var smtpClient = new SmtpClient
             {
                 ServerCertificateValidationCallback = OnValidateServerCertificate,
                 Timeout = timeout
             };
 
-            var client = new MailKitSmtpClient(mClient, account);
+            var client = new MailKitSmtpClient(smtpClient, account);
 
             if (async)
             {
