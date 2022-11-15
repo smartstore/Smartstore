@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using Smartstore.Collections;
@@ -61,33 +62,6 @@ namespace Smartstore.Core.Widgets
             _zoneExpressionWidgetsMap.Add(zonePattern, widget);
         }
 
-        public bool HasWidgets(string zone)
-        {
-            if (zone.IsEmpty())
-            {
-                return false;
-            }
-
-            if (_zoneWidgetsMap != null && _zoneWidgetsMap.ContainsKey(zone))
-            {
-                return true;
-            }
-
-            if (_zoneExpressionWidgetsMap != null)
-            {
-                foreach (var entry in _zoneExpressionWidgetsMap)
-                {
-                    var rg = entry.Key;
-                    if (rg.IsMatch(zone))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         public IEnumerable<WidgetInvoker> GetWidgets(string zone)
         {
             if (zone.IsEmpty())
@@ -119,25 +93,28 @@ namespace Smartstore.Core.Widgets
             }
         }
 
+        public bool HasWidgets(string zone)
+        {
+            return GetWidgets(zone).Any();
+        }
+
         public bool ContainsWidget(string zone, string widgetKey)
         {
-            Guard.NotEmpty(zone, nameof(zone));
-            Guard.NotEmpty(widgetKey, nameof(widgetKey));
-
-            if (_zoneWidgetsMap != null && _zoneWidgetsMap.TryGetValues(zone, out var widgets))
-            {
-                // INFO: Hot path code
-                foreach (var widget in widgets)
-                {
-                    if (widget.Key == widgetKey)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return GetWidgets(zone).Any(x => x.Key == widgetKey);
         }
+
+        //public async Task<bool> HasContentAsync(string zone, ViewContext viewContext)
+        //{
+        //    Guard.NotNull(viewContext, nameof(viewContext));
+            
+        //    var widgets = GetWidgets(zone);
+
+        //    foreach (var widget in widgets)
+        //    {
+        //        var content = await widget.InvokeAsync(viewContext);
+                
+        //    }
+        //}
 
         public async Task<dynamic> GetAllKnownWidgetZonesAsync()
         {

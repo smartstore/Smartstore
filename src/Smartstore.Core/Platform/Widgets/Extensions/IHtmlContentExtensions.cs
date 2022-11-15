@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Web.Rendering
+namespace Smartstore.Core.Widgets
 {
     public static class IHtmlContentExtensions
     {

@@ -8,6 +8,8 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("div", Attributes = SuppressAttributeName)]
     [HtmlTargetElement("span", Attributes = SuppressAttributeName)]
     [HtmlTargetElement("section", Attributes = SuppressAttributeName)]
+    [HtmlTargetElement("aside", Attributes = SuppressAttributeName)]
+    [HtmlTargetElement("p", Attributes = SuppressAttributeName)]
     public class SuppressIfEmptyTagHelper : TagHelper
     {
         const string SuppressAttributeName = "sm-suppress-if-empty";
