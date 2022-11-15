@@ -14,6 +14,9 @@ using Smartstore.Web.Models.Orders;
 
 namespace Smartstore.Web.Api
 {
+    // TODO: (mg) (core) (DRY) Implement IPdfGenerator in Smartstore.Web that is responsible for
+    // generating PDF documents for orders. Or at least put that stuff in OrderHelper.
+    // But after 5.0.1 has been released.
     public class ApiPdfHelper
     {
         private readonly IWorkContext _workContext;
