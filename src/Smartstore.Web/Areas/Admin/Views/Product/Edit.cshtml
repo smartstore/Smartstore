@@ -55,28 +55,17 @@
 <partial name="_CopyProductDialog" model="Model" />
 
 <script sm-target-zone="Scripts" data-origin="product-edit">
-    $(function() {
+    $(function () {
 		// Bundle per item pricing.
         $(document).on('change', '#@Html.IdFor(model => model.BundlePerItemPricing)', function () {
-        	bundlePerItemPricing($(this).is(':checked'));
-        });
-
-		bundlePerItemPricing(@((Model.IsBundleWithItemPricing).ToString().ToLower()));
-
-        function bundlePerItemPricing(isActive) {
-            $('#TierPriceContainer').toggleClass('d-none', isActive);
+            var isActive = $(this).is(':checked');
+            $('#pnlTierPrices').toggleClass('d-none', isActive);
             $('#pnlPriceDiscounts').toggleClass('d-none', isActive);
-        }
+        }).trigger('change');
 
         // Bundle per item in shopping cart.
         $(document).on('change', '#@Html.IdFor(model => model.BundlePerItemShoppingCart)', function () {
-        	bundlePerItemShoppingCart($(this).is(':checked'));
-        });
-
-		bundlePerItemShoppingCart(@((Model.ProductTypeId == (int)ProductType.BundledProduct && Model.BundlePerItemShoppingCart).ToString().ToLower()));
-
-        function bundlePerItemShoppingCart(isActive) {
-            $('a[data-tab-name="Inventory"]').parent().toggleClass('d-none', isActive);
-        }
+            $('a[data-tab-name="Inventory"]').parent().toggleClass('d-none', $(this).is(':checked'));
+        }).trigger('change');
     });
 </script>
