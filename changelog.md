@@ -13,6 +13,7 @@
 - (NEW) *GiroCode* (commercial plugin)
 - (NEW) *BizUrlMapper* (commercial plugin)
 - (NEW) *EmailReminder* (commercial plugin)
+- (NEW) *DirectOrder* (commercial plugin)
 - *PayPal*
 	- Added *RatePay* widget
 	- Added *Pay per invoice* payment method 
