@@ -25,7 +25,7 @@
         </div>
 
         @* "File upload" attribute control type requries "multipart/form-data" *@
-        <form asp-route="ShoppingCart" method="post" enctype="multipart/form-data">
+        <form asp-route="ShoppingCart" method="post" enctype="multipart/form-data" onkeydown="return event.key != 'Enter';">
 
             <div class="card">
                 <div id="cart-items" class="cart mb-0" attr-class='(Model.IsEditable, "cart-editable")'>
