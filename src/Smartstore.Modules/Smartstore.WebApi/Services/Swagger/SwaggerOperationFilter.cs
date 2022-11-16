@@ -112,14 +112,14 @@ namespace Smartstore.Web.Api.Swagger
                     if (helper.HasKeyParameter)
                     {
                         helper.Op.Summary ??= $"Gets {entityName} by identifier.";
-                        helper.AddResponse(Status200OK, Status404NotFound);
+                        helper.AddResponse(Status404NotFound);
                         helper.AddKeyParameter();
                     }
                     else
                     {
                         helper.Op.Summary ??= $"Gets {entityName} list.";
-                        helper.AddResponse(Status200OK);
                     }
+                    helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(helper.HasKeyParameter);
                     break;
 
                 //case "GetProperty":

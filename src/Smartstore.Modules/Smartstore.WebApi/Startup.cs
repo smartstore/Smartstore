@@ -1,4 +1,6 @@
-﻿using System.Xml.XPath;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Xml.XPath;
 using Autofac;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -15,6 +17,7 @@ using Smartstore.Engine.Builders;
 using Smartstore.Web.Api.Bootstrapping;
 using Smartstore.Web.Api.Security;
 using Smartstore.Web.Api.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Smartstore.Web.Api
@@ -109,6 +112,8 @@ namespace Smartstore.Web.Api
                 try
                 {
                     // XML comments.
+                    IncludeXmlComments(o, "Smartstore.Core.xml");
+
                     var modelProviders = appContext.TypeScanner
                         .FindTypes<IODataModelProvider>()
                         .Select(x => (IODataModelProvider)Activator.CreateInstance(x))
@@ -123,9 +128,6 @@ namespace Smartstore.Web.Api
                             o.IncludeXmlComments(() => new XPathDocument(stream), true);
                         }
                     }
-
-                    // Concrete example values for entity properties could be defined per XML comment at the entities:
-                    //o.IncludeXmlComments(@"...\Smartstore.Full\Smartstore\src\Smartstore.Web\bin\Debug\Smartstore.Core.xml");
                 }
                 catch
                 {
@@ -261,6 +263,21 @@ namespace Smartstore.Web.Api
                     });
                 });
 
+            }
+        }
+
+        private static void IncludeXmlComments(SwaggerGenOptions options, string fileName)
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, fileName);
+            if (File.Exists(path))
+            {
+                // INFO: XPathDocument closes the input stream.
+                var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                options.IncludeXmlComments(() => new XPathDocument(stream), true);
+            }
+            else
+            {
+                Debug.WriteLine($"Cannot find {fileName}. Expected location: {path}.");
             }
         }
     }
