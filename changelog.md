@@ -33,6 +33,7 @@
     - Show retail price saving
 - **EmailReminder** (commercial plugin)
 - **DirectOrder** (commercial plugin)
+- **Billiger** (commercial plugin)
 - **Google Remarketing** (commercial plugin)
 - **File Manager** (commercial plugin)
 - **GiroCode** (commercial plugin)
