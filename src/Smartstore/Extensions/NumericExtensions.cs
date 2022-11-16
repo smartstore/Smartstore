@@ -145,6 +145,18 @@ namespace Smartstore
             return Math.Round(value, decimals).ToString("0.00", CultureInfo.InvariantCulture);
         }
 
+        /// <summary>
+        /// Rounds and formats a decimal culture invariant
+        /// </summary>
+        /// <param name="value">Value to round</param>
+        /// <param name="decimals">Rounding decimal number</param>
+        /// <returns>Rounded and formated value</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string FormatInvariant(this decimal? value, int decimals = 2)
+        {
+            return value.HasValue ? FormatInvariant(value.Value, decimals) : null;
+        }
+
         #endregion
 
         #region IComparable
