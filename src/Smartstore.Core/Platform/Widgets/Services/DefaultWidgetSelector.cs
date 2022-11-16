@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Caching;
 using Smartstore.Collections;
@@ -94,35 +93,6 @@ namespace Smartstore.Core.Widgets
         }
 
         #endregion
-
-        public async Task<bool> HasContentAsync(string zone, ViewContext viewContext)
-        {
-            Guard.NotNull(viewContext, nameof(viewContext));
-
-            var widgets = await GetWidgetsAsync(zone);
-
-            foreach (var widget in widgets)
-            {
-                try
-                {
-                    var htmlContent = await widget.InvokeAsync(viewContext);
-                    if (htmlContent.HasContent())
-                    {
-                        return true;
-                    }
-                }
-                catch
-                {
-                    // An exception indicates that most probably something went wrong
-                    // with view rendering (wrong model type etc.). Although not really
-                    // 100% bulletproof, the fact that we came so far should indicate that
-                    // there is something to render.
-                    return true;
-                }
-            }
-
-            return false;
-        }
 
         public async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, object model = null)
         {

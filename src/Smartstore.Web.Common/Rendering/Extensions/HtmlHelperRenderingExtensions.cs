@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering.Builders;
@@ -756,41 +755,22 @@ namespace Smartstore.Web.Rendering
         /// and to render other content if not.
         /// This call replaces the <c>zone</c> TagHelper, therefore you
         /// should remove the TagHelper with the same name.
+        /// Also beware that <see cref="WidgetInvoker.Prepend"/> has no effect since there is
+        /// no reference content.
         /// </remarks>
         /// <param name="helper">The <see cref="IHtmlHelper"/>.</param>
         /// <param name="zoneName">Name of zone to render content for.</param>
-        /// <returns>The HTML produced by all widgets registered for given given zone.</returns>
-        public static async Task<IHtmlContent> RenderZoneAsync(this IHtmlHelper helper, string zoneName)
+        /// <param name="model">Optional model instance</param>
+        /// <returns>The HTML produced by all widgets registered for the given given zone.</returns>
+        public static async Task<IHtmlContent> RenderZoneAsync(this IHtmlHelper helper, string zoneName, object model = null)
         {
             Guard.NotEmpty(zoneName, nameof(zoneName));
 
             var viewContext = helper.ViewContext;
             var widgetSelector = viewContext.HttpContext.RequestServices.GetRequiredService<IWidgetSelector>();
-            var widgets = await widgetSelector.GetWidgetsAsync(zoneName, viewContext.ViewData.Model);
+            var content = await widgetSelector.GetContentAsync(zoneName, viewContext, model);
 
-            if (widgets.Any())
-            {
-                var builder = new HtmlContentBuilder();
-
-                foreach (var widget in widgets)
-                {
-                    var model = widget is PartialViewWidgetInvoker partialInvoker
-                        ? partialInvoker.Model
-                        : viewContext.ViewData.Model;
-
-                    var localViewContext = model == null ? viewContext : viewContext.Clone(model);
-                    var result = await widget.InvokeAsync(localViewContext);
-
-                    builder.AppendHtml(result);
-                    builder.AppendLine();
-                }
-
-                return builder;
-            }
-            else
-            {
-                return HtmlString.Empty;
-            }
+            return content;
         }
 
         #endregion

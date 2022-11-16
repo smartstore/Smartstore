@@ -27,7 +27,7 @@
                 <span>@T("Common.UserProfile")</span>
             </a>
 
-            @if (await Display.ZoneHasContentAsync("admin_button_toolbar_messaging_dropdown", ViewContext))
+            @if (await Display.ZoneHasWidgetsAsync("admin_button_toolbar_messaging_dropdown"))
             {
                 <div class="btn-group">
                     <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">

@@ -49,6 +49,9 @@
   - Can generate: Image (any type), SVG drawing
 - MediaManager: display image **IPTC and EXIF metadata**
 - MediaManager: added internal admin comment field
+- (DEV) New TagHelpers
+  - `sm-suppress-if-empty`: suppresses tag output if child content is empty (due to some conditional logic).
+  - `sm-suppress-if-empty-zone`: suppresses parent tag output if a specified child zone is empty or whitespace.
 - (DEV) Embedded/Inline mail attachments
 - (DEV) Localized entity metadata: `ILocalizedEntityDescriptorProvider`, `ILocalizedEntityLoader`
 - (DEV) New setting `SmtpServerTimeout` in *appsettings.json*

@@ -14,7 +14,6 @@
     var disclaimerLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("disclaimer", true));
     var privacyLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("privacyinfo", true));
     var terms = T("Checkout.TermsOfService.IAccept", termsLink, "</a>", disclaimerLink, privacyLink);
-    var consentZoneHasWidgets = await Display.ZoneHasWidgetsAsync("checkout_submit_data_consent");
 }
 
 <widget target-zone="order_progress">
@@ -36,10 +35,9 @@
 
             <input type="hidden" id="customercommenthidden" name="customercommenthidden" />
 
-            <div sm-if="Model.TermsOfServiceEnabled
+            <div sm-suppress-if-empty-zone="checkout_submit_data_consent" sm-if="Model.TermsOfServiceEnabled
                 || Model.NewsletterSubscription != CheckoutNewsletterSubscription.None
-                || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
-                || consentZoneHasWidgets"
+                || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None"
                  id="terms-of-service-consent-box" class="card mb-3">
                 <div class="card-body">
 

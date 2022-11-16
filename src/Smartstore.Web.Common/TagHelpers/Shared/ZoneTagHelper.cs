@@ -1,8 +1,5 @@
-﻿using Autofac.Core;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Data;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -14,8 +11,11 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string ReplaceContentAttributeName = "replace-content";
         const string RemoveIfEmptyAttributeName = "remove-if-empty";
 
-        public ZoneTagHelper()
+        private readonly IWidgetSelector _widgetSelector;
+
+        public ZoneTagHelper(IWidgetSelector widgetSelector)
         {
+            _widgetSelector = widgetSelector;
         }
 
         [HtmlAttributeName(NameAttributeName)]
@@ -39,63 +39,24 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(RemoveIfEmptyAttributeName)]
         public bool RemoveIfEmpty { get; set; }
 
-        protected override string GenerateTagId(TagHelperContext context) => null;
-
-        private async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync()
-        {
-            var services = ViewContext.HttpContext.RequestServices;
-
-            if (DataSettings.DatabaseIsInstalled())
-            {
-                return await services.GetRequiredService<IWidgetSelector>()
-                    .GetWidgetsAsync(ZoneName, Model ?? ViewContext.ViewData.Model);
-            }
-            else
-            {
-                return services.GetRequiredService<IWidgetProvider>()
-                    .GetWidgets(ZoneName)
-                    .Distinct()
-                    .OrderBy(x => x.Prepend)
-                    .ThenBy(x => x.Order);
-            }
-        }
+        protected override string GenerateTagId(TagHelperContext context) 
+            => null;
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             var isHtmlTag = output.TagName != "zone";
-
-            var widgets = await GetWidgetsAsync();
-
             if (!isHtmlTag)
             {
                 // Never render <zone> tag
                 output.TagName = null;
             }
 
-            if (widgets.Any())
-            {
-                if (ReplaceContent)
-                {
-                    output.Content.SetContent(string.Empty);
-                }
+            // First check if any parent sm-suppress-if-empty-zone TagHelper already generated the content...
+            var zoneContent = SuppressIfEmptyZoneTagHelper.GetZoneContent(context, ZoneName);
+            // ...if not, generate it here.
+            zoneContent ??= await _widgetSelector.GetContentAsync(ZoneName, ViewContext, Model ?? ViewContext.ViewData.Model);
 
-                foreach (var widget in widgets)
-                {
-                    var model = widget is PartialViewWidgetInvoker partialInvoker
-                        ? partialInvoker.Model
-                        : Model;
-
-                    var target = widget.Prepend ? output.PreContent : output.PostContent;
-                    var viewContext = model == null ? ViewContext : ViewContext.Clone(model);
-
-                    // TODO: (mh) (core) I don't know why you did this, but ViewData is mostly global across partials.
-                    // You are overriding the very same entry each time. Are you sure?
-                    viewContext.ViewData["widgetzone"] = ZoneName;
-
-                    target.AppendHtml(await widget.InvokeAsync(viewContext));
-                }
-            }
-            else
+            if (zoneContent.IsEmptyOrWhiteSpace)
             {
                 // No widgets
                 if (RemoveIfEmpty && output.TagName.HasValue())
@@ -105,6 +66,23 @@ namespace Smartstore.Web.TagHelpers.Shared
                     {
                         output.TagName = null;
                     }
+                }
+            }
+            else
+            {
+                if (ReplaceContent)
+                {
+                    output.Content.SetContent(string.Empty);
+                }
+
+                if (zoneContent.HasPreContent)
+                {
+                    output.PreContent.AppendHtml(zoneContent.PreContent);
+                }
+
+                if (zoneContent.HasPostContent)
+                {
+                    output.PostContent.AppendHtml(zoneContent.PostContent);
                 }
             }
         }
@@ -121,7 +99,8 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string ZoneNameAttributeName = "zone-name";
 
-        public HtmlZoneTagHelper()
+        public HtmlZoneTagHelper(IWidgetSelector widgetSelector)
+            : base(widgetSelector)
         {
         }
 

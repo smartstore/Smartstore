@@ -97,7 +97,7 @@
                         </button>
                     </div>
 
-                    <div sm-if='await Display.ZoneHasContentAsync("external_auth_buttons", ViewContext)' class="form-group external-auth-buttons mb-0">
+                    <div sm-suppress-if-empty-zone="external_auth_buttons" class="form-group external-auth-buttons mb-0">
                         <div class="text-center text-uppercase mb-2">
                             - @T("Common.Or") -
                         </div>

@@ -49,6 +49,8 @@ namespace Smartstore.Core.Widgets
                     return locString.Value.HasValue();
                 case TagHelperContent tagHelperContent:
                     return !tagHelperContent.IsEmptyOrWhiteSpace;
+                case ZoneHtmlContent zoneHtmlContent:
+                    return !zoneHtmlContent.IsEmptyOrWhiteSpace;
                 case HtmlContentBuilder builder:
                     if (builder.Count == 0)
                     {

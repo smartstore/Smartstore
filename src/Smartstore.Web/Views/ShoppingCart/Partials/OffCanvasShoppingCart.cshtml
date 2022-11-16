@@ -177,7 +177,7 @@
 
     <zone name="offcanvas_cart_footer_after" />
         
-    <div sm-if="@await Display.ZoneHasContentAsync("offcanvas_cart_summary", ViewContext)" class="offcanvas-cart-external-checkout">
+    <div sm-suppress-if-empty-zone="offcanvas_cart_summary" class="offcanvas-cart-external-checkout">
         <div class="heading heading-center py-0">
             <h6 class="heading-title fs-h5 fwn">@T("Common.Or")</h6>
         </div>

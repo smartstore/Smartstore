@@ -8,10 +8,18 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
             services.AddScoped<IWidgetProvider, DefaultWidgetProvider>();
-            services.AddScoped<IWidgetSelector, DefaultWidgetSelector>();
             services.AddScoped<IWidgetService, WidgetService>();
             services.AddScoped<IPageAssetBuilder, PageAssetBuilder>();
             services.AddSingleton<IAssetTagGenerator, NullAssetTagGenerator>();
+
+            if (appContext.IsInstalled)
+            {
+                services.AddScoped<IWidgetSelector, DefaultWidgetSelector>();
+            }
+            else
+            {
+                services.AddScoped(x => NullWidgetSelector.Instance);
+            }
         }
     }
 }
