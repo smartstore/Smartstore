@@ -97,7 +97,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key);
+                var entity = await GetRequiredById(key);
 
                 if (subscribe && !entity.Active)
                 {

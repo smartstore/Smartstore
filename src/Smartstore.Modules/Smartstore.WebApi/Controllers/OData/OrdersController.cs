@@ -172,7 +172,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(id, q => q
+                var entity = await GetRequiredById(id, q => q
                     .Include(x => x.ShippingAddress)
                     .Include(x => x.BillingAddress)
                     .Include(x => x.Shipments));
@@ -201,7 +201,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key);
+                var entity = await GetRequiredById(key);
 
                 if (entity.PaymentStatus != PaymentStatus.Pending)
                 {
@@ -232,7 +232,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key);
+                var entity = await GetRequiredById(key);
 
                 if (paymentMethodName != null && !entity.PaymentMethodSystemName.EqualsNoCase(paymentMethodName))
                 {
@@ -271,7 +271,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key);
+                var entity = await GetRequiredById(key);
 
                 if (online)
                 {
@@ -315,7 +315,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key);
+                var entity = await GetRequiredById(key);
                 if (entity.CanCancelOrder())
                 {
                     await _orderProcessingService.Value.CancelOrderAsync(entity, notifyCustomer);
@@ -342,7 +342,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key);
+                var entity = await GetRequiredById(key);
                 if (entity.CanCompleteOrder())
                 {
                     await _orderProcessingService.Value.CompleteOrderAsync(entity);
@@ -369,7 +369,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key);
+                var entity = await GetRequiredById(key);
                 await _orderProcessingService.Value.ReOrderAsync(entity);
 
                 return Ok(entity);
@@ -402,7 +402,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key);
+                var entity = await GetRequiredById(key);
                 var shipment = await _orderProcessingService.Value.AddShipmentAsync(entity, trackingNumber, trackingUrl, null);
                 if (shipment != null && isShipped)
                 {

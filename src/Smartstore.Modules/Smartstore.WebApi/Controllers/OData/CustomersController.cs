@@ -175,7 +175,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key, q => q.Include(x => x.Addresses));
+                var entity = await GetRequiredById(key, q => q.Include(x => x.Addresses));
                 var address = entity.Addresses.FirstOrDefault(x => x.Id == relatedkey);
                 if (address == null)
                 {
@@ -211,7 +211,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var entity = await GetByIdNotNull(key, q => q.Include(x => x.Addresses));
+                var entity = await GetRequiredById(key, q => q.Include(x => x.Addresses));
 
                 if (relatedkey == 0)
                 {

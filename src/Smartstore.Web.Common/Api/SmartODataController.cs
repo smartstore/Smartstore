@@ -60,7 +60,8 @@ namespace Smartstore.Web.Api
         /// and navigation properties are expandable via $expand.
         /// </remarks>
         /// <param name="id">Entity identifier.</param>
-        protected async Task<TEntity> GetByIdNotNull(int id, Func<IQueryable<TEntity>, IQueryable<TEntity>> queryModifier = null)
+        /// <exception cref="ODataErrorException">Thrown when the requested entity does not exist.</exception>
+        protected async Task<TEntity> GetRequiredById(int id, Func<IQueryable<TEntity>, IQueryable<TEntity>> queryModifier = null)
         {           
             var query = Entities.AsQueryable();
             
