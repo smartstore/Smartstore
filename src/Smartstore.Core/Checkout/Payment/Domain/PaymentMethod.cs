@@ -70,8 +70,8 @@ namespace Smartstore.Core.Checkout.Payment
 
         /// <summary>
         /// Gets or sets a value indicating whether to round the order total. Also known as "Cash rounding".
+        /// <see href="https://en.wikipedia.org/wiki/Cash_rounding"/>.
         /// </summary>
-        /// <see cref="https://en.wikipedia.org/wiki/Cash_rounding"/>
         public bool RoundOrderTotalEnabled { get; set; }
 
         /// <inheritdoc/>

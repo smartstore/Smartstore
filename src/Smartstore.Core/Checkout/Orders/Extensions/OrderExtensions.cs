@@ -6,9 +6,9 @@ namespace Smartstore
     public static partial class OrderExtensions
     {
         /// <summary>
-        /// Gets <see cref="Order.OrderNumber"/> or <see cref="Order.Id"/> if empty.
+        /// Gets <see cref="Order.OrderNumber"/> or <see cref="BaseEntity.Id"/> if empty.
         /// </summary>
-        /// <returns><see cref="Order.OrderNumber"/> or <see cref="Order.Id"/> if empty.</returns>
+        /// <returns><see cref="Order.OrderNumber"/> or <see cref="BaseEntity.Id"/> if empty.</returns>
         public static string GetOrderNumber(this Order order)
         {
             Guard.NotNull(order, nameof(order));

@@ -3,7 +3,7 @@
 namespace Smartstore.Core.Content.Media
 {
     /// <summary>
-    /// Reads media folder objects either from cache (as <see cref="TreeNode<MediaFolderNode>"/>).
+    /// Reads media folder objects either from cache (as <see cref="TreeNode{MediaFolderNode}"/>).
     /// Methods with <see cref="MediaFolderNode"/> in their signature always work against the cache and enable very fast
     /// data retrieval.
     /// The tree cache is invalidated automatically after any storage action.

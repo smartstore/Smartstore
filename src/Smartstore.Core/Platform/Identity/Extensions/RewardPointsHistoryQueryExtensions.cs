@@ -4,7 +4,7 @@
     {
         /// <summary>
         /// Applies a customer filter and sorts by <see cref="RewardPointsHistory.CustomerId"/>, then by <see cref="RewardPointsHistory.CreatedOnUtc"/> descending and 
-        /// then by <see cref="RewardPointsHistory.Id"/> descending.
+        /// then by <see cref="BaseEntity.Id"/> descending.
         /// </summary>
         /// <param name="query">Rewardpoints history query.</param>
         /// <param name="customerIds">Customer identifiers.</param>

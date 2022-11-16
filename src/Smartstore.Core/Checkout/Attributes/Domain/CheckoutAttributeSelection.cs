@@ -11,7 +11,7 @@ namespace Smartstore.Core.Checkout.Attributes
     public class CheckoutAttributeSelection : AttributeSelection
     {
         /// <summary>
-        /// Creates checkout attribute selection from string as <see cref="Multimap{int, object}"/>. 
+        /// Creates checkout attribute selection from string as <see langword="Multimap{int, object}"/>. 
         /// Use <see cref="AttributeSelection.AttributesMap"/> to access parsed attributes afterwards.
         /// </summary>
         /// <remarks>

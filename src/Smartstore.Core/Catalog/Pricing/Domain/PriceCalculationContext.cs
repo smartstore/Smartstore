@@ -119,7 +119,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Gets or sets the selected product attributes to be included in the price calculation.
         /// For example required to take into account price adjustments of attributes selected by the customer.
         /// It is recommended to use the <see cref="PriceCalculationContext"/> extension methods to apply these attributes, 
-        /// e.g. <see cref="PriceCalculationContextExtensions.AddSelectedAttributes(PriceCalculationContext, IEnumerable{OrganizedShoppingCartItem})"/>
+        /// e.g. <see cref="PriceCalculationContextExtensions.AddSelectedAttributes(PriceCalculationContext, OrganizedShoppingCartItem)"/>
         /// to apply selected attributes of all products indcluded in a shopping cart.
         /// </summary>
         public List<PriceCalculationAttributes> SelectedAttributes { get; set; } = new();

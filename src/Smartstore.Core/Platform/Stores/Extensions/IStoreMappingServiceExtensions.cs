@@ -36,7 +36,7 @@
         /// Checks whether an entity can be accessed in a given store.
         /// </summary>
         /// <typeparam name="T">Entity type.</typeparam>
-        /// <param name="service">Store mapping service.</param>
+        /// <param name="svc">Store mapping service.</param>
         /// <param name="entity">Entity to check.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns><c>true</c> authorized, otherwise <c>false</c>.</returns>

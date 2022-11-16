@@ -1,4 +1,5 @@
 ﻿using Smartstore.Collections;
+using Smartstore.Templating;
 
 namespace Smartstore.Core.Messaging
 {
@@ -26,9 +27,9 @@ namespace Smartstore.Core.Messaging
         /// Adds a template specific model part to the template model.
         ///	The passed object instance (<paramref name="part"/>) will be converted to a special type which the underlying <see cref="ITemplateEngine"/> can handle.
         /// <para>
-        ///		Supported types are: <see cref="Order"/>, <see cref="Product"/>, <see cref="Address"/>, <see cref="Shipment"/>, <see cref="OrderNote"/>, 
-        ///		<see cref="RecurringPayment"/>, <see cref="ReturnRequest"/>, <see cref="GiftCard"/>, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
-        ///		<see cref="ProductReview"/>, <see cref="BlogComment"/>, <see cref="NewsComment"/>, ForumTopic, ForumPost, Forum, PrivateMessage.
+        ///		Supported types are: Order, Product, Address, Shipment, OrderNote, 
+        ///		RecurringPayment, ReturnRequest, GiftCard, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
+        ///		ProductReview, BlogComment, NewsComment, ForumTopic, ForumPost, Forum, PrivateMessage.
         /// </para>
         /// <para>
         ///		Furthermore, any object implementing <see cref="IModelPart"/> or <see cref="INamedModelPart"/> can also be passed as model part.
@@ -36,7 +37,7 @@ namespace Smartstore.Core.Messaging
         ///		new entry using the name provided by its <see cref="INamedModelPart.ModelPartName"/> property.
         /// </para>
         /// <para>
-        ///		If an unsupported object is passed, the framework will publish the <see cref="MessageModelPartMappingEvent"/> event, giving
+        ///		If an unsupported object is passed, the framework will publish the <see cref="Smartstore.Core.Messaging.Events.MessageModelPartMappingEvent"/> event, giving
         ///		a subscriber the chance to provide a converted model object and a part name.
         /// </para>
         /// </summary>
@@ -51,9 +52,9 @@ namespace Smartstore.Core.Messaging
         /// <summary>
         /// Creates a serializable model object for the passed entity/object.
         /// <para>
-        ///		Supported types are: <see cref="Order"/>, <see cref="Product"/>, <see cref="Address"/>, <see cref="Shipment"/>, <see cref="OrderNote"/>, 
-        ///		<see cref="RecurringPayment"/>, <see cref="ReturnRequest"/>, <see cref="GiftCard"/>, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
-        ///		<see cref="ProductReview"/>, <see cref="BlogComment"/>, <see cref="NewsComment"/>, ForumTopic, ForumPost, Forum, PrivateMessage.
+        ///		Supported types are: Order, Product, Address, Shipment, OrderNote, 
+        ///		RecurringPayment, ReturnRequest, GiftCard, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
+        ///		ProductReview, BlogComment, NewsComment, ForumTopic, ForumPost, Forum, PrivateMessage.
         /// </para>
         /// <para>
         ///		Furthermore, any object implementing <see cref="IModelPart"/> or <see cref="INamedModelPart"/> can also be passed as model part.

@@ -29,7 +29,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Applies a standard filter and sorts by <see cref="ReturnRequest.CreatedOnUtc"/> descending, then by <see cref="ReturnRequest.Id"/> descending.
+        /// Applies a standard filter and sorts by <see cref="ReturnRequest.CreatedOnUtc"/> descending, then by <see cref="BaseEntity.Id"/> descending.
         /// </summary>
         /// <param name="query">Return request query.</param>
         /// <param name="orderItemIds">Order item identifiers.</param>

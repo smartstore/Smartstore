@@ -33,7 +33,7 @@ namespace Smartstore
         /// <param name="query">Newsletter subscription query.</param>
         /// <param name="includeHidden">Applies filter by <see cref="NewsletterSubscription.Active"/>.</param>
         /// <param name="customerRoleIds">Customer roles identifiers to filter by active customer roles.</param>
-        /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
+        /// <param name="storeIds">Store identifiers to apply filter by store restriction.</param>
         /// <returns>NewsletterSubscriber query.</returns>
         public static IOrderedQueryable<NewsletterSubscriber> ApplyStandardFilter(this IQueryable<NewsletterSubscription> query,
             string email,

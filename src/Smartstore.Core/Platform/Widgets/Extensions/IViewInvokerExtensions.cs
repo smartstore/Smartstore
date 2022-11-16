@@ -10,27 +10,27 @@ namespace Smartstore
     {
         #region View
 
-        /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
+        /// <inheritdoc cref="InvokeViewAsync(IViewInvoker, string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, object model)
         {
             return invoker.InvokeViewAsync(viewName, null, new ViewDataDictionary<object>(invoker.ViewData, model));
         }
 
-        /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
+        /// <inheritdoc cref="InvokeViewAsync(IViewInvoker, string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, string module, object model)
         {
             return invoker.InvokeViewAsync(viewName, module, new ViewDataDictionary<object>(invoker.ViewData, model));
         }
 
-        /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
+        /// <inheritdoc cref="InvokeViewAsync(IViewInvoker, string, string, ViewDataDictionary)"/>
         public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, ViewDataDictionary viewData)
         {
             return invoker.InvokeViewAsync(viewName, null, viewData);
         }
 
-        /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
+        /// <inheritdoc cref="InvokeViewAsync(IViewInvoker, string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         /// <param name="additionalViewData">Additional view data</param>
         public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, object model, object additionalViewData)
@@ -75,27 +75,27 @@ namespace Smartstore
 
         #region Partial view
 
-        /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
+        /// <inheritdoc cref="InvokePartialViewAsync(IViewInvoker, string, object, object)"/>
         /// <param name="model">Model</param>
         public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, object model)
         {
             return invoker.InvokePartialViewAsync(viewName, null, new ViewDataDictionary<object>(invoker.ViewData, model));
         }
 
-        /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
+        /// <inheritdoc cref="InvokePartialViewAsync(IViewInvoker, string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, string module, object model)
         {
             return invoker.InvokePartialViewAsync(viewName, module, new ViewDataDictionary<object>(invoker.ViewData, model));
         }
 
-        /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
+        /// <inheritdoc cref="InvokePartialViewAsync(IViewInvoker, string, string, ViewDataDictionary)"/>
         public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, ViewDataDictionary viewData)
         {
             return invoker.InvokePartialViewAsync(viewName, null, viewData);
         }
 
-        /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
+        /// <inheritdoc cref="InvokePartialViewAsync(IViewInvoker, string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         /// <param name="additionalViewData">Additional view data</param>
         public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, object model, object additionalViewData)
@@ -140,7 +140,7 @@ namespace Smartstore
 
         #region Component
 
-        /// <inheritdoc cref="IViewInvoker.InvokeComponentAsync(string, string, ViewDataDictionary, object)"/>
+        /// <inheritdoc cref="IViewInvokerExtensions.InvokeComponentAsync(IViewInvoker, string, string, ViewDataDictionary, object)"/>
         public static Task<HtmlString> InvokeComponentAsync(this IViewInvoker invoker, string componentName, ViewDataDictionary viewData, object arguments)
         {
             return invoker.InvokeComponentAsync(componentName, null, viewData, arguments);

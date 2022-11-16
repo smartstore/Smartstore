@@ -601,7 +601,7 @@ namespace Smartstore.Core.Seo
         /// <summary>
         /// Gets the sitemap index XML document, containing links to all the sitemap XML documents.
         /// </summary>
-        /// <param name="siteMaps">The collection of sitemaps containing their index and nodes.</param>
+        /// <param name="nodes">The collection of sitemaps containing their index and nodes.</param>
         /// <returns>The sitemap index XML document, containing links to all the sitemap XML documents.</returns>
         private string CreateSitemapIndexDocument(IEnumerable<XmlSitemapNode> nodes)
         {
@@ -653,7 +653,7 @@ namespace Smartstore.Core.Seo
         /// <summary>
         /// Checks the size of the XML sitemap document. If it is over 10MB, logs an error.
         /// </summary>
-        /// <param name="sitemapXml">The sitemap XML document.</param>
+        /// <param name="siteMapXml">The sitemap XML document.</param>
         private void CheckDocumentSize(string siteMapXml)
         {
             if (siteMapXml.Length >= MaximumSiteMapSizeInBytes)

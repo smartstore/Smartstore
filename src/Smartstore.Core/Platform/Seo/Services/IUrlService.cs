@@ -71,7 +71,7 @@ namespace Smartstore.Core.Seo
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
         /// <param name="entity">Entity instance</param>
         /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from <paramref name="displayName"/>.</param>
-        /// <param name="displayName">Display name used to resolve the slug if <paramref name="slug"/> is empty.</param>
+        /// <param name="displayName">Display name used to resolve the slug if <paramref name="seName"/> is empty.</param>
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
         /// <returns>A system unique slug</returns>
         ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity,
@@ -102,7 +102,7 @@ namespace Smartstore.Core.Seo
         /// Creates a variation of this service that is optimized
         /// for batching scenarios like long running imports or exports.
         /// Cache segmenting is turned off to avoid high memory pressure
-        /// and applied slugs are queued until <see cref="IUrlServiceBatchScope.CommitAsync()"/> is called.
+        /// and applied slugs are queued until <see cref="IUrlServiceBatchScope.CommitAsync(CancellationToken)"/> is called.
         /// </summary>
         /// <param name="db">
         /// The scope will internally use the passed instance or - if null - the request scoped instance from <see cref="IUrlService"/>.

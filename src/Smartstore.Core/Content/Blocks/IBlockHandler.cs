@@ -53,7 +53,7 @@ namespace Smartstore.Core.Content.Blocks
         /// </summary>
         /// <param name="element">The block element to render.</param>
         /// <param name="templates">A list of valid template names. The first valid template will be used for rendering.</param>
-        /// <param name="htmlHeper">Html helper instance.</param>
+        /// <param name="htmlHelper">Html helper instance.</param>
         Task<IHtmlContent> ToHtmlContentAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper);
     }
 

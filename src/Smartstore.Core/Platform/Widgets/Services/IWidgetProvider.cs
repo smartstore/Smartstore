@@ -24,7 +24,7 @@ namespace Smartstore.Core.Widgets
         /// <summary>
         /// Registers a custom widget for multiple widget zones by pattern
         /// </summary>
-        /// <param name="zones">The widget zone pattern to inject the HTML content to</param>
+        /// <param name="zonePattern">The widget zone pattern to inject the HTML content to</param>
         /// <param name="widget">Widget to register</param>
         void RegisterWidget(Regex zonePattern, WidgetInvoker widget);
 

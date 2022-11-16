@@ -23,7 +23,7 @@
         /// <summary>
         /// Deletes all settings records prefixed with the specified group name from the database
         /// </summary>
-        /// <param name="keys">The group/prefix (actually the settings class name)</param>
+        /// <param name="group">The group/prefix (actually the settings class name)</param>
         public void DeleteGroup(string group)
         {
             Guard.NotEmpty(group, nameof(group));

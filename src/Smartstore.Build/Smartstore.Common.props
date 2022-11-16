@@ -8,6 +8,7 @@
 		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
 		<ChecksumAlgorithm>SHA1</ChecksumAlgorithm>
 		<Configurations>Debug;Release;DebugNoRazorCompile</Configurations>
+		<NoWarn>1573;1591;1701;1702</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup>

@@ -3,7 +3,7 @@
     public static partial class ProductManufacturerQueryExtensions
     {
         /// <summary>
-        /// Applies a manufacturer filter and sorts by <see cref="ProductManufacturer.DisplayOrder"/>, then by <see cref="ProductManufacturer.Id"/>
+        /// Applies a manufacturer filter and sorts by <see cref="ProductManufacturer.DisplayOrder"/>, then by <c>ProductManufacturer.Id</c>
         /// Includes <see cref="ProductManufacturer.Manufacturer"/> and <see cref="ProductManufacturer.Product"/>.
         /// </summary>
         /// <param name="query">Product manufacturer query.</param>

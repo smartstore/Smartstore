@@ -283,8 +283,8 @@ namespace Smartstore.Core.Common.Services
 
         #region Utilities
 
-        /// <see cref="https://stackoverflow.com/questions/1044688/addbusinessdays-and-getbusinessdays"/>
-        /// <seealso cref="https://en.wikipedia.org/wiki/Workweek_and_weekend"/>
+        /// <see href="https://stackoverflow.com/questions/1044688/addbusinessdays-and-getbusinessdays"/>
+        /// <seealso href="https://en.wikipedia.org/wiki/Workweek_and_weekend"/>
         protected virtual DateTime AddDays(DateTime date, int days)
         {
             Guard.NotNegative(days, nameof(days));

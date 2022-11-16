@@ -21,8 +21,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         /// <param name="customer">Customer entity. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="storeId">Store identifier. 0 to ignore store mappings.</param>
-        /// <param name="storeId">Store identifier. 0 to ignore store mappings.</param>
-        /// <returns>Map with key = <see cref="ProductTag.Id"/> and value = number of assigned products.</returns>
+        /// <returns>Map with key = <c>ProductTag.Id</c> and value = number of assigned products.</returns>
         Task<IDictionary<int, int>> GetProductCountsMapAsync(Customer customer = null, int storeId = 0, bool includeHidden = false);
     }
 }

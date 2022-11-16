@@ -9,7 +9,7 @@ namespace Smartstore.Core.Localization
         /// Imports language resources from XML file. This method commits to db.
         /// </summary>
         /// <param name="language">Language</param>
-        /// <param name="xmlDocument">XML document</param>
+        /// <param name="xml">XML document</param>
         /// <param name="rootKey">Prefix for resource key name</param>
         /// <param name="mode">Specifies whether resources should be inserted or updated (or both)</param>
         /// <param name="updateTouchedResources">Specifies whether user touched resources should also be updated</param>

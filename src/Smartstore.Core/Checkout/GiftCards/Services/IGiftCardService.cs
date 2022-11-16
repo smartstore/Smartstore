@@ -28,7 +28,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <remarks>
         /// Access <see cref="GiftCard.PurchasedWithOrderItem"/>, <see cref="OrderItem.Order"/> navigation properties. 
         /// The caller is responsible for eager loading.
-        /// Calls <see cref="GetRemainingAmount(GiftCard)"/>
+        /// Calls <see cref="GetRemainingAmountAsync(GiftCard)"/>
         /// </remarks>
         /// <returns>
         /// <c>True</c> if gift card is valid, otherwise <c>false</c>

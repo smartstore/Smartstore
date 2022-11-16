@@ -1,5 +1,6 @@
 ﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Catalog.Pricing
 {

@@ -229,7 +229,6 @@ namespace Smartstore
         /// Filters query for !<see cref="OrderStatus.Cancelled"/> and <see cref="ShippingStatus.NotYetShipped"/> or <see cref="PaymentStatus.Pending"/>.
         /// </summary>
         /// <param name="query">Order query.</param>
-        /// <param name="query">Order query.</param>
         /// <returns>Query without completed orders.</returns>
         public static IQueryable<Order> ApplyIncompleteOrdersFilter(this IQueryable<Order> query)
         {

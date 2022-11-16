@@ -7,7 +7,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     /// <summary>
     /// Calculates the price of product attributes specified by <see cref="PriceCalculationContext.SelectedAttributes"/>.
     /// These are usually attributes selected on the product detail page, whose price adjustments must be included in the shopping cart.
-    /// Also applies attributes preselected by merchant if <see cref="PriceCalculationContext.ApplyPreSelectedAttributes"/> is <c>true</c>.
+    /// Also applies attributes preselected by merchant if <see cref="PriceCalculationOptions.ApplyPreselectedAttributes"/> is <c>true</c>.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 10)]
     public class AttributePriceCalculator : PriceCalculator

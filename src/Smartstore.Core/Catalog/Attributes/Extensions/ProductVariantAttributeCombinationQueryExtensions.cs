@@ -6,7 +6,7 @@
         /// Apply standard filter for a product variant combinations query.
         /// </summary>
         /// <param name="query">Product attribute combinations query.</param>
-        /// <param name="includeHidden">Applies filter by <see cref="ProductVariantAttributeCombination.Product.Published"/> and <see cref="ProductVariantAttributeCombination.IsActive"/>.</param>
+        /// <param name="includeHidden">Applies filter by <c>Product.Published</c> and <see cref="ProductVariantAttributeCombination.IsActive"/>.</param>
         /// <returns>Product attribute combinations query.</returns>
         public static IQueryable<ProductVariantAttributeCombination> ApplyStandardFilter(this IQueryable<ProductVariantAttributeCombination> query, bool includeHidden = false)
         {

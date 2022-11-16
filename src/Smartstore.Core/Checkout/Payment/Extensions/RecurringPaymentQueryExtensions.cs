@@ -5,7 +5,7 @@ namespace Smartstore.Core.Checkout.Payment
     public static partial class RecurringPaymentQueryExtensions
     {
         /// <summary>
-        /// Applies a standard filter and sorts by <see cref="RecurringPayment.StartDateUtc"/>, then by <see cref="RecurringPayment.Id"/>./>
+        /// Applies a standard filter and sorts by <see cref="RecurringPayment.StartDateUtc"/>, then by <see cref="BaseEntity.Id"/>./>
         /// </summary>
         /// <param name="query">Recurring payment query.</param>
         /// <param name="initialOrderId">Initial order identifier.</param>

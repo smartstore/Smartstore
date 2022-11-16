@@ -9,7 +9,7 @@ namespace Smartstore.Core.Catalog.Attributes
     public partial interface IProductAttributeMaterializer
     {
         /// <summary>
-        /// Prefetches & caches all passed attribute selections for the current request.
+        /// Prefetches and caches all passed attribute selections for the current request.
         /// </summary>
         /// <param name="selections">All attribute selections to prefetch.</param>
         /// <returns>Number of prefetched attribute selections.</returns>

@@ -68,7 +68,7 @@ namespace Smartstore.Core.Checkout.Tax
         ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
         /// </param>
         /// <param name="target">
-        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
+        ///     The target object to format price for. This parameter affects how <paramref name="displayTaxSuffix"/>
         ///     will be auto-resolved if it is <c>null</c>.
         /// </param>
         /// <param name="language">

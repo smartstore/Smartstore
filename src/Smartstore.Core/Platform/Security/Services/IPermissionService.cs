@@ -68,7 +68,7 @@ namespace Smartstore.Core.Security
         Task<string> GetUnauthorizedMessageAsync(string permissionSystemName);
 
         /// <summary>
-        /// Installs permissions. Permissions are automatically installed by <see cref="InstallPermissionsInitializer"/>.
+        /// Installs permissions. Permissions are automatically installed by <see cref="Smartstore.Core.Bootstrapping.InstallPermissionsInitializer"/>.
         /// </summary>
         /// <param name="permissionProviders">Providers whose permissions are to be installed.</param>
         /// <param name="removeUnusedPermissions">Whether to remove permissions no longer supported by the providers.</param>

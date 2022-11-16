@@ -3,7 +3,7 @@
     public static partial class IAuditableQueryExtensions
     {
         /// <summary>
-        /// Applies a filter for <see cref="IAuditable.CreatedOnUtc"./>
+        /// Applies a filter for <see cref="IAuditable.CreatedOnUtc"/>
         /// </summary>
         /// <param name="fromUtc">Start date in UTC.</param>
         /// <param name="toUtc">End date in UTC</param>

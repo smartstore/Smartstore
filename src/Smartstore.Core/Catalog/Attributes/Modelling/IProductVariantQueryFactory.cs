@@ -13,7 +13,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
         ProductVariantQuery Current { get; }
 
         /// <summary>
-        /// Creates a <see cref="ProductSearchQuery"/> instance from the current <see cref="IHttpContextAccessor.HttpContext"/> 
+        /// Creates a <see cref="ProductVariantQuery"/> instance from the current <see cref="IHttpContextAccessor.HttpContext"/> 
         /// by looking up corresponding keys in posted form and/or query string.
         /// </summary>
         /// <returns>Product variant query.</returns>

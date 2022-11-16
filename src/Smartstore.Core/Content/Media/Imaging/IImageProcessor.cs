@@ -15,7 +15,7 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <summary>
         /// Processes an image
         /// </summary>
-        /// <param name="request">Resize request</param>
+        /// <param name="query">Resize request</param>
         /// <param name="disposeOutput">Whether to dispose the output stream when <see cref="ProcessImageResult"/> instance gets disposed.</param>
         /// <returns>The resizing result encapsulated in <see cref="ProcessImageResult"/> type</returns>
         Task<ProcessImageResult> ProcessImageAsync(ProcessImageQuery query, bool disposeOutput = true);

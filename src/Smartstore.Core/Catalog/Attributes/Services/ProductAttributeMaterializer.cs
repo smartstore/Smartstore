@@ -607,7 +607,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
         /// <summary>
         /// Gets all integer values of an attribute selection that are not 0.
-        /// Usually these are <see cref="ProductVariantAttributeValue.Id"/> but can 
+        /// Usually these are <see cref="BaseEntity.Id"/> but can 
         /// (depending on <see cref="AttributeControlType"/>) also be other numeric values of text fields.
         /// </summary>
         private static int[] GetIntegerValues(ProductVariantAttributeSelection selection)

@@ -9,6 +9,7 @@ namespace Smartstore.Core.Content.Media
     {
         /// <summary>
         /// Gets or sets the media identifier.
+        /// </summary>
         int MediaFileId { get; set; }
 
         /// <summary>

@@ -84,7 +84,7 @@ namespace Smartstore.Core.Web
         /// Modifies query string
         /// </summary>
         /// <param name="url">Url to modify</param>
-        /// <param name="queryStringModification">Query string modification, e.g. "param=value&param2=value2"</param>
+        /// <param name="queryStringModification">Query string modification, e.g. "param=value&amp;param2=value2"</param>
         /// <param name="anchor">Add anchor part. Pass without hash char.</param>
         /// <returns>Modified url</returns>
         string ModifyQueryString(string url, string queryStringModification, string anchor = null);

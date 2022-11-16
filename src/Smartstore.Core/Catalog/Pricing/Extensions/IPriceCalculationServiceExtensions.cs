@@ -18,7 +18,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Note that the calculated price is always the unit price.
         /// </param>
         /// <param name="options">Price calculation options. The default options are used if <c>null</c>.</param>
-        /// <returns>Price adjustments of selected attributes. Key: <see cref="ProductVariantAttributeValue.Id"/>, value: attribute price adjustment.</returns>
+        /// <returns>Price adjustments of selected attributes. Key: <see cref="BaseEntity.Id"/>, value: attribute price adjustment.</returns>
         public static async Task<IDictionary<int, CalculatedPriceAdjustment>> CalculateAttributePriceAdjustmentsAsync(
             this IPriceCalculationService priceCalculationService,
             Product product,

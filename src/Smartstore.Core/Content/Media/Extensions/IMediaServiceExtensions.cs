@@ -60,7 +60,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Tries to find an equal file by comparing the source buffer to a list of files.
         /// </summary>
-        /// <param name="source">Binary source file data to find a match for.</param>
+        /// <param name="sourceBuffer">Binary source file data to find a match for.</param>
         /// <param name="files">The sequence of files to seek within for duplicates.</param>
         /// <param name="equalFile">A file from the <paramref name="files"/> collection whose content is equal to <paramref name="sourceBuffer"/>.</param>
         /// <returns>The passed file binary when no file equals in the sequence, <c>null</c> otherwise.</returns>
@@ -82,10 +82,7 @@ namespace Smartstore.Core.Content.Media
         /// <param name="sourcePath">The full physical path to the source file to find a duplicate for (e.g. a local or downloaded file during an import process).</param>
         /// <param name="targetFolderId">The id of the folder in which to look for duplicates.</param>
         /// <param name="deepSearch">Whether to search in subfolders too.</param>
-        /// <returns>
-        /// <c>true</c> when a duplicate file was found, <c>false</c> otherwise.
-        /// If true, a file from the <paramref name="files"/> collection whose content is equal to <paramref name="source"/> is the <c>out</c> parameter.
-        /// </returns>
+        /// <returns><c>true</c> when a duplicate file was found, <c>false</c> otherwise.</returns>
         public static Task<AsyncOut<MediaFile>> FindEqualFileAsync(this IMediaService service, string sourcePath, int targetFolderId, bool deepSearch)
         {
             Guard.NotEmpty(sourcePath, nameof(sourcePath));
@@ -106,10 +103,7 @@ namespace Smartstore.Core.Content.Media
         /// <param name="fileName">The file name used to determine potential duplicates to check against.</param>
         /// <param name="targetFolderId">The id of the folder in which to look for duplicates.</param>
         /// <param name="deepSearch">Whether to search in subfolders too.</param>
-        /// <returns>
-        /// <c>true</c> when a duplicate file was found, <c>false</c> otherwise.
-        /// If true, a file from the <paramref name="files"/> collection whose content is equal to <paramref name="source"/> is the <c>out</c> parameter.
-        /// </returns>
+        /// <returns><c>true</c> when a duplicate file was found, <c>false</c> otherwise.</returns>
         public static async Task<AsyncOut<MediaFile>> FindEqualFileAsync(this IMediaService service, Stream source, string fileName, int targetFolderId, bool deepSearch)
         {
             Guard.NotNull(source, nameof(source));

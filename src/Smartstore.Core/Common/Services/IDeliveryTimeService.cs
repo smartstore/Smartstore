@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Smartstore.Core.Catalog;
 
 namespace Smartstore.Core.Common.Services
 {

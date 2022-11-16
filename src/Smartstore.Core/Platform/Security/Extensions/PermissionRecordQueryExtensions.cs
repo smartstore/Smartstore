@@ -3,7 +3,7 @@
     public static partial class PermissionRecordQueryExtensions
     {
         /// <summary>
-        /// Applies a filter for system names and sorts by <see cref="PermissionRecord.Id"/>.
+        /// Applies a filter for system names and sorts by <see cref="BaseEntity.Id"/>.
         /// </summary>
         /// <param name="query">Permission record query.</param>
         /// <param name="systemName">Permission system name.</param>

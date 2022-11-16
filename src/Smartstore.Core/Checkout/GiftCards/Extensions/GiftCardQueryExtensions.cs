@@ -11,7 +11,7 @@ namespace Smartstore
         /// Applies standard filter and sorts by <see cref="GiftCard.CreatedOnUtc"/> descending.
         /// </summary>
         /// <param name="query">Gift cards query.</param>
-        /// <param name="isActivated">Filter by <see cref="GiftCard.IsGiftCardActivated"/>.</param>
+        /// <param name="includeInactive">Filter by <see cref="GiftCard.IsGiftCardActivated"/>.</param>
         /// <returns>Gift cards query.</returns>
         public static IOrderedQueryable<GiftCard> ApplyStandardFilter(this IQueryable<GiftCard> query, bool includeInactive = false)
         {

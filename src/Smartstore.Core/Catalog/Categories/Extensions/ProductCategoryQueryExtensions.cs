@@ -3,7 +3,7 @@
     public static partial class ProductCategoryQueryExtensions
     {
         /// <summary>
-        /// Applies a category filter and sorts by <see cref="ProductCategory.DisplayOrder"/>, then by <see cref="ProductCategory.Id"/>
+        /// Applies a category filter and sorts by <see cref="ProductCategory.DisplayOrder"/>, then by <see cref="BaseEntity.Id"/>
         /// Includes <see cref="ProductCategory.Category"/> and <see cref="ProductCategory.Product"/>.
         /// </summary>
         /// <param name="query">Product category query.</param>

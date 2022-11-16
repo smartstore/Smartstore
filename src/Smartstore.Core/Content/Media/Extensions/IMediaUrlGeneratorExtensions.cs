@@ -14,7 +14,7 @@ namespace Smartstore
         /// <param name="imageQuery">Query for image processing / thumbnails.</param>
         /// <param name="host">
         ///     Store host for an absolute URL that also contains scheme and host parts. 
-        ///     <c>null</c>: tries to resolve host automatically based on <see cref="Store.ContentDeliveryNetwork"/> or <see cref="MediaSettings.AutoGenerateAbsoluteUrls"/>.
+        ///     <c>null</c>: tries to resolve host automatically based on <see langword="Store.ContentDeliveryNetwork"/> or <see cref="MediaSettings.AutoGenerateAbsoluteUrls"/>.
         ///     <c>String.Empty</c>: bypasses automatic host resolution and does NOT prepend host to path.
         ///     <c>Any string</c>: host name to use explicitly.
         /// </param>

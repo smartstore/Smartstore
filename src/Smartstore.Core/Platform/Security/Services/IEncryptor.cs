@@ -24,7 +24,7 @@
         /// <summary>
         /// Encrypts text
         /// </summary>
-        /// <param name="text">Text to encrypt</param>
+        /// <param name="plainText">Text to encrypt</param>
         /// <param name="privateKey">Encryption private key</param>
         /// <returns>Encrypted text</returns>
         string EncryptText(string plainText, string privateKey = null);

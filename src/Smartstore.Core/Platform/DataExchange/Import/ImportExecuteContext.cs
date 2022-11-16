@@ -63,20 +63,20 @@ namespace Smartstore.Core.DataExchange.Import
 
         /// <summary>
         /// The import directory.
-        /// E.g. App_Data\Tenants\Default\ImportProfiles\<my-import-profile>\Content.
+        /// E.g. App_Data\Tenants\Default\ImportProfiles\{my-import-profile}\Content.
         /// </summary>
         public IDirectory ImportDirectory { get; internal set; }
 
         /// <summary>
         /// The directory for downloading images during import.
-        /// E.g. App_Data\Tenants\Default\ImportProfiles\<my-import-profile>\Content\DownloadedImage.
+        /// E.g. App_Data\Tenants\Default\ImportProfiles\{my-import-profile}\Content\DownloadedImage.
         /// If the import file contains URLs for images, they will be downloaded to this directory.
         /// </summary>
         public IDirectory ImageDownloadDirectory { get; internal set; }
 
         /// <summary>
         /// The directory with the images to be imported.
-        /// E.g. App_Data\Tenants\Default\ImportProfiles\<my-import-profile>\my-images.
+        /// E.g. App_Data\Tenants\Default\ImportProfiles\{my-import-profile}\my-images.
         /// If the import file contains relative paths for images, then they are expected to be in that directory.
         /// </summary>
         public IDirectory ImageDirectory { get; internal set; }

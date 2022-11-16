@@ -160,7 +160,7 @@ namespace Smartstore.Core.Content.Media
         Task<int> CountFilesAsync(MediaSearchQuery query);
 
         /// <summary>
-        /// Determines the number of files that match the filter criteria in <paramref name="query"/> and groups them by folders.
+        /// Determines the number of files that match the filter criteria in <paramref name="filter"/> and groups them by folders.
         /// </summary>
         /// <param name="filter">The filter that defines the criteria.</param>
         /// <returns>The grouped file counts (all, trash, unassigned, transient, all folders as dictionary)</returns>

@@ -225,12 +225,11 @@ namespace Smartstore.Core.Checkout.Tax
         #region Utilities
 
         /// <summary>
-        /// Creates tax rate cache key as tuple of <int, int, int>.
+        /// Creates tax rate cache key as tuple of {int, int, int}.
         /// </summary>
         /// <param name="customer">Customer. Gets id or 0 if <c>null</c>.</param>
         /// <param name="taxCategoryId">Tax category identifier.</param>
         /// <param name="product">Product. Gets id or 0 if <c>null</c>.</param>
-        /// <returns><see cref="TaxRateCacheKey"/> as tuple of <see cref="Tuple{int, int, int}"/>.</returns>
         private static TaxRateCacheKey CreateTaxRateCacheKey(Customer customer, int taxCategoryId, Product product)
             => new(customer?.Id ?? 0, taxCategoryId, product?.Id ?? 0);
 

@@ -42,7 +42,7 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Applies a filter for SKU and sorts by <see cref="Product.DisplayOrder"/>, then by <see cref="Product.Id"/>.
+        /// Applies a filter for SKU and sorts by <see cref="Product.DisplayOrder"/>, then by <see cref="BaseEntity.Id"/>.
         /// </summary>
         /// <param name="query">Product query.</param>
         /// <param name="sku">Stock keeping unit (SKU).</param>
@@ -61,7 +61,7 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Applies a filter for GTIN and sorts by <see cref="Product.DisplayOrder"/>, then by <see cref="Product.Id"/>.
+        /// Applies a filter for GTIN and sorts by <see cref="Product.DisplayOrder"/>, then by <see cref="BaseEntity.Id"/>.
         /// </summary>
         /// <param name="query">Product query.</param>
         /// <param name="gtin">Global Trade Item Number (GTIN).</param>
@@ -80,7 +80,7 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Applies a filter for MPN and sorts by <see cref="Product.DisplayOrder"/>, then by <see cref="Product.Id"/>.
+        /// Applies a filter for MPN and sorts by <see cref="Product.DisplayOrder"/>, then by <see cref="BaseEntity.Id"/>.
         /// </summary>
         /// <param name="query">Product query.</param>
         /// <param name="manufacturerPartNumber">Manufacturer Part Number (MPN).</param>
@@ -162,7 +162,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Includes product reviews for eager loading:
         /// Approved <see cref="Product.ProductReviews"/> (sorted by <see cref="ProductBundleItem.CreatedOnUtc"/> desc), 
-        /// then <see cref="ProductReview.Customer"/>.
+        /// then <see cref="CustomerContent.Customer"/>.
         /// </summary>
         public static IIncludableQueryable<Product, Customer> IncludeReviews(this IQueryable<Product> query)
         {

@@ -12,15 +12,15 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Gets the export mappings for a given field prefix.
         /// </summary>
         /// <param name="fieldPrefix">The export field prefix, e.g. "gmc".</param>
-        /// <returns>A multimap with export field names to <see cref="ProductAttribute.Id"/> mappings.</returns>
+        /// <returns>A multimap with export field names to <c>ProductAttribute.Id</c> mappings.</returns>
         Task<Multimap<string, int>> GetExportFieldMappingsAsync(string fieldPrefix);
 
-        /// <summary>
-        /// Gets product variant attribute mappings.
-        /// </summary>
-        /// <param name="productVariantAttributeIds">Enumerable of product variant attribute mapping identifiers.</param>
-        /// <param name="attributes">Collection of already loaded product attribute mappings to reduce database round trips.</param>
-        /// <returns>Product variant attribute mappings.</returns>
+        ///// <summary>
+        ///// Gets product variant attribute mappings.
+        ///// </summary>
+        ///// <param name="productVariantAttributeIds">Enumerable of product variant attribute mapping identifiers.</param>
+        ///// <param name="attributes">Collection of already loaded product attribute mappings to reduce database round trips.</param>
+        ///// <returns>Product variant attribute mappings.</returns>
         //Task<IList<ProductVariantAttribute>> GetProductVariantAttributesByIdsAsync(IEnumerable<int> productVariantAttributeIds, IEnumerable<ProductVariantAttribute> attributes = null);
 
         /// <summary>

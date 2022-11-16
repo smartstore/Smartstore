@@ -1,5 +1,6 @@
 ﻿using Smartstore.Core.Identity;
 using Smartstore.Net.Mail;
+using Smartstore.Templating;
 
 namespace Smartstore.Core.Messaging
 {
@@ -53,7 +54,7 @@ namespace Smartstore.Core.Messaging
         /// Gets an array of suitable test model parts during preview mode. The message template defines
         /// which model part types are required (a comma-separated type list in <see cref="MessageTemplate.ModelTypes"/>).
         /// The framework tries to load a random entity for each defined type from the database. If the table does not contain any records,
-        /// <see cref="ITemplateEngine.CreateTestModelFor(Core.BaseEntity, string)"/> gets called internally to obtain a test model wrapper with sample data.
+        /// <see cref="ITemplateEngine.CreateTestModelFor(BaseEntity, string)"/> gets called internally to obtain a test model wrapper with sample data.
         /// </summary>
         /// <param name="messageContext">The message context used to create the message.</param>
         /// <returns>An array of model parts which can be passed to <see cref="IMessageFactory.CreateMessageAsync(MessageContext, bool, object[])"/>.</returns>

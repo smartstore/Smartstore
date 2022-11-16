@@ -67,7 +67,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// <summary>
         /// Builds a category breadcrumb (path) for a particular category node.
         /// </summary>
-        /// <param name="treeNode">The category node.</param>
+        /// <param name="categoryNode">The category node.</param>
         /// <param name="languageId">The language identifier. Pass <c>null</c> to skip localization.</param>
         /// <param name="aliasPattern">How the category alias - if specified - should be appended to the category name (e.g. <c>({0})</c>).</param>
         /// <param name="separator">The separator string.</param>

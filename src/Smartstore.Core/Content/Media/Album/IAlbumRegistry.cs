@@ -25,7 +25,7 @@
         /// <summary>
         /// Gets an album by ID.
         /// </summary>
-        /// <param name="name">Storage id of album to retrieve.</param>
+        /// <param name="id">Storage id of album to retrieve.</param>
         AlbumInfo GetAlbumById(int id);
 
         /// <summary>

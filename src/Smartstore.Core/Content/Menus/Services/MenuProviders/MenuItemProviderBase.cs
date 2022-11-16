@@ -64,7 +64,7 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Converts the passed menu item entity to a <see cref="MenuItem"/> object.
         /// </summary>
-        /// <param name="entity">The entity to convert.</param>
+        /// <param name="request">The entity to convert.</param>
         /// <returns>Menu item.</returns>
         protected virtual MenuItem ConvertToMenuItem(MenuItemProviderRequest request)
         {

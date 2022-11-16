@@ -1,5 +1,6 @@
 ﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Content.Media;
 using Smartstore.Data;
 using Smartstore.IO;

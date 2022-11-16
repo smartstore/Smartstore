@@ -68,7 +68,7 @@ namespace Smartstore.Core.Messaging
         public string Path { get; set; }
 
         /// <summary>
-        /// The id of a <see cref="Smartstore.Core.Domain.Media.MediaFile"/> record (only applicable if location is <c>FileReference</c>).
+        /// The id of a <see cref="Smartstore.Core.Content.Media.MediaFile"/> record (only applicable if location is <c>FileReference</c>).
         /// </summary>
         public int? MediaFileId { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Pricing;
+﻿using Smartstore.Core;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
@@ -17,16 +18,11 @@ namespace Smartstore
         /// <param name="displayTaxSuffix">
         ///     A value indicating whether to display the tax suffix.
         ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
-        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
-        ///     according to <paramref name="target"/>.
+        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>.
         /// </param>
         /// <param name="priceIncludesTax">
         ///     A value indicating whether given price includes tax already.
         ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
-        /// </param>
-        /// <param name="target">
-        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
-        ///     will be auto-resolved if it is <c>null</c>.
         /// </param>
         /// <param name="language">
         ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
@@ -55,16 +51,11 @@ namespace Smartstore
         /// <param name="displayTaxSuffix">
         ///     A value indicating whether to display the tax suffix.
         ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
-        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
-        ///     according to <paramref name="target"/>.
+        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>.
         /// </param>
         /// <param name="priceIncludesTax">
         ///     A value indicating whether given price includes tax already.
         ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
-        /// </param>
-        /// <param name="target">
-        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
-        ///     will be auto-resolved if it is <c>null</c>.
         /// </param>
         /// <param name="language">
         ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
@@ -93,16 +84,11 @@ namespace Smartstore
         /// <param name="displayTaxSuffix">
         ///     A value indicating whether to display the tax suffix.
         ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
-        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
-        ///     according to <paramref name="target"/>.
+        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>.
         /// </param>
         /// <param name="priceIncludesTax">
         ///     A value indicating whether given price includes tax already.
         ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
-        /// </param>
-        /// <param name="target">
-        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
-        ///     will be auto-resolved if it is <c>null</c>.
         /// </param>
         /// <param name="language">
         ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.

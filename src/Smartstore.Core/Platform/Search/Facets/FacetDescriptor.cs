@@ -52,16 +52,16 @@ namespace Smartstore.Core.Search.Facets
         /// <summary>
         /// Adds a facet value.
         /// </summary>
-        /// <param name="value">Facet value</param>
+        /// <param name="values">Facet values</param>
         public FacetDescriptor AddValue(params FacetValue[] values)
         {
             _values.AddRange(values);
             return this;
         }
 
-        /// <summary>
-        /// Gets or sets the boolean value operator.
-        /// </summary>
+        ///// <summary>
+        ///// Gets or sets the boolean value operator.
+        ///// </summary>
         //public ValueOperator Operator
         //{
         //	get;

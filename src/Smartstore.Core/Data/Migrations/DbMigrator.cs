@@ -11,13 +11,10 @@ namespace Smartstore.Core.Data.Migrations
     public abstract class DbMigrator
     {
         private readonly ILifetimeScope _scope;
-        private readonly ITypeScanner _typeScanner;
 
         protected DbMigrator(ILifetimeScope scope, ITypeScanner typeScanner, IMigrationTable migrationTable)
         {
             _scope = scope;
-            _typeScanner = typeScanner;
-
             MigrationTable = migrationTable;
         }
 
@@ -48,7 +45,7 @@ namespace Smartstore.Core.Data.Migrations
         /// Creates an instance of the migration class.
         /// </summary>
         /// <param name="migrationClass">
-        /// The <see cref="Type" /> for the migration class, as obtained from the <see cref="GetMigrations()" /> dictionary.
+        /// The <see cref="Type" /> for the migration class, as obtained from the <see cref="MigrationTable" /> dictionary.
         /// </param>
         /// <returns>The migration instance.</returns>
         protected IMigration CreateMigration(Type migrationClass)

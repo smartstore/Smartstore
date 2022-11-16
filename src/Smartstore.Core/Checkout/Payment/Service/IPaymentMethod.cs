@@ -89,8 +89,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Handles payment data entered by customer on checkout's payment page.
         /// </summary>
-        /// <param name="cart">Shopping cart.</param>
-        /// <param name="request">Payment info required for order processing.</param>
         Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form);
 
         /// <summary>

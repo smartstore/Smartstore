@@ -16,7 +16,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="grossPrice">Gross price</param>
         /// <param name="rate">Tax rate</param>
         /// <param name="inclusive">A value indicating whether the result price should be gross (inclusing tax).</param>
-        /// <param name="currency">Optional currency for result price rounding. If <c>null</c>, <see cref="Result"/> will be unrounded.</param>
+        /// <param name="currency">Optional currency for result price rounding. If <c>null</c>, result will be unrounded.</param>
         Tax CalculateTaxFromGross(decimal grossPrice, TaxRate rate, bool inclusive, Currency currency = null);
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="netPrice">Net price</param>
         /// <param name="rate">Tax rate</param>
         /// <param name="inclusive">A value indicating whether the result price should be gross (inclusing tax).</param>
-        /// <param name="currency">Optional currency for result price rounding. If <c>null</c>, <see cref="Result"/> will be unrounded.</param>
+        /// <param name="currency">Optional currency for result price rounding. If <c>null</c>, result will be unrounded.</param>
         Tax CalculateTaxFromNet(decimal netPrice, TaxRate rate, bool inclusive, Currency currency = null);
 
         /// <summary>

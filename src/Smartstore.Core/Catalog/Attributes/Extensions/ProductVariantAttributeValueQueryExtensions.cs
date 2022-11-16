@@ -6,7 +6,7 @@
         /// Applies a filter for product variant attribute and sorts by <see cref="ProductVariantAttributeValue.DisplayOrder"/>.
         /// </summary>
         /// <param name="query">Product variant attribute value query.</param>
-        /// <param name="productVariantAttributeId">Filter by <see cref="ProductVariantAttribute.Id"/>.</param>
+        /// <param name="productVariantAttributeId">Filter by <c>ProductVariantAttribute.Id</c>.</param>
         /// <returns>Product variant attribute value query.</returns>
         public static IOrderedQueryable<ProductVariantAttributeValue> ApplyProductAttributeFilter(this IQueryable<ProductVariantAttributeValue> query, int productVariantAttributeId)
         {

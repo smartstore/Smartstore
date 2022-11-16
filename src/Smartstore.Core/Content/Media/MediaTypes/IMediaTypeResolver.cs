@@ -9,7 +9,7 @@
         /// Resolves the conceptual media type for a given file extension or mime type.
         /// </summary>
         /// <param name="extension">The file extension (with dot).</param>
-        /// <param name="mimeType">Used to map to an extension if <paramref name="extension"/> parameter is null or empty.
+        /// <param name="mimeType">Used to map to an extension if <paramref name="extension"/> parameter is null or empty.</param>
         /// <returns>The media type or <see cref="MediaType.Binary"/> as fallback.</returns>
         MediaType Resolve(string extension, string mimeType = null);
 

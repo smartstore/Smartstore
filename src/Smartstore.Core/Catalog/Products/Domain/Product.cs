@@ -510,6 +510,7 @@ namespace Smartstore.Core.Catalog.Products
         private int _stockQuantity;
         /// <summary>
         /// Gets or sets the stock quantity.
+        /// </summary>
         public int StockQuantity
         {
             [DebuggerStepThrough]

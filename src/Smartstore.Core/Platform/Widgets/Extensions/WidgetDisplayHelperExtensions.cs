@@ -13,7 +13,7 @@ namespace Smartstore
         /// This method must actually INVOKE widgets in order to scan for content.
         /// It will break iteration on first found real content though.
         /// But to check for the mere existence of widgets in a zone it is better to call 
-        /// <see cref="GetWidgetsAsync(string, object)"/>.Any() instead.
+        /// <see cref="IWidgetSelector.GetWidgetsAsync(string, object)"/>.Any() instead.
         /// </remarks>
         /// <param name="zone">The zone name to check.</param>
         /// <param name="viewContext">The current view context.</param>

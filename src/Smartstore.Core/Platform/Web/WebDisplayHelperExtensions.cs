@@ -38,8 +38,7 @@ namespace Smartstore
         /// Modifies query string
         /// </summary>
         /// <param name="url">Url to modify</param>
-        /// <param name="queryStringModification">Query string modification</param>
-        /// <param name="anchor">Anchor</param>
+        /// <param name="query">Query string modification</param>
         /// <returns>New url</returns>
         public static string ModifyQueryString(this IDisplayHelper displayHelper, string url, string query, string removeQueryName = null)
         {

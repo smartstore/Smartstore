@@ -145,7 +145,7 @@ namespace Smartstore.Core.Localization
 
         /// <summary>
         /// Gets a value indicating whether the current culture's TextInfo object
-        //  represents a writing system where text flows from right to left.
+        /// represents a writing system where text flows from right to left.
         /// </summary>
         public static bool IsRtl 
             => CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;

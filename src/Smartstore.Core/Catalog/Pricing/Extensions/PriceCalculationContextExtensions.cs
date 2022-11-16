@@ -33,7 +33,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Also adds selected attributes of bundle items if <see cref="Product.BundlePerItemPricing"/> is activated.
         /// </summary>
         /// <param name="context">The target product calculation context.</param>
-        /// <param name="item">Shopping cart item.</param>
+        /// <param name="cartItem">Shopping cart item.</param>
         public static void AddSelectedAttributes(this PriceCalculationContext context, OrganizedShoppingCartItem cartItem)
         {
             Guard.NotNull(context, nameof(context));

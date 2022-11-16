@@ -48,8 +48,7 @@
     }
 
     /// <summary>
-    /// Represents a product condition.
-    /// <see cref="https://schema.org/OfferItemCondition"/>
+    /// Represents a product condition. <see href="https://schema.org/OfferItemCondition"/>.
     /// </summary>
     public enum ProductCondition
     {

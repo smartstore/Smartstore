@@ -5,7 +5,7 @@ namespace Smartstore.Core.Localization
     public static partial class LanguageQueryExtensions
     {
         /// <summary>
-        /// Applies standard filter and sorts by <see cref="Currency.DisplayOrder"/>.
+        /// Applies standard filter and sorts by <see cref="IDisplayOrder.DisplayOrder"/>.
         /// </summary>
         /// <param name="query">Language query.</param>
         /// <param name="includeHidden">Applies filter by <see cref="Language.Published"/>.</param>

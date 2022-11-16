@@ -18,8 +18,8 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="productId">Product identifier.</param>
         /// <param name="productSlug">Product URL slug.</param>
         /// <param name="bundleItemId">Bundle item identifier. 0 if it's not a bundle item.</param>
-        /// <param name="variantValues">Variant values<./param>
-        /// <returns>Product URL.</returns>
+        /// <param name="variantValues">Variant values</param>
+        /// <returns>Product URL</returns>
         public static string GetProductUrl(
             this ProductUrlHelper helper,
             int productId,

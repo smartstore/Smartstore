@@ -68,9 +68,10 @@ namespace Smartstore.Core.Localization
         /// Get localized property of an entity
         /// </summary>
         /// <typeparam name="T">Entity type</typeparam>
+        /// <typeparam name="TProp">Property type</typeparam>
         /// <param name="entity">Entity</param>
         /// <param name="localeKey">Key selector</param>
-        /// <param name="languageId">Language identifier</param>
+        /// <param name="requestLanguageIdOrObj">Language identifier or object <see cref="Language"/> entity instance.</param>
         /// <param name="returnDefaultValue">A value indicating whether to return default value (if localized is not found)</param>
         /// <param name="ensureTwoPublishedLanguages">A value indicating whether to ensure that we have at least two published languages; otherwise, load only default value</param>
         /// <param name="detectEmptyHtml">When <c>true</c>, additionally checks whether the localized value contains empty HTML only and falls back to the default value if so.</param>
@@ -374,7 +375,7 @@ namespace Smartstore.Core.Localization
         /// <param name="module">Module descriptor</param>
         /// <param name="propertyName">Name of the property</param>
         /// <param name="languageId">Language identifier</param>
-        /// <param name="returnDefaultValue">A value indicating whether to return default value (if localized is not found)</param>
+        /// <param name="doFallback">A value indicating whether to return default value (if localized is not found)</param>
         /// <returns>Localized value</returns>
         public static string GetLocalizedModuleProperty<T>(this IModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
         {

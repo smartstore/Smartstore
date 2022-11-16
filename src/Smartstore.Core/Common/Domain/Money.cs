@@ -546,8 +546,8 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets the smallest money, given the two values.
         /// </summary>
-        /// <param name="m1">The first money to compare.</param>
-        /// <param name="m2">The second money to compare.</param>
+        /// <param name="a">The first money to compare.</param>
+        /// <param name="b">The second money to compare.</param>
         /// <returns>The smallest money value of the arguments.</returns>
         public static Money Min(Money a, Money b)
         {
@@ -564,8 +564,8 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets the largest money, given the two values.
         /// </summary>
-        /// <param name="m1">The first money to compare.</param>
-        /// <param name="m2">The second money to compare.</param>
+        /// <param name="a">The first money to compare.</param>
+        /// <param name="b">The second money to compare.</param>
         /// <returns>The largest money value of the arguments.</returns>
         public static Money Max(Money a, Money b)
         {

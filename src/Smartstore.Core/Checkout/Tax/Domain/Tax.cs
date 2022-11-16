@@ -19,7 +19,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="price">The origin price</param>
         /// <param name="isGrossPrice">A value indicating whether <paramref name="price"/> includes tax already.</param>
         /// <param name="inclusive">A value indicating whether the result price should be gross (including tax).</param>
-        /// <param name="currency">Optional currency for result price rounding. If <c>null</c>, <see cref="Result"/> will be unrounded.</param>
+        /// <param name="currency">Optional currency for result price rounding. If <c>null</c>, result will be unrounded.</param>
         public Tax(TaxRate rate, decimal amount, decimal price, bool isGrossPrice, bool inclusive, Currency currency = null)
         {
             Rate = rate;

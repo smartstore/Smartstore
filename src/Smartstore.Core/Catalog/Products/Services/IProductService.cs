@@ -86,7 +86,6 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="includeHidden">A value indicating whether to include hidden records.</param>
-        /// <param name="maxMediaPerProduct">Media files per product, <c>null</c> to load all files per product.</param>
         /// <param name="loadMainMediaOnly">
         /// A value indicating whether to load the main media per product only.
         /// The main media file is determined by <see cref="Product.MainPictureId"/>.

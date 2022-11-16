@@ -7,9 +7,9 @@ namespace Smartstore.Core.DataExchange.Export
     /// </summary>
     public class ExportConfigurationInfo
     {
-        /// <summary>
-        /// The partial view name for the configuration.
-        /// </summary>
+        ///// <summary>
+        ///// The partial view name for the configuration.
+        ///// </summary>
         //public string PartialViewName { get; set; }
 
         /// <summary>

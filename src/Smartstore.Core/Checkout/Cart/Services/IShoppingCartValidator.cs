@@ -51,7 +51,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="cartItemsCount">Number of shopping cart items.</param>
         /// <param name="warnings">List of errors as string.</param>
         /// <returns><c>True</c> when respective shopping cart limit is not exceeded, otherwise <c>false</c>.</returns>
-        bool ValidateItemsMaximumCartQuantity(ShoppingCartType cartType, int cartItemsCount, IList<string> Warnings);
+        bool ValidateItemsMaximumCartQuantity(ShoppingCartType cartType, int cartItemsCount, IList<string> warnings);
 
         /// <summary>
         /// Validates cart item for <see cref="GiftCards.GiftCardInfo"/>.

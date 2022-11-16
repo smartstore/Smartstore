@@ -33,10 +33,9 @@ namespace Smartstore.Core.Bootstrapping
         /// Adds a routing middleware to the pipeline that is aware of {culture} url segments, e.g. "/en/controller/action".
         /// </summary>
         /// <remarks>
-        /// A call to <see cref="UseLocalizedRouting(IApplicationBuilder)"/> must be followed by a call to
-        /// <see cref="UseEndpoints(IApplicationBuilder, Action{IEndpointRouteBuilder})"/> for the same <see cref="IApplicationBuilder"/>
+        /// A call to <see cref="UseLocalizedRouting(IApplicationBuilder, IApplicationContext)"/> must be followed by a call to
+        /// <c>UseEndpoints</c> for the same <see cref="IApplicationBuilder"/>
         /// instance.
-        /// </para>
         /// <para>
         /// The localized routing middleware defines a point in the middleware pipeline where routing decisions are
         /// made, and an <see cref="Endpoint"/> is associated with the <see cref="HttpContext"/>. The <see cref="EndpointMiddleware"/>

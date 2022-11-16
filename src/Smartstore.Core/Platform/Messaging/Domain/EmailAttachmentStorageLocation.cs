@@ -8,7 +8,7 @@
         Blob,
 
         /// <summary>
-        /// Attachment is a reference to <see cref="MediaFile"/>
+        /// Attachment is a reference to <see cref="Smartstore.Core.Content.Media.MediaFile"/>
         /// </summary>
         FileReference,
 

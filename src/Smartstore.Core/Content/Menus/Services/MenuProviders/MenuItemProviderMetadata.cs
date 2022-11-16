@@ -20,7 +20,7 @@
 
         /// <summary>
         /// Indicates that the provider appends multiple items to the tree.
-        /// The corresponding <see cref="MenuItemRecord"/> cannot have child elements and certain properties such as title, short description etc. are ignored. 
+        /// The corresponding <see langword="MenuItemRecord"/> cannot have child elements and certain properties such as title, short description etc. are ignored. 
         /// </summary>
         public bool AppendsMultipleItems { get; set; }
     }

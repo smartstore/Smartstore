@@ -7,7 +7,7 @@
     {
         /// <summary>
         /// Returns a filtered list of <see cref="ShoppingCartItem"/>s by <see cref="ShoppingCartType"/> and <paramref name="storeId"/>
-        /// and sorts by <see cref="ShoppingCartItem.Id"/> descending.
+        /// and sorts by <see cref="BaseEntity.Id"/> descending.
         /// </summary>
         /// <param name="cart">The cart collection the filter gets applied on.</param>
         /// <param name="cartType"><see cref="ShoppingCartType"/> to filter by.</param>

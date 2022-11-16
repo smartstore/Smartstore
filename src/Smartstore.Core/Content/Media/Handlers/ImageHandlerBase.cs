@@ -120,7 +120,7 @@ namespace Smartstore.Core.Content.Media
         protected abstract bool IsProcessable(MediaHandlerContext context);
 
         /// <summary>
-        /// The handler implementation. <see cref="inputStream"/> should be closed by implementor.
+        /// The handler implementation. <paramref name="inputStream"/> should be closed by implementor.
         /// </summary>
         protected abstract Task ProcessImageAsync(
             MediaHandlerContext context,

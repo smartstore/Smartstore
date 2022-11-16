@@ -50,8 +50,6 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <summary>
         /// Calculates statistics about the image cache data.
         /// </summary>
-        /// <param name="fileCount">The total count of files in the cache.</param>
-        /// <param name="totalSize">The total size of files in the cache (in bytes)</param>
         Task<(long fileCount, long totalSize)> CacheStatisticsAsync();
     }
 }
