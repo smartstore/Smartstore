@@ -16,7 +16,7 @@ namespace Smartstore.Web.Theming
             var services = helper.ViewContext.HttpContext.RequestServices;
             var langId = services.GetRequiredService<IWorkContext>().WorkingLanguage.Id;
             var locService = services.GetRequiredService<ILocalizationService>();
-            var builder = new HtmlContentBuilder();
+            var builder = new SmartHtmlContentBuilder();
 
             var displayName = locService.GetResource(resKey, langId, false, string.Empty, true);
 

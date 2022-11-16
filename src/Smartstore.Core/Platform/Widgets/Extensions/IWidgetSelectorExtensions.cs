@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Widgets
@@ -53,8 +55,10 @@ namespace Smartstore.Core.Widgets
         /// <param name="zone">Zone name to resolve widgets for</param>
         /// <param name="viewContext">The current view context</param>
         /// <param name="model">Optional view model</param>
-        /// <returns>A <see cref="ZoneHtmlContent"/> instance containing the generated content.</returns>
-        public static async Task<ZoneHtmlContent> GetContentAsync(this IWidgetSelector selector, string zone, ViewContext viewContext, object model = null)
+        /// <returns>
+        /// A <see cref="ZoneHtmlContent"/> instance containing the generated content.
+        /// </returns>
+        public static async Task<ZoneHtmlContent> GetContentAsync(this IWidgetSelector selector, string zone, ViewContext viewContext, object? model = null)
         {
             Guard.NotNull(selector, nameof(selector));
             Guard.NotNull(viewContext, nameof(viewContext));
@@ -75,12 +79,9 @@ namespace Smartstore.Core.Widgets
                 localViewContext.ViewData["widgetzone"] = zone;
 
                 var content = await widget.InvokeAsync(localViewContext);
-                if (content.HasContent())
-                {
-                    var target = widget.Prepend ? result.PreContent : result.PostContent;
-                    target.AppendHtml(content);
-                    target.AppendLine();
-                }
+                var target = widget.Prepend ? result.PreContent : result.PostContent;
+                target.AppendHtml(content);
+                //target.AppendLine();
             }
 
             return result;

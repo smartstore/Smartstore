@@ -7,8 +7,8 @@ namespace Smartstore.Core.Widgets
     [DebuggerDisplay("{DebuggerToString()}")]
     public class ZoneHtmlContent : IHtmlContent
     {
-        private HtmlContentBuilder _preContent;
-        private HtmlContentBuilder _postContent;
+        private SmartHtmlContentBuilder _preContent;
+        private SmartHtmlContentBuilder _postContent;
 
         /// <summary>
         /// Gets a value indicating whether the content is empty or whitespace.
@@ -36,7 +36,7 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         public bool HasPreContent
         {
-            get => _preContent != null && _preContent.HasContent();
+            get => _preContent != null && !_preContent.IsEmptyOrWhiteSpace;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         public bool HasPostContent
         {
-            get => _postContent != null && _postContent.HasContent();
+            get => _postContent != null && !_postContent.IsEmptyOrWhiteSpace;
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         public IHtmlContentBuilder PreContent
         {
-            get => _preContent ??= new HtmlContentBuilder();
+            get => _preContent ??= new SmartHtmlContentBuilder();
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         public IHtmlContentBuilder PostContent
         {
-            get => _postContent ??= new HtmlContentBuilder();
+            get => _postContent ??= new SmartHtmlContentBuilder();
         }
 
         public void WriteTo(TextWriter writer, HtmlEncoder encoder)

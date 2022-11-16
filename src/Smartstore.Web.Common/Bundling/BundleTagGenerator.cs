@@ -65,7 +65,7 @@ namespace Smartstore.Web.Bundling
             }
             else
             {
-                var builder = new HtmlContentBuilder();
+                var builder = new SmartHtmlContentBuilder();
 
                 var files = bundle.EnumerateFiles(httpContext, _options.CurrentValue);
 

@@ -132,7 +132,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                 if (e.Widgets != null && e.Widgets.Count > 0)
                 {
-                    var widgetContent = new HtmlContentBuilder();
+                    var widgetContent = new SmartHtmlContentBuilder();
 
                     foreach (var widget in e.Widgets.OrderBy(x => x.Order))
                     {

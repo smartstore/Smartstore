@@ -295,7 +295,7 @@ namespace Smartstore.Web.Rendering
             defaultColor = defaultColor.EmptyNull();
             var isDefault = color.EqualsNoCase(defaultColor);
 
-            var builder = new HtmlContentBuilder();
+            var builder = new SmartHtmlContentBuilder();
 
             builder.AppendHtml("<div class='input-group colorpicker-component sm-colorbox edit-control' data-fallback-color='{0}' data-editor='color'>".FormatInvariant(defaultColor));
 
@@ -798,7 +798,7 @@ namespace Smartstore.Web.Rendering
                 namePart = $"<span>{helper.Encode(name)}</span>";
             }
 
-            var builder = new HtmlContentBuilder();
+            var builder = new SmartHtmlContentBuilder();
             builder.AppendHtml($"<span class='badge badge-{typeLabelHint} mr-1'>{typeName}</span>{namePart}");
             return builder;
         }

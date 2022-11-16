@@ -17,7 +17,7 @@ namespace Smartstore.Web.Rendering
             string valueExpression = "item.value",
             string linkTarget = null)
         {
-            var builder = new HtmlContentBuilder();
+            var builder = new SmartHtmlContentBuilder();
 
             if (typeNameExpression.HasValue() && typeLabelHintExpression.HasValue())
             {
@@ -58,7 +58,7 @@ namespace Smartstore.Web.Rendering
             string urlExpression = "item.row.EditUrl",
             string linkTarget = null)
         {
-            var builder = new HtmlContentBuilder();
+            var builder = new SmartHtmlContentBuilder();
 
             if (hasNewPaymentNotificationExpression.HasValue())
             {
@@ -110,7 +110,7 @@ namespace Smartstore.Web.Rendering
             string valueExpression = "item.value",
             string linkTarget = null)
         {
-            var builder = new HtmlContentBuilder();
+            var builder = new SmartHtmlContentBuilder();
             var localizationService = helper.ViewContext.HttpContext.RequestServices.GetService<ILocalizationService>();
 
             if (isPrimaryCurrencyExpression.HasValue())
@@ -159,7 +159,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>Labeled variant attribute value name</returns>
         public static IHtmlContent VariantAttributeValueName(this IHtmlHelper _)
         {
-            var builder = new HtmlContentBuilder();
+            var builder = new SmartHtmlContentBuilder();
 
             var icon = "<i :class='item.row.TypeNameClass' :title='item.row.TypeName'></i>";
             builder.AppendHtml(icon);
@@ -187,7 +187,7 @@ namespace Smartstore.Web.Rendering
             colorSpan.Attributes.Add("class", "color-container");
             colorSpan.InnerHtml.AppendHtml("<span class='color' :style='{ background: item.row.Color }' :title='item.row.Color'>&nbsp;</span>");
 
-            var builder = new HtmlContentBuilder();
+            var builder = new SmartHtmlContentBuilder();
             builder.AppendHtml(colorSpan);
             builder.AppendHtml("<a href='javascript:void(0)' class='edit-specification-attribute-option' :data-id='item.row.Id'>{{ item.value }}</a>");
 

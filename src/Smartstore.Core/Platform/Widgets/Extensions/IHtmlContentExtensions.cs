@@ -32,7 +32,12 @@ namespace Smartstore.Core.Widgets
         /// <summary>
         /// Gets a value indicating whether the current <see cref="IHtmlContent"/> has actual content (that it is not empty or not all whitespace).
         /// </summary>
-        public static bool HasContent(this IHtmlContent content)
+        /// <param name="fast">
+        /// If <c>true</c> and <paramref name="content"/> is an instance of <see cref="HtmlContentBuilder"/>,
+        /// emptyness is determined by checking <see cref="HtmlContentBuilder.Count"/> 
+        /// instead of peeking for non-whitespace chars.
+        /// </param>
+        public static bool HasContent(this IHtmlContent content, bool fast = false)
         {
             Guard.NotNull(content, nameof(content));
 
@@ -51,10 +56,16 @@ namespace Smartstore.Core.Widgets
                     return !tagHelperContent.IsEmptyOrWhiteSpace;
                 case ZoneHtmlContent zoneHtmlContent:
                     return !zoneHtmlContent.IsEmptyOrWhiteSpace;
+                case SmartHtmlContentBuilder smartBuilder:
+                    return !smartBuilder.IsEmptyOrWhiteSpace;
                 case HtmlContentBuilder builder:
                     if (builder.Count == 0)
                     {
                         return false;
+                    }
+                    if (fast)
+                    {
+                        return true;
                     }
                     break;
                 case TagHelperOutput output:
@@ -68,45 +79,36 @@ namespace Smartstore.Core.Widgets
                     return hasValue;
             }
 
-            using var writer = new ThrowOnValueWriter();
-            try
-            {
-                // Use NullHtmlEncoder to avoid treating encoded whitespace as non-whitespace e.g. "\t" as "&#x9;".
-                content.WriteTo(writer, NullHtmlEncoder.Default);
+            using var writer = new HasContentWriter();
 
-                // If ThrowOnValueWriter did not throw, no non-whitespace content was encountered.
-                return false;
-            }
-            catch
-            {
-                // ThrowOnValueWriter throws on purpose if it encounters the first non-whitespace content.
-                return true;
-            }
+            // Use NullHtmlEncoder to avoid treating encoded whitespace as non-whitespace e.g. "\t" as "&#x9;".
+            content.WriteTo(writer, NullHtmlEncoder.Default);
+
+            return writer.HasContent;
         }
 
-        /// <summary>
-        /// Overrides Write() to throw if the content written is non empty/whitespace.
-        /// </summary>
-        class ThrowOnValueWriter : TextWriter
+        class HasContentWriter : TextWriter
         {
             public override Encoding Encoding
             {
                 get => Encoding.UTF8;
             }
 
+            public bool HasContent { get; private set; }
+
             public override void Write(char value)
             {
-                if (!char.IsWhiteSpace(value))
+                if (!HasContent && !char.IsWhiteSpace(value))
                 {
-                    throw new Exception();
+                    HasContent = true;
                 }
             }
 
             public override void Write(string value)
             {
-                if (!string.IsNullOrWhiteSpace(value))
+                if (!HasContent && !string.IsNullOrWhiteSpace(value))
                 {
-                    throw new Exception();
+                    HasContent = true;
                 }
             }
         }

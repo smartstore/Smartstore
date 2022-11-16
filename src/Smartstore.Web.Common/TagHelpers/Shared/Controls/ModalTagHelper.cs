@@ -175,7 +175,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (RenderAtPageEnd && !ViewContext.HttpContext.Request.IsAjax())
             {
                 // Move output Html to new builder
-                var builder = new HtmlContentBuilder();
+                var builder = new SmartHtmlContentBuilder();
                 ((IHtmlContentContainer)output).MoveTo(builder);
 
                 _widgetProvider.RegisterHtml("end", builder);
