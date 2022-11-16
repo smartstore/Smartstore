@@ -15,7 +15,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string SuppressAttributeName = "sm-suppress-if-empty";
 
         // Should run after IfTagHelper
-        public override int Order => int.MinValue + 1000;
+        public override int Order => int.MinValue + 2000;
 
         /// <summary>
         /// Suppresses tag output if child content is empty (due to some conditional logic).

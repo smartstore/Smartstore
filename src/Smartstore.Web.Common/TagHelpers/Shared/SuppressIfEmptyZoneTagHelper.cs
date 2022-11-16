@@ -24,7 +24,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             _widgetSelector = widgetSelector;
         }
 
-        // Should run after IfTagHelper
+        // Should run after IfTagHelper, but before SuppressIfEmptyTagHelper
         public override int Order => int.MinValue + 1000;
 
         protected override string GenerateTagId(TagHelperContext context)
