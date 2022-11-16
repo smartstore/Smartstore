@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <Import Project="..\Smartstore.Build\Smartstore.Common.props" />
 
@@ -8,20 +8,7 @@
     
     <PropertyGroup>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
-        <!-- TODO: (mg) (core) Isn't this the same as the 9 lines below? -->
-        <!--<NoWarn>1701;1702;1591</NoWarn>-->
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <NoWarn>1701;1702;1591</NoWarn>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <NoWarn>1701;1702;1591</NoWarn>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugNoRazorCompile|AnyCPU'">
-        <NoWarn>1701;1702;1591</NoWarn>
+        <NoWarn>1701;1702;1591;CS1573</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
