@@ -112,7 +112,7 @@ namespace Smartstore.Web.Api
                 try
                 {
                     // XML comments.
-                    IncludeXmlComments(o, "Smartstore.Core.xml");
+                    IncludeXmlComments(o, appContext, "Smartstore.Core.xml");
 
                     var modelProviders = appContext.TypeScanner
                         .FindTypes<IODataModelProvider>()
@@ -266,9 +266,9 @@ namespace Smartstore.Web.Api
             }
         }
 
-        private static void IncludeXmlComments(SwaggerGenOptions options, string fileName)
+        private static void IncludeXmlComments(SwaggerGenOptions options, IApplicationContext appContext, string fileName)
         {
-            var path = Path.Combine(AppContext.BaseDirectory, fileName);
+            var path = Path.Combine(appContext.RuntimeInfo.BaseDirectory, fileName);
             if (File.Exists(path))
             {
                 // INFO: XPathDocument closes the input stream.
