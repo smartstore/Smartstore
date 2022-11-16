@@ -79,6 +79,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         [HttpGet("OrderItems/GetShipmentInfo(id={id})")]
         [Permission(Permissions.Order.Read)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(OrderItemShipmentInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> GetShipmentInfo(int id)

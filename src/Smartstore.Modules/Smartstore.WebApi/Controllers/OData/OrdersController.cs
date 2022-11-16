@@ -122,27 +122,27 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         [HttpGet("Orders/GetShipmentInfo(id={id})")]
         [Permission(Permissions.Order.Read)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(OrderShipmentInfo), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> GetShipmentInfo(int id)
         {
-            var entity = await Entities
-                .AsSplitQuery()
-                .Include(x => x.OrderItems)
-                .ThenInclude(x => x.Product)
-                .Include(x => x.Shipments)
-                .ThenInclude(x => x.ShipmentItems)
-                .FindByIdAsync(id);
-
-            if (entity == null)
-            {
-                return NotFound(id);
-            }
-
             try
             {
+                var entity = await Entities
+                    .AsSplitQuery()
+                    .Include(x => x.OrderItems)
+                    .ThenInclude(x => x.Product)
+                    .Include(x => x.Shipments)
+                    .ThenInclude(x => x.ShipmentItems)
+                    .FindByIdAsync(id);
+
+                if (entity == null)
+                {
+                    return NotFound(id);
+                }
+
                 var service = _orderProcessingService.Value;
                 var result = new OrderShipmentInfo
                 {
@@ -163,27 +163,20 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// Downloads an order as a PDF.
         /// </summary>
         [HttpGet("Orders/DownloadPdf(id={id})")]
-        [Produces(MediaTypeNames.Application.Pdf)]
         [Permission(Permissions.Order.Read)]
+        [Produces(MediaTypeNames.Application.Pdf)]
         [ProducesResponseType(Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> DownloadPdf(int id)
         {
-            var entity = await Entities
-                .Include(x => x.ShippingAddress)
-                .Include(x => x.BillingAddress)
-                .Include(x => x.Shipments)
-                .FindByIdAsync(id);
-
-            if (entity == null)
-            {
-                return NotFound(id);
-            }
-
             try
             {
+                var entity = await GetByIdNotNull(id, q => q
+                    .Include(x => x.ShippingAddress)
+                    .Include(x => x.BillingAddress)
+                    .Include(x => x.Shipments));
+
                 var stream = await _apiPdfHelper.Value.GeneratePdfAsync(entity);
                 var fileName = _apiPdfHelper.Value.GetFileName(entity);
 
@@ -202,21 +195,19 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Permission(Permissions.Order.Update)]
         [Produces(Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> PaymentPending(int key)
         {
-            var entity = await Entities.FindByIdAsync(key);
-            if (entity == null)
-            {
-                return NotFound(key);
-            }
-
             try
             {
-                entity.PaymentStatus = PaymentStatus.Pending;
-                await Db.SaveChangesAsync();
+                var entity = await GetByIdNotNull(key);
+
+                if (entity.PaymentStatus != PaymentStatus.Pending)
+                {
+                    entity.PaymentStatus = PaymentStatus.Pending;
+                    await Db.SaveChangesAsync();
+                }
 
                 return Ok(entity);
             }
@@ -234,27 +225,26 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Permission(Permissions.Order.Update)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> PaymentPaid(int key,
             [FromODataBody] string paymentMethodName)
         {
-            var entity = await Entities.FindByIdAsync(key);
-            if (entity == null)
-            {
-                return NotFound(key);
-            }
-
             try
             {
-                if (paymentMethodName != null)
+                var entity = await GetByIdNotNull(key);
+
+                if (paymentMethodName != null && !entity.PaymentMethodSystemName.EqualsNoCase(paymentMethodName))
                 {
                     entity.PaymentMethodSystemName = paymentMethodName;
+                    await Db.SaveChangesAsync();
                 }
 
-                await _orderProcessingService.Value.MarkOrderAsPaidAsync(entity);
-
+                if (entity.CanMarkOrderAsPaid())
+                {
+                    await _orderProcessingService.Value.MarkOrderAsPaidAsync(entity);
+                }
+                
                 return Ok(entity);
             }
             catch (Exception ex)
@@ -266,7 +256,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Refunds an order.
         /// </summary>
-        /// <param name="online" example="true">
+        /// <param name="online" example="false">
         /// A value indicating whether to refund online (refunding via payment provider) 
         /// or offline (just mark as refunded without calling the payment provider).
         /// </param>
@@ -274,35 +264,152 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Permission(Permissions.Order.Update)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> PaymentRefund(int key,
             [FromODataBody, Required] bool online)
         {
-            var entity = await Entities.FindByIdAsync(key);
-            if (entity == null)
-            {
-                return NotFound(key);
-            }
-
             try
             {
+                var entity = await GetByIdNotNull(key);
+
                 if (online)
                 {
-                    var errors = await _orderProcessingService.Value.RefundAsync(entity);
-                    if (errors.Any())
+                    if (await _orderProcessingService.Value.CanRefundAsync(entity))
                     {
-                        return ErrorResult(null, string.Join(". ", errors));
+                        var errors = await _orderProcessingService.Value.RefundAsync(entity);
+                        if (errors.Any())
+                        {
+                            return ErrorResult(null, string.Join(". ", errors));
+                        }
                     }
                 }
                 else
                 {
-
-                    await _orderProcessingService.Value.RefundOfflineAsync(entity);
+                    if (entity.CanRefundOffline())
+                    {
+                        await _orderProcessingService.Value.RefundOfflineAsync(entity);
+                    }
                 }
 
                 return Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Cancels an order.
+        /// </summary>
+        /// <param name="notifyCustomer">A value indicating whether to send a notification message to the customer about the cancelation.</param>
+        [HttpPost("Orders({key})/Cancel"), ApiQueryable]
+        [Permission(Permissions.Order.Update)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(Order), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> Cancel(int key,
+            [FromODataBody] bool notifyCustomer = true)
+        {
+            try
+            {
+                var entity = await GetByIdNotNull(key);
+                if (entity.CanCancelOrder())
+                {
+                    await _orderProcessingService.Value.CancelOrderAsync(entity, notifyCustomer);
+                }
+
+                return Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Marks an order as completed.
+        /// </summary>
+        [HttpPost("Orders({key})/CompleteOrder"), ApiQueryable]
+        [Permission(Permissions.Order.Update)]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(Order), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> CompleteOrder(int key)
+        {
+            try
+            {
+                var entity = await GetByIdNotNull(key);
+                if (entity.CanCompleteOrder())
+                {
+                    await _orderProcessingService.Value.CompleteOrderAsync(entity);
+                }
+
+                return Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Places items of an order into the shopping cart of the user who placed the order.
+        /// </summary>
+        [HttpPost("Orders({key})/ReOrder"), ApiQueryable]
+        [Permission(Permissions.Order.Update)]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(Order), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> ReOrder(int key)
+        {
+            try
+            {
+                var entity = await GetByIdNotNull(key);
+                await _orderProcessingService.Value.ReOrderAsync(entity);
+
+                return Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Adds a shipment to an order.
+        /// </summary>
+        /// <param name="trackingNumber">Tracking number if any.</param>
+        /// <param name="trackingUrl">Tracking URL if any.</param>
+        /// <param name="isShipped">A value indicating whether to mark the shipment as shipped.</param>
+        /// <param name="notifyCustomer">A value indicating whether to notify the customer that the shipment has been sent. Only applicable if **isShipped** is true.</param>
+        /// <returns>New shipment or null if no shipment was added.</returns>
+        [HttpPost("Orders({key})/AddShipment"), ApiQueryable]
+        [Permission(Permissions.Order.EditShipment)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(Shipment), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> AddShipment(int key,
+            [FromODataBody] string trackingNumber,
+            [FromODataBody] string trackingUrl,
+            [FromODataBody] bool isShipped = false,
+            [FromODataBody] bool notifyCustomer = true)
+        {
+            try
+            {
+                var entity = await GetByIdNotNull(key);
+                var shipment = await _orderProcessingService.Value.AddShipmentAsync(entity, trackingNumber, trackingUrl, null);
+                if (shipment != null && isShipped)
+                {
+                    await _orderProcessingService.Value.ShipAsync(shipment, notifyCustomer);
+                }
+
+                return Ok(shipment);
             }
             catch (Exception ex)
             {

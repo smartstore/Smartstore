@@ -85,12 +85,14 @@ namespace Smartstore.Web.Api.Swagger
             if (canProcess)
             {
                 helper.Op.Responses.Clear();
-                helper.AddResponse(Status400BadRequest, Status500InternalServerError);
             }
             else
             {
-                helper.ReplaceResponses();
+                helper.ReplaceResponseDescriptions();
             }
+
+            // Add responses that can theoretically occur on any endpoint.
+            helper.AddResponse(Status400BadRequest, Status500InternalServerError);
 
             if (mi.DeclaringType.HasAttribute<AuthorizeAttribute>(true) || mi.HasAttribute<AuthorizeAttribute>(true))
             {
@@ -196,11 +198,6 @@ namespace Smartstore.Web.Api.Swagger
         /// </summary>
         protected virtual void AddQueryParameters(SwaggerOperationHelper helper)
         {
-            if (!helper.HttpMethod.EqualsNoCase("Get"))
-            {
-                return;
-            }
-
             var attribute = helper.ActionDescriptor?.FilterDescriptors
                 .Where(x => x.Filter is EnableQueryAttribute)
                 .Select(x => x.Filter as EnableQueryAttribute)
@@ -214,7 +211,10 @@ namespace Smartstore.Web.Api.Swagger
             var allowedOptions = _supportedQueryOptions.Where(x => attribute.AllowedQueryOptions.HasFlag(x));
             if (helper.HasKeyParameter)
             {
-                allowedOptions = allowedOptions.Where(x => x == AllowedQueryOptions.Select || x == AllowedQueryOptions.Compute);
+                allowedOptions = allowedOptions.Where(x => 
+                    x == AllowedQueryOptions.Select || 
+                    x == AllowedQueryOptions.Expand ||
+                    x == AllowedQueryOptions.Compute);
             }
 
             foreach (var option in allowedOptions)
@@ -568,12 +568,12 @@ namespace Smartstore.Web.Api.Swagger
                 : str;
         }
 
-        private static string FirstCharToLower(string str)
-        {
-            return str.HasValue() && char.IsUpper(str[0])
-                ? str.Length == 1 ? char.ToLower(str[0]).ToString() : char.ToLower(str[0]) + str[1..]
-                : str;
-        }
+        //private static string FirstCharToLower(string str)
+        //{
+        //    return str.HasValue() && char.IsUpper(str[0])
+        //        ? str.Length == 1 ? char.ToLower(str[0]).ToString() : char.ToLower(str[0]) + str[1..]
+        //        : str;
+        //}
 
         private static string Convert(IOpenApiAny value)
         {

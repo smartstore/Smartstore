@@ -167,38 +167,37 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <param name="relatedkey">The Address identifier.</param>
         [HttpPost("Customers({key})/Addresses({relatedkey})")]
         [Permission(Permissions.Customer.EditAddress)]
-        [Produces(MediaTypeNames.Application.Json)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(Address), Status200OK)]
         [ProducesResponseType(typeof(Address), Status201Created)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> PostAddresses(int key, int relatedkey)
         {
-            var entity = await Entities
-                .Include(x => x.Addresses)
-                .FindByIdAsync(key);
-
-            if (entity == null)
+            try
             {
-                return NotFound(key);
-            }
-
-            var address = entity.Addresses.FirstOrDefault(x => x.Id == relatedkey);
-            if (address == null)
-            {
-                // No assignment yet.
-                address = await Db.Addresses.FindByIdAsync(relatedkey, false);
+                var entity = await GetByIdNotNull(key, q => q.Include(x => x.Addresses));
+                var address = entity.Addresses.FirstOrDefault(x => x.Id == relatedkey);
                 if (address == null)
                 {
-                    return NotFound(relatedkey, nameof(Address));
+                    // No assignment yet.
+                    address = await Db.Addresses.FindByIdAsync(relatedkey, false);
+                    if (address == null)
+                    {
+                        return NotFound(relatedkey, nameof(Address));
+                    }
+
+                    entity.Addresses.Add(address);
+                    await Db.SaveChangesAsync();
+
+                    return Created(address);
                 }
 
-                entity.Addresses.Add(address);
-                await Db.SaveChangesAsync();
-
-                return Created(address);
+                return Ok(address);
             }
-
-            return Ok(address);
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
         }
 
         /// <summary>
@@ -210,35 +209,35 @@ namespace Smartstore.Web.Api.Controllers.OData
         [ProducesResponseType(Status204NoContent)]
         public async Task<IActionResult> DeleteAddresses(int key, int relatedkey)
         {
-            var entity = await Entities
-                .Include(x => x.Addresses)
-                .FindByIdAsync(key);
+            try
+            {
+                var entity = await GetByIdNotNull(key, q => q.Include(x => x.Addresses));
 
-            if (entity == null)
-            {
-                return NotFound(key);
-            }
-
-            if (relatedkey == 0)
-            {
-                // Remove assignments of all addresses.
-                entity.BillingAddress = null;
-                entity.ShippingAddress = null;
-                entity.Addresses.Clear();
-                await Db.SaveChangesAsync();
-            }
-            else
-            {
-                // Remove assignment of certain address.
-                var address = await Db.Addresses.FindByIdAsync(relatedkey);
-                if (address != null)
+                if (relatedkey == 0)
                 {
-                    entity.RemoveAddress(address);
+                    // Remove assignments of all addresses.
+                    entity.BillingAddress = null;
+                    entity.ShippingAddress = null;
+                    entity.Addresses.Clear();
                     await Db.SaveChangesAsync();
                 }
-            }
+                else
+                {
+                    // Remove assignment of certain address.
+                    var address = await Db.Addresses.FindByIdAsync(relatedkey);
+                    if (address != null)
+                    {
+                        entity.RemoveAddress(address);
+                        await Db.SaveChangesAsync();
+                    }
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
         }
 
         // CreateRef works:

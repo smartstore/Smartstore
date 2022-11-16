@@ -73,7 +73,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Produces(Json)]
         [ProducesResponseType(typeof(NewsletterSubscription), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public Task<IActionResult> Subscribe(int key)
         {
@@ -88,7 +87,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Produces(Json)]
         [ProducesResponseType(typeof(NewsletterSubscription), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public Task<IActionResult> Unsubscribe(int key)
         {
@@ -97,14 +95,10 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         private async Task<IActionResult> SubscribeInternal(int key, bool subscribe)
         {
-            var entity = await Entities.FindByIdAsync(key);
-            if (entity == null)
-            {
-                return NotFound(key);
-            }
-
             try
             {
+                var entity = await GetByIdNotNull(key);
+
                 if (subscribe && !entity.Active)
                 {
                     entity.Active = true;

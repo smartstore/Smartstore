@@ -11,7 +11,6 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// <summary>
     /// The endpoint for operations on MediaFolder entity. Returns type FolderNodeInfo which wraps and enriches MediaFolder.
     /// </summary>
-    [ProducesResponseType(Status400BadRequest)]
     [ProducesResponseType(Status422UnprocessableEntity)]
     public class MediaFoldersController : WebApiController<FolderNodeInfo>
     {

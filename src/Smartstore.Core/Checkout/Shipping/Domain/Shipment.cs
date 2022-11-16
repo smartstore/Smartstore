@@ -40,6 +40,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets or sets the tracking number of this shipment
         /// </summary>
+        [StringLength(400)]
         public string TrackingNumber { get; set; }
 
         /// <summary>

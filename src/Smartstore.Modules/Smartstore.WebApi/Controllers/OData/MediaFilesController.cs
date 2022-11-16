@@ -20,7 +20,6 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// <summary>
     /// The endpoint for operations on MediaFile entity. Returns type FileItemInfo which wraps and enriches MediaFile.
     /// </summary>
-    [ProducesResponseType(Status400BadRequest)]
     [ProducesResponseType(Status422UnprocessableEntity)]
     public class MediaFilesController : WebApiController<FileItemInfo>
     {
@@ -207,7 +206,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpPost("MediaFiles/CountFiles")]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(int), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         public async Task<IActionResult> CountFiles([FromODataBody] MediaSearchQuery query)
         {
             try

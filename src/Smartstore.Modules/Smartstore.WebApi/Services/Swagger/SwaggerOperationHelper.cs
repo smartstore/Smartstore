@@ -225,7 +225,7 @@ namespace Smartstore.Web.Api.Swagger
             }
         }
 
-        public void ReplaceResponses()
+        public void ReplaceResponseDescriptions()
         {
             var responses = Op.Responses.Where(x => _descriptionsToReplace.Contains(x.Value.Description, StringComparer.OrdinalIgnoreCase));
 

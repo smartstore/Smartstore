@@ -69,13 +69,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> GetDeliveryDate(int id)
         {
-            var deliveryTime = await Db.DeliveryTimes.FindByIdAsync(id, false);
-            if (deliveryTime == null)
-            {
-                return NotFound(id);
-            }
-
-            var (min, max) = _deliveryTimeService.Value.GetDeliveryDate(deliveryTime);
+            var entity = await GetByIdNotNull(id);
+            var (min, max) = _deliveryTimeService.Value.GetDeliveryDate(entity);
 
             var result = new SimpleRange<DateTime?>
             {

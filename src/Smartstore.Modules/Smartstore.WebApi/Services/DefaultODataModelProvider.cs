@@ -48,7 +48,11 @@ namespace Smartstore.Web.Api
             builder.EntitySet<PriceLabel>("PriceLabels");
             builder.EntitySet<Product>("Products");
             builder.EntitySet<RewardPointsHistory>("RewardPointsHistory");
+            // TODO: (mg) (core) add actions to "Shipments": SetAsShipped, SetAsDelivered, DownloadPdfPackagingSlips.
             builder.EntitySet<Shipment>("Shipments");
+
+            // INFO: functions specified directly on the ODataModelBuilder (instead of entity type or collection)
+            // are called unbound functions (like static operations on the service).
 
             BuildDeliveryTimes(builder);
             BuildMediaFiles(builder);
@@ -279,6 +283,36 @@ namespace Smartstore.Web.Api
                 .ReturnsFromEntitySet<Order>(setName)
                 .Parameter<bool>("online")
                 .Required();
+
+            set.EntityType
+                .Action(nameof(OrdersController.Cancel))
+                .ReturnsFromEntitySet<Order>(setName)
+                .Parameter<bool>("notifyCustomer")
+                .HasDefaultValue(bool.TrueString)
+                .Optional();
+
+            set.EntityType
+                .Action(nameof(OrdersController.CompleteOrder))
+                .ReturnsFromEntitySet<Order>(setName);
+
+            set.EntityType
+                .Action(nameof(OrdersController.ReOrder))
+                .ReturnsFromEntitySet<Order>(setName);
+
+            var addShipment = set.EntityType
+                .Action(nameof(OrdersController.AddShipment))
+                .ReturnsFromEntitySet<Shipment>("Shipments");
+
+            addShipment.Parameter<string>("trackingNumber")
+                .Optional();
+            addShipment.Parameter<string>("trackingUrl")
+                .Optional();
+            addShipment.Parameter<bool>("isShipped")
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
+            addShipment.Parameter<bool>("notifyCustomer")
+                .HasDefaultValue(bool.TrueString)
+                .Optional();
         }
     }
 }

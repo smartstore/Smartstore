@@ -37,6 +37,9 @@ namespace Smartstore.Web.Api
         /// <summary>
         /// Gets an entity by identifier.
         /// </summary>
+        /// <remarks>
+        /// Navigation properties are always expandable, even if <paramref name="tracked"/> is <c>false</c>.
+        /// </remarks>
         /// <param name="id">Entity identifier.</param>
         /// <param name="tracked">Applies "AsTracking()" or "AsNoTracking()" according to <paramref name="tracked"/> parameter.</param>
         /// <returns>Returns zero or one entities.</returns>
@@ -47,6 +50,36 @@ namespace Smartstore.Web.Api
                 .Where(x => x.Id == id);
 
             return SingleResult.Create(query);
+        }
+
+        /// <summary>
+        /// Gets an entity by identifier.
+        /// </summary>
+        /// <remarks>
+        /// The entity is always tracked to ensure that <see cref="ApiQueryableAttribute"/> is applicable 
+        /// and navigation properties are expandable via $expand.
+        /// </remarks>
+        /// <param name="id">Entity identifier.</param>
+        protected async Task<TEntity> GetByIdNotNull(int id, Func<IQueryable<TEntity>, IQueryable<TEntity>> queryModifier = null)
+        {           
+            var query = Entities.AsQueryable();
+            
+            if (queryModifier != null)
+            {
+                query = queryModifier(query);
+            }
+
+            var entity = await query.SingleOrDefaultAsync(x => x.Id == id);
+            if (entity == null)
+            {
+                throw new ODataErrorException(new ODataError
+                {
+                    ErrorCode = StatusCodes.Status404NotFound.ToString(),
+                    Message = $"Cannot find {typeof(TEntity).Name} entity with identifier {id}."
+                });
+            }
+
+            return entity;
         }
 
         /// <summary>
