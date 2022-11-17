@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using System.Runtime.Intrinsics.X86;
 using Microsoft.AspNetCore.OData.Formatter;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;

@@ -32,12 +32,7 @@ namespace Smartstore.Core.Widgets
         /// <summary>
         /// Gets a value indicating whether the current <see cref="IHtmlContent"/> has actual content (that it is not empty or not all whitespace).
         /// </summary>
-        /// <param name="fast">
-        /// If <c>true</c> and <paramref name="content"/> is an instance of <see cref="HtmlContentBuilder"/>,
-        /// emptyness is determined by checking <see cref="HtmlContentBuilder.Count"/> 
-        /// instead of peeking for non-whitespace chars.
-        /// </param>
-        public static bool HasContent(this IHtmlContent content, bool fast = false)
+        public static bool HasContent(this IHtmlContent content)
         {
             Guard.NotNull(content, nameof(content));
 
@@ -62,10 +57,6 @@ namespace Smartstore.Core.Widgets
                     if (builder.Count == 0)
                     {
                         return false;
-                    }
-                    if (fast)
-                    {
-                        return true;
                     }
                     break;
                 case TagHelperOutput output:

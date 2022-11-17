@@ -30,7 +30,7 @@ namespace Smartstore.Web.Razor
         private readonly IModelMetadataProvider _modelMetadataProvider;
         private readonly ITempDataDictionaryFactory _tempDataDictionaryFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IViewEngine _viewEngine;
+        private readonly ICompositeViewEngine _viewEngine;
         private readonly IViewComponentSelector _componentSelector;
         private readonly IViewComponentDescriptorCollectionProvider _componentDescriptorProvider;
         private readonly HtmlHelperOptions _htmlHelperOptions;
@@ -105,15 +105,12 @@ namespace Smartstore.Web.Razor
             viewEngineResult.EnsureSuccessful(originalLocations: null);
 
             var view = viewEngineResult.View;
-            using (view as IDisposable)
-            {
-                await InvokeViewInternalAsync(
-                    context,
-                    view,
-                    result.ViewData,
-                    result.TempData,
-                    writer);
-            }
+            await InvokeViewInternalAsync(
+                context,
+                view,
+                result.ViewData,
+                result.TempData,
+                writer);
         }
 
         public async Task InvokePartialViewAsync(ActionContext context, PartialViewResult result, TextWriter writer)
@@ -126,15 +123,12 @@ namespace Smartstore.Web.Razor
             viewEngineResult.EnsureSuccessful(originalLocations: null);
 
             var view = viewEngineResult.View;
-            using (view as IDisposable)
-            {
-                await InvokeViewInternalAsync(
-                    context,
-                    view,
-                    result.ViewData,
-                    result.TempData,
-                    writer);
-            }
+            await InvokeViewInternalAsync(
+                context,
+                view,
+                result.ViewData,
+                result.TempData,
+                writer);
         }
 
         private async Task InvokeViewInternalAsync(
@@ -155,16 +149,19 @@ namespace Smartstore.Web.Razor
                 writer,
                 _htmlHelperOptions);
 
-            await view.RenderAsync(viewContext);
+            using (view as IDisposable)
+            {
+                await view.RenderAsync(viewContext);
+            }
         }
 
         private ViewEngineResult FindView(ActionContext actionContext, IViewEngine viewEngine, string viewName, bool isMainPage)
         {
             viewEngine ??= _viewEngine;
             viewName ??= GetActionName(actionContext).EmptyNull();
-
+            
             var result = viewEngine.GetView(executingFilePath: null, viewPath: viewName, isMainPage: isMainPage);
-            var originalResult = result;
+            var getViewLocations = result.SearchedLocations;
             if (!result.Success)
             {
                 result = viewEngine.FindView(actionContext, viewName, isMainPage: isMainPage);
@@ -172,21 +169,8 @@ namespace Smartstore.Web.Razor
 
             if (!result.Success)
             {
-                if (originalResult.SearchedLocations.Any())
-                {
-                    if (result.SearchedLocations.Any())
-                    {
-                        // Return a new ViewEngineResult listing all searched locations.
-                        var locations = new List<string>(originalResult.SearchedLocations);
-                        locations.AddRange(result.SearchedLocations);
-                        result = ViewEngineResult.NotFound(viewName, locations);
-                    }
-                    else
-                    {
-                        // GetView() searched locations but FindView() did not. Use first ViewEngineResult.
-                        result = originalResult;
-                    }
-                }
+                var searchedLocations = Enumerable.Concat(getViewLocations, result.SearchedLocations);
+                result = ViewEngineResult.NotFound(viewName, searchedLocations);
             }
 
             return result;
