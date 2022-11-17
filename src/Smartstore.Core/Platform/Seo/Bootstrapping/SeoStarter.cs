@@ -10,6 +10,7 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<UrlService>().As<IUrlService>().InstancePerLifetimeScope();
+            builder.RegisterType<XmlSitemapGenerator>().As<IXmlSitemapGenerator>().InstancePerLifetimeScope();
             builder.RegisterType<CanonicalHostUrlFilter>().As<IUrlFilter>().SingleInstance();
         }
 

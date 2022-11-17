@@ -16,6 +16,7 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
+            builder.RegisterType<ExportProfileService>().As<IExportProfileService>().InstancePerLifetimeScope();
             builder.RegisterType<ImportProfileService>().As<IImportProfileService>().InstancePerLifetimeScope();
             builder.RegisterType<DataExporter>().As<IDataExporter>().InstancePerLifetimeScope();
             builder.RegisterType<DataImporter>().As<IDataImporter>().InstancePerLifetimeScope();

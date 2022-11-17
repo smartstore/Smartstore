@@ -11,6 +11,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterSource(new SettingsSource());
 
             builder.RegisterType<SettingFactory>().As<ISettingFactory>().SingleInstance();
+            builder.RegisterType<SettingService>().As<ISettingService>().InstancePerLifetimeScope();
         }
     }
 }
