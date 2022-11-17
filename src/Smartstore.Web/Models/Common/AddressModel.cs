@@ -157,16 +157,9 @@ namespace Smartstore.Web.Models.Common
                         .WithMessage(T("Admin.Address.Fields.Country.Required"));
                 }
 
-                RuleFor(x => x.CountryId).MustAsync(async (id, cancelToken) =>
-                {
-                    var country = await db.Countries.FindByIdAsync(id ?? 0, false, cancelToken);
-                    if (country != null)
-                    {
-                        return country.Published;
-                    }
-
-                    return true;
-                }).WithMessage(T("Admin.Address.Fields.Country.MustBePublished"));
+                RuleFor(x => x.CountryId)
+                    .Must(id => id == 0 || db.Countries.Any(x => x.Id == id && x.Published))
+                    .WithMessage(T("Admin.Address.Fields.Country.MustBePublished"));
             }
 
             if (addressSettings.StateProvinceRequired && addressSettings.StateProvinceEnabled)
