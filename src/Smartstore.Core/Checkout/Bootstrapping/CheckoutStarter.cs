@@ -41,8 +41,6 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ShoppingCartService>().As<IShoppingCartService>().InstancePerLifetimeScope();
             builder.RegisterType<GiftCardService>().As<IGiftCardService>().InstancePerLifetimeScope();
             builder.RegisterType<ShippingService>().As<IShippingService>().InstancePerLifetimeScope();
-            builder.RegisterType<PaymentService>().As<IPaymentService>().InstancePerLifetimeScope();
-            builder.RegisterType<OrderService>().As<IOrderService>().InstancePerLifetimeScope();
             builder.RegisterType<TaxService>().As<ITaxService>().InstancePerLifetimeScope();
             builder.RegisterType<TaxCalculator>().As<ITaxCalculator>().InstancePerLifetimeScope();
 

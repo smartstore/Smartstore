@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -7,8 +6,7 @@ namespace Smartstore.Core.Bootstrapping
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<StoreContext>().As<IStoreContext>().InstancePerLifetimeScope();
-            builder.RegisterType<StoreMappingService>().As<IStoreMappingService>().InstancePerLifetimeScope();
+            // Nothing right now
         }
     }
 }

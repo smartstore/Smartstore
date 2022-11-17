@@ -1,5 +1,4 @@
-﻿
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;

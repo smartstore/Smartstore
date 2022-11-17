@@ -43,10 +43,8 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<LocalMediaFileSystem>().As<IMediaFileSystem>().SingleInstance();
             builder.RegisterType<LocalMediaFileSystem>().Named<IMediaFileSystem>("local").SingleInstance();
 
-            builder.RegisterType<MediaTypeResolver>().As<IMediaTypeResolver>().InstancePerLifetimeScope();
             builder.RegisterType<MediaUrlGenerator>().As<IMediaUrlGenerator>().InstancePerLifetimeScope();
             builder.RegisterType<AlbumRegistry>().As<IAlbumRegistry>().InstancePerLifetimeScope();
-            builder.RegisterType<FolderService>().As<IFolderService>().InstancePerLifetimeScope();
             builder.RegisterType<MediaTracker>().As<IMediaTracker>().InstancePerLifetimeScope();
             builder.RegisterType<MediaSearcher>().As<IMediaSearcher>().InstancePerLifetimeScope();
             builder.RegisterType<MediaService>().As<IMediaService>().InstancePerLifetimeScope();

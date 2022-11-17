@@ -19,9 +19,6 @@ namespace Smartstore.Core.Bootstrapping
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<CultureUrlFilter>().As<IUrlFilter>().SingleInstance();
-            builder.RegisterType<LocalizedEntityService>().As<ILocalizedEntityService>().InstancePerLifetimeScope();
-            builder.RegisterType<LanguageService>().As<ILanguageService>().InstancePerLifetimeScope();
-            builder.RegisterType<LocalizationService>().As<ILocalizationService>().InstancePerLifetimeScope();
             builder.RegisterType<XmlResourceManager>().As<IXmlResourceManager>().InstancePerLifetimeScope();
             builder.RegisterType<LocalizedEntityHelper>().InstancePerLifetimeScope();
 

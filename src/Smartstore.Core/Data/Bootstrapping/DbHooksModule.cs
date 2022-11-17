@@ -38,7 +38,7 @@ namespace Smartstore.Core.Bootstrapping
                 }
 
                 var types = DiscoverHookTypes(hookType);
-
+                
                 // Find other interfaces that the impl type implements and override
                 // a possibly existing previous registration. E.g.: SettingService
                 // also implements IDbSaveHook directly. But we don't want two different registrations,
