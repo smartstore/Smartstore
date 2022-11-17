@@ -1,24 +1,33 @@
-﻿using Smartstore.Core.Widgets;
+﻿using Autofac;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class WidgetStarter : StarterBase
     {
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
-            services.AddScoped<IWidgetProvider, DefaultWidgetProvider>();
-            services.AddScoped<IWidgetService, WidgetService>();
-            services.AddScoped<IPageAssetBuilder, PageAssetBuilder>();
-            services.AddSingleton<IAssetTagGenerator, NullAssetTagGenerator>();
+            builder.RegisterType<DefaultWidgetSelector>()
+                .As<IWidgetSelector>()
+                .InstancePerLifetimeScope();
+            builder.RegisterType<DefaultWidgetProvider>()
+                .As<IWidgetProvider>()
+                .As<IWidgetSource>()
+                .InstancePerLifetimeScope();
+            builder.RegisterType<PageAssetBuilder>()
+                .As<IPageAssetBuilder>()
+                .InstancePerLifetimeScope();
+            builder.RegisterType<NullAssetTagGenerator>()
+                .As<IAssetTagGenerator>()
+                .SingleInstance();
 
+            var registration = builder.RegisterType<WidgetService>()
+                .As<IWidgetService>()
+                .InstancePerLifetimeScope();
             if (appContext.IsInstalled)
             {
-                services.AddScoped<IWidgetSelector, DefaultWidgetSelector>();
-            }
-            else
-            {
-                services.AddScoped(x => NullWidgetSelector.Instance);
+                registration.As<IWidgetSource>();
             }
         }
     }

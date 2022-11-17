@@ -1,11 +1,12 @@
 ﻿using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Widgets
 {
-    public partial class WidgetService : IWidgetService
+    public partial class WidgetService : IWidgetService, IWidgetSource
     {
         const string WIDGETS_ALLMETADATA_KEY = "widgets:allmetadata";
         const string WIDGETS_ACTIVE_KEY = "Smartstore.widgets.active-{0}";
@@ -16,20 +17,44 @@ namespace Smartstore.Core.Widgets
         private readonly ICacheFactory _cacheFactory;
         private readonly ISettingFactory _settingFactory;
         private readonly IRequestCache _requestCache;
+        private readonly IStoreContext _storeContext;
 
         public WidgetService(
             WidgetSettings widgetSettings,
             IProviderManager providerManager,
             ICacheFactory cacheFactory,
             ISettingFactory settingFactory,
-            IRequestCache requestCache)
+            IRequestCache requestCache,
+            IStoreContext storeContext)
         {
             _widgetSettings = widgetSettings;
             _providerManager = providerManager;
             _cacheFactory = cacheFactory;
             _settingFactory = settingFactory;
             _requestCache = requestCache;
+            _storeContext = storeContext;
         }
+
+        #region IWidgetSource
+
+        int IWidgetSource.Order { get; } = -1000;
+
+        Task<IEnumerable<WidgetInvoker>> IWidgetSource.GetWidgetsAsync(string zone, bool isPublicArea, object model)
+        {
+            var widgets = Enumerable.Empty<WidgetInvoker>();
+
+            if (isPublicArea)
+            {
+                var storeId = _storeContext.CurrentStore.Id;
+                widgets = LoadActiveWidgetsByWidgetZone(zone, storeId)
+                    .Select(x => x.Value.GetDisplayWidget(zone, model, storeId))
+                    .Where(x => x != null);
+            }
+
+            return Task.FromResult(widgets);
+        }
+
+        #endregion
 
         public virtual IEnumerable<Provider<IWidget>> LoadActiveWidgets(int storeId = 0)
         {
@@ -44,16 +69,18 @@ namespace Smartstore.Core.Widgets
 
         public virtual IEnumerable<Provider<IWidget>> LoadActiveWidgetsByWidgetZone(string widgetZone, int storeId = 0)
         {
+            var widgets = Enumerable.Empty<Provider<IWidget>>();
+
             if (widgetZone.IsEmpty())
             {
-                return Enumerable.Empty<Provider<IWidget>>();
+                return widgets;
             }
 
             var map = GetWidgetMetadataMap();
 
             if (map.TryGetValues(widgetZone, out var widgetMetadatas))
             {
-                return _requestCache.Get(WIDGETS_BYZONE_KEY.FormatInvariant(widgetZone.ToLower(), storeId), () =>
+                widgets = _requestCache.Get(WIDGETS_BYZONE_KEY.FormatInvariant(widgetZone.ToLower(), storeId), () =>
                 {
                     var providers = widgetMetadatas
                         .Where(m => _widgetSettings.ActiveWidgetSystemNames.Contains(m.SystemName, StringComparer.OrdinalIgnoreCase))
@@ -65,7 +92,7 @@ namespace Smartstore.Core.Widgets
                 });
             }
 
-            return Enumerable.Empty<Provider<IWidget>>();
+            return widgets;
         }
 
         public virtual async Task ActivateWidgetAsync(string systemName, bool activate)

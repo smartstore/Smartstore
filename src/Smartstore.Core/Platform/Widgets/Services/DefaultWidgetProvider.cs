@@ -1,13 +1,12 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using Smartstore.Collections;
 
 namespace Smartstore.Core.Widgets
 {
-    public class DefaultWidgetProvider : IWidgetProvider
+    public class DefaultWidgetProvider : IWidgetProvider, IWidgetSource
     {
         private readonly IHttpContextAccessor _accessor;
         private readonly IApplicationContext _appContext;
@@ -22,6 +21,17 @@ namespace Smartstore.Core.Widgets
             _appContext = appContext;
             _memoryCache = memoryCache;
         }
+
+        #region IWidgetSource
+
+        int IWidgetSource.Order { get; } = 1000;
+
+        Task<IEnumerable<WidgetInvoker>> IWidgetSource.GetWidgetsAsync(string zone, bool isPublicArea, object model)
+        {
+            return Task.FromResult(GetWidgets(zone));
+        }
+
+        #endregion
 
         public virtual void RegisterWidget(string[] zones, WidgetInvoker widget)
         {
