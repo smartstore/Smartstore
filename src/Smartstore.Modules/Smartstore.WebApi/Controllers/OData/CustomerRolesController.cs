@@ -31,6 +31,7 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPut]
         [Permission(Permissions.Customer.Role.Update)]
+        [ProducesResponseType(Status403Forbidden)]
         public Task<IActionResult> Put(int key, Delta<CustomerRole> model)
         {
             return PutAsync(key, model, async (entity) =>
@@ -42,6 +43,7 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPatch]
         [Permission(Permissions.Customer.Role.Update)]
+        [ProducesResponseType(Status403Forbidden)]
         public Task<IActionResult> Patch(int key, Delta<CustomerRole> model)
         {
             return PatchAsync(key, model, async (entity) =>
@@ -53,6 +55,7 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpDelete]
         [Permission(Permissions.Customer.Role.Delete)]
+        [ProducesResponseType(Status403Forbidden)]
         public Task<IActionResult> Delete(int key)
         {
             return DeleteAsync(key, async (entity) =>

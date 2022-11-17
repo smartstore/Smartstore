@@ -62,19 +62,19 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpPost, ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Post()
         {
-            return ErrorResult(null, "POST MediaFiles is not allowed.", Status403Forbidden);
+            return Forbidden();
         }
 
         [HttpPut, ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Put()
         {
-            return ErrorResult(null, "PUT MediaFiles is not allowed.", Status403Forbidden);
+            return Forbidden();
         }
 
         [HttpPatch, ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Patch()
         {
-            return ErrorResult(null, "PATCH MediaFiles is not allowed.", Status403Forbidden);
+            return Forbidden();
         }
 
         [HttpDelete, ApiExplorerSettings(IgnoreApi = true)]
@@ -82,7 +82,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             // Insufficient endpoint. Parameters required but ODataActionParameters not possible here.
             // Query string parameters less good because not part of the EDM.
-            return ErrorResult(null, $"DELETE MediaFiles is not allowed. Use action method \"{nameof(DeleteFile)}\" instead.", Status403Forbidden);
+            return Forbidden($"Use endpoint \"{nameof(DeleteFile)}\" instead.");
         }
 
         #region Actions and functions

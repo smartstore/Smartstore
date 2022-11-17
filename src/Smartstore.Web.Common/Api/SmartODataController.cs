@@ -343,24 +343,6 @@ namespace Smartstore.Web.Api
             return default;
         }
 
-        protected ODataErrorResult ErrorResult(
-            Exception ex = null,
-            string message = null,
-            int statusCode = StatusCodes.Status422UnprocessableEntity)
-        {
-            if (ex != null && ex is ODataErrorException oex)
-            {
-                return ODataErrorResult(oex.Error);
-            }
-
-            return ODataErrorResult(new()
-            {
-                ErrorCode = statusCode.ToString(),
-                Message = message ?? ex.Message,
-                InnerError = ex != null ? new ODataInnerError(ex) : null
-            });
-        }
-
         protected async Task<TEntity> ApplyRelatedEntityIdsAsync(TEntity entity)
         {
             if (entity != null)
@@ -434,8 +416,34 @@ namespace Smartstore.Web.Api
             return 0;
         }
 
+        protected ODataErrorResult ErrorResult(
+            Exception ex = null,
+            string message = null,
+            int statusCode = StatusCodes.Status422UnprocessableEntity)
+        {
+            if (ex != null && ex is ODataErrorException oex)
+            {
+                return ODataErrorResult(oex.Error);
+            }
+
+            return ODataErrorResult(new()
+            {
+                ErrorCode = statusCode.ToString(),
+                Message = message ?? ex.Message,
+                InnerError = ex != null ? new ODataInnerError(ex) : null
+            });
+        }
+
         protected NotFoundODataResult NotFound(int id, string entityName = null)
             => NotFound($"Cannot find {entityName ?? typeof(TEntity).Name} entity with identifier {id}.");
+
+        /// <summary>
+        /// Returns <see cref="ODataErrorResult"/> with status <see cref="StatusCodes.Status403Forbidden"/>
+        /// and the message that the current operation is not allowed on this endpoint.
+        /// </summary>
+        /// <param name="extraInfo">Extra info to append to the message.</param>
+        protected ODataErrorResult Forbidden(string extraInfo = null)
+            => ErrorResult(null, $"{Request.Method} on {Request.Path} is not allowed.".Grow(extraInfo, " "), StatusCodes.Status403Forbidden);
 
         #endregion
     }

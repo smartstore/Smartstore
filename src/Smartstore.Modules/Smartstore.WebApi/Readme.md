@@ -23,26 +23,57 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
 
 - Changed endpoints:
 <table>
+<tbody>
     <tr>
         <th>Old endpoint</th>
         <th>New endpoint</th>
+        <th>Remarks</th>
     </tr>
     <tr>
-        <td>GET MediaFiles/Download(Id=id)</td>
-        <td>GET MediaFiles/DownloadFile(id={id})</td>
+        <td>GET MediaFiles/Download({Id})</td>
+        <td>GET MediaFiles/DownloadFile({id})</td>
+        <td></td>
     </tr>
     <tr>
         <td>POST OrderItems({id})/Infos</td>
-        <td>GET OrderItems/GetShipmentInfo(id={id})</td>
+        <td>GET OrderItems/GetShipmentInfo({id})</td>
+        <td></td>
     </tr>
     <tr>
         <td>POST Orders({id})/Infos</td>
-        <td>GET Orders/GetShipmentInfo(id={id})</td>
+        <td>GET Orders/GetShipmentInfo({id})</td>
+        <td></td>
     </tr>
     <tr>
         <td>POST Orders({id})/Pdf</td>
-        <td>GET Orders/DownloadPdf(id={id})</td>
+        <td>GET Orders/DownloadPdf({id})</td>
+        <td></td>
     </tr>
+    <tr>
+        <td>GET Payments/Methods <sup>1.</sup></td>
+        <td>GET PaymentMethods/GetAllPaymentMethods({active},{storeId})</td>
+        <td>New method.</td>
+    </tr>
+    <tr>
+        <td>ProductPictures/...</td>
+        <td>ProductMediaFiles/...</td>
+        <td>The controller name has changed.</td>
+    </tr>
+    <tr>
+        <td>GET ProductPictures({key})/Picture</td>
+        <td>GET ProductMediaFiles({key})/MediaFile</td>
+        <td></td>
+    </tr>
+</tbody>
+<tfoot>
+    <tr>
+        <td colspan="3">
+            <small>
+                <sup>1.</sup> Route <strong>/api/v1/</strong> no longer exists.
+            </small>
+        </td>
+    </tr>
+</tfoot>
 </table>
 
 - The prefix of response headers changed from **SmartStore-Net-Api-** to **Smartstore-Api-**. More changes:

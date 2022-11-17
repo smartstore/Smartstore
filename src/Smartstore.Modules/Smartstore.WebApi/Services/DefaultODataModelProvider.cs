@@ -1,12 +1,14 @@
 ﻿using System.IO;
 using System.Net.Http;
 using Microsoft.OData.ModelBuilder;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
@@ -40,13 +42,16 @@ namespace Smartstore.Web.Api
             builder.EntitySet<Manufacturer>("Manufacturers");
             builder.EntitySet<MeasureDimension>("MeasureDimensions");
             builder.EntitySet<MeasureWeight>("MeasureWeights");
-            builder.EntitySet<NewsletterSubscription>("NewsletterSubscriptions");
-            builder.EntitySet<OrderItem>("OrderItems");
             builder.EntitySet<OrderNote>("OrderNotes");
-            builder.EntitySet<Order>("Orders");
-
             builder.EntitySet<PriceLabel>("PriceLabels");
-            builder.EntitySet<Product>("Products");
+            builder.EntitySet<ProductAttributeOption>("ProductAttributeOptions");
+            builder.EntitySet<ProductAttributeOptionsSet>("ProductAttributeOptionsSets");
+            builder.EntitySet<ProductAttribute>("ProductAttributes");
+            builder.EntitySet<ProductBundleItem>("ProductBundleItems");
+            builder.EntitySet<ProductCategory>("ProductCategories");
+            builder.EntitySet<ProductManufacturer>("ProductManufacturers");
+            builder.EntitySet<ProductMediaFile>("ProductMediaFiles");
+
             builder.EntitySet<RewardPointsHistory>("RewardPointsHistory");
             // TODO: (mg) (core) add actions to "Shipments": SetAsShipped, SetAsDelivered, DownloadPdfPackagingSlips.
             builder.EntitySet<Shipment>("Shipments");
@@ -60,6 +65,8 @@ namespace Smartstore.Web.Api
             BuildNewsletterSubscriptions(builder);
             BuildOrderItems(builder);
             BuildOrders(builder);
+            BuildPaymentMethods(builder);
+            BuildProducts(builder);
 
             builder.EntitySet<StateProvince>("StateProvinces");
         }
@@ -313,6 +320,25 @@ namespace Smartstore.Web.Api
             addShipment.Parameter<bool>("notifyCustomer")
                 .HasDefaultValue(bool.TrueString)
                 .Optional();
+        }
+
+        private static void BuildPaymentMethods(ODataModelBuilder builder)
+        {
+            var set = builder.EntitySet<PaymentMethod>("PaymentMethods");
+
+            var getAllPaymentMethods = set.EntityType.Collection.Function(nameof(PaymentMethodsController.GetAllPaymentMethods))
+                .Returns<string[]>();
+
+            getAllPaymentMethods.Parameter<bool>("active")
+                .Required();
+            getAllPaymentMethods.Parameter<int>("storeId")
+                .Optional();
+        }
+
+        private static void BuildProducts(ODataModelBuilder builder)
+        {
+            const string setName = "Products";
+            var set = builder.EntitySet<Product>(setName);
         }
     }
 }

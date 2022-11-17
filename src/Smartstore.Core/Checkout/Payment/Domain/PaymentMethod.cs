@@ -59,6 +59,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets or sets the payment method system name.
         /// </summary>
+        /// <example>Payments.PayPalStandard</example>
         [Required, StringLength(255)]
         public string PaymentMethodSystemName { get; set; }
 

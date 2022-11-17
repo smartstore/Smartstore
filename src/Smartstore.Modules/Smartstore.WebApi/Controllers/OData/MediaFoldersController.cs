@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Runtime.Intrinsics.X86;
 using Microsoft.AspNetCore.OData.Formatter;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -57,19 +58,19 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpPost, ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Post()
         {
-            return ErrorResult(null, "POST MediaFolders is not allowed.", Status403Forbidden);
+            return Forbidden();
         }
 
         [HttpPut, ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Put()
         {
-            return ErrorResult(null, "PUT MediaFolders is not allowed.", Status403Forbidden);
+            return Forbidden();
         }
 
         [HttpPatch, ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Patch()
         {
-            return ErrorResult(null, "PATCH MediaFolders is not allowed.", Status403Forbidden);
+            return Forbidden();
         }
 
         [HttpDelete, ApiExplorerSettings(IgnoreApi = true)]
@@ -77,7 +78,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             // Insufficient endpoint. Parameters required but ODataActionParameters not possible here.
             // Query string parameters less good because not part of the EDM.
-            return ErrorResult(null, $"DELETE MediaFolders is not allowed. Use action method \"{nameof(DeleteFolder)}\" instead.", Status403Forbidden);
+            return Forbidden($"Use endpoint \"{nameof(DeleteFolder)}\" instead.");
         }
 
         #region Actions and functions
