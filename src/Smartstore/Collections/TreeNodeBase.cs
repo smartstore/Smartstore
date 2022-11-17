@@ -638,7 +638,7 @@ namespace Smartstore.Collections
             var refParent = refNode._parent;
             if (refParent == null)
             {
-                throw Error.Argument("refNode", "The reference node cannot be a root node and must be attached to the tree.");
+                throw new ArgumentException("The reference node cannot be a root node and must be attached to the tree.", nameof(refNode));
             }
 
             AttachTo(refParent, refNode._index + (after ? 1 : 0));

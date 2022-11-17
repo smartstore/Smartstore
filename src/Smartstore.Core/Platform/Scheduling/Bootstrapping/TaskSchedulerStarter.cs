@@ -12,7 +12,7 @@ namespace Smartstore.Core.Bootstrapping
         {
             builder.Configure(StarterOrdering.BeforeRewriteMiddleware, app =>
             {
-                app.MapTaskScheduler(p => 
+                app.MapTaskScheduler(p =>
                 {
                     // INFO: we gonna need "/noop" during install
                     if (builder.ApplicationContext.IsInstalled)

@@ -54,16 +54,16 @@ namespace Smartstore.ComponentModel
 
         public static object SafeConvert(this ITypeConverter converter, string value)
         {
-            try
+            if (converter != null && value.HasValue() && converter.CanConvertFrom(typeof(string)))
             {
-                if (converter != null && value.HasValue() && converter.CanConvertFrom(typeof(string)))
+                try
                 {
                     return converter.ConvertFrom(value);
                 }
-            }
-            catch (Exception exc)
-            {
-                exc.Dump();
+                catch (Exception ex)
+                {
+                    ex.Dump();
+                }
             }
 
             return null;

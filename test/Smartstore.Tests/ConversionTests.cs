@@ -49,7 +49,7 @@ namespace Smartstore.Tests
         [Test]
         public void CanConvertEnums()
         {
-            var e1 = ("CreateInstance").Convert<BindingFlags>();
+            var e1 = "CreateInstance".Convert<BindingFlags>();
             e1.ShouldBe<BindingFlags>();
             Assert.AreEqual(e1, BindingFlags.CreateInstance);
 

@@ -78,8 +78,7 @@ namespace Smartstore.Events
                     }
                     else
                     {
-                        // TODO: message
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Message types must be public classes.");
                     }
                 }
             }
