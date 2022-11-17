@@ -35,7 +35,7 @@
 
             <input type="hidden" id="customercommenthidden" name="customercommenthidden" />
 
-            <div sm-suppress-if-empty-zone="checkout_submit_data_consent" sm-if="Model.TermsOfServiceEnabled
+            <div sm-if="Model.TermsOfServiceEnabled
                 || Model.NewsletterSubscription != CheckoutNewsletterSubscription.None
                 || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None"
                  id="terms-of-service-consent-box" class="card mb-3">
