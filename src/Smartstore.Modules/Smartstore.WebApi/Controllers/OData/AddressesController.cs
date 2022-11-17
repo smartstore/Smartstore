@@ -35,9 +35,9 @@
 
         [HttpPost]
         [Permission(Permissions.Customer.Create)]
-        public Task<IActionResult> Post([FromBody] Address entity)
+        public Task<IActionResult> Post([FromBody] Address model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]
