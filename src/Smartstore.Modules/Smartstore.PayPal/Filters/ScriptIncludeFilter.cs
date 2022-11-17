@@ -9,8 +9,8 @@ using Smartstore.Utilities;
 namespace Smartstore.PayPal.Filters
 {
     /// <summary>
-    /// Renders a script to detect buyer fraud early by collecting the buyer's browser information during checkout and passing it to PayPal.
-    /// Must be active for pay per invoice. 
+    /// Renders a script to detect buyer fraud early by collecting the buyer's browser information during checkout and passing it to PayPal (must be active for pay per invoice). 
+    /// Also renders the standard script.
     /// </summary>
     public class ScriptIncludeFilter : IAsyncActionFilter
     {
@@ -36,37 +36,40 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            // If client id or secret haven't been configured yet, don't show button.
-            if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
+            if (await IsPayPalStandardActive())
             {
-                await next();
-                return;
+                // If client id or secret haven't been configured yet, don't show button.
+                if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
+                {
+                    await next();
+                    return;
+                }
+
+                var currency = _services.WorkContext.WorkingCurrency.CurrencyCode;
+
+                var scriptUrl = $"https://www.paypal.com/sdk/js" +
+                    $"?client-id={_settings.ClientId}" +
+                    $"&currency={currency}" +
+                    // Ensures no breaking changes will be applied in SDK.
+                    $"&integration-date=2021-12-14" +
+                    $"&commit=false" +
+                    $"&components=messages,buttons,funding-eligibility";
+
+                if (_settings.DisabledFundings.HasValue())
+                {
+                    scriptUrl += $"&disable-funding={GetFundingOptions<DisableFundingOptions>(_settings.DisabledFundings)}";
+                }
+
+                if (_settings.EnabledFundings.HasValue())
+                {
+                    scriptUrl += $"&enable-funding={GetFundingOptions<EnableFundingOptions>(_settings.EnabledFundings)}";
+                }
+
+                scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
+                scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
+
+                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' async id='paypal-js'></script>"));
             }
-
-            var currency = _services.WorkContext.WorkingCurrency.CurrencyCode;
-            
-            var scriptUrl = $"https://www.paypal.com/sdk/js" +
-                $"?client-id={_settings.ClientId}" +
-                $"&currency={currency}" +
-                // Ensures no breaking changes will be applied in SDK.
-                $"&integration-date=2021-12-14" +
-                $"&commit=false" + 
-                $"&components=messages,buttons,funding-eligibility";
-
-            if (_settings.DisabledFundings.HasValue())
-            {
-                scriptUrl += $"&disable-funding={GetFundingOptions<DisableFundingOptions>(_settings.DisabledFundings)}";
-            }
-
-            if (_settings.EnabledFundings.HasValue())
-            {
-                scriptUrl += $"&enable-funding={GetFundingOptions<EnableFundingOptions>(_settings.EnabledFundings)}";
-            }
-
-            scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
-            scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
-
-            _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' async id='paypal-js'></script>"));
 
             if (!await IsPayUponInvoiceActive())
             {
@@ -103,6 +106,9 @@ namespace Smartstore.PayPal.Filters
 
         private Task<bool> IsPayUponInvoiceActive()
             => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalPayUponInvoice", null, _services.StoreContext.CurrentStore.Id);
+
+        private Task<bool> IsPayPalStandardActive()
+            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalStandard", null, _services.StoreContext.CurrentStore.Id);
 
         private static string GetSourceIdentifier(string merchantName, string payerId, string routeId)
         {
