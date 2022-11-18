@@ -25,9 +25,9 @@ namespace Smartstore.Data.Hooks
 
                 for (var i = 0; i < hook.ServiceTypes.Length; i++)
                 {
-                    if (_scope.TryResolve(hook.ServiceTypes[i], out var obj))
+                    if (_scope.TryResolve(hook.ServiceTypes[i], out var obj) && obj is IDbSaveHook saveHook)
                     {
-                        return (IDbSaveHook)obj;
+                        return saveHook;
                     }
                 }
 

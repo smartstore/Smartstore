@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
@@ -13,6 +14,7 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<TopicXmlSitemapPublisher>().As<IXmlSitemapPublisher>().InstancePerLifetimeScope();
+            builder.RegisterType<TopicWidgetSource>().As<IWidgetSource>().InstancePerLifetimeScope();
         }
     }
 }

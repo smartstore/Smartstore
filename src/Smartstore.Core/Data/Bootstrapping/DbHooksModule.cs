@@ -2,6 +2,7 @@
 using Autofac;
 using Smartstore.Bootstrapping;
 using Smartstore.Core.Data;
+using Smartstore.Core.Widgets;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine.Modularity;
 using Smartstore.Events;
@@ -46,7 +47,7 @@ namespace Smartstore.Core.Bootstrapping
                 // either injected as ISettingService or IDbSaveHook.
                 var serviceTypes = hookType.GetTypeInfo().ImplementedInterfaces
                     .Where(x => !x.IsGenericType)
-                    .Except(EventsModule.IgnoredInterfaces.Concat(new[] { typeof(IDbSaveHook), typeof(IConsumer) }))
+                    .Except(EventsModule.IgnoredInterfaces.Concat(new[] { typeof(IDbSaveHook), typeof(IConsumer), typeof(IWidgetSource) }))
                     .ToArray();
 
                 var registration = builder.RegisterType(hookType)
