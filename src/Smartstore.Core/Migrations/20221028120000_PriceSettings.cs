@@ -81,6 +81,36 @@ namespace Smartstore.Core.Data.Migrations
                 }
             }
 
+            var defaultComparePriceLabelIdSetting = await db.Settings
+                .Where(x => x.Name == "PriceSettings.DefaultComparePriceLabelId")
+                .FirstOrDefaultAsync(cancellationToken: cancelToken);
+
+            if (defaultComparePriceLabelIdSetting == null)
+            {
+                // Setting isn't saved yet. Lets create it.
+                db.Settings.Add(new Setting
+                {
+                    Name = "PriceSettings.DefaultComparePriceLabelId",
+                    Value = "0",
+                    StoreId = 0
+                });
+            }
+
+            var defaultRegularPriceLabelIdSetting = await db.Settings
+                .Where(x => x.Name == "PriceSettings.DefaultRegularPriceLabelId")
+                .FirstOrDefaultAsync(cancellationToken: cancelToken);
+
+            if (defaultRegularPriceLabelIdSetting == null)
+            {
+                // Setting isn't saved yet. Lets create it.
+                db.Settings.Add(new Setting
+                {
+                    Name = "PriceSettings.DefaultRegularPriceLabelId",
+                    Value = "0",
+                    StoreId = 0
+                });
+            }
+
             // Move some settings from CatalogSettings to PriceSettings class
             var moveSettingProps = new[]
             {
