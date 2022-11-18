@@ -6,12 +6,12 @@
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<SatelliteResourceLanguages>ar; de; de-DE; es; fa; fr; it; ja; nl; pt; pt-BR; ru; sv; tr; vi; zh-CN</SatelliteResourceLanguages>
 		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
-		<ChecksumAlgorithm>SHA1</ChecksumAlgorithm>
+        <ChecksumAlgorithm>SHA1</ChecksumAlgorithm>
 		<Configurations>Debug;Release;DebugNoRazorCompile</Configurations>
 		<NoWarn>1573;1591;1701;1702</NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup>
+    <PropertyGroup>
 		<Product>Smartstore</Product>
 		<Copyright>Copyright © Smartstore AG</Copyright>
 		<Company>Smartstore AG</Company>
@@ -33,7 +33,7 @@
 		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugNO|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugNoRazorCompile|AnyCPU'">
 		<PlatformTarget>AnyCPU</PlatformTarget>
 		<Optimize>false</Optimize>
 		<DefineConstants>DEBUG;TRACE</DefineConstants>

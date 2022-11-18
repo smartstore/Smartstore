@@ -32,7 +32,7 @@
                 <smart-label asp-for="Locales[item].Description" />
             </div>
             <div class="adminData">
-                <input asp-for="Locales[item].Description" />
+                <textarea rows="3" asp-for="Locales[item].Description"></textarea>
                 <span asp-validation-for="Locales[item].Description"></span>
             </div>
         </div>
@@ -62,7 +62,7 @@
                 <smart-label asp-for="Description" />
             </div>
             <div class="adminData">
-                <input asp-for="Description" />
+                <textarea rows="3" asp-for="Description"></textarea>
                 <span asp-validation-for="Description"></span>
             </div>
         </div>

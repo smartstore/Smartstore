@@ -42,9 +42,7 @@ namespace Smartstore.Core.Widgets
                 viewContext,
                 viewContext.View,
                 viewData,
-                viewContext.TempData,
-                viewContext.Writer,
-                viewContext.HttpContext.RequestServices.GetRequiredService<IOptions<MvcViewOptions>>().Value.HtmlHelperOptions);
+                viewContext.Writer);
         }
     }
 }
