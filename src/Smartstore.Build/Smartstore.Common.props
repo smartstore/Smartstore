@@ -16,9 +16,9 @@
 		<Copyright>Copyright © Smartstore AG</Copyright>
 		<Company>Smartstore AG</Company>
 		<Authors>Smartstore AG</Authors>
-		<Version>5.0.0.0</Version>
-		<FileVersion>5.0.0.0</FileVersion>
-		<InformationalVersion>5.0.0.0</InformationalVersion>
+		<Version>5.0.1.0</Version>
+		<FileVersion>5.0.1.0</FileVersion>
+		<InformationalVersion>5.0.1.0</InformationalVersion>
 		<PackageProjectUrl>https://smartstore.com/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/smartstore/Smartstore</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
