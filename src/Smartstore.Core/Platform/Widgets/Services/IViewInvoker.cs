@@ -14,7 +14,7 @@ namespace Smartstore.Core.Widgets
         /// Gets an <see cref="ActionContext"/> instance for the given <paramref name="module"/> area
         /// so that view resolver looks up pathes in the module directory first.
         /// </summary>
-        /// <param name="context">The original action context</param>
+        /// <param name="context">The original action context or <c>null</c> to construct a fresh context.</param>
         /// <param name="module">The module to get action context for.</param>
         ActionContext GetActionContext(ActionContext context, string module);
 

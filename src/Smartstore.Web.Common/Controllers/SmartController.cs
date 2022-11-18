@@ -5,7 +5,6 @@ using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Web.Razor;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
