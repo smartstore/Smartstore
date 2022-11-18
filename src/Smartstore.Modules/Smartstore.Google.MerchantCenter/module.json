@@ -5,8 +5,8 @@
   "SystemName": "Smartstore.Google.MerchantCenter",
   "FriendlyName": "Google Merchant Center (GMC) feed",
   "Description": "Exports products in the Google Merchant Center feed format.",
-  "Version": "5.0",
-  "MinAppVersion": "5.0",
+  "Version": "5.0.1",
+  "MinAppVersion": "5.0.1",
   "Order": 1,
   "ResourceRootKey": "Plugins.Feed.Froogle",
   "ProjectUrl": "http://community.smartstore.com/marketplace/file/37-google-merchant-center-gmc-feed/"

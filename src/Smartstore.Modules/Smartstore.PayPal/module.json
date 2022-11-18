@@ -5,8 +5,8 @@
   "SystemName": "Smartstore.PayPal",
   "FriendlyName": "Smartstore.PayPal",
   "Description": "Enables payments with PayPal",
-  "Version": "5.0",
-  "MinAppVersion": "5.0",
+  "Version": "5.0.1",
+  "MinAppVersion": "5.0.1",
   "Order": 1,
   "ResourceRootKey": "Plugins.Smartstore.PayPal",
   "ProjectUrl": "http://community.smartstore.com/marketplace/file/29-paypal-payment-plugins/"
