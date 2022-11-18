@@ -38,9 +38,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditManufacturer)]
-        public Task<IActionResult> Post([FromBody] ProductManufacturer entity)
+        public Task<IActionResult> Post([FromBody] ProductManufacturer model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

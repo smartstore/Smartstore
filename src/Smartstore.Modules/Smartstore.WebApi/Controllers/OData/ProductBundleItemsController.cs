@@ -37,9 +37,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditBundle)]
-        public Task<IActionResult> Post([FromBody] ProductBundleItem entity)
+        public Task<IActionResult> Post([FromBody] ProductBundleItem model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

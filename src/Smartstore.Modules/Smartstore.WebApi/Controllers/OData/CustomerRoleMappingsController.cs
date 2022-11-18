@@ -37,9 +37,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Customer.EditRole)]
-        public Task<IActionResult> Post([FromBody] CustomerRoleMapping entity)
+        public Task<IActionResult> Post([FromBody] CustomerRoleMapping model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

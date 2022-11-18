@@ -18,9 +18,9 @@
         }
 
         [HttpPost]
-        public Task<IActionResult> Post([FromBody] GenericAttribute entity)
+        public Task<IActionResult> Post([FromBody] GenericAttribute model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

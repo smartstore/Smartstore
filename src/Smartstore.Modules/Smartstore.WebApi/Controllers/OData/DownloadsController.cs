@@ -30,9 +30,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Media.Download.Create)]
-        public Task<IActionResult> Post([FromBody] Download entity)
+        public Task<IActionResult> Post([FromBody] Download model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

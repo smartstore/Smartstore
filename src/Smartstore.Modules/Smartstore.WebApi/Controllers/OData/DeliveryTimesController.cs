@@ -31,9 +31,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Configuration.DeliveryTime.Create)]
-        public Task<IActionResult> Post([FromBody] DeliveryTime entity)
+        public Task<IActionResult> Post([FromBody] DeliveryTime model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

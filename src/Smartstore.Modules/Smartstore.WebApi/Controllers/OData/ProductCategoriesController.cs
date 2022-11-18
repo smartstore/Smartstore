@@ -38,9 +38,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditCategory)]
-        public Task<IActionResult> Post([FromBody] ProductCategory entity)
+        public Task<IActionResult> Post([FromBody] ProductCategory model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

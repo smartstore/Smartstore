@@ -140,12 +140,12 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Create)]
-        public Task<IActionResult> Post([FromBody] Product entity)
+        public Task<IActionResult> Post([FromBody] Product model)
         {
-            return PostAsync(entity, async () =>
+            return PostAsync(model, async () =>
             {
                 await Db.SaveChangesAsync();
-                await UpdateSlug(entity);
+                await UpdateSlug(model);
             });
         }
 
@@ -188,7 +188,6 @@ namespace Smartstore.Web.Api.Controllers.OData
             int relatedkey /*categoryId*/, 
             [FromBody] ProductCategory model)
         {
-            // TODO: (mg) (core) rename method parameter "entity" to "model" everywhere.
             try
             {
                 var entity = await GetRequiredById(key, q => q.Include(x => x.ProductCategories));

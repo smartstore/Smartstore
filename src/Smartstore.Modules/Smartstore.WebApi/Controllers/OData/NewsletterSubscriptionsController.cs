@@ -32,14 +32,14 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Promotion.Newsletter.Update)]
-        public async Task<IActionResult> Post([FromBody] NewsletterSubscription entity)
+        public async Task<IActionResult> Post([FromBody] NewsletterSubscription model)
         {
-            if (!entity.Email.IsEmail())
+            if (!model.Email.IsEmail())
             {
-                return BadRequest($"Provided email address {entity.Email} is invalid.");
+                return BadRequest($"Provided email address {model.Email} is invalid.");
             }
 
-            return await PostAsync(entity);
+            return await PostAsync(model);
         }
 
         [HttpPut]

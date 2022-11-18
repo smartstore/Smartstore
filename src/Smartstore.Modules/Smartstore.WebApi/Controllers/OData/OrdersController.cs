@@ -89,9 +89,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Order.Create)]
-        public Task<IActionResult> Post([FromBody] Order entity)
+        public Task<IActionResult> Post([FromBody] Order model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

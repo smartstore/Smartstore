@@ -30,9 +30,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Catalog.Variant.Create)]
-        public Task<IActionResult> Post([FromBody] ProductAttribute entity)
+        public Task<IActionResult> Post([FromBody] ProductAttribute model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

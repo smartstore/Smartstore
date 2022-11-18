@@ -28,9 +28,9 @@
 
         [HttpPost]
         [Permission(Permissions.Configuration.Country.Create)]
-        public Task<IActionResult> Post([FromBody] Country entity)
+        public Task<IActionResult> Post([FromBody] Country model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

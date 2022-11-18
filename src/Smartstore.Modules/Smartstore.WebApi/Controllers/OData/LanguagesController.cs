@@ -23,9 +23,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Configuration.Language.Create)]
-        public Task<IActionResult> Post([FromBody] Language entity)
+        public Task<IActionResult> Post([FromBody] Language model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

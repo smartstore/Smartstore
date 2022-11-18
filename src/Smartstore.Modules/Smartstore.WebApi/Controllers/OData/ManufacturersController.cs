@@ -47,12 +47,12 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Catalog.Manufacturer.Create)]
-        public Task<IActionResult> Post([FromBody] Manufacturer entity)
+        public Task<IActionResult> Post([FromBody] Manufacturer model)
         {
-            return PostAsync(entity, async () =>
+            return PostAsync(model, async () =>
             {
                 await Db.SaveChangesAsync();
-                await UpdateSlug(entity);
+                await UpdateSlug(model);
             });
         }
 

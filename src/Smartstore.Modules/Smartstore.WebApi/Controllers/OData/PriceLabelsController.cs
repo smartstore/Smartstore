@@ -23,9 +23,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Configuration.PriceLabel.Create)]
-        public Task<IActionResult> Post([FromBody] PriceLabel entity)
+        public Task<IActionResult> Post([FromBody] PriceLabel model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

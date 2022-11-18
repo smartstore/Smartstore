@@ -21,9 +21,9 @@
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Create)]
-        public Task<IActionResult> Post([FromBody] MeasureWeight entity)
+        public Task<IActionResult> Post([FromBody] MeasureWeight model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

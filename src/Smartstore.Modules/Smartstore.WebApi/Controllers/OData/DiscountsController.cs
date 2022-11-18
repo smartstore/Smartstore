@@ -47,9 +47,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Promotion.Discount.Create)]
-        public Task<IActionResult> Post([FromBody] Discount entity)
+        public Task<IActionResult> Post([FromBody] Discount model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

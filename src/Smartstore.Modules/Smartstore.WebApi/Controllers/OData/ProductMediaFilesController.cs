@@ -38,9 +38,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditPicture)]
-        public Task<IActionResult> Post([FromBody] ProductMediaFile entity)
+        public Task<IActionResult> Post([FromBody] ProductMediaFile model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

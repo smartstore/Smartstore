@@ -26,9 +26,9 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         [HttpPost]
-        public Task<IActionResult> Post([FromBody] LocalizedProperty entity)
+        public Task<IActionResult> Post([FromBody] LocalizedProperty model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

@@ -82,23 +82,23 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Customer.Create)]
-        public async Task<IActionResult> Post([FromBody] Customer entity)
+        public async Task<IActionResult> Post([FromBody] Customer model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if (entity == null)
+            if (model == null)
             {
                 return BadRequest($"Missing or invalid API request body for {nameof(Customer)} entity.");
             }
 
-            entity = await ApplyRelatedEntityIdsAsync(entity);
+            model = await ApplyRelatedEntityIdsAsync(model);
 
-            var result = await _userManager.Value.CreateAsync(entity);
+            var result = await _userManager.Value.CreateAsync(model);
             if (result.Succeeded)
             {
-                return Created(entity);
+                return Created(model);
             }
             else
             {

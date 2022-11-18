@@ -36,9 +36,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpPost]
         [Permission(Permissions.Configuration.PaymentMethod.Update)]
-        public Task<IActionResult> Post([FromBody] PaymentMethod entity)
+        public Task<IActionResult> Post([FromBody] PaymentMethod model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]

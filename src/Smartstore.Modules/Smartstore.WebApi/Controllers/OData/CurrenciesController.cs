@@ -21,9 +21,9 @@
 
         [HttpPost]
         [Permission(Permissions.Configuration.Currency.Create)]
-        public Task<IActionResult> Post([FromBody] Currency entity)
+        public Task<IActionResult> Post([FromBody] Currency model)
         {
-            return PostAsync(entity);
+            return PostAsync(model);
         }
 
         [HttpPut]
