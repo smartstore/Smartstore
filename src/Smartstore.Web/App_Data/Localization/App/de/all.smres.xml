@@ -870,9 +870,6 @@
 	<LocaleResource Name="Admin.Affiliates.AddNew">
 		<Value>Neuen Partner hinzufügen</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Affiliates.BackToList">
-		<Value>Zurück zur Liste</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Affiliates.Customers">
 		<Value>Kunden</Value>
 	</LocaleResource>
@@ -953,9 +950,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.AddNew">
 		<Value>Neues Checkout-Attribut hinzufügen.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.BackToList">
-		<Value>Zurück zur Attribut-Liste</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Deleted">
 		<Value>Das Attribut wurde erfolgreich gelöscht.</Value>
@@ -1284,53 +1278,11 @@
 	<LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.Options.SaveBeforeEdit">
 		<Value>Sie müssen das Attribut zunächst spreichern, bevor Sie Optionen hinzufügen können.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.PleaseSelect">
+		<Value>Bitte wählen Sie das Attribut, dass hinzugefügt werden soll.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Attributes.SpecificationAttributes.Updated">
 		<Value>Das Attribut wurde erfolgreich bearbeitet.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit">
-		<Value>Produktmassenbearbeitung</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.Fields.ManageInventoryMethod">
-		<Value>Lagerbestandsführung</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.Fields.Name">
-		<Value>Name</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.Fields.OldPrice">
-		<Value>Alter Preis</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.Fields.Price">
-		<Value>Preis</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.Fields.Published">
-		<Value>Veröffentlicht</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.Fields.SKU">
-		<Value>Artikelnummer</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.Fields.StockQuantity">
-		<Value>Lagerbestand</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.Info">
-		<Value>Klicken Sie in der Tabelle auf die Werte der Produkte, die Sie bearbeiten wollen. Ändern Sie die Werte wie gewünscht und übernehmen Sie Ihre Änderungen mit einem Klick auf [Änderungen speichern] oder verwerfen Sie sie mit einem Klick auf [Änderungen verwerfen]</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.List.SearchCategory">
-		<Value>Warengruppe</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.List.SearchCategory.Hint">
-		<Value>Warengruppe eingrenzen</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.List.SearchManufacturer">
-		<Value>Hersteller</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.List.SearchManufacturer.Hint">
-		<Value>Hersteller eingrenzen</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.List.SearchProductName">
-		<Value>Produktname</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.BulkEdit.List.SearchProductName.Hint">
-		<Value>Produktname</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Categories">
 		<Value>Warengruppen</Value>
@@ -1701,6 +1653,12 @@
 	<LocaleResource Name="Admin.Catalog.ProductReviews.Fields.IsApproved.Hint">
 		<Value>Bewertung genehmigt (wird dadurch im Shop für alle Besucher sichtbar)</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.ProductReviews.Fields.IsVerfifiedPurchase">
+		<Value>Ist verifiziert</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.ProductReviews.Fields.IsVerfifiedPurchase.Hint">
+		<Value>Legt fest, ob diese Produktbewertung von einem Kunden verfasst wurde, der das Produkt in diesem Shop gekauft hat.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.ProductReviews.Fields.Product">
 		<Value>Produkt</Value>
 	</LocaleResource>
@@ -1750,13 +1708,19 @@
 		<Value>Liste nach Bewertung filtern.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.ProductReviews.NumberApprovedReviews">
-		<Value>Es wurden {0} Produkt Rezensionen genehmigt.</Value>
+		<Value>Es wurden {0} Produktrezensionen genehmigt.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.ProductReviews.NumberDisapprovedReviews">
-		<Value>Es wurden {0} Produkt Rezensionen abgelehnt.</Value>
+		<Value>Es wurden {0} Produktrezensionen abgelehnt.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.ProductReviews.NumberVerfifiedReviews">
+		<Value>Es wurden {0} Produktrezensionen verifiziert.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.ProductReviews.Updated">
 		<Value>Produktbewertung wurde erfolgreich aktualisiert</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.ProductReviews.VerifySelected">
+		<Value>Ausgewählte verfizieren</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products">
 		<Value>Produkte</Value>
@@ -1784,9 +1748,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.AssociatedProducts.SaveBeforeEdit">
 		<Value>Das Produkt muss gespeichert werden, bevor verknüpfte Produkte hinzugefügt werden können.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.Products.BackToList">
-		<Value>zurück zur Übersicht</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.BundleItems">
 		<Value>Stückliste</Value>
@@ -2121,6 +2082,18 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.CallForPrice.Hint">
 		<Value>Legt fest, ob "Preis auf Anfrage" anstelle des Preises angezeigt werden soll.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.Fields.ComparePrice">
+		<Value>Vergleichspreis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.Fields.ComparePrice.Hint">
+		<Value>Legt einen Vergleichspreis fest, z.B.: UVP, Listenpreis, regulärer Preis vor einer Ermäßigung etc. Der Vergleichspreis dienst als Streichpreis.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.Fields.ComparePriceLabelId">
+		<Value>Label für den Vergleichspreis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.Fields.ComparePriceLabelId.Hint">
+		<Value>Legt den Text für den Vergleichspreis-Label fest. Dieser Wert überschreibt die Standardeinstellung des Systems.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.Condition">
 		<Value>Artikelzustand</Value>
@@ -3640,9 +3613,6 @@
 	<LocaleResource Name="Admin.Configuration.Countries.AddNew">
 		<Value>Neues Land hinzufügen</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Countries.BackToList">
-		<Value>Zurück zur Länderliste</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Countries.CannotDeleteDueToAssociatedAddresses">
 		<Value>Das Land kann nicht gelöscht werden, weil ihm Adressen zugeordnet sind.</Value>
 	</LocaleResource>
@@ -3934,9 +3904,6 @@
 	<LocaleResource Name="Admin.Configuration.DeliveryTimes.AddNew">
 		<Value>Lieferzeit hinzufügen</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.DeliveryTimes.BackToList">
-		<Value>Zurück zur Liste</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.DeliveryTimes.CannotDeleteAssignedProducts">
 		<Value>Die Lieferzeit "{0}" kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.</Value>
 	</LocaleResource>
@@ -4080,9 +4047,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.ExternalAuthenticationMethods">
 		<Value>Externe Authentifizierung</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.ExternalAuthenticationMethods.BackToList">
-		<Value>Zurück zur Gesamtübersicht</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.ExternalAuthenticationMethods.Configure">
 		<Value>Konfigurieren</Value>
@@ -4360,9 +4324,6 @@
 	<LocaleResource Name="Admin.Configuration.Payment.Methods.AddOrderNotes.Hint">
 		<Value>Legt fest, ob beim Datenaustausch mit dem Zahlungsanbieter Auftragsnotizen angelegt werden sollen.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Payment.Methods.BackToList">
-		<Value>Zurück zur Auflistung</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Payment.Methods.Configure">
 		<Value>Konfiguration</Value>
 	</LocaleResource>
@@ -4498,9 +4459,6 @@
 	<LocaleResource Name="Admin.Configuration.Plugins.LicensingInvalidStoreUrl">
 		<Value>Der Lizenzschlüssel kann für die hinterlegte Shop-URL nicht aktiviert werden. Bitte tragen Sie vor der Aktivierung in den Shop-Details die korrekte Shop-URL ein.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Plugins.Misc.BackToList">
-		<Value>Zurück zur Plugin-Liste</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Plugins.Misc.Configure">
 		<Value>Konfigurieren</Value>
 	</LocaleResource>
@@ -4533,6 +4491,69 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Plugins.UnknownError">
 		<Value>Beim Aufruf eines Plugins ist ein unbekannter Fehler aufgetreten. Details entnehmen Sie bitte der folgenden Meldung.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Added">
+		<Value>Das Preis Label wurde erfolgreich zugefügt.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.CantDeleteDefaultComparePriceLabel">
+		<Value>Das Standard Label für den Vergleichspreis kann nicht gelöscht werden.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.CantDeleteDefaultRegularPriceLabel">
+		<Value>Das Standard Label für den regulären Preis kann nicht gelöscht werden.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.Description">
+		<Value>Beschreibung</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.Description.Hint">
+		<Value>Optionale Beschreibung, die auf Produktdetailseiten in einem Tooltip angezeigt wird.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.DisplayShortNameInLists">
+		<Value>Kurznamen in Listen anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.DisplayShortNameInLists.Hint">
+		<Value>Gibt an, ob die Kurzbezeichnung des Labels in Produktlisten angezeigt werden soll.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.IsRetailPrice">
+		<Value>Ist UVP</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.IsRetailPrice.Hint">
+		<Value>Gibt an, ob dieses Label einen UVP-Preis darstellt.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.Name">
+		<Value>Name</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.Name.Hint">
+		<Value>Der optionale Name, der auf der Produktdetailseite angezeigt wird, z.B. 'Unverb. Preisempf.', 'Zuletzt niedrigster Preis'.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.ShortName">
+		<Value>Name (kurz)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Fields.ShortName.Hint">
+		<Value>Kurzbezeichnung, die in Produktlisten angezeigt wird, z.B. 'UVP', 'Niedrigster'.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.IsDefaultComparePriceLabel">
+		<Value>Ist Standard für Vergleichspreis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.IsDefaultRegularPriceLabel">
+		<Value>Ist Standard für regulärer Preis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.SetDefaultComparePriceLabel">
+		<Value>Ist Standard für Vergleichspreis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.SetDefaultRegularPriceLabel">
+		<Value>Ist Standard für regulären Streichpreis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabel.Updated">
+		<Value>Das Preis Label wurde erfolgreich aktualisiert.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabels">
+		<Value>Preis Labels</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabels.AddNew">
+		<Value>Preis Label hinzufügen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.PriceLabels.EditPriceLabelDetails">
+		<Value>Preis Label bearbeiten</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.QuantityUnit">
 		<Value>Verpackungseinheiten</Value>
@@ -4711,29 +4732,11 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.AllowProductViewModeChanging.Hint">
 		<Value>Legt fest, ob der Ansichtsmodus verändert werden kann.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ApplyPercentageDiscountOnTierPrice">
-		<Value>Prozentuale Rabatte auf Staffelpreise anwenden</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ApplyPercentageDiscountOnTierPrice.Hint">
-		<Value>Legt fest, ob prozentuale Rabatte auch auf Staffelpreise angewendet werden sollen.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ApplyTierPricePercentageToAttributePriceAdjustments">
-		<Value>Prozentuale Ermäßigungen von Staffelpreisen auf Auf- &amp; Abpreise von Attributen anwenden</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ApplyTierPricePercentageToAttributePriceAdjustments.Hint">
-		<Value>Bestimmt ob prozentuale Ermäßigungen von Staffelpreisen auf Auf- &amp; Abpreise von Attributen angewendet werden sollen</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.AskQuestionEnabled">
 		<Value>'Produktanfragen' ermöglichen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.AskQuestionEnabled.Hint">
 		<Value>Legt fest, ob Kunden eine Anfrage zu einem Produkt stellen können</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.BundleItemShowBasePrice">
-		<Value>Grundpreis bei Bundle-Bestandteilen</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.BundleItemShowBasePrice.Hint">
-		<Value>Legt fest, ob der Grundpreis bei Bundle-Bestandteilen angezeigt werden soll.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.CategoryBreadcrumbEnabled">
 		<Value>Kategorien-Breadcrumb aktivieren</Value>
@@ -4795,12 +4798,6 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.DisplayAllImagesNumber.Hint">
 		<Value>Obergrenze, ab der Variantenbilder nur bei Auswahl des entsprechenden Werts angezeigt werden. Unterhalb dieser Obergrenze werden alle Bilder angezeigt.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.DisplayTextForZeroPrices">
-		<Value>Zeige Text wenn Preise 0,00 sind</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.DisplayTextForZeroPrices.Hint">
-		<Value>Bestimmt, ob statt dem Wert 0,00 eine textuelle Resource (kostenlos) angezeigt werden soll.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.EmailAFriendEnabled">
 		<Value>Tell-a-Friend aktivieren</Value>
 	</LocaleResource>
@@ -4854,12 +4851,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.HtmlTextCollapsedHeight.Hint">
 		<Value>Legt die Höhe (in Pixel) des gekürzten Langtextes fest.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.IgnoreDiscounts">
-		<Value>Ignoriere Rabatte</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.IgnoreDiscounts.Hint">
-		<Value>Rabatte im ganzen Shop deaktivieren.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.IgnoreFeaturedProducts">
 		<Value>Ignoriere empfohlene Produkte</Value>
@@ -4942,18 +4933,6 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.PageShareCode.Hint">
 		<Value>Legt den Code des Share-Button Widgets fest. Gehen Sie zu addthis.com um Ihren eigenen Widget-Code zu erhalten und fügen Sie diesen hier ein. 
                     Auf diese Weise können Sie die Darstellung des Widgets selbst bestimmen, sowie Statistiken einsehen.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.PriceDisplayStyle">
-		<Value>Preisdarstellung</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.PriceDisplayStyle.Hint">
-		<Value>Bestimmt die Darstellungform von Preisen in Produktlisten und auf der Produktdetailseite.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.PriceDisplayType">
-		<Value>Preisanzeige</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.PriceDisplayType.Hint">
-		<Value>Legt fest, ob bzw. welcher Typ von Preis in Produktlisten angezeigt werden soll.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ProductDetailSettings">
 		<Value>Produktdetail</Value>
@@ -5039,12 +5018,6 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.RecentlyViewedProductsNumber.Hint">
 		<Value>Legt die Anzahl der sichtbaren Produkte in der Liste der kürzlich angesehenen Produkte fest.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowBasePriceInProductLists">
-		<Value>Zeige den Grundpreis in Produktlisten</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowBasePriceInProductLists.Hint">
-		<Value>Bestimmt ob der Grundpreis gemäß PAngV in Produktlisten angezeigt wird.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowBestsellersOnHomepage">
 		<Value>Zeige Bestseller auf der Homepage</Value>
 	</LocaleResource>
@@ -5093,12 +5066,6 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowDimensions.Hint">
 		<Value>Zeigt die Maße des Produktes an.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowDiscountSign">
-		<Value>Rabattzeichen anzeigen</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowDiscountSign.Hint">
-		<Value>Legt fest, ob ein Rabattzeichen auf dem Produktbild angezeigt werden soll, wenn Rabatte angewendet wurden.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowGtin">
 		<Value>EAN anzeigen</Value>
 	</LocaleResource>
@@ -5117,12 +5084,6 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowLinkedAttributeValueQuantity.Hint">
 		<Value>Bestimmt, ob bei Werten von Variantattributen die Menge von verknüpften Produkten angezeigt werden soll.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowLoginForPriceNote">
-		<Value>Hinweis "Preis nach Anmeldung" anzeigen</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowLoginForPriceNote.Hint">
-		<Value>Legt fest, ob ein Hinweis erscheinen soll, dass Preise erst nach Anmeldung angezeigt werden.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowManufacturerInGridStyleLists">
 		<Value>Zeige Hersteller/Marke in Produktlisten</Value>
 	</LocaleResource>
@@ -5130,7 +5091,7 @@
 		<Value>Legt fest, ob der Markenname auch in Rasterstil Produktlisten angezeigt werden sollen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowManufacturerInProductDetail">
-		<Value>Hersteller anzeigen.</Value>
+		<Value>Hersteller anzeigen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowManufacturerInProductDetail.Hint">
 		<Value>Bestimmt ob der Hersteller eines Produktes auf Produktdetailseiten angezeigt wird.</Value>
@@ -5231,11 +5192,11 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowSubCategoriesInSubPages.Hint">
 		<Value>Unterseite: Listenindex größer 1 oder mind. ein aktiver Filter.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowVariantCombinationPriceAdjustment">
-		<Value>Mehr- und Minderpreise bei Variant-Kombinationen anzeigen</Value>
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowVerfiedPurchaseBadge">
+		<Value>Zeige Badge für verifizierte Käufe</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowVariantCombinationPriceAdjustment.Hint">
-		<Value>Bestimmt ob Mehr- und Minderpreise bei Variant-Kombinationen angezeigt werden.</Value>
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowVerfiedPurchaseBadge.Hint">
+		<Value>Zeigt bei Produktrezensionen einen Badge an, der anzeigt, ob der Verfasser ein verifizierter Käufer ist.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowWeight">
 		<Value>Gewicht anzeigen</Value>
@@ -6864,6 +6825,153 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Payment.CapturePaymentReason.Hint">
 		<Value>Legt das Ereignis fest, zu dem der Zahlunsgbetrag automatisch eingezogen wird. Die gewählte Zahlart muss hierfür Buchungen unterstützen.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price">
+		<Value>Preise</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.AlwaysDisplayRetailPrice">
+		<Value>UVP immer anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.AlwaysDisplayRetailPrice.Hint">
+		<Value>Wenn aktiv, wird die unverbindliche Preisempfehlung (UVP) in den Produktdetails angezeigt, auch wenn es bereits eine Preisermäßigung gibt. In diesem Fall wird der UVP als weiterer durchgestrichener Preis angezeigt.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ApplyPercentageDiscountOnTierPrice">
+		<Value>Prozentuale Rabatte auf Staffelpreise anwenden</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ApplyPercentageDiscountOnTierPrice.Hint">
+		<Value>Legt fest, ob prozentuale Rabatte auch auf Staffelpreise angewendet werden sollen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ApplyTierPricePercentageToAttributePriceAdjustments">
+		<Value>Prozentuale Ermäßigungen von Staffelpreisen auf Auf- &amp; Abpreise von Attributen anwenden</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ApplyTierPricePercentageToAttributePriceAdjustments.Hint">
+		<Value>Bestimmt, ob prozentuale Ermäßigungen von Staffelpreisen auf Auf- &amp; Abpreise von Attributen angewendet werden sollen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.Baseprice">
+		<Value>Grundpreise</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.BundleItemShowBasePrice">
+		<Value>Grundpreis bei Bundle-Bestandteilen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.BundleItemShowBasePrice.Hint">
+		<Value>Legt fest, ob der Grundpreis bei Bundle-Bestandteilen angezeigt werden soll.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.DefaultComparePriceLabelId">
+		<Value>Standard Label für den Vergleichspreis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.DefaultComparePriceLabelId.Hint">
+		<Value>Wird wirksam, wenn für ein Produkt kein Vergleichspreis-Label ausgewählt ist.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.DefaultRegularPriceLabelId">
+		<Value>Standard Label für den regulären Preis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.DefaultRegularPriceLabelId.Hint">
+		<Value>Das Standard Label, das für den durchgestrichenen regulären Preis verwendet werden soll. Wird wirksam, wenn es einen Aktionspreis gibt oder ein Rabatt auf ein Produkt angewendet wurde.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.DiscountDisplay">
+		<Value>Rabattdarstellung</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.Discounts">
+		<Value>Rabatte</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.Display">
+		<Value>Darstellung</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.DisplayTextForZeroPrices">
+		<Value>Zeige Text wenn Preise 0,00 sind</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.DisplayTextForZeroPrices.Hint">
+		<Value>Bestimmt, ob statt dem Wert 0,00 eine textuelle Resource (kostenlos) angezeigt werden soll.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.IgnoreDiscounts">
+		<Value>Ignoriere Rabatte</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.IgnoreDiscounts.Hint">
+		<Value>Rabatte im ganzen Shop deaktivieren.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.LimitedOfferBadgeLabel">
+		<Value>Angebots-Badge Text für zeitlich begrenztes Angebot</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.LimitedOfferBadgeLabel.Hint">
+		<Value>Text für das Angebots-Badge, wenn das Angebot zeitlich befristet ist, z. B. "Befristetes Angebot" oder "Nur noch kurze Zeit"</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.LimitedOfferBadgeStyle">
+		<Value>Angebots-Badge Stil für zeitlich begrenztes Angebot</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.OfferBadgeLabel">
+		<Value>Angebots-Badge Text</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.OfferBadgeLabel.Hint">
+		<Value>Text für das Angebots-Badge, z.B. "Deal"</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.OfferBadgeStyle">
+		<Value>Angebots-Badge Stil</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.OfferPriceReplacesRegularPrice">
+		<Value>Aktionspreis ersetzt regulären Preis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.OfferPriceReplacesRegularPrice.Hint">
+		<Value>Wenn aktiv, ersetzt der Aktionspreis einfach den regulären Preis als ob es kein Angebot gäbe. Wenn inaktiv, wird der reguläre Preis durchgestrichen dargestellt.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.PriceDisplayType">
+		<Value>Preisanzeige</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.PriceDisplayType.Hint">
+		<Value>Legt fest, ob bzw. welcher Typ von Preis in Produktlisten angezeigt werden soll.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowBasePriceInProductLists">
+		<Value>Zeige den Grundpreis in Produktlisten</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowBasePriceInProductLists.Hint">
+		<Value>Bestimmt, ob der Grundpreis gemäß PAngV in Produktlisten angezeigt wird.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowLoginForPriceNote">
+		<Value>Hinweis "Preis nach Anmeldung" anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowLoginForPriceNote.Hint">
+		<Value>Legt fest, ob ein Hinweis erscheinen soll, dass Preise erst nach Anmeldung angezeigt werden.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowOfferBadge">
+		<Value>Zeige Badge für Angebote</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowOfferBadge.Hint">
+		<Value>Zeigt ein Promo Badge an, wenn ein Angebotspreis aktiv ist.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowOfferBadgeInLists">
+		<Value>Angebots-Badge in Listen anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowOfferBadgeInLists.Hint">
+		<Value>Bestimmt, ob Angebots-Badges in Produkt-Listen angezeigt werden.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowOfferCountdownRemainingHours">
+		<Value>Angebotsrestzeit, ab der ein Countdown angezeigt werden soll</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowOfferCountdownRemainingHours.Hint">
+		<Value>Legt die verbleibende Zeit (in Stunden) eines Angebotes fest, ab der ein Countdown im Produktdetail angezeigt werden soll, z.B. "endet in 3 Stunden, 23 Min." Um den Countdown auszublenden, lassen Sie das Feld leer. Gilt nur für zeitlich begrenzte Angebote mit einem Enddatum.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowPriceLabelInLists">
+		<Value>Zeige Preis-Label in Listen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowPriceLabelInLists.Hint">
+		<Value>Bestimmt, ob das Label des Vergleichspreises in Produkt-Listen angezeigt wird.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowRetailPriceSaving">
+		<Value>Preisersparnis gegenüber UVP anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowRetailPriceSaving.Hint">
+		<Value>Legt fest, ob die Preisersparnis auch dann angezeigt werden soll, wenn die Ermäßigung lediglich auf den UVP angewandt wurde.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowSavingBadgeInLists">
+		<Value>Rabattzeichen anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowSavingBadgeInLists.Hint">
+		<Value>Legt fest, ob ein Badge mit Rabattzeichen auf dem Produktbild in Produktlisten angezeigt werden soll, wenn Rabatte angewendet wurden.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowVariantCombinationPriceAdjustment">
+		<Value>Mehr- und Minderpreise bei Variant-Kombinationen anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowVariantCombinationPriceAdjustment.Hint">
+		<Value>Bestimmt, ob Mehr- und Minderpreise bei Variant-Kombinationen angezeigt werden.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.RewardPoints">
 		<Value>Bonuspunkte-Einstellungen</Value>
 	</LocaleResource>
@@ -7336,7 +7444,7 @@
 		<Value>EU-Konforme MwSt.-Berechnung</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Tax.EuVatEnabled.Hint">
-		<Value />
+		<Value>Legt die EU-Konforme MwSt.-Berechnung fest.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Tax.EuVatShopCountry">
 		<Value>Land des Shops</Value>
@@ -7461,9 +7569,6 @@
 	<LocaleResource Name="Admin.Configuration.Shipping.Methods.AddNew">
 		<Value>Neue Versandart hinzufügen</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Shipping.Methods.BackToList">
-		<Value>Zurück zur Gesamtübersicht</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Shipping.Methods.Deleted">
 		<Value>Die Versandart wurde gelöscht</Value>
 	</LocaleResource>
@@ -7509,9 +7614,6 @@
 	<LocaleResource Name="Admin.Configuration.Shipping.Providers">
 		<Value>Berechnungsmethoden für Versandkosten</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Shipping.Providers.BackToList">
-		<Value>Zurück zur Übersicht</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Shipping.Providers.Configure">
 		<Value>Konfigurieren</Value>
 	</LocaleResource>
@@ -7520,9 +7622,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.SMSProviders">
 		<Value>SMS-Anbieter</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.SMSProviders.BackToList">
-		<Value>Zurück zur Übersicht</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.SMSProviders.Configure">
 		<Value>Konfigurieren</Value>
@@ -7658,9 +7757,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Tax.Providers">
 		<Value>Steuern</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Tax.Providers.BackToList">
-		<Value>zurück zur Übersicht</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Tax.Providers.Fields.IsPrimaryTaxProvider">
 		<Value>Ist Standard-Steuerart</Value>
@@ -8184,9 +8280,6 @@
 	<LocaleResource Name="Admin.ContentManagement.MessageTemplates">
 		<Value>Nachrichtenvorlagen</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.ContentManagement.MessageTemplates.BackToList">
-		<Value>Zurück zur Übersicht</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.MessageTemplates.Copy">
 		<Value>Vorlage kopieren</Value>
 	</LocaleResource>
@@ -8411,9 +8504,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.Polls.Answers.SaveBeforeEdit">
 		<Value>Die Umfrage muß zunächst gespeichert werden, bevor die Antworten bearbeitet werden können.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.ContentManagement.Polls.BackToList">
-		<Value>Zurück zur Übersicht</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.Polls.Deleted">
 		<Value>Die Umfrage wurde gelöscht</Value>
@@ -8694,9 +8784,6 @@
 	<LocaleResource Name="Admin.Customers.CustomerRoles.AutomatedAssignmentRules.Hint">
 		<Value>Kunden werden automatisch per geplanter Aufgabe dieser Kundengruppe zugeordnet, wenn sie eine der gewählten Regeln erfüllen.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Customers.CustomerRoles.BackToList">
-		<Value>Zurück zur Gesamtliste</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Customers.CustomerRoles.CannotFoundRole">
 		<Value>Die Kundengruppe "{0}" wurde nicht gefunden.</Value>
 	</LocaleResource>
@@ -8810,9 +8897,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Customers.Customers.AssociatedExternalAuth.Hint">
 		<Value>Eine Liste von externen Authentifizierungs-IDs</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Customers.Customers.BackToList">
-		<Value>Zurück zur Userliste</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Customers.Customers.CurrentCart">
 		<Value>Aktueller Warenkorb</Value>
@@ -10572,9 +10656,6 @@
 	<LocaleResource Name="Admin.Orders.Address.ZipPostalCode">
 		<Value>Postleitzahl</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.BackToList">
-		<Value>Zurück zur Auftragsliste</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.BillingAndShipment">
 		<Value>Rechnung &amp; Versand</Value>
 	</LocaleResource>
@@ -11580,6 +11661,9 @@
 	<LocaleResource Name="Admin.Plugins.KnownGroup.Social">
 		<Value>Social</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Plugins.KnownGroup.StoreFront">
+		<Value>Front-End</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Plugins.KnownGroup.Tax">
 		<Value>Steuern</Value>
 	</LocaleResource>
@@ -11627,9 +11711,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Promotions.Campaigns.AddNew">
 		<Value>Neue Kampagne erstellen</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Promotions.Campaigns.BackToList">
-		<Value>Zurück zur Übersicht</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Promotions.Campaigns.Deleted">
 		<Value>Die Kampagne wurde gelöscht</Value>
@@ -11775,11 +11856,23 @@
 	<LocaleResource Name="Admin.Promotions.Discounts.Fields.Name.Hint">
 		<Value>Der Name des Rabattes.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Promotions.Discounts.Fields.OfferBadgeLabel">
+		<Value>Angebots-Badge Text</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Promotions.Discounts.Fields.OfferBadgeLabel.Hint">
+		<Value>Text für das Angebots-Badge, z.B. "Deal". Dieser Wert überschreibt die Standardeinstellung des Systems.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Promotions.Discounts.Fields.RequiresCouponCode">
 		<Value>Gutscheincode erforderlich</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Promotions.Discounts.Fields.RequiresCouponCode.Hint">
 		<Value>Der Gutscheincode ist erforderlich.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Promotions.Discounts.Fields.ShowCountdownRemainingHours">
+		<Value>Angebotsrestzeit, ab der ein Countdown angezeigt werden soll</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Promotions.Discounts.Fields.ShowCountdownRemainingHours.Hint">
+		<Value>Legt die verbleibende Zeit (in Stunden) eines Angebotes fest, ab der ein Countdown auf der Produktdetailseite angezeigt werden soll, z.B. "endet in 3 Stunden, 23 Min.". Gilt nur für zeitlich begrenzte Rabatte mit einem Enddatum. Dieser Wert überschreibt die Standardeinstellung des Systems.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Promotions.Discounts.Fields.StartDate">
 		<Value>Anfangsdatum</Value>
@@ -12702,9 +12795,6 @@
 	<LocaleResource Name="Admin.System.Log">
 		<Value>Ereignisse</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.System.Log.BackToList">
-		<Value>Zurück zur Übersicht</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.System.Log.Cleared">
 		<Value>Alle Ereignisse wurden gelöscht.</Value>
 	</LocaleResource>
@@ -13469,6 +13559,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Tax.Categories.NoDuplicatesAllowed">
 		<Value>Eine Steuerklasse mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Theme.GoogleFonts.Gdpr.Hint">
+		<Value>Bitte beachten Sie, dass der Einsatz von Google Fonts ohne lokale Einbindung laut Urteil vom LG München (20.01.2022, Az. 3 O 17493/20) gegen die DSGVO verstößt. Bitte informieren Sie sich über die aktuelle Rechtslage, bevor Sie Web Fonts einsetzen. Smartstore übernimmt keinerlei Haftung.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Theme.GoogleFonts.Hint">
 		<Value>&lt;p&gt;Um &lt;b&gt;Google Fonts&lt;/b&gt; einzubinden, beachten Sie bitte die nachfolgende Anweisung.&lt;/p&gt;
@@ -17822,6 +17915,9 @@
 	<LocaleResource Name="Permissions.DisplayName.EditVariant">
 		<Value>Varianten bearbeiten</Value>
 	</LocaleResource>
+	<LocaleResource Name="Permissions.DisplayName.PriceLabel">
+		<Value>Preis Labels</Value>
+	</LocaleResource>
 	<LocaleResource Name="Permissions.DisplayName.ReadAddress">
 		<Value>Adressen lesen</Value>
 	</LocaleResource>
@@ -18006,13 +18102,13 @@
 		<Value>Verfügbarkeit</Value>
 	</LocaleResource>
 	<LocaleResource Name="Products.Availability.Backordering">
-		<Value>Kein Lagerbestand - wird nachgeliefert, sobald wieder am Lager.</Value>
+		<Value>Ausverkauft - wird nachgeliefert, sobald wieder auf Lager.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Products.Availability.InStock">
 		<Value>Vorrätig</Value>
 	</LocaleResource>
 	<LocaleResource Name="Products.Availability.InStockWithQuantity">
-		<Value>{0} am Lager</Value>
+		<Value>{0} auf Lager</Value>
 	</LocaleResource>
 	<LocaleResource Name="Products.Availability.IsNotActive">
 		<Value>Nicht im Sortiment</Value>
@@ -18509,6 +18605,12 @@
 	<LocaleResource Name="Reviews.SuccessfullyAdded">
 		<Value>Produktbewertung wurde erfolgreich übermittelt.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Reviews.Unverified">
+		<Value>Nicht verifiziert</Value>
+	</LocaleResource>
+	<LocaleResource Name="Reviews.Verified">
+		<Value>Verifizierter Kauf</Value>
+	</LocaleResource>
 	<LocaleResource Name="Reviews.Write">
 		<Value>Schreiben Sie Ihre eigene Bewertung</Value>
 	</LocaleResource>
@@ -18969,7 +19071,7 @@
 		<Value>Das Produkt ist nicht verfügbar.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShoppingCart.OutOfStock">
-		<Value>Nicht am Lager</Value>
+		<Value>Ausverkauft</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShoppingCart.PreOrder">
 		<Value>Vorbestellung</Value>
