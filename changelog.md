@@ -1,5 +1,19 @@
 # Release Notes
 
+## Smartstore 5.0.2
+
+### New Features
+
+
+
+### Improvements
+
+
+
+### Bugfixes
+
+
+
 ## Smartstore 5.0.1
 
 ### Breaking Changes
