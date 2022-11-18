@@ -570,6 +570,8 @@ namespace Smartstore.Core.DataExchange.Export
                         calculationContext.AddSelectedAttributes(productContext?.Combination?.AttributeSelection, product.Id);
                         var priceWithoutOfferPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
+                        // TODO: (mg) (core) this probably needs some revision. Should export "Calculated.RegularPrice" as "_RegularPrice"
+                        // but check GMC pricing specification if it meets our calculations.
                         dynObject._RegularPrice = priceWithoutOfferPrice.FinalPrice.Amount;
                     }
                 }

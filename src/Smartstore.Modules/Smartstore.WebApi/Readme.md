@@ -10,7 +10,7 @@ as recommended by OData protocol version 4.0.
 Example: old `/Categories(14)/Name`, new `/Categories(14)?$select=Name`.
 
 - For PUT and PATCH requests, the HTTP header **Prefer** with the value **return=representation** must be sent to get a 
-status code 200 with entity content response. This is the default behavior of ASP.NET Core OData 8.0. Otherwise 204 "No Content" is returned.
+status code 200 with entity content response. This is the default behavior of ASP.NET Core OData 8.0. Otherwise **204 No Content** is returned.
 
 - **GET /MediaFiles** returns type FileItemInfo instead of MediaFile which wraps and enriches MediaFile entity. 
 **GET /MediaFolders** returns type FolderNodeInfo instead of MediaFolder which wraps and enriches MediaFolder entity.
@@ -60,8 +60,13 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
         <td>The controller name has changed.</td>
     </tr>
     <tr>
-        <td>GET ProductPictures({key})/Picture</td>
-        <td>GET ProductMediaFiles({key})/MediaFile</td>
+        <td>Products/ProductPictures</td>
+        <td>Products/ProductMediaFiles</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>POST Products/Search</td>
+        <td>GET Products/Search</td>
         <td></td>
     </tr>
 </tbody>
@@ -76,12 +81,17 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
 </tfoot>
 </table>
 
-- The prefix of response headers changed from **SmartStore-Net-Api-** to **Smartstore-Api-**. More changes:
+- Changed response header names:
 <table>
     <tr>
         <th>Old name</th>
         <th>New name</th>
         <th>Remarks</th>
+    </tr>
+    <tr>
+        <td>SmartStore-Net-Api-...</td>
+        <td>Smartstore-Api-...</td>
+        <td>Name prefix changed.</td>
     </tr>
     <tr>
         <td>SmartStore-Net-Api-HmacResultId</td>
@@ -102,7 +112,7 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
 
 - The query string parameter **SmNetFulfill** has been renamed to **SmApiFulfill**.
 
-## General information
+## General developer notes
 ### OData
 - Accurate OData <a href="https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData">examples</a>.
 - <a href="https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions">Routing conventions</a> (only partly applicable for AspNetCore.OData v.8).

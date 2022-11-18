@@ -247,6 +247,9 @@ namespace Smartstore.Web.Api
                         }
                         catch (ODataException ex)
                         {
+                            // TODO: (mg) (core) insufficient. Could be InvalidCastException or whatever too.
+                            // Identify by context.Request.Path, then catch ALL exceptions, then ReThrow.
+
                             // Let the ErrorController handle ODataErrorException and (if accepted)
                             // return the standard OData error JSON instead of something the client do not expect.
                             var odataError = new ODataError

@@ -346,6 +346,13 @@ namespace Smartstore.Web.Api
         {
             const string setName = "Products";
             var set = builder.EntitySet<Product>(setName);
+            var config = set.EntityType.Collection;
+
+            var search = config.Function(nameof(ProductsController.Search))
+                .ReturnsFromEntitySet<Product>(setName);
+
+            search.Parameter<string>("q")
+                .Required();
         }
     }
 }
