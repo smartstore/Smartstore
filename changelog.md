@@ -23,7 +23,7 @@
 ### New Features
 
 - Pricing & GDPR
-  - Compliance with Omnibus Directive
+  - Compliance with **Omnibus Directive**
     - Product reviews: display a **Verified Purchase** badge
     - Label crossed out compare prices with "Lowest" or "Lowest recent price"
   - Free configuration of compare **price labels**, e.g. "MSRP", "Regular", "Before", "Instead of", "Lowest" etc.

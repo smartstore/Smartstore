@@ -787,16 +787,8 @@ legend {
     }
 
     &.adminContent-boxed {
-        .adminTitle, .adminData {
-            padding-left: $grid-gutter-width / 2;
-            padding-right: $grid-gutter-width / 2 !important;
-        }
-
-        @include media-breakpoint-up(lg) {
-            .adminData {
-                padding-left: 0;
-            }
-        }
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 }
 
@@ -924,8 +916,9 @@ legend {
     }
 }
 
-.locale-editor-content > .adminContent {
-    @extend .adminContent-boxed;
+.locale-editor-content {
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 .locale-editor-content[data-rtl="true"] {
