@@ -74,12 +74,12 @@
                         <div>
                             <div class="module-title">
                                 <div class="module-name">@(item.FriendlyName.NullEmpty() ?? item.SystemName)</div>
-                                <div class="module-badges">
-                                    @{ await ActiveLabel(item); }
-                                </div>
                             </div>
                             <div sm-if="item.Description.HasValue()" class="module-description">
                                 @item.Description
+                            </div>
+                            <div class="module-badges" sm-suppress-if-empty>
+                                @{ await ActiveLabel(item); }
                             </div>
                             <div class="module-info">
                                 @{

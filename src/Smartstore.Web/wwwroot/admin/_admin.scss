@@ -1221,22 +1221,13 @@ legend {
     flex-wrap: nowrap;
 }
 
-.module-title {
-    display: flex;
-    flex-wrap: nowrap;
-}
-
 .module-name {
     font-weight: $font-weight-medium;
     font-size: $font-size-lg;
 }
 
-.module-badges {
-    margin-left: 0.4rem;
-}
-
 .module-info {
-    margin-top: 0.2rem;
+    margin-top: 2px;
     font-size: $font-size-sm;
 }
 
@@ -1270,7 +1261,7 @@ legend {
 }
 
 .module-description {
-    margin-bottom: 0.25rem;
+    margin-bottom: 2px;
     color: $gray-600;
 }
 

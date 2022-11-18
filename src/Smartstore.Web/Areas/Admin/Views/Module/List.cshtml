@@ -467,10 +467,6 @@
                             <div>
                                 <div class="module-title">
                                     <div class="module-name">@module.FriendlyName</div>
-                                    <div class="module-badges">
-                                        <span class="badge badge-warning" sm-if="module.Installed">@T("Admin.Configuration.Plugins.Fields.Installed")</span>
-                                        <partial name="LicenseLabel" model="module.LicenseLabel" />
-                                    </div>
                                 </div>
                                 <div sm-if="module.Description.HasValue()" class="module-description w-100">
                                     @module.Description
@@ -497,6 +493,10 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="module-badges" sm-suppress-if-empty>
+                            <span class="badge badge-warning" sm-if="module.Installed">@T("Admin.Configuration.Plugins.Fields.Installed")</span>
+                            <partial name="LicenseLabel" model="module.LicenseLabel" />
+                        </div>
                         <div class="module-info">
                             <span class="attr">
                                 <span class="attr-name">@T("Admin.Configuration.Plugins.Fields.Version"):</span>
@@ -517,7 +517,7 @@
                         </div>
                         <div sm-if="Model.AvailableStores.Count > 1" class="fs-sm">
                             <span class="pr-2">@T("Admin.Common.Store.LimitedTo"):</span>
-                            <a href="javascript:;" data-module='@module.SystemName' 
+                            <a href="javascript:;" data-module='@module.SystemName'
                                data-value='[@string.Join(',', module.SelectedStoreIds)]'
                                tabindex="0"
                                class="editable editable-click store-limiter">
