@@ -445,7 +445,7 @@ namespace Smartstore.Admin.Controllers
                 readPermission = Permissions.Configuration.Shipping.Read;
                 updatePermission = Permissions.Configuration.Shipping.Update;
             }
-            else if (metadata.ProviderType == typeof(IWidget))
+            else if (metadata.ProviderType == typeof(IActivatableWidget))
             {
                 readPermission = Permissions.Cms.Widget.Read;
                 updatePermission = Permissions.Cms.Widget.Update;

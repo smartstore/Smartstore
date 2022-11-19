@@ -24,7 +24,7 @@ namespace Smartstore.Admin
             {
                 return url.Action("Providers", "Shipping");
             }
-            else if (metadata.ProviderType == typeof(IWidget))
+            else if (metadata.ProviderType == typeof(IActivatableWidget))
             {
                 return url.Action("Providers", "Widget");
             }

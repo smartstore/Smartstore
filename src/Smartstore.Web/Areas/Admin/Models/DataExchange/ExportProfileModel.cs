@@ -115,7 +115,7 @@ namespace Smartstore.Admin.Models.Export
             [LocalizedDisplay("*SupportedFileTypes")]
             public string SupportedFileTypes { get; set; }
 
-            public WidgetInvoker ConfigurationWidget { get; set; }
+            public Widget ConfigurationWidget { get; set; }
             public Type ConfigDataType { get; set; }
             public object ConfigData { get; set; }
             public ExportFeatures Feature { get; set; }

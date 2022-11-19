@@ -15,8 +15,8 @@ namespace Smartstore.Facebook.Auth
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "FacebookAuth", new { area = "Admin" });
 
-        public WidgetInvoker GetDisplayWidget(int storeId)
-            => new ComponentWidgetInvoker(typeof(FacebookAuthViewComponent), null);
+        public Widget GetDisplayWidget(int storeId)
+            => new ComponentWidget(typeof(FacebookAuthViewComponent), null);
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {

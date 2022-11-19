@@ -15,8 +15,8 @@ namespace Smartstore.Google.Auth
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "GoogleAuth", new { area = "Admin" });
 
-        public WidgetInvoker GetDisplayWidget(int storeId)
-            => new ComponentWidgetInvoker(typeof(GoogleAuthViewComponent), null);
+        public Widget GetDisplayWidget(int storeId)
+            => new ComponentWidget(typeof(GoogleAuthViewComponent), null);
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {

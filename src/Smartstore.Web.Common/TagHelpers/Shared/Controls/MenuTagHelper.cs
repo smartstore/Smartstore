@@ -23,7 +23,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            var widget = new ComponentWidgetInvoker("Menu", new { name = Name, template = Template });
+            var widget = new ComponentWidget("Menu", new { name = Name, template = Template });
 
             output.TagMode = TagMode.StartTagAndEndTag;
             //var partial = await HtmlHelper.PartialAsync("Menus/" + Template, model);

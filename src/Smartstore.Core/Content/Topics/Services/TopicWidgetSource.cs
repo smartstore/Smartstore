@@ -74,7 +74,7 @@ namespace Smartstore.Core.Content.Topics
 
         public int Order => 0;
 
-        public async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, bool isPublicArea, object model = null)
+        public async Task<IEnumerable<Widget>> GetWidgetsAsync(string zone, bool isPublicArea, object model = null)
         {
             if (!isPublicArea)
             {
@@ -153,7 +153,7 @@ namespace Smartstore.Core.Content.Topics
         }
     }
 
-    internal class TopicWidgetInvoker : ComponentWidgetInvoker
+    internal class TopicWidgetInvoker : ComponentWidget
     {
         public TopicWidgetInvoker(TopicWidget model)
             : base("TopicWidget", new { model = Guard.NotNull(model, nameof(model)) })

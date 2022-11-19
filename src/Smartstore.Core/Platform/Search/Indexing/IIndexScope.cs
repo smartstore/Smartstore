@@ -26,7 +26,7 @@ namespace Smartstore.Core.Search.Indexing
         /// <summary>
         /// Gets the widget invoker for optional configuration. Return <c>null</c> when there is nothing to render.
         /// </summary>
-        WidgetInvoker GetConfigurationWidget();
+        Widget GetConfigurationWidget();
 
         /// <summary>
         /// Gets an <see cref="IndexInfo"/> instance which provides base information about the index.

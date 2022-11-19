@@ -17,7 +17,7 @@ namespace Smartstore.DevTools.Services
         // Order in case of multiple implementations (like MegaSearchPlus).
         public int Ordinal => 99;
 
-        public WidgetInvoker GetTemplateWidget(FacetGroup facetGroup)
+        public Widget GetTemplateWidget(FacetGroup facetGroup)
         {
             // Provide template for catalog only.
             if (facetGroup.Scope != "Catalog")
@@ -41,7 +41,7 @@ namespace Smartstore.DevTools.Services
             // E.g. merchant configures a specification attribute in your plugin, then you can filter by facetGroup.Key == "attrid<ConfiguredId>"
             if (facetGroup.Label.EqualsNoCase("Dimensions") || facetGroup.Label.EqualsNoCase("Maße"))
             {
-                return new ComponentWidgetInvoker(typeof(CustomFacetViewComponent), new { templateName = "MyCustomFacetTemplate", facetGroup });
+                return new ComponentWidget(typeof(CustomFacetViewComponent), new { templateName = "MyCustomFacetTemplate", facetGroup });
             }
 
             return null;

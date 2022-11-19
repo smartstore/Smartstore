@@ -15,8 +15,8 @@ namespace Smartstore.Microsoft.Auth
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "MicrosoftAuth", new { area = "Admin" });
 
-        public WidgetInvoker GetDisplayWidget(int storeId)
-            => new ComponentWidgetInvoker(typeof(MicrosoftAuthViewComponent), null);
+        public Widget GetDisplayWidget(int storeId)
+            => new ComponentWidget(typeof(MicrosoftAuthViewComponent), null);
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {

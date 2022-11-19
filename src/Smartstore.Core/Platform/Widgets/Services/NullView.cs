@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 
-namespace Smartstore.Web.Razor
+namespace Smartstore.Core.Widgets
 {
     public class NullView : IView
     {

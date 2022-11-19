@@ -21,7 +21,7 @@ namespace Smartstore.Core.Widgets
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, object model = null)
+        public async Task<IEnumerable<Widget>> GetWidgetsAsync(string zone, object model = null)
         {
             Guard.NotEmpty(zone, nameof(zone));
 
@@ -32,7 +32,7 @@ namespace Smartstore.Core.Widgets
 
             var httpContext = _httpContextAccessor.HttpContext;
             var isPublicArea = httpContext != null && httpContext.GetRouteData().Values.GetAreaName().IsEmpty();
-            var widgets = Enumerable.Empty<WidgetInvoker>();
+            var widgets = Enumerable.Empty<Widget>();
 
             for (var i = 0; i < _widgetSources.Length; i++)
             {

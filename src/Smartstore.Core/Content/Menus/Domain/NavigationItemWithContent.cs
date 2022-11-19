@@ -8,7 +8,7 @@ namespace Smartstore.Core.Content.Menus
     public abstract class NavigationItemWithContent : NavigationItem, IHideObjectMembers
     {
         private IHtmlContent _content;
-        private WidgetInvoker _widget;
+        private Widget _widget;
 
         public bool Ajax { get; set; }
 
@@ -27,7 +27,7 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
-        public WidgetInvoker Widget
+        public Widget Widget
         {
             get => _widget;
             set

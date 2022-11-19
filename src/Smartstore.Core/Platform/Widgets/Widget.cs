@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Widgets
 {
-    // TODO: (core) Make Json converters for invoker implementations.
+    // TODO: (core) Make Json converters for widget implementations.
 
     /// <summary>
     /// Base class for widgets.
     /// </summary>
-    public abstract class WidgetInvoker : IEquatable<WidgetInvoker>
+    public abstract class Widget : IEquatable<Widget>
     {
         /// <summary>
         /// Order of widget within the zone.
@@ -24,45 +26,56 @@ namespace Smartstore.Core.Widgets
         /// <summary>
         /// When set, ensures uniqueness within a particular zone.
         /// </summary>
-        public string Key { get; set; }
+        public string? Key { get; set; }
 
         /// <summary>
         /// Invokes the widget and returns its content.
         /// </summary>
         /// <returns>The result HTML content.</returns>
-        public abstract Task<IHtmlContent> InvokeAsync(ViewContext viewContext);
+        public virtual Task<IHtmlContent> InvokeAsync(ViewContext viewContext) => InvokeAsync(viewContext, null);
 
         /// <summary>
         /// Invokes the widget and returns its content.
         /// </summary>
         /// <param name="model">Optional model</param>
         /// <returns>The result HTML content.</returns>
-        public abstract Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model);
+        public abstract Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object? model);
+
+        /// <summary>
+        /// Invokes the widget and returns its content.
+        /// </summary>
+        /// <param name="context">The widget context</param>
+        /// <returns>The result HTML content.</returns>
+        public abstract Task<IHtmlContent> Invoke2Async(WidgetContext context);
 
         #region Equatable
 
-        public static bool operator ==(WidgetInvoker x, WidgetInvoker y)
+        public static bool operator ==(Widget x, Widget y)
         {
             return Equals(x, y);
         }
 
-        public static bool operator !=(WidgetInvoker x, WidgetInvoker y)
+        public static bool operator !=(Widget x, Widget y)
         {
             return !Equals(x, y);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return ((IEquatable<WidgetInvoker>)this).Equals(obj as WidgetInvoker);
+            return ((IEquatable<Widget>)this).Equals(obj as Widget);
         }
 
-        bool IEquatable<WidgetInvoker>.Equals(WidgetInvoker other)
+        bool IEquatable<Widget>.Equals(Widget? other)
         {
-            if (other == null || Key == null || other.Key == null)
+            if (other is null || Key == null || other.Key == null)
+            {
                 return false;
+            }   
 
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            } 
 
             return Key == other.Key && GetType() == other.GetType();
         }

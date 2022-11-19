@@ -120,7 +120,7 @@ namespace Smartstore.Core.Widgets
 
             WidgetProvider.RegisterWidget(
                 targetZone,
-                new HtmlWidgetInvoker(content) { Key = key, Prepend = prepend });
+                new HtmlWidget(content) { Key = key, Prepend = prepend });
         }
 
         public virtual IHtmlContent GetDocumentTitle(bool addDefaultTitle)

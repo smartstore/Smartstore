@@ -34,7 +34,7 @@ namespace Smartstore.Core.Tests.Checkout.Payment
         public decimal GetAdditionalHandlingFee(IList<OrganizedShoppingCartItem> cart)
             => decimal.Zero;
 
-        public override WidgetInvoker GetPaymentInfoWidget()
+        public override Widget GetPaymentInfoWidget()
             => throw new NotImplementedException();
 
         public override PaymentMethodType PaymentMethodType

@@ -135,7 +135,7 @@ namespace Smartstore.Core.Content.Menus
 
                 foreach (var info in menusInfo)
                 {
-                    var widget = new ComponentWidgetInvoker("Menu", new
+                    var widget = new ComponentWidget("Menu", new
                     {
                         name = info.SystemName,
                         template = info.Template

@@ -93,10 +93,10 @@ namespace Smartstore.Web.Filters
                     return;
 
                 _widgetProvider.RegisterWidget("gdpr_consent",
-                    new ComponentWidgetInvoker("GdprConsent", new { isSmall = false }));
+                    new ComponentWidget("GdprConsent", new { isSmall = false }));
 
                 _widgetProvider.RegisterWidget("gdpr_consent_small",
-                    new ComponentWidgetInvoker("GdprConsent", new { isSmall = true }));
+                    new ComponentWidget("GdprConsent", new { isSmall = true }));
 
                 context.HttpContext.Items["GdprConsentRendered"] = true;
             }

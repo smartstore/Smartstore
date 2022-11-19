@@ -15,7 +15,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <summary>
         /// Gets or sets the widget for the export provider specific configuration.
         /// </summary>
-        public WidgetInvoker ConfigurationWidget { get; set; }
+        public Widget ConfigurationWidget { get; set; }
 
         /// <summary>
         /// Type of the view model.

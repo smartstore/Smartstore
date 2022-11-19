@@ -19,14 +19,14 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         /// <param name="zones">The names of the widget zones to inject the HTML content to</param>
         /// <param name="widget">Widget to register</param>
-        void RegisterWidget(string[] zones, WidgetInvoker widget);
+        void RegisterWidget(string[] zones, Widget widget);
 
         /// <summary>
         /// Registers a custom widget for multiple widget zones by pattern
         /// </summary>
         /// <param name="zonePattern">The widget zone pattern to inject the HTML content to</param>
         /// <param name="widget">Widget to register</param>
-        void RegisterWidget(Regex zonePattern, WidgetInvoker widget);
+        void RegisterWidget(Regex zonePattern, Widget widget);
 
         /// <summary>
         /// Checks whether a given zone contains at least one widget.
@@ -34,7 +34,7 @@ namespace Smartstore.Core.Widgets
         /// <remarks>
         /// Because of deferred result invocation this method cannot check whether 
         /// the widget actually PRODUCES content. E.g., 
-        /// if a zone contained a <see cref="ComponentWidgetInvoker"/> with an empty 
+        /// if a zone contained a <see cref="ComponentWidget"/> with an empty 
         /// result after invocation, this method would still return <c>true</c>.
         /// </remarks>
         /// <param name="zone">The zone name to check.</param>
@@ -44,12 +44,12 @@ namespace Smartstore.Core.Widgets
         /// Enumerates all injected widgets for a given zone.
         /// </summary>
         /// <param name="zone">Zone name to retrieve widgets for.</param>
-        /// <returns>List of <see cref="WidgetInvoker"/> instances.</returns>
-        IEnumerable<WidgetInvoker> GetWidgets(string zone);
+        /// <returns>List of <see cref="Widget"/> instances.</returns>
+        IEnumerable<Widget> GetWidgets(string zone);
 
         /// <summary>
         /// Checks whether given <paramref name="zone"/> contains a widget
-        /// with the same <see cref="WidgetInvoker.Key"/> as <paramref name="widgetKey"/>.
+        /// with the same <see cref="Widget.Key"/> as <paramref name="widgetKey"/>.
         /// </summary>
         /// <param name="zone">The zone name to check for existing widget.</param>
         /// <param name="widgetKey">The widget key to check.</param>
@@ -63,7 +63,7 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         /// <param name="zone">The name of the widget zone to inject the HTML content to</param>
         /// <param name="widget">Widget to register</param>
-        public static void RegisterWidget(this IWidgetProvider provider, string zone, WidgetInvoker widget)
+        public static void RegisterWidget(this IWidgetProvider provider, string zone, Widget widget)
         {
             Guard.NotEmpty(zone, nameof(zone));
             provider.RegisterWidget(new[] { zone }, widget);
@@ -78,7 +78,7 @@ namespace Smartstore.Core.Widgets
         public static void RegisterHtml(this IWidgetProvider provider, string zone, IHtmlContent html, int order = 0)
         {
             Guard.NotEmpty(zone, nameof(zone));
-            provider.RegisterWidget(new[] { zone }, new HtmlWidgetInvoker(html) { Order = order });
+            provider.RegisterWidget(new[] { zone }, new HtmlWidget(html) { Order = order });
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Smartstore.Core.Widgets
         /// <param name="order">Sort order within the specified widget zones</param>
         public static void RegisterHtml(this IWidgetProvider provider, string[] zones, IHtmlContent html, int order = 0)
         {
-            provider.RegisterWidget(zones, new HtmlWidgetInvoker(html) { Order = order });
+            provider.RegisterWidget(zones, new HtmlWidget(html) { Order = order });
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Smartstore.Core.Widgets
         /// <param name="order">Sort order within the specified widget zones</param>
         public static void RegisterHtml(this IWidgetProvider provider, Regex zonePattern, IHtmlContent html, int order = 0)
         {
-            provider.RegisterWidget(zonePattern, new HtmlWidgetInvoker(html) { Order = order });
+            provider.RegisterWidget(zonePattern, new HtmlWidget(html) { Order = order });
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Smartstore.Core.Widgets
             where TComponent : ViewComponent
         {
             Guard.NotEmpty(zone, nameof(zone));
-            provider.RegisterWidget(new[] { zone }, new ComponentWidgetInvoker(typeof(TComponent), arguments) { Order = order });
+            provider.RegisterWidget(new[] { zone }, new ComponentWidget(typeof(TComponent), arguments) { Order = order });
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace Smartstore.Core.Widgets
         public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, string[] zones, object arguments = null, int order = 0)
             where TComponent : ViewComponent
         {
-            provider.RegisterWidget(zones, new ComponentWidgetInvoker(typeof(TComponent), arguments) { Order = order });
+            provider.RegisterWidget(zones, new ComponentWidget(typeof(TComponent), arguments) { Order = order });
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Smartstore.Core.Widgets
         public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, Regex zonePattern, object arguments = null, int order = 0)
             where TComponent : ViewComponent
         {
-            provider.RegisterWidget(zonePattern, new ComponentWidgetInvoker(typeof(TComponent), arguments) { Order = order });
+            provider.RegisterWidget(zonePattern, new ComponentWidget(typeof(TComponent), arguments) { Order = order });
         }
     }
 }

@@ -25,8 +25,8 @@ namespace Smartstore.OfflinePayment
             return new(settings.AdditionalFee, settings.AdditionalFeePercentage);
         }
 
-        public override WidgetInvoker GetPaymentInfoWidget()
-            => new ComponentWidgetInvoker(GetViewComponentType(), new { providerName = GetProviderName() });
+        public override Widget GetPaymentInfoWidget()
+            => new ComponentWidget(GetViewComponentType(), new { providerName = GetProviderName() });
 
         public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {

@@ -5,7 +5,7 @@ namespace Smartstore.Core.Widgets
     /// <summary>
     /// Provides an interface for creating widgets.
     /// </summary>
-    public partial interface IWidget : IProvider, IUserEditable
+    public partial interface IActivatableWidget : IProvider, IUserEditable
     {
         /// <summary>
         /// Gets widget zones where this widget should be rendered.
@@ -19,6 +19,6 @@ namespace Smartstore.Core.Widgets
         /// <param name="widgetZone">Widget zone where it's displayed.</param>
 		/// <param name="model">The model of the parent view context.</param>
 		/// <param name="storeId">The id of the current store.</param>
-        WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId);
+        Widget GetDisplayWidget(string widgetZone, object model, int storeId);
     }
 }

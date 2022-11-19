@@ -2,6 +2,6 @@
 {
     public partial class ButtonPaymentMethodModel : ModelBase
     {
-        public List<WidgetInvoker> Items { get; set; } = new();
+        public List<Widget> Items { get; set; } = new();
     }
 }

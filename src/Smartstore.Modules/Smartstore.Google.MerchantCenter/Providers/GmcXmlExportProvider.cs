@@ -159,7 +159,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         public override ExportConfigurationInfo ConfigurationInfo => new()
         {
-            ConfigurationWidget = new ComponentWidgetInvoker(typeof(GmcConfigurationViewComponent)),
+            ConfigurationWidget = new ComponentWidget(typeof(GmcConfigurationViewComponent)),
             ModelType = typeof(ProfileConfigurationModel)
         };
 

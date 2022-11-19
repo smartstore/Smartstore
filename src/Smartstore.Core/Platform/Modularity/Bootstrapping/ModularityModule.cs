@@ -132,7 +132,7 @@ namespace Smartstore.Core.Bootstrapping
                 RegisterAsSpecificProvider<ITaxProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IExchangeRateProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IShippingRateComputationMethod>(type, systemName, registration);
-                RegisterAsSpecificProvider<IWidget>(type, systemName, registration);
+                RegisterAsSpecificProvider<IActivatableWidget>(type, systemName, registration);
                 RegisterAsSpecificProvider<IPaymentMethod>(type, systemName, registration);
                 RegisterAsSpecificProvider<IExportProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IOutputCacheProvider>(type, systemName, registration);
@@ -243,7 +243,7 @@ namespace Smartstore.Core.Bootstrapping
 
         private string[] GetDependentWidgets(Type type)
         {
-            if (!typeof(IWidget).IsAssignableFrom(type))
+            if (!typeof(IActivatableWidget).IsAssignableFrom(type))
             {
                 // don't let widgets depend on other widgets
                 var attr = type.GetAttribute<DependentWidgetsAttribute>(false);
@@ -278,7 +278,7 @@ namespace Smartstore.Core.Bootstrapping
             //{
             //    return "Security";
             //}
-            else if (typeof(IWidget).IsAssignableFrom(implType))
+            else if (typeof(IActivatableWidget).IsAssignableFrom(implType))
             {
                 return "CMS";
             }

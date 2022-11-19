@@ -50,7 +50,7 @@ namespace Smartstore.Web.Rendering.Builders
             return (this as TBuilder);
         }
 
-        public TBuilder Content(WidgetInvoker value)
+        public TBuilder Content(Widget value)
         {
             Item.Widget = value;
             return (this as TBuilder);

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {
@@ -86,7 +85,7 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         /// <param name="widget">Widget to invoke.</param>
         /// <returns>Widget rendering result</returns>
-        protected async Task<string> InvokeWidgetAsync(WidgetInvoker widget)
+        protected async Task<string> InvokeWidgetAsync(Widget widget)
         {
             Guard.NotNull(widget, nameof(widget));
 

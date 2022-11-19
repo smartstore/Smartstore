@@ -518,8 +518,8 @@ namespace Smartstore.Web.Models.Cart
                     continue;
                 }
 
-                var widgetInvoker = boundPaymentMethod.Value.GetPaymentInfoWidget();
-                bpmModel.Items.Add(widgetInvoker);
+                var widget = boundPaymentMethod.Value.GetPaymentInfoWidget();
+                bpmModel.Items.Add(widget);
             }
 
             to.ButtonPaymentMethods = bpmModel;

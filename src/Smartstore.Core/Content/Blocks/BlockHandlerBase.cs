@@ -170,7 +170,7 @@ namespace Smartstore.Core.Content.Blocks
             content.WriteTo(textWriter, HtmlEncoder.Default);
         }
 
-        protected virtual WidgetInvoker GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)
+        protected virtual Widget GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)
         {
             throw new NotImplementedException();
         }

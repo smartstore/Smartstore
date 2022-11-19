@@ -12,7 +12,7 @@ namespace Smartstore.Core.Widgets
         /// </summary>
 		/// <param name="storeId">Load records allows only in specified store; pass 0 to load all records</param>
         /// <returns>Widgets</returns>
-		IEnumerable<Provider<IWidget>> LoadActiveWidgets(int storeId = 0);
+		IEnumerable<Provider<IActivatableWidget>> LoadActiveWidgets(int storeId = 0);
 
         /// <summary>
         /// Load active widgets
@@ -20,7 +20,7 @@ namespace Smartstore.Core.Widgets
         /// <param name="widgetZone">Widget zone</param>
         /// <param name="storeId">Load records allows only in specified store; pass 0 to load all records</param>
         /// <returns>Widgets</returns>
-        IEnumerable<Provider<IWidget>> LoadActiveWidgetsByWidgetZone(string widgetZone, int storeId = 0);
+        IEnumerable<Provider<IActivatableWidget>> LoadActiveWidgetsByWidgetZone(string widgetZone, int storeId = 0);
 
         /// <summary>
         /// (De)activates a global widget.

@@ -15,8 +15,8 @@ namespace Smartstore.Twitter.Auth
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "TwitterAuth", new { area = "Admin" });
 
-        public WidgetInvoker GetDisplayWidget(int storeId)
-            => new ComponentWidgetInvoker(typeof(TwitterAuthViewComponent), null);
+        public Widget GetDisplayWidget(int storeId)
+            => new ComponentWidget(typeof(TwitterAuthViewComponent), null);
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {

@@ -4,6 +4,6 @@ namespace Smartstore.Core.Search.Facets
 {
     public interface IFacetTemplateProvider
     {
-        WidgetInvoker GetTemplateWidget(FacetGroup facetGroup);
+        Widget GetTemplateWidget(FacetGroup facetGroup);
     }
 }

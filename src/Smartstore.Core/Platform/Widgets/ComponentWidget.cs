@@ -1,31 +1,33 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Widgets
 {
-    public class ComponentWidgetInvoker<T> : ComponentWidgetInvoker
+    public class ComponentWidget<T> : ComponentWidget
         where T : ViewComponent
     {
-        public ComponentWidgetInvoker()
+        public ComponentWidget()
             : base(typeof(T), null)
         {
         }
 
-        public ComponentWidgetInvoker(object arguments)
+        public ComponentWidget(object arguments)
             : base(typeof(T), arguments)
         {
         }
     }
 
-    public class ComponentWidgetInvoker : WidgetInvoker
+    public class ComponentWidget : Widget
     {
-        public ComponentWidgetInvoker(string componentName, object arguments)
+        public ComponentWidget(string componentName, object arguments)
             : this(componentName, null, arguments)
         {
         }
 
-        public ComponentWidgetInvoker(string componentName, string module, object arguments)
+        public ComponentWidget(string componentName, string? module, object? arguments)
         {
             Guard.NotEmpty(componentName, nameof(componentName));
 
@@ -34,31 +36,34 @@ namespace Smartstore.Core.Widgets
             Arguments = arguments;
         }
 
-        public ComponentWidgetInvoker(Type componentType)
+        public ComponentWidget(Type componentType)
             : this(componentType, null)
         {
         }
 
-        public ComponentWidgetInvoker(Type componentType, object arguments)
+        public ComponentWidget(Type componentType, object? arguments)
         {
             ComponentType = Guard.NotNull(componentType, nameof(componentType));
             Arguments = arguments;
         }
 
-        public string ComponentName { get; }
-        public string Module { get; }
-        public Type ComponentType { get; }
-        public object Arguments { get; }
+        public string ComponentName { get; } = default!;
+        public Type ComponentType { get; } = default!;
+        public string? Module { get; }
+        public object? Arguments { get; set; }
 
-        public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
-            => InvokeAsync(viewContext, null);
-
-        public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
+        public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object? model)
         {
             var viewInvoker = viewContext.HttpContext.RequestServices.GetService<IViewInvoker>();
             return ComponentType != null
                 ? await viewInvoker.InvokeComponentAsync(ComponentType, viewContext.ViewData, model ?? Arguments)
                 : await viewInvoker.InvokeComponentAsync(ComponentName, Module, viewContext.ViewData, model ?? Arguments);
+        }
+
+        public override Task<IHtmlContent> Invoke2Async(WidgetContext context)
+        {
+            var invoker = context.HttpContext.RequestServices.GetRequiredService<IWidgetInvoker<ComponentWidget>>();
+            return invoker.InvokeAsync(context, this);
         }
     }
 }

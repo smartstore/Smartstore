@@ -41,7 +41,7 @@ namespace Smartstore.Web.Theming
                 if (!_services.Permissions.Authorize(Permissions.Configuration.Theme.Read))
                     return;
 
-                _widgetProvider.RegisterWidget("end", new ComponentWidgetInvoker("PreviewTool", null));
+                _widgetProvider.RegisterWidget("end", new ComponentWidget("PreviewTool", null));
             }
 
             public void OnResultExecuted(ResultExecutedContext context)

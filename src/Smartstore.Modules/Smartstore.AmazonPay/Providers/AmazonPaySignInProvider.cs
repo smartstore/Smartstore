@@ -13,7 +13,7 @@ namespace Smartstore.AmazonPay.Providers
         // Keep old provider name for compatibility (see ExternalAuthenticationRecord.ProviderSystemName).
         public static string SystemName => "Smartstore.AmazonPay";
 
-        public WidgetInvoker GetDisplayWidget(int storeId)
-            => new ComponentWidgetInvoker(typeof(SignInButtonViewComponent));
+        public Widget GetDisplayWidget(int storeId)
+            => new ComponentWidget(typeof(SignInButtonViewComponent));
     }
 }

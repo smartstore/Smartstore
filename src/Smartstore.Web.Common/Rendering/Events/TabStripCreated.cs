@@ -22,7 +22,7 @@ namespace Smartstore.Web.Rendering.Events
         }
 
         internal TabStripTagHelper TabStrip { get; }
-        internal List<WidgetInvoker> Widgets { get; private set; }
+        internal List<Widget> Widgets { get; private set; }
 
         public TabFactory TabFactory { get; }
         public string TabStripName { get; }
@@ -34,11 +34,11 @@ namespace Smartstore.Web.Rendering.Events
         /// </summary>
         /// <param name="widget">Widget to render</param>
         /// <remarks>Should only be called for admin tabstrips</remarks>
-        public void AddWidget(WidgetInvoker widget)
+        public void AddWidget(Widget widget)
         {
             Guard.NotNull(widget, nameof(widget));
 
-            (Widgets ??= new List<WidgetInvoker>()).Add(widget);
+            (Widgets ??= new List<Widget>()).Add(widget);
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Smartstore.Core.Widgets
 
             foreach (var widget in widgets)
             {
-                var localModel = widget is PartialViewWidgetInvoker partialInvoker
+                var localModel = widget is PartialViewWidget partialInvoker
                     ? partialInvoker.Model
                     : model;
 

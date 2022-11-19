@@ -17,7 +17,7 @@ namespace Smartstore.Web.Models.Checkout
             public string BrandUrl { get; set; }
             public Money Fee { get; set; }
             public bool Selected { get; set; }
-            public WidgetInvoker InfoWidget { get; set; }
+            public Widget InfoWidget { get; set; }
             public bool RequiresInteraction { get; set; }
         }
     }

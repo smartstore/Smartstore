@@ -163,7 +163,7 @@ namespace Smartstore.Core.Identity
                     return;
                 }
 
-                _widgetProvider.RegisterWidget("end", new ComponentWidgetInvoker("CookieManager", null));
+                _widgetProvider.RegisterWidget("end", new ComponentWidget("CookieManager", null));
             }
 
             public void OnResultExecuted(ResultExecutedContext context)

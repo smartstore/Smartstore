@@ -60,7 +60,7 @@ namespace Smartstore.AmazonPay.Filters
                     if (!_orderSettings.DisableOrderCompletedPage)
                     {
                         _widgetProvider.Value.RegisterWidget("checkout_completed_top",
-                            new PartialViewWidgetInvoker("_CheckoutCompleted", completedNote, "Smartstore.AmazonPay"));
+                            new PartialViewWidget("_CheckoutCompleted", completedNote, "Smartstore.AmazonPay"));
                     }
                     else if (completedNote.HasValue())
                     {
@@ -84,12 +84,12 @@ namespace Smartstore.AmazonPay.Filters
                 else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
                 {
                     _widgetProvider.Value.RegisterWidget("end",
-                        new PartialViewWidgetInvoker("_CheckoutConfirm", state, "Smartstore.AmazonPay"));
+                        new PartialViewWidget("_CheckoutConfirm", state, "Smartstore.AmazonPay"));
                 }
                 else
                 {
                     _widgetProvider.Value.RegisterWidget("end",
-                        new PartialViewWidgetInvoker("_CheckoutNavigation", state, "Smartstore.AmazonPay"));
+                        new PartialViewWidget("_CheckoutNavigation", state, "Smartstore.AmazonPay"));
                 }
             }
 

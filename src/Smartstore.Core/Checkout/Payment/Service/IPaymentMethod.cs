@@ -149,7 +149,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets the widget invoker for payment info. Return <c>null</c> when there's nothing to render.
         /// </summary>
-        WidgetInvoker GetPaymentInfoWidget();
+        Widget GetPaymentInfoWidget();
 
         #endregion
     }

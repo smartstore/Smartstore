@@ -19,7 +19,7 @@ using Smartstore.Http;
 
 namespace Smartstore.Google.Analytics
 {
-    internal class Module : ModuleBase, IConfigurable, IWidget, ICookiePublisher
+    internal class Module : ModuleBase, IConfigurable, IActivatableWidget, ICookiePublisher
     {
         private readonly IProviderManager _providerManager;
         private readonly WidgetSettings _widgetSettings;
@@ -38,7 +38,7 @@ namespace Smartstore.Google.Analytics
 
         public Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
         {
-            var widget = _providerManager.GetProvider<IWidget>("Smartstore.Google.Analytics");
+            var widget = _providerManager.GetProvider<IActivatableWidget>("Smartstore.Google.Analytics");
             if (!widget.IsWidgetActive(_widgetSettings))
                 return Task.FromResult(Enumerable.Empty<CookieInfo>());
 
@@ -52,8 +52,8 @@ namespace Smartstore.Google.Analytics
             return Task.FromResult(new CookieInfo[] { cookieInfo }.AsEnumerable());
         }
 
-        public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
-            => new ComponentWidgetInvoker(typeof(GoogleAnalyticsViewComponent), model);
+        public Widget GetDisplayWidget(string widgetZone, object model, int storeId)
+            => new ComponentWidget(typeof(GoogleAnalyticsViewComponent), model);
 
         public string[] GetWidgetZones()
             => new[] { "head" };

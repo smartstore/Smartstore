@@ -105,7 +105,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (!content.IsEmptyOrWhiteSpace)
             {
-                var widget = new HtmlWidgetInvoker(content) { Order = Ordinal, Prepend = Prepend, Key = Key };
+                var widget = new HtmlWidget(content) { Order = Ordinal, Prepend = Prepend, Key = Key };
                 _widgetProvider.RegisterWidget(TargetZone, widget);
             }
         }

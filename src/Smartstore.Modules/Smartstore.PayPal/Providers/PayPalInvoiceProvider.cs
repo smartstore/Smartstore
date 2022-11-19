@@ -50,8 +50,8 @@ namespace Smartstore.PayPal.Providers
 
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
-        public override WidgetInvoker GetPaymentInfoWidget()
-            => new ComponentWidgetInvoker(typeof(PayPalInvoiceViewComponent));
+        public override Widget GetPaymentInfoWidget()
+            => new ComponentWidget(typeof(PayPalInvoiceViewComponent));
 
         public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
         {

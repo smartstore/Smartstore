@@ -8,7 +8,7 @@ namespace Smartstore.Core.Content.Menus
         public string Schema { get; init; }
         public string Icon { get; init; }
         public string ResKey { get; init; }
-        public WidgetInvoker Widget { get; init; }
+        public Widget Widget { get; init; }
     }
 
     /// <summary>

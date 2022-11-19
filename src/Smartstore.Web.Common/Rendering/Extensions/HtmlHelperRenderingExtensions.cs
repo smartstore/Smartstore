@@ -755,7 +755,7 @@ namespace Smartstore.Web.Rendering
         /// and to render other content if not.
         /// This call replaces the <c>zone</c> TagHelper, therefore you
         /// should remove the TagHelper with the same name.
-        /// Also beware that <see cref="WidgetInvoker.Prepend"/> has no effect since there is
+        /// Also beware that <see cref="Widget.Prepend"/> has no effect since there is
         /// no reference content.
         /// </remarks>
         /// <param name="helper">The <see cref="IHtmlHelper"/>.</param>

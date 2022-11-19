@@ -39,9 +39,9 @@ namespace Smartstore.Core.Widgets
 
         int IWidgetSource.Order { get; } = -1000;
 
-        Task<IEnumerable<WidgetInvoker>> IWidgetSource.GetWidgetsAsync(string zone, bool isPublicArea, object model)
+        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(string zone, bool isPublicArea, object model)
         {
-            var widgets = Enumerable.Empty<WidgetInvoker>();
+            var widgets = Enumerable.Empty<Widget>();
 
             if (isPublicArea)
             {
@@ -56,20 +56,20 @@ namespace Smartstore.Core.Widgets
 
         #endregion
 
-        public virtual IEnumerable<Provider<IWidget>> LoadActiveWidgets(int storeId = 0)
+        public virtual IEnumerable<Provider<IActivatableWidget>> LoadActiveWidgets(int storeId = 0)
         {
             var activeWidgets = _requestCache.Get(WIDGETS_ACTIVE_KEY.FormatInvariant(storeId), () =>
             {
-                var allWigets = _providerManager.GetAllProviders<IWidget>(storeId);
+                var allWigets = _providerManager.GetAllProviders<IActivatableWidget>(storeId);
                 return allWigets.Where(p => _widgetSettings.ActiveWidgetSystemNames.Contains(p.Metadata.SystemName, StringComparer.InvariantCultureIgnoreCase)).ToList();
             });
 
             return activeWidgets;
         }
 
-        public virtual IEnumerable<Provider<IWidget>> LoadActiveWidgetsByWidgetZone(string widgetZone, int storeId = 0)
+        public virtual IEnumerable<Provider<IActivatableWidget>> LoadActiveWidgetsByWidgetZone(string widgetZone, int storeId = 0)
         {
-            var widgets = Enumerable.Empty<Provider<IWidget>>();
+            var widgets = Enumerable.Empty<Provider<IActivatableWidget>>();
 
             if (widgetZone.IsEmpty())
             {
@@ -84,7 +84,7 @@ namespace Smartstore.Core.Widgets
                 {
                     var providers = widgetMetadatas
                         .Where(m => _widgetSettings.ActiveWidgetSystemNames.Contains(m.SystemName, StringComparer.OrdinalIgnoreCase))
-                        .Select(m => _providerManager.GetProvider<IWidget>(m.SystemName, storeId))
+                        .Select(m => _providerManager.GetProvider<IActivatableWidget>(m.SystemName, storeId))
                         .Where(x => x != null)
                         .ToList();
 
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Widgets
         {
             Guard.NotNull(systemName, nameof(systemName));
 
-            var widget = _providerManager.GetProvider<IWidget>(systemName);
+            var widget = _providerManager.GetProvider<IActivatableWidget>(systemName);
             if (widget != null)
             {
                 var isActive = widget.IsWidgetActive(_widgetSettings);
@@ -122,7 +122,7 @@ namespace Smartstore.Core.Widgets
         {
             return _cacheFactory.GetMemoryCache().Get(WIDGETS_ALLMETADATA_KEY, () =>
             {
-                var widgets = _providerManager.GetAllProviders<IWidget>(0);
+                var widgets = _providerManager.GetAllProviders<IActivatableWidget>(0);
                 var map = new Multimap<string, ProviderMetadata>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var widget in widgets)

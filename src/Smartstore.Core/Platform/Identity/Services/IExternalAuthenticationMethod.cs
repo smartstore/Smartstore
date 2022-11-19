@@ -9,6 +9,6 @@ namespace Smartstore.Core.Identity
         /// Gets an invoker for displaying a widget.
         /// </summary>
         /// <param name="storeId">The id of the current store.</param>
-        WidgetInvoker GetDisplayWidget(int storeId);
+        Widget GetDisplayWidget(int storeId);
     }
 }

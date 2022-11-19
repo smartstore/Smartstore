@@ -32,11 +32,11 @@ namespace Smartstore.Admin.Controllers
         public IActionResult Providers()
         {
             var widgetsModel = new List<WidgetModel>();
-            var widgets = _providerManager.GetAllProviders<IWidget>();
+            var widgets = _providerManager.GetAllProviders<IActivatableWidget>();
 
             foreach (var widget in widgets)
             {
-                var model = _moduleManager.ToProviderModel<IWidget, WidgetModel>(widget);
+                var model = _moduleManager.ToProviderModel<IActivatableWidget, WidgetModel>(widget);
                 model.IsActive = widget.IsWidgetActive(_widgetSettings);
                 widgetsModel.Add(model);
             }

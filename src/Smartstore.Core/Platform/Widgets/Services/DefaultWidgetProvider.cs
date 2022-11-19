@@ -12,8 +12,8 @@ namespace Smartstore.Core.Widgets
         private readonly IApplicationContext _appContext;
         private readonly IMemoryCache _memoryCache;
 
-        private Multimap<string, WidgetInvoker> _zoneWidgetsMap;
-        private Multimap<Regex, WidgetInvoker> _zoneExpressionWidgetsMap;
+        private Multimap<string, Widget> _zoneWidgetsMap;
+        private Multimap<Regex, Widget> _zoneExpressionWidgetsMap;
 
         public DefaultWidgetProvider(IHttpContextAccessor accessor, IApplicationContext appContext, IMemoryCache memoryCache)
         {
@@ -26,14 +26,14 @@ namespace Smartstore.Core.Widgets
 
         int IWidgetSource.Order { get; } = 1000;
 
-        Task<IEnumerable<WidgetInvoker>> IWidgetSource.GetWidgetsAsync(string zone, bool isPublicArea, object model)
+        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(string zone, bool isPublicArea, object model)
         {
             return Task.FromResult(GetWidgets(zone));
         }
 
         #endregion
 
-        public virtual void RegisterWidget(string[] zones, WidgetInvoker widget)
+        public virtual void RegisterWidget(string[] zones, Widget widget)
         {
             Guard.NotNull(zones, nameof(zones));
             Guard.NotNull(widget, nameof(widget));
@@ -45,7 +45,7 @@ namespace Smartstore.Core.Widgets
 
             if (_zoneWidgetsMap == null)
             {
-                _zoneWidgetsMap = new Multimap<string, WidgetInvoker>(StringComparer.OrdinalIgnoreCase, invokers => new HashSet<WidgetInvoker>());
+                _zoneWidgetsMap = new Multimap<string, Widget>(StringComparer.OrdinalIgnoreCase, invokers => new HashSet<Widget>());
             }
 
             foreach (var zone in zones)
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Widgets
             }
         }
 
-        public virtual void RegisterWidget(Regex zonePattern, WidgetInvoker widget)
+        public virtual void RegisterWidget(Regex zonePattern, Widget widget)
         {
             Guard.NotNull(zonePattern, nameof(zonePattern));
             Guard.NotNull(widget, nameof(widget));
@@ -66,13 +66,13 @@ namespace Smartstore.Core.Widgets
 
             if (_zoneExpressionWidgetsMap == null)
             {
-                _zoneExpressionWidgetsMap = new Multimap<Regex, WidgetInvoker>(invokers => new HashSet<WidgetInvoker>());
+                _zoneExpressionWidgetsMap = new Multimap<Regex, Widget>(invokers => new HashSet<Widget>());
             }
 
             _zoneExpressionWidgetsMap.Add(zonePattern, widget);
         }
 
-        public IEnumerable<WidgetInvoker> GetWidgets(string zone)
+        public IEnumerable<Widget> GetWidgets(string zone)
         {
             if (zone.IsEmpty())
             {

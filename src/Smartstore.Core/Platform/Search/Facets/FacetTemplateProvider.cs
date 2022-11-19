@@ -11,7 +11,7 @@ namespace Smartstore.Core.Search.Facets
             _selectors = selectors;
         }
 
-        public WidgetInvoker GetTemplateWidget(FacetGroup facetGroup)
+        public Widget GetTemplateWidget(FacetGroup facetGroup)
         {
             var widget = _selectors
                 .OrderByDescending(x => x.Ordinal)

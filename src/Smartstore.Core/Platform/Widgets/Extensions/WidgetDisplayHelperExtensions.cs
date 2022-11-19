@@ -28,7 +28,7 @@ namespace Smartstore
         /// <remarks>
         /// Because of deferred result invocation this method cannot check whether 
         /// the widget actually PRODUCES content. E.g., 
-        /// if a zone contained a <see cref="ComponentWidgetInvoker"/> with an empty 
+        /// if a zone contained a <see cref="ComponentWidget"/> with an empty 
         /// result after invocation, this method would still return <c>true</c>.
         /// To check whether a zone actually contains non-whitespace content, 
         /// call <see cref="ZoneHasContentAsync(IDisplayHelper, string, ViewContext)"/> instead.

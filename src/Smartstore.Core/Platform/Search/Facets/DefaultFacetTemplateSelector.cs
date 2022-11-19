@@ -6,7 +6,7 @@ namespace Smartstore.Core.Search.Facets
     {
         public int Ordinal => -100;
 
-        public WidgetInvoker GetTemplateWidget(FacetGroup facetGroup)
+        public Widget GetTemplateWidget(FacetGroup facetGroup)
         {
             var templateName = GetTemplateName(facetGroup);
             if (templateName.IsEmpty())
@@ -14,7 +14,7 @@ namespace Smartstore.Core.Search.Facets
                 return null;
             }
 
-            var widget = new ComponentWidgetInvoker("FacetGroup", new { facetGroup, templateName })
+            var widget = new ComponentWidget("FacetGroup", new { facetGroup, templateName })
             {
                 Order = facetGroup.DisplayOrder
             };
