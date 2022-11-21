@@ -168,7 +168,7 @@ namespace Smartstore.Admin.Controllers
                 Id = log.Id,
                 LogLevelHint = _logLevelHintMap[log.LogLevel],
                 LogLevel = log.LogLevel.GetLocalizedEnum(),
-                ShortMessage = log.ShortMessage,
+                ShortMessage = log.ShortMessage.NullEmpty() ?? log.FullMessage.Truncate(100, "..."),
                 FullMessage = log.FullMessage,
                 IpAddress = log.IpAddress,
                 CustomerId = log.CustomerId,

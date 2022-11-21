@@ -64,11 +64,6 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
         <td>Products/ProductMediaFiles</td>
         <td></td>
     </tr>
-    <tr>
-        <td>POST Products/Search</td>
-        <td>GET Products/Search</td>
-        <td></td>
-    </tr>
 </tbody>
 <tfoot>
     <tr>
@@ -128,3 +123,15 @@ The type property of ProducesResponseTypeAttribute can be excluded for **ActionR
 ### <a href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore">Swashbuckle</a>
 - Explicit **From** parameter bindings are required otherwise Swashbuckle will describe them as query parameters by default.
 Code comments of parameters decorated with **FromForm** do not show up (<a href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2519">#2519</a>).
+
+### Errors
+<table>
+    <tr>
+        <th>Error message</th>
+        <th>Possible reason</th>
+    </tr>
+    <tr>
+        <td><strong>ODataException</strong>: Invalid JSON. An unexpected comma was found in scope 'Object'. A comma is only valid between properties of an object or between elements of an array.</td>
+        <td>A comma appended to the last property of a JSON formatted request body.</td>
+    </tr>
+</table>

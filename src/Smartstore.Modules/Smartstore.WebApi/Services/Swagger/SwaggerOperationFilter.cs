@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using Smartstore.Web.Api.Controllers.OData;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger
@@ -209,6 +210,7 @@ namespace Smartstore.Web.Api.Swagger
             }
 
             var allowedOptions = _supportedQueryOptions.Where(x => attribute.AllowedQueryOptions.HasFlag(x));
+
             if (helper.HasKeyParameter)
             {
                 allowedOptions = allowedOptions.Where(x => 

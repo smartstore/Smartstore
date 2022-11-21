@@ -116,13 +116,11 @@ namespace Smartstore.Web.Api
 
             config.Action(nameof(MediaFilesController.SearchFiles))
                 .ReturnsFromEntitySet<FileItemInfo>(setName)
-                .Parameter<MediaSearchQuery>("query")
-                .Optional();
+                .Parameter<MediaSearchQuery>("query");
 
             config.Action(nameof(MediaFilesController.CountFiles))
                 .Returns<int>()
-                .Parameter<MediaSearchQuery>("query")
-                .Optional();
+                .Parameter<MediaSearchQuery>("query");
 
             config.Action(nameof(MediaFilesController.CountFilesGrouped))
                 .Returns<MediaCountResult>()
@@ -145,8 +143,7 @@ namespace Smartstore.Web.Api
 
             moveFile.Parameter<string>("destinationFileName")
                 .Required();
-            moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
-                .Optional();
+            moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
 
             var copyFile = infoSet.EntityType
                 .Action(nameof(MediaFilesController.CopyFile))
@@ -154,8 +151,7 @@ namespace Smartstore.Web.Api
 
             copyFile.Parameter<string>("destinationFileName")
                 .Required();
-            copyFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
-                .Optional();
+            copyFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
 
             var deleteFile = infoSet.EntityType
                 .Action(nameof(MediaFilesController.DeleteFile));
@@ -171,13 +167,10 @@ namespace Smartstore.Web.Api
 
             saveFile.Parameter<IFormFile>("file")
                 .Required();
-            saveFile.Parameter<string>("path")
-                .Optional();
+            saveFile.Parameter<string>("path");
             saveFile.Parameter<bool>("isTransient")
-                .HasDefaultValue(bool.TrueString)
-                .Optional();
-            saveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
-                .Optional();
+                .HasDefaultValue(bool.TrueString);
+            saveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
         }
 
         private static void BuildMediaFolders(ODataModelBuilder builder)
@@ -228,8 +221,7 @@ namespace Smartstore.Web.Api
                 .Required();
             copyFolder.Parameter<string>("destinationPath")
                 .Required();
-            copyFolder.Parameter<DuplicateEntryHandling>("duplicateEntryHandling")
-                .Optional();
+            copyFolder.Parameter<DuplicateEntryHandling>("duplicateEntryHandling");
 
             var deleteFolder = config
                 .Action(nameof(MediaFoldersController.DeleteFolder))
@@ -237,8 +229,7 @@ namespace Smartstore.Web.Api
 
             deleteFolder.Parameter<string>("path")
                 .Required();
-            deleteFolder.Parameter<FileHandling>("fileHandling")
-                .Optional();
+            deleteFolder.Parameter<FileHandling>("fileHandling");
         }
 
         private static void BuildNewsletterSubscriptions(ODataModelBuilder builder)
@@ -289,8 +280,7 @@ namespace Smartstore.Web.Api
             set.EntityType
                 .Action(nameof(OrdersController.PaymentPaid))
                 .ReturnsFromEntitySet<Order>(setName)
-                .Parameter<string>("paymentMethodName")
-                .Optional();
+                .Parameter<string>("paymentMethodName");
 
             set.EntityType
                 .Action(nameof(OrdersController.PaymentRefund))
@@ -302,8 +292,7 @@ namespace Smartstore.Web.Api
                 .Action(nameof(OrdersController.Cancel))
                 .ReturnsFromEntitySet<Order>(setName)
                 .Parameter<bool>("notifyCustomer")
-                .HasDefaultValue(bool.TrueString)
-                .Optional();
+                .HasDefaultValue(bool.TrueString);
 
             set.EntityType
                 .Action(nameof(OrdersController.CompleteOrder))
@@ -317,16 +306,12 @@ namespace Smartstore.Web.Api
                 .Action(nameof(OrdersController.AddShipment))
                 .ReturnsFromEntitySet<Shipment>("Shipments");
 
-            addShipment.Parameter<string>("trackingNumber")
-                .Optional();
-            addShipment.Parameter<string>("trackingUrl")
-                .Optional();
+            addShipment.Parameter<string>("trackingNumber");
+            addShipment.Parameter<string>("trackingUrl");
             addShipment.Parameter<bool>("isShipped")
-                .HasDefaultValue(bool.FalseString)
-                .Optional();
+                .HasDefaultValue(bool.FalseString);
             addShipment.Parameter<bool>("notifyCustomer")
-                .HasDefaultValue(bool.TrueString)
-                .Optional();
+                .HasDefaultValue(bool.TrueString);
         }
 
         private static void BuildPaymentMethods(ODataModelBuilder builder)
@@ -338,8 +323,7 @@ namespace Smartstore.Web.Api
 
             getAllPaymentMethods.Parameter<bool>("active")
                 .Required();
-            getAllPaymentMethods.Parameter<int>("storeId")
-                .Optional();
+            getAllPaymentMethods.Parameter<int>("storeId");
         }
 
         private static void BuildProducts(ODataModelBuilder builder)
@@ -348,11 +332,18 @@ namespace Smartstore.Web.Api
             var set = builder.EntitySet<Product>(setName);
             var config = set.EntityType.Collection;
 
-            var search = config.Function(nameof(ProductsController.Search))
+            var search = config.Action(nameof(ProductsController.Search))
                 .ReturnsFromEntitySet<Product>(setName);
 
             search.Parameter<string>("q")
                 .Required();
+            search.Parameter<string>("c");
+            search.Parameter<string>("m");
+            search.Parameter<string>("d");
+            search.Parameter<string>("p");
+            search.Parameter<double>("r");
+            search.Parameter<bool>("a");
+            search.Parameter<bool>("n");
         }
     }
 }

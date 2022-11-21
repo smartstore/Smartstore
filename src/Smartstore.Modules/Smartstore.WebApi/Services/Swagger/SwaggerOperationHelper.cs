@@ -254,34 +254,34 @@ namespace Smartstore.Web.Api.Swagger
                             : $"{prop.Name} eq 123";
                     }
 
-                    example = "$filter=" + (example ?? "Name eq 'iPhone Plus'");
+                    example = example ?? "Name eq 'iPhone Plus'";
                     break;
                 case AllowedQueryOptions.Expand:
                     prop = GetEntityProperties(x => x.Property.PropertyType.IsClosedGenericTypeOf(typeof(ICollection<>))).FirstOrDefault();
-                    example = "$expand=" + (prop?.Property?.Name ?? "TierPrices");
+                    example = prop?.Property?.Name ?? "TierPrices";
                     break;
                 case AllowedQueryOptions.Select:
                     prop = GetEntityProperties(x => x.Property.PropertyType.IsBasicType()).FirstOrDefault();
-                    example = "$select=" + (prop?.Property?.Name ?? "Name");
+                    example = prop?.Property?.Name ?? "Name";
                     break;
                 case AllowedQueryOptions.OrderBy:
                     prop = GetEntityProperties(x => x.Property.PropertyType.IsBasicType()).FirstOrDefault();
-                    example = "$orderby=" + (prop?.Property?.Name ?? "Name") + " desc";
+                    example = prop?.Property?.Name ?? "Name" + " desc";
                     break;
                 case AllowedQueryOptions.Top:
-                    example = "$top=50";
+                    example = "50";
                     break;
                 case AllowedQueryOptions.Skip:
-                    example = "$skip=200";
+                    example = "200";
                     break;
                 case AllowedQueryOptions.Count:
-                    example = "$count=true";
+                    example = "true";
                     break;
                 case AllowedQueryOptions.Compute:
-                    example = "$compute=Price mul OrderMinimumQuantity as MinSpentPrice&$select=MinSpentPrice";
+                    example = "Price mul OrderMinimumQuantity as MinSpentPrice&$select=MinSpentPrice";
                     break;
                 case AllowedQueryOptions.Search:
-                    example = "$search=blue OR green";
+                    example = "blue OR green";
                     break;
                 default:
                     return null;

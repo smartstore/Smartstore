@@ -3,6 +3,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -28,17 +30,20 @@ namespace Smartstore.Web.Api.Controllers.OData
         private readonly Lazy<IUrlService> _urlService;
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ICatalogSearchQueryFactory> _catalogSearchQueryFactory;
+        private readonly Lazy<IWebApiService> _webApiService;
         private readonly Lazy<SearchSettings> _searchSettings;
 
         public ProductsController(
             Lazy<IUrlService> urlService,
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ICatalogSearchQueryFactory> catalogSearchQueryFactory,
+            Lazy<IWebApiService> webApiService,
             Lazy<SearchSettings> searchSettings)
         {
             _urlService = urlService;
             _catalogSearchService = catalogSearchService;
             _catalogSearchQueryFactory = catalogSearchQueryFactory;
+            _webApiService = webApiService;
             _searchSettings = searchSettings;
         }
 
@@ -318,18 +323,38 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         #region Actions and functions
 
+#pragma warning disable IDE0060
+
         /// <summary>
         /// Searches for products.
         /// </summary>
         /// <param name="q" example="iphone">The search term.</param>
-        [HttpGet("Products/Search"), ApiQueryable]
+        /// <param name="c">Comma separated list of category identifiers. Example: **2,3**.</param>
+        /// <param name="m">Comma separated list of manufacturer identifiers.  Example: **5**.</param>
+        /// <param name="d">Comma separated list of delivery time identifiers. Example: **8,9**.</param>
+        /// <param name="p">Price range (from~to || from(~) || ~to). Example: **100**.</param>
+        /// <param name="r">Minimum rating. Example: **2**.</param>
+        /// <param name="a">Availability. Example: **true**.</param>
+        /// <param name="n">New arrivals. Example: **true**.</param>
+        [HttpPost("Products/Search"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         [Produces(Json)]
         [ProducesResponseType(typeof(IQueryable<Product>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> Search(
-            [FromQuery, Required] string q)// TODO: (mg) (core) add and comment all search parameters :-(
+            [FromQuery, Required] string q,
+            [FromQuery] string c,
+            [FromQuery] string m,
+            [FromQuery] string d,
+            [FromQuery] string p,
+            [FromQuery] double r,
+            [FromQuery] bool a,
+            [FromQuery] bool n,
+            ODataQueryOptions<MediaFile> options)
         {
+            // INFO: "Search" needs to be POST otherwise "... is not a valid OData path template. Bad Request - Error in query syntax".
+            // Because of ApiQueryable, OData query options like "$top" have priority over search query options (excluded here).
+
             try
             {
                 if (q == null || q.Length < _searchSettings.Value.InstantSearchTermMinLength)
@@ -337,13 +362,35 @@ namespace Smartstore.Web.Api.Controllers.OData
                     return BadRequest($"The minimum length for the search term is {_searchSettings.Value.InstantSearchTermMinLength} characters.");
                 }
 
-                var query = await _catalogSearchQueryFactory.Value.CreateFromQueryAsync();
-                var result = await _catalogSearchService.Value.SearchAsync(query);
-                var hits = await result.GetHitsAsync();
+                var state = _webApiService.Value.GetState();
+                var searchQuery = await _catalogSearchQueryFactory.Value.CreateFromQueryAsync();
+                var skip = options.Skip?.Value ?? 0;
+                var take = Math.Min(options.Top?.Value ?? state.MaxTop, state.MaxTop);
 
-                $"hits:{hits.Count} term:{query.Term}".Dump();
+                searchQuery = searchQuery
+                    .BuildFacetMap(false)
+                    .Slice(skip, take);
+                    //// TODO: (mg) (core) this does not work... dangerous stuff, return type might change due to "ApplyTo"!... check everywhere
+                    //.UseHitsFactory((set, ids) =>
+                    //{
+                    //    var productsQuery = set
+                    //        .AsNoTracking()
+                    //        .Where(x => ids.Contains(x.Id));
+                    //    var productsQuery2 = (IQueryable<Product>)options.ApplyTo(productsQuery);
 
-                return Ok(hits.AsQueryable());
+                    //    var hits = await productsQuery2.ToListAsync();
+                    //    return hits;
+                    //})
+                    //.UseHitsFactory((set, ids) => set.GetManyAsync(ids, true));
+
+                var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
+
+                var query = Entities
+                    .AsNoTracking()
+                    .Where(x => searchResult.HitsEntityIds.Contains(x.Id));
+
+                // TODO: (mg) (core) why is this slow?
+                return Ok(query);
             }
             catch (Exception ex)
             {
@@ -351,6 +398,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
+#pragma warning restore IDE0060
 
         #endregion
 
