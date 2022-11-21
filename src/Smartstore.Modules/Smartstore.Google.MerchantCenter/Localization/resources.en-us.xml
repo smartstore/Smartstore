@@ -78,10 +78,10 @@
         <Value>Preorder</Value>
     </LocaleResource>
     <LocaleResource Name="SpecialPrice">
-        <Value>Export special price</Value>
+        <Value>Export offer price</Value>
     </LocaleResource>
     <LocaleResource Name="SpecialPrice.Hint">
-        <Value>Activate this option if you want to export special price and special price period.</Value>
+        <Value>Specifies whether an offer price incl. offer period should be exported, if such a price exists for the respective product.</Value>
     </LocaleResource>
     <LocaleResource Name="Gender">
         <Value>Gender</Value>

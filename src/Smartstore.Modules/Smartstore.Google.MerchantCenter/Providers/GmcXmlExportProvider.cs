@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
@@ -29,7 +30,6 @@ namespace Smartstore.Google.MerchantCenter.Providers
         ExportFeatures.UsesSkuAsMpnFallback |
         ExportFeatures.OffersBrandFallback |
         ExportFeatures.OffersShippingTimeFallback |
-        ExportFeatures.UsesSpecialPrice |
         ExportFeatures.UsesAttributeCombination)]
     public class GmcXmlExportProvider : ExportProviderBase
     {
@@ -102,7 +102,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
             }
         }
 
-        private string GetAttributeValue(
+        private string GetAttribute(
             Multimap<int, ProductVariantAttributeValue> attributeValues,
             string fieldName,
             int languageId,
@@ -168,6 +168,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
         protected override async Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken)
         {
             Currency currency = context.Currency.Entity;
+            var now = DateTime.UtcNow;
             var languageId = context.Projection.LanguageId ?? 0;
             var dateFormat = "yyyy-MM-ddTHH:mmZ";
             var defaultAvailability = "in stock";
@@ -222,8 +223,6 @@ namespace Smartstore.Google.MerchantCenter.Providers
                     try
                     {
                         string productType = product._CategoryPath;
-                        var price = (decimal)product.Price;
-                        var uniqueId = (string)product._UniqueId;
                         var isParent = (bool)product._IsParent;
                         string brand = product._Brand;
                         string gtin = product.Gtin;
@@ -238,12 +237,6 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         var attributeValues = !isParent && product._AttributeCombinationValues != null
                             ? ((IList<ProductVariantAttributeValue>)product._AttributeCombinationValues).ToMultimap(x => x.ProductVariantAttribute.ProductAttributeId, x => x)
                             : new Multimap<int, ProductVariantAttributeValue>();
-
-                        var specialPrice = product._FutureSpecialPrice as decimal?;
-                        if (!specialPrice.HasValue)
-                        {
-                            specialPrice = product._SpecialPrice;
-                        }
 
                         var category = gmc?.Taxonomy?.NullEmpty() ?? config.DefaultGoogleCategory;
                         if (category.IsEmpty())
@@ -263,27 +256,11 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             }
                         }
 
-                        WriteString(writer, "id", uniqueId);
-
-                        writer.WriteStartElement("title");
-                        writer.WriteCData(((string)product.Name).Truncate(70).RemoveInvalidXmlChars());
-                        writer.WriteEndElement();
-
-                        writer.WriteStartElement("description");
-                        writer.WriteCData(((string)product.FullDescription).RemoveInvalidXmlChars());
-                        writer.WriteEndElement();
-
-                        writer.WriteStartElement("g", "google_product_category", _googleNamespace);
-                        writer.WriteCData(category.RemoveInvalidXmlChars());
-                        writer.WriteFullEndElement();
-
-                        if (productType.HasValue())
-                        {
-                            writer.WriteStartElement("g", "product_type", _googleNamespace);
-                            writer.WriteCData(productType.RemoveInvalidXmlChars());
-                            writer.WriteFullEndElement();
-                        }
-
+                        WriteString(writer, "id", (string)product._UniqueId);
+                        writer.WriteCData("title", ((string)product.Name).Truncate(70));
+                        writer.WriteCData("description", (string)product.FullDescription);
+                        writer.WriteCData("google_product_category", category, "g", _googleNamespace);
+                        writer.WriteCData("product_type", productType.NullEmpty(), "g", _googleNamespace);
                         writer.WriteElementString("link", (string)product._DetailUrl);
 
                         if (pictureUrls.Any())
@@ -320,30 +297,35 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                         WriteString(writer, "availability", availability);
 
-                        if (availability == "preorder" && entity.AvailableStartDateTimeUtc.HasValue && entity.AvailableStartDateTimeUtc.Value > DateTime.UtcNow)
+                        if (availability == "preorder" && entity.AvailableStartDateTimeUtc.HasValue && entity.AvailableStartDateTimeUtc.Value > now)
                         {
-                            var availabilityDate = entity.AvailableStartDateTimeUtc.Value.ToString(dateFormat);
-                            WriteString(writer, "availability_date", availabilityDate);
+                            WriteString(writer, "availability_date", entity.AvailableStartDateTimeUtc.Value.ToString(dateFormat));
                         }
 
-                        if (config.SpecialPrice && specialPrice.HasValue)
-                        {
-                            WriteString(writer, "sale_price", string.Concat(specialPrice.Value.FormatInvariant(), " ", currency.CurrencyCode));
+                        // Price.
+                        var price = (decimal)product.Price;
+                        var calculatedPrice = (CalculatedPrice)product._Price;
+                        var saving = calculatedPrice.Saving;
 
-                            if (entity.SpecialPriceStartDateTimeUtc.HasValue && entity.SpecialPriceEndDateTimeUtc.HasValue)
+                        if (config.SpecialPrice && saving.HasSaving)
+                        {
+                            WriteString(writer, "sale_price", price.FormatInvariant() + " " + currency.CurrencyCode);
+                            price = saving.SavingPrice.Amount;
+
+                            if (calculatedPrice.ValidUntilUtc.HasValue)
                             {
-                                var specialPriceDate = "{0}/{1}".FormatInvariant(
-                                    entity.SpecialPriceStartDateTimeUtc.Value.ToString(dateFormat),
-                                    entity.SpecialPriceEndDateTimeUtc.Value.ToString(dateFormat));
+                                var from = calculatedPrice.OfferPrice.HasValue && entity.SpecialPriceStartDateTimeUtc.HasValue
+                                    ? entity.SpecialPriceStartDateTimeUtc.Value
+                                    : now.Date;
 
-                                WriteString(writer, "sale_price_effective_date", specialPriceDate);
+                                WriteString(writer, "sale_price_effective_date",
+                                    from.ToString(dateFormat)
+                                    + "/"
+                                    + calculatedPrice.ValidUntilUtc.Value.ToString(dateFormat));
                             }
-
-                            price = (product._RegularPrice as decimal?) ?? price;
                         }
 
-                        WriteString(writer, "price", string.Concat(price.FormatInvariant(), " ", currency.CurrencyCode));
-
+                        WriteString(writer, "price", price.FormatInvariant() + " " + currency.CurrencyCode);
                         WriteString(writer, "gtin", gtin);
                         WriteString(writer, "brand", brand);
                         WriteString(writer, "mpn", mpn);
@@ -351,33 +333,18 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         var identifierExists = brand.HasValue() && (gtin.HasValue() || mpn.HasValue());
                         WriteString(writer, "identifier_exists", identifierExists ? "yes" : "no");
 
-                        var gender = GetAttributeValue(attributeValues, "gender", languageId, gmc?.Gender, config.Gender);
-                        WriteString(writer, "gender", gender);
+                        WriteString(writer, "gender", GetAttribute(attributeValues, "gender", languageId, gmc?.Gender, config.Gender));
+                        WriteString(writer, "age_group", GetAttribute(attributeValues, "age_group", languageId, gmc?.AgeGroup, config.AgeGroup));
+                        WriteString(writer, "color", GetAttribute(attributeValues, "color", languageId, gmc?.Color, config.Color));
+                        WriteString(writer, "size", GetAttribute(attributeValues, "size", languageId, gmc?.Size, config.Size));
+                        WriteString(writer, "material", GetAttribute(attributeValues, "material", languageId, gmc?.Material, config.Material));
+                        WriteString(writer, "pattern", GetAttribute(attributeValues, "pattern", languageId, gmc?.Pattern, config.Pattern));
 
-                        var ageGroup = GetAttributeValue(attributeValues, "age_group", languageId, gmc?.AgeGroup, config.AgeGroup);
-                        WriteString(writer, "age_group", ageGroup);
-
-                        var color = GetAttributeValue(attributeValues, "color", languageId, gmc?.Color, config.Color);
-                        WriteString(writer, "color", color);
-
-                        var size = GetAttributeValue(attributeValues, "size", languageId, gmc?.Size, config.Size);
-                        WriteString(writer, "size", size);
-
-                        var material = GetAttributeValue(attributeValues, "material", languageId, gmc?.Material, config.Material);
-                        WriteString(writer, "material", material);
-
-                        var pattern = GetAttributeValue(attributeValues, "pattern", languageId, gmc?.Pattern, config.Pattern);
-                        WriteString(writer, "pattern", pattern);
-
-                        var itemGroupId = gmc != null && gmc.ItemGroupId.HasValue() ? gmc.ItemGroupId : string.Empty;
-                        if (itemGroupId.HasValue())
-                        {
-                            WriteString(writer, "item_group_id", itemGroupId);
-                        }
+                        WriteString(writer, "item_group_id", gmc?.ItemGroupId?.NullEmpty());
 
                         if (config.ExpirationDays > 0)
                         {
-                            WriteString(writer, "expiration_date", DateTime.UtcNow.AddDays(config.ExpirationDays).ToString("yyyy-MM-dd"));
+                            WriteString(writer, "expiration_date", now.AddDays(config.ExpirationDays).ToString("yyyy-MM-dd"));
                         }
 
                         if (config.ExportShipping)
@@ -413,23 +380,14 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             WriteString(writer, "multipack", gmc.Multipack > 1 ? gmc.Multipack.ToString() : null);
                             WriteString(writer, "is_bundle", gmc.IsBundle.HasValue ? (gmc.IsBundle.Value ? "yes" : "no") : null);
                             WriteString(writer, "adult", gmc.IsAdult.HasValue ? (gmc.IsAdult.Value ? "yes" : "no") : null);
-                            WriteString(writer, "energy_efficiency_class", gmc.EnergyEfficiencyClass.HasValue() ? gmc.EnergyEfficiencyClass : null);
+                            WriteString(writer, "energy_efficiency_class", gmc.EnergyEfficiencyClass.NullEmpty());
                         }
 
-                        var customLabel0 = GetAttributeValue(attributeValues, "custom_label_0", languageId, gmc?.CustomLabel0, null);
-                        WriteString(writer, "custom_label_0", gmc?.CustomLabel0.NullEmpty());
-
-                        var customLabel1 = GetAttributeValue(attributeValues, "custom_label_1", languageId, gmc?.CustomLabel1, null);
-                        WriteString(writer, "custom_label_1", gmc?.CustomLabel1.NullEmpty());
-
-                        var customLabel2 = GetAttributeValue(attributeValues, "custom_label_2", languageId, gmc?.CustomLabel2, null);
-                        WriteString(writer, "custom_label_2", gmc?.CustomLabel2.NullEmpty());
-
-                        var customLabel3 = GetAttributeValue(attributeValues, "custom_label_3", languageId, gmc?.CustomLabel3, null);
-                        WriteString(writer, "custom_label_3", gmc?.CustomLabel3.NullEmpty());
-
-                        var customLabel4 = GetAttributeValue(attributeValues, "custom_label_4", languageId, gmc?.CustomLabel4, null);
-                        WriteString(writer, "custom_label_4", gmc?.CustomLabel4.NullEmpty());
+                        WriteString(writer, "custom_label_0", GetAttribute(attributeValues, "custom_label_0", languageId, gmc?.CustomLabel0, null).NullEmpty());
+                        WriteString(writer, "custom_label_1", GetAttribute(attributeValues, "custom_label_1", languageId, gmc?.CustomLabel1, null).NullEmpty());
+                        WriteString(writer, "custom_label_2", GetAttribute(attributeValues, "custom_label_2", languageId, gmc?.CustomLabel2, null).NullEmpty());
+                        WriteString(writer, "custom_label_3", GetAttribute(attributeValues, "custom_label_3", languageId, gmc?.CustomLabel3, null).NullEmpty());
+                        WriteString(writer, "custom_label_4", GetAttribute(attributeValues, "custom_label_4", languageId, gmc?.CustomLabel4, null).NullEmpty());
 
                         ++context.RecordsSucceeded;
                     }

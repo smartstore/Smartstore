@@ -310,7 +310,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var endDates = context.AppliedDiscounts.Select(x => x.EndDateUtc)
                 .Concat(new[] { context.OfferEndDateUtc })
-                .Where(x => x.HasValue)
+                .Where(x => x.HasValue && x > DateTime.UtcNow)
                 .ToArray();
 
             // Prepare result by converting price amounts.
