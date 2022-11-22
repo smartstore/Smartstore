@@ -14,6 +14,18 @@ namespace Smartstore.Web.Api
             base.OnActionExecuted(actionExecutedContext);
         }
 
+        //public override void ValidateQuery(HttpRequest request, ODataQueryOptions queryOptions)
+        //{
+        //    var filter = queryOptions.Filter;
+        //    if (filter != null)
+        //    {
+        //        var type = filter.Context.ElementClrType;
+        //        type?.Name?.ToString().Dump();
+        //    }
+
+        //    base.ValidateQuery(request, queryOptions);
+        //}
+
         protected virtual void ApplyDefaultQueryOptions(ActionExecutedContext actionExecutedContext)
         {
             try

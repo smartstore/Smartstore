@@ -29,6 +29,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         private readonly Lazy<IUrlService> _urlService;
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ICatalogSearchQueryFactory> _catalogSearchQueryFactory;
+        private readonly Lazy<IPriceCalculationService> _priceCalculationService;
         private readonly Lazy<IWebApiService> _webApiService;
         private readonly Lazy<SearchSettings> _searchSettings;
 
@@ -36,12 +37,14 @@ namespace Smartstore.Web.Api.Controllers.OData
             Lazy<IUrlService> urlService,
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ICatalogSearchQueryFactory> catalogSearchQueryFactory,
+            Lazy<IPriceCalculationService> priceCalculationService,
             Lazy<IWebApiService> webApiService,
             Lazy<SearchSettings> searchSettings)
         {
             _urlService = urlService;
             _catalogSearchService = catalogSearchService;
             _catalogSearchQueryFactory = catalogSearchQueryFactory;
+            _priceCalculationService = priceCalculationService;
             _webApiService = webApiService;
             _searchSettings = searchSettings;
         }
@@ -364,6 +367,29 @@ namespace Smartstore.Web.Api.Controllers.OData
                 var hits = await searchResult.GetHitsAsync();
 
                 return Ok(hits.AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        [HttpGet("Products/CalculatePrice(id={id})")]
+        [Permission(Permissions.Catalog.Product.Read)]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(CalculatedPrice), Status200OK)]
+        public async Task<IActionResult> CalculatePrice(int id)
+        {
+            try
+            {
+                var entity = await GetRequiredById(id);
+                var calculationOptions = _priceCalculationService.Value.CreateDefaultOptions(false);
+                var price = await _priceCalculationService.Value.CalculatePriceAsync(new PriceCalculationContext(entity, calculationOptions));
+
+                // TODO: (mg) (core) ODataErrorException: The type 'Smartstore.Core.Common.Money' of a resource in an expanded link is not compatible with the element type
+                // 'System.Nullable_1OfMoney' of the expanded link. Entries in an expanded link must have entity types that are assignable to the element type of the expanded link.
+
+                return Ok(price);
             }
             catch (Exception ex)
             {

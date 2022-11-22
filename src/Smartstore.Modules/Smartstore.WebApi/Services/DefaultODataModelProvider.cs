@@ -347,6 +347,12 @@ namespace Smartstore.Web.Api
             search.Parameter<double>("r");
             search.Parameter<bool>("a");
             search.Parameter<bool>("n");
+
+            config.Function(nameof(ProductsController.CalculatePrice))
+                .Returns<CalculatedPrice>()
+                .Parameter<int>("id")
+                .Required();
+
         }
     }
 }
