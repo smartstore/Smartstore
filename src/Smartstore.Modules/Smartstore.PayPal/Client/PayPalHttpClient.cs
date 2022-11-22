@@ -499,10 +499,10 @@ namespace Smartstore.PayPal.Client
                     {
                         AddressLine1 = customer.ShippingAddress.Address1,
                         AddressLine2 = customer.ShippingAddress.Address2,
-                        AdminArea1 = customer.ShippingAddress.StateProvince.Name,
+                        AdminArea1 = customer.ShippingAddress.StateProvince?.Name,
                         AdminArea2 = customer.ShippingAddress.City,
                         PostalCode = customer.ShippingAddress.ZipPostalCode,
-                        CountryCode = customer.ShippingAddress.Country.TwoLetterIsoCode
+                        CountryCode = customer.ShippingAddress.Country?.TwoLetterIsoCode
                     }
                 };
             }
