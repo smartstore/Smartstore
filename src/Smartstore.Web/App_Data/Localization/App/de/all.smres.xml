@@ -642,9 +642,6 @@
 	<LocaleResource Name="ActivityLog.PublicStore.PlaceOrder">
 		<Value>Hat einen neuen Auftrag erteilt (ID = {0})</Value>
 	</LocaleResource>
-	<LocaleResource Name="ActivityLog.PublicStore.SendPM">
-		<Value>PN an Kunden geschickt ('{0}')</Value>
-	</LocaleResource>
 	<LocaleResource Name="ActivityLog.PublicStore.ViewCategory">
 		<Value>Öffentlicher Shop. Hat eine Warengruppen-Detailseite angesehen ('{0}')</Value>
 	</LocaleResource>
@@ -3570,9 +3567,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.CustomerSystemAccount.Hint">
 		<Value>Filtert Ergebnisse nach Kundenystemkonten.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.ActivityLog.ActivityLogTy pe">
-		<Value>Aktivitätstypen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.ActivityLog.ActivityLogType">
 		<Value>Ereignistypen</Value>
@@ -15380,9 +15374,6 @@
 		<Value>Aktualisierend</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.LogLevel.Debug">
-		<Value>Debuggen</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.LogLevel.Debug">
 		<Value>Debug</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.LogLevel.Error">
@@ -15390,9 +15381,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Enums.LogLevel.Fatal">
 		<Value>Schwerwiegend</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.LogLevel.Information">
-		<Value>Information</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.LogLevel.Information">
 		<Value>Info</Value>
