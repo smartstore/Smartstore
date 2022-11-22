@@ -486,7 +486,10 @@ namespace Smartstore.Admin.Controllers
             }
 
             await MapperFactory.MapAsync(model.AddressSettings, addressSettings);
+
+            var tempCookieInfos = privacySettings.CookieInfos;
             await MapperFactory.MapAsync(model.PrivacySettings, privacySettings);
+            privacySettings.CookieInfos = tempCookieInfos;
 
             foreach (var localized in model.Locales)
             {
