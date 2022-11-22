@@ -152,7 +152,7 @@ namespace Smartstore.Core.Configuration
 
                 if (rawSettings.TryGetValue(key, out var setting))
                 {
-                    if ((overwriteExisting || setting.Value == null) && setting.Value != currentValue)
+                    if ((overwriteExisting || setting.Value == null) && setting.Value != currentValue && currentValue != null)
                     {
                         // Update
                         setting.Value = currentValue;
