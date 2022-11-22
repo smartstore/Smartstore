@@ -220,6 +220,10 @@
     display: flex;
     flex-direction: row;
     padding: 0;
+
+    .dropdown-menu {
+        min-width: 200px;
+    }
 }
 
 .menubar-group {
