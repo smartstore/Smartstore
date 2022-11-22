@@ -337,6 +337,9 @@ namespace Smartstore.Web.Api
 
             search.Parameter<string>("q")
                 .Required();
+            search.Parameter<int>("i");
+            search.Parameter<int>("s");
+            search.Parameter<ProductSortingEnum>("o");
             search.Parameter<string>("c");
             search.Parameter<string>("m");
             search.Parameter<string>("d");

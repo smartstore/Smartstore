@@ -164,6 +164,12 @@ namespace Smartstore.Web.Api
                         o.EnableFilter();
                         //o.ShowCommonExtensions();
                         //o.InjectStylesheet("/swagger-ui/custom.css");
+
+                        // Perf.
+                        o.DefaultModelExpandDepth(2);
+                        //o.DocExpansion(DocExpansion.None);
+                        // Highlighting kills JavaScript rendering on large JSON results like product lists.
+                        o.ConfigObject.AdditionalItems.Add("syntaxHighlight", false);
                     });
                 });
 

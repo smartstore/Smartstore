@@ -1,10 +1,8 @@
 ﻿#nullable enable
 
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -16,6 +14,7 @@ using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Seo;
 using Smartstore.Domain;
+using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
@@ -323,82 +322,54 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         #region Actions and functions
 
-#pragma warning disable IDE0060
-
         /// <summary>
         /// Searches for products.
         /// </summary>
-        /// <param name="q" example="iphone">The search term.</param>
-        /// <param name="c">Comma separated list of category identifiers. Example: **2,3**.</param>
-        /// <param name="m">Comma separated list of manufacturer identifiers.  Example: **5**.</param>
-        /// <param name="d">Comma separated list of delivery time identifiers. Example: **8,9**.</param>
-        /// <param name="p">Price range (from~to || from(~) || ~to). Example: **100**.</param>
-        /// <param name="r">Minimum rating. Example: **2**.</param>
-        /// <param name="a">Availability. Example: **true**.</param>
-        /// <param name="n">New arrivals. Example: **true**.</param>
-        [HttpPost("Products/Search"), ApiQueryable]
+        [HttpPost("Products/Search")]
+        [ApiQueryable(AllowedQueryOptions = AllowedQueryOptions.Expand | AllowedQueryOptions.Count | AllowedQueryOptions.Select, EnsureStableOrdering = false)]
         [Permission(Permissions.Catalog.Product.Read)]
         [Produces(Json)]
         [ProducesResponseType(typeof(IQueryable<Product>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> Search(
-            [FromQuery, Required] string q,
-            [FromQuery] string c,
-            [FromQuery] string m,
-            [FromQuery] string d,
-            [FromQuery] string p,
-            [FromQuery] double r,
-            [FromQuery] bool a,
-            [FromQuery] bool n,
-            ODataQueryOptions<MediaFile> options)
+        public async Task<IActionResult> Search([FromQuery] CatalogSearchQueryModel model)
         {
             // INFO: "Search" needs to be POST otherwise "... is not a valid OData path template. Bad Request - Error in query syntax".
-            // Because of ApiQueryable, OData query options like "$top" have priority over search query options (excluded here).
+            // INFO: "EnsureStableOrdering" must be "false" otherwise CatalogSearchQuery.Sorting is getting lost.
+            // INFO: we cannot fully satisfy both: catalog search options and OData query options. Catalog search has priority here.
 
             try
             {
-                if (q == null || q.Length < _searchSettings.Value.InstantSearchTermMinLength)
+                if (model.Term == null || model.Term.Length < _searchSettings.Value.InstantSearchTermMinLength)
                 {
                     return BadRequest($"The minimum length for the search term is {_searchSettings.Value.InstantSearchTermMinLength} characters.");
                 }
 
                 var state = _webApiService.Value.GetState();
                 var searchQuery = await _catalogSearchQueryFactory.Value.CreateFromQueryAsync();
-                var skip = options.Skip?.Value ?? 0;
-                var take = Math.Min(options.Top?.Value ?? state.MaxTop, state.MaxTop);
 
                 searchQuery = searchQuery
                     .BuildFacetMap(false)
-                    .Slice(skip, take);
-                    //// TODO: (mg) (core) this does not work... dangerous stuff, return type might change due to "ApplyTo"!... check everywhere
-                    //.UseHitsFactory((set, ids) =>
-                    //{
-                    //    var productsQuery = set
-                    //        .AsNoTracking()
-                    //        .Where(x => ids.Contains(x.Id));
-                    //    var productsQuery2 = (IQueryable<Product>)options.ApplyTo(productsQuery);
-
-                    //    var hits = await productsQuery2.ToListAsync();
-                    //    return hits;
-                    //})
-                    //.UseHitsFactory((set, ids) => set.GetManyAsync(ids, true));
+                    .CheckSpelling(0)
+                    .Slice(searchQuery.Skip, Math.Min(searchQuery.Take, state.MaxTop))
+                    .UseHitsFactory((set, ids) => Entities.GetManyAsync(ids, true));
 
                 var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
 
-                var query = Entities
-                    .AsNoTracking()
-                    .Where(x => searchResult.HitsEntityIds.Contains(x.Id));
+                // TODO: (mg) (core) using "$expand" results in "Compiling a query which loads related collections for more than one collection navigation...
+                // but no 'QuerySplittingBehavior' has been configured."
+                // Applying "AsSplitQuery" if "$expand" is used might be solution but test with $select if it also works together.
 
-                // TODO: (mg) (core) why is this slow?
-                return Ok(query);
+                //$"term:{model.Term.NaIfEmpty()} skip:{searchQuery.Skip} take:{searchQuery.Take} hits:{searchResult.HitsEntityIds.Length} total:{searchResult.TotalHitsCount}".Dump();
+
+                var hits = await searchResult.GetHitsAsync();
+
+                return Ok(hits.AsQueryable());
             }
             catch (Exception ex)
             {
                 return ErrorResult(ex);
             }
         }
-
-#pragma warning restore IDE0060
 
         #endregion
 
