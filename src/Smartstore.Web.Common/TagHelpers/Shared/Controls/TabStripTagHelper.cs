@@ -136,7 +136,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                     foreach (var widget in e.Widgets.OrderBy(x => x.Order))
                     {
-                        widgetContent.AppendHtml(await widget.InvokeAsync(ViewContext, e.Model));
+                        widgetContent.AppendHtml(await widget.InvokeAsync(new WidgetContext(ViewContext, e.Model)));
                         widgetContent.AppendLine();
                     }
 

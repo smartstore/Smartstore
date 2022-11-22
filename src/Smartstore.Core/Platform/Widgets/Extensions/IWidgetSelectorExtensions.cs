@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Smartstore.Core.Widgets
 {
@@ -66,22 +67,42 @@ namespace Smartstore.Core.Widgets
             var result = new ZoneHtmlContent();
             var widgets = await selector.GetWidgetsAsync(zone, model ?? viewContext.ViewData.Model);
 
-            foreach (var widget in widgets)
+            if (widgets.Any())
             {
-                var localModel = widget is PartialViewWidget partialInvoker
-                    ? partialInvoker.Model
-                    : model;
+                var widgetContext = new WidgetContext(viewContext)
+                {
+                    Model = model,
+                    Zone = zone,
+                    // Create ViewData that is scoped to the current zone
+                    ViewData = new ViewDataDictionary(viewContext.ViewData)
+                    {
+                        ["widgetzone"] = zone
+                    }
+                };
 
-                var localViewContext = localModel == null ? viewContext : viewContext.Clone(localModel);
+                foreach (var widget in widgets)
+                {
+                    //var localModel = widget is PartialViewWidget partialInvoker
+                    //    ? partialInvoker.Model
+                    //    : model;
 
-                // TODO: (mh) (core) I don't know why you did this, but ViewData is mostly global across partials.
-                // You are overriding the very same entry each time. Are you sure?
-                localViewContext.ViewData["widgetzone"] = zone;
+                    //var localViewContext = localModel == null ? viewContext : viewContext.Clone(localModel);
+                    ////var widgetContext = new WidgetContext(viewContext)
+                    ////{
+                    ////    Model = model
+                    ////};
 
-                var content = await widget.InvokeAsync(localViewContext);
-                var target = widget.Prepend ? result.PreContent : result.PostContent;
-                target.AppendHtml(content);
-                //target.AppendLine();
+                    //// TODO: (mh) (core) I don't know why you did this, but ViewData is mostly global across partials.
+                    //// You are overriding the very same entry each time. Are you sure?
+                    //localViewContext.ViewData["widgetzone"] = zone;
+
+                    //var content = await widget.InvokeAsync(localViewContext);
+                    //var content = await widget.Invoke2Async(widgetContext);
+                    var content = await widget.InvokeAsync(widgetContext);
+                    var target = widget.Prepend ? result.PreContent : result.PostContent;
+                    target.AppendHtml(content);
+                    //target.AppendLine();
+                }
             }
 
             return result;

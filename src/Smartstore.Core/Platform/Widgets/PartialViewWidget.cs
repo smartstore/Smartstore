@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Html;
 
 namespace Smartstore.Core.Widgets
 {
@@ -9,49 +9,57 @@ namespace Smartstore.Core.Widgets
         /// <summary>
         /// Creates a new instance of <see cref="PartialViewWidget"/>.
         /// </summary>
-        /// <param name="partialName">Name of partial view to invoke.</param>
+        /// <param name="viewName">Name of partial view to invoke.</param>
         /// <param name="module">Optional: system name of a module to additionally search for view files in.</param>
-        public PartialViewWidget(string partialName, string module = null)
+        public PartialViewWidget(string viewName, string? module = null)
         {
-            Guard.NotEmpty(partialName, nameof(partialName));
+            Guard.NotEmpty(viewName, nameof(viewName));
 
-            PartialName = partialName;
+            ViewName = viewName;
             Module = module;
         }
 
         /// <summary>
         /// Creates a new instance of <see cref="PartialViewWidget"/>.
         /// </summary>
-        /// <param name="partialName">Name of partial view to invoke.</param>
-        /// <param name="model">Model instance to pass to partial view..</param>
+        /// <param name="viewName">Name of view to invoke.</param>
+        /// <param name="model">Model instance to pass to partial view.</param>
         /// <param name="module">Optional: system name of a module to additionally search for view files in.</param>
-        public PartialViewWidget(string partialName, object model, string module = null)
+        public PartialViewWidget(string viewName, object? model, string? module = null)
         {
-            Guard.NotEmpty(partialName, nameof(partialName));
+            Guard.NotEmpty(viewName, nameof(viewName));
 
-            PartialName = partialName;
+            ViewName = viewName;
             Module = module;
             Model = model;
         }
 
-        public string PartialName { get; }
-        public string Module { get; }
-        public object Model { get; }
+        /// <summary>
+        /// Gets the name of the view to render.
+        /// </summary>
+        public string ViewName { get; }
 
-        public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
-        {
-            var viewData = model == null
-                ? viewContext.ViewData
-                : new ViewDataDictionary<object>(viewContext.ViewData, model);
+        /// <summary>
+        /// Gets the module system name in which the view is located.
+        /// </summary>
+        public string? Module { get; }
 
-            var viewInvoker = viewContext.HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
-            return await viewInvoker.InvokePartialViewAsync(
-                PartialName,
-                module: Module,
-                viewData: viewData);
-        }
+        /// <summary>
+        /// Gets the view model instance to pass.
+        /// </summary>
+        public object? Model { get; }
 
-        public override Task<IHtmlContent> Invoke2Async(WidgetContext context)
+        /// <summary>
+        /// Set this to <c>true</c> to render a full main page instead of a partial.
+        /// </summary>
+        public bool IsMainPage { get; set; }
+
+        ///// <summary>
+        ///// View to lookup if the view specified by <see cref="ViewName"/> cannot be located.
+        ///// </summary>
+        //public string? FallbackName { get; set; }
+
+        public override Task<IHtmlContent> InvokeAsync(WidgetContext context)
         {
             var invoker = context.HttpContext.RequestServices.GetRequiredService<IWidgetInvoker<PartialViewWidget>>();
             return invoker.InvokeAsync(context, this);

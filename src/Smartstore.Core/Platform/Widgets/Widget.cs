@@ -32,21 +32,14 @@ namespace Smartstore.Core.Widgets
         /// Invokes the widget and returns its content.
         /// </summary>
         /// <returns>The result HTML content.</returns>
-        public virtual Task<IHtmlContent> InvokeAsync(ViewContext viewContext) => InvokeAsync(viewContext, null);
-
-        /// <summary>
-        /// Invokes the widget and returns its content.
-        /// </summary>
-        /// <param name="model">Optional model</param>
-        /// <returns>The result HTML content.</returns>
-        public abstract Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object? model);
+        public Task<IHtmlContent> InvokeAsync(ViewContext viewContext) => InvokeAsync(new WidgetContext(viewContext));
 
         /// <summary>
         /// Invokes the widget and returns its content.
         /// </summary>
         /// <param name="context">The widget context</param>
         /// <returns>The result HTML content.</returns>
-        public abstract Task<IHtmlContent> Invoke2Async(WidgetContext context);
+        public abstract Task<IHtmlContent> InvokeAsync(WidgetContext context);
 
         #region Equatable
 

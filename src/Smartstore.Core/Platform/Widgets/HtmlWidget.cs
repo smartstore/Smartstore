@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
 using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Widgets
 {
@@ -19,10 +18,7 @@ namespace Smartstore.Core.Widgets
 
         public IHtmlContent Content { get; }
 
-        public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object? model)
-            => Task.FromResult(Content);
-
-        public override Task<IHtmlContent> Invoke2Async(WidgetContext context)
+        public override Task<IHtmlContent> InvokeAsync(WidgetContext context)
             => Task.FromResult(Content);
     }
 }

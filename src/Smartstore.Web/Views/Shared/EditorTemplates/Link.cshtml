@@ -58,7 +58,7 @@
             <div class="link-control col" attr-class='(expression.Schema != schema, "hide")' data-type="@schema">
                 @if (info.Widget != null)
                 {
-                    @await info.Widget.InvokeAsync(ViewContext, (link, label, value))
+                    @await info.Widget.InvokeAsync(new WidgetContext(ViewContext, (link, label, value)))
                 }
                 else if (schema == DefaultLinkProvider.SchemaProduct)
                 {
@@ -72,7 +72,7 @@
                                            dialog-title=@T("Common.Entity.SelectProduct").JsValue
                                            caption="&hellip;" />
                         </div>
-                    </div>       
+                    </div>
                 }
                 else if (schema == DefaultLinkProvider.SchemaCategory)
                 {
@@ -109,7 +109,7 @@
                                 <span>@(T("Common.BrowseFiles"))&hellip;</span>
                             </a>
                         </div>
-                    </div>         
+                    </div>
                 }
             </div>
         }

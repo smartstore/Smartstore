@@ -4,26 +4,31 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;
+using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Widgets
 {
-    public class ComponentWidgetInvoker : ModuleAwareWidgetInvoker<ComponentWidget>
+    public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
     {
         private static readonly ConcurrentDictionary<Type, ViewComponentDescriptor> _componentByTypeCache = new();
 
         private readonly IViewComponentSelector _componentSelector;
         private readonly IViewComponentDescriptorCollectionProvider _componentDescriptorProvider;
+        private readonly IModuleCatalog _moduleCatalog;
 
         public ComponentWidgetInvoker(
             IViewComponentSelector componentSelector,
-            IViewComponentDescriptorCollectionProvider componentDescriptorProvider)
+            IViewComponentDescriptorCollectionProvider componentDescriptorProvider,
+            IModuleCatalog moduleCatalog)
         {
             _componentSelector = componentSelector;
             _componentDescriptorProvider = componentDescriptorProvider;
+            _moduleCatalog = moduleCatalog;
         }
 
         public override Task<IHtmlContent> InvokeAsync(WidgetContext context, ComponentWidget widget)
@@ -36,15 +41,23 @@ namespace Smartstore.Core.Widgets
                 throw new InvalidOperationException("View component name or type must be set.");
             }
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
-            using var writer = new StringWriter(sb);
-
-            var viewContext = CreateViewContext(context, writer, widget.Module);
-
-            if (widget.Arguments == null)
+            if (widget.ComponentType != null && widget.Module == null)
             {
-                widget.Arguments = FixComponentArguments(context, widget);
+                // Check component type location
+                var moduleDescriptor = _moduleCatalog.GetModuleByAssembly(widget.ComponentType.Assembly);
+                widget.Module = moduleDescriptor?.SystemName;
             }
+
+            widget.Arguments ??= FixComponentArguments(context, widget);
+
+            var writer = context.Writer;
+            if (writer == null)
+            {
+                using var psb = StringBuilderPool.Instance.Get(out var sb);
+                writer = new StringWriter(sb);
+            }
+
+            var viewContext = CreateViewContext(context, writer, null, widget.Module);
 
             // IViewComponentHelper is stateful, we want to make sure to retrieve it every time we need it.
             var viewComponentHelper = context.HttpContext.RequestServices.GetRequiredService<IViewComponentHelper>();

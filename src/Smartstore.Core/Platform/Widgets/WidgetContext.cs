@@ -10,13 +10,20 @@ namespace Smartstore.Core.Widgets
     public class WidgetContext
     {
         public WidgetContext(ActionContext actionContext)
+            : this(actionContext, null)
+        {
+        }
+
+        public WidgetContext(ActionContext actionContext, object? model)
         {
             ActionContext = Guard.NotNull(actionContext, nameof(actionContext));
-            
+            Model = model;
+
             if (actionContext is ViewContext viewContext)
             {
                 ViewData = viewContext.ViewData;
                 TempData = viewContext.TempData;
+                Writer = viewContext.Writer;
             }
         }
 
@@ -34,6 +41,11 @@ namespace Smartstore.Core.Widgets
         }
 
         /// <summary>
+        /// Gets or sets the name of the parent zone.
+        /// </summary>
+        public string? Zone { get; set; }
+
+        /// <summary>
         /// Gets or sets the call site model.
         /// </summary>
         public object? Model { get; set; }
@@ -47,5 +59,10 @@ namespace Smartstore.Core.Widgets
         /// Gets or sets the <see cref="ITempDataDictionary"/>.
         /// </summary>
         public ITempDataDictionary? TempData { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="TextWriter"/> for output.
+        /// </summary>
+        public TextWriter? Writer { get; }
     }
 }

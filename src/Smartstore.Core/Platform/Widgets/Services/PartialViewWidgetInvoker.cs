@@ -8,7 +8,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Widgets
 {
-    public class PartialViewWidgetInvoker : ModuleAwareWidgetInvoker<PartialViewWidget>
+    public class PartialViewWidgetInvoker : WidgetInvoker<PartialViewWidget>
     {
         private const string ActionNameKey = "action";
 
@@ -24,13 +24,21 @@ namespace Smartstore.Core.Widgets
             Guard.NotNull(context, nameof(context));
             Guard.NotNull(widget, nameof(widget));
 
-            var viewEngineResult = FindView(context.ActionContext, widget.PartialName, false);
-            viewEngineResult.EnsureSuccessful(originalLocations: null);
-
+            // We have to bring forward writer and view context stuff because we need
+            // a properly prepared RouteData for view resolution.
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             using var writer = new StringWriter(sb);
 
-            var viewContext = CreateViewContext(context, writer, widget.Module);
+            if (widget.Model != null)
+            {
+                context.Model = widget.Model;
+            }
+
+            var viewContext = CreateViewContext(context, writer, widget.Model, widget.Module);
+
+            var viewEngineResult = FindView(viewContext, widget.ViewName, widget.IsMainPage);
+            viewEngineResult.EnsureSuccessful(originalLocations: null);
+
             var view = viewContext.View = viewEngineResult.View;
 
             using (view as IDisposable)
@@ -38,7 +46,7 @@ namespace Smartstore.Core.Widgets
                 await view.RenderAsync(viewContext);
             }
 
-            return new HtmlString(sb.ToString());
+            return new HtmlString(viewContext.Writer.ToString());
         }
 
         private ViewEngineResult FindView(ActionContext actionContext, string viewName, bool isMainPage)

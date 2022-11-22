@@ -8,27 +8,20 @@ namespace Smartstore.Core.Bootstrapping
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
-            builder.RegisterType<DefaultWidgetSelector>()
-                .As<IWidgetSelector>()
-                .InstancePerLifetimeScope();
-            builder.RegisterType<DefaultWidgetProvider>()
-                .As<IWidgetProvider>()
-                .As<IWidgetSource>()
-                .InstancePerLifetimeScope();
-            builder.RegisterType<PageAssetBuilder>()
-                .As<IPageAssetBuilder>()
-                .InstancePerLifetimeScope();
-            builder.RegisterType<NullAssetTagGenerator>()
-                .As<IAssetTagGenerator>()
-                .SingleInstance();
+            builder.RegisterType<DefaultWidgetSelector>().As<IWidgetSelector>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultWidgetProvider>().As<IWidgetProvider>().As<IWidgetSource>().InstancePerLifetimeScope();
+            builder.RegisterType<PageAssetBuilder>().As<IPageAssetBuilder>().InstancePerLifetimeScope();
+            builder.RegisterType<NullAssetTagGenerator>().As<IAssetTagGenerator>().SingleInstance();
 
-            var registration = builder.RegisterType<WidgetService>()
-                .As<IWidgetService>()
-                .InstancePerLifetimeScope();
+            var registration = builder.RegisterType<WidgetService>().As<IWidgetService>().InstancePerLifetimeScope();
             if (appContext.IsInstalled)
             {
                 registration.As<IWidgetSource>();
             }
+
+            // Widget invokers
+            builder.RegisterType<ComponentWidgetInvoker>().As<IWidgetInvoker<ComponentWidget>>().SingleInstance();
+            builder.RegisterType<PartialViewWidgetInvoker>().As<IWidgetInvoker<PartialViewWidget>>().SingleInstance();
         }
     }
 }
