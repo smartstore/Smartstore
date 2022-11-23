@@ -123,34 +123,24 @@
         OffersShippingCostsFallback = 1 << 9,
 
         /// <summary>
-        /// A value indicating whether to get the calculated product compare price.
-        /// </summary>
-        UsesComparePrice = 1 << 10,
-
-        /// <summary>
-        /// A value indicating whether to get the calculated special and regular price (ignoring special offers).
-        /// </summary>
-        UsesSpecialPrice = 1 << 11,
-
-        /// <summary>
         /// A value indicating whether to not automatically send a completion email.
         /// </summary>
-        CanOmitCompletionMail = 1 << 12,
+        CanOmitCompletionMail = 1 << 10,
 
         /// <summary>
         /// A value indicating whether to provide additional data of attribute combinations.
         /// </summary>
-        UsesAttributeCombination = 1 << 13,
+        UsesAttributeCombination = 1 << 11,
 
         /// <summary>
         /// A value indicating whether to export attribute combinations as products including parent product. Only effective with CanProjectAttributeCombinations.
         /// </summary>
-        UsesAttributeCombinationParent = 1 << 14,
+        UsesAttributeCombinationParent = 1 << 12,
 
         /// <summary>
         /// A value indicating whether to provide extra data units for related data.
         /// </summary>
-        UsesRelatedDataUnits = 1 << 15
+        UsesRelatedDataUnits = 1 << 13
     }
 
     /// <summary>

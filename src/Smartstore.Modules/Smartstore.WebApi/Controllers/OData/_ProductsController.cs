@@ -1,8 +1,8 @@
 ﻿#nullable enable
 
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.OData.Query;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -14,6 +14,7 @@ using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Seo;
 using Smartstore.Domain;
+using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
@@ -28,17 +29,23 @@ namespace Smartstore.Web.Api.Controllers.OData
         private readonly Lazy<IUrlService> _urlService;
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ICatalogSearchQueryFactory> _catalogSearchQueryFactory;
+        private readonly Lazy<IPriceCalculationService> _priceCalculationService;
+        private readonly Lazy<IWebApiService> _webApiService;
         private readonly Lazy<SearchSettings> _searchSettings;
 
         public ProductsController(
             Lazy<IUrlService> urlService,
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ICatalogSearchQueryFactory> catalogSearchQueryFactory,
+            Lazy<IPriceCalculationService> priceCalculationService,
+            Lazy<IWebApiService> webApiService,
             Lazy<SearchSettings> searchSettings)
         {
             _urlService = urlService;
             _catalogSearchService = catalogSearchService;
             _catalogSearchQueryFactory = catalogSearchQueryFactory;
+            _priceCalculationService = priceCalculationService;
+            _webApiService = webApiService;
             _searchSettings = searchSettings;
         }
 
@@ -321,27 +328,43 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Searches for products.
         /// </summary>
-        /// <param name="q" example="iphone">The search term.</param>
-        [HttpGet("Products/Search"), ApiQueryable]
+        [HttpPost("Products/Search")]
+        [ApiQueryable(AllowedQueryOptions = AllowedQueryOptions.Expand | AllowedQueryOptions.Count | AllowedQueryOptions.Select, EnsureStableOrdering = false)]
         [Permission(Permissions.Catalog.Product.Read)]
         [Produces(Json)]
         [ProducesResponseType(typeof(IQueryable<Product>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> Search(
-            [FromQuery, Required] string q)// TODO: (mg) (core) add and comment all search parameters :-(
+        public async Task<IActionResult> Search([FromQuery] CatalogSearchQueryModel model)
         {
+            // INFO: "Search" needs to be POST otherwise "... is not a valid OData path template. Bad Request - Error in query syntax".
+            // INFO: "EnsureStableOrdering" must be "false" otherwise CatalogSearchQuery.Sorting is getting lost.
+            // INFO: we cannot fully satisfy both: catalog search options and OData query options. Catalog search has priority here.
+
             try
             {
-                if (q == null || q.Length < _searchSettings.Value.InstantSearchTermMinLength)
+                if (model.Term == null || model.Term.Length < _searchSettings.Value.InstantSearchTermMinLength)
                 {
                     return BadRequest($"The minimum length for the search term is {_searchSettings.Value.InstantSearchTermMinLength} characters.");
                 }
 
-                var query = await _catalogSearchQueryFactory.Value.CreateFromQueryAsync();
-                var result = await _catalogSearchService.Value.SearchAsync(query);
-                var hits = await result.GetHitsAsync();
+                var state = _webApiService.Value.GetState();
+                var searchQuery = await _catalogSearchQueryFactory.Value.CreateFromQueryAsync();
 
-                $"hits:{hits.Count} term:{query.Term}".Dump();
+                searchQuery = searchQuery
+                    .BuildFacetMap(false)
+                    .CheckSpelling(0)
+                    .Slice(searchQuery.Skip, Math.Min(searchQuery.Take, state.MaxTop))
+                    .UseHitsFactory((set, ids) => Entities.GetManyAsync(ids, true));
+
+                var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
+
+                // TODO: (mg) (core) using "$expand" results in "Compiling a query which loads related collections for more than one collection navigation...
+                // but no 'QuerySplittingBehavior' has been configured."
+                // Applying "AsSplitQuery" if "$expand" is used might be solution but test with $select if it also works together.
+
+                //$"term:{model.Term.NaIfEmpty()} skip:{searchQuery.Skip} take:{searchQuery.Take} hits:{searchResult.HitsEntityIds.Length} total:{searchResult.TotalHitsCount}".Dump();
+
+                var hits = await searchResult.GetHitsAsync();
 
                 return Ok(hits.AsQueryable());
             }
@@ -351,6 +374,28 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
+        [HttpGet("Products/CalculatePrice(id={id})")]
+        [Permission(Permissions.Catalog.Product.Read)]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(CalculatedPrice), Status200OK)]
+        public async Task<IActionResult> CalculatePrice(int id)
+        {
+            try
+            {
+                var entity = await GetRequiredById(id);
+                var calculationOptions = _priceCalculationService.Value.CreateDefaultOptions(false);
+                var price = await _priceCalculationService.Value.CalculatePriceAsync(new PriceCalculationContext(entity, calculationOptions));
+
+                // TODO: (mg) (core) ODataErrorException: The type 'Smartstore.Core.Common.Money' of a resource in an expanded link is not compatible with the element type
+                // 'System.Nullable_1OfMoney' of the expanded link. Entries in an expanded link must have entity types that are assignable to the element type of the expanded link.
+
+                return Ok(price);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
         #endregion
 

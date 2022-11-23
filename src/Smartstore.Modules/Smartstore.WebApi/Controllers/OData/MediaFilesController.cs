@@ -17,6 +17,8 @@ namespace Smartstore.Web.Api.Controllers.OData
     // INFO: some endpoints are accessible via POST where you would expect GET.
     // That's because a function like GET /MediaFiles/FileExists(Path='content/my-file.jpg') would never work (HTTP status 404).
 
+    // TODO: (mg) (core) $filter, $expand does not validate due to wrong EDM model type. Expects FileItemInfo but we need to query MediaFile.
+
     /// <summary>
     /// The endpoint for operations on MediaFile entity. Returns type FileItemInfo which wraps and enriches MediaFile.
     /// </summary>
@@ -32,7 +34,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _webApiService = webApiService;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet, ApiQueryable(AllowedQueryOptions = AllowedQueryOptions.Top | AllowedQueryOptions.Skip | AllowedQueryOptions.Count)]
         public async Task<IActionResult> Get(ODataQueryOptions<MediaFile> options)
         {
             // See https://github.com/smartstore/Smartstore/issues/481

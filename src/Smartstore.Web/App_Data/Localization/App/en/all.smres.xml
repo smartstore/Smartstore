@@ -642,9 +642,6 @@
 	<LocaleResource Name="ActivityLog.PublicStore.PlaceOrder">
 		<Value>Placed a new order (ID = {0})</Value>
 	</LocaleResource>
-	<LocaleResource Name="ActivityLog.PublicStore.SendPM">
-		<Value>Sent PM to customer ('{0}')</Value>
-	</LocaleResource>
 	<LocaleResource Name="ActivityLog.PublicStore.ViewCategory">
 		<Value>Public store. Viewed a category details page ('{0}')</Value>
 	</LocaleResource>
@@ -15730,17 +15727,11 @@
 	<LocaleResource Name="Enums.LogLevel.Debug">
 		<Value>Debug</Value>
 	</LocaleResource>
-	<LocaleResource Name="Enums.LogLevel.Debug">
-		<Value>Debug</Value>
-	</LocaleResource>
 	<LocaleResource Name="Enums.LogLevel.Error">
 		<Value>Error</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.LogLevel.Fatal">
 		<Value>Fatal</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.LogLevel.Information">
-		<Value>Information</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.LogLevel.Information">
 		<Value>Info</Value>

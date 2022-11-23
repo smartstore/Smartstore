@@ -109,29 +109,7 @@ namespace Smartstore.Web.Api
                 //    Example = new OpenApiDouble(16.5)
                 //});
 
-                try
-                {
-                    // XML comments.
-                    IncludeXmlComments(o, appContext, "Smartstore.Core.xml");
-
-                    var modelProviders = appContext.TypeScanner
-                        .FindTypes<IODataModelProvider>()
-                        .Select(x => (IODataModelProvider)Activator.CreateInstance(x))
-                        .ToList();
-
-                    foreach (var provider in modelProviders)
-                    {
-                        var stream = provider.GetXmlCommentsStream(appContext);
-                        if (stream != null)
-                        {
-                            // INFO: XPathDocument closes the input stream.
-                            o.IncludeXmlComments(() => new XPathDocument(stream), true);
-                        }
-                    }
-                }
-                catch
-                {
-                }
+                IncludeXmlComments(o, appContext);
             });
 
             // INFO: needs to be placed after AddSwaggerGen(). Without this statement, the examples in the documentation
@@ -186,6 +164,12 @@ namespace Smartstore.Web.Api
                         o.EnableFilter();
                         //o.ShowCommonExtensions();
                         //o.InjectStylesheet("/swagger-ui/custom.css");
+
+                        // Perf.
+                        o.DefaultModelExpandDepth(2);
+                        //o.DocExpansion(DocExpansion.None);
+                        // Highlighting kills JavaScript rendering on large JSON results like product lists.
+                        o.ConfigObject.AdditionalItems.Add("syntaxHighlight", false);
                     });
                 });
 
@@ -243,45 +227,74 @@ namespace Smartstore.Web.Api
                         try
                         {
                             await next(context);
-                            //if (!context.Response.IsSuccessStatusCode() && context.Request.Path.StartsWithSegments("/odata", StringComparison.OrdinalIgnoreCase))...
                         }
-                        catch (ODataException ex)
+                        catch (Exception ex)
                         {
-                            // TODO: (mg) (core) insufficient. Could be InvalidCastException or whatever too.
-                            // Identify by context.Request.Path, then catch ALL exceptions, then ReThrow.
-
-                            // Let the ErrorController handle ODataErrorException and (if accepted)
-                            // return the standard OData error JSON instead of something the client do not expect.
-                            var odataError = new ODataError
-                            {
-                                ErrorCode = Status500InternalServerError.ToString(),
-                                Message = ex.Message,
-                                InnerError = new ODataInnerError(ex)
-                            };
-
-                            var odataEx = new ODataErrorException(ex.Message, ex.InnerException, odataError);
-                            odataEx.Data["JsonContent"] = odataError.ToString();
-                            odataEx.ReThrow();
+                            ProcessException(context, ex);
                         }
                     });
                 });
-
             }
         }
 
-        private static void IncludeXmlComments(SwaggerGenOptions options, IApplicationContext appContext, string fileName)
+        private static void ProcessException(HttpContext context, Exception ex)
+        {
+            if (context?.Request?.Path.StartsWithSegments("/odata", StringComparison.OrdinalIgnoreCase) ?? false)
+            {
+                // INFO: could be ODataException, InvalidCastException and many more.
+                // Let the ErrorController handle our below ODataErrorException and (if accepted)
+                // return the standard OData error JSON instead of something the client do not expect.
+                var odataError = new ODataError
+                {
+                    ErrorCode = Status500InternalServerError.ToString(),
+                    Message = ex.Message,
+                    InnerError = new ODataInnerError(ex)
+                };
+
+                var odataEx = new ODataErrorException(ex.Message, ex.InnerException, odataError);
+                odataEx.Data["JsonContent"] = odataError.ToString();
+                odataEx.ReThrow();
+            }
+            else
+            {
+                ex.ReThrow();
+            }
+        }
+
+        private static void IncludeXmlComments(SwaggerGenOptions options, IApplicationContext appContext)
+        {
+            try
+            {
+                var modelProviders = appContext.TypeScanner
+                    .FindTypes<IODataModelProvider>()
+                    .Select(x => (IODataModelProvider)Activator.CreateInstance(x))
+                    .ToList();
+
+                // INFO: XPathDocument closes the input stream.
+                modelProviders
+                    .Select(x => x.GetXmlCommentsStream(appContext))
+                    .Concat(new[] { GetXmlCommentsStream(appContext, "Smartstore.Core.xml") })
+                    .Where(x => x != null)
+                    .Each(x => options.IncludeXmlComments(() => new XPathDocument(x), true));
+            }
+            catch
+            {
+            }
+        }
+
+        private static Stream GetXmlCommentsStream(IApplicationContext appContext, string fileName)
         {
             var path = Path.Combine(appContext.RuntimeInfo.BaseDirectory, fileName);
             if (File.Exists(path))
             {
-                // INFO: XPathDocument closes the input stream.
-                var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                options.IncludeXmlComments(() => new XPathDocument(stream), true);
+                return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             }
             else
             {
                 Debug.WriteLine($"Cannot find {fileName}. Expected location: {path}.");
             }
+
+            return null;
         }
     }
 }

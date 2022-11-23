@@ -204,7 +204,7 @@ namespace Smartstore.Core.DataExchange.Export
             dynObject._CategoryPath = null;
             dynObject._AttributeCombinationValues = null;
             dynObject._AttributeCombinationId = 0;
-
+            dynObject._Price = price;
             dynObject.Price = price.FinalPrice.Amount;
 
             if (combination != null)
@@ -402,7 +402,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             var mediaFiles = await ApplyMediaFiles(dynObject, product, ctx, productContext);
-            await ApplyExportFeatures(dynObject, product, price, mediaFiles, ctx, productContext);
+            await ApplyExportFeatures(dynObject, product, mediaFiles, ctx);
 
             return dynObject;
         }
@@ -448,10 +448,8 @@ namespace Smartstore.Core.DataExchange.Export
         private async Task ApplyExportFeatures(
             dynamic dynObject,
             Product product,
-            CalculatedPrice price,
             IEnumerable<ProductMediaFile> mediaFiles,
-            DataExporterContext ctx,
-            DynamicProductContext productContext)
+            DataExporterContext ctx)
         {
             if (ctx.Supports(ExportFeatures.CanProjectDescription))
             {
@@ -520,61 +518,6 @@ namespace Smartstore.Core.DataExchange.Export
                 dynObject._ShippingCosts = product.IsFreeShipping || (ctx.Projection.FreeShippingThreshold.HasValue && (decimal)dynObject.Price >= ctx.Projection.FreeShippingThreshold.Value)
                     ? decimal.Zero
                     : ctx.Projection.ShippingCosts;
-            }
-
-            if (ctx.Supports(ExportFeatures.UsesComparePrice))
-            {
-                if (product.ComparePrice != decimal.Zero && product.ComparePrice != (decimal)dynObject.Price && !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
-                {
-                    if (ctx.Projection.ConvertNetToGrossPrices)
-                    {
-                        var tax = await _taxCalculator.CalculateProductTaxAsync(product, product.ComparePrice, true, ctx.ContextCustomer, ctx.ContextCurrency);
-                        dynObject._ComparePrice = tax.Price;
-                    }
-                    else
-                    {
-                        dynObject._ComparePrice = product.ComparePrice;
-                    }
-                }
-                else
-                {
-                    dynObject._ComparePrice = null;
-                }
-            }
-
-            if (ctx.Supports(ExportFeatures.UsesSpecialPrice))
-            {
-                dynObject._SpecialPrice = null;         // Special price which is valid now.
-                dynObject._FutureSpecialPrice = null;   // Special price which is valid now and in future.
-                dynObject._RegularPrice = null;         // Price as if a special price would not exist.
-
-                if (!(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
-                {
-                    if (price.OfferPrice.HasValue && product.SpecialPriceEndDateTimeUtc.HasValue)
-                    {
-                        var endDate = DateTime.SpecifyKind(product.SpecialPriceEndDateTimeUtc.Value, DateTimeKind.Utc);
-                        if (endDate > DateTime.UtcNow)
-                        {
-                            dynObject._FutureSpecialPrice = price.OfferPrice.Value.Amount;
-                        }
-                    }
-
-                    dynObject._SpecialPrice = price.OfferPrice?.Amount ?? null;
-
-                    if (price.OfferPrice.HasValue || dynObject._FutureSpecialPrice != null)
-                    {
-                        var clonedOptions = ctx.PriceCalculationOptions.Clone();
-                        clonedOptions.IgnoreOfferPrice = true;
-
-                        var calculationContext = new PriceCalculationContext(product, clonedOptions);
-                        calculationContext.AddSelectedAttributes(productContext?.Combination?.AttributeSelection, product.Id);
-                        var priceWithoutOfferPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
-
-                        // TODO: (mg) (core) this probably needs some revision. Should export "Calculated.RegularPrice" as "_RegularPrice"
-                        // but check GMC pricing specification if it meets our calculations.
-                        dynObject._RegularPrice = priceWithoutOfferPrice.FinalPrice.Amount;
-                    }
-                }
             }
         }
 

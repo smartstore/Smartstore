@@ -360,7 +360,7 @@ namespace Smartstore.Core.DataExchange.Export
             return result;
         }
 
-        private static dynamic ToDynamic(Store store, DataExporterContext ctx)
+        private static dynamic ToDynamic(Store store)
         {
             if (store == null)
             {
@@ -645,7 +645,7 @@ namespace Smartstore.Core.DataExchange.Export
             result.Shipments = null;
 
             result.Store = ctx.Stores.ContainsKey(order.StoreId)
-                ? DataExporter.ToDynamic(ctx.Stores[order.StoreId], ctx)
+                ? DataExporter.ToDynamic(ctx.Stores[order.StoreId])
                 : null;
 
             if (!ctx.IsPreview)
@@ -701,7 +701,7 @@ namespace Smartstore.Core.DataExchange.Export
             dynamic result = new DynamicEntity(subscription);
 
             result.Store = ctx.Stores.ContainsKey(subscription.StoreId)
-                ? DataExporter.ToDynamic(ctx.Stores[subscription.StoreId], ctx)
+                ? DataExporter.ToDynamic(ctx.Stores[subscription.StoreId])
                 : null;
 
             return result;
@@ -719,7 +719,7 @@ namespace Smartstore.Core.DataExchange.Export
             await _productAttributeMaterializer.MergeWithCombinationAsync(cartItem.Product, cartItem.AttributeSelection);
 
             result.Store = ctx.Stores.ContainsKey(cartItem.StoreId)
-                ? DataExporter.ToDynamic(ctx.Stores[cartItem.StoreId], ctx)
+                ? DataExporter.ToDynamic(ctx.Stores[cartItem.StoreId])
                 : null;
 
             result.Customer = ToDynamic(cartItem.Customer);

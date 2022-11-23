@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;

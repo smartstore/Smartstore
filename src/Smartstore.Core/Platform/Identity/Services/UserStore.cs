@@ -25,6 +25,7 @@ namespace Smartstore.Core.Identity
     {
         private readonly Lazy<SmartDbContext> _db;
         private readonly Lazy<IGdprTool> _gdprTool;
+        private readonly CustomerSettings _customerSettings;
 
         public UserStore(
             Lazy<SmartDbContext> db,
@@ -34,7 +35,7 @@ namespace Smartstore.Core.Identity
         {
             _db = db;
             _gdprTool = gdprTool;
-
+            _customerSettings = customerSettings;
             ErrorDescriber = errorDescriber;
         }
 
@@ -200,7 +201,14 @@ namespace Smartstore.Core.Identity
         Task<string> IUserStore<Customer>.GetUserNameAsync(Customer user, CancellationToken cancellationToken)
         {
             Guard.NotNull(user, nameof(user));
-            return Task.FromResult(user.Username);
+
+            var userName = user.Username;
+            if (userName == null && _customerSettings.CustomerLoginType != CustomerLoginType.Username)
+            {
+                userName = user.Email;
+            }
+
+            return Task.FromResult(userName);
         }
 
         Task IUserStore<Customer>.SetNormalizedUserNameAsync(Customer user, string normalizedName, CancellationToken cancellationToken)
