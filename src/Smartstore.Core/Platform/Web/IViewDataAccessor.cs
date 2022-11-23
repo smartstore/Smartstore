@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Smartstore.Core.Web
@@ -11,6 +13,6 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// The current root ViewData instance. ViewData is populated right before the execution of any controller action.
         /// </summary>
-        ViewDataDictionary ViewData { get; }
+        ViewDataDictionary? ViewData { get; }
     }
 }

@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
+using Microsoft.OData.UriParser;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.Controllers
 {
@@ -19,87 +24,160 @@ namespace Smartstore.Web.Controllers
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public ICommonServices Services { get; set; }
+        public ICommonServices Services { get; set; } = default!;
 
-        public IViewInvoker ViewInvoker
-        {
-            get => HttpContext.RequestServices.GetService<IViewInvoker>();
-        }
+        //public IViewInvoker ViewInvoker
+        //{
+        //    get => HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
+        //}
 
         #region Widget, View & Component rendering
 
-        /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
-        /// <param name="model">Model</param>
-        protected async Task<string> InvokeViewAsync(string viewName, object model)
-            => (await ViewInvoker.InvokeViewAsync(viewName, null, new ViewDataDictionary<object>(ViewData, model))).ToString();
+        /// <summary>
+        /// Invokes a view and returns its HTML result content as string.
+        /// </summary>
+        /// <param name="viewName">The name of view to invoke.</param>
+        /// <param name="model">Model to pass to view.</param>
+        /// <returns>View rendering result</returns>
+        protected Task<string> InvokeViewAsync(string viewName, object? model)
+        {
+            Guard.NotEmpty(viewName, nameof(viewName));
 
-        ///// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
-        ///// <param name="model">Model</param>
-        //public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, string module, object model)
-        //    => invoker.InvokeViewAsync(viewName, module, new ViewDataDictionary<object>(ViewData, model));
-
-        /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
-        protected async Task<string> InvokeViewAsync(string viewName, ViewDataDictionary viewData)
-            => (await ViewInvoker.InvokeViewAsync(viewName, null, viewData)).ToString();
-
-        /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
-        /// <param name="model">Model</param>
-        /// <param name="additionalViewData">Additional view data</param>
-        protected async Task<string> InvokeViewAsync(string viewName, object model, object additionalViewData)
-            => (await ViewInvoker.InvokeViewAsync(viewName, model, additionalViewData)).ToString();
-
-
-        /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
-        /// <param name="model">Model</param>
-        protected async Task<string> InvokePartialViewAsync(string viewName, object model)
-            => (await ViewInvoker.InvokePartialViewAsync(viewName, null, new ViewDataDictionary<object>(ViewData, model))).ToString();
-
-        ///// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
-        ///// <param name="model">Model</param>
-        //public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, string module, object model)
-        //    => invoker.InvokePartialViewAsync(viewName, module, new ViewDataDictionary<object>(ViewData, model));
-
-        /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
-        protected async Task<string> InvokePartialViewAsync(string viewName, ViewDataDictionary viewData)
-            => (await ViewInvoker.InvokePartialViewAsync(viewName, null, viewData)).ToString();
-
-        /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
-        /// <param name="model">Model</param>
-        /// <param name="additionalViewData">Additional view data</param>
-        protected async Task<string> InvokePartialViewAsync(string viewName, object model, object additionalViewData)
-            => (await ViewInvoker.InvokePartialViewAsync(viewName, model, additionalViewData)).ToString();
-
-
-        /// <inheritdoc cref="IViewInvoker.InvokeComponentAsync(string, string, ViewDataDictionary, object)"/>
-        /// <param name="model">Model</param>
-        protected async Task<string> InvokeComponentAsync(string componentName, ViewDataDictionary viewData, object arguments)
-            => (await ViewInvoker.InvokeComponentAsync(componentName, null, viewData, arguments)).ToString();
-
-        /// <inheritdoc cref="IViewInvoker.InvokeComponentAsync(Type, string, ViewDataDictionary, object)"/>
-        /// <param name="model">Model</param>
-        protected async Task<string> InvokeComponentAsync(Type componentType, ViewDataDictionary viewData, object arguments)
-            => (await ViewInvoker.InvokeComponentAsync(componentType, viewData, arguments)).ToString();
+            return InvokeWidget(null, new PartialViewWidget(viewName, model) { IsMainPage = true });
+        }
 
         /// <summary>
-        /// Invokes a widget and returns its html content.
+        /// Invokes a view and returns its HTML result content as string.
         /// </summary>
-        /// <param name="widget">Widget to invoke.</param>
-        /// <returns>Widget rendering result</returns>
-        protected async Task<string> InvokeWidgetAsync(Widget widget)
+        /// <param name="viewName">The name of view to invoke.</param>
+        /// <param name="viewData">The <see cref="ViewDataDictionary"/> instance.</param>
+        /// <returns>View rendering result</returns>
+        protected Task<string> InvokeViewAsync(string viewName, ViewDataDictionary? viewData)
         {
-            Guard.NotNull(widget, nameof(widget));
+            Guard.NotEmpty(viewName, nameof(viewName));
 
-            var viewContext = new ViewContext(
-                ControllerContext,
-                NullView.Instance,
-                ViewData,
-                TempData,
-                TextWriter.Null,
-                HttpContext.RequestServices.GetRequiredService<IOptions<MvcViewOptions>>().Value.HtmlHelperOptions
-            );
+            return InvokeWidget(viewData, new PartialViewWidget(viewName) { IsMainPage = true });
+        }
 
-            var result = await widget.InvokeAsync(viewContext);
-            return result.ToHtmlString().ToString();
+        /// <summary>
+        /// Invokes a partial view and returns its HTML result content as string.
+        /// </summary>
+        /// <param name="viewName">The name of view to invoke.</param>
+        /// <param name="model">Model to pass to view.</param>
+        /// <param name="additionalViewData">Additional view data.</param>
+        /// <returns>View rendering result</returns>
+        protected Task<string> InvokeViewAsync(string viewName, object? model, object? additionalViewData)
+        {
+            Guard.NotEmpty(viewName, nameof(viewName));
+
+            return InvokeWidget(GetViewData(additionalViewData), new PartialViewWidget(viewName, model) { IsMainPage = true });
+        }
+
+
+        /// <summary>
+        /// Invokes a partial view and returns its HTML result content as string.
+        /// </summary>
+        /// <param name="viewName">The name of view to invoke.</param>
+        /// <param name="model">Model to pass to view.</param>
+        /// <returns>View rendering result</returns>
+        protected Task<string> InvokePartialViewAsync(string viewName, object? model)
+        {
+            Guard.NotEmpty(viewName, nameof(viewName));
+
+            return InvokeWidget(null, new PartialViewWidget(viewName, model));
+        }
+
+        /// <summary>
+        /// Invokes a partial view and returns its HTML result content as string.
+        /// </summary>
+        /// <param name="viewName">The name of view to invoke.</param>
+        /// <param name="viewData">The <see cref="ViewDataDictionary"/> instance.</param>
+        /// <returns>View rendering result</returns>
+        protected Task<string> InvokePartialViewAsync(string viewName, ViewDataDictionary? viewData)
+        {
+            Guard.NotEmpty(viewName, nameof(viewName));
+
+            return InvokeWidget(viewData, new PartialViewWidget(viewName));
+        }
+
+        /// <summary>
+        /// Invokes a partial view and returns its HTML result content as string.
+        /// </summary>
+        /// <param name="viewName">The name of view to invoke.</param>
+        /// <param name="model">Model to pass to view.</param>
+        /// <param name="additionalViewData">Additional view data.</param>
+        /// <returns>View rendering result</returns>
+        protected Task<string> InvokePartialViewAsync(string viewName, object? model, object? additionalViewData)
+        {
+            Guard.NotEmpty(viewName, nameof(viewName));
+
+            return InvokeWidget(GetViewData(additionalViewData), new PartialViewWidget(viewName, model));
+        }
+
+
+        /// <summary>
+        /// Invokes a view component and returns its HTML result content as string.
+        /// </summary>
+        /// <param name="componentName">The name of component to invoke.</param>
+        /// <param name="viewData">The <see cref="ViewDataDictionary"/> instance.</param>
+        /// <param name="arguments">
+        /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
+        /// method. Alternatively, an <see cref="IDictionary{String, Object}"/> instance
+        /// containing the invocation arguments.
+        /// </param>
+        /// <returns>View component rendering result</returns>
+        protected Task<string> InvokeComponentAsync(string componentName, ViewDataDictionary? viewData, object? arguments)
+        {
+            Guard.NotEmpty(componentName, nameof(componentName));
+            
+            return InvokeWidget(viewData, new ComponentWidget(componentName, arguments));
+        }
+
+        /// <summary>
+        /// Invokes a view component and returns its HTML result content as string.
+        /// </summary>
+        /// <param name="componentType">The type of component to invoke.</param>
+        /// <param name="viewData">The <see cref="ViewDataDictionary"/> instance.</param>
+        /// <param name="arguments">
+        /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
+        /// method. Alternatively, an <see cref="IDictionary{String, Object}"/> instance
+        /// containing the invocation arguments.
+        /// </param>
+        /// <returns>View component rendering result</returns>
+        protected Task<string> InvokeComponentAsync(Type componentType, ViewDataDictionary? viewData, object? arguments)
+        {
+            Guard.NotNull(componentType, nameof(componentType));
+
+            return InvokeWidget(viewData, new ComponentWidget(componentType, arguments));
+        }
+
+
+        private async Task<string> InvokeWidget(ViewDataDictionary? viewData, Widget widget)
+        {
+            var context = new WidgetContext(ControllerContext)
+            {
+                ViewData = viewData ?? ViewData,
+                TempData = TempData
+            };
+
+            return (await widget.InvokeAsync(context)).ToHtmlString().ToString();
+        }
+
+        private ViewDataDictionary GetViewData(object? additionalViewData)
+        {
+            var viewData = ViewData;
+            if (additionalViewData != null)
+            {
+                viewData = new ViewDataDictionary<object>(viewData);
+                viewData.Merge(ConvertUtility.ObjectToDictionary(additionalViewData));
+
+                if (additionalViewData is ViewDataDictionary vdd)
+                {
+                    viewData.TemplateInfo.HtmlFieldPrefix = vdd.TemplateInfo.HtmlFieldPrefix;
+                }
+            }
+
+            return viewData;
         }
 
         #endregion
@@ -188,19 +266,19 @@ namespace Smartstore.Web.Controllers
             return RedirectToReferrer(null, () => RedirectToRoute("Homepage"));
         }
 
-        protected ActionResult RedirectToReferrer(string referrer)
+        protected ActionResult RedirectToReferrer(string? referrer)
         {
             return RedirectToReferrer(referrer, () => RedirectToRoute("Homepage"));
         }
 
-        protected ActionResult RedirectToReferrer(string referrer, string fallbackUrl)
+        protected ActionResult RedirectToReferrer(string? referrer, string? fallbackUrl)
         {
             return RedirectToReferrer(
                 referrer,
-                fallbackUrl.HasValue() ? () => Redirect(fallbackUrl) : null);
+                fallbackUrl.HasValue() ? () => Redirect(fallbackUrl!) : null);
         }
 
-        protected virtual ActionResult RedirectToReferrer(string referrer, Func<ActionResult> fallbackResult)
+        protected virtual ActionResult RedirectToReferrer(string? referrer, Func<ActionResult>? fallbackResult)
         {
             referrer ??= Url.Referrer();
 

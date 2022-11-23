@@ -19,7 +19,8 @@ namespace Smartstore.Core.Bootstrapping
                 registration.As<IWidgetSource>();
             }
 
-            // Widget invokers
+            // View/Widget invokers
+            builder.RegisterType<DefaultViewInvoker>().As<IViewInvoker>().InstancePerLifetimeScope();
             builder.RegisterType<ComponentWidgetInvoker>().As<IWidgetInvoker<ComponentWidget>>().SingleInstance();
             builder.RegisterType<PartialViewWidgetInvoker>().As<IWidgetInvoker<PartialViewWidget>>().SingleInstance();
         }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -16,14 +18,14 @@ namespace Smartstore.Core.Web
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public ViewDataDictionary ViewData
+        public ViewDataDictionary? ViewData 
             => _httpContextAccessor.HttpContext?.Items[ViewDataAccessKey] as ViewDataDictionary;
 
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
             if (context.Controller is Controller controller)
             {
-                _httpContextAccessor.HttpContext.Items[ViewDataAccessKey] = controller.ViewData;
+                controller.HttpContext.Items[ViewDataAccessKey] = controller.ViewData;             
             }
         }
 

@@ -26,7 +26,7 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         /// <param name="componentName">Name of component to invoke.</param>
         /// <param name="arguments">Arguments to pass to renderer.</param>
-        public ComponentWidget(string componentName, object arguments)
+        public ComponentWidget(string componentName, object? arguments)
             : this(componentName, null, arguments)
         {
         }

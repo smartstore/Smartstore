@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Smartstore.Core.Widgets
@@ -8,7 +11,10 @@ namespace Smartstore.Core.Widgets
     /// </summary>
     public interface IViewInvoker
     {
-        ViewDataDictionary ViewData { get; }
+        /// <summary>
+        /// Gets the current <see cref="ViewDataDictionary"/>.
+        /// </summary>
+        ViewDataDictionary? ViewData { get; }
 
         /// <summary>
         /// Gets an <see cref="ActionContext"/> instance for the given <paramref name="module"/> area
@@ -16,21 +22,21 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         /// <param name="context">The original action context or <c>null</c> to construct a fresh context.</param>
         /// <param name="module">The module to get action context for.</param>
-        ActionContext GetActionContext(ActionContext context, string module);
+        ActionContext GetActionContext(ActionContext? context, string? module);
 
         /// <summary>
-        /// Invokes a view and writes its html content to given <paramref name="writer"/>.
+        /// Invokes a view component and returns its html content.
         /// </summary>
-        Task InvokeViewAsync(ActionContext context, ViewResult result, TextWriter writer);
+        Task<HtmlString> InvokeComponentAsync(ActionContext context, ViewComponentResult result);
 
         /// <summary>
-        /// Invokes a partial view and writes its html content to given <paramref name="writer"/>.
+        /// Invokes a partial view and returns its html content.
         /// </summary>
-        Task InvokePartialViewAsync(ActionContext context, PartialViewResult result, TextWriter writer);
+        Task<HtmlString> InvokePartialViewAsync(ActionContext context, PartialViewResult result);
 
         /// <summary>
-        /// Invokes a view component and writes its html content to given <paramref name="writer"/>.
+        /// Invokes a view and returns its html content.
         /// </summary>
-        Task InvokeComponentAsync(ActionContext context, ViewComponentResult result, TextWriter writer);
+        Task<HtmlString> InvokeViewAsync(ActionContext context, ViewResult result);
     }
 }

@@ -54,7 +54,7 @@ namespace Smartstore.Web.Api
 
             var pdfSettings = _settingFactory.LoadSettings<PdfSettings>(order.StoreId);
             var model = new List<OrderDetailsModel> { await _orderHelper.PrepareOrderDetailsModelAsync(order) };
-
+            
             var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
             {
                 Model = model,

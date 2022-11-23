@@ -562,7 +562,8 @@ namespace Smartstore.Web.Controllers
                 return new EmptyResult();
             }
 
-            return Content(await InvokeWidgetAsync(infoWidget));
+            var widgetContent = await infoWidget.InvokeAsync(new WidgetContext(ControllerContext));
+            return Content(widgetContent.ToHtmlString().ToString());
         }
 
         public async Task<IActionResult> Confirm()

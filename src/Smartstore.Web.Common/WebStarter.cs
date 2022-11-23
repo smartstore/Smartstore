@@ -105,7 +105,6 @@ namespace Smartstore.Web
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
-            builder.RegisterType<DefaultViewInvoker>().As<IViewInvoker>().InstancePerLifetimeScope();
             builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
         }
 
