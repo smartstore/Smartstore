@@ -106,74 +106,62 @@ namespace Smartstore.Core.Catalog.Products
 
         public LazyMultimap<ProductVariantAttribute> Attributes
         {
-            get => _attributes ??=
-                new LazyMultimap<ProductVariantAttribute>(keys => LoadAttributes(keys), _productIds);
+            get => _attributes ??= new LazyMultimap<ProductVariantAttribute>(keys => LoadAttributes(keys), _productIds);
         }
 
         public LazyMultimap<ProductVariantAttributeCombination> AttributeCombinations
         {
-            get => _attributeCombinations ??=
-                new LazyMultimap<ProductVariantAttributeCombination>(keys => LoadAttributeCombinations(keys), _productIds);
+            get => _attributeCombinations ??= new LazyMultimap<ProductVariantAttributeCombination>(keys => LoadAttributeCombinations(keys), _productIds);
         }
 
         public LazyMultimap<TierPrice> TierPrices
         {
-            get => _tierPrices ??=
-                new LazyMultimap<TierPrice>(keys => LoadTierPrices(keys), _productIdsTierPrices);
+            get => _tierPrices ??= new LazyMultimap<TierPrice>(keys => LoadTierPrices(keys), _productIdsTierPrices);
         }
 
         public LazyMultimap<ProductCategory> ProductCategories
         {
-            get => _productCategories ??=
-                new LazyMultimap<ProductCategory>(keys => LoadProductCategories(keys), _productIds);
+            get => _productCategories ??= new LazyMultimap<ProductCategory>(keys => LoadProductCategories(keys), _productIds);
         }
 
         public LazyMultimap<ProductManufacturer> ProductManufacturers
         {
-            get => _productManufacturers ??=
-                new LazyMultimap<ProductManufacturer>(keys => LoadProductManufacturers(keys), _productIds);
+            get => _productManufacturers ??= new LazyMultimap<ProductManufacturer>(keys => LoadProductManufacturers(keys), _productIds);
         }
 
         public LazyMultimap<Discount> AppliedDiscounts
         {
-            get => _appliedDiscounts ??=
-                new LazyMultimap<Discount>(keys => LoadAppliedDiscounts(keys), _productIdsAppliedDiscounts);
+            get => _appliedDiscounts ??= new LazyMultimap<Discount>(keys => LoadAppliedDiscounts(keys), _productIdsAppliedDiscounts);
         }
 
         public LazyMultimap<ProductBundleItem> ProductBundleItems
         {
-            get => _productBundleItems ??=
-                new LazyMultimap<ProductBundleItem>(keys => LoadProductBundleItems(keys), _bundledProductIds);
+            get => _productBundleItems ??= new LazyMultimap<ProductBundleItem>(keys => LoadProductBundleItems(keys), _bundledProductIds);
         }
 
         public LazyMultimap<Product> AssociatedProducts
         {
-            get => _associatedProducts ??=
-                new LazyMultimap<Product>(keys => LoadAssociatedProducts(keys), _groupedProductIds);
+            get => _associatedProducts ??= new LazyMultimap<Product>(keys => LoadAssociatedProducts(keys), _groupedProductIds);
         }
 
         public LazyMultimap<ProductMediaFile> ProductMediaFiles
         {
-            get => _productMediaFiles ??=
-                new LazyMultimap<ProductMediaFile>(keys => LoadProductMediaFiles(keys), _productIds);
+            get => _productMediaFiles ??= new LazyMultimap<ProductMediaFile>(keys => LoadProductMediaFiles(keys), _productIds);
         }
 
         public LazyMultimap<ProductTag> ProductTags
         {
-            get => _productTags ??=
-                new LazyMultimap<ProductTag>(keys => LoadProductTags(keys), _productIds);
+            get => _productTags ??= new LazyMultimap<ProductTag>(keys => LoadProductTags(keys), _productIds);
         }
 
         public LazyMultimap<ProductSpecificationAttribute> SpecificationAttributes
         {
-            get => _specificationAttributes ??=
-                new LazyMultimap<ProductSpecificationAttribute>(keys => LoadSpecificationAttributes(keys), _productIds);
+            get => _specificationAttributes ??= new LazyMultimap<ProductSpecificationAttribute>(keys => LoadSpecificationAttributes(keys), _productIds);
         }
 
         public LazyMultimap<Download> Downloads
         {
-            get => _downloads ??=
-                new LazyMultimap<Download>(keys => LoadDownloads(keys), _productIds);
+            get => _downloads ??= new LazyMultimap<Download>(keys => LoadDownloads(keys), _productIds);
         }
 
         public virtual void Collect(IEnumerable<int> productIds)

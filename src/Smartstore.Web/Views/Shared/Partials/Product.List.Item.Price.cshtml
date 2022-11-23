@@ -6,7 +6,7 @@
 
 @{
     var list = Model.Parent;
-    if (!list.ShowPrice)
+    if (!list.ShowPrice || Model.Price == null)
     {
         return;
     }

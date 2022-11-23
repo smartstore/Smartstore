@@ -330,6 +330,21 @@ namespace Smartstore.Web.Controllers
                     mapItemContext.MediaFiles = (await _mediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
                 }
 
+                if (settings.MapDimensions)
+                {
+                    mapItemContext.MeasureDimensions = await _db.MeasureDimensions.AsNoTracking().ToDictionaryAsync(x => x.Id);
+                }
+
+                if (model.ShowWeight)
+                {
+                    mapItemContext.MeasureWeights = await _db.MeasureWeights.AsNoTracking().ToDictionaryAsync(x => x.Id);
+                }
+
+                if (settings.DeliveryTimesPresentation != DeliveryTimesPresentation.None)
+                {
+                    mapItemContext.DeliveryTimes = await _db.DeliveryTimes.AsNoTracking().ToDictionaryAsync(x => x.Id);
+                }
+
                 foreach (var product in products)
                 {
                     await MapProductSummaryItem(product, mapItemContext);
@@ -500,7 +515,7 @@ namespace Smartstore.Web.Controllers
                     contextProduct.Height.ToString("N2"),
                     contextProduct.Length.ToString("N2")
                 );
-                item.DimensionMeasureUnit = (await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false))?.SystemKeyword;
+                item.DimensionMeasureUnit = ctx.MeasureDimensions?.Get(_measureSettings.BaseDimensionId)?.SystemKeyword;
             }
 
             // Delivery Times.
@@ -526,7 +541,7 @@ namespace Smartstore.Web.Controllers
                     ? _catalogSettings.DeliveryTimeIdForEmptyStock
                     : product.DeliveryTimeId;
 
-                var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(deliveryTimeId ?? 0, false);
+                var deliveryTime = ctx.DeliveryTimes?.Get(deliveryTimeId ?? 0);
                 if (deliveryTime != null)
                 {
                     item.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
@@ -564,10 +579,10 @@ namespace Smartstore.Web.Controllers
             item.RatingSum = product.ApprovedRatingSum;
             item.TotalReviews = product.ApprovedTotalReviews;
             item.IsShippingEnabled = contextProduct.IsShippingEnabled;
-
+            
             if (model.ShowWeight && contextProduct.Weight > 0)
             {
-                var measureWeightName = (await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false))?.GetLocalized(x => x.Name) ?? string.Empty;
+                var measureWeightName = ctx.MeasureWeights?.Get(_measureSettings.BaseWeightId)?.GetLocalized(x => x.Name) ?? string.Empty;
                 item.Weight = $"{contextProduct.Weight.ToString("N2")} {measureWeightName}";
             }
 

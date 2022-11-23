@@ -194,7 +194,7 @@ namespace Smartstore.Web.Controllers
             var options = context.CalculationOptions;
             var batchContext = context.BatchContext;
             var contextProduct = product;
-            var priceModel = model.Price = new ProductSummaryPriceModel();
+            var priceModel = model.Price;
 
             ICollection<Product> associatedProducts = null;
 
@@ -270,7 +270,7 @@ namespace Smartstore.Web.Controllers
 
             // -----> Perform calculation <-------
             var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
-            
+
             // Map base
             MapPriceBase(calculatedPrice, priceModel, model.Parent.ShowBasePrice);
 

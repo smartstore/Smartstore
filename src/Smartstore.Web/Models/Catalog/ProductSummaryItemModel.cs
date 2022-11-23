@@ -4,7 +4,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Media;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Catalog
 {
@@ -19,6 +18,9 @@ namespace Smartstore.Web.Models.Catalog
         public Dictionary<int, BrandOverviewModel> CachedBrandModels { get; set; }
         public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();
         public Dictionary<string, LocalizedString> Resources { get; set; }
+        public Dictionary<int, DeliveryTime> DeliveryTimes { get; set; }
+        public Dictionary<int, MeasureWeight> MeasureWeights { get; set; }
+        public Dictionary<int, MeasureDimension> MeasureDimensions { get; set; }
         public string LegalInfo { get; set; }
         public Currency PrimaryCurrency { get; set; }
 
@@ -72,7 +74,7 @@ namespace Smartstore.Web.Models.Catalog
         public int MinPriceProductId { get; set; } // Internal
 
         public BrandOverviewModel Brand { get; set; }
-        public ProductSummaryPriceModel Price { get; set; }
+        public ProductSummaryPriceModel Price { get; set; } = new();
         public ImageModel Image { get; set; } = new();
         public List<Attribute> Attributes { get; set; } = new();
         // TODO: (mc) Let the user specify in attribute manager which spec attributes are
