@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.Extensions.Primitives;
@@ -13,15 +16,15 @@ namespace Smartstore
         /// </summary>
         /// <param name="input">The string to split</param>
         /// <returns>A sequence with string items per line</returns>
-        public static IEnumerable<string> GetLines(this string input, bool trimLines = false, bool removeEmptyLines = false)
+        public static IEnumerable<string> GetLines(this string? input, bool trimLines = false, bool removeEmptyLines = false)
         {
             if (input.IsEmpty())
             {
                 yield break;
             }
 
-            using var sr = new StringReader(input);
-            string line;
+            using var sr = new StringReader(input!);
+            string? line;
             while ((line = sr.ReadLine()) != null)
             {
                 var segment = new StringSegment(line);
@@ -47,7 +50,7 @@ namespace Smartstore
         /// <param name="value">String to split</param>
         /// <returns>The string after being split</returns>
         [DebuggerStepThrough]
-        public static string SplitPascalCase(this string value)
+        public static string? SplitPascalCase(this string? value)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -84,7 +87,7 @@ namespace Smartstore
         /// <param name="separator">If <c>null</c> then value is searched for a common delimiter like pipe, semicolon or comma</param>
         /// <returns>Separated string tokens</returns>
         [DebuggerStepThrough]
-        public static IEnumerable<string> SplitSafe(this string input, string separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        public static IEnumerable<string> SplitSafe(this string? input, string? separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -136,7 +139,7 @@ namespace Smartstore
         /// <returns>Separated string tokens</returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<string> SplitSafe(this string input, char separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        public static IEnumerable<string> SplitSafe(this string? input, char separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         {
             return string.IsNullOrEmpty(input)
                 ? Enumerable.Empty<string>()
@@ -148,7 +151,7 @@ namespace Smartstore
         /// </summary>
         /// <returns>true: success, false: failure</returns>
         [DebuggerStepThrough]
-        public static bool SplitToPair(this string value, out string leftPart, out string rightPart, string delimiter, bool splitAfterLast = false)
+        public static bool SplitToPair(this string? value, [MaybeNullWhen(false)] out string leftPart, out string rightPart, string? delimiter, bool splitAfterLast = false)
         {
             leftPart = value;
             rightPart = string.Empty;

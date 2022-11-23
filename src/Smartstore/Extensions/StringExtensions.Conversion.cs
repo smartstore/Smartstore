@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -14,7 +16,7 @@ namespace Smartstore
     public static partial class StringExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ToInt(this string value, int defaultValue = 0)
+        public static int ToInt(this string? value, int defaultValue = 0)
         {
             if (ConvertUtility.TryConvert(value, typeof(int), CultureInfo.InvariantCulture, out object result))
             {
@@ -25,9 +27,9 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static char ToChar(this string value, bool unescape = false, char defaultValue = '\0')
+        public static char ToChar(this string? value, bool unescape = false, char defaultValue = '\0')
         {
-            if (value.HasValue() && char.TryParse(unescape ? Regex.Unescape(value) : value, out char result))
+            if (value.HasValue() && char.TryParse(unescape ? Regex.Unescape(value!) : value, out char result))
             {
                 return result;
             }
@@ -36,7 +38,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ToFloat(this string value, float defaultValue = 0)
+        public static float ToFloat(this string? value, float defaultValue = 0)
         {
             if (ConvertUtility.TryConvert(value, typeof(float), CultureInfo.InvariantCulture, out object result))
             {
@@ -47,7 +49,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ToBool(this string value, bool defaultValue = false)
+        public static bool ToBool(this string? value, bool defaultValue = false)
         {
             if (ConvertUtility.TryConvert(value, typeof(bool), out object result))
             {
@@ -58,7 +60,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTime? ToDateTime(this string value, DateTime? defaultValue)
+        public static DateTime? ToDateTime(this string? value, DateTime? defaultValue)
         {
             return ToDateTime(value.AsSpan(), null, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowWhiteSpaces, defaultValue);
         }
@@ -70,24 +72,24 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTime? ToDateTime(this string value, string[] formats, DateTime? defaultValue)
+        public static DateTime? ToDateTime(this string? value, string[]? formats, DateTime? defaultValue)
         {
             return ToDateTime(value.AsSpan(), formats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowWhiteSpaces, defaultValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTime? ToDateTime(this ReadOnlySpan<char> value, string[] formats, DateTime? defaultValue)
+        public static DateTime? ToDateTime(this ReadOnlySpan<char> value, string[]? formats, DateTime? defaultValue)
         {
             return ToDateTime(value, formats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowWhiteSpaces, defaultValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTime? ToDateTime(this string value, string[] formats, IFormatProvider provider, DateTimeStyles styles, DateTime? defaultValue)
+        public static DateTime? ToDateTime(this string? value, string[]? formats, IFormatProvider provider, DateTimeStyles styles, DateTime? defaultValue)
         {
             return ToDateTime(value.AsSpan(), formats, provider, styles, defaultValue);
         }
 
-        public static DateTime? ToDateTime(this ReadOnlySpan<char> value, string[] formats, IFormatProvider provider, DateTimeStyles styles, DateTime? defaultValue)
+        public static DateTime? ToDateTime(this ReadOnlySpan<char> value, string[]? formats, IFormatProvider? provider, DateTimeStyles styles, DateTime? defaultValue)
         {
             DateTime result;
 
@@ -110,7 +112,7 @@ namespace Smartstore
         /// <summary>
         /// Parse ISO-8601 UTC timestamp including milliseconds.
         /// </summary>
-        public static DateTime? ToDateTimeIso8601(this string value)
+        public static DateTime? ToDateTimeIso8601(this string? value)
         {
             return ToDateTimeIso8601(value.AsSpan());
         }
@@ -133,13 +135,13 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static Version ToVersion(this string value, Version defaultVersion = null)
+        public static Version ToVersion(this string? value, Version? defaultVersion = null)
         {
             return ToVersion(value.AsSpan(), defaultVersion);
         }
 
         [DebuggerStepThrough]
-        public static Version ToVersion(this ReadOnlySpan<char> value, Version defaultVersion = null)
+        public static Version ToVersion(this ReadOnlySpan<char> value, Version? defaultVersion = null)
         {
             if (Version.TryParse(value, out var version))
             {
@@ -156,13 +158,13 @@ namespace Smartstore
         /// <param name="encoding">The encoder to use. Default: <see cref="Encoding.UTF8"/></param>
         /// <returns>A byte array containing the results of encoding the specified set of characters.</returns>
         [DebuggerStepThrough]
-        public static byte[] GetBytes(this string value, Encoding encoding = null)
+        public static byte[] GetBytes(this string value, Encoding? encoding = null)
         {
             return (encoding ?? Encoding.UTF8).GetBytes(value);
         }
 
         [DebuggerStepThrough]
-        public static T ToEnum<T>(this string value, T defaultValue)
+        public static T ToEnum<T>(this string? value, T defaultValue)
             where T : struct
         {
             return Enum.TryParse<T>(value, out var enumValue) ? enumValue : defaultValue;
@@ -181,7 +183,7 @@ namespace Smartstore
         /// <param name="value">The input string</param>
         /// <returns>xxHash</returns>
         [DebuggerStepThrough]
-        public static string XxHash(this string value)
+        public static string? XxHash(this string? value)
         {
             if (value.IsEmpty())
             {
@@ -195,7 +197,7 @@ namespace Smartstore
         /// </summary>
         [DebuggerStepThrough]
         [Obsolete("Microsoft recommends SHA256 or SHA512 class instead of MD5. Use MD5 only for compatibility with legacy applications and data.")]
-        public static string Hash(this string value, Encoding encoding, bool toBase64 = false)
+        public static string? Hash(this string? value, Encoding encoding, bool toBase64 = false)
         {
             if (value.IsEmpty())
             {
@@ -203,7 +205,7 @@ namespace Smartstore
             }
 
             using var md5 = MD5.Create();
-            byte[] data = encoding.GetBytes(value);
+            byte[] data = encoding.GetBytes(value!);
 
             if (toBase64)
             {
@@ -218,36 +220,36 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string UrlEncode(this string value)
+        public static string? UrlEncode(this string? value)
             => HttpUtility.UrlEncode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string UrlDecode(this string value)
+        public static string? UrlDecode(this string? value)
             => HttpUtility.UrlDecode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string AttributeEncode(this string value)
+        public static string? AttributeEncode(this string? value)
             => HttpUtility.HtmlAttributeEncode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string HtmlEncode(this string value)
+        public static string? HtmlEncode(this string? value)
             => HttpUtility.HtmlEncode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string HtmlDecode(this string value)
+        public static string? HtmlDecode(this string? value)
             => HttpUtility.HtmlDecode(value);
 
-        public static string EncodeJsString(this string value)
+        public static string? EncodeJsString(this string? value)
             => EncodeJsString(value, '"', true);
 
-        public static string EncodeJsString(this string value, char delimiter, bool appendDelimiters)
+        public static string? EncodeJsString(this string? value, char delimiter, bool appendDelimiters)
         {
             var result = value.HasValue()
-                ? JavaScriptEncoder.Default.Encode(value)
+                ? JavaScriptEncoder.Default.Encode(value!)
                 : value.EmptyNull();
 
             if (appendDelimiters)
@@ -259,14 +261,14 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string SanitizeHtmlId(this string value)
+        public static string? SanitizeHtmlId(this string? value)
         {
             return TagBuilder.CreateSanitizedId(value, "_");
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int[] ToIntArray(this string value)
+        public static int[] ToIntArray(this string? value)
         {
             return value.Convert<int[]>() ?? Array.Empty<int>();
         }

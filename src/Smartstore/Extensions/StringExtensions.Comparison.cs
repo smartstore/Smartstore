@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -20,7 +22,7 @@ namespace Smartstore
         /// </returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool EqualsNoCase(this string value, string other)
+        public static bool EqualsNoCase(this string? value, string? other)
         {
             return string.Compare(value, other, StringComparison.OrdinalIgnoreCase) == 0;
         }
@@ -129,7 +131,7 @@ namespace Smartstore
         /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEmpty(this string value)
+        public static bool IsEmpty(this string? value)
         {
             return string.IsNullOrWhiteSpace(value);
         }
@@ -168,7 +170,7 @@ namespace Smartstore
         /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasValue(this string value)
+        public static bool HasValue(this string? value)
         {
             return !string.IsNullOrWhiteSpace(value);
         }
@@ -185,12 +187,12 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsWebUrl(this string value, bool schemeIsOptional = false)
+        public static bool IsWebUrl(this string? value, bool schemeIsOptional = false)
         {
             return IsWebUrlInternal(value, schemeIsOptional);
         }
 
-        private static bool IsWebUrlInternal(string value, bool schemeIsOptional)
+        private static bool IsWebUrlInternal(string? value, bool schemeIsOptional)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -209,7 +211,7 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static bool IsEmail(this string value)
+        public static bool IsEmail(this string? value)
         {
             return IsEmail(value.AsSpan());
         }
@@ -233,7 +235,7 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static bool IsNumeric(this string value)
+        public static bool IsNumeric(this string? value)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -257,7 +259,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEnclosedIn(this string value, string enclosedIn, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        public static bool IsEnclosedIn(this string? value, string? enclosedIn, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             return IsEnclosedIn(value.AsSpan(), enclosedIn.AsSpan(), comparison);
         }

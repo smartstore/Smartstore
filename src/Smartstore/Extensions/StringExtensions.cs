@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore
@@ -12,7 +15,7 @@ namespace Smartstore
         private delegate void ActionLine(TextWriter textWriter, string line);
 
         [DebuggerStepThrough]
-        public static string ToSafe(this string value, string defaultValue = null)
+        public static string ToSafe(this string? value, string? defaultValue = null)
         {
             if (!string.IsNullOrEmpty(value))
             {
@@ -24,28 +27,28 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string TrimSafe(this string value)
+        public static string? TrimSafe(this string? value)
         {
-            return (!string.IsNullOrEmpty(value) ? value.Trim() : value);
+            return !string.IsNullOrEmpty(value) ? value.Trim() : value;
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string EmptyNull(this string value)
+        public static string EmptyNull(this string? value)
         {
             return value ?? string.Empty;
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string NullEmpty(this string value)
+        public static string? NullEmpty(this string? value)
         {
-            return (string.IsNullOrEmpty(value)) ? null : value;
+            return string.IsNullOrEmpty(value) ? null : value;
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Dump(this string value, bool appendMarks = false)
+        public static void Dump(this string? value, bool appendMarks = false)
         {
             Debug.WriteLine(value);
             Debug.WriteLineIf(appendMarks, DumpStr);
@@ -56,7 +59,7 @@ namespace Smartstore
         /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string NaIfEmpty(this string value)
+        public static string NaIfEmpty(this string? value)
         {
             return string.IsNullOrWhiteSpace(value) ? NotAvailable : value;
         }
