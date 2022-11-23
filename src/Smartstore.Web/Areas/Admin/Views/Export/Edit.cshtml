@@ -286,7 +286,7 @@
                             configViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[ProviderConfigData]";
                             configViewData.ModelState.Merge(ViewData.ModelState);
 
-                            @await Model.Provider.ConfigurationWidget.InvokeAsync(new WidgetContext(ViewContext.Clone(configViewData), Model.Provider.ConfigData));
+                            @await Model.Provider.ConfigurationWidget.InvokeAsync(new WidgetContext(ViewContext.Clone(configViewData), Model.Provider.ConfigData))
                         }
                         catch (Exception ex)
                         {

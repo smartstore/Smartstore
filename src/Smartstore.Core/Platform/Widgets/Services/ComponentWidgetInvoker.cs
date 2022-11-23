@@ -80,7 +80,7 @@ namespace Smartstore.Core.Widgets
 
         private object? FixComponentArguments(WidgetContext context, ComponentWidget widget)
         {
-            var model = context.ViewData?.Model;
+            var model = context.Model ?? context.ViewData?.Model;
 
             if (model == null)
             {
