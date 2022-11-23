@@ -1,4 +1,7 @@
-﻿using System.Dynamic;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -8,26 +11,26 @@ namespace Smartstore.Utilities
 {
     public static class ConvertUtility
     {
-        public static bool TryConvert<T>(object value, out T convertedValue)
+        public static bool TryConvert<T>(object? value, [MaybeNullWhen(false)] out T? convertedValue)
         {
             convertedValue = default;
 
-            if (TryConvert(value, typeof(T), CultureInfo.InvariantCulture, out object result))
+            if (TryConvert(value, typeof(T), CultureInfo.InvariantCulture, out object? result))
             {
-                convertedValue = (T)result;
+                convertedValue = (T)result!;
                 return true;
             }
 
             return false;
         }
 
-        public static bool TryConvert<T>(object value, CultureInfo culture, out T convertedValue)
+        public static bool TryConvert<T>(object? value, CultureInfo? culture, [MaybeNullWhen(false)] out T? convertedValue)
         {
             convertedValue = default;
 
-            if (TryConvert(value, typeof(T), culture, out object result))
+            if (TryConvert(value, typeof(T), culture, out object? result))
             {
-                convertedValue = (T)result;
+                convertedValue = (T)result!;
                 return true;
             }
 
@@ -35,12 +38,12 @@ namespace Smartstore.Utilities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryConvert(object value, Type to, out object convertedValue)
+        public static bool TryConvert(object? value, Type to, [MaybeNullWhen(false)] out object? convertedValue)
         {
             return TryConvert(value, to, CultureInfo.InvariantCulture, out convertedValue);
         }
 
-        public static bool TryConvert(object value, Type to, CultureInfo culture, out object convertedValue)
+        public static bool TryConvert(object? value, Type to, CultureInfo? culture, [MaybeNullWhen(false)] out object? convertedValue)
         {
             if (to == null)
             {
@@ -98,7 +101,7 @@ namespace Smartstore.Utilities
             Guard.NotNull(value, nameof(value));
 
             var anonymousDictionary = HtmlHelper.AnonymousObjectToHtmlAttributes(value);
-            IDictionary<string, object> expando = new ExpandoObject();
+            IDictionary<string, object?> expando = new ExpandoObject();
             foreach (var item in anonymousDictionary)
             {
                 expando.Add(item);
@@ -114,7 +117,7 @@ namespace Smartstore.Utilities
                 key => key.Replace('_', '-').Replace("@", ""));
         }
 
-        public static IDictionary<string, string> ObjectToStringDictionary(object obj)
+        public static IDictionary<string, string?> ObjectToStringDictionary(object obj)
         {
             return ObjectToDictionary(obj)
                 .ToDictionary(key => key.Key, el => el.Value.ToString());
