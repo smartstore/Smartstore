@@ -396,7 +396,7 @@ namespace Smartstore.PayPal.Client
                 {
                     UnitAmount = new MoneyMessage
                     {
-                        Value = unitPrice.Tax.Value.PriceNet.ToStringInvariant("n2"),
+                        Value = unitPrice.Tax.Value.PriceNet.ToStringInvariant("F"),
                         CurrencyCode = currency.CurrencyCode
                     },
                     Name = productName,
@@ -406,10 +406,10 @@ namespace Smartstore.PayPal.Client
                     Sku = item.Sku,
                     Tax = new MoneyMessage
                     {
-                        Value = unitPrice.Tax.Value.Amount.ToStringInvariant("n2"),
+                        Value = unitPrice.Tax.Value.Amount.ToStringInvariant("F"),
                         CurrencyCode = currency.CurrencyCode
                     },
-                    TaxRate = taxRate.Rate.ToStringInvariant("n2")
+                    TaxRate = taxRate.Rate.ToStringInvariant("F")
                 });
             }
 
@@ -436,8 +436,8 @@ namespace Smartstore.PayPal.Client
             var cartTax = _currencyService.ConvertFromPrimaryCurrency(price.Amount, currency);
 
             var amountValue = isExpressCheckout || orderTotal == 0
-                ? (subTotalConverted.Amount + cartTax.Amount).ToStringInvariant("n2")
-                : orderTotal.ToStringInvariant("n2");
+                ? (subTotalConverted.Amount + cartTax.Amount).ToStringInvariant("F")
+                : orderTotal.ToStringInvariant("F");
 
             var purchaseUnit = new PurchaseUnit
             {
@@ -449,12 +449,12 @@ namespace Smartstore.PayPal.Client
                     {
                         ItemTotal = new MoneyMessage
                         {
-                            Value = subTotalConverted.Amount.ToStringInvariant("n2"),
+                            Value = subTotalConverted.Amount.ToStringInvariant("F"),
                             CurrencyCode = currency.CurrencyCode
                         },
                         TaxTotal = new MoneyMessage
                         {
-                            Value = cartTax.Amount.ToStringInvariant("n2"),
+                            Value = cartTax.Amount.ToStringInvariant("F"),
                             CurrencyCode = currency.CurrencyCode
                         }
                     }
@@ -478,13 +478,13 @@ namespace Smartstore.PayPal.Client
 
                 purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
                 {
-                    Value = orderTotalDiscountAmount.Amount.ToStringInvariant("n2"),
+                    Value = orderTotalDiscountAmount.Amount.ToStringInvariant("F"),
                     CurrencyCode = currency.CurrencyCode
                 };
 
                 purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
                 {
-                    Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("n2"),
+                    Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
                     CurrencyCode = currency.CurrencyCode
                 };
 
