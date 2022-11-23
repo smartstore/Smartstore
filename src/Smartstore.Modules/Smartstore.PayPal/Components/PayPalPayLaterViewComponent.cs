@@ -40,7 +40,7 @@ namespace Smartstore.PayPal.Components
                     $"&components=messages";
 
                 ViewBag.ScriptUrl = scriptUrl;
-                ViewBag.Price = productDetailsModel.Price.FinalPrice.Amount.ToStringInvariant();
+                ViewBag.Price = productDetailsModel.Price.FinalPrice.Amount.ToStringInvariant("F");
                 return View();
             }
 
