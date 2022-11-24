@@ -45,6 +45,12 @@ namespace Smartstore.Core.Content.Media
         [JsonProperty("id")]
         public int Id => Node.Value.Id;
 
+        [JsonProperty("parentId")]
+        public int? ParentId => Node.Value.ParentId;
+
+        [JsonProperty("hasChildren")]
+        public bool HasChildren => Node.HasChildren;
+
         [JsonProperty("path", NullValueHandling = NullValueHandling.Ignore)]
         public string Path => Node.Value.Path;
 
