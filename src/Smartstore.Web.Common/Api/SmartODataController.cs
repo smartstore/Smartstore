@@ -20,6 +20,11 @@ namespace Smartstore.Web.Api
     public abstract class SmartODataController<TEntity> : ODataController
         where TEntity : BaseEntity, new()
     {
+        private const string EntityWrapperTypeName = "SelectAllAndExpand`1";
+        private static readonly FastProperty EntityWrapperProperty = FastProperty.GetProperty(
+            Type.GetType("Microsoft.AspNetCore.OData.Query.Wrapper.SelectAllAndExpand`1, Microsoft.AspNetCore.OData"),
+            "Instance");
+
         internal const string FulfillKey = "SmApiFulfill";
 
         private SmartDbContext _db;
@@ -457,7 +462,7 @@ namespace Smartstore.Web.Api
         /// <summary>
         /// Unwraps entities from an <see cref="IQueryable"/> returned by <see cref="ODataQueryOptions.ApplyTo()"/>.
         /// </summary>
-        protected IEnumerable<TEntity> Unwrap(IQueryable source)
+        protected IEnumerable<TEntity> UnwrapEntityQuery(IQueryable source)
         {
             Guard.NotNull(source, nameof(source));
 
@@ -467,11 +472,9 @@ namespace Smartstore.Web.Api
                 {
                     yield return entity;
                 }
-                else if (item.GetType().Name == "SelectAllAndExpand`1")
+                else if (item.GetType().Name == EntityWrapperTypeName)
                 {
-                    var entityProperty = item.GetType().GetProperty("Instance");
-
-                    yield return (TEntity)entityProperty.GetValue(item);
+                    yield return (TEntity)EntityWrapperProperty.GetValue(item);
                 }
             }
         }

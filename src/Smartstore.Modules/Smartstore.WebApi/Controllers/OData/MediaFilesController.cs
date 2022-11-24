@@ -40,7 +40,7 @@ namespace Smartstore.Web.Api.Controllers.OData
                     AllowedQueryOptions = AllowedQueryOptions.Supported & ~AllowedQueryOptions.Select
                 });
 
-                var files = Unwrap(result);
+                var files = UnwrapEntityQuery(result);
                 var convertedFiles = files.Select(x => _mediaService.ConvertMediaFile(x));
 
                 return Ok(convertedFiles);
