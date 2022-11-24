@@ -88,22 +88,27 @@ namespace Smartstore.Web.Api
             set.EntityType.Collection
                 .Function(nameof(DeliveryTimesController.GetDeliveryDate))
                 .Returns<SimpleRange<DateTime?>>()
-                .Parameter<int>("Id");
+                .Parameter<int>("Id")
+                .Required();
         }
 
         private static void BuildMediaFiles(ODataModelBuilder builder)
         {
-            const string setName = "MediaFiles";
-            var set = builder.EntitySet<MediaFile>(setName);
+            var set = builder.EntitySet<MediaFile>("MediaFiles");
             var config = set.EntityType.Collection;
+
+            //var infoSet = builder.EntitySet<MediaFileInfo>("MediaFileInfos");
+            //infoSet.EntityType.HasKey(x => x.Id);
 
             config.Action(nameof(MediaFilesController.GetFileByPath))
                 .Returns<MediaFileInfo>()
+                //.ReturnsFromEntitySet(infoSet)
                 .Parameter<string>("path")
                 .Required();
 
             config.Function(nameof(MediaFilesController.GetFilesByIds))
                 .ReturnsCollection<MediaFileInfo>()
+                //.ReturnsCollectionFromEntitySet<MediaFileInfo>(infoSet.EntityType.Name)
                 .CollectionParameter<int>("ids")
                 .Required();
 
@@ -114,67 +119,70 @@ namespace Smartstore.Web.Api
 
             config.Action(nameof(MediaFilesController.SearchFiles))
                 .ReturnsCollection<MediaFileInfo>()
-                .Parameter<MediaSearchQuery>("query");
+                //.ReturnsCollectionFromEntitySet<MediaFileInfo>(infoSet.EntityType.Name)
+                .Parameter<MediaSearchQuery>("query")
+                .Optional();
 
+            config.Action(nameof(MediaFilesController.CountFiles))
+                .Returns<int>()
+                .Parameter<MediaSearchQuery>("query")
+                .Optional();
 
-            //var fileSet = builder.EntitySet<MediaFile>("MediaFileEntities");
-            //var infoSet = builder.EntitySet<FileItemInfo>(setName);
-            //var config = infoSet.EntityType.Collection;
+            config.Action(nameof(MediaFilesController.CountFilesGrouped))
+                .Returns<MediaCountResult>()
+                .Parameter<MediaFilesFilter>("filter")
+                .Optional();
 
+            config.Action(nameof(MediaFilesController.FileExists))
+                .Returns<bool>()
+                .Parameter<string>("path")
+                .Required();
 
-            //config.Action(nameof(MediaFilesController.CountFiles))
-            //    .Returns<int>()
-            //    .Parameter<MediaSearchQuery>("query");
+            config.Action(nameof(MediaFilesController.CheckUniqueFileName))
+                .Returns<CheckUniquenessResult>()
+                .Parameter<string>("path")
+                .Required();
 
-            //config.Action(nameof(MediaFilesController.CountFilesGrouped))
-            //    .Returns<MediaCountResult>()
-            //    .Parameter<MediaFilesFilter>("filter")
-            //    .Optional();
+            var moveFile = set.EntityType
+                .Action(nameof(MediaFilesController.MoveFile))
+                .Returns<MediaFileInfo>();
 
-            //config.Action(nameof(MediaFilesController.FileExists))
-            //    .Returns<bool>()
-            //    .Parameter<string>("path")
-            //    .Required();
+            moveFile.Parameter<string>("destinationFileName")
+                .Required();
+            moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
+                .Optional();
 
-            //config.Action(nameof(MediaFilesController.CheckUniqueFileName))
-            //    .Returns<CheckUniquenessResult>()
-            //    .Parameter<string>("path")
-            //    .Required();
+            var copyFile = set.EntityType
+                .Action(nameof(MediaFilesController.CopyFile))
+                .Returns<MediaFileOperationResult>();
 
-            //var moveFile = infoSet.EntityType
-            //    .Action(nameof(MediaFilesController.MoveFile))
-            //    .ReturnsFromEntitySet<FileItemInfo>(setName);
+            copyFile.Parameter<string>("destinationFileName")
+                .Required();
+            copyFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
+                .Optional();
 
-            //moveFile.Parameter<string>("destinationFileName")
-            //    .Required();
-            //moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
+            var deleteFile = set.EntityType
+                .Action(nameof(MediaFilesController.DeleteFile));
 
-            //var copyFile = infoSet.EntityType
-            //    .Action(nameof(MediaFilesController.CopyFile))
-            //    .Returns<MediaFileOperationResult>();
+            deleteFile.Parameter<bool>("permanent")
+                .Required();
+            deleteFile.Parameter<bool>("force")
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
 
-            //copyFile.Parameter<string>("destinationFileName")
-            //    .Required();
-            //copyFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
+            var saveFile = config
+                .Action(nameof(MediaFilesController.SaveFile))
+                .Returns<MediaFileInfo>();
 
-            //var deleteFile = infoSet.EntityType
-            //    .Action(nameof(MediaFilesController.DeleteFile));
-
-            //deleteFile.Parameter<bool>("permanent")
-            //    .Required();
-            //deleteFile.Parameter<bool>("force")
-            //    .HasDefaultValue(bool.FalseString);
-
-            //var saveFile = config
-            //    .Action(nameof(MediaFilesController.SaveFile))
-            //    .ReturnsFromEntitySet<FileItemInfo>(setName);
-
-            //saveFile.Parameter<IFormFile>("file")
-            //    .Required();
-            //saveFile.Parameter<string>("path");
-            //saveFile.Parameter<bool>("isTransient")
-            //    .HasDefaultValue(bool.TrueString);
-            //saveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
+            saveFile.Parameter<IFormFile>("file")
+                .Required();
+            saveFile.Parameter<string>("path")
+                .Optional();
+            saveFile.Parameter<bool>("isTransient")
+                .HasDefaultValue(bool.TrueString)
+                .Optional();
+            saveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
+                .Optional();
         }
 
         private static void BuildMediaFolders(ODataModelBuilder builder)
@@ -225,7 +233,8 @@ namespace Smartstore.Web.Api
                 .Required();
             copyFolder.Parameter<string>("destinationPath")
                 .Required();
-            copyFolder.Parameter<DuplicateEntryHandling>("duplicateEntryHandling");
+            copyFolder.Parameter<DuplicateEntryHandling>("duplicateEntryHandling")
+                .Optional();
 
             var deleteFolder = config
                 .Action(nameof(MediaFoldersController.DeleteFolder))
@@ -233,27 +242,26 @@ namespace Smartstore.Web.Api
 
             deleteFolder.Parameter<string>("path")
                 .Required();
-            deleteFolder.Parameter<FileHandling>("fileHandling");
+            deleteFolder.Parameter<FileHandling>("fileHandling")
+                .Optional();
         }
 
         private static void BuildNewsletterSubscriptions(ODataModelBuilder builder)
         {
-            const string setName = "NewsletterSubscriptions";
-            var set = builder.EntitySet<NewsletterSubscription>(setName);
+            var set = builder.EntitySet<NewsletterSubscription>("NewsletterSubscriptions");
 
             set.EntityType
                 .Action(nameof(NewsletterSubscriptionsController.Subscribe))
-                .ReturnsFromEntitySet<NewsletterSubscription>(setName);
+                .ReturnsFromEntitySet(set);
 
             set.EntityType
                 .Action(nameof(NewsletterSubscriptionsController.Unsubscribe))
-                .ReturnsFromEntitySet<NewsletterSubscription>(setName);
+                .ReturnsFromEntitySet(set);
         }
 
         private static void BuildOrderItems(ODataModelBuilder builder)
         {
-            const string setName = "OrderItems";
-            var set = builder.EntitySet<OrderItem>(setName);
+            var set = builder.EntitySet<OrderItem>("OrderItems");
 
             set.EntityType.Collection.Function(nameof(OrderItemsController.GetShipmentInfo))
                 .Returns<OrderItemShipmentInfo>()
@@ -263,8 +271,7 @@ namespace Smartstore.Web.Api
 
         private static void BuildOrders(ODataModelBuilder builder)
         {
-            const string setName = "Orders";
-            var set = builder.EntitySet<Order>(setName);
+            var set = builder.EntitySet<Order>("Orders");
             var config = set.EntityType.Collection;
 
             config.Function(nameof(OrdersController.GetShipmentInfo))
@@ -279,43 +286,49 @@ namespace Smartstore.Web.Api
 
             set.EntityType
                 .Action(nameof(OrdersController.PaymentPending))
-                .ReturnsFromEntitySet<Order>(setName);
+                .ReturnsFromEntitySet(set);
 
             set.EntityType
                 .Action(nameof(OrdersController.PaymentPaid))
-                .ReturnsFromEntitySet<Order>(setName)
-                .Parameter<string>("paymentMethodName");
+                .ReturnsFromEntitySet(set)
+                .Parameter<string>("paymentMethodName")
+                .Optional();
 
             set.EntityType
                 .Action(nameof(OrdersController.PaymentRefund))
-                .ReturnsFromEntitySet<Order>(setName)
+                .ReturnsFromEntitySet(set)
                 .Parameter<bool>("online")
                 .Required();
 
             set.EntityType
                 .Action(nameof(OrdersController.Cancel))
-                .ReturnsFromEntitySet<Order>(setName)
+                .ReturnsFromEntitySet(set)
                 .Parameter<bool>("notifyCustomer")
-                .HasDefaultValue(bool.TrueString);
+                .HasDefaultValue(bool.TrueString)
+                .Optional();
 
             set.EntityType
                 .Action(nameof(OrdersController.CompleteOrder))
-                .ReturnsFromEntitySet<Order>(setName);
+                .ReturnsFromEntitySet(set);
 
             set.EntityType
                 .Action(nameof(OrdersController.ReOrder))
-                .ReturnsFromEntitySet<Order>(setName);
+                .ReturnsFromEntitySet(set);
 
             var addShipment = set.EntityType
                 .Action(nameof(OrdersController.AddShipment))
                 .ReturnsFromEntitySet<Shipment>("Shipments");
 
-            addShipment.Parameter<string>("trackingNumber");
-            addShipment.Parameter<string>("trackingUrl");
+            addShipment.Parameter<string>("trackingNumber")
+                .Optional();
+            addShipment.Parameter<string>("trackingUrl")
+                .Optional();
             addShipment.Parameter<bool>("isShipped")
-                .HasDefaultValue(bool.FalseString);
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
             addShipment.Parameter<bool>("notifyCustomer")
-                .HasDefaultValue(bool.TrueString);
+                .HasDefaultValue(bool.TrueString)
+                .Optional();
         }
 
         private static void BuildPaymentMethods(ODataModelBuilder builder)
@@ -327,30 +340,29 @@ namespace Smartstore.Web.Api
 
             getAllPaymentMethods.Parameter<bool>("active")
                 .Required();
-            getAllPaymentMethods.Parameter<int>("storeId");
+            getAllPaymentMethods.Parameter<int>("storeId")
+                .Optional();
         }
 
         private static void BuildProducts(ODataModelBuilder builder)
         {
-            const string setName = "Products";
-            var set = builder.EntitySet<Product>(setName);
+            var set = builder.EntitySet<Product>("Products");
             var config = set.EntityType.Collection;
 
             var search = config.Action(nameof(ProductsController.Search))
-                .ReturnsFromEntitySet<Product>(setName);
+                .ReturnsFromEntitySet(set);
 
-            search.Parameter<string>("q")
-                .Required();
-            search.Parameter<int>("i");
-            search.Parameter<int>("s");
-            search.Parameter<ProductSortingEnum>("o");
-            search.Parameter<string>("c");
-            search.Parameter<string>("m");
-            search.Parameter<string>("d");
-            search.Parameter<string>("p");
-            search.Parameter<double>("r");
-            search.Parameter<bool>("a");
-            search.Parameter<bool>("n");
+            search.Parameter<string>("q").Required();
+            search.Parameter<int>("i").Optional();
+            search.Parameter<int>("s").Optional();
+            search.Parameter<ProductSortingEnum>("o").Optional();
+            search.Parameter<string>("c").Optional();
+            search.Parameter<string>("m").Optional();
+            search.Parameter<string>("d").Optional();
+            search.Parameter<string>("p").Optional();
+            search.Parameter<double>("r").Optional();
+            search.Parameter<bool>("a").Optional();
+            search.Parameter<bool>("n").Optional();
 
             config.Function(nameof(ProductsController.CalculatePrice))
                 .Returns<CalculatedPrice>()
