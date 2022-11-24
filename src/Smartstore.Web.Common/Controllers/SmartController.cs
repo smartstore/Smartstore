@@ -169,7 +169,7 @@ namespace Smartstore.Web.Controllers
             if (additionalViewData != null)
             {
                 viewData = new ViewDataDictionary<object>(viewData);
-                viewData.Merge(ConvertUtility.ObjectToDictionary(additionalViewData));
+                viewData!.Merge(ConvertUtility.ObjectToDictionary(additionalViewData));
 
                 if (additionalViewData is ViewDataDictionary vdd)
                 {

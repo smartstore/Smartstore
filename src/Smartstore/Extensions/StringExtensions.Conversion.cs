@@ -18,9 +18,9 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ToInt(this string? value, int defaultValue = 0)
         {
-            if (ConvertUtility.TryConvert(value, typeof(int), CultureInfo.InvariantCulture, out object result))
+            if (ConvertUtility.TryConvert(value, typeof(int), CultureInfo.InvariantCulture, out object? result))
             {
-                return (int)result;
+                return (int)result!;
             }
 
             return defaultValue;
@@ -40,9 +40,9 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ToFloat(this string? value, float defaultValue = 0)
         {
-            if (ConvertUtility.TryConvert(value, typeof(float), CultureInfo.InvariantCulture, out object result))
+            if (ConvertUtility.TryConvert(value, typeof(float), CultureInfo.InvariantCulture, out object? result))
             {
-                return (float)result;
+                return (float)result!;
             }
 
             return defaultValue;
@@ -51,9 +51,9 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ToBool(this string? value, bool defaultValue = false)
         {
-            if (ConvertUtility.TryConvert(value, typeof(bool), out object result))
+            if (ConvertUtility.TryConvert(value, typeof(bool), out object? result))
             {
-                return (bool)result;
+                return (bool)result!;
             }
 
             return defaultValue;
