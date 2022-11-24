@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Extensions;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Query.Validator;
 using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.OData;
@@ -414,6 +416,64 @@ namespace Smartstore.Web.Api
             }
 
             return 0;
+        }
+
+        /// <summary>
+        /// Validates <paramref name="options"/> and applies them to <paramref name="source"/>.
+        /// </summary>
+        /// <exception cref="ODataException">Throws if <paramref name="options"/> are invalid.</exception>
+        protected IQueryable Apply(
+            ODataQueryOptions<TEntity> options,
+            IQueryable<TEntity> source,
+            ODataValidationSettings validationSettings = null)
+        {
+            validationSettings ??= new();
+
+            ODataQuerySettings settings = null;
+
+            if (HttpContext.Items.TryGetValue(MaxApiQueryOptions.Key, out var obj) && obj is MaxApiQueryOptions maxValues)
+            {
+                validationSettings.MaxTop = maxValues.MaxTop;
+                validationSettings.MaxExpansionDepth = maxValues.MaxExpansionDepth;
+
+                if (options.Top == null)
+                {
+                    // If paging is required and there is no $top sent by client then force the page size specified by merchant.
+                    settings = options.Context?.RequestContainer?.GetRequiredService<ODataQuerySettings>() ?? new();
+                    settings.PageSize = maxValues.MaxTop;
+                }
+            }
+
+            options.Validate(validationSettings);
+
+            // The returned IQueryable might not implement IAsyncEnumerable!
+            var query = settings != null
+                ? options.ApplyTo(source, settings)
+                : options.ApplyTo(source);
+
+            return query;
+        }
+
+        /// <summary>
+        /// Unwraps entities from an <see cref="IQueryable"/> returned by <see cref="ODataQueryOptions.ApplyTo()"/>.
+        /// </summary>
+        protected IEnumerable<TEntity> Unwrap(IQueryable source)
+        {
+            Guard.NotNull(source, nameof(source));
+
+            foreach (var item in source)
+            {
+                if (item is TEntity entity)
+                {
+                    yield return entity;
+                }
+                else if (item.GetType().Name == "SelectAllAndExpand`1")
+                {
+                    var entityProperty = item.GetType().GetProperty("Instance");
+
+                    yield return (TEntity)entityProperty.GetValue(item);
+                }
+            }
         }
 
         protected ODataErrorResult ErrorResult(

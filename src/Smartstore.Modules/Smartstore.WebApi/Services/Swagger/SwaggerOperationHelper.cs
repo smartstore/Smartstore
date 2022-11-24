@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿#nullable enable
+
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Smartstore.ComponentModel;
-using Smartstore.Web.Api.Models.Media;
 using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -31,12 +32,6 @@ namespace Smartstore.Web.Api.Swagger
             { Status500InternalServerError, "Internal server error. Indicates that the server has encountered an unexpected error." }
         };
 
-        private static readonly Dictionary<string, string> _entityAliasNames = new(StringComparer.OrdinalIgnoreCase)
-        {
-            { nameof(FileItemInfo), "file" },
-            { nameof(FolderNodeInfo), "folder" }
-        };
-
         public SwaggerOperationHelper(OpenApiOperation operation, OperationFilterContext context)
         {
             Op = operation;
@@ -49,28 +44,48 @@ namespace Smartstore.Web.Api.Swagger
         public string ActionName
             => Context.MethodInfo.Name.EmptyNull();
 
-        public string HttpMethod
+        public string? HttpMethod
             => Context.ApiDescription.HttpMethod;
 
+        /// <summary>
+        /// Gets the generic entity type of the <see cref="WebApiController{TEntity}"/>.
+        /// </summary>
         public Type EntityType
-            => Context.MethodInfo.DeclaringType.BaseType.GenericTypeArguments[0];
+            => Context.MethodInfo.DeclaringType!.BaseType!.GenericTypeArguments[0];
 
-        public string EntityAliasName
-            => _entityAliasNames.TryGetValue(EntityType.Name, out var mappedName) ? mappedName : EntityType.Name;
+        /// <summary>
+        /// Gets the response type specified by <see cref="ProducesResponseTypeAttribute"/> (if any).
+        /// </summary>
+        public Type? ResponseType
+        {
+            get
+            {
+                var okType = Context?.ApiDescription?.SupportedResponseTypes
+                    ?.Where(x => x.StatusCode == Status200OK && x.Type != null)
+                    ?.Select(x => x.Type)
+                    ?.FirstOrDefault();
 
-        public bool HasAliasName
-            => _entityAliasNames.ContainsKey(EntityType.Name);
+                if (okType != null)
+                {
+                    return okType.IsGenericType
+                        ? okType.GenericTypeArguments[0]
+                        : okType;
+                }
+
+                return null;
+            }
+        }
 
         public bool HasKeyParameter
             => Context.ApiDescription.ActionDescriptor.Parameters.Any(x => x.Name.EqualsNoCase("key"));
 
         public ControllerActionDescriptor ActionDescriptor
-            => Context.ApiDescription.ActionDescriptor as ControllerActionDescriptor;
+            => (ControllerActionDescriptor)Context.ApiDescription.ActionDescriptor;
 
         public OpenApiSchema GenerateSchema(Type modelType)
             => Context.SchemaGenerator.GenerateSchema(modelType, Context.SchemaRepository);
 
-        public IEnumerable<FastProperty> GetEntityProperties(Func<FastProperty, bool> predicate = null)
+        public IEnumerable<FastProperty> GetEntityProperties(Func<FastProperty, bool>? predicate = null)
         {
             var properties = FastProperty.GetProperties(EntityType).Values
                 .Where(x => !x.Property.HasAttribute<NotMappedAttribute>(false) && !x.Property.HasAttribute<IgnoreDataMemberAttribute>(false));
@@ -81,15 +96,15 @@ namespace Smartstore.Web.Api.Swagger
         public OpenApiRequestBody CreateRequestBody()
         {
             var required = true;
-            string description = null;
+            string? description = null;
 
             switch (ActionName)
             {
                 case "Post":
-                    description = $"All required fields must be provided in order to successfully create a new {EntityAliasName}.";
+                    description = $"All required fields must be provided in order to successfully create a new {EntityType.Name}.";
                     break;
                 case "Put":
-                    description = $"All required fields must be provided in order to successfully update a {EntityAliasName}.";
+                    description = $"All required fields must be provided in order to successfully update a {EntityType.Name}.";
                     break;
                 case "Patch":
                     required = false;
@@ -111,19 +126,16 @@ namespace Smartstore.Web.Api.Swagger
             };
         }
 
-        public OpenApiResponse CreateSucccessResponse(bool isSingleResult, Type entityType = null)
+        public OpenApiResponse CreateSucccessResponse(bool isSingleResult, Type? entityType = null)
         {
-            entityType ??= EntityType;
+            entityType ??= ResponseType ?? EntityType;
             var modelType = isSingleResult ? entityType : typeof(IQueryable<>).MakeGenericType(entityType);
 
             var description = "The request has succeeded.";
 
-            if (!HasAliasName)
-            {
-                description += isSingleResult
-                    ? $" Returns details of {entityType.Name}."
-                    : $" Returns a list of {entityType.Name}.";
-            }
+            description += isSingleResult
+                ? $" Returns details of {entityType.Name}."
+                : $" Returns a list of {entityType.Name}.";
 
             if (ActionName == "Put" || ActionName == "Patch")
             {
@@ -238,10 +250,10 @@ namespace Smartstore.Web.Api.Swagger
             }
         }
 
-        public string BuildQueryExample(AllowedQueryOptions option)
+        public string? BuildQueryExample(AllowedQueryOptions option)
         {
-            string example = null;
-            FastProperty prop;
+            string? example = null;
+            FastProperty? prop;
 
             switch (option)
             {
@@ -254,7 +266,7 @@ namespace Smartstore.Web.Api.Swagger
                             : $"{prop.Name} eq 123";
                     }
 
-                    example = example ?? "Name eq 'iPhone Plus'";
+                    example ??= "Name eq 'iPhone Plus'";
                     break;
                 case AllowedQueryOptions.Expand:
                     prop = GetEntityProperties(x => x.Property.PropertyType.IsClosedGenericTypeOf(typeof(ICollection<>))).FirstOrDefault();

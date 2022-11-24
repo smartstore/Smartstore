@@ -11,6 +11,14 @@ using Smartstore.IO;
 
 namespace Smartstore.Core.Content.Media
 {
+    // TODO: (mg) (core) TBD with mc. MediaFileInfo is not rendered correctly by Web API.
+    // JsonPropertyAttribute is ignored and only Alt and TitleAttribute are rendered at the moment.
+    // MediaFileInfo is only (!) rendered correctly by API if:
+    // - decorated with DataContractAttribute (otherwise DataMemberAttribute is ignored)
+    // - using "DataMemberAttribute" with "Name"
+    // - not using internal properties for data members
+    // - not using private\internal setters
+
     public partial class MediaFileInfo : IFile, ICloneable<MediaFileInfo>
     {
         private string _alt;
@@ -109,6 +117,10 @@ namespace Smartstore.Core.Content.Media
         public static explicit operator MediaFile(MediaFileInfo fileInfo)
             => fileInfo.File;
 
+        /// <summary>
+        /// Gets the file path.
+        /// </summary>
+        /// <example>catalog/my-picture.jpg</example>
         [JsonProperty("path", NullValueHandling = NullValueHandling.Ignore)]
         public string Path { get; private set; }
 
@@ -119,9 +131,17 @@ namespace Smartstore.Core.Content.Media
 
         private readonly Dictionary<(int size, string host), string> _cachedUrls = new();
 
+        /// <summary>
+        /// Gets the relative file URL.
+        /// </summary>
+        /// <example>/media/6/catalog/my-picture.jpg</example>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
         internal string Url => GetUrl(0, string.Empty);
 
+        /// <summary>
+        /// Gets the relative thumbnail URL.
+        /// </summary>
+        /// <example>/media/6/catalog/my-picture.jpg?size=256</example>
         [JsonProperty("thumbUrl", NullValueHandling = NullValueHandling.Ignore)]
         internal string ThumbUrl => GetUrl(ThumbSize, string.Empty);
 

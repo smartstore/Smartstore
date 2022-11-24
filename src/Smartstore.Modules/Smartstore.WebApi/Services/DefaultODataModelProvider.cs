@@ -94,18 +94,16 @@ namespace Smartstore.Web.Api
         private static void BuildMediaFiles(ODataModelBuilder builder)
         {
             const string setName = "MediaFiles";
-
-            var fileSet = builder.EntitySet<MediaFile>("MediaFileEntities");
-            var infoSet = builder.EntitySet<FileItemInfo>(setName);
-            var config = infoSet.EntityType.Collection;
+            var set = builder.EntitySet<MediaFile>(setName);
+            var config = set.EntityType.Collection;
 
             config.Action(nameof(MediaFilesController.GetFileByPath))
-                .ReturnsFromEntitySet<FileItemInfo>(setName)
+                .Returns<MediaFileInfo>()
                 .Parameter<string>("path")
                 .Required();
 
             config.Function(nameof(MediaFilesController.GetFilesByIds))
-                .ReturnsFromEntitySet<FileItemInfo>(setName)
+                .ReturnsCollection<MediaFileInfo>()
                 .CollectionParameter<int>("ids")
                 .Required();
 
@@ -115,62 +113,68 @@ namespace Smartstore.Web.Api
                 .Required();
 
             config.Action(nameof(MediaFilesController.SearchFiles))
-                .ReturnsFromEntitySet<FileItemInfo>(setName)
+                .ReturnsCollection<MediaFileInfo>()
                 .Parameter<MediaSearchQuery>("query");
 
-            config.Action(nameof(MediaFilesController.CountFiles))
-                .Returns<int>()
-                .Parameter<MediaSearchQuery>("query");
 
-            config.Action(nameof(MediaFilesController.CountFilesGrouped))
-                .Returns<MediaCountResult>()
-                .Parameter<MediaFilesFilter>("filter")
-                .Optional();
+            //var fileSet = builder.EntitySet<MediaFile>("MediaFileEntities");
+            //var infoSet = builder.EntitySet<FileItemInfo>(setName);
+            //var config = infoSet.EntityType.Collection;
 
-            config.Action(nameof(MediaFilesController.FileExists))
-                .Returns<bool>()
-                .Parameter<string>("path")
-                .Required();
 
-            config.Action(nameof(MediaFilesController.CheckUniqueFileName))
-                .Returns<CheckUniquenessResult>()
-                .Parameter<string>("path")
-                .Required();
+            //config.Action(nameof(MediaFilesController.CountFiles))
+            //    .Returns<int>()
+            //    .Parameter<MediaSearchQuery>("query");
 
-            var moveFile = infoSet.EntityType
-                .Action(nameof(MediaFilesController.MoveFile))
-                .ReturnsFromEntitySet<FileItemInfo>(setName);
+            //config.Action(nameof(MediaFilesController.CountFilesGrouped))
+            //    .Returns<MediaCountResult>()
+            //    .Parameter<MediaFilesFilter>("filter")
+            //    .Optional();
 
-            moveFile.Parameter<string>("destinationFileName")
-                .Required();
-            moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
+            //config.Action(nameof(MediaFilesController.FileExists))
+            //    .Returns<bool>()
+            //    .Parameter<string>("path")
+            //    .Required();
 
-            var copyFile = infoSet.EntityType
-                .Action(nameof(MediaFilesController.CopyFile))
-                .Returns<MediaFileOperationResult>();
+            //config.Action(nameof(MediaFilesController.CheckUniqueFileName))
+            //    .Returns<CheckUniquenessResult>()
+            //    .Parameter<string>("path")
+            //    .Required();
 
-            copyFile.Parameter<string>("destinationFileName")
-                .Required();
-            copyFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
+            //var moveFile = infoSet.EntityType
+            //    .Action(nameof(MediaFilesController.MoveFile))
+            //    .ReturnsFromEntitySet<FileItemInfo>(setName);
 
-            var deleteFile = infoSet.EntityType
-                .Action(nameof(MediaFilesController.DeleteFile));
+            //moveFile.Parameter<string>("destinationFileName")
+            //    .Required();
+            //moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
 
-            deleteFile.Parameter<bool>("permanent")
-                .Required();
-            deleteFile.Parameter<bool>("force")
-                .HasDefaultValue(bool.FalseString);
+            //var copyFile = infoSet.EntityType
+            //    .Action(nameof(MediaFilesController.CopyFile))
+            //    .Returns<MediaFileOperationResult>();
 
-            var saveFile = config
-                .Action(nameof(MediaFilesController.SaveFile))
-                .ReturnsFromEntitySet<FileItemInfo>(setName);
+            //copyFile.Parameter<string>("destinationFileName")
+            //    .Required();
+            //copyFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
 
-            saveFile.Parameter<IFormFile>("file")
-                .Required();
-            saveFile.Parameter<string>("path");
-            saveFile.Parameter<bool>("isTransient")
-                .HasDefaultValue(bool.TrueString);
-            saveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
+            //var deleteFile = infoSet.EntityType
+            //    .Action(nameof(MediaFilesController.DeleteFile));
+
+            //deleteFile.Parameter<bool>("permanent")
+            //    .Required();
+            //deleteFile.Parameter<bool>("force")
+            //    .HasDefaultValue(bool.FalseString);
+
+            //var saveFile = config
+            //    .Action(nameof(MediaFilesController.SaveFile))
+            //    .ReturnsFromEntitySet<FileItemInfo>(setName);
+
+            //saveFile.Parameter<IFormFile>("file")
+            //    .Required();
+            //saveFile.Parameter<string>("path");
+            //saveFile.Parameter<bool>("isTransient")
+            //    .HasDefaultValue(bool.TrueString);
+            //saveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling");
         }
 
         private static void BuildMediaFolders(ODataModelBuilder builder)

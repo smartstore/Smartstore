@@ -97,8 +97,11 @@ namespace Smartstore.Web.Api.Security
 
                 user.LastRequest = DateTime.UtcNow;
 
-                Request.HttpContext.Items["Smartstore.WebApi.MaxTop"] = state.MaxTop;
-                Request.HttpContext.Items["Smartstore.WebApi.MaxExpansionDepth"] = state.MaxExpansionDepth;
+                Request.HttpContext.Items[MaxApiQueryOptions.Key] = new MaxApiQueryOptions
+                {
+                    MaxTop = state.MaxTop,
+                    MaxExpansionDepth = state.MaxExpansionDepth
+                };
 
                 headers.Add(CustomerIdHeader, user.CustomerId.ToString());
                 headers.CacheControl = "no-cache";

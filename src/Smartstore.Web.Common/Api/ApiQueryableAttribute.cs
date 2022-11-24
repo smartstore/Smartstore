@@ -3,6 +3,14 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Smartstore.Web.Api
 {
+    public class MaxApiQueryOptions
+    {
+        public static readonly string Key = "Smartstore.WebApi.MaxQueryOptions";
+
+        public int MaxTop { get; init; }
+        public int MaxExpansionDepth { get; init; }
+    }
+
     /// <inheritdoc/>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class ApiQueryableAttribute : EnableQueryAttribute
@@ -14,44 +22,30 @@ namespace Smartstore.Web.Api
             base.OnActionExecuted(actionExecutedContext);
         }
 
-        //public override void ValidateQuery(HttpRequest request, ODataQueryOptions queryOptions)
-        //{
-        //    var filter = queryOptions.Filter;
-        //    if (filter != null)
-        //    {
-        //        var type = filter.Context.ElementClrType;
-        //        type?.Name?.ToString().Dump();
-        //    }
-
-        //    base.ValidateQuery(request, queryOptions);
-        //}
-
         protected virtual void ApplyDefaultQueryOptions(ActionExecutedContext actionExecutedContext)
         {
             try
             {
-                var httpContext = actionExecutedContext.HttpContext;
+                var context = actionExecutedContext.HttpContext;
 
-                if (MaxTop != int.MaxValue)
+                if (context.Items.TryGetValue(MaxApiQueryOptions.Key, out var obj) && obj is MaxApiQueryOptions maxValues)
                 {
-                    if (httpContext.Items.TryGetValue("Smartstore.WebApi.MaxTop", out var rawMaxTop) && rawMaxTop != null)
+                    if (MaxTop != int.MaxValue)
                     {
-                        MaxTop = (int)rawMaxTop;
+                        MaxTop = maxValues.MaxTop;
+
+                        var hasClientPaging = context?.Request?.Query?.Any(x => x.Key == "$top") ?? false;
+                        if (!hasClientPaging)
+                        {
+                            // If paging is required and there is no $top sent by client then force the page size specified by merchant.
+                            PageSize = MaxTop;
+                        }
                     }
 
-                    var hasClientPaging = httpContext?.Request?.Query?.Any(x => x.Key == "$top") ?? false;
-                    if (!hasClientPaging)
+                    if (MaxExpansionDepth != int.MaxValue)
                     {
-                        // If paging is required and there is no $top sent by client then force the page size specified by merchant.
-                        PageSize = MaxTop;
+                        MaxExpansionDepth = maxValues.MaxExpansionDepth;
                     }
-                }
-
-                if (MaxExpansionDepth != int.MaxValue
-                    && httpContext.Items.TryGetValue("Smartstore.WebApi.MaxExpansionDepth", out var rawMaxExpansionDepth) 
-                    && rawMaxExpansionDepth != null)
-                {
-                    MaxExpansionDepth = (int)rawMaxExpansionDepth;
                 }
 
                 //$"ApiQueryable MaxTop:{MaxTop} MaxExpansionDepth:{MaxExpansionDepth}".Dump();

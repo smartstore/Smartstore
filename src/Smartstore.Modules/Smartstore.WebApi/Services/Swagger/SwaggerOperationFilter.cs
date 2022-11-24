@@ -1,11 +1,12 @@
-﻿using System.Text.RegularExpressions;
+﻿#nullable enable
+
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using Smartstore.Web.Api.Controllers.OData;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger
@@ -45,9 +46,9 @@ namespace Smartstore.Web.Api.Swagger
             try
             {
                 // Skip what is not inherited from our SmartODataController.
-                if (context.MethodInfo.DeclaringType.BaseType.IsClosedGenericTypeOf(typeof(SmartODataController<>)))
+                if (context.MethodInfo?.DeclaringType?.BaseType?.IsClosedGenericTypeOf(typeof(SmartODataController<>)) ?? false)
                 {
-                    if (!_pathsToIgnore.IsMatch(context.ApiDescription.RelativePath))
+                    if (!_pathsToIgnore.IsMatch(context.ApiDescription.RelativePath!))
                     {
                         var helper = new SwaggerOperationHelper(operation, context);
 
@@ -83,15 +84,7 @@ namespace Smartstore.Web.Api.Swagger
                 canProcess = isNavigationProperty;
             }
 
-            if (canProcess)
-            {
-                helper.Op.Responses.Clear();
-            }
-            else
-            {
-                helper.ReplaceResponseDescriptions();
-            }
-
+            helper.ReplaceResponseDescriptions();
             // Add responses that can theoretically occur on any endpoint.
             helper.AddResponse(Status400BadRequest, Status500InternalServerError);
 
@@ -105,20 +98,21 @@ namespace Smartstore.Web.Api.Swagger
                 return;
             }
 
-            var entityName = PrefixArticle(helper.EntityAliasName);
+            var entityName = PrefixArticle(helper.EntityType.Name);
 
             switch (helper.ActionName)
             {
                 case "Get":
+                    var responseTypeName = PrefixArticle(helper.ResponseType?.Name) ?? entityName;
                     if (helper.HasKeyParameter)
                     {
-                        helper.Op.Summary ??= $"Gets {entityName} by identifier.";
+                        helper.Op.Summary ??= $"Gets {responseTypeName} by identifier.";
                         helper.AddResponse(Status404NotFound);
                         helper.AddKeyParameter();
                     }
                     else
                     {
-                        helper.Op.Summary ??= $"Gets {entityName} list.";
+                        helper.Op.Summary ??= $"Gets {responseTypeName} list.";
                     }
                     helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(helper.HasKeyParameter);
                     break;
@@ -187,7 +181,7 @@ namespace Smartstore.Web.Api.Swagger
                 {
                     case "key":
                     case "id":
-                        parameter.Description ??= $"The {helper.EntityAliasName} identifier.";
+                        parameter.Description ??= $"The {helper.EntityType.Name} identifier.";
                         parameter.Example ??= new OpenApiInteger(1234);
                         break;
                 }
@@ -427,7 +421,7 @@ namespace Smartstore.Web.Api.Swagger
 
             var consumesJson = helper.ActionDescriptor.FilterDescriptors
                 .Where(x => x.Filter is ConsumesAttribute)
-                .Select(x => x.Filter as ConsumesAttribute)
+                .Select(x => (ConsumesAttribute)x.Filter)
                 .FirstOrDefault(x => x.ContentTypes.Any(type => type.EqualsNoCase(Json)));
 
             if (consumesJson == null)
@@ -436,8 +430,9 @@ namespace Smartstore.Web.Api.Swagger
             }
 
             var actionParams = helper.ActionDescriptor.Parameters
-                .Select(p => p as ControllerParameterDescriptor)
-                .Where(p => p?.ParameterInfo?.CustomAttributes?.Any(a => a.AttributeType == typeof(FromODataBodyAttribute)) ?? false)
+                .Where(p => p is ControllerParameterDescriptor)
+                .Select(p => (ControllerParameterDescriptor)p)
+                .Where(p => p.ParameterInfo?.CustomAttributes?.Any(a => a.AttributeType == typeof(FromODataBodyAttribute)) ?? false)
                 .ToList();
 
             if (actionParams.Count == 0)
@@ -514,7 +509,8 @@ namespace Smartstore.Web.Api.Swagger
             }
 
             var odataParams = helper.ActionDescriptor.Parameters
-                .Select(p => p as ControllerParameterDescriptor)
+                .Where(p => p is ControllerParameterDescriptor)
+                .Select(p => (ControllerParameterDescriptor)p)
                 .Where(p => p?.ParameterInfo?.CustomAttributes?.Any(a => a.AttributeType == typeof(FromODataUriAttribute)) ?? false)
                 .ToList();
 
@@ -557,16 +553,16 @@ namespace Smartstore.Web.Api.Swagger
             helper.Op.Parameters.Remove(p =>
             {
                 var refId = p?.Schema?.Reference?.Id;
-                return refId != null && _parametersToRemove.Any(type => refId.StartsWithNoCase(type.FullName));
+                return refId != null && _parametersToRemove.Any(type => refId.StartsWithNoCase(type.FullName!));
             });
         }
 
         #region Utilities
 
-        private static string PrefixArticle(string str)
+        private static string? PrefixArticle(string? str)
         {
             return str.HasValue()
-                ? ("aeiouAEIOU".Contains(str[0]) ? "an " : "a ") + str
+                ? ("aeiouAEIOU".Contains(str![0]) ? "an " : "a ") + str
                 : str;
         }
 
@@ -591,7 +587,7 @@ namespace Smartstore.Web.Api.Swagger
             else if (value is OpenApiDouble doubleVal)
                 return doubleVal.Value.ToString();
             else if (value is OpenApiByte byteVal)
-                return byteVal.Value.ToString();
+                return string.Join(',', byteVal.Value);
             else if (value is OpenApiBoolean boolVal)
                 return boolVal.Value.ToString().ToLower();
             else if (value is OpenApiDate dateVal)
