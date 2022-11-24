@@ -500,5 +500,42 @@ namespace Smartstore.Web.Controllers
         }
 
         #endregion
+
+        #region Cargo Data
+
+        protected async Task<DeliveryTime> GetDeliveryTimeAsync(int id)
+        {
+            if (id == 0) return null;
+
+            var key = $"CatalogHelper.DeliveryTime.{id}";
+            return await _httpRequest.HttpContext.GetItemAsync(key, async () => 
+            {
+                return await _db.DeliveryTimes.FindByIdAsync(id, true);
+            });
+        }
+
+        protected async Task<MeasureWeight> GetMeasureWeightAsync(int id)
+        {
+            if (id == 0) return null;
+
+            var key = $"CatalogHelper.MeasureWeight.{id}";
+            return await _httpRequest.HttpContext.GetItemAsync(key, async () =>
+            {
+                return await _db.MeasureWeights.FindByIdAsync(id, true);
+            });
+        }
+
+        protected async Task<MeasureDimension> GetMeasureDimensionAsync(int id)
+        {
+            if (id == 0) return null;
+
+            var key = $"CatalogHelper.MeasureDimension.{id}";
+            return await _httpRequest.HttpContext.GetItemAsync(key, async () =>
+            {
+                return await _db.MeasureDimensions.FindByIdAsync(id, true);
+            });
+        }
+
+        #endregion
     }
 }

@@ -18,9 +18,6 @@ namespace Smartstore.Web.Models.Catalog
         public Dictionary<int, BrandOverviewModel> CachedBrandModels { get; set; }
         public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();
         public Dictionary<string, LocalizedString> Resources { get; set; }
-        public Dictionary<int, DeliveryTime> DeliveryTimes { get; set; }
-        public Dictionary<int, MeasureWeight> MeasureWeights { get; set; }
-        public Dictionary<int, MeasureDimension> MeasureDimensions { get; set; }
         public string LegalInfo { get; set; }
         public Currency PrimaryCurrency { get; set; }
 
