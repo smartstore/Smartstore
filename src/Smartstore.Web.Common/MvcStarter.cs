@@ -23,6 +23,7 @@ using Smartstore.Core.Common.JsonConverters;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Web;
 using Smartstore.Engine.Builders;
+using Smartstore.Engine.Modularity;
 using Smartstore.Engine.Modularity.ApplicationParts;
 using Smartstore.Net;
 using Smartstore.Web.Controllers;
@@ -80,7 +81,7 @@ namespace Smartstore.Web
             mvcBuilder
                 .AddMvcOptions(o =>
                 {
-                    //o.EnableEndpointRouting = false;
+                    o.Filters.Add<ModulePopulatorFilter>(int.MinValue);
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
 
                     o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());

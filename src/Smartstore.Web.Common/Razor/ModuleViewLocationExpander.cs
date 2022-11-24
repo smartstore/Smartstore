@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Razor;
+﻿using Microsoft.AspNetCore.Mvc.Razor;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Razor
@@ -42,18 +41,9 @@ namespace Smartstore.Web.Razor
 
         public void PopulateValues(ViewLocationExpanderContext context)
         {
-            if (context.ActionContext.RouteData.DataTokens.TryGetValue("module", out var value) && value is string str)
+            if (context.ActionContext.RouteData.DataTokens.TryGetValueAs<string>(ParamKey, out var moduleName))
             {
-                context.Values[ParamKey] = str;
-            }
-            else if (context.ActionContext.ActionDescriptor is ControllerActionDescriptor actionDescriptor)
-            {
-                var module = _moduleCatalog.GetModuleByAssembly(actionDescriptor.ControllerTypeInfo.Assembly);
-
-                if (module != null)
-                {
-                    context.Values[ParamKey] = module.Name;
-                }
+                context.Values[ParamKey] = moduleName;
             }
         }
     }
