@@ -134,7 +134,7 @@ namespace Smartstore.Core.Data.Migrations
             // Remove PriceDisplayStyle setting
             await db.Settings
                 .Where(x => x.Name == "CatalogSettings.PriceDisplayStyle")
-                .BatchDeleteAsync(cancelToken);
+                .ExecuteDeleteAsync(cancelToken);
 
             await db.SaveChangesAsync(cancelToken);
         }

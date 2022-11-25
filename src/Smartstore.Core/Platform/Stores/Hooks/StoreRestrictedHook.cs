@@ -31,7 +31,7 @@ namespace Smartstore.Core.Stores
 
                     await _db.StoreMappings
                         .Where(x => entityIds.Contains(x.EntityId) && x.EntityName == entityName)
-                        .BatchDeleteAsync(cancelToken);
+                        .ExecuteDeleteAsync(cancelToken);
                 }
             }
         }

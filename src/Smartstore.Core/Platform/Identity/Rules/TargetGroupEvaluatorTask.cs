@@ -46,7 +46,7 @@ namespace Smartstore.Core.Identity.Rules
                     deleteQuery = deleteQuery.Where(x => roleIds.Contains(x.CustomerRoleId));
                 }
 
-                numDeleted = await deleteQuery.BatchDeleteAsync(cancelToken);
+                numDeleted = await deleteQuery.ExecuteDeleteAsync(cancelToken);
 
                 // Insert new customer role mappings.
                 var roles = await _db.CustomerRoles

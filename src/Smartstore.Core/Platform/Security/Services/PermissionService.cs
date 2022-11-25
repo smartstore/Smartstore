@@ -476,7 +476,7 @@ namespace Smartstore.Core.Security
                                 await _db.PermissionRecords
                                     .AsQueryable()
                                     .Where(x => chunk.Contains(x.SystemName))
-                                    .BatchDeleteAsync();
+                                    .ExecuteDeleteAsync();
                             }
 
                             if (log)

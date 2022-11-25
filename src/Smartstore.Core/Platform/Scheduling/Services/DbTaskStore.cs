@@ -477,7 +477,7 @@ namespace Smartstore.Scheduling
             {
                 return await GetExecutionInfoQuery()
                     .Where(x => ids.Contains(x.Id) && !x.IsRunning)
-                    .BatchDeleteAsync();
+                    .ExecuteDeleteAsync();
             }
 
             return 0;
@@ -537,7 +537,7 @@ namespace Smartstore.Scheduling
                         {
                             numDeleted += await Db.TaskExecutionInfos
                                 .Where(x => batch.Contains(x.Id))
-                                .BatchDeleteAsync(cancelToken);
+                                .ExecuteDeleteAsync(cancelToken);
                         }
                     }
                 }

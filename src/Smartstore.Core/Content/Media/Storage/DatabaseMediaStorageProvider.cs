@@ -215,7 +215,7 @@ namespace Smartstore.Core.Content.Media.Storage
             {
                 return await _db.MediaStorage
                     .Where(x => x.Id == media.MediaStorageId.Value)
-                    .BatchDeleteAsync();
+                    .ExecuteDeleteAsync();
             }
 
             return 0;

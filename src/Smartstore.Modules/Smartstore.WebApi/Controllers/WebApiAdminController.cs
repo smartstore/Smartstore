@@ -276,7 +276,7 @@ namespace Smartstore.Web.Api.Controllers
             {
                 return await _db.GenericAttributes
                     .Where(x => x.EntityId == customerId && x.KeyGroup == nameof(Customer) && x.Key == WebApiService.AttributeUserDataKey)
-                    .BatchDeleteAsync();
+                    .ExecuteDeleteAsync();
             }
 
             return 0;

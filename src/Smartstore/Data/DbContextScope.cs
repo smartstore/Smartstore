@@ -17,7 +17,6 @@ namespace Smartstore.Data
         private readonly QueryTrackingBehavior _queryTrackingBehavior;
         private readonly CascadeTiming _cascadeDeleteTiming;
         private readonly CascadeTiming _deleteOrphansTiming;
-        private readonly bool _autoTransactionEnabled;
 
         /// <summary>
         /// Creates a scope in which a DbContext instance behaves differently. 
@@ -39,8 +38,7 @@ namespace Smartstore.Data
             bool retainConnection = false,
             HookImportance? minHookImportance = null,
             CascadeTiming? cascadeDeleteTiming = null,
-            CascadeTiming? deleteOrphansTiming = null,
-            bool? autoTransactions = null)
+            CascadeTiming? deleteOrphansTiming = null)
         {
             Guard.NotNull(ctx, nameof(ctx));
 
@@ -54,7 +52,6 @@ namespace Smartstore.Data
             _queryTrackingBehavior = changeTracker.QueryTrackingBehavior;
             _cascadeDeleteTiming = changeTracker.CascadeDeleteTiming;
             _deleteOrphansTiming = changeTracker.DeleteOrphansTiming;
-            _autoTransactionEnabled = ctx.Database.AutoTransactionsEnabled;
             _retainConnection = retainConnection;
 
             if (autoDetectChanges.HasValue)
@@ -77,9 +74,6 @@ namespace Smartstore.Data
 
             if (deleteOrphansTiming.HasValue)
                 changeTracker.DeleteOrphansTiming = deleteOrphansTiming.Value;
-
-            if (autoTransactions.HasValue)
-                ctx.Database.AutoTransactionsEnabled = autoTransactions.Value;
 
             if (retainConnection)
                 ctx.Database.OpenConnection();
@@ -180,7 +174,6 @@ namespace Smartstore.Data
 
             _ctx.MinHookImportance = _minHookImportance;
             _ctx.SuppressCommit = _suppressCommit;
-            _ctx.Database.AutoTransactionsEnabled = _autoTransactionEnabled;
 
             changeTracker.AutoDetectChangesEnabled = _autoDetectChangesEnabled;
             changeTracker.LazyLoadingEnabled = _lazyLoadingEnabled;

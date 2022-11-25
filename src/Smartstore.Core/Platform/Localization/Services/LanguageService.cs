@@ -87,7 +87,7 @@ namespace Smartstore.Core.Localization
             {
                 await _db.GenericAttributes
                     .Where(x => deletedLanguageIds.Contains(x.EntityId) && x.KeyGroup == nameof(Language))
-                    .BatchDeleteAsync(cancelToken);
+                    .ExecuteDeleteAsync(cancelToken);
             }
         }
 

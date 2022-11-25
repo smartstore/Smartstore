@@ -41,7 +41,7 @@ namespace Smartstore.Core.Content.Media.Tasks
 
                 numDeleted += await _db.Downloads
                     .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
-                    .BatchDeleteAsync(cancelToken);
+                    .ExecuteDeleteAsync(cancelToken);
 
                 if (numDeleted > 0 && _db.DataProvider.CanShrink)
                 {

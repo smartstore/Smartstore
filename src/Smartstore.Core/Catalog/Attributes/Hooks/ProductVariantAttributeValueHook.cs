@@ -28,7 +28,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 await _db.ProductBundleItemAttributeFilter
                     .Where(x => x.AttributeId == deletedValue.ProductVariantAttributeId && x.AttributeValueId == deletedValue.Id)
-                    .BatchDeleteAsync(cancelToken);
+                    .ExecuteDeleteAsync(cancelToken);
             }
         }
     }

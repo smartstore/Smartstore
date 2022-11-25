@@ -1533,7 +1533,8 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     num += await _db.Orders
                         .Where(x => chunk.Contains(x.Id))
-                        .BatchUpdateAsync(x => new Order { OrderStatusId = newOrderStatusId.Value }, ctx.CancelToken);
+                        .ExecuteUpdateAsync(
+                            x => x.SetProperty(p => p.OrderStatusId, p => newOrderStatusId.Value));
                 }
 
                 ctx.Log.Info($"Updated order status for {num} order(s).");

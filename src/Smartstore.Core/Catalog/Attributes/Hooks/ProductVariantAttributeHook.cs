@@ -37,7 +37,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 await _db.ProductBundleItemAttributeFilter
                     .Where(x => deletedAttributeIds.Contains(x.AttributeId))
-                    .BatchDeleteAsync(cancelToken);
+                    .ExecuteDeleteAsync(cancelToken);
             }
 
             // Delete localized properties of attribute values that were deleted by referential integrity.
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 await _db.LocalizedProperties
                     .Where(x => _deletedAttributeValueIds.Contains(x.EntityId) && x.LocaleKeyGroup == nameof(ProductVariantAttributeValue))
-                    .BatchDeleteAsync(cancelToken);
+                    .ExecuteDeleteAsync(cancelToken);
 
                 _deletedAttributeValueIds.Clear();
             }

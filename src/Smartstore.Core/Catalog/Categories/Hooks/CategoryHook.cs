@@ -69,7 +69,8 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 var num = await _db.Categories
                     .Where(x => invalidCategoryIds.Contains(x.Id))
-                    .BatchUpdateAsync(x => new Category { ParentCategoryId = 0 }, cancelToken);
+                    .ExecuteUpdateAsync(
+                        x => x.SetProperty(p => p.ParentCategoryId, p => 0));
             }
 
             _requestCache.RemoveByPattern(CategoryService.CATEGORIES_PATTERN_KEY);

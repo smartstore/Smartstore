@@ -877,11 +877,11 @@ namespace Smartstore.Core.Data.Migrations
         {
             await context.LocaleStringResources
                 .Where(x => x.ResourceName.StartsWith("Admin.Telerik."))
-                .BatchDeleteAsync(cancelToken);
+                .ExecuteDeleteAsync(cancelToken);
 
             await context.LocaleStringResources
                 .Where(x => x.ResourceName.StartsWith("Telerik."))
-                .BatchDeleteAsync(cancelToken);
+                .ExecuteDeleteAsync(cancelToken);
 
             await context.SaveChangesAsync(cancelToken);
         }

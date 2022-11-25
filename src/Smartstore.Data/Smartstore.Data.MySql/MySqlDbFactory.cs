@@ -49,7 +49,7 @@ namespace Smartstore.Data.MySql
             var optionsBuilder = new DbContextOptionsBuilder<TContext>()
                 .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql =>
                 {
-                    sql.CommandTimeout(commandTimeout).UseBulk();
+                    sql.CommandTimeout(commandTimeout);
                 })
                 .ReplaceService<IMethodCallTranslatorProvider, MySqlMappingMethodCallTranslatorProvider>();
 
@@ -61,8 +61,6 @@ namespace Smartstore.Data.MySql
             return builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql =>
             {
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
-
-                sql.UseBulk();
 
                 if (extension != null)
                 {

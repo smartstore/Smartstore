@@ -32,7 +32,7 @@ namespace Smartstore.Core.Seo
 
                     await _db.UrlRecords
                         .Where(x => entityIds.Contains(x.EntityId) && x.EntityName == entityName)
-                        .BatchDeleteAsync(cancelToken);
+                        .ExecuteDeleteAsync(cancelToken);
                 }
             }
         }

@@ -33,7 +33,7 @@ namespace Smartstore.Core.Security
 
                     await _db.AclRecords
                         .Where(x => entityIds.Contains(x.EntityId) && x.EntityName == entityName)
-                        .BatchDeleteAsync(cancelToken);
+                        .ExecuteDeleteAsync(cancelToken);
                 }
             }
         }

@@ -35,7 +35,7 @@ namespace Smartstore.Core.Messaging
         public virtual Task<int> DeleteAllQueuedMailsAsync()
         {
             // Do not delete e-mails which are about to be sent.
-            return _db.QueuedEmails.Where(x => x.SentOnUtc.HasValue || x.SentTries >= 3).BatchDeleteAsync();
+            return _db.QueuedEmails.Where(x => x.SentOnUtc.HasValue || x.SentTries >= 3).ExecuteDeleteAsync();
         }
 
         public virtual async Task<bool> SendMailsAsync(IEnumerable<QueuedEmail> queuedEmails, CancellationToken cancelToken = default)

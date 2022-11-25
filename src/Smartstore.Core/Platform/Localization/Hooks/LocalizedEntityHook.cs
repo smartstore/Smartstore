@@ -33,7 +33,7 @@ namespace Smartstore.Core.Localization
 
                     await _db.LocalizedProperties
                         .Where(x => entityIds.Contains(x.EntityId) && x.LocaleKeyGroup == entityName)
-                        .BatchDeleteAsync(cancelToken);
+                        .ExecuteDeleteAsync(cancelToken);
                 }
             }
         }

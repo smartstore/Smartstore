@@ -184,7 +184,7 @@ namespace Smartstore.Admin.Controllers
 
                 numDeleted = await _db.GenericAttributes
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ExecuteDeleteAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });

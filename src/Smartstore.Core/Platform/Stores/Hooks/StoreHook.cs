@@ -29,7 +29,7 @@ namespace Smartstore.Core.Stores
                 // When we delete a store we should also ensure that all "per store" settings will also be deleted.
                 await _db.Settings
                     .Where(x => deletedStoreIds.Contains(x.StoreId))
-                    .BatchDeleteAsync(cancelToken);
+                    .ExecuteDeleteAsync(cancelToken);
 
                 // When we had two stores and now have only one store, we also should delete all "per store" settings.
                 var allStoreIds = await _db.Stores
@@ -40,7 +40,7 @@ namespace Smartstore.Core.Stores
                 {
                     await _db.Settings
                         .Where(x => x.StoreId == allStoreIds[0])
-                        .BatchDeleteAsync(cancelToken);
+                        .ExecuteDeleteAsync(cancelToken);
                 }
             }
         }

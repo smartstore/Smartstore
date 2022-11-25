@@ -24,7 +24,7 @@ namespace Smartstore.Core.Messaging.Tasks
 
             await _db.QueuedEmails
                 .Where(x => x.SentOnUtc.HasValue && x.CreatedOnUtc < olderThan)
-                .BatchDeleteAsync(cancellationToken: cancelToken);
+                .ExecuteDeleteAsync(cancellationToken: cancelToken);
 
             if (_db.DataProvider.CanShrink)
             {

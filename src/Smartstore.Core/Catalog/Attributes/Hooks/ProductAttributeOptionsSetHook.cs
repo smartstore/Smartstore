@@ -30,7 +30,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 await _db.LocalizedProperties
                     .Where(x => _deletedAttributeOptionIds.Contains(x.EntityId) && x.LocaleKeyGroup == nameof(ProductAttributeOption))
-                    .BatchDeleteAsync(cancelToken);
+                    .ExecuteDeleteAsync(cancelToken);
 
                 _deletedAttributeOptionIds.Clear();
             }

@@ -389,7 +389,7 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     await _db.LocalizedProperties
                         .Where(x => toDeleteIds.Contains(x.Id))
-                        .BatchDeleteAsync(cancelToken);
+                        .ExecuteDeleteAsync(cancelToken);
                 }
                 catch (Exception ex)
                 {

@@ -130,7 +130,7 @@ namespace Smartstore.Core.Content.Menus
                 {
                     var items = await _db.MenuItems
                         .Where(x => chunk.Contains(x.Id))
-                        .BatchDeleteAsync();
+                        .ExecuteDeleteAsync();
                 }
 
                 // INFO: No hook will run. Invalidate cache manually.

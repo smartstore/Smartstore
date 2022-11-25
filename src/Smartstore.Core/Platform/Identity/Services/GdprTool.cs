@@ -216,7 +216,7 @@ namespace Smartstore.Core.Identity
             // Now it is safe to delete shopping cart & wishlist
             await _db.ShoppingCartItems
                 .ApplyExpiredCartItemsFilter(DateTime.UtcNow, customer)
-                .BatchDeleteAsync();
+                .ExecuteDeleteAsync();
 
             // Log
             Logger.Info(T("Gdpr.Anonymize.Success", language.Id, customerName));

@@ -50,7 +50,7 @@ namespace Smartstore.Core.Catalog.Rules
                     deleteQuery = deleteQuery.Where(x => categoryIds.Contains(x.CategoryId));
                 }
 
-                numDeleted = await deleteQuery.BatchDeleteAsync(cancelToken);
+                numDeleted = await deleteQuery.ExecuteDeleteAsync(cancelToken);
 
                 // Insert new product category mappings.
                 var categoryQuery = _db.Categories

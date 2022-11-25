@@ -112,7 +112,7 @@ namespace Smartstore.Admin.Controllers
             {
                 numDeleted = await _db.QueuedEmails
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ExecuteDeleteAsync();
             }
 
             return Json(new

@@ -52,7 +52,8 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     var allAssociatedProducts = await _db.Products
                         .Where(x => groupedProductIds.Contains(x.ParentGroupedProductId))
-                        .BatchUpdateAsync(x => new Product { ParentGroupedProductId = 0 }, cancelToken);
+                        .ExecuteUpdateAsync(
+                            x => x.SetProperty(p => p.ParentGroupedProductId, p => 0));
                 }
             }
 

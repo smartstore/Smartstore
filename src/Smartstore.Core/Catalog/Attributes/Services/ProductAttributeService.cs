@@ -229,7 +229,7 @@ namespace Smartstore.Core.Catalog.Attributes
             // Delete all existing combinations for this product.
             await _db.ProductVariantAttributeCombinations
                 .Where(x => x.ProductId == productId)
-                .BatchDeleteAsync();
+                .ExecuteDeleteAsync();
 
             var attributes = await _db.ProductVariantAttributes
                 .AsNoTracking()

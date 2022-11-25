@@ -270,7 +270,7 @@ namespace Smartstore.IO
 
             if (addLeadingSeparator)
             {
-                return transformSeparators ? string.Concat("/", ApplySeparatorTransform(ref path)) : string.Concat("/", path);
+                return transformSeparators ? string.Concat("/", ApplySeparatorTransform(path)) : string.Concat("/", path);
             }
 
             if (removeLeadingSeparator)
@@ -278,9 +278,9 @@ namespace Smartstore.IO
                 path = path[1..];
             }
 
-            return transformSeparators ? ApplySeparatorTransform(ref path) : path;
+            return transformSeparators ? ApplySeparatorTransform(path) : path;
 
-            static ReadOnlySpan<char> ApplySeparatorTransform(ref ReadOnlySpan<char> value)
+            static ReadOnlySpan<char> ApplySeparatorTransform(ReadOnlySpan<char> value)
             {
                 var destination = new char[value.Length];
 

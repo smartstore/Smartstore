@@ -339,7 +339,7 @@ namespace Smartstore.Core.Localization
             try
             {
                 var pattern = (key.EndsWith(".") || !keyIsRootKey ? key : key + ".") + "%";
-                result = await _db.LocaleStringResources.Where(x => EF.Functions.Like(x.ResourceName, pattern)).BatchDeleteAsync();
+                result = await _db.LocaleStringResources.Where(x => EF.Functions.Like(x.ResourceName, pattern)).ExecuteDeleteAsync();
                 await ClearCacheSegmentAsync(null);
             }
             catch (Exception ex)

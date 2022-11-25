@@ -88,7 +88,7 @@ namespace Smartstore.Data.SqlServer
             var optionsBuilder = new DbContextOptionsBuilder<TContext>()
                 .UseSqlServer(connectionString, sql =>
                 {
-                    sql.CommandTimeout(commandTimeout).UseBulk();
+                    sql.CommandTimeout(commandTimeout);
                 })
                 .ReplaceService<IMethodCallTranslatorProvider, SqlServerMappingMethodCallTranslatorProvider>();
 
@@ -103,8 +103,6 @@ namespace Smartstore.Data.SqlServer
             return builder.UseSqlServer(connectionString, sql =>
             {
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
-
-                sql.UseBulk();
 
                 if (extension != null)
                 {

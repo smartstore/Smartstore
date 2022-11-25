@@ -42,12 +42,12 @@ namespace Smartstore.Core.Catalog.Products
 
                     await _db.ShoppingCartItems
                         .Where(x => childItemIds.Contains(x.Id))
-                        .BatchDeleteAsync(cancelToken);
+                        .ExecuteDeleteAsync(cancelToken);
                 }
 
                 await _db.ShoppingCartItems
                     .Where(x => parentItemIds.Contains(x.Id))
-                    .BatchDeleteAsync(cancelToken);
+                    .ExecuteDeleteAsync(cancelToken);
             }
         }
     }

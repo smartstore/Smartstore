@@ -39,7 +39,7 @@ namespace Smartstore
                     continue;
                 }
 
-                yield return segment.Value;
+                yield return segment.Value!;
             }
         }
 
@@ -211,10 +211,10 @@ namespace Smartstore
 
             if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries))
             {
-                return tokenizer.Where(x => x.Length > 0).Select(x => x.Value);
+                return tokenizer.Where(x => x.Length > 0).Select(x => x.Value!);
             }
 
-            return tokenizer.Select(x => x.Value);
+            return tokenizer.Select(x => x.Value!);
         }
     }
 }

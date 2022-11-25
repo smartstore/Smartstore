@@ -289,7 +289,7 @@ namespace Smartstore.Core.Content.Media
         public Task<int> DeleteAllTracksAsync(string albumName)
         {
             Guard.NotEmpty(albumName, nameof(albumName));
-            return _db.MediaTracks.Where(x => x.Album == albumName).BatchDeleteAsync();
+            return _db.MediaTracks.Where(x => x.Album == albumName).ExecuteDeleteAsync();
         }
 
         public async Task DetectAllTracksAsync(string albumName, CancellationToken cancelToken = default)
