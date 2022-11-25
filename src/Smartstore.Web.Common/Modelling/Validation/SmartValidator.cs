@@ -113,13 +113,13 @@ namespace FluentValidation
             // But there's no alternative to it, unfortunately.
 
             // Make DynamicExpressionParser.ParseLambda<TModel, TProperty>(...)
-            var parseLambdaMethod = FastInvoker.GetInvoker(ParseLambdaMethod.MakeGenericMethod(typeof(TModel), modelProp.Property.PropertyType));
+            var parseLambdaMethod = ParseLambdaMethod.MakeGenericMethod(typeof(TModel), modelProp.Property.PropertyType);
 
             // Call ParseLambda<<TModel, TPropType>() method
             var expression = parseLambdaMethod.Invoke(null, new object[] { null, false, "@" + modelProp.Property.Name, null });
 
             // Create rule: first make AbstractValidator<T>.RuleFor<TProperty>(...) method
-            var ruleForMethod = FastInvoker.GetInvoker(RuleForMethod.MakeGenericMethod(modelProp.Property.PropertyType));
+            var ruleForMethod = RuleForMethod.MakeGenericMethod(modelProp.Property.PropertyType);
 
             // Then call .RuleFor<TProperty>(Expression<Func<T, TProperty>> expression)
             var rule = ruleForMethod.Invoke(this, new object[] { expression });
