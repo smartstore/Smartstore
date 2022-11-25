@@ -251,7 +251,7 @@ namespace Smartstore.Web.Api
                     InnerError = new ODataInnerError(ex)
                 };
 
-                var odataEx = new ODataErrorException(ex.Message, ex.InnerException, odataError);
+                var odataEx = new ODataErrorException(ex.Message, ex, odataError);
                 odataEx.Data["JsonContent"] = odataError.ToString();
                 odataEx.ReThrow();
             }
