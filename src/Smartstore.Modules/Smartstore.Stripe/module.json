@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "Author": "SmartStore AG",
+  "Group": "Payment",
+  "SystemName": "Smartstore.Stripe",
+  "FriendlyName": "Stripe",
+  "Description": "",
+  "Version": "5.0.1",
+  "MinAppVersion": "5.0.1",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Smartstore.Stripe",
+  "PrivateReferences": [ "Stripe.net" ]
+}

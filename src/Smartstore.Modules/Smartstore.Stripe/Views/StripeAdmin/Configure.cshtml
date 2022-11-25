@@ -1,0 +1,99 @@
+﻿@model ConfigurationModel
+
+@{    
+    Layout = "_ConfigureProvider";
+}
+
+@await Component.InvokeAsync("StoreScope")
+
+<widget target-zone="admin_button_toolbar_before">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<div class="plugin-configuration">
+    <div>
+        <div class="alert alert-info alert-dismissible">
+            @Html.Raw(T("Plugins.Smartstore.Stripe.AdminInstruction"))
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    </div>
+    <div>
+        <a href="#" target="_blank">
+            <img src="@Url.Content("~/Modules/Smartstore.Stripe/branding.png")" alt="Stripe" />
+        </a>
+    </div>
+</div>
+
+<form asp-action="Configure">
+    <div asp-validation-summary="All"></div>
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UseSandbox" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="UseSandbox"></setting-editor>
+                <span asp-validation-for="UseSandbox"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PublicApiKey" />
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="PublicApiKey"></setting-editor>
+                <span asp-validation-for="PublicApiKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SecrectApiKey" />
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="SecrectApiKey"></setting-editor>
+                <span asp-validation-for="SecrectApiKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CaptureMethod" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="CaptureMethod">
+                    <select asp-for="CaptureMethod" asp-items="ViewBag.AvailableCaptureMethods"></select>
+                </setting-editor>
+                <span asp-validation-for="CaptureMethod"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFee" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFee"></setting-editor>
+                <span asp-validation-for="AdditionalFee"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFeePercentage" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFeePercentage"></setting-editor>
+                <span asp-validation-for="AdditionalFeePercentage"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowButtonInMiniShoppingCart" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowButtonInMiniShoppingCart"></setting-editor>
+                <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
+            </div>
+        </div>
+    </div>
+</form>

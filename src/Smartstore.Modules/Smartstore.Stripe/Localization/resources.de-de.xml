@@ -1,0 +1,83 @@
+﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
+	<LocaleResource Name="Plugins.FriendlyName.Smartstore.StripeElements" AppendRootKey="false">
+		<Value>Stripe Elements</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.StripeElements" AppendRootKey="false">
+		<Value>Erweitert den Shop um die Zahlungsfunktionen von Stripe.</Value>
+	</LocaleResource>
+	
+	<LocaleResource Name="Plugins.FriendlyName.Payments.StripeElements" AppendRootKey="false">
+		<Value>Jetzt zahlen mit Stripe</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.Description.Payments.StripeElements" AppendRootKey="false">
+		<Value>Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei Stripe durchgeführt wird.</Value>
+	</LocaleResource>
+	
+	<LocaleResource Name="Plugins.Smartstore.Stripe" AppendRootKey="false">
+		<Children>
+			<LocaleResource Name="AdminInstruction">
+				<Value>
+					<![CDATA[
+						Geben Sie zur Einrichtung dieses Plugins nachfolgend Ihre Stripe-API-Keys an.
+					  ]]>
+				</Value>
+			</LocaleResource>
+			<LocaleResource Name="UseSandbox">
+				<Value>Testmodus nutzen</Value>
+			</LocaleResource>
+			<LocaleResource Name="UseSandbox.Hint">
+				<Value>Bestimmt, ob die Zahlungen im Testmodus ausgeführt werden.</Value>
+			</LocaleResource>
+
+            <LocaleResource Name="CaptureMethod">
+                <Value>Geldeinzug</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Hint">
+                <Value>Bestimmt, wann das Geld vom Konto des Kunden eingezogen wird.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Automatic">
+                <Value>Automatisch</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Manual">
+                <Value>Manuell</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="PublicApiKey">
+                <Value>API-Key (öffentlich)</Value>
+            </LocaleResource>
+            <LocaleResource Name="PublicApiKey.Hint">
+                <Value>Geben Sie hier den öffentlichen API-Key an, der im Dashboard von Stripe einzusehen ist.</Value>
+            </LocaleResource>
+			<LocaleResource Name="SecrectApiKey">
+				<Value>API-Key (geheim)</Value>
+			</LocaleResource>
+			<LocaleResource Name="SecrectApiKey.Hint">
+				<Value>Geben Sie hier den geheimen API-Key an, der im Dashboard von Stripe einzusehen ist.</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFee">
+				<Value>Zusätzliche Gebühren</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFee.Hint">
+				<Value>Zusätzliche Gebühren, die dem Kunden für die Inanspruchnahme dieser Zahlart berechnet werden sollen.</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFeePercentage">
+				<Value>Zusätzliche Gebühren (prozentual)</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFeePercentage.Hint">
+				<Value>Zusätzliche prozentuale Gebühr. Die konfigurierte Gebühr wird als fester Wert verwendet, falls diese Option nicht aktiviert ist.</Value>
+			</LocaleResource>
+            <LocaleResource Name="ShowButtonInMiniShoppingCart">
+                <Value>Buttons im Miniwarenkorb anzeigen</Value>
+            </LocaleResource>
+            <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
+                <Value>Legt fest, ob der Stripe-Button im Miniwarenkorb angezeigt werden soll.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentInfo">
+                <Value>
+                    Nach Abschluß der Bestellung werden Sie zu einem externen Zahlungsanbieter weitergeleitet, 
+                    auf dessen Seite Sie die Zahlung für Ihre Bestellung durchführen können.
+                </Value>
+            </LocaleResource>
+		</Children>
+	</LocaleResource>
+</Language>

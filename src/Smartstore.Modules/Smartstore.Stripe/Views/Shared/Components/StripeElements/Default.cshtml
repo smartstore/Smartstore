@@ -1,0 +1,57 @@
+﻿@model PublicStripeElementsModel
+
+<script src="@Url.Content("~/Modules/Smartstore.Stripe/smartstore.stripe.js")" sm-target-zone="scripts"></script>
+
+@if (Model.IsPaymentSelectionPage)
+{
+    <div class="media">
+        <img class="media-object img-fluid mr-3" src="@Url.Content("~/Modules/Smartstore.Stripe/branding.png")" />
+        <div class="media-body">
+            @Html.Raw(T("Plugins.Smartstore.Stripe.PaymentInfo"))
+        </div>
+    </div>
+
+    <div id="payment-element" class="mt-3" data-store-payment-selection-url="@Url.Action("StorePaymentMethodId", "Stripe")">
+        <!--Stripe.js injects the Payment Element-->
+    </div>
+
+    <script>
+        $(function () {
+            if (typeof Stripe !== 'undefined') {
+                Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@Model.ClientSecret');
+            }
+            else {
+                var script = document.getElementById("stripe-js");
+                script.onload = function () {
+                    Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@Model.ClientSecret');
+                };
+            }
+
+            Smartstore.Stripe.initPaymentSelectionPage('@Model.PublicApiKey');
+        });
+    </script>
+}
+else 
+{
+    <div id="payment-request-button" class="w-100" 
+        data-create-payment-intent-url="@Url.Action("CreatePaymentIntent", "Stripe")"
+        data-get-current-payment-request-url="@Url.Action("GetUpdatePaymentRequest", "Stripe")"
+        data-redirect-url="@Url.Action("BillingAddress", "Checkout", new { area = string.Empty })">
+        <!-- A Stripe Element will be inserted here. -->
+    </div>
+
+    <script>
+        $(function () {
+            var paymentRequest = @Html.Raw(Model.PaymentRequest);
+            if (typeof Stripe !== 'undefined') {
+                Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest);
+            } 
+            else {
+                var script = document.getElementById("stripe-js");
+                script.onload = function () {
+                    Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest);
+                };
+            }
+        });
+    </script>
+}

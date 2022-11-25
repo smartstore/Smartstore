@@ -1,0 +1,78 @@
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+	<LocaleResource Name="Plugins.FriendlyName.Smartstore.StripeElements" AppendRootKey="false">
+		<Value>Stripe Elements</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.StripeElements" AppendRootKey="false">
+		<Value>Extends the store with the payment functions of Stripe.</Value>
+	</LocaleResource>
+	
+	<!-- (Provider name) will be displayed in frontend on payment selection page and in backend on payment configuration list -->
+	<LocaleResource Name="Plugins.FriendlyName.Payments.StripeElements" AppendRootKey="false">
+		<Value>Jetzt Stripe </Value>
+	</LocaleResource>
+	<!-- (Provider description) will be displayed in frontend on payment selection page and in backend on payment configuration list -->
+	<LocaleResource Name="Plugins.Description.Payments.StripeElements" AppendRootKey="false">
+		<Value>Opens a secure payment window where the payment is made directly to Stripe.</Value>
+	</LocaleResource>
+	
+	<LocaleResource Name="Plugins.Smartstore.Stripe" AppendRootKey="false">
+		<Children>
+			<LocaleResource Name="AdminInstruction">
+				<Value>
+					<![CDATA[
+						To set up this plugin, specify your Stripe API key below.
+					]]>
+				</Value>
+			</LocaleResource>
+			
+			<LocaleResource Name="UseSandbox">
+				<Value>Use sandbox</Value>
+			</LocaleResource>
+			<LocaleResource Name="UseSandbox.Hint">
+				<Value>Specifies whether the payments are executed in the sandbox of the payment provider.</Value>
+			</LocaleResource>
+
+            <LocaleResource Name="CaptureMethod">
+                <Value>Capture method</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Hint">
+                <Value>Controls when the funds will be captured from the customer’s account.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Automatic">
+                <Value>Automatic</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Manual">
+                <Value>Manual</Value>
+            </LocaleResource>
+            
+            <LocaleResource Name="ApiKey">
+                <Value>API Key</Value>
+            </LocaleResource>
+            <LocaleResource Name="ApiKey.Hint">
+                <Value>Enter the API key here, which can be viewed in the Stripe dashboard.</Value>
+            </LocaleResource>
+			<LocaleResource Name="AdditionalFee">
+				<Value>Additional fee</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFee.Hint">
+				<Value>Enter additional fee to charge your customers.</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFeePercentage">
+				<Value>Additional fee. Use percentage</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFeePercentage.Hint">
+				<Value>Specifies whether to apply a percentage additional fee to the order total. If not enabled, a fixed value is used.</Value>
+			</LocaleResource>
+            <LocaleResource Name="ShowButtonInMiniShoppingCart">
+                <Value>Show button in mini shopping cart</Value>
+            </LocaleResource>
+            <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
+                <Value>Specifies whether to show the checkout button in the mini shopping cart.</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="PaymentInfo">
+                <Value>After completing the order you will be redirected to an external payment provider, where you can make the payment for your order.</Value>
+            </LocaleResource>
+		</Children>
+	</LocaleResource>
+</Language>

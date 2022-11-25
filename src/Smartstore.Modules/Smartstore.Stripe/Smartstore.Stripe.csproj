@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+	<PropertyGroup>
+		<Product>SmartStore AG Stripe</Product>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Stripe</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="wwwroot\smartstore.stripe.js" />
+	</ItemGroup>
+	<ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+            <Private>False</Private>
+            <CopyLocal>False</CopyLocal>
+            <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+        </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Stripe.net" Version="40.16.0" />
+    </ItemGroup>
+ </Project>
