@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.IO;
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
+using Smartstore.IO;
 using Smartstore.Web.Api.Models.Media;
 
 namespace Smartstore.Web.Api.Controllers.OData
@@ -12,23 +15,18 @@ namespace Smartstore.Web.Api.Controllers.OData
     // That's because a function like GET /MediaFiles/FileExists(Path='content/my-file.jpg') would never work (HTTP status 404).
 
     /// <summary>
-    /// The endpoint for operations on MediaFile entity. Returns type FileItemInfo which wraps and enriches MediaFile.
+    /// The endpoint for operations on MediaFile entity. Returns type FileItemInfo which enriches MediaFile.
     /// </summary>
     [ProducesResponseType(Status422UnprocessableEntity)]
     public class MediaFilesController : WebApiController<MediaFile>
     {
         private readonly IWebApiService _webApiService;
         private readonly IMediaService _mediaService;
-        private readonly IMediaSearcher _mediaSearcher;
 
-        public MediaFilesController(
-            IWebApiService webApiService,
-            IMediaService mediaService,
-            IMediaSearcher mediaSearcher)
+        public MediaFilesController(IWebApiService webApiService, IMediaService mediaService)
         {
             _webApiService = webApiService;
             _mediaService = mediaService;
-            _mediaSearcher = mediaSearcher;
         }
 
         [HttpGet]
@@ -37,11 +35,11 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             try
             {
-                var query = _mediaSearcher.ApplyLoadFlags(Entities.AsNoTracking(), GetLoadFlags(options));
+                //var query = _mediaSearcher.ApplyLoadFlags(Entities.AsNoTracking(), GetLoadFlags(options));
 
-                var result = Apply(options, query, new()
+                var result = Apply(options, Entities.AsNoTracking(), new()
                 {
-                    // "$select" not supported due to MediaFile -> MediaFileInfo conversion.
+                    // "$select" not supported due to MediaFile -> FileItemInfo conversion.
                     AllowedQueryOptions = AllowedQueryOptions.Supported & ~AllowedQueryOptions.Select
                 });
 
@@ -58,11 +56,11 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpGet]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
-        public async Task<IActionResult> Get(int key, ODataQueryOptions<MediaFile> options)
+        public async Task<IActionResult> Get(int key)
         {
             try
             {
-                var file = await _mediaService.GetFileByIdAsync(key, GetLoadFlags(options));
+                var file = await _mediaService.GetFileByIdAsync(key, MediaLoadFlags.AsNoTracking);
                 if (file == null)
                 {
                     return NotFound(key);
@@ -99,7 +97,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             // Insufficient endpoint. Parameters required but ODataActionParameters not possible here.
             // Query string parameters less good because not part of the EDM.
-            return Forbidden($"Use endpoint \"DeleteFile\" instead.");
+            return Forbidden($"Use endpoint \"{nameof(DeleteFile)}\" instead.");
         }
 
         #region Actions and functions
@@ -112,19 +110,17 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
-        public async Task<IActionResult> GetFileByPath([FromODataBody, Required] string path, ODataQueryOptions<MediaFile> options)
+        public async Task<IActionResult> GetFileByPath([FromODataBody, Required] string path)
         {
             try
             {
-                var file = await _mediaService.GetFileByPathAsync(path, GetLoadFlags(options));
+                var file = await _mediaService.GetFileByPathAsync(path, MediaLoadFlags.AsNoTracking);
                 if (file == null)
                 {
                     return NotFound($"Cannot find {nameof(MediaFile)} entity with path {path.NaIfEmpty()}.");
                 }
 
-                var convertedFile = Convert(file);
-
-                return Ok(convertedFile);
+                return Ok(Convert(file));
             }
             catch (Exception ex)
             {
@@ -132,362 +128,365 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
-        ///// <summary>
-        ///// Gets files by identifiers.
-        ///// </summary>
-        ///// <param name="ids" example="[1,2,3]">Comma separated list of MediaFile identifiers.</param>
-        //[HttpGet("MediaFiles/GetFilesByIds(ids={ids})")]
-        //[Produces(Json)]
-        //[ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
-        //public async Task<IActionResult> GetFilesByIds([FromODataUri, Required] int[] ids, ODataQueryOptions<MediaFile> options)
-        //{
-        //    if (ids.IsNullOrEmpty())
-        //    {
-        //        return Ok(Array.Empty<FileItemInfo>().AsQueryable());
-        //    }
+        /// <summary>
+        /// Gets files by identifiers.
+        /// </summary>
+        /// <param name="ids" example="[1,2,3]">Comma separated list of MediaFile identifiers.</param>
+        [HttpGet("MediaFiles/GetFilesByIds(ids={ids})")]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
+        public async Task<IActionResult> GetFilesByIds([FromODataUri, Required] int[] ids)
+        {
+            if (ids.IsNullOrEmpty())
+            {
+                return Ok(Array.Empty<FileItemInfo>().AsQueryable());
+            }
 
-        //    try
-        //    {
-        //        var files = await _mediaService.GetFilesByIdsAsync(ids.ToArray(), GetLoadFlags(options));
+            try
+            {
+                var files = await _mediaService.GetFilesByIdsAsync(ids.ToArray(), MediaLoadFlags.AsNoTracking);
 
-        //        return Ok(files.Select(x => Convert(x)));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+                return Ok(files.Select(x => Convert(x)));
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        ///// <summary>
-        ///// Downloads a file.
-        ///// </summary>
-        //[HttpGet("MediaFiles/DownloadFile(id={id})")]
-        //[ProducesResponseType(Status200OK)]
-        //[ProducesResponseType(Status404NotFound)]
-        //public async Task<IActionResult> DownloadFile(int id)
-        //{
-        //    var file = await _mediaService.GetFileByIdAsync(id, MediaLoadFlags.WithBlob);
-        //    if (file == null)
-        //    {
-        //        return NotFound(id);
-        //    }
+        /// <summary>
+        /// Downloads a file.
+        /// </summary>
+        [HttpGet("MediaFiles/DownloadFile(id={id})")]
+        [ProducesResponseType(Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        public async Task<IActionResult> DownloadFile(int id)
+        {
+            var file = await _mediaService.GetFileByIdAsync(id, MediaLoadFlags.WithBlob);
+            if (file == null)
+            {
+                return NotFound(id);
+            }
 
-        //    try
-        //    {
-        //        var stream = await file.OpenReadAsync();
+            try
+            {
+                var stream = await file.OpenReadAsync();
 
-        //        return File(stream, file.MimeType, PathUtility.SanitizeFileName(file.Name));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+                return File(stream, file.MimeType, PathUtility.SanitizeFileName(file.Name));
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        //// TODO: (mg) (core) produces ODataException: The property 'folderId' does not exist on type 'Smartstore.Core.Content.Media.MediaSearchQuery'.
-        //// Changing ODataMessageReaderSettings without any effect.
-        //// Probably MediaSearchQuery requires DataContractAttribute and DataMemberAttribute (see MediaFileInfo issue).
+        // TODO: (mg) (core) produces ODataException: The property 'folderId' does not exist on type 'Smartstore.Core.Content.Media.MediaSearchQuery'.
+        // Changing ODataMessageReaderSettings without any effect.
+        // Probably MediaSearchQuery requires DataContractAttribute and DataMemberAttribute (see FileItemInfo issue).
 
-        ///// <summary>
-        ///// Searches for files using filter criteria.
-        ///// </summary>
-        ///// <param name="query">The query that defines the search criteria.</param>
-        //[HttpPost("MediaFiles/SearchFiles")]
-        //[Consumes(Json), Produces(Json)]
-        //[ProducesResponseType(typeof(IEnumerable<MediaFileInfo>), Status200OK)]
-        //public async Task<IActionResult> SearchFiles([FromODataBody] MediaSearchQuery query)
-        //{
-        //    try
-        //    {
-        //        var state = _webApiService.GetState();
-        //        query ??= new() { PageSize = state.MaxTop };
-        //        query.PageSize = Math.Min(query.PageSize, state.MaxTop);
+        // TODO: (mg) (core) throws ODataErrorException: A node of type 'StartArray' was read from the JSON reader when trying to read the contents of
+        // the property 'Extensions'; however, a 'StartObject' node or 'PrimitiveValue' node with null value was expected.
 
-        //        var searchResult = await _mediaService.SearchFilesAsync(query, MediaLoadFlags.AsNoTracking);
-        //        var files = searchResult.Select(x => x);
+        /// <summary>
+        /// Searches for files using filter criteria.
+        /// </summary>
+        /// <param name="query">The query that defines the search criteria.</param>
+        [HttpPost("MediaFiles/SearchFiles")]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
+        public async Task<IActionResult> SearchFiles([FromODataBody] MediaSearchQuery query)
+        {
+            try
+            {
+                var state = _webApiService.GetState();
+                query ??= new() { PageSize = state.MaxTop };
+                query.PageSize = Math.Min(query.PageSize, state.MaxTop);
 
-        //        return Ok(files);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+                var searchResult = await _mediaService.SearchFilesAsync(query, MediaLoadFlags.AsNoTracking);
+                var files = searchResult.Select(x => Convert(x));
 
-        ///// <summary>
-        ///// Ges the number of files that match the filter criteria in query property.
-        ///// </summary>
-        ///// <param name="query">The query that defines the filter criteria.</param>
-        //[HttpPost("MediaFiles/CountFiles")]
-        //[Consumes(Json), Produces(Json)]
-        //[ProducesResponseType(typeof(int), Status200OK)]
-        //public async Task<IActionResult> CountFiles([FromODataBody] MediaSearchQuery query)
-        //{
-        //    try
-        //    {
-        //        var count = await _mediaService.CountFilesAsync(query ?? new MediaSearchQuery());
+                return Ok(files);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        //        return Ok(count);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+        /// <summary>
+        /// Ges the number of files that match the filter criteria in query property.
+        /// </summary>
+        /// <param name="query">The query that defines the filter criteria.</param>
+        [HttpPost("MediaFiles/CountFiles")]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(int), Status200OK)]
+        public async Task<IActionResult> CountFiles([FromODataBody] MediaSearchQuery query)
+        {
+            try
+            {
+                var count = await _mediaService.CountFilesAsync(query ?? new MediaSearchQuery());
 
-        ///// <summary>
-        ///// Gets the number of files that match filter criteria.
-        ///// </summary>
-        ///// <param name="filter">Filter criteria.</param>
-        //[HttpPost("MediaFiles/CountFilesGrouped")]
-        //[Consumes(Json), Produces(Json)]
-        //[ProducesResponseType(typeof(MediaCountResult), Status200OK)]
-        //public async Task<IActionResult> CountFilesGrouped([FromODataBody] MediaFilesFilter filter)
-        //{
-        //    try
-        //    {
-        //        var fc = await _mediaService.CountFilesGroupedAsync(filter ?? new MediaFilesFilter());
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        //        var result = new MediaCountResult
-        //        {
-        //            Total = fc.Total,
-        //            Trash = fc.Trash,
-        //            Unassigned = fc.Unassigned,
-        //            Transient = fc.Transient,
-        //            Orphan = fc.Orphan,
-        //            Folders = fc.Folders
-        //                .Select(x => new MediaCountResult.FolderCount
-        //                {
-        //                    FolderId = x.Key,
-        //                    Count = x.Value
-        //                })
-        //                .ToList()
-        //        };
+        /// <summary>
+        /// Gets the number of files that match filter criteria.
+        /// </summary>
+        /// <param name="filter">Filter criteria.</param>
+        [HttpPost("MediaFiles/CountFilesGrouped")]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(MediaCountResult), Status200OK)]
+        public async Task<IActionResult> CountFilesGrouped([FromODataBody] MediaFilesFilter filter)
+        {
+            try
+            {
+                var fc = await _mediaService.CountFilesGroupedAsync(filter ?? new MediaFilesFilter());
 
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+                var result = new MediaCountResult
+                {
+                    Total = fc.Total,
+                    Trash = fc.Trash,
+                    Unassigned = fc.Unassigned,
+                    Transient = fc.Transient,
+                    Orphan = fc.Orphan,
+                    Folders = fc.Folders
+                        .Select(x => new MediaCountResult.FolderCount
+                        {
+                            FolderId = x.Key,
+                            Count = x.Value
+                        })
+                        .ToList()
+                };
 
-        ///// <summary>
-        ///// Gets a value indicating whether a file exists.
-        ///// </summary>
-        ///// <param name="path" example="content/my-file.jpg">The path of the file.</param>
-        //[HttpPost("MediaFiles/FileExists")]
-        //[Consumes(Json), Produces(Json)]
-        //[ProducesResponseType(typeof(bool), Status200OK)]
-        //public async Task<IActionResult> FileExists([FromODataBody, Required] string path)
-        //{
-        //    try
-        //    {
-        //        var fileExists = await _mediaService.FileExistsAsync(path);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        //        return Ok(fileExists);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+        /// <summary>
+        /// Gets a value indicating whether a file exists.
+        /// </summary>
+        /// <param name="path" example="content/my-file.jpg">The path of the file.</param>
+        [HttpPost("MediaFiles/FileExists")]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(bool), Status200OK)]
+        public async Task<IActionResult> FileExists([FromODataBody, Required] string path)
+        {
+            try
+            {
+                var fileExists = await _mediaService.FileExistsAsync(path);
 
-        ///// <summary>
-        ///// Checks the uniqueness of a file name.
-        ///// </summary>
-        ///// <param name="path" example="content/my-file.jpg">The path of the file.</param>
-        //[HttpPost("MediaFiles/CheckUniqueFileName")]
-        //[Consumes(Json), Produces(Json)]
-        //[ProducesResponseType(typeof(CheckUniquenessResult), Status200OK)]
-        //public async Task<IActionResult> CheckUniqueFileName([FromODataBody, Required] string path)
-        //{
-        //    try
-        //    {
-        //        var success = (await _mediaService.CheckUniqueFileNameAsync(path)).Out(out var newPath);
+                return Ok(fileExists);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        //        return Ok(new CheckUniquenessResult
-        //        {
-        //            Result = success,
-        //            NewPath = newPath
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+        /// <summary>
+        /// Checks the uniqueness of a file name.
+        /// </summary>
+        /// <param name="path" example="content/my-file.jpg">The path of the file.</param>
+        [HttpPost("MediaFiles/CheckUniqueFileName")]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(CheckUniquenessResult), Status200OK)]
+        public async Task<IActionResult> CheckUniqueFileName([FromODataBody, Required] string path)
+        {
+            try
+            {
+                var success = (await _mediaService.CheckUniqueFileNameAsync(path)).Out(out var newPath);
 
-        ///// <summary>
-        ///// Moves a file.
-        ///// </summary>
-        ///// <param name="destinationFileName" example="content/updated-file-name.jpg">The destination file name.</param>
-        ///// <param name="duplicateFileHandling" example="0">A value indicating how to proceed if the destination file already exists.</param>
-        //[HttpPost("MediaFiles({key})/MoveFile")]
-        //[Permission(Permissions.Media.Update)]
-        //[Consumes(Json), Produces(Json)]
-        //[ProducesResponseType(typeof(MediaFileInfo), Status200OK)]
-        //[ProducesResponseType(Status404NotFound)]
-        //public async Task<IActionResult> MoveFile(int key,
-        //    [FromODataBody, Required] string destinationFileName,
-        //    [FromODataBody] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
-        //{
-        //    try
-        //    {
-        //        var file = await _mediaService.GetFileByIdAsync(key);
-        //        if (file == null)
-        //        {
-        //            return NotFound(key);
-        //        }
+                return Ok(new CheckUniquenessResult
+                {
+                    Result = success,
+                    NewPath = newPath
+                });
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        //        var movedFile = await _mediaService.MoveFileAsync(file.File, destinationFileName, duplicateFileHandling);
+        /// <summary>
+        /// Moves a file.
+        /// </summary>
+        /// <param name="destinationFileName" example="content/updated-file-name.jpg">The destination file name.</param>
+        /// <param name="duplicateFileHandling" example="0">A value indicating how to proceed if the destination file already exists.</param>
+        [HttpPost("MediaFiles({key})/MoveFile")]
+        [Permission(Permissions.Media.Update)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        public async Task<IActionResult> MoveFile(int key,
+            [FromODataBody, Required] string destinationFileName,
+            [FromODataBody] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
+        {
+            try
+            {
+                var file = await _mediaService.GetFileByIdAsync(key);
+                if (file == null)
+                {
+                    return NotFound(key);
+                }
 
-        //        return Ok(movedFile);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+                var movedFile = await _mediaService.MoveFileAsync(file.File, destinationFileName, duplicateFileHandling);
 
-        ///// <summary>
-        ///// Copies a file.
-        ///// </summary>
-        ///// <param name="destinationFileName" example="content/new-file.jpg">The destination file name.</param>
-        ///// <param name="duplicateFileHandling" example="0">A value indicating how to proceed if the destination file already exists.</param>
-        //[HttpPost("MediaFiles({key})/CopyFile")]
-        //[Permission(Permissions.Media.Update)]
-        //[Consumes(Json), Produces(Json)]
-        //[ProducesResponseType(typeof(MediaFileOperationResult), Status200OK)]
-        //[ProducesResponseType(Status404NotFound)]
-        //public async Task<IActionResult> CopyFile(int key,
-        //    [FromODataBody, Required] string destinationFileName,
-        //    [FromODataBody] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
-        //{
-        //    try
-        //    {
-        //        var file = await _mediaService.GetFileByIdAsync(key);
-        //        if (file == null)
-        //        {
-        //            return NotFound(key);
-        //        }
+                return Ok(Convert(movedFile));
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        //        var copiedFile = await _mediaService.CopyFileAsync(file, destinationFileName, duplicateFileHandling);
+        /// <summary>
+        /// Copies a file.
+        /// </summary>
+        /// <param name="destinationFileName" example="content/new-file.jpg">The destination file name.</param>
+        /// <param name="duplicateFileHandling" example="0">A value indicating how to proceed if the destination file already exists.</param>
+        [HttpPost("MediaFiles({key})/CopyFile")]
+        [Permission(Permissions.Media.Update)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(MediaFileOperationResult), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        public async Task<IActionResult> CopyFile(int key,
+            [FromODataBody, Required] string destinationFileName,
+            [FromODataBody] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
+        {
+            try
+            {
+                var file = await _mediaService.GetFileByIdAsync(key);
+                if (file == null)
+                {
+                    return NotFound(key);
+                }
 
-        //        var result = new MediaFileOperationResult
-        //        {
-        //            DestinationFileId = copiedFile.DestinationFile.Id,
-        //            IsDuplicate = copiedFile.IsDuplicate,
-        //            UniquePath = copiedFile.UniquePath,
-        //            //DestinationFile = Convert(copiedFile.DestinationFile),
-        //        };
+                var copiedFile = await _mediaService.CopyFileAsync(file, destinationFileName, duplicateFileHandling);
 
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+                var result = new MediaFileOperationResult
+                {
+                    DestinationFileId = copiedFile.DestinationFile.Id,
+                    IsDuplicate = copiedFile.IsDuplicate,
+                    UniquePath = copiedFile.UniquePath,
+                    //DestinationFile = Convert(copiedFile.DestinationFile),
+                };
 
-        ///// <summary>
-        ///// Deletes a file.
-        ///// </summary>
-        ///// <param name="permanent" example="false">A value indicating whether to permanently delete the file.</param>
-        ///// <param name="force" example="false">A value indicating whether to delete the file if it is referenced by another entity.</param>
-        //[HttpPost("MediaFiles({key})/DeleteFile")]
-        //[Permission(Permissions.Media.Delete)]
-        //[Consumes(Json), Produces(Json)]
-        //[ProducesResponseType(Status204NoContent)]
-        //[ProducesResponseType(Status404NotFound)]
-        //public async Task<IActionResult> DeleteFile(int key,
-        //    [FromODataBody, Required] bool permanent,
-        //    [FromODataBody] bool force = false)
-        //{
-        //    try
-        //    {
-        //        var file = await _mediaService.GetFileByIdAsync(key);
-        //        if (file == null)
-        //        {
-        //            return NotFound(key);
-        //        }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        //        await _mediaService.DeleteFileAsync(file.File, permanent, force);
+        /// <summary>
+        /// Deletes a file.
+        /// </summary>
+        /// <param name="permanent" example="false">A value indicating whether to permanently delete the file.</param>
+        /// <param name="force" example="false">A value indicating whether to delete the file if it is referenced by another entity.</param>
+        [HttpPost("MediaFiles({key})/DeleteFile")]
+        [Permission(Permissions.Media.Delete)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(Status204NoContent)]
+        [ProducesResponseType(Status404NotFound)]
+        public async Task<IActionResult> DeleteFile(int key,
+            [FromODataBody, Required] bool permanent,
+            [FromODataBody] bool force = false)
+        {
+            try
+            {
+                var file = await _mediaService.GetFileByIdAsync(key);
+                if (file == null)
+                {
+                    return NotFound(key);
+                }
 
-        //        return NoContent();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+                await _mediaService.DeleteFileAsync(file.File, permanent, force);
 
-        //// INFO: bug in Swashbuckle 6.4.0: code comments of parameters decorated with "FromFormAttribute" do not show up in Swagger.
-        //// https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2519
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
-        ///// <summary>
-        ///// Saves a file.
-        ///// </summary>
-        ///// <param name="file">The file to be saved.</param>
-        ///// <param name="path" example="file/my-file.jpg">The path of the file.</param>
-        ///// <param name="isTransient" example="true">A value indicating whether the file is transient/preliminary.</param>
-        ///// <param name="duplicateFileHandling">A value of indicating how to proceed if the uploaded file already exists.</param>
-        //[HttpPost("MediaFiles/SaveFile")]
-        //[Permission(Permissions.Media.Upload)]
-        //[Consumes("multipart/form-data"), Produces(Json)]
-        //[ProducesResponseType(typeof(MediaFileInfo), Status200OK)]
-        //[ProducesResponseType(Status415UnsupportedMediaType)]
-        //public async Task<IActionResult> SaveFile(
-        //    [Required] IFormFile file,
-        //    [FromForm] string path,
-        //    [FromForm] bool isTransient = true,
-        //    [FromForm] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
-        //{
-        //    if (Request.ContentType.IsEmpty() || !Request.ContentType.StartsWithNoCase("multipart/"))
-        //    {
-        //        return StatusCode(Status415UnsupportedMediaType);
-        //    }
+        // INFO: bug in Swashbuckle 6.4.0: code comments of parameters decorated with "FromFormAttribute" do not show up in Swagger.
+        // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2519
 
-        //    try
-        //    {
-        //        if (Request.Form.Files.Count == 0)
-        //        {
-        //            return BadRequest("Missing multipart file data.");
-        //        }
-        //        if (Request.Form.Files.Count > 1)
-        //        {
-        //            return BadRequest("Send one file per request, not multiple.");
-        //        }
+        /// <summary>
+        /// Saves a file.
+        /// </summary>
+        /// <param name="file">The file to be saved.</param>
+        /// <param name="path" example="file/my-file.jpg">The path of the file.</param>
+        /// <param name="isTransient" example="true">A value indicating whether the file is transient/preliminary.</param>
+        /// <param name="duplicateFileHandling">A value of indicating how to proceed if the uploaded file already exists.</param>
+        [HttpPost("MediaFiles/SaveFile")]
+        [Permission(Permissions.Media.Upload)]
+        [Consumes("multipart/form-data"), Produces(Json)]
+        [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
+        [ProducesResponseType(Status415UnsupportedMediaType)]
+        public async Task<IActionResult> SaveFile(
+            [Required] IFormFile file,
+            [FromForm] string path,
+            [FromForm] bool isTransient = true,
+            [FromForm] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
+        {
+            if (Request.ContentType.IsEmpty() || !Request.ContentType.StartsWithNoCase("multipart/"))
+            {
+                return StatusCode(Status415UnsupportedMediaType);
+            }
 
-        //        file ??= Request.Form.Files[0];
+            try
+            {
+                if (Request.Form.Files.Count == 0)
+                {
+                    return BadRequest("Missing multipart file data.");
+                }
+                if (Request.Form.Files.Count > 1)
+                {
+                    return BadRequest("Send one file per request, not multiple.");
+                }
 
-        //        if (file.ContentDisposition.IsEmpty())
-        //        {
-        //            return BadRequest("Missing file parameters in content-disposition header.");
-        //        }
+                file ??= Request.Form.Files[0];
 
-        //        // Content disposition header values take precedence over form values.
-        //        var cd = ContentDispositionHeaderValue.Parse(file.ContentDisposition);
+                if (file.ContentDisposition.IsEmpty())
+                {
+                    return BadRequest("Missing file parameters in content-disposition header.");
+                }
 
-        //        isTransient = cd.GetParameterValue("isTransient", isTransient);
-        //        path = cd.GetParameterValue("path", path.NullEmpty() ?? $"{SystemAlbumProvider.Files}/{Path.GetFileName(file.FileName)}");
+                // Content disposition header values take precedence over form values.
+                var cd = ContentDispositionHeaderValue.Parse(file.ContentDisposition);
 
-        //        var rawDuplicateFileHandling = cd.GetParameterValue<string>("duplicateFileHandling");
-        //        if (Enum.TryParse<DuplicateFileHandling>(rawDuplicateFileHandling.EmptyNull(), out var tmp))
-        //        {
-        //            duplicateFileHandling = tmp;
-        //        }
+                isTransient = cd.GetParameterValue("isTransient", isTransient);
+                path = cd.GetParameterValue("path", path.NullEmpty() ?? $"{SystemAlbumProvider.Files}/{Path.GetFileName(file.FileName)}");
 
-        //        using var stream = file.OpenReadStream();
-        //        var savedFile = await _mediaService.SaveFileAsync(path, stream, isTransient, duplicateFileHandling);
+                var rawDuplicateFileHandling = cd.GetParameterValue<string>("duplicateFileHandling");
+                if (Enum.TryParse<DuplicateFileHandling>(rawDuplicateFileHandling.EmptyNull(), out var tmp))
+                {
+                    duplicateFileHandling = tmp;
+                }
 
-        //        return Ok(savedFile);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ErrorResult(ex);
-        //    }
-        //}
+                using var stream = file.OpenReadStream();
+                var savedFile = await _mediaService.SaveFileAsync(path, stream, isTransient, duplicateFileHandling);
+
+                return Ok(Convert(savedFile));
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
 
         #endregion
 
@@ -498,32 +497,31 @@ namespace Smartstore.Web.Api.Controllers.OData
                 return null;
             }
 
-            var result = MiniMapper.Map<MediaFileInfo, FileItemInfo>(file, CultureInfo.InvariantCulture);
-            return result;
+            return MiniMapper.Map<MediaFileInfo, FileItemInfo>(file, CultureInfo.InvariantCulture);
         }
 
-        private static MediaLoadFlags GetLoadFlags(ODataQueryOptions<MediaFile> options)
-        {
-            var flags = MediaLoadFlags.AsNoTracking;
-            var expand = options?.SelectExpand?.RawExpand;
+        //private static MediaLoadFlags GetLoadFlags(ODataQueryOptions<MediaFile> options)
+        //{
+        //    var flags = MediaLoadFlags.AsNoTracking;
+        //    var expand = options?.SelectExpand?.RawExpand;
 
-            if (expand.HasValue())
-            {
-                if (expand.ContainsNoCase(nameof(MediaFile.Folder)))
-                {
-                    flags |= MediaLoadFlags.WithFolder;
-                }
-                if (expand.ContainsNoCase(nameof(MediaFile.Tracks)))
-                {
-                    flags |= MediaLoadFlags.WithTracks;
-                }
-                if (expand.ContainsNoCase(nameof(MediaFile.Tags)))
-                {
-                    flags |= MediaLoadFlags.WithTags;
-                }
-            }
+        //    if (expand.HasValue())
+        //    {
+        //        if (expand.ContainsNoCase(nameof(MediaFile.Folder)))
+        //        {
+        //            flags |= MediaLoadFlags.WithFolder;
+        //        }
+        //        if (expand.ContainsNoCase(nameof(MediaFile.Tracks)))
+        //        {
+        //            flags |= MediaLoadFlags.WithTracks;
+        //        }
+        //        if (expand.ContainsNoCase(nameof(MediaFile.Tags)))
+        //        {
+        //            flags |= MediaLoadFlags.WithTags;
+        //        }
+        //    }
 
-            return flags;
-        }
+        //    return flags;
+        //}
     }
 }

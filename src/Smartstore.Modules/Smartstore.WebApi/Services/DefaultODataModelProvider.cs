@@ -97,101 +97,87 @@ namespace Smartstore.Web.Api
             var set = builder.EntitySet<MediaFile>("MediaFiles");
             var config = set.EntityType.Collection;
 
-            var infoSet = builder.EntitySet<FileItemInfo>("FileItemInfos");
-            infoSet.EntityType.HasKey(x => x.FileId);
-            infoSet.EntityType.HasRequired(x => x.File).AutomaticallyExpand(true);
-            infoSet.HasRequiredBinding(x => x.File, set);
-
-            //builder.StructuralTypes.First(x => x.ClrType == typeof(FileItemInfo))
-            //    .AddProperty(typeof(FileItemInfo).GetProperty(nameof(FileItemInfo.File)));
-
-            //var info = builder.ComplexType<FileItemInfo>();
-            //info.Property(x => x.File);
-            //info.Expand(8, SelectExpandType.Automatic, "File");
+            //var infoSet = builder.EntitySet<FileItemInfo>("FileItemInfos");
+            //infoSet.EntityType.HasKey(x => x.Id);
+            //infoSet.EntityType.HasRequired(x => x.File).AutomaticallyExpand(true);
+            //infoSet.HasRequiredBinding(x => x.File, set);
 
             config.Action(nameof(MediaFilesController.GetFileByPath))
-                //.Returns<FileItemInfo>()
-                .ReturnsFromEntitySet(infoSet)
+                .Returns<FileItemInfo>()
                 .Parameter<string>("path")
                 .Required();
 
-            //config.Function(nameof(MediaFilesController.GetFilesByIds))
-            //    .ReturnsCollection<MediaFileInfo>()
-            //    //.ReturnsCollectionFromEntitySet<MediaFileInfo>(infoSet.EntityType.Name)
-            //    .CollectionParameter<int>("ids")
-            //    .Required();
+            config.Function(nameof(MediaFilesController.GetFilesByIds))
+                .ReturnsCollection<FileItemInfo>()
+                .CollectionParameter<int>("ids")
+                .Required();
 
-            //config.Function(nameof(MediaFilesController.DownloadFile))
-            //    .Returns<StreamContent>()
-            //    .Parameter<int>("id")
-            //    .Required();
+            config.Function(nameof(MediaFilesController.DownloadFile))
+                .Returns<StreamContent>()
+                .Parameter<int>("id")
+                .Required();
 
-            //config.Action(nameof(MediaFilesController.SearchFiles))
-            //    .ReturnsCollection<MediaFileInfo>()
-            //    //.ReturnsCollectionFromEntitySet<MediaFileInfo>(infoSet.EntityType.Name)
-            //    .Parameter<MediaSearchQuery>("query")
-            //    .Optional();
+            config.Action(nameof(MediaFilesController.SearchFiles))
+                .ReturnsCollection<FileItemInfo>()
+                .Parameter<MediaSearchQuery>("query")
+                .Optional();
 
-            //config.Action(nameof(MediaFilesController.CountFiles))
-            //    .Returns<int>()
-            //    .Parameter<MediaSearchQuery>("query")
-            //    .Optional();
+            config.Action(nameof(MediaFilesController.CountFiles))
+                .Returns<int>()
+                .Parameter<MediaSearchQuery>("query")
+                .Optional();
 
-            //config.Action(nameof(MediaFilesController.CountFilesGrouped))
-            //    .Returns<MediaCountResult>()
-            //    .Parameter<MediaFilesFilter>("filter")
-            //    .Optional();
+            config.Action(nameof(MediaFilesController.CountFilesGrouped))
+                .Returns<MediaCountResult>()
+                .Parameter<MediaFilesFilter>("filter")
+                .Optional();
 
-            //config.Action(nameof(MediaFilesController.FileExists))
-            //    .Returns<bool>()
-            //    .Parameter<string>("path")
-            //    .Required();
+            config.Action(nameof(MediaFilesController.FileExists))
+                .Returns<bool>()
+                .Parameter<string>("path")
+                .Required();
 
-            //config.Action(nameof(MediaFilesController.CheckUniqueFileName))
-            //    .Returns<CheckUniquenessResult>()
-            //    .Parameter<string>("path")
-            //    .Required();
+            config.Action(nameof(MediaFilesController.CheckUniqueFileName))
+                .Returns<CheckUniquenessResult>()
+                .Parameter<string>("path")
+                .Required();
 
-            //var moveFile = set.EntityType
-            //    .Action(nameof(MediaFilesController.MoveFile))
-            //    .Returns<MediaFileInfo>();
+            var moveFile = set.EntityType
+                .Action(nameof(MediaFilesController.MoveFile))
+                .Returns<FileItemInfo>();
+            moveFile.Parameter<string>("destinationFileName")
+                .Required();
+            moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
+                .Optional();
 
-            //moveFile.Parameter<string>("destinationFileName")
-            //    .Required();
-            //moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
-            //    .Optional();
+            var copyFile = set.EntityType
+                .Action(nameof(MediaFilesController.CopyFile))
+                .Returns<MediaFileOperationResult>();
+            copyFile.Parameter<string>("destinationFileName")
+                .Required();
+            copyFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
+                .Optional();
 
-            //var copyFile = set.EntityType
-            //    .Action(nameof(MediaFilesController.CopyFile))
-            //    .Returns<MediaFileOperationResult>();
+            var deleteFile = set.EntityType
+                .Action(nameof(MediaFilesController.DeleteFile));
+            deleteFile.Parameter<bool>("permanent")
+                .Required();
+            deleteFile.Parameter<bool>("force")
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
 
-            //copyFile.Parameter<string>("destinationFileName")
-            //    .Required();
-            //copyFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
-            //    .Optional();
-
-            //var deleteFile = set.EntityType
-            //    .Action(nameof(MediaFilesController.DeleteFile));
-
-            //deleteFile.Parameter<bool>("permanent")
-            //    .Required();
-            //deleteFile.Parameter<bool>("force")
-            //    .HasDefaultValue(bool.FalseString)
-            //    .Optional();
-
-            //var saveFile = config
-            //    .Action(nameof(MediaFilesController.SaveFile))
-            //    .Returns<MediaFileInfo>();
-
-            //saveFile.Parameter<IFormFile>("file")
-            //    .Required();
-            //saveFile.Parameter<string>("path")
-            //    .Optional();
-            //saveFile.Parameter<bool>("isTransient")
-            //    .HasDefaultValue(bool.TrueString)
-            //    .Optional();
-            //saveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
-            //    .Optional();
+            var saveFile = config
+                .Action(nameof(MediaFilesController.SaveFile))
+                .Returns<FileItemInfo>();
+            saveFile.Parameter<IFormFile>("file")
+                .Required();
+            saveFile.Parameter<string>("path")
+                .Optional();
+            saveFile.Parameter<bool>("isTransient")
+                .HasDefaultValue(bool.TrueString)
+                .Optional();
+            saveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
+                .Optional();
         }
 
         private static void BuildMediaFolders(ODataModelBuilder builder)
