@@ -45,6 +45,11 @@
         public int DbContextPoolSize { get; set; } = 1024;
 
         /// <summary>
+        /// The default schema to use for database objects. Set <c>null</c> to use database default schema (e.g. "dbo").
+        /// </summary>
+        public string DbDefaultSchema { get; set; }
+
+        /// <summary>
         /// Storage path for media files and assets like thumbs, uploads, email attachments etc.
         /// Must be either an app local relative path or a fully qualified physical path to a shared location. E.g.:
         ///     - "Media" or "/Media" points to the subfolder named "Media" in your application root

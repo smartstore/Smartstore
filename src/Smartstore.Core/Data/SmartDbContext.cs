@@ -43,6 +43,11 @@ namespace Smartstore.Core.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var options = this.Options.FindExtension<DbFactoryOptionsExtension>();
+            
+            if (options.DefaultSchema.HasValue())
+            {
+                modelBuilder.HasDefaultSchema(options.DefaultSchema);
+            }
 
             CreateModel(modelBuilder, options.ModelAssemblies);
 

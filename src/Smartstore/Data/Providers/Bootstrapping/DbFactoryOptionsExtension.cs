@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿#nullable enable
+
+using System.Reflection;
 using AngleSharp.Common;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +13,16 @@ namespace Smartstore.Data.Providers
 {
     public class DbFactoryOptionsExtension : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
         private DbContextOptions _options;
 
         public DbFactoryOptionsExtension(DbContextOptions options)
         {
             _options = options;
+            
             var appConfig = EngineContext.Current.Application.Services.ResolveOptional<SmartConfiguration>();
-            if (appConfig?.DbCommandTimeout != null)
-            {
-                CommandTimeout = appConfig.DbCommandTimeout.Value;
-            }
+            CommandTimeout = appConfig?.DbCommandTimeout;
+            DefaultSchema = appConfig?.DbDefaultSchema.NullEmpty();
         }
 
         protected DbFactoryOptionsExtension(DbFactoryOptionsExtension copyFrom)
@@ -114,7 +115,15 @@ namespace Smartstore.Data.Providers
             return clone;
         }
 
-        public IEnumerable<Assembly> ModelAssemblies { get; private set; }
+        public string? DefaultSchema { get; private set; }
+        public DbFactoryOptionsExtension WithDefaultSchema(string? schema)
+        {
+            var clone = Clone();
+            clone.DefaultSchema = schema;
+            return clone;
+        }
+
+        public IEnumerable<Assembly> ModelAssemblies { get; private set; } = default!;
         public DbFactoryOptionsExtension WithModelAssemblies(IEnumerable<Assembly> assemblies)
         {
             Guard.NotNull(assemblies, nameof(assemblies));
@@ -126,7 +135,7 @@ namespace Smartstore.Data.Providers
             return clone;
         }
 
-        public IEnumerable<Type> DataSeederTypes { get; private set; }
+        public IEnumerable<Type> DataSeederTypes { get; private set; } = default!;
         public DbFactoryOptionsExtension WithDataSeeder<TContext, TSeeder>()
             where TContext : HookingDbContext
             where TSeeder : IDataSeeder<TContext>, new()
@@ -160,7 +169,7 @@ namespace Smartstore.Data.Providers
             private new DbFactoryOptionsExtension Extension
                 => (DbFactoryOptionsExtension)base.Extension;
 
-            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo? other)
             {
                 return other is ExtensionInfo otherInfo
                     && Extension.CommandTimeout == otherInfo.Extension.CommandTimeout
@@ -168,6 +177,7 @@ namespace Smartstore.Data.Providers
                     && Extension.MaxBatchSize == otherInfo.Extension.MaxBatchSize
                     && Extension.UseRelationalNulls == otherInfo.Extension.UseRelationalNulls
                     && Extension.QuerySplittingBehavior == otherInfo.Extension.QuerySplittingBehavior
+                    && Extension.DefaultSchema == otherInfo.Extension.DefaultSchema
                     && (Extension.ModelAssemblies == otherInfo.Extension.ModelAssemblies || Extension.ModelAssemblies.SequenceEqual(otherInfo.Extension.ModelAssemblies))
                     && (Extension.DataSeederTypes == otherInfo.Extension.DataSeederTypes || Extension.DataSeederTypes.SequenceEqual(otherInfo.Extension.DataSeederTypes));
             }
@@ -182,6 +192,11 @@ namespace Smartstore.Data.Providers
                     hashCode.Add(Extension.MaxBatchSize);
                     hashCode.Add(Extension.UseRelationalNulls);
                     hashCode.Add(Extension.QuerySplittingBehavior);
+
+                    if (Extension.DefaultSchema != null)
+                    {
+                        hashCode.Add(Extension.DefaultSchema);
+                    }
 
                     if (Extension.ModelAssemblies != null)
                     {
