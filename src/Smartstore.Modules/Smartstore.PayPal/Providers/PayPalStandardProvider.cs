@@ -114,6 +114,8 @@ namespace Smartstore.PayPal.Providers
 
                 request.Order.GenericAttributes.Set("Payments.PayPalStandard.RefundId", refundIds);
                 await _db.SaveChangesAsync();
+
+                result.NewPaymentStatus = request.IsPartialRefund ? PaymentStatus.PartiallyRefunded : PaymentStatus.Refunded;
             }
 
             return result;

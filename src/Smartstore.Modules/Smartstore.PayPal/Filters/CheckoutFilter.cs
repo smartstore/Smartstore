@@ -91,7 +91,10 @@ namespace Smartstore.PayPal.Filters
                 {
                     session.TrySetObject("OrderPaymentInfo", new ProcessPaymentRequest
                     {
-                        PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId")
+                        PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId"),
+                        StoreId = _services.StoreContext.CurrentStore.Id,
+                        CustomerId = _services.WorkContext.CurrentCustomer.Id,
+                        PaymentMethodSystemName = "Payments.PayPalStandard"
                     });
                 };
 
