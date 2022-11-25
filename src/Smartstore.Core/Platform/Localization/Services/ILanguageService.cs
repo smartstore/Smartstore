@@ -6,6 +6,12 @@
     public partial interface ILanguageService
     {
         /// <summary>
+        /// Determines whether the given (or current) store has multiple active languages.
+        /// </summary>
+        /// <param name="storeId">The store id</param>
+        bool IsMultiLanguageEnvironment(int storeId = 0);
+
+        /// <summary>
         /// Gets all (cached) languages.
         /// </summary>
         /// <param name="includeHidden">A value indicating whether to include hidden records</param>

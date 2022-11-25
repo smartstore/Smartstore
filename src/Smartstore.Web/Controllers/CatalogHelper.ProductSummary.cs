@@ -202,14 +202,13 @@ namespace Smartstore.Web.Controllers
                 var allowWishlist = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
                 var cachedBrandModels = new Dictionary<int, BrandOverviewModel>();
                 var prefetchTranslations = settings.PrefetchTranslations == true || (settings.PrefetchTranslations == null && _performanceSettings.AlwaysPrefetchTranslations);
+                prefetchTranslations = prefetchTranslations && _isMultiLanguageEnvironment;
                 var prefetchSlugs = settings.PrefetchUrlSlugs == true || (settings.PrefetchUrlSlugs == null && _performanceSettings.AlwaysPrefetchUrlSlugs);
                 var allProductIds = prefetchSlugs || prefetchTranslations ? products.Select(x => x.Id).ToArray() : Array.Empty<int>();
-
-                //var productIds = products.Select(x => x.Id).ToArray();
-
+                
                 string taxInfo = T(calculationOptions.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT");
                 var legalInfo = string.Empty;
-
+                
                 var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "Products.CallForPrice", T("Products.CallForPrice") },
@@ -244,7 +243,11 @@ namespace Smartstore.Web.Controllers
 
                 if (settings.MapPrices)
                 {
-                    await batchContext.AppliedDiscounts.LoadAllAsync();
+                    if (!_priceSettings.IgnoreDiscounts)
+                    {
+                        await batchContext.AppliedDiscounts.LoadAllAsync();
+                    }
+                    
                     await batchContext.TierPrices.LoadAllAsync();
                 }
 

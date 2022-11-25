@@ -95,6 +95,20 @@ namespace Smartstore.Core.Localization
 
         #region ILanguageService
 
+        public virtual bool IsMultiLanguageEnvironment(int storeId = 0)
+        {
+            if (storeId <= 0)
+                storeId = _storeContext.CurrentStore.Id;
+
+            var map = GetStoreLanguageMap();
+            if (map.ContainsKey(storeId))
+            {
+                return map[storeId].Count > 1;
+            }
+
+            return false;
+        }
+
         public virtual List<Language> GetAllLanguages(bool includeHidden = false, int storeId = 0, bool tracked = false)
         {
             return _db.Languages

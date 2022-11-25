@@ -64,6 +64,7 @@ namespace Smartstore.Web.Controllers
         private readonly ILinkResolver _linkResolver;
         private readonly ContactDataSettings _contactDataSettings;
         private readonly IProductTagService _productTagService;
+        private readonly bool _isMultiLanguageEnvironment;
 
         public CatalogHelper(
             SmartDbContext db,
@@ -97,7 +98,8 @@ namespace Smartstore.Web.Controllers
             IUrlService urlService,
             ILinkResolver linkResolver,
             ContactDataSettings contactDataSettings,
-            IProductTagService productTagService)
+            IProductTagService productTagService,
+            ILanguageService languageService)
         {
             _db = db;
             _services = services;
@@ -135,6 +137,7 @@ namespace Smartstore.Web.Controllers
             _httpRequest = _urlHelper.ActionContext.HttpContext.Request;
             _contactDataSettings = contactDataSettings;
             _productTagService = productTagService;
+            _isMultiLanguageEnvironment = languageService.IsMultiLanguageEnvironment();
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;

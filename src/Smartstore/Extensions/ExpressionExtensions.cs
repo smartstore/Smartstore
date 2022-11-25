@@ -51,12 +51,12 @@ namespace Smartstore
             this Expression<Func<T, TProp>> expression,
             PropertyCachingStrategy cachingStrategy = PropertyCachingStrategy.Cached)
         {
-            if (!(expression.Body is MemberExpression member))
+            if (expression.Body is not MemberExpression member)
             {
                 throw new ArgumentException($"Expression body must refer to a property.", nameof(expression));
             }
 
-            if (!(member.Member is PropertyInfo pi))
+            if (member.Member is not PropertyInfo pi)
             {
                 throw new ArgumentException($"Expression body member must refer to a property.", nameof(expression));
             }
