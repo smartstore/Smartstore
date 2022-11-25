@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
-using Smartstore.ComponentModel;
 using Smartstore.Data.Caching.Internal;
 
 namespace Smartstore.Data.Caching
@@ -163,7 +162,7 @@ namespace Smartstore.Data.Caching
             }
 
             var cachingResultType = typeof(CachingResult<,>).MakeGenericType(typeof(TResult), visitor.ElementType);
-            var cachingResult = (CachingResult<TResult>)FastActivator.CreateInstance(cachingResultType, expression, visitor);
+            var cachingResult = (CachingResult<TResult>)Activator.CreateInstance(cachingResultType, expression, visitor);
 
             cachingResult.CacheKey = _queryKeyGenerator.GenerateQueryKey(expression, policy);
             cachingResult.CacheEntry = _cache.Get(cachingResult.CacheKey, policy);

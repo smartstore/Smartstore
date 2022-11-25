@@ -4,13 +4,12 @@ using System.Runtime.CompilerServices;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Smartstore.ComponentModel;
 
 namespace Smartstore
 {
     public static class IServiceProviderExtensions
     {
-        private readonly static ConcurrentDictionary<Type, FastActivator> _cachedActivators = new ConcurrentDictionary<Type, FastActivator>();
+        private readonly static ConcurrentDictionary<Type, (ConstructorInfo, Type[])> _cachedActivators = new ConcurrentDictionary<Type, (ConstructorInfo, Type[])>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ILifetimeScope AsLifetimeScope(this IServiceProvider serviceProvider)
@@ -35,23 +34,26 @@ namespace Smartstore
                     var parameterTypes = constructor.GetParameters().Select(p => p.ParameterType).ToArray();
                     if (TryResolveAll(scope, parameterTypes, out parameterInstances))
                     {
-                        return new FastActivator(constructor);
+                        return (constructor, parameterTypes);
                     }
                 }
-
-                return null;
+                
+                return (null, null);
             });
 
-            if (activator != null)
+            if (activator.Item1 != null)
             {
+                var ctor = activator.Item1;
+                var parameterTypes = activator.Item2;
+
                 if (parameterInstances == null)
                 {
-                    TryResolveAll(scope, activator.ParameterTypes, out parameterInstances);
+                    TryResolveAll(scope, parameterTypes, out parameterInstances);
                 }
 
                 if (parameterInstances != null)
                 {
-                    return activator.Activate(parameterInstances);
+                    return ctor.Invoke(parameterInstances);
                 }
             }
 

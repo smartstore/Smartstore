@@ -1,9 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.AspNetCore.Http;
-using Smartstore.ComponentModel;
 
 namespace Smartstore.Engine
 {
@@ -12,7 +10,6 @@ namespace Smartstore.Engine
         private readonly ILifetimeScopeAccessor _scopeAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILifetimeScope _rootContainer;
-        private readonly ConcurrentDictionary<Type, FastActivator> _cachedActivators = new ConcurrentDictionary<Type, FastActivator>();
 
         public ScopedServiceContainer(ILifetimeScopeAccessor scopeAccessor, IHttpContextAccessor httpContextAccessor, ILifetimeScope rootContainer)
         {
