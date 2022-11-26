@@ -9,10 +9,10 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 {
     public partial class ProductVariantQueryFactory : IProductVariantQueryFactory
     {
-        internal static readonly Regex IsVariantKey = new(@"pvari[0-9]+-[0-9]+-[0-9]+-[0-9]+", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        internal static readonly Regex IsVariantAliasKey = new(@"\w+-[0-9]+-[0-9]+-[0-9]+", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        internal static readonly Regex IsGiftCardKey = new(@"giftcard[0-9]+-[0-9]+-\.\w+$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        internal static readonly Regex IsCheckoutAttributeKey = new(@"cattr[0-9]+", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        internal static readonly Regex IsVariantKey = IsVariantKeyRegex();
+        internal static readonly Regex IsVariantAliasKey = IsVariantAliasKeyRegex();
+        internal static readonly Regex IsGiftCardKey = IsGiftCardKeyRegex();
+        internal static readonly Regex IsCheckoutAttributeKey = IsCheckoutAttributeKeyRegex();
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWorkContext _workContext;
@@ -353,5 +353,21 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
         protected virtual void ConvertItems(HttpRequest request, ProductVariantQuery query, string key, ICollection<string> values)
         {
         }
+
+        #region GeneratedRegex
+
+        [GeneratedRegex("pvari[0-9]+-[0-9]+-[0-9]+-[0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
+        private static partial Regex IsVariantKeyRegex();
+
+        [GeneratedRegex("\\w+-[0-9]+-[0-9]+-[0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
+        private static partial Regex IsVariantAliasKeyRegex();
+
+        [GeneratedRegex("giftcard[0-9]+-[0-9]+-\\.\\w+$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
+        private static partial Regex IsGiftCardKeyRegex();
+
+        [GeneratedRegex("cattr[0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
+        private static partial Regex IsCheckoutAttributeKeyRegex();
+
+        #endregion
     }
 }

@@ -3,11 +3,14 @@ using Smartstore.IO;
 
 namespace Smartstore.Web.Bundling.Processors
 {
-    public class CssRewriteUrlProcessor : BundleProcessor
+    public partial class CssRewriteUrlProcessor : BundleProcessor
     {
+        [GeneratedRegex("url\\(['\"]?(?<url>[^)]+?)['\"]?\\)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "de-DE")]
+        private static partial Regex CssUrlRegex();
+
         internal static readonly CssRewriteUrlProcessor Instance = new(true);
 
-        private static readonly Regex _rgUrl = new(@"url\(['""]?(?<url>[^)]+?)['""]?\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex _rgUrl = CssUrlRegex();
 
         private readonly bool _inlineFiles;
         private readonly int? _inlineMaxFileSize;
@@ -60,7 +63,7 @@ namespace Smartstore.Web.Bundling.Processors
             }
 
             // Replace all urls with absolute urls
-            return _rgUrl.Replace(content, ((match) =>
+            return _rgUrl.Replace(content, (match) =>
             {
                 var url = match.Groups["url"].Value;
                 if (url.StartsWith("data:image"))
@@ -71,7 +74,7 @@ namespace Smartstore.Web.Bundling.Processors
                 {
                     return "url(\"" + RebaseUrlToAbsolute(asset, webPathBase, baseUrl, url) + "\")";
                 }
-            }));
+            });
         }
 
         internal string RebaseUrlToAbsolute(AssetContent asset, string webBasePath, string baseUrl, string url)

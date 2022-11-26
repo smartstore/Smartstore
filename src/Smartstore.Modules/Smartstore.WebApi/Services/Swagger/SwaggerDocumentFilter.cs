@@ -12,10 +12,12 @@ namespace Smartstore.Web.Api.Swagger
     /// but that would let Swagger execute against /categories({key}) always resulting in 404 NotFound.
     /// To achieve this a custom Swagger template would be required. Perhaps there is an extension somewhere.
     /// </remarks>
-    internal class SwaggerDocumentFilter : IDocumentFilter
+    internal partial class SwaggerDocumentFilter : IDocumentFilter
     {
-        private static readonly Regex _pathsToIgnore = new(@"[a-z0-9\/](\$count|\{key\}|default\.)", //(/|\z|\+)
-            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex("[a-z0-9\\/](\\$count|\\{key\\}|default\\.)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
+        private static partial Regex PathsToIgnoreRegex();
+
+        private static readonly Regex _pathsToIgnore = PathsToIgnoreRegex();
 
         //private static readonly Regex _schemasToIgnore = new(@"(Microsoft\.AspNetCore\.OData\.|System\.Collections\.Generic\.KeyValuePair).+",
         //    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);

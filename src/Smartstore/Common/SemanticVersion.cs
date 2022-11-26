@@ -13,15 +13,13 @@ namespace Smartstore
     /// </summary>
     [JsonConverter(typeof(SemanticVersionJsonConverter))]
     [TypeConverter(typeof(SemanticVersionConverter))]
-    public sealed class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
+    public sealed partial class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
     {
-        private const RegexOptions _flags = RegexOptions.Compiled | RegexOptions.ExplicitCapture;
-
         // Versions containing up to 4 digits
-        private static readonly Regex _semanticVersionRegex = new(@"^(?<Version>\d+(\s*\.\s*\d+){0,3})(?<Release>-([0]\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+(\.([0]\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+)*)?(?<Metadata>\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$", _flags);
+        private static readonly Regex _semanticVersionRegex = SemanticVersionRegex();
 
         // Strict SemVer 2.0.0 format, this may contain only 3 digits.
-        private static readonly Regex _strictSemanticVersionRegex = new(@"^(?<Version>([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*)){2})(?<Release>-([0]\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+(\.([0]\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+)*)?(?<Metadata>\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$", _flags);
+        private static readonly Regex _strictSemanticVersionRegex = StrictSemanticVersionRegex();
 
         private readonly string _originalString;
         private string _normalizedVersionString;
@@ -351,7 +349,7 @@ namespace Smartstore
 
         public static bool operator <=(SemanticVersion version1, SemanticVersion version2)
         {
-            return (version1 == version2) || (version1 < version2);
+            return version1 == version2 || version1 < version2;
         }
 
         public static bool operator >(SemanticVersion version1, SemanticVersion version2)
@@ -362,7 +360,7 @@ namespace Smartstore
 
         public static bool operator >=(SemanticVersion version1, SemanticVersion version2)
         {
-            return (version1 == version2) || (version1 > version2);
+            return version1 == version2 || version1 > version2;
         }
 
         /// <summary>
@@ -458,7 +456,7 @@ namespace Smartstore
         public bool IsSemVer2()
         {
             return !string.IsNullOrEmpty(Metadata)
-                || (!string.IsNullOrEmpty(SpecialVersion) && SpecialVersion.Contains('.'));
+                || !string.IsNullOrEmpty(SpecialVersion) && SpecialVersion.Contains('.');
         }
 
         public bool Equals(SemanticVersion other)
@@ -470,7 +468,7 @@ namespace Smartstore
 
         public override bool Equals(object obj)
         {
-            SemanticVersion semVer = obj as SemanticVersion;
+            var semVer = obj as SemanticVersion;
             return semVer is not null && Equals(semVer);
         }
 
@@ -561,6 +559,16 @@ namespace Smartstore
 
             return result;
         }
+
+        #region GeneratedRegex
+
+        [GeneratedRegex("^(?<Version>([0-9]|[1-9][0-9]*)(\\.([0-9]|[1-9][0-9]*)){2})(?<Release>-([0]\\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+(\\.([0]\\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+)*)?(?<Metadata>\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$", RegexOptions.ExplicitCapture | RegexOptions.Compiled)]
+        private static partial Regex StrictSemanticVersionRegex();
+
+        [GeneratedRegex("^(?<Version>\\d+(\\s*\\.\\s*\\d+){0,3})(?<Release>-([0]\\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+(\\.([0]\\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+)*)?(?<Metadata>\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$", RegexOptions.ExplicitCapture | RegexOptions.Compiled)]
+        private static partial Regex SemanticVersionRegex();
+
+        #endregion
     }
 
     internal sealed class SemanticVersionConverter : DefaultTypeConverter

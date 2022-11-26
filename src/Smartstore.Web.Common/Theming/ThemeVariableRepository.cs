@@ -8,7 +8,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Web.Theming
 {
-    public class ThemeVariableRepository
+    public partial class ThemeVariableRepository
     {
         const string SassVarPrefix = "$";
 
@@ -22,9 +22,9 @@ namespace Smartstore.Web.Theming
         const string THEMEVARS_KEY = "web:themevars-{0}-{1}";
         const string THEMEVARS_THEME_KEY = "web:themevars-{0}";
 
-        private static readonly Regex _keyWhitelist = new(@"^[a-zA-Z0-9_-]+$", RegexOptions.Compiled);
-        private static readonly Regex _valueBlacklist = new(@"[:;]+", RegexOptions.Compiled);
-        private static readonly Regex _valueSassVars = new(@"[$][a-zA-Z0-9_-]+", RegexOptions.Compiled);
+        private static readonly Regex _keyWhitelist = KeyWhitelistRegex();
+        private static readonly Regex _valueBlacklist = ValueBlacklistRegex();
+        private static readonly Regex _valueSassVars = ValueSassVarsRegex();
         //private static readonly Regex s_valueWhitelist = new Regex(@"^[#@]?[a-zA-Z0-9""' _\.,-]*$");
 
         private static readonly ConcurrentDictionary<object, CancellationTokenSource> _cancelTokens = new();
@@ -146,7 +146,7 @@ namespace Smartstore.Web.Theming
 
         private async Task<IDictionary<string, object>> GetRawVariablesCoreAsync(string themeName, int storeId)
         {
-            return (await _themeVarService.GetThemeVariablesAsync(themeName, storeId)) ?? new ExpandoObject();
+            return await _themeVarService.GetThemeVariablesAsync(themeName, storeId) ?? new ExpandoObject();
         }
 
         public void RemoveFromCache(string themeName, int storeId = 0)
@@ -210,5 +210,18 @@ namespace Smartstore.Web.Theming
             // Let pass all color names (red, blue etc.), but reject functions, e.g. "lighten(#fff, 10%)"
             return !value.Contains("(");
         }
+
+        #region GeneratedRegex
+
+        [GeneratedRegex("^[a-zA-Z0-9_-]+$", RegexOptions.Compiled)]
+        private static partial Regex KeyWhitelistRegex();
+
+        [GeneratedRegex("[:;]+", RegexOptions.Compiled)]
+        private static partial Regex ValueBlacklistRegex();
+
+        [GeneratedRegex("[$][a-zA-Z0-9_-]+", RegexOptions.Compiled)]
+        private static partial Regex ValueSassVarsRegex();
+
+        #endregion
     }
 }

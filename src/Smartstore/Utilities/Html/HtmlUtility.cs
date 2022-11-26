@@ -20,7 +20,6 @@ namespace Smartstore.Utilities.Html
         private readonly static Regex _rgAnchor = new(@"<a\b[^>]+>([^<]*(?:(?!</a)<[^<]*)*)</a>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
         private readonly static Regex _rgParaStart = new("<p>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
         private readonly static Regex _rgParaEnd = new("</p>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
-        //private static Regex ampRegex = new Regex("&(?!(?:#[0-9]{2,4};|[a-z0-9]+;))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <inheritdoc cref="SanitizeHtml(string, HtmlSanitizerOptions, bool)"/>
         public static string SanitizeHtml(string html, bool isFragment = true)

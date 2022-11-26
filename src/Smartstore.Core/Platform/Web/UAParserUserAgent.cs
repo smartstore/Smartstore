@@ -5,11 +5,13 @@ using uap = UAParser;
 
 namespace Smartstore.Core.Web
 {
-    public class UAParserUserAgent : IUserAgent
+    public partial class UAParserUserAgent : IUserAgent
     {
+        [GeneratedRegex("iPad|Kindle Fire|Nexus 10|Xoom|Transformer|MI PAD|IdeaTab", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+        private static partial Regex TabletPatternRegex();
+
         private readonly static uap.Parser s_uap;
-        private static readonly Regex _pdfConverterPattern = new(@"wkhtmltopdf", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        private static readonly Regex _tabletPattern = new(@"iPad|Kindle Fire|Nexus 10|Xoom|Transformer|MI PAD|IdeaTab", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        private static readonly Regex _tabletPattern = TabletPatternRegex();
 
         #region Mobile UAs, OS & Devices
 
@@ -240,7 +242,7 @@ namespace Smartstore.Core.Web
             {
                 if (!_isPdfConverter.HasValue)
                 {
-                    _isPdfConverter = _pdfConverterPattern.IsMatch(RawValue);
+                    _isPdfConverter = RawValue.EqualsNoCase("wkhtmltopdf");
                 }
 
                 return _isPdfConverter.Value;

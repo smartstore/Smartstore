@@ -24,7 +24,7 @@ namespace Smartstore.IO
             _invalidFilterChars = _invalidFileNameChars.Where(c => c != '*' && c != '|' && c != '?').ToArray();
 
             var invalidChars = Regex.Escape(new string(_invalidPathChars) + new string(_invalidFileNameChars));
-            _invalidCharsPattern = new Regex(string.Format(@"[{0}]+", invalidChars));
+            _invalidCharsPattern = new Regex(string.Format(@"[{0}]+", invalidChars), RegexOptions.Compiled | RegexOptions.NonBacktracking);
         }
 
         #region Combine

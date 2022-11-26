@@ -8,8 +8,11 @@ namespace Smartstore.Utilities
     /// searching in text. * is used for any chars, ? for one char and
     /// a number range is used with the - char. (12-232)
     /// </summary>
-    public class Wildcard : Regex
+    public partial class Wildcard : Regex
     {
+        [GeneratedRegex("[0-9]+-[0-9]+", RegexOptions.NonBacktracking)]
+        private static partial Regex NumberRangeRegex();
+
         private readonly string _pattern;
 
         /// <summary>
@@ -67,9 +70,9 @@ namespace Smartstore.Utilities
             // convert the number ranges into regular expression
             if (parseNumberRanges)
             {
-                var re = new Regex("[0-9]+-[0-9]+");
+                var re = NumberRangeRegex();
                 MatchCollection collection = re.Matches(pattern);
-                foreach (Match match in collection)
+                foreach (var match in collection.Cast<Match>())
                 {
                     var split = match.Value.Split(new char[] { '-' });
                     var min = split[0];
@@ -116,12 +119,12 @@ namespace Smartstore.Utilities
 
         private static bool IsMetachar(char ch)
         {
-            return (ch <= '|' && _category[ch] >= E);
+            return ch <= '|' && _category[ch] >= E;
         }
 
         private static bool IsGlob(char ch)
         {
-            return (ch <= '|' && _category[ch] >= W);
+            return ch <= '|' && _category[ch] >= W;
         }
 
         private static string ToGlobPattern(string input)

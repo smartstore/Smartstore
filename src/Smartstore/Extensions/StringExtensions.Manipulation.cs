@@ -533,7 +533,7 @@ namespace Smartstore
             }
 
             var pattern = string.Join('|', keywords.Tokenize(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(x => Regex.Escape(x))
+                .Select(Regex.Escape)
                 .Distinct());
 
             if (!string.IsNullOrWhiteSpace(pattern))
