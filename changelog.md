@@ -4,11 +4,13 @@
 
 ### New Features
 
-
+- Updated to .NET 7
+- New app setting: `DbDefaultSchema`
 
 ### Improvements
 
-
+- ~10 % faster app startup and TTFB
+- ~10 % less RAM usage
 
 ### Bugfixes
 
