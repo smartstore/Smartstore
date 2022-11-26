@@ -41,7 +41,7 @@ namespace Smartstore.Core.Bootstrapping
             if (querySettingsProperty == null)
                 return;
 
-            registration.Metadata.Add(PropName, FastProperty.Create(querySettingsProperty));
+            registration.Metadata.Add(PropName, querySettingsProperty);
 
             registration.PipelineBuilding += (sender, pipeline) =>
             {
@@ -50,7 +50,7 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     next(context);
 
-                    if (!context.NewInstanceActivated || context.Registration.Metadata.Get(PropName) is not FastProperty prop)
+                    if (!context.NewInstanceActivated || context.Registration.Metadata.Get(PropName) is not PropertyInfo prop)
                     {
                         return;
                     }

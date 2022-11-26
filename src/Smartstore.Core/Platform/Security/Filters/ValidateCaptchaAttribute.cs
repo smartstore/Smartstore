@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Security
@@ -122,10 +121,10 @@ namespace Smartstore.Core.Security
         {
             if (_attribute.CaptchaSettingName.HasValue())
             {
-                var fastProp = FastProperty.GetProperty(_captchaSettings.GetType(), _attribute.CaptchaSettingName, PropertyCachingStrategy.Uncached);
-                if (fastProp != null)
+                var pi = _captchaSettings.GetType().GetProperty(_attribute.CaptchaSettingName);
+                if (pi != null)
                 {
-                    var propValue = fastProp.GetValue(_captchaSettings);
+                    var propValue = pi.GetValue(_captchaSettings);
                     if (propValue is bool displayCaptcha)
                     {
                         return displayCaptcha;

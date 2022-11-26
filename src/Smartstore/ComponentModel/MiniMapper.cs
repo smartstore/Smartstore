@@ -79,17 +79,17 @@ namespace Smartstore.ComponentModel
 
             foreach (var toProp in toProps)
             {
-                var fromProp = FastProperty.GetProperty(fromType, toProp.Name, PropertyCachingStrategy.Cached);
+                var fromProp = fromType.GetProperty(toProp.Name);
                 if (fromProp == null)
                 {
                     continue;
                 }
 
-                var fromPropType = fromProp.Property.PropertyType;
+                var fromPropType = fromProp.PropertyType;
                 var toPropType = toProp.Property.PropertyType;
                 var sourceValue = fromProp.GetValue(from);
 
-                if (isEntityMapping && (fromPropType == typeof(int) || fromPropType == typeof(int?)) && toPropType == typeof(int?) && object.Equals(0, sourceValue) && toProp.Name.EndsWith("Id"))
+                if (isEntityMapping && (fromPropType == typeof(int) || fromPropType == typeof(int?)) && toPropType == typeof(int?) && Equals(0, sourceValue) && toProp.Name.EndsWith("Id"))
                 {
                     // TODO: This is more a hack than a proper solution. Find a more generic way to convert int FK properties...
                     // Special mapper, that avoids DbUpdate exceptions in cases where
@@ -107,7 +107,7 @@ namespace Smartstore.ComponentModel
 
         private static FastProperty[] GetFastPropertiesFor(Type type)
         {
-            return FastProperty.GetProperties(type, PropertyCachingStrategy.Uncached)
+            return FastProperty.GetProperties(type, true)
                 .Values
                 .Where(pi => pi.IsPublicSettable)
                 .ToArray();

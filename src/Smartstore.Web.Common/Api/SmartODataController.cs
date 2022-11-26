@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.OData;
 using Microsoft.OData.UriParser;
-using Smartstore.ComponentModel;
 
 namespace Smartstore.Web.Api
 {
@@ -368,10 +367,10 @@ namespace Smartstore.Web.Api
                     {
                         propName = propName.EnsureEndsWith("Id", StringComparison.OrdinalIgnoreCase);
 
-                        var prop = FastProperty.GetProperty(entityType, propName);
+                        var prop = entityType.GetProperty(propName);
                         if (prop != null)
                         {
-                            var propType = prop?.Property?.PropertyType;
+                            var propType = prop.PropertyType;
                             if (propType == typeof(int) || propType == typeof(int?))
                             {
                                 var propValue = prop.GetValue(entity);
@@ -480,7 +479,7 @@ namespace Smartstore.Web.Api
                     var type = item.GetType();
                     if (type.Name == EntityWrapperTypeName)
                     {
-                        var prop = (TEntity)FastProperty.GetProperty(type, EntityWrapperPropertyName).GetValue(item);
+                        var prop = (TEntity)type.GetProperty(EntityWrapperPropertyName).GetValue(item);
                         yield return prop;
                     }
                 }

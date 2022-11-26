@@ -64,7 +64,7 @@ namespace Smartstore.Core.Content.Media
             Guard.NotNull(settings, nameof(settings));
             Guard.NotNull(path, nameof(path));
 
-            return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.CompileFast().Invoke(settings));
+            return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.GetPropertyInvoker().Invoke(settings));
         }
 
         public Task TrackAsync<TSetting>(TSetting settings, int? prevMediaFileId, Expression<Func<TSetting, int?>> path) where TSetting : ISettings, new()
@@ -72,7 +72,7 @@ namespace Smartstore.Core.Content.Media
             Guard.NotNull(settings, nameof(settings));
             Guard.NotNull(path, nameof(path));
 
-            return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.CompileFast().Invoke(settings));
+            return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.GetPropertyInvoker().Invoke(settings));
         }
 
         protected async Task TrackSettingAsync<TSetting>(

@@ -34,7 +34,7 @@ namespace FluentValidation
             Guard.NotNull(db, nameof(db));
 
             // Get all model properties
-            var modelProps = FastProperty.GetProperties(typeof(TModel), PropertyCachingStrategy.EagerCached);
+            var modelProps = FastProperty.GetProperties(typeof(TModel));
 
             var entityType = db.Model.FindEntityTypes(typeof(TEntity)).FirstOrDefault();
             if (entityType == null)
@@ -88,7 +88,7 @@ namespace FluentValidation
         protected virtual void ApplyNonNullableValueTypeRules(params string[] ignoreProperties)
         {
             // Get all model properties
-            var modelProps = FastProperty.GetProperties(typeof(TModel), PropertyCachingStrategy.EagerCached);
+            var modelProps = FastProperty.GetProperties(typeof(TModel));
 
             foreach (var modelProp in modelProps.Values.Where(x => !x.Property.PropertyType.IsNullableType(out _) && x.Property.PropertyType.IsValueType))
             {

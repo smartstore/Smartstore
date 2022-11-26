@@ -1,5 +1,4 @@
 ﻿using DotLiquid;
-using Smartstore.ComponentModel;
 
 namespace Smartstore.Templating.Liquid
 {
@@ -40,8 +39,7 @@ namespace Smartstore.Templating.Liquid
                 if (key is string name)
                 {
                     var modelPrefix = _modelPrefix + name;
-                    var fastProp = FastProperty.GetProperty(_type, name);
-                    var pi = fastProp?.Property;
+                    var pi = _type.GetProperty(name);
 
                     if (pi == null)
                     {
@@ -51,16 +49,17 @@ namespace Smartstore.Templating.Liquid
                     {
                         value = "{{ " + modelPrefix + " }}";
                     }
-                    else if (fastProp.IsSequenceType)
+                    else if (pi.PropertyType.IsSequenceType(out var seqType))
                     {
-                        var seqType = pi.PropertyType.GetGenericArguments()[0];
                         if (typeof(BaseEntity).IsAssignableFrom(seqType))
                         {
                             var testObj1 = new TestDrop((BaseEntity)Activator.CreateInstance(seqType), "it");
                             var testObj2 = new TestDrop((BaseEntity)Activator.CreateInstance(seqType), "it");
-                            var list = new List<TestDrop>();
-                            list.Add(testObj1);
-                            list.Add(testObj2);
+                            var list = new List<TestDrop>
+                            {
+                                testObj1,
+                                testObj2
+                            };
                             value = list;
                         }
                     }
@@ -68,11 +67,6 @@ namespace Smartstore.Templating.Liquid
                     {
                         value = new TestDrop((BaseEntity)Activator.CreateInstance(pi.PropertyType), modelPrefix);
                     }
-
-                    //if (value is string s)
-                    //{
-                    //	value = "<span class='dtc-var{0}'>{1}</span>".FormatInvariant(invalid ? " invalid" : "", value);
-                    //}
                 }
 
                 return value;

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
@@ -124,10 +123,10 @@ namespace Smartstore.Core.Localization
 
             if (string.IsNullOrEmpty(result) && doFallback)
             {
-                var fastProp = FastProperty.GetProperty(module.GetType(), propertyName);
-                if (fastProp != null)
+                var prop = module.GetType().GetProperty(propertyName);
+                if (prop != null)
                 {
-                    result = fastProp.GetValue(module) as string;
+                    result = prop.GetValue(module) as string;
                 }
             }
 

@@ -294,7 +294,7 @@ namespace Smartstore.Web.Modelling.Settings
 
             if (storeId == 0 || IsOverrideChecked(formKey, form))
             {
-                var prop = FastProperty.GetProperty(settingType, settingName);
+                var prop = settingType.GetProperty(settingName);
                 if (prop != null)
                 {
                     dynamic value = prop.GetValue(settings);

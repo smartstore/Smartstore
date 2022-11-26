@@ -8,7 +8,7 @@ namespace Smartstore.Core.Content.Media
         {
             Guard.NotNull(path, nameof(path));
 
-            var getter = path.CompileFast();
+            var getter = path.GetPropertyInvoker();
             var mediaFileId = getter.Invoke(entity);
             if (mediaFileId > 0)
                 return tracker.TrackAsync(entity, mediaFileId, path.ExtractPropertyInfo().Name);
@@ -20,7 +20,7 @@ namespace Smartstore.Core.Content.Media
         {
             Guard.NotNull(path, nameof(path));
 
-            var getter = path.CompileFast();
+            var getter = path.GetPropertyInvoker();
             var mediaFileId = getter.Invoke(entity);
             if (mediaFileId > 0)
                 return tracker.TrackAsync(entity, mediaFileId.Value, path.ExtractPropertyInfo().Name);
@@ -32,7 +32,7 @@ namespace Smartstore.Core.Content.Media
         {
             Guard.NotNull(path, nameof(path));
 
-            var getter = path.CompileFast();
+            var getter = path.GetPropertyInvoker();
             var mediaFileId = getter.Invoke(entity);
             if (mediaFileId > 0)
                 tracker.UntrackAsync(entity, mediaFileId, path.ExtractPropertyInfo().Name);
@@ -44,7 +44,7 @@ namespace Smartstore.Core.Content.Media
         {
             Guard.NotNull(path, nameof(path));
 
-            var getter = path.CompileFast();
+            var getter = path.GetPropertyInvoker();
             var mediaFileId = getter.Invoke(entity);
             if (mediaFileId > 0)
                 tracker.UntrackAsync(entity, mediaFileId.Value, path.ExtractPropertyInfo().Name);

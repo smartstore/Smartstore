@@ -21,7 +21,7 @@ namespace Smartstore.Core.Localization
         public static LocalizedValue<string> GetLocalized<T>(this T entity, Expression<Func<T, string>> keySelector, bool detectEmptyHtml = false)
             where T : class, ILocalizedEntity
         {
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
                 entity,
                 entity.Id,
@@ -51,7 +51,7 @@ namespace Smartstore.Core.Localization
             bool detectEmptyHtml = false)
             where T : class, ILocalizedEntity
         {
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue<T, string>(
                 entity,
                 entity.Id,
@@ -116,7 +116,7 @@ namespace Smartstore.Core.Localization
             bool detectEmptyHtml = false)
             where T : class, ILocalizedEntity
         {
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue<T, string>(
                 entity,
                 entity.Id,
@@ -149,7 +149,7 @@ namespace Smartstore.Core.Localization
             bool detectEmptyHtml = false)
             where T : class, ILocalizedEntity
         {
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
                 entity,
                 entity.Id,
@@ -182,7 +182,7 @@ namespace Smartstore.Core.Localization
             bool detectEmptyHtml = false)
             where T : class, ILocalizedEntity
         {
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
                 entity,
                 entity.Id,
@@ -207,7 +207,7 @@ namespace Smartstore.Core.Localization
         /// <returns>Localized property</returns>
         public static LocalizedValue<string> GetLocalized(this ICategoryNode node, Expression<Func<ICategoryNode, string>> keySelector)
         {
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
                 node,
                 node.Id,
@@ -226,7 +226,7 @@ namespace Smartstore.Core.Localization
         /// <returns>Localized property</returns>
         public static LocalizedValue<string> GetLocalized(this ICategoryNode node, Expression<Func<ICategoryNode, string>> keySelector, int languageId)
         {
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
                 node,
                 node.Id,
@@ -245,7 +245,7 @@ namespace Smartstore.Core.Localization
         /// <returns>Localized property</returns>
         public static LocalizedValue<string> GetLocalized(this ICategoryNode node, Expression<Func<ICategoryNode, string>> keySelector, Language language)
         {
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             return EngineContext.Current.Scope.Resolve<LocalizedEntityHelper>()?.GetLocalizedValue(
                 node,
                 node.Id,
@@ -294,7 +294,7 @@ namespace Smartstore.Core.Localization
             where TSetting : class, ISettings
         {
             var helper = EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>();
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
 
             if (helper == null)
             {

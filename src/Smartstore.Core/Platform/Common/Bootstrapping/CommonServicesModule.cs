@@ -23,7 +23,7 @@ namespace Smartstore.Core.Bootstrapping
             if (servicesProperty == null)
                 return;
 
-            registration.Metadata.Add("Property.ICommonServices", FastProperty.Create(servicesProperty));
+            registration.Metadata.Add("Property.ICommonServices", servicesProperty);
 
             registration.PipelineBuilding += (sender, pipeline) =>
             {
@@ -37,17 +37,15 @@ namespace Smartstore.Core.Bootstrapping
                         return;
                     }
 
-                    if (!context.NewInstanceActivated || context.Registration.Metadata.Get("Property.ICommonServices") is not FastProperty prop)
+                    if (!context.NewInstanceActivated || context.Registration.Metadata.Get("Property.ICommonServices") is not PropertyInfo prop)
                     {
                         return;
                     }
 
-                    try
+                    if (context.TryResolve<ICommonServices>(out var services))
                     {
-                        var services = context.Resolve<ICommonServices>();
                         prop.SetValue(context.Instance, services);
                     }
-                    catch { }
                 });
             };
         }

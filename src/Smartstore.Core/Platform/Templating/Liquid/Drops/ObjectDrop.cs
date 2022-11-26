@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.Serialization;
-using Smartstore.ComponentModel;
 
 namespace Smartstore.Templating.Liquid
 {
@@ -22,10 +21,10 @@ namespace Smartstore.Templating.Liquid
 
         protected override object InvokeMember(string name)
         {
-            var prop = FastProperty.GetProperty(_type, name);
+            var prop = _type.GetProperty(name);
             if (prop != null)
             {
-                return prop.Property.HasAttribute<IgnoreDataMemberAttribute>(true)
+                return prop.HasAttribute<IgnoreDataMemberAttribute>(true)
                     ? null
                     : prop.GetValue(_data);
             }

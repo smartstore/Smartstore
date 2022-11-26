@@ -47,9 +47,7 @@ namespace Smartstore
             throw new ArgumentException($"The member accessor expression [{memberAccessor}] is not in the expected format 'o => o.PropertyOrField' or 'o => o.MethodCall(...)'.", nameof(memberAccessor));
         }
 
-        public static FastPropertyInvoker<T, TProp> CompileFast<T, TProp>(
-            this Expression<Func<T, TProp>> expression,
-            PropertyCachingStrategy cachingStrategy = PropertyCachingStrategy.Cached)
+        public static PropertyInvoker<T, TProp> GetPropertyInvoker<T, TProp>(this Expression<Func<T, TProp>> expression)
         {
             if (expression.Body is not MemberExpression member)
             {
@@ -61,26 +59,25 @@ namespace Smartstore
                 throw new ArgumentException($"Expression body member must refer to a property.", nameof(expression));
             }
 
-            var fastProp = FastProperty.GetProperty(pi, cachingStrategy);
-            return new FastPropertyInvoker<T, TProp>(fastProp);
+            return new PropertyInvoker<T, TProp>(pi);
         }
     }
 
-    public sealed class FastPropertyInvoker<T, TProp>
+    public sealed class PropertyInvoker<T, TProp>
     {
-        internal FastPropertyInvoker(FastProperty prop)
+        internal PropertyInvoker(PropertyInfo prop)
         {
             Property = prop;
         }
 
-        public FastProperty Property { get; private set; }
+        public PropertyInfo Property { get; }
 
         public TProp Invoke(T obj)
         {
             return (TProp)Property.GetValue(obj);
         }
 
-        public static implicit operator Func<T, TProp>(FastPropertyInvoker<T, TProp> obj)
+        public static implicit operator Func<T, TProp>(PropertyInvoker<T, TProp> obj)
         {
             return obj.Invoke;
         }

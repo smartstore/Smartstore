@@ -1,5 +1,4 @@
-﻿using Smartstore.ComponentModel;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Media
@@ -75,7 +74,7 @@ namespace Smartstore.Core.Content.Media
                     {
                         case EntityState.Added:
                         case EntityState.Deleted:
-                            var value = FastProperty.GetProperty(type, prop.Name).GetValue(entry.Entity);
+                            var value = type.GetProperty(prop.Name).GetValue(entry.Entity);
                             TryAddTrack(prop.Album, entry.Entity, prop.Name, value, state == EntityState.Added ? MediaTrackOperation.Track : MediaTrackOperation.Untrack);
                             break;
                         case EntityState.Modified:

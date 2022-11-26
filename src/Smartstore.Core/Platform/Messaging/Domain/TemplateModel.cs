@@ -51,8 +51,7 @@ namespace Smartstore.Core.Messaging
                 }
                 else
                 {
-                    var fastProp = FastProperty.GetProperty(currentValue.GetType(), key, PropertyCachingStrategy.Uncached);
-                    currentValue = fastProp?.GetValue(currentValue);
+                    currentValue = currentValue.GetType().GetProperty(key)?.GetValue(currentValue);
                 }
             }
 

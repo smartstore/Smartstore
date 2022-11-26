@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
@@ -594,11 +593,11 @@ namespace Smartstore.Core.Messaging
                         else
                         {
                             // Get "Customer" property of Order
-                            var fastProp = FastProperty.GetProperty(parentModel.GetType(), propName, PropertyCachingStrategy.Uncached);
-                            if (fastProp != null)
+                            var pi = parentModel.GetType().GetProperty(propName);
+                            if (pi != null)
                             {
                                 // Get "Customer" value
-                                var propValue = fastProp.GetValue(parentModel);
+                                var propValue = pi.GetValue(parentModel);
                                 if (propValue != null)
                                 {
                                     currentModel = propValue;

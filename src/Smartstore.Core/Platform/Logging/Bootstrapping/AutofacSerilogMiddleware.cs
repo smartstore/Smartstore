@@ -1,6 +1,6 @@
-﻿using Autofac;
+﻿using System.Reflection;
+using Autofac;
 using Autofac.Core.Resolving.Pipeline;
-using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -34,8 +34,7 @@ namespace Smartstore.Core.Bootstrapping
             if (_autowireProperties && context.NewInstanceActivated)
             {
                 var logger = GetLoggerFor(context.Instance.GetType(), context);
-                var loggerProps = context.Registration.Metadata.Get("LoggerProperties") as FastProperty[];
-                if (loggerProps != null)
+                if (context.Registration.Metadata.Get("LoggerProperties") is PropertyInfo[] loggerProps)
                 {
                     foreach (var prop in loggerProps)
                     {

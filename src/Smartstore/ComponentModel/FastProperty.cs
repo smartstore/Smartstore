@@ -2,38 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Humanizer;
 
 namespace Smartstore.ComponentModel
 {
-    public enum PropertyCachingStrategy
+    public class FastProperty
     {
-        /// <summary>
-        /// Don't cache FastProperty instances
-        /// </summary>
-        Uncached = 0,
-        /// <summary>
-        /// Always cache FastProperty instances
-        /// </summary>
-        Cached = 1,
-        /// <summary>
-        /// Always cache FastProperty instances. PLUS cache all other properties of the declaring type.
-        /// </summary>
-        EagerCached = 2
-    }
-
-    public abstract class FastProperty
-    {
-        private static readonly ConcurrentDictionary<PropertyKey, FastProperty> _singlePropertiesCache = new ConcurrentDictionary<PropertyKey, FastProperty>();
-
         // Using an array rather than IEnumerable, as target will be called on the hot path numerous times.
-        private static readonly ConcurrentDictionary<Type, IDictionary<string, FastProperty>> _propertiesCache = new ConcurrentDictionary<Type, IDictionary<string, FastProperty>>();
-        private static readonly ConcurrentDictionary<Type, IDictionary<string, FastProperty>> _visiblePropertiesCache = new ConcurrentDictionary<Type, IDictionary<string, FastProperty>>();
+        private static readonly ConcurrentDictionary<Type, IDictionary<string, FastProperty>> _propertiesCache = new();
+        private static readonly ConcurrentDictionary<Type, IDictionary<string, FastProperty>> _visiblePropertiesCache = new();
 
         // We need to be able to check if a type is a 'ref struct' - but we need to be able to compile
         // for platforms where the attribute is not defined. So we can fetch the attribute
@@ -41,71 +19,21 @@ namespace Smartstore.ComponentModel
         // 'ref struct' types.
         private static readonly Type IsByRefLikeAttribute = Type.GetType("System.Runtime.CompilerServices.IsByRefLikeAttribute", throwOnError: false);
 
-
-        private Func<object, object> _valueGetter;
-        private Action<object, object> _valueSetter;
         private bool? _isPublicSettable;
         private bool? _isSequenceType;
         private bool? _isComplexType;
 
         /// <summary>
         /// Initializes a <see cref="FastProperty"/>.
-        /// This constructor does not cache the helper. For caching, use <see cref="GetProperties(object, PropertyCachingStrategy)"/>.
+        /// This constructor does not cache the helper. For caching, use <see cref="GetProperties(object)"/>.
         /// </summary>
-        [SuppressMessage("ReSharper", "VirtualMemberCallInContructor")]
-        protected FastProperty(PropertyInfo property)
+        internal FastProperty(PropertyInfo property)
         {
             Guard.NotNull(property, nameof(property));
 
             Property = property;
             Name = property.Name;
         }
-
-        /// <summary>
-        /// Gets the property value getter.
-        /// </summary>
-        public Func<object, object> ValueGetter
-        {
-            get
-            {
-                if (_valueGetter == null)
-                {
-                    // We'll allow safe races here.
-                    _valueGetter = MakePropertyGetter(Property);
-                }
-
-                return _valueGetter;
-            }
-            private set
-            {
-                _valueGetter = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the property value setter.
-        /// </summary>
-        public Action<object, object> ValueSetter
-        {
-            get
-            {
-                if (_valueSetter == null)
-                {
-                    // We'll allow safe races here.
-                    _valueSetter = MakePropertySetter(Property);
-                }
-
-                return _valueSetter;
-            }
-            private set
-            {
-                _valueSetter = value;
-            }
-        }
-
-        protected abstract Func<object, object> MakePropertyGetter(PropertyInfo propertyInfo);
-
-        protected abstract Action<object, object> MakePropertySetter(PropertyInfo propertyInfo);
 
         /// <summary>
         /// Gets the backing <see cref="PropertyInfo"/>.
@@ -164,7 +92,7 @@ namespace Smartstore.ComponentModel
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object GetValue(object instance)
         {
-            return ValueGetter(instance);
+            return Property.GetValue(instance);
         }
 
         /// <summary>
@@ -175,103 +103,14 @@ namespace Smartstore.ComponentModel
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetValue(object instance, object value)
         {
-            ValueSetter(instance, value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static FastProperty GetProperty<T>(
-            Expression<Func<T, object>> property,
-            PropertyCachingStrategy cachingStrategy = PropertyCachingStrategy.Cached)
-        {
-            return GetProperty(property.ExtractPropertyInfo(), cachingStrategy);
-        }
-
-        public static FastProperty GetProperty(
-            Type type,
-            string propertyName,
-            PropertyCachingStrategy cachingStrategy = PropertyCachingStrategy.Cached)
-        {
-            Guard.NotNull(type, nameof(type));
-            Guard.NotEmpty(propertyName, nameof(propertyName));
-
-            if (TryGetCachedProperty(type, propertyName, cachingStrategy == PropertyCachingStrategy.EagerCached, out var fastProperty))
-            {
-                return fastProperty;
-            }
-
-            var key = new PropertyKey(type, propertyName);
-            if (!_singlePropertiesCache.TryGetValue(key, out fastProperty))
-            {
-                var pi = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                if (pi != null)
-                {
-                    fastProperty = Create(pi);
-                    if (cachingStrategy > PropertyCachingStrategy.Uncached)
-                    {
-                        _singlePropertiesCache.TryAdd(key, fastProperty);
-                    }
-                }
-            }
-
-            return fastProperty;
-        }
-
-        public static FastProperty GetProperty(
-            PropertyInfo propertyInfo,
-            PropertyCachingStrategy cachingStrategy = PropertyCachingStrategy.Cached)
-        {
-            Guard.NotNull(propertyInfo, nameof(propertyInfo));
-
-            if (TryGetCachedProperty(propertyInfo.ReflectedType, propertyInfo.Name, cachingStrategy == PropertyCachingStrategy.EagerCached, out var fastProperty))
-            {
-                return fastProperty;
-            }
-
-            var key = new PropertyKey(propertyInfo.ReflectedType, propertyInfo.Name);
-            if (!_singlePropertiesCache.TryGetValue(key, out fastProperty))
-            {
-                fastProperty = Create(propertyInfo);
-                if (cachingStrategy > PropertyCachingStrategy.Uncached)
-                {
-                    _singlePropertiesCache.TryAdd(key, fastProperty);
-                }
-            }
-
-            return fastProperty;
-        }
-
-        private static bool TryGetCachedProperty(
-            Type type,
-            string propertyName,
-            bool eagerCached,
-            out FastProperty fastProperty)
-        {
-            fastProperty = null;
-            IDictionary<string, FastProperty> allProperties;
-
-            if (eagerCached)
-            {
-                allProperties = (IDictionary<string, FastProperty>)GetProperties(type);
-                allProperties.TryGetValue(propertyName, out fastProperty);
-            }
-
-            if (fastProperty == null && _propertiesCache.TryGetValue(type, out allProperties))
-            {
-                allProperties.TryGetValue(propertyName, out fastProperty);
-            }
-
-            return fastProperty != null;
+            Property.SetValue(instance, value);
         }
 
         ///  <summary>
         ///  Given an object, adds each instance property with a public get method as a key and its
         ///  associated value to a dictionary.
         /// 
-        ///  If the object is already an <see>
-        ///          <cref>IDictionary{string, object}</cref>
-        ///      </see>
-        ///      instance, then a copy
-        ///  is returned.
+        ///  If the object is already an <see cref="IDictionary{string, object}"> instance, then a copy is returned.
         ///  </summary>
         ///  <param name="keySelector">Key selector</param>
         ///  <param name="deep">When true, converts all nested objects to dictionaries also</param>
@@ -307,20 +146,13 @@ namespace Smartstore.ComponentModel
             return dictionary;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static FastProperty Create(PropertyInfo property)
-        {
-            return new DelegatedAccessor(property);
-        }
-
-
         /// <summary>
         /// <para>
         /// Creates and caches fast property helpers that expose getters for every non-hidden get property
         /// on the specified type.
         /// </para>
         /// <para>
-        /// <see cref="GetVisibleProperties(Type, PropertyCachingStrategy)"/> excludes properties defined on base types that have been
+        /// <see cref="GetVisibleProperties(Type, bool)"/> excludes properties defined on base types that have been
         /// hidden by definitions using the <c>new</c> keyword.
         /// </para>
         /// </summary>
@@ -328,7 +160,7 @@ namespace Smartstore.ComponentModel
         /// <returns>
         /// A cached array of all public property getters from the type.
         /// </returns>
-        public static IReadOnlyDictionary<string, FastProperty> GetVisibleProperties(Type type, PropertyCachingStrategy cachingStrategy = PropertyCachingStrategy.Cached)
+        public static IReadOnlyDictionary<string, FastProperty> GetVisibleProperties(Type type, bool uncached = false)
         {
             Guard.NotNull(type, nameof(type));
 
@@ -341,11 +173,11 @@ namespace Smartstore.ComponentModel
                 return (IReadOnlyDictionary<string, FastProperty>)result;
             }
 
-            var visiblePropertiesCache = cachingStrategy > PropertyCachingStrategy.Uncached ? _visiblePropertiesCache : CreateVolatileCache();
+            var visiblePropertiesCache = uncached ? CreateVolatileCache() : _visiblePropertiesCache;
 
             // The simple and common case, this is normal POCO object - no need to allocate.
             var allPropertiesDefinedOnType = true;
-            var allProperties = GetProperties(type, cachingStrategy);
+            var allProperties = GetProperties(type, uncached);
             foreach (var prop in allProperties.Values)
             {
                 if (prop.Property.DeclaringType != type)
@@ -377,8 +209,7 @@ namespace Smartstore.ComponentModel
                 // the type to see if we should include it.
                 var ignoreProperty = false;
 
-                // Walk up the hierarchy until we find the type that actally declares this
-                // PropertyInfo.
+                // Walk up the hierarchy until we find the type that actally declares this PropertyInfo.
                 var currentTypeInfo = type.GetTypeInfo();
                 var declaringTypeInfo = declaringType.GetTypeInfo();
                 while (currentTypeInfo != null && currentTypeInfo != declaringTypeInfo)
@@ -416,7 +247,7 @@ namespace Smartstore.ComponentModel
         /// <param name="type">The type to extract property accessors for.</param>
         /// <returns>A cached array of all public property getters from the type of target instance.
         /// </returns>
-        public static IReadOnlyDictionary<string, FastProperty> GetProperties(Type type, PropertyCachingStrategy cachingStrategy = PropertyCachingStrategy.Cached)
+        public static IReadOnlyDictionary<string, FastProperty> GetProperties(Type type, bool uncached = false)
         {
             Guard.NotNull(type, nameof(type));
 
@@ -426,7 +257,7 @@ namespace Smartstore.ComponentModel
 
             if (!_propertiesCache.TryGetValue(type, out var props))
             {
-                if (cachingStrategy == PropertyCachingStrategy.Uncached)
+                if (uncached)
                 {
                     props = Get(type);
                 }
@@ -442,20 +273,10 @@ namespace Smartstore.ComponentModel
             {
                 var candidates = GetCandidateProperties(t);
                 var fastProperties = candidates
-                    .Select(p => Create(p))
+                    .Select(x => new FastProperty(x))
                     .ToDictionarySafe(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
-                CleanDuplicates(t, fastProperties.Keys);
                 return fastProperties;
-            }
-        }
-
-        private static void CleanDuplicates(Type type, IEnumerable<string> propNames)
-        {
-            foreach (var name in propNames)
-            {
-                var key = new PropertyKey(type, name);
-                _singlePropertiesCache.TryRemove(key, out _);
             }
         }
 
@@ -521,203 +342,6 @@ namespace Smartstore.ComponentModel
             }
             public Type Type { get { return base.Item1; } }
             public string PropertyName { get { return base.Item2; } }
-        }
-    }
-
-
-
-    [DebuggerDisplay("DelegateAccessor: {Name}")]
-    internal sealed class DelegatedAccessor : FastProperty
-    {
-        // Delegate type for a by-ref property getter
-        private delegate TValue ByRefFunc<TDeclaringType, TValue>(ref TDeclaringType arg);
-
-        private static readonly MethodInfo CallPropertyGetterOpenGenericMethod = typeof(DelegatedAccessor).GetTypeInfo().GetDeclaredMethod("CallPropertyGetter");
-        private static readonly MethodInfo CallPropertyGetterByReferenceOpenGenericMethod = typeof(DelegatedAccessor).GetTypeInfo().GetDeclaredMethod("CallPropertyGetterByReference");
-        private static readonly MethodInfo CallNullSafePropertyGetterOpenGenericMethod = typeof(DelegatedAccessor).GetTypeInfo().GetDeclaredMethod("CallNullSafePropertyGetter");
-        private static readonly MethodInfo CallNullSafePropertyGetterByReferenceOpenGenericMethod = typeof(DelegatedAccessor).GetTypeInfo().GetDeclaredMethod("CallNullSafePropertyGetterByReference");
-        private static readonly MethodInfo CallPropertySetterOpenGenericMethod = typeof(DelegatedAccessor).GetTypeInfo().GetDeclaredMethod("CallPropertySetter");
-
-        public DelegatedAccessor(PropertyInfo property)
-            : base(property)
-        {
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override Func<object, object> MakePropertyGetter(PropertyInfo propertyInfo)
-        {
-            Debug.Assert(propertyInfo != null);
-
-            return MakeFastPropertyGetter(
-                propertyInfo,
-                CallPropertyGetterOpenGenericMethod,
-                CallPropertyGetterByReferenceOpenGenericMethod);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override Action<object, object> MakePropertySetter(PropertyInfo propertyInfo)
-        {
-            Debug.Assert(propertyInfo != null);
-            Debug.Assert(!propertyInfo.DeclaringType.GetTypeInfo().IsValueType);
-
-            var setMethod = propertyInfo.SetMethod;
-            Debug.Assert(setMethod != null);
-            Debug.Assert(!setMethod.IsStatic);
-            Debug.Assert(setMethod.ReturnType == typeof(void));
-            var parameters = setMethod.GetParameters();
-            Debug.Assert(parameters.Length == 1);
-
-            // Instance methods in the CLR can be turned into static methods where the first parameter
-            // is open over "target". This parameter is always passed by reference, so we have a code
-            // path for value types and a code path for reference types.
-            var typeInput = setMethod.DeclaringType;
-            var parameterType = parameters[0].ParameterType;
-
-            // Create a delegate TDeclaringType -> { TDeclaringType.Property = TValue; }
-            var propertySetterAsAction =
-                setMethod.CreateDelegate(typeof(Action<,>).MakeGenericType(typeInput, parameterType));
-            var callPropertySetterClosedGenericMethod =
-                CallPropertySetterOpenGenericMethod.MakeGenericMethod(typeInput, parameterType);
-            var callPropertySetterDelegate =
-                callPropertySetterClosedGenericMethod.CreateDelegate(
-                    typeof(Action<object, object>), propertySetterAsAction);
-
-            return (Action<object, object>)callPropertySetterDelegate;
-        }
-
-        /// <summary>
-        /// Creates a single fast property getter which is safe for a null input object. The result is not cached.
-        /// </summary>
-        /// <param name="propertyInfo">propertyInfo to extract the getter for.</param>
-        /// <returns>A fast getter.</returns>
-        /// <remarks>
-        /// This method is more memory efficient than a dynamically compiled lambda, and about the
-        /// same speed.
-        /// </remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static Func<object, object> MakeNullSafeFastPropertyGetter(PropertyInfo propertyInfo)
-        {
-            Debug.Assert(propertyInfo != null);
-
-            return MakeFastPropertyGetter(
-                propertyInfo,
-                CallNullSafePropertyGetterOpenGenericMethod,
-                CallNullSafePropertyGetterByReferenceOpenGenericMethod);
-        }
-
-        static Func<object, object> MakeFastPropertyGetter(
-            PropertyInfo propertyInfo,
-            MethodInfo propertyGetterWrapperMethod,
-            MethodInfo propertyGetterByRefWrapperMethod)
-        {
-            Debug.Assert(propertyInfo != null);
-
-            // Must be a generic method with a Func<,> parameter
-            Debug.Assert(propertyGetterWrapperMethod != null);
-            Debug.Assert(propertyGetterWrapperMethod.IsGenericMethodDefinition);
-            Debug.Assert(propertyGetterWrapperMethod.GetParameters().Length == 2);
-
-            // Must be a generic method with a ByRefFunc<,> parameter
-            Debug.Assert(propertyGetterByRefWrapperMethod != null);
-            Debug.Assert(propertyGetterByRefWrapperMethod.IsGenericMethodDefinition);
-            Debug.Assert(propertyGetterByRefWrapperMethod.GetParameters().Length == 2);
-
-            var getMethod = propertyInfo.GetMethod;
-            Debug.Assert(getMethod != null);
-            Debug.Assert(!getMethod.IsStatic);
-            Debug.Assert(getMethod.GetParameters().Length == 0);
-
-            // Instance methods in the CLR can be turned into static methods where the first parameter
-            // is open over "target". This parameter is always passed by reference, so we have a code
-            // path for value types and a code path for reference types.
-            if (getMethod.DeclaringType.GetTypeInfo().IsValueType)
-            {
-                // Create a delegate (ref TDeclaringType) -> TValue
-                return MakeFastPropertyGetter(
-                    typeof(ByRefFunc<,>),
-                    getMethod,
-                    propertyGetterByRefWrapperMethod);
-            }
-            else
-            {
-                // Create a delegate TDeclaringType -> TValue
-                return MakeFastPropertyGetter(
-                    typeof(Func<,>),
-                    getMethod,
-                    propertyGetterWrapperMethod);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Func<object, object> MakeFastPropertyGetter(
-            Type openGenericDelegateType,
-            MethodInfo propertyGetMethod,
-            MethodInfo openGenericWrapperMethod)
-        {
-            var typeInput = propertyGetMethod.DeclaringType;
-            var typeOutput = propertyGetMethod.ReturnType;
-
-            var delegateType = openGenericDelegateType.MakeGenericType(typeInput, typeOutput);
-            var propertyGetterDelegate = propertyGetMethod.CreateDelegate(delegateType);
-
-            var wrapperDelegateMethod = openGenericWrapperMethod.MakeGenericMethod(typeInput, typeOutput);
-            var accessorDelegate = wrapperDelegateMethod.CreateDelegate(
-                typeof(Func<object, object>),
-                propertyGetterDelegate);
-
-            return (Func<object, object>)accessorDelegate;
-        }
-
-        // Called via reflection
-        private static object CallPropertyGetter<TDeclaringType, TValue>(
-            Func<TDeclaringType, TValue> getter,
-            object target)
-        {
-            return getter((TDeclaringType)target);
-        }
-
-        // Called via reflection
-        private static object CallPropertyGetterByReference<TDeclaringType, TValue>(
-            ByRefFunc<TDeclaringType, TValue> getter,
-            object target)
-        {
-            var unboxed = (TDeclaringType)target;
-            return getter(ref unboxed);
-        }
-
-        // Called via reflection
-        private static object CallNullSafePropertyGetter<TDeclaringType, TValue>(
-            Func<TDeclaringType, TValue> getter,
-            object target)
-        {
-            if (target == null)
-            {
-                return null;
-            }
-
-            return getter((TDeclaringType)target);
-        }
-
-        // Called via reflection
-        private static object CallNullSafePropertyGetterByReference<TDeclaringType, TValue>(
-            ByRefFunc<TDeclaringType, TValue> getter,
-            object target)
-        {
-            if (target == null)
-            {
-                return null;
-            }
-
-            var unboxed = (TDeclaringType)target;
-            return getter(ref unboxed);
-        }
-
-        private static void CallPropertySetter<TDeclaringType, TValue>(
-            Action<TDeclaringType, TValue> setter,
-            object target,
-            object value)
-        {
-            setter((TDeclaringType)target, (TValue)value);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace Smartstore.Core.Bootstrapping
             bool hasCtorLogger = false;
             bool hasPropertyLogger = false;
 
-            FastProperty[] loggerProperties = null;
+            PropertyInfo[] loggerProperties = null;
 
             var ra = registration.Activator as ReflectionActivator;
             if (ra != null)
@@ -62,7 +62,7 @@ namespace Smartstore.Core.Bootstrapping
                     .Where(x => x.PropertyType == typeof(ILogger)) // must be a logger
                     .Where(x => x.IndexParameters.Length == 0) // must not be an indexer
                     .Where(x => x.Accessors.Length != 1 || x.Accessors[0].ReturnType == typeof(void)) //must have get/set, or only set
-                    .Select(x => FastProperty.Create(x.PropertyInfo))
+                    .Select(x => x.PropertyInfo)
                     .ToArray();
 
                 hasPropertyLogger = loggerProperties.Length > 0;

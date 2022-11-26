@@ -47,8 +47,7 @@ namespace Smartstore
             var key = string.Concat(typeof(T).Name, ".", propInfo.Name);
 
             // Duck typing is not supported in C#. That's why we're using dynamic type.
-            var fastProp = FastProperty.GetProperty(propInfo, PropertyCachingStrategy.EagerCached);
-            dynamic currentValue = fastProp.GetValue(settings);
+            dynamic currentValue = propInfo.GetValue(settings);
 
             return await service.ApplySettingAsync(key, currentValue, storeId);
         }

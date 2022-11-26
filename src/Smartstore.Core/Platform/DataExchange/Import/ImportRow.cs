@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
-using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -208,8 +207,7 @@ namespace Smartstore.Core.DataExchange.Import
                         converted = value.Convert<TProp>(_segmenter.Culture);
                     }
 
-                    var fastProp = FastProperty.GetProperty(target.GetType(), propName, PropertyCachingStrategy.EagerCached);
-                    fastProp.SetValue(target, converted);
+                    target.GetType().GetProperty(propName).SetValue(target, converted);
                     isPropertySet = true;
                 }
                 else
@@ -226,8 +224,7 @@ namespace Smartstore.Core.DataExchange.Import
                         if (defaultValue != null)
                         {
                             // ...but the entity is new. In this case set the default value if given.
-                            var fastProp = FastProperty.GetProperty(target.GetType(), propName, PropertyCachingStrategy.EagerCached);
-                            fastProp.SetValue(target, defaultValue);
+                            target.GetType().GetProperty(propName).SetValue(target, defaultValue);
                             isPropertySet = true;
                         }
                     }

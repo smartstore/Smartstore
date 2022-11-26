@@ -7,12 +7,10 @@ namespace Smartstore.ComponentModel
     {
         protected override IValueProvider CreateMemberValueProvider(MemberInfo member)
         {
-            if (member is PropertyInfo pi)
-            {
-                return new FastPropertyValueProvider(pi);
-            }
-
-            return base.CreateMemberValueProvider(member);
+            // .NET 7 native reflection is ultra-fast, even faster than
+            // Newtonsoft's ExpressionValueProvider. As long as the devs
+            // does not refactor their code, we gonna return ReflectionValueProvider here.
+            return new ReflectionValueProvider(member);
         }
 
         public static SmartContractResolver Instance { get; } = new SmartContractResolver();

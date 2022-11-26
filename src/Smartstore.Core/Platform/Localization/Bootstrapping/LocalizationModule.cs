@@ -3,7 +3,6 @@ using Autofac;
 using Autofac.Core;
 using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Rules;
 using Smartstore.Core.Rules.Rendering;
@@ -51,7 +50,7 @@ namespace Smartstore.Core.Bootstrapping
             if (userProperty == null)
                 return;
 
-            registration.Metadata.Add(PropName, FastProperty.Create(userProperty));
+            registration.Metadata.Add(PropName, userProperty);
 
             registration.PipelineBuilding += (sender, pipeline) =>
             {
@@ -60,7 +59,7 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     next(context);
 
-                    if (!context.NewInstanceActivated || context.Registration.Metadata.Get(PropName) is not FastProperty prop)
+                    if (!context.NewInstanceActivated || context.Registration.Metadata.Get(PropName) is not PropertyInfo prop)
                     {
                         return;
                     }
@@ -68,7 +67,7 @@ namespace Smartstore.Core.Bootstrapping
                     try
                     {
                         var iText = context.Resolve<IText>();
-                        if (prop.Property.PropertyType == typeof(Localizer))
+                        if (prop.PropertyType == typeof(Localizer))
                         {
                             Localizer localizer = context.Resolve<IText>().Get;
                             prop.SetValue(context.Instance, localizer);

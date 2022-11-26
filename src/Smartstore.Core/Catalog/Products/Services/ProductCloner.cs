@@ -88,7 +88,7 @@ namespace Smartstore.Core.Catalog.Products
                     sampleDownloadId = sampleDownloadClone.Id;
                 }
 
-                var props = FastProperty.GetProperties(typeof(Product), PropertyCachingStrategy.EagerCached);
+                var props = FastProperty.GetProperties(typeof(Product));
 
                 foreach (var prop in props.Values)
                 {

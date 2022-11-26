@@ -73,7 +73,7 @@ namespace Smartstore.Engine.Modularity
             Guard.NotNull(descriptor, nameof(descriptor));
             Guard.NotNull(keySelector, nameof(keySelector));
 
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             var resourceName = string.Format("Plugins.{0}.{1}", invoker.Property.Name, descriptor.SystemName);
             var result = _locService.GetResource(resourceName, languageId, false, string.Empty, true);
 
@@ -150,7 +150,7 @@ namespace Smartstore.Engine.Modularity
             Guard.NotNull(metadata, nameof(metadata));
             Guard.NotNull(keySelector, nameof(keySelector));
 
-            var invoker = keySelector.CompileFast();
+            var invoker = keySelector.GetPropertyInvoker();
             var resourceName = metadata.ResourceKeyPattern.FormatInvariant(metadata.SystemName, invoker.Property.Name);
             var result = _locService.GetResource(resourceName, languageId, false, string.Empty, true);
 

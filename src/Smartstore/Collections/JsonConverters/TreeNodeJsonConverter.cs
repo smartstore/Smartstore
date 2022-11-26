@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Smartstore.ComponentModel;
 
 namespace Smartstore.Collections.JsonConverters
 {
@@ -75,14 +74,14 @@ namespace Smartstore.Collections.JsonConverters
             // Set Metadata
             if (metadata != null && metadata.Count > 0)
             {
-                var metadataProp = FastProperty.GetProperty(objectType, "Metadata", PropertyCachingStrategy.Cached);
+                var metadataProp = objectType.GetProperty("Metadata");
                 metadataProp.SetValue(treeNode, metadata);
             }
 
             // Set Id
             if (id != null)
             {
-                var idProp = FastProperty.GetProperty(objectType, "Id", PropertyCachingStrategy.Cached);
+                var idProp = objectType.GetProperty("Id");
                 idProp.SetValue(treeNode, id);
             }
 
@@ -133,7 +132,7 @@ namespace Smartstore.Collections.JsonConverters
 
         private static object GetPropValue(string name, object instance)
         {
-            return FastProperty.GetProperty(instance.GetType(), name, PropertyCachingStrategy.Cached).GetValue(instance);
+            return instance.GetType().GetProperty(name).GetValue(instance);
         }
     }
 }

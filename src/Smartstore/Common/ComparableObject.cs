@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using Smartstore.ComponentModel;
 using Smartstore.Utilities;
 
 namespace Smartstore
@@ -111,17 +110,17 @@ namespace Smartstore
 
         /// <summary>
         /// </summary>
-        public IEnumerable<FastProperty> GetSignatureProperties()
+        public IEnumerable<PropertyInfo> GetSignatureProperties()
         {
             var type = GetType();
             var propertyNames = GetSignaturePropertyNamesCore();
 
             foreach (var name in propertyNames)
             {
-                var fastProperty = FastProperty.GetProperty(type, name);
-                if (fastProperty != null)
+                var prop = type.GetProperty(name);
+                if (prop != null)
                 {
-                    yield return fastProperty;
+                    yield return prop;
                 }
             }
         }
