@@ -19,7 +19,9 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-
+            builder.AddOrUpdate("Products.Price.OfferCountdown",
+                "Ends in <b class=\"fwm\">{0}</b>",
+                "Endet in <b class=\"fwm\">{0}</b>");
         }
     }
 }
