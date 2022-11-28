@@ -203,9 +203,10 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(user, nameof(user));
 
             var userName = user.Username;
-            if (userName == null && _customerSettings.CustomerLoginType != CustomerLoginType.Username)
+            if (string.IsNullOrEmpty(userName) && _customerSettings.CustomerLoginType != CustomerLoginType.Username)
             {
                 userName = user.Email;
+                user.Username = userName;
             }
 
             return Task.FromResult(userName);
