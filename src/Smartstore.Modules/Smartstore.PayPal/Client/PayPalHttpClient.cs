@@ -390,7 +390,7 @@ namespace Smartstore.PayPal.Client
                 var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
                 var productName = item.ProductName.Value.Length > 126 ? item.ProductName.Value[..126] : item.ProductName.Value;
-                var productDescription = item.ShortDesc.Value.Length > 126 ? item.ShortDesc.Value[..126] : item.ShortDesc.Value;
+                var productDescription = item.ShortDesc.Value?.Length > 126 ? item.ShortDesc.Value?[..126] : item.ShortDesc.Value;
 
                 purchaseUnitItems.Add(new PurchaseUnitItem
                 {
