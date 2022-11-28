@@ -37,7 +37,6 @@ using Smartstore.Net;
 using Smartstore.Net.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Bootstrapping;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Web
 {

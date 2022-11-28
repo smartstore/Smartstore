@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Smartstore.Diagnostics;
 using Smartstore.Events;
 using Smartstore.Threading;
 
@@ -67,7 +68,10 @@ namespace Smartstore.Engine.Initialization
                     {
                         if (!_initialized)
                         {
-                            await InitializeAsync(context);
+                            using (new AutoStopwatch("PostInitialize application")) 
+                            {
+                                await InitializeAsync(context);
+                            }
                         }
                     }
                 }
