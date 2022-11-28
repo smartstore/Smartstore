@@ -67,24 +67,7 @@ namespace Smartstore.Web.Api.Bootstrapping
                     ApplySettings(batchHandler, settings);
 
                     services.AddSingleton<ODataBatchHandler>(_ => batchHandler);
-
-                    // TODO: (mg) (core) does not work. ODataMessageReaderSettings without any effect.
-                    //services.Remove(x => x.ServiceType == typeof(ODataMessageReaderSettings));
-                    //services.Add(new ServiceDescriptor(
-                    //    typeof(ODataMessageReaderSettings), 
-                    //    x => new ODataMessageReaderSettings()
-                    //    {
-                    //        EnablePropertyNameCaseInsensitive = true,
-                    //        Validations = ValidationKinds.All & ~ValidationKinds.ThrowOnUndeclaredPropertyForNonOpenType
-                    //    }, 
-                    //    Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton));
                 });
-
-                //var routeServices = options.GetRouteServices("odata/v1");
-                //var rs = routeServices.GetRequiredService<ODataMessageReaderSettings>();
-
-                // V4 True False.
-                //$"1 ODataMessageReaderSettings {rs.Version} {rs.EnablePropertyNameCaseInsensitive} {rs.Validations.HasFlag(ValidationKinds.ThrowOnUndeclaredPropertyForNonOpenType)}".Dump();
             }
             else
             {

@@ -12,11 +12,9 @@ Example: old `/Categories(14)/Name`, new `/Categories(14)?$select=Name`.
 - For PUT and PATCH requests, the HTTP header **Prefer** with the value **return=representation** must be sent to get a 
 status code 200 with entity content response. This is the default behavior of ASP.NET Core OData 8.0. Otherwise **204 No Content** is returned.
 
-- **GET /MediaFiles** returns type FileItemInfo instead of MediaFile which wraps and enriches MediaFile entity. 
-**GET /MediaFolders** returns type FolderNodeInfo instead of MediaFolder which wraps and enriches MediaFolder entity.
-
-- FolderNodeInfo returns subfolders via the property **Children**. The action methods of MediaFolders 
-accordingly return a single FolderNodeInfo object and no longer a list.
+- `/MediaFiles` returns type **FileItemInfo** which wraps and enriches the MediaFile entity. 
+`/MediaFolders` returns type **FolderNodeInfo** which wraps and enriches the MediaFolder entity.
+FileItemInfo and FolderNodeInfo are flattened objects and no longer entities.
 
 - Request parameters are always written in camel case, for example for OData actions.    
 Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/MediaFiles/GetFileByPath {"path":"catalog/my-image.jpg"}`.

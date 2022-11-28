@@ -12,7 +12,7 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// The endpoint for operations on MediaFolder entity. Returns type FolderNodeInfo which wraps and enriches MediaFolder.
     /// </summary>
     [ProducesResponseType(Status422UnprocessableEntity)]
-    public class MediaFoldersController : WebApiController<FolderNodeInfo>
+    public class MediaFoldersController : WebApiController<MediaFolder>
     {
         private readonly IFolderService _folderService;
         private readonly IMediaService _mediaService;
@@ -23,35 +23,47 @@ namespace Smartstore.Web.Api.Controllers.OData
             _mediaService = mediaService;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<FolderNodeInfo>), Status200OK)]
         public IActionResult Get()
         {
-            var node = _folderService.GetRootNode();
-            if (node == null)
+            try
             {
-                return NotFound($"Cannot find {nameof(MediaFolder)} root entity.");
+                var node = _folderService.GetRootNode();
+                if (node == null)
+                {
+                    return NotFound($"Cannot find {nameof(MediaFolder)} root entity.");
+                }
+
+                // We cannot apply any ODataQueryOptions because we have no MediaFolder entity anymore.
+                var nodes = node.FlattenNodes(false);
+                var folders = nodes.Select(Convert);
+
+                return Ok(folders);
             }
-
-            // We have no MediaFolder entity. That's why we cannot apply any ODataQueryOptions.
-            var nodes = node.FlattenNodes(false);
-            // We already have all nodes, so not necessary to auto-include children here.
-            var folders = nodes.Select(x => Convert(x, 0));
-
-            return Ok(folders);
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
         }
 
         [HttpGet, ApiQueryable]
         public IActionResult Get(int key)
         {
-            var node = _folderService.GetNodeById(key);
-            if (node == null)
+            try
             {
-                return NotFound(key, nameof(MediaFolder));
+                var node = _folderService.GetNodeById(key);
+                if (node == null)
+                {
+                    return NotFound(key);
+                }
+
+                return Ok(Convert(node));
             }
-
-            var folder = Convert(node);
-
-            return Ok(folder);
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
         }
 
         [HttpPost, ApiExplorerSettings(IgnoreApi = true)]
@@ -131,16 +143,20 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Gets the root folder node.
         /// </summary>
-        [HttpGet("MediaFolders/GetRootNode"), ApiQueryable]
+        [HttpGet("MediaFolders/GetRootNode")]
         [Produces(Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status200OK)]
         public IActionResult GetRootNode()
         {
             try
             {
-                var root = _folderService.GetRootNode();
+                var node = _folderService.GetRootNode();
+                if (node == null)
+                {
+                    return NotFound($"Cannot find {nameof(MediaFolder)} root entity.");
+                }
 
-                return Ok(Convert(root));
+                return Ok(Convert(node));
             }
             catch (Exception ex)
             {
@@ -152,7 +168,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// Gets a folder node by path.
         /// </summary>
         /// <param name="path" example="content/my-folder">The path of the folder.</param>
-        [HttpPost("MediaFolders/GetNodeByPath"), ApiQueryable]
+        [HttpPost("MediaFolders/GetNodeByPath")]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
@@ -178,7 +194,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// Creates a folder.
         /// </summary>
         /// <param name="path" example="content/my-folder">The path of the folder.</param>
-        [HttpPost("MediaFolders/CreateFolder"), ApiQueryable]
+        [HttpPost("MediaFolders/CreateFolder")]
         [Permission(Permissions.Media.Update)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status201Created)]
@@ -187,8 +203,9 @@ namespace Smartstore.Web.Api.Controllers.OData
             try
             {
                 var result = await _mediaService.CreateFolderAsync(path);
+                var url = BuildUrl(result.Id);
 
-                return Created(Convert(result.Node));
+                return Created(url, Convert(result.Node));
             }
             catch (Exception ex)
             {
@@ -201,7 +218,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         /// <param name="path" example="content/my-folder">The path of the folder.</param>
         /// <param name="destinationPath" example="content/my-renamed-folder">The destination folder path.</param>
-        [HttpPost("MediaFolders/MoveFolder"), ApiQueryable]
+        [HttpPost("MediaFolders/MoveFolder")]
         [Permission(Permissions.Media.Update)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(FolderNodeInfo), Status200OK)]
@@ -227,7 +244,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <param name="path" example="content/my-folder">The path of the folder.</param>
         /// <param name="destinationPath" example="content/my-new-folder">The destination folder path.</param>
         /// <param name="duplicateEntryHandling" example="0">A value indicating how to proceed if the destination folder already exists.</param>
-        [HttpPost("MediaFolders/CopyFolder"), ApiQueryable]
+        [HttpPost("MediaFolders/CopyFolder")]
         [Permission(Permissions.Media.Update)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(MediaFolderOperationResult), Status200OK)]
@@ -297,7 +314,7 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         #endregion
 
-        private static FolderNodeInfo Convert(TreeNode<MediaFolderNode> node, int depth = int.MaxValue)
+        private static FolderNodeInfo Convert(TreeNode<MediaFolderNode> node)
         {
             if (node == null)
             {
@@ -306,19 +323,6 @@ namespace Smartstore.Web.Api.Controllers.OData
 
             var item = MiniMapper.Map<MediaFolderNode, FolderNodeInfo>(node.Value, CultureInfo.InvariantCulture);
             item.HasChildren = node.HasChildren;
-
-            if (node.HasChildren && node.Depth < depth)
-            {
-                item.Children = node.Children
-                    .Select(x => Convert(x))
-                    .Where(x => x != null)
-                    .ToList();
-            }
-            else
-            {
-                // null crashes.
-                item.Children = Array.Empty<FolderNodeInfo>();
-            }
 
             return item;
         }

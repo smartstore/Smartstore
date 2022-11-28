@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Catalog.Products;
 
-namespace Smartstore.Web.Api.Models
+namespace Smartstore.Web.Api.Models.Catalog
 {
     /// <summary>
     /// Represents query parameters for a catalog search.

@@ -11,6 +11,11 @@ using Smartstore.Web.Api.Models.Media;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
+    // TODO: (mg) (core) string arrays of MediaSearchQuery causing ODataErrorException: A node of type 'StartArray' was read from the JSON reader when trying to read
+    // the contents of the property 'Extensions'; however, a 'StartObject' node or 'PrimitiveValue' node with null value was expected.
+    // Looking at EDM metadata this must be a bug. Must treat and declare string[] as an ICollection<string> instead of an object.
+    // PS: a List<string> instead of a string[] would work.
+
     // INFO: some endpoints are accessible via POST where you would expect GET.
     // That's because a function like GET /MediaFiles/FileExists(Path='content/my-file.jpg') would never work (HTTP status 404).
 
@@ -43,10 +48,10 @@ namespace Smartstore.Web.Api.Controllers.OData
                     AllowedQueryOptions = AllowedQueryOptions.Supported & ~AllowedQueryOptions.Select
                 });
 
-                var files = UnwrapEntityQuery(result);
-                var convertedFiles = files.Select(x => Convert(_mediaService.ConvertMediaFile(x)));
+                var entities = UnwrapEntityQuery(result);
+                var files = entities.Select(x => Convert(_mediaService.ConvertMediaFile(x)));
 
-                return Ok(convertedFiles);
+                return Ok(files);
             }
             catch (Exception ex)
             {
@@ -179,13 +184,6 @@ namespace Smartstore.Web.Api.Controllers.OData
                 return ErrorResult(ex);
             }
         }
-
-        // TODO: (mg) (core) produces ODataException: The property 'folderId' does not exist on type 'Smartstore.Core.Content.Media.MediaSearchQuery'.
-        // Changing ODataMessageReaderSettings without any effect.
-        // Probably MediaSearchQuery requires DataContractAttribute and DataMemberAttribute (see FileItemInfo issue).
-
-        // TODO: (mg) (core) throws ODataErrorException: A node of type 'StartArray' was read from the JSON reader when trying to read the contents of
-        // the property 'Extensions'; however, a 'StartObject' node or 'PrimitiveValue' node with null value was expected.
 
         /// <summary>
         /// Searches for files using filter criteria.

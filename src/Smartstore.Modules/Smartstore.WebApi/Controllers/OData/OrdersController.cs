@@ -4,7 +4,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Identity;
-using Smartstore.Web.Api.Models;
+using Smartstore.Web.Api.Models.Checkout;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {

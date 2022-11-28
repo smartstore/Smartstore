@@ -17,6 +17,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Engine;
 using Smartstore.Web.Api.Controllers.OData;
 using Smartstore.Web.Api.Models;
+using Smartstore.Web.Api.Models.Checkout;
 using Smartstore.Web.Api.Models.Media;
 
 namespace Smartstore.Web.Api
@@ -182,11 +183,8 @@ namespace Smartstore.Web.Api
 
         private static void BuildMediaFolders(ODataModelBuilder builder)
         {
-            const string setName = "MediaFolders";
-
-            var folderSet = builder.EntitySet<MediaFolder>("MediaFolderEntities");
-            var infoSet = builder.EntitySet<FolderNodeInfo>(setName);
-            var config = infoSet.EntityType.Collection;
+            var set = builder.EntitySet<MediaFolder>("MediaFolders");
+            var config = set.EntityType.Collection;
 
             config.Action(nameof(MediaFoldersController.FolderExists))
                 .Returns<bool>()
@@ -199,22 +197,20 @@ namespace Smartstore.Web.Api
                 .Required();
 
             config.Function(nameof(MediaFoldersController.GetRootNode))
-                .ReturnsFromEntitySet<FolderNodeInfo>(setName);
+                .Returns<FolderNodeInfo>();
 
             config.Action(nameof(MediaFoldersController.GetNodeByPath))
-                .ReturnsFromEntitySet<FolderNodeInfo>(setName)
+                .Returns<FolderNodeInfo>()
                 .Parameter<string>("path")
                 .Required();
 
             config.Action(nameof(MediaFoldersController.CreateFolder))
-                .ReturnsFromEntitySet<FolderNodeInfo>(setName)
+                .Returns<FolderNodeInfo>()
                 .Parameter<string>("path")
                 .Required();
 
-            var moveFolder = config
-                .Action(nameof(MediaFoldersController.MoveFolder))
-                .ReturnsFromEntitySet<FolderNodeInfo>(setName);
-
+            var moveFolder = config.Action(nameof(MediaFoldersController.MoveFolder))
+                .Returns<FolderNodeInfo>();
             moveFolder.Parameter<string>("path")
                 .Required();
             moveFolder.Parameter<string>("destinationPath")
@@ -223,7 +219,6 @@ namespace Smartstore.Web.Api
             var copyFolder = config
                 .Action(nameof(MediaFoldersController.CopyFolder))
                 .Returns<MediaFolderOperationResult>();
-
             copyFolder.Parameter<string>("path")
                 .Required();
             copyFolder.Parameter<string>("destinationPath")
@@ -234,7 +229,6 @@ namespace Smartstore.Web.Api
             var deleteFolder = config
                 .Action(nameof(MediaFoldersController.DeleteFolder))
                 .Returns<MediaFolderDeleteResult>();
-
             deleteFolder.Parameter<string>("path")
                 .Required();
             deleteFolder.Parameter<FileHandling>("fileHandling")

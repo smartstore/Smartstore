@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Api.Models
+﻿namespace Smartstore.Web.Api.Models.Checkout
 {
     /// <summary>
     /// Provides additional shipment information for an order item.

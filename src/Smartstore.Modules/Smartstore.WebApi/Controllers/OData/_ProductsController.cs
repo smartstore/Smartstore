@@ -14,7 +14,7 @@ using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Seo;
 using Smartstore.Domain;
-using Smartstore.Web.Api.Models;
+using Smartstore.Web.Api.Models.Catalog;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {

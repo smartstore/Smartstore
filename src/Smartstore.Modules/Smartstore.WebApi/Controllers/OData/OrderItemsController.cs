@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Web.Api.Models;
+using Smartstore.Web.Api.Models.Checkout;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
