@@ -10,7 +10,8 @@ namespace Smartstore
     {
         const string CacheRegionName = "Smartstore:";
 
-        private readonly static FieldInfo _entriesFieldInfo = typeof(MemoryCache).GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static FieldInfo _coherentStateFieldInfo;
+        private static FieldInfo _entriesFieldInfo;
 
         /// <summary>
         /// Build a scoped memory cache key by simply prepending "Smartstore:" to the given key.
@@ -37,7 +38,7 @@ namespace Smartstore
         {
             Guard.NotNull(cache, nameof(cache));
 
-            var allKeys = (_entriesFieldInfo.GetValue(cache) as IDictionary).Keys
+            var allKeys = GetInternalEntries(cache).Keys
                 .Cast<object>()
                 .AsParallel();
 
@@ -70,13 +71,28 @@ namespace Smartstore
             var keysToRemove = EnumerateKeys(cache, pattern).ToArray();
             int numRemoved = 0;
 
-            foreach (string key in keysToRemove)
+            foreach (var key in keysToRemove.Cast<string>())
             {
                 cache.Remove(key);
                 numRemoved++;
             }
 
             return numRemoved;
+        }
+
+        private static IDictionary GetInternalEntries(IMemoryCache cache)
+        {
+            _entriesFieldInfo = LazyInitializer.EnsureInitialized(ref _entriesFieldInfo, () =>
+            {
+                _coherentStateFieldInfo = typeof(MemoryCache).GetField("_coherentState", BindingFlags.NonPublic | BindingFlags.Instance);
+                _entriesFieldInfo = _coherentStateFieldInfo.GetValue(cache).GetType().GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                return _entriesFieldInfo;
+            });
+
+            var coherentState = _coherentStateFieldInfo.GetValue(cache);
+
+            return _entriesFieldInfo.GetValue(coherentState) as IDictionary;
         }
     }
 }
