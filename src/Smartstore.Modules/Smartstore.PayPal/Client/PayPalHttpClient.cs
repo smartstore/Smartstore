@@ -388,9 +388,9 @@ namespace Smartstore.PayPal.Client
                 var taxRate = await _taxService.GetTaxRateAsync(cartItem.Item.Product);
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
                 var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
-
-                var productName = item.ProductName.Value.Length > 126 ? item.ProductName.Value[..126] : item.ProductName.Value;
-                var productDescription = item.ShortDesc.Value?.Length > 126 ? item.ShortDesc.Value?[..126] : item.ShortDesc.Value;
+                
+                var productName = item.ProductName?.Value?.Truncate(126);
+                var productDescription = item.ShortDesc?.Value?.Truncate(126);
 
                 purchaseUnitItems.Add(new PurchaseUnitItem
                 {

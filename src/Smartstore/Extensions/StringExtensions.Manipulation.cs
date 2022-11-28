@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -19,8 +21,8 @@ namespace Smartstore
         /// <returns></returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string FormatInvariant(this string format, params object[] objects)
-            => string.Format(CultureInfo.InvariantCulture, format, objects);
+        public static string FormatInvariant(this string format, params object?[] args)
+            => string.Format(CultureInfo.InvariantCulture, format, args);
 
         /// <summary>
         /// Formats a string to the current culture.
@@ -30,8 +32,8 @@ namespace Smartstore
         /// <returns></returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string FormatCurrent(this string format, params object[] objects)
-            => string.Format(CultureInfo.CurrentCulture, format, objects);
+        public static string FormatCurrent(this string format, params object?[] args)
+            => string.Format(CultureInfo.CurrentCulture, format, args);
 
         /// <summary>
         /// Formats a string to the current UI culture.
@@ -41,11 +43,11 @@ namespace Smartstore
         /// <returns></returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string FormatCurrentUI(this string format, params object[] objects)
-            => string.Format(CultureInfo.CurrentUICulture, format, objects);
+        public static string FormatCurrentUI(this string format, params object?[] args)
+            => string.Format(CultureInfo.CurrentUICulture, format, args);
 
         [DebuggerStepThrough]
-        public static string FormatWith(this string format, IFormatProvider provider, params object[] args)
+        public static string FormatWith(this string format, IFormatProvider? provider, params object?[] args)
             => string.Format(provider, format, args);
 
         /// <summary>
@@ -55,7 +57,7 @@ namespace Smartstore
         /// <param name="length">Number of characters to leave untouched.</param>
         /// <returns>The mask string</returns>
         [DebuggerStepThrough]
-        public static string Mask(this string value, int length)
+        public static string? Mask(this string? value, int length)
         {
             if (value.HasValue())
             {
@@ -71,18 +73,18 @@ namespace Smartstore
         /// <param name="str">Input string</param>
         /// <returns>Input string with only numeric values, empty string if input is null or empty</returns>
         [DebuggerStepThrough]
-        public static string EnsureNumericOnly(this string str)
+        public static string EnsureNumericOnly(this string? str)
         {
             if (string.IsNullOrEmpty(str))
             {
                 return string.Empty;
             }
             
-            return new string(str.Where(c => char.IsDigit(c)).ToArray());
+            return new string(str.Where(char.IsDigit).ToArray());
         }
 
         [DebuggerStepThrough]
-        public static string Truncate(this string value, int maxLength, string end = "")
+        public static string? Truncate(this string? value, int maxLength, string end = "")
         {
             Guard.NotNull(end, nameof(end));
             Guard.IsPositive(maxLength, nameof(maxLength));
@@ -320,15 +322,15 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string RemoveHtml(this string source)
         {
-            return HtmlUtility.StripTags(source).Trim().HtmlDecode();
+            return HtmlUtility.StripTags(source).Trim().HtmlDecode()!;
         }
 
-        public static string RemoveEncloser(this string value, string encloser, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        public static string? RemoveEncloser(this string? value, string? encloser, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             if (value.IsEnclosedIn(encloser, comparison))
             {
-                int len = encloser.Length / 2;
-                return value.Substring(
+                int len = encloser!.Length / 2;
+                return value!.Substring(
                     len,
                     value.Length - (len * 2));
             }
@@ -353,7 +355,7 @@ namespace Smartstore
         /// <param name="append">The string to be appended</param>
         /// <param name="delimiter">Delimiter</param>
         [DebuggerStepThrough]
-        public static string Grow(this string value, string append, string delimiter = " ")
+        public static string Grow(this string? value, string? append, string delimiter = " ")
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -375,7 +377,7 @@ namespace Smartstore
         /// <param name="append">The string to be appended</param>
         /// <param name="delimiter">Delimiter</param>
         [DebuggerStepThrough]
-        public static void Grow(this StringBuilder sb, string append, string delimiter = " ")
+        public static void Grow(this StringBuilder sb, string? append, string delimiter = " ")
         {
             if (!string.IsNullOrWhiteSpace(append))
             {
@@ -392,13 +394,12 @@ namespace Smartstore
         /// Left-pads a string. Always returns empty string if source <paramref name="value"/> is null or empty.
         /// </summary>
         [DebuggerStepThrough]
-        public static string LeftPad(this string value, string format = null, char pad = ' ', int count = 1)
+        public static string LeftPad(this string? value, string? format = null, char pad = ' ', int count = 1)
         {
             if (string.IsNullOrEmpty(value))
             {
                 return string.Empty;
             }
-
 
             if (count < 1)
             {
@@ -427,7 +428,7 @@ namespace Smartstore
         /// Right-pads a string. Always returns empty string if source <paramref name="value"/> is null or empty.
         /// </summary>
         [DebuggerStepThrough]
-        public static string RightPad(this string value, string format = null, char pad = ' ', int count = 1)
+        public static string RightPad(this string? value, string? format = null, char pad = ' ', int count = 1)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -462,7 +463,7 @@ namespace Smartstore
         /// Replaces digits in a string with culture native digits (if digit substitution for culture is required)
         /// </summary>
         //[DebuggerStepThrough]
-        public static string ReplaceNativeDigits(this string value, IFormatProvider provider = null)
+        public static string ReplaceNativeDigits(this string value, IFormatProvider? provider = null)
         {
             if (value == null)
             {
@@ -522,7 +523,7 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static string HighlightKeywords(this string input, string keywords, string preMatch = "<strong>", string postMatch = "</strong>")
+        public static string? HighlightKeywords(this string? input, string? keywords, string preMatch = "<strong>", string postMatch = "</strong>")
         {
             Guard.NotNull(preMatch, nameof(preMatch));
             Guard.NotNull(postMatch, nameof(postMatch));
