@@ -203,6 +203,7 @@ namespace Smartstore.Core.DataExchange.Export
                                 break;
 
                             ctx.Store = store;
+                            ctx.LastId = 0;
 
                             await InternalExport(ctx);
                         }
