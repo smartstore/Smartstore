@@ -4,10 +4,10 @@
 
 ### New Features
 
+- Updated to **.NET 7**
 - **BeezUp** (commercial plugin)
 - **ElmarShopInfo** (commercial plugin)
 - **Shopwahl** (commercial plugin)
-- Updated to .NET 7
 - New app setting: `DbDefaultSchema`
 
 ### Improvements

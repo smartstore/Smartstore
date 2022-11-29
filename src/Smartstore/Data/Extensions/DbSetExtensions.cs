@@ -12,7 +12,7 @@ namespace Smartstore
         public static HookingDbContext GetDbContext<TEntity>(this DbSet<TEntity> dbSet)
             where TEntity : BaseEntity
         {
-            Guard.NotNull(dbSet, nameof(dbSet));
+            Guard.NotNull(dbSet);
 
             var infrastructure = dbSet as IInfrastructure<IServiceProvider>;
             var serviceProvider = infrastructure.Instance;

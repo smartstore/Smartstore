@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>5.0.0.0</Version>
+    <Version>5.0.1.0</Version>
     <Authors>Smartstore AG</Authors>
     <Company>Smartstore AG</Company>
     <Product />
