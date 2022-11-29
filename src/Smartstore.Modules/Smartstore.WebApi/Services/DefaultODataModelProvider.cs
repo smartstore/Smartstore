@@ -10,6 +10,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -17,6 +18,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Engine;
 using Smartstore.Web.Api.Controllers.OData;
 using Smartstore.Web.Api.Models;
+using Smartstore.Web.Api.Models.Catalog;
 using Smartstore.Web.Api.Models.Checkout;
 using Smartstore.Web.Api.Models.Media;
 
@@ -340,7 +342,6 @@ namespace Smartstore.Web.Api
 
             var search = config.Action(nameof(ProductsController.Search))
                 .ReturnsFromEntitySet(set);
-
             search.Parameter<string>("q").Required();
             search.Parameter<int>("i").Optional();
             search.Parameter<int>("s").Optional();
@@ -353,11 +354,34 @@ namespace Smartstore.Web.Api
             search.Parameter<bool>("a").Optional();
             search.Parameter<bool>("n").Optional();
 
-            config.Function(nameof(ProductsController.CalculatePrice))
-                .Returns<CalculatedPrice>()
-                .Parameter<int>("id")
-                .Required();
+            var calcPrice = set.EntityType
+                .Action(nameof(ProductsController.CalculatePrice))
+                .Returns<CalculatedProductPrice>();
+            calcPrice.Parameter<bool>("forListing")
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
+            calcPrice.Parameter<int>("quantity")
+                .HasDefaultValue("1")
+                .Optional();
+            calcPrice.Parameter<int>("customerId")
+                .HasDefaultValue("0")
+                .Optional();
+            calcPrice.Parameter<int>("targetCurrencyId")
+                .HasDefaultValue("0")
+                .Optional();
 
+            set.EntityType
+                .Action(nameof(ProductsController.CreateAttributeCombinations))
+                .ReturnsCollectionFromEntitySet<ProductVariantAttributeCombination>("ProductVariantAttributeCombinations");
+
+            var manageAttributes = set.EntityType
+                .Action(nameof(ProductsController.ManageAttributes))
+                .ReturnsCollectionFromEntitySet<ProductVariantAttribute>("ProductVariantAttributes");
+            manageAttributes.CollectionParameter<ManagedProductAttribute>("attributes")
+                .Required();
+            manageAttributes.Parameter<bool>("synchronize")
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
         }
     }
 }

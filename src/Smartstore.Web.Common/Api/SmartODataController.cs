@@ -491,6 +491,24 @@ namespace Smartstore.Web.Api
             }
         }
 
+        /// <summary>
+        /// Creates an absolute OData entity URL.
+        /// Typically used for <see cref="CreatedODataResult{TEntity}"/> to create the location response header.
+        /// </summary>
+        /// <param name="id">Entity identifier.</param>
+        /// <returns>Absolute OData URL.</returns>
+        /// <example>https://www.my-store/odata/v1/Addresses(85382)</example>
+        protected string BuildUrl(int id)
+        {
+            Guard.NotZero(id);
+
+            var routePrefix = Request.ODataFeature().RoutePrefix;
+            var controller = Request.RouteValues.GetControllerName();
+            var url = UriHelper.BuildAbsolute(Request.Scheme, Request.Host, Request.PathBase);
+
+            return $"{url.EnsureEndsWith('/')}{routePrefix.EnsureEndsWith('/')}{controller}({id})";
+        }
+
         protected ODataErrorResult ErrorResult(
             Exception ex = null,
             string message = null,
@@ -519,24 +537,6 @@ namespace Smartstore.Web.Api
         /// <param name="extraInfo">Extra info to append to the message.</param>
         protected ODataErrorResult Forbidden(string extraInfo = null)
             => ErrorResult(null, $"{Request.Method} on {Request.Path} is not allowed.".Grow(extraInfo, " "), StatusCodes.Status403Forbidden);
-
-        /// <summary>
-        /// Creates an absolute OData entity URL.
-        /// Typically used for <see cref="CreatedODataResult{TEntity}"/> to create the location response header.
-        /// </summary>
-        /// <param name="id">Entity identifier.</param>
-        /// <returns>Absolute OData URL.</returns>
-        /// <example>https://www.my-store/odata/v1/Addresses(85382)</example>
-        protected string BuildUrl(int id)
-        {
-            Guard.NotZero(id);
-
-            var routePrefix = Request.ODataFeature().RoutePrefix;
-            var controller = Request.RouteValues.GetControllerName();
-            var url = UriHelper.BuildAbsolute(Request.Scheme, Request.Host, Request.PathBase);
-
-            return $"{url.EnsureEndsWith('/')}{routePrefix.EnsureEndsWith('/')}{controller}({id})";
-        }
 
         #endregion
     }

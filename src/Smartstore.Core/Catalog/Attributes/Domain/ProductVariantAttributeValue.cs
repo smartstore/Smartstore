@@ -55,6 +55,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Gets or sets the product variant attribute name.
         /// </summary>
+        /// <example>Green</example>
         [StringLength(450)]
         [LocalizedProperty]
         public string Name { get; set; }
@@ -72,11 +73,12 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Gets or sets the color RGB value (used with "Boxes" attribute type).
         /// </summary>
+        /// <example>#00ff00</example>
         [StringLength(100)]
         public string Color { get; set; }
 
         /// <summary>
-        /// Gets or sets the price adjustment.
+        /// Gets or sets the price adjustment\surcharge.
         /// </summary>
         public decimal PriceAdjustment { get; set; }
 
@@ -86,7 +88,7 @@ namespace Smartstore.Core.Catalog.Attributes
         public decimal WeightAdjustment { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the option is pre-selected.
+        /// Gets or sets a value indicating whether the value is preselected.
         /// </summary>
         public bool IsPreSelected { get; set; }
 

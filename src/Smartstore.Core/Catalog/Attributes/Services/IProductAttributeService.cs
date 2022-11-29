@@ -50,6 +50,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
         /// <summary>
         /// Creates all variant attributes combinations for a product.
+        /// Already existing combinations will be deleted before.
         /// </summary>
         /// <param name="productId">Product identifier.</param>
         /// <returns>Number of added attribute combinations.</returns>

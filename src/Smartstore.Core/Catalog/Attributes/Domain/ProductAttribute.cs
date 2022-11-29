@@ -29,6 +29,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Gets or sets the attribute name.
         /// </summary>
+        /// <example>Color</example>
         [Required, StringLength(4000)]
         [LocalizedProperty]
         public string Name { get; set; }

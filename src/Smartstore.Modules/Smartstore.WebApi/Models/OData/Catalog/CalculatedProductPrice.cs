@@ -1,12 +1,9 @@
-﻿using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Checkout.Tax;
-
-namespace Smartstore.Web.Api.Models.Catalog
+﻿namespace Smartstore.Web.Api.Models.Catalog
 {
     /// <summary>
     /// Represents the result of a price calculation process for a single product.
     /// </summary>
-    public partial class CalculatedProductPrice
+    public class CalculatedProductPrice
     {
         /// <summary>
         /// The identifier of the product for which a price was calculated.
@@ -67,39 +64,37 @@ namespace Smartstore.Web.Api.Models.Catalog
         /// </summary>
         public decimal DiscountAmount { get; set; }
 
-        /// <summary>
-        /// Tax for FinalPrice.
-        /// </summary>
-        public Tax? Tax { get; set; }
+        // INFO: produces "The type 'Tax' must be a reference type in order to use it as parameter 'TComplexType' in a generic type or method".
+        //public Tax? Tax { get; set; }
 
         /// <summary>
         /// A price saving in relation to FinalPrice.
         /// The saving results from the applied discounts, if any, otherwise from the difference to the Product.ComparePrice.
         /// </summary>
         public ProductPriceSaving Saving { get; set; }
-    }
 
-    public readonly struct ProductPriceSaving
-    {
-        /// <summary>
-        /// A value indicating whether there is a price saving on the calculated final price.
-        /// </summary>
-        public bool HasSaving { get; init; }
+        public class ProductPriceSaving
+        {
+            /// <summary>
+            /// A value indicating whether there is a price saving on the calculated final price.
+            /// </summary>
+            public bool HasSaving { get; set; }
 
-        /// <summary>
-        /// The price that represents the saving. Often displayed as a crossed-out price.
-        /// Always greater than the final price if HasSaving is true.
-        /// </summary>
-        public decimal SavingPrice { get; init; }
+            /// <summary>
+            /// The price that represents the saving. Often displayed as a crossed-out price.
+            /// Always greater than the final price if HasSaving is true.
+            /// </summary>
+            public decimal SavingPrice { get; set; }
 
-        /// <summary>
-        /// The saving, in percent, compared to the final price.
-        /// </summary>
-        public float SavingPercent { get; init; }
+            /// <summary>
+            /// The saving, in percent, compared to the final price.
+            /// </summary>
+            public float SavingPercent { get; set; }
 
-        /// <summary>
-        /// The saving, as money amount, compared to the final price.
-        /// </summary>
-        public decimal? SavingAmount { get; init; }
+            /// <summary>
+            /// The saving, as money amount, compared to the final price.
+            /// </summary>
+            public decimal? SavingAmount { get; set; }
+        }
     }
 }

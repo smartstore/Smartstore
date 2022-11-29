@@ -2,7 +2,9 @@
 
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
+using Newtonsoft.Json.Linq;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -30,6 +32,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ICatalogSearchQueryFactory> _catalogSearchQueryFactory;
         private readonly Lazy<IPriceCalculationService> _priceCalculationService;
+        private readonly Lazy<IProductAttributeService> _productAttributeService;
         private readonly Lazy<IWebApiService> _webApiService;
         private readonly Lazy<SearchSettings> _searchSettings;
 
@@ -38,6 +41,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ICatalogSearchQueryFactory> catalogSearchQueryFactory,
             Lazy<IPriceCalculationService> priceCalculationService,
+            Lazy<IProductAttributeService> productAttributeService,
             Lazy<IWebApiService> webApiService,
             Lazy<SearchSettings> searchSettings)
         {
@@ -45,6 +49,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _catalogSearchService = catalogSearchService;
             _catalogSearchQueryFactory = catalogSearchQueryFactory;
             _priceCalculationService = priceCalculationService;
+            _productAttributeService = productAttributeService;
             _webApiService = webApiService;
             _searchSettings = searchSettings;
         }
@@ -374,22 +379,245 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
-        [HttpGet("Products/CalculatePrice(id={id})")]
+        /// <summary>
+        /// Calculates a product price.
+        /// </summary>
+        /// <param name="forListing" example="false">
+        /// A value indicating whether to calculate the price for a product list.
+        /// Speeds up the calculation if true, since lowest and presselected price are not calculated.
+        /// </param>
+        /// <param name="quantity" example="1">The product quantity. 1 by default.</param>
+        /// <param name="customerId">The identifier of a customer to calculate the price for. Obtained from IWorkContext.CurrentCustomer if 0.</param>
+        /// <param name="targetCurrencyId">The target currency to use for money conversion. Obtained from IWorkContext.WorkingCurrency if 0.</param>
+        [HttpPost("Products({key})/CalculatePrice")]
         [Permission(Permissions.Catalog.Product.Read)]
-        [Produces(Json)]
-        [ProducesResponseType(typeof(CalculatedPrice), Status200OK)]
-        public async Task<IActionResult> CalculatePrice(int id)
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(CalculatedProductPrice), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        public async Task<IActionResult> CalculatePrice(int key,
+            [FromODataBody] bool forListing = false,
+            [FromODataBody] int quantity = 1,
+            [FromODataBody] int customerId = 0,
+            [FromODataBody] int targetCurrencyId = 0)
         {
             try
             {
-                var entity = await GetRequiredById(id);
-                var calculationOptions = _priceCalculationService.Value.CreateDefaultOptions(false);
-                var price = await _priceCalculationService.Value.CalculatePriceAsync(new PriceCalculationContext(entity, calculationOptions));
+                var entity = await GetRequiredById(key);
+                var customer = await Db.Customers.FindByIdAsync(customerId);
+                var targetCurrency = await Db.Currencies.FindByIdAsync(targetCurrencyId);
 
-                // TODO: (mg) (core) ODataErrorException: The type 'Smartstore.Core.Common.Money' of a resource in an expanded link is not compatible with the element type
-                // 'System.Nullable_1OfMoney' of the expanded link. Entries in an expanded link must have entity types that are assignable to the element type of the expanded link.
+                var calculationOptions = _priceCalculationService.Value.CreateDefaultOptions(forListing, customer, targetCurrency);
+                var p = await _priceCalculationService.Value.CalculatePriceAsync(new PriceCalculationContext(entity, quantity, calculationOptions));
 
-                return Ok(price);
+                var result = new CalculatedProductPrice
+                {
+                    ProductId = key,
+                    CurrencyId = p.FinalPrice.Currency.Id,
+                    CurrencyCode = p.FinalPrice.Currency.CurrencyCode,
+                    FinalPrice = p.FinalPrice.Amount,
+                    RegularPrice = p.RegularPrice?.Amount,
+                    RetailPrice = p.RetailPrice?.Amount,
+                    OfferPrice = p.OfferPrice?.Amount,
+                    ValidUntilUtc = p.ValidUntilUtc,
+                    PreselectedPrice = p.PreselectedPrice?.Amount,
+                    LowestPrice = p.LowestPrice?.Amount,
+                    DiscountAmount = p.DiscountAmount.Amount,
+                    Saving = new()
+                    {
+                        HasSaving = p.Saving.HasSaving,
+                        SavingPrice = p.Saving.SavingPrice.Amount,
+                        SavingPercent = p.Saving.SavingPercent,
+                        SavingAmount = p.Saving.SavingAmount?.Amount
+                    }
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Creates all variant attributes combinations for a product.
+        /// Already existing combinations will be deleted before.
+        /// </summary>
+        [HttpPost("Products({key})/CreateAttributeCombinations"), ApiQueryable]
+        [Permission(Permissions.Catalog.Product.EditVariant)]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(IQueryable<ProductVariantAttributeCombination>), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        public async Task<IActionResult> CreateAttributeCombinations(int key)
+        {
+            try
+            {
+                var entity = await GetRequiredById(key, q => q.Include(x => x.ProductVariantAttributeCombinations));
+                await _productAttributeService.Value.CreateAllAttributeCombinationsAsync(key);
+
+                return Ok(entity.ProductVariantAttributeCombinations.AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Manages\synchronizes the attributes and attribute values of a product.
+        /// </summary>
+        /// <param name="attributes">The attributes and attribute values to be processed.</param>
+        /// <param name="synchronize">
+        /// If set to false, only missing attributes and attribute values are inserted.
+        /// If set to true, existing records are also updated and values not included in the request body are removed from the database.
+        /// This means that if no attribute values are sent, then the attribute is removed along with all values for this product.
+        /// </param>
+        [HttpPost("Products({key})/ManageAttributes"), ApiQueryable]
+        [Permission(Permissions.Catalog.Product.EditVariant)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(IQueryable<ProductVariantAttribute>), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        public async Task<IActionResult> ManageAttributes(int key,
+            [FromODataBody] IEnumerable<ManagedProductAttribute> attributes,
+            [FromODataBody] bool synchronize = false)
+        {
+            try
+            {
+                var entity = await GetRequiredById(key, q => q.Include(x => x.ProductVariantAttributes).ThenInclude(x => x.ProductAttribute));
+
+                var toDeleteValueIds = new HashSet<int>();
+                var names = new HashSet<string>(attributes.Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
+                var existingAttributes = await Db.ProductAttributes
+                    .Where(x => names.Contains(x.Name))
+                    .Select(x => new { x.Id, x.Name })
+                    .ToListAsync();
+                var existingAttributesDic = existingAttributes.ToDictionarySafe(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase);
+
+                // Add missing attributes.
+                var missingAttributes = attributes
+                    .Where(x => !existingAttributesDic.ContainsKey(x.Name))
+                    .Select(x => new ProductAttribute { Name = x.Name })
+                    .ToArray();
+                if (missingAttributes.Length > 0)
+                {
+                    Db.ProductAttributes.AddRange(missingAttributes);
+                    await Db.SaveChangesAsync();
+
+                    missingAttributes.Each(x => existingAttributesDic[x.Name] = x.Id);
+                }
+
+                // Product attribute mappings.
+                var existingMappings = entity.ProductVariantAttributes
+                    .ToDictionarySafe(x => x.ProductAttribute.Name, x => x, StringComparer.OrdinalIgnoreCase);
+
+                foreach (var item in attributes)
+                {
+                    if (!existingMappings.TryGetValue(item.Name, out var productAttribute))
+                    {
+                        // No attribute mapping yet.
+                        var isEmptyAttribute = synchronize && item.Values.Count == 0;
+                        if (!isEmptyAttribute)
+                        {
+                            productAttribute = new ProductVariantAttribute
+                            {
+                                ProductId = entity.Id,
+                                ProductAttributeId = existingAttributesDic[item.Name],
+                                IsRequired = item.IsRequired,
+                                AttributeControlTypeId = (int)item.ControlType,
+                                CustomData = item.CustomData,
+                                DisplayOrder = entity.ProductVariantAttributes
+                                    .OrderByDescending(x => x.DisplayOrder)
+                                    .Select(x => x.DisplayOrder)
+                                    .FirstOrDefault() + 1
+                            };
+
+                            entity.ProductVariantAttributes.Add(productAttribute);
+                            existingMappings[item.Name] = productAttribute;
+                        }
+                    }
+                    else if (synchronize)
+                    {
+                        // Has already an attribute mapping.
+                        if (item.Values.Count == 0 && productAttribute.IsListTypeAttribute())
+                        {
+                            Db.ProductVariantAttributes.Remove(productAttribute);
+                        }
+                        else
+                        {
+                            productAttribute.IsRequired = item.IsRequired;
+                            productAttribute.AttributeControlTypeId = (int)item.ControlType;
+                            productAttribute.CustomData = item.CustomData;
+                        }
+                    }
+                }
+
+                await Db.SaveChangesAsync();
+
+                // Product attribute values.
+                foreach (var item in attributes)
+                {
+                    if (existingMappings.TryGetValue(item.Name, out var productAttribute))
+                    {
+                        var maxDisplayOrder = productAttribute.ProductVariantAttributeValues
+                            .OrderByDescending(x => x.DisplayOrder)
+                            .Select(x => x.DisplayOrder)
+                            .FirstOrDefault();
+
+                        var existingValues = productAttribute.ProductVariantAttributeValues
+                            .ToDictionarySafe(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+
+                        foreach (var val in item.Values.Where(x => x.Name.HasValue()))
+                        {
+                            if (!existingValues.TryGetValue(val.Name, out var value))
+                            {
+                                value = new ProductVariantAttributeValue
+                                {
+                                    ProductVariantAttributeId = productAttribute.Id,
+                                    Name = val.Name,
+                                    Alias = val.Alias,
+                                    Color = val.Color,
+                                    PriceAdjustment = val.PriceAdjustment,
+                                    WeightAdjustment = val.WeightAdjustment,
+                                    IsPreSelected = val.IsPreSelected,
+                                    DisplayOrder = ++maxDisplayOrder
+                                };
+
+                                productAttribute.ProductVariantAttributeValues.Add(value);
+                                existingValues[val.Name] = value;
+                            }
+                            else if (synchronize)
+                            {
+                                value.Alias = val.Alias;
+                                value.Color = val.Color;
+                                value.PriceAdjustment = val.PriceAdjustment;
+                                value.WeightAdjustment = val.WeightAdjustment;
+                                value.IsPreSelected = val.IsPreSelected;
+                            }
+                        }
+
+                        if (synchronize)
+                        {
+                            var ids = productAttribute.ProductVariantAttributeValues
+                                .Where(value => !item.Values.Any(x => x.Name.EqualsNoCase(value.Name)))
+                                .Select(x => x.Id);
+
+                            toDeleteValueIds.AddRange(ids);
+                        }
+                    }
+                }
+
+                await Db.SaveChangesAsync();
+
+                // Deletes values not present in sent values.
+                // Separate step to avoid DbUpdateConcurrencyException.
+                if (toDeleteValueIds.Count > 0)
+                {
+                    await Db.ProductVariantAttributeValues
+                        .Where(x => toDeleteValueIds.Contains(x.Id))
+                        .ExecuteDeleteAsync();
+                }
+
+                return Ok(entity.ProductVariantAttributes.AsQueryable());
             }
             catch (Exception ex)
             {
