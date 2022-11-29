@@ -115,7 +115,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                 if (files.Any())
                 {
-                    dynObject.Picture = ToDynamic(files.First(), _mediaSettings.ManufacturerThumbPictureSize, _mediaSettings.ManufacturerThumbPictureSize, ctx);
+                    dynObject.File = ToDynamic(files.First(), _mediaSettings.ManufacturerThumbPictureSize, _mediaSettings.ManufacturerThumbPictureSize, ctx);
                 }
             }
 
@@ -155,7 +155,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                 if (files.Any())
                 {
-                    dynObject.Picture = ToDynamic(files.First(), _mediaSettings.CategoryThumbPictureSize, _mediaSettings.CategoryThumbPictureSize, ctx);
+                    dynObject.File = ToDynamic(files.First(), _mediaSettings.CategoryThumbPictureSize, _mediaSettings.CategoryThumbPictureSize, ctx);
                 }
             }
 
@@ -440,7 +440,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             dynamic result = new DynamicEntity(manufacturer);
 
-            result.Picture = null;
+            result.File = null;
             result.Name = ctx.GetTranslation(manufacturer, nameof(manufacturer.Name), manufacturer.Name);
 
             if (!ctx.IsPreview)
@@ -473,7 +473,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             dynamic result = new DynamicEntity(category);
 
-            result.Picture = null;
+            result.File = null;
             result.Name = ctx.GetTranslation(category, nameof(category.Name), category.Name);
             result.FullName = ctx.GetTranslation(category, nameof(category.FullName), category.FullName);
 
@@ -488,7 +488,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                 result._CategoryTemplateViewPath = ctx.CategoryTemplates.ContainsKey(category.CategoryTemplateId)
                     ? ctx.CategoryTemplates[category.CategoryTemplateId]
-                    : "";
+                    : string.Empty;
 
                 result._Localized = GetLocalized(ctx, category,
                     x => x.Name,

@@ -1727,7 +1727,7 @@ namespace Smartstore.Core.Installation
             #region ORIGINAL WAYFARER AT COLLECTION
 
             var productWayfarer = _db.Products.First(x => x.Sku == "P-3003");
-            var wayfarerPictureIds = productWayfarer.ProductPictures.Select(pp => pp.MediaFileId).ToList();
+            var wayfarerPictureIds = productWayfarer.ProductMediaFiles.Select(pp => pp.MediaFileId).ToList();
             var picturesWayfarer = _db.MediaFiles.Where(x => wayfarerPictureIds.Contains(x.Id)).ToList();
 
             var wayfarerLenscolor = _db.ProductVariantAttributes.First(x => x.ProductId == productWayfarer.Id && x.ProductAttributeId == attrWayfarerLenscolor.Id);
@@ -1981,7 +1981,7 @@ namespace Smartstore.Core.Installation
             #region Custom Flak
 
             var productFlak = _db.Products.First(x => x.Sku == "P-3002");
-            var flakPictureIds = productFlak.ProductPictures.Select(pp => pp.MediaFileId).ToList();
+            var flakPictureIds = productFlak.ProductMediaFiles.Select(pp => pp.MediaFileId).ToList();
             var picturesFlak = _db.MediaFiles.Where(x => flakPictureIds.Contains(x.Id)).ToList();
 
             //var attributeColorIphone7Plus = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrColor.Id);
@@ -2038,7 +2038,7 @@ namespace Smartstore.Core.Installation
             #region ps3
 
             var productPs3 = _db.Products.First(x => x.Sku == "Sony-PS399000");
-            var ps3PictureIds = productPs3.ProductPictures.Select(pp => pp.MediaFileId).ToList();
+            var ps3PictureIds = productPs3.ProductMediaFiles.Select(pp => pp.MediaFileId).ToList();
             var picturesPs3 = _db.MediaFiles.Where(x => ps3PictureIds.Contains(x.Id)).ToList();
 
             var productAttributeColor = _db.ProductVariantAttributes.First(x => x.ProductId == productPs3.Id && x.ProductAttributeId == attrController.Id);
@@ -2077,7 +2077,7 @@ namespace Smartstore.Core.Installation
             #region Apple Airpod
 
             var productAirpod = _db.Products.First(x => x.Sku == "P-2003");
-            var airpodPictureIds = productAirpod.ProductPictures.Select(pp => pp.MediaFileId).ToList();
+            var airpodPictureIds = productAirpod.ProductMediaFiles.Select(pp => pp.MediaFileId).ToList();
             var picturesAirpod = _db.MediaFiles.Where(x => airpodPictureIds.Contains(x.Id)).ToList();
 
             var airpodAttributeColor = _db.ProductVariantAttributes.First(x => x.ProductId == productAirpod.Id && x.ProductAttributeId == attrColor.Id);
@@ -2167,7 +2167,7 @@ namespace Smartstore.Core.Installation
             #region 9,7 Ipad
 
             var productiPad97 = _db.Products.First(x => x.Sku == "P-2004");
-            var iPad97PictureIds = productiPad97.ProductPictures.Select(pp => pp.MediaFileId).ToList();
+            var iPad97PictureIds = productiPad97.ProductMediaFiles.Select(pp => pp.MediaFileId).ToList();
             var picturesiPad97 = _db.MediaFiles.Where(x => iPad97PictureIds.Contains(x.Id)).ToList();
 
             //var attributeColorIphone7Plus = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrColor.Id);
@@ -2474,7 +2474,7 @@ namespace Smartstore.Core.Installation
             #region Iphone 7 plus
 
             var productIphone7Plus = _db.Products.First(x => x.Sku == "P-2001");
-            var Iphone7PlusPictureIds = productIphone7Plus.ProductPictures.Select(pp => pp.MediaFileId).ToList();
+            var Iphone7PlusPictureIds = productIphone7Plus.ProductMediaFiles.Select(pp => pp.MediaFileId).ToList();
             var picturesIphone7Plus = _db.MediaFiles.Where(x => Iphone7PlusPictureIds.Contains(x.Id)).ToList();
 
             //var attributeColorIphone7Plus = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrColor.Id);
@@ -2642,7 +2642,7 @@ namespace Smartstore.Core.Installation
             #region Fashion - Converse All Star
 
             var productAllStar = _db.Products.First(x => x.Sku == "Fashion-112355");
-            var allStarPictureIds = productAllStar.ProductPictures.Select(x => x.MediaFileId).ToList();
+            var allStarPictureIds = productAllStar.ProductMediaFiles.Select(x => x.MediaFileId).ToList();
             var allStarPictures = _db.MediaFiles.Where(x => allStarPictureIds.Contains(x.Id)).ToList();
 
             var allStarColor = _db.ProductVariantAttributes.First(x => x.ProductId == productAllStar.Id && x.ProductAttributeId == attrColor.Id);
@@ -2694,7 +2694,7 @@ namespace Smartstore.Core.Installation
             #region Fashion - Shirt Meccanica
 
             var productShirtMeccanica = _db.Products.First(x => x.Sku == "Fashion-987693502");
-            var shirtMeccanicaPictureIds = productShirtMeccanica.ProductPictures.Select(x => x.MediaFileId).ToList();
+            var shirtMeccanicaPictureIds = productShirtMeccanica.ProductMediaFiles.Select(x => x.MediaFileId).ToList();
             var shirtMeccanicaPictures = _db.MediaFiles.Where(x => shirtMeccanicaPictureIds.Contains(x.Id)).ToList();
 
             var shirtMeccanicaColor = _db.ProductVariantAttributes.First(x => x.ProductId == productShirtMeccanica.Id && x.ProductAttributeId == attrColor.Id);
@@ -2744,7 +2744,7 @@ namespace Smartstore.Core.Installation
             #region Fashion - Ladies Jacket
 
             var productLadiesJacket = _db.Products.First(x => x.Sku == "Fashion-JN1107");
-            var ladiesJacketPictureIds = productLadiesJacket.ProductPictures.Select(x => x.MediaFileId).ToList();
+            var ladiesJacketPictureIds = productLadiesJacket.ProductMediaFiles.Select(x => x.MediaFileId).ToList();
             var ladiesJacketPictures = _db.MediaFiles.Where(x => ladiesJacketPictureIds.Contains(x.Id)).ToList();
 
             var ladiesJacketColor = _db.ProductVariantAttributes.First(x => x.ProductId == productLadiesJacket.Id && x.ProductAttributeId == attrColor.Id);
@@ -2887,7 +2887,7 @@ namespace Smartstore.Core.Installation
             #region Soccer Adidas TANGO SALA BALL
 
             var productAdidasTANGOSALABALL = _db.Products.First(x => x.Sku == "P-5001");
-            var adidasTANGOSALABALLPictureIds = productAdidasTANGOSALABALL.ProductPictures.Select(x => x.MediaFileId).ToList();
+            var adidasTANGOSALABALLPictureIds = productAdidasTANGOSALABALL.ProductMediaFiles.Select(x => x.MediaFileId).ToList();
             var adidasTANGOSALABALLJacketPictures = _db.MediaFiles.Where(x => adidasTANGOSALABALLPictureIds.Contains(x.Id)).ToList();
 
             var adidasTANGOSALABALLColor = _db.ProductVariantAttributes.First(x => x.ProductId == productAdidasTANGOSALABALL.Id && x.ProductAttributeId == attrColor.Id);
@@ -2954,7 +2954,7 @@ namespace Smartstore.Core.Installation
             #region Soccer Torfabrik official game ball
 
             var productTorfabrikBall = _db.Products.First(x => x.Sku == "P-5002");
-            var torfabrikBallPictureIds = productTorfabrikBall.ProductPictures.Select(x => x.MediaFileId).ToList();
+            var torfabrikBallPictureIds = productTorfabrikBall.ProductMediaFiles.Select(x => x.MediaFileId).ToList();
             var torfabrikBallPictures = _db.MediaFiles.Where(x => torfabrikBallPictureIds.Contains(x.Id)).ToList();
 
             var torfabrikBallColor = _db.ProductVariantAttributes.First(x => x.ProductId == productTorfabrikBall.Id && x.ProductAttributeId == attrColor.Id);
@@ -3013,7 +3013,7 @@ namespace Smartstore.Core.Installation
             #region Furniture - Ball chair
 
             var productBallChair = _db.Products.First(x => x.Sku == "Furniture-ball-chair");
-            var ballChairPictureIds = productBallChair.ProductPictures.Select(x => x.MediaFileId).ToList();
+            var ballChairPictureIds = productBallChair.ProductMediaFiles.Select(x => x.MediaFileId).ToList();
             var ballChairPictures = _db.MediaFiles.Where(x => ballChairPictureIds.Contains(x.Id)).ToList();
 
             var ballChairMaterial = _db.ProductVariantAttributes.First(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrMaterial.Id);

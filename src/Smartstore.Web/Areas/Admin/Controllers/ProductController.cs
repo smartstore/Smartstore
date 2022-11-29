@@ -926,7 +926,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var response = new List<dynamic>();
-            var existingFiles = product.ProductPictures.Select(x => x.MediaFileId).ToList();
+            var existingFiles = product.ProductMediaFiles.Select(x => x.MediaFileId).ToList();
             var files = (await _mediaService.GetFilesByIdsAsync(ids, MediaLoadFlags.AsNoTracking)).ToDictionary(x => x.Id);
 
             foreach (var id in ids)
@@ -1576,7 +1576,7 @@ namespace Smartstore.Admin.Controllers
                 model.PictureThumbnailUrl = _mediaService.GetUrl(file, _mediaSettings.CartThumbPictureSize);
                 model.NoThumb = file == null;
 
-                await PrepareProductPictureModelAsync(model);
+                await PrepareProductFileModelAsync(model);
                 model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
             }
 
@@ -1760,17 +1760,17 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        private async Task PrepareProductPictureModelAsync(ProductModel model)
+        private async Task PrepareProductFileModelAsync(ProductModel model)
         {
             Guard.NotNull(model, nameof(model));
 
-            var productPictures = await _db.ProductMediaFiles
+            var productFiles = await _db.ProductMediaFiles
                 .AsNoTracking()
                 .Include(x => x.MediaFile)
                 .ApplyProductFilter(model.Id)
                 .ToListAsync();
 
-            model.ProductMediaFiles = productPictures
+            model.ProductMediaFiles = productFiles
                 .Select(x =>
                 {
                     var media = new ProductMediaFile

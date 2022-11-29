@@ -4,7 +4,6 @@ using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
-using Newtonsoft.Json.Linq;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -20,9 +19,6 @@ using Smartstore.Web.Api.Models.Catalog;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
-    // TODO: (mg) (core) naming consistency. After next release, rename navigation property Product.ProductPictures to Product.ProductMediaFiles.
-    // Otherwise we get OData path template warnings for e.g. 'odata/v1/Products({key})/ProductMediaFiles({relatedkey})'.
-
     /// <summary>
     /// The endpoint for operations on Product entity.
     /// </summary>
@@ -115,7 +111,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductMediaFile> GetProductMediaFiles(int key)
         {
-            return GetRelatedQuery(key, x => x.ProductPictures);
+            return GetRelatedQuery(key, x => x.ProductMediaFiles);
         }
 
         [HttpGet, ApiQueryable]
@@ -292,13 +288,13 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// Creates a ProductMediaFile (assignment of a Product to a MediaFile).
         /// </summary>
         /// <param name="relatedkey" example="345">The media file identifier.</param>
-        [HttpPost("Products({key})/ProductPictures({relatedkey})")]
+        [HttpPost("Products({key})/ProductMediaFiles({relatedkey})")]
         [Permission(Permissions.Catalog.Product.EditPicture)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(ProductMediaFile), Status200OK)]
         [ProducesResponseType(typeof(ProductMediaFile), Status201Created)]
         [ProducesResponseType(Status404NotFound)]
-        public Task<IActionResult> PostProductPictures(int key,
+        public Task<IActionResult> PostProductMediaFiles(int key,
             int relatedkey /*mediaFileId*/,
             [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] ProductMediaFile? model = default)
         {
@@ -308,7 +304,7 @@ namespace Smartstore.Web.Api.Controllers.OData
 
             return AddRelatedEntity(key,
                 model,
-                x => x.ProductPictures,
+                x => x.ProductMediaFiles,
                 x => x.MediaFileId == relatedkey);
         }
 
@@ -316,15 +312,15 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// Deletes a ProductMediaFile.
         /// </summary>
         /// <param name="relatedkey" example="345">The media file identifier. 0 to remove all media file assignments for the product.</param>
-        [HttpDelete("Products({key})/ProductPictures({relatedkey})")]
+        [HttpDelete("Products({key})/ProductMediaFiles({relatedkey})")]
         [Permission(Permissions.Catalog.Product.EditPicture)]
         [ProducesResponseType(Status204NoContent)]
         [ProducesResponseType(Status404NotFound)]
-        public Task<IActionResult> DeleteProductPictures(int key, int relatedkey /*mediaFileId*/)
+        public Task<IActionResult> DeleteProductMediaFiles(int key, int relatedkey /*mediaFileId*/)
         {
             return RemoveRelatedEntities(key,
                 relatedkey,
-                x => x.ProductPictures,
+                x => x.ProductMediaFiles,
                 x => x.MediaFileId == relatedkey);
         }
 

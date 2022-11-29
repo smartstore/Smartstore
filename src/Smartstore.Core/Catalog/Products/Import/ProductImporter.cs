@@ -212,11 +212,11 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        cargo.NumberOfNewImages += await ProcessProductPicturesAsync(context, scope, batch);
+                        cargo.NumberOfNewImages += await ProcessProductImagesAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
-                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductPicturesAsync));
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductImagesAsync));
                     }
                 }
 
@@ -597,7 +597,7 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task<int> ProcessProductPicturesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task<int> ProcessProductImagesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
         {
             _mediaImporter.MessageHandler ??= (msg, item) =>
             {

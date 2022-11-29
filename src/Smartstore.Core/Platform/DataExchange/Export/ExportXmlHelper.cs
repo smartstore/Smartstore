@@ -432,7 +432,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteElementString(nameof(Category.Alias), (string)category.Alias);
                 _writer.WriteElementString(nameof(Category.DefaultViewMode), entity.DefaultViewMode);
 
-                WriteMediaFile(category.Picture, "Picture");
+                WriteMediaFile(category.File, "File");
                 WriteLocalized(category);
             }
 
@@ -476,7 +476,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString(nameof(Manufacturer.SubjectToAcl), entity.SubjectToAcl.ToString());
             _writer.WriteElementString(nameof(Manufacturer.LimitedToStores), entity.LimitedToStores.ToString());
 
-            WriteMediaFile(manufacturer.Picture, "Picture");
+            WriteMediaFile(manufacturer.File, "File");
             WriteLocalized(manufacturer);
 
             if (node.HasValue())
@@ -825,18 +825,18 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteEndElement();
             }
 
-            if (product.ProductPictures != null)
+            if (product.ProductMediaFiles != null)
             {
-                _writer.WriteStartElement("ProductPictures");
-                foreach (dynamic productPicture in product.ProductPictures)
+                _writer.WriteStartElement("ProductFiles");
+                foreach (dynamic productFile in product.ProductMediaFiles)
                 {
-                    ProductMediaFile entityProductPicture = productPicture.Entity;
+                    ProductMediaFile entityProductFile = productFile.Entity;
 
-                    _writer.WriteStartElement("ProductPicture");
-                    _writer.WriteElementString(nameof(ProductMediaFile.Id), entityProductPicture.Id.ToString());
-                    _writer.WriteElementString(nameof(ProductMediaFile.DisplayOrder), entityProductPicture.DisplayOrder.ToString());
+                    _writer.WriteStartElement("ProductFile");
+                    _writer.WriteElementString(nameof(ProductMediaFile.Id), entityProductFile.Id.ToString());
+                    _writer.WriteElementString(nameof(ProductMediaFile.DisplayOrder), entityProductFile.DisplayOrder.ToString());
 
-                    WriteMediaFile(productPicture.Picture, "Picture");
+                    WriteMediaFile(productFile.File, "File");
                     _writer.WriteEndElement();
                 }
                 _writer.WriteEndElement();
@@ -1000,12 +1000,12 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     WriteDeliveryTime(combination.DeliveryTime, nameof(ProductVariantAttributeCombination.DeliveryTime));
                     WriteQuantityUnit(combination.QuantityUnit, nameof(ProductVariantAttributeCombination.QuantityUnit));
 
-                    _writer.WriteStartElement("Pictures");
-                    foreach (dynamic assignedPicture in combination.Pictures)
+                    _writer.WriteStartElement("Files");
+                    foreach (dynamic assignedFile in combination.Files)
                     {
-                        WriteMediaFile(assignedPicture, "Picture");
+                        WriteMediaFile(assignedFile, "File");
                     }
-                    _writer.WriteEndElement();  // Pictures
+                    _writer.WriteEndElement();  // Files
                     _writer.WriteEndElement();  // ProductAttributeCombination
                 }
                 _writer.WriteEndElement(); // ProductAttributeCombinations

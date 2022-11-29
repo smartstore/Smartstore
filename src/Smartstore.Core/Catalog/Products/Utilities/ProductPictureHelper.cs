@@ -11,7 +11,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
         /// </summary>
         /// <param name="db">Database context.</param>
         /// <param name="product">Product to fix.</param>
-        /// <param name="entities">When <c>null</c>, <see cref="Product.ProductPictures"/> gets called.</param>
+        /// <param name="entities">When <c>null</c>, <see cref="Product.ProductMediaFiles"/> gets called.</param>
         /// <returns><c>true</c> when value was fixed.</returns>
         public static bool FixProductMainPictureId(SmartDbContext db, Product product, IEnumerable<ProductMediaFile> entities = null)
         {
@@ -19,7 +19,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
 
             // INFO: this method must be able to handle pre-save state also.
 
-            entities ??= product.ProductPictures;
+            entities ??= product.ProductMediaFiles;
             if (entities == null)
             {
                 return false;

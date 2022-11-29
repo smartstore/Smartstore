@@ -955,14 +955,14 @@ namespace Smartstore.Core.Catalog.Products
             protected set => _productManufacturers = value;
         }
 
-        private ICollection<ProductMediaFile> _productPictures;
+        private ICollection<ProductMediaFile> _productMediaFiles;
         /// <summary>
         /// Gets or sets the product media files.
         /// </summary>
-        public ICollection<ProductMediaFile> ProductPictures
+        public ICollection<ProductMediaFile> ProductMediaFiles
         {
-            get => LazyLoader?.Load(this, ref _productPictures) ?? (_productPictures ??= new HashSet<ProductMediaFile>());
-            protected set => _productPictures = value;
+            get => LazyLoader?.Load(this, ref _productMediaFiles) ?? (_productMediaFiles ??= new HashSet<ProductMediaFile>());
+            protected set => _productMediaFiles = value;
         }
 
         private ICollection<ProductReview> _productReviews;

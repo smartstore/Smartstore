@@ -125,14 +125,14 @@ namespace Smartstore.Core.Catalog.Products
                 }));
 
                 // Media file mappings.
-                clone.ProductPictures.AddRange(product.ProductPictures.Select(x => new ProductMediaFile
+                clone.ProductMediaFiles.AddRange(product.ProductMediaFiles.Select(x => new ProductMediaFile
                 {
                     MediaFileId = x.MediaFileId,
                     DisplayOrder = x.DisplayOrder
                 }));
                 if (clone.MainPictureId == null)
                 {
-                    clone.MainPictureId = product.ProductPictures.FirstOrDefault()?.MediaFileId;
+                    clone.MainPictureId = product.ProductMediaFiles.FirstOrDefault()?.MediaFileId;
                 }
 
                 // Product specification attributes.

@@ -122,13 +122,13 @@ namespace Smartstore.Core.Catalog.Products
 
         /// <summary>
         /// Includes media for eager loading:
-        /// <see cref="Product.ProductPictures"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/>
+        /// <see cref="Product.ProductMediaFiles"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/>
         /// </summary>
         public static IIncludableQueryable<Product, MediaFile> IncludeMedia(this IQueryable<Product> query)
         {
             Guard.NotNull(query, nameof(query));
 
-            return query.Include(x => x.ProductPictures.OrderBy(y => y.DisplayOrder))
+            return query.Include(x => x.ProductMediaFiles.OrderBy(y => y.DisplayOrder))
                 .ThenInclude(x => x.MediaFile);
         }
 
@@ -141,7 +141,7 @@ namespace Smartstore.Core.Catalog.Products
         {
             Guard.NotNull(query, nameof(query));
 
-            return query.Include(x => x.ProductPictures.OrderBy(y => y.DisplayOrder)).ThenInclude(x => x.MediaFile);
+            return query.Include(x => x.ProductMediaFiles.OrderBy(y => y.DisplayOrder)).ThenInclude(x => x.MediaFile);
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace Smartstore.Core.Catalog.Products
         ///// <summary>
         ///// Includes a bunch of navigation properties for eager loading:
         ///// <list type="bullet">
-        /////     <item><see cref="Product.ProductPictures"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/></item>
+        /////     <item><see cref="Product.ProductMediaFiles"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/></item>
         /////     <item>
         /////         Published <see cref="Product.ProductManufacturers"/> (sorted by <see cref="Manufacturer.DisplayOrder"/> then by <see cref="Manufacturer.Name"/>), 
         /////         then <see cref="ProductManufacturer.Manufacturer"/>, then <see cref="Manufacturer.MediaFile"/>
@@ -196,7 +196,7 @@ namespace Smartstore.Core.Catalog.Products
         //    Guard.NotNull(query, nameof(query));
 
         //    var megaInclude = query
-        //        .Include(x => x.ProductPictures
+        //        .Include(x => x.ProductMediaFiles
         //            .OrderBy(y => y.DisplayOrder))
         //            .ThenInclude(x => x.MediaFile)
         //        //.Include(x => x.DeliveryTime) // Is DB cached anyway

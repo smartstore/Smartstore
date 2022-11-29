@@ -23,11 +23,6 @@ namespace Smartstore.Web.Api
         private const string EntityWrapperTypeName = "SelectAllAndExpand`1";
         private const string EntityWrapperPropertyName = "Instance";
 
-        // INFO: throws ExceptionDispatchInfo "Could not execute the method because either the method itself or the containing type is not fully instantiated."
-        //private static readonly FastProperty EntityWrapperProperty = FastProperty.GetProperty(
-        //    Type.GetType("Microsoft.AspNetCore.OData.Query.Wrapper.SelectAllAndExpand`1, Microsoft.AspNetCore.OData"),
-        //    "Instance");
-
         internal const string FulfillKey = "SmApiFulfill";
 
         private SmartDbContext _db;
@@ -484,10 +479,6 @@ namespace Smartstore.Web.Api
                         yield return prop;
                     }
                 }
-                //else if (item.GetType().Name == EntityWrapperTypeName)
-                //{
-                //    yield return (TEntity)EntityWrapperProperty.GetValue(item);
-                //}
             }
         }
 

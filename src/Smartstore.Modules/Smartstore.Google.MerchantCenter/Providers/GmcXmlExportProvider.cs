@@ -228,9 +228,9 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         string gtin = product.Gtin;
                         string mpn = product.ManufacturerPartNumber;
                         var availability = defaultAvailability;
-                        List<dynamic> productPictures = product.ProductPictures;
-                        var pictureUrls = productPictures
-                            .Select(x => (string)x.Picture._FullSizeImageUrl)
+                        List<dynamic> productFiles = product.ProductMediaFiles;
+                        var imageUrls = productFiles
+                            .Select(x => (string)x.File._FullSizeImageUrl)
                             .Where(x => x.HasValue())
                             .ToList();
 
@@ -263,14 +263,14 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         writer.WriteCData("product_type", productType.NullEmpty(), "g", _googleNamespace);
                         writer.WriteElementString("link", (string)product._DetailUrl);
 
-                        if (pictureUrls.Any())
+                        if (imageUrls.Any())
                         {
-                            WriteString(writer, "image_link", pictureUrls.First());
+                            WriteString(writer, "image_link", imageUrls.First());
 
                             if (config.AdditionalImages)
                             {
                                 var imageCount = 0;
-                                foreach (var url in pictureUrls.Skip(1))
+                                foreach (var url in imageUrls.Skip(1))
                                 {
                                     if (++imageCount <= 10)
                                     {

@@ -341,8 +341,8 @@ namespace Smartstore.Web.Controllers
                     combination ??= model.SelectedCombination;
                 }
 
-                var productMediaFiles = _db.IsCollectionLoaded(product, x => x.ProductPictures)
-                    ? product.ProductPictures
+                var productMediaFiles = _db.IsCollectionLoaded(product, x => x.ProductMediaFiles)
+                    ? product.ProductMediaFiles
                     : await batchContext.ProductMediaFiles.GetOrLoadAsync(product.Id);
 
                 var files = productMediaFiles

@@ -1377,7 +1377,7 @@ namespace Smartstore.Core.Installation
             var picture = CreatePicture(imageName, seName);
             if (picture != null)
             {
-                product.ProductPictures.Add(new ProductMediaFile
+                product.ProductMediaFiles.Add(new ProductMediaFile
                 {
                     MediaFile = picture,
                     DisplayOrder = displayOrder

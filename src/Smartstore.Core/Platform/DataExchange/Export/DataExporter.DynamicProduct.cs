@@ -107,7 +107,7 @@ namespace Smartstore.Core.DataExchange.Export
             result.TierPrices = null;
             result.ProductAttributes = null;
             result.ProductAttributeCombinations = null;
-            result.ProductPictures = null;
+            result.ProductMediaFiles = null;
             result.ProductCategories = null;
             result.ProductManufacturers = null;
             result.ProductTags = null;
@@ -269,7 +269,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     dynamic dyn = new DynamicEntity(x);
                     dyn.Manufacturer = ToDynamic(x.Manufacturer, ctx);
-                    dyn.Manufacturer.Picture = x.Manufacturer != null && x.Manufacturer.MediaFileId.HasValue
+                    dyn.Manufacturer.File = x.Manufacturer != null && x.Manufacturer.MediaFileId.HasValue
                         ? ToDynamic(x.Manufacturer.MediaFile, _mediaSettings.ManufacturerThumbPictureSize, _mediaSettings.ManufacturerThumbPictureSize, ctx)
                         : null;
 
@@ -283,7 +283,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     dynamic dyn = new DynamicEntity(x);
                     dyn.Category = ToDynamic(x.Category, ctx);
-                    dyn.Category.Picture = x.Category != null && x.Category.MediaFileId.HasValue
+                    dyn.Category.File = x.Category != null && x.Category.MediaFileId.HasValue
                         ? ToDynamic(x.Category.MediaFile, _mediaSettings.CategoryThumbPictureSize, _mediaSettings.CategoryThumbPictureSize, ctx)
                         : null;
 
@@ -325,7 +325,7 @@ namespace Smartstore.Core.DataExchange.Export
                             }
                         }
 
-                        dyn.Pictures = assignedFiles;
+                        dyn.Files = assignedFiles;
                         return dyn;
                     })
                     .ToList();
@@ -413,7 +413,7 @@ namespace Smartstore.Core.DataExchange.Export
         private async Task<IEnumerable<ProductMediaFile>> ApplyMediaFiles(dynamic dynObject, Product product, DataExporterContext ctx, DynamicProductContext productContext)
         {
             IEnumerable<ProductMediaFile> mediaFiles = await ctx.ProductBatchContext.ProductMediaFiles.GetOrLoadAsync(product.Id);
-            var productPictureSize = ctx.Projection.PictureSize > 0
+            var imageSize = ctx.Projection.PictureSize > 0
                 ? _mediaSettings.GetNextValidThumbnailSize(ctx.Projection.PictureSize)
                 : _mediaSettings.ProductDetailsPictureSize;
 
@@ -428,12 +428,12 @@ namespace Smartstore.Core.DataExchange.Export
 
             mediaFiles = mediaFiles.Take(ctx.Projection.NumberOfMediaFiles ?? int.MaxValue);
 
-            dynObject.ProductPictures = mediaFiles
+            dynObject.ProductMediaFiles = mediaFiles
                 .OrderBy(x => x.DisplayOrder)
                 .Select(x =>
                 {
                     dynamic dyn = new DynamicEntity(x);
-                    dyn.Picture = ToDynamic(x.MediaFile, _mediaSettings.ProductThumbPictureSize, productPictureSize, ctx);
+                    dyn.File = ToDynamic(x.MediaFile, _mediaSettings.ProductThumbPictureSize, imageSize, ctx);
                     return dyn;
                 })
                 .ToList();
