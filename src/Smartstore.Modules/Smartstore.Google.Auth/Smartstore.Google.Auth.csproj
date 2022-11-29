@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-  <PropertyGroup>
-		<Product>Smartstore Google Authentication</Product>
-		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Google.Auth</OutputPath>
-		<OutDir>$(OutputPath)</OutDir>
-  </PropertyGroup>
-	<ItemGroup>
-	  <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.0" />
-	</ItemGroup>
+    <PropertyGroup>
+        <Product>Smartstore Google Authentication</Product>
+        <OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Google.Auth</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.0" />
+    </ItemGroup>
 </Project>
