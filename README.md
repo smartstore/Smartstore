@@ -4,11 +4,13 @@
 	</a>
 </p>
 
-<h1 align="center">
-	<img src="assets/smartstore-text.png" alt="Smartstore" width="200">
-</h1>
-<p align="center"><strong>Ready. Sell. Grow.</strong></p>
-
+<h3 align="center">
+	<img src="assets/smartstore-text.png" alt="Smartstore" width="250">
+</h3>
+<h3 align="center"><strong>Ready. Sell. Grow.</strong></h3>
+<p align="center">
+    A modular, scalable and ultra-fast open-source all-in-one eCommerce platform built on ASP.NET Core 6.
+</p>
 <p align="center">
 	<a href="#try-it-online">Try Online</a> ∙ 
 	<a href="http://community.smartstore.com">Forum</a> ∙ 
@@ -16,17 +18,15 @@
 	<a href="http://translate.smartstore.com/">Translations</a>
 </p>
 <br/>
+<p align="center">
+  <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
+</p>
 
 Smartstore is a cross-platform, modular, scalable and ultra-fast open-source all-in-one eCommerce platform powered by ASP.NET Core 6, Entity Framework, Vue.js, Sass, Bootstrap and more. 
 
 **Smartstore includes all essential features to create multilingual, multi-store and multi-currency shops** targeting desktop or mobile devices and enabling SEO optimized rich product catalogs with support for an unlimited number of products and categories, variants, bundles, datasheets, ESD, discounts, coupons and many more.
 
 A comprehensive set of tools for CRM & CMS, sales, marketing, payment & shipping handling etc. makes Smartstore a powerful all-in-one solution fulfilling all your needs.
-
-<br/>
-<p align="center">
-  <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
-</p>
 
 **Smartstore delivers a beautiful and configurable shop frontend out-of-the-box**, built with a design approach on the highest level, including components like `Sass`, `Bootstrap` and others. The supplied theme _Flex_ is modern, clean and fully responsive, giving buyers the best possible shopping experience on any device.
 
