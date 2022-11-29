@@ -59,7 +59,7 @@ namespace Smartstore
         [DebuggerStepThrough]
         public static string? Mask(this string? value, int length)
         {
-            if (value.HasValue())
+            if (!string.IsNullOrEmpty(value))
             {
                 return string.Concat(value.AsSpan(0, length), new string('*', value.Length - length));
             }

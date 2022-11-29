@@ -9,7 +9,7 @@ namespace Smartstore.Core.Localization
     {
         private readonly Dictionary<Type, LocalizedEntityDescriptor> _descriptors = new();
         private readonly List<LoadLocalizedEntityDelegate> _delegates = new();
-
+        
         public LocalizedEntityDescriptorProvider(ITypeScanner typeScanner, IOptions<LocalizedEntityOptions> options)
         {
             foreach (var type in typeScanner.FindTypes<ILocalizedEntity>())

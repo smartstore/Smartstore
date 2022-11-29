@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Smartstore.Data;
+﻿using Smartstore.Data;
 
 namespace Smartstore.Core.Localization
 {
