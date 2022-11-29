@@ -24,14 +24,16 @@ namespace Smartstore.StripeElements.Filters
         private readonly StripeSettings _settings;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        
+        private readonly IWidgetProvider _widgetProvider;
+
         public CheckoutFilter(
             SmartDbContext db,
             ICommonServices services,
             IPaymentService paymentService,
             StripeSettings settings,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IWidgetProvider widgetProvider)
         {
             _db = db;
             _services = services;
@@ -39,6 +41,7 @@ namespace Smartstore.StripeElements.Filters
             _settings = settings;
             _checkoutStateAccessor = checkoutStateAccessor;
             _httpContextAccessor = httpContextAccessor;
+            _widgetProvider = widgetProvider;
         }
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
@@ -58,11 +61,14 @@ namespace Smartstore.StripeElements.Filters
 
             var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
             var skipPaymentPage = checkoutState.ButtonUsed;
+            var customer = _services.WorkContext.CurrentCustomer;
+
+            // TODO: (mh) (core) Make sure we are on payment page.
 
             // Should only run on a full view rendering result or HTML ContentResult.
             if ((filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult()) && skipPaymentPage)
             {
-                _services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod = StripeElementsProvider.SystemName;
+                customer.GenericAttributes.SelectedPaymentMethod = StripeElementsProvider.SystemName;
                 await _db.SaveChangesAsync();
 
                 var session = _httpContextAccessor.HttpContext.Session;
@@ -71,7 +77,7 @@ namespace Smartstore.StripeElements.Filters
                     session.TrySetObject("OrderPaymentInfo", new ProcessPaymentRequest
                     {
                         StoreId = _services.StoreContext.CurrentStore.Id,
-                        CustomerId = _services.WorkContext.CurrentCustomer.Id,
+                        CustomerId = customer.Id,
                         PaymentMethodSystemName = StripeElementsProvider.SystemName
                     });
                 }
@@ -80,6 +86,18 @@ namespace Smartstore.StripeElements.Filters
                 checkoutState.ButtonUsed = false;
 
                 filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = string.Empty });
+            }
+
+            // TODO: (mh) (core) Make sure we are on confirm page.
+            if (customer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(StripeElementsProvider.SystemName))
+            {
+                var state = _checkoutStateAccessor.CheckoutState;
+
+                if (state.IsPaymentRequired && await IsStripeElementsActive())
+                {
+                    _widgetProvider.RegisterWidget("end", 
+                        new PartialViewWidget("_CheckoutConfirm", state.GetCustomState<StripeCheckoutState>(), "Smartstore.Stripe"));
+                }
             }
 
             await next();

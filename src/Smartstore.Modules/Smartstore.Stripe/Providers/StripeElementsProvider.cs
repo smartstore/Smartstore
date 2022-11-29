@@ -7,6 +7,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -46,10 +47,8 @@ namespace Smartstore.StripeElements.Providers
 
         public static string SystemName => "Smartstore.StripeElements";
 
-        // TODO: (mh) (core) 
         public override bool SupportCapture => true;
 
-        // TODO: (mh) (core) 
         public override bool SupportVoid => true;
 
         public override bool SupportPartiallyRefund => true;
@@ -81,8 +80,10 @@ namespace Smartstore.StripeElements.Providers
             return (settings.AdditionalFee, settings.AdditionalFeePercentage);
         }
 
-        public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
+            // INFO: Real process payment happens in StripeController > ConfirmOrder
+
             if (processPaymentRequest.OrderGuid == Guid.Empty)
             {
                 throw new Exception($"{nameof(processPaymentRequest.OrderGuid)} is missing.");
@@ -96,34 +97,10 @@ namespace Smartstore.StripeElements.Providers
                 throw new Exception(T("Payment.MissingCheckoutState", "StripeCheckoutState." + nameof(state.PaymentIntent.Id)));
             }
 
-            // Update Payment Intent.
-            var intentUpdateOptions = new PaymentIntentUpdateOptions
-            {
-                Amount = processPaymentRequest.OrderTotal.ToSmallestCurrencyUnit(),
-                Currency = state.PaymentIntent.Currency,
-                PaymentMethod = state.PaymentMethod,
-            };
-
-            var service = new PaymentIntentService();
-            var paymentIntent = await service.UpdateAsync(state.PaymentIntent.Id, intentUpdateOptions);
-
-            var confirmOptions = new PaymentIntentConfirmOptions
-            {
-                // TODO: (mh) (core) Correct redirect URL
-                ReturnUrl = "https://localhost:44325/"
-            };
-
-            paymentIntent = await service.ConfirmAsync(paymentIntent.Id, confirmOptions);
-
-            if (paymentIntent.NextAction.RedirectToUrl.Url.HasValue())
-            {
-                // TODO: (mh) (core) Implement redirect new ajax flow according to other implementation like Skrill, Postfinance etc.
-            }
-
             // Store PaymentIntent.Id in AuthorizationTransactionId.
             result.AuthorizationTransactionId = state.PaymentIntent.Id;
 
-            return result;
+            return Task.FromResult(result);
         }
 
         public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request)
@@ -155,6 +132,44 @@ namespace Smartstore.StripeElements.Providers
                 await _db.SaveChangesAsync();
 
                 result.NewPaymentStatus = request.IsPartialRefund ? PaymentStatus.PartiallyRefunded : PaymentStatus.Refunded;
+            }
+
+            return result;
+        }
+
+        public override async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest request)
+        {
+            var result = new CapturePaymentResult
+            {
+                NewPaymentStatus = request.Order.PaymentStatus
+            };
+
+            // TODO: (MH) (core) Implement
+
+            return result;
+        }
+
+        public override async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest request)
+        {
+            var result = new VoidPaymentResult
+            {
+                NewPaymentStatus = request.Order.PaymentStatus
+            };
+
+            try
+            {
+                // Info payment intent must have one of the following stati else it will throw
+                // requires_payment_method, requires_capture, requires_confirmation, requires_action
+
+                // INFO: PaymentIntent is stored in AuthorizationTransactionId
+                var service = new PaymentIntentService();
+                await service.CancelAsync(request.Order.AuthorizationTransactionId);
+
+                result.NewPaymentStatus = PaymentStatus.Voided;
+            }
+            catch (Exception ex) 
+            {
+                var test = ex;
             }
 
             return result;

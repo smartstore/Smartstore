@@ -5,9 +5,6 @@
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 	<ItemGroup>
-	  <None Remove="wwwroot\smartstore.stripe.js" />
-	</ItemGroup>
-	<ItemGroup>
         <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
             <Private>False</Private>
             <CopyLocal>False</CopyLocal>

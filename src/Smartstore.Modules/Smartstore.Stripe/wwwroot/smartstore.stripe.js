@@ -53,16 +53,13 @@
             var createdPaymentMethod = false;
 
             $("form").on("submit", async e => {
-                console.log("1");
                 if ($("input[name='paymentmethod']").val() == "Smartstore.StripeElements" && !createdPaymentMethod) {
                     e.preventDefault();
-                    console.log("2");
                     (async () => {
                         console.log(elements);
                         const { error, paymentMethod } = await stripe.createPaymentMethod({
                             elements
                         });
-                        console.log("3");
                         $.ajax({
                             type: 'POST',
                             data: {
@@ -71,7 +68,6 @@
                             url: $("#payment-element").data("store-payment-selection-url"),
                             dataType: 'json',
                             success: function (data) {
-                                console.log("4");
                                 createdPaymentMethod = true;
                                 btnNext.trigger('click');
                             }

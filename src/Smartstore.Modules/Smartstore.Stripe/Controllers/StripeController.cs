@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,12 +10,15 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.StripeElements.Models;
+using Smartstore.StripeElements.Providers;
 using Smartstore.StripeElements.Settings;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 using Stripe;
 
@@ -31,6 +35,7 @@ namespace Smartstore.StripeElements.Controllers
         private readonly IProductService _productService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICurrencyService _currencyService;
+        private readonly IOrderProcessingService _orderProcessingService;
 
         public StripeController(
             SmartDbContext db, 
@@ -41,7 +46,8 @@ namespace Smartstore.StripeElements.Controllers
             IPriceCalculationService priceCalculationService,
             IProductService productService,
             IOrderCalculationService orderCalculationService,
-            ICurrencyService currencyService)
+            ICurrencyService currencyService,
+            IOrderProcessingService orderProcessingService)
         {
             _db = db;
             _settings = settings;
@@ -52,6 +58,7 @@ namespace Smartstore.StripeElements.Controllers
             _productService = productService;
             _orderCalculationService = orderCalculationService;
             _currencyService = currencyService;
+            _orderProcessingService = orderProcessingService;
         }
 
         [HttpPost]
@@ -183,7 +190,124 @@ namespace Smartstore.StripeElements.Controllers
 
             return Json(new { success, paymentRequest });
         }
-        
+
+        /// <summary>
+        /// AJAX
+        /// Called after buyer clicked buy-now-button but before the order was created.
+        /// Processes payment and return redirect URL if there is any.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> ConfirmOrder(string formData)
+        {
+            string redirectUrl = null;
+            var messages = new List<string>();
+            var success = false;
+
+            try
+            {
+                var store = Services.StoreContext.CurrentStore;
+                var customer = Services.WorkContext.CurrentCustomer;
+
+                if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) || paymentRequest == null)
+                {
+                    paymentRequest = new ProcessPaymentRequest();
+                }
+
+                paymentRequest.StoreId = store.Id;
+                paymentRequest.CustomerId = customer.Id;
+                paymentRequest.PaymentMethodSystemName = StripeElementsProvider.SystemName;
+
+                // We must check here if an order can be placed to avoid creating unauthorized Sofort transactions.
+                var (warnings, cart) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
+                if (warnings.Count == 0)
+                {
+                    if (await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
+                    {
+                        var state = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
+                        var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, true);
+
+                        // Update Stripe Payment Intent.
+                        var intentUpdateOptions = new PaymentIntentUpdateOptions
+                        {
+                            Amount = cartTotal.Total.Value.Amount.ToSmallestCurrencyUnit(),
+                            Currency = state.PaymentIntent.Currency,
+                            PaymentMethod = state.PaymentMethod,
+                        };
+
+                        var service = new PaymentIntentService();
+                        var paymentIntent = await service.UpdateAsync(state.PaymentIntent.Id, intentUpdateOptions);
+
+                        var confirmOptions = new PaymentIntentConfirmOptions
+                        {
+                            ReturnUrl = store.GetHost(true) + Url.Action("RedirectionResult", "Stripe").TrimStart('/')
+                        };
+
+                        paymentIntent = await service.ConfirmAsync(paymentIntent.Id, confirmOptions);
+
+                        if (paymentIntent.NextAction?.RedirectToUrl?.Url?.HasValue() == true)
+                        {
+                            redirectUrl = paymentIntent.NextAction.RedirectToUrl.Url;
+                        }
+
+                        success = true;
+                        state.IsConfirmed = true;
+                        state.FormData = formData.EmptyNull();
+                    }
+                    else
+                    {
+                        messages.Add(T("Checkout.MinOrderPlacementInterval"));
+                    }
+                }
+                else
+                {
+                    messages.AddRange(warnings.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                messages.Add(ex.Message);
+            }
+
+            return Json(new { success, redirectUrl, messages });
+        }
+
+        public IActionResult RedirectionResult(string redirect_status)
+        {
+            var error = false;
+            string message = null;
+            var success = redirect_status == "succeeded";
+
+            if (success)
+            {
+                var state = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
+                if (state.PaymentIntent != null)
+                {
+                    state.SubmitForm = true;
+                }
+                else
+                {
+                    error = true;
+                    message = T("Payment.MissingCheckoutState", "StripeCheckoutState." + nameof(state.PaymentIntent));
+                }
+            }
+            else
+            {
+                error = true;
+                message = T("Payment.PaymentFailure");
+            }
+
+            if (error)
+            {
+                _checkoutStateAccessor.CheckoutState.RemoveCustomState<StripeCheckoutState>();
+                NotifyWarning(message);
+
+                return RedirectToAction(nameof(CheckoutController.PaymentMethod), "Checkout");
+            }
+
+            return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+        }
+
         [HttpPost]
         public async Task<IActionResult> StorePaymentMethodId(string paymentMethodId)
         {
