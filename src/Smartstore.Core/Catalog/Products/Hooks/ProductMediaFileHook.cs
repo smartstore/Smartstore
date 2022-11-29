@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Products.Utilities;
+﻿using AngleSharp.Dom;
+using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
@@ -13,22 +14,20 @@ namespace Smartstore.Core.Catalog.Products
             _db = db;
         }
 
-        protected override Task<HookResult> OnInsertingAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override async Task<HookResult> OnInsertingAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
+            await _db.LoadReferenceAsync(entity, x => x.Product, false, q => q.Include(x => x.ProductMediaFiles), cancelToken);
             ProductPictureHelper.FixProductMainPictureId(_db, entity.Product);
-            return Task.FromResult(HookResult.Ok);
+
+            return HookResult.Ok;
         }
 
-        protected override Task<HookResult> OnUpdatingAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override async Task<HookResult> OnUpdatingAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
+            await _db.LoadReferenceAsync(entity, x => x.Product, false, q => q.Include(x => x.ProductMediaFiles), cancelToken);
             ProductPictureHelper.FixProductMainPictureId(_db, entity.Product);
-            return Task.FromResult(HookResult.Ok);
-        }
 
-        protected override Task<HookResult> OnDeletingAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            ProductPictureHelper.FixProductMainPictureId(_db, entity.Product);
-            return Task.FromResult(HookResult.Ok);
+            return HookResult.Ok;
         }
 
         protected override Task<HookResult> OnDeletedAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -37,20 +36,27 @@ namespace Smartstore.Core.Catalog.Products
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             var deletedMediaFiles = entries
-                .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted)
+                .Where(x => x.InitialState == EntityState.Deleted)
                 .Select(x => x.Entity)
                 .OfType<ProductMediaFile>()
                 .ToList();
 
             // Unassign deleted pictures from variant combinations.
-            if (deletedMediaFiles.Any())
+            if (deletedMediaFiles.Count > 0)
             {
                 var deletedMediaIds = deletedMediaFiles.ToMultimap(x => x.ProductId, x => x.MediaFileId);
-                var productIds = deletedMediaFiles.Select(x => x.ProductId).Distinct().ToArray();
+                var productIds = deletedMediaFiles.ToDistinctArray(x => x.ProductId);
 
                 // Process the products in batches as they can have a large number of variant combinations assigned to them.
                 foreach (var productIdsChunk in productIds.Chunk(100))
                 {
+                    var products = await _db.Products
+                        .Include(x => x.ProductMediaFiles)
+                        .Where(x => productIdsChunk.Contains(x.Id))
+                        .ToListAsync(cancelToken);
+
+                    products.Each(x => ProductPictureHelper.FixProductMainPictureId(_db, x));
+
                     var combinations = await _db.ProductVariantAttributeCombinations
                         .Where(x => productIdsChunk.Contains(x.ProductId) && !string.IsNullOrEmpty(x.AssignedMediaFileIds))
                         .ToListAsync(cancelToken);
