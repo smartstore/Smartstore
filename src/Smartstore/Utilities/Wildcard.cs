@@ -13,8 +13,6 @@ namespace Smartstore.Utilities
         [GeneratedRegex("[0-9]+-[0-9]+", RegexOptions.NonBacktracking)]
         private static partial Regex NumberRangeRegex();
 
-        private readonly string _pattern;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Wildcard"/> class.
         /// </summary>
@@ -40,19 +38,17 @@ namespace Smartstore.Utilities
         public Wildcard(string pattern, RegexOptions options, bool parseNumberRanges = false)
             : this(WildcardToRegex(pattern, parseNumberRanges), options, Timeout.InfiniteTimeSpan)
         {
-
+            RawPattern = pattern;
         }
 
         internal Wildcard(string parsedPattern, RegexOptions options, TimeSpan matchTimeout)
             : base(parsedPattern, options, matchTimeout)
         {
-            _pattern = parsedPattern;
+            Pattern = parsedPattern;
         }
 
-        public string Pattern
-        {
-            get => _pattern;
-        }
+        public string RawPattern { get; }
+        public string Pattern { get; }
 
         /// <summary>
         /// Searches all number range terms and converts them
