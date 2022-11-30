@@ -37,7 +37,7 @@ namespace Smartstore.Shipping
         {
             Guard.NotNull(request, nameof(request));
 
-            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId);
+            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, true);
 
             var rates = new List<decimal>();
             foreach (var shippingMethod in shippingMethods)
@@ -70,7 +70,7 @@ namespace Smartstore.Shipping
                 return response;
             }
 
-            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId);
+            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, true);
             foreach (var shippingMethod in shippingMethods)
             {
                 var shippingOption = new ShippingOption

@@ -192,7 +192,7 @@ namespace Smartstore.Shipping
             var cart = new ShoppingCart(request.Customer, request.StoreId, request.Items);
             var weight = await _shippingService.GetCartTotalWeightAsync(cart, _shippingByWeightSettings.IncludeWeightOfFreeShippingProducts);
             var workingCurreny = _services.WorkContext.WorkingCurrency;
-            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId);
+            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, true);
 
             currentSubTotal = _services.WorkContext.TaxDisplayType == TaxDisplayType.ExcludingTax
                 ? subTotalExclTax

@@ -192,7 +192,7 @@ namespace Smartstore.Shipping
             var sqThreshold = _shippingByTotalSettings.SmallQuantityThreshold;
             var sqSurcharge = _shippingByTotalSettings.SmallQuantitySurcharge;
 
-            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId);
+            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, true);
             foreach (var shippingMethod in shippingMethods)
             {
                 decimal? rate = await GetRateAsync(subTotal, shippingMethod.Id, request.StoreId, countryId, stateProvinceId, zip);

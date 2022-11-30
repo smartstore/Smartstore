@@ -245,6 +245,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ShippingMethodList(GridCommand command)
         {
             var shippingMethods = await _db.ShippingMethods
+                .Include(x => x.RuleSets)
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
@@ -257,7 +258,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var model = await mapper.MapAsync(x);
                     model.NumberOfRules = x.RuleSets.Count;
-                    model.EditUrl = Url.Action("Edit", new { id = model.Id });
+                    model.EditUrl = Url.Action(nameof(Edit), new { id = model.Id });
 
                     return model;
                 })
