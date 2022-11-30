@@ -1,25 +1,31 @@
-﻿using Smartstore.Imaging;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Http;
+using Smartstore.Imaging;
 using Smartstore.IO;
 
 namespace Smartstore.Core.Content.Media.Storage
 {
     public abstract class MediaStorageItem : Disposable
     {
-        private Stream _sourceStream;
+        private Stream? _sourceStream;
 
         public Stream SourceStream
         {
             get
             {
-                if (_sourceStream == null)
-                    _sourceStream = GetSourceStreamAsync().Await();
+                _sourceStream ??= GetSourceStreamAsync().Await();
 
                 if (_sourceStream.CanSeek)
+                {
                     _sourceStream.Position = 0;
+                } 
 
                 return _sourceStream;
             }
         }
+
+        protected bool LeaveOpen { get; set; }
 
         protected abstract Task<Stream> GetSourceStreamAsync();
 
@@ -43,7 +49,11 @@ namespace Smartstore.Core.Content.Media.Storage
         {
             if (disposing && _sourceStream != null)
             {
-                _sourceStream.Dispose();
+                if (!LeaveOpen)
+                {
+                    _sourceStream.Dispose();
+                }
+                
                 _sourceStream = null;
             }
         }
@@ -55,14 +65,24 @@ namespace Smartstore.Core.Content.Media.Storage
             return new ImageStorageItem(image);
         }
 
-        public static MediaStorageItem FromStream(Stream stream)
+        public static MediaStorageItem FromStream(Stream stream, bool leaveOpen = false)
         {
-            return new StreamStorageItem(stream);
+            return new StreamStorageItem(stream, leaveOpen);
         }
 
         public static MediaStorageItem FromFile(IFile file)
         {
             return new StreamStorageItem(file.OpenRead());
+        }
+
+        public static MediaStorageItem FromFormFile(IFormFile formFile)
+        {
+            return new StreamStorageItem(formFile.OpenReadStream());
+        }
+
+        public static MediaStorageItem FromPath(string physicalPath)
+        {
+            return new StreamStorageItem(File.OpenRead(physicalPath));
         }
 
         #endregion
@@ -96,9 +116,10 @@ namespace Smartstore.Core.Content.Media.Storage
         {
             private readonly Stream _stream;
 
-            public StreamStorageItem(Stream stream)
+            public StreamStorageItem(Stream stream, bool leaveOpen = false)
             {
                 _stream = stream;
+                LeaveOpen = leaveOpen;
             }
 
             protected override Task<Stream> GetSourceStreamAsync()

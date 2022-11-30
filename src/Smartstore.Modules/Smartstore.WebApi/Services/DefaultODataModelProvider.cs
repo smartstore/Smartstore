@@ -10,7 +10,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
@@ -22,7 +21,6 @@ using Smartstore.Web.Api.Models;
 using Smartstore.Web.Api.Models.Catalog;
 using Smartstore.Web.Api.Models.Checkout;
 using Smartstore.Web.Api.Models.Media;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Smartstore.Web.Api
 {

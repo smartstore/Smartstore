@@ -2,8 +2,6 @@
 using Smartstore.Collections;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
-using Smartstore.Core.DataExchange.Import;
-using Smartstore.Net.Http;
 using Smartstore.Threading;
 
 namespace Smartstore.Core.Content.Media
@@ -102,35 +100,6 @@ namespace Smartstore.Core.Content.Media
         public DuplicateFileHandling DuplicateFileHandling { get; set; }
         public bool IsDuplicate { get; set; }
         public string UniquePath { get; set; }
-    }
-
-    public class FileBatchSource
-    {
-        /// <summary>
-        /// The full physical path to file.
-        /// </summary>
-        public string PhysicalPath { get; init; }
-
-        /// <summary>
-        /// Name of file, usually file part from <see cref="PhysicalPath"/>
-        /// </summary>
-        public string FileName { get; init; }
-
-        /// <summary>
-        /// Any state to identify the source later after batch save. E.g.: <see cref="ImportRow{T}"/>, <see cref="DownloadManagerItem"/> etc.
-        /// </summary>
-        public object State { get; init; }
-    }
-
-    public class FileBatchResult
-    {
-        public FileBatchSource Source { get; init; }
-        public MediaFileInfo File { get; init; }
-        public MediaPathData PathData { get; init; }
-        public Exception Exception { get; set; }
-        public bool IsDuplicate { get; set; }
-        public string UniquePath { get; set; }
-        internal MediaStorageItem StorageItem { get; set; }
     }
 
     #endregion
@@ -240,7 +209,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Saves multiple files batched.
         /// </summary>
-        /// <param name="sources">The source files to save.</param>
+        /// <param name="sources">The source files to save. The source streams will be disposed after batch completion.</param>
         /// <param name="destinationFolder">The destination folder to save files to.</param>
         Task<IList<FileBatchResult>> BatchSaveFilesAsync(
             FileBatchSource[] sources,

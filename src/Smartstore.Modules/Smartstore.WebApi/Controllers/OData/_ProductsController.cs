@@ -3,7 +3,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Net.Http.Headers;
-using AngleSharp.Dom;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
@@ -702,6 +701,8 @@ namespace Smartstore.Web.Api.Controllers.OData
                     {
                         // TODO: (mg) (core) TBD with mc. DRY. Should be integrated into MediaImporter and MediaService.BatchSaveFilesAsync.
                         // Can we pass IFormFile to MediaImporter and MediaService.BatchSaveFilesAsync (see FileBatchSource.PhysicalPath)?
+                        // RE: I have refactored FileBatchSource: instead of PhysicalPath it takes a MediaStorageItem now (which can encapsulate just everything).
+                        // Is this sufficient?
 
                         var equalityCheck = await mediaService.FindEqualFileAsync(stream, entity.ProductMediaFiles.Select(x => x.MediaFile), true);
                         if (!equalityCheck.Success)

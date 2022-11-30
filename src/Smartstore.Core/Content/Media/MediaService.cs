@@ -496,7 +496,7 @@ namespace Smartstore.Core.Content.Media
                     var processFileResult = await ProcessFileAsync(
                         file,
                         pathData,
-                        inStream: File.OpenRead(source.PhysicalPath),
+                        inStream: source.Source.SourceStream,
                         destFileNames: destNames,
                         isTransient: isTransient,
                         dupeFileHandling: dupeFileHandling,
