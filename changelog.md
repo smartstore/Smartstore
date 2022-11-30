@@ -1,22 +1,10 @@
 # Release Notes
 
-## Smartstore 5.1.1
+## Smartstore 5.1.0
 
 ### Breaking Changes
 
 - (DEV) Product.**ProductPictures** renamed to **ProductMediaFiles**
-
-### New Features
-
-### Improvements
-
-### Bugfixes
-
-- Rule sets were not applied to shipping methods in checkout
-- *ArgumentNullException* when deleting an image assignment on product edit page
-
-
-## Smartstore 5.1.0
 
 ### New Features
 
@@ -32,6 +20,9 @@
 - ~10 % less RAM usage
 
 ### Bugfixes
+
+- Rule sets were not applied to shipping methods in checkout
+- *ArgumentNullException* when deleting an image assignment on product edit page
 
 
 
