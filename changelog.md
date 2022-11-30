@@ -23,6 +23,7 @@
 
 - Rule sets were not applied to shipping methods in checkout
 - *ArgumentNullException* when deleting an image assignment on product edit page
+- Despite activated export profile option **per store** no records were exported to a separate file
 
 
 
