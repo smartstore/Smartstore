@@ -25,6 +25,14 @@
             return Array.Empty<int>();
         }
     }
+
+    private bool IsNullable
+    {
+        get
+        {
+            return !ViewData.TryGetValueAs<bool>("nullable", out var nullable) || nullable == true;
+        }
+    }
 }
 
 @{
@@ -32,4 +40,9 @@
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
-<select asp-for="@Model" asp-items="items" data-placeholder="@T("Admin.Common.StoresAll")" class="edit-control" attrs="attributes" data-editor="select"></select>
+<select asp-for="@Model" 
+        asp-items="items" 
+        attr-data-placeholder='(IsNullable, T("Admin.Common.StoresAll").Value)'
+        attrs="attributes"
+        class="edit-control"
+        data-editor="select"></select>
