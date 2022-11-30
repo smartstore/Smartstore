@@ -60,7 +60,15 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
     <tr>
         <td>Products/ProductPictures</td>
         <td>Products/ProductMediaFiles</td>
-        <td></td>
+        <td>The navigation property name has changed.</td>
+    </tr>
+    <tr>
+        <td>POST Uploads/ProductImages <sup>1.</sup></td>
+        <td>POST Products/SaveFiles</td>
+        <td>
+            New method. Now returns list of <b>ProductMediaFile</b>.
+            Product keys (like SKU) must be sent in camel case using the content disposition header of the file.
+        </td>
     </tr>
 </tbody>
 <tfoot>

@@ -307,6 +307,12 @@ namespace Smartstore.Web.Api
         #region Utilities
 
         /// <summary>
+        /// Gets a value indicating whether the request has a multipart content.
+        /// </summary>
+        protected bool HasMultipartContent
+            => Request.ContentType?.StartsWithNoCase("multipart/") ?? false;
+
+        /// <summary>
         /// Gets related keys from an OData Uri.
         /// </summary>
         /// <returns>Dictionary with key property names and values.</returns>

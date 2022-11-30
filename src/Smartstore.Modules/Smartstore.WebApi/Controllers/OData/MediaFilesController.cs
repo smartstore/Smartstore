@@ -440,7 +440,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             [FromForm] bool isTransient = true,
             [FromForm] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
         {
-            if (Request.ContentType.IsEmpty() || !Request.ContentType.StartsWithNoCase("multipart/"))
+            if (!HasMultipartContent)
             {
                 return StatusCode(Status415UnsupportedMediaType);
             }

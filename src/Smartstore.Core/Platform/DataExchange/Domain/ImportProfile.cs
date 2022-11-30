@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Scheduling;
@@ -140,6 +141,7 @@ namespace Smartstore.Core.DataExchange
         /// <summary>
         /// Gets or sets the task descriptor.
         /// </summary>
+        [IgnoreDataMember]
         public TaskDescriptor Task
         {
             get => _task ?? LazyLoader?.Load(this, ref _task);

@@ -12,6 +12,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
@@ -21,6 +22,7 @@ using Smartstore.Web.Api.Models;
 using Smartstore.Web.Api.Models.Catalog;
 using Smartstore.Web.Api.Models.Checkout;
 using Smartstore.Web.Api.Models.Media;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Smartstore.Web.Api
 {
@@ -70,6 +72,7 @@ namespace Smartstore.Web.Api
             // are called unbound functions (like static operations on the service).
 
             BuildDeliveryTimes(builder);
+            BuildImportProfiles(builder);
             BuildMediaFiles(builder);
             BuildMediaFolders(builder);
             BuildNewsletterSubscriptions(builder);
@@ -92,6 +95,17 @@ namespace Smartstore.Web.Api
                 .Function(nameof(DeliveryTimesController.GetDeliveryDate))
                 .Returns<SimpleRange<DateTime?>>()
                 .Parameter<int>("Id")
+                .Required();
+        }
+
+        private static void BuildImportProfiles(ODataModelBuilder builder)
+        {
+            var set = builder.EntitySet<ImportProfile>("ImportProfiles");
+
+            set.EntityType
+                .Action(nameof(ImportProfileController.SaveFiles))
+                .ReturnsFromEntitySet(set)
+                .CollectionParameter<IFormFile>("files")
                 .Required();
         }
 
@@ -382,6 +396,12 @@ namespace Smartstore.Web.Api
             manageAttributes.Parameter<bool>("synchronize")
                 .HasDefaultValue(bool.FalseString)
                 .Optional();
+
+            config
+                .Action(nameof(ProductsController.SaveFiles))
+                .ReturnsCollectionFromEntitySet<ProductMediaFile>("ProductMediaFiles")
+                .CollectionParameter<IFormFile>("files")
+                .Required();
         }
     }
 }
