@@ -40,7 +40,7 @@ namespace Smartstore.Web.Rendering
             return stores.Select(x => new SelectListItem
             {
                 Text = x.Name,
-                Value = x.Id.ToString(),
+                Value = x.Id.ToStringInvariant(),
                 Selected = selectedStoreIds != null && selectedStoreIds.Contains(x.Id)
             })
             .ToList();
@@ -56,7 +56,7 @@ namespace Smartstore.Web.Rendering
             return roles.Select(x => new SelectListItem
             {
                 Text = x.Name,
-                Value = x.Id.ToString(),
+                Value = x.Id.ToStringInvariant(),
                 Selected = selectedCustomerRoleIds != null && selectedCustomerRoleIds.Contains(x.Id)
             })
             .ToList();
@@ -122,7 +122,7 @@ namespace Smartstore.Web.Rendering
             return countries.Select(x => new SelectListItem
             {
                 Text = x.GetLocalized(x => x.Name),
-                Value = x.Id.ToString(),
+                Value = x.Id.ToStringInvariant(),
                 Selected = selectedCountryIds != null && selectedCountryIds.Contains(x.Id)
             })
             .ToList();
@@ -141,7 +141,7 @@ namespace Smartstore.Web.Rendering
                 return stateProvinces.Select(x => new SelectListItem
                 {
                     Text = x.GetLocalized(x => x.Name),
-                    Value = x.Id.ToString(),
+                    Value = x.Id.ToStringInvariant(),
                     Selected = selectedStateProvinceIds != null && selectedStateProvinceIds.Contains(x.Id)
                 })
                 .ToList();

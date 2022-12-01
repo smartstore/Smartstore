@@ -84,8 +84,6 @@ namespace Smartstore.Web
                     o.Filters.Add<ModulePopulatorFilter>(int.MinValue);
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
 
-                    o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
-
                     // Register custom metadata provider
                     o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
 
