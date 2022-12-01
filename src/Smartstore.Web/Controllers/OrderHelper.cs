@@ -199,7 +199,7 @@ namespace Smartstore.Web.Controllers
                         AttributeInfo = bid.AttributesInfo
                     };
 
-                    bundleItemModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(bid.ProductId, bundleItemModel.ProductSeName, bid.AttributeSelection);
+                    bundleItemModel.ProductUrl = await _productUrlHelper.GetProductPathAsync(bid.ProductId, bundleItemModel.ProductSeName, bid.AttributeSelection);
 
                     if (model.BundlePerItemShoppingCart)
                     {
@@ -243,7 +243,7 @@ namespace Smartstore.Web.Controllers
                 break;
             }
 
-            model.ProductUrl = await _productUrlHelper.GetProductUrlAsync(orderItem.ProductId, model.ProductSeName, orderItem.AttributeSelection);
+            model.ProductUrl = await _productUrlHelper.GetProductPathAsync(orderItem.ProductId, model.ProductSeName, orderItem.AttributeSelection);
 
             if (shoppingCartSettings.ShowProductImagesOnShoppingCart)
             {

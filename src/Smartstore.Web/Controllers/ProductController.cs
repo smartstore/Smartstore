@@ -681,8 +681,6 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var storeUrl = Services.StoreContext.CurrentStore.GetHost(true).EmptyNull().TrimEnd('/');
-
                 var msg = await _messageFactory.Value.SendProductQuestionMessageAsync(
                     Services.WorkContext.CurrentCustomer,
                     product,
@@ -691,7 +689,7 @@ namespace Smartstore.Web.Controllers
                     model.SenderPhone,
                     HtmlUtility.ConvertPlainTextToHtml(model.Question.HtmlEncode()),
                     HtmlUtility.ConvertPlainTextToHtml(model.SelectedAttributes.HtmlEncode()),
-                    storeUrl + model.ProductUrl,
+                    model.ProductUrl,
                     model.IsQuoteRequest);
 
                 if (msg?.Email?.Id != null)
@@ -745,7 +743,7 @@ namespace Smartstore.Web.Controllers
                 SenderPhone = customer.GenericAttributes.Phone,
                 DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnAskQuestionPage,
                 SelectedAttributes = formattedAttributes,
-                ProductUrl = await _productUrlHelper.Value.GetProductUrlAsync(product.Id, seName, selection),
+                ProductUrl = await _productUrlHelper.Value.GetAbsoluteProductUrlAsync(product.Id, seName, selection),
                 IsQuoteRequest = product.CallForPrice
             };
 

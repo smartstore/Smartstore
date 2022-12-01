@@ -163,7 +163,7 @@ namespace Smartstore.Web.Models.Cart
                             ProductSeName = await bundleItem.Item.Product.GetActiveSlugAsync(),
                         };
 
-                        bundleItemModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(
+                        bundleItemModel.ProductUrl = await _productUrlHelper.GetProductPathAsync(
                             bundleItem.Item.ProductId,
                             bundleItemModel.ProductSeName,
                             bundleItem.Item.AttributeSelection);

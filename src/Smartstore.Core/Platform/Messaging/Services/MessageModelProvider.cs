@@ -530,7 +530,7 @@ namespace Smartstore.Core.Messaging
             var additionalShippingCharge = currencyService.ConvertToWorkingCurrency(part.AdditionalShippingCharge).WithSymbol(false);
 
             var slug = await part.GetActiveSlugAsync(messageContext.Language.Id);
-            var productUrl = await productUrlHelper.GetProductUrlAsync(part.Id, slug, attrSelection);
+            var productUrl = await productUrlHelper.GetProductPathAsync(part.Id, slug, attrSelection);
             var url = _helper.BuildUrl(productUrl, messageContext);
             var file = await _helper.GetMediaFileFor(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;

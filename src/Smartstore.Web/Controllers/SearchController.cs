@@ -121,7 +121,7 @@ namespace Smartstore.Web.Controllers
                     {
                         if (attributeCombination != null)
                         {
-                            return Redirect(await _productUrlHelper.GetProductUrlAsync(product.Id, await product.GetActiveSlugAsync(), attributeCombination.AttributeSelection));
+                            return Redirect(await _productUrlHelper.GetProductPathAsync(product.Id, await product.GetActiveSlugAsync(), attributeCombination.AttributeSelection));
                         }
 
                         return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });

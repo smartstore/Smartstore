@@ -651,7 +651,7 @@ namespace Smartstore.Web.Controllers
                     ProductId = item.ProductId
                 };
 
-                itemModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(item.ProductId, itemModel.ProductSeName, item.AttributeSelection);
+                itemModel.ProductUrl = await _productUrlHelper.GetProductPathAsync(item.ProductId, itemModel.ProductSeName, item.AttributeSelection);
 
                 model.Items.Add(itemModel);
 

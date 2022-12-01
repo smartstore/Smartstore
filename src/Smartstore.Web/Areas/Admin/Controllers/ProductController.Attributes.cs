@@ -759,7 +759,7 @@ namespace Smartstore.Admin.Controllers
                 var pvacModel = await mapper.MapAsync(x);
                 pvacModel.ProductId = product.Id;
                 pvacModel.ProductUrlTitle = productUrlTitle;
-                pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductUrlAsync(product.Id, productSlug, x.AttributeSelection);
+                pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductPathAsync(product.Id, productSlug, x.AttributeSelection);
                 pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(x.AttributeSelection, product, customer, "<br />", false, includeHyperlinks: false);
 
                 return pvacModel;

@@ -47,7 +47,7 @@ namespace Smartstore.Core.Catalog.Products
                 });
             }
 
-            return helper.GetProductUrl(productSlug, query);
+            return helper.GetProductPath(productSlug, query);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Smartstore.Core.Catalog.Products
                 }
             }
 
-            return helper.GetProductUrl(productSlug, query);
+            return helper.GetProductPath(productSlug, query);
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Smartstore.Core.Catalog.Products
                 }
             }
 
-            return helper.GetProductUrl(productSlug, query);
+            return helper.GetProductPath(productSlug, query);
         }
 
     }

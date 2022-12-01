@@ -185,39 +185,39 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Creates a product URL including variant query string.
+        /// Creates a product path including variant query string.
         /// </summary>
         /// <param name="productSlug">Product URL slug.</param>
         /// <param name="query">Product variant query.</param>
         /// <returns>Product URL.</returns>
-        public virtual string GetProductUrl(string productSlug, ProductVariantQuery query)
+        public virtual string GetProductPath(string productSlug, ProductVariantQuery query)
         {
             if (productSlug.IsEmpty())
             {
                 return null;
             }
 
-            var url = Url ?? _urlHelper.Value.RouteUrl("Product", new { SeName = productSlug });
+            var url = _urlHelper.Value.RouteUrl("Product", new { SeName = productSlug });
             return url.TrimEnd('/') + ToQueryString(query);
         }
 
         /// <summary>
-        /// Creates a product URL including variant query string.
+        /// Creates a product path including variant query string.
         /// </summary>
         /// <param name="productId">Product identifier.</param>
         /// <param name="productSlug">Product URL slug.</param>
         /// <param name="selection">Selected attributes.</param>
         /// <returns>Product URL.</returns>
-        public virtual async Task<string> GetProductUrlAsync(int productId, string productSlug, ProductVariantAttributeSelection selection)
+        public virtual async Task<string> GetProductPathAsync(int productId, string productSlug, ProductVariantAttributeSelection selection)
         {
             var query = new ProductVariantQuery();
             await AddAttributesToQueryAsync(query, selection, productId);
 
-            return GetProductUrl(productSlug, query);
+            return GetProductPath(productSlug, query);
         }
 
         /// <summary>
-        /// Creates an absolute product URL.
+        /// Creates an absolute product URL (including scheme and host).
         /// </summary>
         /// <param name="productId">Product identifier.</param>
         /// <param name="productSlug">Product URL slug.</param>
@@ -238,28 +238,10 @@ namespace Smartstore.Core.Catalog.Products
                 return null;
             }
 
-            var url = Url;
+            store ??= _storeContext.CurrentStore;
+            language ??= _workContext.WorkingLanguage;
 
-            if (url.IsEmpty())
-            {
-                store ??= _storeContext.CurrentStore;
-                language ??= _workContext.WorkingLanguage;
-
-                string hostName = null;
-
-                try
-                {
-                    // Do not create crappy URLs (exclude scheme, include port and no slash)!
-                    hostName = new Uri(store.GetHost(true)).Authority;
-                }
-                catch { }
-
-                url = _urlHelper.Value.RouteUrl(
-                    "Product",
-                    new { SeName = productSlug, culture = language.UniqueSeoCode },
-                    store.SupportsHttps() ? "https" : "http",
-                    hostName);
-            }
+            var url = _urlHelper.Value.RouteUrl("Product", new { SeName = productSlug, culture = language.UniqueSeoCode });
 
             if (selection?.AttributesMap?.Any() ?? false)
             {
@@ -269,7 +251,7 @@ namespace Smartstore.Core.Catalog.Products
                 url = url.TrimEnd('/') + ToQueryString(query);
             }
 
-            return url;
+            return store.GetHost() + url;
         }
     }
 }
