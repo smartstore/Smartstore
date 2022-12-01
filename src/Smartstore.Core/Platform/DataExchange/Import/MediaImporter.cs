@@ -1,4 +1,5 @@
-﻿using Smartstore.Collections;
+﻿using AngleSharp.Dom;
+using Smartstore.Collections;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
@@ -524,6 +525,114 @@ namespace Smartstore.Core.DataExchange.Import
 
                 return productMediaFile;
             }
+        }
+
+        public async Task<int> ImportProductImagesAsync(
+            Product product,
+            ICollection<FileBatchSource> items,
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
+            CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(product);
+
+            if (items.IsNullOrEmpty())
+            {
+                return 0;
+            }
+
+            await _db.LoadCollectionAsync(product, x => x.ProductMediaFiles, false, q => q.Include(x => x.MediaFile), cancelToken);
+
+            var assigments = product.ProductMediaFiles;
+            var newFiles = new List<FileBatchSource>();
+            var newAssigments = new List<ProductMediaFile>();
+            var album = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value;
+            var displayOrder = assigments.Count > 0 ? assigments.Max(x => x.DisplayOrder) : 0;
+
+            foreach (var item in items)
+            {
+                Guard.NotEmpty(item.FileName);
+
+                if (item.State is Dictionary<string, object> customData
+                    && customData.TryGetValue(nameof(ProductMediaFile.MediaFileId), out var rawFileId)
+                    && rawFileId is int fileId)
+                {
+                    // Overwrite existing file.
+                    var file = assigments.FirstOrDefault(x => x.MediaFileId == fileId);
+                    if (file != null)
+                    {
+                        var info = _mediaService.ConvertMediaFile(file.MediaFile);
+                        var updatedFile = await _mediaService.SaveFileAsync(info.Path, item.Source.SourceStream, false, DuplicateFileHandling.Overwrite);
+
+                        if (updatedFile == null || updatedFile.Id != fileId)
+                        {
+                            var msg = $"Failed to update existing product file with ID {fileId} and path '{info.Path.NaIfEmpty()}'.";
+                            MessageHandler?.Invoke(new ImportMessage(msg, ImportMessageType.Error), null);
+                        }
+                        continue;
+                    }
+                }
+
+                var equalityCheck = await _mediaService.FindEqualFileAsync(item.Source.SourceStream, assigments.Select(x => x.MediaFile), true);
+                if (!equalityCheck.Success)
+                {
+                    equalityCheck = await _mediaService.FindEqualFileAsync(item.Source.SourceStream, item.FileName, album.Id, true);
+                    if (equalityCheck.Success)
+                    {
+                        if (!assigments.Any(x => x.MediaFileId == equalityCheck.Value.Id))
+                        {
+                            newAssigments.Add(new ProductMediaFile
+                            {
+                                ProductId = product.Id,
+                                MediaFileId = equalityCheck.Value.Id,
+                                DisplayOrder = ++displayOrder
+                            });
+                        }
+                    }
+                    else
+                    {
+                        newFiles.Add(item);
+                    }
+                }
+            }
+
+            if (newFiles.Count > 0)
+            {
+                var postProcessingEnabled = _mediaService.ImagePostProcessingEnabled;
+
+                try
+                {
+                    var batchFileResult = await _mediaService.BatchSaveFilesAsync(
+                        newFiles.ToArray(),
+                        album,
+                        false,
+                        duplicateFileHandling,
+                        cancelToken);
+
+                    batchFileResult
+                        .Where(x => x.Exception == null && x.File?.Id > 0)
+                        .Each(x => newAssigments.Add(new ProductMediaFile
+                        {
+                            ProductId = product.Id,
+                            MediaFileId = x.File!.Id,
+                            DisplayOrder = ++displayOrder
+                        }));
+                }
+                finally
+                {
+                    _mediaService.ImagePostProcessingEnabled = postProcessingEnabled;
+                }
+            }
+
+            if (newAssigments.Count > 0)
+            {
+                // Update for FixProductMainPictureIds.
+                product.UpdatedOnUtc = DateTime.UtcNow;
+
+                assigments.AddRange(newAssigments);
+                await _db.SaveChangesAsync(cancelToken);
+            }
+
+            return newFiles.Count;
         }
 
         public async Task<int> ImportCategoryImagesAsync(

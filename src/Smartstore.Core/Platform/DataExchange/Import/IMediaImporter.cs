@@ -1,6 +1,6 @@
 ﻿using Smartstore.Collections;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Data;
 using Smartstore.IO;
@@ -94,6 +94,23 @@ namespace Smartstore.Core.DataExchange.Import
         Task<int> ImportProductImagesAsync(
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
+            CancellationToken cancelToken = default);
+
+        /// <summary>
+        /// Imports a batch of product images.
+        /// </summary>
+        /// <param name="product">Product entity.</param>
+        /// <param name="items">
+        /// Collection of product images to be imported.
+        /// Existing files can be overwritten by passing a dictionary{string},{oblect} for <see cref="FileBatchSource.State"/>
+        /// using key "MediaFileId" and value <see cref="MediaFile"/> identifier.
+        /// </param>
+        /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
+        /// <returns>Number of new images.</returns>
+        Task<int> ImportProductImagesAsync(
+            Product product,
+            ICollection<FileBatchSource> items,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default);
 

@@ -15,6 +15,8 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Media.Storage;
+using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Seo;
 using Smartstore.Domain;
 using Smartstore.IO;
@@ -27,14 +29,13 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class ProductsController : WebApiController<Product>
     {
-        private readonly string[] _keyNames = new[] { "id", "sku", "gtin", "mpn" };
-
         private readonly Lazy<IUrlService> _urlService;
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ICatalogSearchQueryFactory> _catalogSearchQueryFactory;
         private readonly Lazy<IPriceCalculationService> _priceCalculationService;
         private readonly Lazy<IProductAttributeService> _productAttributeService;
         private readonly Lazy<IMediaService> _mediaService;
+        private readonly Lazy<IMediaImporter> _mediaImporter;
         private readonly Lazy<IFolderService> _folderService;
         private readonly Lazy<IWebApiService> _webApiService;
         private readonly Lazy<SearchSettings> _searchSettings;
@@ -46,6 +47,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             Lazy<IPriceCalculationService> priceCalculationService,
             Lazy<IProductAttributeService> productAttributeService,
             Lazy<IMediaService> mediaService,
+            Lazy<IMediaImporter> mediaImporter,
             Lazy<IFolderService> folderService,
             Lazy<IWebApiService> webApiService,
             Lazy<SearchSettings> searchSettings)
@@ -56,6 +58,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _priceCalculationService = priceCalculationService;
             _productAttributeService = productAttributeService;
             _mediaService = mediaService;
+            _mediaImporter = mediaImporter;
             _folderService = folderService;
             _webApiService = webApiService;
             _searchSettings = searchSettings;
@@ -633,15 +636,26 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         /// <summary>
-        /// Saves files and assigns them to a product.
+        /// Saves files like images and assigns them to a product.
         /// </summary>
+        /// <param name="key">
+        /// Identifier of the product to which the images should be assigned.
+        /// 0 if the product is to be identified by SKU, GTIN or MPN.
+        /// </param>
         /// <param name="files">The files to be saved.</param>
-        [HttpPost("Products/SaveFiles"), ApiQueryable]
+        /// <param name="sku">SKU (stock keeping unit) of the product to which the images should be assigned.</param>
+        /// <param name="gtin">GTIN (global trade item number) of the product to which the images should be assigned.</param>
+        /// <param name="mpn">MPN (manufacturer part number) of the product to which the images should be assigned.</param>
+        [HttpPost("Products({key})/SaveFiles"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.EditPicture)]
         [Consumes("multipart/form-data"), Produces(Json)]
         [ProducesResponseType(typeof(IQueryable<ProductMediaFile>), Status200OK)]
         [ProducesResponseType(Status415UnsupportedMediaType)]
-        public async Task<IActionResult> SaveFiles([Required] List<IFormFile> files)
+        public async Task<IActionResult> SaveFiles(int key,
+            [Required] List<IFormFile> files,
+            [FromQuery] string? sku = null,
+            [FromQuery] string? gtin = null,
+            [FromQuery] string? mpn = null)
         {
             if (!HasMultipartContent)
             {
@@ -656,68 +670,69 @@ namespace Smartstore.Web.Api.Controllers.OData
                     return BadRequest("Missing multipart file data.");
                 }
 
-                var mediaService = _mediaService.Value;
-                var result = new List<ProductMediaFile>();
-                var entities = new Dictionary<string, Product>(StringComparer.OrdinalIgnoreCase);
-                var catalogAlbumId = _folderService.Value.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id;
-
-                var query = Db.Products
+                var entity = (Product?)null;
+                var query = Entities
                     .Include(x => x.ProductMediaFiles)
                     .ThenInclude(x => x.MediaFile);
 
-                foreach (var file in formFiles)
+                if (key != 0)
                 {
-                    if (file.ContentDisposition.IsEmpty())
-                    {
-                        return BadRequest("Missing file parameters in content-disposition header.");
-                    }
-
-                    var cd = ContentDispositionHeaderValue.Parse(file.ContentDisposition);
-                    var entity = await FindEntity(cd, entities);
-                    if (entity == null)
-                    {
-                        return NotFound($"Cannot find Product entity. Please specify a valid key like {string.Join(",", _keyNames)}.");
-                    }
-
-                    var fileName = PathUtility.SanitizeFileName(file.FileName.NullEmpty() ?? System.IO.Path.GetRandomFileName());
-                    var fileId = cd.GetParameterValue<int>("fileId");
-
-                    using var stream = file.OpenReadStream();
-
-                    var existingFile = entity.ProductMediaFiles.FirstOrDefault(x => x.MediaFileId == fileId);
-                    if (existingFile != null)
-                    {
-                        var info = mediaService.ConvertMediaFile(existingFile.MediaFile);
-                        var updatedFile = await mediaService.SaveFileAsync(info.Path, stream, false, DuplicateFileHandling.Overwrite);
-
-                        if (updatedFile == null || updatedFile.Id != fileId)
-                        {
-                            return ErrorResult(null, $"Failed to update existing product file with ID {fileId} and path '{info.Path.NaIfEmpty()}'.");
-                        }
-
-                        result.Add(existingFile!);
-                    }
-                    else
-                    {
-                        // TODO: (mg) (core) TBD with mc. DRY. Should be integrated into MediaImporter and MediaService.BatchSaveFilesAsync.
-                        // Can we pass IFormFile to MediaImporter and MediaService.BatchSaveFilesAsync (see FileBatchSource.PhysicalPath)?
-                        // RE: I have refactored FileBatchSource: instead of PhysicalPath it takes a MediaStorageItem now (which can encapsulate just everything).
-                        // Is this sufficient?
-
-                        var equalityCheck = await mediaService.FindEqualFileAsync(stream, entity.ProductMediaFiles.Select(x => x.MediaFile), true);
-                        if (!equalityCheck.Success)
-                        {
-                            equalityCheck = await mediaService.FindEqualFileAsync(stream, fileName, catalogAlbumId, true);
-                            if (equalityCheck.Success)
-                            {
-                                //....
-                                //var displayOrder = entity.ProductMediaFiles.Count > 0 ? entity.ProductMediaFiles.Max(x => x.DisplayOrder) : 0;
-                            }
-                        }
-                    }
+                    entity = await query.FirstOrDefaultAsync(x => x.Id == key);
+                }
+                else if (sku.HasValue())
+                {
+                    entity = await query.ApplySkuFilter(sku).FirstOrDefaultAsync();
+                }
+                else if (gtin.HasValue())
+                {
+                    entity = await query.ApplyGtinFilter(gtin).FirstOrDefaultAsync();
+                }
+                else if (mpn.HasValue())
+                {
+                    entity = await query.ApplyMpnFilter(mpn).FirstOrDefaultAsync();
                 }
 
-                return Ok(result);
+                if (entity == null)
+                {
+                    return NotFound("Cannot find Product entity. Please specify a valid ID, SKU, GTIN or MPN.");
+                }
+
+                var items = formFiles
+                    .Select(file =>
+                    {
+                        Dictionary<string, object>? state = null;
+
+                        if (ContentDispositionHeaderValue.TryParse(file.ContentDisposition, out var cd))
+                        {
+                            var fileId = cd.GetParameterValue<int>("fileId");
+                            if (fileId != 0)
+                            {
+                                state = new Dictionary<string, object>
+                                {
+                                    { nameof(ProductMediaFile.MediaFileId), fileId }
+                                };
+                            }
+                        }
+
+                        return new FileBatchSource(MediaStorageItem.FromFormFile(file))
+                        {
+                            FileName = PathUtility.SanitizeFileName(file.FileName.EmptyNull() ?? System.IO.Path.GetRandomFileName()),
+                            State = state
+                        };
+                    })
+                    .ToList();
+
+                _mediaImporter.Value.MessageHandler = (msg, item) =>
+                {
+                    if (msg.MessageType == ImportMessageType.Error)
+                    {
+                        throw new Exception(msg.Message);
+                    }
+                };
+
+                _ = await _mediaImporter.Value.ImportProductImagesAsync(entity, items);
+
+                return Ok(entity.ProductMediaFiles.AsQueryable());
             }
             catch (Exception ex)
             {
@@ -805,53 +820,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             var slugResult = await _urlService.Value.ValidateSlugAsync(entity, string.Empty, true);
             await _urlService.Value.ApplySlugAsync(slugResult, true);
-        }
-
-        private async Task<Product?> FindEntity(ContentDispositionHeaderValue cd, Dictionary<string, Product> lookup)
-        {
-            var entity = (Product?)null;
-            var query = Db.Products
-                .Include(x => x.ProductMediaFiles)
-                .ThenInclude(x => x.MediaFile);
-
-            foreach (var keyName in _keyNames)
-            {
-                var keyValue = cd.GetParameterValue<string>(keyName).TrimSafe();
-                if (keyValue.IsEmpty())
-                {
-                    continue;
-                }
-
-                if (lookup.TryGetValue(keyName + keyValue, out entity))
-                {
-                    return entity;
-                }
-
-                switch (keyName)
-                {
-                    case "id":
-                        var id = keyValue!.ToInt();
-                        entity = await query.FirstOrDefaultAsync(x => x.Id == id);
-                        break;
-                    case "sku":
-                        entity = await query.ApplySkuFilter(keyValue).FirstOrDefaultAsync();
-                        break;
-                    case "gtin":
-                        entity = await query.ApplyGtinFilter(keyValue).FirstOrDefaultAsync();
-                        break;
-                    case "mpn":
-                        entity = await query.ApplyMpnFilter(keyValue).FirstOrDefaultAsync();
-                        break;
-                }
-
-                if (entity != null)
-                {
-                    lookup[keyName + keyValue] = entity;
-                    return entity;
-                }
-            }
-
-            return null;
         }
 
         #endregion

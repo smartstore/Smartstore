@@ -63,11 +63,11 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
         <td>The navigation property name has changed.</td>
     </tr>
     <tr>
-        <td>POST Uploads/ProductImages <sup>1.</sup></td>
-        <td>POST Products/SaveFiles</td>
+        <td>POST Uploads/ProductImages <sup>1. 2.</sup></td>
+        <td>POST Products({id})/SaveFiles</td>
         <td>
             New method. Now returns list of <b>ProductMediaFile</b>.
-            Product keys (like SKU) must be sent in camel case using the content disposition header of the file.
+            SKU, GTIN or MPN to identify the product can optionally be sent via query string.
         </td>
     </tr>
 </tbody>
@@ -76,6 +76,13 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
         <td colspan="3">
             <small>
                 <sup>1.</sup> Route <strong>/api/v1/</strong> no longer exists.
+            </small>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <small>
+                <sup>2.</sup> The parameterization has been changed to support Swagger.
             </small>
         </td>
     </tr>

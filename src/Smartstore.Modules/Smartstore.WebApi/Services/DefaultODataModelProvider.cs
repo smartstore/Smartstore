@@ -395,11 +395,17 @@ namespace Smartstore.Web.Api
                 .HasDefaultValue(bool.FalseString)
                 .Optional();
 
-            config
+            var saveFiles = set.EntityType
                 .Action(nameof(ProductsController.SaveFiles))
-                .ReturnsCollectionFromEntitySet<ProductMediaFile>("ProductMediaFiles")
-                .CollectionParameter<IFormFile>("files")
+                .ReturnsCollectionFromEntitySet<ProductMediaFile>("ProductMediaFiles");
+            saveFiles.CollectionParameter<IFormFile>("files")
                 .Required();
+            saveFiles.Parameter<string>("sku")
+                .Optional();
+            saveFiles.Parameter<string>("gtin")
+                .Optional();
+            saveFiles.Parameter<string>("mpn")
+                .Optional();
         }
     }
 }
