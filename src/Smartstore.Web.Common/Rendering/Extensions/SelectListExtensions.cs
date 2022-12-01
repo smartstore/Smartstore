@@ -1,3 +1,5 @@
+#nullable enable
+
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
@@ -13,21 +15,24 @@ namespace Smartstore.Web.Rendering
         public static SelectList ToSelectList<TEnum>(this TEnum enumObj, bool markCurrentAsSelected = true)
             where TEnum : struct
         {
-            if (!typeof(TEnum).IsEnum)
-                throw new ArgumentException("An Enumeration type is required.", nameof(enumObj));
+            Guard.IsEnumType(typeof(TEnum));
 
-            var workContext = EngineContext.Current.Scope.Resolve<IWorkContext>();
+            var languageId = EngineContext.Current.Scope.Resolve<IWorkContext>().WorkingLanguage.Id;
 
             var values = from TEnum enumValue in Enum.GetValues(typeof(TEnum))
-                         select new { ID = Convert.ToInt32(enumValue), Name = enumValue.GetLocalizedEnum(workContext.WorkingLanguage.Id) };
+                         select new 
+                         { 
+                             ID = Convert.ToInt32(enumValue), 
+                             Name = enumValue.GetLocalizedEnum(languageId) 
+                         };
 
-            object selectedValue = null;
+            object? selectedValue = null;
             if (markCurrentAsSelected)
             {
                 selectedValue = Convert.ToInt32(enumObj);
             }
 
-            return new SelectList(values, "ID", "Name", selectedValue);
+            return new SelectList(values, "ID", "Name", selectedValue!);
         }
 
         /// <summary>
@@ -35,7 +40,7 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Store> stores, params int[] selectedStoreIds)
         {
-            Guard.NotNull(stores, nameof(stores));
+            Guard.NotNull(stores);
 
             return stores.Select(x => new SelectListItem
             {
@@ -51,7 +56,7 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         public static IList<SelectListItem> ToSelectListItems(this IEnumerable<CustomerRole> roles, params int[] selectedCustomerRoleIds)
         {
-            Guard.NotNull(roles, nameof(roles));
+            Guard.NotNull(roles);
 
             return roles.Select(x => new SelectListItem
             {
@@ -119,13 +124,15 @@ namespace Smartstore.Web.Rendering
         {
             Guard.NotNull(countries);
 
-            return countries.Select(x => new SelectListItem
+            return countries.Select(country => new CountrySelectListItem
             {
-                Text = x.GetLocalized(x => x.Name),
-                Value = x.Id.ToStringInvariant(),
-                Selected = selectedCountryIds != null && selectedCountryIds.Contains(x.Id)
+                Text = country.GetLocalized(x => x.Name),
+                Value = country.Id.ToStringInvariant(),
+                TwoLetterIsoCode = country.TwoLetterIsoCode,
+                ThreeLetterIsoCode = country.ThreeLetterIsoCode,
+                Selected = selectedCountryIds != null && selectedCountryIds.Contains(country.Id)
             })
-            .ToList();
+            .ToList<SelectListItem>();
         }
 
         /// <summary>
@@ -134,20 +141,22 @@ namespace Smartstore.Web.Rendering
         /// <param name="countries">Countries.</param>
         /// <param name="selectedCountryCodes">2-letter ISO codes of countries to be selected.</param>
         /// <returns>Select list of countries.</returns>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Country> countries, string[] selectedCountryCodes)
+        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Country> countries, string?[] selectedCountryCodes)
         {
             Guard.NotNull(countries);
             Guard.NotNull(selectedCountryCodes);
 
-            return countries.Select(country => new SelectListItem
+            return countries.Select(country => new CountrySelectListItem
             {
                 Text = country.GetLocalized(x => x.Name),
                 Value = country.TwoLetterIsoCode,
+                TwoLetterIsoCode = country.TwoLetterIsoCode,
+                ThreeLetterIsoCode = country.ThreeLetterIsoCode,
                 Selected = selectedCountryCodes != null && selectedCountryCodes.Any(code => IsSelected(country, code))
             })
-            .ToList();
+            .ToList<SelectListItem>();
 
-            static bool IsSelected(Country country, string code)
+            static bool IsSelected(Country country, string? code)
             {
                 if (code == null) return false;
                 if (code.Length == 2)
@@ -165,7 +174,7 @@ namespace Smartstore.Web.Rendering
         /// <param name="stateProvinces">State provinces.</param>
         /// <param name="selectedStateProvinceIds">Identifiers of state provinces to be selected.</param>
         /// <returns>Select list of state provinces. <c>null</c> if <paramref name="stateProvinces"/> does not contain any state provinces.</returns>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<StateProvince> stateProvinces, params int[] selectedStateProvinceIds)
+        public static IList<SelectListItem>? ToSelectListItems(this IEnumerable<StateProvince> stateProvinces, params int[] selectedStateProvinceIds)
         {
             if (stateProvinces?.Any() ?? false)
             {
@@ -187,9 +196,9 @@ namespace Smartstore.Web.Rendering
         /// <param name="timeZoneInfos">Time zone infos.</param>
         /// <param name="selectedTimeZoneId">Identifier of time zone info to be selected.</param>
         /// <returns>Select list of time zone infos.</returns>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<TimeZoneInfo> timeZoneInfos, string selectedTimeZoneId = null)
+        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<TimeZoneInfo> timeZoneInfos, string? selectedTimeZoneId = null)
         {
-            Guard.NotNull(timeZoneInfos, nameof(timeZoneInfos));
+            Guard.NotNull(timeZoneInfos);
 
             return timeZoneInfos.Select(x => new SelectListItem
             {
@@ -200,27 +209,37 @@ namespace Smartstore.Web.Rendering
             .ToList();
         }
 
-        public static void SelectValue(this IEnumerable<SelectListItem> list, string value, string defaultValue = null)
+        public static void SelectValue(this IEnumerable<SelectListItem>? list, string value, string? defaultValue = null)
         {
             if (list == null)
+            {
                 return;
+            }
 
             var item = list.FirstOrDefault(x => x.Value.EqualsNoCase(value));
-
             if (item == null && defaultValue != null)
+            {
                 item = list.FirstOrDefault(x => x.Value.EqualsNoCase(defaultValue));
+            }
 
             if (item != null)
+            {
                 item.Selected = true;
+            } 
         }
     }
 
+    public partial class CountrySelectListItem : SelectListItem
+    {
+        public string? TwoLetterIsoCode { get; set; }
+        public string? ThreeLetterIsoCode { get; set; }
+    }
 
     public partial class ExtendedSelectListItem : SelectListItem
     {
-        public Dictionary<string, object> CustomProperties { get; set; } = new();
+        public Dictionary<string, object?> CustomProperties { get; set; } = new();
 
-        public TProperty Get<TProperty>(string key, TProperty defaultValue = default)
+        public TProperty? Get<TProperty>(string key, TProperty? defaultValue = default)
         {
             if (CustomProperties.TryGetValue(key, out object value))
             {
