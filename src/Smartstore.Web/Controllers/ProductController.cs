@@ -681,6 +681,8 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
+                var storeUrl = Services.StoreContext.CurrentStore.GetHost(true).EmptyNull().TrimEnd('/');
+
                 var msg = await _messageFactory.Value.SendProductQuestionMessageAsync(
                     Services.WorkContext.CurrentCustomer,
                     product,
@@ -689,7 +691,7 @@ namespace Smartstore.Web.Controllers
                     model.SenderPhone,
                     HtmlUtility.ConvertPlainTextToHtml(model.Question.HtmlEncode()),
                     HtmlUtility.ConvertPlainTextToHtml(model.SelectedAttributes.HtmlEncode()),
-                    model.ProductUrl,
+                    storeUrl + model.ProductUrl,
                     model.IsQuoteRequest);
 
                 if (msg?.Email?.Id != null)
