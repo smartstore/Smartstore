@@ -19,7 +19,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> RelatedProductList(GridCommand command, int productId)
         {
-            var model = new GridModel<ProductModel.RelatedProductModel>();
             var relatedProducts = await _db.RelatedProducts
                 .AsNoTracking()
                 .ApplyProductId1Filter(productId)
@@ -27,18 +26,18 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var productIds2 = relatedProducts.Select(x => x.ProductId2).Distinct().ToArray();
+            var productIds2 = relatedProducts.ToDistinctArray(x => x.ProductId2);
             var products2 = await _db.Products
                 .AsNoTracking()
                 .Where(x => productIds2.Contains(x.Id))
                 .ToDictionaryAsync(x => x.Id, x => x);
 
-            var relatedProductsModel = relatedProducts
+            var rows = relatedProducts
                 .Select(x =>
                 {
                     var product2 = products2[x.ProductId2];
 
-                    return new ProductModel.RelatedProductModel()
+                    return new ProductModel.RelatedProductModel
                     {
                         Id = x.Id,
                         ProductId2 = x.ProductId2,
@@ -53,10 +52,11 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            model.Rows = relatedProductsModel;
-            model.Total = await relatedProducts.GetTotalCountAsync();
-
-            return Json(model);
+            return Json(new GridModel<ProductModel.RelatedProductModel>
+            {
+                Rows = rows,
+                Total = await relatedProducts.GetTotalCountAsync()
+            });
         }
 
         [HttpPost]

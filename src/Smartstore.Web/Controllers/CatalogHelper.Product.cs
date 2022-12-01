@@ -1035,8 +1035,7 @@ namespace Smartstore.Web.Controllers
         {
             var relatedProductIds = await _db.RelatedProducts
                 .AsNoTracking()
-                .Where(x => x.ProductId1 == product.Id)
-                .OrderBy(x => x.DisplayOrder)
+                .ApplyProductId1Filter(product.Id)
                 .Select(x => x.ProductId2)
                 .ToArrayAsync();
 
