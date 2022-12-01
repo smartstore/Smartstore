@@ -1,0 +1,101 @@
+﻿@using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@using Smartstore.Utilities
+
+@functions
+{
+    private object SelectedKeys
+    {
+        get
+        {
+            var model = GetMetadata<object>("model") ?? ViewData.Model;
+            
+            if (model is int[] ids)
+            {
+                return ids;
+            }
+            else if (model is string[] codes)
+            {
+                return codes;
+            }
+            else if (model != null)
+            {
+                if (ConvertUtility.TryConvert<string>(model, CultureInfo.InvariantCulture, out string str) && str.HasValue())
+                {
+                    if (char.IsNumber(str[0]))
+                    {
+                        return str.ToIntArray();
+                    }
+                    else
+                    {
+                        return str.Convert<string[]>(Array.Empty<string>()).Select(x => x.Trim()).ToArray();
+                    }
+                }
+            }
+
+            return Array.Empty<int>();
+        }
+    }
+
+    private bool SelectByIsoCode
+    {
+        get => ViewData.Model is string[] || ViewData.Model is string;
+    }
+
+    private bool IsNullable
+    {
+        get => !TryGetMetadata<bool>("nullable", out var nullable) || nullable == true;
+    }
+
+    private bool IncludeHidden
+    {
+        get => !TryGetMetadata<bool>("includeHidden", out var includeHidden) || includeHidden == true;
+    }
+
+    private int StoreId
+    {
+        get => GetMetadata<int>("storeId", 0);
+    }
+}
+
+@{
+    var countries = await CommonServices.DbContext.Countries
+        .AsNoTracking()
+        .ApplyStandardFilter(IncludeHidden, StoreId)
+        .ToListAsync();
+
+    var keys = SelectedKeys;
+    var selectByIso = SelectByIsoCode;
+    var items = (keys is int[] ids ? countries.ToSelectListItems(ids) : countries.ToSelectListItems((string[])keys)).OrderBy(x => x.Text);
+
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+
+    if (!attributes.ContainsKey("multiple"))
+    {
+        var multiple = GetMetadata<bool>("multiple", false);
+        if (multiple)
+        {
+            attributes["multiple"] = "multiple";
+        }
+    }
+}
+@*<select asp-for="@Model" 
+        asp-items="items" 
+        attr-data-placeholder='(IsNullable, T("Common.Unspecified").Value)'
+        attrs="attributes"
+        class="edit-control"
+        data-editor="select">
+</select>*@
+
+<select asp-for="@Model"
+        attr-data-placeholder='(IsNullable, T("Common.Unspecified").Value)'
+        attrs="attributes"
+        class="edit-control"
+        data-editor="select">
+    @foreach (var item in items)
+    {
+        <option value="@item.Value" 
+                attr-selected='(item.Selected, "selected")' 
+                data-imageurl="@Url.Content("~/images/flags/" + item.Value + ".png")">@item.Text</option>
+    }
+</select>

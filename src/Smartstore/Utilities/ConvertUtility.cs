@@ -57,8 +57,9 @@ namespace Smartstore.Utilities
                 return to == typeof(string) || to.IsBasicType() == false;
             }
 
-            if (to != typeof(object) && to.IsInstanceOfType(value))
+            if (to == typeof(object) || (to != typeof(object) && to.IsInstanceOfType(value)))
             {
+                // Will always succeed
                 convertedValue = value;
                 return true;
             }

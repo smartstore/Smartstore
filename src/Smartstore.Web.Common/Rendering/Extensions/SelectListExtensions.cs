@@ -117,7 +117,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>Select list of countries.</returns>
         public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Country> countries, params int[] selectedCountryIds)
         {
-            Guard.NotNull(countries, nameof(countries));
+            Guard.NotNull(countries);
 
             return countries.Select(x => new SelectListItem
             {
@@ -126,6 +126,37 @@ namespace Smartstore.Web.Rendering
                 Selected = selectedCountryIds != null && selectedCountryIds.Contains(x.Id)
             })
             .ToList();
+        }
+
+        /// <summary>
+        /// Gets a select list of countries.
+        /// </summary>
+        /// <param name="countries">Countries.</param>
+        /// <param name="selectedCountryCodes">2-letter ISO codes of countries to be selected.</param>
+        /// <returns>Select list of countries.</returns>
+        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Country> countries, string[] selectedCountryCodes)
+        {
+            Guard.NotNull(countries);
+            Guard.NotNull(selectedCountryCodes);
+
+            return countries.Select(country => new SelectListItem
+            {
+                Text = country.GetLocalized(x => x.Name),
+                Value = country.TwoLetterIsoCode,
+                Selected = selectedCountryCodes != null && selectedCountryCodes.Any(code => IsSelected(country, code))
+            })
+            .ToList();
+
+            static bool IsSelected(Country country, string code)
+            {
+                if (code == null) return false;
+                if (code.Length == 2)
+                {
+                    return country.TwoLetterIsoCode == code;
+                }
+
+                return false;
+            }
         }
 
         /// <summary>
@@ -171,7 +202,6 @@ namespace Smartstore.Web.Rendering
 
         public static void SelectValue(this IEnumerable<SelectListItem> list, string value, string defaultValue = null)
         {
-            // INFO: (mh) (core) Please don't port via copy&paste!!!
             if (list == null)
                 return;
 
@@ -188,12 +218,7 @@ namespace Smartstore.Web.Rendering
 
     public partial class ExtendedSelectListItem : SelectListItem
     {
-        public ExtendedSelectListItem()
-        {
-            CustomProperties = new Dictionary<string, object>();
-        }
-
-        public Dictionary<string, object> CustomProperties { get; set; }
+        public Dictionary<string, object> CustomProperties { get; set; } = new();
 
         public TProperty Get<TProperty>(string key, TProperty defaultValue = default)
         {

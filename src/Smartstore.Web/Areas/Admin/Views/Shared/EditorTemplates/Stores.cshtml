@@ -30,7 +30,7 @@
     {
         get
         {
-            return !ViewData.TryGetValueAs<bool>("nullable", out var nullable) || nullable == true;
+            return !TryGetMetadata<bool>("nullable", out var nullable) || nullable == true;
         }
     }
 }
@@ -39,7 +39,6 @@
     var items = StoreContext.GetAllStores().ToSelectListItems(SelectedIds);
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
-
 <select asp-for="@Model" 
         asp-items="items" 
         attr-data-placeholder='(IsNullable, T("Admin.Common.StoresAll").Value)'
