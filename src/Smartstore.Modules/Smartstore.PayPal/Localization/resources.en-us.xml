@@ -79,25 +79,25 @@
                 </Value>
             </LocaleResource>
             <LocaleResource Name="CookieInfo">
-                <Value>PayPay uses cookies to display and process the payment transaction.</Value>
+                <Value>PayPal uses cookies to display and process the payment transaction.</Value>
             </LocaleResource>
             <LocaleResource Name="UseSandbox">
                 <Value>Use sandbox</Value>
             </LocaleResource>
             <LocaleResource Name="UseSandbox.Hint">
-                <Value>Specifies whether the payments are executed in the sandbox of the payment provider.</Value>
+                <Value>Specifies whether the payments are executed in the PayPal sandbox.</Value>
             </LocaleResource>
             <LocaleResource Name="Account">
                 <Value>Account</Value>
             </LocaleResource>
             <LocaleResource Name="Account.Hint">
-                <Value>Enter the account that was sent to you by the payment provider.</Value>
+                <Value>Enter your PayPal account.</Value>
             </LocaleResource>
             <LocaleResource Name="ClientId">
                 <Value>Client ID</Value>
             </LocaleResource>
             <LocaleResource Name="ClientId.Hint">
-                <Value>Enter the client ID that was sent to you by the payment provider.</Value>
+                <Value>Enter the client ID for the app you've created in PayPal developer dashboard.</Value>
             </LocaleResource>
             <LocaleResource Name="PayerId">
                 <Value>Payer ID</Value>
@@ -109,10 +109,10 @@
                 <Value>Is needed for the payment method purchase on invoice to create a unique identification key. Must not contain spaces.</Value>
             </LocaleResource>
             <LocaleResource Name="Secret">
-                <Value>Password</Value>
+                <Value>Secret</Value>
             </LocaleResource>
             <LocaleResource Name="Secret.Hint">
-                <Value>Enter the password that was sent to you by the payment provider.</Value>
+                <Value>Enter the secret for the app you've created in PayPal developer dashboard.</Value>
             </LocaleResource>
             <LocaleResource Name="WebhookId">
                 <Value>Webhook ID</Value>

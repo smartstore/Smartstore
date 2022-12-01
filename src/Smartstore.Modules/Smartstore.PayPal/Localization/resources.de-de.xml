@@ -100,7 +100,7 @@
                 <Value>Client ID</Value>
             </LocaleResource>
             <LocaleResource Name="ClientId.Hint">
-                <Value>Geben Sie hier die Client ID an, die Ihnen vom Zahlungsanbieter übermittelt wurde.</Value>
+                <Value>Geben Sie hier die Client ID der eingerichteten App an.</Value>
             </LocaleResource>
             <LocaleResource Name="PayerId">
                 <Value>Payer ID</Value>
@@ -112,10 +112,10 @@
                 <Value>Wird für die Zahlart Kauf auf Rechnung benötigt, um einen eindeutigen Identifikationsschlüßel zu erzeugen. Darf keine Leerzeichen enthalten.</Value>
             </LocaleResource>
             <LocaleResource Name="Secret">
-                <Value>Passwort</Value>
+                <Value>Geheimschlüssel (Secret)</Value>
             </LocaleResource>
             <LocaleResource Name="Secret.Hint">
-                <Value>Geben Sie hier das Passwort an, das Ihnen vom Zahlungsanbieter übermittelt wurde.</Value>
+                <Value>Geben Sie hier den Geheimschlüssel (Secret) der eingerichteten App an.</Value>
             </LocaleResource>
             <LocaleResource Name="WebhookId">
                 <Value>Webhook ID</Value>
