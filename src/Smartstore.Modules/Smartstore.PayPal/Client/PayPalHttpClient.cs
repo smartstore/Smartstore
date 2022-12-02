@@ -435,7 +435,7 @@ namespace Smartstore.PayPal.Client
             (Money price, _) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
             var cartTax = _currencyService.ConvertFromPrimaryCurrency(price.Amount, currency);
 
-            var amountValue = isExpressCheckout || orderTotal == 0
+            var amountValue = orderTotal == 0
                 ? (subTotalConverted.Amount + cartTax.Amount).ToStringInvariant("F")
                 : orderTotal.ToStringInvariant("F");
 
@@ -467,9 +467,9 @@ namespace Smartstore.PayPal.Client
             {
                 // Get shipping cost
                 var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
+                var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
                 // Discount
-                var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
                 var orderTotalDiscountAmount = new Money();
                 if (cartTotal.DiscountAmount > decimal.Zero)
                 {
@@ -478,7 +478,7 @@ namespace Smartstore.PayPal.Client
 
                 purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
                 {
-                    Value = orderTotalDiscountAmount.Amount.ToStringInvariant("F"),
+                    Value = (orderTotalDiscountAmount.Amount + cartSubTotal.DiscountAmount.Amount).ToStringInvariant("F"),
                     CurrencyCode = currency.CurrencyCode
                 };
 
@@ -487,6 +487,25 @@ namespace Smartstore.PayPal.Client
                     Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
                     CurrencyCode = currency.CurrencyCode
                 };
+
+                if (cartTotal.Total.Value != cartSubTotal.SubtotalWithDiscount)
+                {
+                    (Money tax, _) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+
+                    var itemTotal = cartTotal.Total.Value.Amount
+                         - tax.Amount
+                         - shippingTotal.ShippingTotal.Value.Amount;
+
+                    //var itemTotal = cartTotal.Total.Value.Amount 
+                    //    - tax.Amount 
+                    //    - shippingTotal.ShippingTotal.Value.Amount 
+                    //    + orderTotalDiscountAmount.Amount 
+                    //    + cartSubTotal.DiscountAmount.Amount;
+
+                    purchaseUnit.Amount.Value = cartTotal.Total.Value.Amount.ToStringInvariant("F");
+                    purchaseUnit.Amount.AmountBreakdown.ItemTotal.Value = itemTotal.ToStringInvariant("F");
+                    purchaseUnit.Amount.AmountBreakdown.TaxTotal.Value = tax.Amount.ToStringInvariant("F");
+                }
 
                 purchaseUnit.CustomId = orderGuid;
                 purchaseUnit.Shipping = new ShippingDetail

@@ -99,7 +99,7 @@ namespace Smartstore.PayPal.Controllers
                     var customId = resource?.CustomId;
                     if (customId == null)
                     {
-                        customId = resource?.PurchaseUnits[0]?.CustomId;
+                        customId = resource?.PurchaseUnits?[0]?.CustomId;
                     }
                     
                     var webhookResourceType = webhookEvent.ResourceType?.ToLowerInvariant();
