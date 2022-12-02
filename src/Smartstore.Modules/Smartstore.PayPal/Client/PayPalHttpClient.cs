@@ -209,7 +209,7 @@ namespace Smartstore.PayPal.Client
 
             var ordersPatchRequest = new OrdersPatchRequest<object>(request.PayPalOrderId);
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, request.StoreId);
-            var purchaseUnits = await GetPurchaseUnitsAsync(cart, request.OrderTotal, request.OrderGuid.ToString(), false);
+            var purchaseUnits = await GetPurchaseUnitsAsync(cart, request.OrderTotal, request.OrderGuid.ToString());
             purchaseUnits[0].ReferenceId = request.OrderGuid.ToString();
 
             var patches = new List<Patch<object>>
@@ -419,8 +419,7 @@ namespace Smartstore.PayPal.Client
         private async Task<List<PurchaseUnit>> GetPurchaseUnitsAsync(
             ShoppingCart cart,
             decimal orderTotal = 0,
-            string orderGuid = "",
-            bool isExpressCheckout = true)
+            string orderGuid = "")
         {
             var customer = _workContext.CurrentCustomer;
             var currency = _workContext.WorkingCurrency;
@@ -428,8 +427,9 @@ namespace Smartstore.PayPal.Client
             var purchaseUnitItems = await GetPurchaseUnitItemsAsync(cart, customer, currency);
 
             // Get subtotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, false);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
+            var cartSubTotalExclTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, false);
+            var cartSubTotalinklTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
+            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotalExclTax.SubtotalWithoutDiscount.Amount, currency);
 
             // Get tax
             (Money price, _) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
@@ -438,6 +438,14 @@ namespace Smartstore.PayPal.Client
             var amountValue = orderTotal == 0
                 ? (subTotalConverted.Amount + cartTax.Amount).ToStringInvariant("F")
                 : orderTotal.ToStringInvariant("F");
+
+            var format = new NumberFormatInfo() { NumberDecimalSeparator = "." };
+
+            decimal itemTotal = 0;
+            purchaseUnitItems.Each(x => itemTotal += decimal.Parse(x.UnitAmount.Value, format) * Convert.ToInt32(x.Quantity));
+
+            decimal itemTotalTax = 0;
+            purchaseUnitItems.Each(x => itemTotalTax += decimal.Parse(x.Tax.Value, format) * Convert.ToInt32(x.Quantity));
 
             var purchaseUnit = new PurchaseUnit
             {
@@ -449,12 +457,14 @@ namespace Smartstore.PayPal.Client
                     {
                         ItemTotal = new MoneyMessage
                         {
-                            Value = subTotalConverted.Amount.ToStringInvariant("F"),
+                            //Value = subTotalConverted.Amount.ToStringInvariant("F"),
+                            Value = itemTotal.ToStringInvariant("F"),
                             CurrencyCode = currency.CurrencyCode
                         },
                         TaxTotal = new MoneyMessage
                         {
-                            Value = cartTax.Amount.ToStringInvariant("F"),
+                            //Value = cartTax.Amount.ToStringInvariant("F"),
+                            Value = itemTotalTax.ToStringInvariant("F"),
                             CurrencyCode = currency.CurrencyCode
                         }
                     }
@@ -463,51 +473,42 @@ namespace Smartstore.PayPal.Client
                 Items = purchaseUnitItems.ToArray()
             };
 
-            if (!isExpressCheckout)
+            // INFO: We must execute the following code also for cart pages in case of customer backward navigation,
+            // where shipping method might be set or discounts might be applied
+
+            
+            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+
+            // Discount
+            var orderTotalDiscountAmount = new Money();
+            if (cartTotal.DiscountAmount > decimal.Zero)
             {
-                // Get shipping cost
-                var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
-                var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+                orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
+            }
 
-                // Discount
-                var orderTotalDiscountAmount = new Money();
-                if (cartTotal.DiscountAmount > decimal.Zero)
-                {
-                    orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
-                }
+            purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
+            {
+                Value = (orderTotalDiscountAmount.Amount + cartSubTotalinklTax.DiscountAmount.Amount).ToStringInvariant("F"),
+                CurrencyCode = currency.CurrencyCode
+            };
 
-                purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
-                {
-                    Value = (orderTotalDiscountAmount.Amount + cartSubTotal.DiscountAmount.Amount).ToStringInvariant("F"),
-                    CurrencyCode = currency.CurrencyCode
-                };
+            // Get shipping cost
+            var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart, true);
+            purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
+            {
+                Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
+                CurrencyCode = currency.CurrencyCode
+            };
 
-                purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
-                {
-                    Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
-                    CurrencyCode = currency.CurrencyCode
-                };
+            if (cartTotal.Total.Value != cartSubTotalExclTax.SubtotalWithDiscount)
+            {
+                purchaseUnit.Amount.Value = cartTotal.Total.Value.Amount.ToStringInvariant("F");
+            }
 
-                if (cartTotal.Total.Value != cartSubTotal.SubtotalWithDiscount)
-                {
-                    (Money tax, _) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+            purchaseUnit.CustomId = orderGuid;
 
-                    var itemTotal = cartTotal.Total.Value.Amount
-                         - tax.Amount
-                         - shippingTotal.ShippingTotal.Value.Amount;
-
-                    //var itemTotal = cartTotal.Total.Value.Amount 
-                    //    - tax.Amount 
-                    //    - shippingTotal.ShippingTotal.Value.Amount 
-                    //    + orderTotalDiscountAmount.Amount 
-                    //    + cartSubTotal.DiscountAmount.Amount;
-
-                    purchaseUnit.Amount.Value = cartTotal.Total.Value.Amount.ToStringInvariant("F");
-                    purchaseUnit.Amount.AmountBreakdown.ItemTotal.Value = itemTotal.ToStringInvariant("F");
-                    purchaseUnit.Amount.AmountBreakdown.TaxTotal.Value = tax.Amount.ToStringInvariant("F");
-                }
-
-                purchaseUnit.CustomId = orderGuid;
+            if (customer.ShippingAddress != null)
+            {
                 purchaseUnit.Shipping = new ShippingDetail
                 {
                     ShippingName = new ShippingName
@@ -525,7 +526,7 @@ namespace Smartstore.PayPal.Client
                     }
                 };
             }
-
+            
             return new List<PurchaseUnit> { purchaseUnit };
         }
 
@@ -533,7 +534,7 @@ namespace Smartstore.PayPal.Client
         {
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
             var settings = _settingFactory.LoadSettings<PayPalSettings>(_storeContext.CurrentStore.Id);
-            var purchaseUnits = await GetPurchaseUnitsAsync(cart, isExpressCheckout: isExpressCheckout);
+            var purchaseUnits = await GetPurchaseUnitsAsync(cart);
 
             var orderMessage = new OrderMessage
             {
