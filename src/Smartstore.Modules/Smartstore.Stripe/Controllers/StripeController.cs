@@ -349,6 +349,7 @@ namespace Smartstore.StripeElements.Controllers
                 if (stripeEvent.Type == Stripe.Events.PaymentIntentSucceeded)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                    // TODO: (mh) (core) Use ILogger.Debug instead of Console.WriteLine
                     Console.WriteLine("A successful payment for {0} was made.", paymentIntent.Amount);
                     // Then define and call a method to handle the successful payment intent.
                     // handlePaymentIntentSucceeded(paymentIntent);
@@ -371,7 +372,7 @@ namespace Smartstore.StripeElements.Controllers
                 Console.WriteLine("Error: {0}", e.Message);
                 return BadRequest();
             }
-            catch (Exception e)
+            catch
             {
                 return StatusCode(500);
             }
