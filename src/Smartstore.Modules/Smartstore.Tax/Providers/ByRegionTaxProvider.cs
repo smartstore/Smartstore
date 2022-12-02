@@ -40,18 +40,39 @@ namespace Smartstore.Tax
 
             decimal rate = 0;
 
-            var taxRates = await _db.TaxRates()
+            var allTaxRates = await _db.TaxRates()
                 .AsNoTracking()
-                .ApplyRegionFilter(
-                    request.TaxCategoryId,
-                    address?.Country?.Id,
-                    address?.StateProvince?.Id,
-                    address?.ZipPostalCode
-                ).ToListAsync();
+                .OrderBy(x => x.CountryId)
+                .ThenBy(x => x.StateProvinceId)
+                .ThenBy(x => x.Zip)
+                .ThenBy(x => x.TaxCategoryId)
+                .ToListAsync();
 
-            if (taxRates.Any())
+            var matchedByCountry = allTaxRates
+                .Where(x => x.CountryId == request.Address.CountryId && x.TaxCategoryId == request.TaxCategoryId)
+                .ToList();
+
+            var matchedByStateProvince = matchedByCountry
+                .Where(x => x.StateProvinceId == request.Address.StateProvinceId)
+                .ToList();
+
+            if (matchedByStateProvince.Count == 0)
             {
-                rate = taxRates[0].Percentage;
+                matchedByStateProvince.AddRange(matchedByCountry.Where(x => x.StateProvinceId == 0));
+            }
+
+            var matchedByZip = matchedByStateProvince
+                .Where(x => x.Zip == request.Address.ZipPostalCode)
+                .ToList();
+
+            if (matchedByZip.Count == 0 || !request.Address.ZipPostalCode.HasValue())
+            {
+                matchedByZip.AddRange(matchedByStateProvince.Where(x => string.IsNullOrEmpty(x.Zip)));
+            }
+
+            if (matchedByZip.Any())
+            {
+                rate = matchedByZip[0].Percentage;
             }
 
             return new TaxRate(rate, request.TaxCategoryId);

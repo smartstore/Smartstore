@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Tax.Domain
@@ -7,6 +8,7 @@ namespace Smartstore.Tax.Domain
     /// Represents a tax rate.
     /// </summary>
     [Table("TaxRate")]
+    [CacheableEntity]
     public partial class TaxRateEntity : BaseEntity
     {
         /// <summary>

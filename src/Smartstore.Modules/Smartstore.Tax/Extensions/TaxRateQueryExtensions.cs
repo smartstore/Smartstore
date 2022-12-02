@@ -20,11 +20,7 @@
         {
             Guard.NotNull(query, nameof(query));
 
-            if (zip == null)
-            {
-                zip = string.Empty;
-            }
-
+            zip ??= string.Empty;
             zip = zip.Trim();
 
             if (taxCategoryId > 0)
