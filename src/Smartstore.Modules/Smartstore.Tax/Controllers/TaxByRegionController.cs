@@ -29,12 +29,7 @@ namespace Smartstore.Tax.Controllers
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
-            var firstCountryId = countries.FirstOrDefault()?.Id ?? 0;
+            var firstCountryId = _db.Countries.ApplyStandardFilter(true).Select(x => x.Id).FirstOrDefault();
             var stateProvincesOfFirstCountry = await _db.StateProvinces
                 .AsNoTracking()
                 .Where(x => x.CountryId == firstCountryId)
@@ -47,8 +42,6 @@ namespace Smartstore.Tax.Controllers
                 Value = x.Id.ToString()
             })
             .ToList();
-
-            ViewBag.AvailableCountries = countries.ToSelectListItems();
 
             ViewBag.AvailableStates = stateProvincesOfFirstCountry.ToSelectListItems() ?? new List<SelectListItem>();
             ViewBag.AvailableStates.Insert(0, new SelectListItem { Text = "*", Value = "0" });
@@ -78,7 +71,6 @@ namespace Smartstore.Tax.Controllers
         public async Task<IActionResult> TaxRateList(GridCommand command)
         {
             var taxRates = await _db.TaxRates()
-                .ApplyRegionFilter(null, null, null, null)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();

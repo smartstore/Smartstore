@@ -83,7 +83,7 @@ namespace Smartstore.Web
                 {
                     o.Filters.Add<ModulePopulatorFilter>(int.MinValue);
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
-
+                    
                     o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
 
                     // Register custom metadata provider
@@ -112,7 +112,7 @@ namespace Smartstore.Web
                         o.ViewLocationExpanders.Add(new ModuleViewLocationExpander(appContext.ModuleCatalog));
                         o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
                     }
-
+                    
                     if (appContext.AppConfiguration.EnableLocalizedViews)
                     {
                         o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));

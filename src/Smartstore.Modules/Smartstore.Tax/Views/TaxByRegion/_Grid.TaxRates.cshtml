@@ -64,12 +64,12 @@
                         <smart-label asp-for="CountryId" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
+                        <editor asp-for="CountryId"
                                 class="country-input country-selector"
+                                asp-template="Countries"
                                 data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
                                 data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
-                                data-addEmptyStateIfRequired="true">
-                        </select>
+                                data-addEmptyStateIfRequired="true" />
                         <span asp-validation-for="CountryId"></span>
                     </div>
                 </div>
@@ -139,7 +139,7 @@
 					success: function (data) {
                         window["tax-by-region-grid"].$children[0].read();
 					},
-					error: function (xhr, ajaxOptions, thrownError) {
+					error: function () {
 						alert('Failed to add record.');
 					},
 					complete: function () {
