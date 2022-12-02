@@ -34,9 +34,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         private readonly Lazy<ICatalogSearchQueryFactory> _catalogSearchQueryFactory;
         private readonly Lazy<IPriceCalculationService> _priceCalculationService;
         private readonly Lazy<IProductAttributeService> _productAttributeService;
-        private readonly Lazy<IMediaService> _mediaService;
         private readonly Lazy<IMediaImporter> _mediaImporter;
-        private readonly Lazy<IFolderService> _folderService;
         private readonly Lazy<IWebApiService> _webApiService;
         private readonly Lazy<SearchSettings> _searchSettings;
 
@@ -46,9 +44,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             Lazy<ICatalogSearchQueryFactory> catalogSearchQueryFactory,
             Lazy<IPriceCalculationService> priceCalculationService,
             Lazy<IProductAttributeService> productAttributeService,
-            Lazy<IMediaService> mediaService,
             Lazy<IMediaImporter> mediaImporter,
-            Lazy<IFolderService> folderService,
             Lazy<IWebApiService> webApiService,
             Lazy<SearchSettings> searchSettings)
         {
@@ -57,9 +53,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _catalogSearchQueryFactory = catalogSearchQueryFactory;
             _priceCalculationService = priceCalculationService;
             _productAttributeService = productAttributeService;
-            _mediaService = mediaService;
             _mediaImporter = mediaImporter;
-            _folderService = folderService;
             _webApiService = webApiService;
             _searchSettings = searchSettings;
         }
@@ -69,7 +63,12 @@ namespace Smartstore.Web.Api.Controllers.OData
         public IQueryable<Product> Get()
         {
             // INFO: unlike in Classic, also returns system products. Someone may well use them for their own purposes.
-            return Entities.AsNoTracking();
+            //return Entities.AsNoTracking();
+
+            // TODO: (mg) (core) more testing of this. According to https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+            // this have drawbacks relevant to API scenarios. For API requests it would be best to use AsNoTracking instead of AsSplitQuery
+            // and somehow suppress the QuerySplittingBehavior warnings.
+            return GetQuery();
         }
 
         [HttpGet, ApiQueryable]
@@ -652,7 +651,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         [ProducesResponseType(typeof(IQueryable<ProductMediaFile>), Status200OK)]
         [ProducesResponseType(Status415UnsupportedMediaType)]
         public async Task<IActionResult> SaveFiles(int key,
-            [Required] List<IFormFile> files,
+            [Required] IFormFileCollection files,
             [FromQuery] string? sku = null,
             [FromQuery] string? gtin = null,
             [FromQuery] string? mpn = null)
@@ -664,8 +663,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
             try
             {
-                var formFiles = files.IsNullOrEmpty() ? (IEnumerable<IFormFile>)Request.Form.Files : files;
-                if (!formFiles.Any())
+                // INFO: "files" is just for Swagger upload. For generic clients it is empty.
+                files = Request.Form.Files;
+                if (files.Count == 0)
                 {
                     return BadRequest("Missing multipart file data.");
                 }
@@ -694,10 +694,10 @@ namespace Smartstore.Web.Api.Controllers.OData
 
                 if (entity == null)
                 {
-                    return NotFound("Cannot find Product entity. Please specify a valid ID, SKU, GTIN or MPN.");
+                    return NotFound($"Cannot find {nameof(Product)} entity. Please specify a valid ID, SKU, GTIN or MPN.");
                 }
 
-                var items = formFiles
+                var items = files
                     .Select(file =>
                     {
                         Dictionary<string, object>? state = null;

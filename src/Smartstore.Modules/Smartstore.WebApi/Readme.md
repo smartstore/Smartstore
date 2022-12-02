@@ -68,6 +68,7 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
         <td>
             New method. Now returns list of <b>ProductMediaFile</b>.
             SKU, GTIN or MPN to identify the product can optionally be sent via query string.
+            ContentDisposition parameter <b>pictureId</b> renamed to <b>fileId</b>.
         </td>
     </tr>
 </tbody>

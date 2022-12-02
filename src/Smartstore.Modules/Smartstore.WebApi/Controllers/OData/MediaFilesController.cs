@@ -456,6 +456,7 @@ namespace Smartstore.Web.Api.Controllers.OData
                     return BadRequest("Send one file per request, not multiple.");
                 }
 
+                // INFO: "file" is just for Swagger upload. For generic clients it is null.
                 file ??= Request.Form.Files[0];
 
                 if (file.ContentDisposition.IsEmpty())

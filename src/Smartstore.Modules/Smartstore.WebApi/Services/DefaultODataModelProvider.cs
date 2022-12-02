@@ -100,11 +100,19 @@ namespace Smartstore.Web.Api
         {
             var set = builder.EntitySet<ImportProfile>("ImportProfiles");
 
-            set.EntityType
+            var saveFiles = set.EntityType
                 .Action(nameof(ImportProfileController.SaveFiles))
-                .ReturnsFromEntitySet(set)
-                .CollectionParameter<IFormFile>("files")
+                .ReturnsFromEntitySet(set);
+            saveFiles.Parameter<IFormFileCollection>("files")
                 .Required();
+            saveFiles.Parameter<string>("name")
+                .Optional();
+            saveFiles.Parameter<bool>("deleteFiles")
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
+            saveFiles.Parameter<bool>("startImport")
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
         }
 
         private static void BuildMediaFiles(ODataModelBuilder builder)
@@ -398,7 +406,7 @@ namespace Smartstore.Web.Api
             var saveFiles = set.EntityType
                 .Action(nameof(ProductsController.SaveFiles))
                 .ReturnsCollectionFromEntitySet<ProductMediaFile>("ProductMediaFiles");
-            saveFiles.CollectionParameter<IFormFile>("files")
+            saveFiles.Parameter<IFormFileCollection>("files")
                 .Required();
             saveFiles.Parameter<string>("sku")
                 .Optional();

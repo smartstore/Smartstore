@@ -408,6 +408,28 @@ namespace Smartstore.Web.Api.Swagger
         //    swaggerParams.Each(p => helper.Op.Parameters.Remove(p.Value));
         //}
 
+        //protected virtual void FixMultipartBody(SwaggerOperationHelper helper)
+        //{
+        //    if (!helper.HttpMethod.EqualsNoCase("Post") || helper.Op.RequestBody == null)
+        //    {
+        //        return;
+        //    }
+
+        //    var formFile = helper.ActionDescriptor.Parameters
+        //        .FirstOrDefault(p => p.ParameterType == typeof(IFormFile) || p.ParameterType == typeof(IFormFileCollection));
+
+        //    if (formFile == null)
+        //    {
+        //        return;
+        //    }
+
+        //    var swaggerParams = helper.Op.Parameters
+        //        .Where(p => p.Name == formFile.Name)
+        //        .ToList();
+
+        //    $"{helper.ActionName} {formFile.ParameterType} {swaggerParams.Count}".Dump();
+        //}
+
         /// <summary>
         /// Adds missing request body. Removes parameters for FromODataBody that are falsely offered as query parameters.
         /// </summary>
@@ -622,7 +644,7 @@ namespace Smartstore.Web.Api.Swagger
             {
                 return "number";
             }
-            else if (!type.IsPrimitive && !typeof(IFormFile).IsAssignableFrom(type))
+            else if (!type.IsPrimitive && !typeof(IFormFile).IsAssignableFrom(type) && !typeof(IFormFileCollection).IsAssignableFrom(type))
             {
                 return "object";
             }

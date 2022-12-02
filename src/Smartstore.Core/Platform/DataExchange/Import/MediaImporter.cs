@@ -625,10 +625,9 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (newAssigments.Count > 0)
             {
-                // Update for FixProductMainPictureIds.
-                product.UpdatedOnUtc = DateTime.UtcNow;
-
+                // INFO: FixProductMainPictureId is called by ProductMediaFileHook.
                 assigments.AddRange(newAssigments);
+
                 await _db.SaveChangesAsync(cancelToken);
             }
 

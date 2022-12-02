@@ -113,25 +113,28 @@ namespace Smartstore.WebApi.Client
             var result = new MultipartFormDataContent();
             var count = 0;
 
-            // ID to identify entity by its identifier.
-            if (model.Id != 0)
-            {
-                var content = new StringContent(model.Id.ToString(), Encoding.UTF8);
-                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = "Id" };
-                result.Add(content);
+            // INFO: additional multipart StringContent is no longer recognized in Smartstore Core.
+            // Additional product identifiers can be sent using the query string.
 
-                response.RequestContent.AppendLine("\r\n" + content.Headers.ToString());
-            }
+            // ID to identify entity by its identifier.
+            //if (model.Id != 0)
+            //{
+            //    var content = new StringContent(model.Id.ToString(), Encoding.UTF8);
+            //    content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = "Id" };
+            //    result.Add(content);
+
+            //    response.RequestContent.AppendLine("\r\n" + content.Headers.ToString());
+            //}
 
             // Custom properties like SKU etc.
-            foreach (var pair in model.CustomProperties.Where(x => x.Key.HasValue() && x.Value != null))
-            {
-                var content = new StringContent(pair.Value.ToString(), Encoding.UTF8);
-                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = pair.Key };
-                result.Add(content);
+            //foreach (var pair in model.CustomProperties.Where(x => x.Key.HasValue() && x.Value != null))
+            //{
+            //    var content = new StringContent(pair.Value.ToString(), Encoding.UTF8);
+            //    content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = pair.Key };
+            //    result.Add(content);
 
-                response.RequestContent.AppendLine("\r\n" + content.Headers.ToString());
-            }
+            //    response.RequestContent.AppendLine("\r\n" + content.Headers.ToString());
+            //}
 
             // File data.
             foreach (var file in model.Files.Where(x => IOFile.Exists(x.LocalPath)))
@@ -152,7 +155,7 @@ namespace Smartstore.WebApi.Client
                 // Add file parameters. Omit default values (let the server apply them).
                 if (file.Id != 0)
                 {
-                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("pictureId", file.Id.ToString()));
+                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("fileId", file.Id.ToString()));
                 }
                 if (file.Path.HasValue())
                 {
@@ -166,10 +169,6 @@ namespace Smartstore.WebApi.Client
                 {
                     content.Headers.ContentDisposition.Parameters.Add(CreateParameter("duplicateFileHandling", ((int)file.DuplicateFileHandling).ToString()));
                 }
-
-                // Test passing of custom parameters. Smartstore does not use them. The API ignores them anyway.
-                //content.Headers.ContentDisposition.Parameters.Add(CreateParameter("CustomValue1", string.Format("{0:N}", Guid.NewGuid())));
-                //content.Headers.ContentDisposition.Parameters.Add(CreateParameter("CustomValue2", $"say hello to {id}"));
 
                 result.Add(content);
 

@@ -55,7 +55,17 @@ namespace Smartstore.Core.Catalog.Products
                         .Where(x => productIdsChunk.Contains(x.Id))
                         .ToListAsync(cancelToken);
 
-                    products.Each(x => ProductPictureHelper.FixProductMainPictureId(_db, x));
+                    foreach (var product in products)
+                    {
+                        if (product.ProductMediaFiles.Count == 0)
+                        {
+                            product.MainPictureId = null;
+                        }
+                        else
+                        {
+                            ProductPictureHelper.FixProductMainPictureId(_db, product);
+                        }
+                    }
 
                     var combinations = await _db.ProductVariantAttributeCombinations
                         .Where(x => productIdsChunk.Contains(x.ProductId) && !string.IsNullOrEmpty(x.AssignedMediaFileIds))

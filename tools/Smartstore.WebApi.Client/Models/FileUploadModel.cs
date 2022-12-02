@@ -15,11 +15,6 @@
     public class FileUploadModel
     {
         /// <summary>
-        /// Entity identifier to which the files belong.
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
         /// Paths of files to upload.
         /// </summary>
         public List<FileModel> Files { get; set; } = new();
@@ -30,7 +25,10 @@
         /// Delete existing import files: deleteExisting = true
         /// Start import: startImport = true
         /// </summary>
-        public Dictionary<string, object> CustomProperties { get; set; } = new();
+        /// <remarks>
+        /// Obsolete. No longer recognized in Smartstore Core. Additional parameters should be sent via query string.
+        /// </remarks>
+        //public Dictionary<string, object> CustomProperties { get; set; } = new();
 
         [Serializable]
         public class FileModel
