@@ -439,10 +439,15 @@ namespace Smartstore.PayPal.Client
                 ? (subTotalConverted.Amount + cartTax.Amount).ToStringInvariant("F")
                 : orderTotal.ToStringInvariant("F");
 
-            var format = new NumberFormatInfo() { NumberDecimalSeparator = "." };
+            var format = new NumberFormatInfo { NumberDecimalSeparator = "." };
 
             decimal itemTotal = 0;
             purchaseUnitItems.Each(x => itemTotal += decimal.Parse(x.UnitAmount.Value, format) * Convert.ToInt32(x.Quantity));
+
+            //// TODO: (mh) (core) (test and uncomment) Very awkward code. Instead of instantiating a custom NumberFormatInfo, just use CultureInfo.InvariantCulture...
+            //purchaseUnitItems.Each(x => itemTotal += decimal.Parse(x.UnitAmount.Value, CultureInfo.InvariantCulture) * Convert.ToInt32(x.Quantity));
+            //// ...or even better (Convert() is culture invariant by default)...
+            //purchaseUnitItems.Each(x => itemTotal += x.UnitAmount.Value.Convert<decimal>() * x.Quantity.ToInt());
 
             decimal itemTotalTax = 0;
             purchaseUnitItems.Each(x => itemTotalTax += decimal.Parse(x.Tax.Value, format) * Convert.ToInt32(x.Quantity));
@@ -475,7 +480,6 @@ namespace Smartstore.PayPal.Client
 
             // INFO: We must execute the following code also for cart pages in case of customer backward navigation,
             // where shipping method might be set or discounts might be applied
-
             
             var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 

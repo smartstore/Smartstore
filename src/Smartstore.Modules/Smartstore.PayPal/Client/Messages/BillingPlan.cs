@@ -5,21 +5,21 @@ namespace Smartstore.PayPal.Client.Messages
     public class BillingPlan
     {
         /// <summary>
-        /// REQUIRED
+        /// REQUIRED.
         /// The plan name.
         /// </summary>
         [JsonProperty("name")]
         public string Name;
 
         /// <summary>
-        /// REQUIRED
+        /// REQUIRED.
         /// The plan description. Maximum length is 127 single-byte alphanumeric characters.
         /// </summary>
         [JsonProperty("description"), MaxLength(127)]
         public string Description;
 
         /// <summary>
-        /// REQUIRED
+        /// REQUIRED.
         /// The plan type. Indicates whether the payment definitions in the plan have a fixed number of or infinite payment cycles. 
         /// Possible values are:
         /// FIXED:       The plan has a fixed number of payment cycles.

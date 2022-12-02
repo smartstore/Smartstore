@@ -3,7 +3,7 @@
     public class Patch<T>
     {
         /// <summary>
-        /// REQUIRED
+        /// REQUIRED.
         /// The operation.
         /// </summary>
         [JsonProperty("op")]

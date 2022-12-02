@@ -2,6 +2,13 @@
 {
     public class AccessToken
     {
+        private readonly DateTime _createDate;
+
+        public AccessToken()
+        {
+            _createDate = DateTime.Now;
+        }
+
         [JsonProperty("access_token")]
         public string Token;
 
@@ -11,16 +18,9 @@
         [JsonProperty("expires_in")]
         public int ExpiresIn;
 
-        private DateTime createDate;
-
-        public AccessToken()
-        {
-            createDate = DateTime.Now;
-        }
-
         public bool IsExpired()
         {
-            DateTime expireDate = createDate.Add(TimeSpan.FromSeconds(ExpiresIn));
+            var expireDate = _createDate.Add(TimeSpan.FromSeconds(ExpiresIn));
             return DateTime.Now.CompareTo(expireDate) > 0;
         }
     }
