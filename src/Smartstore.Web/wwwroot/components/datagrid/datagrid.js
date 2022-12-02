@@ -1012,7 +1012,7 @@ Vue.component("sm-datagrid", {
 
         getSortDescriptor(column) {
             return this.sorting.enabled
-                ? this.sorting.descriptors.find(d => d.member === column.member)
+                ? this.sorting.descriptors.find(d => d.member === (column.entityMember || column.member))
                 : null;
         },
 
@@ -1033,7 +1033,7 @@ Vue.component("sm-datagrid", {
                 }
             }
             else {
-                descriptor = { member: column.member, descending: false };
+                descriptor = { member: column.entityMember || column.member, descending: false };
                 this.sorting.descriptors.push(descriptor);
             }
 
