@@ -9,7 +9,7 @@
         get
         {
             var model = GetMetadata<object>("model") ?? ViewData.Model;
-            
+
             if (model is int[] ids)
             {
                 return ids;
@@ -44,7 +44,15 @@
 
     private bool IsNullable
     {
-        get => !TryGetMetadata<bool>("nullable", out var nullable) || nullable == true;
+        get
+        {
+            if (TryGetMetadata<bool>("nullable", out var nullable))
+            {
+                return nullable;
+            }
+
+            return ViewData.ModelMetadata.ModelType != typeof(int);
+        }
     }
 
     private bool IncludeHidden
@@ -52,22 +60,48 @@
         get => !TryGetMetadata<bool>("includeHidden", out var includeHidden) || includeHidden == true;
     }
 
+    private bool ShippingCountriesOnly
+    {
+        get => TryGetMetadata<bool>("shippingCountriesOnly", out var shippingCountriesOnly) && shippingCountriesOnly == true;
+    }
+
     private int StoreId
     {
         get => GetMetadata<int>("storeId", 0);
     }
+
+    private string Placeholder
+    {
+        get => GetMetadata<string>("placeholder") ?? T("Common.Unspecified").Value;
+    }
+
+    private bool HasSpecificPlaceholder
+    {
+        get => HasMetadata("placeholder");
+    }
 }
 
 @{
-    var countries = await CommonServices.DbContext.Countries
-        .AsNoTracking()
-        .ApplyStandardFilter(IncludeHidden, StoreId)
-        .ToListAsync();
+    var items = GetMetadata<IList<CountrySelectListItem>>("items");
+    if (items == null)
+    {
+        var query = CommonServices.DbContext.Countries
+            .AsNoTracking()
+            .ApplyStandardFilter(IncludeHidden, StoreId, false);
 
-    var keys = SelectedKeys;
-    var selectByIso = SelectByIsoCode;
-    var items = (keys is int[] ids ? countries.ToSelectListItems(ids) : countries.ToSelectListItems((string[])keys)).OrderBy(x => x.Text);
+        if (ShippingCountriesOnly)
+        {
+            query = query.Where(x => x.AllowsShipping);
+        }
 
+        var countries = await query.ToListAsync();
+
+        var keys = SelectedKeys;
+        var selectByIso = SelectByIsoCode;
+        items = (keys is int[] ids ? countries.ToSelectListItems(ids) : countries.ToSelectListItems((string[])keys));
+    }
+
+    var flagsPath = Url.Content("~/images/flags/");
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     if (!attributes.ContainsKey("multiple"))
@@ -79,23 +113,21 @@
         }
     }
 }
-@*<select asp-for="@Model" 
-        asp-items="items" 
-        attr-data-placeholder='(IsNullable, T("Common.Unspecified").Value)'
-        attrs="attributes"
-        class="edit-control"
-        data-editor="select">
-</select>*@
-
 <select asp-for="@Model"
-        attr-data-placeholder='(IsNullable, T("Common.Unspecified").Value)'
+        attr-data-placeholder='(IsNullable, Placeholder)'
         attrs="attributes"
         class="edit-control"
         data-editor="select">
+    @if (HasSpecificPlaceholder) 
+    {
+        <option value="">@Placeholder</option>
+    }
     @foreach (var item in items)
     {
-        <option value="@item.Value" 
-                attr-selected='(item.Selected, "selected")' 
-                data-imageurl="@Url.Content("~/images/flags/" + item.Value + ".png")">@item.Text</option>
+        <option value="@item.Value"
+                attr-selected='(item.Selected, "selected")'
+                data-imageurl="@Url.Content(flagsPath + item.TwoLetterIsoCode + ".png")">
+            @item.Text
+        </option>
     }
 </select>

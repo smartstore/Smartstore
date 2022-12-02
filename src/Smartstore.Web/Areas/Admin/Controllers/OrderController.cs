@@ -1319,13 +1319,7 @@ namespace Smartstore.Admin.Controllers
                 OrderId = orderId
             };
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
             await address.MapAsync(model.Address);
-            model.Address.AvailableCountries = countries.ToSelectListItems(address.CountryId ?? 0);
 
             return View(model);
         }
@@ -1360,13 +1354,7 @@ namespace Smartstore.Admin.Controllers
                     : RedirectToAction(nameof(Edit), new { id = order.Id });
             }
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
             await address.MapAsync(model.Address);
-            model.Address.AvailableCountries = countries.ToSelectListItems(address.CountryId ?? 0);
 
             return View(model);
         }

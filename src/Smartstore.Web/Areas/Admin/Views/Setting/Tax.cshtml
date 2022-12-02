@@ -240,7 +240,9 @@
                 </div>
                 <div class="adminData">
                     <setting-editor asp-for="EuVatShopCountryId">
-                        <select asp-for="EuVatShopCountryId" asp-items="ViewBag.EuVatShopCountries" asp-placeholder="@T("Admin.Address.SelectCountry")"></select>
+                        <editor asp-for="EuVatShopCountryId"
+                                asp-template="Countries"
+                                asp-additional-viewdata='new { placeholder = T("Admin.Address.SelectCountry").Value }' />
                     </setting-editor>
                     <span asp-validation-for="EuVatShopCountryId"></span>
                 </div>

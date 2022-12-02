@@ -6,13 +6,14 @@ namespace Smartstore
     public static partial class CountryQueryExtensions
     {
         /// <summary>
-        /// Applies standard filter and sorts by <see cref="Country.DisplayOrder"/>, then by <see cref="Country.Name"/>.
+        /// Applies standard filter and optionally sorts by <see cref="Country.DisplayOrder"/>, then by <see cref="Country.Name"/>.
         /// </summary>
         /// <param name="query">Country query.</param>
         /// <param name="includeHidden">Applies filter by <see cref="Country.Published"/>.</param>
         /// <param name="storeId">Store identifier to apply filter by store restriction. 0 to load all countries.</param>
+        /// <param name="applySort">Applies standard sorting by <see cref="Country.DisplayOrder"/>, then by <see cref="Country.Name"/>.</param>
         /// <returns>Country query.</returns>
-        public static IOrderedQueryable<Country> ApplyStandardFilter(this IQueryable<Country> query, bool includeHidden = false, int storeId = 0)
+        public static IQueryable<Country> ApplyStandardFilter(this IQueryable<Country> query, bool includeHidden = false, int storeId = 0, bool applySort = true)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -26,9 +27,14 @@ namespace Smartstore
                 query = query.ApplyStoreFilter(storeId);
             }
 
-            return query
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.Name);
+            if (applySort)
+            {
+                query = query
+                    .OrderBy(x => x.DisplayOrder)
+                    .ThenBy(x => x.Name);
+            }
+
+            return query;
         }
 
         /// <summary>

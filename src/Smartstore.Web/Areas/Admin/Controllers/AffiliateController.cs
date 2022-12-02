@@ -5,7 +5,6 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -48,13 +47,6 @@ namespace Smartstore.Admin.Controllers
             model.Address.PhoneRequired = true;
             model.Address.FaxEnabled = true;
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
-
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
-            model.Address.AvailableCountries = countries.ToSelectListItems(affiliate?.Address?.CountryId ?? 0);
         }
 
         public IActionResult Index()

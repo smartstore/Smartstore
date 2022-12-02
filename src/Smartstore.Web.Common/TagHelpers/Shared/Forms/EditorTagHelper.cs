@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Utilities;
 using Smartstore.Web.Rendering;
 
-namespace Smartstore.Web.TagHelpers.Admin
+namespace Smartstore.Web.TagHelpers.Shared
 {
     [OutputElementHint("input")]
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.WithoutEndTag)]

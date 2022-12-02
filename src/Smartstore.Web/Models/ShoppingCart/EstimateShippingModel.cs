@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Cart
 {
@@ -19,7 +20,7 @@ namespace Smartstore.Web.Models.Cart
         [LocalizedDisplay("*ZipPostalCode")]
         public string ZipPostalCode { get; set; }
 
-        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+        public IList<CountrySelectListItem> AvailableCountries { get; set; } = new List<CountrySelectListItem>();
         public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
 
         public partial class ShippingOptionModel : ModelBase

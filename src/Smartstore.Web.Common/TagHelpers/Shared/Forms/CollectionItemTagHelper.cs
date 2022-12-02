@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Utilities;
 
-namespace Smartstore.Web.TagHelpers.Shared.Forms
+namespace Smartstore.Web.TagHelpers.Shared
 {
     [HtmlTargetElement(CollectionItemTagName, Attributes = NameAttributeName)]
     public class CollectionItemTagHelper : SmartTagHelper

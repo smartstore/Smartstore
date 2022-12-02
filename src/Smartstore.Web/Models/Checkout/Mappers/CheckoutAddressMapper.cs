@@ -74,7 +74,7 @@ namespace Smartstore.Web.Models.Checkout
             if (to.NewAddress.CountryEnabled)
             {
                 to.NewAddress.AvailableCountries = countries.ToSelectListItems(selectedCountryId ?? 0);
-                to.NewAddress.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
+                //to.NewAddress.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
             }
         }
     }

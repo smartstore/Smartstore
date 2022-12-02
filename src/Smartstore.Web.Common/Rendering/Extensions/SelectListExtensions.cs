@@ -120,7 +120,7 @@ namespace Smartstore.Web.Rendering
         /// <param name="countries">Countries.</param>
         /// <param name="selectedCountryIds">Identifiers of countries to be selected.</param>
         /// <returns>Select list of countries.</returns>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Country> countries, params int[] selectedCountryIds)
+        public static IList<CountrySelectListItem> ToSelectListItems(this IEnumerable<Country> countries, params int[] selectedCountryIds)
         {
             Guard.NotNull(countries);
 
@@ -128,11 +128,14 @@ namespace Smartstore.Web.Rendering
             {
                 Text = country.GetLocalized(x => x.Name),
                 Value = country.Id.ToStringInvariant(),
+                DisplayOrder = country.DisplayOrder,
                 TwoLetterIsoCode = country.TwoLetterIsoCode,
                 ThreeLetterIsoCode = country.ThreeLetterIsoCode,
                 Selected = selectedCountryIds != null && selectedCountryIds.Contains(country.Id)
             })
-            .ToList<SelectListItem>();
+            .OrderBy(x => x.DisplayOrder)
+            .ThenBy(x => x.Text)
+            .ToList();
         }
 
         /// <summary>
@@ -141,7 +144,7 @@ namespace Smartstore.Web.Rendering
         /// <param name="countries">Countries.</param>
         /// <param name="selectedCountryCodes">2-letter ISO codes of countries to be selected.</param>
         /// <returns>Select list of countries.</returns>
-        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Country> countries, string?[] selectedCountryCodes)
+        public static IList<CountrySelectListItem> ToSelectListItems(this IEnumerable<Country> countries, string?[] selectedCountryCodes)
         {
             Guard.NotNull(countries);
             Guard.NotNull(selectedCountryCodes);
@@ -150,11 +153,14 @@ namespace Smartstore.Web.Rendering
             {
                 Text = country.GetLocalized(x => x.Name),
                 Value = country.TwoLetterIsoCode,
+                DisplayOrder = country.DisplayOrder,
                 TwoLetterIsoCode = country.TwoLetterIsoCode,
                 ThreeLetterIsoCode = country.ThreeLetterIsoCode,
                 Selected = selectedCountryCodes != null && selectedCountryCodes.Any(code => IsSelected(country, code))
             })
-            .ToList<SelectListItem>();
+            .OrderBy(x => x.DisplayOrder)
+            .ThenBy(x => x.Text)
+            .ToList();
 
             static bool IsSelected(Country country, string? code)
             {
@@ -231,6 +237,7 @@ namespace Smartstore.Web.Rendering
 
     public partial class CountrySelectListItem : SelectListItem
     {
+        public int DisplayOrder { get; set; }
         public string? TwoLetterIsoCode { get; set; }
         public string? ThreeLetterIsoCode { get; set; }
     }

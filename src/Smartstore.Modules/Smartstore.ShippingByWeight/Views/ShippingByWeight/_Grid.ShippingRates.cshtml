@@ -80,7 +80,9 @@
                         <smart-label asp-for="CountryId" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries" asp-placeholder="*"></select>
+                        <editor asp-for="CountryId"
+                                asp-template="Countries"
+                                asp-additional-viewdata='new { nullable = true, placeholder = "*" }' />
                         <span asp-validation-for="CountryId"></span>
                     </div>
                 </div>

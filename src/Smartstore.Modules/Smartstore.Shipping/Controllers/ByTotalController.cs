@@ -41,12 +41,6 @@ namespace Smartstore.Shipping.Controllers
                 .AsNoTracking()
                 .ToDictionaryAsync(x => x.Id);
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
-            ViewBag.AvailableCountries = countries.ToSelectListItems();
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
             ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             ViewBag.AvailableShippingMethods = shippingMethods.Values.Select(x => new SelectListItem

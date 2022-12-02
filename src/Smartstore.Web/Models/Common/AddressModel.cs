@@ -4,6 +4,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Common
 {
@@ -46,6 +47,7 @@ namespace Smartstore.Web.Models.Common
         public bool CompanyRequired { get; set; }
 
         [LocalizedDisplay("*Country")]
+        [UIHint("Countries")]
         public int? CountryId { get; set; }
 
         [LocalizedDisplay("*Country")]
@@ -94,7 +96,7 @@ namespace Smartstore.Web.Models.Common
         public bool FaxRequired { get; set; }
         public DateTime CreatedOnUtc { get; set; }
 
-        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+        public IList<CountrySelectListItem> AvailableCountries { get; set; }
         public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
         public IList<SelectListItem> AvailableSalutations { get; set; } = new List<SelectListItem>();
 

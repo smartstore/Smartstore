@@ -84,12 +84,12 @@
             <smart-label asp-for="CountryId" />
         </div>
         <div class="adminData">
-            <select asp-for="CountryId" asp-items="Model.AvailableCountries"
+            <editor asp-for="CountryId"
                     class="country-input country-selector"
+                    asp-additional-viewdata="new { nullable = false, items = Model.AvailableCountries }"
                     data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
-                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { Area = string.Empty })"
-                    data-addEmptyStateIfRequired="true">
-            </select>
+                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
+                    data-addEmptyStateIfRequired="true" />
             <span asp-validation-for="CountryId"></span>
         </div>
     </div>

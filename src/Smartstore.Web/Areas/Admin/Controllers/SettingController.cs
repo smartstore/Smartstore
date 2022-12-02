@@ -1009,11 +1009,6 @@ namespace Smartstore.Admin.Controllers
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
             var shippingTaxCategories = new List<SelectListItem>();
             var paymentMethodAdditionalFeeTaxCategories = new List<SelectListItem>();
 
@@ -1025,7 +1020,6 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.ShippingTaxCategories = shippingTaxCategories;
             ViewBag.PaymentMethodAdditionalFeeTaxCategories = paymentMethodAdditionalFeeTaxCategories;
-            ViewBag.EuVatShopCountries = countries.ToSelectListItems(settings.EuVatShopCountryId);
 
             // Default tax address.
             var defaultAddress = await _db.Addresses.FindByIdAsync(settings.DefaultTaxAddressId, false);
@@ -1040,8 +1034,6 @@ namespace Smartstore.Admin.Controllers
             {
                 _multiStoreSettingHelper.AddOverrideKey(settings, "DefaultTaxAddress");
             }
-
-            model.DefaultTaxAddress.AvailableCountries = countries.ToSelectListItems(defaultAddress?.CountryId ?? 0);
 
             model.DefaultTaxAddress.AvailableStates = stateProvinces.ToSelectListItems(defaultAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
             {
@@ -1208,15 +1200,7 @@ namespace Smartstore.Admin.Controllers
                 MiniMapper.Map(originAddress, model.ShippingOriginAddress);
             }
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
             var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(originAddress?.CountryId ?? 0, true);
-
-            model.ShippingOriginAddress.AvailableCountries = countries.ToSelectListItems(originAddress?.CountryId ?? 0);
-
             model.ShippingOriginAddress.AvailableStates = stateProvinces.ToSelectListItems(originAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
             {
                 new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
@@ -1407,13 +1391,6 @@ namespace Smartstore.Admin.Controllers
                 .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);
 
             #region CompanyInfo custom mapping
-
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
-            ViewBag.AvailableCountries = countries.ToSelectListItems(model.CompanyInformationSettings.CountryId ?? 0);
 
             ViewBag.Salutations = new List<SelectListItem>();
             ViewBag.Salutations.AddRange(new[]

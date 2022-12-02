@@ -37,14 +37,8 @@ namespace Smartstore.ShippingByWeight.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
             var baseWeighMeasure = await _db.MeasureWeights.Where(x => x.Id == _measureSettings.BaseWeightId).FirstOrDefaultAsync();
 
-            ViewBag.AvailableCountries = countries.ToSelectListItems();
             ViewBag.BaseWeightIn = baseWeighMeasure?.GetLocalized(x => x.Name) ?? string.Empty;
             ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();

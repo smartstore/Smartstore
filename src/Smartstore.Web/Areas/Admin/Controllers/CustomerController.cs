@@ -353,15 +353,8 @@ namespace Smartstore.Admin.Controllers
         private async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
         {
             await address.MapAsync(model.Address);
-
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
             model.CustomerId = customer.Id;
             model.Username = customer.Username;
-            model.Address.AvailableCountries = countries.ToSelectListItems(address.CountryId ?? 0);
         }
 
         #endregion
