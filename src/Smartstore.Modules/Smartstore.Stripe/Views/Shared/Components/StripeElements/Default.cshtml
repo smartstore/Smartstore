@@ -4,15 +4,17 @@
 
 @if (Model.IsPaymentSelectionPage)
 {
-    <div class="media">
-        <img class="media-object img-fluid mr-3" src="@Url.Content("~/Modules/Smartstore.Stripe/branding.png")" />
-        <div class="media-body">
-            @Html.Raw(T("Plugins.Smartstore.Stripe.PaymentInfo"))
+    <div class="opt-form">
+        <div class="media">
+            <img class="media-object img-fluid mr-3" src="@Url.Content("~/Modules/Smartstore.Stripe/branding.png")" />
+            <div class="media-body">
+                @Html.Raw(T("Plugins.Smartstore.Stripe.PaymentInfo"))
+            </div>
         </div>
-    </div>
-
-    <div id="payment-element" class="mt-3" data-store-payment-selection-url="@Url.Action("StorePaymentMethodId", "Stripe")">
-        <!--Stripe.js injects the Payment Element-->
+    
+        <div id="payment-element" class="mt-3" data-store-payment-selection-url="@Url.Action("StorePaymentMethodId", "Stripe")">
+            <!--Stripe.js injects the Payment Element-->
+        </div>
     </div>
 
     <script>

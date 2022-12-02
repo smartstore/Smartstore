@@ -45,7 +45,7 @@
             });
 
             // Handle button state on page load
-            if ($("input[name='paymentmethod']").val() == "Smartstore.StripeElements") {
+            if ($("input[name='paymentmethod']:checked").val() == "Smartstore.StripeElements") {
                 btnNext[0].disabled = true;
             }
 
@@ -53,10 +53,9 @@
             var createdPaymentMethod = false;
 
             $("form").on("submit", async e => {
-                if ($("input[name='paymentmethod']").val() == "Smartstore.StripeElements" && !createdPaymentMethod) {
+                if ($("input[name='paymentmethod']:checked").val() == "Smartstore.StripeElements" && !createdPaymentMethod) {
                     e.preventDefault();
                     (async () => {
-                        console.log(elements);
                         const { error, paymentMethod } = await stripe.createPaymentMethod({
                             elements
                         });

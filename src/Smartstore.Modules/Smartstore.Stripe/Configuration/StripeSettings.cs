@@ -20,6 +20,11 @@ namespace Smartstore.StripeElements.Settings
         public string SecrectApiKey { get; set; }
 
         /// <summary>
+        /// Secret key for webhook.
+        /// </summary>
+        public string WebhookSecret { get; set; }
+
+        /// <summary>
         /// Specifies whether the payment will be captured immediately or just authorized. 
         /// Possible values > automatic || manual
         /// </summary>

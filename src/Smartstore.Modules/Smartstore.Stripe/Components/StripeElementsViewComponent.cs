@@ -57,10 +57,11 @@ namespace Smartstore.StripeElements.Components
             if (!_settings.PublicApiKey.HasValue() || !_settings.SecrectApiKey.HasValue())
             {
                 return Empty();
+                var test = "";
             }
 
             var routeIdent = Request.RouteValues.GenerateRouteIdentifier();
-            var isPaymentSelectionPage = routeIdent == "Checkout.PaymentMethod";
+            var isPaymentSelectionPage = routeIdent == "Checkout.PaymentMethod" || routeIdent == "Checkout.PaymentInfoAjax";
 
             var model = new PublicStripeElementsModel
             {

@@ -55,6 +55,8 @@ namespace Smartstore.StripeElements.Providers
 
         public override bool SupportRefund => true;
 
+        public override bool RequiresInteraction => true;
+
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.StandardAndButton;
 
         public RouteInfo GetConfigurationRoute()

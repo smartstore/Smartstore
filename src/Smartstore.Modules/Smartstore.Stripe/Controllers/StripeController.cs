@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -335,9 +336,45 @@ namespace Smartstore.StripeElements.Controllers
         [Route("stripe/webhookhandler")]
         public async Task<IActionResult> WebhookHandler()
         {
-            // TODO: (mh) (core) Implement
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            var endpointSecret = _settings.WebhookSecret;
 
-            return Ok();
+            try
+            {
+                var stripeEvent = EventUtility.ParseEvent(json);
+                var signatureHeader = Request.Headers["Stripe-Signature"];
+
+                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret);
+
+                if (stripeEvent.Type == Stripe.Events.PaymentIntentSucceeded)
+                {
+                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                    Console.WriteLine("A successful payment for {0} was made.", paymentIntent.Amount);
+                    // Then define and call a method to handle the successful payment intent.
+                    // handlePaymentIntentSucceeded(paymentIntent);
+                }
+                else if (stripeEvent.Type == Stripe.Events.PaymentMethodAttached)
+                {
+                    var paymentMethod = stripeEvent.Data.Object as Stripe.PaymentMethod;
+                    // Then define and call a method to handle the successful attachment of a PaymentMethod.
+                    // handlePaymentMethodAttached(paymentMethod);
+                }
+                else
+                {
+                    Console.WriteLine("Unhandled event type: {0}", stripeEvent.Type);
+                }
+
+                return Ok();
+            }
+            catch (StripeException e)
+            {
+                Console.WriteLine("Error: {0}", e.Message);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }
         }
     }
 }

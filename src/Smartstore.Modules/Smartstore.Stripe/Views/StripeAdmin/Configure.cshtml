@@ -59,6 +59,15 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="WebhookSecret" />
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="WebhookSecret"></setting-editor>
+                <span asp-validation-for="WebhookSecret"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="CaptureMethod" />
             </div>
             <div class="adminData">
