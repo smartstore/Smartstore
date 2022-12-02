@@ -26,6 +26,10 @@
 - Despite activated export profile option **per store** no records were exported to a separate file.
 - Sometimes Page Builder reveal effects did not run on page load, only on windows resize.
 - Product details showed wrong related products.
+- Fixed wrong implementation of ByRegionTaxProvider
+- Fixed product linkage of product detail ask question message
+- Fixed password change issue with user records without username
+- Settings couldn't be saved in several places (in migrated shop) 
 
 
 ## Smartstore 5.0.1
