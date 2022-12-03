@@ -768,7 +768,7 @@ legend {
 
         @include media-breakpoint-up(lg) {
             > .adminTitle {
-                flex-basis: 400px;
+                flex-basis: calc(400px - var(--adminContent-padding, 0px));
                 max-width: 40%;
             }
 
@@ -787,6 +787,7 @@ legend {
     }
 
     &.adminContent-boxed {
+        --adminContent-padding: 1rem;
         padding-left: 1rem;
         padding-right: 1rem;
     }
@@ -917,6 +918,7 @@ legend {
 }
 
 .locale-editor-content {
+    --adminContent-padding: 1rem;
     padding-left: 1rem;
     padding-right: 1rem;
 }
