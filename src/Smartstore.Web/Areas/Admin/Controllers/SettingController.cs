@@ -283,7 +283,7 @@ namespace Smartstore.Admin.Controllers
 
             #endregion
 
-            await PrepareGeneralCommonConfigurationModelAsync(model);
+            await PrepareGeneralCommonConfigurationModelAsync();
 
             return View(model);
         }
@@ -516,7 +516,7 @@ namespace Smartstore.Admin.Controllers
             return false;
         }
 
-        public async Task<IActionResult> CookieInfoList(GridCommand command)
+        public async Task<IActionResult> CookieInfoList()
         {
             var data = await _cookieManager.GetCookieInfosAsync();
             var systemCookies = string.Join(",", data.Select(x => x.Name).ToArray());
@@ -589,8 +589,7 @@ namespace Smartstore.Admin.Controllers
             // Deserialize
             var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
 
-            if (ciList == null)
-                ciList = new List<CookieInfo>();
+            ciList ??= new List<CookieInfo>();
 
             var cookieInfo = ciList
                 .Select(x => x)
@@ -1385,7 +1384,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(actionMethod);
         }
 
-        private async Task PrepareGeneralCommonConfigurationModelAsync(GeneralCommonSettingsModel model)
+        private Task PrepareGeneralCommonConfigurationModelAsync()
         {
             ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
                 .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);
@@ -1423,6 +1422,8 @@ namespace Smartstore.Admin.Controllers
             };
 
             #endregion
+
+            return Task.CompletedTask;
         }
 
         private async Task PrepareCatalogConfigurationModelAsync(CatalogSettingsModel model)
