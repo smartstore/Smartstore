@@ -1714,13 +1714,6 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
-            ViewBag.AvailableCountries = countries.ToSelectListItems(product?.CountryOfOriginId ?? 0);
-
             var priceLabels = await _db.PriceLabels
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)

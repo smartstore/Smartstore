@@ -707,7 +707,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="CompanyInformationSettings.CountryId">
-                            <select asp-for="CompanyInformationSettings.CountryId" asp-items="ViewBag.AvailableCountries" asp-placeholder="@T("Common.Unspecified")"></select>
+                            <editor asp-for="CompanyInformationSettings.CountryId" asp-template="Countries" />
                         </setting-editor>
                         <span asp-validation-for="CompanyInformationSettings.CountryId"></span>
                     </div>

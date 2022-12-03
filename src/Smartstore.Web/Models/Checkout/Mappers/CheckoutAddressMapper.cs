@@ -1,5 +1,4 @@
 ﻿using System.Dynamic;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Checkout;
@@ -74,7 +73,6 @@ namespace Smartstore.Web.Models.Checkout
             if (to.NewAddress.CountryEnabled)
             {
                 to.NewAddress.AvailableCountries = countries.ToSelectListItems(selectedCountryId ?? 0);
-                //to.NewAddress.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
             }
         }
     }

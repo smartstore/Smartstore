@@ -255,7 +255,7 @@
             <smart-label asp-for="CountryOfOriginId" />
         </div>
         <div class="adminData">
-            <select asp-for="CountryOfOriginId" asp-items="ViewBag.AvailableCountries" asp-placeholder="@T("Common.Unspecified")"></select>
+            <editor asp-for="CountryOfOriginId" asp-template="Countries" />
             <span asp-validation-for="CountryOfOriginId"></span>
         </div>
     </div>

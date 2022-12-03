@@ -180,12 +180,21 @@
                     <div sm-if="Model.CountryEnabled" class="form-group row">
                         <label asp-for="CountryId" class="col-md-3 col-form-label"></label>
                         <div class="col-md-9">
-                            <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
+                            @{
+                                var countrySelectorViewData = new
+                                {
+                                    placeholder = T("Address.SelectCountry").Value,
+                                    includeHidden = false,
+                                    storeId = CommonServices.StoreContext.CurrentStore.Id,
+                                };
+                            }
+                            <editor asp-for="CountryId"
                                     class="country-input country-selector remember"
+                                    asp-template="Countries"
+                                    asp-additional-viewdata='countrySelectorViewData'
                                     data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
-                                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
-                                    data-addEmptyStateIfRequired="true">
-                            </select>
+                                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
+                                    data-addEmptyStateIfRequired="true" />
                         </div>
                     </div>
 

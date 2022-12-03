@@ -2,6 +2,8 @@
 @using Microsoft.EntityFrameworkCore
 @using Smartstore.Utilities
 
+@removeTagHelper Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers
+
 @functions
 {
     private object SelectedKeys
@@ -37,22 +39,9 @@
         }
     }
 
-    private bool SelectByIsoCode
-    {
-        get => ViewData.Model is string[] || ViewData.Model is string;
-    }
-
     private bool IsNullable
     {
-        get
-        {
-            if (TryGetMetadata<bool>("nullable", out var nullable))
-            {
-                return nullable;
-            }
-
-            return ViewData.ModelMetadata.ModelType != typeof(int);
-        }
+        get => TryGetMetadata<bool>("nullable", out var nullable) && nullable == true;
     }
 
     private bool IncludeHidden
@@ -67,17 +56,12 @@
 
     private int StoreId
     {
-        get => GetMetadata<int>("storeId", 0);
+        get => GetMetadata<int>("storeId");
     }
 
     private string Placeholder
     {
-        get => GetMetadata<string>("placeholder") ?? T("Common.Unspecified").Value;
-    }
-
-    private bool HasSpecificPlaceholder
-    {
-        get => HasMetadata("placeholder");
+        get => GetMetadata<string>("placeholder");
     }
 }
 
@@ -97,16 +81,20 @@
         var countries = await query.ToListAsync();
 
         var keys = SelectedKeys;
-        var selectByIso = SelectByIsoCode;
         items = (keys is int[] ids ? countries.ToSelectListItems(ids) : countries.ToSelectListItems((string[])keys));
     }
 
+    var modelType = ViewData.ModelMetadata.ModelType;
     var flagsPath = Url.Content("~/images/flags/");
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var placeholder = Placeholder;
 
     if (!attributes.ContainsKey("multiple"))
     {
-        var multiple = GetMetadata<bool>("multiple", false);
+        if (!TryGetMetadata<bool>("multiple", out var multiple))
+        {
+            multiple = modelType.IsSequenceType();
+        }
         if (multiple)
         {
             attributes["multiple"] = "multiple";
@@ -114,13 +102,13 @@
     }
 }
 <select asp-for="@Model"
-        attr-data-placeholder='(IsNullable, Placeholder)'
         attrs="attributes"
+        data-placeholder="@T("Address.SelectCountry").Value"
         class="edit-control"
         data-editor="select">
-    @if (HasSpecificPlaceholder) 
+    @if (IsNullable || modelType == typeof(int?) || placeholder.HasValue())
     {
-        <option value="">@Placeholder</option>
+        <option value="">@(placeholder ?? T("Common.Unspecified").Value)</option>
     }
     @foreach (var item in items)
     {

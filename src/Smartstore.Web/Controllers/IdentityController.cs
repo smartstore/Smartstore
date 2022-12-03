@@ -672,14 +672,6 @@ namespace Smartstore.Web.Controllers
 
             if (_customerSettings.CountryEnabled)
             {
-                var countries = await _db.Countries
-                    .AsNoTracking()
-                    .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
-                    .ToListAsync();
-
-                ViewBag.AvailableCountries = countries.ToSelectListItems(model.CountryId);
-                ViewBag.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
-
                 if (_customerSettings.StateProvinceEnabled)
                 {
                     var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
