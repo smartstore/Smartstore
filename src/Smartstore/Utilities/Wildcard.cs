@@ -8,10 +8,9 @@ namespace Smartstore.Utilities
     /// searching in text. * is used for any chars, ? for one char and
     /// a number range is used with the - char. (12-232)
     /// </summary>
-    public partial class Wildcard : Regex
+    public sealed class Wildcard : Regex
     {
-        [GeneratedRegex("[0-9]+-[0-9]+", RegexOptions.NonBacktracking)]
-        private static partial Regex NumberRangeRegex();
+        private readonly static Regex _rgNumberRange = new("[0-9]+-[0-9]+", RegexOptions.Compiled | RegexOptions.NonBacktracking);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Wildcard"/> class.
@@ -66,8 +65,7 @@ namespace Smartstore.Utilities
             // convert the number ranges into regular expression
             if (parseNumberRanges)
             {
-                var re = NumberRangeRegex();
-                MatchCollection collection = re.Matches(pattern);
+                MatchCollection collection = _rgNumberRange.Matches(pattern);
                 foreach (var match in collection.Cast<Match>())
                 {
                     var split = match.Value.Split(new char[] { '-' });

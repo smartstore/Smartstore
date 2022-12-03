@@ -248,9 +248,9 @@ namespace Smartstore.Web.Rendering
 
         public TProperty? Get<TProperty>(string key, TProperty? defaultValue = default)
         {
-            if (CustomProperties.TryGetValue(key, out object value))
+            if (CustomProperties.TryGetValue(key, out var value))
             {
-                return (TProperty)value;
+                return (TProperty)value!;
             }
 
             return defaultValue;

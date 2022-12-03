@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
@@ -13,15 +16,15 @@ namespace Smartstore.Web.Razor
 
     public abstract class SmartRazorPage<TModel> : RazorPage<TModel>
     {
-        private IDisplayHelper _display;
-        private Localizer _localizer;
-        private IWorkContext _workContext;
-        private IEventPublisher _eventPublisher;
-        private IApplicationContext _appContext;
-        private IPageAssetBuilder _assets;
-        private IUserAgent _userAgent;
-        private ILinkResolver _linkResolver;
-        private ICommonServices _services;
+        private IDisplayHelper? _display;
+        private Localizer? _localizer;
+        private IWorkContext? _workContext;
+        private IEventPublisher? _eventPublisher;
+        private IApplicationContext? _appContext;
+        private IPageAssetBuilder? _assets;
+        private IUserAgent? _userAgent;
+        private ILinkResolver? _linkResolver;
+        private ICommonServices? _services;
 
         public SmartRazorPage()
         {
@@ -34,54 +37,54 @@ namespace Smartstore.Web.Razor
 
         protected IDisplayHelper Display
         {
-            get => _display ??= base.Context.RequestServices.GetRequiredService<IDisplayHelper>();
+            get => _display ??= Context.RequestServices.GetRequiredService<IDisplayHelper>();
         }
 
         protected Localizer T
         {
-            get => _localizer ??= base.Context.RequestServices.GetRequiredService<Localizer>();
+            get => _localizer ??= Context.RequestServices.GetRequiredService<Localizer>();
         }
 
         protected IWorkContext WorkContext
         {
-            get => _workContext ??= base.Context.RequestServices.GetRequiredService<IWorkContext>();
+            get => _workContext ??= Context.RequestServices.GetRequiredService<IWorkContext>();
         }
 
         protected IEventPublisher EventPublisher
         {
-            get => _eventPublisher ??= base.Context.RequestServices.GetRequiredService<IEventPublisher>();
+            get => _eventPublisher ??= Context.RequestServices.GetRequiredService<IEventPublisher>();
         }
 
         protected IApplicationContext ApplicationContext
         {
-            get => _appContext ??= base.Context.RequestServices.GetRequiredService<IApplicationContext>();
+            get => _appContext ??= Context.RequestServices.GetRequiredService<IApplicationContext>();
         }
 
         protected IPageAssetBuilder Assets
         {
-            get => _assets ??= base.Context.RequestServices.GetRequiredService<IPageAssetBuilder>();
+            get => _assets ??= Context.RequestServices.GetRequiredService<IPageAssetBuilder>();
         }
 
         protected IUserAgent UserAgent
         {
-            get => _userAgent ??= base.Context.RequestServices.GetRequiredService<IUserAgent>();
+            get => _userAgent ??= Context.RequestServices.GetRequiredService<IUserAgent>();
         }
 
         protected ILinkResolver LinkResolver
         {
-            get => _linkResolver ??= base.Context.RequestServices.GetRequiredService<ILinkResolver>();
+            get => _linkResolver ??= Context.RequestServices.GetRequiredService<ILinkResolver>();
         }
 
         protected ICommonServices CommonServices
         {
-            get => _services ??= base.Context.RequestServices.GetRequiredService<ICommonServices>();
+            get => _services ??= Context.RequestServices.GetRequiredService<ICommonServices>();
         }
 
         /// <summary>
         /// Resolves a service from scoped service container.
         /// </summary>
         /// <typeparam name="T">Type to resolve</typeparam>
-        protected T Resolve<T>() where T : notnull
+        protected T? Resolve<T>() where T : notnull
         {
             return Context.RequestServices.GetService<T>();
         }
@@ -99,7 +102,7 @@ namespace Smartstore.Web.Razor
         /// <typeparam name="T">Actual type of value</typeparam>
         /// <param name="name">Name of entry</param>
         /// <returns>Result</returns>
-        public T GetMetadata<T>(string name)
+        public T? GetMetadata<T>(string name)
         {
             TryGetMetadata<T>(name, out var value);
             return value;
@@ -112,7 +115,7 @@ namespace Smartstore.Web.Razor
         /// <param name="name">Name of entry</param>
         /// <param name="defaultValue">The default value to return if item does not exist.</param>
         /// <returns>Result</returns>
-        public T GetMetadata<T>(string name, T defaultValue)
+        public T? GetMetadata<T>(string name, T? defaultValue)
         {
             if (TryGetMetadata<T>(name, out var value))
             {
@@ -128,7 +131,7 @@ namespace Smartstore.Web.Razor
         /// <typeparam name="T">Actual type of value</typeparam>
         /// <param name="name">Name of entry</param>
         /// <returns><c>true</c> if the entry exists in any of the dictionaries, <c>false</c> otherwise</returns>
-        public bool TryGetMetadata<T>(string name, out T value)
+        public bool TryGetMetadata<T>(string name, [MaybeNullWhen(false)] out T? value)
         {
             value = default;
 
