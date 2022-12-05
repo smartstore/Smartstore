@@ -1,9 +1,12 @@
 ﻿using System.Globalization;
 using System.Net;
+using Azure;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -75,6 +78,17 @@ namespace Smartstore.PayPal.Controllers
             }
 
             return Json(new { success, message });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateOrder()
+        {
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(false);
+            var response = await _client.CreateOrderAsync(orderMessage);
+            var rawResponse = response.Body<object>().ToString();
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            return Json(jResponse);
         }
 
         [HttpPost]

@@ -2,6 +2,7 @@
 <!-- Set up a container element for the paypal button -->
 <div id="paypal-button-container"
      data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
+     data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
      data-forward-url="@(Model.IsPaymentSelection ? Url.Action("Confirm", "Checkout") : Url.Action("BillingAddress", "Checkout"))"
      attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'></div>
 
@@ -45,7 +46,19 @@
                 },
                 // Create order
                 createOrder: function (data, actions) {
-                    return actions.order.create(@(Html.Raw(Model.OrderJson)));
+                    var orderId;
+
+                    $.ajax({
+                        async: false,   // IMPORTANT INFO: we must wait to get the order id.
+                        type: 'POST',
+                        url: btnContainer.data("create-order-url"),
+                        cache: false,
+                        success: function (resp) {
+                            orderId = resp.id;
+                        }
+                    });
+
+                    return orderId;
                 },
                 // Save obtained order id in checkout state.
                 onApprove: function (data, actions) {

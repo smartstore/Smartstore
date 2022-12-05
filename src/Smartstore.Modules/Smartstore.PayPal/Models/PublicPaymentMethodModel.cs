@@ -21,10 +21,5 @@
         public string ButtonShape { get; set; }
 
         public string ButtonColor { get; set; }
-
-        /// <summary>
-        /// Will be passed to the createOrder function of PayPal JS SDK
-        /// </summary>
-        public string OrderJson { get; set; }
     }
 }
