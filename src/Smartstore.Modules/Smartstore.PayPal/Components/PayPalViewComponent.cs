@@ -54,8 +54,7 @@ namespace Smartstore.PayPal.Components
                 ButtonColor = _settings.ButtonColor,
                 ButtonShape = _settings.ButtonShape,
                 IsSelectedMethod = isSelected,
-                Fundings = fundings,
-                OrderJson = JsonConvert.SerializeObject(await _client.GetOrderForStandardProviderAsync(!isPaymentSelectionPage))
+                Fundings = fundings
             };
 
             return View(model);

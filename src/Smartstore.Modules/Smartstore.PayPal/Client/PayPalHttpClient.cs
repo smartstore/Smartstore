@@ -114,7 +114,7 @@ namespace Smartstore.PayPal.Client
         }
 
         /// <summary>
-        /// Creates a PayPal order.
+        /// Creates a PayPal order for invoice method.
         /// </summary>
         public async Task<PayPalResponse> CreateOrderForInvoiceAsync(
             ProcessPaymentRequest request, 
@@ -196,6 +196,22 @@ namespace Smartstore.PayPal.Client
             // DEV: uncomment for response viewing 
             //var rawResponse = response.Body<object>().ToString();
             //dynamic jResponse = JObject.Parse(rawResponse);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Creates a PayPal order for invoice method.
+        /// </summary>
+        public async Task<PayPalResponse> CreateOrderAsync(
+            OrderMessage orderMessage,
+            CancellationToken cancelToken = default)
+        {
+            var orderCreateRequest = new OrderCreateRequest()
+                .WithRequestId(Guid.NewGuid().ToString())
+                .WithBody(orderMessage);
+
+            var response = await ExecuteRequestAsync(orderCreateRequest, cancelToken);
 
             return response;
         }
