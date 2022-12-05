@@ -1,5 +1,4 @@
 ﻿using System.Net.Mime;
-using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -7,12 +6,10 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
-using Smartstore.Pdf;
 using Smartstore.Web.Models.Orders;
 
 namespace Smartstore.Web.Controllers
@@ -27,7 +24,6 @@ namespace Smartstore.Web.Controllers
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly IProviderManager _providerManager;
-        private readonly IPdfConverter _pdfConverter;
         private readonly OrderSettings _orderSettings;
 
         public OrderController(
@@ -39,7 +35,6 @@ namespace Smartstore.Web.Controllers
             IDateTimeHelper dateTimeHelper,
             IProviderManager providerManager,
             ProductUrlHelper productUrlHelper,
-            IPdfConverter pdfConverter,
             OrderSettings orderSettings)
         {
             _db = db;
@@ -50,7 +45,6 @@ namespace Smartstore.Web.Controllers
             _dateTimeHelper = dateTimeHelper;
             _providerManager = providerManager;
             _productUrlHelper = productUrlHelper;
-            _pdfConverter = pdfConverter;
             _orderSettings = orderSettings;
         }
 
@@ -84,15 +78,16 @@ namespace Smartstore.Web.Controllers
                 .FindByIdAsync(id, false);
 
             if (await IsNonExistentOrderAsync(order))
+            {
                 return NotFound();
+            }
 
             if (await IsUnauthorizedOrderAsync(order))
+            {
                 return new UnauthorizedResult();
+            }
 
-            var model = await _orderHelper.PrepareOrderDetailsModelAsync(order);
-            var fileName = T("Order.PdfInvoiceFileName", order.Id);
-
-            return await PrintCore(new List<OrderDetailsModel> { model }, pdf, fileName);
+            return await PrintCore(new List<Order> { order }, pdf);
         }
 
         [AuthorizeAdmin]
@@ -144,43 +139,23 @@ namespace Smartstore.Web.Controllers
                 return RedirectToReferrer();
             }
 
-            var listModel = await orders
-                .SelectAwait(async x => await _orderHelper.PrepareOrderDetailsModelAsync(x))
-                .AsyncToList();
-
-            return await PrintCore(listModel, pdf, "orders.pdf");
+            return await PrintCore(orders, pdf);
         }
 
-        private async Task<IActionResult> PrintCore(List<OrderDetailsModel> model, bool pdf, string pdfFileName)
+        private async Task<IActionResult> PrintCore(IList<Order> orders, bool pdf)
         {
-            ViewBag.PdfMode = pdf;
-            var viewName = "Details.Print";
-
             if (pdf)
             {
-                // TODO: (mc) this is bad for multi-document processing, where orders can originate from different stores.
-                var storeId = model[0].StoreId;
-                var routeValues = new RouteValueDictionary
-                {
-                    ["storeId"] = storeId,
-                    ["lid"] = Services.WorkContext.WorkingLanguage.Id
-                };
-                var pdfSettings = Services.SettingFactory.LoadSettings<PdfSettings>(storeId);
+                var (content, fileName) = await _orderHelper.GeneratePdfAsync(orders);
 
-                var conversionSettings = new PdfConversionSettings
-                {
-                    Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
-                    Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
-                    Header = _pdfConverter.CreateFileInput(Url.Action("ReceiptHeader", "Pdf", routeValues)),
-                    Footer = _pdfConverter.CreateFileInput(Url.Action("ReceiptFooter", "Pdf", routeValues)),
-                    Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync(viewName, model))
-                };
-
-                var output = await _pdfConverter.GeneratePdfAsync(conversionSettings);
-                return File(output, MediaTypeNames.Application.Pdf, pdfFileName);
+                return File(content, MediaTypeNames.Application.Pdf, fileName);
             }
 
-            return View(viewName, model);
+            var model = await orders
+                .SelectAwait(_orderHelper.PrepareOrderDetailsModelAsync)
+                .AsyncToList();
+
+            return View("Details.Print", model);
         }
 
         public async Task<IActionResult> ReOrder(int id)

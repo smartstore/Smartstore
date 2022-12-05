@@ -5,6 +5,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Identity;
 using Smartstore.Web.Api.Models.Checkout;
+using Smartstore.Web.Controllers;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
@@ -14,14 +15,14 @@ namespace Smartstore.Web.Api.Controllers.OData
     public class OrdersController : WebApiController<Order>
     {
         private readonly Lazy<IOrderProcessingService> _orderProcessingService;
-        private readonly Lazy<ApiPdfHelper> _apiPdfHelper;
+        private readonly Lazy<OrderHelper> _orderHelper;
 
         public OrdersController(
             Lazy<IOrderProcessingService> orderProcessingService,
-            Lazy<ApiPdfHelper> apiPdfHelper)
+            Lazy<OrderHelper> orderHelper)
         {
             _orderProcessingService = orderProcessingService;
-            _apiPdfHelper = apiPdfHelper;
+            _orderHelper = orderHelper;
         }
 
         [HttpGet, ApiQueryable]
@@ -177,10 +178,9 @@ namespace Smartstore.Web.Api.Controllers.OData
                     .Include(x => x.BillingAddress)
                     .Include(x => x.Shipments));
 
-                var stream = await _apiPdfHelper.Value.GeneratePdfAsync(entity);
-                var fileName = _apiPdfHelper.Value.GetFileName(entity);
+                var (content, fileName) = await _orderHelper.Value.GeneratePdfAsync(new[] { entity });
 
-                return File(stream, MediaTypeNames.Application.Pdf, fileName);
+                return File(content, MediaTypeNames.Application.Pdf, fileName);
             }
             catch (Exception ex)
             {

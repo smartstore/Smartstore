@@ -1,4 +1,9 @@
-﻿using Humanizer;
+﻿#nullable enable
+
+using Humanizer;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -16,6 +21,8 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
+using Smartstore.IO;
+using Smartstore.Pdf;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Models.Orders;
@@ -36,8 +43,11 @@ namespace Smartstore.Web.Controllers
         private readonly IGiftCardService _giftCardService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ProductUrlHelper _productUrlHelper;
+        private readonly IUrlHelper _urlHelper;
         private readonly IEncryptor _encryptor;
         private readonly Lazy<ModuleManager> _moduleManager;
+        private readonly IViewInvoker _viewInvoker;
+        private readonly IPdfConverter _pdfConverter;
 
         public OrderHelper(
             SmartDbContext db,
@@ -52,8 +62,11 @@ namespace Smartstore.Web.Controllers
             IGiftCardService giftCardService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ProductUrlHelper productUrlHelper,
+            IUrlHelper urlHelper,
             IEncryptor encryptor,
-            Lazy<ModuleManager> moduleManager)
+            Lazy<ModuleManager> moduleManager,
+            IViewInvoker viewInvoker,
+            IPdfConverter pdfConverter)
         {
             _db = db;
             _services = services;
@@ -67,8 +80,11 @@ namespace Smartstore.Web.Controllers
             _giftCardService = giftCardService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _productUrlHelper = productUrlHelper;
+            _urlHelper = urlHelper;
             _encryptor = encryptor;
             _moduleManager = moduleManager;
+            _viewInvoker = viewInvoker;
+            _pdfConverter = pdfConverter;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -84,7 +100,7 @@ namespace Smartstore.Web.Controllers
         {
             Guard.NotNull(product, nameof(product));
 
-            MediaFileInfo file = null;
+            var file = (MediaFileInfo?)null;
             var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, attributeSelection);
 
             if (combination != null)
@@ -142,7 +158,7 @@ namespace Smartstore.Web.Controllers
             CatalogSettings catalogSettings,
             ShoppingCartSettings shoppingCartSettings,
             MediaSettings mediaSettings,
-            Currency customerCurrency)
+            Currency? customerCurrency)
         {
             var language = _services.WorkContext.WorkingLanguage;
 
@@ -365,7 +381,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Totals.
-            var customerCurrency = await _db.Currencies
+            Currency? customerCurrency = await _db.Currencies
                 .AsNoTracking()
                 .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
                 .FirstOrDefaultAsync();
@@ -553,6 +569,49 @@ namespace Smartstore.Web.Controllers
             }
 
             return model;
+        }
+
+        public async Task<(Stream Content, string FileName)> GeneratePdfAsync(IEnumerable<Order> orders)
+        {
+            Guard.NotNull(orders);
+
+            var model = await orders
+                .SelectAwait(PrepareOrderDetailsModelAsync)
+                .AsyncToList();
+
+            // TODO: (mc) this is bad for multi-document processing, where orders can originate from different stores.
+            var storeId = model?[0].StoreId ?? _services.StoreContext.CurrentStore.Id;
+            var routeValues = new RouteValueDictionary
+            {
+                ["storeId"] = storeId,
+                ["lid"] = _services.WorkContext.WorkingLanguage.Id
+            };
+
+            var pdfSettings = _services.SettingFactory.LoadSettings<PdfSettings>(storeId);
+
+            var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+            {
+                Model = model,
+                ["PdfMode"] = true
+            };
+
+            var orderHtml = await _viewInvoker.InvokeViewAsync(OrderDetailsPrintViewPath, null, viewData);
+
+            var conversionSettings = new PdfConversionSettings
+            {
+                Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
+                Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
+                Header = _pdfConverter.CreateFileInput(_urlHelper.Action("ReceiptHeader", "Pdf", routeValues)),
+                Footer = _pdfConverter.CreateFileInput(_urlHelper.Action("ReceiptFooter", "Pdf", routeValues)),
+                Page = _pdfConverter.CreateHtmlInput(orderHtml.ToString())
+            };
+
+            var content = await _pdfConverter.GeneratePdfAsync(conversionSettings);
+            var fileName = model?.Count == 1
+                ? PathUtility.SanitizeFileName(T("Order.PdfInvoiceFileName", model[0].Id))
+                : "orders.pdf";
+
+            return (content, fileName);
         }
     }
 }
