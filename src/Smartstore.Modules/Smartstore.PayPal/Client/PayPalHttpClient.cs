@@ -442,15 +442,10 @@ namespace Smartstore.PayPal.Client
             var format = new NumberFormatInfo { NumberDecimalSeparator = "." };
 
             decimal itemTotal = 0;
-            purchaseUnitItems.Each(x => itemTotal += decimal.Parse(x.UnitAmount.Value, format) * Convert.ToInt32(x.Quantity));
-
-            //// TODO: (mh) (core) (test and uncomment) Very awkward code. Instead of instantiating a custom NumberFormatInfo, just use CultureInfo.InvariantCulture...
-            //purchaseUnitItems.Each(x => itemTotal += decimal.Parse(x.UnitAmount.Value, CultureInfo.InvariantCulture) * Convert.ToInt32(x.Quantity));
-            //// ...or even better (Convert() is culture invariant by default)...
-            //purchaseUnitItems.Each(x => itemTotal += x.UnitAmount.Value.Convert<decimal>() * x.Quantity.ToInt());
+            purchaseUnitItems.Each(x => itemTotal += x.UnitAmount.Value.Convert<decimal>() * x.Quantity.ToInt());
 
             decimal itemTotalTax = 0;
-            purchaseUnitItems.Each(x => itemTotalTax += decimal.Parse(x.Tax.Value, format) * Convert.ToInt32(x.Quantity));
+            purchaseUnitItems.Each(x => itemTotalTax += x.Tax.Value.Convert<decimal>() * x.Quantity.ToInt());
 
             var purchaseUnit = new PurchaseUnit
             {
@@ -490,23 +485,40 @@ namespace Smartstore.PayPal.Client
                 orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
             }
 
+            decimal discountAmount = orderTotalDiscountAmount.Amount + cartSubTotalinklTax.DiscountAmount.Amount;
             purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
             {
-                Value = (orderTotalDiscountAmount.Amount + cartSubTotalinklTax.DiscountAmount.Amount).ToStringInvariant("F"),
+                Value = discountAmount.ToStringInvariant("F"),
                 CurrencyCode = currency.CurrencyCode
             };
 
             // Get shipping cost
             var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart, true);
-            purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
+            decimal shippingTotalAmount = 0;
+            if (shippingTotal.ShippingTotal != null)
             {
-                Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
-                CurrencyCode = currency.CurrencyCode
-            };
+                shippingTotalAmount = shippingTotal.ShippingTotal.Value.Amount;
+                purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
+                {
+                    Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
+                    CurrencyCode = currency.CurrencyCode
+                };
+            }
 
-            if (cartTotal.Total.Value != cartSubTotalExclTax.SubtotalWithDiscount)
+            if (cartTotal.Total != null && cartTotal.Total.Value != cartSubTotalExclTax.SubtotalWithDiscount)
             {
                 purchaseUnit.Amount.Value = cartTotal.Total.Value.Amount.ToStringInvariant("F");
+            }
+
+            // Lets check for rounding issues
+            var amountMismatch = itemTotal + itemTotalTax + shippingTotalAmount - discountAmount;
+            if (amountMismatch != purchaseUnit.Amount.Value.Convert<decimal>())
+            {
+                purchaseUnit.Amount.AmountBreakdown.Handling = new MoneyMessage
+                {
+                    Value = (purchaseUnit.Amount.Value.Convert<decimal>() - amountMismatch).ToStringInvariant("F"),
+                    CurrencyCode = currency.CurrencyCode
+                };
             }
 
             purchaseUnit.CustomId = orderGuid;
