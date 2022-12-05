@@ -388,9 +388,9 @@ namespace Smartstore.PayPal.Client
                 var taxRate = await _taxService.GetTaxRateAsync(cartItem.Item.Product);
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
                 var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
-
-                var productName = item.ProductName.Value.Length > 126 ? item.ProductName.Value[..126] : item.ProductName.Value;
-                var productDescription = item.ShortDesc.Value?.Length > 126 ? item.ShortDesc.Value?[..126] : item.ShortDesc.Value;
+                
+                var productName = item.ProductName?.Value?.Truncate(126);
+                var productDescription = item.ShortDesc?.Value?.Truncate(126);
 
                 purchaseUnitItems.Add(new PurchaseUnitItem
                 {
@@ -439,13 +439,13 @@ namespace Smartstore.PayPal.Client
                 ? (subTotalConverted.Amount + cartTax.Amount).ToStringInvariant("F")
                 : orderTotal.ToStringInvariant("F");
 
-            var format = new NumberFormatInfo() { NumberDecimalSeparator = "." };
+            var format = new NumberFormatInfo { NumberDecimalSeparator = "." };
 
             decimal itemTotal = 0;
-            purchaseUnitItems.Each(x => itemTotal += decimal.Parse(x.UnitAmount.Value, format) * Convert.ToInt32(x.Quantity));
+            purchaseUnitItems.Each(x => itemTotal += x.UnitAmount.Value.Convert<decimal>() * x.Quantity.ToInt());
 
             decimal itemTotalTax = 0;
-            purchaseUnitItems.Each(x => itemTotalTax += decimal.Parse(x.Tax.Value, format) * Convert.ToInt32(x.Quantity));
+            purchaseUnitItems.Each(x => itemTotalTax += x.Tax.Value.Convert<decimal>() * x.Quantity.ToInt());
 
             var purchaseUnit = new PurchaseUnit
             {
@@ -475,7 +475,6 @@ namespace Smartstore.PayPal.Client
 
             // INFO: We must execute the following code also for cart pages in case of customer backward navigation,
             // where shipping method might be set or discounts might be applied
-
             
             var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
@@ -486,23 +485,40 @@ namespace Smartstore.PayPal.Client
                 orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
             }
 
+            decimal discountAmount = orderTotalDiscountAmount.Amount + cartSubTotalinklTax.DiscountAmount.Amount;
             purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
             {
-                Value = (orderTotalDiscountAmount.Amount + cartSubTotalinklTax.DiscountAmount.Amount).ToStringInvariant("F"),
+                Value = discountAmount.ToStringInvariant("F"),
                 CurrencyCode = currency.CurrencyCode
             };
 
             // Get shipping cost
             var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart, true);
-            purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
+            decimal shippingTotalAmount = 0;
+            if (shippingTotal.ShippingTotal != null)
             {
-                Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
-                CurrencyCode = currency.CurrencyCode
-            };
+                shippingTotalAmount = shippingTotal.ShippingTotal.Value.Amount;
+                purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
+                {
+                    Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
+                    CurrencyCode = currency.CurrencyCode
+                };
+            }
 
-            if (cartTotal.Total.Value != cartSubTotalExclTax.SubtotalWithDiscount)
+            if (cartTotal.Total != null && cartTotal.Total.Value != cartSubTotalExclTax.SubtotalWithDiscount)
             {
                 purchaseUnit.Amount.Value = cartTotal.Total.Value.Amount.ToStringInvariant("F");
+            }
+
+            // Lets check for rounding issues
+            var amountMismatch = itemTotal + itemTotalTax + shippingTotalAmount - discountAmount;
+            if (amountMismatch != purchaseUnit.Amount.Value.Convert<decimal>())
+            {
+                purchaseUnit.Amount.AmountBreakdown.Handling = new MoneyMessage
+                {
+                    Value = (purchaseUnit.Amount.Value.Convert<decimal>() - amountMismatch).ToStringInvariant("F"),
+                    CurrencyCode = currency.CurrencyCode
+                };
             }
 
             purchaseUnit.CustomId = orderGuid;
