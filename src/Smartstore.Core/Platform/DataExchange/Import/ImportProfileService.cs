@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -11,7 +10,8 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public partial class ImportProfileService : IImportProfileService
     {
-        private const string IMPORT_FILE_ROOT = "ImportProfiles";
+        private const string _importFileRoot = "ImportProfiles";
+
         private static readonly object _lock = new();
         private static Dictionary<ImportEntityType, Dictionary<string, string>> _entityProperties = null;
 
@@ -43,7 +43,7 @@ namespace Smartstore.Core.DataExchange.Import
             Guard.NotNull(profile, nameof(profile));
 
             var root = _appContext.TenantRoot;
-            var path = PathUtility.Join(IMPORT_FILE_ROOT, profile.FolderName, subpath.EmptyNull());
+            var path = PathUtility.Join(_importFileRoot, profile.FolderName, subpath.EmptyNull());
             var dir = await root.GetDirectoryAsync(path);
 
             if (createIfNotExists)
@@ -143,7 +143,7 @@ namespace Smartstore.Core.DataExchange.Import
             var folderName = SlugUtility.Slugify(name, true, false, false)
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
-            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(IMPORT_FILE_ROOT, folderName);
+            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(_importFileRoot, folderName);
 
             _db.ImportProfiles.Add(profile);
 
@@ -197,7 +197,7 @@ namespace Smartstore.Core.DataExchange.Import
                 .Select(x => x.FolderName)
                 .ToListAsync();
 
-            var dir = await tenantRoot.GetDirectoryAsync(IMPORT_FILE_ROOT);
+            var dir = await tenantRoot.GetDirectoryAsync(_importFileRoot);
             if (dir.Exists)
             {
                 foreach (var subdir in dir.EnumerateDirectories())

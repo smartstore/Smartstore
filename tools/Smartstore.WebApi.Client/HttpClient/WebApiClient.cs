@@ -113,10 +113,7 @@ namespace Smartstore.WebApi.Client
             var result = new MultipartFormDataContent();
             var count = 0;
 
-            // INFO: additional multipart StringContent is no longer recognized in Smartstore Core.
-            // Additional product identifiers can be sent using the query string.
-
-            // ID to identify entity by its identifier.
+            // INFO: additional entity identifiers are no longer recognized this way in Smartstore 5. Use query string parameters instead.
             //if (model.Id != 0)
             //{
             //    var content = new StringContent(model.Id.ToString(), Encoding.UTF8);
@@ -126,15 +123,15 @@ namespace Smartstore.WebApi.Client
             //    response.RequestContent.AppendLine("\r\n" + content.Headers.ToString());
             //}
 
-            // Custom properties like SKU etc.
-            //foreach (var pair in model.CustomProperties.Where(x => x.Key.HasValue() && x.Value != null))
-            //{
-            //    var content = new StringContent(pair.Value.ToString(), Encoding.UTF8);
-            //    content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = pair.Key };
-            //    result.Add(content);
+            // Custom properties like deleteing existing import files etc.
+            foreach (var pair in model.CustomProperties.Where(x => x.Key.HasValue() && x.Value != null))
+            {
+                var content = new StringContent(pair.Value.ToString(), Encoding.UTF8);
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = pair.Key };
+                result.Add(content);
 
-            //    response.RequestContent.AppendLine("\r\n" + content.Headers.ToString());
-            //}
+                response.RequestContent.AppendLine("\r\n" + content.Headers.ToString());
+            }
 
             // File data.
             foreach (var file in model.Files.Where(x => IOFile.Exists(x.LocalPath)))

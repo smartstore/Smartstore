@@ -101,13 +101,13 @@ namespace Smartstore.Web.Api
             var set = builder.EntitySet<ImportProfile>("ImportProfiles");
 
             var saveFiles = set.EntityType
-                .Action(nameof(ImportProfileController.SaveFiles))
+                .Action(nameof(ImportProfilesController.SaveFiles))
                 .ReturnsFromEntitySet(set);
             saveFiles.Parameter<IFormFileCollection>("files")
                 .Required();
             saveFiles.Parameter<string>("name")
                 .Optional();
-            saveFiles.Parameter<bool>("deleteFiles")
+            saveFiles.Parameter<bool>("clearDirectory")
                 .HasDefaultValue(bool.FalseString)
                 .Optional();
             saveFiles.Parameter<bool>("startImport")

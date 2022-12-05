@@ -50,7 +50,7 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
     <tr>
         <td>GET Payments/Methods <sup>1.</sup></td>
         <td>GET PaymentMethods/GetAllPaymentMethods({active},{storeId})</td>
-        <td>New method.</td>
+        <td>New method. Now returns a list of payment method system names.</td>
     </tr>
     <tr>
         <td>ProductPictures/...</td>
@@ -71,18 +71,22 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
             ContentDisposition parameter <b>pictureId</b> renamed to <b>fileId</b>.
         </td>
     </tr>
+    <tr>
+        <td>POST Uploads/ImportFiles <sup>1. 2.</sup></td>
+        <td>POST ImportProfiles({id})/SaveFiles</td>
+        <td>
+            New method. Now returns <b>ImportProfile</b> specified by ID parameter.
+            Name to identify the import profile can optionally be sent via query string.
+            Form data value <b>deleteExisting</b> renamed to <b>clearDirectory</b>.
+        </td>
+    </tr>
 </tbody>
 <tfoot>
     <tr>
         <td colspan="3">
             <small>
                 <sup>1.</sup> Route <strong>/api/v1/</strong> no longer exists.
-            </small>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="3">
-            <small>
+                <br />
                 <sup>2.</sup> The parameterization has been changed to support Swagger.
             </small>
         </td>

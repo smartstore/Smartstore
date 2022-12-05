@@ -21,14 +21,10 @@
 
         /// <summary>
         /// Any custom properties to be added to multipart form data. Examples:
-        /// Identify product by SKU: Sku = "my SKU"
-        /// Delete existing import files: deleteExisting = true
+        /// Delete existing import files: deleteFiles = true
         /// Start import: startImport = true
         /// </summary>
-        /// <remarks>
-        /// Obsolete. No longer recognized in Smartstore Core. Additional parameters should be sent via query string.
-        /// </remarks>
-        //public Dictionary<string, object> CustomProperties { get; set; } = new();
+        public Dictionary<string, object> CustomProperties { get; set; } = new();
 
         [Serializable]
         public class FileModel
