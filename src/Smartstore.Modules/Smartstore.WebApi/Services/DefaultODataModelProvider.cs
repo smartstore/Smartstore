@@ -54,12 +54,12 @@ namespace Smartstore.Web.Api
             builder.EntitySet<ProductCategory>("ProductCategories");
             builder.EntitySet<ProductManufacturer>("ProductManufacturers");
             builder.EntitySet<ProductMediaFile>("ProductMediaFiles");
-
             builder.EntitySet<ProductSpecificationAttribute>("ProductSpecificationAttributes");
+            builder.EntitySet<ProductVariantAttributeCombination>("ProductVariantAttributeCombinations");
             builder.EntitySet<ProductVariantAttribute>("ProductVariantAttributes");
             builder.EntitySet<ProductVariantAttributeValue>("ProductVariantAttributeValues");
-            builder.EntitySet<ProductVariantAttributeCombination>("ProductVariantAttributeCombinations");
             builder.EntitySet<ProductTag>("ProductTags");
+
             builder.EntitySet<QuantityUnit>("QuantityUnits");
             builder.EntitySet<RewardPointsHistory>("RewardPointsHistory");
             // TODO: (mg) (core) add actions to "Shipments": SetAsShipped, SetAsDelivered, DownloadPdfPackagingSlips.

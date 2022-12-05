@@ -337,6 +337,8 @@ namespace Smartstore.Web.Api.Controllers.OData
                 x => x.MediaFileId == relatedkey);
         }
 
+        // TODO: (mg) (core) add assignment endpoints for Product to ProductTag.
+
         #region Actions and functions
 
         /// <summary>
