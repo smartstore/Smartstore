@@ -1,12 +1,15 @@
 ﻿#nullable enable
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Domain;
 using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -85,12 +88,18 @@ namespace Smartstore.Web.Api.Swagger
         public OpenApiSchema GenerateSchema(Type modelType)
             => Context.SchemaGenerator.GenerateSchema(modelType, Context.SchemaRepository);
 
-        public IEnumerable<FastProperty> GetEntityProperties(Func<FastProperty, bool>? predicate = null)
+        public PropertyInfo? GetEntityProperty(Func<Type, bool>? getType = null)
         {
             var properties = FastProperty.GetProperties(EntityType).Values
-                .Where(x => !x.Property.HasAttribute<NotMappedAttribute>(false) && !x.Property.HasAttribute<IgnoreDataMemberAttribute>(false));
+                .Where(x => !x.Property.HasAttribute<NotMappedAttribute>(false) && !x.Property.HasAttribute<IgnoreDataMemberAttribute>(false))
+                .Select(x => x.Property);
 
-            return predicate != null ? properties.Where(predicate) : properties;
+            if (getType == null)
+            {
+                return properties.FirstOrDefault();
+            }
+
+            return properties.Where(x => getType(x.PropertyType)).FirstOrDefault();
         }
 
         public OpenApiRequestBody CreateRequestBody()
@@ -213,10 +222,10 @@ namespace Smartstore.Web.Api.Swagger
 
             if (parameter.Example == null)
             {
-                var prop = GetEntityProperties(x => x.Property.PropertyType.IsBasicType()).FirstOrDefault();
+                var prop = GetEntityProperty(t => t.IsBasicType());
                 if (prop != null)
                 {
-                    parameter.Example = new OpenApiString(prop.Property.Name);
+                    parameter.Example = new OpenApiString(prop.Name);
                 }
             }
 
@@ -253,32 +262,31 @@ namespace Smartstore.Web.Api.Swagger
         public string? BuildQueryExample(AllowedQueryOptions option)
         {
             string? example = null;
-            FastProperty? prop;
+            PropertyInfo? prop;
 
             switch (option)
             {
                 case AllowedQueryOptions.Filter:
-                    prop = GetEntityProperties(x => x.Property.PropertyType == typeof(string) || x.Property.PropertyType == typeof(int)).FirstOrDefault();
+                    prop = GetEntityProperty(t => t == typeof(string) || t == typeof(int));
                     if (prop != null)
                     {
-                        example = prop.Property.PropertyType == typeof(string)
+                        example = prop.PropertyType == typeof(string)
                             ? $"{prop.Name} eq 'iPhone Plus'"
                             : $"{prop.Name} eq 123";
                     }
-
                     example ??= "Name eq 'iPhone Plus'";
                     break;
                 case AllowedQueryOptions.Expand:
-                    prop = GetEntityProperties(x => x.Property.PropertyType.IsClosedGenericTypeOf(typeof(ICollection<>))).FirstOrDefault();
-                    example = prop?.Property?.Name ?? "TierPrices";
+                    prop = GetEntityProperty(t => t.IsClosedGenericTypeOf(typeof(ICollection<>)) || typeof(BaseEntity).IsAssignableFrom(t));
+                    example = prop?.Name;
                     break;
                 case AllowedQueryOptions.Select:
-                    prop = GetEntityProperties(x => x.Property.PropertyType.IsBasicType()).FirstOrDefault();
-                    example = prop?.Property?.Name ?? "Name";
+                    prop = GetEntityProperty(t => t.IsBasicType());
+                    example = prop?.Name ?? "Name";
                     break;
                 case AllowedQueryOptions.OrderBy:
-                    prop = GetEntityProperties(x => x.Property.PropertyType.IsBasicType()).FirstOrDefault();
-                    example = prop?.Property?.Name ?? "Name" + " desc";
+                    prop = GetEntityProperty(t => t.IsBasicType());
+                    example = prop?.Name ?? "Name" + " desc";
                     break;
                 case AllowedQueryOptions.Top:
                     example = "50";
@@ -290,13 +298,21 @@ namespace Smartstore.Web.Api.Swagger
                     example = "true";
                     break;
                 case AllowedQueryOptions.Compute:
-                    example = "Price mul OrderMinimumQuantity as MinSpentPrice&$select=MinSpentPrice";
+                    if (EntityType == typeof(Product))
+                    {
+                        example = "Price mul OrderMinimumQuantity as MinSpentPrice&$select=MinSpentPrice";
+                    }
                     break;
                 case AllowedQueryOptions.Search:
                     example = "blue OR green";
                     break;
                 default:
                     return null;
+            }
+
+            if (example == null)
+            {
+                return null;
             }
 
             return $"Example: **{example}**.";

@@ -431,9 +431,10 @@ namespace Smartstore.Web.Api.Swagger
         //}
 
         /// <summary>
-        /// Adds missing request body. Removes parameters for FromODataBody that are falsely offered as query parameters.
+        /// Adds missing request body.
+        /// Removes parameters for FromODataBodyAttribute that are falsely offered as query parameters.
         /// </summary>
-        /// <remarks>This is a workaround that will probably become obsolete in future Swashbuckle versions.</remarks>
+        /// <remarks>This is a workaround that will probably become obsolete in future Swashbuckle versions when OData is fully supported.</remarks>
         protected virtual void FixOdataActions(SwaggerOperationHelper helper)
         {
             if (!helper.HttpMethod.EqualsNoCase("Post") || helper.Op.RequestBody != null)
@@ -488,7 +489,7 @@ namespace Smartstore.Web.Api.Swagger
                 {
                     var type = swaggerParam.Schema?.Type ?? MapType(p.ParameterType);
 
-                    var schema = type.EqualsNoCase("object") && swaggerParam.Example == null
+                    var schema = (type == "object" || type == "array") && swaggerParam.Example == null
                         ? helper.GenerateSchema(p.ParameterType)
                         : new OpenApiSchema { Type = type };
 
@@ -522,7 +523,7 @@ namespace Smartstore.Web.Api.Swagger
         /// <summary>
         /// Fixes wrong identifier arrays in OData URL path.
         /// </summary>
-        /// <remarks>This is a workaround that will probably become obsolete in future Swashbuckle versions.</remarks>
+        /// <remarks>This is a workaround that will probably become obsolete in future Swashbuckle versions when OData is fully supported.</remarks>
         protected virtual void FixOdataFunctions(SwaggerOperationHelper helper)
         {
             if (!helper.HttpMethod.EqualsNoCase("Get"))
@@ -560,7 +561,7 @@ namespace Smartstore.Web.Api.Swagger
 
                     if (swaggerParam.Example is OpenApiArray arr && arr.Count > 0)
                     {
-                        var fixedExample = string.Join(',', arr.Select(x => Convert(x)));
+                        var fixedExample = string.Join(',', arr.Select(Convert));
                         swaggerParam.Example = new OpenApiString('[' + fixedExample + ']');
                     }
                 }

@@ -50,6 +50,7 @@ namespace Smartstore.Core.Catalog.Products
                 if (product.ProductTags.Any())
                 {
                     product.ProductTags.Clear();
+                    await _db.SaveChangesAsync();
                 }
             }
             else

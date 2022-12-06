@@ -10,6 +10,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
@@ -55,16 +56,24 @@ namespace Smartstore.Web.Api
             builder.EntitySet<ProductManufacturer>("ProductManufacturers");
             builder.EntitySet<ProductMediaFile>("ProductMediaFiles");
             builder.EntitySet<ProductSpecificationAttribute>("ProductSpecificationAttributes");
+            builder.EntitySet<ProductTag>("ProductTags");
             builder.EntitySet<ProductVariantAttributeCombination>("ProductVariantAttributeCombinations");
             builder.EntitySet<ProductVariantAttribute>("ProductVariantAttributes");
             builder.EntitySet<ProductVariantAttributeValue>("ProductVariantAttributeValues");
-            builder.EntitySet<ProductTag>("ProductTags");
-
             builder.EntitySet<QuantityUnit>("QuantityUnits");
+            builder.EntitySet<RelatedProduct>("RelatedProducts");
             builder.EntitySet<RewardPointsHistory>("RewardPointsHistory");
-            // TODO: (mg) (core) add actions to "Shipments": SetAsShipped, SetAsDelivered, DownloadPdfPackagingSlips.
-            builder.EntitySet<Shipment>("Shipments");
+            builder.EntitySet<Setting>("Settings");
+            builder.EntitySet<ShipmentItem>("ShipmentItems");
+            builder.EntitySet<ShippingMethod>("ShippingMethods");
+            builder.EntitySet<SpecificationAttributeOption>("SpecificationAttributeOptions");
+            builder.EntitySet<SpecificationAttribute>("SpecificationAttributes");
+
+            builder.EntitySet<StateProvince>("StateProvinces");
             builder.EntitySet<TierPrice>("TierPrices");
+
+            // TODO: (mg) (core) move this many controller classes to subfolders like "Controllers > Catalog".
+            // TODO: (mg) (core) remove "OData" from namespace because all is "OData" now.
 
             // INFO: functions specified directly on the ODataModelBuilder (instead of entity type or collection)
             // are called unbound functions (like static operations on the service).
@@ -78,8 +87,7 @@ namespace Smartstore.Web.Api
             BuildOrders(builder);
             BuildPaymentMethods(builder);
             BuildProducts(builder);
-
-            builder.EntitySet<StateProvince>("StateProvinces");
+            BuildShipments(builder);
         }
 
         public override Stream GetXmlCommentsStream(IApplicationContext appContext)
@@ -374,6 +382,12 @@ namespace Smartstore.Web.Api
             search.Parameter<bool>("a").Optional();
             search.Parameter<bool>("n").Optional();
 
+            set.EntityType
+                .Action(nameof(ProductsController.UpdateProductTags))
+                .ReturnsCollectionFromEntitySet<ProductTag>("ProductTags")
+                .CollectionParameter<string>("tagNames")
+                .Required();
+
             var calcPrice = set.EntityType
                 .Action(nameof(ProductsController.CalculatePrice))
                 .Returns<CalculatedProductPrice>();
@@ -413,6 +427,30 @@ namespace Smartstore.Web.Api
             saveFiles.Parameter<string>("gtin")
                 .Optional();
             saveFiles.Parameter<string>("mpn")
+                .Optional();
+        }
+
+        private static void BuildShipments(ODataModelBuilder builder)
+        {
+            var set = builder.EntitySet<Shipment>("Shipments");
+
+            //set.EntityType.Collection.Function(nameof(ShipmentsController.DownloadPdfPackagingSlips))
+            //    .Returns<StreamContent>()
+            //    .CollectionParameter<int>("ids")
+            //    .Required();
+
+            set.EntityType
+                .Action(nameof(ShipmentsController.Ship))
+                .ReturnsFromEntitySet(set)
+                .Parameter<bool>("notifyCustomer")
+                .HasDefaultValue(bool.TrueString)
+                .Optional();
+
+            set.EntityType
+                .Action(nameof(ShipmentsController.Deliver))
+                .ReturnsFromEntitySet(set)
+                .Parameter<bool>("notifyCustomer")
+                .HasDefaultValue(bool.TrueString)
                 .Optional();
         }
     }

@@ -34,6 +34,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         private readonly Lazy<ICatalogSearchQueryFactory> _catalogSearchQueryFactory;
         private readonly Lazy<IPriceCalculationService> _priceCalculationService;
         private readonly Lazy<IProductAttributeService> _productAttributeService;
+        private readonly Lazy<IProductTagService> _productTagService;
         private readonly Lazy<IMediaImporter> _mediaImporter;
         private readonly Lazy<IWebApiService> _webApiService;
         private readonly Lazy<SearchSettings> _searchSettings;
@@ -44,6 +45,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             Lazy<ICatalogSearchQueryFactory> catalogSearchQueryFactory,
             Lazy<IPriceCalculationService> priceCalculationService,
             Lazy<IProductAttributeService> productAttributeService,
+            Lazy<IProductTagService> productTagService,
             Lazy<IMediaImporter> mediaImporter,
             Lazy<IWebApiService> webApiService,
             Lazy<SearchSettings> searchSettings)
@@ -53,6 +55,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _catalogSearchQueryFactory = catalogSearchQueryFactory;
             _priceCalculationService = priceCalculationService;
             _productAttributeService = productAttributeService;
+            _productTagService = productTagService;
             _mediaImporter = mediaImporter;
             _webApiService = webApiService;
             _searchSettings = searchSettings;
@@ -337,8 +340,6 @@ namespace Smartstore.Web.Api.Controllers.OData
                 x => x.MediaFileId == relatedkey);
         }
 
-        // TODO: (mg) (core) add assignment endpoints for Product to ProductTag.
-
         #region Actions and functions
 
         /// <summary>
@@ -383,6 +384,35 @@ namespace Smartstore.Web.Api.Controllers.OData
                 var hits = await searchResult.GetHitsAsync();
 
                 return Ok(hits.AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates product tags.
+        /// </summary>
+        /// <remarks>
+        /// Tags that are not included in **tagNames** are added and assigned to the product.
+        /// Existing assignments to tags that are not included in **tagNames** are removed.
+        /// </remarks>
+        /// <param name="tagNames">List of tag names to apply.</param>
+        [HttpPost("Products({key})/UpdateProductTags"), ApiQueryable]
+        [Permission(Permissions.Catalog.Product.Update)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(IQueryable<ProductTag>), Status200OK)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> UpdateProductTags(int key,
+            [FromODataBody, Required] IEnumerable<string> tagNames)
+        {
+            try
+            {
+                var entity = await GetRequiredById(key, q => q.Include(x => x.ProductTags));
+                await _productTagService.Value.UpdateProductTagsAsync(entity, tagNames);
+
+                return Ok(entity.ProductTags.AsQueryable());
             }
             catch (Exception ex)
             {
@@ -489,7 +519,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         [ProducesResponseType(typeof(IQueryable<ProductVariantAttribute>), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> ManageAttributes(int key,
-            [FromODataBody] IEnumerable<ManagedProductAttribute> attributes,
+            [FromODataBody, Required] IEnumerable<ManagedProductAttribute> attributes,
             [FromODataBody] bool synchronize = false)
         {
             try
