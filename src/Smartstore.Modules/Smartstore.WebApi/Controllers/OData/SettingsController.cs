@@ -7,14 +7,14 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class SettingsController : WebApiController<Setting>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("Settings"), ApiQueryable]
         [Permission(Permissions.Configuration.Setting.Read)]
         public IQueryable<Setting> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Settings({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.Setting.Read)]
         public SingleResult<Setting> Get(int key)
         {
