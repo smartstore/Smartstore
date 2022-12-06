@@ -34,8 +34,8 @@
         /// </summary>
         /// <param name="timeout">How long to wait before giving up on the acquisition attempt.</param>
         /// <param name="cancelToken">Specifies a token by which the wait can be canceled.</param>
-        /// <returns>An <see cref="ILockHandle"/> which can be used to release the lock.</returns>
-        ILockHandle Acquire(TimeSpan timeout, CancellationToken cancelToken = default);
+        /// <returns>An <see cref="IDisposable"/> which can be used to release the lock.</returns>
+        IDisposable Acquire(TimeSpan timeout, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Acquires the lock asynchronously, failing with <see cref="TimeoutException"/> if the attempt times out. Usage: 
@@ -49,7 +49,7 @@
         /// </summary>
         /// <param name="timeout">How long to wait before giving up on the acquisition attempt.</param>
         /// <param name="cancelToken">Specifies a token by which the wait can be canceled.</param>
-        /// <returns>An <see cref="ILockHandle"/> which can be used to release the lock.</returns>
-        Task<ILockHandle> AcquireAsync(TimeSpan timeout, CancellationToken cancelToken = default);
+        /// <returns>An <see cref="IDisposable"/> which can be used to release the lock.</returns>
+        ValueTask<IDisposable> AcquireAsync(TimeSpan timeout, CancellationToken cancelToken = default);
     }
 }

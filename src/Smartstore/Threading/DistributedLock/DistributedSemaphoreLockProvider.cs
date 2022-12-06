@@ -28,12 +28,12 @@
             return Task.FromResult(AsyncLock.IsLockHeld(Key));
         }
 
-        public ILockHandle Acquire(TimeSpan timeout, CancellationToken cancelToken = default)
+        public IDisposable Acquire(TimeSpan timeout, CancellationToken cancelToken = default)
         {
             return AsyncLock.Keyed(Key, timeout, cancelToken);
         }
 
-        public Task<ILockHandle> AcquireAsync(TimeSpan timeout, CancellationToken cancelToken = default)
+        public ValueTask<IDisposable> AcquireAsync(TimeSpan timeout, CancellationToken cancelToken = default)
         {
             return AsyncLock.KeyedAsync(Key, timeout, cancelToken);
         }
