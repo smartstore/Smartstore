@@ -9,6 +9,7 @@
 ### New Features
 
 - Updated to **.NET 7**
+- **Web API** plugin
 - **BeezUp** (commercial plugin)
 - **ElmarShopInfo** (commercial plugin)
 - **Shopwahl** (commercial plugin)
