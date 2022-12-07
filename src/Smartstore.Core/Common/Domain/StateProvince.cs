@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Localization;
@@ -68,7 +67,6 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the country
         /// </summary>
-        [IgnoreDataMember]
         public Country Country
         {
             get => _country ?? LazyLoader.Load(this, ref _country);

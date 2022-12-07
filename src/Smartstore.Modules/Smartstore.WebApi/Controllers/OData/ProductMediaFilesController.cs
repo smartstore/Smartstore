@@ -1,35 +1,35 @@
 ﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ProductMediaFile entity.
     /// </summary>
     public class ProductMediaFilesController : WebApiController<ProductMediaFile>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductMediaFiles"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductMediaFile> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductMediaFiles({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<ProductMediaFile> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductMediaFiles({key})/MediaFile"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<MediaFile> GetMediaFile(int key)
         {
             return GetRelatedEntity(key, x => x.MediaFile);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductMediaFiles({key})/Product"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<Product> GetProduct(int key)
         {

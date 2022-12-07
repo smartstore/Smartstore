@@ -1,24 +1,31 @@
 ﻿using Smartstore.Core.Catalog.Attributes;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ProductAttributeOption entity.
     /// </summary>
     public class ProductAttributeOptionsController : WebApiController<ProductAttributeOption>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductAttributeOptions"), ApiQueryable]
         [Permission(Permissions.Catalog.Variant.Read)]
         public IQueryable<ProductAttributeOption> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductAttributeOptions({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Variant.Read)]
         public SingleResult<ProductAttributeOption> Get(int key)
         {
             return GetById(key);
+        }
+
+        [HttpGet("ProductAttributeOptions({key})/ProductAttributeOptionsSet"), ApiQueryable]
+        [Permission(Permissions.Catalog.Variant.Read)]
+        public SingleResult<ProductAttributeOptionsSet> GetProductAttributeOptionsSet(int key)
+        {
+            return GetRelatedEntity(key, x => x.ProductAttributeOptionsSet);
         }
 
         [HttpPost]
@@ -47,13 +54,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         public Task<IActionResult> Delete(int key)
         {
             return DeleteAsync(key);
-        }
-
-        [HttpGet, ApiQueryable]
-        [Permission(Permissions.Catalog.Variant.Read)]
-        public SingleResult<ProductAttributeOptionsSet> GetProductAttributeOptionsSet(int key)
-        {
-            return GetRelatedEntity(key, x => x.ProductAttributeOptionsSet);
         }
     }
 }

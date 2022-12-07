@@ -1,18 +1,18 @@
-﻿namespace Smartstore.Web.Api.Controllers.OData
+﻿namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on QuantityUnit entity.
     /// </summary>
     public class QuantityUnitsController : WebApiController<QuantityUnit>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("QuantityUnits"), ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public IQueryable<QuantityUnit> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("QuantityUnits({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public SingleResult<QuantityUnit> Get(int key)
         {

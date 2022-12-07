@@ -2,7 +2,7 @@
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Web.Api.Models.Checkout;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on OrderItem entity.
@@ -16,28 +16,28 @@ namespace Smartstore.Web.Api.Controllers.OData
             _orderProcessingService = orderProcessingService;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("OrderItems"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<OrderItem> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("OrderItems({key})"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<OrderItem> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("OrderItems({key})/Order"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<Order> GetOrder(int key)
         {
             return GetRelatedEntity(key, x => x.Order);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("OrderItems({key})/Product"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<Product> GetProduct(int key)
         {

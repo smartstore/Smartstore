@@ -260,7 +260,6 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <summary>
         /// Gets or sets the products to which the discount is applied.
         /// </summary>
-        [IgnoreDataMember]
         public ICollection<Product> AppliedToProducts
         {
             get => _appliedToProducts ?? LazyLoader.Load(this, ref _appliedToProducts) ?? (_appliedToProducts ??= new HashSet<Product>());

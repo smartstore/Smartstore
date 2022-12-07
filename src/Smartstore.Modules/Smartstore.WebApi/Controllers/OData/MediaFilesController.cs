@@ -9,7 +9,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.IO;
 using Smartstore.Web.Api.Models.Media;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     // TODO: (mg) (core) string arrays of MediaSearchQuery causing ODataErrorException: A node of type 'StartArray' was read from the JSON reader when trying to read
     // the contents of the property 'Extensions'; however, a 'StartObject' node or 'PrimitiveValue' node with null value was expected.
@@ -34,7 +34,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _mediaService = mediaService;
         }
 
-        [HttpGet]
+        [HttpGet("MediaFiles")]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
         public IActionResult Get(ODataQueryOptions<MediaFile> options)
         {
@@ -59,7 +59,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
-        [HttpGet]
+        [HttpGet("MediaFiles({key})")]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         public async Task<IActionResult> Get(int key)
         {

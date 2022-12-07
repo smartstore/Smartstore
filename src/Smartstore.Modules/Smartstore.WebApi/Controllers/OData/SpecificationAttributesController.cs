@@ -1,27 +1,27 @@
 ﻿using Smartstore.Core.Catalog.Attributes;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on SpecificationAttribute entity.
     /// </summary>
     public class SpecificationAttributesController : WebApiController<SpecificationAttribute>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("SpecificationAttributes"), ApiQueryable]
         [Permission(Permissions.Catalog.Attribute.Read)]
         public IQueryable<SpecificationAttribute> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("SpecificationAttributes({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Attribute.Read)]
         public SingleResult<SpecificationAttribute> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("SpecificationAttributes({key})/SpecificationAttributeOptions"), ApiQueryable]
         [Permission(Permissions.Catalog.Attribute.Read)]
         public IQueryable<SpecificationAttributeOption> GetSpecificationAttributeOptions(int key)
         {

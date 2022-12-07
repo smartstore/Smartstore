@@ -9,7 +9,7 @@ using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Threading;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ImportProfile entity.
@@ -36,14 +36,14 @@ namespace Smartstore.Web.Api.Controllers.OData
             _taskScheduler = taskScheduler;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ImportProfiles"), ApiQueryable]
         [Permission(Permissions.Configuration.Import.Read)]
         public IQueryable<ImportProfile> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ImportProfiles({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.Import.Read)]
         public SingleResult<ImportProfile> Get(int key)
         {

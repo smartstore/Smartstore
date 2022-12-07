@@ -1,34 +1,34 @@
 ﻿using Smartstore.Core.Catalog.Attributes;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ProductVariantAttributeCombination entity.
     /// </summary>
     public class ProductVariantAttributeCombinationsController : WebApiController<ProductVariantAttributeCombination>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductVariantAttributeCombinations"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductVariantAttributeCombination> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductVariantAttributeCombinations({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<ProductVariantAttributeCombination> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductVariantAttributeCombinations({key})/DeliveryTime"), ApiQueryable]
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
         public SingleResult<DeliveryTime> GetDeliveryTime(int key)
         {
             return GetRelatedEntity(key, x => x.DeliveryTime);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductVariantAttributeCombinations({key})/QuantityUnit"), ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public SingleResult<QuantityUnit> GetQuantityUnit(int key)
         {

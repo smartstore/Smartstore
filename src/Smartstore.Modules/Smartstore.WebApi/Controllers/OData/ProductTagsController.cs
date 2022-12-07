@@ -1,20 +1,20 @@
 ﻿using Smartstore.Core.Catalog.Products;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ProductTag entity.
     /// </summary>
     public class ProductTagsController : WebApiController<ProductTag>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductTags"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductTag> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductTags({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<ProductTag> Get(int key)
         {

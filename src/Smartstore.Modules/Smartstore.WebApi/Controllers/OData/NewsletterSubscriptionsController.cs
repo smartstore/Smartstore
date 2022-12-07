@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Messaging;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on NewsLetterSubscription entity.
@@ -14,14 +14,14 @@ namespace Smartstore.Web.Api.Controllers.OData
             _messageFactory = messageFactory;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("NewsletterSubscriptions"), ApiQueryable]
         [Permission(Permissions.Promotion.Newsletter.Read)]
         public IQueryable<NewsletterSubscription> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("NewsletterSubscriptions({key})"), ApiQueryable]
         [Permission(Permissions.Promotion.Newsletter.Read)]
         public SingleResult<NewsletterSubscription> Get(int key)
         {

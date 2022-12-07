@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Checkout.Payment;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on PaymentMethod entity.
@@ -18,14 +18,14 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// Since payment methods are based on providers, a **PaymentMethod** entity does not necessarily have to exist for each method.
         /// Only **GetAllPaymentMethods** returns a complete list of all payment method names because it queries the providers.
         /// </remarks>
-        [HttpGet, ApiQueryable]
+        [HttpGet("PaymentMethods"), ApiQueryable]
         [Permission(Permissions.Configuration.PaymentMethod.Read)]
         public IQueryable<PaymentMethod> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("PaymentMethods({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.PaymentMethod.Read)]
         public SingleResult<PaymentMethod> Get(int key)
         {

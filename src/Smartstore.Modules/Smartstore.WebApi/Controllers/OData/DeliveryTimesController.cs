@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.Common.Services;
 using Smartstore.Web.Api.Models;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on DeliveryTime entity.
@@ -15,14 +15,14 @@ namespace Smartstore.Web.Api.Controllers.OData
             _deliveryTimeService = deliveryTimeService;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("DeliveryTimes"), ApiQueryable]
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
         public IQueryable<DeliveryTime> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("DeliveryTimes({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
         public SingleResult<DeliveryTime> Get(int key)
         {

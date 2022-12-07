@@ -3,7 +3,7 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Seo;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Category entity.
@@ -21,28 +21,28 @@ namespace Smartstore.Web.Api.Controllers.OData
             _categoryService = categoryService;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Categories"), ApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         public IQueryable<Category> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Categories({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         public SingleResult<Category> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Categories({key})/MediaFile"), ApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         public SingleResult<MediaFile> GetMediaFile(int key)
         {
             return GetRelatedEntity(key, x => x.MediaFile);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Categories({key})/AppliedDiscounts"), ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Discount> GetAppliedDiscounts(int key)
         {

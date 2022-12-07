@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Configuration;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Setting entity.

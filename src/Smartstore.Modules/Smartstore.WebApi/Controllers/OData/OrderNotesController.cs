@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Messaging;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on OrderNote entity.
@@ -15,21 +15,21 @@ namespace Smartstore.Web.Api.Controllers.OData
             _messageFactory = messageFactory;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("OrderNotes"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<OrderNote> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("OrderNotes({key})"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<OrderNote> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("OrderNotes({key})/Order"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<Order> GetOrder(int key)
         {

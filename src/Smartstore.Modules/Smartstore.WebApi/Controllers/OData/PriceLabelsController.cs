@@ -1,20 +1,20 @@
 ﻿using Smartstore.Core.Catalog.Pricing;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on PriceLabel entity.
     /// </summary>
     public class PriceLabelsController : WebApiController<PriceLabel>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("PriceLabels"), ApiQueryable]
         [Permission(Permissions.Configuration.PriceLabel.Read)]
         public IQueryable<PriceLabel> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("PriceLabels({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.PriceLabel.Read)]
         public SingleResult<PriceLabel> Get(int key)
         {

@@ -7,7 +7,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Web.Api.Models.Checkout;
 using Smartstore.Web.Controllers;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Order entity.
@@ -25,63 +25,63 @@ namespace Smartstore.Web.Api.Controllers.OData
             _orderHelper = orderHelper;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Orders"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<Order> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Orders({key})"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<Order> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Orders({key})/Customer"), ApiQueryable]
         [Permission(Permissions.Customer.Read)]
         public SingleResult<Customer> GetCustomer(int key)
         {
             return GetRelatedEntity(key, x => x.Customer);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Orders({key})/BillingAddress"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<Address> GetBillingAddress(int key)
         {
             return GetRelatedEntity(key, x => x.BillingAddress);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Orders({key})/ShippingAddress"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<Address> GetShippingAddress(int key)
         {
             return GetRelatedEntity(key, x => x.ShippingAddress);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Orders({key})/OrderNotes"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<OrderNote> GetOrderNotes(int key)
         {
             return GetRelatedQuery(key, x => x.OrderNotes);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Orders({key})/Shipments"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<Shipment> GetShipments(int key)
         {
             return GetRelatedQuery(key, x => x.Shipments);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Orders({key})/OrderItems"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<OrderItem> GetOrderItems(int key)
         {
             return GetRelatedQuery(key, x => x.OrderItems);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Orders({key})/RedeemedRewardPointsEntry"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<RewardPointsHistory> GetRedeemedRewardPointsEntry(int key)
         {

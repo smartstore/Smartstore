@@ -1,27 +1,27 @@
 ﻿using Smartstore.Core.Content.Media;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Download entity.
     /// </summary>
     public class DownloadsController : WebApiController<Download>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("Downloads"), ApiQueryable]
         [Permission(Permissions.Media.Download.Read)]
         public IQueryable<Download> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Downloads({key})"), ApiQueryable]
         [Permission(Permissions.Media.Download.Read)]
         public SingleResult<Download> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Downloads({key})/MediaFile"), ApiQueryable]
         [Permission(Permissions.Media.Download.Read)]
         public SingleResult<MediaFile> GetMediaFile(int key)
         {

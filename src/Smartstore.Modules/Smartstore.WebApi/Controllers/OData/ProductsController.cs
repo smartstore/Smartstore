@@ -22,7 +22,7 @@ using Smartstore.Domain;
 using Smartstore.IO;
 using Smartstore.Web.Api.Models.Catalog;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Product entity.
@@ -61,7 +61,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _searchSettings = searchSettings;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<Product> Get()
         {
@@ -74,105 +74,105 @@ namespace Smartstore.Web.Api.Controllers.OData
             return GetQuery();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<Product> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/DeliveryTime"), ApiQueryable]
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
         public SingleResult<DeliveryTime> GetDeliveryTime(int key)
         {
             return GetRelatedEntity(key, x => x.DeliveryTime);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/QuantityUnit"), ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public SingleResult<QuantityUnit> GetQuantityUnit(int key)
         {
             return GetRelatedEntity(key, x => x.QuantityUnit);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/CountryOfOrigin"), ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public SingleResult<Country> GetCountryOfOrigin(int key)
         {
             return GetRelatedEntity(key, x => x.CountryOfOrigin);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/SampleDownload"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<Download> GetSampleDownload(int key)
         {
             return GetRelatedEntity(key, x => x.SampleDownload);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/ProductCategories"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductCategory> GetProductCategories(int key)
         {
             return GetRelatedQuery(key, x => x.ProductCategories);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/ProductManufacturers"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductManufacturer> GetProductManufacturers(int key)
         {
             return GetRelatedQuery(key, x => x.ProductManufacturers);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/ProductMediaFiles"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductMediaFile> GetProductMediaFiles(int key)
         {
             return GetRelatedQuery(key, x => x.ProductMediaFiles);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/ProductSpecificationAttributes"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductSpecificationAttribute> GetProductSpecificationAttributes(int key)
         {
             return GetRelatedQuery(key, x => x.ProductSpecificationAttributes);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/ProductTags"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductTag> GetProductTags(int key)
         {
             return GetRelatedQuery(key, x => x.ProductTags);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/TierPrices"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<TierPrice> GetTierPrices(int key)
         {
             return GetRelatedQuery(key, x => x.TierPrices);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/AppliedDiscounts"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<Discount> GetAppliedDiscounts(int key)
         {
             return GetRelatedQuery(key, x => x.AppliedDiscounts);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/ProductVariantAttributes"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductVariantAttribute> GetProductVariantAttributes(int key)
         {
             return GetRelatedQuery(key, x => x.ProductVariantAttributes);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/ProductVariantAttributeCombinations"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductVariantAttributeCombination> GetProductVariantAttributeCombinations(int key)
         {
             return GetRelatedQuery(key, x => x.ProductVariantAttributeCombinations);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Products({key})/ProductBundleItems"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductBundleItem> GetProductBundleItems(int key)
         {

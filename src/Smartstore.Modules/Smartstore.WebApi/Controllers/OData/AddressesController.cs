@@ -1,32 +1,32 @@
-﻿namespace Smartstore.Web.Api.Controllers.OData
+﻿namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Address entity.
     /// </summary>
     public class AddressesController : WebApiController<Address>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("Addresses"), ApiQueryable]
         [Permission(Permissions.Customer.Read)]
         public IQueryable<Address> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Addresses({key})"), ApiQueryable]
         [Permission(Permissions.Customer.Read)]
         public SingleResult<Address> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Addresses({key})/Country"), ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public SingleResult<Country> GetCountry(int key)
         {
             return GetRelatedEntity(key, x => x.Country);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Addresses({key})/StateProvince"), ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public SingleResult<StateProvince> GetStateProvince(int key)
         {

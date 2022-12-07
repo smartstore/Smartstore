@@ -1,34 +1,34 @@
 ﻿using Smartstore.Core.Catalog.Attributes;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ProductVariantAttribute entity.
     /// </summary>
     public class ProductVariantAttributesController : WebApiController<ProductVariantAttribute>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductVariantAttributes"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductVariantAttribute> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductVariantAttributes({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<ProductVariantAttribute> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductVariantAttributes({key})/ProductAttribute"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<ProductAttribute> GetProductAttribute(int key)
         {
             return GetRelatedEntity(key, x => x.ProductAttribute);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductVariantAttributes({key})/ProductVariantAttributeValues"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductVariantAttributeValue> GetProductVariantAttributeValues(int key)
         {

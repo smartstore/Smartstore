@@ -1,21 +1,21 @@
 ﻿using Microsoft.OData;
 using Smartstore.Core.Identity;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on CustomerRole entity.
     /// </summary>
     public class CustomerRolesController : WebApiController<CustomerRole>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("CustomerRoles"), ApiQueryable]
         [Permission(Permissions.Customer.Role.Read)]
         public IQueryable<CustomerRole> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("CustomerRoles({key})"), ApiQueryable]
         [Permission(Permissions.Customer.Role.Read)]
         public SingleResult<CustomerRole> Get(int key)
         {

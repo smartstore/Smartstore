@@ -1,20 +1,20 @@
 ﻿using Smartstore.Core.Catalog.Products;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on RelatedProduct entity.
     /// </summary>
     public class RelatedProductsController : WebApiController<RelatedProduct>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("RelatedProducts"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<RelatedProduct> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("RelatedProducts({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<RelatedProduct> Get(int key)
         {

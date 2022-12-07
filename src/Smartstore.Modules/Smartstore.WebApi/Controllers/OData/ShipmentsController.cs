@@ -1,11 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AngleSharp.Dom;
-using Microsoft.AspNetCore.OData.Formatter;
+﻿using Microsoft.AspNetCore.OData.Formatter;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Web.Controllers;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Shipment entity.
@@ -13,31 +10,27 @@ namespace Smartstore.Web.Api.Controllers.OData
     public class ShipmentsController : WebApiController<Shipment>
     {
         private readonly Lazy<IOrderProcessingService> _orderProcessingService;
-        private readonly Lazy<OrderHelper> _orderHelper;
 
-        public ShipmentsController(
-            Lazy<IOrderProcessingService> orderProcessingService,
-            Lazy<OrderHelper> orderHelper)
+        public ShipmentsController(Lazy<IOrderProcessingService> orderProcessingService)
         {
             _orderProcessingService = orderProcessingService;
-            _orderHelper = orderHelper;
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Shipments"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<Shipment> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Shipments({key})"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public SingleResult<Shipment> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Shipments({key})/ShipmentItems"), ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<ShipmentItem> GetShipmentItems(int key)
         {

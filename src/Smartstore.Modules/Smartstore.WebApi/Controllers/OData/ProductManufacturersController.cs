@@ -1,35 +1,35 @@
 ﻿using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Products;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ProductManufacturer entity.
     /// </summary>
     public class ProductManufacturersController : WebApiController<ProductManufacturer>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductManufacturers"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductManufacturer> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductManufacturers({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<ProductManufacturer> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductManufacturers({key})/Manufacturer"), ApiQueryable]
         [Permission(Permissions.Catalog.Manufacturer.Read)]
         public SingleResult<Manufacturer> GetManufacturer(int key)
         {
             return GetRelatedEntity(key, x => x.Manufacturer);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductManufacturers({key})/Product"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<Product> GetProduct(int key)
         {

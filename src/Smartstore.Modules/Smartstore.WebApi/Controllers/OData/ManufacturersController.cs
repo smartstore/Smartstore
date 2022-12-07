@@ -3,7 +3,7 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Seo;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Manufacturer entity.

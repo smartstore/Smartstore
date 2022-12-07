@@ -1,20 +1,20 @@
 ﻿using Smartstore.Core.Checkout.Shipping;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ShippingMethod entity.
     /// </summary>
     public class ShippingMethodsController : WebApiController<ShippingMethod>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("ShippingMethods"), ApiQueryable]
         [Permission(Permissions.Configuration.Shipping.Read)]
         public IQueryable<ShippingMethod> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ShippingMethods({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.Shipping.Read)]
         public SingleResult<ShippingMethod> Get(int key)
         {

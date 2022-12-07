@@ -1,34 +1,34 @@
 ﻿using Smartstore.Core.Catalog.Products;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ProductBundleItem entity.
     /// </summary>
     public class ProductBundleItemsController : WebApiController<ProductBundleItem>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductBundleItems"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductBundleItem> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductBundleItems({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<ProductBundleItem> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductBundleItems({key})/Product"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<Product> GetProduct(int key)
         {
             return GetRelatedEntity(key, x => x.Product);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductBundleItems({key})/BundleProduct"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<Product> GetBundleProduct(int key)
         {

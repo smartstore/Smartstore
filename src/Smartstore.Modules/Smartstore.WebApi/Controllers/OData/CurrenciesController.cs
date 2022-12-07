@@ -1,18 +1,18 @@
-﻿namespace Smartstore.Web.Api.Controllers.OData
+﻿namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Currency entity.
     /// </summary>
     public class CurrenciesController : WebApiController<Currency>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("Currencies"), ApiQueryable]
         [Permission(Permissions.Configuration.Currency.Read)]
         public IQueryable<Currency> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Currencies({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.Currency.Read)]
         public SingleResult<Currency> Get(int key)
         {

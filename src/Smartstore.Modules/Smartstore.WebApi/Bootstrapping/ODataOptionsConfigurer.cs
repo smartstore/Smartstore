@@ -57,6 +57,11 @@ namespace Smartstore.Web.Api.Bootstrapping
                 options.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
                 //options.Conventions.Add(new CustomRoutingConvention());
 
+                // INFO: we cannot use RouteAttribute on endpoint controllers, e.g. Route("Manufacturers").
+                // Would lead to valid, duplicate routes like "/Manufacturers" and "/odata/v1/Manufacturers".
+                // We also cannot use Route("odata/v1/Manufacturers"). It produces invalid OData path templates empty URL segments.
+
+                // INFO: multiple GET endpoints require a route template to avoid AmbiguousMatchException. See also https://github.com/OData/AspNetCoreOData/issues/428
                 options.AddRouteComponents("odata/v1", edmModel, services =>
                 {
                     // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/

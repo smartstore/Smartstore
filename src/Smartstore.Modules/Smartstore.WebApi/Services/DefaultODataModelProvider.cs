@@ -20,7 +20,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
-using Smartstore.Web.Api.Controllers.OData;
+using Smartstore.Web.Api.Controllers;
 using Smartstore.Web.Api.Models;
 using Smartstore.Web.Api.Models.Catalog;
 using Smartstore.Web.Api.Models.Checkout;
@@ -80,8 +80,6 @@ namespace Smartstore.Web.Api
             builder.EntitySet<UrlRecord>("UrlRecords");
 
             // TODO: (mg) (core) move this many controller classes to subfolders like "Controllers > Catalog".
-            // TODO: (mg) (core) remove "OData" from namespace because all is "OData" now.
-            // TODO: (mg) (core) we must use a route template for all GET endpoints to avoid AmbiguousMatchException :(
 
             // INFO: functions specified directly on the ODataModelBuilder (instead of entity type or collection)
             // are called unbound functions (like static operations on the service).

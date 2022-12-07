@@ -1,35 +1,35 @@
 ﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on ProductCategory entity.
     /// </summary>
     public class ProductCategoriesController : WebApiController<ProductCategory>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductCategories"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<ProductCategory> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductCategories({key})"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<ProductCategory> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductCategories({key})/Category"), ApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         public SingleResult<Category> GetCategory(int key)
         {
             return GetRelatedEntity(key, x => x.Category);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("ProductCategories({key})/Product"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         public SingleResult<Product> GetProduct(int key)
         {

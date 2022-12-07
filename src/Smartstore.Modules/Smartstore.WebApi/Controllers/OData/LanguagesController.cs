@@ -1,20 +1,20 @@
 ﻿using Smartstore.Core.Localization;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Language entity.
     /// </summary>
     public class LanguagesController : WebApiController<Language>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("Languages"), ApiQueryable]
         [Permission(Permissions.Configuration.Language.Read)]
         public IQueryable<Language> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Languages({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.Language.Read)]
         public SingleResult<Language> Get(int key)
         {

@@ -1,18 +1,18 @@
-﻿namespace Smartstore.Web.Api.Controllers.OData
+﻿namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on MeasureWeight entity.
     /// </summary>
     public class MeasureWeightsController : WebApiController<MeasureWeight>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("MeasureWeights"), ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public IQueryable<MeasureWeight> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("MeasureWeights({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public SingleResult<MeasureWeight> Get(int key)
         {

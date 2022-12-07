@@ -1,25 +1,25 @@
-﻿namespace Smartstore.Web.Api.Controllers.OData
+﻿namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Country entity.
     /// </summary>
     public class CountriesController : WebApiController<Country>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("Countries"), ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public IQueryable<Country> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Countries({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public SingleResult<Country> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Countries({key})/StateProvinces"), ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public IQueryable<StateProvince> GetStateProvinces(int key)
         {

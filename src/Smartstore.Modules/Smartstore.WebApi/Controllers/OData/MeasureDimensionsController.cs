@@ -1,18 +1,18 @@
-﻿namespace Smartstore.Web.Api.Controllers.OData
+﻿namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on MeasureDimension entity.
     /// </summary>
     public class MeasureDimensionsController : WebApiController<MeasureDimension>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("MeasureDimensions"), ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public IQueryable<MeasureDimension> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("MeasureDimensions({key})"), ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public SingleResult<MeasureDimension> Get(int key)
         {

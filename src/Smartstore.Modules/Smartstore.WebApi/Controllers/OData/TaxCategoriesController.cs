@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Checkout.Tax;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on TaxCategory entity.

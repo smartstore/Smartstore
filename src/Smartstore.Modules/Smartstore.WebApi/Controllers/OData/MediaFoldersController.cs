@@ -6,7 +6,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.Web.Api.Models.Media;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on MediaFolder entity. Returns type FolderNodeInfo which wraps and enriches MediaFolder.
@@ -23,7 +23,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _mediaService = mediaService;
         }
 
-        [HttpGet]
+        [HttpGet("MediaFolders")]
         [ProducesResponseType(typeof(IEnumerable<FolderNodeInfo>), Status200OK)]
         public IActionResult Get()
         {
@@ -47,7 +47,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("MediaFolders({key})"), ApiQueryable]
         public IActionResult Get(int key)
         {
             try

@@ -14,6 +14,8 @@ namespace Smartstore.Web.Api.Swagger
     /// </remarks>
     internal partial class SwaggerDocumentFilter : IDocumentFilter
     {
+        private const string _routePrefix = "/odata/v1";
+
         [GeneratedRegex("[a-z0-9\\/](\\$count|\\{key\\}|default\\.)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
         private static partial Regex PathsToIgnoreRegex();
 
@@ -29,7 +31,7 @@ namespace Smartstore.Web.Api.Swagger
             try
             {
                 FilterSchemas(context);
-                FilterPaths(swaggerDoc, context);
+                FilterPaths(swaggerDoc);
             }
             catch (Exception ex)
             {
@@ -54,15 +56,12 @@ namespace Smartstore.Web.Api.Swagger
         /// <summary>
         /// Removes duplicate and unusual, unexpected documents.
         /// </summary>
-        private static void FilterPaths(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+        private static void FilterPaths(OpenApiDocument swaggerDoc)
         {
-            var apiDescription = context?.ApiDescriptions?.FirstOrDefault();
-            var routeTemplate = apiDescription?.ActionDescriptor?.AttributeRouteInfo?.Template?.EnsureStartsWith('/');
-
             foreach (var item in swaggerDoc.Paths)
             {
                 var path = item.Key;
-                var removePath = path.EqualsNoCase(routeTemplate) || _pathsToIgnore.IsMatch(path);
+                var removePath = _pathsToIgnore.IsMatch(path) || path.EqualsNoCase(_routePrefix);
                 if (removePath)
                 {
                     swaggerDoc.Paths.Remove(path);

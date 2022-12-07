@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Api.Controllers.OData
+﻿namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on StateProvince entity.
@@ -19,7 +19,7 @@
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("StateProvinces({key})/Country"), ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public SingleResult<Country> GetCountry(int key)
         {

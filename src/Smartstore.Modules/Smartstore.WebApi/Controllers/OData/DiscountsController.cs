@@ -3,42 +3,42 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
     /// The endpoint for operations on Discount entity.
     /// </summary>
     public class DiscountsController : WebApiController<Discount>
     {
-        [HttpGet, ApiQueryable]
+        [HttpGet("Discounts"), ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Discount> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Discounts({key})"), ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public SingleResult<Discount> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Discounts({key})/AppliedToCategories"), ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Category> GetAppliedToCategories(int key)
         {
             return GetRelatedQuery(key, x => x.AppliedToCategories);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Discounts({key})/AppliedToManufacturers"), ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Manufacturer> GetAppliedToManufacturers(int key)
         {
             return GetRelatedQuery(key, x => x.AppliedToManufacturers);
         }
 
-        [HttpGet, ApiQueryable]
+        [HttpGet("Discounts({key})/AppliedToProducts"), ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Product> GetAppliedToProducts(int key)
         {
