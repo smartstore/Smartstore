@@ -64,6 +64,8 @@ namespace Smartstore.Web.Api.Bootstrapping
                 // INFO: multiple GET endpoints require a route template to avoid AmbiguousMatchException. See also https://github.com/OData/AspNetCoreOData/issues/428
                 options.AddRouteComponents("odata/v1", edmModel, services =>
                 {
+                    // TODO: (mg) (core) IStreamBasedJsonWriterFactory breaks the JSON response of batch requests.
+
                     // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/
                     services.AddSingleton<IStreamBasedJsonWriterFactory>(_ => DefaultStreamBasedJsonWriterFactory.Default);
                     //services.AddSingleton<ODataSerializerProvider>(sp => new MySerializerProvider(sp));
