@@ -79,8 +79,6 @@ namespace Smartstore.Web.Api
             builder.EntitySet<TierPrice>("TierPrices");
             builder.EntitySet<UrlRecord>("UrlRecords");
 
-            // TODO: (mg) (core) move this many controller classes to subfolders like "Controllers > Catalog".
-
             // INFO: functions specified directly on the ODataModelBuilder (instead of entity type or collection)
             // are called unbound functions (like static operations on the service).
 
