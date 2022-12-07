@@ -144,6 +144,9 @@ namespace Smartstore.Core.Checkout.Cart
                     var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
                     var missingRequiredProducts = await _db.Products.GetManyAsync(missingRequiredProductIds, false);
 
+                    var cartItems = new List<OrganizedShoppingCartItem>(cart.Items);
+                    var newCartItems = new List<OrganizedShoppingCartItem>();
+
                     foreach (var product in missingRequiredProducts)
                     {
                         var item = new ShoppingCartItem
@@ -158,18 +161,28 @@ namespace Smartstore.Core.Checkout.Cart
                             BundleItemId = ctx.BundleItem?.Id
                         };
 
-                        await AddItemToCartAsync(new AddToCartContext
+                        newCartItems.Add(new OrganizedShoppingCartItem(item));
+                    }
+
+                    cartItems.AddRange(newCartItems);
+
+                    // Checks whether required products are still missing
+                    var valid = await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, cartItems, ctx.Warnings);
+
+                    if (valid)
+                    {
+                        foreach (var item in newCartItems)
                         {
-                            Item = item,
-                            ChildItems = ctx.ChildItems,
-                            Customer = ctx.Customer
-                        });
+                            await AddItemToCartAsync(new AddToCartContext
+                            {
+                                Item = item.Item,
+                                ChildItems = ctx.ChildItems,
+                                Customer = ctx.Customer
+                            });
+                        }
                     }
                 }
             }
-
-            // Checks whether required products are still missing
-            await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, cart.Items, ctx.Warnings);
 
             var existingCartItem = ctx.BundleItem == null
                 ? cart.FindItemInCart(ctx.CartType, ctx.Product, ctx.AttributeSelection, ctx.CustomerEnteredPrice)?.Item
