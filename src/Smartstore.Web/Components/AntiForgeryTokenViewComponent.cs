@@ -13,7 +13,7 @@ namespace Smartstore.Web.Components
 
         public IViewComponentResult Invoke()
         {
-            var tokenSet = _antiforgery.GetAndStoreTokens(HttpContext);
+            var tokenSet = _antiforgery.GetTokens(HttpContext);
             var token = tokenSet.RequestToken;
             var html = $"<meta name='__rvt' content='{token}' />";
 
