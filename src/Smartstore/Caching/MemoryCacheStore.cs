@@ -293,10 +293,10 @@ namespace Smartstore.Caching
         public IDistributedLock GetLock(string key)
             => new DistributedSemaphoreLock("memcache:" + key);
 
-        public virtual IDisposable AcquireKeyLock(string key, CancellationToken cancelToken = default)
+        public virtual ILockHandle AcquireKeyLock(string key, CancellationToken cancelToken = default)
             => AsyncLock.Keyed("memcache:" + key, TimeSpan.FromSeconds(5), cancelToken);
 
-        public virtual ValueTask<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
+        public virtual Task<ILockHandle> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
             => AsyncLock.KeyedAsync("memcache:" + key, TimeSpan.FromSeconds(5), cancelToken);
 
         public virtual void Clear()

@@ -257,7 +257,7 @@ namespace Smartstore.Caching
 
             // Get the (semaphore) locker specific to this key from LAST store.
             // Atomic operation must be outer locked
-            using (await GetLock(key).AcquireAsync(TimeSpan.FromSeconds(5)))
+            await using (await GetLock(key).AcquireAsync(TimeSpan.FromSeconds(5)))
             {
                 // Check again
                 entry = (await GetInternal(key, independent, true)).Entry;

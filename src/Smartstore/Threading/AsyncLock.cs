@@ -16,15 +16,15 @@ namespace Smartstore.Threading
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDisposable Keyed(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
+        public static ILockHandle Keyed(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
         {
-            return _asyncKeyedLock.Lock(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken);
+            return new AsyncLockHandle(_asyncKeyedLock.Lock(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValueTask<IDisposable> KeyedAsync(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
+        public static async Task<ILockHandle> KeyedAsync(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
         {
-            return _asyncKeyedLock.LockAsync(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken);
+            return new AsyncLockHandle(await _asyncKeyedLock.LockAsync(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken).ConfigureAwait(false));
         }
 
         #endregion
@@ -60,10 +60,16 @@ namespace Smartstore.Threading
         public readonly struct AsyncLockHandle : ILockHandle
         {
             private readonly AsyncLock _lock;
+            private readonly IDisposable _asyncKeyedLockReleaser;
 
             public AsyncLockHandle(AsyncLock @lock)
             {
                 _lock = @lock;
+            }
+
+            public AsyncLockHandle(IDisposable asyncKeyedLockReleaser)
+            {
+                _asyncKeyedLockReleaser = asyncKeyedLockReleaser;
             }
 
             public ValueTask DisposeAsync()
@@ -80,9 +86,16 @@ namespace Smartstore.Threading
 
             public void Release()
             {
-                if (_lock._semaphore.CurrentCount == 0)
+                if (_lock == default)
                 {
-                    _lock._semaphore.Release();
+                    if (_lock._semaphore.CurrentCount == 0)
+                    {
+                        _lock._semaphore.Release();
+                    }
+                }
+                else
+                {
+                    _asyncKeyedLockReleaser.Dispose();
                 }
             }
         }
