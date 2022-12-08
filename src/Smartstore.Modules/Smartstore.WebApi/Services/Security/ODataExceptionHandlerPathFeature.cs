@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 
-namespace Smartstore.Web.Api
+namespace Smartstore.Web.Api.Security
 {
     internal class ODataExceptionHandlerPathFeature : IExceptionHandlerPathFeature
     {

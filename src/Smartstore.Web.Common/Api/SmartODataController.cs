@@ -272,7 +272,6 @@ namespace Smartstore.Web.Api
                     model.Put(entity);
                 }
 
-                // TODO: (mg) (core) test ApplyRelatedEntityIdsAsync.
                 entity = await ApplyRelatedEntityIdsAsync(entity);
 
                 if (update != null)
@@ -385,6 +384,13 @@ namespace Smartstore.Web.Api
             return default;
         }
 
+        /// <summary>
+        /// Sets the identifier property of a foreign relation using a key value in the query string.
+        /// Ignores identifier properties where the value is already set.
+        /// Avoids extra API requests if the entity ID is unknown.
+        /// </summary>
+        /// <example>/Addresses(123)?SmApiFulfillCountry=US&SmApiFulfillStateProvince=NY</example>
+        /// <param name="entity">Entity instance.</param>
         protected async Task<TEntity> ApplyRelatedEntityIdsAsync(TEntity entity)
         {
             if (entity != null)

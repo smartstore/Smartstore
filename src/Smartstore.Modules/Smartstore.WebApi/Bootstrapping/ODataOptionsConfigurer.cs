@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.OData.Batch;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OData;
-using Microsoft.OData.Json;
 using Microsoft.OData.ModelBuilder;
 using Smartstore.Engine;
 
@@ -44,7 +43,7 @@ namespace Smartstore.Web.Api.Bootstrapping
                 options.TimeZone = TimeZoneInfo.Utc;
 
                 // Allow OData actions and functions without the need for namespaces (OData V3 backward compatibility).
-                // A namespace URL world be for example: /Products(123)/ProductService.FinalPrice
+                // A namespace URL world be for example: /Products(123)/ProductService.CalculatePrice
                 // Note: the dot in this URL will cause IIS to return error 404. See ExtensionlessUrlHandler-Integrated-4.0.
                 options.RouteOptions.EnableUnqualifiedOperationCall = true;
 
@@ -59,28 +58,31 @@ namespace Smartstore.Web.Api.Bootstrapping
 
                 // INFO: we cannot use RouteAttribute on endpoint controllers, e.g. Route("Manufacturers").
                 // Would lead to valid, duplicate routes like "/Manufacturers" and "/odata/v1/Manufacturers".
-                // We also cannot use Route("odata/v1/Manufacturers"). It produces invalid OData path templates empty URL segments.
+                // We also cannot use Route("odata/v1/Manufacturers"). It produces invalid OData path templates (empty URL segments).
 
                 // INFO: multiple GET endpoints require a route template to avoid AmbiguousMatchException. See also https://github.com/OData/AspNetCoreOData/issues/428
                 options.AddRouteComponents("odata/v1", edmModel, services =>
                 {
-                    // TODO: (mg) (core) IStreamBasedJsonWriterFactory breaks the JSON response of batch requests.
+                    // TODO: (mg) (core) use DefaultStreamBasedJsonWriterFactory when bug is fixed:
+                    // "Batch response contains invalid JSON when using DefaultStreamBasedJsonWriterFactory" https://github.com/OData/AspNetCoreOData/issues/673
 
                     // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/
-                    services.AddSingleton<IStreamBasedJsonWriterFactory>(_ => DefaultStreamBasedJsonWriterFactory.Default);
+                    //services.AddSingleton<IStreamBasedJsonWriterFactory>(_ => DefaultStreamBasedJsonWriterFactory.Default);
+
                     //services.AddSingleton<ODataSerializerProvider>(sp => new MySerializerProvider(sp));
 
-                    var batchHandler = new DefaultODataBatchHandler();
-                    ApplySettings(batchHandler, settings);
-
-                    services.AddSingleton<ODataBatchHandler>(_ => batchHandler);
+                    services.AddSingleton<ODataBatchHandler>(_ =>
+                    {
+                        var batchHandler = new DefaultODataBatchHandler();
+                        ApplySettings(batchHandler, settings);
+                        return batchHandler;
+                    });
                 });
             }
             else
             {
                 var routeServices = options.GetRouteServices("odata/v1");
                 var batchHandler = routeServices.GetRequiredService<ODataBatchHandler>();
-
                 ApplySettings(batchHandler, settings);
             }
 
