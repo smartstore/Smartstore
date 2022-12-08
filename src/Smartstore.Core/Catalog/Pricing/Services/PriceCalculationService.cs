@@ -329,15 +329,20 @@ namespace Smartstore.Core.Catalog.Pricing
             if (tax.HasValue && _primaryCurrency != options.TargetCurrency)
             {
                 // Exchange tax amounts.
-                // TODO: (mg) (core) Check for rounding issues thoroughly!
-                result.Tax = new Tax(
-                    tax.Value.Rate,
-                    // Amount
-                    _currencyService.ConvertFromPrimaryCurrency(tax.Value.Amount, options.TargetCurrency).Amount,
-                    // Price
-                    result.FinalPrice.Amount,
-                    tax.Value.IsGrossPrice,
-                    tax.Value.Inclusive);
+                //result.Tax = new Tax(
+                //    tax.Value.Rate,
+                //    // Amount
+                //    _currencyService.ConvertFromPrimaryCurrency(tax.Value.Amount, options.TargetCurrency).Amount,
+                //    // Price
+                //    result.FinalPrice.Amount,
+                //    tax.Value.IsGrossPrice,
+                //    tax.Value.Inclusive);
+
+                var convertedAmount = _currencyService.ConvertFromPrimaryCurrency(context.FinalPrice, options.TargetCurrency).Amount;
+
+                result.Tax = options.IsGrossPrice
+                     ? _taxCalculator.CalculateTaxFromGross(convertedAmount, taxRate, options.TaxInclusive, options.RoundingCurrency)
+                     : _taxCalculator.CalculateTaxFromNet(convertedAmount, taxRate, options.TaxInclusive, options.RoundingCurrency);
             }
 
             // Convert attribute price adjustments.
