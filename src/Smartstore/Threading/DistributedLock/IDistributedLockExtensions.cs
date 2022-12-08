@@ -34,7 +34,7 @@
         ///     }
         /// </code>
         /// </summary>
-        public static bool TryAcquire(this IDistributedLock @lock, out IDisposable lockHandle)
+        public static bool TryAcquire(this IDistributedLock @lock, out ILockHandle lockHandle)
         {
             return TryAcquire(@lock, NoTimeout, out lockHandle);
         }
@@ -52,7 +52,7 @@
         /// <param name="timeout">How long to wait before giving up on the acquisition attempt.</param>
         /// <param name="lockHandle">An <see cref="ILockHandle"/> which can be used to release the lock.</param>
         /// <returns><c>true</c> if the lock was acquired, <c>false</c> otherwise.</returns>
-        public static bool TryAcquire(this IDistributedLock @lock, TimeSpan timeout, out IDisposable lockHandle)
+        public static bool TryAcquire(this IDistributedLock @lock, TimeSpan timeout, out ILockHandle lockHandle)
         {
             lockHandle = null;
 
