@@ -155,7 +155,7 @@ namespace Smartstore.Core.Checkout.Cart
                             RawAttributes = ctx.AttributeSelection.AsJson(),
                             ShoppingCartType = ctx.CartType,
                             StoreId = ctx.StoreId.Value,
-                            Quantity = ctx.Quantity,
+                            Quantity = 1,
                             Customer = ctx.Customer,
                             Product = product,
                             BundleItemId = ctx.BundleItem?.Id
