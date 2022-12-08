@@ -41,7 +41,11 @@
 }
 <select asp-for="@Model" 
         asp-items="items" 
-        attr-data-placeholder='(IsNullable, T("Admin.Common.StoresAll").Value)'
         attrs="attributes"
         class="edit-control"
-        data-editor="select"></select>
+        data-editor="select">
+    @if (IsNullable)
+    {
+        <option value="">@T("Admin.Common.StoresAll")</option>
+    }
+</select>
