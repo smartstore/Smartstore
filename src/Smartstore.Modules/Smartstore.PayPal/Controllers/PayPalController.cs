@@ -83,7 +83,7 @@ namespace Smartstore.PayPal.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder()
         {
-            var orderMessage = await _client.GetOrderForStandardProviderAsync(false);
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(true);
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
