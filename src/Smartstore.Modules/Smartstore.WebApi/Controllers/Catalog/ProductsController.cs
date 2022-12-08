@@ -65,13 +65,10 @@ namespace Smartstore.Web.Api.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<Product> Get()
         {
-            // INFO: unlike in Classic, also returns system products. Someone may well use them for their own purposes.
-            //return Entities.AsNoTracking();
+            
 
-            // TODO: (mg) (core) more testing of this. According to https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
-            // this have drawbacks relevant to API scenarios. For API requests it would be best to use AsNoTracking instead of AsSplitQuery
-            // and somehow suppress the QuerySplittingBehavior warnings.
-            return GetQuery();
+            // INFO: unlike in Classic, also returns system products. Someone may well use them for their own purposes.
+            return Entities.AsNoTracking();
         }
 
         [HttpGet("Products({key})"), ApiQueryable]
@@ -374,11 +371,6 @@ namespace Smartstore.Web.Api.Controllers
                     .UseHitsFactory((set, ids) => Entities.GetManyAsync(ids, true));
 
                 var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
-
-                // TODO: (mg) (core) using "$expand" results in "Compiling a query which loads related collections for more than one collection navigation...
-                // but no 'QuerySplittingBehavior' has been configured."
-                // Applying "AsSplitQuery" if "$expand" is used might be solution but test with $select if it also works together.
-
                 //$"term:{model.Term.NaIfEmpty()} skip:{searchQuery.Skip} take:{searchQuery.Take} hits:{searchResult.HitsEntityIds.Length} total:{searchResult.TotalHitsCount}".Dump();
 
                 var hits = await searchResult.GetHitsAsync();

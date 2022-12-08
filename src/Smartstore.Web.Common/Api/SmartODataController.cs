@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.OData;
 using Microsoft.OData.UriParser;
-using Smartstore.Data.Caching;
 
 namespace Smartstore.Web.Api
 {
@@ -40,35 +39,32 @@ namespace Smartstore.Web.Api
             set => _dbSet = value;
         }
 
-        /// <summary>
-        /// Gets the entity query. Applies <see cref="RelationalQueryableExtensions.AsSplitQuery{TEntity}(IQueryable{TEntity})"/>
-        /// if $expand is used to avoid missing QuerySplittingBehavior warning.
-        /// </summary>
-        /// <param name="tracked">A value indicating whether to load entities tracked or untracked.</param>
-        protected IQueryable<TEntity> GetQuery(bool tracked = false)
-        {
-            if (tracked)
-            {
-                return Entities;
-            }
-            else
-            {
-                if (Request?.Query?.Any(x => x.Key == "$expand") ?? false)
-                {
-                    // Avoid that missing QuerySplittingBehavior warning floods the log list.
-                    return Entities
-                        .AsSplitQuery()
-                        .AsNoTrackingWithIdentityResolution()
-                        .AsNoCaching();
-                }
-                else
-                {
-                    return Entities
-                        .AsNoTracking()
-                        .AsNoCaching();
-                }
-            }
-        }
+        // INFO: "AsSplitQuery" cannot be used for API requests because there is no guarantee for a unique data order (e.g. order by primary key).
+        // See also https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries#split-queries-1
+        //protected IQueryable<TEntity> GetQuery(bool tracked = false)
+        //{
+        //    if (tracked)
+        //    {
+        //        return Entities;
+        //    }
+        //    else
+        //    {
+        //        if (Request?.Query?.Any(x => x.Key == "$expand") ?? false)
+        //        {
+        //            // Avoid that missing QuerySplittingBehavior warning floods the log list.
+        //            return Entities
+        //                .AsSplitQuery()
+        //                .AsNoTrackingWithIdentityResolution()
+        //                .AsNoCaching();
+        //        }
+        //        else
+        //        {
+        //            return Entities
+        //                .AsNoTracking()
+        //                .AsNoCaching();
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Gets an entity by identifier.
