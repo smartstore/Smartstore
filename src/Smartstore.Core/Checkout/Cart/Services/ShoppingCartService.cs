@@ -122,7 +122,7 @@ namespace Smartstore.Core.Checkout.Cart
             {
                 ctx.Warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
 
-                // For what is this for? It looks like a hack:
+                // What's this for? It looks like a hack:
                 if (ctx.BundleItem != null)
                     return false;
             }
@@ -134,7 +134,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             var cart = await GetCartAsync(ctx.Customer, ctx.CartType, ctx.StoreId.Value);
 
-            // Adds required products automatically if it is enabled
+            // Adds required products automatically if it is enabled.
             if (ctx.AutomaticallyAddRequiredProducts)
             {
                 var requiredProductIds = ctx.Product.ParseRequiredProductIds();
