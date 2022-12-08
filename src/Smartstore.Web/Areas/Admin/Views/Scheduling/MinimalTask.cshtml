@@ -14,7 +14,7 @@
 		<span class="text-muted">@(Model.CronDescription ?? Model.CronExpression)</span>
 		if (Model.NextRun.HasValue)
 		{
-			<span> - @T("Admin.System.ScheduleTasks.NextRun"): </span>
+			<span class="mx-1">- @T("Admin.System.ScheduleTasks.NextRun"): </span>
 			<span class="text-muted">@Model.NextRunPretty</span>
 		}
 	}
