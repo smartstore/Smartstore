@@ -486,7 +486,7 @@ namespace Smartstore.Web.Controllers
                 Product = product,
                 CartType = cartType,
                 Quantity = quantityToAdd,
-                AutomaticallyAddRequiredProducts = true,
+                AutomaticallyAddRequiredProducts = product.RequireOtherProducts && product.AutomaticallyAddRequiredProducts,
                 AutomaticallyAddBundleProducts = true
             };
 
@@ -581,7 +581,7 @@ namespace Smartstore.Web.Controllers
                 CartType = cartType,
                 CustomerEnteredPrice = customerEnteredPriceConverted,
                 Quantity = quantity,
-                AutomaticallyAddRequiredProducts = true,
+                AutomaticallyAddRequiredProducts = product.RequireOtherProducts && product.AutomaticallyAddRequiredProducts,
                 AutomaticallyAddBundleProducts = true
             };
 

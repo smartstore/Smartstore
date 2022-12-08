@@ -31,6 +31,7 @@
 - Fixed product linkage of product detail ask question message
 - Fixed password change issue with user records without username
 - Settings couldn't be saved in several places (in migrated shop) 
+- Fixed add required products automatically 
 
 
 ## Smartstore 5.0.1
