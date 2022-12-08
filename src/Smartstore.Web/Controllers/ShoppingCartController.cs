@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Autofac.Core;
+using Humanizer;
+using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -354,11 +356,14 @@ namespace Smartstore.Web.Controllers
             }
 
             var subTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-
+            var taxFormat = _taxService.GetTaxFormat();
+            var currency = Services.WorkContext.WorkingCurrency;
+            var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subTotal.SubtotalWithoutDiscount.Amount, currency);
+            
             return Json(new
             {
                 success = !warnings.Any(),
-                SubTotal = subTotal.SubtotalWithoutDiscount.ToString(),
+                SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat),
                 message = warnings,
                 cartHtml,
                 totalsHtml,
