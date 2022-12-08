@@ -1,5 +1,39 @@
 # Release Notes
 
+## Smartstore 5.1.0
+
+### Breaking Changes
+
+- (DEV) Product.**ProductPictures** renamed to **ProductMediaFiles**
+
+### New Features
+
+- Updated to **.NET 7**
+- **Web API** plugin
+- **BeezUp** (commercial plugin)
+- **ElmarShopInfo** (commercial plugin)
+- **Shopwahl** (commercial plugin)
+- New app setting: `DbDefaultSchema`
+
+### Improvements
+
+- ~10 % faster app startup and TTFB
+- ~10 % less RAM usage
+
+### Bugfixes
+
+- Rule sets were not applied to shipping methods in checkout.
+- `ArgumentNullException` when deleting an image assignment on product edit page.
+- Despite activated export profile option **per store** no records were exported to a separate file.
+- Sometimes Page Builder reveal effects did not run on page load, only on windows resize.
+- Product details showed wrong related products.
+- Fixed wrong implementation of ByRegionTaxProvider
+- Fixed product linkage of product detail ask question message
+- Fixed password change issue with user records without username
+- Settings couldn't be saved in several places (in migrated shop) 
+- Fixed add required products automatically 
+
+
 ## Smartstore 5.0.1
 
 ### Breaking Changes
@@ -9,7 +43,7 @@
 ### New Features
 
 - Pricing & GDPR
-  - Compliance with Omnibus Directive
+  - Compliance with **Omnibus Directive**
     - Product reviews: display a **Verified Purchase** badge
     - Label crossed out compare prices with "Lowest" or "Lowest recent price"
   - Free configuration of compare **price labels**, e.g. "MSRP", "Regular", "Before", "Instead of", "Lowest" etc.
