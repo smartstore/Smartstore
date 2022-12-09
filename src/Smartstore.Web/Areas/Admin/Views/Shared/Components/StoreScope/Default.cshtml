@@ -9,8 +9,7 @@
                 @Html.SmartLabel("store-scope-configuration", T("Admin.Configuration.Settings.StoreScope"))
             </div>
             <div class="adminData">
-                <select id="store-scope-configuration" asp-items="Model.AllStores" onchange="setLocation(this.value);">
-                </select>
+                <select id="store-scope-configuration" asp-items="Model.AllStores" onchange="setLocation(this.value);"></select>
             </div>
         </div>
         <div sm-if="Model.StoreId > 0" class="adminRow">

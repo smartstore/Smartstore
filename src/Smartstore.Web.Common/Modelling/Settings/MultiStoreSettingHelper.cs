@@ -64,7 +64,7 @@ namespace Smartstore.Web.Modelling.Settings
 
         public static bool IsOverrideChecked<TSetting>(TSetting settingInstance, string name, IFormCollection form)
             where TSetting : ISettings
-            => IsOverrideChecked(Guard.NotNull(settingInstance, nameof(settingInstance)).GetType(), name, form);
+            => IsOverrideChecked(Guard.NotNull(settingInstance).GetType(), name, form);
 
         public static bool IsOverrideChecked(Type settingType, string name, IFormCollection form)
         {
@@ -72,11 +72,13 @@ namespace Smartstore.Web.Modelling.Settings
             Guard.NotEmpty(name, nameof(name));
             Guard.NotNull(form, nameof(form));
 
-            var key = settingType.Name + '.' + name;
+            var prefix = settingType.Name + '.';
+            var key = name.StartsWith(prefix) ? name : prefix + name;
+
             return IsOverrideChecked(key, form);
         }
 
-        private static bool IsOverrideChecked(string settingKey, IFormCollection form)
+        internal static bool IsOverrideChecked(string settingKey, IFormCollection form)
         {
             var rawOverrideKey = settingKey + "_OverrideForStore";
             if (form.ContainsKey(rawOverrideKey))

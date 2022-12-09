@@ -114,15 +114,15 @@ namespace Smartstore.Web.Modelling.Settings
         {
             if (context.Result is ViewResult viewResult)
             {
-                var model = viewResult.Model;
+                var rootModel = viewResult.Model;
 
-                if (model == null)
+                if (rootModel == null)
                 {
                     // Nothing to override. E.g. insufficient permission.
                     return;
                 }
 
-                var modelType = model.GetType();
+                var rootModelType = rootModel.GetType();
                 if (_attribute.IsRootedModel)
                 {
                     _settingHelper.CreateViewDataObject(_storeId);
@@ -131,18 +131,21 @@ namespace Smartstore.Web.Modelling.Settings
                 foreach (var param in _settingParams)
                 {
                     var settingInstance = param.Instance;
-                    var modelInstance = model;
+                    var childModel = (object)null;
 
                     if (_attribute.IsRootedModel)
                     {
-                        modelInstance = modelType.GetProperty(settingInstance.GetType().Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)?.GetValue(model);
-                        if (modelInstance == null)
-                        {
-                            continue;
-                        }
+                        childModel = rootModelType.GetProperty(settingInstance.GetType().Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)?.GetValue(rootModel);
                     }
 
-                    await _settingHelper.DetectOverrideKeysAsync(settingInstance, modelInstance, _storeId, !_attribute.IsRootedModel);
+                    if (childModel == null)
+                    {
+                        await _settingHelper.DetectOverrideKeysAsync(settingInstance, rootModel, _storeId, true);
+                    }
+                    else
+                    {
+                        await _settingHelper.DetectOverrideKeysAsync(settingInstance, childModel, _storeId, false);
+                    }
                 }
             }
         }

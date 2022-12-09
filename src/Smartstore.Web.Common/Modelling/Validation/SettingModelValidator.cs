@@ -2,6 +2,7 @@
 using FluentValidation.Internal;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using Smartstore;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Modelling.Settings;
@@ -50,6 +51,11 @@ namespace FluentValidation
                 commonContext.PropertyChain,
                 _validatorSelector);
 
+            if (validationContext.RootContextData != null) 
+            {
+                validationContext.RootContextData.Merge(commonContext.RootContextData, false);
+            }
+
             return validationContext;
         }
 
@@ -81,12 +87,14 @@ namespace FluentValidation
             }
 
             public bool IsOverrideChecked(string propertyPath)
-                => MultiStoreSettingHelper.IsOverrideChecked(_settingType, propertyPath, _form);
+                => MultiStoreSettingHelper.IsOverrideChecked(propertyPath, _form);
 
             public bool CanExecute(IValidationRule rule, string propertyPath, IValidationContext context)
             {
+                var ruleSets = rule.RuleSets;
+                
                 // By default we ignore any rules part of a RuleSet.
-                if (rule.RuleSets.Length > 0 && !rule.RuleSets.Contains(RulesetValidatorSelector.DefaultRuleSetName, StringComparer.OrdinalIgnoreCase))
+                if (ruleSets != null && ruleSets.Length > 0 && !ruleSets.Contains(RulesetValidatorSelector.DefaultRuleSetName, StringComparer.OrdinalIgnoreCase))
                 {
                     return false;
                 }
