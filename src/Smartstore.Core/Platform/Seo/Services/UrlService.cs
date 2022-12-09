@@ -28,6 +28,7 @@ namespace Smartstore.Core.Seo
         private readonly ILanguageService _languageService;
         private readonly LocalizationSettings _localizationSettings;
         internal readonly SeoSettings _seoSettings;
+        internal readonly IReservedSlugTable _reservedSlugTable;
         private readonly PerformanceSettings _performanceSettings;
         private readonly SecuritySettings _securitySettings;
 
@@ -42,6 +43,7 @@ namespace Smartstore.Core.Seo
             IWorkContext workContext,
             IStoreContext storeContext,
             ILanguageService languageService,
+            IReservedSlugTable reservedSlugTable,
             LocalizationSettings localizationSettings,
             SeoSettings seoSettings,
             PerformanceSettings performanceSettings,
@@ -53,6 +55,7 @@ namespace Smartstore.Core.Seo
             _workContext = workContext;
             _storeContext = storeContext;
             _languageService = languageService;
+            _reservedSlugTable = reservedSlugTable;
             _localizationSettings = localizationSettings;
             _seoSettings = seoSettings;
             _performanceSettings = performanceSettings;
@@ -77,6 +80,7 @@ namespace Smartstore.Core.Seo
                 _workContext,
                 _storeContext,
                 _languageService,
+                _reservedSlugTable,
                 _localizationSettings,
                 _seoSettings,
                 _performanceSettings,
@@ -564,7 +568,7 @@ namespace Smartstore.Core.Seo
                 foundIsSelf = FoundRecordIsSelf(entity, urlRecord, languageId);
 
                 // ...and it's not in the list of reserved slugs
-                var reserved = _seoSettings.ReservedUrlRecordSlugs.Contains(tempSlug);
+                var reserved = _reservedSlugTable.IsReservedSlug(tempSlug);
 
                 if ((urlRecord == null || foundIsSelf) && !reserved)
                 {

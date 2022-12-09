@@ -30,7 +30,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [GdprConsent]
-        [LocalizedRoute("Newsletter/Subscribe", Name = "SubscribeNewsletter")]
+        [LocalizedRoute("newsletter/subscribe", Name = "SubscribeNewsletter")]
         public async Task<IActionResult> Subscribe(bool subscribe, string email)
         {
             string result;
