@@ -135,37 +135,44 @@ namespace Smartstore.Web.Controllers
                     customer = await _userManager.FindByEmailAsync(model.UsernameOrEmail.TrimSafe()) ?? await _userManager.FindByNameAsync(model.UsernameOrEmail.TrimSafe());
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(customer, model.Password, model.RememberMe, lockoutOnFailure: false);
-
-                if (result.Succeeded)
+                if (customer != null)
                 {
-                    await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
+                    var result = await _signInManager.PasswordSignInAsync(customer, model.Password, model.RememberMe, lockoutOnFailure: false);
 
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
-
-                    await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = customer });
-
-                    if (returnUrl.IsEmpty()
-                        || returnUrl.Contains("/login?", StringComparison.OrdinalIgnoreCase)
-                        || returnUrl.Contains("/passwordrecoveryconfirm", StringComparison.OrdinalIgnoreCase)
-                        || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase)
-                        || !Url.IsLocalUrl(returnUrl))
+                    if (result.Succeeded)
                     {
-                        return RedirectToRoute("Homepage");
-                    }
+                        await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
 
-                    return RedirectToReferrer(returnUrl);
-                }
-                else
-                {
-                    if (_customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation && customer.Active == false)
-                    {
-                        ModelState.AddModelError(string.Empty, T("Account.Login.CheckEmailAccount"));
+                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
+
+                        await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = customer });
+
+                        if (returnUrl.IsEmpty()
+                            || returnUrl.Contains("/login?", StringComparison.OrdinalIgnoreCase)
+                            || returnUrl.Contains("/passwordrecoveryconfirm", StringComparison.OrdinalIgnoreCase)
+                            || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase)
+                            || !Url.IsLocalUrl(returnUrl))
+                        {
+                            return RedirectToRoute("Homepage");
+                        }
+
+                        return RedirectToReferrer(returnUrl);
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, T("Account.Login.WrongCredentials"));
+                        if (_customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation && customer.Active == false)
+                        {
+                            ModelState.AddModelError(string.Empty, T("Account.Login.CheckEmailAccount"));
+                        }
+                        else
+                        {
+                            ModelState.AddModelError(string.Empty, T("Account.Login.WrongCredentials"));
+                        }
                     }
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, T("Account.Login.WrongCredentials"));
                 }
             }
 
