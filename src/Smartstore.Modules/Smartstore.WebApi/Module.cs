@@ -11,14 +11,13 @@ global using Microsoft.EntityFrameworkCore;
 global using Smartstore.Core.Common;
 global using Smartstore.Core.Data;
 global using Smartstore.Core.Security;
-global using static Microsoft.AspNetCore.Http.StatusCodes;
 global using static System.Net.Mime.MediaTypeNames.Application;
+global using static Microsoft.AspNetCore.Http.StatusCodes;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 
 namespace Smartstore.Web.Api
 {
-    // TODO: (mg) (core) update API docu https://smartstore.gitbook.io/smartstore-developer-documentation/j1V5oNQn0xHeh8VLBP1Z/framework/web-api
     internal class Module : ModuleBase, IConfigurable
     {
         public static string SystemName => "Smartstore.WebApi";

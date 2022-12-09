@@ -20,10 +20,9 @@ namespace Smartstore.Web.Api
     public abstract class SmartODataController<TEntity> : ODataController
         where TEntity : BaseEntity, new()
     {
-        private const string EntityWrapperTypeName = "SelectAllAndExpand`1";
-        private const string EntityWrapperPropertyName = "Instance";
-
-        internal const string FulfillKey = "SmApiFulfill";
+        const string EntityWrapperTypeName = "SelectAllAndExpand`1";
+        const string EntityWrapperPropertyName = "Instance";
+        const string FulfillKey = "SmApiFulfill";
 
         private SmartDbContext _db;
         private DbSet<TEntity> _dbSet;

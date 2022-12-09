@@ -125,18 +125,23 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
 
 - The query string parameter **SmNetFulfill** has been renamed to **SmApiFulfill**.
 
+## Links
+- <a href="https://smartstore.gitbook.io/developer-guide/framework/web-api">Developer guide</a>.
+- API clients: <a href="https://github.com/smartstore/Smartstore/tree/main/tools/Smartstore.WebApi.Client">Smartstore API Client</a>,
+<a href="https://www.postman.com/">Postman</a> or integrated Swagger Web API help reachable under the store URL `/docs/api/`.
+- Reasonably accurate OData <a href="https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData">examples</a>.
+
 ## General developer notes
 ### OData
-- Reasonably accurate OData <a href="https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData">examples</a>.
-- <a href="https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions">Routing conventions</a> (only partly applicable for AspNetCore.OData v.8).
-- <a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities">$ref</a> (not supported).
-
 - `IActionResult` is used when multiple return types are possible, otherwise `ActionResult<T>` can be used. 
 The type property of `ProducesResponseTypeAttribute` can be excluded for `ActionResult<T>`.
 
 - OData **functions** can be only HttpGet, OData **actions** only HttpPost.
 
 - By protocol specification `enums` are serialized using the enum member string, not the enum member value.
+
+- <a href="https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions">Routing conventions</a> (only partly applicable for AspNetCore.OData v.8).
+- <a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities">$ref</a> (not supported).
 
 ### <a href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore">Swashbuckle</a>
 - Explicit `From` parameter bindings are required otherwise Swashbuckle will describe them as query parameters by default.
