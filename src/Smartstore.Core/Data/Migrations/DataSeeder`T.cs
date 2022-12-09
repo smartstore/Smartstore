@@ -5,6 +5,7 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
 
@@ -17,7 +18,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public DataSeeder(IApplicationContext appContext, ILogger logger)
         {
-            ApplicationContext = Guard.NotNull(appContext, nameof(appContext));
+            ApplicationContext = Guard.NotNull(appContext);
 
             if (logger != null)
             {
@@ -74,6 +75,7 @@ namespace Smartstore.Core.Data.Migrations
                         null, // IWorkContext not accessed
                         null, // IStoreContext not accessed
                         null, // ILanguageService not accessed
+                        ApplicationContext.Services.Resolve<IReservedSlugTable>(),
                         new LocalizationSettings(),
                         new SeoSettings { LoadAllUrlAliasesOnStartup = false },
                         new PerformanceSettings(),
@@ -148,26 +150,25 @@ namespace Smartstore.Core.Data.Migrations
             Guard.NotNull(entities, nameof(entities));
             Guard.NotNull(factory, nameof(factory));
 
-            using (var scope = UrlService.CreateBatchScope())
-            {
-                foreach (var entity in entities)
-                {
-                    var ur = factory(entity);
-                    if (ur != null)
-                    {
-                        scope.ApplySlugs(new ValidateSlugResult
-                        {
-                            Source = entity,
-                            Found = ur,
-                            Slug = ur.Slug,
-                            LanguageId = 0,
-                            FoundIsSelf = true,
-                        });
-                    }
-                }
+            using var scope = UrlService.CreateBatchScope();
 
-                await scope.CommitAsync();
+            foreach (var entity in entities)
+            {
+                var ur = factory(entity);
+                if (ur != null)
+                {
+                    scope.ApplySlugs(new ValidateSlugResult
+                    {
+                        Source = entity,
+                        Found = ur,
+                        Slug = ur.Slug,
+                        LanguageId = 0,
+                        FoundIsSelf = true,
+                    });
+                }
             }
+
+            await scope.CommitAsync();
         }
 
         protected string BuildSlug(string name)
