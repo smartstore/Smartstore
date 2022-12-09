@@ -40,6 +40,8 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
+            output.TagMode = TagMode.StartTagAndEndTag;
+
             var content = await output.GetChildContentAsync();
             if (content.IsEmptyOrWhiteSpace)
             {
