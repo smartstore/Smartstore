@@ -61,15 +61,20 @@ namespace Smartstore.Threading
         {
             private readonly AsyncLock _lock;
             private readonly IDisposable _asyncKeyedLockReleaser;
+            private readonly Action _releaser;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public AsyncLockHandle(AsyncLock @lock)
             {
                 _lock = @lock;
+                _releaser = KeylessRelease;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public AsyncLockHandle(IDisposable asyncKeyedLockReleaser)
             {
                 _asyncKeyedLockReleaser = asyncKeyedLockReleaser;
+                _releaser = KeyedRelease;
             }
 
             public ValueTask DisposeAsync()
@@ -84,19 +89,25 @@ namespace Smartstore.Threading
                 return Task.CompletedTask;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private void KeylessRelease()
+            {
+                if (_lock._semaphore.CurrentCount == 0)
+                {
+                    _lock._semaphore.Release();
+                }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private void KeyedRelease()
+            {
+                _asyncKeyedLockReleaser.Dispose();
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Release()
             {
-                if (_lock == default)
-                {
-                    if (_lock._semaphore.CurrentCount == 0)
-                    {
-                        _lock._semaphore.Release();
-                    }
-                }
-                else
-                {
-                    _asyncKeyedLockReleaser.Dispose();
-                }
+                _releaser.Invoke();
             }
         }
     }
