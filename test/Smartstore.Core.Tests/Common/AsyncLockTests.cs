@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NUnit.Framework;
 using Smartstore.Test.Common;
 using Smartstore.Threading;
@@ -60,6 +61,19 @@ namespace Smartstore.Core.Tests.Common
             }
 
             valid.ShouldBeTrue();
+        }
+
+        [Test]
+        public async Task KeylessLock()
+        {
+            var myLock = new AsyncLock();
+
+            using (await myLock.LockAsync())
+            {
+                await Task.Delay(100);
+            }
+
+            myLock.ShouldNotBeNull();
         }
     }
 }
