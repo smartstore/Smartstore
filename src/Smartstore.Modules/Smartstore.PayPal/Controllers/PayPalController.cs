@@ -1,7 +1,5 @@
 ﻿using System.Globalization;
 using System.Net;
-using Azure;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -32,6 +32,8 @@ namespace Smartstore.StripeElements.Controllers
 
             var model = MiniMapper.Map<StripeSettings, ConfigurationModel>(settings);
 
+            model.WebhookUrl = Url.Action(nameof(StripeController.WebhookHandler), "Stripe", new { area = string.Empty }, "https");
+
             ViewBag.AvailableCaptureMethods = new List<SelectListItem>
             {
                 new SelectListItem()

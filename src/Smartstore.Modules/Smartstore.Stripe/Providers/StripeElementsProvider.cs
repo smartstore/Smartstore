@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Autofac.Core;
+using Azure;
 using Microsoft.AspNetCore.Http;
+using NuGet.Configuration;
 using Smartstore.Caching;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -17,6 +20,7 @@ using Smartstore.StripeElements.Controllers;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Settings;
 using Stripe;
+using static Smartstore.Core.Security.Permissions;
 
 namespace Smartstore.StripeElements.Providers
 {
@@ -82,7 +86,7 @@ namespace Smartstore.StripeElements.Providers
             return (settings.AdditionalFee, settings.AdditionalFeePercentage);
         }
 
-        public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             // INFO: Real process payment happens in StripeController > ConfirmOrder
 
@@ -102,7 +106,13 @@ namespace Smartstore.StripeElements.Providers
             // Store PaymentIntent.Id in AuthorizationTransactionId.
             result.AuthorizationTransactionId = state.PaymentIntent.Id;
 
-            return Task.FromResult(result);
+            var settings = await _settingFactory.LoadSettingsAsync<StripeSettings>(processPaymentRequest.StoreId);
+
+            result.NewPaymentStatus = settings.CaptureMethod == "automatic"
+                ? PaymentStatus.Paid
+                : PaymentStatus.Authorized;
+
+            return result;
         }
 
         public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request)
@@ -146,32 +156,42 @@ namespace Smartstore.StripeElements.Providers
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
-            // TODO: (MH) (core) Implement
+            try
+            {
+                // INFO: PaymentIntent is stored in AuthorizationTransactionId
+                var service = new PaymentIntentService();
+                await service.CaptureAsync(request.Order.AuthorizationTransactionId);
+
+                //result.CaptureTransactionResult = "TODO: (mh) (core)";
+
+                result.NewPaymentStatus = PaymentStatus.Paid;
+            }
+            catch (Exception ex)
+            {
+                var test = ex;
+            }
 
             return result;
         }
 
         public override async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest request)
         {
+            var order = request.Order;
             var result = new VoidPaymentResult
             {
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
-            try
-            {
-                // Info payment intent must have one of the following stati else it will throw
-                // requires_payment_method, requires_capture, requires_confirmation, requires_action
+            // Info payment intent must have one of the following stati else it will throw
+            // requires_payment_method, requires_capture, requires_confirmation, requires_action
 
+            if (order.PaymentStatus == PaymentStatus.Pending || order.PaymentStatus == PaymentStatus.Authorized)
+            {
                 // INFO: PaymentIntent is stored in AuthorizationTransactionId
                 var service = new PaymentIntentService();
                 await service.CancelAsync(request.Order.AuthorizationTransactionId);
 
                 result.NewPaymentStatus = PaymentStatus.Voided;
-            }
-            catch (Exception ex) 
-            {
-                var test = ex;
             }
 
             return result;

@@ -10,6 +10,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
+using Smartstore.StripeElements.Services;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Settings;
 using Smartstore.Web.Components;
@@ -27,6 +28,7 @@ namespace Smartstore.StripeElements.Components
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ICurrencyService _currencyService;
+        private readonly StripeHelper _stripeHelper;
 
         public StripeElementsViewComponent(
             StripeSettings settings,
@@ -36,7 +38,8 @@ namespace Smartstore.StripeElements.Components
             IProductService productService,
             IOrderCalculationService orderCalculationService,
             ICheckoutStateAccessor checkoutStateAccessor,
-            ICurrencyService currencyService)
+            ICurrencyService currencyService,
+            StripeHelper stripeHelper)
         {
             _settings = settings;
             _shoppingCartService = shoppingCartService;
@@ -46,6 +49,7 @@ namespace Smartstore.StripeElements.Components
             _orderCalculationService = orderCalculationService;
             _checkoutStateAccessor = checkoutStateAccessor;
             _currencyService = currencyService;
+            _stripeHelper = stripeHelper;
         }
 
         /// <summary>
@@ -57,7 +61,6 @@ namespace Smartstore.StripeElements.Components
             if (!_settings.PublicApiKey.HasValue() || !_settings.SecrectApiKey.HasValue())
             {
                 return Empty();
-                var test = "";
             }
 
             var routeIdent = Request.RouteValues.GenerateRouteIdentifier();
@@ -82,6 +85,7 @@ namespace Smartstore.StripeElements.Components
             {
                 var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
                 var paymentIntent = new PaymentIntent();
+
                 if (checkoutState.PaymentIntent == null)
                 {
                     var paymentIntentService = new PaymentIntentService();
@@ -112,42 +116,46 @@ namespace Smartstore.StripeElements.Components
                 return View(model);
             }
 
-            var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
-            var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
-            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext);
+            //var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
+            //var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
+            //var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext);
 
-            var displayItems = new List<StripePaymentItem>();
+            //var displayItems = new List<StripePaymentItem>();
 
-            foreach (var item in cart.Items)
-            {
-                var taxRate = await _taxService.GetTaxRateAsync(item.Item.Product);
-                var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(item, calculationOptions);
-                var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
+            //foreach (var item in cart.Items)
+            //{
+            //    var taxRate = await _taxService.GetTaxRateAsync(item.Item.Product);
+            //    var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(item, calculationOptions);
+            //    var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
-                displayItems.Add(new StripePaymentItem
-                {
-                    Label = item.Item.Product.GetLocalized(x => x.Name),
-                    Amount = subtotal.FinalPrice.Amount.ToSmallestCurrencyUnit(),
-                    Pending = false
-                });
-            }
+            //    displayItems.Add(new StripePaymentItem
+            //    {
+            //        Label = item.Item.Product.GetLocalized(x => x.Name),
+            //        Amount = subtotal.FinalPrice.Amount.ToSmallestCurrencyUnit(),
+            //        Pending = false
+            //    });
+            //}
 
             // Prepare Stripe payment request object.
-            var stripePaymentRequest = new StripePaymentRequest
-            {
-                Country = Services.WorkContext.WorkingLanguage.UniqueSeoCode.ToUpper(),
-                Currency = Services.WorkContext.WorkingCurrency.CurrencyCode.ToLower(),
-                Total = new StripePaymentItem
-                {
-                    Amount = subTotalConverted.Amount.ToSmallestCurrencyUnit(),
-                    Label = T("Order.SubTotal").Value,
-                    Pending = false
-                },
-                DisplayItems = displayItems
-            };
+            //var stripePaymentRequest = new StripePaymentRequest
+            //{
+            //    Country = Services.WorkContext.WorkingLanguage.UniqueSeoCode.ToUpper(),
+            //    Currency = Services.WorkContext.WorkingCurrency.CurrencyCode.ToLower(),
+            //    Total = new StripePaymentItem
+            //    {
+            //        Amount = subTotalConverted.Amount.ToSmallestCurrencyUnit(),
+            //        Label = T("Order.SubTotal").Value,
+            //        Pending = false
+            //    },
+            //    DisplayItems = displayItems
+            //};
 
-            model.PaymentRequest = JsonConvert.SerializeObject(stripePaymentRequest); 
-        
+            //model.PaymentRequest = JsonConvert.SerializeObject(stripePaymentRequest);
+            
+            var stripePaymentRequest = await _stripeHelper.GetStripePaymentRequestAsync();
+
+            model.PaymentRequest = JsonConvert.SerializeObject(stripePaymentRequest);
+
             return View(model);
         }
     }

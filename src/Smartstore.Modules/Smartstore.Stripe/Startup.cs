@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.StripeElements.Services;
 using Smartstore.StripeElements.Filters;
 using Smartstore.Web.Controllers;
 using Stripe;
@@ -25,6 +26,11 @@ namespace Smartstore.StripeElements
                 o.Filters.AddConditional<ScriptIncludeFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjax());
             });
+
+            if (appContext.IsInstalled)
+            {
+                services.AddScoped<StripeHelper>();
+            }
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)

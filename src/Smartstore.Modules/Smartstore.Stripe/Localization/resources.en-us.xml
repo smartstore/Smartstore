@@ -6,11 +6,11 @@
 		<Value>Extends the store with the payment functions of Stripe.</Value>
 	</LocaleResource>
 	
-	<!-- (Provider name) will be displayed in frontend on payment selection page and in backend on payment configuration list -->
 	<LocaleResource Name="Plugins.FriendlyName.Payments.StripeElements" AppendRootKey="false">
-		<Value>Jetzt Stripe </Value>
+		<Value>Pay now with Stripe</Value>
 	</LocaleResource>
-	<!-- (Provider description) will be displayed in frontend on payment selection page and in backend on payment configuration list -->
+    
+    <!-- TODO: (mh) (core) Better description -->
 	<LocaleResource Name="Plugins.Description.Payments.StripeElements" AppendRootKey="false">
 		<Value>Opens a secure payment window where the payment is made directly to Stripe.</Value>
 	</LocaleResource>
@@ -20,18 +20,25 @@
 			<LocaleResource Name="AdminInstruction">
 				<Value>
 					<![CDATA[
-						To set up this plugin, specify your Stripe API key below.
+						<p>To set up <b>Stripe Elements</b>:</p>
+                        <ul>
+                            <li>Create an account with Stripe or log in with your existing account.</li>
+                            <li>Navigate to <b>Developer / API Key</b>.</li>
+                            <li>Copy the <b>Publishable Key</b> and the <b>Secret Key</b> below, into the fields provided.</li>
+                            <li>Navigate to <b>Developer / Webhooks</b></li>
+                            <li>Now add a new endpoint. For the URL, enter the URL that is shown below.</li>
+                            <li>Now enter the secret key for the signature in the form field provided below.</li>
+                        </ul>
 					]]>
 				</Value>
 			</LocaleResource>
 			
 			<LocaleResource Name="UseSandbox">
-				<Value>Use sandbox</Value>
+				<Value>Use test mode</Value>
 			</LocaleResource>
 			<LocaleResource Name="UseSandbox.Hint">
-				<Value>Specifies whether the payments are executed in the sandbox of the payment provider.</Value>
+				<Value>Specifies whether the payments will be executed in test mode.</Value>
 			</LocaleResource>
-
             <LocaleResource Name="CaptureMethod">
                 <Value>Capture method</Value>
             </LocaleResource>
@@ -44,12 +51,32 @@
             <LocaleResource Name="CaptureMethod.Manual">
                 <Value>Manual</Value>
             </LocaleResource>
-            
-            <LocaleResource Name="ApiKey">
-                <Value>API Key</Value>
+            <LocaleResource Name="PublicApiKey">
+                <Value>Public API Key</Value>
             </LocaleResource>
-            <LocaleResource Name="ApiKey.Hint">
-                <Value>Enter the API key here, which can be viewed in the Stripe dashboard.</Value>
+            <LocaleResource Name="PublicApiKey.Hint">
+                <Value>Enter the public API key here, which can be viewed in the Stripe dashboard.</Value>
+            </LocaleResource>
+            <LocaleResource Name="SecrectApiKey">
+                <Value>Secret API Key</Value>
+            </LocaleResource>
+            <LocaleResource Name="SecrectApiKey.Hint">
+                <Value>Enter the secret API key here, which can be viewed in the Stripe dashboard.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookSecret">
+                <Value>Webhook Secret Key</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookSecret.Hint">
+                <Value>Enter the secret key for the webhook here.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl">
+                <Value>Endpoint URL</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl.Hint">
+                <Value>Store this URL in your Stripe account as the endpoint URL for the webhook.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl.Copy">
+                <Value>Copy</Value>
             </LocaleResource>
 			<LocaleResource Name="AdditionalFee">
 				<Value>Additional fee</Value>
@@ -70,8 +97,15 @@
                 <Value>Specifies whether to show the checkout button in the mini shopping cart.</Value>
             </LocaleResource>
 
+            <!-- TODO: (mh) (core) Better description -->
             <LocaleResource Name="PaymentInfo">
-                <Value>After completing the order you will be redirected to an external payment provider, where you can make the payment for your order.</Value>
+                <Value>
+                    After completing the order you will be redirected to an external payment provider, 
+                    where you can make the payment for your order.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="OrderNotFound">
+                <Value>The order with the PaymentIntent-Id {0} was not found.</Value>
             </LocaleResource>
 		</Children>
 	</LocaleResource>

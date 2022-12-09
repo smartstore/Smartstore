@@ -7,8 +7,10 @@
 	</LocaleResource>
 	
 	<LocaleResource Name="Plugins.FriendlyName.Payments.StripeElements" AppendRootKey="false">
-		<Value>Jetzt zahlen mit Stripe</Value>
+		<Value>Jetzt mit Stripe zahlen</Value>
 	</LocaleResource>
+    
+    <!-- TODO: (mh) (core) Better description -->
 	<LocaleResource Name="Plugins.Description.Payments.StripeElements" AppendRootKey="false">
 		<Value>Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei Stripe durchgeführt wird.</Value>
 	</LocaleResource>
@@ -18,7 +20,15 @@
 			<LocaleResource Name="AdminInstruction">
 				<Value>
 					<![CDATA[
-						Geben Sie zur Einrichtung dieses Plugins nachfolgend Ihre Stripe-API-Keys an.
+                        <p>So richten Sie <b>Stripe Elements</b> ein:</p>
+                        <ul>
+                            <li>Erstellen Sie ein Konto bei Stripe oder loggen Sie sich mit Ihrem bestehenden Konto ein.</li>
+                            <li>Navigieren Sie zu <b>Entwickler / API-Schlüssel</b></li>
+                            <li>Kopieren Sie den <b>Veröffentlichbaren Schlüssel</b> und den <b>Geheimschlüssel</b> weiter unten, in die dafür vorgesehenen Felder.</li>
+                            <li>Navigieren Sie zu <b>Entwickler / Webhooks</b></li>
+                            <li>Fügen Sie nun einen neuen Endpoint zu. Als URL tragen Sie die URL ein, die weiter unten dargestellt wird.</li>
+                            <li>Geben Sie nun den Geheimschlüssel für die Signatur in dem dafür vorgesehenen Formularfeld weiter unten an.</li>
+                        </ul>
 					  ]]>
 				</Value>
 			</LocaleResource>
@@ -28,7 +38,6 @@
 			<LocaleResource Name="UseSandbox.Hint">
 				<Value>Bestimmt, ob die Zahlungen im Testmodus ausgeführt werden.</Value>
 			</LocaleResource>
-
             <LocaleResource Name="CaptureMethod">
                 <Value>Geldeinzug</Value>
             </LocaleResource>
@@ -41,19 +50,33 @@
             <LocaleResource Name="CaptureMethod.Manual">
                 <Value>Manuell</Value>
             </LocaleResource>
-
             <LocaleResource Name="PublicApiKey">
-                <Value>API-Key (öffentlich)</Value>
+                <Value>Öffentlicher Schlüssel</Value>
             </LocaleResource>
             <LocaleResource Name="PublicApiKey.Hint">
-                <Value>Geben Sie hier den öffentlichen API-Key an, der im Dashboard von Stripe einzusehen ist.</Value>
+                <Value>Geben Sie hier den öffentlichen Schlüssel an, der im Dashboard von Stripe einzusehen ist.</Value>
             </LocaleResource>
 			<LocaleResource Name="SecrectApiKey">
-				<Value>API-Key (geheim)</Value>
+				<Value>Geheimschlüssel</Value>
 			</LocaleResource>
 			<LocaleResource Name="SecrectApiKey.Hint">
-				<Value>Geben Sie hier den geheimen API-Key an, der im Dashboard von Stripe einzusehen ist.</Value>
+				<Value>Geben Sie hier den Geheimschlüssel an, der im Dashboard von Stripe einzusehen ist.</Value>
 			</LocaleResource>
+            <LocaleResource Name="WebhookSecret">
+                <Value>Webhook Geheimschlüssel</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookSecret.Hint">
+                <Value>Geben Sie hier den Geheimschlüssel für den Webhook an.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl">
+                <Value>Endpoint-URL</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl.Hint">
+                <Value>Hinterlegen Sie diese URL in Ihrem Stripe-Konto als Endpoint-URL für den Webhook.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl.Copy">
+                <Value>Kopieren</Value>
+            </LocaleResource>
 			<LocaleResource Name="AdditionalFee">
 				<Value>Zusätzliche Gebühren</Value>
 			</LocaleResource>
@@ -72,11 +95,15 @@
             <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
                 <Value>Legt fest, ob der Stripe-Button im Miniwarenkorb angezeigt werden soll.</Value>
             </LocaleResource>
+            <!-- TODO: (mh) (core) Better description -->
             <LocaleResource Name="PaymentInfo">
                 <Value>
                     Nach Abschluß der Bestellung werden Sie zu einem externen Zahlungsanbieter weitergeleitet, 
                     auf dessen Seite Sie die Zahlung für Ihre Bestellung durchführen können.
                 </Value>
+            </LocaleResource>
+            <LocaleResource Name="OrderNotFound">
+                <Value>Die Bestellung mit der PaymentIntent-Id {0} wurde nicht gefunden.</Value>
             </LocaleResource>
 		</Children>
 	</LocaleResource>

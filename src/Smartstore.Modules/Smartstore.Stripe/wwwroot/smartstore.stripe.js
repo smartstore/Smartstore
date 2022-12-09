@@ -1,6 +1,11 @@
 ﻿Smartstore.Stripe = (function () {
     let elements;
     let stripe;
+    
+    const paymentRequestButtonId = "stripe-payment-request-button";
+    const paymentRequestButtonSelector = "#" + paymentRequestButtonId;
+    const paymentElementSelector = "#stripe-payment-element";
+    const moduleSystemName = "Smartstore.StripeElements";
 
     return {
         initPaymentElement: function (publicApiKey, secret) {
@@ -22,7 +27,7 @@
             };
 
             const paymentElement = elements.create("payment", paymentElementOptions);
-            paymentElement.mount("#payment-element");
+            paymentElement.mount(paymentElementSelector);
 
             paymentElement.on('change', function (event) {
                 if (event.complete) {
@@ -37,7 +42,7 @@
 
             // Listen for changes to the radio input elements.
             $(document, "input[name='paymentmethod']").on("change", function (e) {
-                if (e.target.value == "Smartstore.StripeElements") {
+                if (e.target.value == moduleSystemName) {
                     btnNext[0].disabled = true;
                 } else {
                     btnNext[0].disabled = false;
@@ -45,7 +50,7 @@
             });
 
             // Handle button state on page load
-            if ($("input[name='paymentmethod']:checked").val() == "Smartstore.StripeElements") {
+            if ($("input[name='paymentmethod']:checked").val() == moduleSystemName) {
                 btnNext[0].disabled = true;
             }
 
@@ -53,7 +58,7 @@
             var createdPaymentMethod = false;
 
             $("form").on("submit", async e => {
-                if ($("input[name='paymentmethod']:checked").val() == "Smartstore.StripeElements" && !createdPaymentMethod) {
+                if ($("input[name='paymentmethod']:checked").val() == moduleSystemName && !createdPaymentMethod) {
                     e.preventDefault();
                     (async () => {
                         const { error, paymentMethod } = await stripe.createPaymentMethod({
@@ -64,7 +69,7 @@
                             data: {
                                 paymentMethodId: paymentMethod.id
                             },
-                            url: $("#payment-element").data("store-payment-selection-url"),
+                            url: $(paymentElementSelector).data("store-payment-selection-url"),
                             dataType: 'json',
                             success: function (data) {
                                 createdPaymentMethod = true;
@@ -91,13 +96,13 @@
                 // Check the availability of the Payment Request API first.
                 const result = await paymentRequest.canMakePayment();
                 if (result) {
-                    prButton.mount('#payment-request-button');
+                    prButton.mount(paymentRequestButtonSelector);
                 } else {
-                    document.getElementById('payment-request-button').style.display = 'none';
+                    document.getElementById(paymentRequestButtonId).style.display = 'none';
                 }
             })();
 
-            var paymentRequestButton = $('#payment-request-button');
+            var paymentRequestButton = $(paymentRequestButtonSelector);
 
             prButton.on('click', function (event) {
                 // Get updated payment request

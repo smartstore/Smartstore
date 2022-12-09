@@ -17,6 +17,9 @@ namespace Smartstore.StripeElements.Models
         [LocalizedDisplay("*WebhookSecret")]
         public string WebhookSecret { get; set; }
 
+        [LocalizedDisplay("*WebhookUrl")]
+        public string WebhookUrl { get; set; }
+
         [LocalizedDisplay("*CaptureMethod")]
         public string CaptureMethod { get; set; }
 

@@ -12,7 +12,7 @@
             </div>
         </div>
     
-        <div id="payment-element" class="mt-3" data-store-payment-selection-url="@Url.Action("StorePaymentMethodId", "Stripe")">
+        <div id="stripe-payment-element" class="mt-3" data-store-payment-selection-url="@Url.Action("StorePaymentMethodId", "Stripe")">
             <!--Stripe.js injects the Payment Element-->
         </div>
     </div>
@@ -35,7 +35,7 @@
 }
 else 
 {
-    <div id="payment-request-button" class="w-100" 
+    <div id="stripe-payment-request-button"
         data-create-payment-intent-url="@Url.Action("CreatePaymentIntent", "Stripe")"
         data-get-current-payment-request-url="@Url.Action("GetUpdatePaymentRequest", "Stripe")"
         data-redirect-url="@Url.Action("BillingAddress", "Checkout", new { area = string.Empty })">
