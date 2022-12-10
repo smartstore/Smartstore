@@ -10,11 +10,11 @@ public class ReservedSlugTable : IReservedSlugTable
     private readonly HashSet<string> _reservedSlugs = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _reservedPartialSlugs = new(StringComparer.OrdinalIgnoreCase)
     {
-        "/admin",
-        "/odata", 
-        "/mini-profiler-resources",
-        "/media",
-        "/taskscheduler"
+        "admin",
+        "odata", 
+        "mini-profiler-resources",
+        "media",
+        "taskscheduler"
     };
 
     private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
@@ -45,7 +45,7 @@ public class ReservedSlugTable : IReservedSlugTable
         {
             return;
         }
-        
+
         var routeInfo = descriptor.AttributeRouteInfo;
         var template = routeInfo?.Template;
 
@@ -83,16 +83,32 @@ public class ReservedSlugTable : IReservedSlugTable
         }
     }
 
-    public bool IsReservedSlug(string slug)
+    public bool IsReservedSlug(string slug) => IsReservedSlug(slug, out _);
+
+    public bool IsReservedSlug(string slug, out string partialMatch)
     {
         Guard.NotEmpty(slug);
-        
-        if (_reservedSlugs.Contains(slug))
+
+        partialMatch = null;
+        slug = slug.Trim('/');
+
+        if (_reservedSlugs.Contains(slug) || _reservedPartialSlugs.Contains(slug))
         {
             return true;
         }
 
-        //var path = new PathString(slug.EnsureStartsWith('/'));
+        var slashPos = slug.LastIndexOf("/");
+        while (slashPos > -1)
+        {
+            slug = slug[..slashPos];
+            if (_reservedPartialSlugs.Contains(slug))
+            {
+                partialMatch = slug;
+                return true;
+            }
+
+            slashPos = slug.LastIndexOf("/");
+        }
 
         return false;
     }
