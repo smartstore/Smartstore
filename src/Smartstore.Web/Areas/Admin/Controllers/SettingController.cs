@@ -221,7 +221,7 @@ namespace Smartstore.Admin.Controllers
 
         #endregion
 
-        [LoadSetting(IsRootedModel = true)]
+        [LoadSetting]
         public async Task<IActionResult> GeneralCommon(
             int storeScope,
             StoreInformationSettings storeInformationSettings,
@@ -289,7 +289,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting(IsRootedModel = true), FormValueRequired("save")]
+        [HttpPost, SaveSetting, FormValueRequired("save")]
         public async Task<IActionResult> GeneralCommon(
             GeneralCommonSettingsModel model,
             int storeScope,
@@ -383,7 +383,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting(IsRootedModel = true)]
+        [LoadSetting]
         public async Task<IActionResult> Catalog(int storeScope, CatalogSettings catalogSettings, PriceSettings priceSettings)
         {
             var model = await MapperFactory.MapAsync<CatalogSettings, CatalogSettingsModel>(catalogSettings);
@@ -401,7 +401,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting(IsRootedModel = true)]
+        [HttpPost, SaveSetting]
         public async Task<IActionResult> Catalog(int storeScope, CatalogSettings catalogSettings, PriceSettings priceSettings, CatalogSettingsModel model)
         {
             if (!ModelState.IsValid)
@@ -431,7 +431,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting(IsRootedModel = true)]
+        [LoadSetting]
         public async Task<IActionResult> CustomerUser(
             int storeScope,
             CustomerSettings customerSettings,
@@ -453,7 +453,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting(IsRootedModel = true)]
+        [HttpPost, SaveSetting]
         public async Task<IActionResult> CustomerUser(
             CustomerUserSettingsModel model,
             int storeScope,
@@ -1031,7 +1031,7 @@ namespace Smartstore.Admin.Controllers
 
             if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope))
             {
-                _multiStoreSettingHelper.AddOverrideKey(settings, "DefaultTaxAddress");
+                _multiStoreSettingHelper.AddOverrideKey(null, "DefaultTaxAddress", storeScope);
             }
 
             model.DefaultTaxAddress.AvailableStates = stateProvinces.ToSelectListItems(defaultAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
@@ -1069,7 +1069,7 @@ namespace Smartstore.Admin.Controllers
             });
 
             // Special case DefaultTaxAddressId\DefaultTaxAddress.
-            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
+            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(TaxSettingsModel.DefaultTaxAddress), form))
             {
                 var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope) ? settings.DefaultTaxAddressId : 0;
                 var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
@@ -1189,7 +1189,7 @@ namespace Smartstore.Admin.Controllers
             // Shipping origin
             if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope))
             {
-                _multiStoreSettingHelper.AddOverrideKey(settings, "ShippingOriginAddress");
+                _multiStoreSettingHelper.AddOverrideKey(null, "ShippingOriginAddress", storeScope);
             }
 
             var originAddress = await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false);

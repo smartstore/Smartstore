@@ -28,7 +28,6 @@ namespace Smartstore.Web.Modelling.Settings
         }
 
         public bool BindParameterFromStore { get; set; }
-        public bool IsRootedModel { get; set; }
     }
 
     internal class LoadSettingFilter : IAsyncActionFilter
@@ -123,20 +122,12 @@ namespace Smartstore.Web.Modelling.Settings
                 }
 
                 var rootModelType = rootModel.GetType();
-                if (_attribute.IsRootedModel)
-                {
-                    _settingHelper.CreateViewDataObject(_storeId);
-                }
 
                 foreach (var param in _settingParams)
                 {
                     var settingInstance = param.Instance;
-                    var childModel = (object)null;
-
-                    if (_attribute.IsRootedModel)
-                    {
-                        childModel = rootModelType.GetProperty(settingInstance.GetType().Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)?.GetValue(rootModel);
-                    }
+                    var settingType = param.Parameter.ParameterType;
+                    var childModel = rootModelType.GetProperty(settingType.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)?.GetValue(rootModel);
 
                     if (childModel == null)
                     {

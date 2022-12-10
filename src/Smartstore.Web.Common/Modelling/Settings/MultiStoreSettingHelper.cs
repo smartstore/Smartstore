@@ -40,29 +40,52 @@ namespace Smartstore.Web.Modelling.Settings
         public MultiStoreSettingData Data
         {
             get => ViewData[ViewDataKey] as MultiStoreSettingData;
+            set => ViewData[ViewDataKey] = Guard.NotNull(value);
         }
 
-        internal async Task<bool> IsOverridenSetting(string settingKey, bool allowEmpty, Func<Task<string>> storeAccessor)
+        private MultiStoreSettingData GetOrCreateData(int storeScope)
         {
-            bool overridden;
+            Guard.IsPositive(storeScope);
+
+            var data = Data;
+            if (data != null && data.ActiveStoreScopeConfiguration > 0 && data.ActiveStoreScopeConfiguration != storeScope)
+            {
+                throw new InvalidOperationException($"The passed storeScope must match the scope of the current request's scope. Expected: {storeScope}, was: {data.ActiveStoreScopeConfiguration}.");
+            }
+
+            data = Data ??= new MultiStoreSettingData { ActiveStoreScopeConfiguration = storeScope };
+
+            return data;
+        }
+
+        internal async Task<string> FindOverridenSettingKey(string prefix, string name, bool isRootModel, bool allowEmpty, Func<string, Task<string>> storeAccessor)
+        {
             var request = _httpContextAccessor.HttpContext?.Request;
 
             if (!request.HasFormContentType || request.Form == null)
             {
                 // This is a GET operation (no form posted), so check against storage
-                var storedValue = await storeAccessor();
-                overridden = allowEmpty ? storedValue != null : storedValue.HasValue();
+                var key = prefix + '.' + name;
+                var storedValue = await storeAccessor(key);
+                var overridden = allowEmpty ? storedValue != null : storedValue.HasValue();
+                if (overridden)
+                {
+                    return isRootModel ? name : key;
+                }
             }
             else
             {
                 // A POST operation. Only check form.
-                overridden = IsOverrideChecked(settingKey, request.Form);
+                if (IsOverrideChecked(prefix, name, request.Form, out var key))
+                {
+                    return key;
+                }
             }
 
-            return overridden;
+            return null;
         }
 
-        public static bool IsOverrideChecked<TSetting>(TSetting settingInstance, string name, IFormCollection form)
+        public static bool IsOverrideChecked<TSetting>(TSetting settingInstance, string name, IFormCollection form) 
             where TSetting : ISettings
             => IsOverrideChecked(Guard.NotNull(settingInstance).GetType(), name, form);
 
@@ -72,42 +95,48 @@ namespace Smartstore.Web.Modelling.Settings
             Guard.NotEmpty(name, nameof(name));
             Guard.NotNull(form, nameof(form));
 
-            var prefix = settingType.Name + '.';
-            var key = name.StartsWith(prefix) ? name : prefix + name;
-
-            return IsOverrideChecked(key, form);
+            return IsOverrideChecked(settingType.Name, name, form, out _);
         }
 
-        internal static bool IsOverrideChecked(string settingKey, IFormCollection form)
+        internal static bool IsOverrideChecked(string prefix, string name, IFormCollection form, out string key)
         {
-            var rawOverrideKey = settingKey + "_OverrideForStore";
-            if (form.ContainsKey(rawOverrideKey))
+            if (prefix.HasValue())
             {
-                var checkboxValue = form[rawOverrideKey].FirstOrDefault().EmptyNull().ToLower();
-                return checkboxValue.Contains("on") || checkboxValue.Contains("true");
+                key = prefix + '.' + name;
+                if (IsOverridden(key, form))
+                {
+                    return true;
+                }
             }
 
+            key = name;
+            if (IsOverridden(key, form))
+            {
+                return true;
+            }
+
+            key = null;
             return false;
-        }
 
-        public void AddOverrideKey(object settings, string name)
-        {
-            if (Data == null)
+            static bool IsOverridden(string key, IFormCollection form)
             {
-                throw new InvalidOperationException("You must call GetOverrideKeys or CreateViewDataObject before AddOverrideKey.");
+                key += "_OverrideForStore";
+
+                if (form.ContainsKey(key))
+                {
+                    var checkboxValue = form[key].FirstOrDefault().EmptyNull().ToLower();
+                    return checkboxValue.Contains("on") || checkboxValue.Contains("true");
+                }
+
+                return false;
             }
-
-            var key = settings.GetType().Name + "." + name;
-            Data.OverrideSettingKeys.Add(key);
         }
 
-        public void CreateViewDataObject(int activeStoreScopeConfiguration, string rootSettingClass = null)
+        public void AddOverrideKey(object settings, string name, int storeScope)
         {
-            ViewData[ViewDataKey] = new MultiStoreSettingData
-            {
-                ActiveStoreScopeConfiguration = activeStoreScopeConfiguration,
-                RootSettingClass = rootSettingClass
-            };
+            var data = GetOrCreateData(storeScope);
+            var key = (settings?.GetType()?.Name.EmptyNull() + '.' + name).Trim('.');
+            data.OverrideSettingKeys.Add(key);
         }
 
         public Task DetectOverrideKeysAsync(
@@ -135,12 +164,13 @@ namespace Smartstore.Web.Modelling.Settings
             }
 
             var fieldPrefix = ViewData?.TemplateInfo?.HtmlFieldPrefix.NullEmpty();
-            var data = Data ?? new MultiStoreSettingData();
             var settingType = settings.GetType();
             var settingName = settingType.Name;
             var modelType = model.GetType();
             var modelProperties = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var localizedModelLocal = model as ILocalizedLocaleModel;
+            var settingPrefix = fieldPrefix ?? settingName;
+            var data = GetOrCreateData(storeId);
 
             foreach (var prop in modelProperties)
             {
@@ -156,33 +186,28 @@ namespace Smartstore.Web.Modelling.Settings
 
                 if (localizedModelLocal == null)
                 {
-                    var localKey = $"{fieldPrefix ?? settingName}.{name}";
-                    if (await IsOverridenSetting(localKey, true, () => _settingService.GetSettingByKeyAsync<string>(settingName + "." + name, storeId: storeId)))
-                    {
-                        key = localKey;
-                    }
+                    key = await FindOverridenSettingKey(
+                        settingPrefix, 
+                        name,
+                        isRootModel: isRootModel,
+                        allowEmpty: true, 
+                        storeAccessor: x => _settingService.GetSettingByKeyAsync<string>(x, storeId: storeId));
                 }
                 else if (localeIndex.HasValue)
                 {
-                    var localKey = $"{fieldPrefix ?? settingName}.Locales[{localeIndex.Value}].{name}";
-                    if (await IsOverridenSetting(localKey, false, () => _leService.GetLocalizedValueAsync(localizedModelLocal.LanguageId, storeId, settingName, name)))
-                    {
-                        key = localKey;
-                    }
+                    var localeKey = $"Locales[{localeIndex.Value}].{name}";
+                    key = await FindOverridenSettingKey(
+                        settingPrefix, 
+                        localeKey,
+                        isRootModel: isRootModel,
+                        allowEmpty: true,
+                        storeAccessor: x => _leService.GetLocalizedValueAsync(localizedModelLocal.LanguageId, storeId, settingName, name));
                 }
 
                 if (key != null)
                 {
                     data.OverrideSettingKeys.Add(key);
                 }
-            }
-
-            if (isRootModel)
-            {
-                data.ActiveStoreScopeConfiguration = storeId;
-                data.RootSettingClass = settingName;
-
-                ViewData[ViewDataKey] = data;
             }
 
             if (model is ILocalizedModel)
@@ -237,7 +262,7 @@ namespace Smartstore.Web.Modelling.Settings
 
             if (key != null)
             {
-                var data = Data ?? new MultiStoreSettingData();
+                var data = GetOrCreateData(storeId);
                 data.OverrideSettingKeys.Add(key);
             }
         }
@@ -271,7 +296,7 @@ namespace Smartstore.Web.Modelling.Settings
 
                 var key = settingName + "." + name;
 
-                if (storeId == 0 || IsOverrideChecked(key, form))
+                if (storeId == 0 || IsOverrideChecked(settingName, name, form, out _))
                 {
                     dynamic value = prop.GetValue(settings);
                     await _settingService.ApplySettingAsync(key, value ?? string.Empty, storeId);
@@ -294,7 +319,7 @@ namespace Smartstore.Web.Modelling.Settings
         {
             var settingType = settings.GetType();
 
-            if (storeId == 0 || IsOverrideChecked(formKey, form))
+            if (storeId == 0 || IsOverrideChecked(null, formKey, form, out _))
             {
                 var prop = settingType.GetProperty(settingName);
                 if (prop != null)

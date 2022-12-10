@@ -89,10 +89,6 @@ namespace Smartstore.Web.TagHelpers.Admin
             {
                 settingKey = fieldPrefix + "." + settingKey;
             }
-            else if (data.RootSettingClass.HasValue() && !settingKey.StartsWith(data.RootSettingClass + '.', StringComparison.OrdinalIgnoreCase))
-            {
-                settingKey = data.RootSettingClass + '.' + settingKey;
-            }
 
             var overrideForStore = data.OverrideSettingKeys.Contains(settingKey);
             var fieldId = settingKey.EnsureEndsWith("_OverrideForStore");

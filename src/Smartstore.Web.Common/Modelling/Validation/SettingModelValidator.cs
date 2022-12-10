@@ -87,7 +87,7 @@ namespace FluentValidation
             }
 
             public bool IsOverrideChecked(string propertyPath)
-                => MultiStoreSettingHelper.IsOverrideChecked(propertyPath, _form);
+                => MultiStoreSettingHelper.IsOverrideChecked(_settingType.Name, propertyPath, _form, out _);
 
             public bool CanExecute(IValidationRule rule, string propertyPath, IValidationContext context)
             {
