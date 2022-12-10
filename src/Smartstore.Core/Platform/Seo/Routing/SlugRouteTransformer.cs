@@ -16,8 +16,6 @@ namespace Smartstore.Core.Seo.Routing
         private readonly ILanguageService _languageService;
         private readonly IReservedSlugTable _reservedSlugTable;
 
-        private static readonly string[] _ignorePaths = new[] { "/admin", "/odata", "/mini-profiler-resources" };
-
         public SlugRouteTransformer(
             SmartDbContext db,
             IUrlService urlService,
@@ -156,12 +154,6 @@ namespace Smartstore.Core.Seo.Routing
             if (_reservedSlugTable.IsReservedSlug(slug))
             {
                 // Don't attemp to transform reserved system slugs provided by action routes.
-                return null;
-            }
-
-            if (_ignorePaths.Any(x => request.Path.StartsWithSegments(x)))
-            {
-                // Irrelevant
                 return null;
             }
 
