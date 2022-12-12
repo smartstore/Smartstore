@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -8,11 +7,10 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
-using Smartstore.StripeElements.Components;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Providers;
 using Smartstore.StripeElements.Settings;
-using Smartstore.Web.Models.Checkout;
+using Smartstore.Web.Controllers;
 
 namespace Smartstore.StripeElements.Filters
 {
@@ -63,40 +61,45 @@ namespace Smartstore.StripeElements.Filters
             var skipPaymentPage = checkoutState.ButtonUsed;
             var customer = _services.WorkContext.CurrentCustomer;
 
-            // TODO: (mh) (core) Make sure we are on payment page.
+            var action = filterContext.RouteData.Values.GetActionName();
 
-            // Should only run on a full view rendering result or HTML ContentResult.
-            if ((filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult()) && skipPaymentPage)
+            if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
             {
-                customer.GenericAttributes.SelectedPaymentMethod = StripeElementsProvider.SystemName;
-                await _db.SaveChangesAsync();
-
-                var session = _httpContextAccessor.HttpContext.Session;
-                if (!session.ContainsKey("OrderPaymentInfo"))
+                // Should only run on a full view rendering result or HTML ContentResult.
+                if ((filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult()) && skipPaymentPage)
                 {
-                    session.TrySetObject("OrderPaymentInfo", new ProcessPaymentRequest
+                    customer.GenericAttributes.SelectedPaymentMethod = StripeElementsProvider.SystemName;
+                    await _db.SaveChangesAsync();
+
+                    var session = _httpContextAccessor.HttpContext.Session;
+                    if (!session.ContainsKey("OrderPaymentInfo"))
                     {
-                        StoreId = _services.StoreContext.CurrentStore.Id,
-                        CustomerId = customer.Id,
-                        PaymentMethodSystemName = StripeElementsProvider.SystemName
-                    });
+                        session.TrySetObject("OrderPaymentInfo", new ProcessPaymentRequest
+                        {
+                            StoreId = _services.StoreContext.CurrentStore.Id,
+                            CustomerId = customer.Id,
+                            PaymentMethodSystemName = StripeElementsProvider.SystemName
+                        });
+                    }
+
+                    // Reset property for backward navigation.
+                    checkoutState.ButtonUsed = false;
+
+                    filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = string.Empty });
                 }
-
-                // Reset property for backward navigation.
-                checkoutState.ButtonUsed = false;
-
-                filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = string.Empty });
             }
 
-            // TODO: (mh) (core) Make sure we are on confirm page.
-            if (customer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(StripeElementsProvider.SystemName))
+            if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
             {
-                var state = _checkoutStateAccessor.CheckoutState;
-
-                if (state.IsPaymentRequired && await IsStripeElementsActive())
+                if (customer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(StripeElementsProvider.SystemName))
                 {
-                    _widgetProvider.RegisterWidget("end", 
-                        new PartialViewWidget("_CheckoutConfirm", state.GetCustomState<StripeCheckoutState>(), "Smartstore.Stripe"));
+                    var state = _checkoutStateAccessor.CheckoutState;
+
+                    if (state.IsPaymentRequired && await IsStripeElementsActive())
+                    {
+                        _widgetProvider.RegisterWidget("end",
+                            new PartialViewWidget("_CheckoutConfirm", state.GetCustomState<StripeCheckoutState>(), "Smartstore.Stripe"));
+                    }
                 }
             }
 

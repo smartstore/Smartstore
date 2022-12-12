@@ -1,16 +1,20 @@
 ﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
 	<LocaleResource Name="Plugins.FriendlyName.Smartstore.StripeElements" AppendRootKey="false">
-		<Value>Stripe Elements</Value>
+		<Value>Stripe</Value>
 	</LocaleResource>
 	<LocaleResource Name="Plugins.Description.Smartstore.StripeElements" AppendRootKey="false">
 		<Value>Extends the store with the payment functions of Stripe.</Value>
 	</LocaleResource>
-	
+
+    <!-- 
+        TODO: (mh) (core) 
+        Alter this when the following issue is resolved
+        https://github.com/smartstore/Smartstore/issues/574
+        The following two resources should be display in the frontend.
+    -->
 	<LocaleResource Name="Plugins.FriendlyName.Payments.StripeElements" AppendRootKey="false">
 		<Value>Pay now with Stripe</Value>
 	</LocaleResource>
-    
-    <!-- TODO: (mh) (core) Better description -->
 	<LocaleResource Name="Plugins.Description.Payments.StripeElements" AppendRootKey="false">
 		<Value>Opens a secure payment window where the payment is made directly to Stripe.</Value>
 	</LocaleResource>
@@ -78,6 +82,9 @@
             <LocaleResource Name="WebhookUrl.Copy">
                 <Value>Copy</Value>
             </LocaleResource>
+            <LocaleResource Name="WebhookUrl.CopySuccess">
+                <Value>The link was successfully copied to the clipboard.</Value>
+            </LocaleResource>
 			<LocaleResource Name="AdditionalFee">
 				<Value>Additional fee</Value>
 			</LocaleResource>
@@ -96,11 +103,9 @@
             <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
                 <Value>Specifies whether to show the checkout button in the mini shopping cart.</Value>
             </LocaleResource>
-
-            <!-- TODO: (mh) (core) Better description -->
             <LocaleResource Name="PaymentInfo">
                 <Value>
-                    After completing the order you will be redirected to an external payment provider, 
+                    After completing the order you will be redirected to an external payment provider if necessary,
                     where you can make the payment for your order.
                 </Value>
             </LocaleResource>

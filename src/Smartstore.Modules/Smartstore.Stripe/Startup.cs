@@ -1,12 +1,10 @@
-﻿using Autofac;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.StripeElements.Services;
 using Smartstore.StripeElements.Filters;
+using Smartstore.StripeElements.Services;
 using Smartstore.Web.Controllers;
-using Stripe;
 
 namespace Smartstore.StripeElements
 {
@@ -31,12 +29,6 @@ namespace Smartstore.StripeElements
             {
                 services.AddScoped<StripeHelper>();
             }
-        }
-
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        {
-            // TODO: (mh) (core) Add options configurer
-            StripeConfiguration.ApiKey = "sk_test_51M3yXmB6RUqeW6sBeU4Ari5jNssIA2gVFVXvxqKuOzKKQzYGt2EbLn9mxRRUovXI9hDcDuSjzukyoN1FMpZGnNnp001vAIgVkx";
         }
     }
 }

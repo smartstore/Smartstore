@@ -1,16 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Autofac.Core;
-using Azure;
 using Microsoft.AspNetCore.Http;
-using NuGet.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
-using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -20,7 +18,6 @@ using Smartstore.StripeElements.Controllers;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Settings;
 using Stripe;
-using static Smartstore.Core.Security.Permissions;
 
 namespace Smartstore.StripeElements.Providers
 {
@@ -34,20 +31,31 @@ namespace Smartstore.StripeElements.Providers
         private readonly ISettingFactory _settingFactory;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ICacheManager _cache;
+        private readonly StripeSettings _settings;
 
         public StripeElementsProvider(
             SmartDbContext db,
             IStoreContext storeContext,
             ISettingFactory settingFactory,
             ICheckoutStateAccessor checkoutStateAccessor,
-            ICacheManager cache)
+            ICacheManager cache,
+            StripeSettings settings)
         {
             _db = db;
             _storeContext = storeContext;
             _settingFactory = settingFactory;
             _checkoutStateAccessor = checkoutStateAccessor;
             _cache = cache;
+            _settings = settings;
+
+            // Ensure API is set with current module settings. 
+            if (StripeConfiguration.ApiKey != _settings.SecrectApiKey)
+            {
+                StripeConfiguration.ApiKey = _settings.SecrectApiKey;
+            }
         }
+
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public static string SystemName => "Smartstore.StripeElements";
 
@@ -160,15 +168,15 @@ namespace Smartstore.StripeElements.Providers
             {
                 // INFO: PaymentIntent is stored in AuthorizationTransactionId
                 var service = new PaymentIntentService();
-                await service.CaptureAsync(request.Order.AuthorizationTransactionId);
+                var response = await service.CaptureAsync(request.Order.AuthorizationTransactionId);
 
-                //result.CaptureTransactionResult = "TODO: (mh) (core)";
+                result.CaptureTransactionResult = response.Status;
 
                 result.NewPaymentStatus = PaymentStatus.Paid;
             }
             catch (Exception ex)
             {
-                var test = ex;
+                Logger.LogError(ex, ex.Message);
             }
 
             return result;
@@ -182,7 +190,7 @@ namespace Smartstore.StripeElements.Providers
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
-            // Info payment intent must have one of the following stati else it will throw
+            // INFO: payment intent must have one of the following stati else it will throw
             // requires_payment_method, requires_capture, requires_confirmation, requires_action
 
             if (order.PaymentStatus == PaymentStatus.Pending || order.PaymentStatus == PaymentStatus.Authorized)

@@ -1,16 +1,20 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
 	<LocaleResource Name="Plugins.FriendlyName.Smartstore.StripeElements" AppendRootKey="false">
-		<Value>Stripe Elements</Value>
+		<Value>Stripe</Value>
 	</LocaleResource>
 	<LocaleResource Name="Plugins.Description.Smartstore.StripeElements" AppendRootKey="false">
 		<Value>Erweitert den Shop um die Zahlungsfunktionen von Stripe.</Value>
 	</LocaleResource>
 	
+    <!-- 
+        TODO: (mh) (core) 
+        Alter this when the following issue is resolved
+        https://github.com/smartstore/Smartstore/issues/574
+        The following two resources should be display in the frontend.
+    -->
 	<LocaleResource Name="Plugins.FriendlyName.Payments.StripeElements" AppendRootKey="false">
 		<Value>Jetzt mit Stripe zahlen</Value>
 	</LocaleResource>
-    
-    <!-- TODO: (mh) (core) Better description -->
 	<LocaleResource Name="Plugins.Description.Payments.StripeElements" AppendRootKey="false">
 		<Value>Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei Stripe durchgeführt wird.</Value>
 	</LocaleResource>
@@ -77,7 +81,10 @@
             <LocaleResource Name="WebhookUrl.Copy">
                 <Value>Kopieren</Value>
             </LocaleResource>
-			<LocaleResource Name="AdditionalFee">
+            <LocaleResource Name="WebhookUrl.CopySuccess">
+                <Value>Der Link wurde erfolgreich in die Zwischenablage kopiert.</Value>
+            </LocaleResource>
+            <LocaleResource Name="AdditionalFee">
 				<Value>Zusätzliche Gebühren</Value>
 			</LocaleResource>
 			<LocaleResource Name="AdditionalFee.Hint">
@@ -95,10 +102,9 @@
             <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
                 <Value>Legt fest, ob der Stripe-Button im Miniwarenkorb angezeigt werden soll.</Value>
             </LocaleResource>
-            <!-- TODO: (mh) (core) Better description -->
             <LocaleResource Name="PaymentInfo">
                 <Value>
-                    Nach Abschluß der Bestellung werden Sie zu einem externen Zahlungsanbieter weitergeleitet, 
+                    Nach Abschluß der Bestellung werden Sie gegebenenfalls zu einem externen Zahlungsanbieter weitergeleitet, 
                     auf dessen Seite Sie die Zahlung für Ihre Bestellung durchführen können.
                 </Value>
             </LocaleResource>
