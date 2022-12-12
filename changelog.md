@@ -9,6 +9,7 @@
 ### New Features
 
 - Updated to **.NET 7**
+- **Stripe Elements** plugin
 - **Web API** plugin
 - **BeezUp** (commercial plugin)
 - **ElmarShopInfo** (commercial plugin)
