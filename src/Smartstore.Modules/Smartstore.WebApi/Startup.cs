@@ -27,6 +27,11 @@ namespace Smartstore.Web.Api
     // TODO: (mg) (core) IEEE754Compatible=true is not supported\working: https://github.com/OData/WebApi/issues/1460
     // TODO: (mg) (core) implement Rate Limiting when switching to .NET 7: https://devblogs.microsoft.com/dotnet/announcing-rate-limiting-for-dotnet/
 
+    // TODO: (mg) (core) string arrays of MediaSearchQuery\MediaFilesFilter causing ODataErrorException: A node of type 'StartArray' was read from the
+    // JSON reader when trying to read the contents of the property 'Extensions'; however, a 'StartObject' node or 'PrimitiveValue' node with null value was expected.
+    // Looking at EDM metadata this must be a bug. Must treat and declare string[] as an ICollection<string> instead of an object.
+    // PS: a List<string> instead of a string[] would work.
+
     internal class Startup : StarterBase
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)

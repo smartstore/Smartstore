@@ -19,6 +19,8 @@ FileItemInfo and FolderNodeInfo are flattened objects and no longer entities.
 - Request parameters are always written in camel case, for example for OData actions.    
 Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/MediaFiles/GetFileByPath {"path":"catalog/my-image.jpg"}`.
 
+- The query string parameter **SmNetFulfill** has been renamed to **SmApiFulfill**.
+
 - Changed endpoints:
 <table>
 <tbody>
@@ -123,7 +125,6 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
     </tr>
 </table>
 
-- The query string parameter **SmNetFulfill** has been renamed to **SmApiFulfill**.
 
 ## Links
 - <a href="https://smartstore.gitbook.io/developer-guide/framework/web-api">Developer guide</a>.

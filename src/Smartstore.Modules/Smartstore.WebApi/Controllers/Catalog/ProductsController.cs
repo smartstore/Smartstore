@@ -351,7 +351,7 @@ namespace Smartstore.Web.Api.Controllers
         public async Task<IActionResult> Search([FromQuery] CatalogSearchQueryModel model)
         {
             // INFO: "Search" needs to be POST otherwise "... is not a valid OData path template. Bad Request - Error in query syntax".
-            // INFO: "EnsureStableOrdering" must be "false" otherwise CatalogSearchQuery.Sorting is getting lost.
+            // INFO: "EnsureStableOrdering" must be "false" otherwise CatalogSearchQuery. Sorting is getting lost.
             // INFO: we cannot fully satisfy both: catalog search options and OData query options. Catalog search has priority here.
 
             try
@@ -669,6 +669,13 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="sku">SKU (stock keeping unit) of the product to which the images should be assigned.</param>
         /// <param name="gtin">GTIN (global trade item number) of the product to which the images should be assigned.</param>
         /// <param name="mpn">MPN (manufacturer part number) of the product to which the images should be assigned.</param>
+        /// <remarks>
+        /// It does not matter if one of the uploaded images already exists. The Web API automatically ensures that a product 
+        /// has no duplicate images by comparing both binary data streams.
+        /// 
+        /// It is also possible to update/replace an existing image. To do so simply add the file identifier as **fileId** attribute
+        /// in the content disposition header of the file.
+        /// </remarks>
         [HttpPost("Products({key})/SaveFiles"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.EditPicture)]
         [Consumes("multipart/form-data"), Produces(Json)]
