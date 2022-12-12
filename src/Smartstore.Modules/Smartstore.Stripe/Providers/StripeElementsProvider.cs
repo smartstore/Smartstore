@@ -17,7 +17,6 @@ using Smartstore.StripeElements.Components;
 using Smartstore.StripeElements.Controllers;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Settings;
-using Stripe;
 
 namespace Smartstore.StripeElements.Providers
 {
@@ -190,7 +189,7 @@ namespace Smartstore.StripeElements.Providers
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
-            // INFO: payment intent must have one of the following stati else it will throw
+            // INFO: payment intent must have one of the following statuses, otherwise it will throw
             // requires_payment_method, requires_capture, requires_confirmation, requires_action
 
             if (order.PaymentStatus == PaymentStatus.Pending || order.PaymentStatus == PaymentStatus.Authorized)

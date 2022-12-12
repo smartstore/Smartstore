@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -9,7 +7,6 @@ using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Services;
 using Smartstore.StripeElements.Settings;
 using Smartstore.Web.Components;
-using Stripe;
 
 namespace Smartstore.StripeElements.Components
 {
@@ -70,7 +67,7 @@ namespace Smartstore.StripeElements.Components
             if (isPaymentSelectionPage)
             {
                 var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
-                var paymentIntent = new PaymentIntent();
+                PaymentIntent paymentIntent;
 
                 if (checkoutState.PaymentIntent == null)
                 {

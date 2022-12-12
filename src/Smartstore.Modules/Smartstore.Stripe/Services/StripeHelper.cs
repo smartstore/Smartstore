@@ -1,22 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core;
+﻿using Smartstore.Core;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Security;
-using Smartstore.Core.Stores;
 using Smartstore.StripeElements.Models;
-using Smartstore.StripeElements.Settings;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.StripeElements.Services
 {

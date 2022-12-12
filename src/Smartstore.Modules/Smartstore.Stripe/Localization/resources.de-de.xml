@@ -28,9 +28,9 @@
                         <ul>
                             <li>Erstellen Sie ein Konto bei Stripe oder loggen Sie sich mit Ihrem bestehenden Konto ein.</li>
                             <li>Navigieren Sie zu <b>Entwickler / API-Schlüssel</b></li>
-                            <li>Kopieren Sie den <b>Veröffentlichbaren Schlüssel</b> und den <b>Geheimschlüssel</b> weiter unten, in die dafür vorgesehenen Felder.</li>
+                            <li>Kopieren Sie den <b>Veröffentlichbaren Schlüssel</b> und den <b>Geheimschlüssel</b> weiter unten in die dafür vorgesehenen Felder.</li>
                             <li>Navigieren Sie zu <b>Entwickler / Webhooks</b></li>
-                            <li>Fügen Sie nun einen neuen Endpoint zu. Als URL tragen Sie die URL ein, die weiter unten dargestellt wird.</li>
+                            <li>Fügen Sie nun einen neuen Endpoint hinzu. Als URL tragen Sie die URL ein, die weiter unten dargestellt wird.</li>
                             <li>Geben Sie nun den Geheimschlüssel für die Signatur in dem dafür vorgesehenen Formularfeld weiter unten an.</li>
                         </ul>
 					  ]]>

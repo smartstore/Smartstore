@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Smartstore.Web.Modelling;
-using Stripe;
 
 namespace Smartstore.StripeElements.Models
 {

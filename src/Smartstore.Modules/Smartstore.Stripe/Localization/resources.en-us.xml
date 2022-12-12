@@ -3,7 +3,7 @@
 		<Value>Stripe</Value>
 	</LocaleResource>
 	<LocaleResource Name="Plugins.Description.Smartstore.StripeElements" AppendRootKey="false">
-		<Value>Extends the store with the payment functions of Stripe.</Value>
+		<Value>Extends the store with Stripe payment.</Value>
 	</LocaleResource>
 
     <!-- 
@@ -16,7 +16,7 @@
 		<Value>Pay now with Stripe</Value>
 	</LocaleResource>
 	<LocaleResource Name="Plugins.Description.Payments.StripeElements" AppendRootKey="false">
-		<Value>Opens a secure payment window where the payment is made directly to Stripe.</Value>
+		<Value>Opens a secure payment window where the payment is made directly with Stripe.</Value>
 	</LocaleResource>
 	
 	<LocaleResource Name="Plugins.Smartstore.Stripe" AppendRootKey="false">
@@ -28,7 +28,7 @@
                         <ul>
                             <li>Create an account with Stripe or log in with your existing account.</li>
                             <li>Navigate to <b>Developer / API Key</b>.</li>
-                            <li>Copy the <b>Publishable Key</b> and the <b>Secret Key</b> below, into the fields provided.</li>
+                            <li>Copy the <b>Publishable Key</b> and the <b>Secret Key</b> below into the fields provided.</li>
                             <li>Navigate to <b>Developer / Webhooks</b></li>
                             <li>Now add a new endpoint. For the URL, enter the URL that is shown below.</li>
                             <li>Now enter the secret key for the signature in the form field provided below.</li>
@@ -41,7 +41,7 @@
 				<Value>Use test mode</Value>
 			</LocaleResource>
 			<LocaleResource Name="UseSandbox.Hint">
-				<Value>Specifies whether the payments will be executed in test mode.</Value>
+				<Value>Specifies whether payments will be executed in test mode.</Value>
 			</LocaleResource>
             <LocaleResource Name="CaptureMethod">
                 <Value>Capture method</Value>
@@ -95,7 +95,7 @@
 				<Value>Additional fee. Use percentage</Value>
 			</LocaleResource>
 			<LocaleResource Name="AdditionalFeePercentage.Hint">
-				<Value>Specifies whether to apply a percentage additional fee to the order total. If not enabled, a fixed value is used.</Value>
+				<Value>Specifies whether to apply a additional percentage fee to the order total. If not enabled, a fixed value is used.</Value>
 			</LocaleResource>
             <LocaleResource Name="ShowButtonInMiniShoppingCart">
                 <Value>Show button in mini shopping cart</Value>

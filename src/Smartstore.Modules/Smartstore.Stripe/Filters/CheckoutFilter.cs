@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
@@ -106,6 +105,7 @@ namespace Smartstore.StripeElements.Filters
             await next();
         }
 
+        // TODO: (mh) (core) Move this to StripeHelper.cs
         private Task<bool> IsStripeElementsActive()
             => _paymentService.IsPaymentMethodActiveAsync(StripeElementsProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
     }

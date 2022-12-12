@@ -4,6 +4,7 @@
   "Group": "Payment",
   "SystemName": "Smartstore.Stripe",
   "FriendlyName": "Stripe",
+  // TODO: (mh) (core) Description missing
   "Description": "",
   "Version": "5.0.1",
   "MinAppVersion": "5.0.1",
