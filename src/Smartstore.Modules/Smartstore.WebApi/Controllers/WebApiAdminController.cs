@@ -40,7 +40,7 @@ namespace Smartstore.Web.Api.Controllers
 
         [Permission(WebApiPermissions.Read)]
         [LoadSetting]
-        public async Task<IActionResult> Configure(WebApiSettings settings, int storeScope)
+        public async Task<IActionResult> Configure(WebApiSettings settings)
         {
             var model = MiniMapper.Map<WebApiSettings, ConfigurationModel>(settings);
 
@@ -57,7 +57,7 @@ namespace Smartstore.Web.Api.Controllers
             if (!ModelState.IsValid)
             {
                 // We need to detect override checkboxes if "Configure" was called with invalid model state.
-                await _settingHelper.DetectOverrideKeysAsync(settings, model, storeScope);
+                await _settingHelper.DetectOverrideKeysAsync(settings, model);
             }
 
             return View(model);
@@ -72,7 +72,7 @@ namespace Smartstore.Web.Api.Controllers
 
             if (!ModelState.IsValid)
             {
-                return await Configure(settings, storeScope);
+                return await Configure(settings);
             }
 
             var tmpSettings = storeScope == 0 ? settings : await Services.SettingFactory.LoadSettingsAsync<WebApiSettings>(0);
@@ -84,7 +84,8 @@ namespace Smartstore.Web.Api.Controllers
             settings = ((ISettings)settings).Clone() as WebApiSettings;
             MiniMapper.Map(model, settings);
 
-            await _settingHelper.UpdateSettingsAsync(settings, form, storeScope);
+            _settingHelper.Contextualize(storeScope);
+            await _settingHelper.UpdateSettingsAsync(settings, form);
             await Services.Settings.ApplySettingAsync(settings, x => x.MaxBatchNestingDepth);
             await Services.Settings.ApplySettingAsync(settings, x => x.MaxBatchOperationsPerChangeset);
             await Services.Settings.ApplySettingAsync(settings, x => x.MaxBatchReceivedMessageSize);
