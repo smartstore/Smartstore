@@ -61,7 +61,7 @@ namespace Smartstore.Web.Modelling.Settings
                 {
                     foreach (var param in _settingParams)
                     {
-                        await _settingHelper.UpdateSettingsAsync(param.Instance, _form, _storeId);
+                        await _settingHelper.UpdateSettingsAsync(param.Instance, _form);
                     }
                 }
             }

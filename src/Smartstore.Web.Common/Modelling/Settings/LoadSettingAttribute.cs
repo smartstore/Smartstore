@@ -62,6 +62,8 @@ namespace Smartstore.Web.Modelling.Settings
         {
             // Get the current configured store id
             _storeId = GetActiveStoreScopeConfiguration();
+            _settingHelper.Contextualize(_storeId);
+
             Func<ParameterDescriptor, bool> predicate = (x) => new[] { "storescope", "storeid" }.Contains(x.Name, StringComparer.OrdinalIgnoreCase);
             var storeScopeParam = FindActionParameters<int>(context.ActionDescriptor, false, false, predicate).FirstOrDefault();
             if (storeScopeParam != null)
@@ -131,11 +133,11 @@ namespace Smartstore.Web.Modelling.Settings
 
                     if (childModel == null)
                     {
-                        await _settingHelper.DetectOverrideKeysAsync(settingInstance, rootModel, _storeId, true);
+                        await _settingHelper.DetectOverrideKeysAsync(settingInstance, rootModel, true);
                     }
                     else
                     {
-                        await _settingHelper.DetectOverrideKeysAsync(settingInstance, childModel, _storeId, false);
+                        await _settingHelper.DetectOverrideKeysAsync(settingInstance, childModel, false);
                     }
                 }
             }
@@ -183,8 +185,13 @@ namespace Smartstore.Web.Modelling.Settings
         protected int GetActiveStoreScopeConfiguration()
         {
             var storeId = _services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
-            var store = _services.StoreContext.GetStoreById(storeId);
-            return store != null ? store.Id : 0;
+            if (storeId > 0)
+            {
+                var store = _services.StoreContext.GetStoreById(storeId);
+                return store?.Id ?? 0;
+            }
+
+            return storeId;
         }
     }
 }
