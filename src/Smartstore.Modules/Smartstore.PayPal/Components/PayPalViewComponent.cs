@@ -20,7 +20,7 @@ namespace Smartstore.PayPal.Components
         /// </summary>
         /// <param name="isPaymentInfoInvoker">Defines whether the widget is invoked from payment method's GetPaymentInfoWidget.</param>
         /// <param name="isSelected">Defines whether the payment method is selected on page load.</param>
-        public async Task<IViewComponentResult> InvokeAsync(bool isPaymentInfoInvoker, bool isSelected)
+        public IViewComponentResult Invoke(bool isPaymentInfoInvoker, bool isSelected)
         {
             // If client id or secret haven't been configured yet, don't render buttons.
             if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
