@@ -43,6 +43,12 @@
                 return false;
             });
         },
+        // .multi-store-override-option
+        function (ctx) {
+            ctx.find('.multi-store-override-option').each(function (i, el) {
+                Smartstore.Admin.checkOverriddenStoreValue(el);
+            });
+        },
         //// Lazy summernote
         //function (ctx) {
         //    ctx.find(".html-editor-root").each(function (i, el) {
@@ -142,11 +148,6 @@
             window.setTimeout(function () {
                 $('#ajax-busy').removeClass("busy");
             }, 300);
-        });
-
-        // Check overridden store settings
-        $('.multi-store-override-option').each(function (i, el) {
-            Smartstore.Admin.checkOverriddenStoreValue(el);
         });
 
         // Publish entity commit messages

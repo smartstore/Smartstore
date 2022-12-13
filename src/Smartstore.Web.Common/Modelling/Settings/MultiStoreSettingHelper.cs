@@ -72,25 +72,31 @@ namespace Smartstore.Web.Modelling.Settings
             get => _data;
         }
 
-        internal async Task<string> FindOverridenSettingKey(string prefix, string name, bool isRootModel, bool allowEmpty, Func<string, Task<string>> storeAccessor)
+        internal async Task<string> FindOverridenSettingKey(
+            string settingName, // PriceSettings
+            string fieldPrefix, // CustomProperties[PriceSettings]
+            string fieldName, // SomePropName
+            bool isRootModel, 
+            bool allowEmpty, 
+            Func<string, Task<string>> storeAccessor)
         {
             var request = _httpContextAccessor.HttpContext?.Request;
 
             if (!request.HasFormContentType || request.Form == null)
             {
                 // This is a GET operation (no form posted), so check against storage
-                var key = prefix + '.' + name;
+                var key = settingName + '.' + fieldName;
                 var storedValue = await storeAccessor(key);
                 var overridden = allowEmpty ? storedValue != null : storedValue.HasValue();
                 if (overridden)
                 {
-                    return isRootModel ? name : key;
+                    return isRootModel ? fieldPrefix.Grow(fieldName, ".") : key;
                 }
             }
             else
             {
                 // A POST operation. Only check form.
-                if (IsOverrideChecked(prefix, name, request.Form, out var key))
+                if (IsOverrideChecked(fieldPrefix ?? settingName, fieldName, request.Form, out var key))
                 {
                     return key;
                 }
@@ -178,19 +184,18 @@ namespace Smartstore.Web.Modelling.Settings
 
             CheckContextualized();
 
-            var fieldPrefix = ViewData?.TemplateInfo?.HtmlFieldPrefix.NullEmpty();
             var settingType = settings.GetType();
             var settingName = settingType.Name;
+            var fieldPrefix = ViewData?.TemplateInfo?.HtmlFieldPrefix.NullEmpty();
             var modelType = model.GetType();
             var modelProperties = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var localizedModelLocal = model as ILocalizedLocaleModel;
-            var settingPrefix = fieldPrefix ?? settingName;
 
             foreach (var prop in modelProperties)
             {
                 string key = null;
-                var name = propertyNameMapper?.Invoke(prop.Name) ?? prop.Name;
-                var settingProperty = settingType.GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
+                var fieldName = propertyNameMapper?.Invoke(prop.Name) ?? prop.Name;
+                var settingProperty = settingType.GetProperty(fieldName, BindingFlags.Public | BindingFlags.Instance);
 
                 if (settingProperty == null)
                 {
@@ -201,21 +206,23 @@ namespace Smartstore.Web.Modelling.Settings
                 if (localizedModelLocal == null)
                 {
                     key = await FindOverridenSettingKey(
-                        settingPrefix, 
-                        name,
+                        settingName,
+                        fieldPrefix,
+                        fieldName,
                         isRootModel: isRootModel,
                         allowEmpty: true, 
                         storeAccessor: x => _settingService.GetSettingByKeyAsync<string>(x, storeId: _data.StoreScope));
                 }
                 else if (localeIndex.HasValue)
                 {
-                    var localeKey = $"Locales[{localeIndex.Value}].{name}";
+                    var localeKey = $"Locales[{localeIndex.Value}].{fieldName}";
                     key = await FindOverridenSettingKey(
-                        settingPrefix, 
+                        settingName,
+                        fieldPrefix,
                         localeKey,
                         isRootModel: isRootModel,
                         allowEmpty: true,
-                        storeAccessor: x => _leService.GetLocalizedValueAsync(localizedModelLocal.LanguageId, _data.StoreScope, settingName, name));
+                        storeAccessor: x => _leService.GetLocalizedValueAsync(localizedModelLocal.LanguageId, _data.StoreScope, settingName, fieldName));
                 }
 
                 if (key != null)
@@ -245,9 +252,9 @@ namespace Smartstore.Web.Modelling.Settings
         /// <summary>
         /// Adds the form key of the control to the list of override setting keys which are used to determine which settings are overriden on store level.
         /// </summary>
-        /// <param name="formKey">The key of the input element that represents the control.</param>
-        /// <param name="settingName">Name of the setting (will be concatenated with name of settings seperated by dot e.g. SocalSettings.Facebook)</param>
-        /// <param name="settings">Settings instance which contains the particular setting (will be concatenated with name of settings seperated by dot e.g. SocalSettings.Facebook)</param>
+        /// <param fieldName="formKey">The key of the input element that represents the control.</param>
+        /// <param fieldName="settingName">Name of the setting (will be concatenated with fieldName of settings seperated by dot e.g. SocalSettings.Facebook)</param>
+        /// <param fieldName="settings">Settings instance which contains the particular setting (will be concatenated with fieldName of settings seperated by dot e.g. SocalSettings.Facebook)</param>
         public async Task DetectOverrideKeyAsync(string formKey, string settingName, object settings)
         {
             await DetectOverrideKeyAsync(formKey, settings.GetType().Name + "." + settingName);
@@ -256,8 +263,8 @@ namespace Smartstore.Web.Modelling.Settings
         /// <summary>
         /// Adds the form key of the control to the list of override setting keys which are used to determine which settings are overriden on store level.
         /// </summary>
-        /// <param name="formKey">The key of the input element that represents the control.</param>
-        /// <param name="fullSettingName">Fully qualified name of the setting (e.g. SocalSettings.Facebook)</param>
+        /// <param fieldName="formKey">The key of the input element that represents the control.</param>
+        /// <param fieldName="fullSettingName">Fully qualified fieldName of the setting (e.g. SocalSettings.Facebook)</param>
         public async Task DetectOverrideKeyAsync(string formKey, string fullSettingName)
         {
             if (_isSingleStoreMode)
@@ -283,10 +290,10 @@ namespace Smartstore.Web.Modelling.Settings
         /// <summary>
         /// Updates settings for a store.
         /// </summary>
-        /// <param name="settings">Settings class instance.</param>
-        /// <param name="form">Form value collection.</param>
-        /// <param name="settingService">Setting service.</param>
-        /// <param name="propertyNameMapper">Function to map property names. Return <c>null</c> to skip a property.</param>
+        /// <param fieldName="settings">Settings class instance.</param>
+        /// <param fieldName="form">Form value collection.</param>
+        /// <param fieldName="settingService">Setting service.</param>
+        /// <param fieldName="propertyNameMapper">Function to map property names. Return <c>null</c> to skip a property.</param>
         public async Task UpdateSettingsAsync(
             object settings,
             IFormCollection form,
