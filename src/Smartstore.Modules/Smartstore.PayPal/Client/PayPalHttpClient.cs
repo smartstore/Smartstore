@@ -396,7 +396,7 @@ namespace Smartstore.PayPal.Client
             var purchaseUnitItems = new List<PurchaseUnitItem>();
             var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
             var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
-            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext);
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, _currencyService.PrimaryCurrency, batchContext);
 
             foreach (var item in model.Items)
             {
@@ -405,6 +405,9 @@ namespace Smartstore.PayPal.Client
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
                 var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
                 
+                var convertedUnitPriceNet = _currencyService.ConvertToWorkingCurrency(unitPrice.Tax.Value.PriceNet);
+                var convertedUnitPriceTax = _currencyService.ConvertToWorkingCurrency(unitPrice.Tax.Value.Amount);
+
                 var productName = item.ProductName?.Value?.Truncate(126);
                 var productDescription = item.ShortDesc?.Value?.Truncate(126);
 
@@ -412,7 +415,7 @@ namespace Smartstore.PayPal.Client
                 {
                     UnitAmount = new MoneyMessage
                     {
-                        Value = unitPrice.Tax.Value.PriceNet.ToStringInvariant("F"),
+                        Value = convertedUnitPriceNet.Amount.ToStringInvariant("F"),
                         CurrencyCode = currency.CurrencyCode
                     },
                     Name = productName,
@@ -422,7 +425,7 @@ namespace Smartstore.PayPal.Client
                     Sku = item.Sku,
                     Tax = new MoneyMessage
                     {
-                        Value = unitPrice.Tax.Value.Amount.ToStringInvariant("F"),
+                        Value = convertedUnitPriceTax.Amount.ToStringInvariant("F"),
                         CurrencyCode = currency.CurrencyCode
                     },
                     TaxRate = taxRate.Rate.ToStringInvariant("F")
@@ -526,15 +529,20 @@ namespace Smartstore.PayPal.Client
                 purchaseUnit.Amount.Value = cartTotal.Total.Value.Amount.ToStringInvariant("F");
             }
 
-            // Lets check for rounding issues
-            var amountMismatch = itemTotal + itemTotalTax + shippingTotalAmount - discountAmount;
-            if (amountMismatch != purchaseUnit.Amount.Value.Convert<decimal>())
+            // Lets check for rounding issues.
+            var calculatedAmount = itemTotal + itemTotalTax + shippingTotalAmount - discountAmount;
+            var amountMismatch = calculatedAmount != purchaseUnit.Amount.Value.Convert<decimal>();
+            if (amountMismatch)
             {
-                purchaseUnit.Amount.AmountBreakdown.Handling = new MoneyMessage
+                var difference = purchaseUnit.Amount.Value.Convert<decimal>() - calculatedAmount;
+                if (difference > 0)
                 {
-                    Value = (purchaseUnit.Amount.Value.Convert<decimal>() - amountMismatch).ToStringInvariant("F"),
-                    CurrencyCode = currency.CurrencyCode
-                };
+                    purchaseUnit.Amount.AmountBreakdown.Handling = new MoneyMessage
+                    {
+                        Value = difference.ToStringInvariant("F"),
+                        CurrencyCode = currency.CurrencyCode
+                    };
+                }
             }
 
             purchaseUnit.CustomId = orderGuid;

@@ -28,7 +28,6 @@ namespace Smartstore.Web.Modelling.Settings
         }
 
         public bool BindParameterFromStore { get; set; }
-        public bool IsRootedModel { get; set; }
     }
 
     internal class LoadSettingFilter : IAsyncActionFilter
@@ -63,6 +62,8 @@ namespace Smartstore.Web.Modelling.Settings
         {
             // Get the current configured store id
             _storeId = GetActiveStoreScopeConfiguration();
+            _settingHelper.Contextualize(_storeId);
+
             Func<ParameterDescriptor, bool> predicate = (x) => new[] { "storescope", "storeid" }.Contains(x.Name, StringComparer.OrdinalIgnoreCase);
             var storeScopeParam = FindActionParameters<int>(context.ActionDescriptor, false, false, predicate).FirstOrDefault();
             if (storeScopeParam != null)
@@ -114,35 +115,30 @@ namespace Smartstore.Web.Modelling.Settings
         {
             if (context.Result is ViewResult viewResult)
             {
-                var model = viewResult.Model;
+                var rootModel = viewResult.Model;
 
-                if (model == null)
+                if (rootModel == null)
                 {
                     // Nothing to override. E.g. insufficient permission.
                     return;
                 }
 
-                var modelType = model.GetType();
-                if (_attribute.IsRootedModel)
-                {
-                    _settingHelper.CreateViewDataObject(_storeId);
-                }
+                var rootModelType = rootModel.GetType();
 
                 foreach (var param in _settingParams)
                 {
                     var settingInstance = param.Instance;
-                    var modelInstance = model;
+                    var settingType = param.Parameter.ParameterType;
+                    var childModel = rootModelType.GetProperty(settingType.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)?.GetValue(rootModel);
 
-                    if (_attribute.IsRootedModel)
+                    if (childModel == null)
                     {
-                        modelInstance = modelType.GetProperty(settingInstance.GetType().Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)?.GetValue(model);
-                        if (modelInstance == null)
-                        {
-                            continue;
-                        }
+                        await _settingHelper.DetectOverrideKeysAsync(settingInstance, rootModel, true);
                     }
-
-                    await _settingHelper.DetectOverrideKeysAsync(settingInstance, modelInstance, _storeId, !_attribute.IsRootedModel);
+                    else
+                    {
+                        await _settingHelper.DetectOverrideKeysAsync(settingInstance, childModel, false);
+                    }
                 }
             }
         }
@@ -189,8 +185,13 @@ namespace Smartstore.Web.Modelling.Settings
         protected int GetActiveStoreScopeConfiguration()
         {
             var storeId = _services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
-            var store = _services.StoreContext.GetStoreById(storeId);
-            return store != null ? store.Id : 0;
+            if (storeId > 0)
+            {
+                var store = _services.StoreContext.GetStoreById(storeId);
+                return store?.Id ?? 0;
+            }
+
+            return storeId;
         }
     }
 }

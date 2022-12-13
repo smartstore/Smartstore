@@ -221,7 +221,7 @@ namespace Smartstore.Admin.Controllers
 
         #endregion
 
-        [LoadSetting(IsRootedModel = true)]
+        [LoadSetting]
         public async Task<IActionResult> GeneralCommon(
             int storeScope,
             StoreInformationSettings storeInformationSettings,
@@ -289,7 +289,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting(IsRootedModel = true), FormValueRequired("save")]
+        [HttpPost, SaveSetting, FormValueRequired("save")]
         public async Task<IActionResult> GeneralCommon(
             GeneralCommonSettingsModel model,
             int storeScope,
@@ -431,7 +431,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting(IsRootedModel = true)]
+        [LoadSetting]
         public async Task<IActionResult> CustomerUser(
             int storeScope,
             CustomerSettings customerSettings,
@@ -453,7 +453,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting(IsRootedModel = true)]
+        [HttpPost, SaveSetting]
         public async Task<IActionResult> CustomerUser(
             CustomerUserSettingsModel model,
             int storeScope,
@@ -736,7 +736,7 @@ namespace Smartstore.Admin.Controllers
             model.NewArrivalsFacet.Disabled = settings.NewArrivalsDisabled;
             model.NewArrivalsFacet.DisplayOrder = settings.NewArrivalsDisplayOrder;
 
-            await _multiStoreSettingHelper.DetectOverrideKeysAsync(settings, model, storeScope);
+            await _multiStoreSettingHelper.DetectOverrideKeysAsync(settings, model);
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var i = 0;
@@ -750,13 +750,13 @@ namespace Smartstore.Admin.Controllers
                 var availabilityFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Availability, language.Id);
                 var newArrivalsFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.NewArrivals, language.Id);
 
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"CategoryFacet.Locales[{i}].Alias", categoryFacetAliasSettingsKey, storeScope);
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"BrandFacet.Locales[{i}].Alias", brandFacetAliasSettingsKey, storeScope);
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"PriceFacet.Locales[{i}].Alias", priceFacetAliasSettingsKey, storeScope);
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"RatingFacet.Locales[{i}].Alias", ratingFacetAliasSettingsKey, storeScope);
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"DeliveryTimeFacet.Locales[{i}].Alias", deliveryTimeFacetAliasSettingsKey, storeScope);
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"AvailabilityFacet.Locales[{i}].Alias", availabilityFacetAliasSettingsKey, storeScope);
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"NewArrivalsFacet.Locales[{i}].Alias", newArrivalsFacetAliasSettingsKey, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"CategoryFacet.Locales[{i}].Alias", categoryFacetAliasSettingsKey);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"BrandFacet.Locales[{i}].Alias", brandFacetAliasSettingsKey);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"PriceFacet.Locales[{i}].Alias", priceFacetAliasSettingsKey);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"RatingFacet.Locales[{i}].Alias", ratingFacetAliasSettingsKey);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"DeliveryTimeFacet.Locales[{i}].Alias", deliveryTimeFacetAliasSettingsKey);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"AvailabilityFacet.Locales[{i}].Alias", availabilityFacetAliasSettingsKey);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"NewArrivalsFacet.Locales[{i}].Alias", newArrivalsFacetAliasSettingsKey);
 
                 model.CategoryFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
                 {
@@ -800,12 +800,12 @@ namespace Smartstore.Admin.Controllers
             // Facet settings (CommonFacetSettingsModel).
             foreach (var prefix in new[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
             {
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, storeScope);
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings);
             }
 
             // Facet settings with a non-prefixed name.
-            await _multiStoreSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings, storeScope);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings);
 
             return View(model);
         }
@@ -845,7 +845,7 @@ namespace Smartstore.Admin.Controllers
             settings.NewArrivalsDisabled = model.NewArrivalsFacet.Disabled;
             settings.NewArrivalsDisplayOrder = model.NewArrivalsFacet.DisplayOrder;
 
-            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, storeScope);
+            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form);
 
             await Services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
 
@@ -854,13 +854,13 @@ namespace Smartstore.Admin.Controllers
             {
                 foreach (var prefix in new[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
                 {
-                    await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, form, storeScope);
-                    await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, form, storeScope);
+                    await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, form);
+                    await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, form);
                 }
             }
 
             // Facet settings with a non-prefixed name.
-            await _multiStoreSettingHelper.ApplySettingAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings, form, storeScope);
+            await _multiStoreSettingHelper.ApplySettingAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings, form);
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var num = 0;
@@ -1031,7 +1031,7 @@ namespace Smartstore.Admin.Controllers
 
             if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope))
             {
-                _multiStoreSettingHelper.AddOverrideKey(settings, "DefaultTaxAddress");
+                _multiStoreSettingHelper.AddOverrideKey(null, "DefaultTaxAddress");
             }
 
             model.DefaultTaxAddress.AvailableStates = stateProvinces.ToSelectListItems(defaultAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
@@ -1059,7 +1059,7 @@ namespace Smartstore.Admin.Controllers
             // Note, model state is invalid here due to ShippingOriginAddress validation.
             await MapperFactory.MapAsync(model, settings);
 
-            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, storeScope, propertyName =>
+            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, propertyName =>
             {
                 // Skip to prevent the address from being recreated every time you save.
                 if (propertyName.EqualsNoCase(nameof(settings.DefaultTaxAddressId)))
@@ -1069,7 +1069,7 @@ namespace Smartstore.Admin.Controllers
             });
 
             // Special case DefaultTaxAddressId\DefaultTaxAddress.
-            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
+            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(TaxSettingsModel.DefaultTaxAddress), form))
             {
                 var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope) ? settings.DefaultTaxAddressId : 0;
                 var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
@@ -1184,12 +1184,12 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.TodayShipmentHours = todayShipmentHours;
 
-            await _multiStoreSettingHelper.DetectOverrideKeysAsync(settings, model, storeScope);
+            await _multiStoreSettingHelper.DetectOverrideKeysAsync(settings, model);
 
             // Shipping origin
             if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope))
             {
-                _multiStoreSettingHelper.AddOverrideKey(settings, "ShippingOriginAddress");
+                _multiStoreSettingHelper.AddOverrideKey(null, "ShippingOriginAddress");
             }
 
             var originAddress = await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false);
@@ -1225,7 +1225,7 @@ namespace Smartstore.Admin.Controllers
             // Note, model state is invalid here due to ShippingOriginAddress validation.
             await MapperFactory.MapAsync(model, settings);
 
-            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, storeScope, propertyName =>
+            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, propertyName =>
             {
                 // Skip to prevent the address from being recreated every time you save.
                 if (propertyName.EqualsNoCase(nameof(settings.ShippingOriginAddressId)))

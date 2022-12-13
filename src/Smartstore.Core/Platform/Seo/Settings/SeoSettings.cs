@@ -63,39 +63,6 @@ namespace Smartstore.Core.Seo
             "ß;ss"
         };
 
-        public static string[] DefaultReservedUrlRecordSlugs { get; } = new[]
-        {
-            "admin",
-            "install",
-            "recentlyviewedproducts",
-            "newproducts",
-            "compareproducts",
-            "clearcomparelist",
-            "setproductreviewhelpfulness",
-            "login",
-            "register",
-            "logout",
-            "cart",
-            "wishlist",
-            "emailwishlist",
-            "checkout",
-            "contactus",
-            "passwordrecovery",
-            "subscribenewsletter",
-            "blog",
-            "boards",
-            "forum",
-            "inboxupdate",
-            "sentupdate",
-            "news",
-            "sitemap",
-            "sitemapseo",
-            "search",
-            "config",
-            "api",
-            "odata"
-        };
-
         private readonly object _lock = new();
         private Dictionary<char, string> _charConversionMap = null;
 
@@ -103,7 +70,6 @@ namespace Smartstore.Core.Seo
         {
             ExtraRobotsDisallows = new List<string> { "/blog/tag/", "/blog/month/", "/producttags/" };
             ExtraRobotsAllows = new List<string>();
-            ReservedUrlRecordSlugs = new HashSet<string>(DefaultReservedUrlRecordSlugs, StringComparer.OrdinalIgnoreCase);
             SeoNameCharConversion = string.Join(Environment.NewLine, DefaultCharConversions);
         }
 
@@ -147,11 +113,6 @@ namespace Smartstore.Core.Seo
 
         public bool CanonicalUrlsEnabled { get; set; }
         public CanonicalHostNameRule CanonicalHostNameRule { get; set; } = CanonicalHostNameRule.NoRule;
-
-        /// <summary>
-        /// Slugs (sename) reserved for some other needs
-        /// </summary>
-        public HashSet<string> ReservedUrlRecordSlugs { get; set; }
 
         public List<string> ExtraRobotsDisallows { get; set; }
         public List<string> ExtraRobotsAllows { get; set; }

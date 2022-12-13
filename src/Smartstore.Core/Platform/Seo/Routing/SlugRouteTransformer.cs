@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Seo.Routing
 {
@@ -15,19 +14,20 @@ namespace Smartstore.Core.Seo.Routing
         private readonly IUrlService _urlService;
         private readonly LocalizationSettings _localizationSettings;
         private readonly ILanguageService _languageService;
-
-        private static readonly string[] _ignorePaths = new[] { "/admin", "/mini-profiler-resources" };
+        private readonly IReservedSlugTable _reservedSlugTable;
 
         public SlugRouteTransformer(
             SmartDbContext db,
             IUrlService urlService,
             LocalizationSettings localizationSettings,
-            ILanguageService languageService)
+            ILanguageService languageService,
+            IReservedSlugTable reservedSlugTable)
         {
             _db = db;
             _urlService = urlService;
             _localizationSettings = localizationSettings;
             _languageService = languageService;
+            _reservedSlugTable = reservedSlugTable;
         }
 
         #region Static
@@ -110,7 +110,7 @@ namespace Smartstore.Core.Seo.Routing
                 var firstSepIndex = slug.IndexOf('/');
                 if (firstSepIndex > 0)
                 {
-                    var prefix = slug.Substring(0, firstSepIndex);
+                    var prefix = slug[..firstSepIndex];
                     if (_urlPrefixes.ContainsKey(prefix))
                     {
                         urlPrefix = prefix;
@@ -150,9 +150,10 @@ namespace Smartstore.Core.Seo.Routing
                 return null;
             }
 
-            if (_ignorePaths.Any(x => request.Path.StartsWithSegments(x)))
+
+            if (_reservedSlugTable.IsReservedSlug(slug))
             {
-                // Irrelevant
+                // Don't attemp to transform reserved system slugs provided by action routes.
                 return null;
             }
 

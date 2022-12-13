@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core;
@@ -17,7 +16,11 @@ namespace Smartstore.StripeElements.Filters
         private readonly StripeSettings _settings;
         private readonly IWidgetProvider _widgetProvider;
 
-        public OffCanvasShoppingCartFilter(ICommonServices services, IPaymentService paymentService, StripeSettings settings, IWidgetProvider widgetProvider)
+        public OffCanvasShoppingCartFilter(
+            ICommonServices services, 
+            IPaymentService paymentService, 
+            StripeSettings settings, 
+            IWidgetProvider widgetProvider)
         {
             _services = services;
             _paymentService = paymentService;

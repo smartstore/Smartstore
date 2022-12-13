@@ -193,8 +193,6 @@ namespace Smartstore.Core.Checkout.Cart
 
             ValidateGiftCardInfo(cartItem.Product, cartItem.AttributeSelection, warnings);
 
-            await ValidateRequiredProductsAsync(ctx.Product, cartItems, warnings);
-
             // Bundle and bundle items (child items) warnings
             if (ctx.BundleItem != null || !ctx.ChildItems.IsNullOrEmpty())
             {
@@ -604,7 +602,7 @@ namespace Smartstore.Core.Checkout.Cart
             if (!requiredProductIds.Any())
                 return true;
 
-            var cartProductIds = cartItems.Select(x => x.Item.ProductId);
+            var cartProductIds = cartItems.Select(x => x.Item.Product.Id);
 
             var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
             if (!missingRequiredProductIds.Any())

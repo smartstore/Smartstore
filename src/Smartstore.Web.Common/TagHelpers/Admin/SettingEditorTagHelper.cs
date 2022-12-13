@@ -15,6 +15,13 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string ParentSelectorAttributeName = "parent-selector";
         const string PostfixAttributeName = "sm-postfix";
 
+        private readonly MultiStoreSettingHelper _settingHelper;
+
+        public SettingEditorTagHelper(MultiStoreSettingHelper settingHelper)
+        {
+            _settingHelper = settingHelper;
+        }
+
         /// <summary>
         /// Specifies the editor template which will be used to render the field.
         /// </summary>
@@ -40,6 +47,8 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
+            output.TagMode = TagMode.StartTagAndEndTag;
+
             var content = await output.GetChildContentAsync();
             if (content.IsEmptyOrWhiteSpace)
             {
@@ -53,8 +62,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                 output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));
             }
 
-            var data = HtmlHelper.ViewData[MultiStoreSettingHelper.ViewDataKey] as MultiStoreSettingData;
-            if (data == null || data.ActiveStoreScopeConfiguration <= 0)
+            var data = _settingHelper.Data;
+            if (data == null || data.StoreScope <= 0)
             {
                 output.TagName = null;
             }
@@ -87,12 +96,8 @@ namespace Smartstore.Web.TagHelpers.Admin
             {
                 settingKey = fieldPrefix + "." + settingKey;
             }
-            else if (data.RootSettingClass.HasValue() && !settingKey.StartsWith(data.RootSettingClass + '.', StringComparison.OrdinalIgnoreCase))
-            {
-                settingKey = data.RootSettingClass + '.' + settingKey;
-            }
 
-            var overrideForStore = data.OverrideSettingKeys.Contains(settingKey);
+            var overrideForStore = data.OverriddenKeys.Contains(settingKey);
             var fieldId = settingKey.EnsureEndsWith("_OverrideForStore");
 
             var switchLabel = new TagBuilder("label");

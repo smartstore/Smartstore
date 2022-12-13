@@ -51,7 +51,7 @@ namespace Smartstore.WebApi.Client
 
             using var message = new HttpRequestMessage(new HttpMethod(request.HttpMethod), request.Url);
             message.Headers.Add("Accept", request.HttpAcceptType);
-            message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", credentialsStr);
+            message.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentialsStr);
 
             if (request.AdditionalHeaders.HasValue())
             {

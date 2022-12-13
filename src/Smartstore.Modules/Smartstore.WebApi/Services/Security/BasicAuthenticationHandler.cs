@@ -48,6 +48,7 @@ namespace Smartstore.Web.Api.Security
 
             try
             {
+                // INFO: for batch requests, these headers are only present in the first response.
                 var headers = Response.Headers;
                 headers.Add(AppVersionHeader, SmartstoreVersion.CurrentFullVersion);
                 headers.Add(VersionHeader, state.Version);

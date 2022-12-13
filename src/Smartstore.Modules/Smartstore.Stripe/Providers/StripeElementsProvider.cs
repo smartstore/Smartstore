@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
-using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -16,7 +17,6 @@ using Smartstore.StripeElements.Components;
 using Smartstore.StripeElements.Controllers;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Settings;
-using Stripe;
 
 namespace Smartstore.StripeElements.Providers
 {
@@ -30,20 +30,31 @@ namespace Smartstore.StripeElements.Providers
         private readonly ISettingFactory _settingFactory;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ICacheManager _cache;
+        private readonly StripeSettings _settings;
 
         public StripeElementsProvider(
             SmartDbContext db,
             IStoreContext storeContext,
             ISettingFactory settingFactory,
             ICheckoutStateAccessor checkoutStateAccessor,
-            ICacheManager cache)
+            ICacheManager cache,
+            StripeSettings settings)
         {
             _db = db;
             _storeContext = storeContext;
             _settingFactory = settingFactory;
             _checkoutStateAccessor = checkoutStateAccessor;
             _cache = cache;
+            _settings = settings;
+
+            // Ensure API is set with current module settings. 
+            if (StripeConfiguration.ApiKey != _settings.SecrectApiKey)
+            {
+                StripeConfiguration.ApiKey = _settings.SecrectApiKey;
+            }
         }
+
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public static string SystemName => "Smartstore.StripeElements";
 
@@ -82,7 +93,7 @@ namespace Smartstore.StripeElements.Providers
             return (settings.AdditionalFee, settings.AdditionalFeePercentage);
         }
 
-        public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             // INFO: Real process payment happens in StripeController > ConfirmOrder
 
@@ -102,7 +113,13 @@ namespace Smartstore.StripeElements.Providers
             // Store PaymentIntent.Id in AuthorizationTransactionId.
             result.AuthorizationTransactionId = state.PaymentIntent.Id;
 
-            return Task.FromResult(result);
+            var settings = await _settingFactory.LoadSettingsAsync<StripeSettings>(processPaymentRequest.StoreId);
+
+            result.NewPaymentStatus = settings.CaptureMethod == "automatic"
+                ? PaymentStatus.Paid
+                : PaymentStatus.Authorized;
+
+            return result;
         }
 
         public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request)
@@ -146,32 +163,42 @@ namespace Smartstore.StripeElements.Providers
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
-            // TODO: (MH) (core) Implement
+            try
+            {
+                // INFO: PaymentIntent is stored in AuthorizationTransactionId
+                var service = new PaymentIntentService();
+                var response = await service.CaptureAsync(request.Order.AuthorizationTransactionId);
+
+                result.CaptureTransactionResult = response.Status;
+
+                result.NewPaymentStatus = PaymentStatus.Paid;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+            }
 
             return result;
         }
 
         public override async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest request)
         {
+            var order = request.Order;
             var result = new VoidPaymentResult
             {
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
-            try
-            {
-                // Info payment intent must have one of the following stati else it will throw
-                // requires_payment_method, requires_capture, requires_confirmation, requires_action
+            // INFO: payment intent must have one of the following statuses, otherwise it will throw
+            // requires_payment_method, requires_capture, requires_confirmation, requires_action
 
+            if (order.PaymentStatus == PaymentStatus.Pending || order.PaymentStatus == PaymentStatus.Authorized)
+            {
                 // INFO: PaymentIntent is stored in AuthorizationTransactionId
                 var service = new PaymentIntentService();
                 await service.CancelAsync(request.Order.AuthorizationTransactionId);
 
                 result.NewPaymentStatus = PaymentStatus.Voided;
-            }
-            catch (Exception ex) 
-            {
-                var test = ex;
             }
 
             return result;

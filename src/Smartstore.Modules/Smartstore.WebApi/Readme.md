@@ -9,8 +9,8 @@ as recommended by OData protocol version 4.0.
 - Querying a single, simple property value via path **GET /EntitySet(&lcub;id&rcub;)/PropertyName** is no longer supported. Use the more flexible **$select** instead.  
 Example: old `/Categories(14)/Name`, new `/Categories(14)?$select=Name`.
 
-- For PUT and PATCH requests, the HTTP header **Prefer** with the value **return=representation** must be sent to get a 
-status code 200 with entity content response. This is the default behavior of ASP.NET Core OData 8.0. Otherwise **204 No Content** is returned.
+- For **PUT** and **PATCH** requests, the HTTP header **Prefer** with the value **return=representation** must be sent to get a 
+status code 200 with entity content response. This is the default behavior of AspNetCore.OData v.8. Otherwise **204 No Content** is returned.
 
 - `/MediaFiles` returns type **FileItemInfo** which wraps and enriches the MediaFile entity. 
 `/MediaFolders` returns type **FolderNodeInfo** which wraps and enriches the MediaFolder entity.
@@ -18,6 +18,8 @@ FileItemInfo and FolderNodeInfo are flattened objects and no longer entities.
 
 - Request parameters are always written in camel case, for example for OData actions.    
 Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/MediaFiles/GetFileByPath {"path":"catalog/my-image.jpg"}`.
+
+- The query string parameter **SmNetFulfill** has been renamed to **SmApiFulfill**.
 
 - Changed endpoints:
 <table>
@@ -123,24 +125,28 @@ Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/
     </tr>
 </table>
 
-- The query string parameter **SmNetFulfill** has been renamed to **SmApiFulfill**.
+
+## Links
+- <a href="https://smartstore.gitbook.io/developer-guide/framework/web-api">Developer guide</a>.
+- API clients: <a href="https://github.com/smartstore/Smartstore/tree/main/tools/Smartstore.WebApi.Client">Smartstore API Client</a>,
+<a href="https://www.postman.com/">Postman</a> or integrated Swagger Web API help reachable under the store URL `/docs/api/`.
+- Reasonably accurate OData <a href="https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData">examples</a>.
 
 ## General developer notes
 ### OData
-- Accurate OData <a href="https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData">examples</a>.
-- <a href="https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions">Routing conventions</a> (only partly applicable for AspNetCore.OData v.8).
-- <a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities">$ref</a> (not supported).
-
-- **IActionResult** is used when multiple return types are possible, otherwise **ActionResult&lt;T&gt;** can be used. 
-The type property of ProducesResponseTypeAttribute can be excluded for **ActionResult&lt;T&gt;**.
+- `IActionResult` is used when multiple return types are possible, otherwise `ActionResult<T>` can be used. 
+The type property of `ProducesResponseTypeAttribute` can be excluded for `ActionResult<T>`.
 
 - OData **functions** can be only HttpGet, OData **actions** only HttpPost.
 
-- By protocol specification **enums** are serialized using the enum member string, not the enum member value.
+- By protocol specification `enums` are serialized using the enum member string, not the enum member value.
+
+- <a href="https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions">Routing conventions</a> (only partly applicable for AspNetCore.OData v.8).
+- <a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities">$ref</a> (not supported).
 
 ### <a href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore">Swashbuckle</a>
-- Explicit **From** parameter bindings are required otherwise Swashbuckle will describe them as query parameters by default.
-Code comments of parameters decorated with **FromForm** do not show up (<a href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2519">#2519</a>).
+- Explicit `From` parameter bindings are required otherwise Swashbuckle will describe them as query parameters by default.
+Code comments of parameters decorated with `FromForm` do not show up (<a href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2519">#2519</a>).
 
 ### Errors
 <table>

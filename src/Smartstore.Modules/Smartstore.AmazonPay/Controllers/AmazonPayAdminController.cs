@@ -109,7 +109,8 @@ namespace Smartstore.AmazonPay.Controllers
             settings = ((ISettings)settings).Clone() as AmazonPaySettings;
             MiniMapper.Map(model, settings);
 
-            await _settingHelper.UpdateSettingsAsync(settings, form, storeScope);
+            _settingHelper.Contextualize(storeScope);
+            await _settingHelper.UpdateSettingsAsync(settings, form);
             await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));

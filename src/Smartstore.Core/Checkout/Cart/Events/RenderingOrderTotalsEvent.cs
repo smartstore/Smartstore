@@ -10,11 +10,11 @@ namespace Smartstore.Core.Checkout.Cart.Events
         /// <summary>
         /// Gets the customer
         /// </summary>
-        public Customer Customer { get; init; }
+        public Customer Customer { get; set; }
 
         /// <summary>
         /// Gets the store id
         /// </summary>
-        public int? StoreId { get; init; }
+        public int? StoreId { get; set; }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Smartstore.ComponentModel;
-using Stripe;
 
 namespace Smartstore.StripeElements.Models
 {

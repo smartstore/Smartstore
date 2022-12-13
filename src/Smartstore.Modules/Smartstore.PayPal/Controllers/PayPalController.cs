@@ -1,7 +1,5 @@
 ﻿using System.Globalization;
 using System.Net;
-using Azure;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -83,7 +81,7 @@ namespace Smartstore.PayPal.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder()
         {
-            var orderMessage = await _client.GetOrderForStandardProviderAsync(false);
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(true);
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);

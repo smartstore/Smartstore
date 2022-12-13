@@ -122,7 +122,7 @@ namespace Smartstore.Core.Checkout.Cart
             {
                 ctx.Warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
 
-                // For what is this for? It looks like a hack:
+                // What's this for? It looks like a hack:
                 if (ctx.BundleItem != null)
                     return false;
             }
@@ -134,7 +134,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             var cart = await GetCartAsync(ctx.Customer, ctx.CartType, ctx.StoreId.Value);
 
-            // Adds required products automatically if it is enabled
+            // Adds required products automatically if it is enabled.
             if (ctx.AutomaticallyAddRequiredProducts)
             {
                 var requiredProductIds = ctx.Product.ParseRequiredProductIds();
@@ -144,6 +144,9 @@ namespace Smartstore.Core.Checkout.Cart
                     var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
                     var missingRequiredProducts = await _db.Products.GetManyAsync(missingRequiredProductIds, false);
 
+                    var cartItems = new List<OrganizedShoppingCartItem>(cart.Items);
+                    var newCartItems = new List<OrganizedShoppingCartItem>();
+
                     foreach (var product in missingRequiredProducts)
                     {
                         var item = new ShoppingCartItem
@@ -152,24 +155,34 @@ namespace Smartstore.Core.Checkout.Cart
                             RawAttributes = ctx.AttributeSelection.AsJson(),
                             ShoppingCartType = ctx.CartType,
                             StoreId = ctx.StoreId.Value,
-                            Quantity = ctx.Quantity,
+                            Quantity = 1,
                             Customer = ctx.Customer,
                             Product = product,
                             BundleItemId = ctx.BundleItem?.Id
                         };
 
-                        await AddItemToCartAsync(new AddToCartContext
+                        newCartItems.Add(new OrganizedShoppingCartItem(item));
+                    }
+
+                    cartItems.AddRange(newCartItems);
+
+                    // Checks whether required products are still missing
+                    var valid = await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, cartItems, ctx.Warnings);
+
+                    if (valid)
+                    {
+                        foreach (var item in newCartItems)
                         {
-                            Item = item,
-                            ChildItems = ctx.ChildItems,
-                            Customer = ctx.Customer
-                        });
+                            await AddItemToCartAsync(new AddToCartContext
+                            {
+                                Item = item.Item,
+                                ChildItems = ctx.ChildItems,
+                                Customer = ctx.Customer
+                            });
+                        }
                     }
                 }
             }
-
-            // Checks whether required products are still missing
-            await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, cart.Items, ctx.Warnings);
 
             var existingCartItem = ctx.BundleItem == null
                 ? cart.FindItemInCart(ctx.CartType, ctx.Product, ctx.AttributeSelection, ctx.CustomerEnteredPrice)?.Item

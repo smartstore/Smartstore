@@ -1,14 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Smartstore.Web.Modelling;
-using Stripe;
 
 namespace Smartstore.StripeElements.Models
 {
+    /// <summary>
+    /// Event object which is returned by stripe when terminal has accepted the payment.
+    /// </summary>
     public class PublicStripeEventModel : ModelBase
     {
-        /// <summary>
-        /// TODO
-        /// </summary>
         public string MethodName { get; set; }
 
         public string PayerName { get; set; }
@@ -34,7 +33,7 @@ namespace Smartstore.StripeElements.Models
         public string Object { get; set; }
         public string Type { get; set; }
 
-        // TODO: (mh) (core) Needed?
+        // INFO: (mh) (core) Implement in future
         //public StripeCustomer Customer { get; set; }
     }
 

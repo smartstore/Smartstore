@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Payment;
@@ -45,7 +44,7 @@ namespace Smartstore.StripeElements.Filters
                 await next();
                 return;
             }
-
+            
             _widgetProvider.RegisterHtml("scripts", new HtmlString("<script id=\"stripe-js\" src=\"/Modules/Smartstore.Stripe/smartstore.stripe.js\"></script>"));
             _widgetProvider.RegisterHtml("head", new HtmlString("<script id=\"stripe-js\" src=\"https://js.stripe.com/v3/\" async></script>"));
             

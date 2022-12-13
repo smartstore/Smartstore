@@ -12,8 +12,12 @@ namespace Smartstore.Core.Catalog.Products
         /// Updates product tags. This method commits to database.
         /// It uses a <see cref="HookImportance.Important"/> hook scope and therefore all changes to entities should have been committed to the database before calling it.
         /// </summary>
+        /// <remarks>
+        /// Tags that are not included in <paramref name="tagNames"/> are added and assigned to the product.
+        /// Existing assignments to tags that are not included in <paramref name="tagNames"/> are removed.
+        /// </remarks>
         /// <param name="product">Product.</param>
-        /// <param name="tagNames">Tag names.</param>
+        /// <param name="tagNames">List of tag names to apply.</param>
         Task UpdateProductTagsAsync(Product product, IEnumerable<string> tagNames);
 
         /// <summary>

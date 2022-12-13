@@ -1,5 +1,8 @@
 ﻿global using System;
-using System.Threading.Tasks;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using Stripe;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.StripeElements.Settings;

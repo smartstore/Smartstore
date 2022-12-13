@@ -1,10 +1,6 @@
 ﻿#nullable enable
 
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Options;
-using Microsoft.OData.UriParser;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -25,11 +21,6 @@ namespace Smartstore.Web.Controllers
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public ICommonServices Services { get; set; } = default!;
-
-        //public IViewInvoker ViewInvoker
-        //{
-        //    get => HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
-        //}
 
         #region Widget, View & Component rendering
 

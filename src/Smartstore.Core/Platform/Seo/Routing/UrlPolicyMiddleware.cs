@@ -34,15 +34,12 @@ namespace Smartstore.Core.Seo.Routing
                 {
                     return HandleRedirect(policy.GetModifiedUrl());
                 }
-
+                
                 var endpoint = context.GetEndpoint();
-                if (policy.Endpoint == null)
-                {
-                    // We may need the original endpoint for logging and error handling purposes later,
-                    // but the ExeptionHandler middleware sets endpoint to null in order to re-execute correctly.
-                    // Therefore we gonna save it here, but only if we're not in re-execution.
-                    policy.Endpoint = endpoint;
-                }
+                // We may need the original endpoint for logging and error handling purposes later,
+                // but the ExeptionHandler middleware sets endpoint to null in order to re-execute correctly.
+                // Therefore we gonna save it here, but only if we're not in re-execution.
+                policy.Endpoint ??= endpoint;
 
                 // Apply all registered url filters
                 foreach (var urlFilter in _urlFilters)

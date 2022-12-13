@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
@@ -32,15 +31,17 @@ namespace Smartstore.StripeElements.Controllers
 
             var model = MiniMapper.Map<StripeSettings, ConfigurationModel>(settings);
 
+            model.WebhookUrl = Url.Action(nameof(StripeController.WebhookHandler), "Stripe", new { area = string.Empty }, "https");
+
             ViewBag.AvailableCaptureMethods = new List<SelectListItem>
             {
-                new SelectListItem()
+                new SelectListItem
                 {
                     Text = T("Plugins.Smartstore.Stripe.CaptureMethod.Automatic"),
                     Value = "automatic",
                     Selected = "automatic" == settings.CaptureMethod
                 },
-                new SelectListItem()
+                new SelectListItem
                 {
                     Text = T("Plugins.Smartstore.Stripe.CaptureMethod.Manual"),
                     Value = "manual",
