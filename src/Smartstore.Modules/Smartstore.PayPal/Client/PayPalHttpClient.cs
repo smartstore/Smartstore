@@ -529,6 +529,7 @@ namespace Smartstore.PayPal.Client
                 purchaseUnit.Amount.Value = cartTotal.Total.Value.Amount.ToStringInvariant("F");
             }
 
+            // TODO: (mh) (core) This is very hackish. PayPal was contacted and requested for a correct solution.
             // Lets check for rounding issues.
             var calculatedAmount = itemTotal + itemTotalTax + shippingTotalAmount - discountAmount;
             var amountMismatch = calculatedAmount != purchaseUnit.Amount.Value.Convert<decimal>();
@@ -542,6 +543,11 @@ namespace Smartstore.PayPal.Client
                         Value = difference.ToStringInvariant("F"),
                         CurrencyCode = currency.CurrencyCode
                     };
+                }
+                else
+                {
+                    // Negative mismatch 
+                    purchaseUnit.Amount.AmountBreakdown.Discount.Value = (discountAmount + (difference * -1)).ToStringInvariant("F");
                 }
             }
 
