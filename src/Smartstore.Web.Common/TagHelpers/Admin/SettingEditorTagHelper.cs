@@ -106,7 +106,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             var overrideInput = new TagBuilder("input");
             overrideInput.Attributes["class"] = "multi-store-override-option";
             overrideInput.Attributes["type"] = "checkbox";
-            overrideInput.Attributes["id"] = fieldId;
+            overrideInput.Attributes["id"] = fieldId.SanitizeHtmlId();
             overrideInput.Attributes["name"] = fieldId;
             overrideInput.Attributes["onclick"] = "Smartstore.Admin.checkOverriddenStoreValue(this)";
             overrideInput.Attributes["data-parent-selector"] = ParentSelector.EmptyNull();
