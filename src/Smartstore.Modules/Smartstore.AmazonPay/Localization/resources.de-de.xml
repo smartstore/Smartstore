@@ -22,9 +22,18 @@
             <![CDATA[
                 <div class="mb-1">So richten Sie <b>Login und Bezahlen mit Amazon</b> ein:</div><ul>
                 <li>Legen Sie in Ihrem <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> Konto eine <b>Login mit Amazon</b> Anwendung an. Verwenden Sie dabei die unten aufgeführten <b>Zulässige JavaScript-Ursprünge</b> und <b>Zulässige Rückleitungs-URLs</b> (SSL zwingend erforderlich!).</li>
-                <li>Tragen Sie Ihre Amazon-Zugangsdaten unten in die dafür vorgesehenen Felder ein.
-                Erstellen Sie dazu API-Schlüssel in Ihrem <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> Konto oben links unter <b>Integration > Integration Central</b>.
-                Den Private Key erhalten Sie in Form einer Datei mit der Endung .pem, die Sie weiter unten hochladen müssen. Er ist nachträglich nicht mehr einsehbar. Bewahren Sie ihn gut auf oder erstellen Sie bei Bedarf neue Schlüssel.</li>
+                <li>
+                    Tragen Sie Ihre Amazon-Zugangsdaten unten in die dafür vorgesehenen Felder ein. API-Schlüssel können Sie wie folgt erstellen.
+                    <ul>
+                        <li>Loggen Sie sich bei <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> ein.</li>
+                        <li>Klicken Sie oben links auf das Menüsymbol und dann <b>Integration > Integration Central</b>.</li>
+                        <li>Bei <b>E-Commerce-Anbieter oder Integrationstyp</b> wählen Sie bitte <b>Selbst entwickelt</b> und <b>Einmalzahlung</b> als Zahlungstypen.</li>
+                        <li>Bei <b>API-Schlüssel</b> klicken Sie auf den Button <b>Schlüssel erstellen</b>.</li>
+                        <li>Wählen Sie <b>API-Anmeldeinformationen generieren</b> und vergeben Sie einen Namen für die API-Schlüssel.</li>
+                        <li>Durch klicken auf <b>Schlüssel erstellen</b> wird eine Datei mit der Endung .pem heruntergeladen, die den Private Key enthält. Die Datei können Sie auf dieser Seiten unten hochladen.
+                        Er ist nachträglich in Amazon Seller Central nicht mehr einsehbar. Bewahren Sie ihn gut auf oder erstellen Sie bei Bedarf neue Schlüssel.</li>
+                    </ul>
+                </li>
                 <li>Falls Sie Sofortbenachrichtigungen (IPN) erhalten möchten (SSL zwingend erforderlich!), so tragen Sie die unten aufgeführte IPN URL unter <b>Integrationseinstellungen - Sofortbenachrichtigungseinstellungen - Händler-URL</b> ein.</li>
                 </ul>
                 <div class="mb-1">Bitte fügen Sie Informationen zu <b>Login und Bezahlen mit Amazon</b> auf Ihrer Seite der Zahlungsarten ein (siehe <b>CMS > Seiten und Inhalte</b>). Bildmaterial finden Sie <a class="alert-link" href="https://payments.amazon.de/resources#marks">hier</a>.
