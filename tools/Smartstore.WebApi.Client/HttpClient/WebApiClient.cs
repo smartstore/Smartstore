@@ -130,7 +130,7 @@ namespace Smartstore.WebApi.Client
                 content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = pair.Key };
                 result.Add(content);
 
-                response.RequestContent.AppendLine("\r\n" + content.Headers.ToString());
+                response.RequestContent.AppendLine(content.Headers.ToString() + pair.Value.ToString() + "\r\n");
             }
 
             // File data.
@@ -169,7 +169,7 @@ namespace Smartstore.WebApi.Client
 
                 result.Add(content);
 
-                response.RequestContent.AppendLine($"{content.Headers.ToString()}\r\n<Binary data for {fileName} here (length {fileSize} bytes)…>");
+                response.RequestContent.AppendLine($"{content.Headers.ToString()}<Binary data for {fileName} here (length {fileSize} bytes)…>");
             }
 
             return result;

@@ -23,7 +23,6 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 namespace Smartstore.Web.Api
 {
     // TODO: (mg) (core) at /$odata all endpoints are listed twice (named "N/A").
-    // TODO: (mg) (core) check OData metadata and Swagger for unwanted entities when all is ready.
     // TODO: (mg) (core) IEEE754Compatible=true is not supported\working: https://github.com/OData/WebApi/issues/1460
     // TODO: (mg) (core) implement Rate Limiting when switching to .NET 7: https://devblogs.microsoft.com/dotnet/announcing-rate-limiting-for-dotnet/
 

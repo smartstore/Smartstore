@@ -65,8 +65,6 @@ namespace Smartstore.Web.Api.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public IQueryable<Product> Get()
         {
-            
-
             // INFO: unlike in Classic, also returns system products. Someone may well use them for their own purposes.
             return Entities.AsNoTracking();
         }
