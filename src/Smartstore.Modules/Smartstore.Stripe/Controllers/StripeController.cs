@@ -163,8 +163,6 @@ namespace Smartstore.StripeElements.Controllers
 
                 if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) || paymentRequest == null)
                 {
-                    // TODO: (mh) (core) paymentRequest not saved in session. Is this by intent?
-                    // RE: In fact this should never be null and won't be needed anymore after _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest)
                     paymentRequest = new ProcessPaymentRequest();
                 }
 

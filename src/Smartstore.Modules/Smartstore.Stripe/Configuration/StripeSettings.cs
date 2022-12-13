@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Configuration;
 
 namespace Smartstore.StripeElements.Settings
 {
