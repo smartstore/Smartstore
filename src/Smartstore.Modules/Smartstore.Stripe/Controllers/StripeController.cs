@@ -17,6 +17,7 @@ using Smartstore.StripeElements.Services;
 using Smartstore.StripeElements.Settings;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
+
 namespace Smartstore.StripeElements.Controllers
 {
     public class StripeController : ModuleController
@@ -163,6 +164,7 @@ namespace Smartstore.StripeElements.Controllers
                 if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) || paymentRequest == null)
                 {
                     // TODO: (mh) (core) paymentRequest not saved in session. Is this by intent?
+                    // RE: In fact this should never be null and won't be needed anymore after _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest)
                     paymentRequest = new ProcessPaymentRequest();
                 }
 
@@ -363,7 +365,7 @@ namespace Smartstore.StripeElements.Controllers
                         var capturedAmount = charge.Amount;
 
                         // Convert ammount.
-                        decimal convertedAmount = capturedAmount / 100;
+                        decimal convertedAmount = capturedAmount / 100M;
 
                         // Check if full order amount was refund.
                         if (order.OrderTotal == convertedAmount)
@@ -409,14 +411,15 @@ namespace Smartstore.StripeElements.Controllers
             }
         }
 
+        // INFO: We leave this method in case we want to log further infos in future.
         private static void WriteOrderNotes(Order order, Charge charge)
         {
             if (charge != null)
             {
-                // TODO: (mh) (core) Can't we combine all 3 notes into a single one?
-                order.OrderNotes.Add(new OrderNote { DisplayToCustomer = true, Note = $"Reason: {charge.Refunds.FirstOrDefault().Reason}" });
-                order.OrderNotes.Add(new OrderNote { DisplayToCustomer = true, Note = $"Reason: {charge.Description}" });
-                order.OrderNotes.Add(new OrderNote { DisplayToCustomer = true, Note = $"Reason: {charge.Id}" });
+                order.OrderNotes.Add(new OrderNote { 
+                    DisplayToCustomer = true, 
+                    Note = $"Reason for Charge-ID {charge.Id}: {charge.Refunds.FirstOrDefault().Reason} - {charge.Description}" }
+                );
             }
         }
     }

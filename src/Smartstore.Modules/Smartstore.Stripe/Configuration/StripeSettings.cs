@@ -1,4 +1,4 @@
-﻿// TODO: (mh) (core) Make nullable
+﻿#nullable enable
 
 using Smartstore.Core.Configuration;
 

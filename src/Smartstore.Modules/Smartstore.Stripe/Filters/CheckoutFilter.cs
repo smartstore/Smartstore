@@ -8,6 +8,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Providers;
+using Smartstore.StripeElements.Services;
 using Smartstore.StripeElements.Settings;
 using Smartstore.Web.Controllers;
 
@@ -22,6 +23,7 @@ namespace Smartstore.StripeElements.Filters
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWidgetProvider _widgetProvider;
+        private readonly StripeHelper _stripeHelper;
 
         public CheckoutFilter(
             SmartDbContext db,
@@ -30,7 +32,8 @@ namespace Smartstore.StripeElements.Filters
             StripeSettings settings,
             ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
-            IWidgetProvider widgetProvider)
+            IWidgetProvider widgetProvider,
+            StripeHelper stripeHelper)
         {
             _db = db;
             _services = services;
@@ -39,11 +42,12 @@ namespace Smartstore.StripeElements.Filters
             _checkoutStateAccessor = checkoutStateAccessor;
             _httpContextAccessor = httpContextAccessor;
             _widgetProvider = widgetProvider;
+            _stripeHelper = stripeHelper;
         }
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
-            if (!await IsStripeElementsActive())
+            if (!await _stripeHelper.IsStripeElementsActive())
             {
                 await next();
                 return;
@@ -94,7 +98,7 @@ namespace Smartstore.StripeElements.Filters
                 {
                     var state = _checkoutStateAccessor.CheckoutState;
 
-                    if (state.IsPaymentRequired && await IsStripeElementsActive())
+                    if (state.IsPaymentRequired && await _stripeHelper.IsStripeElementsActive())
                     {
                         _widgetProvider.RegisterWidget("end",
                             new PartialViewWidget("_CheckoutConfirm", state.GetCustomState<StripeCheckoutState>(), "Smartstore.Stripe"));
@@ -104,9 +108,5 @@ namespace Smartstore.StripeElements.Filters
 
             await next();
         }
-
-        // TODO: (mh) (core) Move this to StripeHelper.cs
-        private Task<bool> IsStripeElementsActive()
-            => _paymentService.IsPaymentMethodActiveAsync(StripeElementsProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
     }
 }

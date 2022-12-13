@@ -3,10 +3,12 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.StripeElements.Models;
+using Smartstore.StripeElements.Providers;
 
 namespace Smartstore.StripeElements.Services
 {
@@ -19,7 +21,8 @@ namespace Smartstore.StripeElements.Services
         private readonly IProductService _productService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICurrencyService _currencyService;
-        
+        private readonly IPaymentService _paymentService;
+
         public StripeHelper(
             ICommonServices services,
             IShoppingCartService shoppingCartService,
@@ -27,7 +30,8 @@ namespace Smartstore.StripeElements.Services
             IPriceCalculationService priceCalculationService,
             IProductService productService,
             IOrderCalculationService orderCalculationService,
-            ICurrencyService currencyService)
+            ICurrencyService currencyService,
+            IPaymentService paymentService)
         {
             _services = services;
             _shoppingCartService = shoppingCartService;
@@ -36,6 +40,7 @@ namespace Smartstore.StripeElements.Services
             _productService = productService;
             _orderCalculationService = orderCalculationService;
             _currencyService = currencyService;
+            _paymentService = paymentService;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -87,5 +92,8 @@ namespace Smartstore.StripeElements.Services
 
             return stripePaymentRequest;
         }
+
+        public Task<bool> IsStripeElementsActive()
+            => _paymentService.IsPaymentMethodActiveAsync(StripeElementsProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
     }
 }
