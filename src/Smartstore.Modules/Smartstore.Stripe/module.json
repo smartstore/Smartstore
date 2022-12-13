@@ -4,8 +4,7 @@
   "Group": "Payment",
   "SystemName": "Smartstore.Stripe",
   "FriendlyName": "Stripe",
-  // TODO: (mh) (core) Description missing
-  "Description": "",
+  "Description": "Extends the store with Stripe payment.",
   "Version": "5.0.1",
   "MinAppVersion": "5.0.1",
   "Order": 1,
