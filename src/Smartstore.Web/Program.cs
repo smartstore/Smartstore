@@ -218,6 +218,7 @@ Logger SetupSerilog(IConfiguration configuration)
                 .Enrich.FromLogContext()
                 // Do not allow system/3rdParty noise less than WRN level
                 .Filter.ByIncludingOnly(IsDbSource)
+                .Filter.ByExcluding(IsApiQueryWarning)
                 .WriteTo.DbContext(period: TimeSpan.FromSeconds(5), batchSize: 50, eagerlyEmitFirstEvent: false, queueLimit: 1000);
         }, restrictedToMinimumLevel: dbMinLevel, levelSwitch: null);
 
@@ -234,6 +235,18 @@ bool IsFileSource(LogEvent e)
 {
     var source = e.GetSourceContext();
     return source != null && (source.Equals("File", StringComparison.OrdinalIgnoreCase) || source.StartsWith("File/", StringComparison.OrdinalIgnoreCase));
+}
+
+bool IsApiQueryWarning(LogEvent e)
+{
+    if (e.Level <= LogEventLevel.Warning
+        && e.GetPropertyValue<string>("RequestPath").StartsWithNoCase("/odata/")
+        && e.GetSourceContext().EqualsNoCase("Microsoft.EntityFrameworkCore.Query"))
+    {
+        return true;
+    }
+
+    return false;
 }
 
 #endregion
