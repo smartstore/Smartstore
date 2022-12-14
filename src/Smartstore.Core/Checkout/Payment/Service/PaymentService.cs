@@ -88,7 +88,7 @@ namespace Smartstore.Core.Checkout.Payment
             };
 
             var allFilters = GetAllPaymentMethodFilters();
-            var allProviders = types != null && types.Any()
+            var allProviders = !types.IsNullOrEmpty()
                 ? (await LoadAllPaymentMethodsAsync(storeId)).Where(x => types.Contains(x.Value.PaymentMethodType))
                 : await LoadAllPaymentMethodsAsync(storeId);
 
@@ -135,11 +135,9 @@ namespace Smartstore.Core.Checkout.Payment
 
             if (!activeProviders.Any() && provideFallbackMethod)
             {
-                var fallbackMethod = allProviders.FirstOrDefault(x => x.IsPaymentMethodActive(_paymentSettings));
-                if (fallbackMethod == null)
-                {
-                    fallbackMethod = allProviders.FirstOrDefault(x => x.Metadata?.ModuleDescriptor?.SystemName?.EqualsNoCase("SmartStore.OfflinePayment") ?? false) ?? allProviders.FirstOrDefault();
-                }
+                var fallbackMethod = allProviders.FirstOrDefault(x => x.IsPaymentMethodActive(_paymentSettings))
+                    ?? allProviders.FirstOrDefault(x => x.Metadata?.ModuleDescriptor?.SystemName?.EqualsNoCase("Smartstore.OfflinePayment") ?? false)
+                    ?? allProviders.FirstOrDefault();
 
                 if (fallbackMethod != null)
                 {
