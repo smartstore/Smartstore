@@ -14,20 +14,20 @@ namespace Smartstore.Core.Seo.Routing
         private readonly IUrlService _urlService;
         private readonly LocalizationSettings _localizationSettings;
         private readonly ILanguageService _languageService;
-        private readonly IReservedSlugTable _reservedSlugTable;
+        private readonly IRouteHelper _routeHelper;
 
         public SlugRouteTransformer(
             SmartDbContext db,
             IUrlService urlService,
             LocalizationSettings localizationSettings,
             ILanguageService languageService,
-            IReservedSlugTable reservedSlugTable)
+            IRouteHelper routeHelper)
         {
             _db = db;
             _urlService = urlService;
             _localizationSettings = localizationSettings;
             _languageService = languageService;
-            _reservedSlugTable = reservedSlugTable;
+            _routeHelper = routeHelper;
         }
 
         #region Static
@@ -151,7 +151,7 @@ namespace Smartstore.Core.Seo.Routing
             }
 
 
-            if (_reservedSlugTable.IsReservedSlug(slug))
+            if (_routeHelper.IsReservedSlug(slug))
             {
                 // Don't attemp to transform reserved system slugs provided by action routes.
                 return null;

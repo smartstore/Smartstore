@@ -8,48 +8,11 @@ namespace Smartstore.Core.Seo
         public static ISet<string> DefaultRobotDisallows { get; } = new HashSet<string>
         {
             "/bin/",
-            "/Exchange/",
-            "/Country/GetStatesByCountryId",
-            "/Install$",
-            "/Product/SetReviewHelpfulness"
-        };
-
-        public static ISet<string> DefaultRobotLocalizableDisallows { get; } = new HashSet<string>
-        {
-            "/Cart$",
-            "/Checkout",
-            "/Product/ClearCompareList",
-            "/CompareProducts",
-            "/Customer/Avatar",
-            "/Customer/Activation",
-            "/Customer/Addresses",
-            "/Customer/BackInStockSubscriptions",
-            "/Customer/ChangePassword",
-            "/Customer/CheckUsernameAvailability",
-            "/Customer/DownloadableProducts",
-            "/Customer/ForumSubscriptions",
-            "/Customer/DeleteForumSubscriptions",
-            "/Customer/Info",
-            "/Customer/Orders",
-            "/Customer/ReturnRequests",
-            "/Customer/RewardPoints",
-            "/Newsletter/SubscriptionActivation",
-            "/Order$",
-            "/PasswordRecovery",
-            "/ReturnRequest",
-            "/Newsletter/Subscribe",
-            "/Topic/Authenticate",
-            "/Wishlist",
-            "/Product/AskQuestion",
-            "/Product/EmailAFriend",
-            "/Cookiemanager",
-			//"/Search",
-			"/Config$",
-            "/Settings$",
-            "/Login$",
-            "/Login?*",
-            "/Register$",
-            "/Register?*"
+            "/exchange/",
+            "/customer/",
+            "/order/",
+            "/install$",
+            "/install/"
         };
 
         public static ISet<string> DefaultCharConversions { get; } = new HashSet<string>

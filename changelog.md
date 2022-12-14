@@ -15,6 +15,7 @@
 - **ElmarShopInfo** (commercial plugin)
 - **Shopwahl** (commercial plugin)
 - New app setting: `DbDefaultSchema`
+- (DEV) New action filter attribute `DisallowRobotAttribute`
 
 ### Improvements
 

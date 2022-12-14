@@ -13,6 +13,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.OutputCache;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Http;
@@ -550,6 +551,7 @@ namespace Smartstore.Web.Controllers
 
         #region Comparing products
 
+        [DisallowRobot]
         [LocalizedRoute("/compareproducts", Name = "CompareProducts")]
         public async Task<IActionResult> CompareProducts()
         {
@@ -658,10 +660,13 @@ namespace Smartstore.Web.Controllers
             });
         }
 
+        [DisallowRobot]
         public IActionResult ClearCompareList()
         {
             if (!_catalogSettings.CompareProductsEnabled)
+            {
                 return RedirectToRoute("Homepage");
+            }
 
             _productCompareService.ClearCompareList();
 

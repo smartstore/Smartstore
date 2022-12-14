@@ -30,6 +30,7 @@ namespace Smartstore.Web.Controllers
         private readonly ThemeSettings _themeSettings;
         private readonly SeoSettings _seoSettings;
         private readonly LocalizationSettings _localizationSettings;
+        private readonly IRouteHelper _routeHelper;
 
         public CommonController(
             SmartDbContext db,
@@ -41,7 +42,8 @@ namespace Smartstore.Web.Controllers
             ICacheManager cache,
             ThemeSettings themeSettings,
             SeoSettings seoSettings,
-            LocalizationSettings localizationSettings)
+            LocalizationSettings localizationSettings,
+            IRouteHelper routeHelper)
         {
             _db = db;
             _cookieConsentManager = cookieConsentManager;
@@ -53,6 +55,7 @@ namespace Smartstore.Web.Controllers
             _themeSettings = themeSettings;
             _seoSettings = seoSettings;
             _localizationSettings = localizationSettings;
+            _routeHelper = routeHelper;
         }
 
         [CheckStoreClosed(false)]
@@ -97,11 +100,9 @@ namespace Smartstore.Web.Controllers
         {
             #region DisallowPaths
 
-            // TODO: (mh) (core) Check if routes are still the same, when everything is finished. 
             var disallowPaths = SeoSettings.DefaultRobotDisallows;
-
-            // TODO: (mh) (core) Check if routes are still the same, when everything is finished. 
-            var localizableDisallowPaths = SeoSettings.DefaultRobotLocalizableDisallows;
+            var localizableDisallowPaths = _routeHelper.EnumerateDisallowedRobotPaths();
+            //var localizableDisallowPaths = SeoSettings.DefaultRobotLocalizableDisallows;
 
             #endregion
 
@@ -143,7 +144,7 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
-        /// Adds Allow & Disallow lines to robots.txt .
+        /// Adds Allow & Disallow lines to robots.txt
         /// </summary>
         /// <param name="lines">Lines to add.</param>
         /// <param name="allow">Specifies whether new lines are Allows or Disallows.</param>
@@ -245,6 +246,7 @@ namespace Smartstore.Web.Controllers
             return Json(cacheModel);
         }
 
+        [DisallowRobot]
         [LocalizedRoute("/cookiemanager", Name = "CookieManager")]
         public IActionResult CookieManager()
         {

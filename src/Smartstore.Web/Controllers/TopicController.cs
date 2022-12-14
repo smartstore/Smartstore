@@ -3,6 +3,7 @@ using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Topics;
@@ -113,7 +114,7 @@ namespace Smartstore.Web.Controllers
             return View("TopicDetails", cacheModel);
         }
 
-        [HttpPost]
+        [HttpPost, DisallowRobot]
         public async Task<IActionResult> Authenticate(int id, string password)
         {
             var authResult = false;

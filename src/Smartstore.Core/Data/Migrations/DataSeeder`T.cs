@@ -75,7 +75,7 @@ namespace Smartstore.Core.Data.Migrations
                         null, // IWorkContext not accessed
                         null, // IStoreContext not accessed
                         null, // ILanguageService not accessed
-                        ApplicationContext.Services.Resolve<IReservedSlugTable>(),
+                        ApplicationContext.Services.Resolve<IRouteHelper>(),
                         new LocalizationSettings(),
                         new SeoSettings { LoadAllUrlAliasesOnStartup = false },
                         new PerformanceSettings(),

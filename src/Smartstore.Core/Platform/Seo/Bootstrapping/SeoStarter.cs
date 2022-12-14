@@ -13,7 +13,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<UrlService>().As<IUrlService>().InstancePerLifetimeScope();
             builder.RegisterType<XmlSitemapGenerator>().As<IXmlSitemapGenerator>().InstancePerLifetimeScope();
             builder.RegisterType<CanonicalHostUrlFilter>().As<IUrlFilter>().SingleInstance();
-            builder.RegisterType<ReservedSlugTable>().As<IReservedSlugTable>().SingleInstance();
+            builder.RegisterType<DefaultRouteHelper>().As<IRouteHelper>().SingleInstance();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

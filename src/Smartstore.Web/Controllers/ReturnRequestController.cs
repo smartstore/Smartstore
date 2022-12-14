@@ -7,6 +7,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Web.Models.Orders;
 
 namespace Smartstore.Web.Controllers
@@ -39,7 +40,7 @@ namespace Smartstore.Web.Controllers
             _localizationSettings = localizationSettings;
         }
 
-        [RequireSsl]
+        [RequireSsl, DisallowRobot]
         public async Task<IActionResult> ReturnRequest(int id /* orderId */)
         {
             var order = await _db.Orders

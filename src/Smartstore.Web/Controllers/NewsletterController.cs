@@ -1,6 +1,7 @@
 ﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Newsletter;
 
@@ -29,7 +30,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
-        [GdprConsent]
+        [GdprConsent, DisallowRobot]
         [LocalizedRoute("newsletter/subscribe", Name = "SubscribeNewsletter")]
         public async Task<IActionResult> Subscribe(bool subscribe, string email)
         {
@@ -116,6 +117,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpGet]
+        [DisallowRobot]
         [LocalizedRoute("/newsletter/subscriptionactivation/{token}/{active}", Name = "NewsletterActivation")]
         public async Task<IActionResult> SubscriptionActivation(Guid token, bool active)
         {

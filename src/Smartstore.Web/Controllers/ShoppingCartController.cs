@@ -22,6 +22,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Cart;
@@ -144,7 +145,7 @@ namespace Smartstore.Web.Controllers
             });
         }
 
-        [RequireSsl]
+        [RequireSsl, DisallowRobot(true)]
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> Cart(ProductVariantQuery query)
         {
@@ -168,6 +169,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [RequireSsl]
+        [DisallowRobot]
         [LocalizedRoute("/wishlist/{customerGuid:guid?}", Name = "Wishlist")]
         public async Task<IActionResult> Wishlist(Guid? customerGuid)
         {

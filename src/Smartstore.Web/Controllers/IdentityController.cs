@@ -13,6 +13,7 @@ using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Engine.Modularity;
@@ -88,6 +89,7 @@ namespace Smartstore.Web.Controllers
         [HttpGet]
         [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
+        [DisallowRobot(true)]
         [LocalizedRoute("/login", Name = "Login")]
         public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
         {
@@ -184,6 +186,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [NeverAuthorize, CheckStoreClosed(false)]
+        [DisallowRobot(true)]
         [LocalizedRoute("/logout", Name = "Logout")]
         public async Task<IActionResult> Logout()
         {
@@ -213,6 +216,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpGet]
         [RequireSsl, AllowAnonymous, NeverAuthorize]
+        [DisallowRobot(true)]
         [LocalizedRoute("/register", Name = "Register")]
         public async Task<IActionResult> Register(string returnUrl = null)
         {
@@ -362,6 +366,7 @@ namespace Smartstore.Web.Controllers
 
         #region Profile
 
+        [DisallowRobot(true)]
         [LocalizedRoute("/profile/{id:int}", Name = "CustomerProfile")]
         public async Task<IActionResult> CustomerProfile(int id)
         {
@@ -423,7 +428,7 @@ namespace Smartstore.Web.Controllers
 
         #region Change password
 
-        [RequireSsl]
+        [RequireSsl, DisallowRobot]
         public IActionResult ChangePassword()
         {
             if (!Services.WorkContext.CurrentCustomer.IsRegistered())
@@ -463,14 +468,14 @@ namespace Smartstore.Web.Controllers
 
         #region Password recovery
 
-        [RequireSsl]
+        [RequireSsl, DisallowRobot]
         [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
         public IActionResult PasswordRecovery()
         {
             return View(new PasswordRecoveryModel());
         }
 
-        [HttpPost]
+        [HttpPost, DisallowRobot]
         [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
         [FormValueRequired("send-email")]
         public async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model)
@@ -551,7 +556,7 @@ namespace Smartstore.Web.Controllers
         #region External login
 
         [HttpGet]
-        [AllowAnonymous]
+        [AllowAnonymous, DisallowRobot]
         public IActionResult ExternalLogin(string provider, string returnUrl = null)
         {
             var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Identity");

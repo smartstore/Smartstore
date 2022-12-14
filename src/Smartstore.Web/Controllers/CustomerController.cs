@@ -14,6 +14,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.IO;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
@@ -915,7 +916,7 @@ namespace Smartstore.Web.Controllers
 
                 if (value.Equals("on") && key.StartsWith("biss", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var id = key.Replace("biss", "").Trim();
+                    var id = key.Replace("biss", string.Empty).Trim();
 
                     if (int.TryParse(id, out var subscriptionId))
                     {

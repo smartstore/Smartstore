@@ -14,6 +14,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Utilities.Html;
@@ -623,7 +624,7 @@ namespace Smartstore.Web.Controllers
 
         #region Ask product question
 
-        [GdprConsent]
+        [GdprConsent, DisallowRobot]
         public async Task<IActionResult> AskQuestion(int id)
         {
             if (!_catalogSettings.AskQuestionEnabled)
@@ -756,7 +757,7 @@ namespace Smartstore.Web.Controllers
 
         #region Email a friend
 
-        [GdprConsent]
+        [GdprConsent, DisallowRobot]
         public async Task<IActionResult> EmailAFriend(int id)
         {
             var product = await _db.Products.FindByIdAsync(id, false);

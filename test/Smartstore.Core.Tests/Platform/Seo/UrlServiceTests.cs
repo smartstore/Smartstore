@@ -44,7 +44,7 @@ namespace Smartstore.Core.Tests.Seo
             workContextMock.Setup(x => x.WorkingLanguage).Returns(_language);
 
             var languageServiceMock = new Mock<ILanguageService>();
-            var reservedSlugTableMock = new Mock<IReservedSlugTable>();
+            var reservedSlugTableMock = new Mock<IRouteHelper>();
 
             _urlService = new UrlService(
                 db: DbContext,
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Tests.Seo
                 workContext: workContextMock.Object,
                 storeContext: storeContextMock.Object,
                 languageService: languageServiceMock.Object,
-                reservedSlugTable: reservedSlugTableMock.Object,
+                routeHelper: reservedSlugTableMock.Object,
                 localizationSettings: new LocalizationSettings(),
                 seoSettings: _seoSettings,
                 performanceSettings: new PerformanceSettings(),

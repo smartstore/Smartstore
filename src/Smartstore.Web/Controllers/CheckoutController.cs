@@ -6,6 +6,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Cart;
@@ -93,6 +94,7 @@ namespace Smartstore.Web.Controllers
             return model;
         }
 
+        [DisallowRobot]
         [LocalizedRoute("/checkout", Name = "Checkout")]
         public async Task<IActionResult> Index()
         {
