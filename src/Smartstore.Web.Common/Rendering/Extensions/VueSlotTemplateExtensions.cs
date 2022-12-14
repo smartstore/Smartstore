@@ -117,8 +117,7 @@ namespace Smartstore.Web.Rendering
             {
                 var label = new TagBuilder("span");
                 label.Attributes.Add("v-if", isPrimaryCurrencyExpression);
-                label.Attributes.Add("class", "badge badge-warning");
-                label.Attributes.Add("v-bind:class", "{ 'mr-1': !" + isPrimaryExchangeCurrencyExpression + "}");
+                label.Attributes.Add("class", "badge badge-warning mr-1");
                 label.InnerHtml.Append(localizationService.GetResource("Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"));
 
                 builder.AppendHtml(label);
