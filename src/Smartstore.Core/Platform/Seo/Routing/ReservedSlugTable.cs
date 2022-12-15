@@ -87,7 +87,7 @@ public class ReservedSlugTable : IReservedSlugTable
 
     public bool IsReservedSlug(string slug, out string partialMatch)
     {
-        Guard.NotEmpty(slug);
+        Guard.NotEmpty(slug, nameof(slug));
 
         partialMatch = null;
         slug = slug.Trim('/');

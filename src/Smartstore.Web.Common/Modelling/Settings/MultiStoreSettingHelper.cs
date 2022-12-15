@@ -44,7 +44,7 @@ namespace Smartstore.Web.Modelling.Settings
 
         public void Contextualize(int storeScope)
         {
-            Guard.NotNegative(storeScope);
+            Guard.NotNegative(storeScope, nameof(storeScope));
 
             if (_data?.StoreScope == storeScope)
             {
@@ -107,7 +107,7 @@ namespace Smartstore.Web.Modelling.Settings
 
         public static bool IsOverrideChecked<TSetting>(TSetting settingInstance, string name, IFormCollection form) 
             where TSetting : ISettings
-            => IsOverrideChecked(Guard.NotNull(settingInstance).GetType(), name, form);
+            => IsOverrideChecked(Guard.NotNull(settingInstance, nameof(settingInstance)).GetType(), name, form);
 
         public static bool IsOverrideChecked(Type settingType, string name, IFormCollection form)
         {

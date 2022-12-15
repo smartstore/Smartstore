@@ -18,7 +18,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public DataSeeder(IApplicationContext appContext, ILogger logger)
         {
-            ApplicationContext = Guard.NotNull(appContext);
+            ApplicationContext = Guard.NotNull(appContext, nameof(appContext));
 
             if (logger != null)
             {
