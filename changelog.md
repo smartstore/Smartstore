@@ -14,6 +14,7 @@
 - **BeezUp** (commercial plugin)
 - **ElmarShopInfo** (commercial plugin)
 - **Shopwahl** (commercial plugin)
+- **CartApproval** (commercial plugin)
 - New app setting: `DbDefaultSchema`
 - (DEV) New action filter attribute `DisallowRobotAttribute`
 
@@ -35,7 +36,9 @@
 - Settings couldn't be saved in several places (in migrated shop) 
 - Fixed add required products automatically
 - #577 PdfSettings.Enabled displayed twice and PdfSettings.LetterPageSizeEnabled was missing.
-
+- Topics which are rendered as widgets were published to sitemap 
+- Redirection problems with changing language & ContactUs page
+- Multistore settings couldn't be saved
 
 ## Smartstore 5.0.1
 
