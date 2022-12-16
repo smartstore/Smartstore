@@ -102,6 +102,9 @@
             <LocaleResource Name="PayerId">
                 <Value>Payer ID</Value>
             </LocaleResource>
+            <LocaleResource Name="PayerId.Hint">
+                <Value>You can find the PayPal payer ID in your PayPal account under Account Settings / Business Details.</Value>
+            </LocaleResource>
             <LocaleResource Name="MerchantName">
                 <Value>Merchant name</Value>
             </LocaleResource>

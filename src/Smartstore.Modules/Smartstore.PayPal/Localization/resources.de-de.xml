@@ -103,7 +103,10 @@
                 <Value>Geben Sie hier die Client ID an, die Ihnen vom Zahlungsanbieter übermittelt wurde.</Value>
             </LocaleResource>
             <LocaleResource Name="PayerId">
-                <Value>Payer ID</Value>
+                <Value>PayPal-Händler-ID</Value>
+            </LocaleResource>
+            <LocaleResource Name="PayerId.Hint">
+                <Value>Die PayPal-Händler-ID finden Sie in Ihrem PayPal-Konto unter Kontoeinstellungen / Geschäftsangaben.</Value>
             </LocaleResource>
             <LocaleResource Name="MerchantName">
                 <Value>Händlername</Value>

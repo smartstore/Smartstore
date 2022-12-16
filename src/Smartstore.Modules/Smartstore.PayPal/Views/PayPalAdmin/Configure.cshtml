@@ -42,7 +42,7 @@
 <div class="plugin-configuration">
     <div>
         <div class="alert alert-info alert-dismissible">
-            @Html.Raw(@T("Plugins.Smartstore.PayPal.AdminInstruction"))
+            @Html.Raw(T("Plugins.Smartstore.PayPal.AdminInstruction"))
             <button class="close" data-dismiss="alert">&times;</button>
         </div>
     </div>
@@ -78,6 +78,18 @@
 
     <div class="adminContent">
         <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PayerId" />
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="PayerId"></setting-editor>
+                <span asp-validation-for="PayerId"></span>
+            </div>
+        </div>
+    </div>
+
+    <div sm-if="Model.DisplayOnboarding" class="adminContent">
+        <div class="adminRow">
             @{
                 var lang = CommonServices.WorkContext.WorkingLanguage;
                 var guid = Guid.NewGuid();
@@ -88,7 +100,7 @@
                     scriptUrl = "https://www.sandbox.paypal.com/";
                 }
 
-                var url = $"{scriptUrl}bizsignup/partner/entry?partnerClientId={Module.PartnerClientId}&partnerId={Module.PartnerId}&sellerNonce={sellerNonce}" +
+                var url = $"{scriptUrl}bizsignup/partner/entry?partnerClientId={Module.PartnerClientId}&partnerId={Model.PayerId}&sellerNonce={sellerNonce}" +
                           $"&country.x={lang.UniqueSeoCode.ToUpper()}&locale.x={lang.LanguageCulture}" +
                           $"&displayMode=minibrowser&integrationType=FO" +
                           $"&features=PAYMENT&product=payment_methods&capabilities=PAY_UPON_INVOICE";
@@ -105,7 +117,7 @@
                             if (response.success) {
                                 $("#@Html.NameFor(x => x.ClientId)").val(response.clientId);
                                 $("#@Html.NameFor(x => x.Secret)").val(response.clientSecret);
-                                $("#@Html.NameFor(x => x.PayerId)").val(response.payerId);
+                                //$("#@Html.NameFor(x => x.PayerId)").val(response.payerId);
 
                                 $("#hint-credentials > i")
                                     .removeClass("@errorCssClasses")
@@ -154,7 +166,10 @@
             </script>
 
             <div class="adminTitle">
-                <a target="_blank" data-paypal-onboard-complete="onboardedCallback" href="@url" data-paypal-button="PPLtBlue" class="btn-primary">
+                <a href="@url" target="_blank"
+                   data-paypal-onboard-complete="onboardedCallback" 
+                   data-paypal-button="PPLtBlue" 
+                   class="btn btn-primary pb-0 pl-0" attr-class='(!Model.PayerId.HasValue(), "disabled")'>
                     @T("Plugins.Smartstore.PayPal.Onboarding")
                 </a>
             </div>
@@ -209,15 +224,6 @@
             <div class="adminData wide">
                 <setting-editor asp-for="Secret"></setting-editor>
                 <span asp-validation-for="Secret"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="PayerId" />
-            </div>
-            <div class="adminData wide">
-                <setting-editor asp-for="PayerId"></setting-editor>
-                <span asp-validation-for="PayerId"></span>
             </div>
         </div>
         <div class="adminRow">

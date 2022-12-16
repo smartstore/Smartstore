@@ -17,8 +17,8 @@ namespace Smartstore.PayPal
 {
     internal class Module : ModuleBase, ICookiePublisher
     {
-        public static string PartnerId => "D9X8D9DSNFZBU";
-        public static string PartnerClientId => "AbTCZEJtQBJTYwXMK5W4p0-WDfKx9wEoT0xdMAF7OldhDF36aK5k1tD-9eW3LKBE7CKpyilyBh-VDlMF";
+        public static string PartnerId => "FW39AHL99XEVN";
+        public static string PartnerClientId => "AWDFq4wYkqD_VwBfNqNU_TuhPhNc3i18fwGb3JwhyH1MNvQnwNmtpSyG1r8RK95JEzS8UDz8wyYV28qq";
 
         private readonly IPaymentService _paymentService;
         
