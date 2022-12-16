@@ -26,6 +26,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerNameFormat.Hint",
                 "Sets the customer's display name to be used for public content such as product reviews, comments, etc..",
                 "Legt den Anzeigenamen des Kunden fest, der für öffentliche Inhalte wie Produktbewertungen, Kommentare, etc. verwendet wird.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.SameServerNote",
+                "Backups and restores of databases are only possible if the database server (e.g. SQL Server or MySQL) and the physical location of the store installation are on the same server.",
+                "Sicherungen und Wiederherstellungen von Datenbanken sind nur möglich, wenn sich der Datenbank-Server (z.B. SQL Server oder MySQL) und der physische Speicherort der Shop-Installation auf dem selben Server befinden.");
         }
     }
 }
