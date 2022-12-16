@@ -59,6 +59,11 @@ namespace Smartstore.Core.Localization.Routing
                 return pathBase;
             }
 
+            if (pathBase == default)
+            {
+                pathBase = httpContext.Request.PathBase;
+            }
+
             var urlPolicy = httpContext.GetUrlPolicy();
             if (urlPolicy == null)
             {
@@ -148,7 +153,7 @@ namespace Smartstore.Core.Localization.Routing
             {
                 return pathBase == null
                     ? new PathString('/' + culture)
-                    : pathBase.Value.Add(culture);
+                    : pathBase.Value.Add('/' + culture);
             }
         }
 
