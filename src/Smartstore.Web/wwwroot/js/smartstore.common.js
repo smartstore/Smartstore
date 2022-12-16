@@ -462,8 +462,8 @@
         });
 
         // Hacky fix for select2 not focusing search field on container open
-        $(document).on('select2:open', () => {
-            document.querySelector('.select2-search__field').focus();
+        $(document).on('select2:open', function() {
+            document.querySelector('.select2-container--open .select2-search__field').focus();
         });
 
         // Handle ajax notifications

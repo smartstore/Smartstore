@@ -128,7 +128,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     .select2-search--dropdown {
         .select2-search__field {
             @include bootstrap-input-defaults;
-            border-radius: 0;
+            border-radius: $border-radius-sm;
         }
     }
 
