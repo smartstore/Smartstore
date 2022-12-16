@@ -11,9 +11,9 @@ namespace Smartstore.Web.Components
     /// author should then check whether the <see cref="Model"/> property has been assigned a non-null value by any event consumer.
     /// The author should skip model creation in that case and continue with externally provided <see cref="Model"/> instead.
     /// </summary>
-    public class ViewComponentExecutingEvent<TModel> : ViewComponentEventBase
+    public class ViewComponentInvokingEvent<TModel> : ViewComponentEventBase
     {
-        public ViewComponentExecutingEvent(ViewComponentContext context)
+        public ViewComponentInvokingEvent(ViewComponentContext context)
             : base(context)
         {
         }

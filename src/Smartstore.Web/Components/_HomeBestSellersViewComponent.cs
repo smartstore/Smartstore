@@ -41,7 +41,7 @@ namespace Smartstore.Web.Components
                 return Empty();
             }
 
-            var bestsellersEvent = new ViewComponentExecutingEvent<List<BestsellersReportLine>>(ViewComponentContext);
+            var bestsellersEvent = new ViewComponentInvokingEvent<List<BestsellersReportLine>>(ViewComponentContext);
             await _eventPublisher.PublishAsync(bestsellersEvent);
 
             var storeId = Services.StoreContext.CurrentStore.Id;
