@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿#nullable enable
+
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Smartstore.Core.Localization;
@@ -9,9 +11,9 @@ namespace Smartstore.Web.Components
 {
     public abstract class SmartViewComponent : ViewComponent
     {
-        private ILogger _logger;
-        private Localizer _localizer;
-        private ICommonServices _services;
+        private ILogger _logger = default!;
+        private Localizer _localizer = default!;
+        private ICommonServices _services = default!;
 
         private static readonly ContentViewComponentResult _emptyResult = new(string.Empty);
 
@@ -38,14 +40,15 @@ namespace Smartstore.Web.Components
         #region Results
 
         /// <summary>
-        /// Returns a result which will render raw (unencoded) HTML content.
+        /// Returns a result which will render HTML encoded text.
         /// </summary>
-        /// <param name="content">The HTML content.</param>
-        /// <returns>A <see cref="HtmlContentViewComponentResult"/>.</returns>
-        public HtmlContentViewComponentResult HtmlContent(string content)
+        /// <param name="content">The content, will be HTML encoded before output.</param>
+        /// <returns>A <see cref="ContentViewComponentResult"/>.</returns>
+        public new IViewComponentResult Content(string content)
         {
-            Guard.NotNull(content, nameof(content));
-            return new HtmlContentViewComponentResult(new HtmlString(content));
+            IViewComponentResult result = base.Content(content);
+            PublishResultExecutingEvent(ref result);
+            return result;
         }
 
         /// <summary>
@@ -53,20 +56,33 @@ namespace Smartstore.Web.Components
         /// </summary>
         /// <param name="content">The HTML content.</param>
         /// <returns>A <see cref="HtmlContentViewComponentResult"/>.</returns>
-        public HtmlContentViewComponentResult HtmlContent(IHtmlContent content)
+        public IViewComponentResult HtmlContent(string content)
         {
-            Guard.NotNull(content, nameof(content));
-            return new HtmlContentViewComponentResult(content);
+            IViewComponentResult result = new HtmlContentViewComponentResult(new HtmlString(content));
+            PublishResultExecutingEvent(ref result);
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a result which will render raw (unencoded) HTML content.
+        /// </summary>
+        /// <param name="content">The HTML content.</param>
+        /// <returns>A <see cref="HtmlContentViewComponentResult"/>.</returns>
+        public IViewComponentResult HtmlContent(IHtmlContent content)
+        {
+            IViewComponentResult result = new HtmlContentViewComponentResult(content);
+            PublishResultExecutingEvent(ref result);
+            return result;
         }
 
         /// <summary>
         /// Returns a result which will render the partial view with name <c>&quot;Default&quot;</c>.
         /// </summary>
         /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
-        public new ViewViewComponentResult View()
+        public new IViewComponentResult View()
         {
-            var result = base.View();
-            PublishResultExecutingEvent(result);
+            IViewComponentResult result = base.View();
+            PublishResultExecutingEvent(ref result);
             return result;
         }
 
@@ -75,10 +91,10 @@ namespace Smartstore.Web.Components
         /// </summary>
         /// <param name="viewName">The name of the partial view to render.</param>
         /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
-        public new ViewViewComponentResult View(string viewName)
+        public new IViewComponentResult View(string? viewName)
         {
-            var result = base.View(viewName);
-            PublishResultExecutingEvent(result);
+            IViewComponentResult result = base.View(viewName);
+            PublishResultExecutingEvent(ref result);
             return result;
         }
 
@@ -87,10 +103,10 @@ namespace Smartstore.Web.Components
         /// </summary>
         /// <param name="model">The model object for the view.</param>
         /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
-        public new ViewViewComponentResult View<TModel>(TModel model)
+        public new IViewComponentResult View<TModel>(TModel? model)
         {
-            var result = base.View<TModel>(model);
-            PublishResultExecutingEvent(result);
+            IViewComponentResult result = base.View(model);
+            PublishResultExecutingEvent(ref result);
             return result;
         }
 
@@ -100,22 +116,28 @@ namespace Smartstore.Web.Components
         /// <param name="viewName">The name of the partial view to render.</param>
         /// <param name="model">The model object for the view.</param>
         /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
-        public new ViewViewComponentResult View<TModel>(string viewName, TModel model)
+        public new IViewComponentResult View<TModel>(string? viewName, TModel? model)
         {
-            var result = base.View<TModel>(viewName, model);
-            PublishResultExecutingEvent(result);
+            IViewComponentResult result = base.View(viewName, model);
+            PublishResultExecutingEvent(ref result);
             return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected IViewComponentResult Empty() => _emptyResult;
 
-        private void PublishResultExecutingEvent(ViewViewComponentResult result)
+        private void PublishResultExecutingEvent(ref IViewComponentResult result)
         {
             // Give integrators the chance to react to component rendering.
             if (PublishEvents)
             {
-                Services.EventPublisher.Publish(new ViewComponentResultExecutingEvent(ViewComponentContext, result));
+                var e = new ViewComponentResultExecutingEvent(ViewComponentContext, result);
+                
+                Services.EventPublisher.Publish(e);
+                if (e.Result != result && e.Result != null) 
+                {
+                    result = e.Result;
+                }
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using DouglasCrockford.JsMin;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Smartstore.Core.Widgets;
 using Smartstore.Events;
 using Smartstore.Google.Analytics.Services;
@@ -40,9 +41,8 @@ namespace Smartstore.Google.Analytics
             {
                 return;
             }
-            else
+            else if (message.Result is ViewViewComponentResult viewResult && viewResult.ViewData.Model is ProductSummaryModel model)
             {
-                var model = (ProductSummaryModel)message.Model;
                 var productList = model.Items;
                 var componentName = message.Descriptor.ShortName;
 
