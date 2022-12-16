@@ -33,6 +33,24 @@ namespace Smartstore
         }
 
         /// <summary>
+        /// Applies a filter that selects entities by matching identifiers.
+        /// </summary>
+        /// <param name="ids">Sequence of ids to match</param>
+        public static IQueryable<T> ApplyIdFilter<T>(this IQueryable<T> query, IEnumerable<int> ids)
+            where T : BaseEntity
+        {
+            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(ids, nameof(ids));
+
+            if (ids.TryGetNonEnumeratedCount(out var count) && count < 2)
+            {
+                return count == 0 ? query : query.Where(x => x.Id == ids.ElementAt(0));
+            }
+
+            return query.Where(x => ids.Contains(x.Id));
+        }
+
+        /// <summary>
         /// FastPager ensures stable and consistent paging performance over very large datasets.
         /// Other than LINQs Skip(x).Take(y) approach the entity set is sorted 
         /// descending by id and a specified amount of records are returned.
