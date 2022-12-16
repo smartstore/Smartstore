@@ -9,11 +9,14 @@
 ### New Features
 
 - Updated to **.NET 7**
+- **Stripe Elements** plugin
 - **Web API** plugin
 - **BeezUp** (commercial plugin)
 - **ElmarShopInfo** (commercial plugin)
 - **Shopwahl** (commercial plugin)
+- **CartApproval** (commercial plugin)
 - New app setting: `DbDefaultSchema`
+- (DEV) New action filter attribute `DisallowRobotAttribute`
 
 ### Improvements
 
@@ -31,8 +34,13 @@
 - Fixed product linkage of product detail ask question message
 - Fixed password change issue with user records without username
 - Settings couldn't be saved in several places (in migrated shop) 
-- Fixed add required products automatically 
-
+- Fixed add required products automatically
+- #577 PdfSettings.Enabled displayed twice and PdfSettings.LetterPageSizeEnabled was missing.
+- Topics which are rendered as widgets were published to sitemap 
+- Redirection problems with changing language & ContactUs page
+- Multistore settings couldn't be saved
+- File upload for a product attribute is no longer possible once another attribute has been changed.
+- Fixes NullReferenceException when placing an order with an invalid email display name.
 
 ## Smartstore 5.0.1
 
