@@ -28,8 +28,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt den Anzeigenamen des Kunden fest, der für öffentliche Inhalte wie Produktbewertungen, Kommentare, etc. verwendet wird.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.SameServerNote",
-                "Backups and restores of databases are only possible if the database server (e.g. SQL Server or MySQL) and the physical location of the store installation are on the same server.",
-                "Sicherungen und Wiederherstellungen von Datenbanken sind nur möglich, wenn sich der Datenbank-Server (z.B. SQL Server oder MySQL) und der physische Speicherort der Shop-Installation auf dem selben Server befinden.");
+                "Backups and restores of databases are only possible if the database server (e.g. MS SQL Server or MySQL) and the physical location of the store installation are on the same server.",
+                "Sicherungen und Wiederherstellungen von Datenbanken sind nur möglich, wenn sich der Datenbankserver (z.B. MS SQL Server oder MySQL) und der physikalische Speicherort der Shop-Installation auf einem gemeinsamen Server befinden.");
         }
     }
 }
