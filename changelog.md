@@ -40,6 +40,7 @@
 - Redirection problems with changing language & ContactUs page
 - Multistore settings couldn't be saved
 - File upload for a product attribute is no longer possible once another attribute has been changed.
+- Fixes NullReferenceException when placing an order with an invalid email display name.
 
 ## Smartstore 5.0.1
 

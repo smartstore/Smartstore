@@ -20,7 +20,11 @@ namespace Smartstore.Net.Mail
         {
             Guard.NotEmpty(address, nameof(address));
 
-            _inner = MailboxAddress.Parse(address);
+            // INFO: "TryParse" removes a single quote character, while "Parse" generates a ParseException.
+            if (!MailboxAddress.TryParse(address, out _inner) || _inner == null)
+            {
+                throw new FormatException("Invalid mailbox address: " + address);
+            }
         }
 
         public MailAddress(string address, string displayName)
