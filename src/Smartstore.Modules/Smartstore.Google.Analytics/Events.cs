@@ -12,7 +12,7 @@ namespace Smartstore.Google.Analytics
         private static readonly Dictionary<Type, string> _interceptableViewComponents = new()
         {
             { typeof(HomeProductsViewComponent), "home_page_after_products" },
-            { typeof(HomeBestSellersViewComponent), "home_page_after_bestsellers" },
+            { typeof(HomeBestsellersViewComponent), "home_page_after_bestsellers" },
             { typeof(RecentlyViewedProductsViewComponent), "after_recently_viewed_products" },
             { typeof(CrossSellProductsViewComponent), "after_cross_sell_products" }
         };

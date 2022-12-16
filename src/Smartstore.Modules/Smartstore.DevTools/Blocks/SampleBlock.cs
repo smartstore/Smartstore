@@ -64,7 +64,7 @@ namespace Smartstore.DevTools.Blocks
         //protected override WidgetInvoker GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)
         //{
         //    var block = (SampleBlock)element.Block;
-        //    return new ComponentWidgetInvoker(typeof(HomeBestSellersViewComponent), new
+        //    return new ComponentWidgetInvoker(typeof(HomeBestsellersViewComponent), new
         //    {
         //        productThumbPictureSize = 512
         //    });
