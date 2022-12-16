@@ -55,37 +55,39 @@ namespace Smartstore.PayPal.Controllers
                 model.WebHookCreated = true;
             }
 
-            if (settings.PayerId.HasValue() && settings.ClientId.HasValue() && settings.Secret.HasValue())
-            {
-                try
-                {
-                    var getMerchantStatusRequest = new GetMerchantStatusRequest(PartnerId, settings.PayerId);
-                    var getMerchantStatusResponse = await _client.ExecuteRequestAsync(getMerchantStatusRequest);
-                    var merchantStatus = getMerchantStatusResponse.Body<MerchantStatus>();
+            //if (settings.PayerId.HasValue() && settings.ClientId.HasValue() && settings.Secret.HasValue())
+            //{
+            //    try
+            //    {
+            //        var getMerchantStatusRequest = new GetMerchantStatusRequest(PartnerId, settings.PayerId);
+            //        var getMerchantStatusResponse = await _client.ExecuteRequestAsync(getMerchantStatusRequest);
+            //        var merchantStatus = getMerchantStatusResponse.Body<MerchantStatus>();
 
-                    if (!merchantStatus.PaymentsReceivable)
-                    {
-                        NotifyError(T("Plugins.Smartstore.PayPal.Error.PaymentsReceivable"));
-                    }
-                    else
-                    {
-                        model.PaymentsReceivable = true;
-                    }
+            //        if (!merchantStatus.PaymentsReceivable)
+            //        {
+            //            NotifyError(T("Plugins.Smartstore.PayPal.Error.PaymentsReceivable"));
+            //        }
+            //        else
+            //        {
+            //            model.PaymentsReceivable = true;
+            //        }
 
-                    if (!merchantStatus.PrimaryEmailConfirmed)
-                    {
-                        NotifyError(T("Plugins.Smartstore.PayPal.Error.PrimaryEmailConfirmed"));
-                    }
-                    else
-                    {
-                        model.PrimaryEmailConfirmed = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    NotifyError(ex.Message);
-                }
-            }
+            //        if (!merchantStatus.PrimaryEmailConfirmed)
+            //        {
+            //            NotifyError(T("Plugins.Smartstore.PayPal.Error.PrimaryEmailConfirmed"));
+            //        }
+            //        else
+            //        {
+            //            model.PrimaryEmailConfirmed = true;
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        NotifyError(ex.Message);
+            //    }
+            //}
+
+            model.DisplayOnboarding = !settings.ClientId.HasValue() && !settings.Secret.HasValue();
 
             AddLocales(model.Locales, (locale, languageId) =>
             {
@@ -177,7 +179,6 @@ namespace Smartstore.PayPal.Controllers
                         // Save settings
                         settings.ClientId = credentials.ClientId;
                         settings.Secret = credentials.ClientSecret;
-                        settings.PayerId = credentials.PayerId;
 
                         await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
 

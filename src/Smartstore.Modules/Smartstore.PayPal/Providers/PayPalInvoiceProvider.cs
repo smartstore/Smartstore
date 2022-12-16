@@ -73,6 +73,11 @@ namespace Smartstore.PayPal.Providers
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request)
         {
+            if (!_checkoutStateAccessor.CheckoutState.PaymentData.TryGetValueAs<string>("ClientMetaId", out var clientMetaId))
+            {
+                throw new PayPalException(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(clientMetaId)));
+            }
+
             var result = new ProcessPaymentResult
             {
                 NewPaymentStatus = PaymentStatus.Pending,

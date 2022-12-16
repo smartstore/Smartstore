@@ -12,6 +12,7 @@ namespace Smartstore.PayPal.Models
         public bool PaymentsReceivable { get; set; } = false;
         public bool PrimaryEmailConfirmed { get; set; } = false;
         public bool WebHookCreated { get; set; } = false;
+        public bool DisplayOnboarding { get; set; }
 
         [LocalizedDisplay("*UseSandbox")]
         public bool UseSandbox { get; set; }

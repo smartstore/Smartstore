@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.PayPal.Client;
 using Smartstore.Web.Components;
 
 namespace Smartstore.PayPal.Components
 {
     public class PayPalViewComponent : SmartViewComponent
     {
-        private readonly PayPalHttpClient _client;
         private readonly PayPalSettings _settings;
 
-        public PayPalViewComponent(PayPalHttpClient client, PayPalSettings settings)
+        public PayPalViewComponent(PayPalSettings settings)
         {
-            _client = client;
             _settings = settings;
         }
 

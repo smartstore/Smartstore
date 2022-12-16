@@ -81,7 +81,7 @@ namespace Smartstore.PayPal.Filters
             var routeData = context.RouteData;
             var routeId = routeData.Values.GenerateRouteIdentifier();
 
-            // Risk Session Correlation ID / Client Metadata ID has to be uniqueand invariant to the current checkout.
+            // Risk Session Correlation ID / Client Metadata ID has to be unique and invariant to the current checkout.
             // Will be used for create order API call.
             if (!_checkoutStateAccessor.CheckoutState.PaymentData.TryGetValueAs<string>("ClientMetaId", out var clientMetaId))
             {
