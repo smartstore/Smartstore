@@ -45,7 +45,7 @@
     </div>
 </div>
 
-<script sm-target-zone="scripts" data-origin="choice-template">
+<script data-origin="choice-template">
     window['onFileUploaded@(clientId)'] = function (file, result, progress) {
         if (result.success && result.downloadGuid) {
             setUploadedFile(result.downloadGuid, file.name, "@(containerId)");

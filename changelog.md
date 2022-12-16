@@ -39,6 +39,7 @@
 - Topics which are rendered as widgets were published to sitemap 
 - Redirection problems with changing language & ContactUs page
 - Multistore settings couldn't be saved
+- File upload for a product attribute is no longer possible once another attribute has been changed.
 
 ## Smartstore 5.0.1
 
