@@ -347,6 +347,7 @@
         }
 
         let momentFormat = g.convertDatePatternToMomentFormat(format);
+
         return moment(value).format(momentFormat);
     }
 

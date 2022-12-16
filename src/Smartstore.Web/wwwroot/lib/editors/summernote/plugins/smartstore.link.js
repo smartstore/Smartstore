@@ -112,20 +112,21 @@
 			// Hack: toggle our custom "unlink image" button when
 			// imagePopover is about to be shown.
 			this.handleUnlinkButtonState = function () {
-				var popover = context.modules.imagePopover;
+                var popover = context.modules.imagePopover;
 
 				// save the original summernote method
 				var fnImagePopoverUpdate = popover.update;
 
 				// decorate the original method with our cusrom stuff
-				popover.update = function (target) {
+				popover.update = function (target, e) {
 					var btn = popover.$popover.find('.btn-unlink-image');
-					var isLinkedImage = $(target).is('img') && $(target).parent().is('a');
+                    var isLinkedImage = $(target).is('img') && $(target).parent().is('a');
+
 					// hide/show the unlink button depending on current selection
 					btn.toggle(isLinkedImage);
 
 					// Call the original summernote method
-					fnImagePopoverUpdate.apply(popover, [target]);
+					fnImagePopoverUpdate.apply(popover, [target, e]);
 				};
 			}
 

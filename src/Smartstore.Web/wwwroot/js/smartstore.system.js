@@ -124,7 +124,7 @@
             if (o instanceof Date) {
                 return "date";
             }
-            if (isNaN(o) && !isNaN(Date.parse(o))) {
+            if (isNaN(o) && moment(o, moment.ISO_8601, true).isValid()) {
                 return "date";
             }
             return null;
