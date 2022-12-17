@@ -568,12 +568,19 @@ namespace Smartstore.Core.Seo
                 foundIsSelf = FoundRecordIsSelf(entity, urlRecord, languageId);
 
                 // ...and it's not in the list of reserved slugs
-                var reserved = _routeHelper.IsReservedSlug(tempSlug);
+                var reserved = _routeHelper.IsReservedSlug(tempSlug, out var partialMatch);
 
                 if ((urlRecord == null || foundIsSelf) && !reserved)
                 {
                     found = urlRecord;
                     break;
+                }
+
+                if (reserved && partialMatch.HasValue())
+                {
+                    // Strip off prefix and continue with substring
+                    slug = tempSlug = slug[(partialMatch.Length + 1)..];
+                    continue;
                 }
 
                 // Try again with unique index appended
