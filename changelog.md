@@ -42,6 +42,7 @@
 - File upload for a product attribute is no longer possible once another attribute has been changed.
 - Fixes NullReferenceException when placing an order with an invalid email display name.
 - Fixed link generation issue: `pathBase` is stripped when target endpoint requires culture code
+- Fixed DbUpdateException when deleting a customer address via backend.
 
 ## Smartstore 5.0.1
 
