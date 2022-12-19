@@ -1,36 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core;
 using Smartstore.Core.Widgets;
 using Smartstore.StripeElements.Components;
+using Smartstore.StripeElements.Services;
 using Smartstore.StripeElements.Settings;
-using Smartstore.StripeElements.Providers;
 
 namespace Smartstore.StripeElements.Filters
 {
     public class OffCanvasShoppingCartFilter : IAsyncResultFilter
     {
-        private readonly ICommonServices _services;
-        private readonly IPaymentService _paymentService;
         private readonly StripeSettings _settings;
         private readonly IWidgetProvider _widgetProvider;
+        private readonly StripeHelper _stripeHelper;
 
-        public OffCanvasShoppingCartFilter(
-            ICommonServices services, 
-            IPaymentService paymentService, 
-            StripeSettings settings, 
-            IWidgetProvider widgetProvider)
+        public OffCanvasShoppingCartFilter(StripeSettings settings,  IWidgetProvider widgetProvider, StripeHelper stripeHelper)
         {
-            _services = services;
-            _paymentService = paymentService;
             _settings = settings;
             _widgetProvider = widgetProvider;
+            _stripeHelper = stripeHelper;
         }
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
-            if (!await IsStripeElementsActive())
+            if (!await _stripeHelper.IsStripeElementsActive())
             {
                 await next();
                 return;
@@ -57,8 +49,5 @@ namespace Smartstore.StripeElements.Filters
 
             await next();
         }
-
-        private Task<bool> IsStripeElementsActive()
-            => _paymentService.IsPaymentMethodActiveAsync(StripeElementsProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
     }
 }

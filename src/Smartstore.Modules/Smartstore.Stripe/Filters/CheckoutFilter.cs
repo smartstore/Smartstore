@@ -47,7 +47,6 @@ namespace Smartstore.StripeElements.Filters
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
-            // TODO: (mh) (core) WTF? There are 2 other IsStripeElementsActive helper methods. That's why I wanted to outsource it.
             if (!await _stripeHelper.IsStripeElementsActive())
             {
                 await next();
@@ -89,7 +88,7 @@ namespace Smartstore.StripeElements.Filters
                     // Reset property for backward navigation.
                     checkoutState.ButtonUsed = false;
 
-                    filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = string.Empty });
+                    filterContext.Result = new RedirectToActionResult(nameof(CheckoutController.Confirm), "Checkout", new { area = string.Empty });
                 }
             }
 
