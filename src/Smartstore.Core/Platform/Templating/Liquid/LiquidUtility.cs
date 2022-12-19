@@ -1,11 +1,11 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 
 namespace Smartstore.Templating.Liquid
 {
     internal static class LiquidUtility
     {
-        private static readonly IDictionary<Type, Func<object, object>> _typeWrapperCache
-            = new Dictionary<Type, Func<object, object>>();
+        private static readonly ConcurrentDictionary<Type, Func<object, object>> _typeWrapperCache = new();
 
         internal static object CreateSafeObject(object value)
         {
@@ -21,27 +21,27 @@ namespace Smartstore.Templating.Liquid
 
             var valueType = value.GetType();
 
-            if (!_typeWrapperCache.TryGetValue(valueType, out var fn))
+            var fn = _typeWrapperCache.GetOrAdd(valueType, key => 
             {
                 if (value is IDictionary<string, object> dict)
                 {
-                    fn = x => new DictionaryDrop((IDictionary<string, object>)x);
+                    return x => new DictionaryDrop((IDictionary<string, object>)x);
                 }
                 else if (valueType.IsEnumerableType(out var elementType))
                 {
                     var seqType = elementType;
                     if (!IsSafeType(seqType))
                     {
-                        fn = x => new EnumerableWrapper((IEnumerable)x);
+                        return x => new EnumerableWrapper((IEnumerable)x);
                     }
                 }
                 else if (valueType.IsPlainObjectType())
                 {
-                    fn = x => new ObjectDrop(x);
+                    return x => new ObjectDrop(x);
                 }
 
-                _typeWrapperCache[valueType] = fn;
-            }
+                return null;
+            });
 
             return fn?.Invoke(value) ?? value;
         }
