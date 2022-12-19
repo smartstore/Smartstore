@@ -79,6 +79,7 @@ namespace Smartstore.Domain
         /// <summary>
         /// Clears the hook data bag associated with this entity.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ClearHookState()
         {
             _hookState?.Clear();
