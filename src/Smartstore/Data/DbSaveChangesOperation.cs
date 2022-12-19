@@ -109,7 +109,7 @@ namespace Smartstore.Data
                         _ctx.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
                         IgnoreMergedData(mergeableEntities, false);
-                        ClearHookData(_changedEntries);
+                        ClearHookData(_ctx.ChangeTracker.Entries());
                     }
                 }
             }
@@ -165,10 +165,7 @@ namespace Smartstore.Data
             Stage = DbSaveStage.PostSave;
 
             // EfCache invalidation
-            if (_dbCache != null)
-            {
-                _dbCache.Invalidate(changedHookEntries.Select(x => x.EntityType).ToArray());
-            }
+            _dbCache?.Invalidate(changedHookEntries.Select(x => x.EntityType).ToArray());
 
             return await _ctx.DbHookHandler.SavedChangesAsync(changedHookEntries, _ctx.MinHookImportance, cancelToken);
         }
