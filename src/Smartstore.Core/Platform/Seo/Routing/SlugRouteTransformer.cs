@@ -151,7 +151,7 @@ namespace Smartstore.Core.Seo.Routing
             }
 
 
-            if (_routeHelper.IsReservedSlug(slug))
+            if (_routeHelper.IsReservedPath(slug))
             {
                 // Don't attemp to transform reserved system slugs provided by action routes.
                 return null;

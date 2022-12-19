@@ -4,10 +4,16 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Smartstore.Core.Seo.Routing
 {
-    public class ReservedSlug
+    public readonly struct ReservedPath
     {
-        public string Slug { get; init; } = default!;
-        public bool IsPrefix { get; init; }
+        public ReservedPath(string path, bool isPrefix)
+        {
+            Path = path;
+            IsPrefix = isPrefix;
+        }
+
+        public string Path { get; }
+        public bool IsPrefix { get; }
     }
 
     /// <summary>
@@ -16,22 +22,22 @@ namespace Smartstore.Core.Seo.Routing
     public interface IRouteHelper
     {
         /// <summary>
-        /// Checks whether the given <paramref name="slug"/> is reserved by the system.
+        /// Checks whether the given <paramref name="path"/> is reserved by the system.
         /// </summary>
-        /// <param name="slug">The slug to check.</param>
-        bool IsReservedSlug(string slug);
+        /// <param name="path">The path to check.</param>
+        bool IsReservedPath(string path);
 
         /// <summary>
-        /// Checks whether the given <paramref name="slug"/> is reserved by the system.
+        /// Checks whether the given <paramref name="path"/> is reserved by the system.
         /// </summary>
-        /// <param name="slug">The slug to check.</param>
-        /// <param name="partialMatch">If a substring of <paramref name="slug"/> is matched from left, then this is the matched partial, otherwise <c>null</c>.</param>
-        bool IsReservedSlug(string slug, [MaybeNullWhen(false)] out string? partialMatch);
+        /// <param name="path">The path to check.</param>
+        /// <param name="partialMatch">If a substring of <paramref name="path"/> is matched from left, then this is the matched partial, otherwise <c>null</c>.</param>
+        bool IsReservedPath(string path, [MaybeNullWhen(false)] out string? partialMatch);
 
         /// <summary>
-        /// Enumerates all reserved slugs.
+        /// Enumerates all reserved paths.
         /// </summary>
-        IEnumerable<ReservedSlug> EnumerateReservedSlugs();
+        IEnumerable<ReservedPath> EnumerateReservedPaths();
 
         /// <summary>
         /// Enumerates all paths that are disallowed for robots. A path is

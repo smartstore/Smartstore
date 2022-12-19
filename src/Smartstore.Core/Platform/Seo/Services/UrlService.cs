@@ -568,7 +568,7 @@ namespace Smartstore.Core.Seo
                 foundIsSelf = FoundRecordIsSelf(entity, urlRecord, languageId);
 
                 // ...and it's not in the list of reserved slugs
-                var reserved = _routeHelper.IsReservedSlug(tempSlug, out var partialMatch);
+                var reserved = _routeHelper.IsReservedPath(tempSlug, out var partialMatch);
 
                 if ((urlRecord == null || foundIsSelf) && !reserved)
                 {

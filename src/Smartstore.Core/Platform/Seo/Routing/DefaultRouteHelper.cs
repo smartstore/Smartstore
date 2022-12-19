@@ -8,8 +8,8 @@ namespace Smartstore.Core.Seo.Routing
     public class DefaultRouteHelper : IRouteHelper
     {
         private readonly HashSet<string> _disallowRobotPaths = new();
-        private readonly HashSet<string> _reservedSlugs = new(StringComparer.OrdinalIgnoreCase);
-        private readonly HashSet<string> _reservedPartialSlugs = new(StringComparer.OrdinalIgnoreCase)
+        private readonly HashSet<string> _reservedPaths = new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _reservedPartialPaths = new(StringComparer.OrdinalIgnoreCase)
         {
             "admin",
             "odata",
@@ -66,12 +66,12 @@ namespace Smartstore.Core.Seo.Routing
                 if (tokenIndex == -1)
                 {
                     result = template;
-                    _reservedSlugs.Add(result);
+                    _reservedPaths.Add(result);
                 }
                 else
                 {
                     result = template[..(tokenIndex - 1)];
-                    _reservedPartialSlugs.Add(result);
+                    _reservedPartialPaths.Add(result);
                 }
             }
             else
@@ -80,11 +80,11 @@ namespace Smartstore.Core.Seo.Routing
                 result = template;
                 if (descriptor.Parameters.Count > 0)
                 {
-                    _reservedPartialSlugs.Add(result);
+                    _reservedPartialPaths.Add(result);
                 }
                 else
                 {
-                    _reservedSlugs.Add(result);
+                    _reservedPaths.Add(result);
                 }
             }
 
@@ -117,16 +117,16 @@ namespace Smartstore.Core.Seo.Routing
             }
         }
 
-        public bool IsReservedSlug(string slug) => IsReservedSlug(slug, out _);
+        public bool IsReservedPath(string slug) => IsReservedPath(slug, out _);
 
-        public bool IsReservedSlug(string slug, out string partialMatch)
+        public bool IsReservedPath(string slug, out string partialMatch)
         {
             Guard.NotEmpty(slug);
 
             partialMatch = null;
             slug = slug.Trim('/');
 
-            if (_reservedSlugs.Contains(slug) || _reservedPartialSlugs.Contains(slug))
+            if (_reservedPaths.Contains(slug) || _reservedPartialPaths.Contains(slug))
             {
                 return true;
             }
@@ -135,7 +135,7 @@ namespace Smartstore.Core.Seo.Routing
             while (slashPos > -1)
             {
                 slug = slug[..slashPos];
-                if (_reservedPartialSlugs.Contains(slug))
+                if (_reservedPartialPaths.Contains(slug))
                 {
                     partialMatch = slug;
                     return true;
@@ -147,12 +147,12 @@ namespace Smartstore.Core.Seo.Routing
             return false;
         }
 
-        public IEnumerable<ReservedSlug> EnumerateReservedSlugs()
+        public IEnumerable<ReservedPath> EnumerateReservedPaths()
         {
-            return _reservedSlugs
-                .Select(x => new ReservedSlug { Slug = x })
-                .Concat(_reservedPartialSlugs
-                    .Select(x => new ReservedSlug { Slug = x, IsPrefix = true }));
+            return _reservedPaths
+                .Select(x => new ReservedPath(x, false))
+                .Concat(_reservedPartialPaths
+                    .Select(x => new ReservedPath(x, true)));
         }
 
         public IEnumerable<string> EnumerateDisallowedRobotPaths()
