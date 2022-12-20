@@ -123,14 +123,13 @@ namespace Smartstore.Core.Localization
                     if (mode.HasFlag(ImportModeFlags.Insert))
                     {
                         isDirty = true;
-                        _db.LocaleStringResources.Add(
-                            new LocaleStringResource
-                            {
-                                LanguageId = language.Id,
-                                ResourceName = name,
-                                ResourceValue = value,
-                                IsFromPlugin = sourceIsPlugin
-                            });
+                        _db.LocaleStringResources.Add(new LocaleStringResource
+                        {
+                            LanguageId = language.Id,
+                            ResourceName = name,
+                            ResourceValue = value,
+                            IsFromPlugin = sourceIsPlugin
+                        });
                     }
                 }
             }

@@ -41,7 +41,8 @@ namespace Smartstore.Scheduling
 
             { "IndexingTask", "SmartStore.MegaSearch.IndexingTask, SmartStore.MegaSearch" },
             { "ForumIndexingTask", "SmartStore.MegaSearch.ForumIndexingTask, SmartStore.MegaSearch" },
-            { "BMEcatImportTask", "SmartStore.BMEcat.FileImportTask, SmartStore.BMEcat" }
+            { "BMEcatImportTask", "SmartStore.BMEcat.FileImportTask, SmartStore.BMEcat" },
+            { "CleanupCartApprovalTask", "SmartStore.CartApproval.Tasks.DeleteObsoleteRecordsTask, SmartStore.CartApproval" }
         };
 
         private readonly IDbContextFactory<SmartDbContext> _dbFactory;
