@@ -28,7 +28,7 @@
         {
             <a asp-route="Logout" class="menubar-link" title="@T("Account.ImpersonatedAs.Finish.Hint")" rel="nofollow">
                 <i class="fal fa-sign-out-alt menubar-icon"></i>
-                <span>@Model.CustomerEmailUsername</span>
+                <span>@WorkContext.CurrentCustomer.Username</span>
             </a>
         }
     </nav>
