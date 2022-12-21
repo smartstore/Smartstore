@@ -35,11 +35,10 @@ namespace Smartstore.Core.Seo.Routing
                     return HandleRedirect(policy.GetModifiedUrl());
                 }
                 
-                var endpoint = context.GetEndpoint();
                 // We may need the original endpoint for logging and error handling purposes later,
                 // but the ExeptionHandler middleware sets endpoint to null in order to re-execute correctly.
                 // Therefore we gonna save it here, but only if we're not in re-execution.
-                policy.Endpoint ??= endpoint;
+                policy.Endpoint ??= context.GetEndpoint();
 
                 // Apply all registered url filters
                 foreach (var urlFilter in _urlFilters)
@@ -50,7 +49,7 @@ namespace Smartstore.Core.Seo.Routing
                     }
                 }
 
-                // Check again after policies have been applied
+                // Check again after url filters have been applied
                 if (policy.IsInvalidUrl)
                 {
                     context.Response.StatusCode = 404;

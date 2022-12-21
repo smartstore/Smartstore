@@ -103,6 +103,7 @@ namespace Smartstore.Core.Bootstrapping
 
                 if (isLocalizedUrl || !canOmitCultureCode)
                 {
+                    policy.Endpoint = endpoint;
                     context.SetEndpoint(null);
                 }
             }
