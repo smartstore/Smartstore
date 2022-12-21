@@ -36,7 +36,6 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(Sku), Name = "IX_ProductVariantAttributeCombination_SKU")]
     [Index(nameof(Gtin), Name = "IX_Gtin")]
     [Index(nameof(ManufacturerPartNumber), Name = "IX_ManufacturerPartNumber")]
-    [Index(nameof(IsActive), Name = "IX_IsActive")]
     [Index(nameof(StockQuantity), nameof(AllowOutOfStockOrders), Name = "IX_StockQuantity_AllowOutOfStockOrders")]
     public partial class ProductVariantAttributeCombination : BaseEntity, IAttributeAware
     {
