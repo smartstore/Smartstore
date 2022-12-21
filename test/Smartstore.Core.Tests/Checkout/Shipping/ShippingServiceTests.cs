@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog;
@@ -9,6 +10,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Test.Common;
 
@@ -20,7 +22,6 @@ namespace Smartstore.Core.Tests.Shipping
         ShippingSettings _shippingSettings;
         IShippingService _shippingService;
         IProductAttributeMaterializer _productAttributeMaterializer;
-        IRequestCache _requestCache;
 
         [OneTimeSetUp]
         public new void SetUp()
@@ -33,8 +34,17 @@ namespace Smartstore.Core.Tests.Shipping
                 }
             };
 
-            _requestCache = new NullRequestCache();
-            _productAttributeMaterializer = new ProductAttributeMaterializer(null, null, _requestCache, null, null, new Lazy<CatalogSettings>(), null);
+            var downloadService = new Mock<IDownloadService>();
+
+            _productAttributeMaterializer = new ProductAttributeMaterializer(
+                null,
+                null,
+                new NullRequestCache(),
+                null,
+                null,
+                new Lazy<IDownloadService>(() => downloadService.Object),
+                new Lazy<CatalogSettings>(),
+                null);
 
             DbContext.ShippingMethods.Add(new ShippingMethod { Name = "1" });
             DbContext.ShippingMethods.Add(new ShippingMethod { Name = "2" });
