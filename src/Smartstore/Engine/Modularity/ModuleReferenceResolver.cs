@@ -22,7 +22,6 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         /// <param name="requestingAssembly">The requesting assembly. May be the module main assembly or any dependency of it.</param>
         /// <param name="name">Name of assembly to resolve.</param>
-        /// <returns></returns>
         public Assembly ResolveAssembly(Assembly requestingAssembly, string name, out IModuleDescriptor module)
         {
             module = null;
@@ -45,7 +44,6 @@ namespace Smartstore.Engine.Modularity
                 var fullPath = Path.Combine(module.PhysicalPath, requestedAssemblyName);
                 if (File.Exists(fullPath))
                 {
-                    // TODO: (core) ModuleReferenceResolver ErrHandling
                     assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(fullPath);
                     _assemblyModuleMap[assembly] = module;
                 }

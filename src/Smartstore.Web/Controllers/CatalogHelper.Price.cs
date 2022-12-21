@@ -3,6 +3,7 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Localization;
+using Smartstore.Diagnostics;
 using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Web.Controllers
@@ -13,6 +14,8 @@ namespace Smartstore.Web.Controllers
 
         protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
+            using var chronometer = _services.Chronometer.Step("PrepareProductPriceModel");
+
             var priceModel = model.Price;
             var customer = modelContext.Customer;
             var currency = modelContext.Currency;

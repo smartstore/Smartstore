@@ -22,6 +22,7 @@
 
 - ~10 % faster app startup and TTFB
 - ~10 % less RAM usage
+- Significantly faster attribute combination scanning for large combination sets (1.000+)
 
 ### Bugfixes
 

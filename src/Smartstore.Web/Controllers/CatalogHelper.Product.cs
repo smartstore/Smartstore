@@ -404,6 +404,8 @@ namespace Smartstore.Web.Controllers
                 return;
             }
 
+            using var chronometer = _services.Chronometer.Step("PrepareProductAttributesModel");
+
             var query = modelContext.VariantQuery;
             var productBundleItem = modelContext.ProductBundleItem;
             var bundleItemId = productBundleItem?.Id ?? 0;
@@ -658,6 +660,8 @@ namespace Smartstore.Web.Controllers
 
         protected async Task PrepareProductAttributeCombinationsModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext)
         {
+            using var chronometer = _services.Chronometer.Step("PrepareProductAttributeCombinationsModel");
+
             var product = modelContext.Product;
             var query = modelContext.VariantQuery;
             var productBundleItem = modelContext.ProductBundleItem;
@@ -764,6 +768,8 @@ namespace Smartstore.Web.Controllers
 
         protected async Task PrepareProductPropertiesModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext)
         {
+            using var chronometer = _services.Chronometer.Step("PrepareProductPropertiesModel");
+
             var store = modelContext.Store;
             var customer = modelContext.Customer;
             var currency = modelContext.Currency;
@@ -943,6 +949,8 @@ namespace Smartstore.Web.Controllers
 
         protected void PrepareProductCartModel(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
+            using var chronometer = _services.Chronometer.Step("PrepareProductCartModel");
+
             var product = modelContext.Product;
             var currency = modelContext.Currency;
             var displayPrices = modelContext.DisplayPrices;

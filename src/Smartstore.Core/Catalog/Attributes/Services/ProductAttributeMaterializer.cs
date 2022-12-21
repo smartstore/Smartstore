@@ -1,5 +1,8 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -7,6 +10,7 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Diagnostics;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
@@ -33,6 +37,7 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRequestCache _requestCache;
         private readonly ICacheManager _cache;
+        private readonly IChronometer _chronometer;
         private readonly Lazy<IDownloadService> _downloadService;
         private readonly Lazy<CatalogSettings> _catalogSettings;
         private readonly PerformanceSettings _performanceSettings;
@@ -42,6 +47,7 @@ namespace Smartstore.Core.Catalog.Attributes
             IHttpContextAccessor httpContextAccessor,
             IRequestCache requestCache,
             ICacheManager cache,
+            IChronometer chronometer,
             Lazy<IDownloadService> downloadService,
             Lazy<CatalogSettings> catalogSettings,
             PerformanceSettings performanceSettings)
@@ -50,6 +56,7 @@ namespace Smartstore.Core.Catalog.Attributes
             _httpContextAccessor = httpContextAccessor;
             _requestCache = requestCache;
             _cache = cache;
+            _chronometer = chronometer;
             _downloadService = downloadService;
             _catalogSettings = catalogSettings;
             _performanceSettings = performanceSettings;
@@ -317,17 +324,62 @@ namespace Smartstore.Core.Catalog.Attributes
 
             var combination = await _requestCache.GetAsync(cacheKey, async () =>
             {
-                var combinations = await _db.ProductVariantAttributeCombinations
-                    .AsNoTracking()
-                    .Where(x => x.ProductId == productId)
-                    .Select(x => new ProductVariantAttributeCombination
-                    {
-                        Id = x.Id,
-                        RawAttributes = x.RawAttributes
-                    })
-                    .ToListAsync();
+                using var step = _chronometer.Step("FindAttributeCombination");
 
-                return await FindCombinationByAttributeSelection(selection, combinations);
+                selection = await NormalizeSelectionAsync(selection);
+
+                var query = from x in _db.ProductVariantAttributeCombinations.AsNoTracking()
+                            where x.ProductId == productId
+                            select x;
+
+                // Try to determine whether it is more beneficial to scan from end to start
+                var reverseScanKey = "CombinationLookupReverse:" + cacheKey;
+                var reverseScan = _cache.Get<bool?>(reverseScanKey);
+                if (reverseScan == true)
+                {
+                    query = query.OrderByDescending(x => x.Id);
+                }
+
+                // Actually this is an anti-pattern, because we never enumerate the resultset.
+                // But unless we implement the hashing stuff for attribute combinations this
+                // is way faster than materializing all combinations just to scan for the selection.
+                // Anyway, MARS is enabled now, so who cares.
+                var combinations = query.AsAsyncEnumerable();
+
+                ProductVariantAttributeCombination result = null;
+
+                int index = 0;
+                await foreach (var combination in combinations)
+                {
+                    index++;
+
+                    if (selection.Equals(combination.AttributeSelection))
+                    {
+                        result = combination;
+                        break;
+                    }
+                }
+
+                if (result != null && reverseScan == null)
+                {
+                    try
+                    {
+                        // Remember scan direction for the next time
+                        var totalCount = await query.CountAsync();
+                        reverseScan = index > (totalCount / 2);
+
+                        var cacheEntryOptions = new CacheEntryOptions()
+                            .ExpiresIn(TimeSpan.FromHours(1))
+                            .SetSlidingExpiration(TimeSpan.FromHours(1));
+
+                        _cache.Put(reverseScanKey, reverseScan.Value, cacheEntryOptions);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                return result;
             });
 
             return combination;
@@ -358,41 +410,14 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             Guard.NotNull(cartItems, nameof(cartItems));
 
-            var productIds = cartItems
-                .Select(x => x.ProductId)
-                .Distinct()
-                .ToArray();
-
-            if (!productIds.Any())
-            {
-                return 0;
-            }
-
-            var allCombinations = await _db.ProductVariantAttributeCombinations
-                .AsNoTracking()
-                .Where(x => productIds.Contains(x.ProductId))
-                .Select(x => new ProductVariantAttributeCombination
-                {
-                    Id = x.Id,
-                    ProductId = x.ProductId,
-                    RawAttributes = x.RawAttributes
-                })
-                .ToListAsync();
-
             var num = 0;
-            var combinationsMap = allCombinations.ToMultimap(x => x.ProductId, x => x);
 
             foreach (var cartItem in cartItems)
             {
-                if (cartItem.AttributeSelection.AttributesMap.Any() &&
-                    combinationsMap.TryGetValues(cartItem.ProductId, out var combinationsForProduct))
+                if (cartItem.AttributeSelection.AttributesMap.Any())
                 {
-                    var combination = await FindCombinationByAttributeSelection(cartItem.AttributeSelection, combinationsForProduct);
-                    if (combination != null)
-                    {
-                        await MergeWithCombinationAsync(cartItem.Product, cartItem.AttributeSelection, combination);
-                        ++num;
-                    }
+                    await MergeWithCombinationAsync(cartItem.Product, cartItem.AttributeSelection, null);
+                    ++num;
                 }
             }
 
@@ -544,7 +569,7 @@ namespace Smartstore.Core.Catalog.Attributes
             }
         }
 
-        protected virtual async Task<List<ProductVariantAttributeValue>> LoadAttributeValuesAsync(int[] attributeIds, int[] valueIds)
+        protected virtual async Task<IList<ProductVariantAttributeValue>> LoadAttributeValuesAsync(int[] attributeIds, int[] valueIds)
         {
             if (!attributeIds.Any() || !valueIds.Any())
             {
@@ -555,48 +580,63 @@ namespace Smartstore.Core.Catalog.Attributes
             // That is why it is important to also filter by list types because only list types (e.g. dropdown list)
             // can have assigned ProductVariantAttributeValue entities.
 
-            return await _db.ProductVariantAttributeValues
+            return await GetListTypeAttributesQuery(attributeIds, valueIds)
                 .Include(x => x.ProductVariantAttribute)
                 .ThenInclude(x => x.ProductAttribute)
                 .AsSplitQuery()
                 .AsNoTracking()
-                .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && valueIds.Contains(x.Id))
-                .ApplyListTypeFilter()
                 .ToListAsync();
         }
 
-        private async Task<ProductVariantAttributeCombination> FindCombinationByAttributeSelection(
-            ProductVariantAttributeSelection selection,
-            ICollection<ProductVariantAttributeCombination> attributeCombinationsLookup)
+        private IQueryable<ProductVariantAttributeValue> GetListTypeAttributesQuery(int[] attributeIds, int[] valueIds)
         {
-            if (!attributeCombinationsLookup.Any())
-            {
-                return null;
-            }
+            return _db.ProductVariantAttributeValues
+                .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && valueIds.Contains(x.Id))
+                .ApplyListTypeFilter();
+        }
 
-            ProductVariantAttributeSelection listTypeSelection;
+        /// <summary>
+        /// Excludes all non-list type attributes from given selection.
+        /// </summary>
+        /// <returns>The normalized selection</returns>
+        private async Task<ProductVariantAttributeSelection> NormalizeSelectionAsync(ProductVariantAttributeSelection selection)
+        {
             var listTypeValues = await MaterializeProductVariantAttributeValuesAsync(selection);
             var listTypeAttributesIds = listTypeValues.Select(x => x.ProductVariantAttributeId).ToArray();
 
             if (selection.AttributesMap.Any(x => !listTypeAttributesIds.Contains(x.Key)))
             {
                 // Remove attributes that are not of type list from selection.
-                listTypeSelection = new ProductVariantAttributeSelection(null);
+                var listTypeSelection = new ProductVariantAttributeSelection(null);
 
                 foreach (var item in selection.AttributesMap.Where(x => listTypeAttributesIds.Contains(x.Key)))
                 {
                     listTypeSelection.AddAttribute(item.Key, item.Value);
                 }
+
+                return listTypeSelection;
             }
             else
             {
-                listTypeSelection = selection;
+                return selection;
+            }
+        }
+
+        private async Task<ProductVariantAttributeCombination> FindCombinationByAttributeSelectionAsync(
+            ProductVariantAttributeSelection selection, 
+            ICollection<ProductVariantAttributeCombination> combinationsLookup)
+        {
+            if (!combinationsLookup.Any())
+            {
+                return null;
             }
 
+            selection = await NormalizeSelectionAsync(selection);
+
             // TODO: (core) (important) (future) Save combination hash in table and always lookup by hash instead of iterating thru local data to find a match.
-            foreach (var combination in attributeCombinationsLookup)
+            foreach (var combination in combinationsLookup)
             {
-                if (listTypeSelection.Equals(combination.AttributeSelection))
+                if (selection.Equals(combination.AttributeSelection))
                 {
                     return await _db.ProductVariantAttributeCombinations.FindByIdAsync(combination.Id);
                 }
