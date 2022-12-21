@@ -37,7 +37,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="7.0.0" />
-        <PackageReference Include="ncrontab" Version="3.3.1" />
+        <PackageReference Include="NCrontab.Signed" Version="3.3.2" />
         <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
         <PackageReference Include="NuGet.Protocol" Version="6.4.0" />
         <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
