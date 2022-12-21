@@ -131,11 +131,13 @@ Smartstore.media = (function () {
                 flex: true,
                 large: true,
                 onMessage: function (files) {
-                    if (_.isFunction(opts.onSelect)) {
-                        opts.onSelect(files);
-                    }
+                    if (Array.isArray(files)) {
+                        if (_.isFunction(opts.onSelect)) {
+                            opts.onSelect(files);
+                        }
 
-                    closePopup(opts.id);
+                        closePopup(opts.id);
+                    }
                 }
             });
 

@@ -264,7 +264,7 @@
         }
 
         if (_.isFunction(opts.onMessage)) {
-            $(iframe.get(0).contentWindow).one('message', function (e) {
+            $(iframe.get(0).contentWindow).on('message', function (e) {
                 var result = e.originalEvent.data;
                 opts.onMessage.apply(this, [result]);
             });
