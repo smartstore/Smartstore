@@ -216,6 +216,7 @@ src/Smartstore.Web/App_Data/*
 !src/Smartstore.Web/App_Data/Localization/*
 !src/Smartstore.Web/App_Data/Samples/*
 !src/Smartstore.Web/App_Data/icons.json
+!src/Smartstore.Web/App_Data/UAParser.regexes.yaml
 !src/Smartstore.Web/App_Data/widgetzones.json
 
 # DataProtection
