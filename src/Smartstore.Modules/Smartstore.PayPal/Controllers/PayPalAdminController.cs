@@ -179,6 +179,7 @@ namespace Smartstore.PayPal.Controllers
                         // Save settings
                         settings.ClientId = credentials.ClientId;
                         settings.Secret = credentials.ClientSecret;
+                        settings.PayerId = credentials.PayerId;
 
                         await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
 
