@@ -44,6 +44,7 @@
 - Fixes NullReferenceException when placing an order with an invalid email display name.
 - Fixed link generation issue: `pathBase` is stripped when target endpoint requires culture code
 - Fixed DbUpdateException when deleting a customer address via backend.
+- Routing: non-slug, unlocalized system routes did not redirect to localized route
 - UrlRewriter: fixed greedy matching (`/en/` should not match `/men/`)
 
 ## Smartstore 5.0.1
