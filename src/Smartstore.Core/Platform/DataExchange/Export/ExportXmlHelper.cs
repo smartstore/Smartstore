@@ -667,13 +667,13 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString(nameof(Product.IsTaxExempt), entity.IsTaxExempt.ToString());
             _writer.WriteElementString(nameof(Product.TaxCategoryId), entity.TaxCategoryId.ToString());
             _writer.WriteElementString(nameof(Product.ManageInventoryMethodId), entity.ManageInventoryMethodId.ToString());
-            _writer.WriteElementString(nameof(Product.StockQuantity), entity.StockQuantity.ToString());
+            _writer.WriteElementString(nameof(Product.StockQuantity), ((int)product.StockQuantity).ToString());
             _writer.WriteElementString(nameof(Product.DisplayStockAvailability), entity.DisplayStockAvailability.ToString());
             _writer.WriteElementString(nameof(Product.DisplayStockQuantity), entity.DisplayStockQuantity.ToString());
             _writer.WriteElementString(nameof(Product.MinStockQuantity), entity.MinStockQuantity.ToString());
             _writer.WriteElementString(nameof(Product.LowStockActivityId), entity.LowStockActivityId.ToString());
             _writer.WriteElementString(nameof(Product.NotifyAdminForQuantityBelow), entity.NotifyAdminForQuantityBelow.ToString());
-            _writer.WriteElementString(nameof(Product.BackorderModeId), entity.BackorderModeId.ToString());
+            _writer.WriteElementString(nameof(Product.BackorderModeId), ((int)product.BackorderModeId).ToString());
             _writer.WriteElementString(nameof(Product.AllowBackInStockSubscriptions), entity.AllowBackInStockSubscriptions.ToString());
             _writer.WriteElementString(nameof(Product.OrderMinimumQuantity), entity.OrderMinimumQuantity.ToString());
             _writer.WriteElementString(nameof(Product.OrderMaximumQuantity), entity.OrderMaximumQuantity.ToString());
@@ -685,7 +685,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString(nameof(Product.DisableWishlistButton), entity.DisableWishlistButton.ToString());
             _writer.WriteElementString(nameof(Product.AvailableForPreOrder), entity.AvailableForPreOrder.ToString());
             _writer.WriteElementString(nameof(Product.CallForPrice), entity.CallForPrice.ToString());
-            _writer.WriteElementString(nameof(Product.Price), entity.Price.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.Price), ((decimal)product.Price).ToString(_culture));
             _writer.WriteElementString(nameof(Product.ComparePrice), entity.ComparePrice.ToString(_culture));
             _writer.WriteElementString(nameof(Product.ProductCost), entity.ProductCost.ToString(_culture));
             _writer.WriteElementString(nameof(Product.SpecialPrice), entity.SpecialPrice?.ToString(_culture) ?? string.Empty);
