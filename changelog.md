@@ -46,6 +46,7 @@
 - Fixed DbUpdateException when deleting a customer address via backend.
 - Routing: non-slug, unlocalized system routes did not redirect to localized route
 - UrlRewriter: fixed greedy matching (`/en/` should not match `/men/`)
+- Fixed RuleSets could not be added or removed from a shipping method.
 
 ## Smartstore 5.0.1
 

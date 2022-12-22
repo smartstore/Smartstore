@@ -175,7 +175,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Shipping.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var shippingMethod = await _db.ShippingMethods.Include(x => x.RuleSets).FindByIdAsync(id, false);
+            var shippingMethod = await _db.ShippingMethods
+                .Include(x => x.RuleSets)
+                .FindByIdAsync(id);
+
             if (shippingMethod == null)
             {
                 return NotFound();
@@ -197,7 +200,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Shipping.Update)]
         public async Task<IActionResult> Edit(ShippingMethodModel model, bool continueEditing, IFormCollection form)
         {
-            var shippingMethod = await _db.ShippingMethods.FindByIdAsync(model.Id);
+            var shippingMethod = await _db.ShippingMethods
+                .Include(x => x.RuleSets)
+                .FindByIdAsync(model.Id);
+
             if (shippingMethod == null)
             {
                 return NotFound();
