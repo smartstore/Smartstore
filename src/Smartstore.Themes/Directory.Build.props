@@ -2,9 +2,12 @@
 
 	<Import Project="..\Smartstore.Build\Smartstore.Common.props" />
 	<Import Project="..\Smartstore.Build\Smartstore.Module.props" />
-
+	
     <ItemGroup>
-        <Content Include="module.json">
+        <Content Include="theme.config">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="preview.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

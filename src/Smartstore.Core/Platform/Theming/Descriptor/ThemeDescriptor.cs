@@ -159,6 +159,8 @@ namespace Smartstore.Core.Theming
 
         public ThemeDescriptor BaseTheme { get; internal set; }
 
+        public string AssemblyName { get; internal set; }
+
         private IDictionary<string, ThemeVariableInfo> _variables;
         public IDictionary<string, ThemeVariableInfo> Variables
         {

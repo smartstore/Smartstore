@@ -1,7 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
-		<!-- TODO: Describe Razor compilation -->
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<MvcRazorCompileOnBuild>false</MvcRazorCompileOnBuild>
 		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>

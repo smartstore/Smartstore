@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.Loader;
 using System.Text.RegularExpressions;
 using Smartstore.Collections;
 using Smartstore.Events;
@@ -136,6 +137,16 @@ namespace Smartstore.Core.Theming
                 }
 
                 descriptor.ContentRoot = contentRoot;
+
+                // Try to load theme assembly on init
+                if (isInit && descriptor.AssemblyName.HasValue())
+                {
+                    var assemblyPath = PathUtility.Join(descriptor.PhysicalPath, descriptor.AssemblyName);
+                    if (File.Exists(assemblyPath))
+                    {
+                        AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+                    }
+                }
             }
         }
 
@@ -374,7 +385,7 @@ namespace Smartstore.Core.Theming
                 return;
             }
 
-            var themeName = name.Substring(0, idx);
+            var themeName = name[..idx];
             var relativePath = name[(themeName.Length + 1)..].Replace('\\', '/');
             var isConfigFile = relativePath.EqualsNoCase("theme.config");
 
