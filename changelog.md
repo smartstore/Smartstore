@@ -1,6 +1,6 @@
 # Release Notes
 
-## Smartstore 5.1.0
+## Smartstore 5.0.2
 
 ### Breaking Changes
 
@@ -22,6 +22,7 @@
 
 - ~10 % faster app startup and TTFB
 - ~10 % less RAM usage
+- Significantly faster attribute combination scanning for large combination sets (1.000+)
 
 ### Bugfixes
 
@@ -43,6 +44,10 @@
 - Fixes NullReferenceException when placing an order with an invalid email display name.
 - Fixed link generation issue: `pathBase` is stripped when target endpoint requires culture code
 - Fixed DbUpdateException when deleting a customer address via backend.
+- Routing: non-slug, unlocalized system routes did not redirect to localized route
+- UrlRewriter: fixed greedy matching (`/en/` should not match `/men/`)
+- Fixed RuleSets could not be added or removed from a shipping method.
+- Fixed wrong SKU in order XML export if the order contains multiple variants of the same product.
 
 ## Smartstore 5.0.1
 
