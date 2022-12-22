@@ -88,6 +88,7 @@ namespace Smartstore.Shipping.Controllers
         {
             var shippingRates = await _db.ShippingRatesByTotal()
                 .AsNoTracking()
+                .OrderBy(x => x.Id)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
