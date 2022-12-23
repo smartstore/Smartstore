@@ -25,7 +25,14 @@ namespace Smartstore.Web.Bootstrapping
 
         private static IFileProvider ResolveModuleFileProvider(string moduleName, IApplicationContext appContext)
         {
-            return appContext.ModuleCatalog.GetModuleByName(moduleName, false)?.WebRoot;
+            var module = appContext.ModuleCatalog.GetModuleByName(moduleName, false);
+            if (module != null)
+            {
+                // Don't allow theme companion modules serving static files by "/modules" path
+                return module.Theme.IsEmpty() ? module.WebRoot : null;
+            }
+
+            return null;
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)

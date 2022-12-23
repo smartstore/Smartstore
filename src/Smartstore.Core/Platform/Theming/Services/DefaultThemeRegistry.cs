@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using System.Runtime.Loader;
+using System.IO.Enumeration;
 using System.Text.RegularExpressions;
 using Smartstore.Collections;
 using Smartstore.Events;
@@ -10,12 +10,13 @@ namespace Smartstore.Core.Theming
 {
     public partial class DefaultThemeRegistry : Disposable, IThemeRegistry
     {
-        private readonly IEventPublisher _eventPublisher;
-        private readonly IApplicationContext _appContext;
-        private readonly IFileSystem _root;
+        internal readonly IEventPublisher _eventPublisher;
+        internal readonly IApplicationContext _appContext;
+        internal readonly IFileSystem _root;
         private readonly ConcurrentDictionary<string, ThemeDescriptor> _themes = new(StringComparer.InvariantCultureIgnoreCase);
         private readonly ConcurrentDictionary<EventThrottleKey, Timer> _eventQueue = new();
         private readonly bool _enableMonitoring;
+        //private readonly ThemeMonitor _monitor;
 
         private readonly Regex _fileFilterPattern = new(@"^\.(config|cshtml|scss|liquid)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -39,11 +40,22 @@ namespace Smartstore.Core.Theming
 
             // start FS watcher
             StartMonitoring(false);
+
+            //_monitor = new ThemeMonitor(this, _root, _eventPublisher);
+            //if (_enableMonitoring)
+            //{
+            //    _monitor.Start();
+            //}
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         #region IThemeRegistry
+
+        //public ThemeMonitor Monitor 
+        //{
+        //    get => _monitor;
+        //}
 
         public event EventHandler<ThemeFileChangedEventArgs> ThemeFileChanged;
         public event EventHandler<ThemeDirectoryRenamedEventArgs> ThemeDirectoryRenamed;
@@ -109,7 +121,7 @@ namespace Smartstore.Core.Theming
                     descriptor.State = ThemeDescriptorState.MissingBaseTheme;
                 }
             }
-
+            
             descriptor.BaseTheme = baseDescriptor;
             var added = _themes.TryAdd(descriptor.Name, descriptor);
             if (added)
@@ -125,7 +137,17 @@ namespace Smartstore.Core.Theming
                     }
                 }
 
-                IFileSystem contentRoot = descriptor.IsSymbolicLink
+                IFileSystem contentRoot = null;
+
+                if (descriptor.CompanionModuleName.HasValue())
+                {
+                    // If a theme has a companion module, the content root is actually the module's content root.
+                    // Because such themes are always symlinked to the module directory.
+                    var module = _appContext.ModuleCatalog.GetModuleByName(descriptor.CompanionModuleName, false);
+                    contentRoot = module?.ContentRoot;
+                }
+
+                contentRoot ??= descriptor.IsSymbolicLink
                     ? new LocalFileSystem(descriptor.PhysicalPath)
                     : new ExpandedFileSystem(descriptor.Name, _appContext.ThemesRoot);
 
@@ -137,16 +159,6 @@ namespace Smartstore.Core.Theming
                 }
 
                 descriptor.ContentRoot = contentRoot;
-
-                // Try to load theme assembly on init
-                if (isInit && descriptor.AssemblyName.HasValue())
-                {
-                    var assemblyPath = PathUtility.Join(descriptor.PhysicalPath, descriptor.AssemblyName);
-                    if (File.Exists(assemblyPath))
-                    {
-                        AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
-                    }
-                }
             }
         }
 
@@ -160,7 +172,7 @@ namespace Smartstore.Core.Theming
 
                 existing.BaseTheme = null;
 
-                // set all direct children as broken
+                // Set all direct children as broken
                 var children = GetChildrenOf(themeName, false);
                 foreach (var child in children)
                 {
@@ -282,7 +294,7 @@ namespace Smartstore.Core.Theming
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "Unable to create descriptor for theme '{0}'".FormatCurrent(dirData.Directory.Name));
+                    Logger.Error(ex, "Unable to create descriptor for theme '{0}'".FormatCurrent(dirData.Name));
                 }
             }
         }
@@ -297,11 +309,12 @@ namespace Smartstore.Core.Theming
             {
                 Path = _root.Root,
                 InternalBufferSize = 32768, // // 32 instead of the default 8 KB,
-                Filter = "*.*",
-                NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.LastWrite | NotifyFilters.FileName,
+                //Filter = "*.*",
+                Filters = { "*.scss", "*.cshtml", "*.config", "*.liquid" },
+                NotifyFilter = /*NotifyFilters.CreationTime |*/ NotifyFilters.LastWrite | NotifyFilters.FileName,
                 IncludeSubdirectories = true
             };
-
+            
             _monitorFiles.Changed += (s, e) => OnThemeFileChanged(e.Name, e.FullPath, ThemeFileChangeType.Modified);
             _monitorFiles.Deleted += (s, e) => OnThemeFileChanged(e.Name, e.FullPath, ThemeFileChangeType.Deleted);
             _monitorFiles.Created += (s, e) => OnThemeFileChanged(e.Name, e.FullPath, ThemeFileChangeType.Created);
@@ -378,7 +391,7 @@ namespace Smartstore.Core.Theming
                 return;
             }
 
-            var idx = name.IndexOf('\\');
+            var idx = name.IndexOfAny(PathUtility.PathSeparators);
             if (idx < 0)
             {
                 // must be a subfolder of "/Themes/"

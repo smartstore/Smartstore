@@ -49,13 +49,12 @@ namespace Smartstore.Web.Bundling
             var path2 = path.TrimStart(PathUtility.PathSeparators);
 
             var index = path2.IndexOf('/');
-            var lenBase = 0;
 
             if (index > -1 && path2.Length > index)
             {
                 // Get first segment including leading slash, e.g. "themes/"
-                var firstSegment = path2.Substring(0, index + 1).ToLowerInvariant();
-                lenBase = firstSegment.Length;
+                var firstSegment = path2[..(index + 1)].ToLowerInvariant();
+                var lenBase = firstSegment.Length;
 
                 if (_providers.TryGetValue(firstSegment, out var resolver))
                 {
@@ -64,7 +63,7 @@ namespace Smartstore.Web.Bundling
                     index = nextSegment.IndexOf('/');
                     if (index > -1 && nextSegment.Length > index)
                     {
-                        nextSegment = nextSegment.Substring(0, index);
+                        nextSegment = nextSegment[..index];
                         lenBase += nextSegment.Length;
                     }
 

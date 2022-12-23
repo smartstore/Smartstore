@@ -65,8 +65,8 @@
 
 	<!-- Copy publishable files in Themes directory -->
 	<ItemGroup>
-		<Content Include="Themes\**" Exclude="Themes\*\Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
-		<None Include="Themes\*\Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
+		<Content Include="Themes\**" Exclude="Themes\*\Views\**\*.cshtml; Themes\HP\**" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="Themes\*\Views\**\*.cshtml" Exclude="Themes\HP\**" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<!-- Copy publishable files in Views directory -->
@@ -76,7 +76,6 @@
     
     <!-- Don't publish static/raw files -->
 	<ItemGroup>
-        <Content Remove="Views\Shared\Partials\Product.List.Item.Delivery.cshtml" />
         <Content Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
         <Content Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
 	</ItemGroup>

@@ -16,6 +16,10 @@
       "type": "string",
       "description": "Module system name (usually the assembly name without extension)."
     },
+    "Theme": {
+      "type": "string",
+      "description": "Theme name (if the module is a theme companion). On build a symbolic link will be created in /Themes/[Theme] to /Modules/[Module]."
+    },
     "Author": {
       "type": "string",
       "description": "Author name."

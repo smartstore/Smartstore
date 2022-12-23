@@ -149,7 +149,7 @@ namespace Smartstore.Web
                 mvcBuilder.AddRazorRuntimeCompilation(o =>
                 {
                     o.FileProviders.Clear();
-                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, true));
+                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, false));
                 });
             }
 

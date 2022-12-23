@@ -2,11 +2,5 @@
 
 	<Import Project="..\Smartstore.Build\Smartstore.Common.props" />
 	<Import Project="..\Smartstore.Build\Smartstore.Module.props" />
-
-    <ItemGroup>
-        <Content Include="module.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
 	
 </Project>

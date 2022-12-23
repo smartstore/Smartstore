@@ -50,13 +50,14 @@ namespace Smartstore.Core.Theming
             if (!themeDirectory.Exists)
                 return null;
 
+            var themeName = themeDirectory.Name;
             var isSymLink = themeDirectory.IsSymbolicLink(out var linkedPath);
             if (isSymLink)
             {
                 themeDirectory = new LocalDirectory(themeDirectory.SubPath, new DirectoryInfo(linkedPath), root as LocalFileSystem);
             }
 
-            var themeConfigFile = root.GetFile(PathUtility.Join(themeDirectory.Name, "theme.config"));
+            var themeConfigFile = root.GetFile(PathUtility.Join(themeName, "theme.config"));
 
             if (themeConfigFile.Exists)
             {
@@ -69,7 +70,7 @@ namespace Smartstore.Core.Theming
                 var rootNode = doc.DocumentElement;
 
                 var baseTheme = rootNode.GetAttribute("baseTheme").TrimSafe().NullEmpty();
-                if (baseTheme != null && baseTheme.EqualsNoCase(themeDirectory.Name))
+                if (baseTheme != null && baseTheme.EqualsNoCase(themeName))
                 {
                     // Don't let theme base on itself!
                     baseTheme = null;
@@ -77,6 +78,7 @@ namespace Smartstore.Core.Theming
 
                 return new ThemeDirectoryData
                 {
+                    Name = themeName,
                     Directory = themeDirectory,
                     ConfigurationFile = themeConfigFile,
                     ConfigurationNode = rootNode,
@@ -159,7 +161,7 @@ namespace Smartstore.Core.Theming
 
         public ThemeDescriptor BaseTheme { get; internal set; }
 
-        public string AssemblyName { get; internal set; }
+        public string CompanionModuleName { get; internal set; }
 
         private IDictionary<string, ThemeVariableInfo> _variables;
         public IDictionary<string, ThemeVariableInfo> Variables

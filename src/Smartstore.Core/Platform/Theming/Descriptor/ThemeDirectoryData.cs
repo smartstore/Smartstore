@@ -6,6 +6,8 @@ namespace Smartstore.Core.Theming
 {
     internal class ThemeDirectoryData : ITopologicSortable<string>
     {
+        public string Name { get; set; }
+
         public IDirectory Directory { get; set; }
 
         public IFile ConfigurationFile { get; set; }
@@ -17,7 +19,7 @@ namespace Smartstore.Core.Theming
         public string BaseTheme { get; set; }
 
         string ITopologicSortable<string>.Key
-            => Directory.Name;
+            => Name;
 
         string[] ITopologicSortable<string>.DependsOn
         {

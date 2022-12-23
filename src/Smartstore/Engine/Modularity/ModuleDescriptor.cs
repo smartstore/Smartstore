@@ -234,6 +234,10 @@ namespace Smartstore.Engine.Modularity
         public string SourcePhysicalPath { get; internal set; }
 
         /// <inheritdoc/>
+        [JsonProperty]
+        public string Theme { get; internal set; }
+
+        /// <inheritdoc/>
         public ModuleAssemblyInfo Module { get; internal set; }
 
         /// <inheritdoc/>
