@@ -127,7 +127,8 @@ namespace Smartstore.Core.Theming
                 {
                     // If a theme has a companion module, the content root is actually the module's content root.
                     // Because such themes are always symlinked to the module directory.
-                    var module = _appContext.ModuleCatalog.GetModuleByName(descriptor.CompanionModuleName, false);
+                    var module = _appContext.ModuleCatalog.GetModuleByName(descriptor.CompanionModuleName);
+                    descriptor.CompanionModule = module;
                     contentRoot = module?.ContentRoot;
                 }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor;
 using Smartstore.Core.Theming;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Razor
 {
@@ -20,8 +21,21 @@ namespace Smartstore.Web.Razor
                     // INFO: we won't rely on ModularFileProvider's ability to find files in the 
                     // theme hierarchy chain, because of possible view path mismatches. Any mismatch
                     // starts the razor compiler, and we don't want that.
-                    themeViewLocations.Add($"{descriptor.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
-                    themeViewLocations.Add($"{descriptor.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+
+                    var module = descriptor.CompanionModule;
+
+                    if (descriptor.CompanionModule == null)
+                    {
+                        themeViewLocations.Add($"{descriptor.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
+                        themeViewLocations.Add($"{descriptor.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                    }
+                    else
+                    {
+                        // Locate in linked module directory, not in theme directory. 
+                        themeViewLocations.Add($"{module.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
+                        themeViewLocations.Add($"{module.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                    }
+
                     descriptor = descriptor.BaseTheme;
                 }
 

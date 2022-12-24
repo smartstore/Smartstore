@@ -286,6 +286,8 @@ namespace Smartstore.Core.Theming
 
         public string CompanionModuleName { get; internal set; }
 
+        public IModuleDescriptor CompanionModule { get; internal set; }
+
         private IDictionary<string, ThemeVariableInfo> _variables;
         public IDictionary<string, ThemeVariableInfo> Variables
         {

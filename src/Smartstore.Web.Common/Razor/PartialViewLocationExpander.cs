@@ -14,8 +14,8 @@ namespace Smartstore.Web.Razor
             {
                 if (doExpand)
                 {
-                    yield return format.Replace("{0}", "Layouts/{0}");
                     yield return format.Replace("{0}", "Partials/{0}");
+                    yield return format.Replace("{0}", "Layouts/{0}");
                 }
 
                 yield return format;
