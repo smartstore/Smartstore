@@ -95,40 +95,43 @@ namespace Smartstore.Core.Theming
 
         #region File Monitoring
 
-        private FileSystemWatcher _sassWatcher;
+        private FileSystemWatcher _fileWatcher;
         private IChangeToken _expirationToken;
         private List<IDisposable> _expirationTokenRegistrations;
 
-        internal void StartSassWatcher()
+        /// <summary>
+        /// Watches for new .scss and .cshtml files.
+        /// </summary>
+        internal void StartFileWatcher()
         {
-            if (_sassWatcher == null)
+            if (_fileWatcher == null)
             {
                 lock (this)
                 {
-                   if (_sassWatcher == null)
+                   if (_fileWatcher == null)
                     {
-                        _sassWatcher = new FileSystemWatcher
+                        _fileWatcher = new FileSystemWatcher
                         {
                             Path = ContentRoot.Root,
-                            Filter = "*.scss",
+                            Filters = { "*.scss", "*.cshtml" },
                             NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.FileName,
                             IncludeSubdirectories = true
                         };
 
-                        _sassWatcher.Created += OnSassEvent;
-                        _sassWatcher.Renamed += OnSassEvent;
+                        _fileWatcher.Created += OnFileEvent;
+                        _fileWatcher.Renamed += OnFileEvent;
                     }
                 }
             }
 
-            _sassWatcher.EnableRaisingEvents = true;
+            _fileWatcher.EnableRaisingEvents = true;
         }
 
-        internal void StopSassWatcher()
+        internal void StopFileWatcher()
         {
-            if (_sassWatcher != null)
+            if (_fileWatcher != null)
             {
-                _sassWatcher.EnableRaisingEvents = false;
+                _fileWatcher.EnableRaisingEvents = false;
             }
         }
 
@@ -173,7 +176,7 @@ namespace Smartstore.Core.Theming
             return null;
         }
 
-        private void OnSassEvent(object sender, FileSystemEventArgs e)
+        private void OnFileEvent(object sender, FileSystemEventArgs e)
         {
             // If a file is being added to a derived theme's directory, any base file
             // needs to be refreshed/cancelled. This is necessary, because the new file 
@@ -194,10 +197,10 @@ namespace Smartstore.Core.Theming
 
         private void DetachFileWatchers()
         {
-            if (_sassWatcher != null)
+            if (_fileWatcher != null)
             {
-                _sassWatcher.Dispose();
-                _sassWatcher = null;
+                _fileWatcher.Dispose();
+                _fileWatcher = null;
             }
 
             _expirationToken = null;

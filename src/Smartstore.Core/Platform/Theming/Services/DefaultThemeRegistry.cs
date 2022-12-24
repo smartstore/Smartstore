@@ -155,7 +155,7 @@ namespace Smartstore.Core.Theming
                 });
 
                 // Start Sass file monitor
-                descriptor.StartSassWatcher();
+                descriptor.StartFileWatcher();
             }
         }
 
