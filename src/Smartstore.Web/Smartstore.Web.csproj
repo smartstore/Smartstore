@@ -65,8 +65,15 @@
 
 	<!-- Copy publishable files in Themes directory -->
 	<ItemGroup>
-		<Content Include="Themes\**" Exclude="Themes\*\Views\**\*.cshtml; Themes\HP\**" CopyToPublishDirectory="PreserveNewest" />
-		<None Include="Themes\*\Views\**\*.cshtml" Exclude="Themes\HP\**" CopyToPublishDirectory="PreserveNewest" />
+        <Content CopyToPublishDirectory="PreserveNewest" Exclude="Themes\*\Views\**\*.cshtml" Include="
+              Themes\Flex\**; 
+              Themes\FlexBlack\**;
+              Themes\FlexBlue\**" />
+        
+        <None CopyToPublishDirectory="PreserveNewest" Include="
+              Themes\Flex\Views\**\*.cshtml; 
+              Themes\FlexBlack\Views\**\*.cshtml;
+              Themes\FlexBlue\Views\**\*.cshtml" />
 	</ItemGroup>
 
 	<!-- Copy publishable files in Views directory -->
