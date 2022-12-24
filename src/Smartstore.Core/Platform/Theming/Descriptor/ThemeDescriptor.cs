@@ -1,5 +1,6 @@
 ﻿using System.Xml;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
@@ -88,6 +89,128 @@ namespace Smartstore.Core.Theming
             }
 
             return null;
+        }
+
+        #endregion
+
+        #region File Monitoring
+
+        private FileSystemWatcher _sassWatcher;
+        private IChangeToken _expirationToken;
+        private List<IDisposable> _expirationTokenRegistrations;
+
+        internal void StartSassWatcher()
+        {
+            if (_sassWatcher == null)
+            {
+                lock (this)
+                {
+                   if (_sassWatcher == null)
+                    {
+                        _sassWatcher = new FileSystemWatcher
+                        {
+                            Path = ContentRoot.Root,
+                            Filter = "*.scss",
+                            NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.FileName,
+                            IncludeSubdirectories = true
+                        };
+
+                        _sassWatcher.Created += OnSassEvent;
+                        _sassWatcher.Renamed += OnSassEvent;
+                    }
+                }
+            }
+
+            _sassWatcher.EnableRaisingEvents = true;
+        }
+
+        internal void StopSassWatcher()
+        {
+            if (_sassWatcher != null)
+            {
+                _sassWatcher.EnableRaisingEvents = false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IChangeToken"/> instance for the root <c>theme.config</c> file.
+        /// </summary>
+        internal IChangeToken ExpirationToken
+        {
+            get
+            {
+                if (_expirationToken == null)
+                {
+                    lock (this)
+                    {
+                        _expirationToken ??= ContentRoot.Watch("theme.config");
+                    }
+                }
+
+                return _expirationToken;
+            }
+        }
+
+        /// <summary>
+        /// Registers a callback to invoke when the configuration file changes.
+        /// Any registration will be disposed when the descriptor instance is disposed.
+        /// </summary>ite
+        /// <param name="callback">The callback. The action parameter is the <see cref="ThemeDescriptor"/> instance.</param>
+        internal IDisposable RegisterExpirationCallback(Action<object> callback)
+        {
+            Guard.NotNull(callback);
+
+            var token = ExpirationToken;
+            if (token != null)
+            {
+                _expirationTokenRegistrations ??= new(1);
+
+                var registration = token.RegisterChangeCallback(callback, this);
+                _expirationTokenRegistrations.Add(registration);
+                return registration;
+            }
+
+            return null;
+        }
+
+        private void OnSassEvent(object sender, FileSystemEventArgs e)
+        {
+            // If a file is being added to a derived theme's directory, any base file
+            // needs to be refreshed/cancelled. This is necessary, because the new file 
+            // overwrites the base file now, and RazorViewEngine/SassParser must be notified
+            // about this change.
+
+            if (e.ChangeType != WatcherChangeTypes.Created && e.ChangeType != WatcherChangeTypes.Renamed)
+            {
+                return;
+            }
+
+            var baseFile = BaseTheme?.ContentRoot?.GetFile(e.Name);
+            if (baseFile != null && baseFile.Exists && baseFile is LocalFile)
+            {
+                File.SetLastWriteTimeUtc(baseFile.PhysicalPath, DateTime.UtcNow);
+            }
+        }
+
+        private void DetachFileWatchers()
+        {
+            if (_sassWatcher != null)
+            {
+                _sassWatcher.Dispose();
+                _sassWatcher = null;
+            }
+
+            _expirationToken = null;
+            if (_expirationTokenRegistrations != null)
+            {
+                foreach (var registration in _expirationTokenRegistrations)
+                {
+                    registration.Dispose();
+                }
+
+                _expirationTokenRegistrations.Clear();
+                _expirationTokenRegistrations = null;
+            }
         }
 
         #endregion
@@ -273,7 +396,6 @@ namespace Smartstore.Core.Theming
             protected internal set => _state = value;
         }
 
-
         public void Dispose()
         {
             Dispose(true);
@@ -284,6 +406,8 @@ namespace Smartstore.Core.Theming
         {
             if (disposing)
             {
+                DetachFileWatchers();
+
                 BaseTheme = null;
                 if (_variables != null)
                 {

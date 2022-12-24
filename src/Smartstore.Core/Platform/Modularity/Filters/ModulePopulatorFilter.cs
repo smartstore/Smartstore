@@ -19,8 +19,10 @@ namespace Smartstore.Engine.Modularity
                 var moduleCatalog = context.HttpContext.RequestServices.GetRequiredService<IModuleCatalog>();
                 var module = moduleCatalog.GetModuleByAssembly(actionDescriptor.ControllerTypeInfo.Assembly);
 
-                if (module != null)
+                if (module != null && module.Theme.IsEmpty())
                 {
+                    // A theme companion module should not expand, because their views
+                    // are located in /Themes/[Theme]/Views via symlink.
                     context.RouteData.DataTokens[ParamKey] = module.Name;
                 }
             }

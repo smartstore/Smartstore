@@ -1,40 +1,11 @@
-﻿namespace Smartstore.Core.Theming
+﻿using Microsoft.Extensions.Caching.Memory;
+
+namespace Smartstore.Core.Theming
 {
-    public enum ThemeFileChangeType
+    public sealed class ThemeExpiredEventArgs : EventArgs
     {
-        Created,
-        Deleted,
-        Modified
-    }
-
-    public class ThemeFileChangedEventArgs : EventArgs
-    {
-        public string FullPath { get; set; }
-        public string ThemeName { get; set; }
-        public string RelativePath { get; set; }
-        public bool IsConfigurationFile { get; set; }
-        public ThemeFileChangeType ChangeType { get; set; }
-    }
-
-    public class ThemeDirectoryRenamedEventArgs : EventArgs
-    {
-        public string FullPath { get; set; }
-        public string Name { get; set; }
-        public string OldFullPath { get; set; }
-        public string OldName { get; set; }
-    }
-
-    public class ThemeDirectoryDeletedEventArgs : EventArgs
-    {
-        public string FullPath { get; set; }
-        public string Name { get; set; }
-    }
-
-    public class BaseThemeChangedEventArgs : EventArgs
-    {
-        public string ThemeName { get; set; }
-        public string BaseTheme { get; set; }
-        public string OldBaseTheme { get; set; }
+        public string ThemeName { get; init; }
+        public IMemoryCache Cache { get; init; }
     }
 
     /// <summary>
@@ -90,43 +61,14 @@
         IEnumerable<ThemeDescriptor> GetChildrenOf(string themeName, bool deep = true);
 
         /// <summary>
-        /// Starts/resumes raising file system events
-        /// </summary>
-        /// <param name="force">
-        /// When <c>true</c>, monitoring gets started regardless of the global setting (appsettings.json > Smartstore > MonitorThemesFolder),
-        /// otherwise this method does nothing when the setting is <c>false</c>.
-        /// </param>
-        void StartMonitoring(bool force);
-
-        /// <summary>
-        /// Stops/pauses raising file system events
-        /// </summary>
-        void StopMonitoring();
-
-        /// <summary>
         /// Clears all parsed theme descriptors and reloads them.
         /// </summary>
         void ReloadThemes();
 
         /// <summary>
-        /// Event raised when an inheritable (static) theme file has been created or deleted,
-        /// OR when the <c>theme.config</c> file has been modified.
+        /// Event raised when a theme or any of its parents are removed 
+        /// from registry due to changes to "theme.config" or directory removal/renaming.
         /// </summary>
-        event EventHandler<ThemeFileChangedEventArgs> ThemeFileChanged;
-
-        /// <summary>
-        /// Event raised when a theme directory has been renamed.
-        /// </summary>
-        event EventHandler<ThemeDirectoryRenamedEventArgs> ThemeDirectoryRenamed;
-
-        /// <summary>
-        /// Event raised when a theme directory has been deleted.
-        /// </summary>
-        event EventHandler<ThemeDirectoryDeletedEventArgs> ThemeDirectoryDeleted;
-
-        /// <summary>
-        /// Event raised when a theme's base theme changes.
-        /// </summary>
-        event EventHandler<BaseThemeChangedEventArgs> BaseThemeChanged;
+        event EventHandler<ThemeExpiredEventArgs> ThemeExpired;
     }
 }

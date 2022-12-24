@@ -15,5 +15,19 @@ namespace Smartstore.Web.Bootstrapping
             builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
         }
+
+        public override void BuildPipeline(RequestPipelineBuilder builder)
+        {
+            var themeRegistry = builder.ApplicationBuilder.ApplicationServices.GetService<IThemeRegistry>();
+            if (themeRegistry != null)
+            {
+                themeRegistry.ThemeExpired += OnThemeExpired;
+            }
+        }
+
+        private static void OnThemeExpired(object sender, ThemeExpiredEventArgs e)
+        {
+            ThemeVariableRepository.RemoveFromCache(e.Cache, e.ThemeName);
+        }
     }
 }

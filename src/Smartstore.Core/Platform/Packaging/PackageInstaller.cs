@@ -88,12 +88,6 @@ namespace Smartstore.Core.Packaging
             var isTheme = package.Descriptor.IsTheme();
             try
             {
-                if (isTheme)
-                {
-                    // Avoid getting terrorized by IO events.
-                    _themeRegistry.StopMonitoring();
-                }
-
                 await ExtractArchive(archive);
 
                 if (isTheme)
@@ -116,14 +110,6 @@ namespace Smartstore.Core.Packaging
 
                 Logger.Error(ex);
                 throw;
-            }
-            finally
-            {
-                if (isTheme)
-                {
-                    // SOFT start IO events again.
-                    _themeRegistry.StartMonitoring(false);
-                }
             }
 
             if (installedExtension == null && isTheme)

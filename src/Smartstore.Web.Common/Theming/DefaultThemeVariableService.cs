@@ -1,7 +1,6 @@
 ﻿using System.Dynamic;
 using System.Text;
 using System.Xml;
-using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Bundling;
@@ -25,22 +24,19 @@ namespace Smartstore.Web.Theming
         private readonly IRequestCache _requestCache;
         private readonly IBundleBuilder _bundleBuilder;
         private readonly IBundleCollection _bundles;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DefaultThemeVariableService(
             SmartDbContext db,
             IThemeRegistry themeRegistry,
             IRequestCache requestCache,
             IBundleBuilder bundleBuilder,
-            IBundleCollection bundles,
-            IHttpContextAccessor httpContextAccessor)
+            IBundleCollection bundles)
         {
             _db = db;
             _themeRegistry = themeRegistry;
             _requestCache = requestCache;
             _bundleBuilder = bundleBuilder;
             _bundles = bundles;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public virtual async Task<ExpandoObject> GetThemeVariablesAsync(string themeName, int storeId)
@@ -67,7 +63,7 @@ namespace Smartstore.Web.Theming
         /// <summary>
         /// Merges <paramref name="variables"/> with preconfigured variables from <paramref name="descriptor"/>. 
         /// </summary>
-        private ExpandoObject MergeThemeVariables(ThemeDescriptor descriptor, IDictionary<string, object> variables)
+        private static ExpandoObject MergeThemeVariables(ThemeDescriptor descriptor, IDictionary<string, object> variables)
         {
             Guard.NotNull(descriptor, nameof(descriptor));
 

@@ -10,11 +10,6 @@
         public string TranslateCheckUrl { get; set; } = "https://translate.smartstore.com/StringResource/CheckAvailableResources?version={0}";
 
         /// <summary>
-        /// Monitor all theme folders for file changes/creations/deletions. Only turn this off when you encounter problems on the production webserver.
-        /// </summary>
-        public bool MonitorThemesFolder { get; set; } = true;
-
-        /// <summary>
         /// Set this to "true" if the view engine should also try to resolve view files ending with {CurrentLanguage} (e.g.: MyView.de.cshtml > MyView.cshtml).
         /// </summary>
         public bool EnableLocalizedViews { get; set; }

@@ -1,6 +1,6 @@
 ﻿using Autofac;
+using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Core.Theming;
-using Smartstore.Events;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -8,7 +8,7 @@ namespace Smartstore.Core.Bootstrapping
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.Register(x => new DefaultThemeRegistry(x.Resolve<IEventPublisher>(), x.Resolve<IApplicationContext>(), null, true))
+            builder.Register(x => new DefaultThemeRegistry(x.Resolve<IApplicationContext>(), x.Resolve<IMemoryCache>(), true))
                 .As<IThemeRegistry>()
                 .SingleInstance();
         }

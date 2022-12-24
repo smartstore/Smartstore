@@ -1,10 +1,9 @@
 ﻿using Smartstore.Core.Theming;
 using Smartstore.Data.Hooks;
-using Smartstore.Events;
 
 namespace Smartstore.Web.Theming
 {
-    internal partial class ThemeVariableInvalidator : AsyncDbSaveHook<ThemeVariable>, IConsumer
+    internal partial class ThemeVariableInvalidator : AsyncDbSaveHook<ThemeVariable>
     {
         private readonly ThemeVariableRepository _themeVarRepo;
 
@@ -14,11 +13,6 @@ namespace Smartstore.Web.Theming
         public ThemeVariableInvalidator(ThemeVariableRepository themeVarRepo)
         {
             _themeVarRepo = themeVarRepo;
-        }
-
-        public void HandleEvent(ThemeTouchedEvent eventMessage)
-        {
-            _themeVarRepo.RemoveFromCache(eventMessage.ThemeName);
         }
 
         public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
@@ -42,8 +36,7 @@ namespace Smartstore.Web.Theming
 
         private void AddEvictableThemeScope(string themeName, int storeId)
         {
-            if (_themeScopes == null)
-                _themeScopes = new HashSet<Tuple<string, int>>();
+             _themeScopes ??= new();
             _themeScopes.Add(new Tuple<string, int>(themeName, storeId));
         }
 

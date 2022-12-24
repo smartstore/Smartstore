@@ -30,6 +30,8 @@ namespace Smartstore.Web.Bundling
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+        public event EventHandler<BundleResponseExpiredEventArgs> Expired;
+
         public async Task<BundleResponse> GetResponseAsync(BundleCacheKey cacheKey, Bundle bundle)
         {
             if (_options.CurrentValue.EnableDiskCache == false)

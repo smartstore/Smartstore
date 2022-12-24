@@ -10,6 +10,19 @@ namespace Smartstore.Web.Theming
 {
     public partial class ThemeVariableRepository
     {
+        #region GeneratedRegex
+
+        [GeneratedRegex("^[a-zA-Z0-9_-]+$", RegexOptions.Compiled)]
+        private static partial Regex KeyWhitelistRegex();
+
+        [GeneratedRegex("[:;]+", RegexOptions.Compiled)]
+        private static partial Regex ValueBlacklistRegex();
+
+        [GeneratedRegex("[$][a-zA-Z0-9_-]+", RegexOptions.Compiled)]
+        private static partial Regex ValueSassVarsRegex();
+
+        #endregion
+
         const string SassVarPrefix = "$";
 
         /// <summary>
@@ -40,14 +53,14 @@ namespace Smartstore.Web.Theming
 
         #region Static (Cache and CancellationToken)
 
-        private string BuildCacheKey(string theme, int storeId)
+        private static string BuildCacheKey(IMemoryCache cache, string theme, int storeId)
         {
             if (storeId > 0)
             {
-                return _memCache.BuildScopedKey(THEMEVARS_KEY.FormatInvariant(theme, storeId));
+                return cache.BuildScopedKey(THEMEVARS_KEY.FormatInvariant(theme, storeId));
             }
 
-            return _memCache.BuildScopedKey(THEMEVARS_THEME_KEY.FormatInvariant(theme));
+            return cache.BuildScopedKey(THEMEVARS_THEME_KEY.FormatInvariant(theme));
         }
 
         private static string BuildTokenKey(string theme, int storeId)
@@ -132,7 +145,7 @@ namespace Smartstore.Web.Theming
 
         public async Task<IDictionary<string, object>> GetRawVariablesAsync(string themeName, int storeId)
         {
-            var cacheKey = BuildCacheKey(themeName, storeId);
+            var cacheKey = BuildCacheKey(_memCache, themeName, storeId);
             var tokenKey = BuildTokenKey(themeName, storeId);
 
             return await _memCache.GetOrCreateAsync(cacheKey, async (entry) =>
@@ -150,18 +163,22 @@ namespace Smartstore.Web.Theming
         }
 
         public void RemoveFromCache(string themeName, int storeId = 0)
+            => RemoveFromCache(_memCache, themeName, storeId);
+
+        internal static void RemoveFromCache(IMemoryCache cache, string themeName, int storeId = 0)
         {
+            Guard.NotNull(cache, nameof(cache));
             Guard.NotEmpty(themeName, nameof(themeName));
 
-            var cacheKey = BuildCacheKey(themeName, storeId);
+            var cacheKey = BuildCacheKey(cache, themeName, storeId);
 
             if (storeId > 0)
             {
-                _memCache.Remove(cacheKey);
+                cache.Remove(cacheKey);
             }
             else
             {
-                _memCache.RemoveByPattern(cacheKey + "*");
+                cache.RemoveByPattern(cacheKey + "*");
             }
         }
 
@@ -210,18 +227,5 @@ namespace Smartstore.Web.Theming
             // Let pass all color names (red, blue etc.), but reject functions, e.g. "lighten(#fff, 10%)"
             return !value.Contains("(");
         }
-
-        #region GeneratedRegex
-
-        [GeneratedRegex("^[a-zA-Z0-9_-]+$", RegexOptions.Compiled)]
-        private static partial Regex KeyWhitelistRegex();
-
-        [GeneratedRegex("[:;]+", RegexOptions.Compiled)]
-        private static partial Regex ValueBlacklistRegex();
-
-        [GeneratedRegex("[$][a-zA-Z0-9_-]+", RegexOptions.Compiled)]
-        private static partial Regex ValueSassVarsRegex();
-
-        #endregion
     }
 }

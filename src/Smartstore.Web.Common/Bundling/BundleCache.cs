@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Smartstore.Web.Bundling
 {
-    public struct BundleCacheKey
+    public readonly struct BundleCacheKey
     {
         public string Key { get; init; }
         public IDictionary<string, string> Fragments { get; init; }
@@ -11,8 +11,21 @@ namespace Smartstore.Web.Bundling
         public static implicit operator BundleCacheKey(string key) => new() { Key = key, Fragments = new Dictionary<string, string>() };
     }
 
+    public class BundleResponseExpiredEventArgs : EventArgs
+    {
+        public BundleResponse Response { get; init; }
+        public string ThemeName { get; set; }
+        public int? StoreId { get; set; }
+    }
+
     public interface IBundleCache
     {
+        /// <summary>
+        /// Gets a generated bundle response from cache.
+        /// </summary>
+        /// <param name="cacheKey"></param>
+        /// <param name="bundle"></param>
+        /// <returns></returns>
         Task<BundleResponse> GetResponseAsync(BundleCacheKey cacheKey, Bundle bundle);
 
         Task PutResponseAsync(BundleCacheKey cacheKey, Bundle bundle, BundleResponse response);
@@ -20,6 +33,12 @@ namespace Smartstore.Web.Bundling
         Task RemoveResponseAsync(BundleCacheKey cacheKey);
 
         Task ClearAsync();
+
+        /// <summary>
+        /// Event raised when a response is removed from cache
+        /// due to changes in any of the dependent/included files.
+        /// </summary>
+        event EventHandler<BundleResponseExpiredEventArgs> Expired;
     }
 
     public class BundleCache : IBundleCache
@@ -34,6 +53,8 @@ namespace Smartstore.Web.Bundling
             _diskCache = diskCache;
             _options = options;
         }
+
+        public event EventHandler<BundleResponseExpiredEventArgs> Expired;
 
         public async Task<BundleResponse> GetResponseAsync(BundleCacheKey cacheKey, Bundle bundle)
         {
@@ -52,12 +73,9 @@ namespace Smartstore.Web.Bundling
             if (response != null)
             {
                 response = new BundleResponse(response);
-                if (response.FileProvider == null)
-                {
-                    response.FileProvider = bundle.FileProvider ?? _options.CurrentValue.FileProvider;
-                }
+                response.FileProvider ??= bundle.FileProvider ?? _options.CurrentValue.FileProvider;
 
-                PutToMemoryCache(cacheKey, bundle, response);
+                PutToMemoryCache(cacheKey, response);
             }
 
             return response;
@@ -73,14 +91,12 @@ namespace Smartstore.Web.Bundling
             response.CacheKeyFragments = cacheKey.Fragments;
 
             await _diskCache.PutResponseAsync(cacheKey, bundle, response);
-            PutToMemoryCache(cacheKey, bundle, response);
+            PutToMemoryCache(cacheKey, response);
         }
 
-        private void PutToMemoryCache(BundleCacheKey cacheKey, Bundle bundle, BundleResponse response)
+        private void PutToMemoryCache(BundleCacheKey cacheKey, BundleResponse response)
         {
             var cacheOptions = new MemoryCacheEntryOptions()
-                // Expire after 24 h
-                .SetSlidingExpiration(TimeSpan.FromHours(24))
                 // Do not remove due to memory pressure 
                 .SetPriority(CacheItemPriority.NeverRemove);
 
@@ -93,14 +109,29 @@ namespace Smartstore.Web.Bundling
                 }
             }
 
-            cacheOptions.RegisterPostEvictionCallback((key, value, reason, state) =>
-            {
-                var response = (BundleResponse)value;
-                var cacheKey = new BundleCacheKey { Key = response.CacheKey, Fragments = response.CacheKeyFragments };
-                _diskCache.RemoveResponseAsync(cacheKey).Await();
-            });
+            cacheOptions.RegisterPostEvictionCallback(OnPostEviction);
 
             _memCache.Set(BuildScopedCacheKey(cacheKey), response, cacheOptions);
+        }
+
+        private void OnPostEviction(object key, object value, EvictionReason reason, object state)
+        {
+            var response = (BundleResponse)value;
+            var cacheKey = new BundleCacheKey { Key = response.CacheKey, Fragments = response.CacheKeyFragments };
+
+            _diskCache.RemoveResponseAsync(cacheKey).Await();
+
+            if (Expired != null && reason == EvictionReason.TokenExpired)
+            {
+                var args = new BundleResponseExpiredEventArgs
+                {
+                    Response = response,
+                    ThemeName = response.CacheKeyFragments.Get("Theme"),
+                    StoreId = response.CacheKeyFragments.Get("StoreId").Convert<int?>()
+                };
+
+                Expired.Invoke(this, args);
+            }
         }
 
         public async Task RemoveResponseAsync(BundleCacheKey cacheKey)
