@@ -48,6 +48,7 @@
 - UrlRewriter: fixed greedy matching (`/en/` should not match `/men/`)
 - Fixed RuleSets could not be added or removed from a shipping method.
 - Fixed wrong SKU in order XML export if the order contains multiple variants of the same product.
+- Fixed payment fee was always displayed in primary currency in checkout.
 
 ## Smartstore 5.0.1
 

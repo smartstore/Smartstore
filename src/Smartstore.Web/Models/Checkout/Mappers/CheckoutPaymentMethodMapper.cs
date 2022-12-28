@@ -96,13 +96,14 @@ namespace Smartstore.Web.Models.Checkout
                 pmModel.BrandUrl = _moduleManager.GetBrandImageUrl(pm.Metadata);
 
                 // Payment method additional fee.
-                var paymentMethodAdditionalFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(from, pm.Metadata.SystemName);
                 var paymentTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
+                var paymentMethodAdditionalFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(from, pm.Metadata.SystemName);
                 var rateBase = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentMethodAdditionalFee.Amount);
+                var rate = _services.CurrencyService.ConvertFromPrimaryCurrency(rateBase.Price, _services.WorkContext.WorkingCurrency);
 
-                if (paymentMethodAdditionalFee.Amount != decimal.Zero)
+                if (rate != decimal.Zero)
                 {
-                    pmModel.Fee = paymentMethodAdditionalFee.WithPostFormat(paymentTaxFormat);
+                    pmModel.Fee = rate.WithPostFormat(paymentTaxFormat);
                 }
 
                 to.PaymentMethods.Add(pmModel);
