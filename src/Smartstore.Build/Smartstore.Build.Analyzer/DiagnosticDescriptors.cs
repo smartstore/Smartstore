@@ -76,5 +76,14 @@ namespace Smartstore.Build.Analyzer
             true
         );
 
+        public static readonly DiagnosticDescriptor UseControllerNamesUrlRoute = new DiagnosticDescriptor(
+            "SAN0009",
+            "Use ControllerNames constants for controller names",
+            "Consider using ControllerNames for Url.RouteUrl calls",
+            "Usage",
+            DiagnosticSeverity.Warning,
+            true
+        );
+
     }
 }

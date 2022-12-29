@@ -200,6 +200,27 @@ namespace Smartstore.Build.Analyzer
                         }
                     }
                 }
+
+                foreach (InvocationExpressionSyntax? invocation in entry.RouteInvocations)
+                {
+                    // return early if build is canceled
+                    if (context.CancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    SeparatedSyntaxList<ArgumentSyntax> arguments = invocation.ArgumentList.Arguments;
+                    if (arguments.Count >= 1)
+                    {
+                        var arg0Stringliteral = AsStringLiteralExpression(arguments[0].Expression);
+
+                        if (arg0Stringliteral != null)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.UseControllerNamesUrlRoute, arg0Stringliteral.GetLocation()));
+                        }
+                    }
+
+                }
             }
         }
 

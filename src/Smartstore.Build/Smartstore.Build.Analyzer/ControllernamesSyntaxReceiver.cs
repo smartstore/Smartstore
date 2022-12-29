@@ -27,6 +27,11 @@ namespace Smartstore.Build.Analyzer
                     {
                         entry.Invocations.Add(invocationExpression);
                     }
+
+                    if (invocationExpression.ToString().StartsWith("Url.RouteUrl"))
+                    {
+                        entry.RouteInvocations.Add(invocationExpression);
+                    }
                 }
 
                 Entries.Add(entry);

@@ -9,5 +9,6 @@ namespace Smartstore.Build.Analyzer
 
         public List<InvocationExpressionSyntax> Invocations { get; set; } = new List<InvocationExpressionSyntax>();
 
+        public List<InvocationExpressionSyntax> RouteInvocations { get; set; } = new List<InvocationExpressionSyntax>();
     }
 }

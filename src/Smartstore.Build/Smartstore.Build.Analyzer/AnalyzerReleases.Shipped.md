@@ -12,3 +12,4 @@ SAN0005 |  Usage   |  Warning | SAN0005_ControllernamesGenerator, [Documentation
 SAN0006 |  Usage   |  Warning | SAN0006_ControllernamesGenerator, [Documentation](SAN0006_Documentation_Link)
 SAN0007 |  Usage   |  Error   | SAN0007_ControllernamesGenerator, [Documentation](SAN0007_Documentation_Link)
 SAN0008 |  Usage   |  Error   | SAN0008_ControllernamesGenerator, [Documentation](SAN0008_Documentation_Link)
+SAN0009 |  Usage   |  Warning | SAN0009_ControllernamesGenerator, [Documentation](SAN0009_Documentation_Link)
