@@ -9,4 +9,8 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Build\Smartstore.Build.Analyzer\Smartstore.Build.Analyzer.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
 </Project>

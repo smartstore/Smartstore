@@ -7,4 +7,8 @@
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="6.0.10" />
 	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Build\Smartstore.Build.Analyzer\Smartstore.Build.Analyzer.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
 </Project>

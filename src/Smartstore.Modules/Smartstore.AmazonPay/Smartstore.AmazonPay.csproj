@@ -3,6 +3,7 @@
 		<Product>Amazon Pay</Product>
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.AmazonPay</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Amazon.Pay.API.SDK" Version="2.6.0" />
@@ -14,4 +15,8 @@
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Build\Smartstore.Build.Analyzer\Smartstore.Build.Analyzer.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
 </Project>

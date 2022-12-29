@@ -4,4 +4,8 @@
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.ShippingByWeight</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Build\Smartstore.Build.Analyzer\Smartstore.Build.Analyzer.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
 </Project>

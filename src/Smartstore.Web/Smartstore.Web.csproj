@@ -10,6 +10,10 @@
 		<!--<PublishReadyToRun>true</PublishReadyToRun>-->
 	</PropertyGroup>
 
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    </PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="Azure.Core" Version="1.25.0" />
@@ -33,7 +37,11 @@
 		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
 	</ItemGroup>
-	
+
+    <ItemGroup>
+        <ProjectReference Include="..\Smartstore.Build\Smartstore.Build.Analyzer\Smartstore.Build.Analyzer.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
 	<ItemGroup>
 		<Compile Remove="App_Data\**; Modules\**; Themes\**" />
 		<Content Remove="App_Data\**; Modules\**; Themes\**" />
