@@ -1,15 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------
-// Solution: Smartstore
-// Project: Smartstore.Build.Analyzer
-// Filename: DiagnosticDescriptors.cs
-// 
-// Last modified: 2022-12-29 14:16
-// Created:       2022-12-29 13:34
-// 
-// Copyright: 2021 Walter Wissing & Co
-// ---------------------------------------------------------------------------------------
-
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 
 namespace Smartstore.Build.Analyzer
 {
