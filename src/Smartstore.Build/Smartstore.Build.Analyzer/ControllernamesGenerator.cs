@@ -48,8 +48,8 @@ namespace Smartstore.Build.Analyzer
                 var source = new StringBuilder();
 
                 source.AppendLine("using System;");
-                source.AppendLine($"namespace {rootNamespace} {{");
-                source.AppendLine($"public static class {GeneratedClassName} {{");
+                source.AppendLine($"namespace {rootNamespace}").AppendLine("{");
+                source.AppendLine($"    public static class {GeneratedClassName} ").AppendLine("    {");
 
                 // we don't want to add them more than once
                 var distinct = new List<string>();
@@ -66,11 +66,11 @@ namespace Smartstore.Build.Analyzer
                         distinct.Add(cds);
                         cds = cds.Substring(0, cds.LastIndexOf(Controller));
 
-                        source.AppendLine($"public const string {cds} = nameof({cds});");
+                        source.AppendLine($"        public const string {cds} = nameof({cds});");
                     }
                 }
 
-                source.AppendLine("}");
+                source.AppendLine("    }");
                 source.AppendLine("}");
 
                 // Collection is done, add it to the source
