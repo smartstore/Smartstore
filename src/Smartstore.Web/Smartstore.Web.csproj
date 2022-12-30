@@ -99,7 +99,11 @@
 		</Content>
 	</ItemGroup>
 
-	<ItemGroup>
+    <Target Name="RemoveModulesDir" AfterTargets="AfterClean;BeforeRebuild">
+        <RemoveDir Directories="$(SolutionDir)src\Smartstore.Web\Modules" />
+    </Target>
+
+    <ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Smartstore.Web.Tests</_Parameter1>
 		</AssemblyAttribute>
