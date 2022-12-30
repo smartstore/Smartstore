@@ -1,7 +1,19 @@
 ﻿namespace Smartstore
 {
-    public static class FileInfoExtensions
+    public static class FileSystemInfoExtensions
     {
+        public static bool IsHidden(this FileSystemInfo info)
+            => (info.Attributes & FileAttributes.Hidden) != 0;
+
+        public static bool IsSystem(this FileSystemInfo info)
+            => (info.Attributes & FileAttributes.System) != 0;
+
+        public static bool IsEncrypted(this FileSystemInfo info)
+            => (info.Attributes & FileAttributes.Encrypted) != 0;
+
+        public static bool IsTemporary(this FileSystemInfo info)
+            => (info.Attributes & FileAttributes.Temporary) != 0;
+
         public static void WaitForUnlockAndExecute(this FileInfo file, Action<FileInfo> action)
             => WaitForUnlockAndExecuteInternal(file, action, false).Await();
 
