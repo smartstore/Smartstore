@@ -721,6 +721,20 @@ namespace Smartstore.Collections
             }
         }
 
+        public async Task TraverseAwait(Func<T, Task> action, bool includeSelf = false)
+        {
+            Guard.NotNull(action, nameof(action));
+
+            if (includeSelf)
+                await action((T)this);
+
+            if (_children != null)
+            {
+                foreach (var child in _children)
+                    await child.TraverseAwait(action, true);
+            }
+        }
+
         public void TraverseParents(Action<T> action, bool includeSelf = false)
         {
             Guard.NotNull(action, nameof(action));
