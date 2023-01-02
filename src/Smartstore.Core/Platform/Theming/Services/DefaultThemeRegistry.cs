@@ -136,14 +136,9 @@ namespace Smartstore.Core.Theming
                     ? new LocalFileSystem(descriptor.PhysicalPath)
                     : new ExpandedFileSystem(descriptor.Name, _appContext.ThemesRoot);
 
-                if (baseDescriptor != null)
-                {
-                    // INFO: (core) Falling back to base theme's file via "?base" is not supported anymore.
-                    // The full path must be specified instead, e.g. "/themes/flex/_variables.scss".
-                    contentRoot = new CompositeFileSystem(contentRoot, baseDescriptor.ContentRoot);
-                }
-
-                descriptor.ContentRoot = contentRoot;
+                // INFO: (core) Falling back to base theme's file via "?base" is not supported anymore.
+                // The full path must be specified instead, e.g. "/themes/flex/_variables.scss".
+                descriptor.ContentRoot = new ThemeFileSystem(contentRoot, baseDescriptor?.ContentRoot);
 
                 // Rebase configuration file to ContentRoot
                 descriptor.ConfigurationFile = contentRoot.GetFile(descriptor.ConfigurationFile.Name);
