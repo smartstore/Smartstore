@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿#nullable enable
+
+using System.Runtime.CompilerServices;
 using Smartstore.Core.Data;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
@@ -53,7 +55,7 @@ namespace Smartstore.Core.Content.Media.Storage
             }
         }
 
-        public virtual Stream OpenRead(MediaFile mediaFile)
+        public virtual Stream? OpenRead(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -69,11 +71,12 @@ namespace Smartstore.Core.Content.Media.Storage
             else
             {
                 _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage).Await();
-                return new MemoryStream(mediaFile.MediaStorage?.Data);
+                var buffer = mediaFile.MediaStorage?.Data;
+                return buffer == null ? null : new MemoryStream(buffer);
             }
         }
 
-        public virtual async Task<Stream> OpenReadAsync(MediaFile mediaFile)
+        public virtual async Task<Stream?> OpenReadAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -89,17 +92,18 @@ namespace Smartstore.Core.Content.Media.Storage
             else
             {
                 await _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage);
-                return new MemoryStream(mediaFile.MediaStorage?.Data);
+                var buffer = mediaFile.MediaStorage?.Data;
+                return buffer == null ? null : new MemoryStream(buffer);
             }
         }
 
-        public virtual async Task<byte[]> LoadAsync(MediaFile mediaFile)
+        public virtual async Task<byte[]?> LoadAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
             if (mediaFile.MediaStorageId == null)
             {
-                return Array.Empty<byte>();
+                return null;
             }
 
             if (_db.DataProvider.CanReadSequential)
@@ -117,7 +121,7 @@ namespace Smartstore.Core.Content.Media.Storage
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Task SaveAsync(MediaFile mediaFile, MediaStorageItem item)
+        public virtual Task SaveAsync(MediaFile mediaFile, MediaStorageItem? item)
             => ApplyBlobAsync(mediaFile, item, true);
 
         /// <summary>
@@ -126,7 +130,7 @@ namespace Smartstore.Core.Content.Media.Storage
         /// <param name="media">Media item</param>
         /// <param name="item">The source item</param>
         /// <param name="save">Whether to commit changes to <paramref name="media"/> entity to database immediately.</param>
-        public async Task ApplyBlobAsync(IMediaAware media, MediaStorageItem item, bool save = false)
+        public async Task ApplyBlobAsync(IMediaAware media, MediaStorageItem? item, bool save = false)
         {
             Guard.NotNull(media, nameof(media));
 

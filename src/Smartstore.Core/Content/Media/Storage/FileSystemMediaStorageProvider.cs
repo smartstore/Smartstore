@@ -1,4 +1,6 @@
-﻿using Autofac;
+﻿#nullable enable
+
+using Autofac;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
@@ -72,26 +74,26 @@ namespace Smartstore.Core.Content.Media.Storage
             return mediaFile.Size;
         }
 
-        public virtual Stream OpenRead(MediaFile mediaFile)
+        public virtual Stream? OpenRead(MediaFile mediaFile)
         {
             var file = _fileSystem.GetFile(GetPath(Guard.NotNull(mediaFile, nameof(mediaFile))));
             return file.Exists ? file.OpenRead() : null;
         }
 
-        public virtual async Task<Stream> OpenReadAsync(MediaFile mediaFile)
+        public virtual async Task<Stream?> OpenReadAsync(MediaFile mediaFile)
         {
             var file = await _fileSystem.GetFileAsync(GetPath(Guard.NotNull(mediaFile, nameof(mediaFile))));
             return file.Exists ? await file.OpenReadAsync() : null;
         }
 
-        public virtual async Task<byte[]> LoadAsync(MediaFile mediaFile)
+        public virtual async Task<byte[]?> LoadAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
-            return (await _fileSystem.ReadAllBytesAsync(GetPath(mediaFile))) ?? Array.Empty<byte>();
+            return (await _fileSystem.ReadAllBytesAsync(GetPath(mediaFile))) ?? null;
         }
 
-        public virtual async Task SaveAsync(MediaFile mediaFile, MediaStorageItem item)
+        public virtual async Task SaveAsync(MediaFile mediaFile, MediaStorageItem? item)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -227,7 +229,7 @@ namespace Smartstore.Core.Content.Media.Storage
                         var fileSystem = scope.Resolve<IMediaFileSystem>();
                         var files = state as string[];
 
-                        foreach (var file in files)
+                        foreach (var file in files!)
                         {
                             await fileSystem.TryDeleteFileAsync(file);
                         }

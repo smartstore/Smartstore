@@ -1,4 +1,6 @@
-﻿using Smartstore.Engine.Modularity;
+﻿#nullable enable
+
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Content.Media.Storage
 {
@@ -19,23 +21,23 @@ namespace Smartstore.Core.Content.Media.Storage
         /// Opens the media item for reading
         /// </summary>
         /// <param name="mediaFile">Media file item</param>
-        Stream OpenRead(MediaFile mediaFile);
+        Stream? OpenRead(MediaFile mediaFile);
 
         /// <inheritdoc cref="OpenRead(MediaFile)"/>
-        Task<Stream> OpenReadAsync(MediaFile mediaFile);
+        Task<Stream?> OpenReadAsync(MediaFile mediaFile);
 
         /// <summary>
         /// Asynchronously loads media item data
         /// </summary>
         /// <param name="mediaFile">Media file item</param>
-        Task<byte[]> LoadAsync(MediaFile mediaFile);
+        Task<byte[]?> LoadAsync(MediaFile mediaFile);
 
         /// <summary>
         /// Asynchronously saves media item data
         /// </summary>
         /// <param name="mediaFile">Media file item</param>
         /// <param name="item">The source item</param>
-        Task SaveAsync(MediaFile mediaFile, MediaStorageItem item);
+        Task SaveAsync(MediaFile mediaFile, MediaStorageItem? item);
 
         /// <summary>
         /// Remove media storage item(s)
