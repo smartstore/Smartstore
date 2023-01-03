@@ -36,7 +36,7 @@ namespace Smartstore.Caching
             if (acquirer != null)
             {
                 value = acquirer();
-                items.Add(key, value);
+                items[key] = value;
                 return (T)value;
             }
 
@@ -57,7 +57,7 @@ namespace Smartstore.Caching
             if (acquirer != null)
             {
                 value = await acquirer();
-                items.Add(key, value);
+                items[key] = value;
                 return (T)value;
             }
 
