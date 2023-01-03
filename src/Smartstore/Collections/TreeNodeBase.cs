@@ -207,7 +207,7 @@ namespace Smartstore.Collections
 
             if (!recursive)
             {
-                return TryGetMetadataForNode(this, key, out metadata) ? (TMetadata)metadata : default;
+                return TryGetMetadataForNode(this, key, out metadata) ? (TMetadata)metadata! : default;
             }
 
             // recursively search for the metadata value in current node and ancestors
@@ -647,7 +647,7 @@ namespace Smartstore.Collections
             if (!node.IsRoot)
             {
                 var list = node._parent?._children;
-                if (list.Remove(node))
+                if (list != null && list.Remove(node))
                 {
                     node.FixIdNodeMap(node._parent, null);
 
