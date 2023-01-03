@@ -5,7 +5,7 @@ using Smartstore.IO;
 
 namespace Smartstore.Core.Theming
 {
-    public class ThemeFileSystem : CompositeFileSystem, IDisposable
+    public class ThemeFileSystem : CompositeFileSystem
     {
         const string ThemeConfigFileName = "theme.config";
 
@@ -76,47 +76,5 @@ namespace Smartstore.Core.Theming
                 (path[^1] == Path.AltDirectorySeparatorChar ||
                 path[^1] == Path.DirectorySeparatorChar);
         }
-
-        #region File Monitoring
-
-        private IDisposable _configWatcher;
-        private IDisposable _derivedFilesWatcher;
-
-        /// <summary>
-        /// Watches for theme.config changes and new *.scss/*.cshtml files.
-        /// </summary>
-        internal void StartWatchingFiles()
-        {
-            _configWatcher ??= Watch("theme.config").RegisterChangeCallback(OnConfigurationChange, this);
-
-            if (_derivedFilesWatcher == null)
-            {
-                var tokens = new List<IChangeToken>
-                {
-                    Watch("**/*.cshtml"),
-                    Watch("**/*.scss")
-                };
-
-                _derivedFilesWatcher = new CompositeChangeToken(tokens).RegisterChangeCallback(OnFileChange, this);
-            }
-        }
-
-        private static void OnConfigurationChange(object? state)
-        {
-            //
-        }
-
-        private static void OnFileChange(object? state)
-        {
-            //
-        }
-
-        public void Dispose()
-        {
-            _configWatcher?.Dispose();
-            _derivedFilesWatcher?.Dispose();
-        }
-
-        #endregion
     }
 }

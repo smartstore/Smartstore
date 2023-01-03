@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Collections;
-using Smartstore.Events;
 using Smartstore.IO;
 using Smartstore.Threading;
 
@@ -36,7 +35,6 @@ namespace Smartstore.Core.Theming
                 EnableRaisingEvents = true
             };
 
-            _directoryWatcher.Renamed += (s, e) => OnThemeFolderRenamed(e.Name, e.OldName);
             _directoryWatcher.Deleted += (s, e) => OnThemeFolderDeleted(e.Name);
         }
 
@@ -144,13 +142,12 @@ namespace Smartstore.Core.Theming
                 descriptor.ConfigurationFile = contentRoot.GetFile(descriptor.ConfigurationFile.Name);
 
                 // Register "theme.config" expiration token
-                descriptor.RegisterExpirationCallback(state => 
-                {
-                    OnConfigurationExpired((ThemeDescriptor)state);
-                });
+                var configWatcher = descriptor.ContentRoot
+                    .Watch("theme.config")
+                    .RegisterChangeCallback(OnConfigurationChanged, descriptor);
 
-                // Start Sass file monitor
-                descriptor.StartFileWatcher();
+                // To dispose registrations together with the descriptor.
+                descriptor.FileWatchers = new[] { configWatcher };
             }
         }
 
@@ -235,7 +232,7 @@ namespace Smartstore.Core.Theming
 
         public void ReloadThemes()
         {
-            _themes.Clear();
+            ClearThemes();
 
             var dirDatas = new List<ThemeDirectoryData>();
             var dirs = _root.EnumerateDirectories("");
@@ -294,14 +291,26 @@ namespace Smartstore.Core.Theming
             }
         }
 
+        private void ClearThemes()
+        {
+            foreach (var descriptor in _themes.Values)
+            {
+                descriptor.Dispose();
+            }
+
+            _themes.Clear();
+        }
+
         #endregion
 
         #region Monitoring & Events
 
-        private void OnConfigurationExpired(ThemeDescriptor descriptor)
+        private void OnConfigurationChanged(object state)
         {
             // Config file changes always result in refreshing the corresponding theme descriptor,
             // and also all child theme descriptors.
+
+            var descriptor = (ThemeDescriptor)state;
 
             try
             {
@@ -324,25 +333,6 @@ namespace Smartstore.Core.Theming
             }
         }
 
-        private void OnThemeFolderRenamed(string name, string oldName)
-        {
-            TryRemoveDescriptor(oldName);
-
-            try
-            {
-                var newDescriptor = GetThemeDescriptor(name);
-                if (newDescriptor != null)
-                {
-                    AddThemeDescriptorInternal(newDescriptor, false);
-                    Logger.Debug("Changed theme descriptor for '{0}'".FormatCurrent(name));
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Could not touch theme descriptor '{0}'".FormatCurrent(name));
-            }
-        }
-
         private void OnThemeFolderDeleted(string name)
         {
             TryRemoveDescriptor(name);
@@ -352,12 +342,7 @@ namespace Smartstore.Core.Theming
         {
             if (disposing)
             {
-                foreach (var descriptor in _themes.Values)
-                {
-                    descriptor.Dispose();
-                }
-
-                _themes.Clear();
+                ClearThemes();
 
                 if (_directoryWatcher != null)
                 {

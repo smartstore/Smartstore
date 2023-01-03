@@ -1,6 +1,5 @@
 ﻿using System.Xml;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
@@ -93,131 +92,6 @@ namespace Smartstore.Core.Theming
 
         #endregion
 
-        #region File Monitoring
-
-        private FileSystemWatcher _fileWatcher;
-        private IChangeToken _expirationToken;
-        private List<IDisposable> _expirationTokenRegistrations;
-
-        /// <summary>
-        /// Watches for new .scss and .cshtml files.
-        /// </summary>
-        internal void StartFileWatcher()
-        {
-            if (_fileWatcher == null)
-            {
-                lock (this)
-                {
-                   if (_fileWatcher == null)
-                    {
-                        _fileWatcher = new FileSystemWatcher
-                        {
-                            Path = ContentRoot.Root,
-                            Filters = { "*.scss", "*.cshtml" },
-                            NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.FileName,
-                            IncludeSubdirectories = true
-                        };
-
-                        _fileWatcher.Created += OnFileEvent;
-                        _fileWatcher.Renamed += OnFileEvent;
-                    }
-                }
-            }
-
-            _fileWatcher.EnableRaisingEvents = true;
-        }
-
-        internal void StopFileWatcher()
-        {
-            if (_fileWatcher != null)
-            {
-                _fileWatcher.EnableRaisingEvents = false;
-            }
-        }
-
-        /// <summary>
-        /// Gets the <see cref="IChangeToken"/> instance for the root <c>theme.config</c> file.
-        /// </summary>
-        internal IChangeToken ExpirationToken
-        {
-            get
-            {
-                if (_expirationToken == null)
-                {
-                    lock (this)
-                    {
-                        _expirationToken ??= ContentRoot.Watch("theme.config");
-                    }
-                }
-
-                return _expirationToken;
-            }
-        }
-
-        /// <summary>
-        /// Registers a callback to invoke when the configuration file changes.
-        /// Any registration will be disposed when the descriptor instance is disposed.
-        /// </summary>ite
-        /// <param name="callback">The callback. The action parameter is the <see cref="ThemeDescriptor"/> instance.</param>
-        internal IDisposable RegisterExpirationCallback(Action<object> callback)
-        {
-            Guard.NotNull(callback);
-
-            var token = ExpirationToken;
-            if (token != null)
-            {
-                _expirationTokenRegistrations ??= new(1);
-
-                var registration = token.RegisterChangeCallback(callback, this);
-                _expirationTokenRegistrations.Add(registration);
-                return registration;
-            }
-
-            return null;
-        }
-
-        private void OnFileEvent(object sender, FileSystemEventArgs e)
-        {
-            // If a file is being added to a derived theme's directory, any base file
-            // needs to be refreshed/cancelled. This is necessary, because the new file 
-            // overwrites the base file now, and RazorViewEngine/SassParser must be notified
-            // about this change.
-
-            if (e.ChangeType != WatcherChangeTypes.Created && e.ChangeType != WatcherChangeTypes.Renamed)
-            {
-                return;
-            }
-
-            var baseFile = BaseTheme?.ContentRoot?.GetFile(e.Name);
-            if (baseFile != null && baseFile.Exists && baseFile is LocalFile)
-            {
-                File.SetLastWriteTimeUtc(baseFile.PhysicalPath, DateTime.UtcNow);
-            }
-        }
-
-        private void DetachFileWatchers()
-        {
-            if (_fileWatcher != null)
-            {
-                _fileWatcher.Dispose();
-                _fileWatcher = null;
-            }
-
-            _expirationToken = null;
-            if (_expirationTokenRegistrations != null)
-            {
-                foreach (var registration in _expirationTokenRegistrations)
-                {
-                    registration.Dispose();
-                }
-
-                _expirationTokenRegistrations.Clear();
-                _expirationTokenRegistrations = null;
-            }
-        }
-
-        #endregion
-
         #region IExtensionDescriptor
 
         /// <inheritdoc/>
@@ -271,6 +145,8 @@ namespace Smartstore.Core.Theming
             get => _webFileProvider ??= new ExpandedFileSystem("wwwroot", ContentRoot);
             internal set => _webFileProvider = Guard.NotNull(value, nameof(value));
         }
+
+        internal IDisposable[] FileWatchers { get; set; }
 
         #endregion
 
@@ -422,6 +298,19 @@ namespace Smartstore.Core.Theming
                     }
                     _variables.Clear();
                 }
+            }
+        }
+
+        private void DetachFileWatchers()
+        {
+            if (FileWatchers != null)
+            {
+                foreach (var watcher in FileWatchers)
+                {
+                    watcher.Dispose();
+                }
+
+                FileWatchers = null;
             }
         }
 
