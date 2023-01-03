@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using Smartstore.Core.Catalog;
+using Smartstore.Caching;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -21,7 +21,7 @@ namespace Smartstore.Core.Checkout.Orders
 {
     public partial class OrderCalculationService : IOrderCalculationService
     {
-        private const string CART_TAXING_INFO_KEY = "CartTaxingInfos";
+        const string CartTaxingInfoKey = "CartTaxingInfos";
 
         private readonly SmartDbContext _db;
         private readonly IPriceCalculationService _priceCalculationService;
@@ -30,6 +30,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IShippingService _shippingService;
         private readonly IGiftCardService _giftCardService;
         private readonly ICurrencyService _currencyService;
+        private readonly IRequestCache _requestCache;
         private readonly IProviderManager _providerManager;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly IWorkContext _workContext;
@@ -38,7 +39,6 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly ITaxCalculator _taxCalculator;
         private readonly TaxSettings _taxSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
-        private readonly CatalogSettings _catalogSettings;
         private readonly PriceSettings _priceSettings;
         private readonly ShippingSettings _shippingSettings;
         private readonly Currency _primaryCurrency;
@@ -52,6 +52,7 @@ namespace Smartstore.Core.Checkout.Orders
             IShippingService shippingService,
             IGiftCardService giftCardService,
             ICurrencyService currencyService,
+            IRequestCache requestCache,
             IProviderManager providerManager,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             IWorkContext workContext,
@@ -60,7 +61,6 @@ namespace Smartstore.Core.Checkout.Orders
             ITaxCalculator taxCalculator,
             TaxSettings taxSettings,
             RewardPointsSettings rewardPointsSettings,
-            CatalogSettings catalogSettings,
             PriceSettings priceSettings,
             ShippingSettings shippingSettings)
         {
@@ -71,6 +71,7 @@ namespace Smartstore.Core.Checkout.Orders
             _shippingService = shippingService;
             _giftCardService = giftCardService;
             _currencyService = currencyService;
+            _requestCache = requestCache;
             _providerManager = providerManager;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _workContext = workContext;
@@ -79,7 +80,6 @@ namespace Smartstore.Core.Checkout.Orders
             _taxCalculator = taxCalculator;
             _taxSettings = taxSettings;
             _rewardPointsSettings = rewardPointsSettings;
-            _catalogSettings = catalogSettings;
             _priceSettings = priceSettings;
             _shippingSettings = shippingSettings;
 
@@ -96,6 +96,15 @@ namespace Smartstore.Core.Checkout.Orders
             bool includeCreditBalance = true)
         {
             Guard.NotNull(cart, nameof(cart));
+
+            var cacheKey = $"ordercalculation:carttotal:{cart.GetHashCode()}-{includeRewardPoints}-{includePaymentFee}-{includeCreditBalance}";
+
+            // INFO: CartTotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page and
+            // IRequestCache.GetAsync would produce ArgumentException "an item with the same key has already been added".
+            if (_requestCache.Contains(cacheKey))
+            {
+                return _requestCache.Get<ShoppingCartTotal>(cacheKey, null);
+            }
 
             var store = _storeContext.CurrentStore;
             var customer = cart.Customer;
@@ -261,6 +270,8 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             };
 
+            _requestCache.Put(cacheKey, result);
+
             return result;
         }
 
@@ -268,17 +279,29 @@ namespace Smartstore.Core.Checkout.Orders
         {
             includeTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
-            var result = await GetCartSubtotalAsync(cart, includeTax.Value, batchContext);
+            var cacheKey = $"ordercalculation:cartsubtotal:{cart.GetHashCode()}-{includeTax}";
 
-            return new ShoppingCartSubtotal
+            // INFO: CartSubtotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page and
+            // IRequestCache.GetAsync would produce ArgumentException "an item with the same key has already been added".
+            if (_requestCache.Contains(cacheKey))
             {
-                SubtotalWithoutDiscount = new(result.SubtotalWithoutDiscount, _primaryCurrency),
-                SubtotalWithDiscount = new(result.SubtotalWithDiscount, _primaryCurrency),
-                DiscountAmount = new(result.DiscountAmount, _primaryCurrency),
-                AppliedDiscount = result.AppliedDiscount,
-                TaxRates = result.TaxRates,
-                LineItems = result.LineItems
+                return _requestCache.Get<ShoppingCartSubtotal>(cacheKey, null);
+            }
+
+            var subtotal = await GetCartSubtotalAsync(cart, includeTax.Value, batchContext);
+            var result = new ShoppingCartSubtotal
+            {
+                SubtotalWithoutDiscount = new(subtotal.SubtotalWithoutDiscount, _primaryCurrency),
+                SubtotalWithDiscount = new(subtotal.SubtotalWithDiscount, _primaryCurrency),
+                DiscountAmount = new(subtotal.DiscountAmount, _primaryCurrency),
+                AppliedDiscount = subtotal.AppliedDiscount,
+                TaxRates = subtotal.TaxRates,
+                LineItems = subtotal.LineItems
             };
+
+            _requestCache.Put(cacheKey, result);
+
+            return result;
         }
 
         public virtual async Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotalAsync(ShoppingCart cart, bool? includeTax = null)
@@ -431,7 +454,7 @@ namespace Smartstore.Core.Checkout.Orders
         #region Utilities
 
         private readonly Func<OrganizedShoppingCartItem, CartTaxingInfo> GetTaxingInfo = cartItem
-            => (CartTaxingInfo)cartItem.CustomProperties[CART_TAXING_INFO_KEY];
+            => (CartTaxingInfo)cartItem.CustomProperties[CartTaxingInfoKey];
 
         private int GetTaxCategoryId(ShoppingCart cart, int defaultTaxCategoryId)
         {
@@ -740,13 +763,13 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Additional infos already collected.
-            if (cart.Items.First().CustomProperties.ContainsKey(CART_TAXING_INFO_KEY))
+            if (cart.Items.First().CustomProperties.ContainsKey(CartTaxingInfoKey))
             {
                 return;
             }
 
             // Instance taxing info objects.
-            cart.Items.Each(x => x.CustomProperties[CART_TAXING_INFO_KEY] = new CartTaxingInfo());
+            cart.Items.Each(x => x.CustomProperties[CartTaxingInfoKey] = new CartTaxingInfo());
 
             // Collect infos.
             if (_taxSettings.AuxiliaryServicesTaxingType == AuxiliaryServicesTaxType.HighestCartAmount)

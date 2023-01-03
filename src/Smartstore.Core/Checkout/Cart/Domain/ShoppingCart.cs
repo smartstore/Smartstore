@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Smartstore.Core.Identity;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Checkout.Cart
 {
@@ -7,8 +8,10 @@ namespace Smartstore.Core.Checkout.Cart
     /// Represents a shopping cart.
     /// </summary>
     [DebuggerDisplay("{CartType} for {Customer.Email} contains {Items.Length} items.")]
-    public partial class ShoppingCart
+    public partial class ShoppingCart : IEquatable<ShoppingCart>
     {
+        private int? _hashCode;
+
         public ShoppingCart(Customer customer, int storeId, IEnumerable<OrganizedShoppingCartItem> items)
         {
             Guard.NotNull(customer, nameof(customer));
@@ -44,5 +47,55 @@ namespace Smartstore.Core.Checkout.Cart
         /// Store identifier.
         /// </summary>
         public int StoreId { get; }
+
+        #region Compare
+
+        public override bool Equals(object obj)
+            => Equals(obj as ShoppingCart);
+
+        bool IEquatable<ShoppingCart>.Equals(ShoppingCart other)
+            => Equals(other);
+
+        protected virtual bool Equals(ShoppingCart other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (CartType != other.CartType 
+                || Customer.Id != other.Customer.Id 
+                || StoreId != other.StoreId
+                || Items.Length != other.Items.Length)
+            {
+                return false;
+            }
+
+            return GetHashCode() == other.GetHashCode();
+        }
+
+        public override int GetHashCode()
+        {
+            if (_hashCode == null)
+            {
+                var combiner = HashCodeCombiner
+                    .Start()
+                    .Add((int)CartType)
+                    .Add(Customer.Id)
+                    .Add(StoreId)
+                    .Add(Items.Select(x => x.Item.GetHashCode()));
+
+                _hashCode = combiner.CombinedHash;
+            }
+
+            return _hashCode.Value;
+        }
+
+        #endregion
     }
 }

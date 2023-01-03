@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
-using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
@@ -41,7 +40,6 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         IPriceCalculationService _priceCalcService;
         IOrderCalculationService _orderCalcService;
         ShippingSettings _shippingSettings;
-        CatalogSettings _catalogSettings;
         PriceSettings _priceSettings;
         ICommonServices _services;
         IPriceCalculatorFactory _priceCalculatorFactory;
@@ -85,7 +83,6 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 .Returns(new ProductBatchContext(new List<Product>(), _services, _store, _customer, false));
 
             _rewardPointsSettings = new RewardPointsSettings();
-            _catalogSettings = new CatalogSettings();
             _priceSettings = new PriceSettings();
             _taxSettings = new TaxSettings
             {
@@ -175,6 +172,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _shippingService,
                 _giftCardService,
                 _currencyService,
+                _requestCache,
                 ProviderManager,
                 _checkoutAttributeMaterializer,
                 _workContext,
@@ -183,7 +181,6 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _taxCalculator,
                 _taxSettings,
                 _rewardPointsSettings,
-                _catalogSettings,
                 _priceSettings,
                 _shippingSettings);
         }

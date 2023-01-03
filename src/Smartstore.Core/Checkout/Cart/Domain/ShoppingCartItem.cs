@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Identity;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Checkout.Cart
 {
@@ -12,10 +13,11 @@ namespace Smartstore.Core.Checkout.Cart
     /// Represents a shopping cart item
     /// </summary>
     [Index(nameof(ShoppingCartTypeId), nameof(CustomerId), Name = "IX_ShoppingCartItem_ShoppingCartTypeId_CustomerId")]
-    public partial class ShoppingCartItem : EntityWithAttributes, IAuditable, IAttributeAware
+    public partial class ShoppingCartItem : EntityWithAttributes, IAuditable, IAttributeAware, IEquatable<ShoppingCartItem>
     {
         private ProductVariantAttributeSelection _attributeSelection;
         private string _rawAttributes;
+        private int? _hashCode;
 
         public ShoppingCartItem()
         {
@@ -156,5 +158,59 @@ namespace Smartstore.Core.Checkout.Cart
         public bool IsTaxExempt
             => Product != null && Product.IsTaxExempt;
 
+        #region Compare
+
+        public override bool Equals(object obj)
+            => Equals(obj as ShoppingCartItem);
+
+        bool IEquatable<ShoppingCartItem>.Equals(ShoppingCartItem other)
+            => Equals(other);
+
+        protected virtual bool Equals(ShoppingCartItem other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return CustomerId == other.CustomerId
+                && ProductId == other.ProductId
+                && RawAttributes.Equals(other.RawAttributes, StringComparison.OrdinalIgnoreCase)
+                && Quantity == other.Quantity
+                && ShoppingCartTypeId == other.ShoppingCartTypeId
+                && CustomerEnteredPrice == other.CustomerEnteredPrice
+                && StoreId == other.StoreId
+                && ParentItemId == other.ParentItemId
+                && BundleItemId == other.BundleItemId;
+        }
+
+        public override int GetHashCode()
+        {
+            if (_hashCode == null)
+            {
+                var combiner = HashCodeCombiner
+                    .Start()
+                    .Add(CustomerId)
+                    .Add(ProductId)
+                    .Add(RawAttributes)
+                    .Add(Quantity)
+                    .Add(ShoppingCartTypeId)
+                    .Add(CustomerEnteredPrice)
+                    .Add(StoreId)
+                    .Add(ParentItemId)
+                    .Add(BundleItemId);
+
+                _hashCode = combiner.CombinedHash;
+            }
+
+            return _hashCode.Value;
+        }
+
+        #endregion
     }
 }
