@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
@@ -36,7 +35,6 @@ namespace Smartstore.Web.Controllers
         private readonly ICustomerService _customerService;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
-        private readonly PriceSettings _priceSettings;
         private readonly CatalogHelper _helper;
         private readonly IBreadcrumb _breadcrumb;
         private readonly SeoSettings _seoSettings;
@@ -62,7 +60,6 @@ namespace Smartstore.Web.Controllers
             ICustomerService customerService,
             MediaSettings mediaSettings,
             CatalogSettings catalogSettings,
-            PriceSettings priceSettings,
             CatalogHelper helper,
             IBreadcrumb breadcrumb,
             SeoSettings seoSettings,
@@ -87,7 +84,6 @@ namespace Smartstore.Web.Controllers
             _customerService = customerService;
             _mediaSettings = mediaSettings;
             _catalogSettings = catalogSettings;
-            _priceSettings = priceSettings;
             _helper = helper;
             _breadcrumb = breadcrumb;
             _seoSettings = seoSettings;

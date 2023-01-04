@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Web.Models.Cart
+﻿using Smartstore.Core.Checkout.Cart;
+
+namespace Smartstore.Web.Models.Cart
 {
     public partial class OrderTotalsModel : ModelBase
     {
@@ -26,6 +28,9 @@
         public decimal Weight { get; set; }
         public string WeightMeasureUnitName { get; set; }
         public bool ShowConfirmOrderLegalHint { get; set; }
+
+        public ShoppingCartSubtotal CartSubtotal { get; set; }
+        public ShoppingCartTotal CartTotal { get; set; }
 
         public partial class TaxRate : ModelBase
         {

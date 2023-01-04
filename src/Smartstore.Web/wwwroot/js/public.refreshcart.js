@@ -67,6 +67,10 @@ $(function () {
                 ShopBar.loadSummary('wishlist', true);
 
                 hideThrobber();
+
+                var cartRefreshEvent = jQuery.Event('shoppingCartRefresh');
+                cartRefreshEvent.success = response.success;
+                $(document).trigger(cartRefreshEvent);
             },
             complete: function () {
                 updatingCart = false;

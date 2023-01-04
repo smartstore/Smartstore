@@ -14,7 +14,9 @@
             <span>@Model.WeightMeasureUnitName</span>
         </td>
     </tr>
-    <tr class="cart-summary-subtotal">
+    <tr id="CartSummarySubtotal" class="cart-summary-subtotal"
+        data-subtotal-converted="@(Model.SubTotal.Amount.FormatInvariant())"
+        data-subtotal="@(Model.CartSubtotal.SubtotalWithoutDiscount.Amount.FormatInvariant())">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.SubTotal"):</td>
         <td class="cart-summary-value">@Model.SubTotal</td>
     </tr>
@@ -105,16 +107,16 @@
         <tr class="cart-summary-giftcard">
             <td class="cart-summary-label">
                 <div class="row xs-gutters">
-                    
+
                     <div sm-if="Model.IsEditable" class="col col-auto">
                         <a href="#"
-                            data-href='@Url.Action("RemoveGiftCardCode", "ShoppingCart", new { giftCardId = gc.Id })'
-                            class="btn-remove remove-discount-button pretty-link ajax-action-link"
-                            title="@T("Common.Remove")">
+                           data-href='@Url.Action("RemoveGiftCardCode", "ShoppingCart", new { giftCardId = gc.Id })'
+                           class="btn-remove remove-discount-button pretty-link ajax-action-link"
+                           title="@T("Common.Remove")">
                             <i class="fa">&times;</i>
                         </a>
                     </div>
-                    
+
                     <div class="col cart-summary-pos">
                         @Html.Raw(T("ShoppingCart.Totals.GiftCardInfo", gc.CouponCode))
                         <span class="text-muted text-nowrap small">@T("ShoppingCart.Totals.GiftCardInfo.Remaining", gc.Remaining)</span>
@@ -124,12 +126,12 @@
             <td class="cart-summary-value cart-summary-pos">@gc.Amount</td>
         </tr>
     }
-    
+
     <tr sm-if="Model.RedeemedRewardPoints > 0" class="cart-summary-rewardpoints cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.RewardPoints", Model.RedeemedRewardPoints):</td>
         <td class="cart-summary-value">@Model.RedeemedRewardPointsAmount</td>
     </tr>
-    
+
     <tr sm-if="Model.CreditBalance.HasValue()" class="cart-summary-credit-balance cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.CreditBalance"):</td>
         <td class="cart-summary-value">@Model.CreditBalance</td>
@@ -142,7 +144,9 @@
         </td>
     </tr>
 
-    <tr class="cart-summary-total">
+    <tr id="CartSummaryTotal" class="cart-summary-total" 
+        data-total-converted="@((Model.OrderTotal ?? Money.Zero).Amount.FormatInvariant())"
+        data-total="@((Model.CartTotal.Total ?? Money.Zero).Amount.FormatInvariant())">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.OrderTotal"):</td>
         <td class="cart-summary-value">
             @if (Model.OrderTotal != null)

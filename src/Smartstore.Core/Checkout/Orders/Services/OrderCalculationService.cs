@@ -99,8 +99,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             var cacheKey = $"ordercalculation:carttotal:{cart.GetHashCode()}-{includeRewardPoints}-{includePaymentFee}-{includeCreditBalance}";
 
-            // INFO: CartTotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page and
-            // IRequestCache.GetAsync would produce ArgumentException "an item with the same key has already been added".
+            // INFO: CartTotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page.
             if (_requestCache.Contains(cacheKey))
             {
                 return _requestCache.Get<ShoppingCartTotal>(cacheKey, null);
@@ -281,8 +280,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             var cacheKey = $"ordercalculation:cartsubtotal:{cart.GetHashCode()}-{includeTax}";
 
-            // INFO: CartSubtotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page and
-            // IRequestCache.GetAsync would produce ArgumentException "an item with the same key has already been added".
+            // INFO: CartSubtotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page.
             if (_requestCache.Contains(cacheKey))
             {
                 return _requestCache.Get<ShoppingCartSubtotal>(cacheKey, null);

@@ -85,11 +85,10 @@ namespace Smartstore.Web.Components
                 model.WeightMeasureUnitName = measureWeight.GetLocalized(x => x.Name);
             }
 
-            // SubTotal
+            // Subtotal
             var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
-
-            model.SubTotal = subTotalConverted;
+            model.CartSubtotal = cartSubTotal;
+            model.SubTotal = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
 
             if (cartSubTotal.DiscountAmount > decimal.Zero)
             {
@@ -174,6 +173,7 @@ namespace Smartstore.Web.Components
 
             // Cart total
             var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+            model.CartTotal = cartTotal;
 
             if (cartTotal.ConvertedAmount.Total.HasValue)
             {
