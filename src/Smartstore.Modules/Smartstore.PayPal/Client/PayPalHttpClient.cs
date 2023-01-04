@@ -607,7 +607,7 @@ namespace Smartstore.PayPal.Client
             CancellationToken cancelToken = default)
             where TRequest : PayPalRequest
         {
-            return ExecuteRequestAsync(request, 0, cancelToken);
+            return ExecuteRequestAsync(request, _storeContext.CurrentStore.Id, cancelToken);
         }
 
         public Task<PayPalResponse> ExecuteRequestAsync<TRequest>(
