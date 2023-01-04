@@ -35,7 +35,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [LoadSetting, AuthorizeAdmin]
-        public async Task<IActionResult> Configure(int storeId, PayPalSettings settings)
+        public IActionResult Configure(int storeId, PayPalSettings settings)
         {
             var model = MiniMapper.Map<PayPalSettings, ConfigurationModel>(settings);
 
@@ -102,7 +102,7 @@ namespace Smartstore.PayPal.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await Configure(storeId, settings);
+                return Configure(storeId, settings);
             }
 
             // Clear token from cache if ClientId or Secret have changed.

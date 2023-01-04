@@ -650,12 +650,12 @@ namespace Smartstore.Web.Controllers
                 processPaymentRequest.StoreId = store.Id;
                 processPaymentRequest.CustomerId = customer.Id;
                 processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
-
+                
                 var placeOrderExtraData = new Dictionary<string, string>
                 {
-                    ["CustomerComment"] = HttpContext.Request.Form["customercommenthidden"].ToString(),
-                    ["SubscribeToNewsletter"] = HttpContext.Request.Form["SubscribeToNewsletter"].ToString(),
-                    ["AcceptThirdPartyEmailHandOver"] = HttpContext.Request.Form["AcceptThirdPartyEmailHandOver"].ToString()
+                    ["CustomerComment"] = Request.Form["customercommenthidden"].ToString(),
+                    ["SubscribeToNewsletter"] = Request.Form["SubscribeToNewsletter"].ToString(),
+                    ["AcceptThirdPartyEmailHandOver"] = Request.Form["AcceptThirdPartyEmailHandOver"].ToString()
                 };
 
                 placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest, placeOrderExtraData);
