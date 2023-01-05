@@ -83,7 +83,7 @@ namespace Smartstore.Web.Filters
                 if (!_privacySettings.DisplayGdprConsentOnForms)
                     return;
 
-                if (context.HttpContext.Items.Keys.Contains("GdprConsentRendered"))
+                if (context.HttpContext.Items.ContainsKey("GdprConsentRendered"))
                     return;
 
                 var result = context.Result;

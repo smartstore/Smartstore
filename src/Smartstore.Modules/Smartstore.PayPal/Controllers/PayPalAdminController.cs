@@ -55,6 +55,10 @@ namespace Smartstore.PayPal.Controllers
                 model.WebHookCreated = true;
             }
 
+            #region Maybe implement status check with seperate button
+
+            // TODO: (mh) (core) Implement or throw away
+
             //if (settings.PayerId.HasValue() && settings.ClientId.HasValue() && settings.Secret.HasValue())
             //{
             //    try
@@ -87,6 +91,8 @@ namespace Smartstore.PayPal.Controllers
             //    }
             //}
 
+            #endregion
+
             model.DisplayOnboarding = !settings.ClientId.HasValue() && !settings.Secret.HasValue();
 
             AddLocales(model.Locales, (locale, languageId) =>
@@ -114,6 +120,7 @@ namespace Smartstore.PayPal.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
+            // TODO: (mh) (core) Check if this is must be implmented some oth way.
             string.Join(',', model.EnabledFundings ?? Array.Empty<string>());
             string.Join(',', model.DisabledFundings ?? Array.Empty<string>());
 
