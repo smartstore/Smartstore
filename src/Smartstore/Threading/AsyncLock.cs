@@ -7,7 +7,11 @@ namespace Smartstore.Threading
     {
         #region static
 
-        static readonly AsyncKeyedLocker<string> _asyncKeyedLock = new();
+        static readonly AsyncKeyedLocker<string> _asyncKeyedLock = new(o =>
+        {
+            o.PoolSize = 20;
+            o.PoolInitialFill = 1;
+        });
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsLockHeld(string key)
