@@ -13,16 +13,16 @@ namespace Smartstore.Core.Data.Migrations
         public LocaleResourcesMigrator(SmartDbContext db)
         {
             _db = Guard.NotNull(db, nameof(db));
-            _languages = db.Set<Language>();
-            _resources = db.Set<LocaleStringResource>();
+            _languages = db.Languages;
+            _resources = db.LocaleStringResources;
         }
 
-        public async Task MigrateAsync(IEnumerable<LocaleResourceEntry> entries, bool updateTouchedResources = false)
+        public async Task<int> MigrateAsync(IEnumerable<LocaleResourceEntry> entries, bool updateTouchedResources = false)
         {
             Guard.NotNull(entries, nameof(entries));
 
             if (!entries.Any() || !_languages.Any())
-                return;
+                return 0;
 
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Essential))
             {
@@ -112,19 +112,27 @@ namespace Smartstore.Core.Data.Migrations
                     }
                 }
 
-                if (toAdd.Any() || toDelete.Any())
+                try
                 {
-                    // add new resources to context
-                    _resources.AddRange(toAdd);
+                    if (toAdd.Any() || toDelete.Any())
+                    {
+                        // add new resources to context
+                        _resources.AddRange(toAdd);
 
-                    // remove deleted resources
-                    _resources.RemoveRange(toDelete);
+                        // remove deleted resources
+                        _resources.RemoveRange(toDelete);
 
-                    // save now
-                    int affectedRows = await _db.SaveChangesAsync();
+                        // save now
+                        return await _db.SaveChangesAsync();
+                    }
 
-                    _db.DetachEntities<Language>();
+                    return 0;
+                }
+                finally
+                {
+                    // Forces db refresh on next language entity load
                     _db.DetachEntities<LocaleStringResource>();
+                    _db.DetachEntities<Language>();
                 }
             }
         }

@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.Engine.Initialization;
 
 namespace Smartstore.Engine.Modularity
@@ -20,9 +23,10 @@ namespace Smartstore.Engine.Modularity
         {
             var appContext = httpContext.RequestServices.GetRequiredService<IApplicationContext>();
             var resourceManager = httpContext.RequestServices.GetRequiredService<IXmlResourceManager>();
+            var db = httpContext.RequestServices.GetRequiredService<SmartDbContext>();
 
             // Discover and refresh changed module locale resources
-            await TryRefreshLocaleResources(appContext.ModuleCatalog, resourceManager);
+            await TryRefreshLocaleResources(appContext.ModuleCatalog, resourceManager, db);
 
             // Install pending modules
             var modularState = ModularState.Instance;
@@ -98,9 +102,17 @@ namespace Smartstore.Engine.Modularity
         public Task OnFailAsync(Exception exception, bool willRetry)
             => Task.CompletedTask;
 
-        private static async Task TryRefreshLocaleResources(IModuleCatalog moduleCatalog, IXmlResourceManager resourceManager)
+        private static async Task TryRefreshLocaleResources(IModuleCatalog moduleCatalog, IXmlResourceManager resourceManager, SmartDbContext db)
         {
+            using var scope = new DbContextScope(db, 
+                autoDetectChanges: false, 
+                retainConnection: true,
+                deferCommit: true,
+                minHookImportance: HookImportance.Essential);
+
+            var dirty = false;
             var modules = moduleCatalog.GetInstalledModules().ToArray();
+            List<Language> languages = null;
 
             foreach (var module in modules)
             {
@@ -113,8 +125,30 @@ namespace Smartstore.Engine.Modularity
 
                 if (hasher.HasChanged)
                 {
-                    await resourceManager.ImportModuleResourcesFromXmlAsync(module, null, false);
+                    dirty = true;
+                    await resourceManager.ImportModuleResourcesFromXmlAsync(
+                        moduleDescriptor: module,
+                        updateTouchedResources: false,
+                        filterLanguages: await GetLanguagesAsync());
                 }
+            }
+
+            if (dirty)
+            {
+                await scope.CommitAsync();
+                
+                db.DetachEntities<LocaleStringResource>();
+                db.DetachEntities<Language>();
+            }
+
+            async Task<List<Language>> GetLanguagesAsync()
+            {
+                languages ??= await db.Languages
+                    .Include(x => x.LocaleStringResources)
+                    .ApplyStandardFilter()
+                    .ToListAsync();
+
+                return languages;
             }
         }
     }
