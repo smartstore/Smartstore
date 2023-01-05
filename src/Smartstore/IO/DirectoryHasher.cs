@@ -41,12 +41,9 @@ namespace Smartstore.IO
         {
             get
             {
-                if (_lastHash == null)
-                {
-                    _lastHash = ReadLastHash();
-                }
+                _lastHash ??= ReadLastHash();
 
-                return _lastHash == -1 ? (int?)null : _lastHash.Value;
+                return _lastHash == -1 ? null : _lastHash.Value;
             }
         }
 
@@ -87,7 +84,7 @@ namespace Smartstore.IO
         {
             if (_source.Exists)
             {
-                return HashCodeCombiner.Start().Add(_source);
+                return HashCodeCombiner.Start().Add(_source, _deep);
             }
 
             return 0;
@@ -106,13 +103,19 @@ namespace Smartstore.IO
 
         protected virtual string BuildLookupKey()
         {
-            var key = PathUtility.MakeRelativePath(CommonHelper.ContentRoot.Root, _source.PhysicalPath, '_').ToLower();
+            var key = PathUtility.MakeRelativePath(CommonHelper.ContentRoot.Root, _source.PhysicalPath, '_')
+                .Replace(".", string.Empty)
+                .ToLower();
 
             if (_deep)
+            {
                 key += "_d";
+            }
 
             if (_searchPattern.HasValue() && _searchPattern != "*")
+            {
                 key += "_" + PathUtility.SanitizeFileName(_searchPattern.ToLower(), "x");
+            }    
 
             return key.Trim(PathUtility.PathSeparators);
         }

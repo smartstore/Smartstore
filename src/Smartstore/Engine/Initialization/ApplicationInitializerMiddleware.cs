@@ -68,10 +68,7 @@ namespace Smartstore.Engine.Initialization
                     {
                         if (!_initialized)
                         {
-                            using (new AutoStopwatch("PostInitialize application")) 
-                            {
-                                await InitializeAsync(context);
-                            }
+                            await InitializeAsync(context);
                         }
                     }
                 }
@@ -106,12 +103,16 @@ namespace Smartstore.Engine.Initialization
                 var instance = module.Instance;
                 var maxAttempts = Math.Max(1, instance.MaxAttempts);
                 var fail = false;
-
+                
                 try
                 {
                     _logger.Debug($"Executing initializer '{info.ModuleType.Name}'.");
                     info.Attempts++;
-                    await instance.InitializeAsync(context);
+
+                    using (new AutoStopwatch($"App initializer: {info.ModuleType.Name}"))
+                    {
+                        await instance.InitializeAsync(context);
+                    } 
                 }
                 catch (Exception ex)
                 {
