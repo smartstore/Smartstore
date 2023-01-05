@@ -323,6 +323,10 @@ namespace Smartstore
 
         #region Load collection / reference
 
+        /// <summary>
+        /// Checks whether a collection type navigation property has already 
+        /// been loaded for a given entity (either eagerly or lazily).
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsCollectionLoaded<TEntity, TCollection>(
             this HookingDbContext ctx,
@@ -334,6 +338,10 @@ namespace Smartstore
             return IsCollectionLoaded(ctx, entity, navigationProperty, out _);
         }
 
+        /// <summary>
+        /// Checks whether a collection type navigation property has already 
+        /// been loaded for a given entity (either eagerly or lazily).
+        /// </summary>
         public static bool IsCollectionLoaded<TEntity, TCollection>(
             this HookingDbContext ctx,
             TEntity entity,
@@ -374,6 +382,10 @@ namespace Smartstore
             return isLoaded;
         }
 
+        /// <summary>
+        /// Checks whether a reference type navigation property has already 
+        /// been loaded for a given entity (either eagerly or lazily).
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsReferenceLoaded<TEntity, TProperty>(
             this HookingDbContext ctx,
@@ -385,6 +397,10 @@ namespace Smartstore
             return IsReferenceLoaded(ctx, entity, navigationProperty, out _);
         }
 
+        /// <summary>
+        /// Checks whether a reference type navigation property has already 
+        /// been loaded for a given entity (either eagerly or lazily).
+        /// </summary>
         public static bool IsReferenceLoaded<TEntity, TProperty>(
             this HookingDbContext ctx,
             TEntity entity,

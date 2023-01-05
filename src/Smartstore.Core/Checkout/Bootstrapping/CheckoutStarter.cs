@@ -26,7 +26,7 @@ namespace Smartstore.Core.Bootstrapping
                 .PropagateCookies(CookieNames.Identity, CookieNames.Visitor)
                 .ConfigureHttpClient(client =>
                 {
-                    client.Timeout = TimeSpan.FromSeconds(5);
+                    client.Timeout = TimeSpan.FromSeconds(10);
                 });
         }
 

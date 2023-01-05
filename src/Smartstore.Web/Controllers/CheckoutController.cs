@@ -662,7 +662,7 @@ namespace Smartstore.Web.Controllers
 
                 if (!placeOrderResult.Success)
                 {
-                    model.Warnings.AddRange(placeOrderResult.Errors.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
+                    model.Warnings.AddRange(placeOrderResult.Errors.Select(HtmlUtility.ConvertPlainTextToHtml));
                 }
             }
             catch (Exception ex)

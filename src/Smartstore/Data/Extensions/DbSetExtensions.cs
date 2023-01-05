@@ -9,6 +9,10 @@ namespace Smartstore
 {
     public static class DbSetExtensions
     {
+        /// <summary>
+        /// Resolves the <see cref="DbContext"/> instance from which the given
+        /// <see cref="DbSet{TEntity}"/> was obtained.
+        /// </summary>
         public static HookingDbContext GetDbContext<TEntity>(this DbSet<TEntity> dbSet)
             where TEntity : BaseEntity
         {
@@ -266,7 +270,7 @@ namespace Smartstore
             var context = dbSet.GetDbContext();
 
             var localEntities = distinctIds
-                .Select(id => context.FindTracked<TEntity>(id))
+                .Select(context.FindTracked<TEntity>)
                 .ToList();
 
             var untrackedIds = distinctIds.Except(localEntities.Select(x => x.Id)).ToArray();
@@ -315,12 +319,7 @@ namespace Smartstore
                 }
                 else
                 {
-                    var entities = query.Select(x => new TEntity { Id = x.Id }).ToList();
-                    foreach (var chunk in entities.Chunk(500))
-                    {
-                        dbSet.RemoveRange(chunk);
-                        numDeleted += ctx.SaveChanges();
-                    }
+                    numDeleted = query.ExecuteDelete();
                 }
             }
 
@@ -364,12 +363,7 @@ namespace Smartstore
                 }
                 else
                 {
-                    var entities = await query.Select(x => new T { Id = x.Id }).ToListAsync();
-                    foreach (var chunk in entities.Chunk(500))
-                    {
-                        dbSet.RemoveRange(chunk);
-                        numDeleted += await ctx.SaveChangesAsync();
-                    }
+                    numDeleted = await query.ExecuteDeleteAsync();
                 }
             }
 
