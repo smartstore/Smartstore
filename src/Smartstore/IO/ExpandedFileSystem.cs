@@ -30,14 +30,19 @@ namespace Smartstore.IO
         public IFileSystem InnerProvider { get; }
         public string Root { get; }
 
+        /// <summary>
+        /// Whether to tolerate sub pathes that start with <see cref="PathPrefix"/>.
+        /// </summary>
+        public bool ToleratePrefix { get; set; }
+
         protected string Expand(string path)
         {
-            if (path.IsEmpty() || path == PathPrefix)
+            if (path.IsEmpty() || (ToleratePrefix && path == PathPrefix))
             {
                 return PathPrefix;
             }
 
-            if (path.Length > PathPrefix.Length)
+            if (ToleratePrefix && path.Length > PathPrefix.Length)
             {
                 if (((PathString)path.EnsureStartsWith('/')).StartsWithSegments(_pathPrefix, StringComparison.CurrentCulture))
                 {
