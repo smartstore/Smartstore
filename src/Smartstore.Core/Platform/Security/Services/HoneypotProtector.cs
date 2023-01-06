@@ -58,12 +58,24 @@ namespace Smartstore.Core.Security
         {
             Guard.NotEmpty(token, nameof(token));
 
-            var encoded = Convert.FromBase64String(token);
+            var encoded = Convert.FromBase64String(TryFixBase64Token(token));
             var decoded = _protector.Unprotect(encoded);
             var json = Encoding.UTF8.GetString(decoded);
 
             var result = JsonConvert.DeserializeObject<HoneypotField>(json);
             return result;
+        }
+
+        private static string TryFixBase64Token(string token)
+        {
+            if (token.Length % 4 == 0)
+            {
+                return token;
+            }
+            else
+            {
+                return TryFixBase64Token(token + "=");
+            }
         }
 
         public bool IsBot()
@@ -80,9 +92,17 @@ namespace Smartstore.Core.Security
                 throw new InvalidOperationException("The required honeypot form field is missing. Please render the field with the honeypot tag helper.");
             }
 
-            var token = DeserializeToken(tokenString);
-            string trap = request.Form[token.Name];
-            var isBot = trap == null || trap.Length > 0 || (DateTime.UtcNow - token.CreatedOnUtc).TotalMilliseconds < 2000;
+            bool isBot = false;
+
+            try
+            {
+                var token = DeserializeToken(tokenString);
+                string trap = request.Form[token.Name];
+                isBot = trap == null || trap.Length > 0 || (DateTime.UtcNow - token.CreatedOnUtc).TotalMilliseconds < 2000;
+            }
+            catch
+            {
+            }
 
             return isBot;
         }
