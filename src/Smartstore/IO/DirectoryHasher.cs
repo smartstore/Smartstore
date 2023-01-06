@@ -9,6 +9,7 @@ namespace Smartstore.IO
     {
         private readonly IDirectory _source;
         private readonly string _searchPattern;
+        private readonly bool _hasPattern;
         private readonly bool _deep;
         private readonly IDirectory _storageDir;
 
@@ -31,6 +32,7 @@ namespace Smartstore.IO
             _source = source;
             _storageDir = storageDir ?? _defaultStorageDir;
             _searchPattern = searchPattern;
+            _hasPattern = searchPattern.HasValue() && searchPattern != "*";
             _deep = deep;
         }
 
@@ -82,12 +84,28 @@ namespace Smartstore.IO
 
         protected virtual int ComputeHash()
         {
-            if (_source.Exists)
+            if (!_source.Exists)
             {
-                return HashCodeCombiner.Start().Add(_source, _deep);
+                return 0;
+            }
+            
+            var combiner = HashCodeCombiner.Start();
+
+            if (_hasPattern)
+            {
+                combiner = combiner.Add(_source.PhysicalPath.ToLower()).Add(_source.LastModified);
+
+                foreach (var entry in _source.EnumerateEntries(_searchPattern, _deep))
+                {
+                    combiner = combiner.Add(entry, false);
+                }
+            }
+            else
+            {
+                combiner = combiner.Add(_source, _deep);
             }
 
-            return 0;
+            return combiner.CombinedHash;
         }
 
         protected virtual int ReadLastHash()
@@ -112,7 +130,7 @@ namespace Smartstore.IO
                 key += "_d";
             }
 
-            if (_searchPattern.HasValue() && _searchPattern != "*")
+            if (_hasPattern)
             {
                 key += "_" + PathUtility.SanitizeFileName(_searchPattern.ToLower(), "x");
             }    
