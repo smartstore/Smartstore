@@ -37,7 +37,9 @@
 - Fixed password change issue with user records without username
 - Settings couldn't be saved in several places (in migrated shop) 
 - Fixed add required products automatically
-- Fix "Collection was modified; enumeration operation may not execute"
+- DbCache:
+  - Fix "Collection was modified; enumeration operation may not execute"
+  - Fix "Index was outside the bounds of the array"
 - #577 PdfSettings.Enabled displayed twice and PdfSettings.LetterPageSizeEnabled was missing.
 - Topics which are rendered as widgets were published to sitemap 
 - Redirection problems with changing language & ContactUs page

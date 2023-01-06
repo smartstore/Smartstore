@@ -14,7 +14,10 @@ namespace Smartstore.Collections
             _col = Guard.NotNull(wrappedCollection);
         }
 
-        public bool ReadLockFree { get; set; }
+        public ReaderWriterLockSlim Lock 
+        {
+            get => _rwLock; 
+        }
 
         public void AddRange(IEnumerable<T> collection)
         {

@@ -1,19 +1,51 @@
-﻿namespace Smartstore.Caching
+﻿using System.Collections;
+using Smartstore.Collections;
+using Smartstore.Threading;
+
+namespace Smartstore.Caching
 {
     [Serializable]
-    internal class MemorySet : HashSet<string>, ISet
+    internal class MemorySet : ISet
     {
         private readonly ICacheStore _cache;
+        private readonly HashSet<string> _set = new(StringComparer.OrdinalIgnoreCase);
+        private readonly SyncedCollection<string> _safeSet;
 
         public MemorySet(ICacheStore cache)
-            : base(StringComparer.OrdinalIgnoreCase)
         {
             _cache = cache;
+            _safeSet = _set.AsSynchronized();
+        }
+
+        public bool Add(string item)
+        {
+            using (_safeSet.Lock.GetWriteLock())
+            {
+                return _set.Add(item);
+            }
         }
 
         public void AddRange(IEnumerable<string> items)
         {
-            base.UnionWith(items);
+            using (_safeSet.Lock.GetWriteLock())
+            {
+                _set.UnionWith(items);
+            } 
+        }
+
+        public void Clear()
+        {
+            _safeSet.Clear();
+        }
+
+        public bool Contains(string item)
+        {
+            return _safeSet.Contains(item);
+        }
+
+        public bool Remove(string item)
+        {
+            return _safeSet.Remove(item);
         }
 
         public bool Move(string destinationKey, string item)
@@ -30,33 +62,51 @@
             return false;
         }
 
-        public long ExceptWith(params string[] keys)
-        {
-            return Combine(x => this.Except(x), keys);
-        }
-
-        public long IntersectWith(params string[] keys)
-        {
-            return Combine(x => this.Intersect(x), keys);
+        public int Count 
+        { 
+            get => _safeSet.Count;
         }
 
         public long UnionWith(params string[] keys)
         {
-            return Combine(x => this.Union(x), keys);
+            return Combine(_set.UnionWith, keys);
         }
 
-        private long Combine(Func<IEnumerable<string>, IEnumerable<string>> func, params string[] keys)
+        public long IntersectWith(params string[] keys)
+        {
+            return Combine(_set.IntersectWith, keys);
+        }
+
+        public long ExceptWith(params string[] keys)
+        {
+            return Combine(_set.ExceptWith, keys);
+        }
+
+        private long Combine(Action<IEnumerable<string>> action, params string[] keys)
         {
             if (keys.Length == 0)
+            {
                 return 0;
+            }  
 
             var other = keys.SelectMany(x => _cache?.GetHashSet(x) ?? Enumerable.Empty<string>()).Distinct();
-            var result = func(other);
 
-            Clear();
-            AddRange(other);
+            using (_safeSet.Lock.GetWriteLock())
+            {
+                action(other);
+            }
 
             return Count;
+        }
+
+        public IEnumerator<string> GetEnumerator()
+        {
+            return _safeSet.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _safeSet.GetEnumerator();
         }
 
         #region Async
