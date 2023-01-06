@@ -68,7 +68,7 @@ namespace Smartstore.Core.Checkout.Orders
             if (_state != null)
             {
                 var httpContext = _httpContextAccessor.HttpContext;
-                if (httpContext != null)
+                if (httpContext != null && !httpContext.Response.HasStarted)
                 {
                     httpContext.Session.TrySetObject(CheckoutStateSessionKey, _state);
                 }
