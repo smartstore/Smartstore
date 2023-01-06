@@ -233,7 +233,9 @@
     // TODO: reorganize > public.globalinit.js
     $(function () {
         // Init reveal on scroll with AOS library
-        if (typeof AOS !== 'undefined' && !$('body').hasClass('no-reveal')) {
+        if (typeof AOS !== 'undefined'
+            && !$('body').hasClass('no-reveal')
+            && !$('body').attr("data-aos-duration")) {
             AOS.init({ once: true, duration: 1000, startEvent: 'load' });
         }
 
