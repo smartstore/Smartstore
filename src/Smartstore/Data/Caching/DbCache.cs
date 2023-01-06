@@ -75,7 +75,7 @@ namespace Smartstore.Data.Caching
 
             var sets = entityTypes
                 .Distinct()
-                .Select(x => QueryKeyGenerator.GenerateDependencyKey(x))
+                .Select(QueryKeyGenerator.GenerateDependencyKey)
                 .ToArray();
 
             using (_lock.Lock())

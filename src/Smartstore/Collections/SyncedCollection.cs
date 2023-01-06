@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Smartstore.Threading;
 
 namespace Smartstore.Collections
 {
@@ -6,28 +7,18 @@ namespace Smartstore.Collections
     {
         // INFO: Don't call it SynchronizedCollection because of framework dupe.
         private readonly ICollection<T> _col;
+        private readonly ReaderWriterLockSlim _rwLock = new(LockRecursionPolicy.SupportsRecursion);
 
         public SyncedCollection(ICollection<T> wrappedCollection)
-            : this(wrappedCollection, new object())
         {
+            _col = Guard.NotNull(wrappedCollection);
         }
-
-        public SyncedCollection(ICollection<T> wrappedCollection, object syncRoot)
-        {
-            Guard.NotNull(wrappedCollection, nameof(wrappedCollection));
-            Guard.NotNull(syncRoot, nameof(syncRoot));
-
-            _col = wrappedCollection;
-            SyncRoot = syncRoot;
-        }
-
-        public object SyncRoot { get; }
 
         public bool ReadLockFree { get; set; }
 
         public void AddRange(IEnumerable<T> collection)
         {
-            lock (SyncRoot)
+            using (_rwLock.GetWriteLock())
             {
                 _col.AddRange(collection);
             }
@@ -37,33 +28,37 @@ namespace Smartstore.Collections
         {
             if (_col is List<T> list)
             {
-                lock (SyncRoot)
+                using (_rwLock.GetWriteLock())
                 {
                     list.Insert(index, item);
                 }
             }
-
-            throw new NotSupportedException();
+            else
+            {
+                throw new NotSupportedException();
+            }
         }
 
         public void InsertRange(int index, IEnumerable<T> values)
         {
             if (_col is List<T> list)
             {
-                lock (SyncRoot)
+                using (_rwLock.GetWriteLock())
                 {
                     list.InsertRange(index, values);
                 }
             }
-
-            throw new NotSupportedException();
+            else
+            {
+                throw new NotSupportedException();
+            }
         }
 
         public int RemoveRange(IEnumerable<T> values)
         {
             int numRemoved = 0;
 
-            lock (SyncRoot)
+            using (_rwLock.GetWriteLock())
             {
                 foreach (var value in values)
                 {
@@ -79,18 +74,20 @@ namespace Smartstore.Collections
         {
             if (_col is List<T> list)
             {
-                lock (SyncRoot)
+                using (_rwLock.GetWriteLock())
                 {
                     list.RemoveRange(index, count);
                 }
             }
-
-            throw new NotSupportedException();
+            else
+            {
+                throw new NotSupportedException();
+            }
         }
 
         public void RemoveAt(int index)
         {
-            lock (SyncRoot)
+            using (_rwLock.GetWriteLock())
             {
                 if (_col is List<T> list)
                 {
@@ -111,16 +108,9 @@ namespace Smartstore.Collections
         {
             get
             {
-                if (ReadLockFree)
+                using (_rwLock.GetReadLock())
                 {
                     return _col.ElementAt(index);
-                }
-                else
-                {
-                    lock (SyncRoot)
-                    {
-                        return _col.ElementAt(index);
-                    }
                 }
             }
         }
@@ -131,16 +121,9 @@ namespace Smartstore.Collections
         {
             get
             {
-                if (ReadLockFree)
+                using (_rwLock.GetReadLock())
                 {
                     return _col.Count;
-                }
-                else
-                {
-                    lock (SyncRoot)
-                    {
-                        return _col.Count;
-                    }
                 }
             }
         }
@@ -149,7 +132,7 @@ namespace Smartstore.Collections
 
         public void Add(T item)
         {
-            lock (SyncRoot)
+            using (_rwLock.GetWriteLock())
             {
                 _col.Add(item);
             }
@@ -157,7 +140,7 @@ namespace Smartstore.Collections
 
         public void Clear()
         {
-            lock (SyncRoot)
+            using (_rwLock.GetWriteLock())
             {
                 _col.Clear();
             }
@@ -165,22 +148,15 @@ namespace Smartstore.Collections
 
         public bool Contains(T item)
         {
-            if (ReadLockFree)
+            using (_rwLock.GetReadLock())
             {
                 return _col.Contains(item);
-            }
-            else
-            {
-                lock (SyncRoot)
-                {
-                    return _col.Contains(item);
-                }
             }
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            lock (SyncRoot)
+            using (_rwLock.GetReadLock())
             {
                 _col.CopyTo(array, arrayIndex);
             }
@@ -188,7 +164,7 @@ namespace Smartstore.Collections
 
         public bool Remove(T item)
         {
-            lock (SyncRoot)
+            using (_rwLock.GetWriteLock())
             {
                 return _col.Remove(item);
             }
@@ -201,7 +177,64 @@ namespace Smartstore.Collections
 
         public IEnumerator<T> GetEnumerator()
         {
-            return _col.GetEnumerator();
+            return new SafeEnumerator(_col.GetEnumerator(), _rwLock);
+        }
+
+        #endregion
+
+        #region SafeEnumerator
+
+        sealed class SafeEnumerator : IEnumerator<T>
+        {
+            private readonly IEnumerator<T> _inner;
+            private readonly ReaderWriterLockSlim _rwLock;
+            private bool _disposed;
+
+            public SafeEnumerator(IEnumerator<T> inner, ReaderWriterLockSlim rwLock)
+            {
+                _inner = inner;
+                _rwLock = rwLock;
+
+                // Lock on creation
+                _rwLock.EnterReadLock();
+            }
+
+            public bool MoveNext()
+                => _inner.MoveNext();
+
+            public void Reset()
+                => _inner.Reset();
+
+            public T Current
+            {
+                get => _inner.Current;
+            }
+
+            object IEnumerator.Current
+            {
+                get => Current;
+            }
+
+            public void Dispose()
+            {
+                // Exit lock when foreach loop finishes
+                if (!_disposed)
+                {
+                    try
+                    {
+                        _rwLock.ExitReadLock();
+                        _disposed = true;
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            ~SafeEnumerator()
+            {
+                Dispose();
+            }
         }
 
         #endregion

@@ -19,7 +19,7 @@ namespace Smartstore.Threading
             {
                 if (rwLock.TryEnterReadLock(timeout ?? Timeout.InfiniteTimeSpan))
                 {
-                    return new ActionDisposable(() => rwLock.ExitReadLock());
+                    return new ActionDisposable(rwLock.ExitReadLock);
                 }
             }
 
@@ -40,7 +40,7 @@ namespace Smartstore.Threading
             {
                 if (rwLock.TryEnterUpgradeableReadLock(timeout ?? Timeout.InfiniteTimeSpan))
                 {
-                    return new ActionDisposable(() => rwLock.ExitUpgradeableReadLock());
+                    return new ActionDisposable(rwLock.ExitUpgradeableReadLock);
                 }
             }
 
@@ -61,7 +61,7 @@ namespace Smartstore.Threading
             {
                 if (rwLock.TryEnterWriteLock(timeout ?? Timeout.InfiniteTimeSpan))
                 {
-                    return new ActionDisposable(() => rwLock.ExitWriteLock());
+                    return new ActionDisposable(rwLock.ExitWriteLock);
                 }
             }
 
