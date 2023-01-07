@@ -22,7 +22,7 @@ namespace Smartstore.Data
         /// Creates a scope in which a DbContext instance behaves differently. 
         /// The behaviour is resetted on disposal of the scope to what it was before.
         /// </summary>
-        /// <param name="ctx">The context instance to change behavior for.</param>
+        /// <param name="db">The context instance to change behavior for.</param>
         /// <param name="deferCommit">
         /// Suppresses the execution of <see cref="DbContext.SaveChanges()"/> / <see cref="DbContext.SaveChangesAsync(CancellationToken)"/> 
         /// until this instance is disposed or <see cref="Commit()"/> / <see cref="CommitAsync(CancellationToken)"/> is called explicitly.
@@ -30,7 +30,7 @@ namespace Smartstore.Data
         /// <param name="retainConnection">
         /// Opens connection and retains it until disposal. May increase load/save performance in large scopes.
         /// </param>
-        public DbContextScope(HookingDbContext ctx,
+        public DbContextScope(HookingDbContext db,
             bool? autoDetectChanges = null,
             bool? lazyLoading = null,
             bool? forceNoTracking = null,
@@ -40,14 +40,14 @@ namespace Smartstore.Data
             CascadeTiming? cascadeDeleteTiming = null,
             CascadeTiming? deleteOrphansTiming = null)
         {
-            Guard.NotNull(ctx, nameof(ctx));
+            Guard.NotNull(db, nameof(db));
 
-            var changeTracker = ctx.ChangeTracker;
+            var changeTracker = db.ChangeTracker;
 
-            _ctx = ctx;
+            _ctx = db;
             _autoDetectChangesEnabled = changeTracker.AutoDetectChangesEnabled;
-            _minHookImportance = ctx.MinHookImportance;
-            _suppressCommit = ctx.SuppressCommit;
+            _minHookImportance = db.MinHookImportance;
+            _suppressCommit = db.SuppressCommit;
             _lazyLoadingEnabled = changeTracker.LazyLoadingEnabled;
             _queryTrackingBehavior = changeTracker.QueryTrackingBehavior;
             _cascadeDeleteTiming = changeTracker.CascadeDeleteTiming;
@@ -58,7 +58,7 @@ namespace Smartstore.Data
                 changeTracker.AutoDetectChangesEnabled = autoDetectChanges.Value;
 
             if (minHookImportance.HasValue)
-                ctx.MinHookImportance = minHookImportance.Value;
+                db.MinHookImportance = minHookImportance.Value;
 
             if (lazyLoading.HasValue)
                 changeTracker.LazyLoadingEnabled = lazyLoading.Value;
@@ -67,7 +67,7 @@ namespace Smartstore.Data
                 changeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
             if (deferCommit.HasValue)
-                ctx.SuppressCommit = deferCommit.Value;
+                db.SuppressCommit = deferCommit.Value;
 
             if (cascadeDeleteTiming.HasValue)
                 changeTracker.CascadeDeleteTiming = cascadeDeleteTiming.Value;
@@ -76,7 +76,7 @@ namespace Smartstore.Data
                 changeTracker.DeleteOrphansTiming = deleteOrphansTiming.Value;
 
             if (retainConnection)
-                ctx.Database.OpenConnection();
+                db.Database.OpenConnection();
         }
 
         public HookingDbContext DbContext => _ctx;
