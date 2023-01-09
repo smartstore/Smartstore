@@ -18,7 +18,6 @@
 ### Breaking Changes
 
 - (DEV) Product.**ProductPictures** renamed to **ProductMediaFiles**
-- (DEV) Widget refactoring
 
 ### New Features
 
