@@ -5316,7 +5316,7 @@
 		<Value>Angezeigter Benutzername</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CustomerNameFormat.Hint">
-		<Value>Legt fest, welche Daten als Benutzername festgelegt werden.</Value>
+		<Value>Legt den Anzeigenamen des Kunden fest, der für öffentliche Inhalte wie Produktbewertungen, Kommentare, etc. verwendet wird.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CustomerNameFormatMaxLength">
 		<Value>Maximale Länge des Benutzernamens</Value>
@@ -12930,6 +12930,9 @@
 	<LocaleResource Name="Admin.System.Maintenance.DbBackup.RestoreVersionWarning">
 		<Value>Die Sicherung wurde mit einer anderen Smartstore Version erstellt. Eine Wiederherstellung kann zu unvorhersehbaren Problemen führen. Möchten Sie trotzdem fortfahren?</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.System.Maintenance.DbBackup.SameServerNote">
+		<Value>Sicherungen und Wiederherstellungen von Datenbanken sind nur möglich, wenn sich der Datenbankserver (z.B. MS SQL Server oder MySQL) und der physikalische Speicherort der Shop-Installation auf einem gemeinsamen Server befinden.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DbBackup.Upload">
 		<Value>Sicherung hochladen</Value>
 	</LocaleResource>
@@ -18319,6 +18322,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Products.Price">
 		<Value>Preis</Value>
+	</LocaleResource>
+	<LocaleResource Name="Products.Price.OfferCountdown">
+		<Value>Endet in &lt;b class="fwm"&gt;{0}&lt;/b&gt;</Value>
 	</LocaleResource>
 	<LocaleResource Name="Products.Price.OldPrice">
 		<Value>Regulär</Value>

@@ -5466,7 +5466,7 @@
 		<Value>Customer name format</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CustomerNameFormat.Hint">
-		<Value>Customer name format.</Value>
+		<Value>Sets the customer's display name to be used for public content such as product reviews, comments, etc..</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CustomerNameFormatMaxLength">
 		<Value>Maximum length of the customer name</Value>
@@ -13242,6 +13242,9 @@
 	<LocaleResource Name="Admin.System.Maintenance.DbBackup.RestoreVersionWarning">
 		<Value>The backup was created with a different Smartstore version. Restoring it may cause unpredictable issues. Do you still want to proceed?</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.System.Maintenance.DbBackup.SameServerNote">
+		<Value>Backups and restores of databases are only possible if the database server (e.g. MS SQL Server or MySQL) and the physical location of the store installation are on the same server.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DbBackup.Upload">
 		<Value>Upload backup</Value>
 	</LocaleResource>
@@ -18647,6 +18650,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Products.Price">
 		<Value>Price</Value>
+	</LocaleResource>
+	<LocaleResource Name="Products.Price.OfferCountdown">
+		<Value>Ends in &lt;b class="fwm"&gt;{0}&lt;/b&gt;</Value>
 	</LocaleResource>
 	<LocaleResource Name="Products.Price.OldPrice">
 		<Value>Regular</Value>
