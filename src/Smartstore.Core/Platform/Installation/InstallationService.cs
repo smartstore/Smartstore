@@ -362,12 +362,12 @@ namespace Smartstore.Core.Installation
             }
             finally
             {
-                if (model.CallbackUrl.IsWebUrl() && result.Completed)
+                if (model.CallbackUrl.HasValue() && model.CallbackUrl.IsWebUrl() && result.Completed)
                 {
                     // Call webhook if given
                     var httpClient = _httpClientFactory.CreateClient();
 
-                    // Fire & foget
+                    // Fire & forget
                     _ = httpClient.PostAsJsonAsync(model.CallbackUrl, result, cancellationToken: cancelToken);
                 }
             }
