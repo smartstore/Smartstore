@@ -1,10 +1,22 @@
 # Release Notes
 
+## Smartstore 5.1.0
+
+### Breaking Changes 
+
+### New Features
+
+### Improvements
+
+### Bugfixes
+
+
 ## Smartstore 5.0.2
 
 ### Breaking Changes
 
 - (DEV) Product.**ProductPictures** renamed to **ProductMediaFiles**
+- (DEV) Widget refactoring
 
 ### New Features
 
@@ -53,6 +65,7 @@
 - Fixed RuleSets could not be added or removed from a shipping method.
 - Fixed wrong SKU in order XML export if the order contains multiple variants of the same product.
 - Fixed payment fee was always displayed in primary currency in checkout.
+- Several PayPal fixes
 
 ## Smartstore 5.0.1
 
