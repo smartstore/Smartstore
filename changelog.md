@@ -9,7 +9,8 @@
 ### Improvements
 
 ### Bugfixes
-- Web API: fixes wrong $metadata configuration of System.String[] as a complex type instead of ICollection<string>
+- Web API: fixes wrong $metadata configuration of System.String[] as a complex type instead of ICollection<string>.
+- Web API: fixes InvalidOperationException in Microsoft.OData.Client using MediaFiles and MediaFolders endpoints.
 
 
 ## Smartstore 5.0.2

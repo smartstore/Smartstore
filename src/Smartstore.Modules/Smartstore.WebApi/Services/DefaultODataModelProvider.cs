@@ -129,7 +129,9 @@ namespace Smartstore.Web.Api
 
         private static void BuildMediaFiles(ODataModelBuilder builder)
         {
-            var set = builder.EntitySet<MediaFile>("MediaFiles");
+            // INFO: #2198 referenced entity set type must not differ to avoid InvalidOperationException in Microsoft.OData.Client.
+            var set = builder.EntitySet<FileItemInfo>("MediaFiles");
+            //var set = builder.EntitySet<MediaFile>("MediaFiles");
             var config = set.EntityType.Collection;
 
             //var infoSet = builder.EntitySet<FileItemInfo>("FileItemInfos");
@@ -138,12 +140,12 @@ namespace Smartstore.Web.Api
             //infoSet.HasRequiredBinding(x => x.File, set);
 
             config.Action(nameof(MediaFilesController.GetFileByPath))
-                .Returns<FileItemInfo>()
+                .ReturnsFromEntitySet(set)
                 .Parameter<string>("path")
                 .Required();
 
             config.Function(nameof(MediaFilesController.GetFilesByIds))
-                .ReturnsCollection<FileItemInfo>()
+                .ReturnsCollectionFromEntitySet<FileItemInfo>(set.EntityType.Name)
                 .CollectionParameter<int>("ids")
                 .Required();
 
@@ -153,7 +155,7 @@ namespace Smartstore.Web.Api
                 .Required();
 
             config.Action(nameof(MediaFilesController.SearchFiles))
-                .ReturnsCollection<FileItemInfo>()
+                .ReturnsCollectionFromEntitySet<FileItemInfo>(set.EntityType.Name)
                 .Parameter<MediaSearchQuery>("query")
                 .Optional();
 
@@ -179,7 +181,7 @@ namespace Smartstore.Web.Api
 
             var moveFile = set.EntityType
                 .Action(nameof(MediaFilesController.MoveFile))
-                .Returns<FileItemInfo>();
+                .ReturnsFromEntitySet(set);
             moveFile.Parameter<string>("destinationFileName")
                 .Required();
             moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
@@ -203,7 +205,7 @@ namespace Smartstore.Web.Api
 
             var saveFile = config
                 .Action(nameof(MediaFilesController.SaveFile))
-                .Returns<FileItemInfo>();
+                .ReturnsFromEntitySet(set);
             saveFile.Parameter<IFormFile>("file")
                 .Required();
             saveFile.Parameter<string>("path")
@@ -217,7 +219,11 @@ namespace Smartstore.Web.Api
 
         private static void BuildMediaFolders(ODataModelBuilder builder)
         {
-            var set = builder.EntitySet<MediaFolder>("MediaFolders");
+            // INFO: #2198 referenced entity set type must not differ to avoid InvalidOperationException in Microsoft.OData.Client.
+            //var set = builder.EntitySet<MediaFolder>("MediaFolders");
+            var set = builder.EntitySet<FolderNodeInfo>("MediaFolders");
+            set.EntityType.HasKey(x => x.Id);
+
             var config = set.EntityType.Collection;
 
             config.Action(nameof(MediaFoldersController.FolderExists))
@@ -231,20 +237,20 @@ namespace Smartstore.Web.Api
                 .Required();
 
             config.Function(nameof(MediaFoldersController.GetRootNode))
-                .Returns<FolderNodeInfo>();
+                .ReturnsFromEntitySet<FolderNodeInfo>(set.EntityType.Name);
 
             config.Action(nameof(MediaFoldersController.GetNodeByPath))
-                .Returns<FolderNodeInfo>()
+                .ReturnsFromEntitySet(set)
                 .Parameter<string>("path")
                 .Required();
 
             config.Action(nameof(MediaFoldersController.CreateFolder))
-                .Returns<FolderNodeInfo>()
+                .ReturnsFromEntitySet(set)
                 .Parameter<string>("path")
                 .Required();
 
             var moveFolder = config.Action(nameof(MediaFoldersController.MoveFolder))
-                .Returns<FolderNodeInfo>();
+                .ReturnsFromEntitySet(set);
             moveFolder.Parameter<string>("path")
                 .Required();
             moveFolder.Parameter<string>("destinationPath")
