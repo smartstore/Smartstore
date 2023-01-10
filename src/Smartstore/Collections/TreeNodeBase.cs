@@ -568,8 +568,10 @@ namespace Smartstore.Collections
             {
                 InsertAfter(refNode);
             }
-
-            throw new ArgumentOutOfRangeException(nameof(index));
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -585,8 +587,10 @@ namespace Smartstore.Collections
             {
                 InsertBefore(refNode);
             }
-
-            throw new ArgumentOutOfRangeException(nameof(index));
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
