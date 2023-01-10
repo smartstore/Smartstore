@@ -163,7 +163,7 @@ namespace Smartstore.Web.Api.Security
             return AuthenticateResult.Fail(odataEx);
         }
 
-        private static string CreateMessage(AccessDeniedReason reason, string publicKey)
+        private string CreateMessage(AccessDeniedReason reason, string publicKey)
         {
             string msg = null;
 
@@ -189,7 +189,9 @@ namespace Smartstore.Web.Api.Security
                     break;
             }
 
-            return $"Access to the Web API was denied. Reason: {reason}. {msg.NaIfEmpty()}";
+            msg = msg.Grow(Request.UserAgent(), " User agent: ");
+
+            return $"Access to the Web API was denied. Reason: {reason}. {msg}";
         }
     }
 }
