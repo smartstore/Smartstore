@@ -359,7 +359,7 @@ namespace Smartstore.Web.Api
             var set = builder.EntitySet<PaymentMethod>("PaymentMethods");
 
             var getAllPaymentMethods = set.EntityType.Collection.Function(nameof(PaymentMethodsController.GetAllPaymentMethods))
-                .Returns<string[]>();
+                .ReturnsCollection<string>();
 
             getAllPaymentMethods.Parameter<bool>("active")
                 .Required();

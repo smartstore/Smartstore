@@ -9,6 +9,7 @@
 ### Improvements
 
 ### Bugfixes
+- Web API: fixes wrong $metadata configuration of System.String[] as a complex type instead of ICollection<string>
 
 
 ## Smartstore 5.0.2
