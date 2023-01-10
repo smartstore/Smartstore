@@ -17,7 +17,7 @@
 
 ### Breaking Changes
 
-- (DEV) Product.**ProductPictures** renamed to **ProductMediaFiles**
+- (DEV) Product._ProductPictures_ renamed to _ProductMediaFiles_
 
 ### New Features
 
