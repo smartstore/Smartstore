@@ -87,7 +87,7 @@
 
             <siteMapNode id="stores" icon="bi:shop-window" title="Stores" resKey="Admin.Common.Stores" permissionNames="configuration.store" controller="Store" action="List" area="Admin" />
 
-            <siteMapNode id="regional-settings" icon="bi:globe2" title="Regional Settings" resKey="Admin.Configuration.RegionalSettings" permissionNames="configuration.country, configuration.language, configuration.currency, configuration.shipping, configuration.tax">
+            <siteMapNode id="regional-settings" icon="bi:globe-americas" title="Regional Settings" resKey="Admin.Configuration.RegionalSettings" permissionNames="configuration.country, configuration.language, configuration.currency, configuration.shipping, configuration.tax">
                 <siteMapNode id="countries" xicon="globe" title="Countries" resKey="Admin.Configuration.Countries" permissionNames="configuration.country" controller="Country" action="List" area="Admin" />
                 <siteMapNode id="languages" xicon="flag-alt" title="Languages" resKey="Admin.Configuration.Languages" permissionNames="configuration.language" controller="Language" action="List" area="Admin" />
                 <siteMapNode id="currencies" xicon="money" title="Currencies" resKey="Admin.Configuration.Currencies" permissionNames="configuration.currency" controller="Currency" action="List" area="Admin" />
@@ -114,8 +114,8 @@
             <siteMapNode id="activity-types" icon="bi:eye-fill" title="Activity Types" resKey="Admin.Configuration.ActivityLog.ActivityLogType" permissionNames="configuration.activitylog" controller="ActivityLog" action="ActivityLogTypes" area="Admin" />
 
             <siteMapNode id="data-sep-1" isGroupHeader="true" title="[SKIP]" />
-            <siteMapNode id="import" icon="bi:download " title="Import" resKey="Common.Import" permissionNames="configuration.import" controller="Import" action="List" area="Admin" />
-            <siteMapNode id="export" icon="bi:upload " title="Export" resKey="Common.Export" permissionNames="configuration.export" controller="Export" action="List" area="Admin" />
+            <siteMapNode id="import" icon="bi:database-up " title="Import" resKey="Common.Import" permissionNames="configuration.import" controller="Import" action="List" area="Admin" />
+            <siteMapNode id="export" icon="bi:database-down " title="Export" resKey="Common.Export" permissionNames="configuration.export" controller="Export" action="List" area="Admin" />
 
             <siteMapNode id="payment-methods-sep-1" isGroupHeader="true" title="[SKIP]" />
             <siteMapNode id="themes" icon="bi:palette" title="Themes" resKey="Admin.Configuration.Themes" permissionNames="configuration.theme" controller="Theme" action="List" area="Admin"/>
