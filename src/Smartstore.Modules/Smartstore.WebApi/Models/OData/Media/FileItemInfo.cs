@@ -52,9 +52,14 @@ namespace Smartstore.Web.Api.Models.Media
         public long Length { get; set; }
 
         /// <summary>
-        /// Gets or sets the dimwnsion (width and height) of the file.
+        /// Gets or sets the image width (if file is an image).
         /// </summary>
-        public Size Size { get; set; }
+        public int? Width { get; set; }
+
+        /// <summary>
+        /// Gets or sets the image height (if file is an image).
+        /// </summary>
+        public int? Height { get; set; }
 
         /// <summary>
         /// Gets or sets the associated folder identifier.

@@ -491,7 +491,11 @@ namespace Smartstore.Web.Api.Controllers
                 return null;
             }
 
-            return MiniMapper.Map<MediaFileInfo, FileItemInfo>(file, CultureInfo.InvariantCulture);
+            var info = MiniMapper.Map<MediaFileInfo, FileItemInfo>(file, CultureInfo.InvariantCulture);
+            info.Width = file.File?.Width;
+            info.Height = file.File?.Height;
+
+            return info;
         }
 
         //private static MediaLoadFlags GetLoadFlags(ODataQueryOptions<MediaFile> options)

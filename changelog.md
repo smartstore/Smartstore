@@ -11,6 +11,7 @@
 ### Bugfixes
 - Web API: fixes wrong $metadata configuration of System.String[] as a complex type instead of ICollection<string>.
 - Web API: fixes InvalidOperationException in Microsoft.OData.Client using MediaFiles and MediaFolders endpoints.
+- Web API: fixes InvalidOperationException in Microsoft.OData.Client "An unexpected 'StartObject' node was found for property named 'Size' when reading from the JSON reader. A 'PrimitiveValue' node was expected.".
 
 
 ## Smartstore 5.0.2
