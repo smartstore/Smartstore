@@ -9,10 +9,13 @@
 ### Improvements
 
 ### Bugfixes
-- Web API: fixed wrong $metadata configuration of System.String[] as a complex type instead of ICollection<string>.
-- Web API: fixed InvalidOperationException in Microsoft.OData.Client using MediaFiles and MediaFolders endpoints.
-- Web API: fixed InvalidOperationException in Microsoft.OData.Client "An unexpected 'StartObject' node was found for property named 'Size' when reading from the JSON reader. A 'PrimitiveValue' node was expected.".
-- Fixed NullReferenceException when deleting a shopping cart item.
+- Web API: 
+  - Fixed wrong $metadata configuration of `System.String[]` as a complex type instead of `ICollection<string>`.
+  - Fixed `InvalidOperationException` in `Microsoft.OData.Client` using MediaFiles and MediaFolders endpoints.
+  - Fixed `InvalidOperationException` in `Microsoft.OData.Client` "An unexpected 'StartObject' node was found for property named 'Size' when reading from the JSON reader. A 'PrimitiveValue' node was expected.".
+- Output Cache:
+  - Invoking CookieManager view component throws because antiforgery token cannot be written
+- Fixed `NullReferenceException` when deleting a shopping cart item.
 - Fixed top description displayed instead of bottom description on manufacturer page.
 - Fixed export file count was always 0 in export profile list.
 

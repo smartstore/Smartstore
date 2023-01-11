@@ -24,7 +24,7 @@
        sm-render-at-page-end="false">
     <modal-header sm-show-close="!Model.ModalCookieConsent"></modal-header>
     <modal-body>
-        <form id="cookie-manager-consent" sm-ajax asp-action="SetCookieManagerConsent" asp-controller="Common" method="post" sm-oncomplete="OnConsented">
+        <form id="cookie-manager-consent" sm-ajax asp-action="SetCookieManagerConsent" asp-controller="Common" asp-antiforgery="false" method="post" sm-oncomplete="OnConsented">
             <input asp-for="AcceptAll" type="hidden" />
             <button sm-if="!Model.ModalCookieConsent" type="button" class="cm-close close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
 
