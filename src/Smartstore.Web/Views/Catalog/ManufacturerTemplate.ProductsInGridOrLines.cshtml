@@ -75,9 +75,9 @@
 
         @if (Model.BottomDescription.Value.HasValue())
         {
-            <div sm-language-attributes-for="Model.Description" class="manufacturer-description lead html-editor-content">
+            <div sm-language-attributes-for="Model.BottomDescription" class="manufacturer-description lead html-editor-content">
                 <collapsed-content>
-                    @Html.Raw(Model.Description)
+                    @Html.Raw(Model.BottomDescription)
                 </collapsed-content>
             </div>
         }

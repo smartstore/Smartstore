@@ -13,6 +13,7 @@
 - Web API: fixed InvalidOperationException in Microsoft.OData.Client using MediaFiles and MediaFolders endpoints.
 - Web API: fixed InvalidOperationException in Microsoft.OData.Client "An unexpected 'StartObject' node was found for property named 'Size' when reading from the JSON reader. A 'PrimitiveValue' node was expected.".
 - Fixed NullReferenceException when deleting a shopping cart item.
+- Fixed top description displayed instead of bottom description on manufacturer page.
 
 
 ## Smartstore 5.0.2
