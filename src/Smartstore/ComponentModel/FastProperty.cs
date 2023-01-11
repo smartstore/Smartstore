@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#nullable enable
+
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -17,7 +19,7 @@ namespace Smartstore.ComponentModel
         // for platforms where the attribute is not defined. So we can fetch the attribute
         // by late binding. If the attribute isn't defined, then we assume we won't encounter any
         // 'ref struct' types.
-        private static readonly Type IsByRefLikeAttribute = Type.GetType("System.Runtime.CompilerServices.IsByRefLikeAttribute", throwOnError: false);
+        private static readonly Type IsByRefLikeAttribute = Type.GetType("System.Runtime.CompilerServices.IsByRefLikeAttribute", throwOnError: false)!;
 
         private bool? _isPublicSettable;
         private bool? _isSequenceType;
@@ -29,9 +31,7 @@ namespace Smartstore.ComponentModel
         /// </summary>
         internal FastProperty(PropertyInfo property)
         {
-            Guard.NotNull(property, nameof(property));
-
-            Property = property;
+            Property = Guard.NotNull(property);
             Name = property.Name;
         }
 
@@ -90,7 +90,7 @@ namespace Smartstore.ComponentModel
         /// <param name="instance">The object whose property value will be returned.</param>
         /// <returns>The property value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object GetValue(object instance)
+        public object? GetValue(object? instance)
         {
             return Property.GetValue(instance);
         }
@@ -101,7 +101,7 @@ namespace Smartstore.ComponentModel
         /// <param name="instance">The object whose property value will be set.</param>
         /// <param name="value">The property value.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetValue(object instance, object value)
+        public void SetValue(object? instance, object? value)
         {
             Property.SetValue(instance, value);
         }
@@ -118,14 +118,14 @@ namespace Smartstore.ComponentModel
         ///  The implementation of FastProperty will cache the property accessors per-type. This is
         ///  faster when the the same type is used multiple times with ObjectToDictionary.
         ///  </remarks>
-        public static IDictionary<string, object> ObjectToDictionary(object value, Func<string, string> keySelector = null, bool deep = false)
+        public static IDictionary<string, object?> ObjectToDictionary(object? value, Func<string, string>? keySelector = null, bool deep = false)
         {
-            if (value is IDictionary<string, object> dictionary)
+            if (value is IDictionary<string, object?> dictionary)
             {
-                return new Dictionary<string, object>(dictionary, StringComparer.OrdinalIgnoreCase);
+                return new Dictionary<string, object?>(dictionary, StringComparer.OrdinalIgnoreCase);
             }
 
-            dictionary = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            dictionary = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 
             if (value != null)
             {
@@ -211,7 +211,7 @@ namespace Smartstore.ComponentModel
 
                 // Walk up the hierarchy until we find the type that actally declares this PropertyInfo.
                 var currentTypeInfo = type.GetTypeInfo();
-                var declaringTypeInfo = declaringType.GetTypeInfo();
+                var declaringTypeInfo = declaringType!.GetTypeInfo();
                 while (currentTypeInfo != null && currentTypeInfo != declaringTypeInfo)
                 {
                     // We've found a 'more proximal' public definition
@@ -340,8 +340,8 @@ namespace Smartstore.ComponentModel
                 : base(type, propertyName)
             {
             }
-            public Type Type { get { return base.Item1; } }
-            public string PropertyName { get { return base.Item2; } }
+            public Type Type { get { return Item1; } }
+            public string PropertyName { get { return Item2; } }
         }
     }
 }

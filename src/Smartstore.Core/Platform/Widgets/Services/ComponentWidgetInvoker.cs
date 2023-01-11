@@ -47,7 +47,7 @@ namespace Smartstore.Core.Widgets
                 widget.Module = moduleDescriptor?.SystemName;
             }
 
-            widget.Arguments ??= FixComponentArguments(context, widget);
+            widget.Arguments = NormalizeComponentArguments(context, widget);
 
             var writer = context.Writer;
             if (writer == null)
@@ -78,17 +78,30 @@ namespace Smartstore.Core.Widgets
             }
         }
 
-        private object? FixComponentArguments(WidgetContext context, ComponentWidget widget)
+        private object? NormalizeComponentArguments(WidgetContext context, ComponentWidget widget)
         {
-            var model = context.Model ?? context.ViewData?.Model;
+            if (widget.Arguments is IDictionary<string, object?> currentArguments)
+            {
+                // Check whether input args dictionary has correct types,
+                // since JsonConverter is not always able to deserialize as required
+                // (e.g. Int64 instead of Int32).
+                FixArgumentDictionary(currentArguments, currentArguments);
+                return currentArguments;
+            }
 
+            // non-null and non-dictionary arguments should return as is.
+            if (widget.Arguments != null)
+            {
+                return widget.Arguments;
+            }
+
+            var model = context.Model ?? context.ViewData?.Model;
             if (model == null)
             {
                 return null;
             }
 
-            var descriptor = SelectComponent(widget);
-
+            ViewComponentDescriptor descriptor = SelectComponent(widget);
             if (descriptor.Parameters.Count == 0)
             {
                 return null;
@@ -99,7 +112,7 @@ namespace Smartstore.Core.Widgets
                 return model;
             }
 
-            var currentArguments = FastProperty.ObjectToDictionary(model);
+            currentArguments = FastProperty.ObjectToDictionary(model);
             if (currentArguments.Count == 0)
             {
                 return null;
@@ -107,25 +120,38 @@ namespace Smartstore.Core.Widgets
 
             // We gonna select arguments from current args list only if they exist in the 
             // component descriptor's parameter list and the types match.
-            var fixedArguments = new Dictionary<string, object>(currentArguments.Count, StringComparer.OrdinalIgnoreCase);
+            var fixedArguments = new Dictionary<string, object?>(currentArguments.Count, StringComparer.OrdinalIgnoreCase);
+            FixArgumentDictionary(currentArguments, fixedArguments, descriptor);
 
-            foreach (var para in descriptor.Parameters)
+            return fixedArguments;
+
+            void FixArgumentDictionary(
+                IDictionary<string, object?> currentArgs, 
+                IDictionary<string, object?> fixedArgs, 
+                ViewComponentDescriptor? descriptor = null)
             {
-                if (para.Name is null)
+                descriptor ??= SelectComponent(widget);
+
+                foreach (var para in descriptor.Parameters)
                 {
-                    continue;
-                }
-                
-                if (currentArguments.TryGetValue(para.Name, out var value))
-                {
-                    if (value != null && para.ParameterType.IsAssignableFrom(value.GetType()))
+                    if (para.Name is null)
                     {
-                        fixedArguments[para.Name] = value;
+                        continue;
+                    }
+
+                    if (currentArgs.TryGetValue(para.Name, out var value) && value != null)
+                    {
+                        if (para.ParameterType.IsAssignableFrom(value.GetType()))
+                        {
+                            fixedArgs[para.Name] = value;
+                        }
+                        else if (ConvertUtility.TryConvert(value, para.ParameterType, out var convertedValue))
+                        {
+                            fixedArgs[para.Name] = convertedValue!;
+                        }
                     }
                 }
             }
-
-            return fixedArguments;
         }
 
         private ViewComponentDescriptor SelectComponent(ComponentWidget widget)

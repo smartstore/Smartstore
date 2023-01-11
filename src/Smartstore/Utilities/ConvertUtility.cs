@@ -66,10 +66,7 @@ namespace Smartstore.Utilities
 
             Type from = value.GetType();
 
-            if (culture == null)
-            {
-                culture = CultureInfo.InvariantCulture;
-            }
+            culture ??= CultureInfo.InvariantCulture;
 
             try
             {
@@ -111,7 +108,7 @@ namespace Smartstore.Utilities
             return (ExpandoObject)expando;
         }
 
-        public static IDictionary<string, object> ObjectToDictionary(object obj)
+        public static IDictionary<string, object?> ObjectToDictionary(object obj)
         {
             return FastProperty.ObjectToDictionary(
                 obj,
@@ -121,7 +118,7 @@ namespace Smartstore.Utilities
         public static IDictionary<string, string?> ObjectToStringDictionary(object obj)
         {
             return ObjectToDictionary(obj)
-                .ToDictionary(key => key.Key, el => el.Value.ToString());
+                .ToDictionary(key => key.Key, el => el.Value?.ToString());
         }
     }
 }
