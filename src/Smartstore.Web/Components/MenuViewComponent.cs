@@ -25,7 +25,7 @@ namespace Smartstore.Web.Components
 
             var model = await menu.CreateModelAsync(template, ViewContext);
 
-            var viewName = (model.Template ?? model.Name);
+            var viewName = model.Template ?? model.Name;
             if (viewName[0] != '~' && !viewName.StartsWith("Menus/", StringComparison.OrdinalIgnoreCase))
             {
                 //viewName = "Menus/" + viewName;

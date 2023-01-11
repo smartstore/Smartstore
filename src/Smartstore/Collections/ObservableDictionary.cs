@@ -153,7 +153,7 @@ namespace Smartstore.Collections
             {
                 if (_observerKeyMap.Remove(notifyPropChanged))
                 {
-                    notifyPropChanged.PropertyChanged += OnValuePropertyChanged;
+                    notifyPropChanged.PropertyChanged -= OnValuePropertyChanged;
                 }
             }
         }

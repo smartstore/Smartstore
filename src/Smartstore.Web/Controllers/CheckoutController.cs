@@ -62,10 +62,7 @@ namespace Smartstore.Web.Controllers
         {
             var warnings = await paymentMethod.GetPaymentDataWarningsAsync();
 
-            if (warnings != null)
-            {
-                warnings.Each(x => ModelState.AddModelError(string.Empty, x));
-            }
+            warnings?.Each(x => ModelState.AddModelError(string.Empty, x));
 
             if (!ModelState.IsValid)
             {
