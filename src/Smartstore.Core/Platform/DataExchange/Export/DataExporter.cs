@@ -999,13 +999,14 @@ namespace Smartstore.Core.DataExchange.Export
 
                 fileName += fileExtension;
                 file = await dir.GetFileAsync(fileName);
+                await file.CreateAsync(null, true, ctx.CancelToken);
 
                 result.Add(new ExportDataUnit
                 {
                     RelatedType = type,
                     DisplayInFileDialog = true,
                     FileName = fileName,
-                    DataStream = new ExportFileStream(new FileStream(file.PhysicalPath, FileMode.Create, FileAccess.Write))
+                    DataStream = new ExportFileStream(await file.OpenWriteAsync(null, ctx.CancelToken))
                 });
             }
 
@@ -1272,11 +1273,15 @@ namespace Smartstore.Core.DataExchange.Export
 
             try
             {
-                await using Stream stream = ctx.IsFileBasedExport && file != null
-                    ? new FileStream(file.PhysicalPath, FileMode.Create, FileAccess.Write)
-                    : new MemoryStream();
-
-                context.DataStream = new ExportFileStream(stream);
+                if (ctx.IsFileBasedExport && file != null)
+                {
+                    await file.CreateAsync(null, true, ctx.CancelToken);
+                    context.DataStream = new ExportFileStream(await file.OpenWriteAsync(null, ctx.CancelToken));
+                }
+                else
+                {
+                    context.DataStream = new ExportFileStream(new MemoryStream());
+                }
 
                 if (method == "Execute")
                 {
