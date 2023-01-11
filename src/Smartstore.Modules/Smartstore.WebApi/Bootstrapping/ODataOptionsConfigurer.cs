@@ -31,6 +31,9 @@ namespace Smartstore.Web.Api.Bootstrapping
                     .Select(x => (IODataModelProvider)Activator.CreateInstance(x))
                     .ToList();
 
+                // TODO: (mg) (core) ODataModelBuilder always reverts back to 'Default' namespace if we choose to set it to null\empty here.
+                // As a result, Microsoft.OData.Client generates wrong code with wrong URLs including 'Default' for action methods.
+                // See https://github.com/smartstore/Smartstore/issues/389.
                 var modelBuilder = new ODataConventionModelBuilder();
 
                 foreach (var provider in modelProviders)
@@ -43,7 +46,7 @@ namespace Smartstore.Web.Api.Bootstrapping
                 options.TimeZone = TimeZoneInfo.Utc;
 
                 // Allow OData actions and functions without the need for namespaces (OData V3 backward compatibility).
-                // A namespace URL world be for example: /Products(123)/ProductService.CalculatePrice
+                // A namespace URL would be for example: /Products(123)/ProductService.CalculatePrice
                 // Note: the dot in this URL will cause IIS to return error 404. See ExtensionlessUrlHandler-Integrated-4.0.
                 options.RouteOptions.EnableUnqualifiedOperationCall = true;
 
