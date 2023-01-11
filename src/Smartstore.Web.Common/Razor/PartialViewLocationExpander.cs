@@ -24,7 +24,7 @@ namespace Smartstore.Web.Razor
 
         public void PopulateValues(ViewLocationExpanderContext context)
         {
-            if (!context.IsMainPage && !context.ViewName.StartsWith("Components/", StringComparison.OrdinalIgnoreCase))
+            if (!context.IsMainPage && !context.ViewName.StartsWithNoCase("Components/"))
             {
                 context.Values[ParamKey] = "true";
             }

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Razor;
+﻿using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Smartstore.Core.Theming;
-using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Razor
 {
@@ -13,21 +13,20 @@ namespace Smartstore.Web.Razor
             if (context.Values.TryGetValue(ParamKey, out var themeName))
             {
                 var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
-                var descriptor = themeRegistry.GetThemeDescriptor(themeName);
+                var theme = themeRegistry.GetThemeDescriptor(themeName);
                 var themeViewLocations = new List<string>(4);
 
-                while (descriptor != null)
+                while (theme != null)
                 {
                     // INFO: we won't rely on ModularFileProvider's ability to find files in the 
                     // theme hierarchy chain, because of possible view path mismatches. Any mismatch
                     // starts the razor compiler, and we don't want that.
 
-                    var module = descriptor.CompanionModule;
-
-                    if (descriptor.CompanionModule == null)
+                    var module = theme.CompanionModule;
+                    if (module == null)
                     {
-                        themeViewLocations.Add($"{descriptor.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
-                        themeViewLocations.Add($"{descriptor.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                        themeViewLocations.Add($"{theme.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
+                        themeViewLocations.Add($"{theme.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
                     }
                     else
                     {
@@ -36,7 +35,7 @@ namespace Smartstore.Web.Razor
                         themeViewLocations.Add($"{module.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
                     }
 
-                    descriptor = descriptor.BaseTheme;
+                    theme = theme.BaseTheme;
                 }
 
                 return themeViewLocations.Union(viewLocations);
@@ -47,23 +46,50 @@ namespace Smartstore.Web.Razor
 
         public void PopulateValues(ViewLocationExpanderContext context)
         {
-            var workContext = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
-            if (workContext.IsAdminArea)
-            {
-                // TODO: (core) Find a way to make public partials themeable even when they are called from Admin area. Checking specific partial names is only a distress solution.
-                if (!context.ViewName.EqualsNoCase("ConfigureTheme"))
-                {
-                    // Backend is not themeable
-                    return;
-                }
-            }
-
-            var themeContext = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeContext>();
-            var currentTheme = themeContext.CurrentTheme;
-            if (currentTheme != null)
+            if (IsThemeableRequest(context, out var currentTheme))
             {
                 context.Values[ParamKey] = currentTheme.Name;
             }
+        }
+
+        private static bool IsThemeableRequest(ViewLocationExpanderContext context, out ThemeDescriptor currentTheme)
+        {
+            var services = context.ActionContext.HttpContext.RequestServices;
+            var themeContext = services.GetRequiredService<IThemeContext>();
+
+            currentTheme = themeContext.CurrentTheme;
+            if (currentTheme == null)
+            {
+                return false;
+            }
+
+            var workContext = services.GetRequiredService<IWorkContext>();
+            if (!workContext.IsAdminArea)
+            {
+                // Public frontend is always themeable
+                return true;
+            }
+
+            if (currentTheme.CompanionModule != null)
+            {
+                // A theme module is themeable even in backend
+                if (context.ActionContext.ActionDescriptor is ControllerActionDescriptor cad)
+                {
+                    if (cad.ControllerTypeInfo.Assembly == currentTheme.CompanionModule.Module.Assembly)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            if (context.ViewName.EqualsNoCase("ConfigureTheme"))
+            {
+                // TODO: (core) Find a way to make public partials themeable even when they are called from Admin area.
+                // Checking specific partial names is only a distress solution.
+                return true;
+            }
+
+            return false;
         }
     }
 }
