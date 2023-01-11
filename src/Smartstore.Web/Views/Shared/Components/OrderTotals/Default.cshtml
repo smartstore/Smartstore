@@ -16,7 +16,7 @@
     </tr>
     <tr id="CartSummarySubtotal" class="cart-summary-subtotal"
         data-subtotal-converted="@(Model.SubTotal.Amount.FormatInvariant())"
-        data-subtotal="@(Model.CartSubtotal.SubtotalWithoutDiscount.Amount.FormatInvariant())">
+        data-subtotal="@(Model?.CartSubtotal?.SubtotalWithoutDiscount.Amount.FormatInvariant())">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.SubTotal"):</td>
         <td class="cart-summary-value">@Model.SubTotal</td>
     </tr>
@@ -146,7 +146,7 @@
 
     <tr id="CartSummaryTotal" class="cart-summary-total" 
         data-total-converted="@((Model.OrderTotal ?? Money.Zero).Amount.FormatInvariant())"
-        data-total="@((Model.CartTotal.Total ?? Money.Zero).Amount.FormatInvariant())">
+        data-total="@((Model.CartTotal?.Total ?? Money.Zero).Amount.FormatInvariant())">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.OrderTotal"):</td>
         <td class="cart-summary-value">
             @if (Model.OrderTotal != null)
