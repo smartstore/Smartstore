@@ -37,7 +37,7 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (await _payPalHelper.IsPaymentMethodActiveAsync("Payments.PayPalStandard"))
+            if (await _payPalHelper.IsPayPalStandardActiveAsync())
             {
                 // If client id or secret haven't been configured yet, don't show button.
                 if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -72,7 +72,7 @@ namespace Smartstore.PayPal.Filters
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' async id='paypal-js'></script>"));
             }
 
-            if (!await _payPalHelper.IsPaymentMethodActiveAsync("Payments.PayPalPayUponInvoice"))
+            if (!await _payPalHelper.IsPayUponInvoiceActiveAsync())
             {
                 await next();
                 return;

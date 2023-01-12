@@ -14,7 +14,10 @@ namespace Smartstore.PayPal.Services
             _paymentService = paymentService;
         }
 
-        public Task<bool> IsPaymentMethodActiveAsync(string systemName)
-            => _paymentService.IsPaymentMethodActiveAsync(systemName, null, _services.StoreContext.CurrentStore.Id);
+        public Task<bool> IsPayPalStandardActiveAsync()
+            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalStandard", null, _services.StoreContext.CurrentStore.Id);
+
+        public Task<bool> IsPayUponInvoiceActiveAsync()
+            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalPayUponInvoice", null, _services.StoreContext.CurrentStore.Id);
     }
 }

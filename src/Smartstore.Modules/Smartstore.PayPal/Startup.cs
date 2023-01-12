@@ -46,10 +46,7 @@ namespace Smartstore.PayPal
                     client.Timeout = TimeSpan.FromSeconds(30);
                 });
 
-            if (appContext.IsInstalled)
-            {
-                services.AddScoped<PayPalHelper>();
-            }
+            services.AddScoped<PayPalHelper>();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
