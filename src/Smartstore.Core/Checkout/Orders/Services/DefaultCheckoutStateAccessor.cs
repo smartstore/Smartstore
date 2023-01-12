@@ -18,6 +18,8 @@ namespace Smartstore.Core.Checkout.Orders
             _httpContextAccessor = httpContextAccessor;
         }
 
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+
         public bool IsStateLoaded => _state != null;
 
         public bool HasStateChanged
@@ -69,9 +71,9 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 var httpContext = _httpContextAccessor.HttpContext;
 
-                if (httpContext != null && !httpContext.Response.HasStarted)
+                if (httpContext?.Session != null)
                 {
-                    httpContext.Session.TrySetObject(CheckoutStateSessionKey, _state);
+                    Execute(() => httpContext.Session.TrySetObject(CheckoutStateSessionKey, _state));
                 }
             }
         }
@@ -81,9 +83,21 @@ namespace Smartstore.Core.Checkout.Orders
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext != null)
             {
-                httpContext.Session.Remove(CheckoutStateSessionKey);
+                Execute(() => httpContext.Session?.Remove(CheckoutStateSessionKey));
                 _state = null;
                 _dirty = false;
+            }
+        }
+
+        private void Execute(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug(ex, "Error while persisting checkout state data");
             }
         }
 
