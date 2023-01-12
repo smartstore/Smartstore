@@ -236,7 +236,7 @@
         if (typeof AOS !== 'undefined'
             && !$('body').hasClass('no-reveal')
             && !$('body').attr("data-aos-duration")) {
-            AOS.init({ once: true, duration: 1000, startEvent: 'load' });
+            AOS.init({ once: true, duration: 1000 });
         }
 
         if (Smartstore.parallax !== undefined && !$('body').hasClass('no-parallax')) {
@@ -248,6 +248,8 @@
 
         applyCommonPlugins($("body"));
     });
+
+    window.addEventListener('load', AOS.refresh);
 
 })(jQuery, this, document);
 
