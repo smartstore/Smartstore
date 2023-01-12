@@ -8,6 +8,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Net.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Filters;
+using Smartstore.PayPal.Services;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.PayPal
@@ -44,6 +45,11 @@ namespace Smartstore.PayPal
                 {
                     client.Timeout = TimeSpan.FromSeconds(30);
                 });
+
+            if (appContext.IsInstalled)
+            {
+                services.AddScoped<PayPalHelper>();
+            }
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

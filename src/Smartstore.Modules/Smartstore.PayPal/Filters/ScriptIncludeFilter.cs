@@ -4,6 +4,7 @@ using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Widgets;
+using Smartstore.PayPal.Services;
 using Smartstore.Utilities;
 
 namespace Smartstore.PayPal.Filters
@@ -17,26 +18,26 @@ namespace Smartstore.PayPal.Filters
         private readonly PayPalSettings _settings;
         private readonly IWidgetProvider _widgetProvider;
         private readonly ICommonServices _services;
-        private readonly IPaymentService _paymentService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly PayPalHelper _payPalHelper;
 
         public ScriptIncludeFilter(
             PayPalSettings settings, 
             IWidgetProvider widgetProvider,
             ICommonServices services,
-            IPaymentService paymentService,
-            ICheckoutStateAccessor checkoutStateAccessor)
+            ICheckoutStateAccessor checkoutStateAccessor,
+            PayPalHelper payPalHelper)
         {
             _settings = settings;
             _widgetProvider = widgetProvider;
             _services = services;
-            _paymentService = paymentService;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _payPalHelper = payPalHelper;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (await IsPayPalStandardActive())
+            if (await _payPalHelper.IsPaymentMethodActiveAsync("Payments.PayPalStandard"))
             {
                 // If client id or secret haven't been configured yet, don't show button.
                 if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -71,7 +72,7 @@ namespace Smartstore.PayPal.Filters
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' async id='paypal-js'></script>"));
             }
 
-            if (!await IsPayUponInvoiceActive())
+            if (!await _payPalHelper.IsPaymentMethodActiveAsync("Payments.PayPalPayUponInvoice"))
             {
                 await next();
                 return;
@@ -103,12 +104,6 @@ namespace Smartstore.PayPal.Filters
 
             await next();
         }
-
-        private Task<bool> IsPayUponInvoiceActive()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalPayUponInvoice", null, _services.StoreContext.CurrentStore.Id);
-
-        private Task<bool> IsPayPalStandardActive()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalStandard", null, _services.StoreContext.CurrentStore.Id);
 
         private static string GetSourceIdentifier(string merchantName, string payerId, string routeId)
         {

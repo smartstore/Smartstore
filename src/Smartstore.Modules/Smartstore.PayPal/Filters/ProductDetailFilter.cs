@@ -3,6 +3,7 @@ using Smartstore.Core;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Components;
+using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Filters
 {
@@ -11,22 +12,20 @@ namespace Smartstore.PayPal.Filters
     /// </summary>
     public class ProductDetailFilter : IAsyncResultFilter
     {
-        private readonly ICommonServices _services;
-        private readonly IWidgetProvider _widgetProvider;
         private readonly PayPalSettings _settings;
-        private readonly IPaymentService _paymentService;
+        private readonly IWidgetProvider _widgetProvider;
+        private readonly PayPalHelper _payPalHelper;
 
-        public ProductDetailFilter(ICommonServices services, IWidgetProvider widgetProvider, PayPalSettings settings, IPaymentService paymentService)
+        public ProductDetailFilter(PayPalSettings settings, IWidgetProvider widgetProvider, PayPalHelper payPalHelper)
         {
-            _services = services;
-            _widgetProvider = widgetProvider;
             _settings = settings;
-            _paymentService = paymentService;
+            _widgetProvider = widgetProvider;
+            _payPalHelper = payPalHelper;
         }
 
         public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
-            if (!await IsPayPalStandardActive())
+            if (!await _payPalHelper.IsPaymentMethodActiveAsync("Payments.PayPalStandard"))
             {
                 await next();
                 return;
@@ -39,7 +38,5 @@ namespace Smartstore.PayPal.Filters
 
             await next();
         }
-        private Task<bool> IsPayPalStandardActive()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalStandard", null, _services.StoreContext.CurrentStore.Id);
     }
 }

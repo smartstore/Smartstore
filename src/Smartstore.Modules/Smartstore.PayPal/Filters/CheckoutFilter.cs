@@ -7,6 +7,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Components;
+using Smartstore.PayPal.Services;
 using Smartstore.Web.Models.Checkout;
 
 namespace Smartstore.PayPal.Filters
@@ -15,33 +16,33 @@ namespace Smartstore.PayPal.Filters
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
-        private readonly IPaymentService _paymentService;
         private readonly PayPalSettings _settings;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Lazy<IWidgetProvider> _widgetProvider;
+        private readonly PayPalHelper _payPalHelper;
 
         public CheckoutFilter(
             SmartDbContext db,
             ICommonServices services,
-            IPaymentService paymentService,
             PayPalSettings settings,
             ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
-            Lazy<IWidgetProvider> widgetProvider)
+            Lazy<IWidgetProvider> widgetProvider,
+            PayPalHelper payPalHelper)
         {
             _db = db;
             _services = services;
-            _paymentService = paymentService;
             _settings = settings;
             _checkoutStateAccessor = checkoutStateAccessor;
             _httpContextAccessor = httpContextAccessor;
             _widgetProvider = widgetProvider;
+            _payPalHelper = payPalHelper;
         }
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
-            if (!await IsPayPalStandardActive())
+            if (!await _payPalHelper.IsPaymentMethodActiveAsync("Payments.PayPalStandard"))
             {
                 await next();
                 return;
@@ -106,8 +107,5 @@ namespace Smartstore.PayPal.Filters
 
             await next();
         }
-
-        private Task<bool> IsPayPalStandardActive()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalStandard", null, _services.StoreContext.CurrentStore.Id);
     }
 }
