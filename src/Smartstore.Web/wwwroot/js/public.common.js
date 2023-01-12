@@ -231,9 +231,12 @@
 
     // on document ready
     // TODO: reorganize > public.globalinit.js
+
+    let hasAOS = typeof AOS !== 'undefined';
+
     $(function () {
         // Init reveal on scroll with AOS library
-        if (typeof AOS !== 'undefined'
+        if (hasAOS
             && !$('body').hasClass('no-reveal')
             && !$('body').attr("data-aos-duration")) {
             AOS.init({ once: true, duration: 1000 });
@@ -249,7 +252,9 @@
         applyCommonPlugins($("body"));
     });
 
-    window.addEventListener('load', AOS.refresh);
+    if (hasAOS) {
+        window.addEventListener('load', AOS.refresh);
+    }
 
 })(jQuery, this, document);
 
