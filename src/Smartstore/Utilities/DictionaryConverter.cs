@@ -99,11 +99,12 @@ namespace Smartstore.Utilities
 
         public static object SafeCreateAndPopulate(Type targetType, IDictionary<string, object> source)
         {
-            ICollection<ConvertProblem> problems;
-            var item = CreateAndPopulate(targetType, source, out problems);
+            var item = CreateAndPopulate(targetType, source, out var problems);
 
             if (problems.Count > 0)
+            {
                 throw new DictionaryConvertException(problems);
+            } 
 
             return item;
         }
@@ -116,12 +117,12 @@ namespace Smartstore.Utilities
 
         public static void Populate(IDictionary<string, object> source, object target, params object[] populated)
         {
-            ICollection<ConvertProblem> problems;
-
-            Populate(source, target, out problems, populated);
+            Populate(source, target, out var problems, populated);
 
             if (problems.Count > 0)
+            {
                 throw new DictionaryConvertException(problems);
+            }
         }
 
         public static void Populate(IDictionary<string, object> source, object target, out ICollection<ConvertProblem> problems, params object[] populated)

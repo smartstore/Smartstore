@@ -27,6 +27,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.Templating;
+using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Messaging
@@ -285,13 +286,13 @@ namespace Smartstore.Core.Messaging
                     if (existing is IDictionary<string, object> x)
                     {
                         // but it's a dictionary which we can easily merge with.
-                        x.Merge(FastProperty.ObjectToDictionary(modelPart), true);
+                        x.Merge(ConvertUtility.ObjectToDictionary(modelPart, null), true);
                     }
                     else
                     {
                         // Wrap in HybridExpando and merge.
                         var he = new HybridExpando(existing, true);
-                        he.Merge(FastProperty.ObjectToDictionary(modelPart), true);
+                        he.Merge(ConvertUtility.ObjectToDictionary(modelPart, null), true);
                         model[name] = he;
                     }
                 }

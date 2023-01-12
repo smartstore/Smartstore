@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel.TypeConverters
 {
@@ -14,14 +16,15 @@ namespace Smartstore.ComponentModel.TypeConverters
         public override bool CanConvertFrom(Type type)
         {
             return type == typeof(string)
+                || typeof(IDictionary<string, object>).IsAssignableFrom(type)
                 || type.IsPlainObjectType()
                 || type.IsAnonymousType();
-
         }
 
         public override bool CanConvertTo(Type type)
         {
-            return type == typeof(string);
+            return type == typeof(string)
+                || typeof(IDictionary<string, object>).IsAssignableFrom(type);
         }
 
         public override object ConvertFrom(CultureInfo culture, object value)
@@ -41,9 +44,16 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override object ConvertTo(CultureInfo culture, string format, object value, Type to)
         {
-            if (value is JObject jobj && to == typeof(string))
+            if (value is JObject jobj)
             {
-                return jobj.ToString(Formatting.Indented);
+                if (to == typeof(string))
+                {
+                    return jobj.ToString(Formatting.Indented);
+                }
+                else
+                {
+                    return ConvertUtility.ObjectToDictionary(jobj, null);
+                }
             }
 
             return base.ConvertTo(culture, format, value, to);

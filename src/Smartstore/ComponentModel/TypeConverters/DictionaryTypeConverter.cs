@@ -1,6 +1,7 @@
 ﻿using System.Dynamic;
 using System.Globalization;
 using Microsoft.AspNetCore.Routing;
+using Newtonsoft.Json.Linq;
 using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel.TypeConverters
@@ -14,7 +15,9 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override bool CanConvertFrom(Type type)
         {
-            return type.IsPlainObjectType() || type.IsAnonymousType();
+            return type == typeof(JObject)
+                || type.IsPlainObjectType()
+                || type.IsAnonymousType();
         }
 
         public override bool CanConvertTo(Type type)

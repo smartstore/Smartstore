@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Smartstore.ComponentModel;
+using Newtonsoft.Json.Linq;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
 
@@ -80,6 +80,12 @@ namespace Smartstore.Core.Widgets
 
         private object? NormalizeComponentArguments(WidgetContext context, ComponentWidget widget)
         {
+            if (widget.Arguments is JObject jobj)
+            {
+                // ConvertUtility.ObjectToDictionary can handle JObject
+                widget.Arguments = ConvertUtility.ObjectToDictionary(widget.Arguments, null);
+            }
+
             if (widget.Arguments is IDictionary<string, object?> currentArguments)
             {
                 // Check whether input args dictionary has correct types,
@@ -112,7 +118,7 @@ namespace Smartstore.Core.Widgets
                 return model;
             }
 
-            currentArguments = FastProperty.ObjectToDictionary(model);
+            currentArguments = ConvertUtility.ObjectToDictionary(model, null);
             if (currentArguments.Count == 0)
             {
                 return null;

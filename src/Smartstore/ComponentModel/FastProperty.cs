@@ -106,46 +106,6 @@ namespace Smartstore.ComponentModel
             Property.SetValue(instance, value);
         }
 
-        ///  <summary>
-        ///  Given an object, adds each instance property with a public get method as a key and its
-        ///  associated value to a dictionary.
-        /// 
-        ///  If the object is already an <see cref="IDictionary{string, object}"> instance, then a copy is returned.
-        ///  </summary>
-        ///  <param name="keySelector">Key selector</param>
-        ///  <param name="deep">When true, converts all nested objects to dictionaries also</param>
-        ///  <remarks>
-        ///  The implementation of FastProperty will cache the property accessors per-type. This is
-        ///  faster when the the same type is used multiple times with ObjectToDictionary.
-        ///  </remarks>
-        public static IDictionary<string, object?> ObjectToDictionary(object? value, Func<string, string>? keySelector = null, bool deep = false)
-        {
-            if (value is IDictionary<string, object?> dictionary)
-            {
-                return new Dictionary<string, object?>(dictionary, StringComparer.OrdinalIgnoreCase);
-            }
-
-            dictionary = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
-
-            if (value != null)
-            {
-                keySelector ??= new Func<string, string>(key => key);
-
-                foreach (var prop in GetProperties(value.GetType()).Values)
-                {
-                    var propValue = prop.GetValue(value);
-                    if (deep && propValue != null && prop.Property.PropertyType.IsPlainObjectType())
-                    {
-                        propValue = ObjectToDictionary(propValue, deep: true);
-                    }
-
-                    dictionary[keySelector(prop.Name)] = propValue;
-                }
-            }
-
-            return dictionary;
-        }
-
         /// <summary>
         /// <para>
         /// Creates and caches fast property helpers that expose getters for every non-hidden get property
