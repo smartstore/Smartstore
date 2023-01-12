@@ -118,6 +118,8 @@
                                 getStatus();
                             }
 
+                            PAYPAL.apps.Signup.MiniBrowser.closeFlow();
+
                             displayNotification(response.message, response.success ? 'success' : 'error');
                         }
                     });
