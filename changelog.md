@@ -1,12 +1,6 @@
 # Release Notes
 
-## Smartstore 5.1.0
-
-### Breaking Changes 
-
-### New Features
-
-### Improvements
+## Smartstore 5.0.2.1
 
 ### Bugfixes
 - Web API: 
