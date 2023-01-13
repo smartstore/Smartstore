@@ -3,7 +3,7 @@
 @model SearchResultModel
 
 @{
-    var hasThumbs = Model.TopProducts.Items.Any(x => x.Image != null && x.Image.HasImage());
+    var hasThumbs = Model.TopProducts.Items.Any(x => x.Image?.File != null);
 }
 
 <ul class="instasearch-hits@(hasThumbs ? " has-thumbs" : "")">
@@ -12,7 +12,7 @@
         <li>
             <a class="instasearch-hit" asp-route="Product" asp-route-SeName="@hit.SeName" asp-area="">
                 <span class="instasearch-hit-wrapper">
-                    <span sm-if="hasThumbs && hit.Image != null && hit.Image.HasImage()" class="instasearch-hit-thumb d-block">
+                    <span sm-if="hasThumbs && hit.Image?.File != null" class="instasearch-hit-thumb d-block">
                         <img sm-model="@hit.Image" class="img-fluid" />
                     </span>
                     <span class="d-block text-truncate">
