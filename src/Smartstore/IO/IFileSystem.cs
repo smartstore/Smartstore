@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.FileProviders;
 using Smartstore.Threading;
 
 namespace Smartstore.IO
@@ -27,7 +30,7 @@ namespace Smartstore.IO
         ///     The full physical path, 
         ///     or <c>null</c> if <paramref name="subpath"/> has invalid chars, is rooted or navigates above root.
         /// </returns>
-        string MapPath(string subpath);
+        string MapPath(string? subpath);
 
         /// <summary>
         /// Checks if the given file exists within the storage provider.
@@ -107,7 +110,7 @@ namespace Smartstore.IO
         /// <returns>
         /// <c>true</c> if a new unique file name was resolved; <c>false</c> if the file name was unique already.
         /// </returns>
-        bool CheckUniqueFileName(string subpath, out string newPath);
+        bool CheckUniqueFileName(string subpath, [MaybeNullWhen(false)] out string? newPath);
 
         /// <summary>
         /// Checks whether the name of the file is unique within its directory.
@@ -118,6 +121,6 @@ namespace Smartstore.IO
         /// <returns>
         /// <c>true</c> and new path if a new unique file name was resolved; <c>false</c> and <c>null</c> if the file name was unique already.
         /// </returns>
-        Task<AsyncOut<string>> CheckUniqueFileNameAsync(string subpath);
+        Task<AsyncOut<string>> CheckUniqueFileNameAsync([MaybeNullWhen(false)] string? subpath);
     }
 }

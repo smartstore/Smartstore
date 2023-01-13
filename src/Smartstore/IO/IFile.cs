@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿#nullable enable
+
+using System.Drawing;
 
 namespace Smartstore.IO
 {
@@ -17,7 +19,7 @@ namespace Smartstore.IO
         /// <summary>
         /// File extension including dot
         /// </summary>
-        string Extension { get; }
+        string? Extension { get; }
 
         /// <summary>
         /// Determines the pixel size if the file is an image.
@@ -53,7 +55,7 @@ namespace Smartstore.IO
         /// The content/mime type of the file that is about to be written to the stream. 
         /// </param>
         /// <exception cref="FileSystemException">Thrown if the file does not exist and the directory could not be created.</exception>
-        Stream OpenWrite(string contentType = null)
+        Stream OpenWrite(string? contentType = null)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -63,7 +65,7 @@ namespace Smartstore.IO
         /// The content/mime type of the file that is about to be written to the stream. 
         /// </param>
         /// <exception cref="FileSystemException">Thrown if the file does not exist and the directory could not be created.</exception>
-        Task<Stream> OpenWriteAsync(string contentType = null, CancellationToken cancelToken = default)
+        Task<Stream> OpenWriteAsync(string? contentType = null, CancellationToken cancelToken = default)
             => Task.FromResult(OpenWrite());
 
         /// <summary>
@@ -93,7 +95,7 @@ namespace Smartstore.IO
         /// <remarks>
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
-        void Create(Stream inStream, bool overwrite)
+        void Create(Stream? inStream, bool overwrite)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -107,7 +109,7 @@ namespace Smartstore.IO
         /// <remarks>
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
-        Task CreateAsync(Stream inStream, bool overwrite, CancellationToken cancelToken = default)
+        Task CreateAsync(Stream? inStream, bool overwrite, CancellationToken cancelToken = default)
         {
             Create(inStream, overwrite);
             return Task.CompletedTask;

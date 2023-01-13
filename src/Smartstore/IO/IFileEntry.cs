@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.FileProviders;
 
 namespace Smartstore.IO
 {
@@ -27,7 +30,7 @@ namespace Smartstore.IO
         /// <returns>
         /// <code>true</code> if the entry is a symbolic link, <code>false</code> otherwise.
         /// </returns>
-        bool IsSymbolicLink(out string finalTargetPath);
+        bool IsSymbolicLink([MaybeNullWhen(false)] out string? finalTargetPath);
 
         /// <summary>
         /// Deletes the file entry. Directories will be deleted recursively.

@@ -745,7 +745,7 @@ namespace Smartstore.Web.Api.Controllers
 
                         return new FileBatchSource(MediaStorageItem.FromFormFile(file))
                         {
-                            FileName = PathUtility.SanitizeFileName(file.FileName.EmptyNull() ?? System.IO.Path.GetRandomFileName()),
+                            FileName = PathUtility.SanitizeFileName(file.FileName.EmptyNull() ?? System.IO.Path.GetRandomFileName())!,
                             State = state
                         };
                     })

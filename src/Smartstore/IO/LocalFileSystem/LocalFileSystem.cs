@@ -23,7 +23,7 @@ namespace Smartstore.IO
         /// </summary>
         public LocalFileSystem(string root)
         {
-            Guard.NotEmpty(root, nameof(root));
+            Guard.NotEmpty(root);
 
             _filters = ExclusionFilters.Sensitive;
             _provider = new PhysicalFileProvider(root, _filters);
@@ -139,6 +139,7 @@ namespace Smartstore.IO
         {
             if (string.IsNullOrEmpty(subpath))
             {
+                subpath ??= string.Empty;
                 return Root;
             }
 

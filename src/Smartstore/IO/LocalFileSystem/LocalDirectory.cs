@@ -122,7 +122,7 @@ namespace Smartstore.IO
 
         public void MoveTo(string newPath)
         {
-            Guard.NotNull(newPath, nameof(newPath));
+            Guard.NotNull(newPath);
 
             if (!_di.Exists)
             {

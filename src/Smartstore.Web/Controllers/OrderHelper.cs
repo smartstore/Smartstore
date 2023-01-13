@@ -611,7 +611,7 @@ namespace Smartstore.Web.Controllers
                 ? PathUtility.SanitizeFileName(T("Order.PdfInvoiceFileName", model[0].Id))
                 : "orders.pdf";
 
-            return (content, fileName);
+            return (content, fileName!);
         }
     }
 }

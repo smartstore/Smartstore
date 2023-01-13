@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿#nullable enable
+
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 
 namespace Smartstore.IO
@@ -36,7 +38,7 @@ namespace Smartstore.IO
         /// </summary>
         /// <param name="paths">An array of parts of the path.</param>
         /// <returns>Combined path</returns>
-        public static string Combine(params string[] paths)
+        public static string? Combine(params string?[] paths)
         {
             if (paths == null)
             {
@@ -57,7 +59,7 @@ namespace Smartstore.IO
 
             for (var i = 1; i < paths.Length; i++)
             {
-                result = CombineInternal(result, paths[i]);
+                result = CombineInternal(result!, paths[i]!);
             }
 
             return result;
@@ -65,7 +67,7 @@ namespace Smartstore.IO
 
         private static string CombineInternal(string first, string second)
         {
-            Guard.NotNull(first, nameof(first));
+            Guard.NotNull(first);
 
             if (string.IsNullOrWhiteSpace(second))
             {
@@ -147,19 +149,19 @@ namespace Smartstore.IO
         /// <remarks>
         /// Other than Path.Join() this method detects double separators and collapses them.
         /// </remarks>
-        public static string Join(string path1, string path2, bool? ensureLeadingSeparator = null)
+        public static string Join(string? path1, string? path2, bool? ensureLeadingSeparator = null)
         {
             return Join(path1.AsSpan(), path2.AsSpan(), ensureLeadingSeparator);
         }
 
         /// <inheritdoc cref="Join(string, string)"/>
-        public static string Join(string path1, string path2, string path3, bool? ensureLeadingSeparator = null)
+        public static string Join(string? path1, string? path2, string? path3, bool? ensureLeadingSeparator = null)
         {
             return Join(path1.AsSpan(), path2.AsSpan(), path3.AsSpan(), ensureLeadingSeparator);
         }
 
         /// <inheritdoc cref="Join(string, string)"/>
-        public static string Join(string path1, string path2, string path3, string path4, bool? ensureLeadingSeparator = null)
+        public static string Join(string? path1, string? path2, string? path3, string? path4, bool? ensureLeadingSeparator = null)
         {
             return Join(path1.AsSpan(), path2.AsSpan(), path3.AsSpan(), path4.AsSpan(), ensureLeadingSeparator);
         }
@@ -298,14 +300,14 @@ namespace Smartstore.IO
         /// </summary>
         /// <param name="name">Path/File name</param>
         /// <returns>Sanitized path/file name</returns>
-        public static string SanitizeFileName(string fileName, string replacement = "-")
+        public static string? SanitizeFileName(string? fileName, string replacement = "-")
         {
             if (fileName.IsEmpty())
             {
                 return fileName;
             }
 
-            return _invalidCharsPattern.Replace(fileName, replacement);
+            return _invalidCharsPattern.Replace(fileName!, replacement);
         }
 
         /// <summary>
@@ -313,7 +315,7 @@ namespace Smartstore.IO
         /// </summary>
         /// <param name="path">path</param>
         /// <returns>Sanitized path</returns>
-        public static string SanitizePath(string path, string replacement = "-")
+        public static string? SanitizePath(string? path, string replacement = "-")
         {
             if (path.IsEmpty())
             {
@@ -322,10 +324,10 @@ namespace Smartstore.IO
 
             return string.Join(
                 replacement ?? "-",
-                path.Tokenize(_invalidPathChars));
+                path!.Tokenize(_invalidPathChars));
         }
 
-        public static bool HasInvalidPathChars(string path, bool checkWildcardChars = false)
+        public static bool HasInvalidPathChars(string? path, bool checkWildcardChars = false)
         {
             return path != null && HasInvalidPathChars(path.AsSpan(), checkWildcardChars);
         }
@@ -341,7 +343,7 @@ namespace Smartstore.IO
                 || (checkWildcardChars && ContainsWildcardChars(path, 0));
         }
 
-        public static bool HasInvalidFileNameChars(string fileName, bool checkWildcardChars = false)
+        public static bool HasInvalidFileNameChars(string? fileName, bool checkWildcardChars = false)
         {
             return fileName != null && HasInvalidFileNameChars(fileName.AsSpan(), checkWildcardChars);
         }
@@ -357,9 +359,9 @@ namespace Smartstore.IO
                 || (checkWildcardChars && ContainsWildcardChars(fileName, 0));
         }
 
-        public static bool HasInvalidFilterChars(string path)
+        public static bool HasInvalidFilterChars(string? path)
         {
-            return path != null && path.IndexOfAny(_invalidFilterChars) >= 0;
+            return path != null && path!.IndexOfAny(_invalidFilterChars) >= 0;
         }
 
         public static bool HasInvalidFilterChars(ReadOnlySpan<char> path)
@@ -382,7 +384,7 @@ namespace Smartstore.IO
             return false;
         }
 
-        public static string EnsureTrailingSlash(string path)
+        public static string? EnsureTrailingSlash(string? path)
         {
             if (!string.IsNullOrEmpty(path) && path[^1] != Path.DirectorySeparatorChar)
             {
@@ -437,9 +439,9 @@ namespace Smartstore.IO
         /// </summary>
         /// <param name="path">Path to check</param>
         /// <returns><c>true</c> if path is fully qualified</returns>
-        public static bool IsAbsolutePhysicalPath(string path)
+        public static bool IsAbsolutePhysicalPath(string? path)
         {
-            return path != null && Path.IsPathFullyQualified(path);
+            return path != null && Path.IsPathFullyQualified(path!);
         }
 
         /// <summary>

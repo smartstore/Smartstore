@@ -68,7 +68,7 @@ namespace Smartstore.IO
 
         protected internal virtual async Task<AsyncOut<string>> CheckUniqueFileNameCore(string subpath, bool async)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
+            Guard.NotEmpty(subpath);
 
             var file = async ? await GetFileAsync(subpath) : GetFile(subpath);
             if (!file.Exists)
