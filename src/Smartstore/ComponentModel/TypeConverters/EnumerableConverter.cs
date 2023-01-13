@@ -20,11 +20,11 @@ namespace Smartstore.ComponentModel.TypeConverters
             _activator = CreateSequenceActivator(sequenceType);
         }
 
-        private static Func<IEnumerable<T>, object> CreateSequenceActivator(Type sequenceType)
+        internal static Func<IEnumerable<T>, object> CreateSequenceActivator(Type sequenceType)
         {
             // Default is IEnumerable<T>
             Func<IEnumerable<T>, object> activator = null;
-
+            
             var t = sequenceType;
 
             if (t == typeof(IEnumerable<T>))
