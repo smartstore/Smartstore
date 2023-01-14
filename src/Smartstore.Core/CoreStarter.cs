@@ -70,8 +70,20 @@ namespace Smartstore.Core.Bootstrapping
             services.AddDisplayControl();
             services.AddWkHtmlToPdf();
 
-            // Application DbContext as pooled factory
-            services.AddPooledDbContextFactory<SmartDbContext>((c, builder) =>
+            if (appContext.IsInstalled)
+            {
+                // Application DbContext as pooled factory
+                services.AddPooledDbContextFactory<SmartDbContext>(DbContextAction, appContext.AppConfiguration.DbContextPoolSize);
+            }
+            else
+            {
+                // No pooling during installation
+                services.AddDbContextFactory<SmartDbContext>(DbContextAction);
+            }
+
+            services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
+
+            void DbContextAction(IServiceProvider c, DbContextOptionsBuilder builder)
             {
                 if (appContext.IsInstalled)
                 {
@@ -102,10 +114,7 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     configurer.Configure(c, builder);
                 }
-
-            }, appContext.AppConfiguration.DbContextPoolSize);
-
-            services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
+            }
         }
 
         internal static void RegisterTypeConverters()

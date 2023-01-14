@@ -65,7 +65,7 @@ namespace Smartstore.Core.Data.Migrations
 
                     if (Context is not SmartDbContext db)
                     {
-                        db = httpContextAccessor.HttpContext.RequestServices.GetService<SmartDbContext>();
+                        db = httpContextAccessor.HttpContext?.RequestServices?.GetService<SmartDbContext>();
                     }
 
                     _urlService ??= new UrlService(

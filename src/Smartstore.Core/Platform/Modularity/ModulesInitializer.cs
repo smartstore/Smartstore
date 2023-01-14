@@ -41,6 +41,7 @@ namespace Smartstore.Engine.Modularity
             var installContext = new ModuleInstallationContext
             {
                 ApplicationContext = appContext,
+                Scope = httpContext.RequestServices.AsLifetimeScope(),
                 Culture = languageService.GetMasterLanguageSeoCode(),
                 Stage = ModuleInstallationStage.ModuleInstallation,
                 Logger = Logger

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Diagnostics;
 using System.Reflection;
 using AngleSharp.Common;
 using Autofac;
@@ -41,7 +42,10 @@ namespace Smartstore.Data.Providers
         }
 
         public DbContextOptionsExtensionInfo Info
-            => _info ??= new ExtensionInfo(this);
+        {
+            [DebuggerStepThrough]
+            get => _info ??= new ExtensionInfo(this);
+        }
 
         protected DbFactoryOptionsExtension Clone()
             => new(this);
@@ -59,6 +63,9 @@ namespace Smartstore.Data.Providers
         }
 
         #region Options
+
+        // Actually not an option. Just there for info.
+        public string? ConnectionString { get; set; }
 
         public int? CommandTimeout { get; private set; }
         public DbFactoryOptionsExtension WithCommandTimeout(int? commandTimeout)
@@ -167,8 +174,12 @@ namespace Smartstore.Data.Providers
                 => false;
 
             private new DbFactoryOptionsExtension Extension
-                => (DbFactoryOptionsExtension)base.Extension;
+            {
+                [DebuggerStepThrough]
+                get => (DbFactoryOptionsExtension)base.Extension;
+            }
 
+            [DebuggerStepThrough]
             public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo? other)
             {
                 return other is ExtensionInfo otherInfo
@@ -182,6 +193,7 @@ namespace Smartstore.Data.Providers
                     && (Extension.DataSeederTypes == otherInfo.Extension.DataSeederTypes || Extension.DataSeederTypes.SequenceEqual(otherInfo.Extension.DataSeederTypes));
             }
 
+            [DebuggerStepThrough]
             public override int GetServiceProviderHashCode()
             {
                 if (_serviceProviderHash == null)
