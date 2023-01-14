@@ -8,7 +8,7 @@ namespace Smartstore.Data.Providers
     {
         /// <summary>
         /// Configures the context to resolve database connection settings from the current <see cref="DbFactory"/>
-        /// provider (either SqlServer or MySql).
+        /// provider (either SqlServer, MySql or PostgreSql).
         /// </summary>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
@@ -35,11 +35,11 @@ namespace Smartstore.Data.Providers
 
         /// <summary>
         /// Configures the context to resolve database connection settings from the given <see cref="DbFactory"/>
-        /// provider (either SqlServer or MySql).
+        /// provider (either SqlServer, MySql or PostgreSql).
         /// </summary>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <param name="factory">The factory instance</param>
-        /// <param name="connectionString">Describe</param>
+        /// <param name="connectionString">The connection string to use</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder UseDbFactory(
             this DbContextOptionsBuilder optionsBuilder,
@@ -47,9 +47,9 @@ namespace Smartstore.Data.Providers
             string connectionString,
             Action<DbFactoryDbContextOptionsBuilder> optionsAction = null)
         {
-            Guard.NotNull(optionsBuilder, nameof(optionsBuilder));
-            Guard.NotNull(factory, nameof(factory));
-            Guard.NotEmpty(connectionString, nameof(connectionString));
+            Guard.NotNull(optionsBuilder);
+            Guard.NotNull(factory);
+            Guard.NotEmpty(connectionString);
 
             var extension = optionsBuilder.Options.FindExtension<DbFactoryOptionsExtension>();
             var hasExtension = extension != null;
@@ -80,10 +80,8 @@ namespace Smartstore.Data.Providers
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-            if (optionsAction != null)
-            {
-                optionsAction?.Invoke(new DbFactoryDbContextOptionsBuilder(optionsBuilder));
-            }
+            // Invoke options action
+            optionsAction?.Invoke(new DbFactoryDbContextOptionsBuilder(optionsBuilder));
 
             if (!hasExtension)
             {

@@ -94,6 +94,9 @@ namespace Smartstore.Data.Providers
                     case "mysql":
                         assemblyName = "Smartstore.Data.MySql.dll";
                         break;
+                    case "postgresql":
+                        assemblyName = "Smartstore.Data.PostgreSql.dll";
+                        break;
                         //case "sqlite":
                         //    assemblyName = "Smartstore.Data.Sqlite.dll";
                         //    break;

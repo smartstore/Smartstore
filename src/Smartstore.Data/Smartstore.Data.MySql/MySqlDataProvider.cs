@@ -27,7 +27,7 @@ namespace Smartstore.Data.MySql
         {
         }
 
-        private string GetDatabaseSizeSql(string database)
+        private static string GetDatabaseSizeSql(string database)
             => $@"SELECT table_schema AS 'Database', ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS 'SizeMB' 
                 FROM information_schema.TABLES
                 WHERE table_schema = '{database}'
@@ -54,8 +54,8 @@ namespace Smartstore.Data.MySql
 
         public override string ApplyPaging(string sql, int skip, int take)
         {
-            Guard.NotNegative(skip, nameof(skip));
-            Guard.NotNegative(take, nameof(take));
+            Guard.NotNegative(skip);
+            Guard.NotNegative(take);
 
             return $@"{sql}
 LIMIT {take} OFFSET {skip}";
@@ -64,25 +64,25 @@ LIMIT {take} OFFSET {skip}";
         public override string[] GetTableNames()
         {
             return Database.ExecuteQueryRaw<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_schema = '{Database.GetDbConnection().Database}'").ToArray();
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_schema = '{DatabaseName}'").ToArray();
         }
 
         public override async Task<string[]> GetTableNamesAsync()
         {
             return await Database.ExecuteQueryRawAsync<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_schema = '{Database.GetDbConnection().Database}'").AsyncToArray();
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_schema = '{DatabaseName}'").AsyncToArray();
         }
 
         protected override int? GetTableIncrementCore(string tableName)
         {
             return Database.ExecuteScalarInterpolated<ulong>(
-                $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {Database.GetDbConnection().Database} AND TABLE_NAME = {tableName}").Convert<int?>();
+                $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {DatabaseName} AND TABLE_NAME = {tableName}").Convert<int?>();
         }
 
         protected override async Task<int?> GetTableIncrementCoreAsync(string tableName)
         {
             return (await Database.ExecuteScalarInterpolatedAsync<ulong>(
-                $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {Database.GetDbConnection().Database} AND TABLE_NAME = {tableName}")).Convert<int?>();
+                $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {DatabaseName} AND TABLE_NAME = {tableName}")).Convert<int?>();
         }
 
         protected override void SetTableIncrementCore(string tableName, int ident)
@@ -109,7 +109,7 @@ LIMIT {take} OFFSET {skip}";
 
         public override int ReIndexTables()
         {
-            var tables = Database.ExecuteQueryRaw<string>($"SHOW TABLES FROM `{Database.GetDbConnection().Database}`").ToList();
+            var tables = Database.ExecuteQueryRaw<string>($"SHOW TABLES FROM `{DatabaseName}`").ToList();
             if (tables.Count > 0)
             {
                 return Database.ExecuteSqlRaw($"OPTIMIZE TABLE `{string.Join("`, `", tables)}`");
@@ -120,7 +120,7 @@ LIMIT {take} OFFSET {skip}";
 
         public override async Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
         {
-            var tables = await Database.ExecuteQueryRawAsync<string>($"SHOW TABLES FROM `{Database.GetDbConnection().Database}`", cancelToken).ToListAsync(cancelToken);
+            var tables = await Database.ExecuteQueryRawAsync<string>($"SHOW TABLES FROM `{DatabaseName}`", cancelToken).ToListAsync(cancelToken);
             if (tables.Count > 0)
             {
                 return await Database.ExecuteSqlRawAsync($"OPTIMIZE TABLE `{string.Join("`, `", tables)}`", cancelToken);
@@ -132,13 +132,13 @@ LIMIT {take} OFFSET {skip}";
         public override decimal GetDatabaseSize()
         {
             return Database.ExecuteQueryRaw<MySqlTableSchema>(
-                GetDatabaseSizeSql(Database.GetDbConnection().Database)).FirstOrDefault()?.SizeMB ?? 0;
+                GetDatabaseSizeSql(DatabaseName)).FirstOrDefault()?.SizeMB ?? 0;
         }
 
         public override async Task<decimal> GetDatabaseSizeAsync()
         {
             return (await Database.ExecuteQueryRawAsync<MySqlTableSchema>(
-                GetDatabaseSizeSql(Database.GetDbConnection().Database)).FirstOrDefaultAsync())?.SizeMB ?? 0;
+                GetDatabaseSizeSql(DatabaseName)).FirstOrDefaultAsync())?.SizeMB ?? 0;
         }
 
         public override async Task<int> InsertIntoAsync(string sql, params object[] parameters)

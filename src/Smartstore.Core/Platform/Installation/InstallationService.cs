@@ -400,11 +400,12 @@ namespace Smartstore.Core.Installation
 
             modularState.InstalledModules.Clear();
 
-            using var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential, retainConnection: true);
+            using var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential);
 
             var installContext = new ModuleInstallationContext
             {
                 ApplicationContext = _appContext,
+                Scope = scope,
                 SeedSampleData = model.InstallSampleData,
                 Culture = model.PrimaryLanguage,
                 Stage = ModuleInstallationStage.AppInstallation,

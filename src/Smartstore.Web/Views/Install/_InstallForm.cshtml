@@ -194,7 +194,10 @@
                                                 Data Source=MyServerName; Initial Catalog=MyDatabaseName; Persist Security Info=True; User Id=MyUserName; Password=MyPassword
                                             </span>
                                             <span data-for-provider="mysql" style="display: none">
-                                                Server=MyServerName; Database=MyDatabaseName; Uid=root; Pwd=MyPassword
+                                                Server=localhost; Database=MyDatabaseName; Uid=root; Pwd=MyPassword
+                                            </span>
+                                            <span data-for-provider="postgresql" style="display: none">
+                                                Host=localhost; Database=MyDatabaseName; Username=postgres; Password=MyPassword
                                             </span>
                                             <br />
                                             Find more info <a href="http://www.connectionstrings.com/" rel="nofollow" target="_blank">here</a>
@@ -297,20 +300,22 @@
         }
 
         function toggleDataProvider() {
-            var selectedProvider = dataProvider.val();
-            if (selectedProvider === 'mysql') {
+            let selectedProvider = dataProvider.val();
+
+            if (selectedProvider === 'sqlserver') {
+                authType.removeAttr("disabled");
+                toggleAuthType.apply(authType.get(0), arguments);
+            }
+            else {
                 authType.attr("disabled", "disabled");
                 userId.removeAttr("disabled");
                 password.removeAttr("disabled");
-                rawConStringHelp.find('> [data-for-provider=sqlserver]').hide();
-                rawConStringHelp.find('> [data-for-provider=mysql]').show();
             }
-            else if (selectedProvider === 'sqlserver') {
-                authType.removeAttr("disabled");
-                toggleAuthType.apply(authType.get(0), arguments);
-                rawConStringHelp.find('> [data-for-provider=sqlserver]').show();
-                rawConStringHelp.find('> [data-for-provider=mysql]').hide();
-            }
+
+            rawConStringHelp.find('> [data-for-provider]').each(function () {
+                let helpFor = $(this).data('for-provider');
+                $(this).toggle(helpFor == selectedProvider);
+            });
         }
 
         function toggleConnectionInfo() {

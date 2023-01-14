@@ -39,6 +39,11 @@ namespace Smartstore.Data.Providers
 
         public DatabaseFacade Database { get; }
 
+        protected string DatabaseName 
+        {
+            get => Database.GetDbConnection().Database;
+        }
+
         protected DbContext Context
         {
             get => ((IDatabaseFacadeDependenciesAccessor)Database).Context;
@@ -160,7 +165,8 @@ namespace Smartstore.Data.Providers
 
         public abstract string[] GetTableNames();
 
-        public abstract Task<string[]> GetTableNamesAsync();
+        public virtual Task<string[]> GetTableNamesAsync()
+            => Task.FromResult(GetTableNames());
 
         #endregion
 
@@ -388,7 +394,7 @@ namespace Smartstore.Data.Providers
         public virtual string CreateBackupFileName()
         {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-            var dbName = PathUtility.SanitizeFileName(Database.GetDbConnection().Database.NaIfEmpty(), "_");
+            var dbName = PathUtility.SanitizeFileName(DatabaseName.NaIfEmpty(), "_");
 
             return $"{dbName}-{SmartstoreVersion.CurrentFullVersion}-{timestamp}{BackupFileExtension}";
         }

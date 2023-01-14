@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -24,6 +25,11 @@ namespace Smartstore.Engine.Modularity
         /// The application context.
         /// </summary>
         public IApplicationContext ApplicationContext { get; init; }
+
+        /// <summary>
+        /// The request scoped container to resolve services from.
+        /// </summary>
+        public ILifetimeScope Scope { get; init; }
 
         /// <summary>
         /// The descriptor of module currently being installed.

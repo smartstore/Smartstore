@@ -49,7 +49,7 @@ namespace Smartstore.Data.SqlServer
         {
         }
 
-        private string ReIndexTablesSql(string database)
+        private static string ReIndexTablesSql(string database)
             => $@"DECLARE @TableName sysname 
                   DECLARE cur_reindex CURSOR FOR
                   SELECT table_name
@@ -65,7 +65,7 @@ namespace Smartstore.Data.SqlServer
                   CLOSE cur_reindex
                   DEALLOCATE cur_reindex";
 
-        private string RestoreDatabaseSql(string database)
+        private static string RestoreDatabaseSql(string database)
             => $@"DECLARE @ErrorMessage NVARCHAR(4000)
                  ALTER DATABASE [{database}] SET OFFLINE WITH ROLLBACK IMMEDIATE
                  BEGIN TRY
@@ -116,8 +116,8 @@ namespace Smartstore.Data.SqlServer
 
         public override string ApplyPaging(string sql, int skip, int take)
         {
-            Guard.NotNegative(skip, nameof(skip));
-            Guard.NotNegative(take, nameof(take));
+            Guard.NotNegative(skip);
+            Guard.NotNegative(take);
 
             return $@"{sql}
 OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
@@ -126,13 +126,13 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         public override string[] GetTableNames()
         {
             return Database.ExecuteQueryRaw<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_catalog = '{Database.GetDbConnection().Database}'").ToArray();
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_catalog = '{DatabaseName}'").ToArray();
         }
 
         public override async Task<string[]> GetTableNamesAsync()
         {
             return await Database.ExecuteQueryRawAsync<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_catalog = '{Database.GetDbConnection().Database}'").AsyncToArray();
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_catalog = '{DatabaseName}'").AsyncToArray();
         }
 
         public override int ShrinkDatabase()
@@ -193,12 +193,12 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
         public override int ReIndexTables()
         {
-            return Database.ExecuteSqlRaw(ReIndexTablesSql(Database.GetDbConnection().Database));
+            return Database.ExecuteSqlRaw(ReIndexTablesSql(DatabaseName));
         }
 
         public override Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
         {
-            return Database.ExecuteSqlRawAsync(ReIndexTablesSql(Database.GetDbConnection().Database), cancelToken);
+            return Database.ExecuteSqlRawAsync(ReIndexTablesSql(DatabaseName), cancelToken);
         }
 
         public override int BackupDatabase(string fullPath)
@@ -233,7 +233,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
         private string CreateBackupSql()
         {
-            var sql = "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT";
+            var sql = "BACKUP DATABASE [" + DatabaseName + "] TO DISK = {0} WITH FORMAT";
 
             // Backup compression is not supported by "Express" or "Express with Advanced Services" edition.
             // https://expressdb.io/sql-server-express-feature-comparison.html
@@ -251,7 +251,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             Guard.NotEmpty(backupFullPath, nameof(backupFullPath));
 
             return Database.ExecuteSqlRaw(
-                RestoreDatabaseSql(Database.GetDbConnection().Database),
+                RestoreDatabaseSql(DatabaseName),
                 backupFullPath);
         }
 
@@ -260,7 +260,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             Guard.NotEmpty(backupFullPath, nameof(backupFullPath));
 
             return Database.ExecuteSqlRawAsync(
-                RestoreDatabaseSql(Database.GetDbConnection().Database),
+                RestoreDatabaseSql(DatabaseName),
                 new object[] { backupFullPath },
                 cancelToken);
         }

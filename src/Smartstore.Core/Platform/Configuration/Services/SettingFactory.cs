@@ -187,15 +187,11 @@ namespace Smartstore.Core.Configuration
 
             if (db != null)
             {
-                var conState = db.Database.GetDbConnection().State;
-                if (conState == ConnectionState.Closed)
-                {
-                    // Don't dispose request scoped main db instance.
-                    return ActionDisposable.Empty;
-                }
+                // Don't dispose request scoped main db instance.
+                return ActionDisposable.Empty;
             }
 
-            // Fetch a fresh DbContext if no scope is given or current connection is not in "Closed" state.
+            // Fetch a fresh DbContext if no scope is given.
             db = _dbContextFactory.CreateDbContext();
 
             return db;

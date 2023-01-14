@@ -21,7 +21,7 @@ namespace Smartstore.Data.SqlServer
             string userId,
             string password)
         {
-            Guard.NotEmpty(server, nameof(server));
+            Guard.NotEmpty(server);
 
             var builder = new SqlConnectionStringBuilder
             {
@@ -97,8 +97,8 @@ namespace Smartstore.Data.SqlServer
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
         {
-            Guard.NotNull(builder, nameof(builder));
-            Guard.NotEmpty(connectionString, nameof(connectionString));
+            Guard.NotNull(builder);
+            Guard.NotEmpty(connectionString);
 
             return builder.UseSqlServer(connectionString, sql =>
             {

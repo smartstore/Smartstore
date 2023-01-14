@@ -81,7 +81,8 @@ namespace Smartstore.Web.Controllers
             var dataProviders = new List<SelectListItem>
             {
                 new SelectListItem { Value = "mysql", Text = T("UseMySql"), Selected = !isWindows },
-                new SelectListItem { Value = "sqlserver", Text = T("UseSqlServer"), Selected = isWindows }
+                new SelectListItem { Value = "sqlserver", Text = T("UseSqlServer"), Selected = isWindows },
+                new SelectListItem { Value = "postgresql", Text = T("UsePostgreSql"), Selected = false }
             };
 
             ViewBag.AvailableInstallationLanguages = installLanguages;

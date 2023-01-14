@@ -45,6 +45,7 @@
         new LibraryModel("NUglify", "https://github.com/trullock/NUglify/", LibraryLicense.Apache2, "2016, Alexandre Mutel"),
         new LibraryModel("Parlot", "https://github.com/sebastienros/parlot/", LibraryLicense.BSD3, "2020, Sébastien Ros"),
         new LibraryModel("Pomelo.EntityFrameworkCore.MySql", "https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql/", LibraryLicense.MIT, "2017 Pomelo Foundation"),
+        new LibraryModel("Npgsql.EntityFrameworkCore.PostgreSQL", "https://github.com/npgsql/efcore.pg/", LibraryLicense.PostgreSQL, "2002-2021, Npgsql"),
         new LibraryModel("PreMailer.Net", "https://github.com/milkshakesoftware/PreMailer.Net/", LibraryLicense.MIT, "2013 Milkshake Software (http://milkshakesoftware.com)"),
         new LibraryModel("Serilog", "https://github.com/serilog/serilog/", LibraryLicense.Apache2, "2013-2020 Serilog Contributors"),
         new LibraryModel("EFCore.BulkExtensions", "https://github.com/yang-er/efcore-ext/", LibraryLicense.MIT, "2017 borisdj")
@@ -127,6 +128,10 @@
                         else if (lib.License == LibraryLicense.CreativeCommons4)
                         {
                             <a href="https://creativecommons.org/licenses/by/4.0/" rel="nofollow" target="AboutTargetWin">Creative Commons Attribution 4.0 International License</a>
+                        }
+                        else if (lib.License == LibraryLicense.PostgreSQL)
+                        {
+                            <a href="https://www.postgresql.org/about/licence/" rel="nofollow" target="AboutTargetWin">PostgreSQL License</a>
                         }
                     </span>
                 </li>

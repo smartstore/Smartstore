@@ -32,6 +32,7 @@ namespace Smartstore.Core.Bootstrapping
                     builder
                         .AddSqlServer()
                         .AddMySql5()
+                        .AddPostgres()
                         .WithVersionTable(new MigrationHistory())
                         .WithGlobalCommandTimeout(TimeSpan.FromSeconds(appContext.AppConfiguration.DbMigrationCommandTimeout ?? 120));
                 })

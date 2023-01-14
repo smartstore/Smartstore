@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
@@ -35,9 +36,50 @@ namespace Smartstore.Core.Data
             get => EngineContext.Current.Scope.ResolveOptional<DbQuerySettings>() ?? DbQuerySettings.Default;
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
-            // ???
+            // For installation only:
+            // The connection string may change during installation attempts. 
+            // Refresh the connection string in the underlying factory in that case.
+
+            if (!builder.IsConfigured || DataSettings.DatabaseIsInstalled())
+            {
+                return;
+            }
+
+            var attemptedConString = DataSettings.Instance.ConnectionString;
+            if (attemptedConString.IsEmpty())
+            {
+                return;
+            }
+
+            var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
+            if (extension == null)
+            {
+                return;
+            }
+
+            var currentConString = extension.ConnectionString;
+            if (currentConString == null)
+            {
+                ChangeConnectionString(attemptedConString);
+            }
+            else
+            {
+                if (attemptedConString != currentConString)
+                {
+                    // ConString changed. Refresh!
+                    ChangeConnectionString(attemptedConString);
+                }
+
+                DataSettings.Instance.DbFactory?.ConfigureDbContext(builder, attemptedConString);
+            }
+
+            void ChangeConnectionString(string value)
+            {
+                extension.ConnectionString = value;
+                ((IDbContextOptionsBuilderInfrastructure)builder).AddOrUpdateExtension(extension);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

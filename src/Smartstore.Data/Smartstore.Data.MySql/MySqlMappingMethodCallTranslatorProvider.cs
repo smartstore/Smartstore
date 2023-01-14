@@ -67,8 +67,7 @@ namespace Smartstore.Data.MySql
 
         private IMethodCallTranslator FindMethodCallTranslator(MethodInfo sourceMethod)
         {
-            var translators = _translatorsField.GetValue(this) as List<IMethodCallTranslator>;
-            if (translators != null)
+            if (_translatorsField.GetValue(this) is List<IMethodCallTranslator> translators)
             {
                 if (sourceMethod.Name.StartsWith("DateDiff"))
                 {

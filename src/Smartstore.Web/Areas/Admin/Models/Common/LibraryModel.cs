@@ -12,7 +12,8 @@
         MIT,
         MPL20,
         MSPL,
-        zlib
+        zlib,
+        PostgreSQL
     }
 
     public class LibraryModel

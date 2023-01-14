@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="..\..\Smartstore.Build\Smartstore.Common.props" />
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Core\Smartstore.Core.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Smartstore\Smartstore.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+    </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.1" />
+  </ItemGroup>
+
+</Project>

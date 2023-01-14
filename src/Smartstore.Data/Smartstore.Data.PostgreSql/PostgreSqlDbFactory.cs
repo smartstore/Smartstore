@@ -3,17 +3,17 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
-using MySqlConnector;
+using Npgsql;
 using Smartstore.Data.Providers;
 
-namespace Smartstore.Data.MySql
+namespace Smartstore.Data.PostgreSql
 {
-    internal class MySqlDbFactory : DbFactory
+    internal class PostgreSqlDbFactory : DbFactory
     {
-        public override DbSystemType DbSystem { get; } = DbSystemType.MySql;
+        public override DbSystemType DbSystem { get; } = DbSystemType.PostgreSql;
 
         public override DbConnectionStringBuilder CreateConnectionStringBuilder(string connectionString)
-            => new MySqlConnectionStringBuilder(connectionString) { AllowUserVariables = true, UseAffectedRows = false };
+            => new NpgsqlConnectionStringBuilder(connectionString);
 
         public override DbConnectionStringBuilder CreateConnectionStringBuilder(
             string server,
@@ -23,45 +23,41 @@ namespace Smartstore.Data.MySql
         {
             Guard.NotEmpty(server);
 
-            var builder = new MySqlConnectionStringBuilder
+            var builder = new NpgsqlConnectionStringBuilder
             {
-                Server = server,
+                Host = server,
                 Database = database,
-                UserID = userId,
+                Username = userId,
                 Password = password,
                 Pooling = true,
-                MinimumPoolSize = 1,
-                MaximumPoolSize = 1024,
-                AllowUserVariables = true,
-                UseAffectedRows = false
+                MinPoolSize = 1,
+                MaxPoolSize = 1024, 
+                Multiplexing = false
             };
 
             return builder;
         }
 
         public override DataProvider CreateDataProvider(DatabaseFacade database)
-            => new MySqlDataProvider(database);
+            => new PostgreSqlDataProvider(database);
 
         public override TContext CreateDbContext<TContext>(string connectionString, int? commandTimeout = null)
         {
-            Guard.NotEmpty(connectionString, nameof(connectionString));
+            Guard.NotEmpty(connectionString);
 
             var optionsBuilder = new DbContextOptionsBuilder<TContext>()
-                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql =>
+                .UseNpgsql(connectionString, sql =>
                 {
                     sql.CommandTimeout(commandTimeout);
                 })
-                .ReplaceService<IMethodCallTranslatorProvider, MySqlMappingMethodCallTranslatorProvider>();
+                .ReplaceService<IMethodCallTranslatorProvider, PostgreSqlMappingMethodCallTranslatorProvider>();
 
             return (TContext)Activator.CreateInstance(typeof(TContext), new object[] { optionsBuilder.Options });
         }
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
-        {
-            Guard.NotNull(builder);
-            Guard.NotEmpty(connectionString);
-
-            return builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql =>
+        {   
+            return builder.UseNpgsql(connectionString, sql =>
             {
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
 
@@ -83,7 +79,7 @@ namespace Smartstore.Data.MySql
                         sql.UseRelationalNulls(extension.UseRelationalNulls.Value);
                 }
             })
-            .ReplaceService<IMethodCallTranslatorProvider, MySqlMappingMethodCallTranslatorProvider>();
+            .ReplaceService<IMethodCallTranslatorProvider, PostgreSqlMappingMethodCallTranslatorProvider>();
         }
     }
 }
