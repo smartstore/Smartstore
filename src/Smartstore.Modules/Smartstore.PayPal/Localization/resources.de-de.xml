@@ -83,7 +83,14 @@
             <LocaleResource Name="CookieInfo">
                 <Value>PayPal nutzt Cookies zur Darstellung und Abwicklung des Zahlungsvorgangs.</Value>
             </LocaleResource>
-            
+
+            <LocaleResource Name="OrderUpdateFailed">
+                <Value>
+                    Die Gesamtsumme der Bestellung konnte bei PayPal nach der Versandartauswahl nicht aktualisiert werden. 
+                    Bitte bestätigen Sie den Betrag bei PayPal erneut.
+                </Value>
+            </LocaleResource>
+
             <LocaleResource Name="UseSandbox">
                 <Value>Sandbox nutzen</Value>
             </LocaleResource>

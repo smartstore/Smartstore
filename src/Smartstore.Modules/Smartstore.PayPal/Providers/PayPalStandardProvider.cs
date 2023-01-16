@@ -18,12 +18,14 @@ namespace Smartstore.PayPal.Providers
         private readonly SmartDbContext _db;
         private readonly PayPalHttpClient _client;
         private readonly PayPalSettings _settings;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
 
-        public PayPalStandardProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings)
+        public PayPalStandardProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings, ICheckoutStateAccessor checkoutStateAccessor)
         {
             _db = db;
             _client = client;
             _settings = settings;
+            _checkoutStateAccessor = checkoutStateAccessor;
         }
 
         public RouteInfo GetConfigurationRoute()
@@ -56,8 +58,14 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = PaymentStatus.Pending,
             };
 
-            _ = await _client.UpdateOrderAsync(request, result);
+            var checkoutState = _checkoutStateAccessor.CheckoutState;
+            var orderUpdated = (bool)checkoutState.CustomProperties.Get("PayPalOrderUpdated");
 
+            if (!orderUpdated)
+            {
+                _ = await _client.UpdateOrderAsync(request, result);
+            }
+            
             if (_settings.Intent == PayPalTransactionType.Authorize)
             {
                 var response = await _client.AuthorizeOrderAsync(request, result);

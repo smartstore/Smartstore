@@ -81,6 +81,14 @@
             <LocaleResource Name="CookieInfo">
                 <Value>PayPal uses cookies to display and process the payment transaction.</Value>
             </LocaleResource>
+
+            <LocaleResource Name="OrderUpdateFailed">
+                <Value>
+                    The total amount of the order could not be updated at PayPal after the shipping method selection.
+                    Please reconfirm the amount at PayPal.
+                </Value>
+            </LocaleResource>
+            
             <LocaleResource Name="UseSandbox">
                 <Value>Use sandbox</Value>
             </LocaleResource>
