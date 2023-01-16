@@ -147,13 +147,13 @@
 </modal>
 
 <script sm-target-zone="scripts" data-origin="ImportList">
-    window['onUploadCompleted'] = function (file, data) {
-        if (!_.isEmpty(data.tempFile)) {
-			$('#import-profile-dialog').find('input[name=TempFileName]').val(data.tempFile);
+    window['onUploadCompleted'] = function (file, response) {
+        if (!_.isEmpty(response.name)) {
+            $('#import-profile-dialog').find('input[name=TempFileName]').val(response.name);
 			$('#import-profile-dialog').find('.btn-primary').prop('disabled', false);
 		}
-		else if (!_.isEmpty(data.error)) {
-			$('#ImportFileList').html('<div class="alert alert-danger">' + data.error + '</div>').show();
+        else if (!_.isEmpty(response.error)) {
+            $('#ImportFileList').html('<div class="alert alert-danger">' + response.error + '</div>').show();
 		}
 	}
 

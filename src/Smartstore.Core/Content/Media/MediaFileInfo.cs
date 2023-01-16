@@ -237,7 +237,7 @@ namespace Smartstore.Core.Content.Media
                 return _storageProvider.OpenRead(File);
             }
 
-            throw new FileNotFoundException(Path);
+            throw new FileNotFoundException($"File '{Path}' not found.");
         }
 
         /// <inheritdoc/>
@@ -248,7 +248,7 @@ namespace Smartstore.Core.Content.Media
                 return _storageProvider.OpenReadAsync(File);
             }
 
-            throw new FileNotFoundException(Path);
+            throw new FileNotFoundException($"File '{Path}' not found.");
         }
 
         /// <inheritdoc/>

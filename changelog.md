@@ -14,6 +14,7 @@
 - Fixed top description displayed instead of bottom description on manufacturer page.
 - Fixed export file count was always 0 in export profile list.
 - Instant search must not display default thumbs if ShowProductImagesInInstantSearch is disabled.
+- Fixed `FileNotFoundException` when uploading an import file.
 
 
 ## Smartstore 5.0.2
