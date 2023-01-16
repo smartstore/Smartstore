@@ -15,6 +15,7 @@
 - Fixed export file count was always 0 in export profile list.
 - Instant search must not display default thumbs if ShowProductImagesInInstantSearch is disabled.
 - Fixed `FileNotFoundException` when uploading an import file.
+- PayPal: Fixed error that occurs when shipping fees were to high for initially authorized order amount 
 
 
 ## Smartstore 5.0.2
