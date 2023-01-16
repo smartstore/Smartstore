@@ -97,17 +97,13 @@ namespace Smartstore.PayPal.Filters
 
                 var session = _httpContextAccessor.HttpContext.Session;
 
-                if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest))
+                var processPaymentRequest = session.GetOrAddObject("OrderPaymentInfo", () => new ProcessPaymentRequest
                 {
-                    processPaymentRequest = new ProcessPaymentRequest
-                    {
-                        PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId"),
-                        StoreId = _services.StoreContext.CurrentStore.Id,
-                        CustomerId = _services.WorkContext.CurrentCustomer.Id,
-                        PaymentMethodSystemName = "Payments.PayPalStandard"
-                    };
-                    session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
-                };
+                    PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId"),
+                    StoreId = _services.StoreContext.CurrentStore.Id,
+                    CustomerId = _services.WorkContext.CurrentCustomer.Id,
+                    PaymentMethodSystemName = "Payments.PayPalStandard"
+                });
 
                 try
                 {
