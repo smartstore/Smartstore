@@ -581,7 +581,6 @@ namespace Smartstore.Admin.Controllers
             // Column mapping.
             try
             {
-                string[] availableKeyFieldNames = null;
                 string[] disabledDefaultFieldNames = GetDisabledDefaultFieldNames(profile);
                 var mapConverter = new ColumnMapConverter();
                 var storedMap = mapConverter.ConvertFrom<ColumnMap>(profile.ColumnMapping);
@@ -591,6 +590,7 @@ namespace Smartstore.Admin.Controllers
                 // Property name to localized property name.
                 var allProperties = _importProfileService.GetEntityPropertiesLabels(profile.EntityType) ?? new Dictionary<string, string>();
 
+                string[] availableKeyFieldNames = null;
                 switch (profile.EntityType)
                 {
                     case ImportEntityType.Product:
@@ -604,6 +604,9 @@ namespace Smartstore.Admin.Controllers
                         break;
                     case ImportEntityType.NewsletterSubscription:
                         availableKeyFieldNames = NewsletterSubscriptionImporter.SupportedKeyFields;
+                        break;
+                    default:
+                        availableKeyFieldNames = Array.Empty<string>();
                         break;
                 }
 
@@ -696,15 +699,15 @@ namespace Smartstore.Admin.Controllers
                             }
                         }
                     }
-
-                    ViewBag.SourceColumns = sourceColumns
-                        .OrderBy(x => x.PropertyDescription)
-                        .ToList();
-
-                    ViewBag.ColumnMappings = columnMappings
-                        .OrderBy(x => x.PropertyDescription)
-                        .ToList();
                 }
+
+                ViewBag.SourceColumns = sourceColumns
+                    .OrderBy(x => x.PropertyDescription)
+                    .ToList();
+
+                ViewBag.ColumnMappings = columnMappings
+                    .OrderBy(x => x.PropertyDescription)
+                    .ToList();
             }
             catch (Exception ex)
             {
