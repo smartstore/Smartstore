@@ -60,7 +60,7 @@ namespace Smartstore.Web.Controllers
 
         private async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod, IFormCollection form)
         {
-            var warnings = await paymentMethod.GetPaymentDataWarningsAsync();
+            var warnings = await paymentMethod.GetPaymentDataWarningsAsync(form);
 
             warnings?.Each(x => ModelState.AddModelError(string.Empty, x));
 
@@ -523,7 +523,7 @@ namespace Smartstore.Web.Controllers
             // Validate info
             if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value, form))
             {
-                return RedirectToAction(nameof(PaymentMethod));
+                return await PaymentMethod();
             }
 
             // Save payment data so that the user must not re-enter it.

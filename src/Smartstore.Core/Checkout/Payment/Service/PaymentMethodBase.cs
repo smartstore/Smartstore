@@ -71,7 +71,7 @@ namespace Smartstore.Core.Checkout.Payment
             => Task.FromResult(new ProcessPaymentRequest());
 
         /// <inheritdoc/>
-        public virtual Task<List<string>> GetPaymentDataWarningsAsync()
+        public virtual Task<List<string>> GetPaymentDataWarningsAsync(IFormCollection form)
             => Task.FromResult<List<string>>(null);
 
         /// <inheritdoc/>
