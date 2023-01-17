@@ -746,12 +746,12 @@ namespace Smartstore.Core.Checkout.Orders
                 return;
             }
 
-            var rewardAmount = _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
+            var rewardAmount = (amount ?? order.OrderTotal) / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
 
             if (reduce)
             {
                 // We use Math.Round here because Truncate increases the risk of inaccuracy of rounding.
-                var points = (int)Math.Round((amount ?? order.OrderTotal) / rewardAmount);
+                var points = (int)Math.Round(rewardAmount);
 
                 if (order.RewardPointsRemaining.HasValue && order.RewardPointsRemaining.Value < points)
                 {
@@ -764,7 +764,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                     if (!order.RewardPointsRemaining.HasValue)
                     {
-                        order.RewardPointsRemaining = (int)Math.Round(order.OrderTotal / rewardAmount);
+                        order.RewardPointsRemaining = (int)Math.Round(order.OrderTotal / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points);
                     }
 
                     order.RewardPointsRemaining = Math.Max(order.RewardPointsRemaining.Value - points, 0);
@@ -773,7 +773,7 @@ namespace Smartstore.Core.Checkout.Orders
             else
             {
                 // Truncate same as Floor for positive amounts.
-                var points = (int)Math.Truncate((amount ?? order.OrderTotal) / rewardAmount);
+                var points = (int)Math.Truncate(rewardAmount);
                 if (points != 0)
                 {
                     order.Customer.AddRewardPointsHistoryEntry(points, T("RewardPoints.Message.EarnedForOrder", order.GetOrderNumber()));
