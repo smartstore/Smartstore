@@ -22,15 +22,15 @@
   <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
 </p>
 
-Smartstore is a cross-platform, modular, scalable and ultra-fast open-source all-in-one eCommerce platform powered by ASP.NET Core 6, Entity Framework, Vue.js, Sass, Bootstrap and more. 
+Smartstore is a cross-platform, modular, scalable and ultra-fast open source all-in-one eCommerce platform based on ASP.NET Core 6, Entity Framework, Vue.js, Sass, Bootstrap and more.
 
-**Smartstore includes all essential features to create multilingual, multi-store and multi-currency shops** targeting desktop or mobile devices and enabling SEO optimized rich product catalogs with support for an unlimited number of products and categories, variants, bundles, datasheets, ESD, discounts, coupons and many more.
+**Smartstore includes all the essential features to create multi-language, multi-store, multi-currency shops** targeting desktop or mobile devices and enables SEO-optimised, rich product catalogs with support for unlimited number of products and categories, variants, bundles, datasheets, ESD, discounts, coupons and much more.
 
-A comprehensive set of tools for CRM & CMS, sales, marketing, payment & shipping handling etc. makes Smartstore a powerful all-in-one solution fulfilling all your needs.
+A comprehensive set of tools for CRM & CMS, Sales, Marketing, Payment & Shipping Handling etc. makes Smartstore a powerful all-in-one solution that meets all your needs.
 
-**Smartstore delivers a beautiful and configurable shop frontend out-of-the-box**, built with a design approach on the highest level, including components like `Sass`, `Bootstrap` and others. The supplied theme _Flex_ is modern, clean and fully responsive, giving buyers the best possible shopping experience on any device.
+**Smartstore delivers a beautiful and configurable shop frontend out-of-the-box**, built with a high level design approach, including components like `Sass`, `Bootstrap` and others. The included *Flex* theme is modern, clean and fully responsive, giving shoppers the best possible shopping experience on any device.
 
-The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design approach - makes it easy to extend, extremely flexible and essentially fun to work with ;-)
+The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design approach - makes it easy to extend, extremely flexible and basically fun to work with ;-)
 
 * :house: **Website:** [http://www.smartstore.com/en/net](http://www.smartstore.com/en/net)
 * :speech_balloon: **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
@@ -41,15 +41,15 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 
 ## Technology & Design
 
-* State of the art architecture thanks to `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design
+* State-of-the-art architecture with `ASP.NET Core 7`, `Entity Framework Core 7` and domain-driven design
 * Cross-platform: run it on Windows, Linux, or Mac
 * Supports `Docker` out of the box for easy deployment
-* Composable, easy to extend and extremely flexible thanks to modular design
-* Highly scalable thanks to full page caching and web farm support 
-* A powerful theming engine lets you create or customize themes & skins with minimum effort thanks to theme inheritance
+* Composable, extensible and highly flexible due to modular design
+* Highly scalable with full page caching and web farm support 
+* Powerful theme engine allows you to create or customise themes & skins with minimal effort thanks to theme inheritance
 * Point&Click theme configuration
-* Liquid template engine: very flexible templating for e-mails and campaigns with autocompletion and syntax highlighting
-* Html to PDF converter: PDF documents are created from regular HTML templates, therefore radically simplifying PDF output customization
+* Liquid template engine: highly flexible templating for emails and campaigns with auto-completion and syntax highlighting
+* Html to PDF converter: creates PDF documents from regular HTML templates, radically simplifying the customisation of PDF output
 * Consistent and sophisticated use of modern components such as `Vue.js`, `Sass`, `Bootstrap` & more in the front and back end.
 * Easy shop management thanks to modern and clean UI
 <p>&nbsp;</p>
