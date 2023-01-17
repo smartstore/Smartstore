@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
@@ -14,6 +15,13 @@ namespace Smartstore.OfflinePayment
     [Order(1)]
     public class DirectDebitProvider : OfflinePaymentProviderBase<DirectDebitPaymentSettings>, IConfigurable
     {
+        private readonly IValidator<DirectDebitPaymentInfoModel> _validator;
+        
+        public DirectDebitProvider(IValidator<DirectDebitPaymentInfoModel> validator)
+        {
+            _validator = validator;
+        }
+
         protected override Type GetViewComponentType()
         {
             return typeof(DirectDebitViewComponent);
@@ -27,7 +35,7 @@ namespace Smartstore.OfflinePayment
         public RouteInfo GetConfigurationRoute()
             => new("DirectDebitConfigure", "OfflinePayment", new { area = "Admin" });
 
-        public override Task<List<string>> GetPaymentDataWarningsAsync(IFormCollection form)
+        public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
         {
             var model = new DirectDebitPaymentInfoModel
             {
@@ -41,19 +49,8 @@ namespace Smartstore.OfflinePayment
                 DirectDebitBic = form["DirectDebitBic"]
             };
 
-            var validator = new DirectDebitPaymentInfoValidator();
-            var result = validator.Validate(model);
-
-            if (result != null && !result.IsValid)
-            {
-                var errors = result.Errors
-                    .Select(x => x.ErrorMessage)
-                    .ToList();
-
-                return Task.FromResult(errors);
-            }
-
-            return base.GetPaymentDataWarningsAsync(form);
+            var result = await _validator.ValidateAsync(model);
+            return new PaymentValidationResult(result);
         }
 
         public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)

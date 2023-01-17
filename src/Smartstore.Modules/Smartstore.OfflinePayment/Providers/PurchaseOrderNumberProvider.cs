@@ -2,6 +2,7 @@
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
+using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
 
 namespace Smartstore.OfflinePayment
@@ -11,6 +12,13 @@ namespace Smartstore.OfflinePayment
     [Order(1)]
     public class PurchaseOrderNumberProvider : OfflinePaymentProviderBase<PurchaseOrderNumberPaymentSettings>, IConfigurable
     {
+        private readonly IValidator<PurchaseOrderNumberPaymentInfoModel> _validator;
+
+        public PurchaseOrderNumberProvider(IValidator<PurchaseOrderNumberPaymentInfoModel> validator)
+        {
+            _validator = validator;
+        }
+
         protected override Type GetViewComponentType()
         {
             return typeof(PurchaseOrderNumberProvider);
@@ -24,6 +32,17 @@ namespace Smartstore.OfflinePayment
 
         public RouteInfo GetConfigurationRoute()
             => new("PurchaseOrderNumberConfigure", "OfflinePayment", new { area = "Admin" });
+
+        public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
+        {
+            var model = new PurchaseOrderNumberPaymentInfoModel
+            {
+                PurchaseOrderNumber = form["PurchaseOrderNumber"]
+            };
+
+            var result = await _validator.ValidateAsync(model);
+            return new PaymentValidationResult(result);
+        }
 
         public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
         {

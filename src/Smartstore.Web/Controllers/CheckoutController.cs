@@ -60,10 +60,9 @@ namespace Smartstore.Web.Controllers
 
         private async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod, IFormCollection form)
         {
-            var warnings = await paymentMethod.GetPaymentDataWarningsAsync(form);
+            var validationResult = await paymentMethod.ValidatePaymentDataAsync(form);
 
-            warnings?.Each(x => ModelState.AddModelError(string.Empty, x));
-
+            validationResult.AddToModelState(ModelState);
             if (!ModelState.IsValid)
             {
                 return false;

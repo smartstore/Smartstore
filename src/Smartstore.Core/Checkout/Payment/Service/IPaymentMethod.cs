@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Widgets;
@@ -59,6 +60,13 @@ namespace Smartstore.Core.Checkout.Payment
         #region Methods
 
         /// <summary>
+        /// Validates buyer payment input.
+        /// </summary>
+        /// <param name="form">Form with payment data.</param>
+        /// <returns><see cref="PaymentValidationResult"/> instance</returns>
+        Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form);
+
+        /// <summary>
         /// Pre process a payment.
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
@@ -91,13 +99,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="form">Form with payment data.</param>
         Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form);
-
-        /// <summary>
-        /// Validates payment data entered by customer on checkout's payment page.
-        /// </summary>
-        /// <param name="form">Payment data to validate.</param>
-        /// <returns><c>null</c> if the payment data is valid, otherwise a list of warnings to be displayed.</returns>
-        Task<List<string>> GetPaymentDataWarningsAsync(IFormCollection form);
 
         /// <summary>
         /// Gets a short summary of payment data entered by customer in checkout that is displayed on the checkout's confirm page.

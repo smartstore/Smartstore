@@ -4,6 +4,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.OfflinePayment.Components;
+using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
 
 namespace Smartstore.OfflinePayment
@@ -13,6 +14,13 @@ namespace Smartstore.OfflinePayment
     [Order(1)]
     public class ManualProvider : OfflinePaymentProviderBase<ManualPaymentSettings>, IConfigurable
     {
+        private readonly IValidator<ManualPaymentInfoModel> _validator;
+
+        public ManualProvider(IValidator<ManualPaymentInfoModel> validator)
+        {
+            _validator = validator;
+        }
+
         protected override Type GetViewComponentType()
             => typeof(ManualPaymentViewComponent);
 
@@ -62,6 +70,19 @@ namespace Smartstore.OfflinePayment
             }
 
             return result;
+        }
+
+        public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
+        {
+            var model = new ManualPaymentInfoModel
+            {
+                CardholderName = form["CardholderName"],
+                CardNumber = form["CardNumber"],
+                CardCode = form["CardCode"]
+            };
+
+            var result = await _validator.ValidateAsync(model);
+            return new PaymentValidationResult(result);
         }
 
         public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
