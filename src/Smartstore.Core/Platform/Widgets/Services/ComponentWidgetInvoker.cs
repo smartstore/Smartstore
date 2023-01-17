@@ -95,6 +95,7 @@ namespace Smartstore.Core.Widgets
                 return currentArguments;
             }
 
+            // TODO: (core) This should come after evaluating & returning context.ViewData?.Model
             // non-null and non-dictionary arguments should return as is.
             if (widget.Arguments != null)
             {
@@ -117,6 +118,12 @@ namespace Smartstore.Core.Widgets
             {
                 return model;
             }
+
+            // non-null and non-dictionary arguments should return as is.
+            //if (widget.Arguments != null)
+            //{
+            //    return widget.Arguments;
+            //}
 
             currentArguments = ConvertUtility.ObjectToDictionary(model, null);
             if (currentArguments.Count == 0)
