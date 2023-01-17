@@ -18,7 +18,8 @@
 - PayPal: Fixed error that occurs when shipping fees were to high for initially authorized order amount 
 - Fixed reward points calculation
 - #602 Implemented server side validation of payment data
-- Fixed AOS init problem 
+- Fixed AOS init problem
+- Multiple file uploader instances in a single page did not work
 
 
 ## Smartstore 5.0.2

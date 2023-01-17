@@ -47,7 +47,7 @@ namespace Smartstore.Core.Widgets
                 widget.Module = moduleDescriptor?.SystemName;
             }
 
-            widget.Arguments = NormalizeComponentArguments(context, widget);
+            var arguments = GetComponentArguments(context, widget);
 
             var writer = context.Writer;
             if (writer == null)
@@ -61,32 +61,34 @@ namespace Smartstore.Core.Widgets
             // IViewComponentHelper is stateful, we want to make sure to retrieve it every time we need it.
             var viewComponentHelper = context.HttpContext.RequestServices.GetRequiredService<IViewComponentHelper>();
             (viewComponentHelper as IViewContextAware)?.Contextualize(viewContext);
-            var result = GetViewComponentResult(widget, viewComponentHelper);
+            var result = GetViewComponentResult(widget, arguments, viewComponentHelper);
             
             return result;
         }
 
-        private static Task<IHtmlContent> GetViewComponentResult(ComponentWidget widget, IViewComponentHelper viewComponentHelper)
+        private static Task<IHtmlContent> GetViewComponentResult(ComponentWidget widget, object? arguments, IViewComponentHelper viewComponentHelper)
         {
             if (widget.ComponentType == null)
             {
-                return viewComponentHelper.InvokeAsync(widget.ComponentName, widget.Arguments);
+                return viewComponentHelper.InvokeAsync(widget.ComponentName, arguments);
             }
             else
             {
-                return viewComponentHelper.InvokeAsync(widget.ComponentType, widget.Arguments);
+                return viewComponentHelper.InvokeAsync(widget.ComponentType, arguments);
             }
         }
 
-        private object? NormalizeComponentArguments(WidgetContext context, ComponentWidget widget)
+        private object? GetComponentArguments(WidgetContext context, ComponentWidget widget)
         {
-            if (widget.Arguments is JObject jobj)
+            var arguments = widget.Arguments;
+            
+            if (arguments is JObject jobj)
             {
                 // ConvertUtility.ObjectToDictionary can handle JObject
-                widget.Arguments = ConvertUtility.ObjectToDictionary(widget.Arguments, null);
+                arguments = ConvertUtility.ObjectToDictionary(arguments, null);
             }
 
-            if (widget.Arguments is IDictionary<string, object?> currentArguments)
+            if (arguments is IDictionary<string, object?> currentArguments)
             {
                 // Check whether input args dictionary has correct types,
                 // since JsonConverter is not always able to deserialize as required
@@ -95,11 +97,9 @@ namespace Smartstore.Core.Widgets
                 return currentArguments;
             }
 
-            // TODO: (core) This should come after evaluating & returning context.ViewData?.Model
-            // non-null and non-dictionary arguments should return as is.
-            if (widget.Arguments != null)
+            if (arguments != null)
             {
-                return widget.Arguments;
+                return arguments;
             }
 
             var model = context.Model ?? context.ViewData?.Model;
@@ -118,12 +118,6 @@ namespace Smartstore.Core.Widgets
             {
                 return model;
             }
-
-            // non-null and non-dictionary arguments should return as is.
-            //if (widget.Arguments != null)
-            //{
-            //    return widget.Arguments;
-            //}
 
             currentArguments = ConvertUtility.ObjectToDictionary(model, null);
             if (currentArguments.Count == 0)
