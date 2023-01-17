@@ -16,6 +16,9 @@
 - Instant search must not display default thumbs if ShowProductImagesInInstantSearch is disabled.
 - Fixed `FileNotFoundException` when uploading an import file.
 - PayPal: Fixed error that occurs when shipping fees were to high for initially authorized order amount 
+- Fixed reward points calculation
+- #602 Implemented server side validation of payment data
+- Fixed AOS init problem 
 
 
 ## Smartstore 5.0.2
