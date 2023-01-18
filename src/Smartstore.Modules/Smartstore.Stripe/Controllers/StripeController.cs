@@ -11,6 +11,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Providers;
 using Smartstore.StripeElements.Services;
@@ -271,7 +272,7 @@ namespace Smartstore.StripeElements.Controllers
         }
 
         [HttpPost]
-        [Route("stripe/webhookhandler")]
+        [Route("stripe/webhookhandler"), WebhookEndpoint]
         public async Task<IActionResult> WebhookHandler()
         {
             using var reader = new StreamReader(HttpContext.Request.Body, leaveOpen: true);
