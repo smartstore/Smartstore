@@ -364,6 +364,26 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Customer.Role.Update)]
+        public async Task<IActionResult> CustomerRoleMappingDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                var roleMappings = await _db.CustomerRoleMappings.GetManyAsync(ids, true);
+                _db.CustomerRoleMappings.RemoveRange(roleMappings);
+
+                numDeleted = await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Customer.Role.Update)]
         public async Task<IActionResult> ApplyRules(int id)
         {
             var role = await _roleManager.FindByIdAsync(id.ToString());

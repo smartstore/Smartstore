@@ -6,6 +6,10 @@
 
 - (DEV) New `WebhookEndpointAttribute` endpoint metadata. Suppresses creation of guest accounts for webhook calls.
 
+### Improvements
+
+- Allows to delete assignments of customers to customer roles that were automatically created by a rule.
+
 ### Bugfixes
 
 - Installation: changing database connection settings has no effect until app restart 

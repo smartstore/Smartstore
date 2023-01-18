@@ -8,38 +8,51 @@
 
 <datagrid id="role-mappings-grid" class="h-100"
           allow-resize="true"
+          allow-row-selection="true"
           allow-column-reordering="true"
           preserve-grid-state="true">
-    <datasource read="@Url.Action("CustomerRoleMappingList", new { id = parentModel.Id })" />
+    <datasource read="@Url.Action("CustomerRoleMappingList", new { id = parentModel.Id })" delete="@Url.Action("CustomerRoleMappingDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="IsSystemMapping" />
     </sorting>
-    @if (showRuleApplyButton)
-    {
-        <toolbar>
+    <toolbar>
+        @if (showRuleApplyButton)
+        {
             <toolbar-group>
                 <button type="button" id="reapply-rules" class="btn btn-primary btn-flat" data-url="@Url.Action("ApplyRules", new { id = parentModel.Id })">
                     <i class="fa fa-play"></i>
                     <span>@T("Admin.Rules.ReapplyRules")</span>
                 </button>
             </toolbar-group>
-        </toolbar>
-    }
+        }
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <row-commands>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
     <columns>
         <column for="Email" hideable="false">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-		@if (usernamesEnabled)
-		{
-			<column for="Username" />
-		}
-		<column for="FullName" />
-		<column for="Active" halign="center" />
-		<column for="CreatedOn" />
-		<column for="LastActivityDate" />
+        @if (usernamesEnabled)
+        {
+            <column for="Username" />
+        }
+        <column for="FullName" />
+        <column for="Active" halign="center" />
+        <column for="CreatedOn" />
+        <column for="LastActivityDate" />
         <column for="IsSystemMapping" halign="center" />
     </columns>
 </datagrid>
