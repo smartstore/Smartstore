@@ -10,17 +10,19 @@
   - Fixed `InvalidOperationException` in `Microsoft.OData.Client` "An unexpected 'StartObject' node was found for property named 'Size' when reading from the JSON reader. A 'PrimitiveValue' node was expected.".
 - Output Cache:
   - Invoking CookieManager view component throws because antiforgery token cannot be written
+- Theming
+  - Fixed top description displayed instead of bottom description on manufacturer page.
+  - Instant search must not display default thumbs if ShowProductImagesInInstantSearch is disabled.
+  - Fixed AOS init problem
+  - Multiple file uploader instances in a single page did not work
+  - Product box in listings must not close when entering the bottom action drop
 - Fixed `NullReferenceException` when deleting a shopping cart item.
-- Fixed top description displayed instead of bottom description on manufacturer page.
 - Fixed export file count was always 0 in export profile list.
-- Instant search must not display default thumbs if ShowProductImagesInInstantSearch is disabled.
 - Fixed `FileNotFoundException` when uploading an import file.
 - PayPal: Fixed error that occurs when shipping fees were to high for initially authorized order amount 
 - Fixed reward points calculation
 - #602 Implemented server side validation of payment data
-- Fixed AOS init problem
 - Fixed CheckoutState change tracking issues
-- Multiple file uploader instances in a single page did not work
 
 
 ## Smartstore 5.0.2

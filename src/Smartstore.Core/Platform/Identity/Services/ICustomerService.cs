@@ -11,9 +11,14 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Creates and inserts a guest customer account.
         /// </summary>
-        /// <param name="customerGuid">The customer GUID. Pass <c>null</c> to create a random one.</param>
+        /// <param name="generateClientIdent">
+        /// Whether to generate an identifier to be saved as generic attribute.
+        /// </param>
+        /// <param name="customAction">
+        /// An optional entity modifier action that is invoked right before the entity is saved to database.
+        /// </param>
         /// <returns>Customer</returns>
-        Task<Customer> CreateGuestCustomerAsync(Guid? customerGuid = null);
+        Task<Customer> CreateGuestCustomerAsync(bool generateClientIdent = true, Action<Customer> customAction = null);
 
         /// <summary>
         /// Tries to find a guest/anonymous customer record by client ident. This method should be called when an

@@ -144,21 +144,31 @@ namespace Smartstore.Core
 
             Customer customer = null;
 
-            // check whether request is made by a background task
+            // Check whether request is made by a webhook client.
+            if (context != null)
+            {
+                var hasWebhookAttribute = context?.GetEndpoint()?.Metadata?.GetMetadata<WebhookEndpointAttribute>() != null;
+                if (hasWebhookAttribute) 
+                {
+                    customer = await GetWebhookClientSystemAccount();
+                }
+            }
+
+            // Check whether request is made by a background task
             // in this case return built-in customer record for background task
-            if (context != null && context.Request.IsCalledByTaskScheduler())
+            if (customer == null && context != null && context.Request.IsCalledByTaskScheduler())
             {
                 customer = await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.BackgroundTask);
             }
 
-            // check whether request is made by a search engine
+            // Check whether request is made by a search engine
             // in this case return built-in customer record for search engines 
             if (customer == null && _userAgent.IsBot)
             {
                 customer = await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.SearchEngine);
             }
 
-            // check whether request is made by the PDF converter
+            // Check whether request is made by the PDF converter
             // in this case return built-in customer record for the converter
             if (customer == null && _userAgent.IsPdfConverter)
             {
@@ -166,6 +176,24 @@ namespace Smartstore.Core
             }
 
             return new AsyncOut<Customer>(customer != null, customer);
+        }
+
+        private async Task<Customer> GetWebhookClientSystemAccount()
+        {
+            var customer = await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.WebhookClient);
+
+            if (customer == null)
+            {
+                customer = await _customerService.CreateGuestCustomerAsync(false, c => 
+                {
+                    c.Email = "builtin@webhook-client.com";
+                    c.AdminComment = "Built-in system record used for webhook clients.";
+                    c.IsSystemAccount = true;
+                    c.SystemName = SystemCustomerNames.WebhookClient;
+                });
+            }
+
+            return customer;
         }
 
         protected virtual async Task<Customer> GetGuestCustomerAsync(HttpContext context)

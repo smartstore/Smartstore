@@ -17,6 +17,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Http;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
@@ -450,7 +451,7 @@ namespace Smartstore.AmazonPay.Controllers
         /// So LoadSettingsAsync(0) and LoadSettingsAsync(CurrentStore.Id) are the same thing.
         /// So for IPN-URLs it is not necessary to append the Store.Id (double information). The assignment to the store is always done via the domain.
         /// </remarks>
-        [HttpPost]
+        [HttpPost, WebhookEndpoint]
         public async Task<IActionResult> IPNHandler()
         {
             string json = null;

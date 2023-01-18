@@ -52,6 +52,10 @@ namespace Smartstore.Core.Installation
             {
                 entity.AdminComment = "Systemkonto für den PDF-Konverter.";
             }
+            else if (entity.SystemName == SystemCustomerNames.WebhookClient)
+            {
+                entity.AdminComment = "Systemkonto für einen Webhook Client.";
+            }
         }
 
         protected override void Alter(IList<MeasureDimension> entities)

@@ -112,11 +112,11 @@ INNER JOIN (
 
         #region Guest customers
 
-        public virtual async Task<Customer> CreateGuestCustomerAsync(Guid? customerGuid = null)
+        public virtual async Task<Customer> CreateGuestCustomerAsync(bool generateClientIdent = true, Action<Customer> customAction = null)
         {
             var customer = new Customer
             {
-                CustomerGuid = customerGuid ?? Guid.NewGuid(),
+                CustomerGuid = Guid.NewGuid(),
                 Active = true,
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
@@ -139,15 +139,22 @@ INNER JOIN (
 
                 // Ensure that entities are saved to db in any case
                 customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
+
+                // Invoke custom action
+                customAction?.Invoke(customer);
+
                 _db.Customers.Add(customer);
 
                 await _db.SaveChangesAsync();
 
-                var clientIdent = _webHelper.GetClientIdent();
-                if (clientIdent.HasValue())
+                if (generateClientIdent)
                 {
-                    customer.GenericAttributes.ClientIdent = clientIdent;
-                    await _db.SaveChangesAsync();
+                    var clientIdent = _webHelper.GetClientIdent();
+                    if (clientIdent.HasValue())
+                    {
+                        customer.GenericAttributes.ClientIdent = clientIdent;
+                        await _db.SaveChangesAsync();
+                    }
                 }
             }
 

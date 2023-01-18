@@ -9,6 +9,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.Web.Controllers;
@@ -90,7 +91,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
-        [Route("paypal/webhookhandler")]
+        [Route("paypal/webhookhandler"), WebhookEndpoint]
         public async Task<IActionResult> WebhookHandler()
         {
             string rawRequest = null;
@@ -108,11 +109,7 @@ namespace Smartstore.PayPal.Controllers
                     var response = await VerifyWebhookRequest(Request, webhookEvent);
                     var resource = webhookEvent.Resource;
 
-                    var customId = resource?.CustomId;
-                    if (customId == null)
-                    {
-                        customId = resource?.PurchaseUnits?[0]?.CustomId;
-                    }
+                    var customId = resource?.CustomId ?? resource?.PurchaseUnits?[0]?.CustomId;
                     
                     var webhookResourceType = webhookEvent.ResourceType?.ToLowerInvariant();
 
