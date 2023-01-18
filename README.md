@@ -63,34 +63,33 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity
 </p>
 
 
-* Multi-Store support
-* Multi-language and comprehensive RTL (Right-to-left) and bidi(rectional) support
+* Multi-store support
+* Multi-language and full RTL and Bidi support
 * Multi-currency support
-* Product Bundles, Variants, Attributes, ESD, Tier Prices, Cross Selling and many more
-* Sophisticated Marketing & Promotion capabilities (Gift Cards, Reward Points, Discounts of any type and more)
+* Product bundles, variants, attributes, ESD, tier pricing, cross-selling and more
+* Sophisticated marketing & promotion capabilities (gift cards, reward points, discounts of any kind, and more)
 * Reviews & Ratings
-* Media Manager: powerful and lightning-fast explorer for media files
+* Media Manager: powerful and lightning fast media file explorer
 * Rule Builder: powerful rule system for visual business rule creation with dozens of predefined rules out-of-the-box
-* Search framework with faceted search support. Ultra fast search results, even with millions of items!
-* Extremely scalable thanks to output caching, REDIS & Microsoft Azure support
+* Search framework with faceted search support. Ultra-fast search results, even with millions of items!
+* Extremely scalable through output caching, REDIS & Microsoft Azure support
 * Tree-based permission management (ACL) with inheritance support
-* Sophisticated import/export framework (profiles, filters, mapping, projections, scheduling, deployment... just everything!)
-* CMS Page Builder: create fascinating content that will boost your sales. No coding is required thanks to a powerful WYSIWYG editor which utilizes the revolutionary CSS Grid system
-* Blog, Forum, Polls, custom pages & HTML content etc.
-* CMS Menu Builder: visual manager for all sorts of menus. Change existing menus or create your own and place them anywhere you want
-* Modern, clean, SEO-optimized and fully responsive theme based on `Bootstrap`
+* Sophisticated import/export framework (profiles, filters, mapping, projections, scheduling, deployment... basically everything!)
+* CMS Page Builder: Create compelling content that drives sales. No coding required thanks to a powerful WYSIWYG editor using the revolutionary CSS grid system
+* Blog, forum, polls, custom pages & HTML content etc.
+* CMS Menu Builder: visual manager for all kinds of menus. Modify existing menus or create your own and place them anywhere you want.
+* Modern, clean, SEO-optimized and fully responsive `Bootstrap`-based theme
 * Support for hierarchical SEO slugs, e.g.: *samsung/galaxy/s22/32gb/white*
-* *Trusted Shops* precertification and full compliance with EU-GDPR requirements
-* 100% compliant with German jurisdiction
-* Sales-, Customer- & Inventory-management
+* *Trusted Shops* pre-certification and full EU-GDPR compliance
+* 100% compliant with German law
+* Sales-, Customer- & Inventory Management
 * Comprehensive CRM features
-* Powerful layered navigation in the shop
-* Numerous Payment and Shipping providers and options
-* Wallet: enables full or partial order payment via credit account
-* TinyImage: scores ultra-high image compression rates (up to 80 %!) and enables WebP support
+* Powerful layered shop navigation
+* Numerous payment and shipping providers and options
+* Wallet: allows full or partial payment of orders via credit account
+* TinyImage: achieves ultra-high image compression rates (up to 80%!) and enables WebP support
 * Preview Mode: virtually test themes and stores more easily
 * RESTful WebApi (coming soon)
-* and many more...
 <p>&nbsp;</p>
 
 ## Getting Started
@@ -105,16 +104,16 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity
 
 ### Upgrade from Smartstore.NET 4.2
 
-Smartstore 5 is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) - which is built on classic .NET Framework 4.7.2 – to the new `ASP.NET Core 7` platform. Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [perform the upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. [Check the docs for detailed information about installing or upgrading your shop](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
+Smartstore 5 is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) - based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 7` platform. Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), all you need to do is replace the application files on your server - except for the `App_Data` directory - and **all your data will automatically be transferred to the new system**. [See the documentation for detailed information on installing or upgrading your store](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
 
- :information_source: Upgrading from versions older than 4.2 is not possible. Therefore, you should first migrate Smartstore.NET to version 4.2 and then upgrade to Smartstore 5.
+ :information_source: Upgrading from versions older than 4.2 is not possible. Therefore, you should migrate Smartstore.NET to version 4.2 first and then upgrade to Smartstore 5.
 
 ### Visual Studio
 
 - Clone the repository using the command `git clone https://github.com/smartstore/Smartstore.git` and checkout the `main` branch.
 - Download Visual Studio 2022 (any edition) from https://www.visualstudio.com/downloads/
 - Open `Smartstore.sln` and wait for Visual Studio to restore all NuGet packages
-- Ensure `Smartstore.Web` is the startup project and run it
+- Make sure `Smartstore.Web` is the startup project and run it
 
 ### Repository Structure
 
@@ -138,36 +137,36 @@ Smartstore 5 is a port of [Smartstore.NET 4](https://github.com/smartstore/Smart
 
 ### Option 2 - by running a build script
 
-Run the build script corresponding to your target platform in the directory **build**: `build.{Platform}.cmd`. The result build will be placed in the directory `build/artifacts/Community.{Version}.{Platform}`. Also, a zip archive is created automatically in **build/artifacts/**.
+Run the build script corresponding to your target platform in the **build** directory: `build.{Platform}.cmd`. The resulting build will be placed in the `build/artifacts/Community.{Version}.{Platform}` directory. A zip archive in **build/artifacts/** is created automatically.
 
-By default, the build script produces a platform-dependent, self-contained application that includes the ASP.NET runtime and libraries, the Smartstore application and its dependencies. You can run it on any machine that doesn't have the .NET runtime installed.
+By default, the build script produces a platform-specific, self-contained application that includes the ASP.NET runtime and libraries, the Smartstore application and its dependencies. You can run it on any machine that doesn't have the .NET runtime installed.
 
-Smartstore uses Nuke (https://nuke.build/) as build automation solution, which makes it easy to customize the build process by editing the file `src/Smartstore.Build/Smartstore.Build/Build.cs`.
+Smartstore uses Nuke (https://nuke.build/) as its build automation solution, which makes it easy to customize the build process by editing `src/Smartstore.Build/Smartstore.Build/Build.cs`.
 
-### Info about "src/Smartstore.Web/Modules" directory
+### About the "src/Smartstore.Web/Modules" directory
 
-While building the solution, all modules in `src/Smartstore.Modules/` are discovered, compiled and placed in the `src/Smartstore.Web/Modules/` directory. The application runtime uses this directory as a source from which modules are dynamically
-loaded from. However, during development, the "Modules" directory is irrelevant. You can safely delete it at any time.
+While building the solution, all modules in `src/Smartstore.Modules/` are detected, compiled and placed in the `src/Smartstore.Web/Modules/` directory. The application runtime uses this directory as a source from which modules are 
+loaded dynamically. During development, however, the "Modules" directory is irrelevant. You can safely delete it at any time.
 
 ### Creating Docker images
 
-To create a Docker image run `build/dockerize.{Platform}[.nobuild].sh`.
+To create a Docker image, run `build/dockerize.{Platform}[.nobuild].sh`.
 
 ##### dockerize.linux.sh
 
-Creates a Debian Linux base image including the complete ASP.NET runtime, builds the solution and publishes a framework-dependent application within the Linux container. Also installs **wkhtmltopdf** native library which is required to generate PDF files.
+Creates a Debian Linux base image including the complete ASP.NET runtime, builds the solution and publishes a framework-dependent application inside the Linux container. It also installs the native **wkhtmltopdf** library needed to generate PDF files.
 
 ##### dockerize.linux.nobuild.sh
 
-Much faster, but requires that the application was previously built and is located in `build/artifacts/Community.{Version}.linux-x64`. Creates a Debian Linux base image including the ASP.NET runtime dependencies only and copies the build artifact. Also installs **wkhtmltopdf** native library which is required to generate PDF files.
+Much faster, but requires that the application has already been built and is located in `build/artifacts/Community.{Version}.linux-x64`. Creates a Debian Linux base image with only the ASP.NET runtime dependencies and copies the build artifact. It also installs the native **wkhtmltopdf** library needed to generate PDF files.
 
 ##### dockerize.windows.nobuild.sh
 
-Creates a Windows Nano Server base image including the ASP.NET runtime dependencies only and copies the build artifact. Requires that the application was previously built and is located in `build/artifacts/Community.{Version}.win-x64`. Also requires that the Docker engine is running a Windows image.
+Creates a Windows Nano Server base image with only the ASP.NET runtime dependencies and copies the build artifact. Requires that the application has already been built and is located in `build/artifacts/Community.{Version}.win-x64`. It also requires that the Docker engine is running a Windows image.
 
 ### Creating Docker containers
 
-To create a ready-to-run Docker container including a database server run `compose.{DbSystem}.sh`. 
+To create a ready-to-run Docker container with a database server run `compose.{DbSystem}.sh`. 
 
 ##### compose.mysql.sh
 
@@ -180,7 +179,7 @@ Creates a composite Docker container containing the **smartstore** application i
 
 ## Try it online
 
-We have set up a live online demo for you so you are able to test Smartstore without local installation. Get a first impression and test all available features in the front- and in the backend. Please keep in mind that the backend demo is shared and other testers can modify data at the same time.
+We have set up a live online demo for you to test Smartstore without a local installation. Get a first impression and test all available features in the frontend and backend. Please note that the backend demo is shared and other testers can modify data at the same time.
 
 * [**Frontend**](https://core.smartstore.com/frontend/en) (User: demo, PWD: 1234)
 * [**Backend**](https://core.smartstore.com/backend/admin/) (User: demo, PWD: 1234)
@@ -190,4 +189,4 @@ We have set up a live online demo for you so you are able to test Smartstore wit
 
 Smartstore Community Edition is released under the [AGPL license](https://www.gnu.org/licenses/agpl-3.0.de.html).
 
-**Give our new repository a star** to stay up-to-date, get involved or just watch how we're doing. Learn all about the latest development, participate actively and last but not least, don't miss new releases.
+**Add a star to our new repository** to stay up-to-date, get involved or just watch how we're doing. Learn about the latest developments, actively participate and don't miss out on new releases.
