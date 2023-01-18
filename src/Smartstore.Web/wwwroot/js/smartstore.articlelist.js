@@ -19,7 +19,7 @@
         var drop = art.find('.art-drop');
 
         if (drop.length > 0) {
-            drop.css('bottom', ((drop.outerHeight(true) * -1) + 1) + 'px');
+            drop.css('bottom', ((drop.outerHeight(true) * -1) + 2) + 'px');
             art.addClass('active');
             // the Drop can be overlayed by succeeding elements otherwise
             list.css('z-index', 100);
