@@ -233,6 +233,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [FormValueRequired("save", "save-continue")]
         [Permission(Permissions.Customer.Role.Update)]
         public async Task<IActionResult> Edit(CustomerRoleModel model, bool continueEditing, IFormCollection form)
         {
@@ -316,12 +317,35 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Customer.Role.Read)]
-        public async Task<IActionResult> CustomerRoleMappingList(GridCommand command, int id)
+        public async Task<IActionResult> CustomerRoleMappingList(GridCommand command, CustomerRoleModel model)
         {
             var query = _db.CustomerRoleMappings
                 .AsNoTracking()
                 .Include(x => x.Customer)
-                .Where(x => x.CustomerRoleId == id && x.Customer != null)
+                .Where(x => x.CustomerRoleId == model.Id && x.Customer != null);
+
+            if (model.SearchEmail.HasValue())
+            {
+                query = query.Where(x => x.Customer.Email.Contains(model.SearchEmail));
+            }
+            if (model.SearchUsername.HasValue())
+            {
+                query = query.Where(x => x.Customer.Username.Contains(model.SearchUsername));
+            }
+            if (model.SearchCustomerNumber.HasValue())
+            {
+                query = query.Where(x => x.Customer.CustomerNumber.Contains(model.SearchCustomerNumber));
+            }
+            if (model.SearchTerm.HasValue())
+            {
+                query = query.Where(x => x.Customer.FullName.Contains(model.SearchTerm) || x.Customer.Company.Contains(model.SearchTerm));
+            }
+            if (model.SearchActiveOnly != null)
+            {
+                query = query.Where(x => x.Customer.Active == model.SearchActiveOnly);
+            }
+
+            var rows = await query
                 .OrderBy(x => x.IsSystemMapping)
                 .Select(x => new CustomerRoleMappingModel
                 {
@@ -334,14 +358,12 @@ namespace Smartstore.Admin.Controllers
                     CreatedOn = x.Customer.CreatedOnUtc,
                     LastActivityDate = x.Customer.LastActivityDateUtc,
                     IsSystemMapping = x.IsSystemMapping
-                });
-
-            var rows = await query
-                .ApplyGridCommand(command, false)
+                })
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var role = await _roleManager.FindByIdAsync(id.ToString());
+            var role = await _roleManager.FindByIdAsync(model.Id.ToString());
             var isGuestRole = role.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests);
             var emailFallbackStr = isGuestRole ? T("Admin.Customers.Guest").Value : string.Empty;
 
@@ -350,16 +372,14 @@ namespace Smartstore.Admin.Controllers
                 row.Email = row.Email.NullEmpty() ?? emailFallbackStr;
                 row.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(row.CreatedOn, DateTimeKind.Utc);
                 row.LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(row.LastActivityDate, DateTimeKind.Utc);
-                row.EditUrl = Url.Action("Edit", "Customer", new { id = row.CustomerId, area = "Admin" });
+                row.EditUrl = Url.Action(nameof(CustomerController.Edit), "Customer", new { id = row.CustomerId, area = "Admin" });
             }
 
-            var gridModel = new GridModel<CustomerRoleMappingModel>
+            return Json(new GridModel<CustomerRoleMappingModel>
             {
                 Rows = rows,
                 Total = rows.TotalCount
-            };
-
-            return Json(gridModel);
+            });
         }
 
         [HttpPost]

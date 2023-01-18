@@ -8,7 +8,7 @@
 
 ### Improvements
 
-- Allows to delete assignments of customers to customer roles that were automatically created by a rule.
+- Allows to delete and filter assignments of customers to customer roles that were automatically created by a rule.
 
 ### Bugfixes
 

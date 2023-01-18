@@ -17,6 +17,11 @@
         <sort by="IsSystemMapping" />
     </sorting>
     <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
         @if (showRuleApplyButton)
         {
             <toolbar-group>
@@ -36,6 +41,9 @@
             </button>
         </toolbar-group>
     </toolbar>
+    <search-panel>
+        <partial name="_Grid.RoleMappings.Search" model="parentModel" />
+    </search-panel>
     <row-commands>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
