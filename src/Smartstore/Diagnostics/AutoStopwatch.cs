@@ -7,14 +7,14 @@ namespace Smartstore.Diagnostics
     {
         private readonly ILogger _logger;
         private readonly string _message;
-        private readonly Stopwatch _stopwatch;
+        private readonly Stopwatch _watch;
         private bool _disposed;
 
         public AutoStopwatch(ILogger logger, string message) =>
-            (_logger, _message, _stopwatch) = (logger, message, Stopwatch.StartNew());
+            (_logger, _message, _watch) = (logger, message, Stopwatch.StartNew());
 
         public AutoStopwatch(string message) =>
-            (_message, _stopwatch) = (message, Stopwatch.StartNew());
+            (_message, _watch) = (message, Stopwatch.StartNew());
 
         public void Dispose()
         {
@@ -23,13 +23,15 @@ namespace Smartstore.Diagnostics
                 return;
             }
 
+            var message = $"{_message}: {_watch.ElapsedMilliseconds} ms. ({_watch.ElapsedTicks} ticks)";
+
             if (_logger != null)
             {
-                _logger.LogInformation($"{_message}: {_stopwatch.ElapsedMilliseconds}ms");
+                _logger.LogDebug(message);
             }
             else
             {
-                Debug.WriteLine($"{_message}: {_stopwatch.ElapsedMilliseconds}ms");
+                Debug.WriteLine(message);
             }    
 
             _disposed = true;
