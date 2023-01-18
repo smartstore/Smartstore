@@ -519,17 +519,17 @@ namespace Smartstore.Web.Controllers
             customer.GenericAttributes.SelectedPaymentMethod = paymentMethod;
             await customer.GenericAttributes.SaveChangesAsync();
 
-            // Validate info
-            if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value, form))
-            {
-                return await PaymentMethod();
-            }
-
             // Save payment data so that the user must not re-enter it.
             var state = _checkoutStateAccessor.CheckoutState;
             foreach (var kvp in form)
             {
                 state.PaymentData[kvp.Key] = kvp.Value.ToString();
+            }
+
+            // Validate info
+            if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value, form))
+            {
+                return await PaymentMethod();
             }
 
             return RedirectToAction(nameof(Confirm));

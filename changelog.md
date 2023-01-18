@@ -31,6 +31,7 @@
 - PayPal: Fixed error that occurs when shipping fees were to high for initially authorized order amount 
 - Fixed reward points calculation
 - #602 Implemented server side validation of payment data
+- #603 Fixed after payment validation failure the data entry form is resetted.
 - Fixed CheckoutState change tracking issues
 
 
