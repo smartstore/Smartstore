@@ -64,7 +64,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity
 
 
 * Multi-store support
-* Multi-language and full RTL and Bidi support
+* Multi-language and full RTL (Right-to-Left) and Bidi(rectional) support
 * Multi-currency support
 * Product bundles, variants, attributes, ESD, tier pricing, cross-selling and more
 * Sophisticated marketing & promotion capabilities (gift cards, reward points, discounts of any kind, and more)
