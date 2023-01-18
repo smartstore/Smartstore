@@ -2,7 +2,12 @@
 
 ## Smartstore 5.0.2.1
 
+### New Features
+
+- (DEV) New `WebhookEndpointAttribute` endpoint metadata. Suppresses creation of guest accounts for webhook calls.
+
 ### Bugfixes
+
 - Installation: changing database connection settings has no effect until app restart 
 - Web API: 
   - Fixed wrong $metadata configuration of `System.String[]` as a complex type instead of `ICollection<string>`.
