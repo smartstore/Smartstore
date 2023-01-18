@@ -13,6 +13,7 @@ using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Scheduling;
@@ -338,7 +339,8 @@ namespace Smartstore.Admin.Controllers
             }
             if (model.SearchTerm.HasValue())
             {
-                query = query.Where(x => x.Customer.FullName.Contains(model.SearchTerm) || x.Customer.Company.Contains(model.SearchTerm));
+                // INFO: (mg) (core) You can't make a field a search expression field and not apply the search filter
+                query = query.ApplySearchFilter(model.SearchTerm, LogicalRuleOperator.Or, x => x.Customer.FullName, x => x.Customer.Company);
             }
             if (model.SearchActiveOnly != null)
             {
