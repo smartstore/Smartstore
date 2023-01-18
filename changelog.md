@@ -19,6 +19,7 @@
 - Fixed reward points calculation
 - #602 Implemented server side validation of payment data
 - Fixed AOS init problem
+- Fixed CheckoutState change tracking issues
 - Multiple file uploader instances in a single page did not work
 
 
