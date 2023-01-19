@@ -157,6 +157,7 @@ namespace Smartstore.Core.Messaging
             // Model
             dynamic m = new ExpandoObject();
 
+            m.TotalAmount = orderTotal.Amount;
             m.Total = _helper.FormatPrice(orderTotal.Amount, customerCurrency, messageContext);
             m.SubTotal = subTotals.SubTotal;
             m.IsGross = order.CustomerTaxDisplayType == TaxDisplayType.IncludingTax;
