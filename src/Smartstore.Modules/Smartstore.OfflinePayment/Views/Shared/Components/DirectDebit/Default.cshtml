@@ -43,7 +43,7 @@ else
         </div>
     </div>
 
-    <div class="ipayment-no-iban">
+    <div class="dd-payment-no-iban">
         <div class="form-group row">
             <label asp-for="DirectDebitAccountNumber" class="col-md-3 col-form-label required"></label>
             <div class="col-md-9">
@@ -67,7 +67,7 @@ else
         </div>
     </div>
 
-    <div class="ipayment-iban">
+    <div class="dd-payment-iban">
         <div class="form-group row">
             <label asp-for="DirectDebitIban" class="col-md-3 col-form-label required"></label>
             <div class="col-md-9">
@@ -101,7 +101,7 @@ else
     });
 
     function SwitchEnterIban(newType) {
-        $('.ipayment-' + newType).slideDown('fast');
-        $('.ipayment-' + (newType === 'iban' ? 'no-iban' : 'iban')).slideUp('fast');
+        $('.dd-payment-' + newType).slideDown('fast');
+        $('.dd-payment-' + (newType === 'iban' ? 'no-iban' : 'iban')).slideUp('fast');
     }
 </script>

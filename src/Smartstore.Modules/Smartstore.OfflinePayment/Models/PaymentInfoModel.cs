@@ -85,7 +85,6 @@ namespace Smartstore.OfflinePayment.Models
         public string PurchaseOrderNumber { get; set; }
     }
 
-
     #region Validators 
 
     public class DirectDebitPaymentInfoValidator : AbstractValidator<DirectDebitPaymentInfoModel>
@@ -95,8 +94,10 @@ namespace Smartstore.OfflinePayment.Models
             RuleFor(x => x.DirectDebitAccountHolder).NotEmpty();
             RuleFor(x => x.DirectDebitAccountNumber).NotEmpty().When(x => x.EnterIBAN == "no-iban");
             RuleFor(x => x.DirectDebitBankCode).NotEmpty().When(x => x.EnterIBAN == "no-iban");
+            RuleFor(x => x.DirectDebitCountry).NotEmpty().When(x => x.EnterIBAN == "no-iban");
             RuleFor(x => x.DirectDebitIban).Matches(RegularExpressions.IsIban).When(x => x.EnterIBAN == "iban");
             RuleFor(x => x.DirectDebitBic).Matches(RegularExpressions.IsBic).When(x => x.EnterIBAN == "iban");
+            RuleFor(x => x.DirectDebitBankName).NotEmpty();
         }
     }
 
@@ -105,7 +106,9 @@ namespace Smartstore.OfflinePayment.Models
         public ManualPaymentInfoValidator(Localizer T)
         {
             RuleFor(x => x.CardholderName).NotEmpty();
+            RuleFor(x => x.CardNumber).NotEmpty();
             RuleFor(x => x.CardNumber).CreditCard().WithMessage(T("Payment.CardNumber.Wrong"));
+            RuleFor(x => x.CardCode).NotEmpty();
             RuleFor(x => x.CardCode).CreditCardCvvNumber();
         }
     }
