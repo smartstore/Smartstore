@@ -33,6 +33,7 @@
 - #602 Implemented server side validation of payment data
 - #603 Fixed after payment validation failure the data entry form is resetted.
 - Fixed CheckoutState change tracking issues
+- Fixed IBAN radio button issue when using direct debit offline payment.
 
 
 ## Smartstore 5.0.2
