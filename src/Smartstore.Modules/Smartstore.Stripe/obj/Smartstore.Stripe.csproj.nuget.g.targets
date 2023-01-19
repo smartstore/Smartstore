@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)microsoft.aspnetcore.mvc.razor.runtimecompilation\6.0.10\buildTransitive\net6.0\Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.aspnetcore.mvc.razor.runtimecompilation\6.0.10\buildTransitive\net6.0\Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation.targets')" />
+  </ImportGroup>
+</Project>

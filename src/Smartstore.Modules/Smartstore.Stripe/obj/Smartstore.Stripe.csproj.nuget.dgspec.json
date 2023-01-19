@@ -1,0 +1,849 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Modules\\Smartstore.Stripe\\Smartstore.Stripe.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj": {
+      "version": "5.0.1",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj",
+        "projectName": "Smartstore.Core",
+        "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj",
+        "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\micha\\source\\repos\\Smartstore\\NuGet.Config",
+          "C:\\Users\\micha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/miniprofiler/api/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Autofac.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "CoreFtp": {
+              "target": "Package",
+              "version": "[1.4.0, )"
+            },
+            "DotLiquid": {
+              "target": "Package",
+              "version": "[2.2.656, )"
+            },
+            "ExcelDataReader": {
+              "target": "Package",
+              "version": "[3.6.0, )"
+            },
+            "FluentMigrator": {
+              "target": "Package",
+              "version": "[3.3.2, )"
+            },
+            "FluentMigrator.Runner": {
+              "target": "Package",
+              "version": "[3.3.2, )"
+            },
+            "FluentValidation.AspNetCore": {
+              "target": "Package",
+              "version": "[11.2.2, )"
+            },
+            "LumenWorksCsvReader": {
+              "target": "Package",
+              "version": "[4.0.0, )"
+            },
+            "MaxMind.Db": {
+              "target": "Package",
+              "version": "[4.0.0, )"
+            },
+            "MaxMind.GeoIP2": {
+              "target": "Package",
+              "version": "[5.1.0, )"
+            },
+            "Microsoft.AspNetCore.Identity": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            },
+            "Parlot": {
+              "target": "Package",
+              "version": "[0.0.23, )"
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[7.2.3, )"
+            },
+            "PreMailer.Net": {
+              "target": "Package",
+              "version": "[2.4.0, )"
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
+            "Serilog.Expressions": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "Serilog.Sinks.Async": {
+              "target": "Package",
+              "version": "[1.5.0, )"
+            },
+            "Serilog.Sinks.Map": {
+              "target": "Package",
+              "version": "[1.0.2, )"
+            },
+            "Serilog.Sinks.PeriodicBatching": {
+              "target": "Package",
+              "version": "[3.1.0, )"
+            },
+            "System.Linq.Dynamic.Core": {
+              "target": "Package",
+              "version": "[1.2.20, )"
+            },
+            "System.Memory.Data": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "System.ServiceModel.Http": {
+              "target": "Package",
+              "version": "[4.10.0, )"
+            },
+            "UAParser": {
+              "target": "Package",
+              "version": "[3.1.47, )"
+            },
+            "XiaoYang.EntityFrameworkCore.Bulk": {
+              "target": "Package",
+              "version": "[6.0.29, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.403\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.MySql\\Smartstore.Data.MySql.csproj": {
+      "version": "5.0.1",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.MySql\\Smartstore.Data.MySql.csproj",
+        "projectName": "Smartstore.Data.MySql",
+        "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.MySql\\Smartstore.Data.MySql.csproj",
+        "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.MySql\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\micha\\source\\repos\\Smartstore\\NuGet.Config",
+          "C:\\Users\\micha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/miniprofiler/api/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Pomelo.EntityFrameworkCore.MySql": {
+              "target": "Package",
+              "version": "[6.0.2, )"
+            },
+            "XiaoYang.EntityFrameworkCore.Bulk.MySql": {
+              "target": "Package",
+              "version": "[6.0.29, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.403\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.SqlServer\\Smartstore.Data.SqlServer.csproj": {
+      "version": "5.0.1",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.SqlServer\\Smartstore.Data.SqlServer.csproj",
+        "projectName": "Smartstore.Data.SqlServer",
+        "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.SqlServer\\Smartstore.Data.SqlServer.csproj",
+        "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.SqlServer\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\micha\\source\\repos\\Smartstore\\NuGet.Config",
+          "C:\\Users\\micha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/miniprofiler/api/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[5.0.1, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "XiaoYang.EntityFrameworkCore.Bulk.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.29, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.403\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Modules\\Smartstore.Stripe\\Smartstore.Stripe.csproj": {
+      "version": "5.0.1",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Modules\\Smartstore.Stripe\\Smartstore.Stripe.csproj",
+        "projectName": "Smartstore.Stripe",
+        "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Modules\\Smartstore.Stripe\\Smartstore.Stripe.csproj",
+        "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Modules\\Smartstore.Stripe\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\micha\\source\\repos\\Smartstore\\NuGet.Config",
+          "C:\\Users\\micha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/miniprofiler/api/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web.Common\\Smartstore.Web.Common.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web.Common\\Smartstore.Web.Common.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web\\Smartstore.Web.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web\\Smartstore.Web.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Stripe.net": {
+              "target": "Package",
+              "version": "[40.16.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.403\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web.Common\\Smartstore.Web.Common.csproj": {
+      "version": "5.0.1",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web.Common\\Smartstore.Web.Common.csproj",
+        "projectName": "Smartstore.Web.Common",
+        "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web.Common\\Smartstore.Web.Common.csproj",
+        "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web.Common\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\micha\\source\\repos\\Smartstore\\NuGet.Config",
+          "C:\\Users\\micha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/miniprofiler/api/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Autofac.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "AutoprefixerHost": {
+              "target": "Package",
+              "version": "[3.0.25, )"
+            },
+            "DouglasCrockford.JsMin": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            },
+            "FluentValidation.AspNetCore": {
+              "target": "Package",
+              "version": "[11.2.2, )"
+            },
+            "JavaScriptEngineSwitcher.V8": {
+              "target": "Package",
+              "version": "[3.20.4, )"
+            },
+            "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": {
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "Microsoft.AspNetCore.OData": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "NUglify": {
+              "target": "Package",
+              "version": "[1.20.2, )"
+            },
+            "SharpScss": {
+              "target": "Package",
+              "version": "[2.0.0, )"
+            },
+            "Smartstore.Licensing": {
+              "target": "Package",
+              "version": "[5.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.403\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web\\Smartstore.Web.csproj": {
+      "version": "5.0.1",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web\\Smartstore.Web.csproj",
+        "projectName": "Smartstore.Web",
+        "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web\\Smartstore.Web.csproj",
+        "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\micha\\source\\repos\\Smartstore\\NuGet.Config",
+          "C:\\Users\\micha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/miniprofiler/api/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Core\\Smartstore.Core.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.MySql\\Smartstore.Data.MySql.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.MySql\\Smartstore.Data.MySql.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.SqlServer\\Smartstore.Data.SqlServer.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Data\\Smartstore.Data.SqlServer\\Smartstore.Data.SqlServer.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web.Common\\Smartstore.Web.Common.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore.Web.Common\\Smartstore.Web.Common.csproj"
+              },
+              "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj": {
+                "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Autofac.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Azure.Core": {
+              "target": "Package",
+              "version": "[1.25.0, )"
+            },
+            "FluentValidation.AspNetCore": {
+              "target": "Package",
+              "version": "[11.2.2, )"
+            },
+            "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "Microsoft.ClearScript.V8.Native.linux-x64": {
+              "target": "Package",
+              "version": "[7.3.4, )"
+            },
+            "Microsoft.ClearScript.V8.Native.osx-x64": {
+              "target": "Package",
+              "version": "[7.3.4, )"
+            },
+            "Microsoft.ClearScript.V8.Native.win-x64": {
+              "target": "Package",
+              "version": "[7.3.4, )"
+            },
+            "Microsoft.ClearScript.V8.Native.win-x86": {
+              "target": "Package",
+              "version": "[7.3.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "System.Runtime.Caching": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.osx-x64",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.win-x86",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.linux-x64",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.osx-x64",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.linux-x64",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.osx-x64",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.win-x64",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.win-x86",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+              "version": "[6.0.11, 6.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x86",
+              "version": "[6.0.11, 6.0.11]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.403\\RuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "linux-x64": {
+          "#import": []
+        },
+        "osx-x64": {
+          "#import": []
+        },
+        "win-x64": {
+          "#import": []
+        },
+        "win-x86": {
+          "#import": []
+        }
+      }
+    },
+    "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj": {
+      "version": "5.0.1",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj",
+        "projectName": "Smartstore",
+        "projectPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\Smartstore.csproj",
+        "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micha\\source\\repos\\Smartstore\\src\\Smartstore\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\micha\\source\\repos\\Smartstore\\NuGet.Config",
+          "C:\\Users\\micha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/miniprofiler/api/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AngleSharp": {
+              "target": "Package",
+              "version": "[0.17.1, )"
+            },
+            "AngleSharp.Css": {
+              "target": "Package",
+              "version": "[0.16.4, )"
+            },
+            "Autofac.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Barcoder": {
+              "target": "Package",
+              "version": "[1.1.1, )"
+            },
+            "CronExpressionDescriptor": {
+              "target": "Package",
+              "version": "[2.17.2, )"
+            },
+            "HtmlSanitizer": {
+              "target": "Package",
+              "version": "[7.1.542, )"
+            },
+            "Humanizer": {
+              "target": "Package",
+              "version": "[2.14.1, )"
+            },
+            "MailKit": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[6.0.10, )"
+            },
+            "Microsoft.Extensions.DependencyModel": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "Newtonsoft.Json.Bson": {
+              "target": "Package",
+              "version": "[1.0.2, )"
+            },
+            "NuGet.Protocol": {
+              "target": "Package",
+              "version": "[6.3.1, )"
+            },
+            "SixLabors.ImageSharp": {
+              "target": "Package",
+              "version": "[2.1.3, )"
+            },
+            "SixLabors.ImageSharp.Drawing": {
+              "target": "Package",
+              "version": "[1.0.0-beta15, )"
+            },
+            "System.IO.FileSystem.AccessControl": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "System.Linq.Async": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
+            "System.Linq.Dynamic.Core": {
+              "target": "Package",
+              "version": "[1.2.20, )"
+            },
+            "System.ServiceModel.Syndication": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "ncrontab": {
+              "target": "Package",
+              "version": "[3.3.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.403\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

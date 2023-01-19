@@ -1,0 +1,117 @@
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+	<LocaleResource Name="Plugins.FriendlyName.Smartstore.StripeElements" AppendRootKey="false">
+		<Value>Stripe</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.StripeElements" AppendRootKey="false">
+		<Value>Extends the store with Stripe payment.</Value>
+	</LocaleResource>
+
+    <!-- 
+        TODO: (mh) (core) 
+        Alter this when the following issue is resolved
+        https://github.com/smartstore/Smartstore/issues/574
+        The following two resources should be display in the frontend.
+    -->
+	<LocaleResource Name="Plugins.FriendlyName.Payments.StripeElements" AppendRootKey="false">
+		<Value>Pay now with Stripe</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.Description.Payments.StripeElements" AppendRootKey="false">
+		<Value>Opens a secure payment window where the payment is made directly with Stripe.</Value>
+	</LocaleResource>
+	
+	<LocaleResource Name="Plugins.Smartstore.Stripe" AppendRootKey="false">
+		<Children>
+			<LocaleResource Name="AdminInstruction">
+				<Value>
+					<![CDATA[
+						<p>To set up <b>Stripe Elements</b>:</p>
+                        <ul>
+                            <li>Create an account with Stripe or log in with your existing account.</li>
+                            <li>Navigate to <b>Developer / API Key</b>.</li>
+                            <li>Copy the <b>Publishable Key</b> and the <b>Secret Key</b> below into the fields provided.</li>
+                            <li>Navigate to <b>Developer / Webhooks</b></li>
+                            <li>Now add a new endpoint. For the URL, enter the URL that is shown below.</li>
+                            <li>Now enter the secret key for the signature in the form field provided below.</li>
+                        </ul>
+					]]>
+				</Value>
+			</LocaleResource>
+			
+			<LocaleResource Name="UseSandbox">
+				<Value>Use test mode</Value>
+			</LocaleResource>
+			<LocaleResource Name="UseSandbox.Hint">
+				<Value>Specifies whether payments will be executed in test mode.</Value>
+			</LocaleResource>
+            <LocaleResource Name="CaptureMethod">
+                <Value>Capture method</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Hint">
+                <Value>Controls when the funds will be captured from the customer’s account.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Automatic">
+                <Value>Automatic</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Manual">
+                <Value>Manual</Value>
+            </LocaleResource>
+            <LocaleResource Name="PublicApiKey">
+                <Value>Public API Key</Value>
+            </LocaleResource>
+            <LocaleResource Name="PublicApiKey.Hint">
+                <Value>Enter the public API key here, which can be viewed in the Stripe dashboard.</Value>
+            </LocaleResource>
+            <LocaleResource Name="SecrectApiKey">
+                <Value>Secret API Key</Value>
+            </LocaleResource>
+            <LocaleResource Name="SecrectApiKey.Hint">
+                <Value>Enter the secret API key here, which can be viewed in the Stripe dashboard.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookSecret">
+                <Value>Webhook Secret Key</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookSecret.Hint">
+                <Value>Enter the secret key for the webhook here.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl">
+                <Value>Endpoint URL</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl.Hint">
+                <Value>Store this URL in your Stripe account as the endpoint URL for the webhook.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl.Copy">
+                <Value>Copy</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl.CopySuccess">
+                <Value>The link was successfully copied to the clipboard.</Value>
+            </LocaleResource>
+			<LocaleResource Name="AdditionalFee">
+				<Value>Additional fee</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFee.Hint">
+				<Value>Enter additional fee to charge your customers.</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFeePercentage">
+				<Value>Additional fee. Use percentage</Value>
+			</LocaleResource>
+			<LocaleResource Name="AdditionalFeePercentage.Hint">
+				<Value>Specifies whether to apply a additional percentage fee to the order total. If not enabled, a fixed value is used.</Value>
+			</LocaleResource>
+            <LocaleResource Name="ShowButtonInMiniShoppingCart">
+                <Value>Show button in mini shopping cart</Value>
+            </LocaleResource>
+            <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
+                <Value>Specifies whether to show the checkout button in the mini shopping cart.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentInfo">
+                <Value>
+                    After completing the order you will be redirected to an external payment provider if necessary,
+                    where you can make the payment for your order.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="OrderNotFound">
+                <Value>The order with the PaymentIntent-Id {0} was not found.</Value>
+            </LocaleResource>
+		</Children>
+	</LocaleResource>
+</Language>

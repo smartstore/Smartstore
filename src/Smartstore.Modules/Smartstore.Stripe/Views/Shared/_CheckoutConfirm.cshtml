@@ -1,0 +1,84 @@
+﻿@model StripeCheckoutState
+
+<script src="~/lib/jquery/jquery.deserialize.js"></script>
+
+<script data-origin="stripe-confirm">
+    var isConfirmed = @(Model.IsConfirmed.ToString().ToLower());
+    $(function () {
+        // Confirmation flow.
+        $(document).on('submitOrder', function (e) {
+            e.isOrderValid = isConfirmed;
+
+            // Confirm order.
+            if (!isConfirmed) {
+                var data = $('#confirm-order-form').serializeArray();
+
+                e.disableBuyButton = true;
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ConfirmOrder", "Stripe")',
+                    data: { "formData": JSON.stringify(data) },
+                    success: function (response) {
+                        if (response.success) {
+                            if (response.redirectUrl){
+                                // Redirect to stripe to pay.
+                                window.location = response.redirectUrl;
+                            } else {
+                                isConfirmed = true;
+                                triggerBuyButton(false);
+                            }
+                        }
+                        else if (!_.isEmpty(response.messages)) {
+                            reportError(response.messages);
+                        }
+                    },
+                    error: function (objXml) {
+                        if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
+                            reportError(objXml.responseText);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Restore form data.
+        @if (Model.IsConfirmed && Model.FormData.HasValue())
+        {
+            <text>
+            try {
+                var data = @Html.Raw(Model.FormData);
+                $('#confirm-order-form').deserialize(data);
+            }
+            catch (e) {
+                console.log('Failed to restore form data.');
+                console.log(e);
+            }
+            </text>
+        }
+
+        // Fire event to simulate buy-button click.
+        @if (Model.SubmitForm)
+        {
+            <text>
+            $(function () {
+                triggerBuyButton(true);
+            });
+            </text>
+        }
+
+        function triggerBuyButton(showThrobber) {
+            var clickBuyButtonEvent = $.Event('clickBuyButton');
+            clickBuyButtonEvent.customerAgreed = true;
+            clickBuyButtonEvent.showThrobber = showThrobber;
+
+            $(document).trigger(clickBuyButtonEvent);
+        }
+
+        function reportError(message) {
+            var errorEvent = jQuery.Event('reportError');
+            errorEvent.message = message
+            $(document).trigger(errorEvent);
+        }
+    });
+</script>
