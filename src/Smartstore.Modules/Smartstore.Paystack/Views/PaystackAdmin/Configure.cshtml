@@ -1,0 +1,67 @@
+﻿@model Smartstore.Paystack.Models.ConfigurationModel
+
+@{
+    Layout = "_ConfigureProvider";   
+}
+@await Component.InvokeAsync("StoreScope")
+
+<widget target-zone="admin_button_toolbar_before">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<div class="plugin-configuration">
+    <div>
+        <div class="alert alert-info alert-dismissible">
+            @Html.Raw(T("Plugins.Smartstore.Paystack.AdminInstruction"))
+            <button class="close" data-dismiss="alert">&times;</button>
+        </div>
+    </div>
+    <div class="mt-5">
+        <a href="https://www.paypal.com/" target="_blank">
+            <img src="@Url.Content("~/Modules/Smartstore.Paystack/icon.png")" alt="PayPal" />
+        </a>
+    </div>
+</div>
+
+<form asp-action="Configure">
+    <div asp-validation-summary="All"></div>
+
+    <div id="amazonpay-config" class="adminContent">
+        
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PublicKey" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PublicKey"></setting-editor>
+                <span asp-validation-for="PublicKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PrivateKey" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PrivateKey"></setting-editor>
+                <span asp-validation-for="PrivateKey"></span>
+            </div>
+        </div>
+       
+         <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="BaseUrl" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="BaseUrl"></setting-editor>
+                <span asp-validation-for="BaseUrl"></span>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+

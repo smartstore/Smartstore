@@ -1,0 +1,14 @@
+{
+  "$schema": "../module.schema.json",
+  "Author": "Olamide James Akinnagbe",
+  "Group": "Payment",
+  "SystemName": "Smartstore.Paystack",
+  "FriendlyName": "Paystack",
+  "Description": "Make payment securely using Paystack",
+  "Version": "5.0.1",
+  "MinAppVersion": "5.0.1",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Smartstore.Paystack",
+  "ProjectUrl": "https://paystack.com/docs/api/",
+  "PrivateReferences": ["Refit"]
+}

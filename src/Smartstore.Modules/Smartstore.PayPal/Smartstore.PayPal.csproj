@@ -4,6 +4,9 @@
         <OutputPath>..\..\Smartstore.Web\Modules\Smartstore.PayPal</OutputPath>
         <OutDir>$(OutputPath)</OutDir>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <Optimize>False</Optimize>
+    </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
             <Private>False</Private>

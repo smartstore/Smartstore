@@ -1,0 +1,72 @@
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+    <!-- Friendly plugin backend name & description (e.g. in payment configuration list) -->
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Paystack" AppendRootKey="false">
+        <Value>Paystack</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Paystack" AppendRootKey="false">
+        <Value>Adds Paystack payment integration to the store.</Value>
+    </LocaleResource>
+
+    <!-- Friendly provider name & description -->
+    <!-- Frontend payment option & backend -->
+    <LocaleResource Name="Plugins.FriendlyName.Payments.Paystack" AppendRootKey="false">
+        <Value>Paystack</Value>
+    </LocaleResource>  
+
+    <!-- Backend provider description -->
+    <LocaleResource Name="Plugins.Description.Payments.Paystack" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Redirects to Paystack where payment can be made securely.
+            ]]>
+        </Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Plugins.Smartstore.Paystack" AppendRootKey="false">
+        <Children>
+
+            <LocaleResource Name="AdminInstruction">
+                <Value>
+                    <![CDATA[
+                       
+                        <p>
+							To set up Paystack in your store, use the following guide.
+						</p>
+						<ul>
+							<li>Sign in or register at <a href="https://paystack.com/" target="_blank">Paystack</a>.</li>
+							<li>Go to settings menu</li>
+							<li>Ensure you are in test mode.</li>
+							<li>Copy out the Public and Secret keys and fill below</li>
+							<li>To test the webhook, go to <a href="https://webhook.site/" target="_blank">Webhook Sites</a> </li>
+                            <li>Register to get a unique webhook url, and paste it into your paystack settings page </li>
+                            <li>Click on save changes.</li>
+						</ul>
+                      ]]>
+                </Value>
+            </LocaleResource>
+            
+            <LocaleResource Name="PublicKey">
+                <Value>Public Key</Value>
+            </LocaleResource>
+            <LocaleResource Name="PublicKey.Hint">
+                <Value>Enter your public key.</Value>
+            </LocaleResource>
+
+
+            <LocaleResource Name="PrivateKey">
+                <Value>Private Key</Value>
+            </LocaleResource>
+            <LocaleResource Name="PrivateKey.Hint">
+                <Value>Enter your private or secret key.</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="BaseUrl">
+                <Value>Endpoint Url</Value>
+            </LocaleResource>
+            <LocaleResource Name="BaseUrl.Hint">
+                <Value>Enter base url e.g. https://api.paystack.co</Value>
+            </LocaleResource>
+            
+        </Children>
+    </LocaleResource>
+</Language>

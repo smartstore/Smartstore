@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+    <PropertyGroup>
+        <Product>Smartstore Paystack</Product>
+        <OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Paystack</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <Optimize>False</Optimize>
+    </PropertyGroup>
+    <ItemGroup>
+      <None Remove="Localization\resources.en-us.xml" />
+      <None Remove="module.json" />
+      <None Remove="Views\PaystackAdmin\Configure.cshtml" />
+      <None Remove="Views\Shared\Components\Paystack\Default.cshtml" />
+      <None Remove="Views\_ViewImports.cshtml" />
+      <None Remove="wwwroot\icon.png" />
+      <None Remove="wwwroot\logo.png" />
+      <None Remove="wwwroot\paystacklogo.png" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+            <Private>False</Private>
+            <CopyLocal>False</CopyLocal>
+            <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+        </ProjectReference>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="Refit" Version="6.3.2" />
+    </ItemGroup>
+</Project>
