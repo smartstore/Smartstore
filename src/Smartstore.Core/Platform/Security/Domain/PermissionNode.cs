@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Smartstore.Collections;
 
 namespace Smartstore.Core.Security
 {
@@ -10,8 +11,9 @@ namespace Smartstore.Core.Security
         bool? Allow { get; }
     }
 
-    public class PermissionNode : IPermissionNode
+    public class PermissionNode : IPermissionNode, IKeyedNode
     {
+        object IKeyedNode.GetNodeKey() => SystemName;
         public int PermissionRecordId { get; set; }
         public string SystemName { get; set; }
         public bool? Allow { get; set; }

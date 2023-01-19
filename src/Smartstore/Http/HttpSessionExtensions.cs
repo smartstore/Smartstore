@@ -1,4 +1,7 @@
-﻿using Autofac;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using Autofac;
 using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;
@@ -8,18 +11,32 @@ namespace Smartstore
 {
     public static class HttpSessionExtensions
     {
-        public static bool ContainsKey(this ISession session, string key)
+        public static bool ContainsKey(this ISession? session, string key)
         {
             return session?.Get(key) != null;
         }
 
-        public static T GetObject<T>(this ISession session, string key) where T : class
+        public static T GetObject<T>(this ISession? session, string key) where T : class
         {
             TryGetObject<T>(session, key, out var result);
-            return result;
+            return result!;
         }
 
-        public static bool TryGetObject<T>(this ISession session, string key, out T result) where T : class
+        public static T GetOrAddObject<T>(this ISession session, string key, Func<T> acquirer) where T : class
+        {
+            Guard.NotNull(session);
+            Guard.NotNull(acquirer);
+
+            if (!TryGetObject<T>(session, key, out var result))
+            {
+                result = acquirer();
+                TrySetObject(session, key, result);
+            }
+            
+            return result!;
+        }
+
+        public static bool TryGetObject<T>(this ISession? session, string key, [MaybeNullWhen(false)] out T? result) where T : class
         {
             result = default;
 
@@ -33,14 +50,14 @@ namespace Smartstore
 
             if (serializer.TryDeserialize(typeof(T), data, false, out var obj))
             {
-                result = (T)obj;
+                result = (T)obj!;
                 return true;
             }
 
             return false;
         }
 
-        public static bool TrySetObject<T>(this ISession session, string key, T value) where T : class
+        public static bool TrySetObject<T>(this ISession? session, string key, T? value) where T : class
         {
             if (session == null)
             {
@@ -56,7 +73,7 @@ namespace Smartstore
 
             if (serializer.TrySerialize(value, false, out var data))
             {
-                session.Set(key, data);
+                session.Set(key, data!);
                 return true;
             }
 

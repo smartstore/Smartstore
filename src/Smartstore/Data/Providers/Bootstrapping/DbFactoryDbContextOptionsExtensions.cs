@@ -16,7 +16,7 @@ namespace Smartstore.Data.Providers
             this DbContextOptionsBuilder optionsBuilder,
             Action<DbFactoryDbContextOptionsBuilder> optionsAction = null)
         {
-            Guard.NotNull(optionsBuilder, nameof(optionsBuilder));
+            Guard.NotNull(optionsBuilder);
 
             var settings = DataSettings.Instance;
 

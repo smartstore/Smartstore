@@ -24,7 +24,7 @@ namespace Smartstore.Web.Components
             _localizationSettings = localizationSettings;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(string templateName = "Default")
         {
             var key = ModelCacheInvalidator.AVAILABLE_LANGUAGES_MODEL_KEY.FormatInvariant(Services.StoreContext.CurrentStore.Id);
             var availableLanguages = await Services.Cache.GetAsync(key, async (o) =>
@@ -105,7 +105,7 @@ namespace Smartstore.Web.Components
             ViewBag.UseImages = _localizationSettings.UseImagesForLanguageSelection;
             ViewBag.DisplayLongName = _localizationSettings.DisplayRegionInLanguageSelector;
 
-            return View();
+            return View(templateName);
         }
 
         private async Task<LocalizedUrlHelper> CreateUrlHelperForLanguageSelectorAsync(LanguageModel model, int currentLanguageId)

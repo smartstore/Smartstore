@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿#nullable enable
+
+using System.Runtime.CompilerServices;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 
@@ -13,8 +15,8 @@ namespace Smartstore
         /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         public static bool IsInRole(this Customer customer, string roleSystemName, bool onlyActiveRoles = true)
         {
-            Guard.NotNull(customer, nameof(customer));
-            Guard.NotEmpty(roleSystemName, nameof(roleSystemName));
+            Guard.NotNull(customer);
+            Guard.NotEmpty(roleSystemName);
 
             foreach (var mapping in customer.CustomerRoleMappings)
             {
@@ -34,12 +36,14 @@ namespace Smartstore
         /// </summary>
         public static bool IsBackgroundTaskAccount(this Customer customer)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
 
             if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
+            {
                 return false;
+            } 
 
-            return customer.SystemName.Equals(SystemCustomerNames.BackgroundTask, StringComparison.InvariantCultureIgnoreCase);
+            return customer.SystemName.EqualsNoCase(SystemCustomerNames.BackgroundTask);
         }
 
         /// <summary>
@@ -47,12 +51,14 @@ namespace Smartstore
         /// </summary>
         public static bool IsSearchEngineAccount(this Customer customer)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
 
             if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
+            {
                 return false;
+            }
 
-            return customer.SystemName.Equals(SystemCustomerNames.SearchEngine, StringComparison.InvariantCultureIgnoreCase);
+            return customer.SystemName.EqualsNoCase(SystemCustomerNames.SearchEngine);
         }
 
         /// <summary>
@@ -60,12 +66,14 @@ namespace Smartstore
         /// </summary>
         public static bool IsPdfConverter(this Customer customer)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
 
             if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
+            {
                 return false;
+            }  
 
-            return customer.SystemName.Equals(SystemCustomerNames.PdfConverter, StringComparison.InvariantCultureIgnoreCase);
+            return customer.SystemName.EqualsNoCase(SystemCustomerNames.PdfConverter);
         }
 
         /// <summary>
@@ -109,37 +117,43 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets the customer's full name.
+        /// Gets the customer's full name or an empty string if given <paramref name="customer"/> is null.
         /// </summary>
-        public static string GetFullName(this Customer customer)
+        public static string GetFullName(this Customer? customer)
         {
             if (customer == null)
+            {
                 return string.Empty;
+            }
 
             if (customer.FullName.HasValue())
             {
                 return customer.FullName;
             }
 
-            string name = customer.BillingAddress?.GetFullName();
+            var name = customer.BillingAddress?.GetFullName();
+            
             if (name.IsEmpty())
             {
                 name = customer.ShippingAddress?.GetFullName();
             }
+            
             if (name.IsEmpty())
             {
                 name = customer.Addresses.FirstOrDefault()?.GetFullName();
             }
 
-            return name.TrimSafe();
+            return name.TrimSafe().EmptyNull();
         }
 
         /// <summary>
         /// Gets the display name of a customer (full name, user name or email).
         /// </summary>
         /// <returns>Display name of a customer.</returns>
-        public static string GetDisplayName(this Customer customer, Localizer T)
+        public static string? GetDisplayName(this Customer? customer, Localizer T)
         {
+            Guard.NotNull(T);
+
             if (customer != null)
             {
                 return customer.IsGuest()
@@ -155,7 +169,7 @@ namespace Smartstore
         /// </summary>
         /// <returns>Formatted customer name.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string FormatUserName(this Customer customer)
+        public static string FormatUserName(this Customer? customer)
         {
             return FormatUserName(customer, false);
         }
@@ -166,7 +180,7 @@ namespace Smartstore
         /// <param name="customer">Customer entity.</param>
         /// <param name="stripTooLong">Whether to strip too long customer name.</param>
         /// <returns>Formatted customer name.</returns>
-        public static string FormatUserName(this Customer customer, bool stripTooLong)
+        public static string FormatUserName(this Customer? customer, bool stripTooLong)
         {
             var engine = EngineContext.Current.Scope;
 
@@ -188,24 +202,25 @@ namespace Smartstore
         /// <param name="stripTooLong">Whether to strip too long customer name.</param>
         /// <returns>Formatted customer name.</returns>
         public static string FormatUserName(
-            this Customer customer,
+            this Customer? customer,
             CustomerSettings customerSettings,
             Localizer T,
             bool stripTooLong)
         {
-            Guard.NotNull(customerSettings, nameof(customerSettings));
-            Guard.NotNull(T, nameof(T));
+            Guard.NotNull(customerSettings);
+            Guard.NotNull(T);
 
             if (customer == null)
             {
                 return string.Empty;
             }
+            
             if (customer.IsGuest())
             {
                 return T("Customer.Guest");
             }
 
-            var result = string.Empty;
+            string result = string.Empty;
 
             switch (customerSettings.CustomerNameFormat)
             {
@@ -258,16 +273,16 @@ namespace Smartstore
             var maxLength = customerSettings.CustomerNameFormatMaxLength;
             if (stripTooLong && maxLength > 0 && result != null && result.Length > maxLength)
             {
-                result = result.Truncate(maxLength, "...");
+                result = result.Truncate(maxLength, "...")!;
             }
 
-            return result;
+            return result!;
         }
 
         /// <summary>
         /// Find any email address of customer.
         /// </summary>
-        public static string FindEmail(this Customer customer)
+        public static string? FindEmail(this Customer? customer)
         {
             if (customer != null)
             {
@@ -295,7 +310,7 @@ namespace Smartstore
             bool clearPaymentMethod = true,
             bool clearCreditBalance = false)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
 
             if (customer.IsTransientRecord())
             {
@@ -327,13 +342,13 @@ namespace Smartstore
 
             if (clearShippingMethod)
             {
-                ga.Set(SystemCustomerAttributeNames.SelectedShippingOption, (string)null, storeId);
-                ga.Set(SystemCustomerAttributeNames.OfferedShippingOptions, (string)null, storeId);
+                ga.Set<string?>(SystemCustomerAttributeNames.SelectedShippingOption, null, storeId);
+                ga.Set<string?>(SystemCustomerAttributeNames.OfferedShippingOptions, null, storeId);
             }
 
             if (clearPaymentMethod)
             {
-                ga.Set(SystemCustomerAttributeNames.SelectedPaymentMethod, (string)null, storeId);
+                ga.Set<string?>(SystemCustomerAttributeNames.SelectedPaymentMethod, null, storeId);
             }
         }
     }

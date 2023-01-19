@@ -404,7 +404,6 @@ namespace Smartstore.Core.Installation
             {
                 Email = "builtin@search-engine-record.com",
                 CustomerGuid = Guid.NewGuid(),
-                PasswordFormat = PasswordFormat.Clear,
                 AdminComment = "Built-in system guest record used for requests from search engines.",
                 Active = true,
                 IsSystemAccount = true,
@@ -423,7 +422,6 @@ namespace Smartstore.Core.Installation
             {
                 Email = "builtin@background-task-record.com",
                 CustomerGuid = Guid.NewGuid(),
-                PasswordFormat = PasswordFormat.Clear,
                 AdminComment = "Built-in system record used for background tasks.",
                 Active = true,
                 IsSystemAccount = true,
@@ -442,13 +440,30 @@ namespace Smartstore.Core.Installation
             {
                 Email = "builtin@pdf-converter-record.com",
                 CustomerGuid = Guid.NewGuid(),
-                PasswordFormat = PasswordFormat.Clear,
                 AdminComment = "Built-in system record used for the PDF converter.",
                 Active = true,
                 IsSystemAccount = true,
                 SystemName = SystemCustomerNames.PdfConverter,
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
+            };
+
+            Alter(entity);
+            return entity;
+        }
+
+        public Customer WebhookClientUser()
+        {
+            var entity = new Customer
+            {
+                Email = "builtin@webhook-client.com",
+                CustomerGuid = Guid.NewGuid(),
+                AdminComment = "Built-in system record used for webhook clients.",
+                Active = true,
+                IsSystemAccount = true,
+                SystemName = SystemCustomerNames.WebhookClient,
+                CreatedOnUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow
             };
 
             Alter(entity);

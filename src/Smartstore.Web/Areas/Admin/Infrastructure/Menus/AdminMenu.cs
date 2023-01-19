@@ -56,9 +56,6 @@ namespace Smartstore.Admin.Infrastructure.Menus
 
         protected virtual TreeNode<MenuItem> ConvertXmlNodeToMenuItemNode(XmlElement node)
         {
-            var item = new MenuItem();
-            var root = new TreeNode<MenuItem>(item);
-
             var id = node.GetAttribute("id");
             var routeName = node.GetAttribute("routeName");
             var controller = node.GetAttribute("controller");
@@ -66,14 +63,17 @@ namespace Smartstore.Admin.Infrastructure.Menus
             var url = node.GetAttribute("url");
             var icon = node.GetAttribute("icon").NullEmpty();
 
-            root.Id = id;
-
-            item.Id = id;
-            item.Text = node.GetAttribute("title").NullEmpty();
-            item.PermissionNames = node.GetAttribute("permissionNames").NullEmpty();
-            item.ResKey = node.GetAttribute("resKey").NullEmpty();
-            item.IconClass = node.GetAttribute("iconClass").NullEmpty();
-            item.ImageUrl = node.GetAttribute("imageUrl").NullEmpty();
+            var item = new MenuItem 
+            {
+                Id = id,
+                Text = node.GetAttribute("title").NullEmpty(),
+                PermissionNames = node.GetAttribute("permissionNames").NullEmpty(),
+                ResKey = node.GetAttribute("resKey").NullEmpty(),
+                IconClass = node.GetAttribute("iconClass").NullEmpty(),
+                ImageUrl = node.GetAttribute("imageUrl").NullEmpty()
+            };
+            
+            var root = new TreeNode<MenuItem>(item, id);
 
             if (icon.HasValue())
             {

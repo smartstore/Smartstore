@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
@@ -19,12 +20,14 @@ namespace Smartstore.PayPal.Providers
         private readonly SmartDbContext _db;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly PayPalHttpClient _client;
-
-        public PayPalInvoiceProvider(SmartDbContext db, ICheckoutStateAccessor checkoutStateAccessor, PayPalHttpClient client)
+        private readonly IValidator<PublicInvoiceModel> _validator;
+        
+        public PayPalInvoiceProvider(SmartDbContext db, ICheckoutStateAccessor checkoutStateAccessor, PayPalHttpClient client, IValidator<PublicInvoiceModel> validator)
         {
             _db = db;
             _client = client;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _validator = validator;
         }
 
         public RouteInfo GetConfigurationRoute()
@@ -52,6 +55,20 @@ namespace Smartstore.PayPal.Providers
 
         public override Widget GetPaymentInfoWidget()
             => new ComponentWidget(typeof(PayPalInvoiceViewComponent));
+
+        public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
+        {
+            var model = new PublicInvoiceModel
+            {
+                DateOfBirthDay = form["DateOfBirthDay"].ToString().HasValue() ? Convert.ToInt32(form["DateOfBirthDay"]) : 0,
+                DateOfBirthMonth = form["DateOfBirthMonth"].ToString().HasValue() ? Convert.ToInt32(form["DateOfBirthMonth"]) : 0,
+                DateOfBirthYear = form["DateOfBirthYear"].ToString().HasValue() ? Convert.ToInt32(form["DateOfBirthYear"]) : 0,
+                PhoneNumber = form["PhoneNumber"]
+            };
+
+            var result = await _validator.ValidateAsync(model);
+            return new PaymentValidationResult(result);
+        }
 
         public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
         {

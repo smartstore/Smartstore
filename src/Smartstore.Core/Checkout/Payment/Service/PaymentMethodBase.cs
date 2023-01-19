@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
@@ -52,6 +53,10 @@ namespace Smartstore.Core.Checkout.Payment
         #region Methods
 
         /// <inheritdoc/>
+        public virtual Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
+            => Task.FromResult(new PaymentValidationResult());
+
+        /// <inheritdoc/>
         public virtual Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest request)
             => Task.FromResult(new PreProcessPaymentResult());
 
@@ -69,10 +74,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// <inheritdoc/>
         public virtual Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
             => Task.FromResult(new ProcessPaymentRequest());
-
-        /// <inheritdoc/>
-        public virtual Task<List<string>> GetPaymentDataWarningsAsync()
-            => Task.FromResult<List<string>>(null);
 
         /// <inheritdoc/>
         public virtual Task<string> GetPaymentSummaryAsync()

@@ -11,7 +11,7 @@ namespace Smartstore.Tests.Collections
     {
         private TreeNode<string> BuildTestTree()
         {
-            var root = new TreeNode<string>("root") { Id = "root" };
+            var root = new TreeNode<string>("root", "root");
 
             var children = CreateNodeList(10);
             foreach (var child in children)
@@ -23,12 +23,12 @@ namespace Smartstore.Tests.Collections
             return root;
         }
 
-        private IEnumerable<TreeNode<string>> CreateNodeList(int count, string keyPrefix = "node")
+        private static IEnumerable<TreeNode<string>> CreateNodeList(int count, string keyPrefix = "node")
         {
             for (int i = 1; i <= count; i++)
             {
                 var key = keyPrefix + "-" + i;
-                yield return new TreeNode<string>(key) { Id = key };
+                yield return new TreeNode<string>(key, key);
             }
         }
 

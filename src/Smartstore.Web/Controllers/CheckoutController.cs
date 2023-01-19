@@ -60,10 +60,9 @@ namespace Smartstore.Web.Controllers
 
         private async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod, IFormCollection form)
         {
-            var warnings = await paymentMethod.GetPaymentDataWarningsAsync();
+            var validationResult = await paymentMethod.ValidatePaymentDataAsync(form);
 
-            warnings?.Each(x => ModelState.AddModelError(string.Empty, x));
-
+            validationResult.AddToModelState(ModelState);
             if (!ModelState.IsValid)
             {
                 return false;
@@ -520,17 +519,17 @@ namespace Smartstore.Web.Controllers
             customer.GenericAttributes.SelectedPaymentMethod = paymentMethod;
             await customer.GenericAttributes.SaveChangesAsync();
 
-            // Validate info
-            if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value, form))
-            {
-                return RedirectToAction(nameof(PaymentMethod));
-            }
-
             // Save payment data so that the user must not re-enter it.
             var state = _checkoutStateAccessor.CheckoutState;
             foreach (var kvp in form)
             {
                 state.PaymentData[kvp.Key] = kvp.Value.ToString();
+            }
+
+            // Validate info
+            if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value, form))
+            {
+                return await PaymentMethod();
             }
 
             return RedirectToAction(nameof(Confirm));

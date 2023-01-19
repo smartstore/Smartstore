@@ -25,15 +25,14 @@ namespace Smartstore.PayPal.Models
     {
         public PayPalInvoiceValidator(Localizer T)
         {
-            // TODO: (mh) (core) Validation for tripple date picker won't work.
             RuleFor(x => x.DateOfBirthDay)
-                .NotEmpty()
+                .GreaterThan(0)
                 .WithMessage(T("Plugins.Smartstore.PayPal.DateOfBirthDay.NotNull"));
             RuleFor(x => x.DateOfBirthMonth)
-                .NotEmpty()
+                .GreaterThan(0)
                 .WithMessage(T("Plugins.Smartstore.PayPal.DateOfBirthMonth.NotNull"));
             RuleFor(x => x.DateOfBirthYear)
-                .NotEmpty()
+                .GreaterThan(0)
                 .WithMessage(T("Plugins.Smartstore.PayPal.DateOfBirthYear.NotNull"));
 
             RuleFor(x => x.PhoneNumber)

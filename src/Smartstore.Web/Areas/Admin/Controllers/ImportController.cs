@@ -92,23 +92,23 @@ namespace Smartstore.Admin.Controllers
                 {
                     var root = Services.ApplicationContext.TenantRoot;
                     var tempDir = Services.ApplicationContext.GetTenantTempDirectory();
-                    var importFile = await tempDir.GetFileAsync(model.TempFileName);
+                    var source = await tempDir.GetFileAsync(model.TempFileName);
 
-                    if (importFile.Exists)
+                    if (source.Exists)
                     {
                         var profile = await _importProfileService.InsertImportProfileAsync(model.TempFileName, model.Name, model.EntityType);
                         if (profile?.Id > 0)
                         {
                             var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
-                            var targetFile = await dir.GetFileAsync(importFile.Name);
+                            var target = await dir.GetFileAsync(source.Name);
 
-                            using (var sourceStream = await importFile.OpenReadAsync())
-                            using (var targetStream = await targetFile.OpenWriteAsync())
+                            using (var sourceStream = await source.OpenReadAsync())
+                            using (var targetStream = await target.OpenWriteAsync())
                             {
                                 await sourceStream.CopyToAsync(targetStream);
                             }
 
-                            await tempDir.FileSystem.TryDeleteFileAsync(importFile);
+                            await tempDir.FileSystem.TryDeleteFileAsync(source);
 
                             return RedirectToAction(nameof(Edit), new { id = profile.Id });
                         }
@@ -438,94 +438,62 @@ namespace Smartstore.Admin.Controllers
 
             var success = false;
             string error = null;
-            var tempFile = string.Empty;
-            var sourceFile = Request.Form.Files[0];
-            var fileName = sourceFile.FileName;
+            var source = Request.Form.Files[0];
 
-            if (id == 0)
+            try
             {
-                var tempDir = Services.ApplicationContext.GetTenantTempDirectory();
-
-                await tempDir.FileSystem.TryDeleteFileAsync(await tempDir.GetFileAsync(fileName));
-
-                var targetFile = await tempDir.GetFileAsync(fileName);
-
-                using (var sourceStream = sourceFile.OpenReadStream())
-                using (var targetStream = await targetFile.OpenWriteAsync())
+                if (id == 0)
                 {
-                    await sourceStream.CopyToAsync(targetStream);
-                }
+                    var tempDir = Services.ApplicationContext.GetTenantTempDirectory();
+                    _ = await CopyFile(tempDir, source);
 
-                var (isValidFile, message) = await LightweightDataTable.IsValidFileAsync(targetFile);
-                if (isValidFile)
-                {
                     success = true;
-                    tempFile = fileName;
                 }
                 else
                 {
-                    error = message;
-                    await tempDir.FileSystem.TryDeleteFileAsync(await tempDir.GetFileAsync(fileName));
+                    var profile = await _db.ImportProfiles.FindByIdAsync(id, true);
+                    var file = (await _importProfileService.GetImportFilesAsync(profile, false)).FirstOrDefault();
+
+                    if (file != null && !Path.GetExtension(source.FileName).EqualsNoCase(file.File.Extension))
+                    {
+                        throw new InvalidOperationException(T("Admin.Common.FileTypeMustEqual", file.File.Extension[1..].ToUpper()));
+                    }
+
+                    var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
+                    var target = await CopyFile(dir, source);
+
+                    success = true;
+
+                    var fileType = Path.GetExtension(source.FileName).EqualsNoCase(".xlsx") ? ImportFileType.Xlsx : ImportFileType.Csv;
+                    if (fileType != profile.FileType)
+                    {
+                        var tmp = new ImportFile(target);
+                        if (!tmp.RelatedType.HasValue)
+                        {
+                            profile.FileType = fileType;
+                            await _db.SaveChangesAsync();
+                        }
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                var profile = await _db.ImportProfiles.FindByIdAsync(id, true);
-                if (profile != null)
-                {
-                    var files = await _importProfileService.GetImportFilesAsync(profile, false);
-                    var file = files.FirstOrDefault();
-
-                    if (file != null && !Path.GetExtension(sourceFile.FileName).EqualsNoCase(file.File.Extension))
-                    {
-                        error = T("Admin.Common.FileTypeMustEqual", file.File.Extension[1..].ToUpper());
-                    }
-
-                    if (error.IsEmpty())
-                    {
-                        var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
-                        var targetFile = await dir.GetFileAsync(fileName);
-
-                        using (var sourceStream = sourceFile.OpenReadStream())
-                        using (var targetStream = await targetFile.OpenWriteAsync())
-                        {
-                            await sourceStream.CopyToAsync(targetStream);
-                        }
-
-                        var (isValidFile, message) = await LightweightDataTable.IsValidFileAsync(targetFile);
-                        if (isValidFile)
-                        {
-                            success = true;
-
-                            var fileType = Path.GetExtension(fileName).EqualsNoCase(".xlsx") ? ImportFileType.Xlsx : ImportFileType.Csv;
-                            if (fileType != profile.FileType)
-                            {
-                                var tmp = new ImportFile(targetFile);
-                                if (!tmp.RelatedType.HasValue)
-                                {
-                                    profile.FileType = fileType;
-                                    await _db.SaveChangesAsync();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            error = message;
-                        }
-                    }
-                }
+                success = false;
+                error = ex.Message;
             }
 
             if (!success && error.IsEmpty())
             {
                 error = T("Admin.Common.UploadFileFailed");
             }
-            if (error.HasValue())
-            {
-                NotifyError(error);
-            }
 
-            return Json(new { success, tempFile, error, name = sourceFile.FileName, ext = Path.GetExtension(sourceFile.FileName) });
+            return Json(new
+            {
+                success,
+                error,
+                name = source.FileName,
+                ext = Path.GetExtension(source.FileName)
+            });
         }
 
         [HttpPost]
@@ -613,7 +581,6 @@ namespace Smartstore.Admin.Controllers
             // Column mapping.
             try
             {
-                string[] availableKeyFieldNames = null;
                 string[] disabledDefaultFieldNames = GetDisabledDefaultFieldNames(profile);
                 var mapConverter = new ColumnMapConverter();
                 var storedMap = mapConverter.ConvertFrom<ColumnMap>(profile.ColumnMapping);
@@ -623,6 +590,7 @@ namespace Smartstore.Admin.Controllers
                 // Property name to localized property name.
                 var allProperties = _importProfileService.GetEntityPropertiesLabels(profile.EntityType) ?? new Dictionary<string, string>();
 
+                string[] availableKeyFieldNames = null;
                 switch (profile.EntityType)
                 {
                     case ImportEntityType.Product:
@@ -636,6 +604,9 @@ namespace Smartstore.Admin.Controllers
                         break;
                     case ImportEntityType.NewsletterSubscription:
                         availableKeyFieldNames = NewsletterSubscriptionImporter.SupportedKeyFields;
+                        break;
+                    default:
+                        availableKeyFieldNames = Array.Empty<string>();
                         break;
                 }
 
@@ -728,20 +699,43 @@ namespace Smartstore.Admin.Controllers
                             }
                         }
                     }
-
-                    ViewBag.SourceColumns = sourceColumns
-                        .OrderBy(x => x.PropertyDescription)
-                        .ToList();
-
-                    ViewBag.ColumnMappings = columnMappings
-                        .OrderBy(x => x.PropertyDescription)
-                        .ToList();
                 }
+
+                ViewBag.SourceColumns = sourceColumns
+                    .OrderBy(x => x.PropertyDescription)
+                    .ToList();
+
+                ViewBag.ColumnMappings = columnMappings
+                    .OrderBy(x => x.PropertyDescription)
+                    .ToList();
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
+        }
+
+        private static async Task<IFile> CopyFile(IDirectory directory, IFormFile source)
+        {
+            await directory.FileSystem.TryDeleteFileAsync(await directory.GetFileAsync(source.FileName));
+
+            var target = await directory.GetFileAsync(source.FileName);
+
+            using (var sourceStream = source.OpenReadStream())
+            using (var targetStream = await target.OpenWriteAsync())
+            {
+                await sourceStream.CopyToAsync(targetStream);
+            }
+
+            target = await directory.GetFileAsync(source.FileName);
+
+            var (isValidFile, message) = await LightweightDataTable.IsValidFileAsync(target);
+            if (!isValidFile)
+            {
+                throw new Exception(message);
+            }
+
+            return target;
         }
 
         private static bool IsDefaultValueDisabled(string property, string[] disabledFieldNames)

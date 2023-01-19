@@ -42,13 +42,13 @@ namespace Smartstore.ComponentModel
             return default;
         }
 
-        protected virtual void SetProperty(object value, [CallerMemberName] string name = null)
+        protected virtual void SetProperty<T>(T value, [CallerMemberName] string name = null)
         {
-            _properties.TryGetValue(name, out var oldValue);
+            _properties.TryGetValueAs<T>(name, out var oldValue);
 
             _properties[name] = value;
 
-            if (value != oldValue)
+            if (!Equals(value, oldValue))
             {
                 OnPropertyChanged(name);
             }

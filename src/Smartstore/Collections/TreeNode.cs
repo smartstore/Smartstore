@@ -10,12 +10,12 @@ namespace Smartstore.Collections
     public class TreeNode<TValue> : TreeNodeBase<TreeNode<TValue>>
     {
         public TreeNode(TValue value)
+            : this(value, (object?)null)
         {
-            Value = Guard.NotNull(value, nameof(value));
         }
 
         public TreeNode(TValue value, IEnumerable<TValue>? children)
-            : this(value)
+            : this(value, (object?)null)
         {
             if (children != null && children.Any())
             {
@@ -24,13 +24,19 @@ namespace Smartstore.Collections
         }
 
         public TreeNode(TValue value, IEnumerable<TreeNode<TValue>>? children)
-            : this(value)
+            : this(value, (object?)null)
         {
             // for serialization
             if (children != null && children.Any())
             {
                 AppendRange(children);
             }
+        }
+
+        public TreeNode(TValue value, object? id)
+        {
+            Value = Guard.NotNull(value);
+            _id = id ?? (value as IKeyedNode)?.GetNodeKey();
         }
 
         public TValue Value { get; }
@@ -44,7 +50,7 @@ namespace Smartstore.Collections
                 value = clone.Clone();
             }
 
-            var clonedNode = new TreeNode<TValue>(value);
+            var clonedNode = new TreeNode<TValue>(value, _id);
 
             // Assign or clone Metadata
             if (_metadata != null && _metadata.Count > 0)
@@ -57,23 +63,15 @@ namespace Smartstore.Collections
                     clonedNode.SetMetadata(kvp.Key, metadataValue);
                 }
             }
-
-            if (_id != null)
-            {
-                clonedNode._id = _id;
-            }
-
+            
             return clonedNode;
         }
 
         public TreeNode<TValue> Append(TValue value, object? id = null)
         {
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(value);
 
-            var node = new TreeNode<TValue>(value)
-            {
-                _id = id
-            };
+            var node = new TreeNode<TValue>(value, id);
 
             Append(node);
             return node;
@@ -89,10 +87,10 @@ namespace Smartstore.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AppendRange(IEnumerable<TValue> values, Func<TValue, object> idSelector)
+        public void AppendRange(IEnumerable<TValue> values, Func<TValue, object?> idSelector)
         {
-            Guard.NotNull(values, nameof(values));
-            Guard.NotNull(idSelector, nameof(idSelector));
+            Guard.NotNull(values);
+            Guard.NotNull(idSelector);
 
             foreach (var value in values)
             {
@@ -102,12 +100,9 @@ namespace Smartstore.Collections
 
         public TreeNode<TValue> Prepend(TValue value, object? id = null)
         {
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(value);
 
-            var node = new TreeNode<TValue>(value)
-            {
-                _id = id
-            };
+            var node = new TreeNode<TValue>(value, id);
 
             Prepend(node);
             return node;

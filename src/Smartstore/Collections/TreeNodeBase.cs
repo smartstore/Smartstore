@@ -7,6 +7,18 @@ using Smartstore.Threading;
 
 namespace Smartstore.Collections
 {
+    /// <summary>
+    /// To be implemented by classes that are wrapped by a <see cref="TreeNode{TValue}"/>.
+    /// </summary>
+    public interface IKeyedNode
+    {
+        /// <summary>
+        /// Gets the unique key of the node item. If an object of type <see cref="IKeyedNode"/>
+        /// is passed to a TreeNode, the return value of this method is used as the node key.
+        /// </summary>
+        object? GetNodeKey();
+    }
+    
     public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     {
         private T? _parent;
@@ -180,14 +192,14 @@ namespace Smartstore.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetMetadata(string key, object? value)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             Metadata[key] = value;
         }
 
         public void SetContextMetadata(string key, object value)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             var state = _contextState.Get();
             if (state == null)
@@ -201,7 +213,7 @@ namespace Smartstore.Collections
 
         public TMetadata? GetMetadata<TMetadata>(string key, bool recursive = true)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             object? metadata;
 
@@ -268,20 +280,20 @@ namespace Smartstore.Collections
 
         private void AddChild(T node, bool clone, bool append = true)
         {
-            var newNode = node;
+            var childNode = node;
             if (clone)
             {
-                newNode = node.Clone(true);
+                childNode = node.Clone(true);
             }
-            newNode.AttachTo((T)this, append ? null : 0);
+            childNode.AttachTo((T)this, append ? null : 0);
         }
 
         private void AttachTo(T newParent, int? index)
         {
-            Guard.NotNull(newParent, nameof(newParent));
+            Guard.NotNull(newParent);
 
             var prevParent = _parent;
-
+            
             // Detach from parent
             _parent?.Remove((T)this);
 
@@ -431,7 +443,7 @@ namespace Smartstore.Collections
 
         public bool IsDescendantOf(T node)
         {
-            Guard.NotNull(node, nameof(node));
+            Guard.NotNull(node);
             
             var parent = _parent;
             while (parent != null)
@@ -448,7 +460,7 @@ namespace Smartstore.Collections
 
         public bool IsDescendantOfOrSelf(T node)
         {
-            Guard.NotNull(node, nameof(node));
+            Guard.NotNull(node);
 
             if (node == (T)this)
             {
@@ -460,14 +472,14 @@ namespace Smartstore.Collections
 
         public bool IsAncestorOf(T node)
         {
-            Guard.NotNull(node, nameof(node));
+            Guard.NotNull(node);
 
             return node.IsDescendantOf((T)this);
         }
 
         public bool IsAncestorOfOrSelf(T node)
         {
-            Guard.NotNull(node, nameof(node));
+            Guard.NotNull(node);
 
             if (node == (T)this)
                 return true;
@@ -501,7 +513,7 @@ namespace Smartstore.Collections
         /// <returns>The closest node</returns>
         public T? Closest(Func<T, bool> predicate)
         {
-            Guard.NotNull(predicate, nameof(predicate));
+            Guard.NotNull(predicate);
 
             var test = predicate;
 
@@ -527,7 +539,7 @@ namespace Smartstore.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Append(T value)
         {
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(value);
             
             AddChild(value, false, true);
             return value;
@@ -536,7 +548,7 @@ namespace Smartstore.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AppendRange(IEnumerable<T> values)
         {
-            Guard.NotNull(values, nameof(values));
+            Guard.NotNull(values);
 
             foreach (var value in values)
             {
@@ -555,7 +567,7 @@ namespace Smartstore.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Prepend(T value)
         {
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(value);
 
             AddChild(value, false, false);
             return value;
@@ -601,7 +613,7 @@ namespace Smartstore.Collections
 
         private void Insert(T refNode, bool after)
         {
-            Guard.NotNull(refNode, nameof(refNode));
+            Guard.NotNull(refNode);
 
             var refParent = refNode._parent;
             if (refParent == null)
@@ -615,7 +627,7 @@ namespace Smartstore.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T? SelectNode(Func<T, bool> predicate, bool includeSelf = false)
         {
-            Guard.NotNull(predicate, nameof(predicate));
+            Guard.NotNull(predicate);
 
             return FlattenNodes(predicate, includeSelf).FirstOrDefault();
         }
@@ -628,7 +640,7 @@ namespace Smartstore.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<T> SelectNodes(Func<T, bool> predicate, bool includeSelf = false)
         {
-            Guard.NotNull(predicate, nameof(predicate));
+            Guard.NotNull(predicate);
 
             return FlattenNodes(predicate, includeSelf);
         }
@@ -646,7 +658,7 @@ namespace Smartstore.Collections
 
         public void Remove(T node)
         {
-            Guard.NotNull(node, nameof(node));
+            Guard.NotNull(node);
 
             if (!node.IsRoot)
             {
@@ -674,7 +686,7 @@ namespace Smartstore.Collections
 
         public void Traverse(Action<T> action, bool includeSelf = false)
         {
-            Guard.NotNull(action, nameof(action));
+            Guard.NotNull(action);
 
             if (includeSelf)
             {
@@ -692,7 +704,7 @@ namespace Smartstore.Collections
 
         public async Task TraverseAwait(Func<T, Task> action, bool includeSelf = false)
         {
-            Guard.NotNull(action, nameof(action));
+            Guard.NotNull(action);
 
             if (includeSelf)
             {
@@ -710,7 +722,7 @@ namespace Smartstore.Collections
 
         public void TraverseParents(Action<T> action, bool includeSelf = false)
         {
-            Guard.NotNull(action, nameof(action));
+            Guard.NotNull(action);
 
             if (includeSelf)
             {
@@ -728,7 +740,7 @@ namespace Smartstore.Collections
 
         public async Task TraverseParentsAwait(Func<T, Task> action, bool includeSelf = false)
         {
-            Guard.NotNull(action, nameof(action));
+            Guard.NotNull(action);
 
             if (includeSelf)
             {

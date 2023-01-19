@@ -42,6 +42,25 @@ namespace Smartstore.Admin.Models.Customers
         public int[] SelectedRuleSetIds { get; set; }
 
         public string EditUrl { get; set; }
+
+        #region Customer search
+
+        [LocalizedDisplay("Admin.Customers.Customers.List.SearchEmail")]
+        public string SearchEmail { get; set; }
+
+        [LocalizedDisplay("Admin.Customers.Customers.List.SearchUsername")]
+        public string SearchUsername { get; set; }
+
+        [LocalizedDisplay("Admin.Customers.Customers.List.SearchTerm")]
+        public string SearchTerm { get; set; }
+
+        [LocalizedDisplay("Admin.Customers.Customers.List.SearchCustomerNumber")]
+        public string SearchCustomerNumber { get; set; }
+
+        [LocalizedDisplay("Admin.Customers.Customers.List.SearchActiveOnly")]
+        public bool? SearchActiveOnly { get; set; }
+
+        #endregion
     }
 
     public partial class CustomerRoleValidator : AbstractValidator<CustomerRoleModel>

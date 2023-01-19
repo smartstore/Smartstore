@@ -19,6 +19,7 @@ namespace Smartstore.OfflinePayment.Components
             var model = await GetPaymentInfoModelAsync<DirectDebitPaymentInfoModel, DirectDebitPaymentSettings>();
             var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
 
+            model.EnterIBAN = ((string)paymentData.Get("EnterIBAN")).NullEmpty() ?? "iban";
             model.DirectDebitAccountHolder = (string)paymentData.Get("DirectDebitAccountHolder");
             model.DirectDebitAccountNumber = (string)paymentData.Get("DirectDebitAccountNumber");
             model.DirectDebitBankCode = (string)paymentData.Get("DirectDebitBankCode");

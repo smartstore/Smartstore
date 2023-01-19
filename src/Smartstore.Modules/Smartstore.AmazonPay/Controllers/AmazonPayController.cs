@@ -17,6 +17,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Http;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
@@ -397,6 +398,10 @@ namespace Smartstore.AmazonPay.Controllers
         /// </summary>
         public IActionResult ConfirmationResult()
         {
+            // INFO: we have been redirected to AmazonPay via browser (JavaScript "window.location").
+            // Cookies are thereby preserved. The customer and the checkout state object are the same as before the redirection.
+            // Without cookies we would get a new guest customer and an empty checkout state object here. In this case, CheckoutState could not be used.
+            // We would have to either cache AmazonPayCheckoutState for x minutes or store it in the database.
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
             state.SubmitForm = false;
 
@@ -450,7 +455,7 @@ namespace Smartstore.AmazonPay.Controllers
         /// So LoadSettingsAsync(0) and LoadSettingsAsync(CurrentStore.Id) are the same thing.
         /// So for IPN-URLs it is not necessary to append the Store.Id (double information). The assignment to the store is always done via the domain.
         /// </remarks>
-        [HttpPost]
+        [HttpPost, WebhookEndpoint]
         public async Task<IActionResult> IPNHandler()
         {
             string json = null;

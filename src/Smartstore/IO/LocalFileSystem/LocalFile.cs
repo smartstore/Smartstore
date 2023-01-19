@@ -145,7 +145,7 @@ namespace Smartstore.IO
         {
             if (!Exists)
             {
-                throw new FileNotFoundException(PhysicalPath ?? SubPath);
+                throw new FileNotFoundException($"File '{PhysicalPath ?? SubPath}' not found.");
             }
 
             // We are setting buffer size to 1 to prevent FileStream from allocating it's internal buffer

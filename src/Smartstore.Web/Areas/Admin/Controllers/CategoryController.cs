@@ -254,7 +254,7 @@ namespace Smartstore.Admin.Controllers
                     Url = Url.Action("Edit", "Category", new { id = category.Id })
                 };
 
-                return new TreeNode<TreeItem>(nodeValue) { Id = category.Id };
+                return new TreeNode<TreeItem>(nodeValue, category.Id);
             })
             .ToList();
 

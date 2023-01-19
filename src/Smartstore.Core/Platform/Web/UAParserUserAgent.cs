@@ -10,12 +10,12 @@ namespace Smartstore.Core.Web
         [GeneratedRegex("iPad|Kindle Fire|Nexus 10|Xoom|Transformer|MI PAD|IdeaTab", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
         private static partial Regex TabletPatternRegex();
 
-        private readonly static uap.Parser s_uap;
+        private readonly static uap.Parser _uap;
         private static readonly Regex _tabletPattern = TabletPatternRegex();
 
         #region Mobile UAs, OS & Devices
 
-        private static readonly HashSet<string> s_MobileOS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        private static readonly HashSet<string> _mobileOS = new(StringComparer.InvariantCultureIgnoreCase)
         {
             "Android",
             "iOS",
@@ -33,7 +33,7 @@ namespace Smartstore.Core.Web
             "Maemo"
         };
 
-        private static readonly HashSet<string> s_MobileBrowsers = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        private static readonly HashSet<string> _mobileBrowsers = new(StringComparer.InvariantCultureIgnoreCase)
         {
             "Googlebot-Mobile",
             "Baiduspider-mobile",
@@ -83,7 +83,7 @@ namespace Smartstore.Core.Web
             "Skyfire"
         };
 
-        private static readonly HashSet<string> s_MobileDevices = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        private static readonly HashSet<string> _mobileDevices = new(StringComparer.InvariantCultureIgnoreCase)
         {
             "BlackBerry",
             "MI PAD",
@@ -105,7 +105,7 @@ namespace Smartstore.Core.Web
 
         #endregion
 
-        private readonly HttpContext _httpContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private string _rawValue;
         private UserAgentInfo _userAgent;
@@ -120,25 +120,21 @@ namespace Smartstore.Core.Web
         static UAParserUserAgent()
         {
             var path = CommonHelper.MapPath("/App_Data/UAParser.regexes.yaml");
-            s_uap = File.Exists(path)
+            _uap = File.Exists(path)
                 ? uap.Parser.FromYaml(path)
                 : uap.Parser.GetDefault();
         }
 
         public UAParserUserAgent(IHttpContextAccessor httpContextAccessor)
         {
-            _httpContext = httpContextAccessor.HttpContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public string RawValue
         {
             get
             {
-                if (_rawValue == null)
-                {
-                    _rawValue = _httpContext?.Request?.UserAgent() ?? string.Empty;
-                }
-
+                _rawValue ??= _httpContextAccessor.HttpContext?.Request?.UserAgent() ?? string.Empty;
                 return _rawValue;
             }
             // for (unit) test purpose
@@ -161,8 +157,8 @@ namespace Smartstore.Core.Web
             {
                 if (_userAgent == null)
                 {
-                    var tmp = s_uap.ParseUserAgent(RawValue);
-                    _userAgent = new UserAgentInfo(tmp.Family, tmp.Major, tmp.Minor, tmp.Patch);
+                    var ua = _uap.ParseUserAgent(RawValue);
+                    _userAgent = new UserAgentInfo(ua.Family, ua.Major, ua.Minor, ua.Patch);
                 }
                 return _userAgent;
             }
@@ -174,8 +170,8 @@ namespace Smartstore.Core.Web
             {
                 if (_device == null)
                 {
-                    var tmp = s_uap.ParseDevice(RawValue);
-                    _device = new DeviceInfo(tmp.Family, tmp.IsSpider());
+                    var d = _uap.ParseDevice(RawValue);
+                    _device = new DeviceInfo(d.Family, d.IsSpider());
                 }
                 return _device;
             }
@@ -187,8 +183,8 @@ namespace Smartstore.Core.Web
             {
                 if (_os == null)
                 {
-                    var tmp = s_uap.ParseOS(RawValue);
-                    _os = new OSInfo(tmp.Family, tmp.Major, tmp.Minor, tmp.Patch, tmp.PatchMinor);
+                    var os = _uap.ParseOS(RawValue);
+                    _os = new OSInfo(os.Family, os.Major, os.Minor, os.Patch, os.PatchMinor);
                 }
                 return _os;
             }
@@ -214,9 +210,9 @@ namespace Smartstore.Core.Web
                 if (!_isMobileDevice.HasValue)
                 {
                     _isMobileDevice =
-                        s_MobileOS.Contains(OS.Family) ||
-                        s_MobileBrowsers.Contains(UserAgent.Family) ||
-                        s_MobileDevices.Contains(Device.Family);
+                        _mobileOS.Contains(OS.Family) ||
+                        _mobileBrowsers.Contains(UserAgent.Family) ||
+                        _mobileDevices.Contains(Device.Family);
                 }
 
                 return _isMobileDevice.Value;

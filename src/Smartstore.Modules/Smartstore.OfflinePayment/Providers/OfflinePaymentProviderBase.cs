@@ -21,7 +21,6 @@ namespace Smartstore.OfflinePayment
         public override async Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
         {
             var settings = await CommonServices.SettingFactory.LoadSettingsAsync<TSetting>(CommonServices.StoreContext.CurrentStore.Id);
-
             return new(settings.AdditionalFee, settings.AdditionalFeePercentage);
         }
 

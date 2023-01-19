@@ -11,7 +11,6 @@ using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Data.Hooks;
 using Smartstore.Net;
-using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core
@@ -27,6 +26,17 @@ namespace Smartstore.Core
         /// </remarks>
         const string CUSTOMERROLES_TAX_DISPLAY_TYPES_KEY = "customerroles:taxdisplaytypes-{0}-{1}";
         const string CUSTOMERROLES_TAX_DISPLAY_TYPES_PATTERN_KEY = "customerroles:taxdisplaytypes*";
+
+        private readonly static Func<DetectCustomerContext, Task<Customer>>[] _customerDetectors = new[] 
+        {
+            DetectTaskScheduler,
+            DetectPdfConverter,
+            DetectAuthenticated,
+            DetectGuest,
+            DetectBot,
+            DetectWebhookEndpoint,
+            DetectByClientIdent
+        };
 
         private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -95,112 +105,85 @@ namespace Smartstore.Core
 
         public async virtual Task<(Customer, Customer)> ResolveCurrentCustomerAsync()
         {
-            var httpContext = _httpContextAccessor.HttpContext;
-
-            // Is system account?
-            if ((await TryGetSystemAccountAsync(httpContext)).Out(out var customer))
+            var context = new DetectCustomerContext
             {
-                // Get out quickly. Bots tend to overstress the shop.
-                return (customer, null);
-            }
+                CustomerService = _customerService,
+                Db = _db,
+                HttpContext = _httpContextAccessor.HttpContext,
+                UserAgent = _userAgent
+            };
 
-            // Registered/Authenticated customer?
-            customer = await _customerService.GetAuthenticatedCustomerAsync();
+            Customer customer = null;
 
-            Customer impersonator = null;
-
-            // impersonate user if required (currently used for 'phone order' support)
-            if (customer != null)
+            for (var i = 0; i < _customerDetectors.Length; i++)
             {
-                var impersonatedCustomerId = customer.GenericAttributes.ImpersonatedCustomerId;
-                if (impersonatedCustomerId > 0)
+                var detector = _customerDetectors[i];
+                customer = await detector(context);
+                
+                if (customer != null)
                 {
-                    var impersonatedCustomer = await _db.Customers
-                        .IncludeCustomerRoles()
-                        .FindByIdAsync(impersonatedCustomerId.Value);
-
-                    if (impersonatedCustomer != null && !impersonatedCustomer.Deleted && impersonatedCustomer.Active)
+                    if (customer.IsSystemAccount)
                     {
-                        // set impersonated customer
-                        impersonator = customer;
-                        customer = impersonatedCustomer;
+                        // Never check whether customer is deleted/inactive in this method.
+                        // System accounts should neither be deletable nor activatable, they are mandatory.
+                        return (customer, null);
+                    }
+                    else if (!customer.Deleted && customer.Active)
+                    {
+                        break;
                     }
                 }
             }
 
-            // Load guest customer
-            if (customer == null || customer.Deleted || !customer.Active)
+            if (customer != null && context.HttpContext?.User?.Identity?.IsAuthenticated == true)
             {
-                customer = await GetGuestCustomerAsync(httpContext);
+                // Found authenticated customer.
+                // Impersonate user if required (currently used for 'phone order' support).
+                var impersonatedCustomer = await FindImpersonatedCustomerAsync(customer);
+                return impersonatedCustomer != null
+                    ? (impersonatedCustomer, customer)
+                    : (customer, null);
             }
 
-            return (customer, impersonator);
-        }
-
-        protected virtual async Task<AsyncOut<Customer>> TryGetSystemAccountAsync(HttpContext context)
-        {
-            // Never check whether customer is deleted/inactive in this method.
-            // System accounts should neither be deletable nor activatable, they are mandatory.
-
-            Customer customer = null;
-
-            // check whether request is made by a background task
-            // in this case return built-in customer record for background task
-            if (context != null && context.Request.IsCalledByTaskScheduler())
-            {
-                customer = await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.BackgroundTask);
-            }
-
-            // check whether request is made by a search engine
-            // in this case return built-in customer record for search engines 
-            if (customer == null && _userAgent.IsBot)
-            {
-                customer = await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.SearchEngine);
-            }
-
-            // check whether request is made by the PDF converter
-            // in this case return built-in customer record for the converter
-            if (customer == null && _userAgent.IsPdfConverter)
-            {
-                customer = await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.PdfConverter);
-            }
-
-            return new AsyncOut<Customer>(customer != null, customer);
-        }
-
-        protected virtual async Task<Customer> GetGuestCustomerAsync(HttpContext context)
-        {
-            Customer customer = null;
-
-            var visitorCookie = context?.Request?.Cookies[CookieNames.Visitor];
-            if (visitorCookie == null)
-            {
-                // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent)
-                customer = await _customerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 180);
-            }
-            else if (Guid.TryParse(visitorCookie, out var customerGuid))
-            {
-                // Cookie present. Try to load guest customer by it's value.
-                customer = await _db.Customers
-                    .IncludeShoppingCart()
-                    .IncludeCustomerRoles()
-                    .Where(c => c.CustomerGuid == customerGuid)
-                    .FirstOrDefaultAsync();
-            }
-
-            if (customer == null || customer.Deleted || !customer.Active || customer.IsRegistered())
+            if (customer == null || (customer.IsGuest() && customer.IsRegistered()))
             {
                 // No record yet or account deleted/deactivated.
                 // Also dont' treat registered customers as guests.
                 // Create new record in these cases.
-                customer = await _customerService.CreateGuestCustomerAsync();
+                customer = await CreateGuestCustomerAsync();
             }
 
-            if (context != null)
+            return (customer, null);
+        }
+
+        protected virtual async Task<Customer> FindImpersonatedCustomerAsync(Customer customer)
+        {
+            var impersonatedCustomerId = customer.GenericAttributes.ImpersonatedCustomerId;
+            if (impersonatedCustomerId > 0)
+            {
+                var impersonatedCustomer = await _db.Customers
+                    .IncludeCustomerRoles()
+                    .FindByIdAsync(impersonatedCustomerId.Value);
+
+                if (impersonatedCustomer != null && !impersonatedCustomer.Deleted && impersonatedCustomer.Active)
+                {
+                    return impersonatedCustomer;
+                }
+            }
+
+            return null;
+        }
+
+        protected virtual async Task<Customer> CreateGuestCustomerAsync()
+        {
+            var customer = await _customerService.CreateGuestCustomerAsync();
+
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext != null)
             {
                 var cookieExpiry = customer.CustomerGuid == Guid.Empty
                     ? DateTime.Now.AddMonths(-1)
-                    : DateTime.Now.AddHours(24 * 365); // TODO make configurable
+                    : DateTime.Now.AddDays(365); // TODO make configurable
 
                 // Set visitor cookie
                 var cookieOptions = new CookieOptions
@@ -218,12 +201,12 @@ namespace Smartstore.Core
                     cookieOptions.SameSite = _privacySettings.SameSiteMode;
                 }
 
-                if (context.Request.PathBase.HasValue)
+                if (httpContext.Request.PathBase.HasValue)
                 {
-                    cookieOptions.Path = context.Request.PathBase;
+                    cookieOptions.Path = httpContext.Request.PathBase;
                 }
 
-                var cookies = context.Response.Cookies;
+                var cookies = httpContext.Response.Cookies;
                 try
                 {
                     cookies.Delete(CookieNames.Visitor, cookieOptions);
@@ -438,5 +421,100 @@ namespace Smartstore.Core
                 return Task.CompletedTask;
             }
         }
+        
+        #region Customer resolvers
+
+        private class DetectCustomerContext
+        {
+            public HttpContext HttpContext { get; set; }
+            public SmartDbContext Db { get; set; }
+            public ICustomerService CustomerService { get; set; }
+            public IUserAgent UserAgent { get; set; }
+        }
+
+        private static Task<Customer> DetectAuthenticated(DetectCustomerContext context)
+        {
+            return context.CustomerService.GetAuthenticatedCustomerAsync();
+        }
+
+        private static Task<Customer> DetectTaskScheduler(DetectCustomerContext context)
+        {
+            if (context.HttpContext != null && context.HttpContext.Request.IsCalledByTaskScheduler())
+            {
+                return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.BackgroundTask);
+            }
+            
+            return Task.FromResult<Customer>(null);
+        }
+
+        private static Task<Customer> DetectPdfConverter(DetectCustomerContext context)
+        {
+            if (context.UserAgent.IsPdfConverter)
+            {
+                return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.PdfConverter);
+            }
+
+            return Task.FromResult<Customer>(null);
+        }
+
+        private static Task<Customer> DetectBot(DetectCustomerContext context)
+        {
+            if (context.UserAgent.IsBot)
+            {
+                return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.SearchEngine);
+            }
+
+            return Task.FromResult<Customer>(null);
+        }
+
+        private static async Task<Customer> DetectWebhookEndpoint(DetectCustomerContext context)
+        {
+            if (context.HttpContext != null)
+            {
+                var hasWebhookAttribute = context.HttpContext?.GetEndpoint()?.Metadata?.GetMetadata<WebhookEndpointAttribute>() != null;
+                if (hasWebhookAttribute)
+                {
+                    var customer = await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.WebhookClient);
+                    if (customer == null)
+                    {
+                        customer = await context.CustomerService.CreateGuestCustomerAsync(false, c =>
+                        {
+                            c.Email = "builtin@webhook-client.com";
+                            c.AdminComment = "Built-in system record used for webhook clients.";
+                            c.IsSystemAccount = true;
+                            c.SystemName = SystemCustomerNames.WebhookClient;
+                        });
+                    }
+
+                    return customer;
+                }
+            }
+            
+            return null;
+        }
+
+        private static Task<Customer> DetectGuest(DetectCustomerContext context)
+        {
+            var visitorCookie = context.HttpContext?.Request?.Cookies[CookieNames.Visitor];
+            if (visitorCookie != null && Guid.TryParse(visitorCookie, out var customerGuid))
+            {
+                // Cookie present. Try to load guest customer by it's value.
+                return context.Db.Customers
+                    .IncludeShoppingCart()
+                    .IncludeCustomerRoles()
+                    .Where(c => c.CustomerGuid == customerGuid)
+                    .FirstOrDefaultAsync();
+            }
+
+            return Task.FromResult<Customer>(null);
+        }
+
+        private static Task<Customer> DetectByClientIdent(DetectCustomerContext context)
+        {
+            // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent)
+            return context.CustomerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 180);
+        }
+
+        #endregion
     }
 }
