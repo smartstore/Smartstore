@@ -11,7 +11,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// The raw calculated price adjustment in primary currency without tax.
         /// </summary>
-        internal decimal RawPriceAdjustment { get; init; }
+        public decimal RawPriceAdjustment { get; init; }
 
         /// <summary>
         /// Gets or sets the calculated attribute price converted to <see cref="PriceCalculationOptions.TargetCurrency"/> and included tax.

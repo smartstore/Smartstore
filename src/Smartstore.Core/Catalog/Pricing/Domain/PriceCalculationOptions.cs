@@ -92,7 +92,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Generally this is the working currency (default), Order.CustomerCurrencyCode (for existing orders) 
         /// or DataExporterContext.ContextCurrency (for exports).
         /// </summary>
-        internal Currency RoundingCurrency { get; init; }
+        public Currency RoundingCurrency { get; init; }
 
         /// <summary>
         /// Gets or sets product batch context for nested pipelines (grouped or bundled products).

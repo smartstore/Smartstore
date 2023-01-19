@@ -515,7 +515,7 @@ namespace Smartstore.Core.DataExchange.Export
             if (ctx.Supports(ExportFeatures.OffersShippingTimeFallback))
             {
                 dynamic deliveryTime = dynObject.DeliveryTime;
-                dynObject._ShippingTime = deliveryTime == null ? ctx.Projection.ShippingTime : deliveryTime.Name;
+                dynObject._ShippingTime = deliveryTime != null ? (string)deliveryTime.Name : ctx.Projection.ShippingTime;
             }
 
             if (ctx.Supports(ExportFeatures.OffersShippingCostsFallback))
