@@ -75,6 +75,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.PayPal", "src\Sm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.WebApi", "src\Smartstore.Modules\Smartstore.WebApi\Smartstore.WebApi.csproj", "{D6A3CB44-4C7A-4637-8465-515D4D70324F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Stripe", "src\Smartstore.Modules\Smartstore.Stripe\Smartstore.Stripe.csproj", "{9938B51D-0272-43F6-9B50-AA076B50F65E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -244,6 +246,12 @@ Global
 		{D6A3CB44-4C7A-4637-8465-515D4D70324F}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
 		{D6A3CB44-4C7A-4637-8465-515D4D70324F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6A3CB44-4C7A-4637-8465-515D4D70324F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9938B51D-0272-43F6-9B50-AA076B50F65E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9938B51D-0272-43F6-9B50-AA076B50F65E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9938B51D-0272-43F6-9B50-AA076B50F65E}.DebugNoRazorCompile|Any CPU.ActiveCfg = DebugNoRazorCompile|Any CPU
+		{9938B51D-0272-43F6-9B50-AA076B50F65E}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
+		{9938B51D-0272-43F6-9B50-AA076B50F65E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9938B51D-0272-43F6-9B50-AA076B50F65E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -272,6 +280,7 @@ Global
 		{48F4799B-9824-469C-B1A4-7050F85163CA} = {5135A2B0-95B5-46AD-906A-70A2364B892B}
 		{B3C514B9-ADB7-4625-A262-DB1C6A6D16F6} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{D6A3CB44-4C7A-4637-8465-515D4D70324F} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{9938B51D-0272-43F6-9B50-AA076B50F65E} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}
