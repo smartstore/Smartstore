@@ -575,13 +575,8 @@ namespace Smartstore.Core.Catalog.Categories
 
             foreach (var node in nodes)
             {
-                var newNode = new TreeNode<ICategoryNode>(node)
-                {
-                    Id = node.Id
-                };
-
+                var newNode = new TreeNode<ICategoryNode>(node);
                 parentNode.Append(newNode);
-
                 AddChildTreeNodes(newNode, node.Id, nodeMap);
             }
         }

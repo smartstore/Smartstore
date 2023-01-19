@@ -1,10 +1,17 @@
-﻿using Smartstore.Utilities;
+﻿using Smartstore.Collections;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public class MenuItem : NavigationItem, ICloneable<MenuItem>
+    public class MenuItem : NavigationItem, IKeyedNode, ICloneable<MenuItem>
     {
         private string _id;
+
+        /// <inheritdoc/>
+        object IKeyedNode.GetNodeKey()
+        {
+            return Id;
+        }
 
         /// <summary>
         /// If this menu item refers to an entity, the id of the backed entity (like category, products e.g.)

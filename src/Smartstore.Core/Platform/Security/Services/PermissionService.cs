@@ -577,7 +577,7 @@ namespace Smartstore.Core.Security
                     PermissionRecordId = entity.Id,
                     Allow = mapping?.Allow ?? null, // null = inherit
                     SystemName = entity.SystemName
-                }, entity.SystemName);
+                });
 
                 AddPermissions(newNode, GetChildren(entity, allPermissions), allPermissions, role);
             }
@@ -610,7 +610,7 @@ namespace Smartstore.Core.Security
                     PermissionRecordId = entity.Id,
                     Allow = allow,
                     SystemName = entity.SystemName
-                }, entity.SystemName);
+                });
 
                 await AddPermissions(newNode, GetChildren(entity, allPermissions), allPermissions, customer, role);
             }

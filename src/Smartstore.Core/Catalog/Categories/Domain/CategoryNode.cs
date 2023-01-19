@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Localization;
+﻿using Smartstore.Collections;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -21,7 +22,7 @@ namespace Smartstore.Core.Catalog.Categories
     }
 
     [Serializable]
-    public class CategoryNode : ICategoryNode
+    public class CategoryNode : ICategoryNode, IKeyedNode
     {
         public int Id { get; set; }
         public int ParentCategoryId { get; set; }
@@ -36,6 +37,12 @@ namespace Smartstore.Core.Catalog.Categories
         public int BadgeStyle { get; set; }
         public bool SubjectToAcl { get; set; }
         public bool LimitedToStores { get; set; }
+
+        /// <inheritdoc/>
+        object IKeyedNode.GetNodeKey()
+        {
+            return Id;
+        }
 
         /// <inheritdoc/>
         public string GetDisplayName()

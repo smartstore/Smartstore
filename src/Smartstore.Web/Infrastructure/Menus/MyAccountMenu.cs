@@ -93,31 +93,32 @@ namespace Smartstore.Web.Infrastructure
                 Id = Name
             };
 
-            root.Append(new MenuItem
+            root.AppendRange(new[] 
             {
-                Id = "info",
-                Text = T("Account.CustomerInfo"),
-                Icon = "fal fa-user",
-                ActionName = "Info",
-                ControllerName = "Customer"
-            });
-
-            root.Append(new MenuItem
-            {
-                Id = "addresses",
-                Text = T("Account.CustomerAddresses"),
-                Icon = "fal fa-address-book",
-                ActionName = "Addresses",
-                ControllerName = "Customer"
-            });
-
-            root.Append(new MenuItem
-            {
-                Id = "orders",
-                Text = T("Account.CustomerOrders"),
-                Icon = "fal fa-file-invoice",
-                ActionName = "Orders",
-                ControllerName = "Customer"
+                new MenuItem
+                {
+                    Id = "info",
+                    Text = T("Account.CustomerInfo"),
+                    Icon = "fal fa-user",
+                    ActionName = "Info",
+                    ControllerName = "Customer"
+                },
+                new MenuItem
+                {
+                    Id = "addresses",
+                    Text = T("Account.CustomerAddresses"),
+                    Icon = "fal fa-address-book",
+                    ActionName = "Addresses",
+                    ControllerName = "Customer"
+                },
+                new MenuItem
+                {
+                    Id = "orders",
+                    Text = T("Account.CustomerOrders"),
+                    Icon = "fal fa-file-invoice",
+                    ActionName = "Orders",
+                    ControllerName = "Customer"
+                }
             });
 
             if (_orderSettings.ReturnRequestsEnabled)
