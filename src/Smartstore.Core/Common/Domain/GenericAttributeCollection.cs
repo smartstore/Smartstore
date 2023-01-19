@@ -246,7 +246,7 @@ namespace Smartstore.Core.Common
 
         public bool TrySet<TProp>(string key, TProp value, int storeId, out GenericAttribute entity)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             CheckNotReadonly();
 
