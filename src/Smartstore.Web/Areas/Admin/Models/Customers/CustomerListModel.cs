@@ -1,27 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Smartstore.Web.Models.Customers;
 
 namespace Smartstore.Admin.Models.Customers
 {
     [LocalizedDisplay("Admin.Customers.Customers.List.")]
-    public class CustomerListModel : ModelBase
+    public class CustomerListModel : CustomerSearchModel
     {
         [UIHint("CustomerRoles")]
         [AdditionalMetadata("multiple", true)]
         [LocalizedDisplay("*CustomerRoles")]
         public int[] SearchCustomerRoleIds { get; set; }
-
-        [LocalizedDisplay("*SearchEmail")]
-        public string SearchEmail { get; set; }
-
-        [LocalizedDisplay("*SearchUsername")]
-        public string SearchUsername { get; set; }
-        public bool UsernamesEnabled { get; set; }
-
-        [LocalizedDisplay("*SearchTerm")]
-        public string SearchTerm { get; set; }
-
-        [LocalizedDisplay("*SearchCustomerNumber")]
-        public string SearchCustomerNumber { get; set; }
 
         [LocalizedDisplay("*SearchDateOfBirth")]
         public string SearchDayOfBirth { get; set; }
@@ -31,6 +19,7 @@ namespace Smartstore.Admin.Models.Customers
         public string SearchYearOfBirth { get; set; }
         public bool DateOfBirthEnabled { get; set; }
 
+        public bool UsernamesEnabled { get; set; }
         public bool CompanyEnabled { get; set; }
 
         [LocalizedDisplay("*SearchPhone")]
@@ -40,8 +29,5 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("*SearchZipCode")]
         public string SearchZipPostalCode { get; set; }
         public bool ZipPostalCodeEnabled { get; set; }
-
-        [LocalizedDisplay("*SearchActiveOnly")]
-        public bool? SearchActiveOnly { get; set; }
     }
 }

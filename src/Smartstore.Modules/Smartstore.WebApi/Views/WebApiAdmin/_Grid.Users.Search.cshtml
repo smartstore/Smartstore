@@ -1,16 +1,20 @@
-﻿@model ConfigurationModel
+﻿@model CustomerSearchModel
 
 <div class="form-group">
     <smart-label asp-for="SearchEmail" />
     <input asp-for="SearchEmail" />
 </div>
-<div sm-if="Model.UsernamesEnabled" class="form-group">
+<div sm-if="ViewBag.UsernamesEnabled" class="form-group">
     <smart-label asp-for="SearchUsername" />
     <input asp-for="SearchUsername" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchTerm" />
     <editor asp-for="SearchTerm" asp-template="SearchExpression" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchCustomerNumber" />
+    <input asp-for="SearchCustomerNumber" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchActiveOnly" />
