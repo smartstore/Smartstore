@@ -24,21 +24,53 @@ namespace Smartstore.Data.PostgreSql
         private static string GetDatabaseSizeSql(string database)
             => $@"SELECT ROUND(pg_database_size('{database}') / 1024 / 1024, 1) AS sizemb";
 
-        private static string GetTableNamesSql(string database)
-            => $@"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' AND table_schema = 'public' AND table_schema = '{database}'";
-
         public override DbSystemType ProviderType => DbSystemType.PostgreSql;
 
         public override DataProviderFeatures Features
-            => DataProviderFeatures.AccessIncrement
-            | DataProviderFeatures.ReIndex
+            => DataProviderFeatures.Backup
+            | DataProviderFeatures.Restore
             | DataProviderFeatures.Shrink
+            | DataProviderFeatures.ReIndex
             | DataProviderFeatures.ComputeSize
+            | DataProviderFeatures.AccessIncrement
+            | DataProviderFeatures.StreamBlob
             | DataProviderFeatures.ExecuteSqlScript
-            | DataProviderFeatures.ReadSequential
-            | DataProviderFeatures.StoredProcedures;
+            | DataProviderFeatures.StoredProcedures
+            | DataProviderFeatures.ReadSequential;
 
         public override bool MARSEnabled => false;
+
+        protected override ValueTask<bool> HasDatabaseCore(string databaseName, bool async)
+        {
+            FormattableString sql = $"SELECT catalog_name FROM information_schema.schemata WHERE schema_name = 'public' AND catalog_name = {databaseName}";
+            return async
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AnyAsync()
+                : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).Any());
+        }
+
+        protected override ValueTask<bool> HasTableCore(string tableName, bool async)
+        {
+            FormattableString sql = $@"SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' AND table_schema = 'public' AND table_catalog = {DatabaseName} AND table_name = {tableName}";
+            return async
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AnyAsync()
+                : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).Any());
+        }
+
+        protected override ValueTask<bool> HasColumnCore(string tableName, string columnName, bool async)
+        {
+            FormattableString sql = $@"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = 'public' AND table_catalog = {DatabaseName} AND table_name = {tableName} AND column_name = {columnName}";
+            return async
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AnyAsync()
+                : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).Any());
+        }
+
+        protected override ValueTask<string[]> GetTableNamesCore(bool async)
+        {
+            FormattableString sql = $@"SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' AND table_schema = 'public' AND table_catalog = {DatabaseName}";
+            return async
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AsyncToArray()
+                : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).ToArray());
+        }
 
         public override string EncloseIdentifier(string identifier)
         {
@@ -55,38 +87,45 @@ namespace Smartstore.Data.PostgreSql
 LIMIT {take} OFFSET {skip}";
         }
 
-        public override string[] GetTableNames()
+        public override Task<int> InsertIntoAsync(string sql, params object[] parameters)
         {
-            return Database.ExecuteQueryRaw<string>(GetTableNamesSql(DatabaseName)).ToArray();
+            throw new NotImplementedException();
         }
 
-        public override async Task<string[]> GetTableNamesAsync()
+        public override bool IsTransientException(Exception ex)
         {
-            return await Database.ExecuteQueryRawAsync<string>(GetTableNamesSql(DatabaseName)).AsyncToArray();
+            throw new NotImplementedException();
         }
 
-        public override decimal GetDatabaseSize()
+        public override bool IsUniquenessViolationException(DbUpdateException ex)
         {
-            return Database.ExecuteQueryRaw<decimal>(GetDatabaseSizeSql(DatabaseName)).FirstOrDefault();
+            throw new NotImplementedException();
         }
 
-        public override Task<decimal> GetDatabaseSizeAsync()
+        protected override Task<decimal> GetDatabaseSizeCore(bool async)
         {
-            return Database.ExecuteQueryRawAsync<decimal>(GetDatabaseSizeSql(DatabaseName)).FirstOrDefaultAsync().AsTask();
+            var sql = $@"SELECT ROUND(pg_database_size('{DatabaseName}') / 1024 / 1024, 1) AS sizemb";
+            return async
+                ? Database.ExecuteQueryRawAsync<decimal>(sql).FirstOrDefaultAsync().AsTask()
+                : Task.FromResult(Database.ExecuteQueryRaw<decimal>(sql).FirstOrDefault());
         }
 
-        protected override int? GetTableIncrementCore(string tableName)
+        protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
-            Guard.NotEmpty(tableName);
-            return Database.ExecuteScalarRaw<decimal?>(
-                $"SELECT IDENT_CURRENT('[{tableName}]')").Convert<int?>();
+            throw new NotSupportedException();
         }
 
-        protected override async Task<int?> GetTableIncrementCoreAsync(string tableName)
+        protected override Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
         {
-            Guard.NotEmpty(tableName);
-            return (await Database.ExecuteScalarRawAsync<decimal?>(
-                $"SELECT IDENT_CURRENT('[{tableName}]')")).Convert<int?>();
+            var sql = $"REINDEX DATABASE \"{DatabaseName}\"";
+            return async
+                ? Database.ExecuteSqlRawAsync(sql, cancelToken)
+                : Task.FromResult(Database.ExecuteSqlRaw(sql));
+        }
+
+        protected override IList<string> TokenizeSqlScript(string sqlScript)
+        {
+            throw new NotSupportedException();
         }
 
         public override DbParameter CreateParameter()

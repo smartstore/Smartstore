@@ -1,7 +1,6 @@
 ﻿using System.Data.Common;
 using System.Globalization;
 using System.Text.RegularExpressions;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -113,60 +112,58 @@ namespace Smartstore.Data.Providers
 
         #region Database schema
 
-        public virtual bool HasDatabase(string databaseName)
-        {
-            Guard.NotEmpty(databaseName, nameof(databaseName));
+        protected abstract ValueTask<bool> HasDatabaseCore(string databaseName, bool async);
+        protected abstract ValueTask<bool> HasTableCore(string tableName, bool async);
+        protected abstract ValueTask<bool> HasColumnCore(string tableName, string columnName, bool async);
+        protected abstract ValueTask<string[]> GetTableNamesCore(bool async);
 
-            return Database.ExecuteQueryInterpolated<string>(
-                $"SELECT database_id FROM sys.databases WHERE Name = {databaseName}").Any();
+        public bool HasDatabase(string databaseName)
+        {
+            Guard.NotEmpty(databaseName);
+            return HasDatabaseCore(databaseName, false).Await();
         }
 
-        public virtual ValueTask<bool> HasDatabaseAsync(string databaseName)
+        public ValueTask<bool> HasDatabaseAsync(string databaseName)
         {
-            Guard.NotEmpty(databaseName, nameof(databaseName));
-
-            return Database.ExecuteQueryInterpolatedAsync<string>(
-                $"SELECT database_id FROM sys.databases WHERE Name = {databaseName}").AnyAsync();
+            Guard.NotEmpty(databaseName);
+            return HasDatabaseCore(databaseName, true);
         }
 
-        public virtual bool HasTable(string tableName)
+        public bool HasTable(string tableName)
         {
-            Guard.NotEmpty(tableName, nameof(tableName));
-
-            return Database.ExecuteQueryInterpolated<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_name = {tableName}").Any();
+            Guard.NotEmpty(tableName);
+            return HasTableCore(tableName, false).Await();
         }
 
-        public virtual ValueTask<bool> HasTableAsync(string tableName)
+        public ValueTask<bool> HasTableAsync(string tableName)
         {
-            Guard.NotEmpty(tableName, nameof(tableName));
-
-            return Database.ExecuteQueryInterpolatedAsync<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_name = {tableName}").AnyAsync();
+            Guard.NotEmpty(tableName);
+            return HasTableCore(tableName, true);
         }
 
-        public virtual bool HasColumn(string tableName, string columnName)
+        public bool HasColumn(string tableName, string columnName)
         {
-            Guard.NotEmpty(tableName, nameof(tableName));
-            Guard.NotEmpty(columnName, nameof(columnName));
-
-            return Database.ExecuteQueryInterpolated<string>(
-                $"SELECT column_name From INFORMATION_SCHEMA.COLUMNS WHERE table_name = {tableName} And column_name = {columnName}").Any();
+            Guard.NotEmpty(tableName);
+            Guard.NotEmpty(columnName);
+            return HasColumnCore(tableName, columnName, false).Await();
         }
 
-        public virtual ValueTask<bool> HasColumnAsync(string tableName, string columnName)
+        public ValueTask<bool> HasColumnAsync(string tableName, string columnName)
         {
-            Guard.NotEmpty(tableName, nameof(tableName));
-            Guard.NotEmpty(columnName, nameof(columnName));
-
-            return Database.ExecuteQueryInterpolatedAsync<string>(
-                $"SELECT column_name From INFORMATION_SCHEMA.COLUMNS WHERE table_name = {tableName} And column_name = {columnName}").AnyAsync();
+            Guard.NotEmpty(tableName);
+            Guard.NotEmpty(columnName);
+            return HasColumnCore(tableName, columnName, true);
         }
 
-        public abstract string[] GetTableNames();
+        public string[] GetTableNames()
+        {
+            return GetTableNamesCore(false).Await();
+        }
 
-        public virtual Task<string[]> GetTableNamesAsync()
-            => Task.FromResult(GetTableNames());
+        public ValueTask<string[]> GetTableNamesAsync()
+        {
+            return GetTableNamesCore(true);
+        }
 
         #endregion
 
@@ -176,22 +173,19 @@ namespace Smartstore.Data.Providers
         /// Encloses the given <paramref name="identifier"/> in provider specific quotes, e.g. [] for MSSQL, `` for MySql.
         /// </summary>
         /// <returns>The enclosed identifier, e.g. <c>MyColumn</c> --> <c>[MyColumn]</c>.</returns>
-        public virtual string EncloseIdentifier(string identifier)
-            => throw new NotSupportedException();
+        public abstract string EncloseIdentifier(string identifier);
 
         /// <summary>
         /// Applies paging to <paramref name="sql"/> to limit the number of records to be returned.
         /// </summary>
         /// <returns>SQL with included paging.</returns>
-        public virtual string ApplyPaging(string sql, int skip, int take)
-            => throw new NotSupportedException();
+        public abstract string ApplyPaging(string sql, int skip, int take);
 
         /// <summary>
         /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
         /// </summary>
         /// <returns>The ident / primary key value of the newly inserted row.</returns>
-        public virtual Task<int> InsertIntoAsync(string sql, params object[] parameters)
-            => throw new NotSupportedException();
+        public abstract Task<int> InsertIntoAsync(string sql, params object[] parameters);
 
         /// <summary>
         /// Determines whether the specified exception represents a transient failure that can be
@@ -210,7 +204,7 @@ namespace Smartstore.Data.Providers
         /// </summary>
         /// <param name="exception">The exception wrapper</param>
         /// <returns>
-        /// <see langword="true" /> if the specified exception is indicates uniqueness violation, otherwise <see langword="false" />.
+        /// <see langword="true" /> if the specified exception indicates uniqueness violation, otherwise <see langword="false" />.
         /// </returns>
         public virtual bool IsUniquenessViolationException(DbUpdateException ex)
             => false;
@@ -219,94 +213,98 @@ namespace Smartstore.Data.Providers
 
         #region Maintenance
 
-        /// <summary>
-        /// Shrinks / compacts the database
-        /// </summary>
-        public virtual int ShrinkDatabase()
-            => throw new NotSupportedException();
-
-        /// <summary>
-        /// Shrinks / compacts the database
-        /// </summary>
-        public virtual Task<int> ShrinkDatabaseAsync(CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
+        protected abstract Task<decimal> GetDatabaseSizeCore(bool async);
+        protected abstract Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default);
+        protected abstract Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Gets the total size of the database in MB.
         /// </summary>
-        public virtual decimal GetDatabaseSize()
-            => throw new NotSupportedException();
+        public decimal GetDatabaseSize()
+            => GetDatabaseSizeCore(false).Await();
 
         /// <summary>
         /// Gets the total size of the database in MB.
         /// </summary>
-        public virtual Task<decimal> GetDatabaseSizeAsync()
-            => throw new NotSupportedException();
+        public Task<decimal> GetDatabaseSizeAsync()
+            => GetDatabaseSizeCore(true);
+
+        /// <summary>
+        /// Shrinks / compacts the database
+        /// </summary>
+        public int ShrinkDatabase()
+            => ShrinkDatabaseCore(false).Await();
+
+        /// <summary>
+        /// Shrinks / compacts the database
+        /// </summary>
+        public Task<int> ShrinkDatabaseAsync(CancellationToken cancelToken = default)
+            => ShrinkDatabaseCore(true, cancelToken);
 
         /// <summary>
         /// Reindexes all tables
         /// </summary>
-        public virtual int ReIndexTables()
-            => throw new NotSupportedException();
+        public int ReIndexTables()
+            => ReIndexTablesCore(false).Await();
 
         /// <summary>
         /// Reindexes all tables
         /// </summary>
-        public virtual Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
+        public Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
+            => ReIndexTablesCore(true, cancelToken);
 
         /// <summary>
         /// Executes a (multiline) sql script
         /// </summary>
-        public virtual void ExecuteSqlScript(string sqlScript)
-        {
-            var sqlCommands = TokenizeSqlScript(sqlScript);
-
-            using var tx = Database.BeginTransaction();
-            try
-            {
-                foreach (var command in sqlCommands)
-                {
-                    Database.ExecuteSqlRaw(command);
-                }
-
-                tx.Commit();
-            }
-            catch
-            {
-                tx.Rollback();
-            }
-        }
+        public int ExecuteSqlScript(string sqlScript)
+            => ExecuteSqlScriptCore(sqlScript, false).Await();
 
         /// <summary>
         /// Executes a (multiline) sql script
         /// </summary>
-        public virtual async Task<int> ExecuteSqlScriptAsync(string sqlScript, CancellationToken cancelToken = default)
+        public Task<int> ExecuteSqlScriptAsync(string sqlScript, CancellationToken cancelToken = default)
+            => ExecuteSqlScriptCore(sqlScript, true, cancelToken);
+
+        protected virtual async Task<int> ExecuteSqlScriptCore(string sqlScript, bool async, CancellationToken cancelToken = default)
         {
             var sqlCommands = TokenizeSqlScript(sqlScript);
             var rowsAffected = 0;
 
-            using var tx = await Database.BeginTransactionAsync(cancelToken);
+            using var tx = async ? await Database.BeginTransactionAsync(cancelToken) : Database.BeginTransaction();
             try
             {
                 foreach (var command in sqlCommands)
                 {
-                    rowsAffected += await Database.ExecuteSqlRawAsync(command, cancelToken);
+                    rowsAffected += async ? await Database.ExecuteSqlRawAsync(command, cancelToken) : Database.ExecuteSqlRaw(command);
                 }
 
-                await tx.CommitAsync(cancelToken);
+                if (async)
+                {
+                    await tx.CommitAsync(cancelToken);
+                }
+                else
+                {
+                    tx.Commit();
+                }
+                
             }
             catch
             {
-                await tx.RollbackAsync(cancelToken);
+                if (async)
+                {
+                    await tx.RollbackAsync(cancelToken);
+                }
+                else
+                {
+                    tx.Rollback();
+                }
                 throw;
             }
 
             return rowsAffected;
         }
 
-        protected virtual IList<string> TokenizeSqlScript(string sqlScript)
-            => throw new NotSupportedException();
+        protected abstract IList<string> TokenizeSqlScript(string sqlScript);
 
         /// <summary>
         /// Truncates/clears a table. ALL rows will be irreversibly deleted!!!!
@@ -314,7 +312,7 @@ namespace Smartstore.Data.Providers
         public int TruncateTable<T>() where T : BaseEntity
         {
             var tableName = Context.Model.FindEntityType(typeof(T)).GetTableName();
-            return Database.ExecuteSqlRaw($"TRUNCATE TABLE {tableName}");
+            return Database.ExecuteSqlRaw($"TRUNCATE TABLE {EncloseIdentifier(tableName)}");
         }
 
         /// <summary>
@@ -323,7 +321,7 @@ namespace Smartstore.Data.Providers
         public Task<int> TruncateTableAsync<T>() where T : BaseEntity
         {
             var tableName = Context.Model.FindEntityType(typeof(T)).GetTableName();
-            return Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {tableName}");
+            return Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {EncloseIdentifier(tableName)}");
         }
 
         /// <summary>

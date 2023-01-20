@@ -27,24 +27,50 @@ namespace Smartstore.Data.MySql
         {
         }
 
-        private static string GetDatabaseSizeSql(string database)
-            => $@"SELECT table_schema AS 'Database', ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS 'SizeMB' 
-                FROM information_schema.TABLES
-                WHERE table_schema = '{database}'
-                GROUP BY table_schema";
-
         public override DbSystemType ProviderType => DbSystemType.MySql;
 
         public override DataProviderFeatures Features
-            => DataProviderFeatures.AccessIncrement
+            => DataProviderFeatures.Shrink
             | DataProviderFeatures.ReIndex
-            | DataProviderFeatures.Shrink
             | DataProviderFeatures.ComputeSize
+            | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.ExecuteSqlScript
-            | DataProviderFeatures.ReadSequential
-            | DataProviderFeatures.StoredProcedures;
+            | DataProviderFeatures.StoredProcedures
+            | DataProviderFeatures.ReadSequential;
 
         public override bool MARSEnabled => false;
+
+        protected override ValueTask<bool> HasDatabaseCore(string databaseName, bool async)
+        {
+            FormattableString sql = $"SELECT SCHEMA_NAME FROM information_schema.schemata WHERE SCHEMA_NAME = {databaseName}";
+            return async
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AnyAsync()
+                : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).Any());
+        }
+
+        protected override ValueTask<bool> HasTableCore(string tableName, bool async)
+        {
+            FormattableString sql = $@"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = {DatabaseName} AND TABLE_NAME = {tableName}";
+            return async
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AnyAsync()
+                : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).Any());
+        }
+
+        protected override ValueTask<bool> HasColumnCore(string tableName, string columnName, bool async)
+        {
+            FormattableString sql = $"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = {DatabaseName} AND TABLE_NAME = {tableName} And COLUMN_NAME = {columnName}";
+            return async
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AnyAsync()
+                : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).Any());
+        }
+
+        protected override ValueTask<string[]> GetTableNamesCore(bool async)
+        {
+            FormattableString sql = $"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = {DatabaseName}";
+            return async
+                ? Database.ExecuteQueryInterpolatedAsync<string>(sql).AsyncToArray()
+                : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).ToArray());
+        }
 
         public override string EncloseIdentifier(string identifier)
         {
@@ -61,16 +87,75 @@ namespace Smartstore.Data.MySql
 LIMIT {take} OFFSET {skip}";
         }
 
-        public override string[] GetTableNames()
+        public override async Task<int> InsertIntoAsync(string sql, params object[] parameters)
         {
-            return Database.ExecuteQueryRaw<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_schema = '{DatabaseName}'").ToArray();
+            Guard.NotEmpty(sql, nameof(sql));
+            return (await Database.ExecuteQueryRawAsync<decimal>(
+                sql + "; SELECT LAST_INSERT_ID();", parameters).FirstOrDefaultAsync()).Convert<int>();
         }
 
-        public override async Task<string[]> GetTableNamesAsync()
+        public override bool IsTransientException(Exception ex)
+            => ex is MySqlException mySqlException
+                ? mySqlException.IsTransient
+                : ex is TimeoutException;
+
+        public override bool IsUniquenessViolationException(DbUpdateException updateException)
         {
-            return await Database.ExecuteQueryRawAsync<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_schema = '{DatabaseName}'").AsyncToArray();
+            if (updateException?.InnerException is MySqlException ex)
+            {
+                switch (ex.ErrorCode)
+                {
+                    case MySqlErrorCode.DuplicateEntryWithKeyName:
+                    case MySqlErrorCode.DuplicateKey:
+                    case MySqlErrorCode.DuplicateKeyEntry:
+                    case MySqlErrorCode.DuplicateKeyName:
+                    case MySqlErrorCode.DuplicateUnique:
+                    case MySqlErrorCode.ForeignDuplicateKey:
+                    case MySqlErrorCode.DuplicateEntryAutoIncrementCase:
+                    case MySqlErrorCode.NonUnique:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            return false;
+        }
+        
+        protected override async Task<decimal> GetDatabaseSizeCore(bool async)
+        {
+            var sql = $@"SELECT table_schema AS 'Database', ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS 'SizeMB' 
+                FROM information_schema.TABLES
+                WHERE table_schema = '{DatabaseName}'
+                GROUP BY table_schema";
+            return async
+                ? (await Database.ExecuteQueryRawAsync<MySqlTableSchema>(sql).FirstOrDefaultAsync())?.SizeMB ?? 0
+                : Database.ExecuteQueryRaw<MySqlTableSchema>(sql).FirstOrDefault()?.SizeMB ?? 0;
+        }
+
+        protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
+        {
+            return async
+                ? ReIndexTablesAsync(cancelToken)
+                : Task.FromResult(ReIndexTables());
+        }
+
+        protected override async Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
+        {
+            var sqlTables = $"SHOW TABLES FROM `{DatabaseName}`";
+            var tables = async 
+                ? await Database.ExecuteQueryRawAsync<string>(sqlTables, cancelToken).ToListAsync(cancelToken)
+                : Database.ExecuteQueryRaw<string>(sqlTables).ToList();
+
+            if (tables.Count > 0)
+            {
+                var sql = $"OPTIMIZE TABLE `{string.Join("`, `", tables)}`";
+                return async 
+                    ? await Database.ExecuteSqlRawAsync(sql, cancelToken)
+                    : Database.ExecuteSqlRaw(sql);
+            }
+
+            return 0;
         }
 
         protected override int? GetTableIncrementCore(string tableName)
@@ -95,57 +180,6 @@ LIMIT {take} OFFSET {skip}";
         {
             return Database.ExecuteSqlRawAsync(
                 $"ALTER TABLE `{tableName}` AUTO_INCREMENT = {ident}");
-        }
-
-        public override int ShrinkDatabase()
-        {
-            return ReIndexTables();
-        }
-
-        public override Task<int> ShrinkDatabaseAsync(CancellationToken cancelToken = default)
-        {
-            return ReIndexTablesAsync(cancelToken);
-        }
-
-        public override int ReIndexTables()
-        {
-            var tables = Database.ExecuteQueryRaw<string>($"SHOW TABLES FROM `{DatabaseName}`").ToList();
-            if (tables.Count > 0)
-            {
-                return Database.ExecuteSqlRaw($"OPTIMIZE TABLE `{string.Join("`, `", tables)}`");
-            }
-
-            return 0;
-        }
-
-        public override async Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
-        {
-            var tables = await Database.ExecuteQueryRawAsync<string>($"SHOW TABLES FROM `{DatabaseName}`", cancelToken).ToListAsync(cancelToken);
-            if (tables.Count > 0)
-            {
-                return await Database.ExecuteSqlRawAsync($"OPTIMIZE TABLE `{string.Join("`, `", tables)}`", cancelToken);
-            }
-
-            return 0;
-        }
-
-        public override decimal GetDatabaseSize()
-        {
-            return Database.ExecuteQueryRaw<MySqlTableSchema>(
-                GetDatabaseSizeSql(DatabaseName)).FirstOrDefault()?.SizeMB ?? 0;
-        }
-
-        public override async Task<decimal> GetDatabaseSizeAsync()
-        {
-            return (await Database.ExecuteQueryRawAsync<MySqlTableSchema>(
-                GetDatabaseSizeSql(DatabaseName)).FirstOrDefaultAsync())?.SizeMB ?? 0;
-        }
-
-        public override async Task<int> InsertIntoAsync(string sql, params object[] parameters)
-        {
-            Guard.NotEmpty(sql, nameof(sql));
-            return (await Database.ExecuteQueryRawAsync<decimal>(
-                sql + "; SELECT LAST_INSERT_ID();", parameters).FirstOrDefaultAsync()).Convert<int>();
         }
 
         protected override IList<string> TokenizeSqlScript(string sqlScript)
@@ -175,34 +209,6 @@ LIMIT {take} OFFSET {skip}";
         public override Stream OpenBlobStream(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
             return new SqlBlobStream(Database, tableName, blobColumnName, pkColumnName, pkColumnValue);
-        }
-
-        public override bool IsTransientException(Exception ex)
-            => ex is MySqlException mySqlException
-                ? mySqlException.IsTransient
-                : ex is TimeoutException;
-
-        public override bool IsUniquenessViolationException(DbUpdateException updateException)
-        {
-            if (updateException?.InnerException is MySqlException ex)
-            {
-                switch (ex.ErrorCode)
-                {
-                    case MySqlErrorCode.DuplicateEntryWithKeyName:
-                    case MySqlErrorCode.DuplicateKey:
-                    case MySqlErrorCode.DuplicateKeyEntry:
-                    case MySqlErrorCode.DuplicateKeyName:
-                    case MySqlErrorCode.DuplicateUnique:
-                    case MySqlErrorCode.ForeignDuplicateKey:
-                    case MySqlErrorCode.DuplicateEntryAutoIncrementCase:
-                    case MySqlErrorCode.NonUnique:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-
-            return false;
         }
 
         public override DbParameter CreateParameter()

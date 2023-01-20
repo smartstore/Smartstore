@@ -22,7 +22,7 @@ namespace Smartstore.Data.PostgreSql
             string password)
         {
             Guard.NotEmpty(server);
-
+            
             var builder = new NpgsqlConnectionStringBuilder
             {
                 Host = server,

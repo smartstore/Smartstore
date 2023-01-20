@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32929.386
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Web", "src\Smartstore.Web\Smartstore.Web.csproj", "{25E0AA77-1B48-4F6E-B42F-9F428ED968D1}"
 EndProject
@@ -76,6 +76,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.WebApi", "src\Smartstore.Modules\Smartstore.WebApi\Smartstore.WebApi.csproj", "{D6A3CB44-4C7A-4637-8465-515D4D70324F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Stripe", "src\Smartstore.Modules\Smartstore.Stripe\Smartstore.Stripe.csproj", "{0C26B088-A8F6-42E8-AB8D-D9D297FDD72C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.PostgreSql", "src\Smartstore.Data\Smartstore.Data.PostgreSql\Smartstore.Data.PostgreSql.csproj", "{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -252,6 +254,12 @@ Global
 		{0C26B088-A8F6-42E8-AB8D-D9D297FDD72C}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
 		{0C26B088-A8F6-42E8-AB8D-D9D297FDD72C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C26B088-A8F6-42E8-AB8D-D9D297FDD72C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}.DebugNoRazorCompile|Any CPU.ActiveCfg = DebugNoRazorCompile|Any CPU
+		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
+		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -281,6 +289,7 @@ Global
 		{B3C514B9-ADB7-4625-A262-DB1C6A6D16F6} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{D6A3CB44-4C7A-4637-8465-515D4D70324F} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{0C26B088-A8F6-42E8-AB8D-D9D297FDD72C} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}
