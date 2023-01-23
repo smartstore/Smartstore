@@ -240,7 +240,7 @@ bool IsFileSource(LogEvent e)
 bool IsApiQueryWarning(LogEvent e)
 {
     if (e.Level <= LogEventLevel.Warning
-        && e.GetPropertyValue<string>("RequestPath").StartsWithNoCase("/odata/")
+        && e.GetPropertyValue<string>("RequestPath").EmptyNull().StartsWithNoCase("/odata/")
         && e.GetSourceContext().EqualsNoCase("Microsoft.EntityFrameworkCore.Query"))
     {
         return true;
