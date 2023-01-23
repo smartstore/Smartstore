@@ -15,6 +15,7 @@ using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering;
+using Smartstore.Core.RefitClients.DellyMan;
 
 namespace Smartstore.Web.Controllers
 {
@@ -31,6 +32,7 @@ namespace Smartstore.Web.Controllers
         private readonly SeoSettings _seoSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly IRouteHelper _routeHelper;
+        private readonly IDellyManRefitClient _dellyManRefitClient;
 
         public CommonController(
             SmartDbContext db,
@@ -43,7 +45,8 @@ namespace Smartstore.Web.Controllers
             ThemeSettings themeSettings,
             SeoSettings seoSettings,
             LocalizationSettings localizationSettings,
-            IRouteHelper routeHelper)
+            IRouteHelper routeHelper,
+            IDellyManRefitClient dellyManRefitClient)
         {
             _db = db;
             _cookieConsentManager = cookieConsentManager;
@@ -56,6 +59,7 @@ namespace Smartstore.Web.Controllers
             _seoSettings = seoSettings;
             _localizationSettings = localizationSettings;
             _routeHelper = routeHelper;
+            _dellyManRefitClient = dellyManRefitClient;
         }
 
         [CheckStoreClosed(false)]
@@ -245,6 +249,41 @@ namespace Smartstore.Web.Controllers
 
             return Json(cacheModel);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> CitiesByStateId(string stateId,string countryName)
+        {
+            // This should never happen. But just in case we return an empty List to don't throw in frontend.
+            if (!stateId.HasValue())
+            {
+                return Json(new List<SelectListItem>());
+            }
+
+            if(countryName.Trim() != "Nigeria")
+                return Json(new List<SelectListItem>());
+
+            //get state name 
+            var state = await _db.StateProvinces.FindByIdAsync(Convert.ToInt32(stateId));
+            var selectedStateId = state.Abbreviation;
+            //call api
+            var cityRequestModel = new GetCityRequestModel
+            {
+                StateId = int.Parse(selectedStateId)
+            };
+
+            var request = await _dellyManRefitClient.GetCitiesAsync(cityRequestModel);
+           
+            if (!request.IsSuccessStatusCode)
+                return Json(new List<SelectListItem>());
+
+            if (request.Content.Count == 0)
+                return Json(new List<SelectListItem>());
+            var content = request.Content.Select(x => new SelectListItem(x.Name, x.Name)).ToList();
+
+
+            return Json(content);
+        }
+
 
         [DisallowRobot]
         [LocalizedRoute("/cookiemanager", Name = "CookieManager")]

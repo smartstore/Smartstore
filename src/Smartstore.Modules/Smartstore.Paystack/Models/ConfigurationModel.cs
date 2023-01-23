@@ -18,8 +18,9 @@ namespace Smartstore.Paystack.Models
 
         [LocalizedDisplay("*BaseUrl")]
         public string BaseUrl { get; set; }
+        public decimal AdditionalFee { get; set; }
+        public bool AdditionalFeePercentage { get; set; }
+        public decimal Fee { get; set; }
 
-       
-    
-}
+    }
 }

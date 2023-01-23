@@ -17,6 +17,7 @@ using Smartstore.Paystack.Configuration;
 using Newtonsoft.Json;
 using Smartstore.Paystack.Models;
 using System.Net.Http;
+using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Paystack.Providers
 {
@@ -31,6 +32,7 @@ namespace Smartstore.Paystack.Providers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IPaystackClient _paystackClient;
+        private readonly IOrderCalculationService _orderCalculationService;
         private readonly PaystackSettings _paystackSettings;
 
         public PaystackProvider(
@@ -39,6 +41,7 @@ namespace Smartstore.Paystack.Providers
             IHttpContextAccessor httpContextAccessor,
             ICheckoutStateAccessor checkoutStateAccessor,
             IPaystackClient paystackClient,
+            IOrderCalculationService orderCalculationService,
             PaystackSettings paystackSettings)
         {
             _db = db;
@@ -46,6 +49,7 @@ namespace Smartstore.Paystack.Providers
             _httpContextAccessor = httpContextAccessor;
             _checkoutStateAccessor = checkoutStateAccessor;
             _paystackClient = paystackClient;
+            _orderCalculationService = orderCalculationService;
             _paystackSettings = paystackSettings;
         }
 
@@ -114,7 +118,29 @@ namespace Smartstore.Paystack.Providers
 
         }
 
+        public override async Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
+        {
+            return (_paystackSettings.Fee, _paystackSettings.AdditionalFeePercentage);
+            // return await Task.FromResult((100m, false));
+            // Percentage
+            var shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
+            var fee = _paystackSettings.Fee;
+            var additionalFee = _paystackSettings.AdditionalFee;
+
+            const decimal feeCap = 2000m;
+            // const decimal flatFee = 0m;//formerly 100
+            decimal finalFee = 0m;
+
+            decimal decimalFee = fee / 100;
+
+            var applicableFee = (decimalFee * shoppingCartTotal.Total.Value.Amount) + additionalFee;
+            finalFee = applicableFee < feeCap ? applicableFee : feeCap;
+
+
+            return (decimal.Round(finalFee, 2), false);
+
+        }
 
     }
 }

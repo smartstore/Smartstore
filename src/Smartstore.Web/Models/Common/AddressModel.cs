@@ -98,6 +98,7 @@ namespace Smartstore.Web.Models.Common
 
         public IList<CountrySelectListItem> AvailableCountries { get; set; }
         public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableCities { get; set; } = new List<SelectListItem>();
         public IList<SelectListItem> AvailableSalutations { get; set; } = new List<SelectListItem>();
 
         public string FormattedAddress { get; set; }

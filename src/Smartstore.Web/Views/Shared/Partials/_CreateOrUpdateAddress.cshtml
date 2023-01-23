@@ -72,7 +72,14 @@
         <div class="col-@breakpoint-9">
             <div class="row sm-gutters d-flex">
                 <div class="col">
-                    <input asp-for="City" sm-required="Model.CityRequired" />
+
+                    @*<input asp-for="City" sm-required="Model.CityRequired" />*@
+
+                    <select asp-for="City"
+                            asp-items="Model.AvailableCities"
+                            sm-required="Model.CityRequired"
+                            data-select-selected-id="@Model.City"></select>
+
                 </div>
                 @if (Model.ZipPostalCodeEnabled)
                 {
@@ -114,7 +121,13 @@
     <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
         <label asp-for="StateProvinceId" class="col-@(breakpoint)-3 col-form-label@(Model.StateProvinceRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
-            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" sm-required="Model.StateProvinceRequired" data-select-selected-id="@Model.StateProvinceId"></select>
+            <select asp-for="StateProvinceId"
+            class="state-selector"
+            data-region-control-selector="#@Html.IdFor(x => x.City)"
+            data-cities-ajax-url="@Url.Action("CitiesByStateId", "Common", new { area = string.Empty })"
+            asp-items="Model.AvailableStates" 
+            sm-required="Model.StateProvinceRequired" 
+            data-select-selected-id="@Model.StateProvinceId"></select>
         </div>
     </div>
 
@@ -162,6 +175,7 @@
         $(function () {
             // No state provinces provided -> trigger country change to load them via AJAX (see smartstore.common.js).
             $('#@Html.IdFor(x => x.CountryId)').trigger('change');
+            $('#@Html.IdFor(x => x.StateProvinceId)').trigger('change');
         });
     </script>
 }

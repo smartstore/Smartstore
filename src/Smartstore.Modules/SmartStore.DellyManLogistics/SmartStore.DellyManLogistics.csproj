@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <!--<PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>-->
+
+    <PropertyGroup>
+        <Product>Smartstore DellyMan</Product>
+        <OutputPath>..\..\Smartstore.Web\Modules\SmartStore.DellyManLogistics</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="module.json" />
+      <None Remove="Views\DellyManLogistics\Configure.cshtml" />
+      <None Remove="Views\_ViewImports.cshtml" />
+      <None Remove="wwwroot\icon.jpg" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Localization\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Refit" Version="6.3.2" />
+    </ItemGroup>
+</Project>

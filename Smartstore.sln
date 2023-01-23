@@ -79,6 +79,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Stripe", "src\Sm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Paystack", "src\Smartstore.Modules\Smartstore.Paystack\Smartstore.Paystack.csproj", "{214B6D26-4B3A-49B8-A5FF-A6A900370CA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartStore.DellyManLogistics", "src\Smartstore.Modules\SmartStore.DellyManLogistics\SmartStore.DellyManLogistics.csproj", "{BB8037D1-95FE-418F-86DD-CB42FAE5F637}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -260,6 +262,12 @@ Global
 		{214B6D26-4B3A-49B8-A5FF-A6A900370CA4}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
 		{214B6D26-4B3A-49B8-A5FF-A6A900370CA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{214B6D26-4B3A-49B8-A5FF-A6A900370CA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB8037D1-95FE-418F-86DD-CB42FAE5F637}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB8037D1-95FE-418F-86DD-CB42FAE5F637}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB8037D1-95FE-418F-86DD-CB42FAE5F637}.DebugNoRazorCompile|Any CPU.ActiveCfg = DebugNoRazorCompile|Any CPU
+		{BB8037D1-95FE-418F-86DD-CB42FAE5F637}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
+		{BB8037D1-95FE-418F-86DD-CB42FAE5F637}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB8037D1-95FE-418F-86DD-CB42FAE5F637}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -290,6 +298,7 @@ Global
 		{D6A3CB44-4C7A-4637-8465-515D4D70324F} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{0C26B088-A8F6-42E8-AB8D-D9D297FDD72C} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{214B6D26-4B3A-49B8-A5FF-A6A900370CA4} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{BB8037D1-95FE-418F-86DD-CB42FAE5F637} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

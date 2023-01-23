@@ -59,6 +59,36 @@
                 <span asp-validation-for="BaseUrl"></span>
             </div>
         </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFee" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFee"></setting-editor>
+                <span asp-validation-for="AdditionalFee"></span>
+            </div>
+        </div>
+
+          <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFeePercentage" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFeePercentage"></setting-editor>
+                <span asp-validation-for="AdditionalFeePercentage"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Fee" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Fee"></setting-editor>
+                <span asp-validation-for="Fee"></span>
+            </div>
+        </div>
     </div>
 </form>
 

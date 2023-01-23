@@ -1,0 +1,160 @@
+﻿@model SmartStore.DellyManLogistics.Models.ConfigurationModel
+
+@{
+    Layout = "_ConfigureProvider";
+}
+@await Component.InvokeAsync("StoreScope")
+
+<widget target-zone="admin_button_toolbar_before">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<div class="plugin-configuration">
+    <div>
+        <div class="alert alert-info alert-dismissible">
+            @Html.Raw(T("Plugins.Smartstore.Paystack.AdminInstruction"))
+            <button class="close" data-dismiss="alert">&times;</button>
+        </div>
+    </div>
+    <div class="mt-5">
+        <a href="https://dellyman.com/" target="_blank">
+            <img src="@Url.Content("~/Modules/SmartStore.DellyManLogistics/icon.png")" alt="DellyMan" />
+        </a>
+    </div>
+</div>
+
+<form asp-action="Configure">
+    <div asp-validation-summary="All"></div>
+
+    <div id="amazonpay-config" class="adminContent">
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ApiKey" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ApiKey"></setting-editor>
+                <span asp-validation-for="ApiKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="BaseUrl" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="BaseUrl"></setting-editor>
+                <span asp-validation-for="BaseUrl"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CustomerCode" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="CustomerCode"></setting-editor>
+                <span asp-validation-for="CustomerCode"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CustomerId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="CustomerId"></setting-editor>
+                <span asp-validation-for="CustomerId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CompanyId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="CompanyId"></setting-editor>
+                <span asp-validation-for="CompanyId"></span>
+            </div>
+        </div>
+   
+         <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PickupRequestedTime" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PickupRequestedTime"></setting-editor>
+                <span asp-validation-for="PickupRequestedTime"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OrderTrackingUrl" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="OrderTrackingUrl"></setting-editor>
+                <span asp-validation-for="OrderTrackingUrl"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DefaultDeliveryFee" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DefaultDeliveryFee"></setting-editor>
+                <span asp-validation-for="DefaultDeliveryFee"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DefaultPickUpContactName" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DefaultPickUpContactName"></setting-editor>
+                <span asp-validation-for="DefaultPickUpContactName"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DefaultPickUpContactNumber" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DefaultPickUpContactNumber"></setting-editor>
+                <span asp-validation-for="DefaultPickUpContactNumber"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DefaultPickUpGoogleAddress" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DefaultPickUpGoogleAddress"></setting-editor>
+                <span asp-validation-for="DefaultPickUpGoogleAddress"></span>
+            </div>
+        </div>
+         <div class="adminRow">
+        <div class="adminTitle">
+                <smart-label asp-for="DefaultPickUpCity" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DefaultPickUpCity"></setting-editor>
+                <span asp-validation-for="DefaultPickUpCity"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DefaultPickUpState" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DefaultPickUpState"></setting-editor>
+                <span asp-validation-for="DefaultPickUpState"></span>
+            </div>
+        </div>
+       
+    
+    </div>
+</form>
+
+
+
+

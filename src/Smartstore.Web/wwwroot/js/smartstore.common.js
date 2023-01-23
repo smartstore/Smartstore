@@ -678,6 +678,54 @@
             });
         });
 
+        // state region dropdown
+        $(document).on('change', '.state-selector', function () {
+            var el = $(this);
+            var selectedStateId = el.val();
+            var countrySelected = $("#CountryId").find("option:selected");
+            var selectedCountry = countrySelected.text();
+
+            var ddlCities = $(el.data("region-control-selector"));
+
+            if (selectedStateId == '0') {
+                // No data to load.
+                ddlCities.empty().val(null).trigger('change');
+                return;
+            }
+
+            var ajaxUrl = el.data("cities-ajax-url");
+            var initialLoad = ddlCities.children('option').length == 0;
+            var selectedId = ddlCities.data('select-selected-id');
+
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: ajaxUrl,
+                data: { "stateId": selectedStateId, "countryName": selectedCountry },
+                success: function (data) {
+                    if (data.error)
+                        return;
+
+                    ddlCities.empty();
+
+                    $.each(data, function (id, option) {
+                        var selected = initialLoad && option.Value == selectedId;
+                        ddlCities.append(new Option(option.Text, option.Value, selected, selected));
+                    });
+
+                    if (!initialLoad) {
+                        ddlCities.val(null);
+                    }
+
+                    ddlCities.trigger('change');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve cities.');
+                }
+            });
+        });
+
+
         // Waypoint / scroll top
         (function () {
             $(document).on('click', 'a.scrollto', function (e) {

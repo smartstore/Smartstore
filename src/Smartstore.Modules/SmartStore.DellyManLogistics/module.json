@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "Group": "Shipping",
+  "SystemName": "SmartStore.DellyManLogistics",
+  "FriendlyName": "DellyMan Logistics",
+  "Description": "Provides shipping calculation using google distance API .",
+  "Version": "5.0.1",
+  "MinAppVersion": "5.0.1",
+  "Author": "Olamide James Akinnagbe",
+  "Order": 0,
+  "ResourceRootKey": "Plugins.SmartStore.Shipping",
+  "PrivateReferences": [ "Refit" ]
+}

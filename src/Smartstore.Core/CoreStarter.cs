@@ -14,10 +14,12 @@ global using Smartstore.Engine;
 global using EfState = Microsoft.EntityFrameworkCore.EntityState;
 global using LogLevel = Smartstore.Core.Logging.LogLevel;
 global using EntityState = Smartstore.Data.EntityState;
+using System.Net.Http.Headers;
 using System.Text;
 using Autofac;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Refit;
 using Smartstore.Bootstrapping;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
@@ -26,6 +28,7 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.JsonConverters;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
+using Smartstore.Core.RefitClients.DellyMan;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Providers;
@@ -43,6 +46,18 @@ namespace Smartstore.Core.Bootstrapping
         {
             // Type converters
             RegisterTypeConverters();
+
+            services.AddHttpClient("dellymanservice", (sp, c) =>
+            {
+                var baseUrl = appContext.Configuration["DellyMan:baseUrl"];
+                var apiKey = appContext.Configuration["DellyMan:apiKey"];
+                c.BaseAddress = new Uri(baseUrl);
+                c.DefaultRequestHeaders
+                      .Accept
+                      .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                c.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+               
+            }).AddTypedClient(r => RestService.For<IDellyManRefitClient>(r));
 
             // Default Json serializer settings
             JsonConvert.DefaultSettings = () =>
