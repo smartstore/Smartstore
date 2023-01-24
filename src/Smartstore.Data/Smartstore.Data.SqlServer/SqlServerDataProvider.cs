@@ -8,7 +8,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -94,6 +93,11 @@ namespace Smartstore.Data.SqlServer
             | DataProviderFeatures.StoredProcedures
             | DataProviderFeatures.ReadSequential;
 
+        public override DbParameter CreateParameter()
+        {
+            return new SqlParameter();
+        }
+
         public override bool MARSEnabled
         {
             get
@@ -106,6 +110,21 @@ namespace Smartstore.Data.SqlServer
 
                 return enabled;
             }
+        }
+
+        public override string EncloseIdentifier(string identifier)
+        {
+            Guard.NotEmpty(identifier, nameof(identifier));
+            return identifier.EnsureStartsWith('[').EnsureEndsWith(']');
+        }
+
+        public override string ApplyPaging(string sql, int skip, int take)
+        {
+            Guard.NotNegative(skip);
+            Guard.NotNegative(take);
+
+            return $@"{sql}
+OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         }
 
         protected override ValueTask<bool> HasDatabaseCore(string databaseName, bool async)
@@ -140,24 +159,16 @@ namespace Smartstore.Data.SqlServer
                 : ValueTask.FromResult(Database.ExecuteQueryRaw<string>(sql).ToArray());
         }
 
-        public override string EncloseIdentifier(string identifier)
+        protected override Task<int> TruncateTableCore(string tableName, bool async)
         {
-            Guard.NotEmpty(identifier, nameof(identifier));
-            return identifier.EnsureStartsWith('[').EnsureEndsWith(']');
-        }
-
-        public override string ApplyPaging(string sql, int skip, int take)
-        {
-            Guard.NotNegative(skip);
-            Guard.NotNegative(take);
-
-            return $@"{sql}
-OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
+            var sql = $"TRUNCATE TABLE {EncloseIdentifier(tableName)}";
+            return async
+                ? Database.ExecuteSqlRawAsync(sql)
+                : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
         public override async Task<int> InsertIntoAsync(string sql, params object[] parameters)
         {
-            // TODO: (core) Test InsertIntoAsync with SqlServer & MySql
             Guard.NotEmpty(sql, nameof(sql));
             return (await Database.ExecuteQueryRawAsync<decimal>(
                 sql + "; SELECT @@IDENTITY;", parameters).FirstOrDefaultAsync()).Convert<int>();
@@ -197,44 +208,27 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        protected override int? GetTableIncrementCore(string tableName)
+        protected override async Task<int?> GetTableIncrementCore(string tableName, bool async)
         {
-            Guard.NotEmpty(tableName, nameof(tableName));
-            return Database.ExecuteScalarRaw<decimal?>(
-                $"SELECT IDENT_CURRENT('[{tableName}]')").Convert<int?>();
+            var sql = $"SELECT IDENT_CURRENT('[{tableName}]')";
+            return async
+               ? (await Database.ExecuteScalarRawAsync<decimal?>(sql)).Convert<int?>()
+               : Database.ExecuteScalarRaw<decimal?>(sql).Convert<int?>();
         }
 
-        protected override async Task<int?> GetTableIncrementCoreAsync(string tableName)
+        protected override Task SetTableIncrementCore(string tableName, int ident, bool async)
         {
-            Guard.NotEmpty(tableName, nameof(tableName));
-            return (await Database.ExecuteScalarRawAsync<decimal?>(
-                $"SELECT IDENT_CURRENT('[{tableName}]')")).Convert<int?>();
+            var sql = $"DBCC CHECKIDENT([{tableName}], RESEED, {ident})";
+            return async
+               ? Database.ExecuteSqlRawAsync(sql)
+               : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        protected override void SetTableIncrementCore(string tableName, int ident)
+        protected override Task<int> BackupDatabaseCore(string fullPath, bool async, CancellationToken cancelToken = default)
         {
-            Guard.NotEmpty(tableName, nameof(tableName));
-            Database.ExecuteSqlRaw(
-                $"DBCC CHECKIDENT([{tableName}], RESEED, {ident})");
-        }
-
-        protected override Task SetTableIncrementCoreAsync(string tableName, int ident)
-        {
-            Guard.NotEmpty(tableName, nameof(tableName));
-            return Database.ExecuteSqlRawAsync(
-                $"DBCC CHECKIDENT([{tableName}], RESEED, {ident})");
-        }
-
-        public override int BackupDatabase(string fullPath)
-        {
-            Guard.NotEmpty(fullPath, nameof(fullPath));
-            return Database.ExecuteSqlRaw(CreateBackupSql(), new object[] { fullPath });
-        }
-
-        public override async Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
-        {
-            Guard.NotEmpty(fullPath, nameof(fullPath));
-            return await Database.ExecuteSqlRawAsync(CreateBackupSql(), new object[] { fullPath }, cancelToken);
+            return async 
+                ? Database.ExecuteSqlRawAsync(CreateBackupSql(), new object[] { fullPath }, cancelToken)
+                : Task.FromResult(Database.ExecuteSqlRaw(CreateBackupSql(), new object[] { fullPath }));
         }
 
         private long GetSqlServerEdition()
@@ -270,23 +264,11 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             return sql;
         }
 
-        public override int RestoreDatabase(string backupFullPath)
+        protected override Task<int> RestoreDatabaseCore(string backupFullPath, bool async, CancellationToken cancelToken = default)
         {
-            Guard.NotEmpty(backupFullPath, nameof(backupFullPath));
-
-            return Database.ExecuteSqlRaw(
-                RestoreDatabaseSql(DatabaseName),
-                backupFullPath);
-        }
-
-        public override Task<int> RestoreDatabaseAsync(string backupFullPath, CancellationToken cancelToken = default)
-        {
-            Guard.NotEmpty(backupFullPath, nameof(backupFullPath));
-
-            return Database.ExecuteSqlRawAsync(
-                RestoreDatabaseSql(DatabaseName),
-                new object[] { backupFullPath },
-                cancelToken);
+            return async
+                ? Database.ExecuteSqlRawAsync(RestoreDatabaseSql(DatabaseName), new object[] { backupFullPath }, cancelToken)
+                : Task.FromResult(Database.ExecuteSqlRaw(RestoreDatabaseSql(DatabaseName), new object[] { backupFullPath }));
         }
 
         protected override IList<string> TokenizeSqlScript(string sqlScript)
@@ -321,18 +303,13 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
                 commands.Add(builder.ToString());
             }
-
+            
             return commands;
         }
 
-        public override Stream OpenBlobStream(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
+        protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
             return new SqlBlobStream(Database, tableName, blobColumnName, pkColumnName, pkColumnValue);
-        }
-
-        public override DbParameter CreateParameter()
-        {
-            return new SqlParameter();
         }
 
         private static bool DetectSqlError(Exception ex, ICollection<int> errorCodes)

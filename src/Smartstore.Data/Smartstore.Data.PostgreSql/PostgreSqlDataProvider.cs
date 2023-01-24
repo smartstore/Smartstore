@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Npgsql;
 using Smartstore.Data.Providers;
+using Smartstore.Domain;
 
 namespace Smartstore.Data.PostgreSql
 {
@@ -21,15 +21,10 @@ namespace Smartstore.Data.PostgreSql
         {
         }
 
-        private static string GetDatabaseSizeSql(string database)
-            => $@"SELECT ROUND(pg_database_size('{database}') / 1024 / 1024, 1) AS sizemb";
-
         public override DbSystemType ProviderType => DbSystemType.PostgreSql;
 
         public override DataProviderFeatures Features
-            => DataProviderFeatures.Backup
-            | DataProviderFeatures.Restore
-            | DataProviderFeatures.Shrink
+            => DataProviderFeatures.Shrink
             | DataProviderFeatures.ReIndex
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
@@ -38,7 +33,27 @@ namespace Smartstore.Data.PostgreSql
             | DataProviderFeatures.StoredProcedures
             | DataProviderFeatures.ReadSequential;
 
+        public override DbParameter CreateParameter()
+        {
+            return new NpgsqlParameter();
+        }
+
         public override bool MARSEnabled => false;
+
+        public override string EncloseIdentifier(string identifier)
+        {
+            Guard.NotEmpty(identifier, nameof(identifier));
+            return identifier.EnsureStartsWith('"').EnsureEndsWith('"');
+        }
+
+        public override string ApplyPaging(string sql, int skip, int take)
+        {
+            Guard.NotNegative(skip);
+            Guard.NotNegative(take);
+
+            return $@"{sql}
+LIMIT {take} OFFSET {skip}";
+        }
 
         protected override ValueTask<bool> HasDatabaseCore(string databaseName, bool async)
         {
@@ -72,19 +87,12 @@ namespace Smartstore.Data.PostgreSql
                 : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).ToArray());
         }
 
-        public override string EncloseIdentifier(string identifier)
+        protected override Task<int> TruncateTableCore(string tableName, bool async)
         {
-            Guard.NotEmpty(identifier, nameof(identifier));
-            return identifier.EnsureStartsWith('"').EnsureEndsWith('"');
-        }
-
-        public override string ApplyPaging(string sql, int skip, int take)
-        {
-            Guard.NotNegative(skip);
-            Guard.NotNegative(take);
-
-            return $@"{sql}
-LIMIT {take} OFFSET {skip}";
+            var sql = $"TRUNCATE TABLE {EncloseIdentifier(tableName)}";
+            return async
+                ? Database.ExecuteSqlRawAsync(sql)
+                : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
         public override Task<int> InsertIntoAsync(string sql, params object[] parameters)
@@ -93,13 +101,30 @@ LIMIT {take} OFFSET {skip}";
         }
 
         public override bool IsTransientException(Exception ex)
-        {
-            throw new NotImplementedException();
-        }
+            => ex is NpgsqlException npgSqlException
+                ? npgSqlException.IsTransient
+                : ex is TimeoutException;
 
-        public override bool IsUniquenessViolationException(DbUpdateException ex)
+        public override bool IsUniquenessViolationException(DbUpdateException updateException)
         {
-            throw new NotImplementedException();
+            if (updateException?.InnerException is PostgresException ex)
+            {
+                switch (ex.SqlState)
+                {
+                    case PostgresErrorCodes.IntegrityConstraintViolation:
+                    case PostgresErrorCodes.RestrictViolation:
+                    case PostgresErrorCodes.NotNullViolation:
+                    case PostgresErrorCodes.ForeignKeyViolation:
+                    case PostgresErrorCodes.CheckViolation:
+                    case PostgresErrorCodes.ExclusionViolation:
+                    case PostgresErrorCodes.UniqueViolation:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            return false;
         }
 
         protected override Task<decimal> GetDatabaseSizeCore(bool async)
@@ -112,7 +137,9 @@ LIMIT {take} OFFSET {skip}";
 
         protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
-            throw new NotSupportedException();
+            return async
+                ? ReIndexTablesAsync(cancelToken)
+                : Task.FromResult(ReIndexTables());
         }
 
         protected override Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
@@ -123,12 +150,44 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
+        protected override async Task<int?> GetTableIncrementCore(string tableName, bool async)
+        {
+            var seqName = await GetSequenceName(tableName, async);
+            var sql = $"SELECT COALESCE(last_value + CASE WHEN is_called THEN 1 ELSE 0 END, 1) as Value FROM {seqName}";
+
+            return async
+               ? (await Database.ExecuteScalarRawAsync<int>(sql)).Convert<int?>()
+               : Database.ExecuteScalarRaw<int>(sql).Convert<int?>();
+        }
+
+        protected override async Task SetTableIncrementCore(string tableName, int ident, bool async)
+        {
+            var seqName = await GetSequenceName(tableName, async);
+            var sql = $"SELECT setval('{seqName}', {ident}, false)";
+
+            if (async)
+            {
+                await Database.ExecuteSqlRawAsync(sql);
+            }
+            else
+            {
+                Database.ExecuteSqlRaw(sql);
+            }
+        }
+
+        private Task<string> GetSequenceName(string tableName, bool async)
+        {
+            var sql = $"SELECT pg_get_serial_sequence('\"{tableName}\"', 'Id')";
+            var seqName = async
+               ? Database.ExecuteScalarRawAsync<string>(sql)
+               : Task.FromResult(Database.ExecuteScalarRaw<string>(sql));
+
+            return seqName;
+        }
+
         protected override IList<string> TokenizeSqlScript(string sqlScript)
         {
             throw new NotSupportedException();
         }
-
-        public override DbParameter CreateParameter()
-            => new NpgsqlParameter();
     }
 }

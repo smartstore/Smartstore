@@ -38,7 +38,25 @@ namespace Smartstore.Data.MySql
             | DataProviderFeatures.StoredProcedures
             | DataProviderFeatures.ReadSequential;
 
+        public override DbParameter CreateParameter()
+            => new MySqlParameter();
+
         public override bool MARSEnabled => false;
+
+        public override string EncloseIdentifier(string identifier)
+        {
+            Guard.NotEmpty(identifier, nameof(identifier));
+            return identifier.EnsureStartsWith('`').EnsureEndsWith('`');
+        }
+
+        public override string ApplyPaging(string sql, int skip, int take)
+        {
+            Guard.NotNegative(skip);
+            Guard.NotNegative(take);
+
+            return $@"{sql}
+LIMIT {take} OFFSET {skip}";
+        }
 
         protected override ValueTask<bool> HasDatabaseCore(string databaseName, bool async)
         {
@@ -72,19 +90,12 @@ namespace Smartstore.Data.MySql
                 : ValueTask.FromResult(Database.ExecuteQueryInterpolated<string>(sql).ToArray());
         }
 
-        public override string EncloseIdentifier(string identifier)
+        protected override Task<int> TruncateTableCore(string tableName, bool async)
         {
-            Guard.NotEmpty(identifier, nameof(identifier));
-            return identifier.EnsureStartsWith('`').EnsureEndsWith('`');
-        }
-
-        public override string ApplyPaging(string sql, int skip, int take)
-        {
-            Guard.NotNegative(skip);
-            Guard.NotNegative(take);
-
-            return $@"{sql}
-LIMIT {take} OFFSET {skip}";
+            var sql = $"TRUNCATE TABLE {EncloseIdentifier(tableName)}";
+            return async
+                ? Database.ExecuteSqlRawAsync(sql)
+                : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
         public override async Task<int> InsertIntoAsync(string sql, params object[] parameters)
@@ -158,28 +169,20 @@ LIMIT {take} OFFSET {skip}";
             return 0;
         }
 
-        protected override int? GetTableIncrementCore(string tableName)
+        protected override async Task<int?> GetTableIncrementCore(string tableName, bool async)
         {
-            return Database.ExecuteScalarInterpolated<ulong>(
-                $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {DatabaseName} AND TABLE_NAME = {tableName}").Convert<int?>();
+            FormattableString sql = $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {DatabaseName} AND TABLE_NAME = {tableName}";
+            return async
+               ? (await Database.ExecuteScalarInterpolatedAsync<ulong>(sql)).Convert<int?>()
+               : Database.ExecuteScalarInterpolated<ulong>(sql).Convert<int?>();
         }
 
-        protected override async Task<int?> GetTableIncrementCoreAsync(string tableName)
+        protected override Task SetTableIncrementCore(string tableName, int ident, bool async)
         {
-            return (await Database.ExecuteScalarInterpolatedAsync<ulong>(
-                $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {DatabaseName} AND TABLE_NAME = {tableName}")).Convert<int?>();
-        }
-
-        protected override void SetTableIncrementCore(string tableName, int ident)
-        {
-            Database.ExecuteSqlRaw(
-                $"ALTER TABLE `{tableName}` AUTO_INCREMENT = {ident}");
-        }
-
-        protected override Task SetTableIncrementCoreAsync(string tableName, int ident)
-        {
-            return Database.ExecuteSqlRawAsync(
-                $"ALTER TABLE `{tableName}` AUTO_INCREMENT = {ident}");
+            var sql = $"ALTER TABLE `{tableName}` AUTO_INCREMENT = {ident}";
+            return async
+               ? Database.ExecuteSqlRawAsync(sql)
+               : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
         protected override IList<string> TokenizeSqlScript(string sqlScript)
@@ -206,12 +209,9 @@ LIMIT {take} OFFSET {skip}";
             return commands;
         }
 
-        public override Stream OpenBlobStream(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
+        protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
             return new SqlBlobStream(Database, tableName, blobColumnName, pkColumnName, pkColumnValue);
         }
-
-        public override DbParameter CreateParameter()
-            => new MySqlParameter();
     }
 }

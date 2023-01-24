@@ -47,7 +47,7 @@ namespace Smartstore.Data.Providers
         {
             get => ((IDatabaseFacadeDependenciesAccessor)Database).Context;
         }
-
+        
         #region Feature flags
 
         public virtual DataProviderFeatures Features { get; } = DataProviderFeatures.None;
@@ -110,12 +110,151 @@ namespace Smartstore.Data.Providers
 
         #endregion
 
-        #region Database schema
+        #region Mandatory abstract
 
+        /// <summary>
+        /// Gets the provider type.
+        /// </summary>
+        public abstract DbSystemType ProviderType { get; }
+
+        /// <summary>
+        /// Creates a provider-specific <see cref="DbParameter" /> instance.
+        /// </summary>
+        /// <returns></returns>
+        public abstract DbParameter CreateParameter();
+
+        /// <summary>
+        /// Encloses the given <paramref name="identifier"/> in provider specific quotes, e.g. [] for MSSQL, `` for MySql.
+        /// </summary>
+        /// <returns>The enclosed identifier, e.g. <c>MyColumn</c> --> <c>[MyColumn]</c>.</returns>
+        public abstract string EncloseIdentifier(string identifier);
+
+        /// <summary>
+        /// Applies paging to <paramref name="sql"/> to limit the number of records to be returned.
+        /// </summary>
+        /// <returns>SQL with included paging.</returns>
+        public abstract string ApplyPaging(string sql, int skip, int take);
+
+        /// <summary>
+        /// Checks whether the given database exists.
+        /// </summary>
+        /// <param name="databaseName">The database name to check</param>
         protected abstract ValueTask<bool> HasDatabaseCore(string databaseName, bool async);
+
+        /// <summary>
+        /// Checks whether the given table exists.
+        /// </summary>
+        /// <param name="tableName">The table name to check</param>
         protected abstract ValueTask<bool> HasTableCore(string tableName, bool async);
+
+        /// <summary>
+        /// Checks whether the given column exists.
+        /// </summary>
+        /// <param name="tableName">The table that contains the column</param>
+        /// <param name="columnName">The column name to check</param>
         protected abstract ValueTask<bool> HasColumnCore(string tableName, string columnName, bool async);
+        
+        /// <summary>
+        /// Gets all public tables in the current database
+        /// </summary>
         protected abstract ValueTask<string[]> GetTableNamesCore(bool async);
+
+        /// <summary>
+        /// Truncates/clears a table.
+        /// </summary>
+        protected abstract Task<int> TruncateTableCore(string tableName, bool async);
+
+        /// <summary>
+        /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
+        /// </summary>
+        /// <returns>The ident / primary key value of the newly inserted row.</returns>
+        public abstract Task<int> InsertIntoAsync(string sql, params object[] parameters);
+
+        /// <summary>
+        /// Determines whether the specified exception represents a transient failure that can be
+        /// compensated by a retry.
+        /// </summary>
+        /// <param name="exception">The exception object to be verified.</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
+        /// </returns>
+        public abstract bool IsTransientException(Exception ex);
+
+        /// <summary>
+        /// Checks whether the inner exception indicates uniqueness violation
+        /// (is 2627 = Unique constraint error, OR is 547 = Constraint check violation, OR is 2601 = Duplicated key row error)
+        /// </summary>
+        /// <param name="exception">The exception wrapper</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified exception indicates uniqueness violation, otherwise <see langword="false" />.
+        /// </returns>
+        public abstract bool IsUniquenessViolationException(DbUpdateException ex);
+
+        /// <summary>
+        /// Creates a database backup
+        /// </summary>
+        /// <param name="fullPath">The full physical path to the backup file.</param>
+        protected virtual Task<int> BackupDatabaseCore(string fullPath, bool async, CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Restores a database backup
+        /// </summary>
+        /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
+        protected virtual Task<int> RestoreDatabaseCore(string backupFullPath, bool async, CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
+        #endregion
+
+        #region Optional overridable features
+
+        /// <summary>
+        /// Gets the total size of the database in MB.
+        /// </summary>
+        protected virtual Task<decimal> GetDatabaseSizeCore(bool async)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Shrinks / compacts the database
+        /// </summary>
+        protected virtual Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Reindexes all tables in the current database.
+        /// </summary>
+        protected virtual Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Gets the current ident value for the given table.
+        /// </summary>
+        /// <param name="tableName">Table to get ident for.</param>
+        /// <returns>Ident value or <c>null</c> if value cannot be resolved.</returns>
+        protected virtual Task<int?> GetTableIncrementCore(string tableName, bool async)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Sets the ident value for given table.
+        /// </summary>
+        /// <param name="tableName">Table to set ident for.</param>
+        /// <param name="ident">The new ident value</param>
+        protected virtual Task SetTableIncrementCore(string tableName, int ident, bool async)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Tokenizes the given SQL script.
+        /// </summary>
+        protected virtual IList<string> TokenizeSqlScript(string sqlScript)
+            => throw new NotSupportedException();
+
+
+        protected virtual Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
+            => throw new NotSupportedException();
+
+        #endregion
+
+        #region Database schema
 
         public bool HasDatabase(string databaseName)
         {
@@ -167,55 +306,7 @@ namespace Smartstore.Data.Providers
 
         #endregion
 
-        #region Sql / Execution strategy
-
-        /// <summary>
-        /// Encloses the given <paramref name="identifier"/> in provider specific quotes, e.g. [] for MSSQL, `` for MySql.
-        /// </summary>
-        /// <returns>The enclosed identifier, e.g. <c>MyColumn</c> --> <c>[MyColumn]</c>.</returns>
-        public abstract string EncloseIdentifier(string identifier);
-
-        /// <summary>
-        /// Applies paging to <paramref name="sql"/> to limit the number of records to be returned.
-        /// </summary>
-        /// <returns>SQL with included paging.</returns>
-        public abstract string ApplyPaging(string sql, int skip, int take);
-
-        /// <summary>
-        /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
-        /// </summary>
-        /// <returns>The ident / primary key value of the newly inserted row.</returns>
-        public abstract Task<int> InsertIntoAsync(string sql, params object[] parameters);
-
-        /// <summary>
-        /// Determines whether the specified exception represents a transient failure that can be
-        /// compensated by a retry.
-        /// </summary>
-        /// <param name="exception">The exception object to be verified.</param>
-        /// <returns>
-        /// <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
-        /// </returns>
-        public virtual bool IsTransientException(Exception ex)
-            => false;
-
-        /// <summary>
-        /// Checks whether the inner exception indicates uniqueness violation
-        /// (is 2627 = Unique constraint error, OR is 547 = Constraint check violation, OR is 2601 = Duplicated key row error)
-        /// </summary>
-        /// <param name="exception">The exception wrapper</param>
-        /// <returns>
-        /// <see langword="true" /> if the specified exception indicates uniqueness violation, otherwise <see langword="false" />.
-        /// </returns>
-        public virtual bool IsUniquenessViolationException(DbUpdateException ex)
-            => false;
-
-        #endregion
-
         #region Maintenance
-
-        protected abstract Task<decimal> GetDatabaseSizeCore(bool async);
-        protected abstract Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default);
-        protected abstract Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Gets the total size of the database in MB.
@@ -304,15 +395,12 @@ namespace Smartstore.Data.Providers
             return rowsAffected;
         }
 
-        protected abstract IList<string> TokenizeSqlScript(string sqlScript);
-
         /// <summary>
         /// Truncates/clears a table. ALL rows will be irreversibly deleted!!!!
         /// </summary>
         public int TruncateTable<T>() where T : BaseEntity
         {
-            var tableName = Context.Model.FindEntityType(typeof(T)).GetTableName();
-            return Database.ExecuteSqlRaw($"TRUNCATE TABLE {EncloseIdentifier(tableName)}");
+            return TruncateTableCore(Context.Model.FindEntityType(typeof(T)).GetTableName(), false).Await();
         }
 
         /// <summary>
@@ -320,8 +408,7 @@ namespace Smartstore.Data.Providers
         /// </summary>
         public Task<int> TruncateTableAsync<T>() where T : BaseEntity
         {
-            var tableName = Context.Model.FindEntityType(typeof(T)).GetTableName();
-            return Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {EncloseIdentifier(tableName)}");
+            return TruncateTableCore(Context.Model.FindEntityType(typeof(T)).GetTableName(), true);
         }
 
         /// <summary>
@@ -331,7 +418,7 @@ namespace Smartstore.Data.Providers
         /// <returns>Ident value or <c>null</c> if value cannot be resolved.</returns>
         public int? GetTableIdent<T>() where T : BaseEntity
         {
-            return GetTableIncrementCore(Context.Model.FindEntityType(typeof(T)).GetTableName());
+            return GetTableIncrementCore(Context.Model.FindEntityType(typeof(T)).GetTableName(), false).Await();
         }
 
         /// <summary>
@@ -341,7 +428,7 @@ namespace Smartstore.Data.Providers
         /// <returns>Ident value or <c>null</c> if value cannot be resolved.</returns>
         public Task<int?> GetTableIdentAsync<T>() where T : BaseEntity
         {
-            return GetTableIncrementCoreAsync(Context.Model.FindEntityType(typeof(T)).GetTableName());
+            return GetTableIncrementCore(Context.Model.FindEntityType(typeof(T)).GetTableName(), true);
         }
 
         /// <summary>
@@ -351,7 +438,7 @@ namespace Smartstore.Data.Providers
         /// <param name="ident">The new ident value</param>
         public void SetTableIdent<T>(int ident) where T : BaseEntity
         {
-            SetTableIncrementCore(Context.Model.FindEntityType(typeof(T)).GetTableName(), ident);
+            SetTableIncrementCore(Context.Model.FindEntityType(typeof(T)).GetTableName(), ident, false).Await();
         }
 
         /// <summary>
@@ -361,20 +448,8 @@ namespace Smartstore.Data.Providers
         /// <param name="ident">The new ident value</param>
         public Task SetTableIncrementAsync<T>(int ident = 1) where T : BaseEntity
         {
-            return SetTableIncrementCoreAsync(Context.Model.FindEntityType(typeof(T)).GetTableName(), ident);
+            return SetTableIncrementCore(Context.Model.FindEntityType(typeof(T)).GetTableName(), ident, true);
         }
-
-        protected virtual int? GetTableIncrementCore(string tableName)
-            => throw new NotSupportedException();
-
-        protected virtual Task<int?> GetTableIncrementCoreAsync(string tableName)
-            => throw new NotSupportedException();
-
-        protected virtual void SetTableIncrementCore(string tableName, int ident)
-            => throw new NotSupportedException();
-
-        protected virtual Task SetTableIncrementCoreAsync(string tableName, int ident)
-            => throw new NotSupportedException();
 
         #endregion
 
@@ -428,29 +503,41 @@ namespace Smartstore.Data.Providers
         /// Creates a database backup
         /// </summary>
         /// <param name="fullPath">The full physical path to the backup file.</param>
-        public virtual int BackupDatabase(string fullPath)
-            => throw new NotSupportedException();
+        public int BackupDatabase(string fullPath)
+        {
+            Guard.NotEmpty(fullPath);
+            return BackupDatabaseCore(fullPath, false).Await();
+        }
 
         /// <summary>
         /// Creates a database backup
         /// </summary>
         /// <param name="fullPath">The full physical path to the backup file.</param>
-        public virtual Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
+        public Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
+        {
+            Guard.NotEmpty(fullPath);
+            return BackupDatabaseCore(fullPath, true, cancelToken);
+        }
 
         /// <summary>
         /// Restores a database backup
         /// </summary>
         /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
-        public virtual int RestoreDatabase(string backupFullPath)
-            => throw new NotSupportedException();
+        public int RestoreDatabase(string backupFullPath)
+        {
+            Guard.NotEmpty(backupFullPath);
+            return RestoreDatabaseCore(backupFullPath, false).Await();
+        }
 
         /// <summary>
         /// Restores a database backup
         /// </summary>
         /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
-        public virtual Task<int> RestoreDatabaseAsync(string backupFullPath, CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
+        public Task<int> RestoreDatabaseAsync(string backupFullPath, CancellationToken cancelToken = default)
+        {
+            Guard.NotEmpty(backupFullPath);
+            return RestoreDatabaseCore(backupFullPath, true, cancelToken);
+        }
 
         #endregion
 
@@ -479,25 +566,20 @@ namespace Smartstore.Data.Providers
 
             var storeIdent = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table).Value;
 
-            return OpenBlobStream(
+            return OpenBlobStreamCore(
                 entityType.GetTableName(),
                 entityProperty.GetColumnName(storeIdent),
                 nameof(BaseEntity.Id),
                 id);
         }
 
-        public virtual Stream OpenBlobStream(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
-            => throw new NotSupportedException();
-
         #endregion
 
         #region Connection
 
-        public abstract DbSystemType ProviderType { get; }
-
         public DbParameter CreateParameter(string name, object value)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             var p = CreateParameter();
             p.ParameterName = name;
@@ -505,8 +587,6 @@ namespace Smartstore.Data.Providers
 
             return p;
         }
-
-        public abstract DbParameter CreateParameter();
 
         #endregion
     }
