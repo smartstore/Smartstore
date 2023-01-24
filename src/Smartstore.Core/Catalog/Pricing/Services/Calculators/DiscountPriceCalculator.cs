@@ -178,8 +178,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     }
                     else
                     {
-                        // If validity check is disabled: exclude discounts which require coupon codes or have any usage restriction.
-                        isValid = !discount.RequiresCouponCode && discount.DiscountLimitation == DiscountLimitationType.Unlimited;
+                        // If validity check is disabled: exclude discounts which require coupon codes or have any usage restriction or have invalid dates.
+                        isValid = !discount.RequiresCouponCode && discount.DiscountLimitation == DiscountLimitationType.Unlimited && discount.IsDateInRange();
                     }
 
                     if (isValid)

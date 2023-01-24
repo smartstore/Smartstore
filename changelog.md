@@ -34,6 +34,7 @@
 - #603 Fixed after payment validation failure the data entry form is resetted.
 - Fixed CheckoutState change tracking issues
 - Fixed IBAN radio button issue when using direct debit offline payment.
+- Avoids *deals* label in product lists if the current date is not within the date range of an assigned discount.
 
 
 ## Smartstore 5.0.2

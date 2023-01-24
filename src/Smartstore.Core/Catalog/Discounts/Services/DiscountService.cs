@@ -213,22 +213,9 @@ namespace Smartstore.Core.Catalog.Discounts
             }
 
             // Check date range.
-            var now = DateTime.UtcNow;
-            if (discount.StartDateUtc.HasValue)
+            if (!discount.IsDateInRange())
             {
-                var startDate = DateTime.SpecifyKind(discount.StartDateUtc.Value, DateTimeKind.Utc);
-                if (startDate.CompareTo(now) > 0)
-                {
-                    return Cached(false);
-                }
-            }
-            if (discount.EndDateUtc.HasValue)
-            {
-                var endDate = DateTime.SpecifyKind(discount.EndDateUtc.Value, DateTimeKind.Utc);
-                if (endDate.CompareTo(now) < 0)
-                {
-                    return Cached(false);
-                }
+                return Cached(false);
             }
 
             if (!await CheckDiscountLimitationsAsync(discount, customer))
