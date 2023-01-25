@@ -24,7 +24,7 @@ namespace Smartstore.Core.Search.Indexing
         string Scope { get; }
 
         /// <summary>
-        /// Gets the widget invoker for optional configuration. Return <c>null</c> when there is nothing to render.
+        /// Gets the widget invoker for optional configuration. Return <c>null</c> when there is nothing to configure.
         /// </summary>
         Widget GetConfigurationWidget();
 
