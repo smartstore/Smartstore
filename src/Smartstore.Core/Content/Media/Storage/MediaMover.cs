@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
             // We are about to process data in chunks but want to commit ALL at once after ALL chunks have been processed successfully.
             // AutoDetectChanges true required for newly inserted binary data.
-            using (var scope = new DbContextScope(db: _db, autoDetectChanges: _db.DataProvider.CanStreamBlob ? false : null/*, retainConnection: true*/))
+            using (var scope = new DbContextScope(db: _db, autoDetectChanges: _db.DataProvider.CanStreamBlob ? false : null))
             {
                 var query = _db.MediaFiles.AsQueryable();
 
@@ -66,55 +66,53 @@ namespace Smartstore.Core.Content.Media.Storage
                     query = query.Include(x => x.MediaStorage);
                 }
 
-                using (var transaction = await _db.Database.BeginTransactionAsync(cancelToken))
+                using var transaction = await _db.Database.BeginTransactionAsync(cancelToken);
+                try
                 {
-                    try
+                    var pager = new FastPager<MediaFile>(query, PAGE_SIZE);
+                    while ((await pager.ReadNextPageAsync<MediaFile>(cancelToken)).Out(out var files))
                     {
-                        var pager = new FastPager<MediaFile>(query, PAGE_SIZE);
-                        while ((await pager.ReadNextPageAsync<MediaFile>(cancelToken)).Out(out var files))
+                        if (cancelToken.IsCancellationRequested)
                         {
-                            if (cancelToken.IsCancellationRequested)
-                            {
-                                break;
-                            }
+                            break;
+                        }
 
-                            foreach (var file in files)
-                            {
-                                // Move item from source to target
-                                await sender.MoveToAsync(receiver, context, file);
+                        foreach (var file in files)
+                        {
+                            // Move item from source to target
+                            await sender.MoveToAsync(receiver, context, file);
 
-                                file.UpdatedOnUtc = utcNow;
-                                ++context.MovedItems;
-                            }
-
-                            if (!cancelToken.IsCancellationRequested)
-                            {
-                                await _db.SaveChangesAsync(cancelToken);
-
-                                // Detach all entities from previous page to save memory
-                                scope.DbContext.DetachEntities(files, deep: true);
-                            }
+                            file.UpdatedOnUtc = utcNow;
+                            ++context.MovedItems;
                         }
 
                         if (!cancelToken.IsCancellationRequested)
                         {
-                            await transaction.CommitAsync(cancelToken);
-                            success = true;
-                        }
-                        else
-                        {
-                            success = false;
-                            await transaction.RollbackAsync(CancellationToken.None);
+                            await _db.SaveChangesAsync(cancelToken);
+
+                            // Detach all entities from previous page to save memory
+                            scope.DbContext.DetachEntities(files, deep: true);
                         }
                     }
-                    catch (Exception exception)
+
+                    if (!cancelToken.IsCancellationRequested)
+                    {
+                        await transaction.CommitAsync(cancelToken);
+                        success = true;
+                    }
+                    else
                     {
                         success = false;
-                        await transaction.RollbackAsync(cancelToken);
-
-                        _notifier.Error(exception);
-                        Logger.Error(exception);
+                        await transaction.RollbackAsync(CancellationToken.None);
                     }
+                }
+                catch (Exception exception)
+                {
+                    success = false;
+                    await transaction.RollbackAsync(cancelToken);
+
+                    _notifier.Error(exception);
+                    Logger.Error(exception);
                 }
             }
 
@@ -125,7 +123,7 @@ namespace Smartstore.Core.Content.Media.Storage
                 await _db.SaveChangesAsync(cancelToken);
             }
 
-            // Inform both provider about ending
+            // Inform both providers about completion
             await sender.OnCompletedAsync(context, success, cancelToken);
             await receiver.OnCompletedAsync(context, success, cancelToken);
 

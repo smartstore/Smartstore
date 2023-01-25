@@ -3,11 +3,13 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Smartstore.Data.Providers;
 
 namespace Smartstore.Data
 {
     public class SqlBlobStream : Stream
     {
+        private readonly DataProvider _provider;
         private readonly DatabaseFacade _database;
         private DbCommand _command;
         private DbDataReader _reader;
@@ -15,24 +17,25 @@ namespace Smartstore.Data
         private long _dataIndex;
 
         public SqlBlobStream(
-            DatabaseFacade database,
+            DataProvider dataProvider,
             string tableName,
             string blobColumnName,
             string pkColumnName,
             object pkColumnValue)
         {
-            Guard.NotNull(database, nameof(database));
-            Guard.NotEmpty(tableName, nameof(tableName));
-            Guard.NotEmpty(blobColumnName, nameof(blobColumnName));
-            Guard.NotEmpty(pkColumnName, nameof(pkColumnName));
-            Guard.NotNull(pkColumnValue, nameof(pkColumnValue));
-
+            Guard.NotNull(dataProvider);
+            Guard.NotEmpty(tableName);
+            Guard.NotEmpty(blobColumnName);
+            Guard.NotEmpty(pkColumnName);
+            Guard.NotNull(pkColumnValue);
+            
             TableName = tableName;
             BlobColumnName = blobColumnName;
             PkColumnName = pkColumnName;
             PkColumnValue = pkColumnValue;
 
-            _database = database;
+            _provider = dataProvider;
+            _database = dataProvider.Database;
         }
 
         private void EnsureOpen()
@@ -49,7 +52,7 @@ namespace Smartstore.Data
             parameter.Value = PkColumnValue;
 
             _command.CommandType = CommandType.Text;
-            _command.CommandText = $"SELECT {BlobColumnName} FROM {TableName} WHERE {parameter.ParameterName[1..]} = {parameter.Value}";
+            _command.CommandText = $"SELECT {enc(BlobColumnName)} FROM {enc(TableName)} WHERE {enc(PkColumnName)} = {parameter.Value}";
             _command.Parameters.Add(parameter);
 
             if (_database.CurrentTransaction != null)
@@ -75,6 +78,11 @@ namespace Smartstore.Data
             if (_reader.IsDBNull(0))
             {
                 _length = 0;
+            }
+
+            string enc(string ident)
+            {
+                return _provider.EncloseIdentifier(ident);
             }
         }
 
@@ -133,10 +141,7 @@ namespace Smartstore.Data
             {
                 EnsureOpen();
 
-                if (_length == null)
-                {
-                    _length = _reader.GetBytes(0, 0, null, 0, 0);
-                }
+                _length ??= _reader.GetBytes(0, 0, null, 0, 0);
 
                 return _length.Value;
             }

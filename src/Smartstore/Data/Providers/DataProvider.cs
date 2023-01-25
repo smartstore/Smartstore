@@ -167,8 +167,9 @@ namespace Smartstore.Data.Providers
         /// <summary>
         /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
         /// </summary>
+        /// <param name="sql">The INSERT command to execute</param>
         /// <returns>The ident / primary key value of the newly inserted row.</returns>
-        public abstract Task<int> InsertIntoAsync(string sql, params object[] parameters);
+        protected abstract Task<int> InsertIntoCore(string sql, bool async, params object[] parameters);
 
         /// <summary>
         /// Determines whether the specified exception represents a transient failure that can be
@@ -302,6 +303,62 @@ namespace Smartstore.Data.Providers
         public ValueTask<string[]> GetTableNamesAsync()
         {
             return GetTableNamesCore(true);
+        }
+
+        #endregion
+
+        #region Data
+
+        /// <summary>
+        /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
+        /// </summary>
+        /// <param name="sql">The INSERT command to execute</param>
+        /// <returns>The ident / primary key value of the newly inserted row.</returns>
+        public int InsertInto(string sql, params object[] parameters)
+        {
+            Guard.NotEmpty(sql);
+            return InsertIntoCore(sql, false, parameters).Await();
+        }
+
+        /// <summary>
+        /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
+        /// </summary>
+        /// <param name="sql">The INSERT command to execute</param>
+        /// <returns>The ident / primary key value of the newly inserted row.</returns>
+        public Task<int> InsertIntoAsync(string sql, params object[] parameters)
+        {
+            Guard.NotEmpty(sql);
+            return InsertIntoCore(sql, true, parameters);
+        }
+
+        public Stream OpenBlobStream<T, TProp>(Expression<Func<T, TProp>> propertyAccessor, int id)
+            where T : BaseEntity
+        {
+            Guard.NotNull(propertyAccessor, nameof(propertyAccessor));
+            Guard.IsPositive(id, nameof(id));
+
+            var model = Context.Model;
+
+            var entityType = model.FindEntityType(typeof(T));
+            if (entityType == null)
+            {
+                throw new ArgumentException($"The entity type '{typeof(T)}' is not associated with the current database context.", "T");
+            }
+
+            var propName = propertyAccessor.ExtractMemberInfo().Name;
+            var entityProperty = entityType.GetProperty(propName);
+            if (entityProperty == null)
+            {
+                throw new ArgumentException($"The property '{propName}' is not mapped to the database.", nameof(propertyAccessor));
+            }
+
+            var storeIdent = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table).Value;
+
+            return OpenBlobStreamCore(
+                entityType.GetTableName(),
+                entityProperty.GetColumnName(storeIdent),
+                nameof(BaseEntity.Id),
+                id);
         }
 
         #endregion
@@ -537,40 +594,6 @@ namespace Smartstore.Data.Providers
         {
             Guard.NotEmpty(backupFullPath);
             return RestoreDatabaseCore(backupFullPath, true, cancelToken);
-        }
-
-        #endregion
-
-        #region Blob stream
-
-        public Stream OpenBlobStream<T, TProp>(Expression<Func<T, TProp>> propertyAccessor, int id)
-            where T : BaseEntity
-        {
-            Guard.NotNull(propertyAccessor, nameof(propertyAccessor));
-            Guard.IsPositive(id, nameof(id));
-
-            var model = Context.Model;
-
-            var entityType = model.FindEntityType(typeof(T));
-            if (entityType == null)
-            {
-                throw new ArgumentException($"The entity type '{typeof(T)}' is not associated with the current database context.", "T");
-            }
-
-            var propName = propertyAccessor.ExtractMemberInfo().Name;
-            var entityProperty = entityType.GetProperty(propName);
-            if (entityProperty == null)
-            {
-                throw new ArgumentException($"The property '{propName}' is not mapped to the database.", nameof(propertyAccessor));
-            }
-
-            var storeIdent = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table).Value;
-
-            return OpenBlobStreamCore(
-                entityType.GetTableName(),
-                entityProperty.GetColumnName(storeIdent),
-                nameof(BaseEntity.Id),
-                id);
         }
 
         #endregion

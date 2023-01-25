@@ -8,6 +8,14 @@ using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.PostgreSql
 {
+    /*
+     * Kill processes SQL:
+     * SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid <> pg_backend_pid() AND datname = 'xxxxx'
+     * 
+     * List connections SQL:
+     * SELECT * FROM pg_stat_activity WHERE datname = 'xxxxx'
+     */
+
     internal class PostgreSqlDbFactory : DbFactory
     {
         public override DbSystemType DbSystem { get; } = DbSystemType.PostgreSql;

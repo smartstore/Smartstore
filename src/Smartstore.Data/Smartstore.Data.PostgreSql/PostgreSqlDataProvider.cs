@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Npgsql;
 using Smartstore.Data.Providers;
-using Smartstore.Domain;
 
 namespace Smartstore.Data.PostgreSql
 {
@@ -95,9 +93,12 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        public override Task<int> InsertIntoAsync(string sql, params object[] parameters)
+        protected override async Task<int> InsertIntoCore(string sql, bool async, params object[] parameters)
         {
-            throw new NotImplementedException();
+            sql += " RETURNING \"Id\"";
+            return async
+                ? await Database.ExecuteQueryRawAsync<int>(sql, parameters).FirstOrDefaultAsync()
+                : Database.ExecuteQueryRaw<int>(sql, parameters).FirstOrDefault();
         }
 
         public override bool IsTransientException(Exception ex)
@@ -137,9 +138,10 @@ LIMIT {take} OFFSET {skip}";
 
         protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
+            var sql = "VACUUM FULL";
             return async
-                ? ReIndexTablesAsync(cancelToken)
-                : Task.FromResult(ReIndexTables());
+                ? Database.ExecuteSqlRawAsync(sql, cancelToken)
+                : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
         protected override Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
@@ -188,6 +190,11 @@ LIMIT {take} OFFSET {skip}";
         protected override IList<string> TokenizeSqlScript(string sqlScript)
         {
             throw new NotSupportedException();
+        }
+
+        protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
+        {
+            return new SqlBlobStream(this, tableName, blobColumnName, pkColumnName, pkColumnValue);
         }
     }
 }

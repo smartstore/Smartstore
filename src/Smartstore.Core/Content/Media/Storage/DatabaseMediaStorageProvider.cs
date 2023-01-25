@@ -108,10 +108,8 @@ namespace Smartstore.Core.Content.Media.Storage
 
             if (_db.DataProvider.CanReadSequential)
             {
-                using (var stream = OpenBlobStream(mediaFile.MediaStorageId.Value))
-                {
-                    return await stream.ToByteArrayAsync();
-                }
+                using var stream = OpenBlobStream(mediaFile.MediaStorageId.Value);
+                return await stream.ToByteArrayAsync();
             }
             else
             {
@@ -174,13 +172,13 @@ namespace Smartstore.Core.Content.Media.Storage
                 if (media.MediaStorageId == null)
                 {
                     // Insert new blob
-                    var sql = "INSERT INTO MediaStorage (Data) Values(@p0)";
+                    var sql = $"INSERT INTO {enc("MediaStorage")} ({enc("Data")}) Values(@p0)";
                     media.MediaStorageId = await provider.InsertIntoAsync(sql, blobParam);
                 }
                 else
                 {
                     // Update existing blob
-                    var sql = "UPDATE MediaStorage SET Data = @p0 WHERE Id = @p1";
+                    var sql = $"UPDATE {enc("MediaStorage")} SET {enc("Data")} = @p0 WHERE Id = @p1";
                     var idParam = provider.CreateParameter("p1", media.MediaStorageId.Value);
                     await _db.Database.ExecuteSqlRawAsync(sql, blobParam, idParam);
                 }
@@ -193,6 +191,11 @@ namespace Smartstore.Core.Content.Media.Storage
                 {
                     await item.DisposeAsync();
                 }
+            }
+
+            string enc(string ident)
+            {
+                return provider.EncloseIdentifier(ident);
             }
         }
 
@@ -270,9 +273,10 @@ namespace Smartstore.Core.Content.Media.Storage
 
         Task IMediaSender.OnCompletedAsync(MediaMoverContext context, bool succeeded, CancellationToken cancelToken)
         {
-            if (succeeded && context.AffectedFiles.Any() && _db.DataProvider.CanShrink)
+            if (succeeded && context.AffectedFiles.Any() && _db.DataProvider.ProviderType == DbSystemType.SqlServer)
             {
-                // Shrink database after sending/removing at least one blob.
+                // Shrink database after sending/removing at least one blob,
+                // but only in MS SQL Server (takes too long in other systems)
                 return _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
             }
 

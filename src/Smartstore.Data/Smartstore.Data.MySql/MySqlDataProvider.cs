@@ -98,11 +98,12 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        public override async Task<int> InsertIntoAsync(string sql, params object[] parameters)
+        protected override async Task<int> InsertIntoCore(string sql, bool async, params object[] parameters)
         {
-            Guard.NotEmpty(sql, nameof(sql));
-            return (await Database.ExecuteQueryRawAsync<decimal>(
-                sql + "; SELECT LAST_INSERT_ID();", parameters).FirstOrDefaultAsync()).Convert<int>();
+            sql += "; SELECT LAST_INSERT_ID();";
+            return async
+                ? (await Database.ExecuteQueryRawAsync<decimal>(sql, parameters).FirstOrDefaultAsync()).Convert<int>()
+                : Database.ExecuteQueryRaw<decimal>(sql, parameters).FirstOrDefault().Convert<int>();
         }
 
         public override bool IsTransientException(Exception ex)
@@ -211,7 +212,7 @@ LIMIT {take} OFFSET {skip}";
 
         protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
-            return new SqlBlobStream(Database, tableName, blobColumnName, pkColumnName, pkColumnValue);
+            return new SqlBlobStream(this, tableName, blobColumnName, pkColumnName, pkColumnValue);
         }
     }
 }

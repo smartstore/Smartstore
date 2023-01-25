@@ -166,12 +166,13 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 ? Database.ExecuteSqlRawAsync(sql)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
-
-        public override async Task<int> InsertIntoAsync(string sql, params object[] parameters)
+        
+        protected override async Task<int> InsertIntoCore(string sql, bool async, params object[] parameters)
         {
-            Guard.NotEmpty(sql, nameof(sql));
-            return (await Database.ExecuteQueryRawAsync<decimal>(
-                sql + "; SELECT @@IDENTITY;", parameters).FirstOrDefaultAsync()).Convert<int>();
+            sql += "; SELECT @@IDENTITY;";
+            return async
+                ? (await Database.ExecuteQueryRawAsync<decimal>(sql, parameters).FirstOrDefaultAsync()).Convert<int>()
+                : Database.ExecuteQueryRaw<decimal>(sql, parameters).FirstOrDefault().Convert<int>();
         }
 
         public override bool IsTransientException(Exception ex)
@@ -231,39 +232,6 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 : Task.FromResult(Database.ExecuteSqlRaw(CreateBackupSql(), new object[] { fullPath }));
         }
 
-        private long GetSqlServerEdition()
-        {
-            if (!_editionId.HasValue)
-            {
-                try
-                {
-                    _editionId = Database.ExecuteQueryRaw<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefault();
-                }
-                catch
-                {
-                    // Fallback to "Express" edition (entry-level, free database).
-                    _editionId = EXPRESS_EDITION_ID;
-                }
-            }
-
-            return _editionId.Value;
-        }
-
-        private string CreateBackupSql()
-        {
-            var sql = "BACKUP DATABASE [" + DatabaseName + "] TO DISK = {0} WITH FORMAT";
-
-            // Backup compression is not supported by "Express" or "Express with Advanced Services" edition.
-            // https://expressdb.io/sql-server-express-feature-comparison.html
-            var editionId = GetSqlServerEdition();
-            if (editionId != EXPRESS_EDITION_ID && editionId != EXPRESS_ADVANCED_EDITION_ID)
-            {
-                sql += ", COMPRESSION";
-            }
-
-            return sql;
-        }
-
         protected override Task<int> RestoreDatabaseCore(string backupFullPath, bool async, CancellationToken cancelToken = default)
         {
             return async
@@ -309,7 +277,40 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
         protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
-            return new SqlBlobStream(Database, tableName, blobColumnName, pkColumnName, pkColumnValue);
+            return new SqlBlobStream(this, tableName, blobColumnName, pkColumnName, pkColumnValue);
+        }
+
+        private long GetSqlServerEdition()
+        {
+            if (!_editionId.HasValue)
+            {
+                try
+                {
+                    _editionId = Database.ExecuteQueryRaw<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefault();
+                }
+                catch
+                {
+                    // Fallback to "Express" edition (entry-level, free database).
+                    _editionId = EXPRESS_EDITION_ID;
+                }
+            }
+
+            return _editionId.Value;
+        }
+
+        private string CreateBackupSql()
+        {
+            var sql = "BACKUP DATABASE [" + DatabaseName + "] TO DISK = {0} WITH FORMAT";
+
+            // Backup compression is not supported by "Express" or "Express with Advanced Services" edition.
+            // https://expressdb.io/sql-server-express-feature-comparison.html
+            var editionId = GetSqlServerEdition();
+            if (editionId != EXPRESS_EDITION_ID && editionId != EXPRESS_ADVANCED_EDITION_ID)
+            {
+                sql += ", COMPRESSION";
+            }
+
+            return sql;
         }
 
         private static bool DetectSqlError(Exception ex, ICollection<int> errorCodes)

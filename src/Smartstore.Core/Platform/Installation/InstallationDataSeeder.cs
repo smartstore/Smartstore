@@ -128,7 +128,7 @@ namespace Smartstore.Core.Installation
                 await PopulateAsync("PopulateProductVariantAttributes", _data.ProductVariantAttributes());
                 await PopulateAsync("ProductVariantAttributeCombinations", _data.ProductVariantAttributeCombinations());
                 await PopulateAsync("PopulateProductTags", _data.ProductTags());
-                Populate("FinalizeSamples", () => _data.FinalizeSamples());
+                Populate("FinalizeSamples", _data.FinalizeSamples);
             }
 
             // Perf
