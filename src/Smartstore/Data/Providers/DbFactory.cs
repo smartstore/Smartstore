@@ -73,6 +73,23 @@ namespace Smartstore.Data.Providers
         public abstract DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString);
 
         /// <summary>
+        /// Sets provider-specific defaults and configures conventions before they run. This method is invoked before <see cref="DbContext.OnModelCreating(ModelBuilder)" />.
+        /// See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information and examples.
+        /// </summary>
+        public virtual void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            // Noop by default
+        }
+
+        /// <summary>
+        /// Provider-specific model creation stuff.
+        /// </summary>
+        public virtual void CreateModel(ModelBuilder modelBuilder)
+        {
+            // Noop by default
+        }
+
+        /// <summary>
         /// Finds the <see cref="DbFactory"/> impl type for the given <paramref name="provider"/> name
         /// and loads its assembly into the current <see cref="AssemblyLoadContext"/>.
         /// </summary>

@@ -26,10 +26,16 @@ namespace Smartstore.Data.Providers
         ReadSequential = 1 << 9
     }
 
-    public abstract class DataProvider : Disposable
+    public abstract partial class DataProvider : Disposable
     {
-        private static readonly Regex _dbNameRegex = new(@"^(?<DbName>.+)-(?<Version>\d+(\s*\.\s*\d+){0,3})-(?<Timestamp>[0-9]{14})(?<Suffix>.+?)?",
-            RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+        [GeneratedRegex("^(?<DbName>.+)-(?<Version>\\d+(\\s*\\.\\s*\\d+){0,3})-(?<Timestamp>[0-9]{14})(?<Suffix>.+?)?", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
+        private static partial Regex DbNameRegex();
+
+        [GeneratedRegex("\\[(?<Identifier>.+?)\\]", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline)]
+        private static partial Regex QuotedSqlIdentifier();
+
+        private static readonly Regex _rgDbName = DbNameRegex();
+        private static readonly Regex _rgQuotedSqlIdenfier = QuotedSqlIdentifier();
 
         protected DataProvider(DatabaseFacade database)
         {
@@ -124,7 +130,7 @@ namespace Smartstore.Data.Providers
         public abstract DbParameter CreateParameter();
 
         /// <summary>
-        /// Encloses the given <paramref name="identifier"/> in provider specific quotes, e.g. [] for MSSQL, `` for MySql.
+        /// Encloses the given <paramref name="identifier"/> in provider specific quotes, e.g. [Name] for MSSQL, `Name` for MySql.
         /// </summary>
         /// <returns>The enclosed identifier, e.g. <c>MyColumn</c> --> <c>[MyColumn]</c>.</returns>
         public abstract string EncloseIdentifier(string identifier);
@@ -317,7 +323,7 @@ namespace Smartstore.Data.Providers
         public int InsertInto(string sql, params object[] parameters)
         {
             Guard.NotEmpty(sql);
-            return InsertIntoCore(sql, false, parameters).Await();
+            return InsertIntoCore(Sql(sql), false, parameters).Await();
         }
 
         /// <summary>
@@ -328,7 +334,7 @@ namespace Smartstore.Data.Providers
         public Task<int> InsertIntoAsync(string sql, params object[] parameters)
         {
             Guard.NotEmpty(sql);
-            return InsertIntoCore(sql, true, parameters);
+            return InsertIntoCore(Sql(sql), true, parameters);
         }
 
         public Stream OpenBlobStream<T, TProp>(Expression<Func<T, TProp>> propertyAccessor, int id)
@@ -415,13 +421,15 @@ namespace Smartstore.Data.Providers
 
         protected virtual async Task<int> ExecuteSqlScriptCore(string sqlScript, bool async, CancellationToken cancelToken = default)
         {
+            Guard.NotEmpty(sqlScript);
+
             var sqlCommands = TokenizeSqlScript(sqlScript);
             var rowsAffected = 0;
 
             using var tx = async ? await Database.BeginTransactionAsync(cancelToken) : Database.BeginTransaction();
             try
             {
-                foreach (var command in sqlCommands)
+                foreach (var command in sqlCommands.Select(Sql))
                 {
                     rowsAffected += async ? await Database.ExecuteSqlRawAsync(command, cancelToken) : Database.ExecuteSqlRaw(command);
                 }
@@ -537,7 +545,7 @@ namespace Smartstore.Data.Providers
         {
             if (fileName.HasValue())
             {
-                var match = _dbNameRegex.Match(fileName.Trim());
+                var match = _rgDbName.Match(fileName.Trim());
 
                 if (match.Success
                     && Version.TryParse(match.Groups["Version"].Value, out var version)
@@ -598,7 +606,7 @@ namespace Smartstore.Data.Providers
 
         #endregion
 
-        #region Connection
+        #region Connection & Dialect
 
         public DbParameter CreateParameter(string name, object value)
         {
@@ -609,6 +617,34 @@ namespace Smartstore.Data.Providers
             p.Value = value;
 
             return p;
+        }
+
+        /// <summary>
+        /// Normalizes given <paramref name="sql"/> command text by replacing
+        /// quoted identifiers in MSSQL dialect to provider-specific quotes. E.g.:
+        /// SELECT [Id] FROM [Customers] --> SELECT `Id` FROM `Customers` (MySql dialect).
+        /// </summary>
+        /// <param name="sql">The sql command text to normalize</param>
+        /// <returns>The normalized sql command text.</returns>
+        /// <remarks>
+        /// To keep the method name short, it's called "Sql" instead of "NormalizeSql".
+        /// </remarks>
+        public string Sql(string sql)
+        {
+            Guard.NotEmpty(sql);
+            
+            if (ProviderType == DbSystemType.SqlServer)
+            {
+                return sql;
+            }
+
+            var normalizedSql = _rgQuotedSqlIdenfier.Replace(sql, match =>
+            {
+                var identifier = match.Groups["Identifier"].Value;
+                return EncloseIdentifier(identifier);
+            });
+
+            return normalizedSql;
         }
 
         #endregion

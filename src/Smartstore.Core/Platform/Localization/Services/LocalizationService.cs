@@ -74,7 +74,7 @@ namespace Smartstore.Core.Localization
 
                 foreach (var res in resources)
                 {
-                    dict[res.ResourceName.ToLowerInvariant()] = res.ResourceValue;
+                    dict[res.ResourceName] = res.ResourceValue;
                 }
 
                 return dict;
@@ -98,7 +98,7 @@ namespace Smartstore.Core.Localization
 
                 foreach (var res in resources)
                 {
-                    dict[res.ResourceName.ToLowerInvariant()] = res.ResourceValue;
+                    dict[res.ResourceName] = res.ResourceValue;
                 }
 
                 return dict;
@@ -142,7 +142,7 @@ namespace Smartstore.Core.Localization
                 return defaultValue;
             }
 
-            resourceKey = resourceKey.EmptyNull().Trim().ToLowerInvariant();
+            resourceKey = resourceKey.EmptyNull().Trim();
 
             var cachedSegment = GetCacheSegment(languageId);
             if (!cachedSegment.TryGetValue(resourceKey, out string result))
@@ -196,7 +196,7 @@ namespace Smartstore.Core.Localization
                 return defaultValue;
             }
 
-            resourceKey = resourceKey.EmptyNull().Trim().ToLowerInvariant();
+            resourceKey = resourceKey.EmptyNull().Trim();
 
             var cachedSegment = await GetCacheSegmentAsync(languageId);
             if (!cachedSegment.TryGetValue(resourceKey, out string result))

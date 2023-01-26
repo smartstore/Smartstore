@@ -52,7 +52,7 @@ namespace Smartstore.Data
             parameter.Value = PkColumnValue;
 
             _command.CommandType = CommandType.Text;
-            _command.CommandText = $"SELECT {enc(BlobColumnName)} FROM {enc(TableName)} WHERE {enc(PkColumnName)} = {parameter.Value}";
+            _command.CommandText = _provider.Sql($"SELECT [{BlobColumnName}] FROM [{TableName}] WHERE [{PkColumnName}] = {parameter.Value}");
             _command.Parameters.Add(parameter);
 
             if (_database.CurrentTransaction != null)
@@ -78,11 +78,6 @@ namespace Smartstore.Data
             if (_reader.IsDBNull(0))
             {
                 _length = 0;
-            }
-
-            string enc(string ident)
-            {
-                return _provider.EncloseIdentifier(ident);
             }
         }
 

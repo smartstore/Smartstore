@@ -82,8 +82,16 @@ namespace Smartstore.Core.Data
             }
         }
 
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            DataSettings.Instance.DbFactory?.ConfigureConventions(configurationBuilder);
+            base.ConfigureConventions(configurationBuilder);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            DataSettings.Instance.DbFactory?.CreateModel(modelBuilder);
+
             var options = this.Options.FindExtension<DbFactoryOptionsExtension>();
             
             if (options.DefaultSchema.HasValue())

@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
@@ -164,7 +163,7 @@ namespace Smartstore.Core.Configuration
                     // Insert
                     setting = new Setting
                     {
-                        Name = key.ToLowerInvariant(),
+                        Name = key,
                         Value = currentValue,
                         StoreId = storeId
                     };

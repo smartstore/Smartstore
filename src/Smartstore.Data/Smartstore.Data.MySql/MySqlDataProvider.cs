@@ -92,7 +92,7 @@ LIMIT {take} OFFSET {skip}";
 
         protected override Task<int> TruncateTableCore(string tableName, bool async)
         {
-            var sql = $"TRUNCATE TABLE {EncloseIdentifier(tableName)}";
+            var sql = $"TRUNCATE TABLE `{tableName}`";
             return async
                 ? Database.ExecuteSqlRawAsync(sql)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));

@@ -89,5 +89,19 @@ namespace Smartstore.Data.PostgreSql
             })
             .ReplaceService<IMethodCallTranslatorProvider, PostgreSqlMappingMethodCallTranslatorProvider>();
         }
+
+        public override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            // Use case-insensitive collation in all string columns
+            //configurationBuilder.Properties<string>().UseCollation("und-x-icu-ci");
+            configurationBuilder.Properties<string>().HaveColumnType("citext");
+        }
+        
+        public override void CreateModel(ModelBuilder modelBuilder)
+        {
+            // Create a non-deterministic, case-insensitive collation
+            //modelBuilder.HasCollation("und-x-icu-ci", locale: "und", provider: "icu", deterministic: false);
+            modelBuilder.HasPostgresExtension("citext");
+        }
     }
 }

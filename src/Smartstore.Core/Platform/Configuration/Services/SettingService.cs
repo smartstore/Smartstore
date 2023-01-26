@@ -59,7 +59,7 @@ namespace Smartstore.Core.Configuration
                 .Select(x =>
                 {
                     var index = x.Name.LastIndexOf('.');
-                    return (index == -1 ? x.Name : x.Name[..index]).ToLowerInvariant();
+                    return (index == -1 ? x.Name : x.Name[..index]);
                 })
                 .Distinct()
                 .ToArray();
@@ -178,8 +178,6 @@ namespace Smartstore.Core.Configuration
         {
             Guard.NotEmpty(key, nameof(key));
 
-            key = key.ToLowerInvariant();
-
             var str = value.Convert<string>();
             var setting = await _setSettings.FirstOrDefaultAsync(x => x.Name == key && x.StoreId == storeId);
 
@@ -233,7 +231,7 @@ namespace Smartstore.Core.Configuration
         {
             if (key.HasValue())
             {
-                key = key.Trim().ToLowerInvariant();
+                key = key.Trim();
 
                 var setting = await (
                     from s in _setSettings
@@ -256,22 +254,22 @@ namespace Smartstore.Core.Configuration
 
         internal static string BuildCacheKeyForClassAccess(Type settingsType, int storeId)
         {
-            return ClassCacheKeyPattern.FormatInvariant(settingsType.Name.ToLowerInvariant(), storeId.ToStringInvariant());
+            return ClassCacheKeyPattern.FormatInvariant(settingsType.Name, storeId.ToStringInvariant());
         }
 
         internal static string BuildCacheKeyForClassAccess(string prefix, string suffix)
         {
-            return ClassCacheKeyPattern.FormatInvariant(prefix.ToLowerInvariant(), suffix);
+            return ClassCacheKeyPattern.FormatInvariant(prefix, suffix);
         }
 
         internal static string BuildCacheKeyForRawAccess(string prefix, int storeId)
         {
-            return RawCacheKeyPattern.FormatInvariant(prefix.ToLowerInvariant(), storeId.ToStringInvariant());
+            return RawCacheKeyPattern.FormatInvariant(prefix, storeId.ToStringInvariant());
         }
 
         internal static string BuildCacheKeyForRawAccess(string prefix, string suffix)
         {
-            return RawCacheKeyPattern.FormatInvariant(prefix.ToLowerInvariant(), suffix);
+            return RawCacheKeyPattern.FormatInvariant(prefix, suffix);
         }
 
         #endregion
