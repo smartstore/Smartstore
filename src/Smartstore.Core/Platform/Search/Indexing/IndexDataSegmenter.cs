@@ -2,6 +2,12 @@
 
 namespace Smartstore.Core.Search.Indexing
 {
+    /// <summary>
+    /// Represents a data segmenter for indexing that uses paging.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="SeekingIndexDataSegmenter"/> does the same as <see cref="IndexDataSegmenter"/> but is faster for very large amounts of data.
+    /// </remarks>
     public class IndexDataSegmenter : IIndexDataSegmenter
     {
         private const int SEGMENT_SIZE = 500;
