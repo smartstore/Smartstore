@@ -15,9 +15,6 @@ namespace Smartstore.Data.SqlServer
     [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
     internal class SqlServerMappingMethodCallTranslatorProvider : SqlServerMethodCallTranslatorProvider
     {
-        private static readonly FieldInfo _translatorsField = typeof(RelationalMethodCallTranslatorProvider)
-            .GetField("_translators", BindingFlags.NonPublic | BindingFlags.Instance);
-
         public SqlServerMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies)
             : base(dependencies)
         {
@@ -66,7 +63,8 @@ namespace Smartstore.Data.SqlServer
 
         private IMethodCallTranslator FindMethodCallTranslator(MethodInfo sourceMethod)
         {
-            if (_translatorsField.GetValue(this) is List<IMethodCallTranslator> translators)
+            var translators = this.GetTranslators();
+            if (translators != null)
             {
                 if (sourceMethod.Name.StartsWith("DateDiff"))
                 {

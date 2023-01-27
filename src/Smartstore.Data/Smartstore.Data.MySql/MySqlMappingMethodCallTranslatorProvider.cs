@@ -16,9 +16,6 @@ namespace Smartstore.Data.MySql
     [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
     internal class MySqlMappingMethodCallTranslatorProvider : MySqlMethodCallTranslatorProvider
     {
-        private static readonly FieldInfo _translatorsField = typeof(RelationalMethodCallTranslatorProvider)
-            .GetField("_translators", BindingFlags.NonPublic | BindingFlags.Instance);
-
         public MySqlMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies, IMySqlOptions options)
             : base(dependencies, options)
         {
@@ -67,7 +64,8 @@ namespace Smartstore.Data.MySql
 
         private IMethodCallTranslator FindMethodCallTranslator(MethodInfo sourceMethod)
         {
-            if (_translatorsField.GetValue(this) is List<IMethodCallTranslator> translators)
+            var translators = this.GetTranslators();
+            if (translators != null)
             {
                 if (sourceMethod.Name.StartsWith("DateDiff"))
                 {
