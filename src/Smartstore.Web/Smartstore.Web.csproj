@@ -27,9 +27,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj" />
-		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.PostgreSql\Smartstore.Data.PostgreSql.csproj" />
-		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj" />
 		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
 		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
@@ -66,10 +63,16 @@
 
 	<!-- Copy publishable files in Themes directory -->
 	<ItemGroup>
-        <Content CopyToPublishDirectory="PreserveNewest" Exclude="Themes\*\Views\**\*.cshtml" Include="&#xD;&#xA;              Themes\Flex\**; &#xD;&#xA;              Themes\FlexBlack\**;&#xD;&#xA;              Themes\FlexBlue\**" />
-        
-        <None CopyToPublishDirectory="PreserveNewest" Include="&#xD;&#xA;              Themes\Flex\Views\**\*.cshtml; &#xD;&#xA;              Themes\FlexBlack\Views\**\*.cshtml;&#xD;&#xA;              Themes\FlexBlue\Views\**\*.cshtml" />
-	</ItemGroup>
+        <Content CopyToPublishDirectory="PreserveNewest" Exclude="Themes\*\Views\**\*.cshtml" Include="
+              Themes\Flex\**; 
+              Themes\FlexBlack\**;
+              Themes\FlexBlue\**" />
+
+        <None CopyToPublishDirectory="PreserveNewest" Include="
+              Themes\Flex\Views\**\*.cshtml; 
+              Themes\FlexBlack\Views\**\*.cshtml;
+              Themes\FlexBlue\Views\**\*.cshtml" />	
+    </ItemGroup>
 
 	<!-- Copy publishable files in Views directory -->
 	<ItemGroup>
