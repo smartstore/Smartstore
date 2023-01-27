@@ -1,13 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Autofac;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
 using Smartstore.Data.Providers;
-using FluentMigrator.Runner.Conventions;
-using System.Reflection;
-using Smartstore.Core.Data.Migrations;
 
 namespace Smartstore.Core.Data
 {
@@ -105,28 +101,7 @@ namespace Smartstore.Core.Data
 
             CreateModel(modelBuilder, options.ModelAssemblies);
 
-            ConfigureMigratorConventions(options.ModelAssemblies);
-
             base.OnModelCreating(modelBuilder);
-        }
-
-        protected virtual void ConfigureMigratorConventions(IEnumerable<Assembly> assemblies)
-        {
-            var appContext = EngineContext.Current?.Application;
-            var conventionSet = appContext?.Services?.ResolveOptional<IConventionSet>();
-            if (conventionSet != null)
-            {
-                var typeScanner = appContext.TypeScanner;
-                var conventionProviders = typeScanner
-                    .FindTypes<IConventionProvider>(assemblies)
-                    .Select(Activator.CreateInstance)
-                    .Cast<IConventionProvider>();
-
-                foreach (var provider in conventionProviders)
-                {
-                    provider.Configure(conventionSet);
-                }
-            }
         }
     }
 }

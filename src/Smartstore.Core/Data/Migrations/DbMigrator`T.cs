@@ -3,10 +3,12 @@ using Autofac;
 using FluentMigrator;
 using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
+using FluentMigrator.Runner.Conventions;
 using FluentMigrator.Runner.Initialization;
 using Microsoft.Extensions.Options;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
+using Smartstore.Data.Providers;
 using Smartstore.Events;
 
 namespace Smartstore.Core.Data.Migrations
@@ -15,8 +17,10 @@ namespace Smartstore.Core.Data.Migrations
     {
         private readonly TContext _db;
         private readonly SmartDbContext _dbCore;
+        private readonly IApplicationContext _appContext;
         private readonly IMigrationRunnerConventions _migrationRunnerConventions;
         private readonly IMigrationRunner _migrationRunner;
+        private readonly IConventionSet _conventionSet;
         private readonly RunnerOptions _runnerOptions;
         private readonly IEventPublisher _eventPublisher;
         private readonly ILogger _logger;
@@ -41,18 +45,21 @@ namespace Smartstore.Core.Data.Migrations
             ILifetimeScope scope,
             IMigrationRunnerConventions migrationRunnerConventions,
             IMigrationRunner migrationRunner,
+            IConventionSet conventionSet,
             IOptions<RunnerOptions> runnerOptions,
             IEventPublisher eventPublisher,
             ILogger<DbMigrator<TContext>> logger)
-            : base(scope, appContext.TypeScanner, migrationTable)
+            : base(scope, migrationTable)
         {
             Guard.NotNull(db, nameof(db));
             Guard.NotNull(dbCore, nameof(dbCore));
 
             _db = db;
             _dbCore = dbCore;
+            _appContext = appContext;
             _migrationRunnerConventions = migrationRunnerConventions;
             _migrationRunner = migrationRunner;
+            _conventionSet = conventionSet;
             _runnerOptions = runnerOptions.Value;
             _eventPublisher = eventPublisher;
             _logger = logger;
@@ -198,6 +205,8 @@ namespace Smartstore.Core.Data.Migrations
             IMigrationInfo current = null;
             var runner = (MigrationRunner)_migrationRunner;
 
+            ConfigureConventions(_conventionSet);
+
             // INFO: execute each migration in own transction scope (default) unless the global option TransactionPerSession is True.
             using (IMigrationScope scope = _runnerOptions.TransactionPerSession ? _migrationRunner.BeginScope() : null)
             {
@@ -315,6 +324,21 @@ namespace Smartstore.Core.Data.Migrations
 
                     _logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", m.Description);
                 }
+            }
+        }
+
+        protected virtual void ConfigureConventions(IConventionSet conventionSet)
+        {
+            var options = _db.Options.FindExtension<DbFactoryOptionsExtension>();
+
+            var conventionProviders = _appContext.TypeScanner
+                .FindTypes<IConventionSource>(options.ModelAssemblies)
+                .Select(Activator.CreateInstance)
+                .Cast<IConventionSource>();
+
+            foreach (var provider in conventionProviders)
+            {
+                provider.Configure(conventionSet);
             }
         }
 

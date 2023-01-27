@@ -6,18 +6,15 @@ using Smartstore.Core.Data.Migrations;
 
 namespace Smartstore.Data.PostgreSql.Migration
 {
-    internal class PostgreSqlConventionProvider : IConventionProvider
+    internal class PostgreSqlConventionSource : IConventionSource
     {
         public void Configure(IConventionSet conventionSet)
         {
-            if (conventionSet.ColumnsConventions.FirstOrDefault(x => x is CiTextColumnsConvention) == null)
-            {
-                conventionSet.ColumnsConventions.Add(new CiTextColumnsConvention());
-            }
+            conventionSet.ColumnsConventions.Add(new CitextColumnsConvention());
         }
     }
 
-    internal class CiTextColumnsConvention : IColumnsConvention
+    internal class CitextColumnsConvention : IColumnsConvention
     {
         public IColumnsExpression Apply(IColumnsExpression expression)
         {

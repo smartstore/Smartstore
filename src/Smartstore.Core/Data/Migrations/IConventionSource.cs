@@ -2,7 +2,7 @@
 
 namespace Smartstore.Core.Data.Migrations
 {
-    public interface IConventionProvider
+    public interface IConventionSource
     {
         void Configure(IConventionSet conventionSet);
     }

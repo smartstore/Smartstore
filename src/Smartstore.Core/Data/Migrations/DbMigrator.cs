@@ -12,7 +12,7 @@ namespace Smartstore.Core.Data.Migrations
     {
         private readonly ILifetimeScope _scope;
 
-        protected DbMigrator(ILifetimeScope scope, ITypeScanner typeScanner, IMigrationTable migrationTable)
+        protected DbMigrator(ILifetimeScope scope, IMigrationTable migrationTable)
         {
             _scope = scope;
             MigrationTable = migrationTable;
