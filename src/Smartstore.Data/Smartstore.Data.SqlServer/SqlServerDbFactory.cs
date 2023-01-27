@@ -91,7 +91,7 @@ namespace Smartstore.Data.SqlServer
                     sql.CommandTimeout(commandTimeout);
                 })
                 .ReplaceService<IMethodCallTranslatorProvider, SqlServerMappingMethodCallTranslatorProvider>();
-
+            
             return (TContext)Activator.CreateInstance(typeof(TContext), new object[] { optionsBuilder.Options });
         }
 

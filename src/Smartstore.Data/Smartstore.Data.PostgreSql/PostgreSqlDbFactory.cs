@@ -90,7 +90,7 @@ namespace Smartstore.Data.PostgreSql
             .ReplaceService<IMethodCallTranslatorProvider, PostgreSqlMappingMethodCallTranslatorProvider>();
         }
 
-        public override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        public override void ConfigureModelConventions(ModelConfigurationBuilder configurationBuilder)
         {
             // Use case-insensitive collation in all string columns
             //configurationBuilder.Properties<string>().UseCollation("und-x-icu-ci");

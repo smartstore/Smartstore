@@ -76,7 +76,16 @@ namespace Smartstore.Data.Providers
         /// Sets provider-specific defaults and configures conventions before they run. This method is invoked before <see cref="DbContext.OnModelCreating(ModelBuilder)" />.
         /// See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information and examples.
         /// </summary>
-        public virtual void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        public virtual void ConfigureModelConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            // Noop by default
+        }
+
+        /// <summary>
+        /// Sets provider-specific defaults and configures conventions before they run. This method is invoked before <see cref="DbContext.OnModelCreating(ModelBuilder)" />.
+        /// See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information and examples.
+        /// </summary>
+        public virtual void ConfigureMigratorConventions(object conventionSet)
         {
             // Noop by default
         }
