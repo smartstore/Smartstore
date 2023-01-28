@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\..\Smartstore.Build\Smartstore.Common.props" />
+    <PropertyGroup>
+        <Product>Smartstore SqlServer Data Provider</Product>
+        <OutputPath>..\..\Smartstore.Web\bin\$(Configuration)</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
 	
 	<PropertyGroup>
 		<Nullable>annotations</Nullable>
@@ -9,15 +13,6 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\Smartstore.Core\Smartstore.Core.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Smartstore\Smartstore.csproj">
-			<Private>false</Private>
-		</ProjectReference>
 	</ItemGroup>
 
 </Project>

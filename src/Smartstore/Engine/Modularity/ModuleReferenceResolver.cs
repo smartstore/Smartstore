@@ -4,10 +4,15 @@ using System.Runtime.Loader;
 
 namespace Smartstore.Engine.Modularity
 {
+    public interface IModuleReferenceResolver
+    {
+        Assembly ResolveAssembly(Assembly requestingAssembly, string name);
+    }
+
     /// <summary>
-    /// Resolves private module references
+    /// Tries to resolve private references from the requesting module directory.
     /// </summary>
-    internal class ModuleReferenceResolver
+    internal class ModuleReferenceResolver : IModuleReferenceResolver
     {
         private readonly ConcurrentDictionary<Assembly, IModuleDescriptor> _assemblyModuleMap = new();
         private readonly IApplicationContext _appContext;
@@ -22,15 +27,14 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         /// <param name="requestingAssembly">The requesting assembly. May be the module main assembly or any dependency of it.</param>
         /// <param name="name">Name of assembly to resolve.</param>
-        public Assembly ResolveAssembly(Assembly requestingAssembly, string name, out IModuleDescriptor module)
+        public Assembly ResolveAssembly(Assembly requestingAssembly, string name)
         {
-            module = null;
-
             if (_appContext.ModuleCatalog == null)
             {
                 return null;
             }
 
+            IModuleDescriptor module = null;
             Assembly assembly = null;
 
             if (!_assemblyModuleMap.TryGetValue(requestingAssembly, out module))
@@ -47,6 +51,23 @@ namespace Smartstore.Engine.Modularity
                     assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(fullPath);
                     _assemblyModuleMap[assembly] = module;
                 }
+            }
+            
+            if (assembly == null)
+            {
+                // Check for assembly already loaded
+                assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == name);
+
+                if (assembly == null)
+                {
+                    // Get assembly from TypeScanner
+                    assembly = _appContext.TypeScanner?.Assemblies?.FirstOrDefault(a => a.FullName == name);
+                }
+            }
+
+            if (assembly != null && module != null)
+            {
+                module.Module?.AddPrivateReference(assembly);
             }
 
             return assembly;

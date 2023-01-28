@@ -1,18 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="..\..\Smartstore.Build\Smartstore.Common.props" />
+    <PropertyGroup>
+        <Product>Smartstore PostgreSql Data Provider</Product>
+        <OutputPath>..\..\Smartstore.Web\bin\$(Configuration)</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Smartstore.Core\Smartstore.Core.csproj">
-            <Private>false</Private>
-        </ProjectReference>
-        <ProjectReference Include="..\..\Smartstore\Smartstore.csproj">
-            <Private>false</Private>
-        </ProjectReference>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.1" />
     </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.1" />
-  </ItemGroup>
 
 </Project>

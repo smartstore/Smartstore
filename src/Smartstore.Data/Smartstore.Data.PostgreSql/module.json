@@ -1,0 +1,7 @@
+{
+  "$schema": "../../Smartstore.Modules/module.schema.json",
+  "SystemName": "Smartstore.Data.PostgreSql",
+  "FriendlyName": "Smartstore PostgreSql Data Provider",
+  "Version": "5.0.2",
+  "PrivateReferences": [ "Npgsql", "Npgsql.EntityFrameworkCore.PostgreSQL" ]
+}

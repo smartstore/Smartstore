@@ -1,0 +1,39 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<PreserveCompilationReferences>false</PreserveCompilationReferences>
+	</PropertyGroup>
+
+	<ItemGroup>
+        <None Update="module.json">
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+	</ItemGroup>
+
+	<ItemGroup>
+        <ProjectReference Include="..\..\Smartstore\Smartstore.csproj">
+            <Private>False</Private>
+            <CopyLocal>False</CopyLocal>
+            <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+        </ProjectReference>
+		<ProjectReference Include="..\..\Smartstore.Core\Smartstore.Core.csproj">
+			<Private>False</Private>
+			<CopyLocal>False</CopyLocal>
+			<CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+		</ProjectReference>
+	</ItemGroup>
+	
+	<ProjectExtensions>
+		<VisualStudio>
+			<UserProperties module_1json__JsonSchema="..\..\Smartstore.Web\Properties\module.schema.json#" />
+		</VisualStudio>
+	</ProjectExtensions>
+	
+</Project>

@@ -6,7 +6,7 @@
 
 	<Target Name="BuildModule" AfterTargets="Build">
 		<!-- Copy private module references and delete unnecessary files and directories. -->
-		<MSBuild Projects="@(BuildModule)" Properties="ModulePath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="BuildModule" />
+		<MSBuild Projects="@(BuildModule)" Properties="OutPath=$(MSBuildProjectDirectory)\$(OutDir); ProjectPath=$(MSBuildProjectDirectory)" Targets="BuildModule" />
 	</Target>
 
 	<!-- Remove files from copy local that would not be published as they are provided by the platform package -->

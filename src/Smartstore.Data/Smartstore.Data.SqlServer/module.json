@@ -1,0 +1,7 @@
+{
+  "$schema": "../../Smartstore.Modules/module.schema.json",
+  "SystemName": "Smartstore.Data.SqlServer",
+  "FriendlyName": "Smartstore SqlServer Data Provider",
+  "Version": "5.0.2",
+  "PrivateReferences": [ "Microsoft.EntityFrameworkCore.SqlServer" ]
+}

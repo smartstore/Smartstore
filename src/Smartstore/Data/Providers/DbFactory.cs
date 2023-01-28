@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.EntityFrameworkCore;
@@ -82,20 +83,16 @@ namespace Smartstore.Data.Providers
         }
 
         /// <summary>
-        /// Sets provider-specific defaults and configures conventions before they run. This method is invoked before <see cref="DbContext.OnModelCreating(ModelBuilder)" />.
-        /// See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information and examples.
-        /// </summary>
-        public virtual void ConfigureMigratorConventions(object conventionSet)
-        {
-            // Noop by default
-        }
-
-        /// <summary>
         /// Provider-specific model creation stuff.
         /// </summary>
         public virtual void CreateModel(ModelBuilder modelBuilder)
         {
             // Noop by default
+        }
+
+        public static string[] GetSupportedProviders()
+        {
+            return new[] { "Smartstore.Data.SqlServer", "Smartstore.Data.MySql", "Smartstore.Data.PostgreSql" };
         }
 
         /// <summary>
@@ -133,7 +130,8 @@ namespace Smartstore.Data.Providers
                     throw new NotSupportedException($"Unknown database provider type name '${provider}'.");
                 }
 
-                var binPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                //var binPath = AppContext.BaseDirectory;
+                var binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 var assemblyPath = Path.Combine(binPath, assemblyName);
                 var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
 

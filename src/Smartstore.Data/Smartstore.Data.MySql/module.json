@@ -1,0 +1,7 @@
+{
+  "$schema": "../../Smartstore.Modules/module.schema.json",
+  "SystemName": "Smartstore.Data.MySql",
+  "FriendlyName": "Smartstore MySql Data Provider",
+  "Version": "5.0.2",
+  "PrivateReferences": [ "MySqlConnector", "Pomelo.EntityFrameworkCore.MySql" ]
+}

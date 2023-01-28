@@ -7,17 +7,16 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure.Internal;
-using Pomelo.EntityFrameworkCore.MySql.Query.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Smartstore.Data.Providers;
 
-namespace Smartstore.Data.MySql
+namespace Smartstore.Data.SqlServer.Translators
 {
     [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
-    internal class MySqlMappingMethodCallTranslatorProvider : MySqlMethodCallTranslatorProvider
+    internal class SqlServerMappingMethodCallTranslatorProvider : SqlServerMethodCallTranslatorProvider
     {
-        public MySqlMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies, IMySqlOptions options)
-            : base(dependencies, options)
+        public SqlServerMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies)
+            : base(dependencies)
         {
         }
 
@@ -69,7 +68,7 @@ namespace Smartstore.Data.MySql
             {
                 if (sourceMethod.Name.StartsWith("DateDiff"))
                 {
-                    return translators.FirstOrDefault(x => x is MySqlDateDiffFunctionsTranslator);
+                    return translators.FirstOrDefault(x => x is SqlServerDateDiffFunctionsTranslator);
                 }
             }
 
@@ -80,7 +79,7 @@ namespace Smartstore.Data.MySql
         {
             var parameterTypes = sourceMethod.GetParameters().Select(p => p.ParameterType).ToArray();
 
-            var method = typeof(MySqlDbFunctionsExtensions).GetRuntimeMethod(
+            var method = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                 sourceMethod.Name,
                 parameterTypes);
 

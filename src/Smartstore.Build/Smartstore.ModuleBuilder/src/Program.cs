@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyModel;
 
@@ -10,62 +11,82 @@ namespace Smartstore.ModuleBuilder
     {
         static void Main(string[] args)
         {
-            var modulePaths = string.Empty;
-            var options = args[0].Trim().Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var projectPath = string.Empty;
+            var outPath = string.Empty;
 
-            foreach (var option in options)
+            foreach (var arg in args)
             {
-                var arrOption = option.Split('=', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                var arrOption = arg.Trim().Split('=', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 var argName = arrOption[0];
                 var argValue = arrOption.Length > 1 ? arrOption[1] : string.Empty;
 
-                switch (argName)
+                switch (argName.ToLower())
                 {
-                    case "ModulePath":
-                        modulePaths = argValue;
+                    case "outpath":
+                        outPath = argValue;
+                        break;
+                    case "projectpath":
+                        projectPath = argValue;
                         break;
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(modulePaths))
+            if (string.IsNullOrWhiteSpace(outPath))
             {
                 return;
             }
 
-            DeployModules(modulePaths.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-        }
+            DeployModule(NormalizePath(projectPath), NormalizePath(outPath));
 
-        static void DeployModules(string[] modulePaths)
-        {
-            foreach (var path in modulePaths)
+            static string NormalizePath(string path)
             {
-                var moduleDir = new DirectoryInfo(Path.GetFullPath(path.Trim('"').Replace('\\', Path.DirectorySeparatorChar)));
-
-                Console.WriteLine($"DeployModule: {moduleDir.Name}, Path: {moduleDir.FullName}");
-
-                DeployModule(moduleDir);
-                DeleteJunk(moduleDir);
+                return string.IsNullOrEmpty(path) ? path : Path.GetFullPath(path.Trim('\'', '"').Replace('\\', Path.DirectorySeparatorChar));
             }
         }
 
-        static void DeployModule(DirectoryInfo moduleDir)
+        static void DeployModule(string projectPath, string outPath)
         {
-            var modulePath = moduleDir.FullName;
-            var moduleName = moduleDir.Name;
+            var outDir = new DirectoryInfo(outPath);
+            if (!outDir.Exists)
+            {
+                Console.WriteLine($"---- ERR: Module output directory {outDir.FullName} does not exist.");
+                return;
+            }
 
-            var moduleContext = ReadDependencyContext(Path.Combine(modulePath, $"{moduleName}.deps.json"));
+            var projectDir = string.IsNullOrEmpty(projectPath) ? null : new DirectoryInfo(projectPath);
+            if (projectDir != null && !projectDir.Exists)
+            {
+                Console.WriteLine($"---- ERR: Module project directory {projectDir.FullName} does not exist.");
+            }
+
+            var isDataProvider = projectDir != null && projectDir.Exists && IsDataProviderDir(projectDir);
+            var descriptorDir = isDataProvider ? projectDir : outDir;
+
+            var module = ReadModuleDescriptor(descriptorDir);
+            if (module == null)
+            {
+                Console.WriteLine($"---- ERR: module.json does not exist in {descriptorDir.FullName}.");
+                return;
+            }
+            else
+            {
+                module.OutDir = outDir;
+            }
+
+            var moduleName = module.SystemName;
+            Console.WriteLine($"DeployModule: {module.SystemName}, Path: {outDir.FullName}");
+
+            var moduleContext = ReadDependencyContext(module);
             if (moduleContext == null)
             {
                 return;
             }
-
-            var moduleDescriptor = ReadModuleDescriptor(Path.Combine(modulePath, $"module.json"));
-            if (moduleDescriptor == null)
+            else
             {
-                return;
+                module.DependencyContext = moduleContext;
             }
 
-            var privateLibs = moduleDescriptor.PrivateReferences;
+            var privateLibs = module.PrivateReferences;
             if (privateLibs == null)
             {
                 return;
@@ -86,7 +107,7 @@ namespace Smartstore.ModuleBuilder
                         foreach (var path in paths)
                         {
                             var sourceFile = new FileInfo(path);
-                            var targetFile = new FileInfo(Path.Combine(modulePath, Path.GetFileName(path)));
+                            var targetFile = new FileInfo(Path.Combine(outPath, Path.GetFileName(path)));
 
                             if (!targetFile.Exists || sourceFile.Length != targetFile.Length || sourceFile.LastWriteTimeUtc != targetFile.LastWriteTimeUtc)
                             {
@@ -97,44 +118,49 @@ namespace Smartstore.ModuleBuilder
                     }
                     else
                     {
-                        Console.WriteLine($"---- Private reference {privateLib} cannot be resolved.");
+                        Console.WriteLine($"---- ERR: Private reference {privateLib} cannot be resolved.");
                     }
                 }
             }
+
+            if (!isDataProvider)
+            {
+                DeleteJunk(outDir);
+            }
         }
 
-        static ModuleDescriptor ReadModuleDescriptor(string manifestFilePath)
+        static ModuleDescriptor ReadModuleDescriptor(DirectoryInfo moduleDir)
         {
-            if (!File.Exists(manifestFilePath))
+            var descriptorFilePath = Path.Combine(moduleDir.FullName, "module.json");
+            if (!File.Exists(descriptorFilePath))
             {
                 return null;
             }
 
-            return JsonSerializer.Deserialize<ModuleDescriptor>(File.ReadAllText(manifestFilePath));
+            return JsonSerializer.Deserialize<ModuleDescriptor>(File.ReadAllText(descriptorFilePath));
         }
 
-        static DependencyContext ReadDependencyContext(string depsFilePath)
+        static DependencyContext ReadDependencyContext(ModuleDescriptor module)
         {
+            var depsFilePath = Path.Combine(module.OutDir.FullName, $"{module.SystemName}.deps.json");
             if (!File.Exists(depsFilePath))
             {
                 return null;
             }
 
             var reader = new DependencyContextJsonReader();
-            using (var file = File.OpenRead(depsFilePath))
-            {
-                return reader.Read(file);
-            }
+            using var file = File.OpenRead(depsFilePath);
+            return reader.Read(file);
         }
 
-        static void DeleteJunk(DirectoryInfo moduleDir)
+        static void DeleteJunk(DirectoryInfo dir)
         {
-            if (!moduleDir.Exists)
+            if (!dir.Exists)
             {
                 return;
             }
 
-            var entries = moduleDir.GetFileSystemInfos("*", SearchOption.TopDirectoryOnly);
+            var entries = dir.GetFileSystemInfos("*", SearchOption.TopDirectoryOnly);
             foreach (var entry in entries)
             {
                 if (entry is DirectoryInfo di && (/*entry.Name == "ref" ||*/ entry.Name == "refs"))
@@ -159,10 +185,21 @@ namespace Smartstore.ModuleBuilder
         //    return context.CompileLibraries.Where(x => x.Type == "package").Select(x => x.Name).ToArray();
         //}
 
+        static bool IsDataProviderDir(DirectoryInfo dir)
+        {
+            return new[] { "Smartstore.Data.SqlServer", "Smartstore.Data.MySql", "Smartstore.Data.PostgreSql" }.Contains(dir.Name);
+        }
+
         class ModuleDescriptor
         {
             public string SystemName { get; set; }
             public string[] PrivateReferences { get; set; }
+
+            [IgnoreDataMember]
+            public DirectoryInfo OutDir { get; set; }
+
+            [IgnoreDataMember]
+            public DependencyContext DependencyContext { get; set; }
         }
     }
 }

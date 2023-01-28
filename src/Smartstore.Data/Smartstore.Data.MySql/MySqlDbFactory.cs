@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using MySqlConnector;
+using Smartstore.Data.MySql.Translators;
 using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.MySql

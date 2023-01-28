@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Npgsql;
+using Smartstore.Data.PostgreSql.Translators;
 using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.PostgreSql

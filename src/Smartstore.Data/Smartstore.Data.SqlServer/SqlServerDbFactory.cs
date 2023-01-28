@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Data.Providers;
+using Smartstore.Data.SqlServer.Translators;
 
 namespace Smartstore.Data.SqlServer
 {

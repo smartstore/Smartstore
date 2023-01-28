@@ -1,15 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\..\Smartstore.Build\Smartstore.Common.props" />
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\Smartstore.Core\Smartstore.Core.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Smartstore\Smartstore.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-	</ItemGroup>
+    <PropertyGroup>
+        <Product>Smartstore MySql Data Provider</Product>
+        <OutputPath>..\..\Smartstore.Web\bin\$(Configuration)</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />

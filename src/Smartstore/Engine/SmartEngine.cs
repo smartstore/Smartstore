@@ -17,7 +17,7 @@ namespace Smartstore.Engine
         const string SmartstoreNamespace = "Smartstore";
 
         private bool _isStarted;
-        private ModuleReferenceResolver _moduleReferenceResolver;
+        private IModuleReferenceResolver[] _referenceResolvers;
 
         public IApplicationContext Application { get; private set; }
         public ScopedServiceContainer Scope { get; set; }
@@ -47,7 +47,11 @@ namespace Smartstore.Engine
             ApplicationInitializerMiddleware.Initialized += (s, e) => IsInitialized = true;
 
             // Assembly resolver event.
-            _moduleReferenceResolver = new ModuleReferenceResolver(application);
+            _referenceResolvers = new IModuleReferenceResolver[]
+            {
+                new AppBaseReferenceResolver(application),
+                new ModuleReferenceResolver(application)
+            };
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
 
             return new EngineStarter(this);
@@ -55,26 +59,16 @@ namespace Smartstore.Engine
 
         private Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
         {
-            var assembly = _moduleReferenceResolver.ResolveAssembly(args.RequestingAssembly, args.Name, out var module);
-
-            if (assembly == null)
+            foreach (var resolver in _referenceResolvers)
             {
-                // Check for assembly already loaded
-                assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
-
-                if (assembly == null)
+                var assembly = resolver.ResolveAssembly(args.RequestingAssembly, args.Name);
+                if (assembly != null)
                 {
-                    // Get assembly from TypeScanner
-                    assembly = Application.TypeScanner?.Assemblies?.FirstOrDefault(a => a.FullName == args.Name);
+                    return assembly;
                 }
             }
 
-            if (assembly != null && module != null)
-            {
-                module.Module?.AddPrivateReference(assembly);
-            }
-
-            return assembly;
+            return null;
         }
 
         class EngineStarter : EngineStarter<SmartEngine>
