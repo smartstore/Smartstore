@@ -35,6 +35,8 @@
 - Fixed CheckoutState change tracking issues
 - Fixed IBAN radio button issue when using direct debit offline payment.
 - Avoids *deals* label in product lists if the current date is not within the date range of an assigned discount.
+- #612 Emails are sent with the email priority low
+- Fixed problem with media display for variant attribute combinations 
 
 
 ## Smartstore 5.0.2

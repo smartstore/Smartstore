@@ -75,7 +75,7 @@ namespace Smartstore.Net.Mail
 
             CheckDisposed();
 
-            foreach (var mimeMessage in messages.Select(original => DefaultMailService.BuildMimeMessage(original)))
+            foreach (var mimeMessage in messages.Select(DefaultMailService.BuildMimeMessage))
             {
                 if (cancelToken.IsCancellationRequested)
                     break;
@@ -90,7 +90,7 @@ namespace Smartstore.Net.Mail
 
             CheckDisposed();
 
-            foreach (var mimeMessage in messages.Select(original => DefaultMailService.BuildMimeMessage(original)))
+            foreach (var mimeMessage in messages.Select(DefaultMailService.BuildMimeMessage))
             {
                 if (cancelToken.IsCancellationRequested)
                     break;
