@@ -359,7 +359,7 @@ namespace Smartstore.Web.Controllers
                     var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
                     if (assignedMediaIds.Any())
                     {
-                        var file = files.FirstOrDefault(p => p.Id == assignedMediaIds[0]);
+                        var file = files.FirstOrDefault(p => p.MediaFileId == assignedMediaIds[0]);
                         galleryStartIndex = file == null ? 0 : files.IndexOf(file);
                     }
                 }
