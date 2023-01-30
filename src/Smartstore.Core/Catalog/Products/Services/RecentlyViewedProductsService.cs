@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
@@ -12,17 +13,20 @@ namespace Smartstore.Core.Catalog.Products
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAclService _aclService;
         private readonly CatalogSettings _catalogSettings;
+        private readonly IStoreContext _storeContext;
 
         public RecentlyViewedProductsService(
             SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,
             IAclService aclService,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            IStoreContext storeContext)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
             _aclService = aclService;
             _catalogSettings = catalogSettings;
+            _storeContext = storeContext;
         }
 
         public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(int number)
@@ -38,6 +42,7 @@ namespace Smartstore.Core.Catalog.Products
                 .AsNoTracking()
                 .Where(x => productIds.Contains(x.Id))
                 .ApplyStandardFilter()
+                .ApplyStoreFilter(_storeContext.CurrentStore.Id)
                 .ToListAsync();
 
             var authorizedProducts = await _aclService
