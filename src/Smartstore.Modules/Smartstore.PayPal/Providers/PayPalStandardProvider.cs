@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Checkout.Orders;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
@@ -18,15 +20,15 @@ namespace Smartstore.PayPal.Providers
         private readonly SmartDbContext _db;
         private readonly PayPalHttpClient _client;
         private readonly PayPalSettings _settings;
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-
-        public PayPalStandardProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings, ICheckoutStateAccessor checkoutStateAccessor)
+        
+        public PayPalStandardProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings)
         {
             _db = db;
             _client = client;
             _settings = settings;
-            _checkoutStateAccessor = checkoutStateAccessor;
         }
+
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "PayPal", new { area = "Admin" });
@@ -58,21 +60,23 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = PaymentStatus.Pending,
             };
 
-            var checkoutState = _checkoutStateAccessor.CheckoutState;
-            var orderUpdated = (bool)checkoutState.CustomProperties.Get("PayPalOrderUpdated");
+            _ = await _client.UpdateOrderAsync(request, result);
 
-            if (!orderUpdated)
+            try
             {
-                _ = await _client.UpdateOrderAsync(request, result);
+                if (_settings.Intent == PayPalTransactionType.Authorize)
+                {
+                    var response = await _client.AuthorizeOrderAsync(request, result);
+                }
+                else
+                {
+                    var response = await _client.CaptureOrderAsync(request, result);
+                }
             }
-            
-            if (_settings.Intent == PayPalTransactionType.Authorize)
+            catch (Exception ex) 
             {
-                var response = await _client.AuthorizeOrderAsync(request, result);
-            }
-            else
-            {
-                var response = await _client.CaptureOrderAsync(request, result);
+                Logger.LogError(ex, "Authorization or capturing failed. User was redirected to payment selection.");
+                throw new PayPalException(T("Plugins.Smartstore.PayPal.OrderUpdateFailed"));
             }
 
             return result;

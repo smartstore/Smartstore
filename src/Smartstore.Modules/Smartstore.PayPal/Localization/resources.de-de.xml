@@ -86,8 +86,8 @@
 
             <LocaleResource Name="OrderUpdateFailed">
                 <Value>
-                    Die Gesamtsumme der Bestellung konnte bei PayPal nach der Versandartauswahl nicht aktualisiert werden. 
-                    Bitte bestätigen Sie den Betrag bei PayPal erneut.
+                    Der Gesamtbetrag der Bestellung konnte nach Berechnung der Versandkosten bei PayPal nicht aktualisiert werden.
+                    Bitte bestätigen Sie den Gesamtbetrag erneut bei PayPal.
                 </Value>
             </LocaleResource>
 
@@ -322,7 +322,7 @@
                 <Value>Bitte geben Sie das Jahr Ihres Geburtsdatums an.</Value>
             </LocaleResource>
             <LocaleResource Name="PhoneNumber.Invalid">
-                <Value>Bitte geben Sie eine gültige Telefonnummer an.</Value>
+                <Value>Bitte geben Sie eine gültige Telefonnummer ohne Leerzeichen an.</Value>
             </LocaleResource>
         </Children>
     </LocaleResource>

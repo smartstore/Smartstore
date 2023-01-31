@@ -84,8 +84,8 @@
 
             <LocaleResource Name="OrderUpdateFailed">
                 <Value>
-                    The total amount of the order could not be updated at PayPal after the shipping method selection.
-                    Please reconfirm the amount at PayPal.
+                    The total amount of the order could not be updated after calculating the shipping costs at PayPal.
+                    Please confirm the total amount again with PayPal.
                 </Value>
             </LocaleResource>
             
@@ -321,7 +321,7 @@
                 <Value>Please enter the year of your date of birth.</Value>
             </LocaleResource>
             <LocaleResource Name="PhoneNumber.Invalid">
-                <Value>Please provide a valid phone number.</Value>
+                <Value>Please enter a valid telephone number without spaces.</Value>
             </LocaleResource>
         </Children>
     </LocaleResource>
