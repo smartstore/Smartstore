@@ -674,12 +674,22 @@ namespace Smartstore.Web.Controllers
             if (placeOrderResult == null || !placeOrderResult.Success || model.Warnings.Any())
             {
                 var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
-                if (paymentMethod != null && paymentMethod.Value.PaymentMethodType == PaymentMethodType.Button)
+                if (paymentMethod != null && 
+                    (paymentMethod.Value.PaymentMethodType == PaymentMethodType.Button || paymentMethod.Value.PaymentMethodType == PaymentMethodType.StandardAndButton))
                 {
                     model.Warnings.Take(3).Each(x => NotifyError(x));
 
-                    // Redirect back to where the payment button is.
-                    return RedirectToAction(nameof(ShoppingCartController.Cart), "ShoppingCart");
+                    if (paymentMethod.Value.PaymentMethodType == PaymentMethodType.Button)
+                    {
+                        // Redirect back to where the payment button is.
+                        return RedirectToAction(nameof(ShoppingCartController.Cart), "ShoppingCart");
+                    }
+
+                    if (paymentMethod.Value.PaymentMethodType == PaymentMethodType.StandardAndButton)
+                    {
+                        // Redirect back to payment selection page.
+                        return RedirectToAction(nameof(PaymentMethod));
+                    }
                 }
 
                 return View(model);

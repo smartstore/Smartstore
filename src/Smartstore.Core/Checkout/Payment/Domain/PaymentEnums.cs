@@ -11,7 +11,7 @@
         Unknown = 0,
 
         /// <summary>
-        /// All payment information is entered on the site.
+        /// All payment information is entered on the payment selection page.
         /// </summary>
         Standard = 10,
 
@@ -26,7 +26,7 @@
         Button = 20,
 
         /// <summary>
-        /// All payment information is entered on the site and is available via button.
+        /// All payment information is entered on the payment selection page and is available via button on cart page.
         /// </summary>
         StandardAndButton = 25,
 
