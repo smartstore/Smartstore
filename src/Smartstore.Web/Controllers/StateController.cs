@@ -4,7 +4,7 @@ namespace Smartstore.Web.Controllers
 {
     public class StateController : Controller
     {
-        [HttpPost]
+        [HttpPost, Route("/state/setselectedtab")]
         public IActionResult SetSelectedTab(string navId, string tabId, string path)
         {
             if (navId.HasValue() && tabId.HasValue() && path.HasValue())

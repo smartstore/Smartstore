@@ -26,6 +26,7 @@
   - Fixed AOS init problem
   - Multiple file uploader instances in a single page did not work
   - Product box in listings must not close when entering the bottom action drop
+- Selected tabs were no longer remembered across requests
 - Fixed `NullReferenceException` when deleting a shopping cart item.
 - Fixed export file count was always 0 in export profile list.
 - Fixed `FileNotFoundException` when uploading an import file.
