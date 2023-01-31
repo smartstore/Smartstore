@@ -392,6 +392,15 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="ShowButtonOnCartPage" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowButtonOnCartPage" data-toggler-for=".pnlFundingsCart"></setting-editor>
+                <span asp-validation-for="ShowButtonOnCartPage"></span>
+            </div>
+        </div>
+        <div class="adminRow pnlFundingsCart">
+            <div class="adminTitle">
                 <smart-label asp-for="FundingsCart" />
             </div>
             <div class="adminData">

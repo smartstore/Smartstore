@@ -63,6 +63,9 @@ namespace Smartstore.PayPal.Models
         [LocalizedDisplay("*ShowButtonInMiniShoppingCart")]
         public bool ShowButtonInMiniShoppingCart { get; set; }
 
+        [LocalizedDisplay("*ShowButtonOnCartPage")]
+        public bool ShowButtonOnCartPage { get; set; } = true;
+
         [LocalizedDisplay("*FundingsOffCanvasCart")]
         public string[] FundingsOffCanvasCart { get; set; }
 

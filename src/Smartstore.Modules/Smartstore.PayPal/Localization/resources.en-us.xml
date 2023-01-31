@@ -143,7 +143,12 @@
             <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
                 <Value>Specifies whether to show the checkout buttons in the mini shopping cart.</Value>
             </LocaleResource>
-
+            <LocaleResource Name="ShowButtonOnCartPage">
+                <Value>Show buttons in shopping cart</Value>
+            </LocaleResource>
+            <LocaleResource Name="ShowButtonOnCartPage.Hint">
+                <Value>Specifies whether to show the checkout buttons on the shopping cart page.</Value>
+            </LocaleResource>
             <LocaleResource Name="DisabledFundings">
                 <Value>Disabled fundings</Value>
             </LocaleResource>

@@ -95,5 +95,10 @@ namespace Smartstore.PayPal.Settings
         /// Specifies whether to display the checkout button in offcanvas shopping cart.
         /// </summary>
         public bool ShowButtonInMiniShoppingCart { get; set; } = true;
+
+        /// <summary>
+        /// Specifies whether to display the checkout button on shopping cart page.
+        /// </summary>
+        public bool ShowButtonOnCartPage { get; set; } = true;
     }
 }

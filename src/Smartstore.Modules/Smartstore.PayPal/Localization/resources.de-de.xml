@@ -145,7 +145,12 @@
             <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
                 <Value>Legt fest, ob PayPal-Buttons im Miniwarenkorb angezeigt werden sollen.</Value>
             </LocaleResource>
-
+            <LocaleResource Name="ShowButtonOnCartPage">
+                <Value>Buttons im Warenkorb anzeigen</Value>
+            </LocaleResource>
+            <LocaleResource Name="ShowButtonOnCartPage.Hint">
+                <Value>Legt fest, ob PayPal-Buttons auf der Warenkorbseite angezeigt werden sollen.</Value>
+            </LocaleResource>
             <LocaleResource Name="DisabledFundings">
                 <Value>Deaktivierte Zahlungsoptionen</Value>
             </LocaleResource>
