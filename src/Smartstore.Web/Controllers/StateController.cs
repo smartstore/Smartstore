@@ -15,19 +15,5 @@ namespace Smartstore.Web.Controllers
 
             return Json(new { Success = true });
         }
-
-        [HttpPost]
-        public IActionResult SetGridState(string gridId, string state, string path)
-        {
-            //// TODO: (core) Implement StateController.SetGridState()
-
-            //if (gridId.HasValue() && state != null && path.HasValue())
-            //{
-            //    var info = new GridStateInfo { State = state, Path = path };
-            //    TempData[gridId] = info;
-            //}
-
-            return Json(new { Success = true });
-        }
     }
 }
