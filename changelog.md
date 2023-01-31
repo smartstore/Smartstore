@@ -12,7 +12,8 @@
 
 ### Bugfixes
 
-- Installation: changing database connection settings has no effect until app restart 
+- Installation: changing database connection settings has no effect until app restart
+- Fixed HTTP 400 `BadRequest` issue on saving AJAX grid changes
 - Web API: 
   - Fixed wrong $metadata configuration of `System.String[]` as a complex type instead of `ICollection<string>`.
   - Fixed `InvalidOperationException` in `Microsoft.OData.Client` using MediaFiles and MediaFolders endpoints.
