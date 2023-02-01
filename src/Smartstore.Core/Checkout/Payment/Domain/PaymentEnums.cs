@@ -16,8 +16,9 @@
         Standard = 10,
 
         /// <summary>
-        /// A customer is redirected to a third-party site in order to complete the payment.
+        /// A customer is redirected to a third-party site to complete the payment after (!) the order has been placed.
         /// </summary>
+        /// <remarks>This type of processing is required for older payment types.</remarks>
         Redirection = 15,
 
         /// <summary>
@@ -31,7 +32,8 @@
         StandardAndButton = 25,
 
         /// <summary>
-        /// Payment information is entered in checkout and customer is redirected to complete payment (e.g. 3D Secure) after order has been placed.
+        /// Payment information is entered in checkout and customer is redirected to complete payment (e.g. 3D Secure)
+        /// after the order has been placed.
         /// </summary>
         StandardAndRedirection = 30
     }
@@ -47,7 +49,7 @@
         Pending = 10,
 
         /// <summary>
-        /// Authorized.
+        /// Authorized. The payment amount is reserved for later capture.
         /// </summary>
         Authorized = 20,
 
@@ -57,17 +59,17 @@
         Paid = 30,
 
         /// <summary>
-        /// Partially Refunded.
+        /// Partially refunded.
         /// </summary>
         PartiallyRefunded = 35,
 
         /// <summary>
-        /// Refunded.
+        /// Fully refunded.
         /// </summary>
         Refunded = 40,
 
         /// <summary>
-        /// Voided.
+        /// Voided\cancelled.
         /// </summary>
         Voided = 50,
     }

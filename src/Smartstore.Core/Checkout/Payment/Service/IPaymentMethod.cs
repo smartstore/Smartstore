@@ -1,5 +1,4 @@
-﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Widgets;
@@ -15,43 +14,43 @@ namespace Smartstore.Core.Checkout.Payment
         #region Properties
 
         /// <summary>
-        /// Gets a value indicating whether the payment method is active and should be offered to customers
+        /// Gets a value indicating whether the payment method is active and should be offered to customers.
         /// </summary>
         bool IsActive { get; }
 
         /// <summary>
         /// Gets a value indicating whether the payment method requires user input
-        /// before proceeding (e.g. CreditCard, DirectDebit etc.)
+        /// before proceeding, e.g. CreditCard, DirectDebit etc.
         /// </summary>
         bool RequiresInteraction { get; }
 
         /// <summary>
-        /// Gets a value indicating whether capture is supported
+        /// Gets a value indicating whether capturing the payment amount is supported.
         /// </summary>
         bool SupportCapture { get; }
 
         /// <summary>
-        /// Gets a value indicating whether partial refund is supported
+        /// Gets a value indicating whether a partial refund is supported.
         /// </summary>
         bool SupportPartiallyRefund { get; }
 
         /// <summary>
-        /// Gets a value indicating whether refund is supported
+        /// Gets a value indicating whether a full refund is supported.
         /// </summary>
         bool SupportRefund { get; }
 
         /// <summary>
-        /// Gets a value indicating whether void is supported
+        /// Gets a value indicating whether cancellation of the payment (transaction) is supported.
         /// </summary>
         bool SupportVoid { get; }
 
         /// <summary>
-        /// Gets a recurring payment type of payment method
+        /// Gets the type of recurring payment.
         /// </summary>
         RecurringPaymentType RecurringPaymentType { get; }
 
         /// <summary>
-        /// Gets a payment method type
+        /// Gets the payment method type.
         /// </summary>
         PaymentMethodType PaymentMethodType { get; }
 
@@ -67,10 +66,10 @@ namespace Smartstore.Core.Checkout.Payment
         Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form);
 
         /// <summary>
-        /// Pre process a payment.
+        /// Pre-process a payment.
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
-        /// <returns>Pre process payment result.</returns>
+        /// <returns>Pre-process payment result.</returns>
         Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
@@ -81,8 +80,8 @@ namespace Smartstore.Core.Checkout.Payment
         Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
-		/// Post process payment (e.g. used by payment gateways to redirect to a third-party URL).
-		/// Called after an order has been placed or when customer re-posted the payment.
+		/// Post-process payment (e.g. used by payment gateways to redirect to a third-party URL).
+		/// Called after an order has been placed or when customer re-starts the payment (if supported).
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
         Task PostProcessPaymentAsync(PostProcessPaymentRequest request);
@@ -102,13 +101,13 @@ namespace Smartstore.Core.Checkout.Payment
 
         /// <summary>
         /// Gets a short summary of payment data entered by customer in checkout that is displayed on the checkout's confirm page.
-        /// Typically used to display the brand name and masked number of a credit card.
+        /// Typically used to display the brand name and a masked credit card number.
         /// </summary>
-        /// <returns>Payment summary. <c>null</c> if there's no summary.</returns>
+        /// <returns>Payment summary. <c>null</c> if there is no summary.</returns>
         Task<string> GetPaymentSummaryAsync();
 
         /// <summary>
-        /// Captures payment.
+        /// Captures a payment amount.
         /// </summary>
         /// <param name="request">Capture payment request.</param>
         /// <returns>Capture payment result.</returns>
@@ -122,14 +121,14 @@ namespace Smartstore.Core.Checkout.Payment
         Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request);
 
         /// <summary>
-        /// Voids a payment.
+        /// Cancels a payment (transaction).
         /// </summary>
         /// <param name="request">Void payment request.</param>
         /// <returns>Void payment result.</returns>
         Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest request);
 
         /// <summary>
-        /// Process recurring payment.
+        /// Processes a recurring payment.
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Process payment result.</returns>
@@ -143,14 +142,14 @@ namespace Smartstore.Core.Checkout.Payment
         Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest request);
 
         /// <summary>
-        /// Gets a value indicating whether customers can complete a payment after order is placed but not completed (for redirection payment methods).
+        /// Gets a value indicating whether customers can complete a payment after order
+        /// has been placed but not yet completed (only for redirection payment methods).
         /// </summary>
-        /// <param name="order">Order placed</param>
-        /// <returns>Value indicating wheter it is possible to repost process payment.</returns>
+        /// <returns>A value indicating whether re-starting the payment process is supported.</returns>
         Task<bool> CanRePostProcessPaymentAsync(Order order);
 
         /// <summary>
-        /// Gets the widget invoker for payment info. Return <c>null</c> when there's nothing to render.
+        /// Gets the widget invoker for payment info. Return <c>null</c> when there is nothing to render.
         /// </summary>
         Widget GetPaymentInfoWidget();
 
