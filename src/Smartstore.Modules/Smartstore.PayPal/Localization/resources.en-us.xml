@@ -167,6 +167,15 @@
                     Enable funding can be used to ensure a funding source is rendered, if eligible.
                 </Value>
             </LocaleResource>
+            <LocaleResource Name="PayUponInvoiceLimit">
+                <Value>Upper limit for Pay Upon Invoice</Value>
+            </LocaleResource>
+            <LocaleResource Name="PayUponInvoiceLimit.Hint">
+                <Value>
+                    Defines the upper limit up to which payments upon invoice are offered.
+                    Currently, this limit is €2,500, but may differ in individual cases.
+                </Value>
+            </LocaleResource>
             <LocaleResource Name="DisplayProductDetailPayLaterWidget">
                 <Value>Display pay later widget</Value>
             </LocaleResource>

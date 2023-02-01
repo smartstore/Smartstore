@@ -71,6 +71,9 @@ namespace Smartstore.PayPal.Models
 
         [LocalizedDisplay("*FundingsCart")]
         public string[] FundingsCart { get; set; }
+
+        [LocalizedDisplay("*PayUponInvoiceLimit")]
+        public decimal PayUponInvoiceLimit { get; set; }
     }
 
     [LocalizedDisplay("Plugins.Smartstore.PayPal.")]

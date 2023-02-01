@@ -211,6 +211,17 @@
             <LocaleResource Name="FundingsCart.Hint">
                 <Value>Legt fest, welche Zahlungsoptionen auf der Warenkorbseite angezeigt werden sollen.</Value>
             </LocaleResource>
+
+            <LocaleResource Name="PayUponInvoiceLimit">
+                <Value>Obergrenze für Zahlungen auf Rechnung</Value>
+            </LocaleResource>
+            <LocaleResource Name="PayUponInvoiceLimit.Hint">
+                <Value>
+                    Legt die Obergrenze fest, bis zu der Zahlungen auf Rechnung angeboten werden.
+                    Derzeit liegt diese Grenze bei 2.500 €, kann aber in Einzelfällen davon abweichen.
+                </Value>
+            </LocaleResource>
+            
             <LocaleResource Name="Capture">
                 <Value>Sofort abbuchen</Value>
             </LocaleResource>

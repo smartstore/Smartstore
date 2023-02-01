@@ -95,7 +95,7 @@ namespace Smartstore.PayPal.Filters
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             sb.Append("<script type='application/json' fncls='fnparams-dede7cc5-15fd-4c75-a9f4-36c430ee3a99'>");
             // INFO: Single quotes (') aren't allowed to delimit strings.
-            sb.Append("{\"sandbox\":true,\"f\":\"" + clientMetaId + "\",\"s\":\"" + sourceIdentifier + "\" }");
+            sb.Append("{\"sandbox\":" + (_settings.UseSandbox ? "true" : "false") + ",\"f\":\"" + clientMetaId + "\",\"s\":\"" + sourceIdentifier + "\" }");
             sb.Append("</script>");
             sb.Append("<script type='text/javascript' src='https://c.paypal.com/da/r/fb.js'></script>");
             sb.Append($"<noscript><img src='https://c.paypal.com/v1/r/d/b/ns?f={clientMetaId}&s={sourceIdentifier}&js=0&r=1' /></noscript>");
