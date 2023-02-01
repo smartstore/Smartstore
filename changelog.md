@@ -39,6 +39,7 @@
 - Avoids *deals* label in product lists if the current date is not within the date range of an assigned discount.
 - #612 Emails are sent with the email priority low
 - Fixed problem with media display for variant attribute combinations 
+- Billiger: fixed export profile configuration must not contain store scope selection
 
 
 ## Smartstore 5.0.2
