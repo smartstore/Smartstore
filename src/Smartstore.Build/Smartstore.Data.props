@@ -2,20 +2,14 @@
 
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-	</PropertyGroup>
-	
-	<PropertyGroup>
 		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
-		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<PreserveCompilationContext>false</PreserveCompilationContext>
 		<PreserveCompilationReferences>false</PreserveCompilationReferences>
+		
+		<OutputPath>..\..\Smartstore.Web\bin\$(Configuration)\$(RuntimeIdentifier)</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
-
-	<ItemGroup>
-        <None Update="module.json">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
-	</ItemGroup>
 
 	<ItemGroup>
         <ProjectReference Include="..\..\Smartstore\Smartstore.csproj">
@@ -29,11 +23,5 @@
 			<CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 	</ItemGroup>
-	
-	<ProjectExtensions>
-		<VisualStudio>
-			<UserProperties module_1json__JsonSchema="..\..\Smartstore.Web\Properties\module.schema.json#" />
-		</VisualStudio>
-	</ProjectExtensions>
 	
 </Project>

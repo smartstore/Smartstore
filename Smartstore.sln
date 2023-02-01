@@ -27,8 +27,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{82A38DDA-C944-4C15-AF43-86732F8ED15A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.SqlServer", "src\Smartstore.Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj", "{BFC8BA20-AB93-4B37-B9BB-6783BA5B194F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B633587-C5DE-45EF-8F20-46B341EC5C6F} = {9B633587-C5DE-45EF-8F20-46B341EC5C6F}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.MySql", "src\Smartstore.Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj", "{253DECF2-2ECA-4A90-955B-9299CCEC1363}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B633587-C5DE-45EF-8F20-46B341EC5C6F} = {9B633587-C5DE-45EF-8F20-46B341EC5C6F}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Web.Tests", "test\Smartstore.Web.Tests\Smartstore.Web.Tests.csproj", "{EAA90B11-ED40-4AB1-8027-45226471F9EE}"
 EndProject
@@ -38,8 +44,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{5135A2B0
 	ProjectSection(SolutionItems) = preProject
 		src\Smartstore.Build\Smartstore.Common.props = src\Smartstore.Build\Smartstore.Common.props
 		src\Smartstore.Build\Smartstore.Common.targets = src\Smartstore.Build\Smartstore.Common.targets
-		src\Smartstore.Build\Smartstore.Module.props = src\Smartstore.Build\Smartstore.Module.props
 		src\Smartstore.Build\Smartstore.Data.props = src\Smartstore.Build\Smartstore.Data.props
+		src\Smartstore.Build\Smartstore.Module.props = src\Smartstore.Build\Smartstore.Module.props
 		src\Smartstore.Build\Smartstore.Module.targets = src\Smartstore.Build\Smartstore.Module.targets
 		src\Smartstore.Build\Smartstore.Razor.props = src\Smartstore.Build\Smartstore.Razor.props
 	EndProjectSection
@@ -79,6 +85,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Stripe", "src\Smartstore.Modules\Smartstore.Stripe\Smartstore.Stripe.csproj", "{0C26B088-A8F6-42E8-AB8D-D9D297FDD72C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.PostgreSql", "src\Smartstore.Data\Smartstore.Data.PostgreSql\Smartstore.Data.PostgreSql.csproj", "{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B633587-C5DE-45EF-8F20-46B341EC5C6F} = {9B633587-C5DE-45EF-8F20-46B341EC5C6F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

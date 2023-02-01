@@ -1,0 +1,37 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <Target Name="DeployDataProviders" AfterTargets="ComputeFilesToPublish">
+        <ItemGroup>
+            <DistFiles Include="
+                $(OutDir)\Smartstore.Data.SqlServer.dll;
+                $(OutDir)\Smartstore.Data.MySql.dll;
+                $(OutDir)\Smartstore.Data.PostgreSql.dll;
+                $(OutDir)\Microsoft.EntityFrameworkCore.SqlServer.dll;
+            	$(OutDir)\Pomelo.EntityFrameworkCore.MySql.dll;
+                $(OutDir)\Npgsql.EntityFrameworkCore.PostgreSQL.dll;
+            	$(OutDir)\MySqlConnector.dll;
+            	$(OutDir)\Npgsql.dll" />
+            <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+                <RelativePath>%(Filename)%(Extension)</RelativePath>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            </ResolvedFileToPublish>          
+        </ItemGroup>
+    </Target>
+
+    <!--<Target Name="DeployDataProviders" AfterTargets="AfterPublish">
+        <ItemGroup>
+            <DistFiles Include="
+                $(OutDir)\Smartstore.Data.SqlServer.dll;
+                $(OutDir)\Smartstore.Data.MySql.dll;
+                $(OutDir)\Smartstore.Data.PostgreSql.dll;
+                $(OutDir)\Microsoft.EntityFrameworkCore.SqlServer.dll;
+            	$(OutDir)\Pomelo.EntityFrameworkCore.MySql.dll;
+                $(OutDir)\Npgsql.EntityFrameworkCore.PostgreSQL.dll;
+            	$(OutDir)\MySqlConnector.dll;
+            	$(OutDir)\Npgsql.dll" />
+        </ItemGroup>
+        <Copy SourceFiles="@(DistFiles)" DestinationFiles="@(DistFiles->'$(PublishDir)\%(Filename)%(Extension)')"/>
+    </Target>-->
+	
+</Project>

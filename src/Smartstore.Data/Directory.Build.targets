@@ -1,14 +1,3 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<Import Project="..\Smartstore.Build\Smartstore.Common.targets" />
-
-    <ItemGroup>
-        <BuildModule Include="$(MSBuildProjectDirectory)\..\..\Smartstore.Build\Smartstore.ModuleBuilder\Smartstore.BuildModule.proj" />
-    </ItemGroup>
-
-    <Target Name="BuildModule" AfterTargets="Build">
-        <!-- Copy private module references and delete unnecessary files and directories. -->
-        <MSBuild Projects="@(BuildModule)" Properties="OutPath=$(MSBuildProjectDirectory)\$(OutDir); ProjectPath=$(MSBuildProjectDirectory)" Targets="BuildModule" />
-    </Target>
-
 </Project>

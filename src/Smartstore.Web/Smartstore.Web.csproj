@@ -26,7 +26,7 @@
 		<PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<ItemGroup> 
 		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
 		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
@@ -58,20 +58,15 @@
 
 	<!-- Copy publishable files in Modules directory -->
 	<ItemGroup>
-		<None Include="Modules\**" Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\refs\**" CopyToPublishDirectory="PreserveNewest" />
+        <None Include="Modules\**" Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\refs\**" CopyToPublishDirectory="PreserveNewest">
+            <Visible>false</Visible>
+        </None>
 	</ItemGroup>
 
 	<!-- Copy publishable files in Themes directory -->
 	<ItemGroup>
-        <Content CopyToPublishDirectory="PreserveNewest" Exclude="Themes\*\Views\**\*.cshtml" Include="
-              Themes\Flex\**; 
-              Themes\FlexBlack\**;
-              Themes\FlexBlue\**" />
-
-        <None CopyToPublishDirectory="PreserveNewest" Include="
-              Themes\Flex\Views\**\*.cshtml; 
-              Themes\FlexBlack\Views\**\*.cshtml;
-              Themes\FlexBlue\Views\**\*.cshtml" />	
+        <Content CopyToPublishDirectory="PreserveNewest" Exclude="Themes\*\Views\**\*.cshtml" Include="Themes\Flex\**; Themes\FlexBlack\**; Themes\FlexBlue\**" />
+        <None CopyToPublishDirectory="PreserveNewest" Include="Themes\Flex\Views\**\*.cshtml; Themes\FlexBlack\Views\**\*.cshtml; Themes\FlexBlue\Views\**\*.cshtml" />	
     </ItemGroup>
 
 	<!-- Copy publishable files in Views directory -->
@@ -103,7 +98,9 @@
 		</AssemblyAttribute>
 	</ItemGroup>
 
-	<PropertyGroup>
+    <Import Project="..\Smartstore.Build\Smartstore.Data.targets" />
+
+    <PropertyGroup>
 		<!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project-->
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
