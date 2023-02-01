@@ -45,6 +45,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{5135A2B0
 		src\Smartstore.Build\Smartstore.Common.props = src\Smartstore.Build\Smartstore.Common.props
 		src\Smartstore.Build\Smartstore.Common.targets = src\Smartstore.Build\Smartstore.Common.targets
 		src\Smartstore.Build\Smartstore.Data.props = src\Smartstore.Build\Smartstore.Data.props
+		src\Smartstore.Build\Smartstore.Data.targets = src\Smartstore.Build\Smartstore.Data.targets
 		src\Smartstore.Build\Smartstore.Module.props = src\Smartstore.Build\Smartstore.Module.props
 		src\Smartstore.Build\Smartstore.Module.targets = src\Smartstore.Build\Smartstore.Module.targets
 		src\Smartstore.Build\Smartstore.Razor.props = src\Smartstore.Build\Smartstore.Razor.props

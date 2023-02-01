@@ -7,7 +7,7 @@
 		<PreserveCompilationContext>false</PreserveCompilationContext>
 		<PreserveCompilationReferences>false</PreserveCompilationReferences>
 		
-		<OutputPath>..\..\Smartstore.Web\bin\$(Configuration)\$(RuntimeIdentifier)</OutputPath>
+		<OutputPath>..\..\Smartstore.Web\bin\$(Configuration)</OutputPath>
         <OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 
