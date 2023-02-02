@@ -26,6 +26,12 @@
         white-space: pre;
         white-space: pre-wrap;
     }
+
+    .sysmetric {
+        display: inline-block;
+        min-width: 80px;
+        margin-right: 10px;
+    }
 </style>
 
 <script sm-target-zone="scripts" data-origin="SystemInfo">
@@ -141,10 +147,10 @@
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @Model.DatabaseSizeString.NaIfEmpty()
+                <span class="sysmetric">@Model.DatabaseSizeString.NaIfEmpty()</span>
                 @if (Model.ShrinkDatabaseEnabled)
                 {
-                    <a href='@Url.Action("ShrinkDatabase")' class="ml-3">@T("Common.Shrink")</a>
+                    <a href='@Url.Action("ShrinkDatabase")'>@T("Common.Shrink")</a>
                 }
             </div>
         </div>
@@ -155,8 +161,8 @@
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @Model.UsedMemorySizeString.NaIfEmpty()
-                <a href='@Url.Action("GarbageCollect")' class="ml-3">@T("Admin.System.SystemInfo.GarbageCollect")</a>
+                <span class="sysmetric">@Model.UsedMemorySizeString.NaIfEmpty()</span>
+                <a href='@Url.Action("GarbageCollect")'>@T("Admin.System.SystemInfo.GarbageCollect")</a>
             </div>
         </div>
     </div>
@@ -166,6 +172,7 @@
         </div>
         <div class="adminData wide">
             <div class="form-control-plaintext">
+                <span class="sysmetric">@Model.LoadedAssemblies.Count</span>
                 <a class="toggle-panel" href="javascript:;">@T("Admin.Common.Show")</a>
             </div>
             <div class="d-none mt-3">

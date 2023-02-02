@@ -66,7 +66,7 @@
         <Value>Restart installation</Value>
     </LocaleResource>
     <LocaleResource Name="RestartInstallationTooltip">
-        <Value>Click to restart the installation process (clear all cached values)</Value>
+        <Value>Restarts the application to restart the installation</Value>
     </LocaleResource>
     <LocaleResource Name="SetupFailed">
         <Value>Setup failed: {0}</Value>
@@ -199,5 +199,8 @@
     </LocaleResource>
     <LocaleResource Name="DbUserIdRequired">
         <Value>'Username' is required</Value>
+    </LocaleResource>
+    <LocaleResource Name="AreYouSure">
+        <Value>Are you sure?</Value>
     </LocaleResource>
 </Language>

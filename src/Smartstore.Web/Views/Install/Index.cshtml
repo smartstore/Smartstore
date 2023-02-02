@@ -31,7 +31,8 @@
             "Installing": "@T("Installing")",
             "RestartInstallation": "@T("RestartInstallation")",
             "ConfirmInstall": "@T("ConfirmInstall")",
-            "Progress.Redirect": "@T("Progress.Redirect")"
+            "Progress.Redirect": "@T("Progress.Redirect")",
+            "AreYouSure": "@T("AreYouSure")"
         }
     </script>
 
@@ -87,6 +88,7 @@
             let urlInstall = "@Url.Action("Install", "Install")";
             let urlProgress = "@Url.Action("Progress", "Install")";
             let urlFinalize = "@Url.Action("Finalize", "Install")";
+            let urlRestart = "@Url.Action("RestartInstall", "Install")";
             let urlCheckAlive = "@Url.Content("~/taskscheduler/noop")";
             let urlHome = "@Url.Action("Index", "Home")";
             let progressMessage = "@(wasRunning ? Html.Raw(installResult.ProgressMessage) : string.Empty)";
@@ -95,25 +97,25 @@
 
             return {
 
-                showThrobber: function () {
+                showThrobber: function (message = null) {
                     $.throbber.show({
                         message: `
-                            <div id="install-message">${Res['Installing']}</div>
+                            <div id="install-message">${message || Res['Installing']}</div>
                             <div id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0">${progressMessage}</div>`
                     });
                 },
-
-                startCheckAlive: function (redirectUrl) {
+                
+                startCheckAlive: function (redirectUrl, checkUrl = null) {
                     checkAliveInterval = setInterval(function () {
-                        Installation.checkAlive(redirectUrl);
+                        Installation.checkAlive(redirectUrl, checkUrl);
                     }, 1000);
                 },
 
-                checkAlive: function (redirectUrl) {
+                checkAlive: function (redirectUrl, checkUrl = null) {
                     $.ajax({
                         type: "GET",
                         cache: false,
-                        url: urlCheckAlive,
+                        url: checkUrl || urlCheckAlive,
                         global: false,
                         success: function () {
                             clearInterval(checkAliveInterval);
@@ -174,6 +176,22 @@
                         global: false,
                         type: "POST"
                     });
+                },
+
+                restart: function () {
+                    $.ajax({
+                        type: "GET",
+                        cache: false,
+                        url: urlRestart,
+                        global: false
+                    });
+
+                    progressMessage = '';
+                    Installation.showThrobber(Res['RestartInstallation']);
+
+                    setTimeout(() => {
+                        Installation.startCheckAlive(urlInstall, urlInstall);
+                    }, 500);
                 },
 
                 handleError: function (errors) {

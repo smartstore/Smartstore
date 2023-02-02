@@ -41,7 +41,7 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link navbar-tool" asp-action="RestartInstall" title="@T("RestartInstallation")" rel="nofollow">
+                    <a id="restart-install" class="nav-link navbar-tool" href="javascript:;" title="@T("RestartInstallation")" rel="nofollow">
                         <i class="icm icm-refresh navbar-icon"></i>
                     </a>
                 </li>
@@ -343,6 +343,16 @@
         dataProvider.on('change', toggleDataProvider).trigger('change');
         useRawConString.on('change', toggleConnectionInfo).trigger('change');
         authType.on('change', toggleAuthType).trigger('change');
+
+        $('#restart-install').on('click', function (e) { 
+            e.preventDefault();
+            
+            if (confirm(Res['AreYouSure'])) {
+                Installation.restart();
+            }
+            
+            return false;
+        });
 
         setRememberedFormFields("installPrefs");
     });

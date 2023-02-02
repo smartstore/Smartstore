@@ -207,8 +207,9 @@ namespace Smartstore.Web.Controllers
         [IgnoreAntiforgeryToken]
         public IActionResult RestartInstall()
         {
-            // Redirect to home page
-            return RedirectToAction("Index");
+            // Stop app to restart install
+            _hostApplicationLifetime.StopApplication();
+            return Json(new { Success = true });
         }
 
         private bool TryGetAutoInstallModel(out InstallationModel model, out IFile file)

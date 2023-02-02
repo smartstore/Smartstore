@@ -69,7 +69,7 @@
         <Value>Installation neu starten</Value>
     </LocaleResource>
     <LocaleResource Name="RestartInstallationTooltip">
-        <Value>Hier klicken, um die Installation neu zu starten (löscht alle zwischengespespeicherten Werte)</Value>
+        <Value>Startet die Anwendung neu, um die Installation neu zu starten</Value>
     </LocaleResource>
     <LocaleResource Name="SetupFailed">
         <Value>Installation schlug fehl: {0}</Value>
@@ -204,5 +204,7 @@
     <LocaleResource Name="DbUserIdRequired">
         <Value>'Anmeldename' darf nicht leer sein</Value>
     </LocaleResource>
-
+    <LocaleResource Name="AreYouSure">
+        <Value>Sind Sie sicher?</Value>
+    </LocaleResource>
 </Language>

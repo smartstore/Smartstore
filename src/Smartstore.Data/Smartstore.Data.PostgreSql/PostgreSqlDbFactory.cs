@@ -19,6 +19,13 @@ namespace Smartstore.Data.PostgreSql
 
     internal class PostgreSqlDbFactory : DbFactory
     {
+        static PostgreSqlDbFactory()
+        {
+            // See: https://github.com/npgsql/efcore.pg/issues/2000
+            // See: https://stackoverflow.com/questions/69961449/net6-and-datetime-problem-cannot-write-datetime-with-kind-utc-to-postgresql-ty
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        }
+
         public override DbSystemType DbSystem { get; } = DbSystemType.PostgreSql;
 
         public override DbConnectionStringBuilder CreateConnectionStringBuilder(string connectionString)
