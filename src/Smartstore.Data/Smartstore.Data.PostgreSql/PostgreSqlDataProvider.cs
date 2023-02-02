@@ -189,7 +189,26 @@ LIMIT {take} OFFSET {skip}";
 
         protected override IList<string> TokenizeSqlScript(string sqlScript)
         {
-            throw new NotSupportedException();
+            var commands = new List<string>();
+            var lines = sqlScript.GetLines(true);
+            var command = string.Empty;
+            var delimiter = ";";
+
+            foreach (var line in lines)
+            {
+                if (!line.EndsWith(delimiter))
+                {
+                    command += line + Environment.NewLine;
+                }
+                else
+                {
+                    command += line.Substring(0, line.Length - delimiter.Length);
+                    commands.Add(command);
+                    command = string.Empty;
+                }
+            }
+
+            return commands;
         }
 
         protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)

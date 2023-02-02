@@ -241,8 +241,6 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
         protected override IList<string> TokenizeSqlScript(string sqlScript)
         {
-            Guard.NotEmpty(sqlScript, nameof(sqlScript));
-
             var commands = new List<string>();
 
             sqlScript = Regex.Replace(sqlScript, @"\\\r?\n", string.Empty);
