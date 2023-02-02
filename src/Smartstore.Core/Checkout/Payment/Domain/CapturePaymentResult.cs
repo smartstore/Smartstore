@@ -7,11 +7,12 @@
     {
         /// <summary>
         /// Gets or sets the capture transaction identifier.
+        /// Usually this comes from a payment gateway.
         /// </summary>
         public string CaptureTransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the capture transaction result.
+        /// Gets or sets a short result info about the payment capture.
         /// </summary>
         public string CaptureTransactionResult { get; set; }
 
