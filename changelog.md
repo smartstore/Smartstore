@@ -1,10 +1,14 @@
 # Release Notes
 
-## Smartstore 5.0.2.1
+## Smartstore 5.0.3
 
 ### New Features
 
 - (DEV) New `WebhookEndpointAttribute` endpoint metadata. Suppresses creation of guest accounts for webhook calls.
+- PayPal: 
+	- Added a window to display PayPal account information for support issues 
+	- Added setting for upper limit for Pay Upon Invoice 
+	- Added option to turn off PayPal buttons on shopping cart page
 
 ### Improvements
 
