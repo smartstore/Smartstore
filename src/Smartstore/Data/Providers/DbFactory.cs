@@ -16,6 +16,7 @@ namespace Smartstore.Data.Providers
     public abstract class DbFactory
     {
         private readonly static ConcurrentDictionary<string, DbFactory> _loadedFactories = new(StringComparer.OrdinalIgnoreCase);
+        private UnifiedModelBuilderFacade _modelBuilderFacade;
 
         /// <summary>
         /// Gets the database system type.
@@ -88,6 +89,16 @@ namespace Smartstore.Data.Providers
         public virtual void CreateModel(ModelBuilder modelBuilder)
         {
             // Noop by default
+        }
+        
+        public UnifiedModelBuilderFacade ModelBuilderFacade
+        {
+            get => _modelBuilderFacade ??= CreateModelBuilderFacade();
+        }
+
+        protected virtual UnifiedModelBuilderFacade CreateModelBuilderFacade()
+        {
+            return new UnifiedModelBuilderFacade();
         }
 
         public static string[] GetSupportedProviders()

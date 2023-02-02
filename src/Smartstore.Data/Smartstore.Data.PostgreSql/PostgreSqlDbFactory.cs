@@ -111,5 +111,10 @@ namespace Smartstore.Data.PostgreSql
             //modelBuilder.HasCollation("und-x-icu-ci", locale: "und", provider: "icu", deterministic: false);
             modelBuilder.HasPostgresExtension("citext");
         }
+
+        protected override UnifiedModelBuilderFacade CreateModelBuilderFacade()
+        {
+            return new PostgreSqlModelBuilderFacade();
+        }
     }
 }

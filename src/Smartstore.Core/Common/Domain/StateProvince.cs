@@ -15,6 +15,11 @@ namespace Smartstore.Core.Common
                 .HasOne(x => x.Country)
                 .WithMany(x => x.StateProvinces)
                 .HasForeignKey(x => x.CountryId);
+
+            builder
+                .HasIndex(x => x.CountryId)
+                .HasDatabaseName("IX_StateProvince_CountryId")
+                .IncludeProperties(x => new { x.DisplayOrder });
         }
     }
 

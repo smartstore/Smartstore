@@ -125,5 +125,10 @@ namespace Smartstore.Data.SqlServer
             })
             .ReplaceService<IMethodCallTranslatorProvider, SqlServerMappingMethodCallTranslatorProvider>();
         }
+
+        protected override UnifiedModelBuilderFacade CreateModelBuilderFacade()
+        {
+            return new SqlServerModelBuilderFacade();
+        }
     }
 }
