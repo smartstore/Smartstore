@@ -340,6 +340,51 @@
             <LocaleResource Name="PhoneNumber.Invalid">
                 <Value>Bitte geben Sie eine gültige Telefonnummer ohne Leerzeichen an.</Value>
             </LocaleResource>
+            <LocaleResource Name="SupportTools">
+                <Value>Support-Tools</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Intro">
+                <Value>
+                    Die angezeigten Werte wurden durch Übergabe der hier hinterlegten Client-ID an die PayPal API ermittelt.
+                    Sie stammen direkt von PayPal.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.OnboardingHint">
+                <Value>Bitte führen Sie zunächst das Onboarding durch oder hinterlegen Sie Ihre Zugangsdaten in den dafür vorgesehenen Konfigurationsfeldern.</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Products">
+                <Value>Produkte</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Products.Name">
+                <Value>Name</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Capabilities">
+                <Value>Funktionen</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.VettingStatus">
+                <Value>Überprüfungsstatus</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Limits">
+                <Value>Beschränkungen</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Status">
+                <Value>Status</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.AccountInformation">
+                <Value>Account Informationen</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Requirement">
+                <Value>Voraussetzung</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Result">
+                <Value>Ergebnis der Prüfung</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.PrimaryEmailConfirmed">
+                <Value>Primäre E-Mail Bestätigt</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.PaymentsReceivable">
+                <Value>Empfang von Zahlungen</Value>
+            </LocaleResource>
         </Children>
     </LocaleResource>
 

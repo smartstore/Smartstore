@@ -33,11 +33,25 @@
 @await Component.InvokeAsync("StoreScope")
 
 <widget target-zone="admin_button_toolbar_before">
+    <button id="support-tools" type="button" name="save" class="btn btn-secondary">
+        <i class="fa fa-wrench"></i>
+        <span>@T("Plugins.Smartstore.PayPal.SupportTools")</span>
+    </button>
     <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
         <i class="fa fa-check"></i>
         <span>@T("Admin.Common.Save")</span>
     </button>
 </widget>
+
+<script sm-target-zone="scripts" data-origin="paypal-configuration">
+    $(function () {
+        $(document).on('click', '#support-tools', function (e) {
+            e.preventDefault();
+            openPopup("@Url.Content("~/Admin/PayPal/SupportTools/")");
+            return false;
+        });
+    });
+</script>
 
 <div class="plugin-configuration">
     <div>

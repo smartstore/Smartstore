@@ -35,8 +35,67 @@
         [JsonProperty("primary_email_confirmed", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool PrimaryEmailConfirmed;
 
-        // TODO: (mh) (core) 
-        // products
-        // capabilities
+        /// <summary>
+        /// Contains a list of PayPal products including state.
+        /// </summary>
+        [JsonProperty("products", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PayPalProducts[] Products;
+
+        /// <summary>
+        /// Contains a list of PayPal capabilties.
+        /// </summary>
+        [JsonProperty("capabilities", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PayPalCapabilities[] Capabilities;
+    }
+
+    public class PayPalProducts
+    {
+        /// <summary>
+        /// The item name or title of the PayPal product.
+        /// </summary>
+        [JsonProperty("name", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Name;
+        
+        /// <summary>
+        /// Vetting status 
+        /// </summary>
+        [JsonProperty("vetting_status", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string VettingStatus;
+
+        /// <summary>
+        /// Capabilities
+        /// </summary>
+        [JsonProperty("capabilities", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public List<string> Capabilities;
+    }
+
+    public class PayPalCapabilities
+    {
+        /// <summary>
+        /// The item name or title of the PayPal product.
+        /// </summary>
+        [JsonProperty("name", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Name;
+
+        /// <summary>
+        /// The curent status of the PayPal product (e.g. ACTIVE)
+        /// </summary>
+        [JsonProperty("status", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Status;
+
+        /// <summary>
+        /// Limits
+        /// </summary>
+        [JsonProperty("limits", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public List<PayPalLimits> Limits;
+    }
+
+    public class PayPalLimits
+    {
+        /// <summary>
+        /// Type of the limit.
+        /// </summary>
+        [JsonProperty("type", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Type;
     }
 }

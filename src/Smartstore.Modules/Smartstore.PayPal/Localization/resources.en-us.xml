@@ -337,6 +337,51 @@
             <LocaleResource Name="PhoneNumber.Invalid">
                 <Value>Please enter a valid telephone number without spaces.</Value>
             </LocaleResource>
+            <LocaleResource Name="SupportTools">
+                <Value>Support Tools</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Intro">
+                <Value>
+                    The displayed values were retrieved by passing the client ID stored here to the PayPal API.
+                    They come directly from PayPal.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.OnboardingHint">
+                <Value>Please first perform the onboarding or store your access data in the configuration fields provided.</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Products">
+                <Value>Products</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Products.Name">
+                <Value>Name</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Capabilities">
+                <Value>Capabilities</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.VettingStatus">
+                <Value>Vetting status</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Limits">
+                <Value>Limits</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Status">
+                <Value>Status</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.AccountInformation">
+                <Value>Account Information</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Requirement">
+                <Value>Requirement</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Result">
+                <Value>Result</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.PrimaryEmailConfirmed">
+                <Value>Primary email confirmed</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.PaymentsReceivable">
+                <Value>Payments are receivable</Value>
+            </LocaleResource>
         </Children>
     </LocaleResource>
 
