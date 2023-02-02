@@ -250,9 +250,9 @@ namespace Smartstore.Data.Providers
             => throw new NotSupportedException();
 
         /// <summary>
-        /// Tokenizes the given SQL script.
+        /// Splits the given SQL script by provider specific delimiters.
         /// </summary>
-        protected virtual IList<string> TokenizeSqlScript(string sqlScript)
+        protected virtual IList<string> SplitSqlScript(string sqlScript)
             => throw new NotSupportedException();
 
 
@@ -423,7 +423,7 @@ namespace Smartstore.Data.Providers
         {
             Guard.NotEmpty(sqlScript);
 
-            var sqlCommands = TokenizeSqlScript(sqlScript);
+            var sqlCommands = SplitSqlScript(sqlScript);
             var rowsAffected = 0;
 
             using var tx = async ? await Database.BeginTransactionAsync(cancelToken) : Database.BeginTransaction();

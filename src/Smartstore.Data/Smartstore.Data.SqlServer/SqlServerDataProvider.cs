@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -239,37 +237,33 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 : Task.FromResult(Database.ExecuteSqlRaw(RestoreDatabaseSql(DatabaseName), new object[] { backupFullPath }));
         }
 
-        protected override IList<string> TokenizeSqlScript(string sqlScript)
+        protected override IList<string> SplitSqlScript(string sqlScript)
         {
             var commands = new List<string>();
+            var lines = sqlScript.GetLines(true);
+            var command = string.Empty;
 
-            sqlScript = Regex.Replace(sqlScript, @"\\\r?\n", string.Empty);
-            var batches = Regex.Split(sqlScript, @"^\s*(GO[ \t]+[0-9]+|GO)(?:\s+|$)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-
-            for (var i = 0; i < batches.Length; i++)
+            foreach (var line in lines)
             {
-                if (string.IsNullOrWhiteSpace(batches[i]) || batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase))
+                // Ignore comments
+                if (line.StartsWith("--") || line.StartsWith("/*"))
+                {
                     continue;
-
-                var count = 1;
-                if (i != batches.Length - 1 && batches[i + 1].StartsWith("GO", StringComparison.OrdinalIgnoreCase))
-                {
-                    var match = Regex.Match(batches[i + 1], "([0-9]+)");
-                    if (match.Success)
-                        count = int.Parse(match.Value);
                 }
 
-                var builder = new StringBuilder();
-                for (var j = 0; j < count; j++)
-                {
-                    builder.Append(batches[i]);
-                    if (i == batches.Length - 1)
-                        builder.AppendLine();
-                }
+                var isDelimiter = line.EqualsNoCase("GO");
 
-                commands.Add(builder.ToString());
+                if (!isDelimiter)
+                {
+                    command += line + Environment.NewLine;
+                }
+                else
+                {
+                    commands.Add(command);
+                    command = string.Empty;
+                }
             }
-            
+
             return commands;
         }
 

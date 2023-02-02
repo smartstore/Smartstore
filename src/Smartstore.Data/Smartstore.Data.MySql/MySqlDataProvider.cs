@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -186,25 +185,40 @@ LIMIT {take} OFFSET {skip}";
                : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        protected override IList<string> TokenizeSqlScript(string sqlScript)
+        protected override IList<string> SplitSqlScript(string sqlScript)
         {
             var commands = new List<string>();
+            var lines = sqlScript.GetLines(true);
+            var delimiter = ";";
+            var command = string.Empty;
 
-            var batches = Regex.Split(sqlScript, @"DELIMITER \;", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-
-            if (batches.Length > 0)
+            foreach (var line in lines)
             {
-                commands.AddRange(
-                    batches
-                        .Where(b => !string.IsNullOrWhiteSpace(b))
-                        .Select(b =>
-                        {
-                            b = Regex.Replace(b, @"(DELIMITER )?\$\$", string.Empty);
-                            b = Regex.Replace(b, @"#(.*?)\r?\n", "/* $1 */");
-                            b = Regex.Replace(b, @"(\r?\n)|(\t)", " ");
+                // Ignore comments
+                if (line.StartsWith("--") || line.StartsWith("#"))
+                {
+                    continue;
+                }
 
-                            return b;
-                        }));
+                // In MySQL scripts, you can change the delimiter using the DELIMITER statement.
+                // To handle this scenario, we need to track the current delimiter
+                // and change it whenever we encounter a DELIMITER statement
+                if (line.StartsWithNoCase("DELIMITER"))
+                {
+                    delimiter = line.Split(' ')[1].Trim();
+                    continue;
+                }
+
+                if (!line.EndsWithNoCase(delimiter))
+                {
+                    command += line + Environment.NewLine;
+                }
+                else
+                {
+                    command += line[..^delimiter.Length];
+                    commands.Add(command);
+                    command = string.Empty;
+                }
             }
 
             return commands;

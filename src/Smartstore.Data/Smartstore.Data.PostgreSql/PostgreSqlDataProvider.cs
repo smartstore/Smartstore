@@ -187,7 +187,7 @@ LIMIT {take} OFFSET {skip}";
             return seqName;
         }
 
-        protected override IList<string> TokenizeSqlScript(string sqlScript)
+        protected override IList<string> SplitSqlScript(string sqlScript)
         {
             var commands = new List<string>();
             var lines = sqlScript.GetLines(true);
@@ -196,13 +196,19 @@ LIMIT {take} OFFSET {skip}";
 
             foreach (var line in lines)
             {
+                // Ignore comments
+                if (line.StartsWith("--"))
+                {
+                    continue;
+                }
+
                 if (!line.EndsWith(delimiter))
                 {
                     command += line + Environment.NewLine;
                 }
                 else
                 {
-                    command += line.Substring(0, line.Length - delimiter.Length);
+                    command += line[..^delimiter.Length];
                     commands.Add(command);
                     command = string.Empty;
                 }
