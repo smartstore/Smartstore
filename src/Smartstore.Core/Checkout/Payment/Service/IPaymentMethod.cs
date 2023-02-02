@@ -16,32 +16,38 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets a value indicating whether the payment method is active and should be offered to customers.
         /// </summary>
+        /// <remarks>Typically used for license checks. See <see cref="IPaymentMethodFilter"/> for payment method filtering.</remarks>
         bool IsActive { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the payment method requires user input
-        /// before proceeding, e.g. CreditCard, DirectDebit etc.
+        /// Gets a value indicating whether the payment method requires user input in checkout
+        /// before proceeding, e.g. credit card or direct debit payment.
         /// </summary>
         bool RequiresInteraction { get; }
 
         /// <summary>
-        /// Gets a value indicating whether capturing the payment amount is supported.
+        /// Gets a value indicating whether (later) capturing of the payment amount is supported,
+        /// for instance when the goods are shipped.
         /// </summary>
+        /// <remarks>If <c>true</c>, then you must overwrite the method <see cref="CaptureAsync(CapturePaymentRequest)"/>.</remarks>
         bool SupportCapture { get; }
 
         /// <summary>
         /// Gets a value indicating whether a partial refund is supported.
         /// </summary>
+        /// <remarks>If <c>true</c>, then you must overwrite the method <see cref="RefundAsync(RefundPaymentRequest)"/>.</remarks>
         bool SupportPartiallyRefund { get; }
 
         /// <summary>
         /// Gets a value indicating whether a full refund is supported.
         /// </summary>
+        /// <remarks>If <c>true</c>, then you must overwrite the method <see cref="RefundAsync(RefundPaymentRequest)"/>.</remarks>
         bool SupportRefund { get; }
 
         /// <summary>
         /// Gets a value indicating whether cancellation of the payment (transaction) is supported.
         /// </summary>
+        /// <remarks>If <c>true</c>, then you must overwrite the method <see cref="VoidAsync(VoidPaymentRequest)"/>.</remarks>
         bool SupportVoid { get; }
 
         /// <summary>
@@ -52,6 +58,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets the payment method type.
         /// </summary>
+        /// <remarks>Choose a type that best suits your payment method.</remarks>
         PaymentMethodType PaymentMethodType { get; }
 
         #endregion
@@ -59,17 +66,47 @@ namespace Smartstore.Core.Checkout.Payment
         #region Methods
 
         /// <summary>
-        /// Validates buyer payment input.
+        /// Gets the widget invoker for payment info. The payment info is displayed on checkout's payment page.
+        /// Return <c>null</c> when there is nothing to render.
+        /// </summary>
+        Widget GetPaymentInfoWidget();
+
+        /// <summary>
+        /// Gets the additional handling fee for a payment.
+        /// </summary>
+        /// <returns>The fixed fee or a percentage value. If <c>UsePercentage</c> is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
+        Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart);
+
+        /// <summary>
+        /// Gets a <see cref="ProcessPaymentRequest"/>. Called after the customer selected a payment method on checkout's payment page.
+        /// </summary>
+        /// <param name="form">Form with payment data.</param>
+        /// <remarks>
+        /// Typically used to specify an <see cref="ProcessPaymentRequest.OrderGuid"/> that can be sent to the payment provider before the order is placed.
+        /// It will be saved later when the order is created.
+        /// </remarks>
+        Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form);
+
+        /// <summary>
+        /// Validates the payment data entered by customer on checkout's payment page.
         /// </summary>
         /// <param name="form">Form with payment data.</param>
         /// <returns><see cref="PaymentValidationResult"/> instance</returns>
         Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form);
 
         /// <summary>
-        /// Pre-process a payment.
+        /// Gets a short summary of payment data entered by customer in checkout that is displayed on the checkout's confirm page.
+        /// </summary>
+        /// <returns>Payment summary. <c>null</c> if there is no summary.</returns>
+        /// <remarks>Typically used to display the brand name and a masked credit card number.</remarks>
+        Task<string> GetPaymentSummaryAsync();
+
+        /// <summary>
+        /// Pre-process a payment. Called immediately before <see cref="ProcessPaymentAsync(ProcessPaymentRequest)"/>.
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Pre-process payment result.</returns>
+        /// <remarks>Can be used, for example, to complete required data such as the billing address.</remarks>
         Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
@@ -77,34 +114,22 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Process payment result.</returns>
+        /// <remarks>Intended for main payment processing like payment authorization.</remarks>
         Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
-		/// Post-process payment (e.g. used by payment gateways to redirect to a third-party URL).
-		/// Called after an order has been placed or when customer re-starts the payment (if supported).
+		/// Post-process payment. Called after an order has been placed or when customer re-starts the payment (if supported).
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
+        /// <remarks>Used, for example, to redirect to a payment page to complete the payment after (!) the order has been placed.</remarks>
         Task PostProcessPaymentAsync(PostProcessPaymentRequest request);
 
         /// <summary>
-        /// Gets information about additional handling fee.
+        /// Gets a value indicating whether customers can complete a payment after order
+        /// has been placed but not yet completed (only for redirection payment methods).
         /// </summary>
-        /// <param name="cart">Shopping cart.</param>
-        /// <returns>The fixed fee or a percentage value. If UsePercentage is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
-        Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart);
-
-        /// <summary>
-        /// Handles payment data entered by customer on checkout's payment page.
-        /// </summary>
-        /// <param name="form">Form with payment data.</param>
-        Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form);
-
-        /// <summary>
-        /// Gets a short summary of payment data entered by customer in checkout that is displayed on the checkout's confirm page.
-        /// Typically used to display the brand name and a masked credit card number.
-        /// </summary>
-        /// <returns>Payment summary. <c>null</c> if there is no summary.</returns>
-        Task<string> GetPaymentSummaryAsync();
+        /// <returns>A value indicating whether re-starting the payment process is supported.</returns>
+        Task<bool> CanRePostProcessPaymentAsync(Order order);
 
         /// <summary>
         /// Captures a payment amount.
@@ -114,7 +139,7 @@ namespace Smartstore.Core.Checkout.Payment
         Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest request);
 
         /// <summary>
-        /// Refunds a payment.
+        /// Fully or partially refunds a payment amount.
         /// </summary>
         /// <param name="request">Refund payment request.</param>
         /// <returns>Refund payment result.</returns>
@@ -140,18 +165,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// <param name="request">Cancel recurring payment request.</param>
         /// <returns>Cancel recurring payment result.</returns>
         Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest request);
-
-        /// <summary>
-        /// Gets a value indicating whether customers can complete a payment after order
-        /// has been placed but not yet completed (only for redirection payment methods).
-        /// </summary>
-        /// <returns>A value indicating whether re-starting the payment process is supported.</returns>
-        Task<bool> CanRePostProcessPaymentAsync(Order order);
-
-        /// <summary>
-        /// Gets the widget invoker for payment info. Return <c>null</c> when there is nothing to render.
-        /// </summary>
-        Widget GetPaymentInfoWidget();
 
         #endregion
     }
