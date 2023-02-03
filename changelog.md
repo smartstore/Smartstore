@@ -10,7 +10,6 @@
 
 - #557 If the state is optional for addresses, none should be preselected when creating them.
 
-
 ## Smartstore 5.0.3
 
 ### New Features
