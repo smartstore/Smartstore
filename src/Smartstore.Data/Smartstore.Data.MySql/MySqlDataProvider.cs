@@ -21,6 +21,11 @@ namespace Smartstore.Data.MySql
 
         public override DbSystemType ProviderType => DbSystemType.MySql;
 
+        public override string ProviderFriendlyName
+        {
+            get => "MySQL " + Database.ExecuteScalarRaw<string>("SELECT @@version");
+        }
+
         public override DataProviderFeatures Features
             => DataProviderFeatures.Shrink
             | DataProviderFeatures.ReIndex

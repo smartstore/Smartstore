@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Smartstore.Data.Providers;
 using Microsoft.Data.Sqlite;
-using Smartstore.Engine;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Data.Sqlite.Translators;
+using Smartstore.IO;
 
 namespace Smartstore.Data.Sqlite
 {
@@ -29,11 +25,12 @@ namespace Smartstore.Data.Sqlite
         {
             Guard.NotEmpty(server);
 
+            var dbRelativePath = PathUtility.Join("App_Data", "Tenants", DataSettings.Instance.TenantName, $"{database}.db");
+
             var builder = new SqliteConnectionStringBuilder
             {
-                //DataSource = EngineContext.Current.Application.TenantRoot.GetFile($"{database}.db").PhysicalPath,
-                DataSource = $@".\App_Data\Tenants\{DataSettings.Instance.TenantName}\{database}.db",
-                Password = password,
+                DataSource = dbRelativePath,
+                //DataSource = $@".\App_Data\Tenants\{DataSettings.Instance.TenantName}\{database}.db",
                 Pooling = true,
                 Cache = SqliteCacheMode.Shared,
             };
@@ -83,6 +80,11 @@ namespace Smartstore.Data.Sqlite
                 }
             })
             .ReplaceService<IMethodCallTranslatorProvider, SqliteMappingMethodCallTranslatorProvider>();
+        }
+
+        public override void CreateModel(ModelBuilder modelBuilder)
+        {
+            modelBuilder.UseCollation("NOCASE");
         }
     }
 }

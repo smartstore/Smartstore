@@ -216,6 +216,14 @@ namespace Smartstore.Data.Providers
         #region Optional overridable features
 
         /// <summary>
+        /// Gets the database provider friendly name.
+        /// </summary>
+        public virtual string ProviderFriendlyName
+        {
+            get => ProviderType.ToString();
+        }
+
+        /// <summary>
         /// Gets the total size of the database in bytes.
         /// </summary>
         protected virtual Task<long> GetDatabaseSizeCore(bool async)

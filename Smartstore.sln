@@ -45,7 +45,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{5135A2B0
 		src\Smartstore.Build\Smartstore.Common.props = src\Smartstore.Build\Smartstore.Common.props
 		src\Smartstore.Build\Smartstore.Common.targets = src\Smartstore.Build\Smartstore.Common.targets
 		src\Smartstore.Build\Smartstore.Data.props = src\Smartstore.Build\Smartstore.Data.props
-		src\Smartstore.Build\Smartstore.Data.targets = src\Smartstore.Build\Smartstore.Data.targets
 		src\Smartstore.Build\Smartstore.Module.props = src\Smartstore.Build\Smartstore.Module.props
 		src\Smartstore.Build\Smartstore.Module.targets = src\Smartstore.Build\Smartstore.Module.targets
 		src\Smartstore.Build\Smartstore.Razor.props = src\Smartstore.Build\Smartstore.Razor.props
@@ -90,7 +89,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.PostgreSql"
 		{9B633587-C5DE-45EF-8F20-46B341EC5C6F} = {9B633587-C5DE-45EF-8F20-46B341EC5C6F}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smartstore.Data.Sqlite", "src\Smartstore.Data\Smartstore.Data.Sqlite\Smartstore.Data.Sqlite.csproj", "{32683DB7-C20D-4ABD-BE90-569168B2A68F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.Sqlite", "src\Smartstore.Data\Smartstore.Data.Sqlite\Smartstore.Data.Sqlite.csproj", "{32683DB7-C20D-4ABD-BE90-569168B2A68F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

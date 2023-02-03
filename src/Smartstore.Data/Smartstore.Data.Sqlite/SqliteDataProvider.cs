@@ -21,6 +21,11 @@ namespace Smartstore.Data.Sqlite
 
         public override DbSystemType ProviderType => DbSystemType.SQLite;
 
+        public override string ProviderFriendlyName
+        {
+            get => "SQLite " + Database.ExecuteScalarRaw<string>("SELECT sqlite_version()");
+        }
+
         public override DataProviderFeatures Features
             => DataProviderFeatures.Shrink
             | DataProviderFeatures.ReIndex

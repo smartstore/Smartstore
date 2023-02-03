@@ -123,16 +123,16 @@ namespace Smartstore.Data.Providers
                 switch (provider.ToLowerInvariant())
                 {
                     case "sqlserver":
-                        assemblyName = "Smartstore.Data.SqlServer.dll";
+                        assemblyName = "Smartstore.Data.SqlServer";
                         break;
                     case "mysql":
-                        assemblyName = "Smartstore.Data.MySql.dll";
+                        assemblyName = "Smartstore.Data.MySql";
                         break;
                     case "postgresql":
-                        assemblyName = "Smartstore.Data.PostgreSql.dll";
+                        assemblyName = "Smartstore.Data.PostgreSql";
                         break;
                     case "sqlite":
-                        assemblyName = "Smartstore.Data.Sqlite.dll";
+                        assemblyName = "Smartstore.Data.Sqlite";
                         break;
                 }
 
@@ -141,10 +141,7 @@ namespace Smartstore.Data.Providers
                     throw new NotSupportedException($"Unknown database provider type name '${provider}'.");
                 }
 
-                //var binPath = AppContext.BaseDirectory;
-                var binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                var assemblyPath = Path.Combine(binPath, assemblyName);
-                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(assemblyName));
 
                 var dbFactoryType = typeScanner.FindTypes<DbFactory>(new[] { assembly }).FirstOrDefault();
                 if (dbFactoryType == null)

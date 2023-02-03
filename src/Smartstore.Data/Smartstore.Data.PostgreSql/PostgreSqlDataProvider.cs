@@ -21,6 +21,11 @@ namespace Smartstore.Data.PostgreSql
 
         public override DbSystemType ProviderType => DbSystemType.PostgreSql;
 
+        public override string ProviderFriendlyName
+        {
+            get => Database.ExecuteScalarRaw<string>("SELECT version()");
+        }
+
         public override DataProviderFeatures Features
             => DataProviderFeatures.Shrink
             | DataProviderFeatures.ReIndex

@@ -27,7 +27,10 @@
 	</ItemGroup>
 
 	<ItemGroup> 
+		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj" /> 
+		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.PostgreSql\Smartstore.Data.PostgreSql.csproj" /> 
 		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.Sqlite\Smartstore.Data.Sqlite.csproj" /> 
+		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj" /> 
 		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
 		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
@@ -98,8 +101,6 @@
 			<_Parameter1>Smartstore.Web.Tests</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
-
-    <Import Project="..\Smartstore.Build\Smartstore.Data.targets" />
 
     <PropertyGroup>
 		<!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project-->

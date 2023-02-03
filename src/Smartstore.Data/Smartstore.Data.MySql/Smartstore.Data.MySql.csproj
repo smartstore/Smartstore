@@ -5,14 +5,7 @@
     </PropertyGroup>
 
 	<ItemGroup>
-        <PackageReference Include="MySqlConnector" Version="2.2.5" GeneratePathProperty="true" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" GeneratePathProperty="true" />
-        <None Include="$(PkgMySqlConnector)\lib\net7.0\*.dll" CopyToOutputDirectory="PreserveNewest">
-            <Visible>false</Visible>
-        </None>
-        <None Include="$(PkgPomelo_EntityFrameworkCore_MySql)\lib\net7.0\*.dll" CopyToOutputDirectory="PreserveNewest">
-            <Visible>false</Visible>
-        </None>
 	</ItemGroup>
 
 </Project>

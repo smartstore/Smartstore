@@ -312,7 +312,7 @@ namespace Smartstore.Admin.Controllers
             {
                 if (DataSettings.Instance.IsValid())
                 {
-                    model.DataProviderFriendlyName = DataSettings.Instance.DbFactory.DbSystem.ToString();
+                    model.DataProviderFriendlyName = dataProvider.ProviderFriendlyName;
                     model.ShrinkDatabaseEnabled = dataProvider.CanShrink && Services.Permissions.Authorize(Permissions.System.Maintenance.Read);
                 }
             }

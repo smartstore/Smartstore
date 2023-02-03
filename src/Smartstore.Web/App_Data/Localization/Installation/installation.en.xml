@@ -96,7 +96,7 @@
         <Value>PostgreSQL</Value>
     </LocaleResource>
     <LocaleResource Name="UseSqlite">
-        <Value>SQLite</Value>
+        <Value>SQLite (not suitable for use in production!)</Value>
     </LocaleResource>
     <LocaleResource Name="StoreInformation">
         <Value>Store information</Value>

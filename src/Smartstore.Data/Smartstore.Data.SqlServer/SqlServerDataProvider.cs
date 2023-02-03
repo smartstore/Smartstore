@@ -79,6 +79,11 @@ namespace Smartstore.Data.SqlServer
 
         public override DbSystemType ProviderType => DbSystemType.SqlServer;
 
+        public override string ProviderFriendlyName
+        {
+            get => Database.ExecuteScalarRaw<string>("SELECT @@VERSION AS version_info");
+        }
+
         public override DataProviderFeatures Features
             => DataProviderFeatures.Backup
             | DataProviderFeatures.Restore
@@ -183,12 +188,12 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             return DetectSqlError(updateException?.InnerException, _uniquenessViolationErrorCodes);
         }
         
-        protected override Task<long> GetDatabaseSizeCore(bool async)
+        protected override async Task<long> GetDatabaseSizeCore(bool async)
         {
-            var sql = "SELECT SUM(size * 8) FROM sys.database_files";
+            var sql = "SELECT SUM(size * 8192) FROM sys.database_files";
             return async
-                ? Database.ExecuteScalarRawAsync<long>(sql)
-                : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
+                ? (await Database.ExecuteScalarRawAsync<int>(sql)).Convert<long>()
+                : Database.ExecuteScalarRaw<int>(sql).Convert<long>();
         }
 
         protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
@@ -301,7 +306,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             {
                 sql += ", COMPRESSION";
             }
-
+           
             return sql;
         }
 
