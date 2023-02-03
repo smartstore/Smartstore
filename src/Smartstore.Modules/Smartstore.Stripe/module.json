@@ -5,8 +5,8 @@
   "SystemName": "Smartstore.Stripe",
   "FriendlyName": "Stripe",
   "Description": "Extends the store with Stripe payment.",
-  "Version": "5.0.2",
-  "MinAppVersion": "5.0.2",
+  "Version": "5.0.3",
+  "MinAppVersion": "5.0.3",
   "Order": 1,
   "ResourceRootKey": "Plugins.Smartstore.Stripe",
   "PrivateReferences": [ "Stripe.net" ]
