@@ -103,7 +103,7 @@ namespace Smartstore.Data.Providers
 
         public static string[] GetSupportedProviders()
         {
-            return new[] { "Smartstore.Data.SqlServer", "Smartstore.Data.MySql", "Smartstore.Data.PostgreSql" };
+            return new[] { "Smartstore.Data.SqlServer", "Smartstore.Data.MySql", "Smartstore.Data.PostgreSql", "Smartstore.Data.Sqlite" };
         }
 
         /// <summary>
@@ -131,9 +131,9 @@ namespace Smartstore.Data.Providers
                     case "postgresql":
                         assemblyName = "Smartstore.Data.PostgreSql.dll";
                         break;
-                        //case "sqlite":
-                        //    assemblyName = "Smartstore.Data.Sqlite.dll";
-                        //    break;
+                    case "sqlite":
+                        assemblyName = "Smartstore.Data.Sqlite.dll";
+                        break;
                 }
 
                 if (assemblyName.IsEmpty())

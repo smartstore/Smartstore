@@ -187,7 +187,7 @@ namespace Smartstore.ModuleBuilder
 
         static bool IsDataProviderDir(DirectoryInfo dir)
         {
-            return new[] { "Smartstore.Data.SqlServer", "Smartstore.Data.MySql", "Smartstore.Data.PostgreSql" }.Contains(dir.Name);
+            return new[] { "Smartstore.Data.SqlServer", "Smartstore.Data.MySql", "Smartstore.Data.PostgreSql", "Smartstore.Data.Sqlite" }.Contains(dir.Name);
         }
 
         class ModuleDescriptor

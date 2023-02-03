@@ -89,7 +89,8 @@
             let urlProgress = "@Url.Action("Progress", "Install")";
             let urlFinalize = "@Url.Action("Finalize", "Install")";
             let urlRestart = "@Url.Action("RestartInstall", "Install")";
-            let urlCheckAlive = "@Url.Content("~/taskscheduler/noop")";
+            let urlCheckAlive = "@Url.Action("CheckAlive", "Install")";
+            let urlAppCheckAlive = "@Url.Content("~/taskscheduler/noop")";
             let urlHome = "@Url.Action("Index", "Home")";
             let progressMessage = "@(wasRunning ? Html.Raw(installResult.ProgressMessage) : string.Empty)";
 
@@ -104,7 +105,7 @@
                             <div id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0">${progressMessage}</div>`
                     });
                 },
-                
+
                 startCheckAlive: function (redirectUrl, checkUrl = null) {
                     checkAliveInterval = setInterval(function () {
                         Installation.checkAlive(redirectUrl, checkUrl);
@@ -115,7 +116,7 @@
                     $.ajax({
                         type: "GET",
                         cache: false,
-                        url: checkUrl || urlCheckAlive,
+                        url: checkUrl || urlAppCheckAlive,
                         global: false,
                         success: function () {
                             clearInterval(checkAliveInterval);
@@ -190,7 +191,7 @@
                     Installation.showThrobber(Res['RestartInstallation']);
 
                     setTimeout(() => {
-                        Installation.startCheckAlive(urlInstall, urlInstall);
+                        Installation.startCheckAlive(urlInstall, urlCheckAlive);
                     }, 500);
                 },
 

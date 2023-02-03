@@ -216,9 +216,9 @@ namespace Smartstore.Data.Providers
         #region Optional overridable features
 
         /// <summary>
-        /// Gets the total size of the database in MB.
+        /// Gets the total size of the database in bytes.
         /// </summary>
-        protected virtual Task<decimal> GetDatabaseSizeCore(bool async)
+        protected virtual Task<long> GetDatabaseSizeCore(bool async)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -370,17 +370,17 @@ namespace Smartstore.Data.Providers
         #endregion
 
         #region Maintenance
-
+        
         /// <summary>
-        /// Gets the total size of the database in MB.
+        /// Gets the total size of the database in bytes.
         /// </summary>
-        public decimal GetDatabaseSize()
+        public long GetDatabaseSize()
             => GetDatabaseSizeCore(false).Await();
 
         /// <summary>
-        /// Gets the total size of the database in MB.
+        /// Gets the total size of the database in bytes.
         /// </summary>
-        public Task<decimal> GetDatabaseSizeAsync()
+        public Task<long> GetDatabaseSizeAsync()
             => GetDatabaseSizeCore(true);
 
         /// <summary>
@@ -608,7 +608,7 @@ namespace Smartstore.Data.Providers
 
         #region Connection & Dialect
 
-        public DbParameter CreateParameter(string name, object value)
+        public virtual DbParameter CreateParameter(string name, object value)
         {
             Guard.NotEmpty(name);
 

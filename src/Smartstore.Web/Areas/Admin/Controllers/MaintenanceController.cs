@@ -289,11 +289,18 @@ namespace Smartstore.Admin.Controllers
                 OperatingSystem = $"{runtimeInfo.OSDescription} ({runtimeInfo.ProcessArchitecture.ToString().ToLower()})"
             };
 
-            // DB size & used RAM
+            // DB size
             try
             {
-                var mbSize = await dataProvider.GetDatabaseSizeAsync();
-                model.DatabaseSize = Convert.ToInt64(mbSize * 1024 * 1024);
+                model.DatabaseSize = await dataProvider.GetDatabaseSizeAsync();
+            }
+            catch
+            {
+            }
+
+            // Used RAM
+            try
+            {
                 model.UsedMemorySize = GetPrivateBytes();
             }
             catch

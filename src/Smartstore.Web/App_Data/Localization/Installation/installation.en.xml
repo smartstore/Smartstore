@@ -95,6 +95,9 @@
     <LocaleResource Name="UsePostgreSql">
         <Value>PostgreSQL</Value>
     </LocaleResource>
+    <LocaleResource Name="UseSqlite">
+        <Value>SQLite</Value>
+    </LocaleResource>
     <LocaleResource Name="StoreInformation">
         <Value>Store information</Value>
     </LocaleResource>

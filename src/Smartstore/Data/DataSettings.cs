@@ -11,7 +11,7 @@ namespace Smartstore.Data
         SqlServer,
         MySql,
         PostgreSql,
-        Sqlite
+        SQLite
     }
 
     public partial class DataSettings

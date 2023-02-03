@@ -90,6 +90,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.PostgreSql"
 		{9B633587-C5DE-45EF-8F20-46B341EC5C6F} = {9B633587-C5DE-45EF-8F20-46B341EC5C6F}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smartstore.Data.Sqlite", "src\Smartstore.Data\Smartstore.Data.Sqlite\Smartstore.Data.Sqlite.csproj", "{32683DB7-C20D-4ABD-BE90-569168B2A68F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -271,6 +273,12 @@ Global
 		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
 		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32683DB7-C20D-4ABD-BE90-569168B2A68F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32683DB7-C20D-4ABD-BE90-569168B2A68F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32683DB7-C20D-4ABD-BE90-569168B2A68F}.DebugNoRazorCompile|Any CPU.ActiveCfg = DebugNoRazorCompile|Any CPU
+		{32683DB7-C20D-4ABD-BE90-569168B2A68F}.DebugNoRazorCompile|Any CPU.Build.0 = DebugNoRazorCompile|Any CPU
+		{32683DB7-C20D-4ABD-BE90-569168B2A68F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32683DB7-C20D-4ABD-BE90-569168B2A68F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -301,6 +309,7 @@ Global
 		{D6A3CB44-4C7A-4637-8465-515D4D70324F} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{0C26B088-A8F6-42E8-AB8D-D9D297FDD72C} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{1A016177-D0EA-49AD-9BD5-BAD99D9D08F9} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
+		{32683DB7-C20D-4ABD-BE90-569168B2A68F} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySqlConnector;
@@ -15,12 +14,6 @@ namespace Smartstore.Data.MySql
 {
     public class MySqlDataProvider : DataProvider
     {
-        internal sealed class MySqlTableSchema
-        {
-            public string Database { get; set; }
-            public decimal SizeMB { get; set; }
-        }
-
         public MySqlDataProvider(DatabaseFacade database)
             : base(database)
         {
@@ -133,15 +126,14 @@ LIMIT {take} OFFSET {skip}";
             return false;
         }
         
-        protected override async Task<decimal> GetDatabaseSizeCore(bool async)
+        protected override Task<long> GetDatabaseSizeCore(bool async)
         {
-            var sql = $@"SELECT table_schema AS 'Database', ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS 'SizeMB' 
+            var sql = $@"SELECT SUM(data_length + index_length) AS 'size'
                 FROM information_schema.TABLES
-                WHERE table_schema = '{DatabaseName}'
-                GROUP BY table_schema";
+                WHERE table_schema = '{DatabaseName}'";
             return async
-                ? (await Database.ExecuteQueryRawAsync<MySqlTableSchema>(sql).FirstOrDefaultAsync())?.SizeMB ?? 0
-                : Database.ExecuteQueryRaw<MySqlTableSchema>(sql).FirstOrDefault()?.SizeMB ?? 0;
+                ? Database.ExecuteScalarRawAsync<long>(sql)
+                : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
         protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)

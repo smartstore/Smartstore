@@ -82,7 +82,8 @@ namespace Smartstore.Web.Controllers
             {
                 new SelectListItem { Value = "mysql", Text = T("UseMySql"), Selected = !isWindows },
                 new SelectListItem { Value = "sqlserver", Text = T("UseSqlServer"), Selected = isWindows },
-                new SelectListItem { Value = "postgresql", Text = T("UsePostgreSql"), Selected = false }
+                new SelectListItem { Value = "postgresql", Text = T("UsePostgreSql"), Selected = false },
+                new SelectListItem { Value = "sqlite", Text = T("UseSqlite"), Selected = false }
             };
 
             ViewBag.AvailableInstallationLanguages = installLanguages;
@@ -210,6 +211,11 @@ namespace Smartstore.Web.Controllers
             // Stop app to restart install
             _hostApplicationLifetime.StopApplication();
             return Json(new { Success = true });
+        }
+
+        public IActionResult CheckAlive()
+        {
+            return Content("I'm alive");
         }
 
         private bool TryGetAutoInstallModel(out InstallationModel model, out IFile file)
