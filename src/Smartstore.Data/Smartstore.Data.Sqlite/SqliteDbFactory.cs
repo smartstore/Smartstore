@@ -30,7 +30,6 @@ namespace Smartstore.Data.Sqlite
             var builder = new SqliteConnectionStringBuilder
             {
                 DataSource = dbRelativePath,
-                //DataSource = $@".\App_Data\Tenants\{DataSettings.Instance.TenantName}\{database}.db",
                 Pooling = true,
                 Cache = SqliteCacheMode.Shared,
             };

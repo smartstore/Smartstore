@@ -10,7 +10,7 @@ namespace Smartstore.Engine.Modularity
     {
         public Assembly ResolveAssembly(Assembly requestingAssembly, string name)
         {
-            var resolver = new AssemblyDependencyResolver(requestingAssembly.Location);
+            var resolver = new AssemblyDependencyResolver(requestingAssembly?.Location ?? AppContext.BaseDirectory);
             var assemblyPath = resolver.ResolveAssemblyToPath(new AssemblyName(name));
             if (assemblyPath != null)
             {
