@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Reflection;
-using System.Runtime.Loader;
+﻿using System.Reflection;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -14,7 +12,6 @@ namespace Smartstore.Engine.Modularity
     /// </summary>
     internal class ModuleReferenceResolver : IModuleReferenceResolver
     {
-        private readonly ConcurrentDictionary<Assembly, IModuleDescriptor> _assemblyModuleMap = new();
         private readonly IApplicationContext _appContext;
 
         public ModuleReferenceResolver(IApplicationContext appContext)
@@ -34,43 +31,15 @@ namespace Smartstore.Engine.Modularity
                 return null;
             }
 
-            IModuleDescriptor module = null;
-            Assembly assembly = null;
-
-            if (!_assemblyModuleMap.TryGetValue(requestingAssembly, out module))
-            {
-                module = _appContext.ModuleCatalog.GetModuleByAssembly(requestingAssembly);
-            }
+            var module = _appContext.ModuleCatalog.GetModuleByAssembly(requestingAssembly);
 
             if (module != null)
             {
-                var requestedAssemblyName = name.Split(',', StringSplitOptions.RemoveEmptyEntries)[0] + ".dll";
-                var fullPath = Path.Combine(module.PhysicalPath, requestedAssemblyName);
-                if (File.Exists(fullPath))
-                {
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(fullPath);
-                    _assemblyModuleMap[assembly] = module;
-                }
-            }
-            
-            if (assembly == null)
-            {
-                // Check for assembly already loaded
-                assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == name);
-
-                if (assembly == null)
-                {
-                    // Get assembly from TypeScanner
-                    assembly = _appContext.TypeScanner?.Assemblies?.FirstOrDefault(a => a.FullName == name);
-                }
+                var assembly = module.Module.LoadContext.LoadFromAssemblyName(new AssemblyName(name));
+                return assembly;
             }
 
-            if (assembly != null && module != null)
-            {
-                module.Module?.AddPrivateReference(assembly);
-            }
-
-            return assembly;
+            return null;
         }
     }
 }

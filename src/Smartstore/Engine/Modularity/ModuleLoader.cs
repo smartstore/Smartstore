@@ -20,16 +20,7 @@ namespace Smartstore.Engine.Modularity
                 return;
             }
 
-            var assemblyPath = Path.Combine(descriptor.PhysicalPath, descriptor.AssemblyName);
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
-
-            var assemblyInfo = new ModuleAssemblyInfo(descriptor)
-            {
-                Assembly = assembly,
-                ModuleType = assembly.GetLoadableTypes()
-                    .Where(t => !t.IsInterface && t.IsClass && !t.IsAbstract)
-                    .FirstOrDefault(t => typeof(IModule).IsAssignableFrom(t))
-            };
+            descriptor.Module = new ModuleAssemblyInfo(descriptor);
 
             if (descriptor.Theme.HasValue() && !PathUtility.HasInvalidPathChars(descriptor.Theme))
             {
@@ -48,8 +39,6 @@ namespace Smartstore.Engine.Modularity
                     }
                 }
             }
-
-            descriptor.Module = assemblyInfo;
         }
     }
 }

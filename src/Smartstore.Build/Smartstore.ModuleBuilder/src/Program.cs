@@ -36,7 +36,19 @@ namespace Smartstore.ModuleBuilder
                 return;
             }
 
-            DeployModule(NormalizePath(projectPath), NormalizePath(outPath));
+            var outDir = new DirectoryInfo(NormalizePath(outPath));
+
+            if (!outDir.Exists)
+            {
+                Console.WriteLine($"---- ERR: Module output directory {outDir.FullName} does not exist.");
+                return;
+            }
+
+            DeployModule(NormalizePath(projectPath), outDir, out var isDataProvider);
+            if (!isDataProvider)
+            {
+                DeleteJunk(outDir);
+            }
 
             static string NormalizePath(string path)
             {
@@ -44,22 +56,15 @@ namespace Smartstore.ModuleBuilder
             }
         }
 
-        static void DeployModule(string projectPath, string outPath)
+        static void DeployModule(string projectPath, DirectoryInfo outDir, out bool isDataProvider)
         {
-            var outDir = new DirectoryInfo(outPath);
-            if (!outDir.Exists)
-            {
-                Console.WriteLine($"---- ERR: Module output directory {outDir.FullName} does not exist.");
-                return;
-            }
-
             var projectDir = string.IsNullOrEmpty(projectPath) ? null : new DirectoryInfo(projectPath);
             if (projectDir != null && !projectDir.Exists)
             {
                 Console.WriteLine($"---- ERR: Module project directory {projectDir.FullName} does not exist.");
             }
 
-            var isDataProvider = projectDir != null && projectDir.Exists && IsDataProviderDir(projectDir);
+            isDataProvider = projectDir != null && projectDir.Exists && IsDataProviderDir(projectDir);
             var descriptorDir = isDataProvider ? projectDir : outDir;
 
             var module = ReadModuleDescriptor(descriptorDir);
@@ -107,7 +112,7 @@ namespace Smartstore.ModuleBuilder
                         foreach (var path in paths)
                         {
                             var sourceFile = new FileInfo(path);
-                            var targetFile = new FileInfo(Path.Combine(outPath, Path.GetFileName(path)));
+                            var targetFile = new FileInfo(Path.Combine(outDir.FullName, Path.GetFileName(path)));
 
                             if (!targetFile.Exists || sourceFile.Length != targetFile.Length || sourceFile.LastWriteTimeUtc != targetFile.LastWriteTimeUtc)
                             {
@@ -121,11 +126,6 @@ namespace Smartstore.ModuleBuilder
                         Console.WriteLine($"---- ERR: Private reference {privateLib} cannot be resolved.");
                     }
                 }
-            }
-
-            if (!isDataProvider)
-            {
-                DeleteJunk(outDir);
             }
         }
 

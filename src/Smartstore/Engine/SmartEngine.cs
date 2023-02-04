@@ -49,8 +49,8 @@ namespace Smartstore.Engine
             // Assembly resolver event.
             _referenceResolvers = new IModuleReferenceResolver[]
             {
-                new AppBaseReferenceResolver(application),
-                new ModuleReferenceResolver(application)
+                new ModuleReferenceResolver(application),
+                new AppBaseReferenceResolver()
             };
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
 
@@ -59,6 +59,12 @@ namespace Smartstore.Engine
 
         private Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
         {
+            if (Application.ModuleCatalog == null)
+            {
+                // Too early: don't try to resolve assemblies before the module catalog is built.
+                return null;
+            }
+
             foreach (var resolver in _referenceResolvers)
             {
                 var assembly = resolver.ResolveAssembly(args.RequestingAssembly, args.Name);
@@ -84,13 +90,12 @@ namespace Smartstore.Engine
                 var nsPrefix = SmartstoreNamespace + '.';
 
                 var libs = DependencyContext.Default.CompileLibraries
-                    .Where(x => x.Name == SmartstoreNamespace || x.Name.StartsWith(nsPrefix))
+                    .Where(x => IsCoreDependency(x.Name))
                     .Select(x => new CoreAssembly
                     {
-                        Name = x.Name,
+                        Name = new AssemblyName(x.Name),
                         DependsOn = x.Dependencies
-                            .Where(y => y.Name.StartsWith(nsPrefix))
-                            .Where(y => !y.Name.StartsWith(nsPrefix + "Data.")) // Exclude data provider projects
+                            .Where(y => IsCoreDependency(y.Name))
                             .Select(y => y.Name)
                             .ToArray()
                     })
@@ -99,14 +104,30 @@ namespace Smartstore.Engine
                     .Cast<CoreAssembly>()
                     .ToArray();
 
+                var appAssemblies = AssemblyLoadContext.Default.Assemblies
+                    .Where(x => x.FullName.StartsWith(SmartstoreNamespace) && IsCoreDependency(x.GetName().Name))
+                    .Select(x => new
+                    {
+                        Name = x.GetName(),
+                        Assembly = x
+                    })
+                    .ToArray();
+
                 foreach (var lib in libs)
                 {
                     try
                     {
-                        var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(lib.Name));
-                        assemblies.Add(assembly);
-
-                        Engine.Application.Logger.Debug("Assembly '{0}' discovered and loaded.", lib.Name);
+                        var assembly = appAssemblies.FirstOrDefault(x => x.Name.Name == lib.Name.Name)?.Assembly;
+                        if (assembly == null)
+                        {
+                            assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(lib.Name);
+                        }
+                        
+                        if (assembly != null)
+                        {
+                            assemblies.Add(assembly);
+                            Engine.Application.Logger.Debug("Core assembly '{0}' discovered and loaded.", lib.Name.Name);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -115,6 +136,13 @@ namespace Smartstore.Engine
                 }
 
                 return assemblies;
+
+                bool IsCoreDependency(string name)
+                {
+                    return (name == SmartstoreNamespace || name.StartsWith(nsPrefix)) &&
+                        // Exclude data provider projects (they are loaded dynamically)
+                        !name.StartsWith(nsPrefix + "Data.");
+                }
             }
 
             protected override IEnumerable<IModuleDescriptor> DiscoverModules()
@@ -164,11 +192,11 @@ namespace Smartstore.Engine
 
             class CoreAssembly : ITopologicSortable<string>
             {
-                public string Name { get; init; }
+                public AssemblyName Name { get; init; }
                 public Assembly Assembly { get; init; }
                 string ITopologicSortable<string>.Key
                 {
-                    get => Name;
+                    get => Name.Name;
                 }
 
                 public string[] DependsOn { get; init; }

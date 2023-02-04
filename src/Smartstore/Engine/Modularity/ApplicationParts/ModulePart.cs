@@ -44,7 +44,8 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
                 location = refLocation;
             }
 
-            return (new[] { location }).Concat(Descriptor.Module.PrivateReferences);
+            var privateAssemblyPaths = Descriptor.Module.LoadContext.Assemblies.Select(x => x.Location);
+            return (new[] { location }).Concat(privateAssemblyPaths);
         }
     }
 }

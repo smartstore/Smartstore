@@ -8,20 +8,13 @@ namespace Smartstore.Engine.Modularity
     /// </summary>
     internal class AppBaseReferenceResolver : IModuleReferenceResolver
     {
-        private readonly IApplicationContext _appContext;
-
-        public AppBaseReferenceResolver(IApplicationContext appContext)
-        {
-            _appContext = appContext;
-        }
-
         public Assembly ResolveAssembly(Assembly requestingAssembly, string name)
         {
-            var requestedAssemblyName = name.Split(',', StringSplitOptions.RemoveEmptyEntries)[0] + ".dll";
-            var fullPath = Path.Combine(_appContext.RuntimeInfo.BaseDirectory, requestedAssemblyName);
-            if (File.Exists(fullPath))
+            var resolver = new AssemblyDependencyResolver(requestingAssembly.Location);
+            var assemblyPath = resolver.ResolveAssemblyToPath(new AssemblyName(name));
+            if (assemblyPath != null)
             {
-                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(fullPath);
+                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
                 return assembly;
             }
 
