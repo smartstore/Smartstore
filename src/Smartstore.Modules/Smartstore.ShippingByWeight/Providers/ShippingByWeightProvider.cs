@@ -86,7 +86,7 @@ namespace Smartstore.Shipping
             decimal? shippingTotal;
             if (shippingByWeightRecord.UsePercentage)
             {
-                shippingTotal = Math.Round((decimal)(((float)subtotal) * ((float)shippingByWeightRecord.ShippingChargePercentage) / 100f), 2);
+                shippingTotal = Math.Round((decimal)(((float)subtotal) * ((float)shippingByWeightRecord.ShippingChargePercentage) / 100f), 4);
             }
             else
             {

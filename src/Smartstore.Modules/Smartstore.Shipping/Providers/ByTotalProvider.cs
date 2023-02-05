@@ -84,7 +84,7 @@ namespace Smartstore.Shipping
 
             if (shippingByTotalRecord.UsePercentage)
             {
-                shippingTotal = Math.Round((decimal)(((float)subtotal) * ((float)shippingByTotalRecord.ShippingChargePercentage) / 100f), 2);
+                shippingTotal = Math.Round((decimal)(((float)subtotal) * ((float)shippingByTotalRecord.ShippingChargePercentage) / 100f), 4);
                 shippingTotal += baseCharge;
                 if (maxCharge.HasValue && shippingTotal > maxCharge)
                 {
