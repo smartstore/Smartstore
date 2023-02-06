@@ -166,7 +166,8 @@ namespace Smartstore.Web.Models.Common
 
             if (addressSettings.StateProvinceRequired && addressSettings.StateProvinceEnabled)
             {
-                RuleFor(x => x.StateProvinceId).NotNull().NotEqual(0);
+                // INFO: "0" is a valid ID here and corresponds to "other" (in case no state provinces have been saved for a country).
+                RuleFor(x => x.StateProvinceId).NotNull();
             }
 
             if (addressSettings.CompanyRequired && addressSettings.CompanyEnabled)

@@ -647,8 +647,11 @@
             var ajaxUrl = el.data("states-ajax-url");
             var addEmptyStateIfRequired = el.data("addemptystateifrequired");
             var addAsterisk = el.data("addasterisk");
-            var initialLoad = ddlStates.children('option').length == 0;
             var selectedId = ddlStates.data('select-selected-id');
+            var options = ddlStates.children('option');
+            var firstOption = options.first();
+            var hasOptionLabel = firstOption.length && (firstOption[0].attributes['value'] === undefined || firstOption.val().isEmpty());
+            var initialLoad = options.length == 0 || (options.length == 1 && hasOptionLabel);
 
             $.ajax({
                 cache: false,
@@ -660,6 +663,10 @@
                         return;
 
                     ddlStates.empty();
+
+                    if (hasOptionLabel) {
+                        ddlStates.append(firstOption);
+                    }
 
                     $.each(data, function (id, option) {
                         var selected = initialLoad && option.Value == selectedId;
