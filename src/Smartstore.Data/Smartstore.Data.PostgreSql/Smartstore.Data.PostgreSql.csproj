@@ -5,7 +5,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Npgsql" Version="7.0.1" GeneratePathProperty="true" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.1" GeneratePathProperty="true" />
+        <None Include="$(PkgNpgsql)\lib\net7.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+            <Visible>false</Visible>
+        </None>
+        <None Include="$(PkgNpgsql_EntityFrameworkCore_PostgreSQL)\lib\net7.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+            <Visible>false</Visible>
+        </None>
     </ItemGroup>
 
 </Project>

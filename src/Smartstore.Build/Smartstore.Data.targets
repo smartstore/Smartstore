@@ -1,0 +1,72 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <BinDir>bin\$(Configuration)\</BinDir>
+        <DataDir>..\Smartstore.Data\</DataDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Compile output of all data provider projects except JSON files -->
+        <DistFiles Include="$(DataDir)Smartstore.Data.*\bin\$(Configuration)\*" Exclude="**\*.json" />
+    </ItemGroup>
+
+    <Target Name="CopyDataProvidersToOutput" AfterTargets="Build">
+        <Copy SourceFiles="@(DistFiles)" DestinationFolder="$(OutDir)" />
+    </Target>
+
+    <!-- 
+    Because data provider projects are not referenced, their output files are not copied to the publish directory.
+    We gonna collect all output files here and announce them to the publisher.
+    -->
+    <Target Name="PublishDataProviders" AfterTargets="ComputeFilesToPublish">
+        <ItemGroup>
+            <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+                <RelativePath>%(Filename)%(Extension)</RelativePath>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            </ResolvedFileToPublish>
+        </ItemGroup>
+    </Target>
+    
+    <!-- 
+    When publishing Smartstore.Web in VS, the data providers are not built automatically 
+    (because they are not referenced). Therefore we check whether the compilation assembly 
+    exists in the bin directory and if not, we build the provider projects manually.
+    -->
+    <!--<Target Name="CompileSqlServerProvider" BeforeTargets="ComputeFilesToPublish" Condition="!Exists('$(BinDir)Smartstore.Data.SqlServer.dll')">
+        <Message Importance="high" Text="Building SqlServer data provider..." />
+        <Exec Command="dotnet build ..\Smartstore.Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj -c $(Configuration)" />
+    </Target>
+    <Target Name="CompileMySqlProvider" BeforeTargets="ComputeFilesToPublish" Condition="!Exists('$(BinDir)Smartstore.Data.MySql.dll')">
+        <Message Importance="high" Text="Building MySql data provider..." />
+        <Exec Command="dotnet build ..\Smartstore.Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj -c $(Configuration)" />
+    </Target>-->
+    <!--<Target Name="CompilePostgreSqlProvider" BeforeTargets="ComputeFilesToPublish" Condition="!Exists('$(BinDir)Smartstore.Data.PostgreSql.dll')">
+        <Message Importance="high" Text="Building PostgreSql data provider..." />
+        <Exec Command="dotnet build ..\Smartstore.Data\Smartstore.Data.PostgreSql\Smartstore.Data.PostgreSql.csproj -c $(Configuration)" />
+    </Target>-->
+
+    <!-- 
+    Because data provider projects are not referenced, their output files are not copied to the publish directory.
+    We gonna collect all output files here and announce them to the publisher.
+    -->
+    <!--<Target Name="DeployDataProviders" AfterTargets="ComputeFilesToPublish">
+        <ItemGroup>
+            <DistFiles Include="
+            $(BinDir)Smartstore.Data.SqlServer.dll;
+            $(BinDir)Smartstore.Data.MySql.dll;
+            $(BinDir)Smartstore.Data.PostgreSql.dll;
+            $(BinDir)Microsoft.EntityFrameworkCore.SqlServer.dll;
+            $(BinDir)Pomelo.EntityFrameworkCore.MySql.dll;
+            $(BinDir)Npgsql.EntityFrameworkCore.PostgreSQL.dll;
+            $(BinDir)MySqlConnector.dll;
+            $(BinDir)Npgsql.dll" />
+            <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+                <RelativePath>%(Filename)%(Extension)</RelativePath>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            </ResolvedFileToPublish>
+        </ItemGroup>
+    </Target>-->
+
+</Project>

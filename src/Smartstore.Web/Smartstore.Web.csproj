@@ -2,6 +2,7 @@
 
 	<Import Project="..\Smartstore.Build\Smartstore.Common.props" />
 	<Import Project="..\Smartstore.Build\Smartstore.Razor.props" />
+    <Import Project="..\Smartstore.Build\Smartstore.Data.targets" />
 
 	<PropertyGroup>
 		<UserSecretsId>b35c0f56-dfa8-4120-b29b-a677578afcd1</UserSecretsId>
@@ -27,10 +28,6 @@
 	</ItemGroup>
 
 	<ItemGroup> 
-		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj" /> 
-		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.PostgreSql\Smartstore.Data.PostgreSql.csproj" /> 
-		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.Sqlite\Smartstore.Data.Sqlite.csproj" /> 
-		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj" /> 
 		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
 		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
