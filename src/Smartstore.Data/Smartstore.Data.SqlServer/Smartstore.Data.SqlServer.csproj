@@ -10,7 +10,6 @@
 
 	<ItemGroup>
         <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" GeneratePathProperty="true" />
         <None Include="$(PkgMicrosoft_EntityFrameworkCore_SqlServer)\lib\net6.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>

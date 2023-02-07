@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <Target Name="CopyDataProvidersToOutput" AfterTargets="Build">
-        <Copy SourceFiles="@(DistFiles)" DestinationFolder="$(OutDir)" />
+        <Copy SourceFiles="@(DistFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
     </Target>
 
     <!-- 

@@ -4,26 +4,18 @@
         <Product>Smartstore SQLite Data Provider</Product>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(RuntimeIdentifier)' == ''">
-        <RID>win-x64</RID>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
-        <RID>$(RuntimeIdentifier)</RID>
-    </PropertyGroup>
-
     <ItemGroup>
-        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.4" GeneratePathProperty="true" />
         <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.4" GeneratePathProperty="true" />
+        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.4" GeneratePathProperty="true" />
         <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.4" GeneratePathProperty="true" />
         <PackageReference Include="SQLitePCLRaw.core" Version="2.1.4" GeneratePathProperty="true" />
         <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.2" GeneratePathProperty="true" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="7.0.2" GeneratePathProperty="true" />
 
+        <!--<None Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="runtimes">
+            <Visible>true</Visible>
+        </None>-->
         <None Include="$(PkgSQLitePCLRaw_bundle_e_sqlite3)\lib\netstandard2.0\*" CopyToOutputDirectory="PreserveNewest">
-            <Visible>false</Visible>
-        </None>
-        <None Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RID)\native\*" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
         <None Include="$(PkgSQLitePCLRaw_provider_e_sqlite3)\lib\net6.0\*.dll" CopyToOutputDirectory="PreserveNewest">
