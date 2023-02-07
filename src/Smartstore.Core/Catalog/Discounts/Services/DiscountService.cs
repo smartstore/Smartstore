@@ -220,13 +220,13 @@ namespace Smartstore.Core.Catalog.Discounts
                 return Cached(false);
             }
 
-            if (flags.HasFlag(DiscountValidationFlags.WithDiscountLimitations) && !await CheckDiscountLimitationsAsync(discount, customer))
+            if (flags.HasFlag(DiscountValidationFlags.DiscountLimitations) && !await CheckDiscountLimitationsAsync(discount, customer))
             {
                 return Cached(false);
             }
 
             // Do not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
-            if (flags.HasFlag(DiscountValidationFlags.WithGiftCards)
+            if (flags.HasFlag(DiscountValidationFlags.GiftCards)
                 && (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal))
             {
                 var cart = await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
@@ -237,7 +237,7 @@ namespace Smartstore.Core.Catalog.Discounts
             }
 
             // Rules.
-            if (flags.HasFlag(DiscountValidationFlags.WithRules))
+            if (flags.HasFlag(DiscountValidationFlags.CartRules))
             {
                 await _db.LoadCollectionAsync(discount, x => x.RuleSets);
 

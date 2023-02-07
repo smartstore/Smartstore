@@ -58,7 +58,7 @@
     }
 
     /// <summary>
-    /// Allows to specify which discount requirements to be validated.
+    /// Allows to specify which discount requirement should be validated.
     /// </summary>
     [Flags]
     public enum DiscountValidationFlags
@@ -68,22 +68,22 @@
         /// <summary>
         /// Validates <see cref="Discount.DiscountLimitation"/>.
         /// </summary>
-        WithDiscountLimitations = 1 << 0,
+        DiscountLimitations = 1 << 0,
 
         /// <summary>
         /// Checks the shopping cart for the existence of gift cards.
         /// No discount is applied if the cart contains gift cards because the customer could earn money through that.
         /// </summary>
-        WithGiftCards = 1 << 1,
+        GiftCards = 1 << 1,
 
         /// <summary>
         /// Validates cart rules.
         /// </summary>
-        WithRules = 1 << 2,
+        CartRules = 1 << 2,
 
         /// <summary>
         /// Validates all discount requirements.
         /// </summary>
-        All = WithDiscountLimitations | WithGiftCards | WithRules
+        All = DiscountLimitations | GiftCards | CartRules
     }
 }

@@ -306,13 +306,13 @@ namespace Smartstore.Web.Controllers
                 calculationOptions.DiscountValidationFlags = DiscountValidationFlags.None;
 
                 if (_priceSettings.ValidateDiscountLimitationsInLists)
-                    calculationOptions.DiscountValidationFlags |= DiscountValidationFlags.WithDiscountLimitations;
+                    calculationOptions.DiscountValidationFlags |= DiscountValidationFlags.DiscountLimitations;
 
                 if (_priceSettings.ValidateDiscountGiftCardsInLists)
-                    calculationOptions.DiscountValidationFlags |= DiscountValidationFlags.WithGiftCards;
+                    calculationOptions.DiscountValidationFlags |= DiscountValidationFlags.GiftCards;
 
                 if (_priceSettings.ValidateDiscountRulesInLists)
-                    calculationOptions.DiscountValidationFlags |= DiscountValidationFlags.WithRules;
+                    calculationOptions.DiscountValidationFlags |= DiscountValidationFlags.CartRules;
 
                 var mapItemContext = new ProductSummaryItemContext
                 {
