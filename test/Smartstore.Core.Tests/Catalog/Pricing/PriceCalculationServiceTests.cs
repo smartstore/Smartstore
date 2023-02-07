@@ -102,6 +102,10 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 .Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToManufacturers, It.IsAny<string>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<Discount>());
 
+            discountServiceMock
+                .Setup(x => x.IsDiscountValidAsync(It.IsAny<Discount>(), _customer, It.IsAny<string>(), It.IsAny<Store>(), It.IsAny<DiscountValidationFlags>()))
+                .ReturnsAsync(true);
+
             var currencyServiceMock = new Mock<ICurrencyService>();
             _currencyService = currencyServiceMock.Object;
             currencyServiceMock.Setup(x => x.PrimaryCurrency).Returns(_currency);
@@ -367,7 +371,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
 
             _priceCalculationContext.Options.IgnoreDiscounts = false;
             _priceCalculationContext.Options.IgnoreTierPrices = false;
-            _priceCalculationContext.Options.CheckDiscountValidity = false;
+            _priceCalculationContext.Options.DiscountValidationFlags = DiscountValidationFlags.None;
             _priceCalculationContext.Options.IgnorePercentageDiscountOnTierPrices = false;
             _priceCalculationContext.Quantity = 5;
 
@@ -410,7 +414,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         public async Task Can_get_final_product_price_with_discount()
         {
             _priceCalculationContext.Options.IgnoreDiscounts = false;
-            _priceCalculationContext.Options.CheckDiscountValidity = false;
+            _priceCalculationContext.Options.DiscountValidationFlags = DiscountValidationFlags.None;
 
             var discount1 = new Discount()
             {
@@ -478,7 +482,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         public async Task Can_get_product_discount()
         {
             _priceCalculationContext.Options.IgnoreDiscounts = false;
-            _priceCalculationContext.Options.CheckDiscountValidity = false;
+            _priceCalculationContext.Options.DiscountValidationFlags = DiscountValidationFlags.None;
 
             var discount1 = new Discount()
             {
@@ -533,7 +537,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         public async Task Ensure_discount_is_not_applied_to_products_with_prices_entered_by_customer()
         {
             _priceCalculationContext.Options.IgnoreDiscounts = false;
-            _priceCalculationContext.Options.CheckDiscountValidity = false;
+            _priceCalculationContext.Options.DiscountValidationFlags = DiscountValidationFlags.None;
 
             _product.CustomerEntersPrice = true;
 

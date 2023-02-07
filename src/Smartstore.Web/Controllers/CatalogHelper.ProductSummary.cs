@@ -1,5 +1,6 @@
 ﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
@@ -301,8 +302,17 @@ namespace Smartstore.Web.Controllers
 
                 calculationOptions.BatchContext = batchContext;
 
-                // Don't perform discount limitation and coupon code check in list rendering as it can have heavy impact on performance.
-                calculationOptions.CheckDiscountValidity = false;
+                // Don't perform discount limitation and rule check in list rendering by default as it can have heavy impact on performance.
+                calculationOptions.DiscountValidationFlags = DiscountValidationFlags.None;
+
+                if (_priceSettings.ValidateDiscountLimitationsInLists)
+                    calculationOptions.DiscountValidationFlags |= DiscountValidationFlags.WithDiscountLimitations;
+
+                if (_priceSettings.ValidateDiscountGiftCardsInLists)
+                    calculationOptions.DiscountValidationFlags |= DiscountValidationFlags.WithGiftCards;
+
+                if (_priceSettings.ValidateDiscountRulesInLists)
+                    calculationOptions.DiscountValidationFlags |= DiscountValidationFlags.WithRules;
 
                 var mapItemContext = new ProductSummaryItemContext
                 {

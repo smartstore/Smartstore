@@ -6,6 +6,8 @@
 
 ### Improvements
 
+- Added price settings for discount requirements to be validated in product lists.
+
 ### Bugfixes
 
 - #557 If the state is optional for addresses, none should be preselected when creating them.

@@ -136,6 +136,22 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public bool ShowRetailPriceSaving { get; set; } = true;
 
+        /// <summary>
+        /// <c>true</c> to validate discount limitations in product lists.
+        /// </summary>
+        public bool ValidateDiscountLimitationsInLists { get; set; }
+
+        /// <summary>
+        /// <c>true</c> to validate cart rules assigned to discounts in product lists.
+        /// </summary>
+        public bool ValidateDiscountRulesInLists { get; set; }
+
+        /// <summary>
+        /// <c>true</c> to check the shopping cart for the existence of gift cards when validating discounts in product lists.
+        /// In this case no discount is applied because the customer could earn money through that.
+        /// </summary>
+        public bool ValidateDiscountGiftCardsInLists { get; set; }
+
         #endregion
     }
 }
