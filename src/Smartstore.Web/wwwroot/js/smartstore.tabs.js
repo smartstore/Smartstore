@@ -2,6 +2,18 @@
 
     $(function () {
 
+        // Wire up responsive headings for ajax tabs.
+        // ------------------------------------------------------
+
+        $(document).on('click', '.tabbable .nav-toggler', function (e) {
+            let heading = $(this),
+                tabPane = heading.closest(".tab-pane"),
+                tabName = tabPane.attr("data-tab-name"),
+                navItem = heading.closest(".tabbable").find('.nav a[data-tab-name="' + tabName + '"]');
+
+            navItem.trigger("show.bs.tab");
+        });
+
         // Tab strip smart auto selection
         // ------------------------------------------------------
 
