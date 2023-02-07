@@ -177,7 +177,7 @@
         <Value>Connection</Value>
     </LocaleResource>
     <LocaleResource Name="Server">
-        <Value>Server</Value>
+        <Value>Data source</Value>
     </LocaleResource>
     <LocaleResource Name="Authentication">
         <Value>Authentication</Value>

@@ -115,7 +115,7 @@
                         </div>
 
                         <!-- Connection root -->
-                        <div id="ConnectionPanel">
+                        <div id="ConnectionGroup">
                             <div class="form-group row">
                                 <label class="col-md-3 col-form-label" asp-for="UseRawConnectionString">@T("Connection")</label>
                                 <div class="col-md-9">
@@ -132,14 +132,14 @@
                                     <label class="col-md-3 col-form-label" asp-for="DbServer">@T("Server")</label>
                                     <div class="col-md-9">
                                         <div class="form-row">
-                                            <div class="col-6">
+                                            <div id="DbServerCol" class="col">
                                                 <div class="has-icon">
                                                     <input asp-for="DbServer" class="form-control remember" placeholder="@T("DbServer")" />
                                                     <span class="input-group-icon text-muted"><i class="icm icm-server" style="line-height: inherit"></i></span>
                                                 </div>
                                                 <span asp-validation-for="DbServer"></span>
                                             </div>
-                                            <div class="col-6">
+                                            <div class="col">
                                                 <div class="has-icon">
                                                     <input asp-for="DbName" class="form-control remember" placeholder="@T("DbName")" />
                                                     <span class="input-group-icon text-muted"><i class="icm icm-database" style="line-height: inherit"></i></span>
@@ -149,32 +149,35 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group row">
-                                    <label class="col-md-3 col-form-label">@T("Authentication")</label>
-                                    <div class="col-md-9">
-                                        <select asp-for="DbAuthType" class="form-control remember">
-                                            <option value="sqlserver">@T("SqlAuthentication")</option>
-                                            <option value="windows">@T("WindowsAuthentication")</option>
-                                        </select>
-                                    </div>
-                                </div>
 
-                                <div class="form-group row">
-                                    <div class="col-md-9 offset-md-3">
-                                        <div class="form-row">
-                                            <div class="col-6">
-                                                <div class="has-icon">
-                                                    <input asp-for="DbUserId" class="form-control remember" placeholder="@T("DbUserId")" />
-                                                    <span class="input-group-icon text-muted"><i class="icm icm-user" style="line-height: inherit"></i></span>
+                                <div id="AuthGroup">
+                                    <div id="AuthTypeCol" class="form-group row">
+                                        <label class="col-md-3 col-form-label">@T("Authentication")</label>
+                                        <div class="col-md-9">
+                                            <select asp-for="DbAuthType" class="form-control remember">
+                                                <option value="sqlserver">@T("SqlAuthentication")</option>
+                                                <option value="windows">@T("WindowsAuthentication")</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-md-9 offset-md-3">
+                                            <div class="form-row">
+                                                <div class="col">
+                                                    <div class="has-icon">
+                                                        <input asp-for="DbUserId" class="form-control remember" placeholder="@T("DbUserId")" />
+                                                        <span class="input-group-icon text-muted"><i class="icm icm-user" style="line-height: inherit"></i></span>
+                                                    </div>
+                                                    <span asp-validation-for="DbUserId"></span>
                                                 </div>
-                                                <span asp-validation-for="DbUserId"></span>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="has-icon">
-                                                    <input asp-for="DbPassword" class="form-control remember" placeholder="@T("DbPassword")" />
-                                                    <span class="input-group-icon text-muted"><i class="icm icm-shield" style="line-height: inherit"></i></span>
+                                                <div class="col">
+                                                    <div class="has-icon">
+                                                        <input asp-for="DbPassword" class="form-control remember" placeholder="@T("DbPassword")" />
+                                                        <span class="input-group-icon text-muted"><i class="icm icm-shield" style="line-height: inherit"></i></span>
+                                                    </div>
+                                                    <span asp-validation-for="DbPassword"></span>
                                                 </div>
-                                                <span asp-validation-for="DbPassword"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -283,6 +286,9 @@
         var connectionInfo = $('#ConnectionInfoPanel');
         var rawConString = $('#RawConnectionStringPanel');
         var rawConStringHelp = $('#RawConnectionStringHelp');
+        var authGroup = $('#AuthGroup');
+        var dbServerCol = $('#DbServerCol');
+        var authTypeCol = $('#AuthTypeCol');
         var authType = $('#DbAuthType');
         var userId = $('#DbUserId');
         var password = $('#DbPassword');
@@ -304,8 +310,14 @@
 
         function toggleDataProvider() {
             let selectedProvider = dataProvider.val();
+            let isSqlite = selectedProvider === 'sqlite';
+            let isSqlServer = selectedProvider === 'sqlserver';
 
-            if (selectedProvider === 'sqlserver') {
+            authGroup.toggle(!isSqlite);
+            dbServerCol.toggle(!isSqlite);
+            authTypeCol.toggle(isSqlServer);
+
+            if (isSqlServer) {
                 authType.removeAttr("disabled");
                 toggleAuthType.apply(authType.get(0), arguments);
             }

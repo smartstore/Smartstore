@@ -180,7 +180,7 @@
         <Value>Verbindung</Value>
     </LocaleResource>
     <LocaleResource Name="Server">
-        <Value>Server</Value>
+        <Value>Datenquelle</Value>
     </LocaleResource>
     <LocaleResource Name="Authentication">
         <Value>Authentifizierung</Value>

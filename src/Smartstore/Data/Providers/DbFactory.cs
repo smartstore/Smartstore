@@ -141,7 +141,8 @@ namespace Smartstore.Data.Providers
                     throw new NotSupportedException($"Unknown database provider type name '${provider}'.");
                 }
 
-                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(assemblyName));
+                var path = Path.Combine(AppContext.BaseDirectory, $"{assemblyName}.dll");
+                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
 
                 var dbFactoryType = typeScanner.FindTypes<DbFactory>(new[] { assembly }).FirstOrDefault();
                 if (dbFactoryType == null)

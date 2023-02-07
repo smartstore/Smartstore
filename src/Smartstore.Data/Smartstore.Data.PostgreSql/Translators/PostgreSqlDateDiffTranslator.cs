@@ -36,7 +36,7 @@ namespace Smartstore.Data.PostgreSql.Translators
             IReadOnlyList<SqlExpression> arguments, 
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            // Check if one of out DateDiff* methods were called
+            // Check if one of our DateDiff* methods were called
             if (UnifiedDbFunctionMethods.Methods.Contains(method))
             {
                 var part = method.Name[8..].ToLowerInvariant();
