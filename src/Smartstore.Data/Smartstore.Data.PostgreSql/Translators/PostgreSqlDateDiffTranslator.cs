@@ -10,14 +10,6 @@ using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.PostgreSql.Translators
 {
-    /// <summary>
-    /// Provides translation services for some PostgreSQL string functions:
-    /// Because of case-insensitive collation, the calls to StartsWith/EndsWith/Like
-    /// all must call ILike internally.
-    /// </summary>
-    /// <remarks>
-    /// See https://www.sqlines.com/postgresql/how-to/datediff
-    /// </remarks>
     //[SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
     internal class PostgreSqlDateDiffTranslator : IMethodCallTranslator
     {
