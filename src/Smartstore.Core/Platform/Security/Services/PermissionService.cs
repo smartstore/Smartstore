@@ -159,7 +159,7 @@ namespace Smartstore.Core.Security
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public virtual bool Authorize(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false)
+        public virtual bool Authorize(string permissionSystemName, Customer customer = null, bool allowByDescendantPermission = false)
         {
             if (string.IsNullOrEmpty(permissionSystemName))
             {
@@ -168,7 +168,7 @@ namespace Smartstore.Core.Security
 
             customer ??= _workContext.Value.CurrentCustomer;
 
-            var cacheKey = $"permission:{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
+            var cacheKey = $"permission:{customer.Id}.{allowByDescendantPermission}.{permissionSystemName}";
 
             var authorized = _cache.Get(cacheKey, o =>
             {
@@ -183,7 +183,7 @@ namespace Smartstore.Core.Security
                 {
                     var tree = GetPermissionTree(role);
 
-                    if (AuthorizeInternal(tree, permissionSystemName, allowByChildPermission))
+                    if (AuthorizeInternal(tree, permissionSystemName, allowByDescendantPermission))
                     {
                         return true;
                     }
@@ -195,7 +195,7 @@ namespace Smartstore.Core.Security
             return authorized;
         }
 
-        public virtual async Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false)
+        public virtual async Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByDescendantPermission = false)
         {
             if (string.IsNullOrEmpty(permissionSystemName))
             {
@@ -204,7 +204,7 @@ namespace Smartstore.Core.Security
 
             customer ??= _workContext.Value.CurrentCustomer;
 
-            var cacheKey = $"permission:{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
+            var cacheKey = $"permission:{customer.Id}.{allowByDescendantPermission}.{permissionSystemName}";
 
             var authorized = await _cache.GetAsync(cacheKey, async o =>
             {
@@ -219,7 +219,7 @@ namespace Smartstore.Core.Security
                 {
                     var tree = await GetPermissionTreeAsync(role);
 
-                    if (AuthorizeInternal(tree.Permissions, permissionSystemName, allowByChildPermission))
+                    if (AuthorizeInternal(tree.Permissions, permissionSystemName, allowByDescendantPermission))
                     {
                         return true;
                     }
@@ -499,7 +499,7 @@ namespace Smartstore.Core.Security
 
         #region Utilities
 
-        private static bool AuthorizeInternal(TreeNode<IPermissionNode> tree, string permissionSystemName, bool allowByChildPermission)
+        private static bool AuthorizeInternal(TreeNode<IPermissionNode> tree, string permissionSystemName, bool allowByDescendantPermission)
         {
             var node = tree.SelectNodeById(permissionSystemName);
             if (node == null)
@@ -507,7 +507,7 @@ namespace Smartstore.Core.Security
                 return false;
             }
 
-            if (allowByChildPermission && FindAllowByChild(node))
+            if (allowByDescendantPermission && FindAllowByDescendant(node))
             {
                 return true;
             }
@@ -524,7 +524,7 @@ namespace Smartstore.Core.Security
 
             return false;
 
-            static bool FindAllowByChild(TreeNode<IPermissionNode> n)
+            static bool FindAllowByDescendant(TreeNode<IPermissionNode> n)
             {
                 if (n?.Value?.Allow ?? false)
                 {
@@ -535,7 +535,7 @@ namespace Smartstore.Core.Security
                 {
                     foreach (var child in n.Children)
                     {
-                        if (FindAllowByChild(child))
+                        if (FindAllowByDescendant(child))
                         {
                             return true;
                         }

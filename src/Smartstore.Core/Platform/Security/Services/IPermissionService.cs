@@ -12,24 +12,24 @@ namespace Smartstore.Core.Security
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
-        /// <param name="allowByChildPermission">
-        /// A value indicating whether the permission is granted if any child permission is granted.
-        /// Example: if a customer has not been granted the permission to view a menu item, it should still be displayed if he has been granted the right to view any child item.
+        /// <param name="allowByDescendantPermission">
+        /// A value indicating whether the permission is granted if any descendant permission is granted.
+        /// Example: if a customer has not been granted the permission to view a menu item, it should still be displayed if he has been granted the right to view any descendant item.
         /// </param>
         /// <returns><c>true</c> if granted, otherwise <c>false</c>.</returns>
-        bool Authorize(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false);
+        bool Authorize(string permissionSystemName, Customer customer = null, bool allowByDescendantPermission = false);
 
         /// <summary>
         /// Checks whether given permission is granted.
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
-        /// <param name="allowByChildPermission">
-        /// A value indicating whether the permission is granted if any child permission is granted.
-        /// Example: if a customer has not been granted the permission to view a menu item, it should still be displayed if he has been granted the right to view any child item.
+        /// <param name="allowByDescendantPermission">
+        /// A value indicating whether the permission is granted if any descendant permission is granted.
+        /// Example: if a customer has not been granted the permission to view a menu item, it should still be displayed if he has been granted the right to view any descendant item.
         /// </param>
         /// <returns><c>true</c> if granted, otherwise <c>false</c>.</returns>
-        Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false);
+        Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByDescendantPermission = false);
 
         /// <summary>
         /// Gets the permission tree for a customer role from cache.
