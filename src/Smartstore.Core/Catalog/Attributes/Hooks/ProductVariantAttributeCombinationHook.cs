@@ -1,5 +1,4 @@
 ﻿using Smartstore.Caching;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
@@ -62,8 +61,7 @@ namespace Smartstore.Core.Catalog.Attributes
                         // BatchUpdate recommended because products contain a lot of data (like full description).
                         await _db.Products
                             .Where(x => x.Id == productId)
-                            .ExecuteUpdateAsync(
-                                x => x.SetProperty(p => p.LowestAttributeCombinationPrice, p => lowestAttributeCombinationPrice));
+                            .ExecuteUpdateAsync(x => x.SetProperty(p => p.LowestAttributeCombinationPrice, p => lowestAttributeCombinationPrice), cancelToken);
                     }
                 }
             }

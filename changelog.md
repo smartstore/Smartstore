@@ -11,6 +11,8 @@
 ### Bugfixes
 
 - #557 If the state is optional for addresses, none should be preselected when creating them.
+- #608 Build DeleteGuestCustomers query with LINQ again.
+
 
 ## Smartstore 5.0.3
 
