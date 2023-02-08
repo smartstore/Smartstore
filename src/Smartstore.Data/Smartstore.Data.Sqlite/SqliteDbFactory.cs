@@ -81,6 +81,13 @@ namespace Smartstore.Data.Sqlite
             .ReplaceService<IMethodCallTranslatorProvider, SqliteMappingMethodCallTranslatorProvider>();
         }
 
+        public override void ConfigureModelConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<decimal>().HaveConversion<double>();
+            configurationBuilder.Properties<decimal?>().HaveConversion<double?>();
+            configurationBuilder.Properties<string>().UseCollation("NOCASE");
+        }
+
         public override void CreateModel(ModelBuilder modelBuilder)
         {
             modelBuilder.UseCollation("NOCASE");

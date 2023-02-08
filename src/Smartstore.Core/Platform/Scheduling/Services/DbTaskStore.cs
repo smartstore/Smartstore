@@ -192,10 +192,15 @@ namespace Smartstore.Scheduling
 
         public virtual async Task<List<TaskDescriptor>> GetPendingTasksAsync()
         {
+            if (Db.DataProvider.ProviderType == DbSystemType.SQLite)
+            {
+                return await GetPendingTasksLiteAsync();
+            }
+            
             var now = DateTime.UtcNow;
             var machineName = _appContext.RuntimeInfo.MachineName;
 
-            var query = (
+            var query =
                 from t in Db.TaskDescriptors
                 where t.NextRunUtc.HasValue && t.NextRunUtc <= now && t.Enabled
                 select new
@@ -206,7 +211,7 @@ namespace Smartstore.Scheduling
                         .OrderByDescending(th => th.StartedOnUtc)
                         .ThenByDescending(th => th.Id)
                         .FirstOrDefault()
-                });
+                };
 
             var tasks = await ExecuteWithRetry(() => query.ToListAsync());
 
@@ -215,6 +220,46 @@ namespace Smartstore.Scheduling
                 {
                     x.Task.LastExecution = x.LastInfo;
                     return x.Task;
+                })
+                .Where(x => x.IsPending)
+                .OrderByDescending(x => x.Priority)
+                .ThenBy(x => x.NextRunUtc.Value)
+                .ToList();
+
+            return pendingTasks;
+        }
+
+        private async Task<List<TaskDescriptor>> GetPendingTasksLiteAsync()
+        {
+            var now = DateTime.UtcNow;
+            var machineName = _appContext.RuntimeInfo.MachineName;
+
+            var taskQuery =
+               from t in Db.TaskDescriptors
+               where t.NextRunUtc.HasValue && t.NextRunUtc <= now && t.Enabled
+               select t;
+            var tasks = await ExecuteWithRetry(() => taskQuery.ToListAsync());
+
+            var executionInfoQuery =
+                from info in Db.TaskExecutionInfos
+                where taskQuery.Any(t => t.Id == info.TaskDescriptorId) &&
+                        (!info.Task.RunPerMachine || (info.Task.RunPerMachine && info.MachineName == machineName))
+                group info by info.TaskDescriptorId into infos
+                select new
+                {
+                    TaskId = infos.Key,
+                    LastInfo = infos
+                        .OrderByDescending(h => h.StartedOnUtc)
+                        .ThenByDescending(h => h.Id)
+                        .FirstOrDefault()
+                };
+            var executionInfos = await ExecuteWithRetry(() => executionInfoQuery.ToDictionaryAsync(x => x.TaskId, x => x.LastInfo));
+
+            var pendingTasks = tasks
+                .Select(x =>
+                {
+                    x.LastExecution = executionInfos.Get(x.Id);
+                    return x;
                 })
                 .Where(x => x.IsPending)
                 .OrderByDescending(x => x.Priority)

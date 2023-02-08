@@ -70,7 +70,7 @@ namespace Smartstore.Core.Localization
                     .Select(x => new { x.ResourceName, x.ResourceValue })
                     .ToList();
 
-                var dict = new Dictionary<string, string>(resources.Count);
+                var dict = new Dictionary<string, string>(resources.Count, StringComparer.OrdinalIgnoreCase);
 
                 foreach (var res in resources)
                 {
@@ -94,7 +94,7 @@ namespace Smartstore.Core.Localization
                     .Select(x => new { x.ResourceName, x.ResourceValue })
                     .ToListAsync();
 
-                var dict = new Dictionary<string, string>(resources.Count);
+                var dict = new Dictionary<string, string>(resources.Count, StringComparer.OrdinalIgnoreCase);
 
                 foreach (var res in resources)
                 {
