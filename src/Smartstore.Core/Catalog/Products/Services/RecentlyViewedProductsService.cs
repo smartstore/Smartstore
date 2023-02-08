@@ -1,7 +1,7 @@
-﻿
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
@@ -12,7 +12,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAclService _aclService;
         private readonly CatalogSettings _catalogSettings;
-
+        
         public RecentlyViewedProductsService(
             SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,

@@ -1,6 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Text;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,75 +10,16 @@ using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Diagnostics;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Identity
 {
     public partial class CustomerService : ICustomerService
     {
-        #region Raw SQL
-
-        private static bool? _hasForumTables;
-
-        private async Task<bool> HasForumTables()
-            => _hasForumTables ??= await _db.DataProvider.HasTableAsync("Forums_Post");
-
-        private async Task<string> GetSqlGuestCustomerIds(string paramClauses)
-        {
-            var tblOrder = _db.DataProvider.EncloseIdentifier("Order");
-            string sql;
-
-            if (await HasForumTables())
-            {
-                sql = $@"SELECT c.Id FROM Customer c
-LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
-LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
-LEFT OUTER JOIN Forums_PrivateMessage AS pm ON c.Id = pm.ToCustomerId
-LEFT OUTER JOIN Forums_Post AS fp ON c.Id = fp.CustomerId
-LEFT OUTER JOIN Forums_Topic AS ft ON c.Id = ft.CustomerId
-WHERE c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{paramClauses}
-AND (NOT EXISTS (SELECT 1 AS x FROM {tblOrder} AS o1 WHERE c.Id = o1.CustomerId))
-AND (NOT EXISTS (SELECT 1 AS x FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId))
-AND (NOT EXISTS (SELECT 1 AS x FROM Forums_PrivateMessage AS pm1 WHERE c.Id = pm1.ToCustomerId))
-AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Post AS fp1 WHERE c.Id = fp1.CustomerId))
-AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Topic AS ft1 WHERE c.Id = ft1.CustomerId))
-ORDER BY c.Id";
-            }
-            else
-            {
-                sql = $@"SELECT c.Id FROM Customer c
-LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
-LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
-WHERE c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{paramClauses}
-AND (NOT EXISTS (SELECT 1 AS x FROM {tblOrder} AS o1 WHERE c.Id = o1.CustomerId))
-AND (NOT EXISTS (SELECT 1 AS x FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId))
-ORDER BY c.Id";
-            }
-
-            return _db.DataProvider.ApplyPaging(sql, 0, 20000);
-        }
-
-        private static string GetSqlDeleteGenericAttributes(string sqlGuestCustomerIds)
-        {
-            return $@"DELETE g FROM GenericAttribute g
-INNER JOIN (
-{sqlGuestCustomerIds}
-) sub_c on g.EntityId = sub_c.Id
-WHERE KeyGroup = 'Customer'";
-        }
-
-        private static string GetSqlDeleteGuestCustomers(string sqlGuestCustomerIds)
-        {
-            return $@"DELETE c FROM Customer c
-INNER JOIN (
-{sqlGuestCustomerIds}
-) sub_c on c.Id = sub_c.Id";
-        }
-
-        #endregion
-
         private readonly SmartDbContext _db;
         private readonly UserManager<Customer> _userManager;
         private readonly IWebHelper _webHelper;
+        private readonly IEventPublisher _eventPublisher;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserAgent _userAgent;
         private readonly IChronometer _chronometer;
@@ -93,6 +32,7 @@ INNER JOIN (
             SmartDbContext db,
             UserManager<Customer> userManager,
             IWebHelper webHelper,
+            IEventPublisher eventPublisher,
             IHttpContextAccessor httpContextAccessor,
             IUserAgent userAgent,
             IChronometer chronometer,
@@ -101,6 +41,7 @@ INNER JOIN (
             _db = db;
             _userManager = userManager;
             _webHelper = webHelper;
+            _eventPublisher = eventPublisher;
             _httpContextAccessor = httpContextAccessor;
             _userAgent = userAgent;
             _chronometer = chronometer;
@@ -204,53 +145,61 @@ INNER JOIN (
             bool onlyWithoutShoppingCart,
             CancellationToken cancelToken = default)
         {
-            var paramClauses = new StringBuilder(200);
-            var parameters = new List<object>();
             var numberOfDeletedCustomers = 0;
             var numberOfDeletedAttributes = 0;
-            var pIndex = 0;
 
+            var query =
+                from c in _db.Customers.IgnoreQueryFilters()
+                join o in _db.Orders.IgnoreQueryFilters() on c.Id equals o.CustomerId into orders
+                from o in orders.DefaultIfEmpty()
+                join cc in _db.CustomerContent.IgnoreQueryFilters() on c.Id equals cc.CustomerId into customerContent
+                from cc in customerContent.DefaultIfEmpty()
+                where c.Username == null && c.Email == null && !c.IsSystemAccount && o == null && cc == null
+                select c;
+
+            if (onlyWithoutShoppingCart)
+            {
+                query =
+                    from c in query
+                    join sci in _db.ShoppingCartItems.IgnoreQueryFilters() on c.Id equals sci.CustomerId into cartItems
+                    from sci in cartItems.DefaultIfEmpty()
+                    where sci == null
+                    select c;
+            }
             if (registrationFrom.HasValue)
             {
-                paramClauses.AppendFormat(" AND @p{0} <= c.CreatedOnUtc", pIndex++);
-                parameters.Add(registrationFrom.Value);
+                query = query.Where(c => c.CreatedOnUtc >= registrationFrom.Value);
             }
             if (registrationTo.HasValue)
             {
-                paramClauses.AppendFormat(" AND @p{0} >= c.CreatedOnUtc", pIndex++);
-                parameters.Add(registrationTo.Value);
-            }
-            if (onlyWithoutShoppingCart)
-            {
-                paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS C1 FROM ShoppingCartItem AS sci WHERE c.Id = sci.CustomerId))");
+                query = query.Where(c => c.CreatedOnUtc <= registrationTo.Value);
             }
 
-            var sqlGuestCustomerIds = await GetSqlGuestCustomerIds(paramClauses.ToString());
-            var sqlGenericAttributes = GetSqlDeleteGenericAttributes(sqlGuestCustomerIds);
-            var sqlGuestCustomers = GetSqlDeleteGuestCustomers(sqlGuestCustomerIds);
-
-            // Delete generic attributes.
-            while (true)
+            var message = new GuestCustomerDeletingEvent(registrationFrom, registrationTo, onlyWithoutShoppingCart)
             {
-                var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGenericAttributes, parameters.ToArray(), cancelToken);
-                if (numDeleted <= 0)
-                {
-                    break;
-                }
+                Query = query
+            };
+            await _eventPublisher.PublishAsync(message, cancelToken);
 
-                numberOfDeletedAttributes += numDeleted;
-            }
+            var customerIds = await message.Query
+                .OrderBy(x => x.Id)
+                .Select(x => x.Id)
+                .Take(20000)
+                .ToListAsync(cancelToken);
 
-            // Delete guest customers.
-            while (true)
+            foreach (var customerIdsChunk in customerIds.Chunk(500))
             {
-                var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGuestCustomers, parameters.ToArray(), cancelToken);
-                if (numDeleted <= 0)
-                {
-                    break;
-                }
+                // Delete generic attributes.
+                numberOfDeletedAttributes += await _db.GenericAttributes
+                    .IgnoreQueryFilters()
+                    .Where(x => customerIdsChunk.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
+                    .ExecuteDeleteAsync(cancelToken);
 
-                numberOfDeletedCustomers += numDeleted;
+                // Delete guest customers.
+                numberOfDeletedCustomers += await _db.Customers
+                    .IgnoreQueryFilters()
+                    .Where(x => customerIdsChunk.Contains(x.Id))
+                    .ExecuteDeleteAsync(cancelToken);
             }
 
             Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);

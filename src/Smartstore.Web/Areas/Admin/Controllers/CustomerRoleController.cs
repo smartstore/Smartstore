@@ -18,6 +18,7 @@ using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Scheduling;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -318,12 +319,12 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Customer.Role.Read)]
-        public async Task<IActionResult> CustomerRoleMappingList(GridCommand command, CustomerRoleModel model)
+        public async Task<IActionResult> CustomerRoleMappingList(GridCommand command, int id, CustomerSearchModel model)
         {
             var query = _db.CustomerRoleMappings
                 .AsNoTracking()
                 .Include(x => x.Customer)
-                .Where(x => x.CustomerRoleId == model.Id && x.Customer != null);
+                .Where(x => x.CustomerRoleId == id && x.Customer != null);
 
             if (model.SearchEmail.HasValue())
             {
@@ -339,7 +340,6 @@ namespace Smartstore.Admin.Controllers
             }
             if (model.SearchTerm.HasValue())
             {
-                // INFO: (mg) (core) You can't make a field a search expression field and not apply the search filter
                 query = query.ApplySearchFilter(model.SearchTerm, LogicalRuleOperator.Or, x => x.Customer.FullName, x => x.Customer.Company);
             }
             if (model.SearchActiveOnly != null)
@@ -365,7 +365,7 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var role = await _roleManager.FindByIdAsync(model.Id.ToString());
+            var role = await _roleManager.FindByIdAsync(id.ToString());
             var isGuestRole = role.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests);
             var emailFallbackStr = isGuestRole ? T("Admin.Customers.Guest").Value : string.Empty;
 

@@ -9,6 +9,7 @@ using Smartstore.Http;
 using Smartstore.Web.Api.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
+using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Web.Api.Controllers
@@ -44,7 +45,6 @@ namespace Smartstore.Web.Api.Controllers
         {
             var model = MiniMapper.Map<WebApiSettings, ConfigurationModel>(settings);
 
-            model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
             model.ApiOdataUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/odata/v1"), Request, true).EnsureEndsWith("/");
             model.ApiOdataMetadataUrl = model.ApiOdataUrl + "$metadata";
             model.ApiDocsUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/" + WebApiSettings.SwaggerRoutePrefix), Request, true);
@@ -59,6 +59,8 @@ namespace Smartstore.Web.Api.Controllers
                 // We need to detect override checkboxes if "Configure" was called with invalid model state.
                 await _settingHelper.DetectOverrideKeysAsync(settings, model);
             }
+
+            ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
 
             return View(model);
         }
@@ -105,7 +107,7 @@ namespace Smartstore.Web.Api.Controllers
 
         [HttpPost]
         [Permission(WebApiPermissions.Read)]
-        public async Task<IActionResult> UserList(GridCommand command, ConfigurationModel model)
+        public async Task<IActionResult> UserList(GridCommand command, CustomerSearchModel model)
         {
             var registeredRoleId = await _db.CustomerRoles
                 .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
@@ -131,16 +133,19 @@ namespace Smartstore.Web.Api.Controllers
                 orderby a.Value descending
                 select c;
 
-            query = query.ApplyIdentFilter(model.SearchEmail, model.SearchUsername, null);
+            query = query.ApplyIdentFilter(model.SearchEmail, model.SearchUsername, model.SearchCustomerNumber);
 
+            if (model.SearchCustomerNumber.HasValue())
+            {
+                query = query.Where(x => x.CustomerNumber.Contains(model.SearchCustomerNumber));
+            }
             if (model.SearchTerm.HasValue())
             {
                 query = query.ApplySearchTermFilter(model.SearchTerm);
             }
-
-            if (model.SearchActiveOnly.HasValue)
+            if (model.SearchActiveOnly != null)
             {
-                query = query.Where(x => x.Active == model.SearchActiveOnly.Value);
+                query = query.Where(x => x.Active == model.SearchActiveOnly);
             }
 
             var customers = await query

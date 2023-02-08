@@ -22,7 +22,7 @@ namespace Smartstore.Threading
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ILockHandle Keyed(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
         {
-            return new AsyncLockHandle(_asyncKeyedLock.Lock(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken));
+            return new AsyncLockHandle(_asyncKeyedLock.Lock(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken, out _));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

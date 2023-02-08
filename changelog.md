@@ -1,10 +1,29 @@
 # Release Notes
 
-## Smartstore 5.0.2.1
+## Smartstore 5.0.4
+
+### New Features
+
+### Improvements
+
+- Added price settings for discount requirements to be validated in product lists.
+
+### Bugfixes
+
+- #557 If the state is optional for addresses, none should be preselected when creating them.
+- #608 Build DeleteGuestCustomers query with LINQ again.
+- Fixed ArgumentException "The source argument contains duplicate keys" in case of menus with duplicate system names.
+
+
+## Smartstore 5.0.3
 
 ### New Features
 
 - (DEV) New `WebhookEndpointAttribute` endpoint metadata. Suppresses creation of guest accounts for webhook calls.
+- PayPal: 
+	- Added a window to display PayPal account information for support issues 
+	- Added setting for upper limit for Pay Upon Invoice 
+	- Added option to turn off PayPal buttons on shopping cart page
 
 ### Improvements
 
@@ -12,7 +31,8 @@
 
 ### Bugfixes
 
-- Installation: changing database connection settings has no effect until app restart 
+- Installation: changing database connection settings has no effect until app restart
+- Fixed HTTP 400 `BadRequest` issue on saving AJAX grid changes
 - Web API: 
   - Fixed wrong $metadata configuration of `System.String[]` as a complex type instead of `ICollection<string>`.
   - Fixed `InvalidOperationException` in `Microsoft.OData.Client` using MediaFiles and MediaFolders endpoints.
@@ -25,6 +45,7 @@
   - Fixed AOS init problem
   - Multiple file uploader instances in a single page did not work
   - Product box in listings must not close when entering the bottom action drop
+- Selected tabs were no longer remembered across requests
 - Fixed `NullReferenceException` when deleting a shopping cart item.
 - Fixed export file count was always 0 in export profile list.
 - Fixed `FileNotFoundException` when uploading an import file.
@@ -34,6 +55,10 @@
 - #603 Fixed after payment validation failure the data entry form is resetted.
 - Fixed CheckoutState change tracking issues
 - Fixed IBAN radio button issue when using direct debit offline payment.
+- Avoids *deals* label in product lists if the current date is not within the date range of an assigned discount.
+- #612 Emails are sent with the email priority low
+- Fixed problem with media display for variant attribute combinations 
+- Billiger: fixed export profile configuration must not contain store scope selection
 
 
 ## Smartstore 5.0.2

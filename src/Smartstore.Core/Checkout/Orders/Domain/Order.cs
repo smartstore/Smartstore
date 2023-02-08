@@ -338,43 +338,41 @@ namespace Smartstore.Core.Checkout.Orders
         public string CustomerOrderComment { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction identifier.
-        /// Typically this is the authorization ID of the payment provider referenced by <see cref="PaymentMethodSystemName"/>.
+        /// Gets or sets the ID of a payment authorization.
+        /// Usually this comes from a payment gateway.
         /// </summary>
         [StringLength(400)]
         public string AuthorizationTransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction code.
-        /// Not used by Smartstore. Can be used to store another ID or payment code of the payment provider.
+        /// Gets or sets a payment transaction code.
+        /// Not used by Smartstore. Can be any data that the payment provider needs for later processing.
         /// Use <see cref="GenericAttribute"/> if you want to store even more payment data for an order.
         /// </summary>
         [StringLength(400)]
         public string AuthorizationTransactionCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction result.
-        /// Not used by Smartstore. Can be used to inform about the current authorization payment status.
+        /// Gets or sets a short result info about the payment authorization.
         /// </summary>
         [StringLength(400)]
         public string AuthorizationTransactionResult { get; set; }
 
         /// <summary>
-        /// Gets or sets the capture transaction identifier.
-        /// Typically this is the capture ID of the payment provider referenced by <see cref="PaymentMethodSystemName"/>.
+        /// Gets or sets the ID of a payment capture.
+        /// Usually this comes from a payment gateway. Can be equal to <see cref="AuthorizationTransactionId"/>.
         /// </summary>
         [StringLength(400)]
         public string CaptureTransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the capture transaction result.
-        /// Not used by Smartstore. Can be used to inform about the current capture payment status.
+        /// Gets or sets a short result info about the payment capture.
         /// </summary>
         [StringLength(400)]
         public string CaptureTransactionResult { get; set; }
 
         /// <summary>
-        /// Gets or sets the subscription transaction identifier.
+        /// Gets or sets the ID for payment subscription. Usually used for recurring payment.
         /// </summary>
         [StringLength(400)]
         public string SubscriptionTransactionId { get; set; }

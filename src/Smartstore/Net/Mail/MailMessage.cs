@@ -12,8 +12,8 @@ namespace Smartstore.Net.Mail
 
     public enum MailPriority
     {
-        Normal,
         Low,
+        Normal,
         High,
     }
 

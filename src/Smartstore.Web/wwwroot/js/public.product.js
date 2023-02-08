@@ -25,6 +25,13 @@
                 return false;
             });
 
+            $(el).on('keydown', '.qty-input .form-control', function (e) {
+                if (e.keyCode == 13) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
             // Update product data and gallery
             $(el).on('change', ':input:not(.skip-update)', function (e) {
                 var inputCtrl = $(this);

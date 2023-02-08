@@ -11,13 +11,14 @@
         Unknown = 0,
 
         /// <summary>
-        /// All payment information is entered on the site.
+        /// All payment information is entered on the payment selection page.
         /// </summary>
         Standard = 10,
 
         /// <summary>
-        /// A customer is redirected to a third-party site in order to complete the payment.
+        /// A customer is redirected to a third-party site to complete the payment after (!) the order has been placed.
         /// </summary>
+        /// <remarks>This type of processing is required for older payment types.</remarks>
         Redirection = 15,
 
         /// <summary>
@@ -26,12 +27,13 @@
         Button = 20,
 
         /// <summary>
-        /// All payment information is entered on the site and is available via button.
+        /// All payment information is entered on the payment selection page and is available via button on cart page.
         /// </summary>
         StandardAndButton = 25,
 
         /// <summary>
-        /// Payment information is entered in checkout and customer is redirected to complete payment (e.g. 3D Secure) after order has been placed.
+        /// Payment information is entered in checkout and customer is redirected to complete payment (e.g. 3D Secure)
+        /// after the order has been placed.
         /// </summary>
         StandardAndRedirection = 30
     }
@@ -42,32 +44,34 @@
     public enum PaymentStatus
     {
         /// <summary>
-        /// Pending.
+        /// The initial payment status if no further status information is available yet.
         /// </summary>
         Pending = 10,
 
         /// <summary>
-        /// Authorized.
+        /// The payment has been authorized (but not captured) by the payment provider.
+        /// Usually this means that the payment amount is reserved for later capturing.
         /// </summary>
         Authorized = 20,
 
         /// <summary>
-        /// Paid.
+        /// The payment has been captured against the payment gateway.
+        /// It does not necessarily mean that the paid amount has been credited to the merchant's account.
         /// </summary>
         Paid = 30,
 
         /// <summary>
-        /// Partially Refunded.
+        /// The paid amount has been partially refunded.
         /// </summary>
         PartiallyRefunded = 35,
 
         /// <summary>
-        /// Refunded.
+        /// The paid amount has been fully refunded.
         /// </summary>
         Refunded = 40,
 
         /// <summary>
-        /// Voided.
+        /// The payment has been cancelled.
         /// </summary>
         Voided = 50,
     }

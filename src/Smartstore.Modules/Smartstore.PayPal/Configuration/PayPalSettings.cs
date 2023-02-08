@@ -95,5 +95,15 @@ namespace Smartstore.PayPal.Settings
         /// Specifies whether to display the checkout button in offcanvas shopping cart.
         /// </summary>
         public bool ShowButtonInMiniShoppingCart { get; set; } = true;
+
+        /// <summary>
+        /// Specifies whether to display the checkout button on shopping cart page.
+        /// </summary>
+        public bool ShowButtonOnCartPage { get; set; } = true;
+
+        /// <summary>
+        /// Specifies the limit to which the Pay Upon Invoice should be offered.
+        /// </summary>
+        public decimal PayUponInvoiceLimit { get; set; } = 2500;
     }
 }

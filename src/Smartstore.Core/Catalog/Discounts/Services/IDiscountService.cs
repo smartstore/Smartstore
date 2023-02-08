@@ -24,8 +24,16 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <param name="customer">Customer.</param>
         /// <param name="couponCodeToValidate">Coupon code to validate.</param>
         /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
-        /// <returns><c>true</c>discount requirements are met, otherwise <c>false</c>.</returns>
-        Task<bool> IsDiscountValidAsync(Discount discount, Customer customer, string couponCodeToValidate, Store store = null);
+        /// <param name="flags">
+        /// Specifies which discount requirements to be validated.
+        /// Requirements for which no further data needs to be loaded are always validated (e.g. coupon codes and date ranges).
+        /// </param>
+        /// <returns><c>true</c> discount requirements are met, otherwise <c>false</c>.</returns>
+        Task<bool> IsDiscountValidAsync(Discount discount, 
+            Customer customer, 
+            string couponCodeToValidate, 
+            Store store = null, 
+            DiscountValidationFlags flags = DiscountValidationFlags.All);
 
         /// <summary>
         /// Applies given <paramref name="selectedDiscountIds"/> to <paramref name="entity"/>.

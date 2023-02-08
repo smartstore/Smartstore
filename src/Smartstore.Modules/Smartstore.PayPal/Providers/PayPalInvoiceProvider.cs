@@ -67,6 +67,27 @@ namespace Smartstore.PayPal.Providers
             };
 
             var result = await _validator.ValidateAsync(model);
+
+            if (result.Errors.Count > 0)
+            {
+                if(!result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.PhoneNumber)))
+                {
+                    _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoicePhoneNumber"] = form["PhoneNumber"].ToString();
+                }
+
+                if (!result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.DateOfBirthDay)) 
+                    && !result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.DateOfBirthMonth))
+                    && !result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.DateOfBirthYear)))
+                {
+                    var birthdate = new DateTime(
+                        Convert.ToInt32(form["DateOfBirthYear"]),
+                        Convert.ToInt32(form["DateOfBirthMonth"]),
+                        Convert.ToInt32(form["DateOfBirthDay"]));
+
+                    _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoiceBirthdate"] = birthdate.ToString("yyyy-MM-dd");
+                }
+            }
+
             return new PaymentValidationResult(result);
         }
 

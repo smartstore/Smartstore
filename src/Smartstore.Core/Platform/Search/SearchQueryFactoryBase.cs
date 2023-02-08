@@ -16,8 +16,15 @@ namespace Smartstore.Core.Search
             _httpContextAccessor = httpContextAccessor;
         }
 
+        /// <summary>
+        /// Specifies supported search query tokens, e.g. "q" for the search term.
+        /// </summary>
         protected abstract string[] Tokens { get; }
 
+        /// <summary>
+        /// Gets a map of all search aliases from the query string and body of the request.
+        /// An item that is not included in <see cref="Tokens"/> is assumed to be an alias.
+        /// </summary>
         protected virtual Multimap<string, string> Aliases
         {
             get
@@ -50,12 +57,20 @@ namespace Smartstore.Core.Search
             }
         }
 
+        /// <summary>
+        /// Tries to read a request value first from <see cref="HttpRequest.Form"/> (if method is POST), then from
+        /// <see cref="HttpRequest.Query"/>, and converts value to <typeparamref name="T"/>.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual T GetValueFor<T>(string key)
         {
             return TryGetValueFor(key, out T value) ? value : default;
         }
 
+        /// <summary>
+        /// Tries to read a request value first from <see cref="HttpRequest.Form"/> (if method is POST), then from
+        /// <see cref="HttpRequest.Query"/>, and converts value to <typeparamref name="T"/>.
+        /// </summary>
         protected virtual bool TryGetValueFor<T>(string key, out T value)
         {
             var request = _httpContextAccessor?.HttpContext?.Request;
@@ -69,6 +84,13 @@ namespace Smartstore.Core.Search
             return false;
         }
 
+        /// <summary>
+        /// Tries to parse range filter values from a raw query value.
+        /// </summary>
+        /// <param name="query">Raw query value to be parsed.</param>
+        /// <param name="min">Parsed minimum value, if any.</param>
+        /// <param name="max">Parsed maximum value, if any.</param>
+        /// <returns><c>true</c> if either <paramref name="min"/> or <paramref name="max"/> is not <c>null</c>. <c>False</c> otherwise.</returns>
         protected virtual bool TryParseRange<T>(string query, out T? min, out T? max) where T : struct
         {
             min = max = null;

@@ -4,8 +4,8 @@
   "SystemName": "Smartstore.Tax",
   "FriendlyName": "Default Tax Providers",
   "Description": "Contains default tax providers like FixedRate & ByRegion",
-  "Version": "5.0.2",
-  "MinAppVersion": "5.0.2",
+  "Version": "5.0.3",
+  "MinAppVersion": "5.0.3",
   "Author": "SmartStore AG",
   "Order": 0,
   "ResourceRootKey": "Plugins.SmartStore.Tax"

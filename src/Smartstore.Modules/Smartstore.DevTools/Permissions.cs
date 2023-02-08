@@ -5,7 +5,7 @@ namespace Smartstore.DevTools
 {
     /// <summary>
     /// All permissions provided by this module. Recommended to use singular for names, <see cref="Permissions"/>.
-    /// "devtools" is the root permission (by convention, doesn't contain any dot). Localization key is "Plugins.Permissions.DisplayName.DevTools".
+    /// "devtools" is the root permission (by convention, doesn't contain any dot). Localization key is "Modules.Permissions.DisplayName.DevTools".
     /// "devtools.read" and "devtools.update" do not need localization because they are contained in core, <see cref="PermissionService._displayNameResourceKeys"/>.
     /// </summary>
     internal static class DevToolsPermissions

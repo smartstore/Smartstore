@@ -38,7 +38,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
 
         public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            await _cache.RemoveByPatternAsync(MenuStorage.MENU_PATTERN_KEY);
+            await _cache.RemoveByPatternAsync(MenuStorage.MenuPatternKey);
             return HookResult.Ok;
         }
     }

@@ -43,6 +43,7 @@ namespace Smartstore.PayPal.Controllers
             model.DisabledFundings = settings.DisabledFundings.SplitSafe(',').ToArray();
             model.WebhookUrl = Url.Action(nameof(PayPalController.WebhookHandler), "PayPal", new { area = string.Empty }, "https");
 
+            ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
             ViewBag.Provider = _providerManager.GetProvider("Payments.PayPalStandard").Metadata;
 
             if (settings.ClientId.HasValue() && settings.Secret.HasValue())
@@ -54,44 +55,6 @@ namespace Smartstore.PayPal.Controllers
             {
                 model.WebHookCreated = true;
             }
-
-            #region Maybe implement status check with seperate button
-
-            // TODO: (mh) (core) Implement or throw away
-
-            //if (settings.PayerId.HasValue() && settings.ClientId.HasValue() && settings.Secret.HasValue())
-            //{
-            //    try
-            //    {
-            //        var getMerchantStatusRequest = new GetMerchantStatusRequest(PartnerId, settings.PayerId);
-            //        var getMerchantStatusResponse = await _client.ExecuteRequestAsync(getMerchantStatusRequest);
-            //        var merchantStatus = getMerchantStatusResponse.Body<MerchantStatus>();
-
-            //        if (!merchantStatus.PaymentsReceivable)
-            //        {
-            //            NotifyError(T("Plugins.Smartstore.PayPal.Error.PaymentsReceivable"));
-            //        }
-            //        else
-            //        {
-            //            model.PaymentsReceivable = true;
-            //        }
-
-            //        if (!merchantStatus.PrimaryEmailConfirmed)
-            //        {
-            //            NotifyError(T("Plugins.Smartstore.PayPal.Error.PrimaryEmailConfirmed"));
-            //        }
-            //        else
-            //        {
-            //            model.PrimaryEmailConfirmed = true;
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        NotifyError(ex.Message);
-            //    }
-            //}
-
-            #endregion
 
             model.DisplayOnboarding = !settings.ClientId.HasValue() && !settings.Secret.HasValue();
 
@@ -154,6 +117,48 @@ namespace Smartstore.PayPal.Controllers
             }
 
             return RedirectToAction(nameof(Configure));
+        }
+
+        [LoadSetting, AuthorizeAdmin]
+        public async Task<IActionResult> SupportTools(PayPalSettings settings)
+        {
+            var model = new MerchantStatusModel();
+
+            if (settings.PayerId.HasValue() && settings.ClientId.HasValue() && settings.Secret.HasValue())
+            {
+                try
+                {
+                    var getMerchantStatusRequest = new GetMerchantStatusRequest(PartnerId, settings.PayerId);
+                    var getMerchantStatusResponse = await _client.ExecuteRequestAsync(getMerchantStatusRequest);
+                    var merchantStatus = getMerchantStatusResponse.Body<MerchantStatus>();
+
+                    model.LegalName = merchantStatus.LegalName;
+                    model.MerchantId = merchantStatus.MerchantId;
+                    model.TrackingId = merchantStatus.TrackingId;
+                    model.PaymentsReceivable = merchantStatus.PaymentsReceivable;
+                    model.PrimaryEmailConfirmed = merchantStatus.PrimaryEmailConfirmed;
+                    model.Products = merchantStatus.Products;
+                    model.Capabilities = merchantStatus.Capabilities;
+
+                    // TODO: (mh) (core) Maybe test via API if the webhook is still active.
+                    model.WebHookCreated = settings.WebhookId.HasValue();
+
+                    return View(model);
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex.Message);
+
+                    model.DisplayOnboardingHint = true;
+                }
+            }
+            else
+            {
+                // Inform shop admin about onboarding before checking status.
+                model.DisplayOnboardingHint = true;
+            }
+
+            return View(model);
         }
 
         /// <summary>

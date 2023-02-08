@@ -20,6 +20,7 @@ namespace Smartstore.Core.Seo
             "ä;ae",
             "ö;oe",
             "ü;ue",
+            "ı;i",
             "Ä;Ae",
             "Ö;Oe",
             "Ü;Ue",
@@ -126,7 +127,7 @@ namespace Smartstore.Core.Seo
         {
             var map = new Dictionary<char, string>();
 
-            foreach (var conversion in charConversion.SplitSafe(Environment.NewLine))
+            foreach (var conversion in charConversion.GetLines(true, true))
             {
                 if (conversion.SplitToPair(out var left, out var right, ";") && left.HasValue())
                 {

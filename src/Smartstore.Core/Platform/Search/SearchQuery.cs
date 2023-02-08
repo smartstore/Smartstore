@@ -66,11 +66,29 @@ namespace Smartstore.Core.Search
         public string CurrencyCode { get; protected set; }
         public int? StoreId { get; protected set; }
 
-        // Search term
+        /// <summary>
+        /// Specifies the fields to be searched.
+        /// </summary>
         public string[] Fields { get; set; }
+
         public string Term { get; set; }
+
+        /// <summary>
+        /// A value indicating whether to escape the search term.
+        /// </summary>
         public bool EscapeTerm { get; protected set; }
+
+        /// <summary>
+        /// Specifies the search mode.
+        /// Note that the mode has an impact on the performance of the search. <see cref="SearchMode.ExactMatch"/> is the fastest,
+        /// <see cref="SearchMode.StartsWith"/> is slower and <see cref="SearchMode.Contains"/> the slowest.
+        /// </summary>
         public SearchMode Mode { get; protected set; }
+
+        /// <summary>
+        /// A value idicating whether to search by distance. For example "roam" finds "foam" and "roams".
+        /// Only applicable if the search engine supports it. Note that a fuzzy search is typically slower.
+        /// </summary>
         public bool IsFuzzySearch { get; protected set; }
 
         // Filtering
@@ -104,7 +122,11 @@ namespace Smartstore.Core.Search
         // Result control
         public SearchResultFlags ResultFlags { get; protected set; }
 
-        // Misc
+        /// <summary>
+        /// Gets the origin of the search. Examples:
+        /// Search/Search: main catalog search page.
+        /// Search/InstantSearch: catalog instant search.
+        /// </summary>
         public string Origin { get; protected set; }
 
         public IDictionary<string, object> CustomData => _customData ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -152,6 +174,10 @@ namespace Smartstore.Core.Search
             return (this as TQuery);
         }
 
+        /// <summary>
+        /// Inits the spell check.
+        /// </summary>
+        /// <param name="maxSuggestions">Number of returned suggestions. 0 to disable spell check.</param>
         public TQuery CheckSpelling(int maxSuggestions, int minQueryLength = 4, int maxHitCount = 3)
         {
             Guard.IsPositive(minQueryLength, nameof(minQueryLength));
@@ -206,6 +232,10 @@ namespace Smartstore.Core.Search
             return (this as TQuery);
         }
 
+        /// <summary>
+        /// Specifies whether facets are to be returned.
+        /// Note that a search including facets is slower.
+        /// </summary>
         public TQuery BuildFacetMap(bool build)
         {
             if (build)

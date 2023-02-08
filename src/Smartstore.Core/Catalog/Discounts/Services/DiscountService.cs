@@ -191,53 +191,43 @@ namespace Smartstore.Core.Catalog.Discounts
             return result.SelectMany(x => x.Value);
         }
 
-        public virtual async Task<bool> IsDiscountValidAsync(Discount discount, Customer customer, string couponCodeToValidate, Store store = null)
+        public virtual async Task<bool> IsDiscountValidAsync(
+            Discount discount, 
+            Customer customer, 
+            string couponCodeToValidate, 
+            Store store = null,
+            DiscountValidationFlags flags = DiscountValidationFlags.All)
         {
             Guard.NotNull(discount, nameof(discount));
 
             store ??= _storeContext.CurrentStore;
 
-            var cacheKey = new DiscountKey(discount, customer, couponCodeToValidate, store);
+            var cacheKey = new DiscountKey(discount, customer, couponCodeToValidate, store, flags);
             if (_discountValidityCache.TryGetValue(cacheKey, out var result))
             {
                 return result;
             }
 
             // Check coupon code.
-            if (discount.RequiresCouponCode)
-            {
-                if (discount.CouponCode.IsEmpty() || !discount.CouponCode.EqualsNoCase(couponCodeToValidate))
-                {
-                    return Cached(false);
-                }
-            }
-
-            // Check date range.
-            var now = DateTime.UtcNow;
-            if (discount.StartDateUtc.HasValue)
-            {
-                var startDate = DateTime.SpecifyKind(discount.StartDateUtc.Value, DateTimeKind.Utc);
-                if (startDate.CompareTo(now) > 0)
-                {
-                    return Cached(false);
-                }
-            }
-            if (discount.EndDateUtc.HasValue)
-            {
-                var endDate = DateTime.SpecifyKind(discount.EndDateUtc.Value, DateTimeKind.Utc);
-                if (endDate.CompareTo(now) < 0)
-                {
-                    return Cached(false);
-                }
-            }
-
-            if (!await CheckDiscountLimitationsAsync(discount, customer))
+            if (discount.RequiresCouponCode && (discount.CouponCode.IsEmpty() || !discount.CouponCode.EqualsNoCase(couponCodeToValidate)))
             {
                 return Cached(false);
             }
 
-            // Better not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
-            if (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
+            // Check date range.
+            if (!discount.IsDateInRange())
+            {
+                return Cached(false);
+            }
+
+            if (flags.HasFlag(DiscountValidationFlags.DiscountLimitations) && !await CheckDiscountLimitationsAsync(discount, customer))
+            {
+                return Cached(false);
+            }
+
+            // Do not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
+            if (flags.HasFlag(DiscountValidationFlags.GiftCards)
+                && (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal))
             {
                 var cart = await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
                 if (cart.Items.Any(x => x.Item?.Product != null && x.Item.Product.IsGiftCard))
@@ -246,12 +236,15 @@ namespace Smartstore.Core.Catalog.Discounts
                 }
             }
 
-            // Rulesets.
-            await _db.LoadCollectionAsync(discount, x => x.RuleSets);
-
-            if (!await _cartRuleProvider.RuleMatchesAsync(discount))
+            // Rules.
+            if (flags.HasFlag(DiscountValidationFlags.CartRules))
             {
-                return Cached(false);
+                await _db.LoadCollectionAsync(discount, x => x.RuleSets);
+
+                if (!await _cartRuleProvider.RuleMatchesAsync(discount))
+                {
+                    return Cached(false);
+                }
             }
 
             return Cached(true);
@@ -338,11 +331,11 @@ namespace Smartstore.Core.Catalog.Discounts
                     return false;
             }
         }
-
-        class DiscountKey : Tuple<Discount, Customer, string, Store>
+        
+        class DiscountKey : Tuple<Discount, Customer, string, Store, DiscountValidationFlags>
         {
-            public DiscountKey(Discount discount, Customer customer, string customerCouponCode, Store store)
-                : base(discount, customer, customerCouponCode, store)
+            public DiscountKey(Discount discount, Customer customer, string customerCouponCode, Store store, DiscountValidationFlags flags)
+                : base(discount, customer, customerCouponCode, store, flags)
             {
             }
         }

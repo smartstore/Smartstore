@@ -1,5 +1,6 @@
 ﻿using Smartstore.Caching;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -9,9 +10,9 @@ namespace Smartstore.Core.Content.Menus
         /// Gets cached infos about all user menus.
         /// </summary>
         /// <param name="roles">Customer roles to check access for. <c>null</c> to use current customer's roles.</param>
-        /// <param name="storeId">Store identifier. 0 to use current store.</param>
+        /// <param name="storeId">Store identifier. If <c>null</c>, identifier will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
         /// <returns>Menu infos.</returns>
-        Task<IEnumerable<MenuInfo>> GetUserMenuInfosAsync(IEnumerable<CustomerRole> roles = null, int storeId = 0);
+        Task<IEnumerable<MenuInfo>> GetUserMenuInfosAsync(IEnumerable<CustomerRole> roles = null, int? storeId = null);
 
         /// <summary>
         /// Checks whether the menu exists.
@@ -24,7 +25,8 @@ namespace Smartstore.Core.Content.Menus
         /// Gets the system names of all published menus.
         /// </summary>
         /// <param name="ensureCreated">Bypasses cache and returns entities from database.</param>
-        Task<ISet> GetMenuSystemNamesAsync(bool ensureCreated);
+        /// <param name="storeId">Store identifier. If <c>null</c>, identifier will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
+        Task<ISet> GetMenuSystemNamesAsync(bool ensureCreated, int? storeId = null);
 
         /// <summary>
         /// Deletes a menu item.

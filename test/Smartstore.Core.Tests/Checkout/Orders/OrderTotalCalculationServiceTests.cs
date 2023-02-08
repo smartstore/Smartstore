@@ -342,7 +342,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
 
             var cart = new ShoppingCart(_customer, 0, items);
 
-            //discounts
+            // Discounts
             var discount1 = new Discount
             {
                 Id = 1,
@@ -352,13 +352,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 DiscountLimitation = DiscountLimitationType.Unlimited,
             };
 
-            _discountServiceMock
-                .Setup(x => x.IsDiscountValidAsync(discount1, _customer, It.IsAny<string>(), It.IsAny<Store>()))
-                .ReturnsAsync(true);
-
-            _discountServiceMock
-                .Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<bool>()))
-                .ReturnsAsync(new List<Discount>() { discount1 });
+            InitDiscountServiceMock(discount1, DiscountType.AssignedToOrderSubTotal);
 
             _productBatchContext = new ProductBatchContext(new List<Product> { product1, product2 }, _services, _store, _customer, false);
 
@@ -429,13 +423,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 DiscountLimitation = DiscountLimitationType.Unlimited,
             };
 
-            _discountServiceMock
-                .Setup(x => x.IsDiscountValidAsync(discount1, _customer, It.IsAny<string>(), It.IsAny<Store>()))
-                .ReturnsAsync(true);
-
-            _discountServiceMock
-                .Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<bool>()))
-                .ReturnsAsync(new List<Discount>() { discount1 });
+            InitDiscountServiceMock(discount1, DiscountType.AssignedToOrderSubTotal);
 
             _productBatchContext = new ProductBatchContext(new List<Product> { product1, product2 }, _services, _store, _customer, false);
 
@@ -889,13 +877,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 DiscountLimitation = DiscountLimitationType.Unlimited,
             };
 
-            _discountServiceMock
-                .Setup(x => x.IsDiscountValidAsync(discount1, _customer, It.IsAny<string>(), It.IsAny<Store>()))
-                .ReturnsAsync(true);
-
-            _discountServiceMock
-                .Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToShipping, It.IsAny<string>(), It.IsAny<bool>()))
-                .ReturnsAsync(new List<Discount>() { discount1 });
+            InitDiscountServiceMock(discount1, DiscountType.AssignedToShipping);
 
             var shipping = await _orderCalcService.GetShoppingCartShippingTotalAsync(cart, false);
             shipping.AppliedDiscount.ShouldNotBeNull();
@@ -980,13 +962,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 DiscountLimitation = DiscountLimitationType.Unlimited,
             };
 
-            _discountServiceMock
-                .Setup(x => x.IsDiscountValidAsync(discount1, _customer, It.IsAny<string>(), It.IsAny<Store>()))
-                .ReturnsAsync(true);
-
-            _discountServiceMock
-                .Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToShipping, It.IsAny<string>(), It.IsAny<bool>()))
-                .ReturnsAsync(new List<Discount>() { discount1 });
+            InitDiscountServiceMock(discount1, DiscountType.AssignedToShipping);
 
             var shipping = await _orderCalcService.GetShoppingCartShippingTotalAsync(cart, true);
             shipping.AppliedDiscount.ShouldNotBeNull();
@@ -1411,13 +1387,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 DiscountLimitation = DiscountLimitationType.Unlimited,
             };
 
-            _discountServiceMock
-                .Setup(x => x.IsDiscountValidAsync(discount1, _customer, It.IsAny<string>(), It.IsAny<Store>()))
-                .ReturnsAsync(true);
-
-            _discountServiceMock
-                .Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToOrderTotal, It.IsAny<string>(), It.IsAny<bool>()))
-                .ReturnsAsync(new List<Discount>() { discount1 });
+            InitDiscountServiceMock(discount1, DiscountType.AssignedToOrderTotal);
 
             //_genericAttributeService.Expect(x => x.GetAttributesForEntity(customer.Id, "Customer"))
             //	.Return(new List<GenericAttribute>
@@ -1464,6 +1434,17 @@ namespace Smartstore.Core.Tests.Checkout.Orders
 
             //we calculate ceiling for reward points
             _orderCalcService.ConvertAmountToRewardPoints(new Money(100, _currency)).ShouldEqual(7);
+        }
+
+        private void InitDiscountServiceMock(Discount discount, DiscountType type)
+        {
+            _discountServiceMock
+                .Setup(x => x.IsDiscountValidAsync(discount, _customer, It.IsAny<string>(), It.IsAny<Store>(), DiscountValidationFlags.All))
+                .ReturnsAsync(true);
+
+            _discountServiceMock
+                .Setup(x => x.GetAllDiscountsAsync(type, It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync(new List<Discount> { discount });
         }
     }
 }

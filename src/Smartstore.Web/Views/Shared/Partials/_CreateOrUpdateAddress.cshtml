@@ -106,7 +106,7 @@
                     asp-additional-viewdata='countrySelectorViewData'
                     data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
                     data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
-                    data-addEmptyStateIfRequired="true" />
+                    data-addEmptyStateIfRequired="@Model.StateProvinceRequired" />
             <span asp-validation-for="CountryId"></span>
         </div>
     </div>
@@ -114,7 +114,12 @@
     <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
         <label asp-for="StateProvinceId" class="col-@(breakpoint)-3 col-form-label@(Model.StateProvinceRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
-            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" sm-required="Model.StateProvinceRequired" data-select-selected-id="@Model.StateProvinceId"></select>
+            <select asp-for="StateProvinceId"
+                    asp-items="Model.AvailableStates"
+                    sm-required="Model.StateProvinceRequired"
+                    attr-placeholder='(!Model.StateProvinceRequired, T("Common.PleaseSelect"))'
+                    data-select-selected-id="@Model.StateProvinceId"></select>
+            <span asp-validation-for="StateProvinceId"></span>
         </div>
     </div>
 

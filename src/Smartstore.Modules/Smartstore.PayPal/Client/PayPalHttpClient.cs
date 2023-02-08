@@ -760,7 +760,8 @@ namespace Smartstore.PayPal.Client
             // ContentType can also be 'application/json; charset=utf-8'
             if (contentType.Contains("application/json"))
             {
-                var message = JsonConvert.DeserializeObject(await content.ReadAsStringAsync(), responseType);
+                var contentString = await content.ReadAsStringAsync();
+                var message = JsonConvert.DeserializeObject(contentString, responseType);
                 return message;
             }
             else

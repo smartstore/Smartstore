@@ -80,6 +80,15 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowRetailPriceSaving")]
         public bool ShowRetailPriceSaving { get; set; }
 
+        [LocalizedDisplay("*ValidateDiscountLimitationsInLists")]
+        public bool ValidateDiscountLimitationsInLists { get; set; }
+
+        [LocalizedDisplay("*ValidateDiscountRulesInLists")]
+        public bool ValidateDiscountRulesInLists { get; set; }
+
+        [LocalizedDisplay("*ValidateDiscountGiftCardsInLists")]
+        public bool ValidateDiscountGiftCardsInLists { get; set; }
+
         #endregion
     }
 

@@ -129,6 +129,24 @@ namespace Smartstore.Utilities
             return this;
         }
 
+        public HashCodeCombiner Add(IFileInfo entry)
+        {
+            Guard.NotNull(entry, nameof(entry));
+
+            if (!entry.Exists)
+                return this;
+
+            Add(entry.PhysicalPath.ToLower());
+            Add(entry.LastModified);
+
+            if (!entry.IsDirectory)
+            {
+                Add(entry.Length.GetHashCode());
+            }
+
+            return this;
+        }
+
         public HashCodeCombiner Add(FileSystemInfo fi, bool deep = true)
         {
             Guard.NotNull(fi, nameof(fi));
@@ -158,24 +176,6 @@ namespace Smartstore.Utilities
                         Add(s);
                     }
                 }
-            }
-
-            return this;
-        }
-
-        public HashCodeCombiner Add(IFileInfo entry)
-        {
-            Guard.NotNull(entry, nameof(entry));
-
-            if (!entry.Exists)
-                return this;
-
-            Add(entry.PhysicalPath.ToLower());
-            Add(entry.LastModified);
-
-            if (!entry.IsDirectory)
-            {
-                Add(entry.Length.GetHashCode());
             }
 
             return this;

@@ -109,8 +109,14 @@ namespace Smartstore.Core.Search.Facets
             return parts.Keys?.FirstOrDefault();
         }
 
+        /// <summary>
+        /// Gets the unmapped name of a query part, e.g. "m" if the URL contains the brand\manufacturer name.
+        /// </summary>
         protected abstract string GetUnmappedQueryName(Facet facet);
 
+        /// <summary>
+        /// Gets a name-to-value map of all query parts.
+        /// </summary>
         protected abstract Dictionary<string, string> GetQueryParts(Facet facet);
     }
 }

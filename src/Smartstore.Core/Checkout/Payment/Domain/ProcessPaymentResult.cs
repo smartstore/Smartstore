@@ -11,32 +11,35 @@
         public string AvsResult { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction identifier.
+        /// Gets or sets the ID of a payment authorization.
+        /// Usually this comes from a payment gateway.
         /// </summary>
         public string AuthorizationTransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction code.
+        /// Gets or sets a payment transaction code.
+        /// Not used by Smartstore. Can be any data that the payment provider needs for later processing.
         /// </summary>
         public string AuthorizationTransactionCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction result.
+        /// Gets or sets a short result info about the payment authorization.
         /// </summary>
         public string AuthorizationTransactionResult { get; set; }
 
         /// <summary>
-        /// Gets or sets the capture transaction identifier.
+        /// Gets or sets the ID of a payment capture.
+        /// Usually this comes from a payment gateway. Can be equal to <see cref="AuthorizationTransactionId"/>.
         /// </summary>
         public string CaptureTransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the capture transaction result.
+        /// Gets or sets a short result info about the payment capture.
         /// </summary>
         public string CaptureTransactionResult { get; set; }
 
         /// <summary>
-        /// Gets or sets the subscription transaction identifier.
+        /// Gets or sets the ID for payment subscription. Usually used for recurring payment.
         /// </summary>
         public string SubscriptionTransactionId { get; set; }
 

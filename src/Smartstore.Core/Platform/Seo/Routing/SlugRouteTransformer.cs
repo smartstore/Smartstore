@@ -129,9 +129,15 @@ namespace Smartstore.Core.Seo.Routing
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
             var request = httpContext.Request;
-            var policy = httpContext.GetUrlPolicy();
-            var slug = policy.Path.ToString();
 
+            var policy = httpContext.GetUrlPolicy();
+            if (policy == null)
+            {
+                // Policy may be null after a proxy redirect. In that case the pipeline is rerun.
+                return null;
+            }
+
+            var slug = policy.Path.ToString();
             if (slug.IsEmpty())
             {
                 return null;

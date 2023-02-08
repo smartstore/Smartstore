@@ -61,7 +61,7 @@ Vue.component("sm-datagrid", {
                 </div>
                 <component :is="options.allowEdit ? 'form' : 'div'" ref="tableWrapper" class="dg-table-wrapper">
 
-                    <input v-if="options.allowEdit || options.allowRowSelection" name="__RequestVerificationToken" type="hidden" :value="options.antiforgeryToken" />
+                    <input v-if="options.antiforgeryToken && (options.allowEdit || options.allowRowSelection)" name="__RequestVerificationToken" type="hidden" :value="options.antiforgeryToken" />
                     <table ref="table"
                         :class="getTableClass()"
                         :style="getTableStyles()">

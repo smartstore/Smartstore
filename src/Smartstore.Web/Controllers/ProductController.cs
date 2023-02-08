@@ -359,7 +359,7 @@ namespace Smartstore.Web.Controllers
                     var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
                     if (assignedMediaIds.Any())
                     {
-                        var file = files.FirstOrDefault(p => p.Id == assignedMediaIds[0]);
+                        var file = files.FirstOrDefault(p => p.MediaFileId == assignedMediaIds[0]);
                         galleryStartIndex = file == null ? 0 : files.IndexOf(file);
                     }
                 }
@@ -408,7 +408,7 @@ namespace Smartstore.Web.Controllers
                     Variants = await InvokePartialViewAsync("Product.Variants", model.ProductVariantAttributes),
                     OfferActions = await InvokePartialViewAsync("Product.Offer.Actions", dataDictAddToCart),
                     TierPrices = await InvokePartialViewAsync("Product.TierPrices", model.Price.TierPrices),
-                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model.Price.TierPrices) : null
+                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model) : null
                 };
             }
 

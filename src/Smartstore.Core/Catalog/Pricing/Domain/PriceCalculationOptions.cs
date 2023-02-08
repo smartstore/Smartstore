@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
@@ -150,12 +151,15 @@ namespace Smartstore.Core.Catalog.Pricing
         public string PriceRangeFormat { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether discount validity checks should be performed.
-        /// Turning this on in larger listings can have heavy impact on calculation performance!
-        /// Note, if <c>false</c> then all discounts with requirements (such as coupon code, date range, 
-        /// usage history limitation or rule fulfilment) are ignored during price calculation.
+        /// Gets or sets flags for discount requirements to be validated.
         /// </summary>
-        public bool CheckDiscountValidity { get; set; } = true;
+        /// <remarks>
+        /// Turning this to <see cref="DiscountValidationFlags.All"/> in larger listings can have heavy impact on calculation performance!
+        /// If set to <see cref="DiscountValidationFlags.None"/> then some discount requirements (such as
+        /// usage history limitation or rule fulfilment) are ignored during price calculation.
+        /// Coupon codes and date ranges are always validated.
+        /// </remarks>
+        public DiscountValidationFlags DiscountValidationFlags { get; set; } = DiscountValidationFlags.All;
 
         /// <summary>
         /// Gets or sets a value indicating whether the lowest possible price should be determined

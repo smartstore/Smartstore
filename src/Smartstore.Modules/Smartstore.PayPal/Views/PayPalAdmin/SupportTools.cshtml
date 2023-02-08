@@ -1,0 +1,138 @@
+﻿@model MerchantStatusModel
+
+@{
+    Layout = "_AdminPopupLayout";
+
+    var successCssClasses = "fa-check text-success";
+    var errorCssClasses = "fa-exclamation-triangle text-danger";
+}
+
+<div class="section-header">
+    <div class="title">
+        @T("Plugins.Smartstore.PayPal.SupportTools")
+    </div>
+</div>
+
+@if (Model.DisplayOnboardingHint)
+{
+    <div class="alert alert-danger">
+        @T("Plugins.Smartstore.PayPal.SupportTools.OnboardingHint")
+    </div>
+}
+else
+{
+    <div class="mb-4">
+        @T("Plugins.Smartstore.PayPal.SupportTools.Intro")
+    </div>
+
+    <h6>@T("Plugins.Smartstore.PayPal.SupportTools.AccountInformation")</h6>
+    <div class="adminContent mb-4">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MerchantId" sm-hint="" />
+            </div>
+            <div class="adminData">
+                <input asp-for="MerchantId" readonly />
+                <span asp-validation-for="MerchantId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="LegalName" sm-hint="" />
+            </div>
+            <div class="adminData">
+                <input asp-for="LegalName" readonly />
+                <span asp-validation-for="LegalName"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TrackingId" sm-hint="" />
+            </div>
+            <div class="adminData">
+                <input asp-for="TrackingId" readonly />
+                <span asp-validation-for="TrackingId"></span>
+            </div>
+        </div>
+    </div>
+
+    <h6>@T("Admin.Common.General")</h6>
+    <table class="table table-sm table-striped small mb-4">
+        <thead>
+            <tr>
+                <th>@T("Plugins.Smartstore.PayPal.SupportTools.Requirement")</th>
+                <th>@T("Plugins.Smartstore.PayPal.SupportTools.Result")</th>
+                <th class="text-right">@T("Plugins.Smartstore.PayPal.SupportTools.Status")</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td width="33%">@T("Plugins.Smartstore.PayPal.SupportTools.PrimaryEmailConfirmed")</td>
+                <td width="50%">@T("Plugins.Smartstore.PayPal.PrimaryEmailConfirmed." + Model.PrimaryEmailConfirmed.ToString())</td>
+                <td width="17%" align="right" class="pr-3">
+                    <i class="fa @(Model.PrimaryEmailConfirmed ? successCssClasses : errorCssClasses)"></i>
+                </td>
+            </tr>
+            <tr>
+                <td width="33%">@T("Plugins.Smartstore.PayPal.SupportTools.PaymentsReceivable")</td>
+                <td width="50%">@T("Plugins.Smartstore.PayPal.PaymentsReceivable." + Model.PaymentsReceivable.ToString())</td>
+                <td width="17%" align="right" class="pr-3">
+                    <i class="fa @(Model.PaymentsReceivable ? successCssClasses : errorCssClasses)"></i>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    @if (Model.Products != null)
+    {
+        <h6>@T("Plugins.Smartstore.PayPal.SupportTools.Products")</h6>
+        <table class="table table-sm table-striped small mb-4">
+            <thead>
+                <tr>
+                    <th>@T("Plugins.Smartstore.PayPal.SupportTools.Products.Name")</th>
+                    <th>@T("Plugins.Smartstore.PayPal.SupportTools.Capabilities")</th>
+                    <th class="text-right">@T("Plugins.Smartstore.PayPal.SupportTools.VettingStatus")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var product in Model.Products)
+                {
+                    <tr>
+                        <td width="33%">@product.Name</td>
+                        <td width="50%">@(product.Capabilities != null && product.Capabilities.Any() ? string.Join(", ", product.Capabilities) : string.Empty)</td>
+                        <td width="17%" align="right" title="@product.VettingStatus" class="pr-3">
+                            <i class="fa @(product.VettingStatus == "SUBSCRIBED" ? successCssClasses : errorCssClasses)"></i>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (Model.Capabilities != null)
+    {
+        <h6>@T("Plugins.Smartstore.PayPal.SupportTools.Capabilities")</h6>
+        <table class="table table-sm table-striped small mb-4">
+            <thead>
+                <tr>
+                    <th>@T("Plugins.Smartstore.PayPal.SupportTools.Products.Name")</th>
+                    <th>@T("Plugins.Smartstore.PayPal.SupportTools.Limits")</th>
+                    <th class="text-right">@T("Plugins.Smartstore.PayPal.SupportTools.Status")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var capability in Model.Capabilities)
+                {
+                    <tr>
+                        <td width="33%">@capability.Name</td>
+                        <td width="50%">@(capability.Limits != null && capability.Limits.Any() ? string.Join(", ", capability.Limits.Select(x => x.Type)) : string.Empty)</td>
+                        <td width="17%" align="right" title="@capability.Status" class="pr-3">
+                            <i class="fa @(capability.Status == "ACTIVE" ? successCssClasses : errorCssClasses)"></i>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+

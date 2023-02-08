@@ -25,8 +25,7 @@ namespace Smartstore.PayPal.Filters
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly PayPalHelper _payPalHelper;
-        private readonly PayPalHttpClient _client;
-
+        
         public CheckoutFilter(
             SmartDbContext db,
             ICommonServices services,
@@ -34,8 +33,7 @@ namespace Smartstore.PayPal.Filters
             ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
             Lazy<IWidgetProvider> widgetProvider,
-            PayPalHelper payPalHelper,
-            PayPalHttpClient client)
+            PayPalHelper payPalHelper)
         {
             _db = db;
             _services = services;
@@ -44,10 +42,7 @@ namespace Smartstore.PayPal.Filters
             _httpContextAccessor = httpContextAccessor;
             _widgetProvider = widgetProvider;
             _payPalHelper = payPalHelper;
-            _client = client;
         }
-
-        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
@@ -97,41 +92,17 @@ namespace Smartstore.PayPal.Filters
 
                 var session = _httpContextAccessor.HttpContext.Session;
 
-                var processPaymentRequest = session.GetOrAddObject("OrderPaymentInfo", () => new ProcessPaymentRequest
+                if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
                 {
-                    PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId"),
-                    StoreId = _services.StoreContext.CurrentStore.Id,
-                    CustomerId = _services.WorkContext.CurrentCustomer.Id,
-                    PaymentMethodSystemName = "Payments.PayPalStandard"
-                });
-
-                try
-                {
-                    var result = new ProcessPaymentResult
-                    {
-                        NewPaymentStatus = PaymentStatus.Pending,
-                    };
-
-                    await _client.UpdateOrderAsync(processPaymentRequest, result);
-
-                    // Set flag which indicates this order was already updated.
-                    checkoutState.CustomProperties["PayPalOrderUpdated"] = true;
+                    processPaymentRequest = new ProcessPaymentRequest();
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogInformation(ex, "PayPal order couldn't be updated. Redirected to paqyment selction page.");
 
-                    // Remove PayPalButtonUsed flag so payment selection won't be skipped anymore.
-                    checkoutState.CustomProperties.Remove("PayPalButtonUsed");
+                processPaymentRequest.PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId");
+                processPaymentRequest.StoreId = _services.StoreContext.CurrentStore.Id;
+                processPaymentRequest.CustomerId = _services.WorkContext.CurrentCustomer.Id;
+                processPaymentRequest.PaymentMethodSystemName = "Payments.PayPalStandard";
 
-                    // Notify customer about failed order update.
-                    _services.Notifier.Error(_services.Localization.GetResource("Plugins.Smartstore.PayPal.OrderUpdateFailed").ToString());
-
-                    // Redirect to payment selection.
-                    filterContext.Result = new RedirectToActionResult("PaymentMethod", "Checkout", new { area = "" });
-                    await next();
-                    return;
-                }
+                _httpContextAccessor.HttpContext.Session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
 
                 // Delete property for backward navigation.
                 checkoutState.CustomProperties.Remove("PayPalButtonUsed");

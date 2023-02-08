@@ -113,7 +113,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
             _toAdd.Clear();
             _toRemove.Clear();
 
-            await _cache.RemoveByPatternAsync(MenuStorage.MENU_PATTERN_KEY);
+            await _cache.RemoveByPatternAsync(MenuStorage.MenuPatternKey);
         }
     }
 }

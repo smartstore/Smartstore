@@ -7,9 +7,9 @@ namespace Smartstore.Core.Content.Menus
 {
     public partial class MenuStorage : IMenuStorage
     {
-        private const string MENU_ALLSYSTEMNAMES_CACHE_KEY = "MenuStorage:SystemNames";
-        private const string MENU_USER_CACHE_KEY = "MenuStorage:Menus:User-{0}-{1}";
-        internal const string MENU_PATTERN_KEY = "MenuStorage:Menus:*";
+        private const string MenuAllSystemNamesCacheKey = "MenuStorage:Menus:SystemNames-{0}";
+        private const string MenuUserCacheKey = "MenuStorage:Menus:User-{0}-{1}";
+        internal const string MenuPatternKey = "MenuStorage:Menus:*";
 
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
@@ -27,26 +27,19 @@ namespace Smartstore.Core.Content.Menus
             _storeContext = storeContext;
         }
 
-        public virtual async Task<IEnumerable<MenuInfo>> GetUserMenuInfosAsync(IEnumerable<CustomerRole> roles = null, int storeId = 0)
+        public virtual async Task<IEnumerable<MenuInfo>> GetUserMenuInfosAsync(IEnumerable<CustomerRole> roles = null, int? storeId = null)
         {
-            if (roles == null)
-            {
-                roles = _workContext.CurrentCustomer.CustomerRoleMappings.Select(x => x.CustomerRole);
-            }
-
-            if (storeId == 0)
-            {
-                storeId = _storeContext.CurrentStore.Id;
-            }
+            roles ??= _workContext.CurrentCustomer.CustomerRoleMappings.Select(x => x.CustomerRole);
+            storeId ??= _storeContext.CurrentStore.Id;
 
             var roleIds = roles.Where(x => x.Active).Select(x => x.Id);
-            var cacheKey = MENU_USER_CACHE_KEY.FormatInvariant(storeId, string.Join(',', roleIds));
+            var cacheKey = MenuUserCacheKey.FormatInvariant(storeId, string.Join(',', roleIds));
 
             var userMenusInfo = await _cache.GetAsync(cacheKey, async () =>
             {
                 var query = _db.Menus
                     .AsNoTracking()
-                    .ApplyStandardFilter(null, false, storeId, roleIds.ToArray())
+                    .ApplyStandardFilter(null, false, storeId.Value, roleIds.ToArray())
                     .ApplySorting();
 
                 var data = await query.Select(x => new
@@ -88,19 +81,26 @@ namespace Smartstore.Core.Content.Menus
             return (await GetMenuSystemNamesAsync(true)).Contains(systemName);
         }
 
-        public virtual async Task<ISet> GetMenuSystemNamesAsync(bool ensureCreated)
+        public virtual async Task<ISet> GetMenuSystemNamesAsync(bool ensureCreated, int? storeId = null)
         {
-            if (ensureCreated || await _cache.ContainsAsync(MENU_ALLSYSTEMNAMES_CACHE_KEY))
+            storeId ??= _storeContext.CurrentStore.Id;
+            var key = MenuAllSystemNamesCacheKey.FormatInvariant(storeId.Value);
+
+            if (ensureCreated || await _cache.ContainsAsync(key))
             {
-                return await _cache.GetHashSetAsync(MENU_ALLSYSTEMNAMES_CACHE_KEY, async () =>
+                return await _cache.GetHashSetAsync(key, async () =>
                 {
-                    return await _db.Menus
+                    var systemNames = await _db.Menus
                         .AsNoTracking()
                         .Where(x => x.Published)
+                        .ApplyStoreFilter(storeId.Value)
                         .OrderByDescending(x => x.IsSystemMenu)
                         .ThenBy(x => x.Id)
                         .Select(x => x.SystemName)
                         .ToArrayAsync();
+
+                    // INFO: distinct after materialization to keep the sorting and avoid EF warning.
+                    return systemNames.Distinct();
                 });
             }
 
@@ -134,7 +134,7 @@ namespace Smartstore.Core.Content.Menus
                 }
 
                 // INFO: No hook will run. Invalidate cache manually.
-                await _cache.RemoveByPatternAsync(MENU_PATTERN_KEY);
+                await _cache.RemoveByPatternAsync(MenuPatternKey);
             }
 
             async Task GetChildIdsAsync(int parentId, HashSet<int> ids)

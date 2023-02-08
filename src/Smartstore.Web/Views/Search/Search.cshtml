@@ -40,7 +40,7 @@
 
     <div class="page-body">
         <div sm-if="encodedAttemptedTerm.HasValue()" class="alert alert-warning">
-            @T("Search.TermCorrectedHint", $"<strong>{encodedTerm}</strong>", $"<strong>{encodedAttemptedTerm}</strong>")
+            @Html.Raw(T("Search.TermCorrectedHint", $"<strong>{encodedTerm}</strong>", $"<strong>{encodedAttemptedTerm}</strong>"))
         </div>
 
         @if (Model.Error.HasValue())

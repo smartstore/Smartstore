@@ -169,23 +169,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             foreach (var discount in source)
             {
-                if (discount.DiscountType == type && !target.Contains(discount))
+                if (discount.DiscountType == type 
+                    && !target.Contains(discount)
+                    && await _discountService.IsDiscountValidAsync(discount, options.Customer, options.Store, options.DiscountValidationFlags))
                 {
-                    bool isValid;
-                    if (options.CheckDiscountValidity)
-                    {
-                        isValid = await _discountService.IsDiscountValidAsync(discount, options.Customer, options.Store);
-                    }
-                    else
-                    {
-                        // If validity check is disabled: exclude discounts which require coupon codes or have any usage restriction.
-                        isValid = !discount.RequiresCouponCode && discount.DiscountLimitation == DiscountLimitationType.Unlimited;
-                    }
-
-                    if (isValid)
-                    {
-                        target.Add(discount);
-                    }
+                    target.Add(discount);
                 }
             }
         }

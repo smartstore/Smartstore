@@ -1,5 +1,4 @@
-﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
@@ -53,8 +52,23 @@ namespace Smartstore.Core.Checkout.Payment
         #region Methods
 
         /// <inheritdoc/>
+        public abstract Widget GetPaymentInfoWidget();
+
+        /// <inheritdoc/>
+        public virtual Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
+            => Task.FromResult((decimal.Zero, false));
+
+        /// <inheritdoc/>
+        public virtual Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+            => Task.FromResult(new ProcessPaymentRequest());
+
+        /// <inheritdoc/>
         public virtual Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
             => Task.FromResult(new PaymentValidationResult());
+
+        /// <inheritdoc/>
+        public virtual Task<string> GetPaymentSummaryAsync()
+            => Task.FromResult((string)null);
 
         /// <inheritdoc/>
         public virtual Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest request)
@@ -68,16 +82,8 @@ namespace Smartstore.Core.Checkout.Payment
             => Task.CompletedTask;
 
         /// <inheritdoc/>
-        public virtual Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
-            => Task.FromResult((decimal.Zero, false));
-
-        /// <inheritdoc/>
-        public virtual Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
-            => Task.FromResult(new ProcessPaymentRequest());
-
-        /// <inheritdoc/>
-        public virtual Task<string> GetPaymentSummaryAsync()
-            => Task.FromResult((string)null);
+        public virtual Task<bool> CanRePostProcessPaymentAsync(Order order)
+            => Task.FromResult(false);
 
         /// <inheritdoc/>
         public virtual Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
@@ -98,13 +104,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// <inheritdoc/>
         public virtual Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
             => throw new NotSupportedException();
-
-        /// <inheritdoc/>
-        public virtual Task<bool> CanRePostProcessPaymentAsync(Order order)
-            => Task.FromResult(false);
-
-        /// <inheritdoc/>
-        public abstract Widget GetPaymentInfoWidget();
 
         #endregion
     }
