@@ -27,7 +27,8 @@ namespace Smartstore.Data.Sqlite
         }
 
         public override DataProviderFeatures Features
-            => DataProviderFeatures.Shrink
+            => DataProviderFeatures.Backup
+            | DataProviderFeatures.Shrink
             | DataProviderFeatures.ReIndex
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
@@ -159,6 +160,41 @@ LIMIT {take} OFFSET {skip}";
             return async
                ? Database.ExecuteSqlRawAsync(sql)
                : Task.FromResult(Database.ExecuteSqlRaw(sql));
+        }
+
+        protected override async Task<int> BackupDatabaseCore(string fullPath, bool async, CancellationToken cancelToken = default)
+        {
+            using var backupConnection = new SqliteConnection($"Data Source={fullPath}");
+            var thisConnection = Database.GetDbConnection() as SqliteConnection;
+
+            try
+            {
+                if (async)
+                {
+                    await thisConnection.OpenAsync(cancelToken);
+                }
+                else
+                {
+                    thisConnection.Open();
+                }
+                
+                thisConnection.BackupDatabase(backupConnection);
+            }
+            finally
+            {
+                if (async)
+                {
+                    await backupConnection.CloseAsync();
+                    await thisConnection.CloseAsync();
+                }
+                else
+                {
+                    backupConnection.Close();
+                    thisConnection.Close();
+                }
+            }
+            
+            return 1;
         }
 
         protected override IList<string> SplitSqlScript(string sqlScript)

@@ -819,13 +819,22 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var fileName in selection.SelectedKeys)
             {
-                if (await root.TryDeleteFileAsync(BACKUP_DIR + "\\" + fileName))
+                var file = root.GetFile(PathUtility.Join(BACKUP_DIR, fileName));
+                if (file.Exists)
                 {
-                    numDeleted++;
+                    try
+                    {
+                        await file.DeleteAsync();
+                        numDeleted++;
+                    }
+                    catch (Exception ex)
+                    {
+                        NotifyError(ex);
+                    }
                 }
             }
 
-            return Json(new { Success = true, Count = numDeleted });
+            return Json(new { Success = numDeleted > 0, Count = numDeleted });
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
