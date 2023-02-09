@@ -29,8 +29,8 @@ namespace Smartstore.Core.Content.Menus
 
         public virtual async Task<IEnumerable<MenuInfo>> GetUserMenuInfosAsync(IEnumerable<CustomerRole> roles = null, int? storeId = null)
         {
+            storeId = Guard.NotZero(storeId ?? _storeContext.CurrentStore.Id);
             roles ??= _workContext.CurrentCustomer.CustomerRoleMappings.Select(x => x.CustomerRole);
-            storeId ??= _storeContext.CurrentStore.Id;
 
             var roleIds = roles.Where(x => x.Active).Select(x => x.Id);
             var cacheKey = MenuUserCacheKey.FormatInvariant(storeId, string.Join(',', roleIds));
@@ -83,7 +83,8 @@ namespace Smartstore.Core.Content.Menus
 
         public virtual async Task<ISet> GetMenuSystemNamesAsync(bool ensureCreated, int? storeId = null)
         {
-            storeId ??= _storeContext.CurrentStore.Id;
+            storeId = Guard.NotZero(storeId ?? _storeContext.CurrentStore.Id);
+
             var key = MenuAllSystemNamesCacheKey.FormatInvariant(storeId.Value);
 
             if (ensureCreated || await _cache.ContainsAsync(key))
