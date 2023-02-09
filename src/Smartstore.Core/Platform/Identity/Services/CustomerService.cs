@@ -150,20 +150,16 @@ namespace Smartstore.Core.Identity
 
             var query =
                 from c in _db.Customers.IgnoreQueryFilters()
-                join o in _db.Orders.IgnoreQueryFilters() on c.Id equals o.CustomerId into orders
-                from o in orders.DefaultIfEmpty()
-                join cc in _db.CustomerContent.IgnoreQueryFilters() on c.Id equals cc.CustomerId into customerContent
-                from cc in customerContent.DefaultIfEmpty()
-                where c.Username == null && c.Email == null && !c.IsSystemAccount && o == null && cc == null
+                where c.Username == null && c.Email == null && !c.IsSystemAccount
+                    && !_db.Orders.IgnoreQueryFilters().Any(o => o.CustomerId == c.Id)
+                    && !_db.CustomerContent.IgnoreQueryFilters().Any(cc => cc.CustomerId == c.Id)
                 select c;
 
             if (onlyWithoutShoppingCart)
             {
                 query =
                     from c in query
-                    join sci in _db.ShoppingCartItems.IgnoreQueryFilters() on c.Id equals sci.CustomerId into cartItems
-                    from sci in cartItems.DefaultIfEmpty()
-                    where sci == null
+                    where !_db.ShoppingCartItems.IgnoreQueryFilters().Any(sci => sci.CustomerId == c.Id)
                     select c;
             }
             if (registrationFrom.HasValue)
@@ -181,25 +177,41 @@ namespace Smartstore.Core.Identity
             };
             await _eventPublisher.PublishAsync(message, cancelToken);
 
-            var customerIds = await message.Query
+            var customerIdsQuery = message.Query
                 .OrderBy(x => x.Id)
                 .Select(x => x.Id)
-                .Take(20000)
-                .ToListAsync(cancelToken);
+                .Take(20000);
 
-            foreach (var customerIdsChunk in customerIds.Chunk(500))
+            // Delete generic attributes.
+            while (true)
             {
-                // Delete generic attributes.
-                numberOfDeletedAttributes += await _db.GenericAttributes
+                var numDeleted = await _db.GenericAttributes
                     .IgnoreQueryFilters()
-                    .Where(x => customerIdsChunk.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
+                    .Where(x => customerIdsQuery.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
                     .ExecuteDeleteAsync(cancelToken);
 
-                // Delete guest customers.
-                numberOfDeletedCustomers += await _db.Customers
+                if (numDeleted <= 0)
+                {
+                    break;
+                }
+
+                numberOfDeletedAttributes += numDeleted;
+            }
+
+            // Delete guest customers.
+            while (true)
+            {
+                var numDeleted = await _db.Customers
                     .IgnoreQueryFilters()
-                    .Where(x => customerIdsChunk.Contains(x.Id))
+                    .Where(x => customerIdsQuery.Contains(x.Id))
                     .ExecuteDeleteAsync(cancelToken);
+
+                if (numDeleted <= 0)
+                {
+                    break;
+                }
+
+                numberOfDeletedCustomers += numDeleted;
             }
 
             Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
