@@ -25,7 +25,7 @@
         <script src="~/bundle/js/jquery.js"></script>
     </zone>
 
-    @if (Display.GetThemeVariable<bool>("fa-use-pro"))
+    @if (!Display.GetThemeVariable<bool>("fa-use-pro"))
     {
         @* Preload web font files to avoid FOIT (Flash of Invisible Text) and FOUT (Flash of Unstyled Text) *@
         <link as="font" rel="preload" href="~/lib/fontastic/fonts/fontastic.woff" crossorigin />
