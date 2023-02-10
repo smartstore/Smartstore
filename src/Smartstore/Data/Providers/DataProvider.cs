@@ -271,30 +271,45 @@ namespace Smartstore.Data.Providers
 
         #region Database schema
 
+        /// <summary>
+        /// Checks whether the database server instance contains the given database.
+        /// </summary>
         public bool HasDatabase(string databaseName)
         {
             Guard.NotEmpty(databaseName);
             return HasDatabaseCore(databaseName, false).Await();
         }
 
+        /// <summary>
+        /// Checks whether the database server instance contains the given database.
+        /// </summary>
         public ValueTask<bool> HasDatabaseAsync(string databaseName)
         {
             Guard.NotEmpty(databaseName);
             return HasDatabaseCore(databaseName, true);
         }
 
+        /// <summary>
+        /// Checks whether the database contains the given table.
+        /// </summary>
         public bool HasTable(string tableName)
         {
             Guard.NotEmpty(tableName);
             return HasTableCore(tableName, false).Await();
         }
 
+        /// <summary>
+        /// Checks whether the database contains the given table.
+        /// </summary>
         public ValueTask<bool> HasTableAsync(string tableName)
         {
             Guard.NotEmpty(tableName);
             return HasTableCore(tableName, true);
         }
 
+        /// <summary>
+        /// Checks whether the a table contains the given column.
+        /// </summary>
         public bool HasColumn(string tableName, string columnName)
         {
             Guard.NotEmpty(tableName);
@@ -302,6 +317,9 @@ namespace Smartstore.Data.Providers
             return HasColumnCore(tableName, columnName, false).Await();
         }
 
+        /// <summary>
+        /// Checks whether the a table contains the given column.
+        /// </summary>
         public ValueTask<bool> HasColumnAsync(string tableName, string columnName)
         {
             Guard.NotEmpty(tableName);
@@ -309,11 +327,17 @@ namespace Smartstore.Data.Providers
             return HasColumnCore(tableName, columnName, true);
         }
 
+        /// <summary>
+        /// Gets all names of public table contained in the current database.
+        /// </summary>
         public string[] GetTableNames()
         {
             return GetTableNamesCore(false).Await();
         }
 
+        /// <summary>
+        /// Gets all names of public table contained in the current database.
+        /// </summary>
         public ValueTask<string[]> GetTableNamesAsync()
         {
             return GetTableNamesCore(true);
@@ -416,13 +440,13 @@ namespace Smartstore.Data.Providers
             => ReIndexTablesCore(true, cancelToken);
 
         /// <summary>
-        /// Executes a (multiline) sql script
+        /// Executes a (multiline) sql script in an atomic transaction.
         /// </summary>
         public int ExecuteSqlScript(string sqlScript)
             => ExecuteSqlScriptCore(sqlScript, false).Await();
 
         /// <summary>
-        /// Executes a (multiline) sql script
+        /// Executes a (multiline) sql script in an atomic transaction.
         /// </summary>
         public Task<int> ExecuteSqlScriptAsync(string sqlScript, CancellationToken cancelToken = default)
             => ExecuteSqlScriptCore(sqlScript, true, cancelToken);
