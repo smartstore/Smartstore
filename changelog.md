@@ -14,6 +14,7 @@
 - #608 Build DeleteGuestCustomers query with LINQ again.
 - Fixed ArgumentException "The source argument contains duplicate keys" in case of menus with duplicate system names.
 - MySQL: fixed migration failure when UTC_TIMESTAMP was used as default value for date columns.
+- High data payload: fixed InvalidOperationException "A second operation was started on this context instance before a previous operation completed" when opening category (and others) edit page.
 
 
 ## Smartstore 5.0.3

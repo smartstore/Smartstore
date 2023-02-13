@@ -39,10 +39,28 @@ namespace Smartstore.Web.Controllers
             {
                 var locale = Activator.CreateInstance<TLocalizedModelLocal>();
                 locale.LanguageId = language.Id;
-                if (configure != null)
-                {
-                    configure.Invoke(locale, locale.LanguageId);
-                }
+
+                configure?.Invoke(locale, locale.LanguageId);
+
+                locales.Add(locale);
+            }
+        }
+
+        /// <summary>
+        /// Add locales for localizable entities
+        /// </summary>
+        /// <typeparam name="TLocalizedModelLocal">Localizable model</typeparam>
+        protected virtual async Task AddLocalesAsync<TLocalizedModelLocal>(IList<TLocalizedModelLocal> locales, Func<TLocalizedModelLocal, int, Task> configure)
+            where TLocalizedModelLocal : ILocalizedLocaleModel, new()
+        {
+            Guard.NotNull(locales, nameof(locales));
+
+            foreach (var language in Services.Resolve<ILanguageService>().GetAllLanguages(true))
+            {
+                var locale = Activator.CreateInstance<TLocalizedModelLocal>();
+                locale.LanguageId = language.Id;
+
+                await configure?.Invoke(locale, locale.LanguageId);
 
                 locales.Add(locale);
             }

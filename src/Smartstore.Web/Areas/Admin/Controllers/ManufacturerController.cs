@@ -226,7 +226,7 @@ namespace Smartstore.Admin.Controllers
             var mapper = MapperFactory.GetMapper<Manufacturer, ManufacturerModel>();
             var model = await mapper.MapAsync(manufacturer);
 
-            AddLocales(model.Locales, async (locale, languageId) =>
+            await AddLocalesAsync(model.Locales, async (locale, languageId) =>
             {
                 locale.Name = manufacturer.GetLocalized(x => x.Name, languageId, false, false);
                 locale.Description = manufacturer.GetLocalized(x => x.Description, languageId, false, false);

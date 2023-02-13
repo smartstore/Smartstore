@@ -196,7 +196,7 @@ namespace Smartstore.Admin.Controllers
             model.WidgetZone = topic.WidgetZone.SplitSafe(',').ToArray();
             model.CookieType = (int?)topic.CookieType;
 
-            AddLocales(model.Locales, async (locale, languageId) =>
+            await AddLocalesAsync(model.Locales, async (locale, languageId) =>
             {
                 locale.ShortTitle = topic.GetLocalized(x => x.ShortTitle, languageId, false, false);
                 locale.Title = topic.GetLocalized(x => x.Title, languageId, false, false);

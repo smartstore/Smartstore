@@ -286,7 +286,7 @@ namespace Smartstore.Admin.Controllers
             var model = await MapperFactory.MapAsync<Product, ProductModel>(product);
             await PrepareProductModelAsync(model, product, false, false);
 
-            AddLocales(model.Locales, async (locale, languageId) =>
+            await AddLocalesAsync(model.Locales, async (locale, languageId) =>
             {
                 locale.Name = product.GetLocalized(x => x.Name, languageId, false, false);
                 locale.ShortDescription = product.GetLocalized(x => x.ShortDescription, languageId, false, false);
@@ -445,7 +445,7 @@ namespace Smartstore.Admin.Controllers
 
                 await PrepareProductModelAsync(model, product, false, false);
 
-                AddLocales(model.Locales, async (locale, languageId) =>
+                await AddLocalesAsync(model.Locales, async (locale, languageId) =>
                 {
                     locale.Name = product.GetLocalized(x => x.Name, languageId, false, false);
                     locale.ShortDescription = product.GetLocalized(x => x.ShortDescription, languageId, false, false);
