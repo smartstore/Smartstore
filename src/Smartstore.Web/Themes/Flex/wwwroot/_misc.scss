@@ -45,39 +45,6 @@
     }
 }
 
-
-//
-// Cookie Consent
-// -------------------------------------------------
-
-.cookie-consent-panel-message {
-    background: $gray-800;
-	z-index: $zindex-fixed + 1;
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	margin: 0;
-	padding: 10px 20px;
-	color: #fff;
-	border-top: 1px solid #222;
-	text-align: center;
-	line-height: 1.5;
-
-    .close {
-        color: #fff !important;
-    }
-
-    a {
-	    color: inherit;
-	    text-decoration: underline;
-    }
-
-    .popup {
-	    display: none !important;
-    }
-}
-
 //
 // File Upload
 // -------------------------------------------------
@@ -139,7 +106,7 @@
 //
 // MyAccount
 // -------------------------------------------------
-.recurring-payments-box tbody td {
+.recurring-payments-box td {
     vertical-align: middle;
 }
 
