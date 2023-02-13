@@ -55,7 +55,7 @@
             </div>
         </div>
 
-        <zone name="orderdetails_page_after_item" />
+        <zone name="orderdetails_page_after_item" model="item.Id" />
     }
 
     async Task BundleProducts(OrderDetailsModel.OrderItemModel parentItem)
@@ -116,7 +116,7 @@
             }
         }
 
-        <zone name="orderdetails_page_after_item" />
+        <zone name="orderdetails_page_after_item" model="parentItem.Id" />
     }
 }
 
