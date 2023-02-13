@@ -273,7 +273,16 @@
             <smart-label asp-for="ProductTagNames" />
         </div>
         <div class="adminData">
-            <select asp-for="ProductTagNames" asp-items="ViewBag.AvailableProductTags" multiple="multiple" data-tags="true"></select>
+            @{
+                var selectedProductTags = (List<SelectListItem>)ViewBag.SelectedProductTags;
+            }
+            <select asp-for="ProductTagNames" asp-items="selectedProductTags"
+                    multiple="multiple"
+                    data-tags="true"
+                    data-select="True"
+                    data-select-lazy="True"
+                    data-select-url="@Url.Action("AllProductTags", new { selectedNames = string.Join(",", selectedProductTags.Select(x => x.Value)) })">
+            </select>
             <span asp-validation-for="ProductTagNames"></span>
         </div>
     </div>
