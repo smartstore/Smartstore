@@ -25,6 +25,7 @@
         <div class="title">
             <a sm-backto href="@(returnUrl ?? Url.Action("List"))" title="@T("Common.Back")"></a>
             <i class="far fa-clock"></i>
+            <span>@ViewBag.Title</span>
         </div>
         <div class="options">
 			<button type="submit" name="save" value="save" class="btn btn-warning">
