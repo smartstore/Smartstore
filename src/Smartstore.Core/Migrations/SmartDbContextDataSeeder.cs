@@ -37,6 +37,11 @@ namespace Smartstore.Core.Data.Migrations
                 "Prüfe Warenkorbregeln von Rabatten in Produktlisten",
                 "Enabling this option may reduce the performance.",
                 "Die Aktivierung dieser Option kann die Performance beeinträchtigen.");
+
+            builder.AddOrUpdate("Common.Entity.SelectProducts", "Select products", "Produkte auswählen");
+            builder.AddOrUpdate("Common.Entity.SelectCategories", "Select categories", "Warengruppen auswählen");
+            builder.AddOrUpdate("Common.Entity.SelectManufacturers", "Select manufacturers", "Hersteller auswählen");
+            builder.AddOrUpdate("Common.Entity.SelectTopics", "Select topics", "Seiten auswählen");
         }
     }
 }
