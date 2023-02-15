@@ -8,8 +8,10 @@ namespace Smartstore.Templating.Liquid
     {
         public LiquidTemplate(Template template, string source)
         {
+            Guard.NotNull(source);
+
             Template = Guard.NotNull(template, nameof(template));
-            Source = Guard.NotNull(source, nameof(source));
+            Source = source;
         }
 
         public string Source { get; internal set; }

@@ -5,7 +5,9 @@
     {
         public AdditionalMetadataAttribute(string name, object value)
         {
-            Name = Guard.NotNull(name, nameof(name));
+            Guard.NotNull(name);
+
+            Name = name;
             Value = value;
         }
 

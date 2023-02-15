@@ -67,7 +67,10 @@ namespace Smartstore.IO
 
         private static string CombineInternal(string first, string second)
         {
-            Guard.NotNull(first);
+            if (first == null)
+            {
+                throw new ArgumentNullException(nameof(first));
+            }
 
             if (string.IsNullOrWhiteSpace(second))
             {

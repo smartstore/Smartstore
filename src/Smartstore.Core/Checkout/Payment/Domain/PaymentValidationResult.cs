@@ -93,8 +93,11 @@ namespace Smartstore.Core.Checkout.Payment
 
         public PaymentValidationFailure(string propertyName, string errorMessage)
         {
-            PropertyName = Guard.NotNull(propertyName);
-            ErrorMessage = Guard.NotNull(errorMessage);
+            Guard.NotNull(propertyName);
+            Guard.NotNull(errorMessage);
+
+            PropertyName = propertyName;
+            ErrorMessage = errorMessage;
         }
 
         /// <summary>

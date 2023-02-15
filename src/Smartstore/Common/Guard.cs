@@ -32,6 +32,16 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void NotNull(string arg, [CallerArgumentExpression("arg")] string? argName = null)
+        {
+            if (arg is null)
+            {
+                throw new ArgumentNullException(argName);
+            }
+        }
+
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T NotNull<T>(T? arg, [CallerArgumentExpression("arg")] string? argName = null)
         {
             return arg ?? throw new ArgumentNullException(argName);
