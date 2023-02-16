@@ -9,7 +9,6 @@ namespace Smartstore.Engine.Modularity
     public class ModuleAssemblyInfo
     {
         private bool? _isConfigurable;
-        private List<string> _privateReferences;
 
         public ModuleAssemblyInfo(IModuleDescriptor descriptor)
         {
