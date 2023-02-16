@@ -190,7 +190,10 @@ namespace Smartstore.Engine.Modularity
         public string Path { get; internal set; }
 
         /// <inheritdoc/>
-        public string PhysicalPath { get; internal set; }
+        /// <remarks>
+        /// Setter is public for testing purposes only. Please don't set a value.
+        /// </remarks>
+        public string PhysicalPath { get; set; }
 
         /// <inheritdoc/>
         public IFileSystem ContentRoot { get; internal set; }
