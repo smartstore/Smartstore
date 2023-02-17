@@ -32,7 +32,7 @@ namespace Smartstore
     public static class SmartstoreVersion
     {
         private static readonly Version _infoVersion = new("1.0.0.0");
-        private static readonly List<Version> _breakingChangesHistory = new List<Version>
+        private static readonly List<Version> _breakingChangesHistory = new()
         {
             // IMPORTANT: Add app versions from low to high
             // NOTE: do not specify build & revision unless you have good reasons for it.
