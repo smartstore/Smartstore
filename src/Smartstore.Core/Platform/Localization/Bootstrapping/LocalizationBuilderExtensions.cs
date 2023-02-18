@@ -84,13 +84,14 @@ namespace Smartstore.Core.Bootstrapping
         private static async Task OnAfterRouting(HttpContext context, Func<Task> next)
         {
             var policy = context.GetUrlPolicy();
-            var isLocalizedUrl = policy.IsLocalizedUrl && policy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled;
+            var localizedUrlsEnabled = policy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled;
+            var isLocalizedUrl = policy.IsLocalizedUrl;
             var routeValues = context.Features.Get<IRouteValuesFeature>()?.RouteValues;
 
             policy.IsSlugRoute = routeValues?.ContainsKey(SlugRouteTransformer.UrlRecordRouteKey) == true;
-
+            
             var endpoint = context.GetEndpoint();
-            var isLocalizedEndpoint = policy.IsSlugRoute || endpoint?.Metadata?.GetMetadata<ILocalizedRoute>() != null;
+            var isLocalizedEndpoint = localizedUrlsEnabled && (policy.IsSlugRoute || endpoint?.Metadata?.GetMetadata<ILocalizedRoute>() != null);
 
             // Restore request path to its original state.
             context.Request.Path = policy.OriginalPath;
