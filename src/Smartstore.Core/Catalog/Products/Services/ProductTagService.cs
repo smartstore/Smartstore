@@ -1,4 +1,5 @@
-﻿using Smartstore.Caching;
+﻿using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Data;
@@ -88,9 +89,10 @@ namespace Smartstore.Core.Catalog.Products
                 // Add tag mappings.
                 if (newTagNames.Any())
                 {
-                    var existingTags = await _db.ProductTags
+                    var existingTags = (await _db.ProductTags
                         .Where(x => newTagNames.Contains(x.Name))
-                        .ToDictionaryAsync(x => x.Name, StringComparer.OrdinalIgnoreCase);
+                        .ToListAsync())
+                        .ToDictionarySafe(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
                     // Tags must be saved and assigned an ID prior adding a mapping.
                     foreach (var name in newTagNames)
