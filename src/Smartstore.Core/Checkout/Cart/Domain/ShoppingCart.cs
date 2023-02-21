@@ -10,8 +10,6 @@ namespace Smartstore.Core.Checkout.Cart
     [DebuggerDisplay("{CartType} for {Customer.Email} contains {Items.Length} items.")]
     public partial class ShoppingCart : IEquatable<ShoppingCart>
     {
-        private int? _hashCode;
-
         public ShoppingCart(Customer customer, int storeId, IEnumerable<OrganizedShoppingCartItem> items)
         {
             Guard.NotNull(customer, nameof(customer));
@@ -81,19 +79,24 @@ namespace Smartstore.Core.Checkout.Cart
 
         public override int GetHashCode()
         {
-            if (_hashCode == null)
-            {
-                var combiner = HashCodeCombiner
-                    .Start()
-                    .Add((int)CartType)
-                    .Add(Customer.Id)
-                    .Add(StoreId)
-                    .Add(Items.Select(x => x.Item.GetHashCode()));
+            var attributes = Customer.GenericAttributes;
 
-                _hashCode = combiner.CombinedHash;
-            }
+            // INFO: the hash must be recreated for each call because modified customer attributes
+            // like DiscountCouponCode can affect the same cart object.
+            var combiner = HashCodeCombiner
+                .Start()
+                .Add(StoreId)
+                .Add((int)CartType)
+                .Add(Customer.Id)
+                .Add(attributes?.DiscountCouponCode)
+                .Add(attributes?.RawGiftCardCouponCodes)
+                .Add(attributes?.RawCheckoutAttributes)
+                .Add(attributes?.VatNumber)
+                .Add(attributes?.UseRewardPointsDuringCheckout)
+                .Add(attributes?.UseCreditBalanceDuringCheckout)
+                .Add(Items.Select(x => x.Item.GetHashCode()));
 
-            return _hashCode.Value;
+            return combiner.CombinedHash;
         }
 
         #endregion

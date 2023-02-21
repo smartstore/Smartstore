@@ -17,6 +17,7 @@
 - High data payload: 
 	- Fixed InvalidOperationException "A second operation was started on this context instance before a previous operation completed" when opening category (and others) edit page.
 	- Fixed many product tags blocks the loading of the product edit page due to initialization of the product tag selection box.
+- Fixed discount coupon code could not be applied in some cases.
 
 
 ## Smartstore 5.0.3
