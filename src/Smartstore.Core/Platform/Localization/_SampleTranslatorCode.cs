@@ -291,6 +291,8 @@ namespace Smartstore.Core.Localization
             _db.DetachEntities<LocalizedProperty>();
         }
 
+        #region Hook
+
         ///// <summary>
         ///// Verfolgt Änderungen an lokalisierbaren Standardtexten. 
         ///// Ist als "Important" markiert, damit er auch während 
@@ -369,7 +371,7 @@ namespace Smartstore.Core.Localization
         //                {
         //                    // Evtl. existierende LocProp per Lookup ermitteln
         //                    var existingLocProp = existingLocProps.Get(new PropertyKey(updatedEntity.Id, prop.Name, masterLanguageId));
-                            
+
         //                    if (existingLocProp == null)
         //                    {
         //                        // LocProp existiert noch nicht in DB, daher versuchen anzulegen.
@@ -377,11 +379,8 @@ namespace Smartstore.Core.Localization
         //                    }
         //                    else
         //                    {
-        //                        // (perf) FastProperty für updatedEntity.Prop besorgen, z.B. "Product.Name"
-        //                        var fastProp = FastProperty.GetProperty(prop, PropertyCachingStrategy.EagerCached);
-
         //                        // Wert per Reflection besorgen
-        //                        var value = fastProp.GetValue(updatedEntity);
+        //                        var value = prop.GetValue(updatedEntity);
         //                        var valueStr = value.Convert<string>();
 
         //                        if (valueStr != existingLocProp.LocaleValue)
@@ -398,7 +397,7 @@ namespace Smartstore.Core.Localization
         //                            {
         //                                // Neuen Value übertragen
         //                                existingLocProp.LocaleValue = valueStr;
-                                        
+
         //                                // Bei der nächsten Translation-Session muss dieser Eintrag also neu übersetzt werden.
         //                                existingLocProp.TranslatedOnUtc = null;
         //                            }
@@ -443,7 +442,7 @@ namespace Smartstore.Core.Localization
         //        if (isDirty)
         //        {
         //            await _db.SaveChangesAsync(cancelToken);
-        //        }     
+        //        }
         //    }
 
         //    /// <summary>
@@ -451,11 +450,8 @@ namespace Smartstore.Core.Localization
         //    /// </summary>
         //    private bool TryInsertLocalizedProperty(BaseEntity forEntity, int langId, PropertyInfo prop)
         //    {
-        //        // (perf) FastProperty für entity.Prop besorgen, z.B. "Product.Name"
-        //        var fastProp = FastProperty.GetProperty(prop, PropertyCachingStrategy.EagerCached);
-
         //        // Wert per Reflection besorgen
-        //        var value = fastProp.GetValue(forEntity);
+        //        var value = prop.GetValue(forEntity);
         //        var hasValue = value != null && (value is not string str || str.HasValue());
 
         //        if (hasValue)
@@ -482,5 +478,7 @@ namespace Smartstore.Core.Localization
         //        return false;
         //    }
         //}
+
+        #endregion
     }
 }
