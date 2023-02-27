@@ -21,6 +21,7 @@
 	- Fixed many product tags blocks the loading of the product edit page due to initialization of the product tag selection box.
 - Fixed discount coupon code could not be applied in some cases.
 - PostFinance: fixed "The specified refund amount CHF needs to be rounded to a maximum of 2 decimal places".
+- Fixed ArgumentNullException in ProcessImageQuery.Add if name is null.
 
 
 ## Smartstore 5.0.3
