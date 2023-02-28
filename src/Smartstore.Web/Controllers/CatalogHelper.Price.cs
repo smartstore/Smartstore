@@ -201,9 +201,29 @@ namespace Smartstore.Web.Controllers
 
             ICollection<Product> associatedProducts = null;
 
-            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !batchContext.ProductBundleItems.FullyLoaded)
+            // Reset child products batch context.
+            options.ChildProductsBatchContext = null;
+
+            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
             {
-                await batchContext.ProductBundleItems.LoadAllAsync();
+                if (!batchContext.ProductBundleItems.FullyLoaded)
+                {
+                    await batchContext.ProductBundleItems.LoadAllAsync();
+                }
+
+                if (context.BundleItemBatchContext == null)
+                {
+                    // One-time batched retrieval of all bundle items.
+                    var bundleItemProductIds = batchContext.ProductBundleItems
+                        .SelectMany(x => x.Value)
+                        .Where(x => x.BundleProduct.BundlePerItemPricing)
+                        .ToDistinctArray(x => x.ProductId);
+
+                    var bundleItemProducts = await _db.Products.GetManyAsync(bundleItemProductIds);
+                    context.BundleItemBatchContext = _productService.CreateProductBatchContext(bundleItemProducts, options.Store, options.Customer, false);
+                }
+
+                options.ChildProductsBatchContext = context.BundleItemBatchContext;
             }
 
             if (product.ProductType == ProductType.GroupedProduct)
@@ -228,9 +248,9 @@ namespace Smartstore.Web.Controllers
 
                     context.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
                     context.AssociatedProductBatchContext = _productService.CreateProductBatchContext(allAssociatedProducts, options.Store, options.Customer, false);
-
-                    options.ChildProductsBatchContext = context.AssociatedProductBatchContext;
                 }
+
+                options.ChildProductsBatchContext = context.AssociatedProductBatchContext;
 
                 associatedProducts = context.GroupedProducts[product.Id];
                 if (associatedProducts.Any())

@@ -14,6 +14,7 @@ namespace Smartstore.Web.Models.Catalog
         public ProductBatchContext BatchContext { get; set; }
         public PriceCalculationOptions CalculationOptions { get; set; }
         public ProductBatchContext AssociatedProductBatchContext { get; set; }
+        public ProductBatchContext BundleItemBatchContext { get; set; }
         public Multimap<int, Product> GroupedProducts { get; set; }
         public Dictionary<int, BrandOverviewModel> CachedBrandModels { get; set; }
         public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();
