@@ -559,6 +559,7 @@ namespace Smartstore.Admin.Controllers
                 // Lets just load this untracked as nearly all navigation properties are needed in order to copy successfully.
                 // We just eager load the most common properties.
                 var product = await _db.Products
+                    .AsSplitQuery()
                     .Include(x => x.ProductCategories)
                     .Include(x => x.ProductManufacturers)
                     .Include(x => x.ProductSpecificationAttributes)
