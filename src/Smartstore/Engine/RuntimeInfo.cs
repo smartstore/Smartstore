@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Hosting;
 
 namespace Smartstore.Engine
@@ -14,7 +15,10 @@ namespace Smartstore.Engine
             ApplicationIdentifier = host.ContentRootPath;
 
             RID = GetRuntimeIdentifier();
-            NativeLibraryDirectory = Path.Combine(AppContext.BaseDirectory, "runtimes", RID, "native");
+
+            // Reliable cross-platform way to identify bin directory (instead of 'AppContext.BaseDirectory')
+            BaseDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            NativeLibraryDirectory = Path.Combine(BaseDirectory, "runtimes", RID, "native");
         }
 
         internal static string GetRuntimeIdentifier()
@@ -49,7 +53,7 @@ namespace Smartstore.Engine
         /// <summary>
         /// Gets the full path to the entry assembly directory.
         /// </summary>
-        public string BaseDirectory { get; } = AppContext.BaseDirectory;
+        public string BaseDirectory { get; }
 
         /// <summary>
         /// Gets the full path to the native library directory, e.g. "runtimes\win-x64\native".

@@ -8,9 +8,16 @@ namespace Smartstore.Engine.Modularity
     /// </summary>
     internal class AppBaseReferenceResolver : IModuleReferenceResolver
     {
+        private readonly IApplicationContext _appContext;
+
+        public AppBaseReferenceResolver(IApplicationContext appContext)
+        {
+            _appContext = appContext;
+        }
+
         public Assembly ResolveAssembly(Assembly requestingAssembly, string name)
         {
-            var resolver = new AssemblyDependencyResolver(requestingAssembly?.Location ?? AppContext.BaseDirectory);
+            var resolver = new AssemblyDependencyResolver(requestingAssembly?.Location ?? _appContext.RuntimeInfo.BaseDirectory);
             var assemblyPath = resolver.ResolveAssemblyToPath(new AssemblyName(name));
             if (assemblyPath != null)
             {

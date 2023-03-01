@@ -19,6 +19,7 @@ global using Smartstore.Web.Controllers;
 global using Smartstore.Web.Filters;
 global using Smartstore.Web.Modelling;
 global using EntityState = Smartstore.Data.EntityState;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Autofac;
@@ -41,12 +42,13 @@ using Smartstore.Utilities;
 var rgSystemSource = new Regex("^File|^System|^Microsoft|^Serilog|^Autofac|^Castle|^MiniProfiler|^Newtonsoft|^Pipelines|^Azure|^StackExchange|^Superpower|^Dasync", RegexOptions.Compiled);
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
 var isDevEnvironment = IsDevEnvironment();
+var baseDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 // Create the application builder
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
-    ContentRootPath = isDevEnvironment ? null : AppContext.BaseDirectory
+    ContentRootPath = isDevEnvironment ? null : baseDirectory
 });
 
 // Add connections.json and usersettings.json to configuration manager

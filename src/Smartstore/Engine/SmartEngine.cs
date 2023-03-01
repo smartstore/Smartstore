@@ -50,7 +50,7 @@ namespace Smartstore.Engine
             _referenceResolvers = new IModuleReferenceResolver[]
             {
                 new ModuleReferenceResolver(application),
-                new AppBaseReferenceResolver()
+                new AppBaseReferenceResolver(application)
             };
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
 

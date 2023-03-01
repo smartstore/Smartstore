@@ -32,7 +32,7 @@ namespace Smartstore.Utilities
 
         private static IFileSystem GetContentRoot()
         {
-            return EngineContext.Current?.Application?.ContentRoot ?? new LocalFileSystem(AppContext.BaseDirectory);
+            return EngineContext.Current?.Application?.ContentRoot ?? new LocalFileSystem(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
         }
 
         public static bool IsDevEnvironment
