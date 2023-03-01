@@ -63,7 +63,11 @@ namespace Smartstore.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HashCodeCombiner Add(int i)
         {
-            _combinedHash64 = ((_combinedHash64 << 5) + _combinedHash64) ^ i;
+            if (i != 0)
+            {
+                _combinedHash64 = ((_combinedHash64 << 5) + _combinedHash64) ^ i;
+            }
+            
             return this;
         }
 
