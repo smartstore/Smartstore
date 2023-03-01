@@ -169,8 +169,11 @@ namespace Smartstore.Core.Checkout.Cart
                     // Check for not selected attributes.
                     foreach (var attribute in notSelectedAttributes)
                     {
-                        var textPrompt = attribute.TextPrompt.IsEmpty() ? attribute.GetLocalized(x => x.Name) : attribute.GetLocalized(x => x.TextPrompt);
-                        currentWarnings.Add(T("ShoppingCart.SelectAttribute", textPrompt));
+                        if (attribute.IsActive)
+                        {
+                            var textPrompt = attribute.TextPrompt.IsEmpty() ? attribute.GetLocalized(x => x.Name) : attribute.GetLocalized(x => x.TextPrompt);
+                            currentWarnings.Add(T("ShoppingCart.SelectAttribute", textPrompt));
+                        }
                     }
                 }
             }
