@@ -4,13 +4,13 @@
 
 ### New Features
 
-- **easyCredit** plugin
+- **easyCredit** plugin (commercial)
 
 ### Improvements
 
 - Added price settings for discount requirements to be validated in product lists.
 - Faster loading of product lists that contain bundles with per-item pricing.
-- MegaSearch: significantly more speed, especially with large amounts of data.
+- MegaSearch: a significant increase in speed, especially when dealing with large amounts of data.
 
 ### Bugfixes
 
