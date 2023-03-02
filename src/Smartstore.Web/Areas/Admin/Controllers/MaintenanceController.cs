@@ -437,7 +437,7 @@ namespace Smartstore.Admin.Controllers
                 var status = response.StatusCode;
                 var warningModel = new SystemWarningModel
                 {
-                    Level = (status == HttpStatusCode.OK ? SystemWarningLevel.Pass : SystemWarningLevel.Fail)
+                    Level = status == HttpStatusCode.OK ? SystemWarningLevel.Pass : SystemWarningLevel.Fail
                 };
 
                 if (status == HttpStatusCode.OK)

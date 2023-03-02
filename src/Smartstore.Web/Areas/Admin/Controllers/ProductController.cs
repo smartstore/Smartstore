@@ -1024,7 +1024,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditTierPrice)]
         public async Task<IActionResult> TierPriceList(GridCommand command, int productId)
         {
-            var model = new GridModel<ProductModel.TierPriceModel>();
             var tierPrices = await _db.TierPrices
                 .Where(x => x.ProductId == productId)
                 .ApplyGridCommand(command)
@@ -1108,8 +1107,11 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            model.Rows = tierPricesModel;
-            model.Total = tierPrices.TotalCount;
+            var model = new GridModel<ProductModel.TierPriceModel>
+            {
+                Rows = tierPricesModel,
+                Total = tierPrices.TotalCount
+            };
 
             return Json(model);
         }

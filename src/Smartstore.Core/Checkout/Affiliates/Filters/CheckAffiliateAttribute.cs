@@ -6,6 +6,9 @@ namespace Smartstore.Core.Checkout.Affiliates
 {
     public sealed class CheckAffiliateAttribute : TypeFilterAttribute
     {
+        /// <summary>
+        /// Checks if a visiting customer was referred to the shop by an affiliate by analyzing the request query.
+        /// </summary>
         public CheckAffiliateAttribute()
             : base(typeof(CheckAffiliateFilter))
         {
