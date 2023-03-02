@@ -1,5 +1,33 @@
 # Release Notes
 
+## Smartstore 5.0.4
+
+### New Features
+
+- **easyCredit** plugin
+
+### Improvements
+
+- Added price settings for discount requirements to be validated in product lists.
+- Faster loading of product lists that contain bundles with per-item pricing.
+- MegaSearch: significantly more speed, especially with large amounts of data.
+
+### Bugfixes
+
+- #557 If the state is optional for addresses, none should be preselected when creating them.
+- #608 Build DeleteGuestCustomers query with LINQ again.
+- Fixed ArgumentException "The source argument contains duplicate keys" in case of menus with duplicate system names.
+- MySQL: fixed migration failure when UTC_TIMESTAMP was used as default value for date columns.
+- High data payload: 
+	- Fixed InvalidOperationException "A second operation was started on this context instance before a previous operation completed" when opening category (and others) edit page.
+	- Fixed many product tags blocks the loading of the product edit page due to initialization of the product tag selection box.
+- Fixed discount coupon code could not be applied in some cases.
+- PostFinance: fixed "The specified refund amount CHF needs to be rounded to a maximum of 2 decimal places".
+- Fixed ArgumentNullException in ProcessImageQuery.Add if name is null.
+- Fixed price adjustment of attributes was saved only with two decimal places.
+- Fixed missing inventory adjustment when the stock quantity was changed through product grid.
+
+
 ## Smartstore 5.0.3
 
 ### New Features

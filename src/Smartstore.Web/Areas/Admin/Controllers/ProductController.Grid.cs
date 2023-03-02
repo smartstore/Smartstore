@@ -1,6 +1,7 @@
 ﻿using System.Linq.Dynamic.Core;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Rules.Filters;
@@ -145,23 +146,44 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Update)]
         public async Task<IActionResult> ProductUpdate(ProductOverviewModel model)
         {
-            var product = await _db.Products.FindByIdAsync(model.Id);
-
-            product.Name = model.Name;
-            product.Sku = model.Sku;
-            product.Price = model.Price;
-            product.StockQuantity = model.StockQuantity;
-            product.Published = model.Published;
-            product.ManufacturerPartNumber = model.ManufacturerPartNumber;
-            product.Gtin = model.Gtin;
-            product.MinStockQuantity = model.MinStockQuantity;
-            product.ComparePrice = model.ComparePrice ?? 0;
-            product.AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc;
-            product.AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc;
-
             try
             {
+                var product = await _db.Products.FindByIdAsync(model.Id);
+                var stockQuantityInDatabase = product.StockQuantity;
+
+                product.Name = model.Name;
+                product.Sku = model.Sku;
+                product.Price = model.Price;
+                product.StockQuantity = model.StockQuantity;
+                product.Published = model.Published;
+                product.ManufacturerPartNumber = model.ManufacturerPartNumber;
+                product.Gtin = model.Gtin;
+                product.MinStockQuantity = model.MinStockQuantity;
+                product.ComparePrice = model.ComparePrice ?? 0;
+                product.AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc;
+                product.AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc;
+
                 await _db.SaveChangesAsync();
+
+                // Back in stock notifications.
+                if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock &&
+                    product.BackorderMode == BackorderMode.NoBackorders &&
+                    product.AllowBackInStockSubscriptions &&
+                    product.StockQuantity > 0 &&
+                    stockQuantityInDatabase <= 0 &&
+                    product.Published &&
+                    !product.Deleted &&
+                    !product.IsSystemProduct)
+                {
+                    await _stockSubscriptionService.Value.SendNotificationsToSubscribersAsync(product);
+                }
+
+                if (product.StockQuantity != stockQuantityInDatabase && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
+                {
+                    await _productService.AdjustInventoryAsync(product, new ProductVariantAttributeSelection(null), true, 0);
+                    await _db.SaveChangesAsync();
+                }
+
                 return Json(new { success = true });
             }
             catch (Exception ex)
