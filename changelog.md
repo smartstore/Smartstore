@@ -25,6 +25,7 @@
 - PostFinance: fixed "The specified refund amount CHF needs to be rounded to a maximum of 2 decimal places".
 - Fixed ArgumentNullException in ProcessImageQuery.Add if name is null.
 - Fixed price adjustment of attributes was saved only with two decimal places.
+- Fixed missing inventory adjustment when the stock quantity was changed through product grid.
 
 
 ## Smartstore 5.0.3
