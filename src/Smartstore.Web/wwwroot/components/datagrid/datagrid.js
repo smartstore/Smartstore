@@ -698,7 +698,7 @@ Vue.component("sm-datagrid", {
                                 w = "auto";
                                 break;
                             default:
-                                w = "minmax({0}px, 1fr)".format(DATAGRID_CELL_MIN_WIDTH);
+                                w = "minmax({0:D}px, 1fr)".format(DATAGRID_CELL_MIN_WIDTH);
                         }
                     }
                     if (!hasFraction) {

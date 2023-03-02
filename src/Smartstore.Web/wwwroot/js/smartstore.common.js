@@ -171,7 +171,7 @@
             .format(size,
                 32 - strokeWidth,
                 strokeWidth,
-                isProgress ? '<circle class="circle-below" cx="32" cy="32" r="{0}" fill="none" stroke-width="{1}"></circle>'.format(32 - strokeWidth, strokeWidth) : "" // SVG markup must be complete before turned into dom object
+                isProgress ? '<circle class="circle-below" cx="32" cy="32" r="{0:D}" fill="none" stroke-width="{1:D}"></circle>'.format(32 - strokeWidth, strokeWidth) : "" // SVG markup must be complete before turned into dom object
             ));
 
         spinner.append($(svg));

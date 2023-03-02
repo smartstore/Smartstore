@@ -171,7 +171,7 @@
             pngOutput.html(png);
             png.on('load', function (e) {
                 // Now fetch SVG image
-                let svg = $('<img class="img-fluid barcode" src="{0}" style="width: {1}px" />'.format(urlSvg + q, png.width()));
+                let svg = $('<img class="img-fluid barcode" src="{0}" style="width: {1:D}px" />'.format(urlSvg + q, png.width()));
 
                 $(svg).on('error', function (e) {
                     svgOutput.html('<span class="text-danger">Invalid input!</span>');
