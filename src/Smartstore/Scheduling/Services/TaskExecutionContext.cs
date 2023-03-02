@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Http;
+using Smartstore.Threading;
 
 namespace Smartstore.Scheduling
 {
@@ -10,21 +11,25 @@ namespace Smartstore.Scheduling
     /// </summary>
     public class TaskExecutionContext
     {
+        private readonly IAsyncState _asyncState;
         private readonly IComponentContext _componentContext;
         private readonly TaskExecutionInfo _originalExecutionInfo;
 
         public TaskExecutionContext(
             ITaskStore taskStore,
+            IAsyncState asyncState,
             HttpContext httpContext,
             IComponentContext componentContext,
             TaskExecutionInfo originalExecutionInfo,
             IDictionary<string, string> taskParameters = null)
         {
-            Guard.NotNull(taskStore, nameof(taskStore));
-            Guard.NotNull(httpContext, nameof(httpContext));
-            Guard.NotNull(componentContext, nameof(componentContext));
-            Guard.NotNull(originalExecutionInfo, nameof(originalExecutionInfo));
+            Guard.NotNull(taskStore);
+            Guard.NotNull(asyncState);
+            Guard.NotNull(httpContext);
+            Guard.NotNull(componentContext);
+            Guard.NotNull(originalExecutionInfo);
 
+            _asyncState = asyncState;
             _componentContext = componentContext;
             _originalExecutionInfo = originalExecutionInfo;
 
@@ -122,7 +127,11 @@ namespace Smartstore.Scheduling
             // Dont't let this abort the task on failure.
             try
             {
+                // Update progress in database
                 await TaskStore.UpdateExecutionInfoAsync(_originalExecutionInfo);
+
+                // Mimic async state sliding expiration behavior. Extend expiry by accessing the item.
+                _ = await _asyncState.GetAsync<TaskDescriptor>(ExecutionInfo.TaskDescriptorId.ToStringInvariant());
             }
             catch
             {

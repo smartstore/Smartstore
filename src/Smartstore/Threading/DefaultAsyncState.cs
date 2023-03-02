@@ -69,7 +69,7 @@ namespace Smartstore.Threading
             var keyPrefix = BuildKey<T>(null);
             return Store
                 .Keys(keyPrefix + "*")
-                .Select(key => Store.Get(key))
+                .Select(Store.Get)
                 .Where(entry => entry?.Value != null)
                 .Select(entry => entry.Value)
                 .OfType<T>();
@@ -77,7 +77,7 @@ namespace Smartstore.Threading
 
         public void Create<T>(T state, string name = null, bool neverExpires = false, CancellationTokenSource cancelTokenSource = default)
         {
-            Guard.NotNull(state, nameof(state));
+            Guard.NotNull(state);
 
             var key = BuildKey<T>(name);
             var entry = OnCreate(key, state, neverExpires, cancelTokenSource);
@@ -125,7 +125,7 @@ namespace Smartstore.Threading
 
         public bool Update<T>(Action<T> update, string name = null)
         {
-            Guard.NotNull(update, nameof(update));
+            Guard.NotNull(update);
 
             var entry = GetStateInfo<T>(name);
 
@@ -145,16 +145,16 @@ namespace Smartstore.Threading
 
         public async Task<bool> UpdateAsync<T>(Action<T> update, string name = null)
         {
-            Guard.NotNull(update, nameof(update));
+            Guard.NotNull(update);
 
-            var entry = await GetStateInfoAsync<T>(name).ConfigureAwait(false);
+            var entry = await GetStateInfoAsync<T>(name);
 
             if (entry?.Value != null)
             {
                 update((T)entry.Value);
                 if (Store.IsDistributed)
                 {
-                    await Store.PutAsync(entry.Key, entry).ConfigureAwait(false);
+                    await Store.PutAsync(entry.Key, entry);
                 }
 
                 return true;
@@ -216,14 +216,14 @@ namespace Smartstore.Threading
         {
             var key = BuildKey<T>(name);
 
-            if (await Store.GetTimeToLiveAsync(key).ConfigureAwait(false) != null)
+            if (await Store.GetTimeToLiveAsync(key) != null)
             {
                 // Mimic sliding expiration behavior. Extend expiry by 15 min.,
                 // but only if an expiration was set before.
-                await Store.SetTimeToLiveAsync(key, TimeSpan.FromMinutes(15)).ConfigureAwait(false);
+                await Store.SetTimeToLiveAsync(key, TimeSpan.FromMinutes(15));
             }
 
-            return await Store.GetAsync(key).ConfigureAwait(false);
+            return await Store.GetAsync(key);
         }
 
         /// <summary>
