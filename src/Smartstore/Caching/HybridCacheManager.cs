@@ -76,6 +76,8 @@ namespace Smartstore.Caching
 
         public bool Contains(string key)
         {
+            Guard.NotEmpty(key);
+
             foreach (var store in _stores)
             {
                 if (store.Contains(key))
@@ -89,6 +91,8 @@ namespace Smartstore.Caching
 
         public async Task<bool> ContainsAsync(string key)
         {
+            Guard.NotEmpty(key);
+
             foreach (var store in _stores)
             {
                 if (await store.ContainsAsync(key))
@@ -114,7 +118,7 @@ namespace Smartstore.Caching
 
         public ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // Get only from LAST store
             return _stores[_lastIndex].GetHashSet(key, acquirer);
@@ -122,7 +126,7 @@ namespace Smartstore.Caching
 
         public Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // INFO: Get only from LAST store
             return _stores[_lastIndex].GetHashSetAsync(key, acquirer);
@@ -130,7 +134,7 @@ namespace Smartstore.Caching
 
         public T Get<T>(string key, bool independent = false)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             var entry = GetInternal(key, independent, false).Await().Entry;
             if (entry?.Value != null)
@@ -143,7 +147,7 @@ namespace Smartstore.Caching
 
         public async Task<T> GetAsync<T>(string key, bool independent = false)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             var entry = (await GetInternal(key, independent, true)).Entry;
             if (entry?.Value != null)
@@ -156,7 +160,7 @@ namespace Smartstore.Caching
 
         public bool TryGet<T>(string key, out T value)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             value = default;
             var entry = GetInternal(key, false, false).Await().Entry;
@@ -170,7 +174,7 @@ namespace Smartstore.Caching
 
         public async Task<AsyncOut<T>> TryGetAsync<T>(string key)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             var entry = (await GetInternal(key, false, true)).Entry;
             if (entry != null)
@@ -183,8 +187,8 @@ namespace Smartstore.Caching
 
         public T Get<T>(string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false)
         {
-            Guard.NotEmpty(key, nameof(key));
-            Guard.NotNull(acquirer, nameof(acquirer));
+            Guard.NotEmpty(key);
+            Guard.NotNull(acquirer);
 
             var entry = GetInternal(key, independent, false).Await().Entry;
             if (entry != null)
@@ -239,8 +243,8 @@ namespace Smartstore.Caching
 
         public async Task<T> GetAsync<T>(string key, Func<CacheEntryOptions, Task<T>> acquirer, bool independent = false, bool allowRecursion = false)
         {
-            Guard.NotEmpty(key, nameof(key));
-            Guard.NotNull(acquirer, nameof(acquirer));
+            Guard.NotEmpty(key);
+            Guard.NotNull(acquirer);
 
             var entry = (await GetInternal(key, independent, true)).Entry;
             if (entry != null)
@@ -295,7 +299,7 @@ namespace Smartstore.Caching
 
         public virtual TimeSpan? GetTimeToLive(string key)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // Get from last store.
             return _stores[_lastIndex].GetTimeToLive(key);
@@ -303,7 +307,7 @@ namespace Smartstore.Caching
 
         public virtual Task<TimeSpan?> GetTimeToLiveAsync(string key)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // Get from last store.
             return _stores[_lastIndex].GetTimeToLiveAsync(key);
@@ -311,7 +315,7 @@ namespace Smartstore.Caching
 
         public virtual void SetTimeToLive(string key, TimeSpan? duration)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // Update in last store only and rely on message bus to propagate expiration.
             _stores[_lastIndex].SetTimeToLive(key, duration);
@@ -319,7 +323,7 @@ namespace Smartstore.Caching
 
         public virtual Task SetTimeToLiveAsync(string key, TimeSpan? duration)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // Update in last store only and rely on message bus to propagate expiration.
             return _stores[_lastIndex].SetTimeToLiveAsync(key, duration);
@@ -331,7 +335,7 @@ namespace Smartstore.Caching
 
         public void Put(string key, object value, CacheEntryOptions options = null)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // Reverse order
             for (int i = _lastIndex; i >= 0; i--)
@@ -350,7 +354,7 @@ namespace Smartstore.Caching
 
         public async Task PutAsync(string key, object value, CacheEntryOptions options = null)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // Reverse order
             for (int i = _lastIndex; i >= 0; i--)
@@ -369,7 +373,7 @@ namespace Smartstore.Caching
 
         public void Remove(string key)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // Reverse order
             for (int i = _lastIndex; i >= 0; i--)
@@ -380,7 +384,7 @@ namespace Smartstore.Caching
 
         public async Task RemoveAsync(string key)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             // Reverse order
             for (int i = _lastIndex; i >= 0; i--)
@@ -391,7 +395,7 @@ namespace Smartstore.Caching
 
         public long RemoveByPattern(string pattern)
         {
-            Guard.NotEmpty(pattern, nameof(pattern));
+            Guard.NotEmpty(pattern);
 
             var counts = new long[_stores.Length];
 
@@ -406,7 +410,7 @@ namespace Smartstore.Caching
 
         public async Task<long> RemoveByPatternAsync(string pattern)
         {
-            Guard.NotEmpty(pattern, nameof(pattern));
+            Guard.NotEmpty(pattern);
 
             var counts = new long[_stores.Length];
 
@@ -421,6 +425,7 @@ namespace Smartstore.Caching
 
         public IDistributedLock GetLock(string key)
         {
+            Guard.NotEmpty(key);
             return _stores[_lastIndex].GetLock(key);
         }
 

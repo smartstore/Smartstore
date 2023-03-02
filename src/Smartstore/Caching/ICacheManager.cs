@@ -1,4 +1,7 @@
-﻿using Smartstore.Threading;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using Smartstore.Threading;
 
 namespace Smartstore.Caching
 {
@@ -23,7 +26,7 @@ namespace Smartstore.Caching
         /// <param name="key">The cache item key</param>
         /// <param name="independent">When <c>true</c>, no attempt will be made to invalidate depending/parent cache entries.</param>
         /// <returns>Cached item value or <c>null</c> if item with specified key does not exist in the cache</returns>
-        T Get<T>(string key, bool independent = false);
+        T? Get<T>(string key, bool independent = false);
 
         /// <summary>
         /// Gets a cache item associated with the specified key
@@ -32,7 +35,7 @@ namespace Smartstore.Caching
         /// <param name="key">The cache item key</param>
         /// <param name="independent">When <c>true</c>, no attempt will be made to invalidate depending/parent cache entries.</param>
         /// <returns>Cached item value or <c>null</c> if item with specified key does not exist in the cache</returns>
-        Task<T> GetAsync<T>(string key, bool independent = false);
+        Task<T?> GetAsync<T>(string key, bool independent = false);
 
         /// <summary>
         /// Tries to get a cache item associated with the specified key.
@@ -40,7 +43,7 @@ namespace Smartstore.Caching
         /// <typeparam name="T">The type of the item to get</typeparam>
         /// <param name="key">The cache item key</param>
         /// <returns><c>true</c> when the item exists.</returns>
-        bool TryGet<T>(string key, out T value);
+        bool TryGet<T>(string key, [MaybeNullWhen(false)] out T? value);
 
         /// <summary>
         /// Tries to get a cache item associated with the specified key.
@@ -60,7 +63,7 @@ namespace Smartstore.Caching
         /// <param name="independent">When <c>true</c>, no attempt will be made to invalidate depending/parent cache entries.</param>
         /// <param name="allowRecursion">When <c>false</c>, an exception will be thrown when the acquirer tries to acces the same cache item.</param>
         /// <returns>Cached item value</returns>
-        T Get<T>(string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false);
+        T? Get<T>(string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false);
 
         /// <summary>
         /// Gets a cache item associated with the specified key or adds the item
@@ -72,7 +75,7 @@ namespace Smartstore.Caching
         /// <param name="independent">When <c>true</c>, no attempt will be made to invalidate depending/parent cache entries.</param>
         /// <param name="allowRecursion">When <c>false</c>, an exception will be thrown when the acquirer tries to acces the same cache item.</param>
         /// <returns>Cached item value</returns>
-        Task<T> GetAsync<T>(string key, Func<CacheEntryOptions, Task<T>> acquirer, bool independent = false, bool allowRecursion = false);
+        Task<T?> GetAsync<T>(string key, Func<CacheEntryOptions, Task<T>> acquirer, bool independent = false, bool allowRecursion = false);
 
         /// <summary>
         /// Gets or creates a provider specific hashset implementation.
@@ -81,7 +84,7 @@ namespace Smartstore.Caching
         /// <param name="key">The set cache item key</param>
         /// <param name="acquirer">Optional acquirer callback that is invoked when requested set does not exist yet.</param>
         /// <returns>The hashset</returns>
-        ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null);
+        ISet GetHashSet(string key, Func<IEnumerable<string>>? acquirer = null);
 
         /// <summary>
         /// Gets or creates a provider specific hashset implementation.
@@ -90,7 +93,7 @@ namespace Smartstore.Caching
         /// <param name="key">The set cache item key</param>
         /// <param name="acquirer">Optional acquirer callback that is invoked when requested set does not exist yet.</param>
         /// <returns>The hashset</returns>
-        Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null);
+        Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>>? acquirer = null);
 
         /// <summary>
         /// Adds a cache item with the specified key
@@ -98,7 +101,7 @@ namespace Smartstore.Caching
         /// <param name="key">Key</param>
         /// <param name="value">Value. Can be <c>null</c>.</param>
         /// <param name="options">Options (expiration and dependencies).</param>
-        void Put(string key, object value, CacheEntryOptions options = null);
+        void Put(string key, object? value, CacheEntryOptions? options = null);
 
         /// <summary>
         /// Adds a cache item with the specified key
@@ -106,7 +109,7 @@ namespace Smartstore.Caching
         /// <param name="key">Key</param>
         /// <param name="value">Value. Can be <c>null</c>.</param>
         /// <param name="options">Options (expiration and dependencies).</param>
-        Task PutAsync(string key, object value, CacheEntryOptions options = null);
+        Task PutAsync(string key, object? value, CacheEntryOptions? options = null);
 
         /// <summary>
         /// Gets a value indicating whether an entry associated with the specified key is cached
@@ -147,7 +150,7 @@ namespace Smartstore.Caching
         /// - h[^e]llo matches hallo, hbllo, ... but not hello
         /// - h[a-b]llo matches hallo and hbllo
         /// </remarks>
-        IEnumerable<string> Keys(string pattern = "*");
+        IEnumerable<string> Keys(string? pattern = "*");
 
         /// <summary>
         /// Scans for all keys matching the input pattern 
@@ -162,7 +165,7 @@ namespace Smartstore.Caching
         /// - h[^e]llo matches hallo, hbllo, ... but not hello
         /// - h[a-b]llo matches hallo and hbllo
         /// </remarks>
-        IAsyncEnumerable<string> KeysAsync(string pattern = "*");
+        IAsyncEnumerable<string> KeysAsync(string? pattern = "*");
 
         /// <summary>
         /// Removes all entries with keys matching the input pattern.
