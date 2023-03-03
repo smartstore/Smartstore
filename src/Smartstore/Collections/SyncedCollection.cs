@@ -175,7 +175,7 @@ namespace Smartstore.Collections
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -197,13 +197,15 @@ namespace Smartstore.Collections
             {
                 _inner = inner;
                 _rwLock = rwLock;
-
-                // Lock on creation
-                _rwLock.EnterReadLock();
             }
 
             public bool MoveNext()
-                => _inner.MoveNext();
+            {
+                using (_rwLock.GetReadLock())
+                {
+                    return _inner.MoveNext();
+                }
+            }
 
             public void Reset()
                 => _inner.Reset();
@@ -220,12 +222,13 @@ namespace Smartstore.Collections
 
             public void Dispose()
             {
-                // Exit lock when foreach loop finishes
+                // Dispose inner enumerator and lock when foreach loop finishes
                 if (!_disposed)
                 {
                     try
                     {
-                        _rwLock.ExitReadLock();
+                        _rwLock.Dispose();
+                        _inner.Dispose();
                         _disposed = true;
                     }
                     catch
