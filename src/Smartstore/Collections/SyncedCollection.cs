@@ -3,7 +3,7 @@ using Smartstore.Threading;
 
 namespace Smartstore.Collections
 {
-    public sealed class SyncedCollection<T> : ICollection<T>
+    public sealed class SyncedCollection<T> : Disposable, ICollection<T>
     {
         // INFO: Don't call it SynchronizedCollection because of framework dupe.
         private readonly ICollection<T> _col;
@@ -118,6 +118,14 @@ namespace Smartstore.Collections
             }
         }
 
+        protected override void OnDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _rwLock.Dispose();
+            }
+        }
+
         #region ICollection<T>
 
         public int Count
@@ -222,12 +230,11 @@ namespace Smartstore.Collections
 
             public void Dispose()
             {
-                // Dispose inner enumerator and lock when foreach loop finishes
+                // Dispose inner enumerator when foreach loop finishes
                 if (!_disposed)
                 {
                     try
                     {
-                        _rwLock.Dispose();
                         _inner.Dispose();
                         _disposed = true;
                     }
