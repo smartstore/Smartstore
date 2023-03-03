@@ -500,7 +500,7 @@ namespace Smartstore.Core
             {
                 // Cookie present. Try to load guest customer by it's value.
                 return context.Db.Customers
-                    .IncludeShoppingCart()
+                    //.IncludeShoppingCart()
                     .IncludeCustomerRoles()
                     .Where(c => c.CustomerGuid == customerGuid)
                     .FirstOrDefaultAsync();
