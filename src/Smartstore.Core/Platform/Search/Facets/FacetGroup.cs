@@ -39,9 +39,9 @@ namespace Smartstore.Core.Search.Facets
             int displayOrder,
             IEnumerable<Facet> facets)
         {
-            Guard.NotNull(scope, nameof(scope));
-            Guard.NotNull(key, nameof(key));
-            Guard.NotNull(facets, nameof(facets));
+            Guard.NotNull(scope);
+            Guard.NotNull(key);
+            Guard.NotNull(facets);
 
             Scope = scope;
             Key = key;
@@ -163,7 +163,7 @@ namespace Smartstore.Core.Search.Facets
 
         public Facet GetFacet(string key)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             return _facets.Get(key);
         }
@@ -172,10 +172,7 @@ namespace Smartstore.Core.Search.Facets
         {
             get
             {
-                if (_kind == null)
-                {
-                    _kind = GetKindByKey(Scope, Key);
-                }
+                _kind ??= GetKindByKey(Scope, Key);
 
                 return _kind.Value;
             }

@@ -172,7 +172,7 @@ namespace Smartstore.Caching
             {
                 // INFO: we can only depend on existing items, otherwise this entry will be removed immediately.
                 var dependantEntries = item.Dependencies
-                    .Select(x => _cache.Get<CacheEntry>(x))
+                    .Select(_cache.Get<CacheEntry>)
                     .Where(x => x != null)
                     .ToArray();
 
@@ -185,7 +185,7 @@ namespace Smartstore.Caching
             // Ensure that when this item is expired, any objects depending on the token are also expired
             entry.RegisterPostEvictionCallback((object key, object value, EvictionReason reason, object state) =>
             {
-                var entry = (value as CacheEntry);
+                var entry = value as CacheEntry;
 
                 if (reason != EvictionReason.Replaced)
                 {
