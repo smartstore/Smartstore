@@ -27,6 +27,7 @@
 - Fixed price adjustment of attributes was saved only with two decimal places.
 - Fixed missing inventory adjustment when the stock quantity was changed through product grid.
 - The link to remove a search filter must not contain a page index, otherwise inconsistent search results will occur.
+- Fixed InvalidCastException "Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Smartstore.Core.Search.Facets.FacetGroup'" when OutputCache is active.
 
 
 ## Smartstore 5.0.3
