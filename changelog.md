@@ -4,13 +4,13 @@
 
 ### New Features
 
-- **easyCredit** plugin
+- **easyCredit** plugin (commercial)
 
 ### Improvements
 
 - Added price settings for discount requirements to be validated in product lists.
 - Faster loading of product lists that contain bundles with per-item pricing.
-- MegaSearch: significantly more speed, especially with large amounts of data.
+- MegaSearch: a significant increase in speed, especially when dealing with large amounts of data.
 
 ### Bugfixes
 
@@ -26,6 +26,8 @@
 - Fixed ArgumentNullException in ProcessImageQuery.Add if name is null.
 - Fixed price adjustment of attributes was saved only with two decimal places.
 - Fixed missing inventory adjustment when the stock quantity was changed through product grid.
+- The link to remove a search filter must not contain a page index, otherwise inconsistent search results will occur.
+- Fixed InvalidCastException "Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Smartstore.Core.Search.Facets.FacetGroup'" when OutputCache is active.
 
 
 ## Smartstore 5.0.3
