@@ -79,7 +79,7 @@
 
         /// <summary>
         /// Set this to your store's task scheduler base url
-        /// when the automatic url resolution fails (e.g. 'http://www.mystore.com/taskscheduler')
+        /// when the automatic url resolution fails (e.g. 'http://www.mystore.com')
         /// </summary>
         public string TaskSchedulerBaseUrl { get; set; }
 

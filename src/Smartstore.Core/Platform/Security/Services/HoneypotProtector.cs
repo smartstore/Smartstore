@@ -45,7 +45,7 @@ namespace Smartstore.Core.Security
 
         public string SerializeToken(HoneypotField token)
         {
-            Guard.NotNull(token, nameof(token));
+            Guard.NotNull(token);
 
             var json = JsonConvert.SerializeObject(token);
             var encoded = _protector.Protect(json.GetBytes());
@@ -56,7 +56,7 @@ namespace Smartstore.Core.Security
 
         public HoneypotField DeserializeToken(string token)
         {
-            Guard.NotEmpty(token, nameof(token));
+            Guard.NotEmpty(token);
 
             var encoded = Convert.FromBase64String(TryFixBase64Token(token));
             var decoded = _protector.Unprotect(encoded);

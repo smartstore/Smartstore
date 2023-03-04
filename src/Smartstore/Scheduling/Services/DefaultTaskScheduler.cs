@@ -84,8 +84,8 @@ namespace Smartstore.Scheduling
 
         public void Activate(string baseUrl, int pollInterval, HttpContext httpContext)
         {
-            Guard.IsPositive(pollInterval, nameof(pollInterval));
-            Guard.NotNull(httpContext, nameof(httpContext));
+            Guard.IsPositive(pollInterval);
+            Guard.NotNull(httpContext);
 
             var url = string.Empty;
 
@@ -179,7 +179,7 @@ namespace Smartstore.Scheduling
                     {
                         // 10 failed attempts in succession. Stop the timer!
                         _timer?.Change(Timeout.Infinite, 0);
-                        Logger.Info("Stopping TaskScheduler poll timer. Too many consecutive failed requests.");
+                        Logger.Warn("Stopping TaskScheduler poll timer. Too many consecutive failed requests.");
                     }
                 }
             }

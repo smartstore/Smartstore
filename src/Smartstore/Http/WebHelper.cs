@@ -222,8 +222,8 @@ namespace Smartstore.Http
         /// <param name="protocol">Changes the protocol if passed.</param>
         public static string GetAbsoluteUrl(string path, HttpRequest request, bool enforceScheme = false, string protocol = null)
         {
-            Guard.NotEmpty(path, nameof(path));
-            Guard.NotNull(request, nameof(request));
+            Guard.NotEmpty(path);
+            Guard.NotNull(request);
 
             if (path.Contains(Uri.SchemeDelimiter))
             {
@@ -420,7 +420,7 @@ namespace Smartstore.Http
 
         public static async Task<Uri> CreateUriForSafeLocalCallAsync(Uri requestUri)
         {
-            Guard.NotNull(requestUri, nameof(requestUri));
+            Guard.NotNull(requestUri);
 
             var safeHostName = await GetSafeLocalHostNameAsync(requestUri);
 

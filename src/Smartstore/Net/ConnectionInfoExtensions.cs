@@ -12,7 +12,7 @@ namespace Smartstore
         /// </summary>
         public static bool IsLocal(this ConnectionInfo connection)
         {
-            Guard.NotNull(connection, nameof(connection));
+            Guard.NotNull(connection);
 
             var remoteAddress = connection.RemoteIpAddress;
             if (remoteAddress == null || remoteAddress.ToString() == NullIPv6)
