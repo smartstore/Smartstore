@@ -359,7 +359,7 @@ namespace Smartstore.Core.Seo
                                     sitemaps.RemoveAll(language.Id);
                                 }
                             }
-
+                            
                             slugs.Clear();
                         }
 

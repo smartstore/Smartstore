@@ -10,8 +10,8 @@ namespace Smartstore.Core.Seo
 
         public UrlRecordCollection(string entityName, int[] requestedSet, IEnumerable<UrlRecord> items)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
-            Guard.NotNull(items, nameof(items));
+            Guard.NotEmpty(entityName);
+            Guard.NotNull(items);
 
             _entityName = entityName;
             _dict = items.ToDictionarySafe(x => CreateKey(x.EntityId, x.LanguageId));
@@ -24,26 +24,26 @@ namespace Smartstore.Core.Seo
 
         public void MergeWith(UrlRecordCollection other)
         {
-            Guard.NotNull(other, nameof(other));
+            Guard.NotNull(other);
 
-            if (!this._entityName.EqualsNoCase(other._entityName))
+            if (!_entityName.EqualsNoCase(other._entityName))
             {
-                throw new InvalidOperationException("Expected group '{0}', but was '{1}'".FormatInvariant(this._entityName, other._entityName));
+                throw new InvalidOperationException("Expected group '{0}', but was '{1}'".FormatInvariant(_entityName, other._entityName));
             }
 
             // Merge dictionary
-            other._dict.Merge(this._dict, true);
+            other._dict.Merge(_dict, true);
 
             // Merge requested set (entity ids)
-            if (this._requestedSet != null)
+            if (_requestedSet != null)
             {
                 if (other._requestedSet == null)
                 {
-                    other._requestedSet = new HashSet<int>(this._requestedSet);
+                    other._requestedSet = new HashSet<int>(_requestedSet);
                 }
                 else
                 {
-                    other._requestedSet.AddRange(this._requestedSet);
+                    other._requestedSet.AddRange(_requestedSet);
                 }
             }
         }
