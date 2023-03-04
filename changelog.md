@@ -26,6 +26,7 @@
 - Fixed ArgumentNullException in ProcessImageQuery.Add if name is null.
 - Fixed price adjustment of attributes was saved only with two decimal places.
 - Fixed missing inventory adjustment when the stock quantity was changed through product grid.
+- The link to remove a search filter must not contain a page index, otherwise inconsistent search results will occur.
 
 
 ## Smartstore 5.0.3

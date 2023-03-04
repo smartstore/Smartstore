@@ -11,7 +11,10 @@ namespace Smartstore.Core.Search.Facets
             Guard.NotNull(request, nameof(request));
 
             Url = UrlPolicy.CombineSegments(request.PathBase, request.Path);
-            InitialQuery = request.QueryString;
+
+            // Remove page index (i) from query string.
+            var qs = new MutableQueryCollection(request.QueryString);
+            InitialQuery = qs.Remove("i").ToQueryString();
         }
 
         protected string Url { get; init; }
