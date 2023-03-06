@@ -11,10 +11,7 @@ namespace Smartstore.Core.Search.Facets
             Guard.NotNull(request, nameof(request));
 
             Url = UrlPolicy.CombineSegments(request.PathBase, request.Path);
-
-            // Remove page index (i) from query string.
-            var qs = new MutableQueryCollection(request.QueryString);
-            InitialQuery = qs.Remove("i").ToQueryString();
+            InitialQuery = request.QueryString;
         }
 
         protected string Url { get; init; }
@@ -27,7 +24,9 @@ namespace Smartstore.Core.Search.Facets
 
         public virtual string Add(params Facet[] facets)
         {
-            var qs = new MutableQueryCollection(InitialQuery);
+            // Remove page index (i) from query string.
+            var qs = new MutableQueryCollection(InitialQuery)
+                .Remove("i");
 
             foreach (var facet in facets)
             {
@@ -43,7 +42,9 @@ namespace Smartstore.Core.Search.Facets
 
         public virtual string Remove(params Facet[] facets)
         {
-            var qs = new MutableQueryCollection(InitialQuery);
+            // Remove page index (i) from query string.
+            var qs = new MutableQueryCollection(InitialQuery)
+                .Remove("i");
 
             foreach (var facet in facets)
             {
