@@ -269,6 +269,7 @@ namespace Smartstore.Admin.Controllers
                 await _storeMappingService.ApplyStoreMappingsAsync(manufacturer, model.SelectedStoreIds);
                 await _aclService.ApplyAclMappingsAsync(manufacturer, model.SelectedCustomerRoleIds);
 
+                _db.Manufacturers.Update(manufacturer);
                 await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, manufacturer, form));

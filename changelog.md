@@ -28,6 +28,7 @@
 - Fixed missing inventory adjustment when the stock quantity was changed through product grid.
 - The link to remove a search filter must not contain a page index, otherwise inconsistent search results will occur.
 - Fixed InvalidCastException "Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Smartstore.Core.Search.Facets.FacetGroup'" when OutputCache is active.
+- Category or manufacturer discount was not applied if no other changes were made to the category or manufacturer except for the discount assignment.
 
 
 ## Smartstore 5.0.3

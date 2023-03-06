@@ -440,6 +440,7 @@ namespace Smartstore.Admin.Controllers
                 await _storeMappingService.ApplyStoreMappingsAsync(category, model.SelectedStoreIds);
                 await _aclService.ApplyAclMappingsAsync(category, model.SelectedCustomerRoleIds);
 
+                _db.Categories.Update(category);
                 await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, category, form));
