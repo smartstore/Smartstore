@@ -35,12 +35,12 @@ namespace Smartstore.Data.Caching
 
         public override object Execute(Expression expression)
         {
-            return ExecuteInternal(expression, q => base.Execute(q));
+            return ExecuteInternal(expression, base.Execute);
         }
 
         public override TResult Execute<TResult>(Expression expression)
         {
-            return ExecuteInternal(expression, q => base.Execute<TResult>(q));
+            return ExecuteInternal(expression, base.Execute<TResult>);
         }
 
         public override TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
