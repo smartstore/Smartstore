@@ -38,6 +38,7 @@ namespace Smartstore.Core.Catalog.Products
                 .AsNoTracking()
                 .Where(x => productIds.Contains(x.Id))
                 .ApplyStandardFilter()
+                .SelectSummary()
                 .ToListAsync();
 
             var authorizedProducts = await _aclService

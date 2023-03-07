@@ -212,11 +212,13 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         [MaxLength]
         [LocalizedProperty]
+        [NonSummary]
         public string FullDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the admin comment.
         /// </summary>
+        [NonSummary]
         public string AdminComment { get; set; }
 
         /// <summary>
@@ -428,6 +430,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the license agreement text.
         /// </summary>
+        [NonSummary]
         public string UserAgreementText { get; set; }
 
         /// <summary>

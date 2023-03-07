@@ -150,6 +150,7 @@ namespace Smartstore.Core.Catalog.Products
                 var products = await _db.Products
                     .AsNoTracking()
                     .Where(x => productIds2.Contains(x.Id))
+                    .SelectSummary()
                     .ToListAsync();
 
                 result.AddRange(products.OrderBySequence(productIds2));
