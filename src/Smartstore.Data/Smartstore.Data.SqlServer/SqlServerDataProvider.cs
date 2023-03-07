@@ -188,12 +188,12 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             return DetectSqlError(updateException?.InnerException, _uniquenessViolationErrorCodes);
         }
         
-        protected override async Task<long> GetDatabaseSizeCore(bool async)
+        protected override Task<long> GetDatabaseSizeCore(bool async)
         {
-            var sql = "SELECT SUM(size * 8192) FROM sys.database_files";
+            var sql = "SELECT SUM(CAST(size AS bigint) * 8192) FROM sys.database_files";
             return async
-                ? (await Database.ExecuteScalarRawAsync<int>(sql)).Convert<long>()
-                : Database.ExecuteScalarRaw<int>(sql).Convert<long>();
+                ? Database.ExecuteScalarRawAsync<long>(sql)
+                : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
         protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
