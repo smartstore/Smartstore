@@ -67,7 +67,9 @@ namespace Smartstore.Web.Components
             }
 
             // Load products
-            var products = await _db.Products.GetManyAsync(report.Select(x => x.ProductId));
+            var products = await _db.Products
+                .SelectSummary()
+                .GetManyAsync(report.Select(x => x.ProductId));
 
             // ACL and store mapping
             products = await products

@@ -366,7 +366,7 @@ namespace Smartstore.Web.Api.Controllers
                     .BuildFacetMap(false)
                     .CheckSpelling(0)
                     .Slice(searchQuery.Skip, Math.Min(searchQuery.Take, state.MaxTop))
-                    .UseHitsFactory((set, ids) => Entities.GetManyAsync(ids, true));
+                    .UseHitsFactory((set, ids) => Entities.SelectSummary().GetManyAsync(ids, true));
 
                 var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
                 //$"term:{model.Term.NaIfEmpty()} skip:{searchQuery.Skip} take:{searchQuery.Take} hits:{searchResult.HitsEntityIds.Length} total:{searchResult.TotalHitsCount}".Dump();

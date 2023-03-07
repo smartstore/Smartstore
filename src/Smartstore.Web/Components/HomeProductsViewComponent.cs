@@ -36,6 +36,7 @@ namespace Smartstore.Web.Components
                 .ApplyStandardFilter(false)
                 .Where(x => x.ShowOnHomePage)
                 .OrderBy(x => x.HomePageDisplayOrder)
+                .SelectSummary()
                 .ToListAsync();
 
             // ACL and store mapping

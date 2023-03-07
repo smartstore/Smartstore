@@ -12,8 +12,8 @@ namespace Smartstore.Core.Catalog.Search
     [ValidateNever]
     public partial class CatalogSearchQuery : SearchQuery<CatalogSearchQuery>, ICloneable<CatalogSearchQuery>
     {
-        private readonly static Func<DbSet<Product>, int[], Task<List<Product>>> _defaultHitsFactory = (dbSet, ids) 
-            => dbSet.GetManyAsync(ids);
+        private readonly static Func<DbSet<Product>, int[], Task<List<Product>>> _defaultHitsFactory = (dbSet, ids)
+            => dbSet.SelectSummary().GetManyAsync(ids);
 
         private Func<DbSet<Product>, int[], Task<List<Product>>> _hitsFactory = _defaultHitsFactory;
 
