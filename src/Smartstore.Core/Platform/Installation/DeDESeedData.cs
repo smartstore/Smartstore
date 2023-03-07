@@ -386,7 +386,7 @@ namespace Smartstore.Core.Installation
                     });
                     x.StateProvinces.Add(new StateProvince()
                     {
-                        Name = "Niderösterreich",
+                        Name = "Niederösterreich",
                         Abbreviation = "NÖ",
                         Published = true,
                         DisplayOrder = 1,
