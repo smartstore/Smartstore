@@ -1,12 +1,11 @@
 ﻿using System.Net;
+using System.Net.Sockets;
 using Microsoft.AspNetCore.Http;
 
 namespace Smartstore
 {
     public static class ConnectionInfoExtensions
     {
-        const string NullIPv6 = "::1";
-
         /// <summary>
         /// Checks whether the current request originates from a local computer.
         /// </summary>
@@ -15,21 +14,22 @@ namespace Smartstore
             Guard.NotNull(connection);
 
             var remoteAddress = connection.RemoteIpAddress;
-            if (remoteAddress == null || remoteAddress.ToString() == NullIPv6)
+            if (remoteAddress == null)
             {
-                return true;
+                return false;
             }
 
-            // We have a remote address set up.
-            // Is local the same as remote, then we are local.
-            var localAddress = connection.LocalIpAddress;
-            if (localAddress != null && localAddress.ToString() != NullIPv6)
+            // If the RemoteAddress is an IPv6 address, the method converts
+            // it to an IPv4-mapped address using the MapToIPv4 method and
+            // checks if that address is a loopback address as well.
+            var isLocalAddress = IPAddress.IsLoopback(remoteAddress);
+            if (!isLocalAddress && remoteAddress.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                return remoteAddress.Equals(localAddress);
+                //return remoteAddress.Equals(localAddress);
+                isLocalAddress = IPAddress.IsLoopback(remoteAddress.MapToIPv4());
             }
 
-            // Else we are remote if the remote IP address is not a loopback address
-            return IPAddress.IsLoopback(remoteAddress);
+            return isLocalAddress;
         }
     }
 }
