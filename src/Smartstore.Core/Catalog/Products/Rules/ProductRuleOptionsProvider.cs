@@ -43,7 +43,9 @@ namespace Smartstore.Core.Catalog.Products.Rules
             {
                 if (context.Reason == RuleOptionsRequestReason.SelectedDisplayNames)
                 {
-                    var products = await _db.Products.GetManyAsync(context.Value.ToIntArray());
+                    var products = await _db.Products
+                        .SelectSummary()
+                        .GetManyAsync(context.Value.ToIntArray());
 
                     result.AddOptions(context, products.Select(x => new RuleValueSelectListOption
                     {

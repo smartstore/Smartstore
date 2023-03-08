@@ -28,7 +28,7 @@ namespace Smartstore.Data
 
             return InterceptionResult<DbDataReader>.SuppressWithResult(wrapper);
         }
-
+        
         public override InterceptionResult<DbDataReader> ReaderExecuting(
             DbCommand command, 
             CommandEventData eventData, 
@@ -59,11 +59,6 @@ namespace Smartstore.Data
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private T Get<T>(int ordinal)
             {
-                if (ordinal < 0 || ordinal >= _cache.Length)
-                {
-                    return default;
-                }
-                
                 if (_cache[ordinal] != DBNull.Value)
                 {
                     return (T)_cache[ordinal];
