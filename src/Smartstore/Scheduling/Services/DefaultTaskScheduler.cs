@@ -84,8 +84,8 @@ namespace Smartstore.Scheduling
 
         public void Activate(string baseUrl, int pollInterval, HttpContext httpContext)
         {
-            Guard.IsPositive(pollInterval, nameof(pollInterval));
-            Guard.NotNull(httpContext, nameof(httpContext));
+            Guard.IsPositive(pollInterval);
+            Guard.NotNull(httpContext);
 
             var url = string.Empty;
 
