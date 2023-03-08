@@ -62,7 +62,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 .ToArray();
 
             var linkedProducts = linkedProductIds.Any()
-                ? await _db.Products.AsNoTracking().Where(x => linkedProductIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id)
+                ? await _db.Products.AsNoTracking()
+                    .Where(x => linkedProductIds.Contains(x.Id))
+                    .SelectSummary()
+                    .ToDictionaryAsync(x => x.Id)
                 : new Dictionary<int, Product>();
 
             foreach (var value in attributeValues)

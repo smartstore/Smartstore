@@ -297,6 +297,7 @@ namespace Smartstore.Core.Catalog.Products
             var associatedProducts = await _db.Products
                 .AsNoTracking()
                 .ApplyAssociatedProductsFilter(ids, _includeHidden)
+                .SelectSummary()
                 .ToListAsync();
 
             return associatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
