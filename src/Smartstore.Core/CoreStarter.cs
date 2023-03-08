@@ -89,7 +89,7 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     builder.UseSecondLevelCache();
 
-                    if (DataSettings.Instance.DbFactory.DbSystem == DbSystemType.SqlServer)
+                    if (appContext.AppConfiguration.UseOptimizedDbDataReader && DataSettings.Instance.DbFactory.DbSystem == DbSystemType.SqlServer)
                     {
                         // Fixes large binary or text async read performance issue.
                         // See: https://github.com/dotnet/SqlClient/issues/593

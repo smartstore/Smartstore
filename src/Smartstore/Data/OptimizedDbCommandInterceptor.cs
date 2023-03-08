@@ -43,7 +43,7 @@ namespace Smartstore.Data
 
         /// <summary>
         /// This wrapper caches the values of accessed columns of each row, allowing non-sequential access
-        /// even when <see cref="CommandBehavior.SequentialAccess"/> is specified. It enables using this option it with EF Core.
+        /// even when <see cref="CommandBehavior.SequentialAccess"/> is specified. It enables using this option with EF Core.
         /// In addition, it provides an optimized method for reading text, ntext, varchar(max) and nvarchar(max) columns.
         /// All in all, it speeds up database operations reading from large text columns.
         /// </summary>
@@ -59,6 +59,11 @@ namespace Smartstore.Data
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private T Get<T>(int ordinal)
             {
+                if (ordinal < 0 || ordinal >= _cache.Length)
+                {
+                    return default;
+                }
+                
                 if (_cache[ordinal] != DBNull.Value)
                 {
                     return (T)_cache[ordinal];

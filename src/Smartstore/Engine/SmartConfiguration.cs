@@ -45,6 +45,14 @@
         public string DbDefaultSchema { get; set; }
 
         /// <summary>
+        /// If <c>true</c>, optimizes a <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for
+        /// accessing large columns (text, ntext, varchar(max) and nvarchar(max)). It enables the
+        /// "SequentialAccess" option and uses an optimized method
+        /// for converting large text columns into <see cref="string"/> objects.
+        /// </summary>
+        public bool UseOptimizedDbDataReader { get; set; } = true;
+
+        /// <summary>
         /// Storage path for media files and assets like thumbs, uploads, email attachments etc.
         /// Must be either an app local relative path or a fully qualified physical path to a shared location. E.g.:
         ///     - "Media" or "/Media" points to the subfolder named "Media" in your application root
