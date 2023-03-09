@@ -7,10 +7,12 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Admin.Models.Maintenance;
+using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
@@ -187,6 +189,14 @@ namespace Smartstore.Admin.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> OutsourceEmbeddedPictures()
+        {
+            var result = await ProductPictureHelper.OutsourceEmbeddedPictures(_db, HttpContext.RequestServices.GetRequiredService<IMediaService>());
+
+            return Content(result.ToString());
         }
 
         #endregion
