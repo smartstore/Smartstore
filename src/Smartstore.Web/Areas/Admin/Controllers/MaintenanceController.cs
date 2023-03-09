@@ -42,6 +42,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly ICustomerService _customerService;
         private readonly IImageFactory _imageFactory;
+        private readonly Lazy<IMediaService> _mediaService;
         private readonly Lazy<IImageCache> _imageCache;
         private readonly Lazy<IFilePermissionChecker> _filePermissionChecker;
         private readonly Lazy<ICurrencyService> _currencyService;
@@ -61,6 +62,7 @@ namespace Smartstore.Admin.Controllers
             ICustomerService customerService,
             IImageFactory imageFactory,
             Lazy<IImageCache> imageCache,
+            Lazy<IMediaService> mediaService,
             Lazy<IFilePermissionChecker> filePermissionChecker,
             Lazy<ICurrencyService> currencyService,
             Lazy<IPaymentService> paymentService,
@@ -78,6 +80,7 @@ namespace Smartstore.Admin.Controllers
             _customerService = customerService;
             _imageFactory = imageFactory;
             _imageCache = imageCache;
+            _mediaService = mediaService;
             _filePermissionChecker = filePermissionChecker;
             _currencyService = currencyService;
             _paymentService = paymentService;
@@ -192,11 +195,29 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        public async Task<IActionResult> OutsourceEmbeddedPictures()
+        public async Task<IActionResult> OffloadEmbeddedImages(int take = 200)
         {
-            var result = await ProductPictureHelper.OutsourceEmbeddedPictures(_db, HttpContext.RequestServices.GetRequiredService<IMediaService>());
+            var result = await ProductPictureHelper.OffloadEmbeddedImages(_db, _mediaService.Value, take);
 
-            return Content(result.ToString());
+            var message = result.ToString();
+
+            if (result.NumAttempted < result.NumProcessedProducts)
+            {
+                message += 
+                    Environment.NewLine + 
+                    Environment.NewLine + 
+                    "!! Apparently some embedded images could not be parsed and replaced correctly. Maybe incomplete or invalid HTML?";
+            }
+
+            if (result.NumProcessedProducts < result.NumAffectedProducts)
+            {
+                message +=
+                    Environment.NewLine +
+                    Environment.NewLine +
+                    "Please re-execute this script to continue processing the rest of the entities.";
+            }
+
+            return Content(message);
         }
 
         #endregion
