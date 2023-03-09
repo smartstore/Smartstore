@@ -1,11 +1,19 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.RegularExpressions;
 using Smartstore.Collections;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.IO;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Products.Utilities
 {
-    public static class ProductPictureHelper
+    public static partial class ProductPictureHelper
     {
+        #region MainPictureId
+
         /// <summary>
         /// Fixes 'MainPictureId' property of a single product entity.
         /// </summary>
@@ -15,7 +23,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
         /// <returns><c>true</c> when value was fixed.</returns>
         public static bool FixProductMainPictureId(SmartDbContext db, Product product, IEnumerable<ProductMediaFile> entities = null)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             // INFO: this method must be able to handle pre-save state also.
 
@@ -131,5 +139,134 @@ namespace Smartstore.Core.Catalog.Products.Utilities
             var map = files.ToMultimap(x => x.ProductId, x => x.MediaFileId);
             return map;
         }
+
+        #endregion
+
+        #region Outsourcing
+
+        //[GeneratedRegex(@"(?<=<img[^>]*src\s*=\s*['""])data:image\/(?<format>[a-z]+);base64,(?<data>[^'""]+)(?=['""][^>]*>)")]
+        [GeneratedRegex(@"src\s*=\s*['""](data:image\/(?<format>[a-z]+);base64,(?<data>[^'""]+))['""]")]
+        private static partial Regex EmbeddedImagesRegex();
+
+        private static readonly Regex _rgEmbeddedImages = EmbeddedImagesRegex();
+
+        public static async Task<OutsourcePictureResult> OutsourceEmbeddedPictures(SmartDbContext db, IMediaService mediaService)
+        {
+            var folderPath = "file/outsourced";
+            var dbSet = db.Products.IgnoreQueryFilters();
+            var allIds = dbSet
+                .Where(x => x.FullDescription.Contains("src=\"data:image/"))
+                .OrderBy(x => x.Id)
+                .Select(x => x.Id)
+                .ToPagedList(0, 200);
+
+            await allIds.LoadAsync();
+
+            if (allIds.Any())
+            {
+                mediaService.ImagePostProcessingEnabled = false;
+                
+                if (!mediaService.FolderExists(folderPath))
+                {
+                    await mediaService.CreateFolderAsync(folderPath);
+                }
+            }
+
+            var numAffectedProducts = await allIds.GetTotalCountAsync();
+            var numProcessedProducts = 0;
+            var numAttempted = 0;
+            var numFailed = 0;
+            var numSucceeded = 0;
+
+            foreach (var chunk in allIds.Chunk(10))
+            {
+                // MUST be sync. Keep small for less RAM usage.
+                var products = dbSet
+                    .Where(x => chunk.Contains(x.Id))
+                    .Select(x => new { x.Id, x.FullDescription })
+                    .ToList();
+
+                foreach (var p in products)
+                {
+                    var dirty = false;
+                    numProcessedProducts++;
+                    
+                    var replaced = await _rgEmbeddedImages.ReplaceAsync(p.FullDescription, async match =>
+                    {
+                        numAttempted++;
+                        
+                        var format = match.Groups["format"].Value;
+                        var data = match.Groups["data"].Value;
+                        if (format == "jpeg")
+                        {
+                            format = "jpg";
+                        }
+
+                        string result = null;
+
+                        try
+                        {
+                            using var stream = new MemoryStream(Convert.FromBase64String(data));
+
+                            var fileName = $"p{p.Id.ToStringInvariant()}-{CommonHelper.GenerateRandomDigitCode(8)}.{format}";
+                            var filePath = PathUtility.Join("file/outsourced", fileName);
+                            var fileInfo = await mediaService.SaveFileAsync(filePath, stream, false);
+
+                            result = fileInfo.Url;
+                            dirty = true;
+                            numSucceeded++;
+                        }
+                        catch
+                        {
+                            result = match.Value;
+                            numFailed++;
+                        }
+
+                        return $"src=\"{result}\"";
+                    });
+
+                    if (dirty)
+                    {
+                        var numAffected = await dbSet
+                            .Where(x => x.Id == p.Id)
+                            .ExecuteUpdateAsync(
+                                x => x.SetProperty(p => p.FullDescription, p => replaced));
+                    }
+                }
+            }
+
+            return new OutsourcePictureResult
+            {
+                NumAffectedProducts = numAffectedProducts,
+                NumProcessedProducts = numProcessedProducts,
+                NumAttempted = numAttempted,
+                NumFailed = numFailed,
+                NumSucceded = numSucceeded
+            };
+        }
+
+        public class OutsourcePictureResult
+        {
+            public int NumAffectedProducts { get; set; }
+            public int NumProcessedProducts { get; set; }
+            public int NumAttempted { get; set; }
+            public int NumFailed { get; set; }
+            public int NumSucceded { get; set; }
+
+            public override string ToString()
+            {
+                var sb = new StringBuilder();
+
+                sb.AppendLine($"NumAffectedProducts: {NumAffectedProducts}");
+                sb.AppendLine($"NumProcessedProducts: {NumProcessedProducts}");
+                sb.AppendLine($"NumAttempted: {NumAttempted}");
+                sb.AppendLine($"NumSucceded: {NumSucceded}");
+                sb.AppendLine($"NumFailed: {NumFailed}");
+
+                return sb.ToString();
+            }
+        }
+
+        #endregion
     }
 }
