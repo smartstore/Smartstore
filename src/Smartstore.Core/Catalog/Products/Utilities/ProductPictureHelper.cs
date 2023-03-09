@@ -147,18 +147,26 @@ namespace Smartstore.Core.Catalog.Products.Utilities
         //[GeneratedRegex(@"(?<=<img[^>]*src\s*=\s*['""])data:image\/(?<format>[a-z]+);base64,(?<data>[^'""]+)(?=['""][^>]*>)")]
         [GeneratedRegex(@"src\s*=\s*['""](data:image\/(?<format>[a-z]+);base64,(?<data>[^'""]+))['""]")]
         private static partial Regex EmbeddedImagesRegex();
-
         private static readonly Regex _rgEmbeddedImages = EmbeddedImagesRegex();
 
-        public static async Task<OutsourcePictureResult> OutsourceEmbeddedPictures(SmartDbContext db, IMediaService mediaService)
+        /// <summary>
+        /// Loads all products whose long description contains at least one embedded base64 image and 
+        /// replaces the base64 images with paths after moving them to the media storage.
+        /// This is a long running process. Please create a database backup before calling this function.
+        /// </summary>
+        /// <param name="take">Max products to process.</param>
+        /// <returns>The processing result</returns>
+        public static async Task<OffloadImageResult> OffloadEmbeddedImages(SmartDbContext db, IMediaService mediaService, int take = 200)
         {
+            Guard.IsPositive(take);
+            
             var folderPath = "file/outsourced";
             var dbSet = db.Products.IgnoreQueryFilters();
             var allIds = dbSet
                 .Where(x => x.FullDescription.Contains("src=\"data:image/"))
                 .OrderBy(x => x.Id)
                 .Select(x => x.Id)
-                .ToPagedList(0, 200);
+                .ToPagedList(0, take);
 
             await allIds.LoadAsync();
 
@@ -227,15 +235,15 @@ namespace Smartstore.Core.Catalog.Products.Utilities
 
                     if (dirty)
                     {
-                        var numAffected = await dbSet
+                        var numAffected = dbSet
                             .Where(x => x.Id == p.Id)
-                            .ExecuteUpdateAsync(
+                            .ExecuteUpdate(
                                 x => x.SetProperty(p => p.FullDescription, p => replaced));
                     }
                 }
             }
 
-            return new OutsourcePictureResult
+            return new OffloadImageResult
             {
                 NumAffectedProducts = numAffectedProducts,
                 NumProcessedProducts = numProcessedProducts,
@@ -245,7 +253,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
             };
         }
 
-        public class OutsourcePictureResult
+        public class OffloadImageResult
         {
             public int NumAffectedProducts { get; set; }
             public int NumProcessedProducts { get; set; }
