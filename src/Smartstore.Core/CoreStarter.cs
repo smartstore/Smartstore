@@ -93,7 +93,7 @@ namespace Smartstore.Core.Bootstrapping
                     {
                         // Fixes large binary or text async read performance issue.
                         // See: https://github.com/dotnet/SqlClient/issues/593
-                        builder.AddInterceptors(new OptimizedDbCommandInterceptor());
+                        builder.AddInterceptors(new SequentialDbCommandInterceptor());
                     }
                 }
 
