@@ -40,6 +40,11 @@
         public int DbContextPoolSize { get; set; } = 1024;
 
         /// <summary>
+        /// Enables pooling for <see cref="Microsoft.EntityFrameworkCore.IDbContextFactory{TContext}"/>.
+        /// </summary>
+        public bool UsePooledDbContextFactory { get; set; }
+
+        /// <summary>
         /// The default schema to use for database objects. Set <c>null</c> to use database default schema (e.g. "dbo").
         /// </summary>
         public string DbDefaultSchema { get; set; }
