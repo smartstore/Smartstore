@@ -49,8 +49,9 @@
         /// accessing large columns (text, ntext, varchar(max) and nvarchar(max)). It enables the
         /// "SequentialAccess" option and uses an optimized method
         /// for converting large text columns into <see cref="string"/> objects.
+        /// Default is <c>false</c>.
         /// </summary>
-        public bool UseOptimizedDbDataReader { get; set; } = true;
+        public bool UseSequentialDbDataReader { get; set; }
 
         /// <summary>
         /// Storage path for media files and assets like thumbs, uploads, email attachments etc.

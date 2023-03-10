@@ -26,31 +26,14 @@ namespace Smartstore.Data
             {
                 return result;
             }
-
+            
             var behavior = CommandBehavior.SequentialAccess;
             var reader = await command.ExecuteReaderAsync(behavior, cancellationToken);
-            var wrapper = await SequentialDataReader.CreateAsync(reader, command, cancellationToken);
+            var columns = await reader.GetColumnSchemaAsync(cancellationToken);
+            var sequentialReader = new SequentialDataReader(reader, columns);
 
-            return InterceptionResult<DbDataReader>.SuppressWithResult(wrapper);
+            return InterceptionResult<DbDataReader>.SuppressWithResult(sequentialReader);
         }
-
-        //public override InterceptionResult<DbDataReader> ReaderExecuting(
-        //    DbCommand command, 
-        //    CommandEventData eventData, 
-        //    InterceptionResult<DbDataReader> result)
-        //{
-        //    var canReadSequential = eventData.Context is HookingDbContext db && db.DataProvider.CanReadSequential;
-        //    if (!canReadSequential)
-        //    {
-        //        return result;
-        //    }
-
-        //    var behavior = CommandBehavior.SequentialAccess;
-        //    var reader = command.ExecuteReader(behavior);
-        //    var wrapper = SequentialDataReader.Create(reader, command);
-
-        //    return InterceptionResult<DbDataReader>.SuppressWithResult(wrapper);
-        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsValidCommandSource(CommandEventData eventData)
@@ -74,103 +57,38 @@ namespace Smartstore.Data
         {
             const int MaxBufferSize = int.MaxValue / 2;
 
-            private readonly DbDataReader _reader;
-            private readonly DbCommand _command;
-            private readonly DbColumn[] _schema;
+            private DbDataReader _reader;
+            private readonly DbColumn[] _columns;
             private readonly object[] _cache;
-            private readonly Func<object>[] _materializers;
 
-            private SequentialDataReader(DbDataReader reader, DbCommand command, IEnumerable<DbColumn> schema)
+            public SequentialDataReader(DbDataReader reader, IReadOnlyList<DbColumn> columns)
             {
                 _reader = reader;
-                _command = command;
-                _schema = schema.OrderBy(x => x.ColumnOrdinal).ToArray();
-
-                _cache = new object[_schema.Length];
-
-                byte[] stringGetterBuffer = null;
-
-                string stringGetter(int i)
-                {
-                    var dbColumn = _schema[i];
-
-                    // Using GetBytes instead of GetString is much faster, but only works for text, ntext, varchar(max) and nvarchar(max)
-                    if (dbColumn.ColumnSize < int.MaxValue)
-                    {
-                        return reader.GetString(i);
-                    }
-
-                    stringGetterBuffer ??= new byte[32 * 1024];
-
-                    var totalRead = 0;
-
-                    while (true)
-                    {
-                        var offset = totalRead;
-
-                        totalRead += (int)reader.GetBytes(i, offset, stringGetterBuffer, offset, stringGetterBuffer.Length - offset);
-
-                        if (totalRead < stringGetterBuffer.Length)
-                        {
-                            break;
-                        }
-
-                        if (stringGetterBuffer.Length >= MaxBufferSize)
-                        {
-                            throw new OutOfMemoryException($"{nameof(SequentialDataReader)}.{nameof(GetString)} cannot load column '{GetName(i)}' because it contains a string longer than {MaxBufferSize} bytes.");
-                        }
-
-                        Array.Resize(ref stringGetterBuffer, 2 * stringGetterBuffer.Length);
-                    }
-
-                    var c = dbColumn.DataTypeName[0];
-                    var encoding = (c is 'N' or 'n') ? Encoding.Unicode : Encoding.ASCII;
-
-                    return encoding.GetString(stringGetterBuffer.AsSpan(0, totalRead));
-                }
-
-                var dict = new Dictionary<Type, Func<DbColumn, int, Func<object>>>
-                {
-                    [typeof(bool)] = (column, index) => () => reader.GetBoolean(index),
-                    [typeof(byte)] = (column, index) => () => reader.GetByte(index),
-                    [typeof(char)] = (column, index) => () => reader.GetChar(index),
-                    [typeof(short)] = (column, index) => () => reader.GetInt16(index),
-                    [typeof(int)] = (column, index) => () => reader.GetInt32(index),
-                    [typeof(long)] = (column, index) => () => reader.GetInt64(index),
-                    [typeof(float)] = (column, index) => () => reader.GetFloat(index),
-                    [typeof(double)] = (column, index) => () => reader.GetDouble(index),
-                    [typeof(decimal)] = (column, index) => () => reader.GetDecimal(index),
-                    [typeof(DateTime)] = (column, index) => () => reader.GetDateTime(index),
-                    [typeof(Guid)] = (column, index) => () => reader.GetGuid(index),
-                    [typeof(string)] = (column, index) => () => stringGetter(index),
-                };
-
-                _materializers = schema.Select((column, index) => dict[column.DataType](column, index)).ToArray();
+                _columns = columns.OrderBy(x => x.ColumnOrdinal).ToArray();
+                _cache = new object[_columns.Length];
             }
-
-            public static SequentialDataReader Create(DbDataReader reader, DbCommand command)
-                => new SequentialDataReader(reader, command, reader.GetColumnSchema());
-
-            public static async ValueTask<SequentialDataReader> CreateAsync(DbDataReader reader, DbCommand command, CancellationToken cancellationToken)
-                => new SequentialDataReader(reader, command, await reader.GetColumnSchemaAsync(cancellationToken));
 
             protected override void Dispose(bool disposing)
             {
                 ClearCache();
-                _reader.Dispose();
+                _reader?.Dispose();
+                
             }
 
-            public override ValueTask DisposeAsync()
+            public override async ValueTask DisposeAsync()
             {
                 ClearCache();
-                return _reader.DisposeAsync();
+                if (_reader != null)
+                {
+                    await _reader.DisposeAsync();
+                    _reader = null;
+                }
             }
 
             private void ClearCache()
             {
                 Array.Clear(_cache, 0, _cache.Length);
-                Array.Clear(_schema, 0, _schema.Length);
-                Array.Clear(_materializers, 0, _materializers.Length);
+                Array.Clear(_columns, 0, _columns.Length);
             }
 
 
@@ -217,13 +135,13 @@ namespace Smartstore.Data
                 => Get<byte>(ordinal);
 
             public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) 
-                => _reader.GetBytes(ordinal, dataOffset, buffer, bufferOffset, length);
+                => throw new NotSupportedException("The SequentialDataReader does not support reading binary data.");
 
             public override char GetChar(int ordinal) 
                 => Get<char>(ordinal);
 
-            public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) 
-                => throw new NotSupportedException();
+            public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
+                => throw new NotSupportedException("The SequentialDataReader does not support reading character data.");
 
             public override string GetDataTypeName(int ordinal) 
                 => _reader.GetDataTypeName(ordinal);
@@ -285,38 +203,150 @@ namespace Smartstore.Data
             public override bool NextResult() 
                 => _reader.NextResult();
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public override bool Read()
-                => ReadInternal(false).GetAwaiter().GetResult();
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override Task<bool> ReadAsync(CancellationToken cancellationToken)
-                => ReadInternal(true, cancellationToken);
-
-            private async Task<bool> ReadInternal(bool async, CancellationToken cancellationToken = default)
             {
-                var read = async ? await _reader.ReadAsync(cancellationToken) : _reader.Read();
-                if (read)
+                if (_reader.Read())
                 {
-                    Array.Clear(_cache, 0, _cache.Length);
-
-                    for (int i = 0; i < _cache.Length; ++i)
-                    {
-                        var idDBNull = async ? await _reader.IsDBNullAsync(i, cancellationToken) : _reader.IsDBNull(i);
-                        if ((_schema[i].AllowDBNull ?? true) && idDBNull)
-                        {
-                            _cache[i] = DBNull.Value;
-                        }
-                        else
-                        {
-                            _cache[i] = _materializers[i]();
-                        }
-                    }
-
+                    ReadRow();
                     return true;
                 }
 
                 return false;
+            }
+
+            public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
+            {
+                if (await _reader.ReadAsync(cancellationToken))
+                {
+                    ReadRow();
+                    return true;
+                }
+
+                return false;
+            }
+
+            private void ReadRow()
+            {
+                Array.Clear(_cache, 0, _cache.Length);
+
+                for (int i = 0; i < _cache.Length; ++i)
+                {
+                    var column = _columns[i];
+                    var isDBNull = _reader.IsDBNull(i);
+                    object value;
+
+                    if (column.AllowDBNull == true && isDBNull)
+                    {
+                        value = DBNull.Value;
+                    }
+                    else
+                    {
+                        var type = column.DataType;
+                        if (type == typeof(bool))
+                        {
+                            value = _reader.GetBoolean(i);
+                        }
+                        else if (type == typeof(int))
+                        {
+                            value = _reader.GetInt32(i);
+                        }
+                        else if (type == typeof(string))
+                        {
+                            // Using GetBytes instead of GetString is much faster, but only works for text, ntext, varchar(max) and nvarchar(max)
+                            if (column.ColumnSize < int.MaxValue)
+                            {
+                                value = _reader.GetString(i);
+                            }
+                            else
+                            {
+                                value = ReadLargeString(i, column);
+                            }
+                        }
+                        else if (type == typeof(decimal))
+                        {
+                            value = _reader.GetDecimal(i);
+                        }
+                        else if (type == typeof(DateTime))
+                        {
+                            value = _reader.GetDateTime(i);
+                        }
+                        else if (type == typeof(byte))
+                        {
+                            value = _reader.GetByte(i);
+                        }
+                        else if (type == typeof(short))
+                        {
+                            value = _reader.GetInt16(i);
+                        }
+                        else if (type == typeof(long))
+                        {
+                            value = _reader.GetInt64(i);
+                        }
+                        else if (type == typeof(float))
+                        {
+                            value = _reader.GetFloat(i);
+                        }
+                        else if (type == typeof(double))
+                        {
+                            value = _reader.GetDouble(i);
+                        }
+                        else if (type == typeof(Guid))
+                        {
+                            value = _reader.GetGuid(i);
+                        }
+                        else if (type == typeof(char))
+                        {
+                            value = _reader.GetChar(i);
+                        }
+                        else if (type == typeof(ushort))
+                        {
+                            value = (ushort)_reader.GetInt16(i);
+                        }
+                        else if (type == typeof(uint))
+                        {
+                            value = (uint)_reader.GetInt32(i);
+                        }
+                        else if (type == typeof(ulong))
+                        {
+                            value = (ulong)_reader.GetInt64(i);
+                        }
+                        else
+                        {
+                            value = _reader.GetValue(i);
+                        }
+                    }
+
+                    _cache[i] = value;
+                }
+            }
+
+            private string ReadLargeString(int ordinal, DbColumn column)
+            {
+                var buffer = new byte[32 * 1024];
+                var totalRead = 0;
+
+                while (true)
+                {
+                    var offset = totalRead;
+
+                    totalRead += (int)_reader.GetBytes(ordinal, offset, buffer, offset, buffer.Length - offset);
+
+                    if (totalRead < buffer.Length)
+                    {
+                        break;
+                    }
+
+                    if (buffer.Length >= MaxBufferSize)
+                    {
+                        throw new OutOfMemoryException($"{nameof(SequentialDataReader)}.{nameof(GetString)} cannot load column '{GetName(ordinal)}' because it contains a string longer than {MaxBufferSize} bytes.");
+                    }
+
+                    Array.Resize(ref buffer, 2 * buffer.Length);
+                }
+
+                var typeName = column.DataTypeName;
+                var encoding = (typeName != null && typeName[0] is 'N' or 'n') ? Encoding.Unicode : Encoding.ASCII;
+                return encoding.GetString(buffer.AsSpan(0, totalRead));
             }
 
             public override void Close() 
