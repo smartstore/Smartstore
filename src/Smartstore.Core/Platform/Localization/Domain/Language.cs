@@ -27,7 +27,7 @@ namespace Smartstore.Core.Localization
     [DebuggerDisplay("{LanguageCulture}")]
     [Index(nameof(DisplayOrder), Name = "IX_Language_DisplayOrder")]
     [CacheableEntity]
-    public partial class Language : EntityWithAttributes, IStoreRestricted
+    public partial class Language : EntityWithAttributes, ILanguage, IStoreRestricted
     {
         public Language()
         {
