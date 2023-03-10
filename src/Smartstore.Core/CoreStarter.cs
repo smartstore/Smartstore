@@ -72,14 +72,14 @@ namespace Smartstore.Core.Bootstrapping
             services.AddDisplayControl();
             services.AddWkHtmlToPdf();
 
-            if (appContext.IsInstalled)
+            if (appContext.IsInstalled && appContext.AppConfiguration.UsePooledDbContextFactory)
             {
                 // Application DbContext as pooled factory
                 services.AddPooledDbContextFactory<SmartDbContext>(DbContextAction, config.DbContextPoolSize);
             }
             else
             {
-                // No pooling during installation
+                // No pooling allowed or desired.
                 services.AddDbContextFactory<SmartDbContext>(DbContextAction);
             }
 
