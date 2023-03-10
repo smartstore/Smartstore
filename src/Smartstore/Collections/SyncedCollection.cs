@@ -205,14 +205,13 @@ namespace Smartstore.Collections
             {
                 _inner = inner;
                 _rwLock = rwLock;
+
+                rwLock.EnterReadLock();
             }
 
             public bool MoveNext()
             {
-                using (_rwLock.GetReadLock())
-                {
-                    return _inner.MoveNext();
-                }
+                return _inner.MoveNext();
             }
 
             public void Reset()
@@ -235,6 +234,7 @@ namespace Smartstore.Collections
                 {
                     try
                     {
+                        _rwLock.ExitReadLock();
                         _inner.Dispose();
                         _disposed = true;
                     }
