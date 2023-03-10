@@ -160,6 +160,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Coupon codes and date ranges are always validated.
         /// </remarks>
         public DiscountValidationFlags DiscountValidationFlags { get; set; } = DiscountValidationFlags.All;
+        //public bool CheckDiscountValidity { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the lowest possible price should be determined
