@@ -45,6 +45,11 @@
         public string DbDefaultSchema { get; set; }
 
         /// <summary>
+        /// Enabled second level database cache.
+        /// </summary>
+        public bool UseDbCache { get; set; }
+
+        /// <summary>
         /// If <c>true</c>, optimizes a <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for
         /// accessing large columns (text, ntext, varchar(max) and nvarchar(max)). It enables the
         /// "SequentialAccess" option and uses an optimized method

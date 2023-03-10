@@ -41,6 +41,8 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
+            var config = appContext.AppConfiguration;
+            
             // Type converters
             RegisterTypeConverters();
 
@@ -73,7 +75,7 @@ namespace Smartstore.Core.Bootstrapping
             if (appContext.IsInstalled)
             {
                 // Application DbContext as pooled factory
-                services.AddPooledDbContextFactory<SmartDbContext>(DbContextAction, appContext.AppConfiguration.DbContextPoolSize);
+                services.AddPooledDbContextFactory<SmartDbContext>(DbContextAction, config.DbContextPoolSize);
             }
             else
             {
@@ -87,9 +89,12 @@ namespace Smartstore.Core.Bootstrapping
             {
                 if (appContext.IsInstalled)
                 {
-                    builder.UseSecondLevelCache();
+                    if (config.UseDbCache)
+                    {
+                        builder.UseSecondLevelCache();
+                    }
 
-                    if (appContext.AppConfiguration.UseSequentialDbDataReader && DataSettings.Instance.DbFactory.DbSystem == DbSystemType.SqlServer)
+                    if (config.UseSequentialDbDataReader && DataSettings.Instance.DbFactory.DbSystem == DbSystemType.SqlServer)
                     {
                         // Fixes large binary or text async read performance issue.
                         // See: https://github.com/dotnet/SqlClient/issues/593
