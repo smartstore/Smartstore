@@ -6,31 +6,44 @@ using Microsoft.AspNetCore.Html;
 
 namespace Smartstore.Core.Localization
 {
-    // TODO: (core) Make LocalizedValue cacheable/serializable somehow.
-
     public abstract class LocalizedValue
     {
         // Regex for all types of brackets which need to be "swapped": ({[]})
         private readonly static Regex _rgBrackets = new(@"\(|\{|\[|\]|\}|\)", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private readonly Language _requestLanguage;
-        private readonly Language _currentLanguage;
+        private readonly ILanguage _requestLanguage;
+        private readonly ILanguage _currentLanguage;
 
-        protected LocalizedValue(Language requestLanguage, Language currentLanguage)
+        protected LocalizedValue(ILanguage requestLanguage, ILanguage currentLanguage)
         {
-            _requestLanguage = requestLanguage;
-            _currentLanguage = currentLanguage;
+            _requestLanguage = ToLanguageInfo(requestLanguage);
+            _currentLanguage = ToLanguageInfo(currentLanguage);
         }
 
-        [IgnoreDataMember]
-        public Language RequestLanguage => _requestLanguage;
+        private static LanguageInfo ToLanguageInfo(ILanguage language)
+        {
+            if (language is LanguageInfo info) 
+            {
+                return info;
+            }
+            
+            return new LanguageInfo
+            {
+                Id = language.Id,
+                Name = language.Name,
+                LanguageCulture = language.LanguageCulture,
+                UniqueSeoCode = language.UniqueSeoCode,
+                Rtl = language.Rtl
+            };
+        }
 
-        [IgnoreDataMember]
-        public Language CurrentLanguage => _currentLanguage;
+        public ILanguage RequestLanguage => _requestLanguage;
+
+        public ILanguage CurrentLanguage => _currentLanguage;
 
         public bool IsFallback => _requestLanguage != _currentLanguage;
 
-        public bool BidiOverride => _requestLanguage != _currentLanguage && _requestLanguage?.Rtl != _currentLanguage?.Rtl;
+        public bool BidiOverride => _requestLanguage?.Id != _currentLanguage?.Id && _requestLanguage?.Rtl != _currentLanguage?.Rtl;
 
         /// <summary>
         /// Fixes the flow of brackets within a text if the current page language has RTL flow.
@@ -38,7 +51,7 @@ namespace Smartstore.Core.Localization
         /// <param name="str">The test to fix.</param>
         /// <param name="currentLanguage">Current language</param>
         /// <returns></returns>
-        public static string FixBrackets(string str, Language currentLanguage)
+        public static string FixBrackets(string str, ILanguage currentLanguage)
         {
             if (!currentLanguage.Rtl || str.IsEmpty())
             {
@@ -61,7 +74,7 @@ namespace Smartstore.Core.Localization
         {
         }
 
-        public LocalizedValue(T value, Language requestLanguage, Language currentLanguage)
+        public LocalizedValue(T value, ILanguage requestLanguage, ILanguage currentLanguage)
             : base(requestLanguage, currentLanguage)
         {
             _value = value;

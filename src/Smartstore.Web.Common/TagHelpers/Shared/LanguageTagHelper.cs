@@ -28,14 +28,14 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.PreElement.AppendHtml($"<meta name='accept-language' content='{acceptLang}'/>");
             }
 
-            Language currentLanguage = null;
+            ILanguage currentLanguage = null;
 
             if (LanguageAttributesFor is LocalizedValue localizedValue && localizedValue.BidiOverride)
             {
                 currentLanguage = localizedValue.CurrentLanguage;
             }
 
-            currentLanguage ??= LanguageAttributesFor as Language;
+            currentLanguage ??= LanguageAttributesFor as ILanguage;
 
             if (currentLanguage != null)
             {
