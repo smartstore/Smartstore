@@ -4,7 +4,10 @@ using System.Data;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Autofac;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Smartstore.Engine;
 
 namespace Smartstore.Data
 {
@@ -30,7 +33,7 @@ namespace Smartstore.Data
             var behavior = CommandBehavior.SequentialAccess;
             var reader = await command.ExecuteReaderAsync(behavior, cancellationToken);
             var columns = await reader.GetColumnSchemaAsync(cancellationToken);
-            var sequentialReader = new SequentialDataReader(reader, columns);
+            var sequentialReader = new SequentialDataReader(reader, columns, command);
 
             return InterceptionResult<DbDataReader>.SuppressWithResult(sequentialReader);
         }
@@ -60,12 +63,14 @@ namespace Smartstore.Data
             private DbDataReader _reader;
             private readonly DbColumn[] _columns;
             private readonly object[] _cache;
+            private DbCommand _command;
 
-            public SequentialDataReader(DbDataReader reader, IReadOnlyList<DbColumn> columns)
+            public SequentialDataReader(DbDataReader reader, IReadOnlyList<DbColumn> columns, DbCommand command)
             {
                 _reader = reader;
                 _columns = columns.OrderBy(x => x.ColumnOrdinal).ToArray();
                 _cache = new object[_columns.Length];
+                _command = command;
             }
 
             protected override void Dispose(bool disposing)
@@ -216,13 +221,27 @@ namespace Smartstore.Data
 
             public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
             {
-                if (await _reader.ReadAsync(cancellationToken))
+                try
                 {
-                    ReadRow();
-                    return true;
-                }
+                    if (await _reader.ReadAsync(cancellationToken))
+                    {
+                        ReadRow();
+                        return true;
+                    }
 
-                return false;
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    var loggerFactory = EngineContext.Current.Application.Services.Resolve<ILoggerFactory>();
+                    var logger = loggerFactory.CreateLogger<SequentialDataReader>();
+
+                    var msg = ex.Message;
+                    msg += Environment.NewLine + $"CommandText: {_command.CommandText}";
+                    logger.LogError(msg);
+
+                    throw;
+                }
             }
 
             private void ReadRow()
