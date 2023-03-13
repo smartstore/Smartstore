@@ -134,7 +134,8 @@ namespace Smartstore.Core.Identity
 
                 return query
                     .IncludeCustomerRoles()
-                    .IncludeShoppingCart()
+                    // Disabled because of SqlClient "Deadlock" exception (?)
+                    //.IncludeShoppingCart()
                     .FirstOrDefaultAsync();
             }
         }

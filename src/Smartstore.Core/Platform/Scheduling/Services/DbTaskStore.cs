@@ -102,7 +102,7 @@ namespace Smartstore.Scheduling
             if (_retryPolicy == null)
             {
                 _retryPolicy = Policy
-                    .Handle<Exception>(ex => Db.DataProvider.IsTransientException(ex))
+                    .Handle<Exception>(Db.DataProvider.IsTransientException)
                     .WaitAndRetryAsync(3, attempt => TimeSpan.FromMilliseconds(100));
             }
 
