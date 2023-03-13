@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace Smartstore.Core.Localization
+﻿namespace Smartstore.Core.Localization
 {
     /// <summary>
     /// Represents a language entity
@@ -31,8 +29,6 @@ namespace Smartstore.Core.Localization
         /// Whether language is "Right-to-left"
         /// </summary>
         bool Rtl { get; }
-
-        string GetTwoLetterISOLanguageName();
     }
 
     /// <summary>
@@ -54,24 +50,6 @@ namespace Smartstore.Core.Localization
 
         /// <inheritdoc />
         public bool Rtl { get; set; }
-
-        /// <inheritdoc />
-        public string GetTwoLetterISOLanguageName()
-        {
-            if (UniqueSeoCode.HasValue())
-            {
-                return UniqueSeoCode;
-            }
-
-            try
-            {
-                return new CultureInfo(LanguageCulture).TwoLetterISOLanguageName;
-            }
-            catch
-            {
-                return null;
-            }
-        }
 
         public override bool Equals(object obj)
         {
