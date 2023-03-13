@@ -193,7 +193,8 @@ INNER JOIN (
 
                 return query
                     .IncludeCustomerRoles()
-                    .IncludeShoppingCart()
+                    // Disabled because of SqlClient "Deadlock" exception (?)
+                    //.IncludeShoppingCart()
                     .FirstOrDefaultAsync();
             }
         }
