@@ -167,9 +167,36 @@ namespace Smartstore.Collections
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            using (_rwLock.GetReadLock())
+            Guard.NotNull(array);
+            
+            if (array.IsSynchronized)
             {
-                _col.CopyTo(array, arrayIndex);
+                // Have timeout in case of deadlock
+                if (Monitor.TryEnter(array.SyncRoot, 1000))
+                {
+                    try
+                    {
+                        using (_rwLock.GetReadLock())
+                        {
+                            _col.CopyTo(array, arrayIndex);
+                        }
+                    }
+                    finally
+                    {
+                        Monitor.Exit(array.SyncRoot);
+                    }
+                }
+                else
+                {
+                    throw new TimeoutException("Failed to copy to array.");
+                }
+            }
+            else
+            {
+                using (_rwLock.GetReadLock())
+                {
+                    _col.CopyTo(array, arrayIndex);
+                }
             }
         }
 
@@ -188,7 +215,12 @@ namespace Smartstore.Collections
 
         public IEnumerator<T> GetEnumerator()
         {
-            return new SafeEnumerator(_col.GetEnumerator(), _rwLock);
+            using (_rwLock.GetWriteLock())
+            {
+                // Create a collection snaphot
+                var snaphot = _col.ToList();
+                return new SafeEnumerator(snaphot.GetEnumerator(), _rwLock);
+            }
         }
 
         #endregion
@@ -205,21 +237,39 @@ namespace Smartstore.Collections
             {
                 _inner = inner;
                 _rwLock = rwLock;
-
-                rwLock.EnterReadLock();
             }
 
             public bool MoveNext()
             {
+                if (!_rwLock.IsReadLockHeld)
+                {
+                    _rwLock.EnterReadLock();
+                }
+                
                 return _inner.MoveNext();
             }
 
             public void Reset()
-                => _inner.Reset();
+            {
+                if (!_rwLock.IsReadLockHeld)
+                {
+                    _rwLock.EnterReadLock();
+                }
+
+                _inner.Reset();
+            }
 
             public T Current
             {
-                get => _inner.Current;
+                get 
+                {
+                    if (!_rwLock.IsReadLockHeld)
+                    {
+                        _rwLock.EnterReadLock();
+                    }
+
+                    return _inner.Current;
+                }
             }
 
             object IEnumerator.Current
@@ -234,7 +284,11 @@ namespace Smartstore.Collections
                 {
                     try
                     {
-                        _rwLock.ExitReadLock();
+                        if (_rwLock.IsReadLockHeld)
+                        {
+                            _rwLock.ExitReadLock();
+                        }
+                        
                         _inner.Dispose();
                         _disposed = true;
                     }
