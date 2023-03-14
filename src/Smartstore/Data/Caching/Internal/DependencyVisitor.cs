@@ -40,7 +40,7 @@ namespace Smartstore.Data.Caching.Internal
             AddType(node.Type);
             return base.VisitNew(node);
         }
-
+        
         protected override Expression VisitNewArray(NewArrayExpression node)
         {
             AddType(node.Type);

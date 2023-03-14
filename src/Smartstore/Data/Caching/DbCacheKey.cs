@@ -21,7 +21,7 @@
             if (obj is not DbCacheKey efCacheKey)
                 return false;
 
-            return this.Key == efCacheKey.Key;
+            return Key == efCacheKey.Key;
         }
 
         public override int GetHashCode()

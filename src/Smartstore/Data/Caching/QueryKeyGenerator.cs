@@ -67,7 +67,7 @@ namespace Smartstore.Data.Caching
                 return new DbCacheKey
                 {
                     Key = hash.CombinedHashString,
-                    EntitySets = visitor.Types.Select(x => GenerateDependencyKey(x)).ToArray()
+                    EntitySets = visitor.Types.Select(GenerateDependencyKey).ToArray()
                 };
             });
 

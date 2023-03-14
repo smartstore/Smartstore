@@ -156,7 +156,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
         /// </summary>
         /// <param name="take">Max products to process.</param>
         /// <returns>The processing result</returns>
-        public static async Task<OffloadImageResult> OffloadEmbeddedImages(SmartDbContext db, IMediaService mediaService, int take = 200)
+        public static async Task<OffloadImageBatchResult> OffloadEmbeddedImages(SmartDbContext db, IMediaService mediaService, int take = 200)
         {
             Guard.IsPositive(take);
             
@@ -243,7 +243,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
                 }
             }
 
-            return new OffloadImageResult
+            return new OffloadImageBatchResult
             {
                 NumAffectedProducts = numAffectedProducts,
                 NumProcessedProducts = numProcessedProducts,
@@ -253,7 +253,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
             };
         }
 
-        public class OffloadImageResult
+        public class OffloadImageBatchResult
         {
             public int NumAffectedProducts { get; set; }
             public int NumProcessedProducts { get; set; }
