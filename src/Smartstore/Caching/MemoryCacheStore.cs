@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
+using Smartstore.ComponentModel;
 using Smartstore.Data;
 using Smartstore.Domain;
 using Smartstore.Events;
@@ -214,17 +215,54 @@ namespace Smartstore.Caching
             entry.Dispose();
         }
 
-        internal static void TryDropLazyLoader(object value)
+        internal static void TryDropLazyLoader(object value, bool deep = true)
         {
             if (value is BaseEntity entity)
             {
-                entity.LazyLoader = NullLazyLoader.Instance;
+                TryDropLazyLoaderInternal(entity, deep ? new HashSet<BaseEntity>() : null, deep);
             }
-            else if (value is IEnumerable e)
+        }
+
+        internal static void TryDropLazyLoaderInternal(BaseEntity entity, ISet<BaseEntity> objSet, bool deep)
+        {
+            if (entity == null)
             {
-                foreach (var item in e.OfType<BaseEntity>())
+                return;
+            }
+            
+            // This is to prevent an infinite recursion when the child object has a navigation property
+            // that points back to the parent
+            if (objSet != null && !objSet.Add(entity))
+            {
+                return;
+            }
+
+            // Drop it!
+            entity.LazyLoader = NullLazyLoader.Instance;
+
+            // Drop deep
+            if (deep)
+            {
+                var fastProps = FastProperty.GetProperties(entity.GetType());
+                foreach (var kvp in fastProps)
                 {
-                    item.LazyLoader = NullLazyLoader.Instance;
+                    var prop = kvp.Value.Property;
+
+                    if (typeof(BaseEntity).IsAssignableFrom(prop.PropertyType))
+                    {
+                        TryDropLazyLoaderInternal(prop.GetValue(entity) as BaseEntity, objSet, deep);
+                    }
+                    else if (typeof(IEnumerable<BaseEntity>).IsAssignableFrom(prop.PropertyType))
+                    {
+                        var val = prop.GetValue(entity);
+                        if (val is IEnumerable<BaseEntity> list)
+                        {
+                            foreach (var item in list)
+                            {
+                                TryDropLazyLoaderInternal(item, objSet, deep);
+                            }
+                        }
+                    }
                 }
             }
         }
