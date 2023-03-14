@@ -9,15 +9,18 @@ namespace Smartstore.Core.Catalog.Products
     {
         private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly CatalogSettings _catalogSettings;
         private readonly ICatalogSearchService _catalogSearchService;
 
         public ProductCompareService(
             SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,
+            CatalogSettings catalogSettings,
             ICatalogSearchService catalogSearchService)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
+            _catalogSettings = catalogSettings;
             _catalogSearchService = catalogSearchService;
         }
 
@@ -46,9 +49,16 @@ namespace Smartstore.Core.Catalog.Products
                 return new List<Product>();
             }
 
-            var comparedProducts = await _db.Products
+            var query = _db.Products
                 .AsNoTracking()
-                .Where(x => productIds.Contains(x.Id))
+                .Where(x => productIds.Contains(x.Id));
+
+            if (!_catalogSettings.IncludeFullDescriptionInCompareProducts)
+            {
+                query = query.SelectSummary();
+            }
+
+            var comparedProducts = await query
                 .ApplyStandardFilter()
                 .ToListAsync();
 

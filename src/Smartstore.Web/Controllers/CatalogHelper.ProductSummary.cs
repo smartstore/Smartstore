@@ -134,7 +134,7 @@ namespace Smartstore.Web.Controllers
 
         public virtual Task<ProductSummaryModel> MapProductSummaryModelAsync(IList<Product> products, ProductSummaryMappingSettings settings)
         {
-            Guard.NotNull(products, nameof(products));
+            Guard.NotNull(products);
 
             return MapProductSummaryModelAsync(products.ToPagedList(0, int.MaxValue), settings);
         }
@@ -151,7 +151,7 @@ namespace Smartstore.Web.Controllers
 
         public virtual async Task<ProductSummaryModel> MapProductSummaryModelAsync(IPagedList<Product> products, CatalogSearchResult sourceResult, ProductSummaryMappingSettings settings)
         {
-            Guard.NotNull(products, nameof(products));
+            Guard.NotNull(products);
 
             if (settings == null)
             {
@@ -219,7 +219,7 @@ namespace Smartstore.Web.Controllers
                     { "Products.DimensionsValue", T("Products.DimensionsValue") },
                     { "Common.AdditionalShippingSurcharge", T("Common.AdditionalShippingSurcharge") }
                 };
-
+                
                 if (settings.MapLegalInfo)
                 {
                     var shippingInfoUrl = await _urlHelper.TopicAsync("shippinginfo");
