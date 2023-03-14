@@ -94,6 +94,7 @@ namespace Smartstore.Admin.Controllers
             var topics = await query
                 .OrderBy(x => x.SystemName)
                 .ApplyGridCommand(command)
+                .SelectSummary()
                 .ToPagedList(command)
                 .LoadAsync();
 

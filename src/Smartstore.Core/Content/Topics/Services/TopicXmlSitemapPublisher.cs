@@ -29,7 +29,8 @@ namespace Smartstore.Core.Content.Topics
             var query = _db.Topics
                 .AsNoTracking()
                 .Where(x => !x.RenderAsWidget)
-                .ApplyStandardFilter(false, customerRoleIds, context.RequestStoreId);
+                .ApplyStandardFilter(false, customerRoleIds, context.RequestStoreId)
+                .SelectSummary();
 
             return new TopicXmlSitemapResult { Query = query };
         }

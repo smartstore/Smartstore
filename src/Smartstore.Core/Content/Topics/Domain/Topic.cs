@@ -74,7 +74,7 @@ namespace Smartstore.Core.Content.Topics
         /// <summary>
         /// Gets or sets the body.
         /// </summary>
-        [MaxLength]
+        [MaxLength, NonSummary]
         [LocalizedProperty]
         public string Body { get; set; }
 
