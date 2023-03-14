@@ -283,7 +283,7 @@ namespace Smartstore.Google.Analytics.Services
                     product.Id,
                     product.Sku,
                     product.Name,
-                    discount != null ? discount.Value.Amount.ToStringInvariant("n2") : "0",
+                    discount != null ? discount.Value.Amount.ToStringInvariant() : "0",
                     product.Brand != null ? product.Brand.Name : string.Empty,
                     product.Price.FinalPrice.Amount.ToStringInvariant(),
                     categoryPathScript,
