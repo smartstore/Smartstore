@@ -96,6 +96,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
+        [AuthorizeAdmin]
         [FormValueRequired("createwebhook"), ActionName("Configure")]
         public async Task<IActionResult> CreateWebhook(ConfigurationModel model)
         {
@@ -165,6 +166,7 @@ namespace Smartstore.PayPal.Controllers
         /// Called by Ajax request after onboarding to get ClientId & Secret.
         /// </summary>
         [HttpPost]
+        [AuthorizeAdmin]
         public async Task<IActionResult> GetCredentials(string authCode, string sharedId, string sellerNonce)
         {
             var success = false;
@@ -223,6 +225,7 @@ namespace Smartstore.PayPal.Controllers
         /// Called by Ajax request after onboarding to get status about confirmed email & if payments are receivable.
         /// </summary>
         [HttpPost]
+        [AuthorizeAdmin]
         public async Task<IActionResult> GetStatus()
         {
             var success = false;
