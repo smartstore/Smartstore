@@ -51,7 +51,7 @@ namespace Smartstore.Web.Components
 
         private static TopicModel PrepareTopicModel(Topic topic)
         {
-            Guard.NotNull(topic, nameof(topic));
+            Guard.NotNull(topic);
 
             var titleTag = "h3";
             if (topic.TitleTag != null)
