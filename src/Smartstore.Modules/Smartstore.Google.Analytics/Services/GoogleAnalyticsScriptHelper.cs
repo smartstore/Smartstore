@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using Parlot.Fluent;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
@@ -93,8 +94,8 @@ namespace Smartstore.Google.Analytics.Services
                 model.Id,
                 model.Sku,
                 model.Name,
-                !model.Price.HasDiscount ? string.Empty : model.Price.Saving.SavingAmount.Value.Amount.ToStringInvariant("n2"),
-                brand != null ? brand.Name : string.Empty,
+                !model.Price.HasDiscount ? "''" : model.Price.Saving.SavingAmount.Value.Amount.ToStringInvariant("n2"),
+                brand != null ? brand.Name : "''",
                 model.Price.FinalPrice.Amount.ToStringInvariant("n2"),
                 categoryPathScript, addComma: false);
 
