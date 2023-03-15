@@ -8,7 +8,7 @@ namespace Smartstore.Threading
         protected const string Channel = "asyncstate";
         const string KeyPrefix = Channel + ":";
 
-        private readonly ConcurrentDictionary<string, CancellationTokenSource> _cancelTokens = new ConcurrentDictionary<string, CancellationTokenSource>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> _cancelTokens = new(StringComparer.OrdinalIgnoreCase);
 
         public DefaultAsyncState(ICacheStore cache)
         {

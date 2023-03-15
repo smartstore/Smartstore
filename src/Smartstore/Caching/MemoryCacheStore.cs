@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Text.RegularExpressions;
-
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -204,6 +205,11 @@ namespace Smartstore.Caching
                     }
                 }
 
+                if (entry.Value is ICacheEvents cacheEvents)
+                {
+                    cacheEvents.OnRemoved(this, (CacheEntryRemovedReason)reason);
+                }
+
                 Removed?.Invoke(this, new CacheEntryRemovedEventArgs
                 {
                     Key = (string)key,
@@ -215,34 +221,71 @@ namespace Smartstore.Caching
             entry.Dispose();
         }
 
-        internal static void TryDropLazyLoader(object value, bool deep = true)
+        /// <summary>
+        /// Ensures that any referenced object that could cause a memory leak 
+        /// is discarded before placing an object in the memory cache.
+        /// This method will therefore replace the <see cref="BaseEntity.LazyLoader"/>
+        /// instance with <see cref="NullLazyLoader"/> or call <see cref="ICacheEvents.OnCache"/>
+        /// if the given object implements <see cref="ICacheEvents"/>.
+        /// </summary>
+        /// <param name="value">
+        /// The object to be cleaned up. Valid object types are:
+        /// <see cref="BaseEntity"/>, <see cref="IEnumerable{BaseEntity}"/>,
+        /// <see cref="ICacheEvents"/> or <see cref="IEnumerable{ICacheEvents}"/>.
+        /// </param>
+        public static void TryDropLazyLoader(object value)
         {
-            if (value is BaseEntity entity)
-            {
-                TryDropLazyLoaderInternal(entity, deep ? new HashSet<BaseEntity>() : null, deep);
-            }
-        }
-
-        internal static void TryDropLazyLoaderInternal(BaseEntity entity, ISet<BaseEntity> objSet, bool deep)
-        {
-            if (entity == null)
+            if (value is null)
             {
                 return;
             }
-            
-            // This is to prevent an infinite recursion when the child object has a navigation property
-            // that points back to the parent
-            if (objSet != null && !objSet.Add(entity))
+            else if (value is ICacheEvents cacheEvents)
             {
-                return;
+                cacheEvents.OnCache();
+            }
+            else if (value is IEnumerable<ICacheEvents> eventsCollection)
+            {
+                foreach (var obj in eventsCollection)
+                {
+                    obj.OnCache();
+                }
+            }
+            else if (value is BaseEntity entity)
+            {
+                DropLazyLoader(entity, new HashSet<BaseEntity>());
+            }
+            else if (value is IEnumerable<BaseEntity> entityCollection)
+            {
+                var processed = new HashSet<BaseEntity>();
+                foreach (var obj in entityCollection)
+                {
+                    DropLazyLoader(obj, processed);
+                }
             }
 
-            // Drop it!
-            entity.LazyLoader = NullLazyLoader.Instance;
-
-            // Drop deep
-            if (deep)
+            static void DropLazyLoader(BaseEntity entity, ISet<BaseEntity> processed)
             {
+                if (entity == null)
+                {
+                    return;
+                }
+                
+                // This is to prevent an infinite recursion when the child object has a navigation property
+                // that points back to the parent
+                if (!processed.Add(entity))
+                {
+                    return;
+                }
+
+                // Drop it!
+                var lazyLoader = entity.LazyLoader;
+                if (lazyLoader is not NullLazyLoader)
+                {
+                    lazyLoader.Dispose();
+                    entity.LazyLoader = NullLazyLoader.Instance;
+                }
+
+                // Drop deep
                 var fastProps = FastProperty.GetProperties(entity.GetType());
                 foreach (var kvp in fastProps)
                 {
@@ -250,16 +293,16 @@ namespace Smartstore.Caching
 
                     if (typeof(BaseEntity).IsAssignableFrom(prop.PropertyType))
                     {
-                        TryDropLazyLoaderInternal(prop.GetValue(entity) as BaseEntity, objSet, deep);
+                        DropLazyLoader(prop.GetValue(entity) as BaseEntity, processed);
                     }
                     else if (typeof(IEnumerable<BaseEntity>).IsAssignableFrom(prop.PropertyType))
                     {
                         var val = prop.GetValue(entity);
-                        if (val is IEnumerable<BaseEntity> list)
+                        if (val is IEnumerable<BaseEntity> collection)
                         {
-                            foreach (var item in list)
+                            foreach (var obj in collection)
                             {
-                                TryDropLazyLoaderInternal(item, objSet, deep);
+                                DropLazyLoader(obj, processed);
                             }
                         }
                     }

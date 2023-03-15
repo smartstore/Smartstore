@@ -1,12 +1,13 @@
-﻿using Smartstore.Data;
+﻿using Smartstore.Caching;
+using Smartstore.Data;
 
 namespace Smartstore.Core.Stores
 {
-    public class StoreEntityCache
+    public class StoreEntityCache : ICacheEvents
     {
         internal StoreEntityCache(IList<Store> allStores)
         {
-            Guard.NotNull(allStores, nameof(allStores));
+            Guard.NotNull(allStores);
 
             Stores = allStores.ToDictionary(x => x.Id);
             var hostMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -18,8 +19,6 @@ namespace Smartstore.Core.Stores
                 {
                     hostMap[host] = store.Id;
                 }
-
-                store.LazyLoader = NullLazyLoader.Instance;
             }
 
             if (allStores.Count > 0)
@@ -52,6 +51,15 @@ namespace Smartstore.Core.Stores
             }
 
             return null;
+        }
+
+        void ICacheEvents.OnCache()
+        {
+            MemoryCacheStore.TryDropLazyLoader(Stores.Values);
+        }
+
+        void ICacheEvents.OnRemoved(IMemoryCacheStore sender, CacheEntryRemovedReason reason)
+        {
         }
     }
 }

@@ -136,8 +136,7 @@ namespace Smartstore.Engine.Modularity
 
         public override bool Equals(object obj)
         {
-            var other = obj as ProviderMetadata;
-            return other != null &&
+            return obj is ProviderMetadata other &&
                 SystemName != null &&
                 SystemName.Equals(other.SystemName);
         }
