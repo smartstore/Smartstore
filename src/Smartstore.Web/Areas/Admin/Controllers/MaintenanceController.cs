@@ -42,8 +42,8 @@ namespace Smartstore.Admin.Controllers
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly ICustomerService _customerService;
         private readonly IImageFactory _imageFactory;
-        private readonly Lazy<IMediaService> _mediaService;
         private readonly Lazy<IImageCache> _imageCache;
+        private readonly Lazy<IImageOffloder> _imageOffloader;
         private readonly Lazy<IFilePermissionChecker> _filePermissionChecker;
         private readonly Lazy<ICurrencyService> _currencyService;
         private readonly Lazy<IPaymentService> _paymentService;
@@ -62,7 +62,7 @@ namespace Smartstore.Admin.Controllers
             ICustomerService customerService,
             IImageFactory imageFactory,
             Lazy<IImageCache> imageCache,
-            Lazy<IMediaService> mediaService,
+            Lazy<IImageOffloder> imageOffloader,
             Lazy<IFilePermissionChecker> filePermissionChecker,
             Lazy<ICurrencyService> currencyService,
             Lazy<IPaymentService> paymentService,
@@ -80,7 +80,7 @@ namespace Smartstore.Admin.Controllers
             _customerService = customerService;
             _imageFactory = imageFactory;
             _imageCache = imageCache;
-            _mediaService = mediaService;
+            _imageOffloader = imageOffloader;
             _filePermissionChecker = filePermissionChecker;
             _currencyService = currencyService;
             _paymentService = paymentService;
@@ -197,11 +197,12 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> OffloadEmbeddedImages(int take = 200)
         {
-            var result = await ProductPictureHelper.OffloadEmbeddedImages(_db, _mediaService.Value, take);
+            //var result = await ProductPictureHelper.OffloadEmbeddedImages(_db, _mediaService.Value, take);
+            var result = await _imageOffloader.Value.BatchOffloadEmbeddedImagesAsync(take);
 
             var message = result.ToString();
 
-            if (result.NumAttempted < result.NumProcessedProducts)
+            if (result.NumAttempted < result.NumProcessedEntities)
             {
                 message += 
                     Environment.NewLine + 
@@ -209,7 +210,7 @@ namespace Smartstore.Admin.Controllers
                     "!! Apparently some embedded images could not be parsed and replaced correctly. Maybe incomplete or invalid HTML?";
             }
 
-            if (result.NumProcessedProducts < result.NumAffectedProducts)
+            if (result.NumProcessedEntities < result.NumAffectedEntities)
             {
                 message +=
                     Environment.NewLine +
