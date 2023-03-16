@@ -7,16 +7,6 @@ namespace Smartstore.Data.Caching
 {
     public static class CachingQueryExtensions
     {
-        internal static readonly MethodInfo AsNoTrackingMethodInfo =
-            typeof(EntityFrameworkQueryableExtensions)
-            .GetTypeInfo()
-            .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
-
-        internal static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo =
-            typeof(EntityFrameworkQueryableExtensions)
-            .GetTypeInfo()
-            .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution));
-
         internal static readonly MethodInfo AsCachingMethodInfo =
             typeof(CachingQueryExtensions)
             .GetTypeInfo()

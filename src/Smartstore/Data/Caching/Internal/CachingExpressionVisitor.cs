@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Domain;
 
@@ -33,15 +34,31 @@ namespace Smartstore.Data.Caching.Internal
 
     internal sealed class CachingExpressionVisitor : ExpressionVisitor
     {
+        internal static readonly MethodInfo AsTrackingMethodInfo =
+            typeof(EntityFrameworkQueryableExtensions)
+            .GetTypeInfo()
+            .GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.AsTracking))
+            .Single(m => m.GetParameters().Length == 1);
+
+        internal static readonly MethodInfo AsNoTrackingMethodInfo =
+            typeof(EntityFrameworkQueryableExtensions)
+            .GetTypeInfo()
+            .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
+
+        internal static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo =
+            typeof(EntityFrameworkQueryableExtensions)
+            .GetTypeInfo()
+            .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution));
+
+
         // Key = DbContextType
         // Value = [Key: EntityClrType, ...]
-        private readonly ConcurrentDictionary<Type, Lazy<Dictionary<Type, TableEntityInfo>>> _contextTableInfos =
-            new ConcurrentDictionary<Type, Lazy<Dictionary<Type, TableEntityInfo>>>();
+        private readonly ConcurrentDictionary<Type, Lazy<Dictionary<Type, TableEntityInfo>>> _contextTableInfos = new();
 
         private readonly DbContext _context;
         private readonly CachingOptionsExtension _extension;
 
-        private bool _isNoTracking;
+        private QueryTrackingBehavior? _queryTracking;
 
         public CachingExpressionVisitor(DbContext context, CachingOptionsExtension extension)
         {
@@ -74,7 +91,10 @@ namespace Smartstore.Data.Caching.Internal
                     // Cut out extension expression
                     return Visit(node.Arguments[0]);
                 }
-                else if (!_isNoTracking && (methodDef == CachingQueryExtensions.AsNoTrackingMethodInfo || methodDef == CachingQueryExtensions.AsNoTrackingWithIdentityResolutionMethodInfo))
+                else if (
+                    methodDef == AsNoTrackingMethodInfo || 
+                    methodDef == AsNoTrackingWithIdentityResolutionMethodInfo || 
+                    methodDef == AsTrackingMethodInfo)
                 {
                     // If _isNoTracking is true, we found the marker already. Useless to do it again.
                     if (node.Arguments.Count > 0)
@@ -83,7 +103,21 @@ namespace Smartstore.Data.Caching.Internal
                         if (nodeType != null)
                         {
                             var nodeResultType = nodeType.GetGenericArguments()[0];
-                            _isNoTracking = nodeResultType == ElementType;
+                            if (nodeResultType == ElementType)
+                            {
+                                if (methodDef == AsNoTrackingMethodInfo)
+                                {
+                                    _queryTracking = QueryTrackingBehavior.NoTracking;
+                                }
+                                else if (methodDef == AsNoTrackingWithIdentityResolutionMethodInfo)
+                                {
+                                    _queryTracking = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+                                }
+                                else
+                                {
+                                    _queryTracking = QueryTrackingBehavior.TrackAll;
+                                }
+                            }
                         }
                     }
                 }
@@ -94,12 +128,10 @@ namespace Smartstore.Data.Caching.Internal
 
         public Expression ExtractPolicy(Expression expression)
         {
-            _isNoTracking = false;
-
             IsSequenceType = false;
             ElementType = expression.Type;
             CachingPolicy = null;
-
+            
             if (expression.Type.IsEnumerableType(out var elementType))
             {
                 IsSequenceType = true;
@@ -108,7 +140,11 @@ namespace Smartstore.Data.Caching.Internal
 
             expression = Visit(expression);
 
-            if (!_isNoTracking && typeof(BaseEntity).IsAssignableFrom(ElementType))
+            // If the expression did not contain one of the As[No]Tracking... method calls,
+            // we gonna fallback to the change tracker's default option.
+            _queryTracking ??= _context.ChangeTracker.QueryTrackingBehavior;
+
+            if (_queryTracking == QueryTrackingBehavior.TrackAll && typeof(BaseEntity).IsAssignableFrom(ElementType))
             {
                 // We never gonna cache trackable entities
                 CachingPolicy = null;
