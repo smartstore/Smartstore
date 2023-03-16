@@ -187,7 +187,7 @@ namespace Smartstore.Core.Identity
 
             while (true)
             {
-                var customerIds = await customerIdsQuery.ToListAsync();
+                var customerIds = await customerIdsQuery.ToListAsync(cancelToken);
                 if (customerIds.Count == 0)
                 {
                     break;
