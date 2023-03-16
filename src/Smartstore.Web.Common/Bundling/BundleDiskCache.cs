@@ -30,7 +30,9 @@ namespace Smartstore.Web.Bundling
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+#pragma warning disable CS0067 // The event is never used
         public event EventHandler<BundleResponseExpiredEventArgs> Expired;
+#pragma warning restore CS0067
 
         public async Task<BundleResponse> GetResponseAsync(BundleCacheKey cacheKey, Bundle bundle)
         {

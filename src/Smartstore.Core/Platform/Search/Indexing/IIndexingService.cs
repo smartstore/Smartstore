@@ -11,9 +11,9 @@ namespace Smartstore.Core.Search.Indexing
         Task SaveIndexInfoAsync(IndexInfo info);
     }
 
-    public class NullIndexingService : IIndexingService
+    public sealed class NullIndexingService : IIndexingService
     {
-        public static IIndexingService Instance => new NullIndexingService();
+        public static NullIndexingService Instance { get; } = new();
 
         public Task BuildIndexAsync(string scope, TaskExecutionContext context, string command, CancellationToken cancelToken = default)
             => Task.CompletedTask;

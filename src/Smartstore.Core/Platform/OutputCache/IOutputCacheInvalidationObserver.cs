@@ -49,11 +49,9 @@ namespace Smartstore.Core.OutputCache
         Func<IOutputCacheProvider, Task> GetInvalidationActionForSetting(string settingKey);
     }
 
-    public class NullOutputCacheInvalidationObserver : IOutputCacheInvalidationObserver
+    public sealed class NullOutputCacheInvalidationObserver : IOutputCacheInvalidationObserver
     {
-        private static readonly IOutputCacheInvalidationObserver _instance = new NullOutputCacheInvalidationObserver();
-
-        public static IOutputCacheInvalidationObserver Instance => _instance;
+        public static NullOutputCacheInvalidationObserver Instance { get; } = new();
 
         public void ObserveEntity(Func<ObserveEntityContext, Task> observer)
         {

@@ -39,7 +39,7 @@
 
     public sealed class NullMessageBus : IMessageBus
     {
-        public readonly static IMessageBus Instance = new NullMessageBus();
+        public static NullMessageBus Instance { get; } = new NullMessageBus();
 
         public long Publish(string channel, string message)
             => 0;

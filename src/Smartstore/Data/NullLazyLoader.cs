@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Smartstore.Data
 {
-    internal class NullLazyLoader : ILazyLoader
+    internal sealed class NullLazyLoader : ILazyLoader
     {
-        public static ILazyLoader Instance => new NullLazyLoader();
-
         private NullLazyLoader()
         {
         }
+
+        public static NullLazyLoader Instance { get; } = new NullLazyLoader();
 
         public void Load(object entity, [CallerMemberName] string navigationName = "")
         {

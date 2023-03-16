@@ -56,9 +56,9 @@ namespace Smartstore.Engine
         }
     }
 
-    public class NullTypeScanner : ITypeScanner
+    public sealed class NullTypeScanner : ITypeScanner
     {
-        public static ITypeScanner Instance { get; } = new NullTypeScanner();
+        public static NullTypeScanner Instance { get; } = new NullTypeScanner();
 
         public IEnumerable<Assembly> Assemblies { get; } = Enumerable.Empty<Assembly>();
 

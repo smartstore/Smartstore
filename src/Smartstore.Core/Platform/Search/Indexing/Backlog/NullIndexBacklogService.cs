@@ -1,8 +1,8 @@
 ﻿namespace Smartstore.Core.Search.Indexing
 {
-    public class NullIndexBacklogService : IIndexBacklogService
+    public sealed class NullIndexBacklogService : IIndexBacklogService
     {
-        public static IIndexBacklogService Instance => new NullIndexBacklogService();
+        public static NullIndexBacklogService Instance { get; } = new();
 
         public DateTime ExpirationDate => DateTime.UtcNow.AddHours(-25);
 

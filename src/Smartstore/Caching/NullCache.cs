@@ -3,9 +3,13 @@ using Smartstore.Threading;
 
 namespace Smartstore.Caching
 {
-    public class NullCache : ICacheManager
+    public sealed class NullCache : ICacheManager
     {
-        public static ICacheManager Instance => new NullCache();
+        private NullCache()
+        {
+        }
+
+        public static NullCache Instance { get; } = new NullCache();
 
 #pragma warning disable CS0067 // The event is never used
         public event EventHandler<CacheEntryExpiredEventArgs> Expired;
@@ -39,7 +43,8 @@ namespace Smartstore.Caching
             => Task.FromResult<ISet>(new MemorySet(null));
 
         public void Put(string key, object value, CacheEntryOptions options = null)
-        { }
+        { 
+        }
 
         public Task PutAsync(string key, object value, CacheEntryOptions options = null)
             => Task.CompletedTask;
@@ -51,7 +56,8 @@ namespace Smartstore.Caching
             => Task.FromResult(false);
 
         public void Remove(string key)
-        { }
+        { 
+        }
 
         public Task RemoveAsync(string key)
             => Task.CompletedTask;
@@ -78,7 +84,8 @@ namespace Smartstore.Caching
             => Task.FromResult(AcquireKeyLock(key));
 
         public void Clear()
-        { }
+        { 
+        }
 
         public Task ClearAsync()
             => Task.CompletedTask;

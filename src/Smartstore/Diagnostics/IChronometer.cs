@@ -38,9 +38,9 @@ namespace Smartstore.Diagnostics
         }
     }
 
-    public class NullChronometer : IChronometer
+    public sealed class NullChronometer : IChronometer
     {
-        public static IChronometer Instance => new NullChronometer();
+        public static NullChronometer Instance { get; } = new NullChronometer();
 
         public void StepStart(string key, string message)
         {

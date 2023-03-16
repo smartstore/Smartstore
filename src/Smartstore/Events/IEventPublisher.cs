@@ -12,9 +12,9 @@
         Task PublishAsync<T>(T message, CancellationToken cancelToken = default) where T : class;
     }
 
-    public class NullEventPublisher : IEventPublisher
+    public sealed class NullEventPublisher : IEventPublisher
     {
-        public static IEventPublisher Instance => new NullEventPublisher();
+        public static NullEventPublisher Instance { get; } = new NullEventPublisher();
 
         public Task PublishAsync<T>(T message, CancellationToken cancelToken = default) where T : class
         {

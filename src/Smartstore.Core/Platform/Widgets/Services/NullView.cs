@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 
 namespace Smartstore.Core.Widgets
 {
-    public class NullView : IView
+    public sealed class NullView : IView
     {
-        public static readonly NullView Instance = new();
+        public static NullView Instance { get; } = new();
 
         public string Path => string.Empty;
 

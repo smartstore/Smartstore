@@ -60,7 +60,7 @@
 
     public sealed class NullDbHookHandler : IDbHookHandler
     {
-        public static IDbHookHandler Instance { get; } = new NullDbHookHandler();
+        public static NullDbHookHandler Instance { get; } = new NullDbHookHandler();
 
         public Task<DbSavingChangesResult> SavingChangesAsync(
             IHookedEntity[] entries,

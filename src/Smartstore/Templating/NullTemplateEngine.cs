@@ -2,11 +2,9 @@
 
 namespace Smartstore.Templating
 {
-    public class NullTemplateEngine : ITemplateEngine
+    public sealed class NullTemplateEngine : ITemplateEngine
     {
-        private readonly static ITemplateEngine _instance = new NullTemplateEngine();
-
-        public static ITemplateEngine Instance => _instance;
+        public static NullTemplateEngine Instance { get; } = new NullTemplateEngine();
 
         public ITemplate Compile(string template)
         {

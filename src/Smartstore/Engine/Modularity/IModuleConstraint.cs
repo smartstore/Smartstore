@@ -5,7 +5,7 @@
         bool Matches(IModuleDescriptor descriptor, int? storeId);
     }
 
-    internal class NullModuleContraint : IModuleConstraint
+    internal sealed class NullModuleContraint : IModuleConstraint
     {
         public bool Matches(IModuleDescriptor descriptor, int? storeId)
             => true;

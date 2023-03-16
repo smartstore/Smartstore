@@ -68,12 +68,13 @@
     /// <summary>
     /// For testing purposes
     /// </summary>
-    public class NullRequestCache : IRequestCache
+    public sealed class NullRequestCache : IRequestCache
     {
-        public static IRequestCache Instance => new NullRequestCache();
+        public static NullRequestCache Instance { get; } = new NullRequestCache();
 
         public void Clear()
-        { }
+        { 
+        }
 
         public bool Contains(string key)
             => false;
@@ -88,12 +89,15 @@
             => acquirer == null ? default : acquirer();
 
         public void Remove(string key)
-        { }
+        { 
+        }
 
         public void RemoveByPattern(string pattern)
-        { }
+        { 
+        }
 
         public void Put(string key, object value)
-        { }
+        { 
+        }
     }
 }

@@ -19,7 +19,7 @@
 
     public sealed class NullLockHandle : ILockHandle
     {
-        public static readonly NullLockHandle Instance = new();
+        public static NullLockHandle Instance { get; } = new NullLockHandle();
 
         public void Dispose()
         {
