@@ -107,6 +107,7 @@ namespace Smartstore.Core
         {
             var context = new DetectCustomerContext
             {
+                WorkContextSource = this,
                 CustomerService = _customerService,
                 Db = _db,
                 HttpContext = _httpContextAccessor.HttpContext,
@@ -178,7 +179,14 @@ namespace Smartstore.Core
         {
             var customer = await _customerService.CreateGuestCustomerAsync();
 
-            var httpContext = _httpContextAccessor.HttpContext;
+            TryAppendVisitorCookie(customer, this);
+
+            return customer;
+        }
+
+        private static void TryAppendVisitorCookie(Customer customer, DefaultWorkContextSource source)
+        {
+            var httpContext = source._httpContextAccessor.HttpContext;
             if (httpContext != null)
             {
                 var cookieExpiry = customer.CustomerGuid == Guid.Empty
@@ -191,14 +199,14 @@ namespace Smartstore.Core
                     Expires = cookieExpiry,
                     HttpOnly = true,
                     IsEssential = true,
-                    Secure = _webHelper.IsCurrentConnectionSecured(),
+                    Secure = source._webHelper.IsCurrentConnectionSecured(),
                     SameSite = SameSiteMode.Lax
                 };
 
                 // INFO: Global OnAppendCookie does not always run for visitor cookie.
                 if (cookieOptions.Secure)
                 {
-                    cookieOptions.SameSite = _privacySettings.SameSiteMode;
+                    cookieOptions.SameSite = source._privacySettings.SameSiteMode;
                 }
 
                 if (httpContext.Request.PathBase.HasValue)
@@ -216,8 +224,6 @@ namespace Smartstore.Core
                     cookies.Append(CookieNames.Visitor, customer.CustomerGuid.ToString(), cookieOptions);
                 }
             }
-
-            return customer;
         }
 
         public async virtual Task<Language> ResolveWorkingLanguageAsync(Customer customer)
@@ -426,6 +432,7 @@ namespace Smartstore.Core
 
         private class DetectCustomerContext
         {
+            public DefaultWorkContextSource WorkContextSource { get; set; }
             public HttpContext HttpContext { get; set; }
             public SmartDbContext Db { get; set; }
             public ICustomerService CustomerService { get; set; }
@@ -509,10 +516,19 @@ namespace Smartstore.Core
             return Task.FromResult<Customer>(null);
         }
 
-        private static Task<Customer> DetectByClientIdent(DetectCustomerContext context)
+        private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)
         {
             // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent)
-            return context.CustomerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 180);
+            var customer = await context.CustomerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 180);
+
+            if (customer != null)
+            {
+                // If we came so far, visitor cookie was not present.
+                // Try to append for the next request.
+                TryAppendVisitorCookie(customer, context.WorkContextSource);
+            }
+
+            return customer;
         }
 
         #endregion
