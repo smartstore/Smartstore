@@ -183,33 +183,31 @@ namespace Smartstore.Core.Identity
             var customerIdsQuery = message.Query
                 .OrderBy(x => x.Id)
                 .Select(x => x.Id)
-                .Take(20000);
+                .Take(5000);
 
-            // Delete generic attributes.
             while (true)
             {
-                var numDeleted = await _db.GenericAttributes
-                    .IgnoreQueryFilters()
-                    .Where(x => customerIdsQuery.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
-                    .ExecuteDeleteAsync(cancelToken);
-
-                if (numDeleted <= 0)
+                var customerIds = await customerIdsQuery.ToListAsync();
+                if (customerIds.Count == 0)
                 {
                     break;
                 }
 
-                numberOfDeletedAttributes += numDeleted;
-            }
-
-            // Delete guest customers.
-            while (true)
-            {
-                var numDeleted = await _db.Customers
+                // Delete generic attributes.
+                var numDeleted = await _db.GenericAttributes
                     .IgnoreQueryFilters()
-                    .Where(x => customerIdsQuery.Contains(x.Id))
+                    .Where(x => customerIds.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
                     .ExecuteDeleteAsync(cancelToken);
 
-                if (numDeleted <= 0)
+                numberOfDeletedAttributes += numDeleted;
+
+                // Delete guest customers.
+                numDeleted = await _db.Customers
+                    .IgnoreQueryFilters()
+                    .Where(x => customerIds.Contains(x.Id))
+                    .ExecuteDeleteAsync(cancelToken);
+
+                if (numDeleted == 0)
                 {
                     break;
                 }
