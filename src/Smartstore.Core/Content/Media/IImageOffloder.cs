@@ -74,7 +74,7 @@ namespace Smartstore.Core.Content.Media
             sb.AppendLine($"NumProcessedEntities: {NumProcessedEntities}");
             sb.AppendLine($"NumAttempted: {NumAttempted}");
             sb.AppendLine($"NumSucceded: {NumSucceded}");
-            sb.AppendLine($"NumFailed: {NumFailed}");
+            sb.Append($"NumFailed: {NumFailed}");
 
             return sb.ToString();
         }
