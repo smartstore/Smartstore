@@ -11,8 +11,8 @@ namespace Smartstore.Core.Logging.Serilog
 
         public DelegatingPropertyEnricher(string name, Func<object> valueAccessor)
         {
-            Guard.NotNull(name, nameof(name));
-            Guard.NotNull(valueAccessor, nameof(valueAccessor));
+            Guard.NotNull(name);
+            Guard.NotNull(valueAccessor);
 
             _name = name;
             _value = new DelegateScalarValue(valueAccessor);
@@ -37,13 +37,13 @@ namespace Smartstore.Core.Logging.Serilog
             BindingFlags.Static | BindingFlags.NonPublic,
             new[] { typeof(object), typeof(TextWriter), typeof(string), typeof(IFormatProvider) });
 
-        readonly Func<object> _valueAccessor;
+        Func<object> _valueAccessor;
         object _value;
         bool _freezed;
 
         public DelegateScalarValue(Func<object> valueAccessor)
         {
-            _valueAccessor = Guard.NotNull(valueAccessor, nameof(valueAccessor));
+            _valueAccessor = Guard.NotNull(valueAccessor);
         }
 
         public override void Render(TextWriter output, string format = null, IFormatProvider formatProvider = null)
@@ -53,13 +53,18 @@ namespace Smartstore.Core.Logging.Serilog
 
         public void Freeze()
         {
-            _value = _valueAccessor();
+            if (_valueAccessor != null)
+            {
+                _value = _valueAccessor();
+                _valueAccessor = null;
+            }
+
             _freezed = true;
         }
 
         public object Value
         {
-            get => _freezed ? _value : _valueAccessor();
+            get => _freezed ? _value : _valueAccessor?.Invoke();
         }
     }
 }
