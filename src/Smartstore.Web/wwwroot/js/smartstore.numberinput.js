@@ -63,17 +63,16 @@
             var min = $input.attr("min");
             var max = $input.attr("max");
             var step = $input.attr("step");
-            var useGrouping = $input.attr("use-grouping");
+            var invariant = $input.data("invariant");
 
             min = isNaN(min) || min === "" ? -Infinity : parseFloat(min);
             max = isNaN(max) || max === "" ? Infinity : parseFloat(max);
             step = parseFloat(step) || 1;
-            useGrouping = useGrouping == 'true';
 
             var decimals = parseInt($input.data("decimals")) || 0;
             var value = parseFloat($input[0].value);
 
-            updateDisplay(value, useGrouping);
+            updateDisplay(value, invariant);
 
             this.destroy = function() {
                 $group.removeClass("numberinput-initialized");
@@ -88,7 +87,7 @@
                 var newValue = parseValue($input[0].value);
                 var focusOut = e.type === "focusout";
                 setValue(newValue, focusOut);
-                updateDisplay(newValue, useGrouping);
+                updateDisplay(newValue, invariant);
             });
 
             if (props.autoSelect) {
@@ -126,12 +125,12 @@
                     : parseInt(customFormat);
             }
 
-            function renderValue(number, useGrouping) {
+            function renderValue(number, invariant) {
                 let minDigits = Math.min(culture.numberFormat.decimals, decimals);
                 let numberFormat = new Intl.NumberFormat(culture.name, {
                     minimumFractionDigits: minDigits,
                     maximumFractionDigits: Math.max(minDigits, decimals),
-                    useGrouping: useGrouping
+                    useGrouping: !invariant
                 });
                 return numberFormat.format(number);
             }
@@ -197,8 +196,8 @@
                 }
             }
 
-            function updateDisplay(newValue, useGrouping) {
-                let text = isNaN(newValue) ? "" : renderValue(newValue, useGrouping);
+            function updateDisplay(newValue, invariant) {
+                let text = isNaN(newValue) ? "" : renderValue(newValue, invariant);
                 $formatted.text(text);
             }
 

@@ -3,7 +3,7 @@
 @{
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
     var step = GetMetadata<double>("step");
-    var useGrouping = GetMetadata<bool?>("useGrouping") ?? true;
+    var invariant = GetMetadata<bool>("invariant");
 }
 
 <input type="number"
@@ -14,7 +14,7 @@
        placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.Empty").Value)"
        min="@(GetMetadata<decimal?>("min"))"
        max="@(GetMetadata<decimal?>("max"))"
-       attr-step='(step > 0, step.ToStringInvariant())' 
-       use-grouping='@(useGrouping ? "true" : "false" )' />
+       attr-step='(step > 0, step.ToStringInvariant())'
+       attr-data-invariant='(invariant, "true")' />
 
 
