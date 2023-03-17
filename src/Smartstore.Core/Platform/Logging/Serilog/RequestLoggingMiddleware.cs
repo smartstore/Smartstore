@@ -23,12 +23,10 @@ namespace Smartstore.Core.Logging
         readonly DiagnosticContext _diagnosticContext;
         readonly MessageTemplate _messageTemplate;
 
-        public RequestLoggingMiddleware(
-            RequestDelegate next,
-            DiagnosticContext diagnosticContext)
+        public RequestLoggingMiddleware(RequestDelegate next, DiagnosticContext diagnosticContext)
         {
-            _next = Guard.NotNull(next, nameof(next));
-            _diagnosticContext = Guard.NotNull(diagnosticContext, nameof(diagnosticContext));
+            _next = Guard.NotNull(next);
+            _diagnosticContext = Guard.NotNull(diagnosticContext);
 
             _messageTemplate = new MessageTemplateParser()
                 .Parse("HTTP {HttpMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms");
@@ -36,10 +34,10 @@ namespace Smartstore.Core.Logging
 
         public async Task InvokeAsync(HttpContext httpContext, IWebHelper webHelper, IWorkContext workContext)
         {
-            Guard.NotNull(httpContext, nameof(httpContext));
+            Guard.NotNull(httpContext);
 
             var customerIdEnricher = new DelegatingPropertyEnricher("CustomerId",
-                () => httpContext.Response.HasStarted ? null : workContext.CurrentCustomer?.Id);
+                () => !workContext.IsInitialized ? null : workContext.CurrentCustomer?.Id);
 
             var userNameEnricher = new DelegatingPropertyEnricher("UserName",
                 () => httpContext.User?.Identity?.Name);
