@@ -22,7 +22,6 @@ using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -31,7 +30,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
 using Smartstore.Bootstrapping;
 using Smartstore.Core.Bootstrapping;
-using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Builders;
@@ -109,39 +107,9 @@ namespace Smartstore.Web
             builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
         }
 
-        private static async Task TestMe(HttpContext context, Func<Task> next)
-        {
-            var db = context.RequestServices.GetRequiredService<SmartDbContext>();
-
-            var category = new CategoryTemplate { Name = "test" };
-            db.CategoryTemplates.Add(category);
-            db.DetachEntity(category);
-
-            //var country = await db.Countries
-            //    .AsNoTracking()
-            //    .Skip(1)
-            //    .Include(x => x.StateProvinces)
-            //    .FirstOrDefaultAsync();
-
-            //db.Attach(country);
-            //db.DetachEntity(country.StateProvinces.First());
-            //db.DetachEntity(country);
-
-            await Task.Delay(10);
-            //await next();
-        }
-
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
             var appContext = builder.ApplicationContext;
-
-            builder.Configure(StarterOrdering.AfterExceptionHandlerMiddleware, app =>
-            {
-                app.Map("/helloman", b =>
-                {
-                    b.Use(TestMe);
-                });
-            });
 
             builder.Configure(StarterOrdering.BeforeExceptionHandlerMiddleware, app =>
             {
