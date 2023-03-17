@@ -6,7 +6,6 @@ using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Utilities;
-using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
 namespace Smartstore.Data
 {

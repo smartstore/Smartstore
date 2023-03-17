@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Smartstore.Data;
-using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
 namespace Smartstore
 {

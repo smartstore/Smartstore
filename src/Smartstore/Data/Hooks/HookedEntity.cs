@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Smartstore.Domain;
-using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
 namespace Smartstore.Data.Hooks
 {

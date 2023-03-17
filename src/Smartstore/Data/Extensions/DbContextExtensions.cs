@@ -9,7 +9,6 @@ using Smartstore.ComponentModel;
 using Smartstore.Data;
 using Smartstore.Domain;
 using Smartstore.Utilities;
-using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
 namespace Smartstore
 {

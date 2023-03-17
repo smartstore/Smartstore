@@ -2,6 +2,9 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -32,7 +35,60 @@ namespace Smartstore.Data
             : base(options)
         {
             Options = options;
+
+            ChangeTracker.Tracked += OnTracked;
+            ChangeTracker.StateChanged += OnStateChanged;
         }
+
+        #region LazyLoader injection
+
+        private static void OnTracked(object sender, EntityTrackedEventArgs e)
+        {
+            var entry = e.Entry;
+            if (entry.Entity is BaseEntity entity && entry.State is EfState.Unchanged or EfState.Modified)
+            {
+                InjectLazyLoader(entity, entry.Context);
+            }
+        }
+
+        private static void OnStateChanged(object sender, EntityStateChangedEventArgs e)
+        {
+            var entry = e.Entry;
+            if (entry.Entity is BaseEntity entity)
+            {
+                if (e.NewState is EfState.Unchanged or EfState.Modified)
+                {
+                    InjectLazyLoader(entity, entry.Context);
+                }
+                else
+                {
+                    DropLazyLoader(entity);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void InjectLazyLoader(BaseEntity entity, DbContext db)
+        {
+            if (entity.LazyLoader is NullLazyLoader)
+            {
+                var lazyLoader = db.GetService<ILazyLoader>();
+                entity.LazyLoader = lazyLoader;
+            }
+        }
+
+        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DropLazyLoader(BaseEntity entity)
+        {
+            if (entity.LazyLoader is LazyLoader lazyLoader)
+            {
+                lazyLoader.Dispose();
+                entity.LazyLoader = NullLazyLoader.Instance;
+            }
+        }
+
+        #endregion
 
         protected internal virtual DbContextOptions Options { get; }
 
@@ -249,6 +305,14 @@ namespace Smartstore.Data
             RegisterEntities(modelBuilder, assemblies);
             RegisterEntityMappings(modelBuilder, assemblies);
             ApplyConventions(modelBuilder);
+
+            //var entityTypes = modelBuilder.Model.GetEntityTypes();
+            //foreach (var etype in entityTypes)
+            //{
+            //    var props1 = etype.GetServiceProperties();
+            //    var propsDeclared = etype.GetDeclaredServiceProperties();
+            //    var propsDerived = etype.GetDerivedServiceProperties();
+            //}
         }
 
         private static void RegisterEntities(ModelBuilder modelBuilder, IEnumerable<Assembly> assemblies)

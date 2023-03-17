@@ -70,7 +70,7 @@ namespace Smartstore.Scheduling
 
                 if (i > 0 /*&& (DateTime.UtcNow - _sweepStart).TotalMinutes > _taskScheduler.SweepIntervalMinutes*/)
                 {
-                    // Maybe a subsequent Sweep call or another machine in a webfarm executed 
+                    // Maybe a subsequent poll or another machine in a webfarm executed 
                     // successive tasks already.
                     // To be able to determine this, we need to reload the entity from the database.
                     // The TaskExecutor will exit when the task should be in running state then.

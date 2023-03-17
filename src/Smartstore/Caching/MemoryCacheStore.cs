@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -149,7 +150,7 @@ namespace Smartstore.Caching
         {
             _keys.Add((string)entry.Key);
 
-            TryDropLazyLoader(item.Value);
+            TryCallEventAndValidateObject(item.Value);
 
             entry.SetValue(item);
             entry.SetPriority((CacheItemPriority)item.Priority);
@@ -221,19 +222,7 @@ namespace Smartstore.Caching
             entry.Dispose();
         }
 
-        /// <summary>
-        /// Ensures that any referenced object that could cause a memory leak 
-        /// is discarded before placing an object in the memory cache.
-        /// This method will therefore replace the <see cref="BaseEntity.LazyLoader"/>
-        /// instance with <see cref="NullLazyLoader"/> or call <see cref="ICacheEvents.OnCache"/>
-        /// if the given object implements <see cref="ICacheEvents"/>.
-        /// </summary>
-        /// <param name="value">
-        /// The object to be cleaned up. Valid object types are:
-        /// <see cref="BaseEntity"/>, <see cref="IEnumerable{BaseEntity}"/>,
-        /// <see cref="ICacheEvents"/> or <see cref="IEnumerable{ICacheEvents}"/>.
-        /// </param>
-        public static void TryDropLazyLoader(object value)
+        private static void TryCallEventAndValidateObject(object value)
         {
             if (value is null)
             {
@@ -250,26 +239,27 @@ namespace Smartstore.Caching
                     obj.OnCache();
                 }
             }
-            else if (value is BaseEntity entity)
+
+            if (value is BaseEntity entity)
             {
-                DropLazyLoader(entity, new HashSet<BaseEntity>());
+                CheckLazyLoader(entity, new HashSet<BaseEntity>());
             }
             else if (value is IEnumerable<BaseEntity> entityCollection)
             {
                 var processed = new HashSet<BaseEntity>();
                 foreach (var obj in entityCollection)
                 {
-                    DropLazyLoader(obj, processed);
+                    CheckLazyLoader(obj, processed);
                 }
             }
 
-            static void DropLazyLoader(BaseEntity entity, ISet<BaseEntity> processed)
+            static void CheckLazyLoader(BaseEntity entity, ISet<BaseEntity> processed)
             {
                 if (entity == null)
                 {
                     return;
                 }
-                
+
                 // This is to prevent an infinite recursion when the child object has a navigation property
                 // that points back to the parent
                 if (!processed.Add(entity))
@@ -277,15 +267,12 @@ namespace Smartstore.Caching
                     return;
                 }
 
-                // Drop it!
-                var lazyLoader = entity.LazyLoader;
-                if (lazyLoader is not NullLazyLoader)
+                if (entity.LazyLoader is LazyLoader)
                 {
-                    lazyLoader.Dispose();
-                    entity.LazyLoader = NullLazyLoader.Instance;
+                    throw new InvalidOperationException("Saving tracked entities to memory cache is not allowed because it would most likely cause memory leaks.");
                 }
 
-                // Drop deep
+                // Check deep
                 var fastProps = FastProperty.GetProperties(entity.GetType());
                 foreach (var kvp in fastProps)
                 {
@@ -293,7 +280,7 @@ namespace Smartstore.Caching
 
                     if (typeof(BaseEntity).IsAssignableFrom(prop.PropertyType))
                     {
-                        DropLazyLoader(prop.GetValue(entity) as BaseEntity, processed);
+                        CheckLazyLoader(prop.GetValue(entity) as BaseEntity, processed);
                     }
                     else if (typeof(IEnumerable<BaseEntity>).IsAssignableFrom(prop.PropertyType))
                     {
@@ -302,7 +289,7 @@ namespace Smartstore.Caching
                         {
                             foreach (var obj in collection)
                             {
-                                DropLazyLoader(obj, processed);
+                                CheckLazyLoader(obj, processed);
                             }
                         }
                     }

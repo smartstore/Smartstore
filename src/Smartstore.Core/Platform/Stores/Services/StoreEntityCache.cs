@@ -1,9 +1,6 @@
-﻿using Smartstore.Caching;
-using Smartstore.Data;
-
-namespace Smartstore.Core.Stores
+﻿namespace Smartstore.Core.Stores
 {
-    public class StoreEntityCache : ICacheEvents
+    public class StoreEntityCache
     {
         internal StoreEntityCache(IList<Store> allStores)
         {
@@ -51,15 +48,6 @@ namespace Smartstore.Core.Stores
             }
 
             return null;
-        }
-
-        void ICacheEvents.OnCache()
-        {
-            MemoryCacheStore.TryDropLazyLoader(Stores.Values);
-        }
-
-        void ICacheEvents.OnRemoved(IMemoryCacheStore sender, CacheEntryRemovedReason reason)
-        {
         }
     }
 }

@@ -56,8 +56,6 @@ namespace Smartstore.Data.Caching
 
             using (_cache.GetLock(cacheKey).Acquire(TimeSpan.FromSeconds(5)))
             {
-                MemoryCacheStore.TryDropLazyLoader(value.Value);
-
                 _cache.Put(cacheKey, value, new CacheEntryOptions().ExpiresIn(policy.ExpirationTimeout.Value));
 
                 foreach (var set in key.EntitySets)

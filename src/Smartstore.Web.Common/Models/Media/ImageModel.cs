@@ -1,11 +1,10 @@
-﻿using Smartstore.Caching;
-using Smartstore.Core.Content.Media;
+﻿using Smartstore.Core.Content.Media;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Media
 {
-    public partial class ImageModel : EntityModelBase, IImageModel, ICacheEvents
+    public partial class ImageModel : EntityModelBase, IImageModel
     {
         public override int Id
         {
@@ -23,15 +22,6 @@ namespace Smartstore.Web.Models.Media
         public bool HasImage()
         {
             return File != null || !NoFallback;
-        }
-
-        void ICacheEvents.OnCache()
-        {
-            MemoryCacheStore.TryDropLazyLoader(File?.File);
-        }
-
-        void ICacheEvents.OnRemoved(IMemoryCacheStore sender, CacheEntryRemovedReason reason)
-        {
         }
     }
 }
