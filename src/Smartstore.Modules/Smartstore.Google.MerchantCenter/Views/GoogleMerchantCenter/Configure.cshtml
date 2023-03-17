@@ -32,6 +32,6 @@
         <partial name="_Grid.GoogleProducts" model="null" />
     </tab>
     <tab sm-title="@T("Plugins.Feed.Froogle.TabTitleProfiles")">
-        @await Component.InvokeAsync("ExportProfileInfo", new { providerSystemName = "Feeds.GoogleMerchantCenterProductXml" })
+        @await Component.InvokeAsync("ExportProfileInfo", new { providerSystemName = "Feeds.GoogleMerchantCenterProductXml", returnUrl = Url.Action("Configure", "GoogleMerchantCenter") })
     </tab>
 </tabstrip>
