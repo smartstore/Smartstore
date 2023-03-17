@@ -11,7 +11,10 @@
 
 - Added price settings for discount requirements to be validated in product lists.
 - Faster loading of product lists that contain bundles with per-item pricing.
-- MegaSearch: a significant increase in speed, especially when dealing with large amounts of data.
+- MegaSearch:
+	- A significant increase in search speed, especially when dealing with large amounts of data.
+	- Faster indexing.
+	- Word stemming configurable for all languages.
 - Added MetaProperty to control number input grouping 
 
 ### Bugfixes
@@ -33,6 +36,7 @@
 - Fixed InvalidCastException "Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Smartstore.Core.Search.Facets.FacetGroup'" when OutputCache is active.
 - Category or manufacturer discount was not applied if no other changes were made to the category or manufacturer except for the discount assignment.
 - Cart rules assigned to a payment method were not applied in checkout.
+- MegaSearch: fixed a memory leak during indexing.
 
 
 ## Smartstore 5.0.3
