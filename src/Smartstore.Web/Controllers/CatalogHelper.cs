@@ -19,6 +19,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Data;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
@@ -182,7 +183,7 @@ namespace Smartstore.Web.Controllers
                     .Select(x => x.Manufacturer.MediaFile)
                     .Where(x => x != null)
                     .Distinct()
-                    .Select(x => _mediaService.ConvertMediaFile(x))
+                    .Select(_mediaService.ConvertMediaFile)
                     .ToDictionarySafe(x => x.Id);
             }
 
