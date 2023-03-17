@@ -42,7 +42,13 @@ var AjaxCart = (function ($, window, document, undefined) {
         };
 
         if (el.data("form-selector")) {
-            var str = $(el.data("form-selector")).serialize();
+            var form = $(el.data("form-selector"));
+
+            if (!form[0].reportValidity()) {
+                return null;
+            }
+
+            var str = form.serialize();
 
             // HACK (MC)!
             // we changed the ModelType of the _AddToCart
@@ -76,7 +82,7 @@ var AjaxCart = (function ($, window, document, undefined) {
             if (!$.isPlainObject(cmd)) {
                 cmd = createCommand(cmd);
             }
-            if (!cmd || !verifyCommand(cmd)) return;
+            if (!cmd || !verifyCommand(cmd)) return false;
 
             busy = true;
 
@@ -190,9 +196,13 @@ $(function () {
         if (updatingCart)
             return;
 
+        if (!$("#offcanvas-cart-form")[0].reportValidity()) {
+            return;
+        }
+
         updatingCart = true;
         var el = $(this);
-
+        
         $.ajax({
             cache: false,
             type: "POST",

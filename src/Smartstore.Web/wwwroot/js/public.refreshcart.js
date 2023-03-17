@@ -15,6 +15,12 @@ $(function () {
     // Quantity numberinput change.
     var debouncedUpdate = _.debounce(function (e) {
         e.preventDefault();
+
+        var form = $(this).closest("form");
+        if (!form[0].reportValidity()) {
+            return false;
+        }
+
         var link = $(this);
         updateShoppingCartItems(link, { sciItemId: link.data("sci-id"), newQuantity: link.val(), isCartPage: true, isWishlist: isWishlist });
         return false;
