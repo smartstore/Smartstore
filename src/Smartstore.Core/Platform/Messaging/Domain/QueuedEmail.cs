@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Smartstore.Core.Messaging
@@ -11,16 +10,6 @@ namespace Smartstore.Core.Messaging
     [Index(nameof(EmailAccountId), Name = "IX_EmailAccountId")]
     public partial class QueuedEmail : BaseEntity
     {
-        public QueuedEmail()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private QueuedEmail(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the priority.
         /// </summary>

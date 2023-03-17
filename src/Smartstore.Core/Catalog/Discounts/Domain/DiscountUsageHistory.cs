@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Checkout.Orders;
 
@@ -10,16 +9,6 @@ namespace Smartstore.Core.Catalog.Discounts
     /// </summary>
     public partial class DiscountUsageHistory : BaseEntity
     {
-        public DiscountUsageHistory()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private DiscountUsageHistory(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the discount identifier.
         /// </summary>

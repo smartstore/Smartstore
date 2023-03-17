@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -38,16 +37,6 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(SpecificationAttributeOptionId), Name = "IX_SpecificationAttributeOptionId")]
     public partial class ProductSpecificationAttribute : BaseEntity, IDisplayOrder
     {
-        public ProductSpecificationAttribute()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private ProductSpecificationAttribute(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the specification attribute option identifier.
         /// </summary>

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Smartstore.Core.Identity
 {
@@ -9,16 +8,6 @@ namespace Smartstore.Core.Identity
     [Index(nameof(IsSystemMapping), Name = "IX_IsSystemMapping")]
     public partial class CustomerRoleMapping : BaseEntity
     {
-        public CustomerRoleMapping()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private CustomerRoleMapping(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the customer identifier.
         /// </summary>

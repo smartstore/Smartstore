@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -11,16 +10,6 @@ namespace Smartstore.Core.Rules
     [Index(nameof(DisplayOrder), Name = "IX_PageBuilder_DisplayOrder")]
     public partial class RuleEntity : BaseEntity
     {
-        public RuleEntity()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private RuleEntity(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         [Required]
         public int RuleSetId { get; set; }
 

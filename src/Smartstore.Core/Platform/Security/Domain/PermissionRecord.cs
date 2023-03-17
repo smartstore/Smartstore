@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using Smartstore.Data.Caching;
@@ -13,16 +12,6 @@ namespace Smartstore.Core.Security
     [CacheableEntity]
     public partial class PermissionRecord : EntityWithAttributes
     {
-        public PermissionRecord()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private PermissionRecord(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the permission system name.
         /// </summary>

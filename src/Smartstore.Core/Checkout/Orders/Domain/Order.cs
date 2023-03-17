@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -53,16 +52,6 @@ namespace Smartstore.Core.Checkout.Orders
     [Index(nameof(PaymentMethodSystemName), nameof(CaptureTransactionId))]
     public partial class Order : EntityWithAttributes, IAuditable, ISoftDeletable
     {
-        public Order()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
-        private Order(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         #region Properties
 
         /// <summary>

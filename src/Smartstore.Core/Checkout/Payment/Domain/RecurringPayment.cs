@@ -25,15 +25,6 @@ namespace Smartstore.Core.Checkout.Payment
     /// </summary>
     public partial class RecurringPayment : EntityWithAttributes, ISoftDeletable
     {
-        public RecurringPayment()
-        {
-        }
-
-        public RecurringPayment(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the cycle length.
         /// </summary>

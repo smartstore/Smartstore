@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Localization;
@@ -30,16 +29,6 @@ namespace Smartstore.Core.Common
     [LocalizedEntity("Published and Country.Published")]
     public partial class StateProvince : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
-        public StateProvince()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private StateProvince(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the country identifier
         /// </summary>

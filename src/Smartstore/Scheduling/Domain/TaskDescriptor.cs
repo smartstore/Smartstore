@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Data.Caching;
@@ -20,16 +19,6 @@ namespace Smartstore.Scheduling
     [CacheableEntity(NeverCache = true)]
     public class TaskDescriptor : BaseEntity, ICloneable<TaskDescriptor>
     {
-        public TaskDescriptor()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private TaskDescriptor(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         // Legacy compat
         public override string GetEntityName() => "ScheduleTask";
 

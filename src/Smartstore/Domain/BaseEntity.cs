@@ -15,16 +15,7 @@ namespace Smartstore.Domain
         private ILazyLoader _lazyLoader;
         private Dictionary<string, object> _hookState;
 
-        protected BaseEntity()
-        {
-        }
-
-        protected BaseEntity(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
-        }
-
-        [IgnoreDataMember]
+        [IgnoreDataMember, NotMapped]
         protected internal virtual ILazyLoader LazyLoader
         {
             get => _lazyLoader ?? NullLazyLoader.Instance;

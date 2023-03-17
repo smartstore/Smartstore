@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -18,16 +17,6 @@ namespace Smartstore.Core.Checkout.Cart
         private ProductVariantAttributeSelection _attributeSelection;
         private string _rawAttributes;
         private int? _hashCode;
-
-        public ShoppingCartItem()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private ShoppingCartItem(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
 
         /// <summary>
         /// Gets or sets the store identifier

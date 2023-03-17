@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,16 +23,6 @@ namespace Smartstore.Core.Content.Media
     [Index(nameof(UpdatedOnUtc), nameof(IsTransient), Name = "IX_UpdatedOn_IsTransient")]
     public partial class Download : BaseEntity, ICloneable<Download>
     {
-        public Download()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private Download(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets a GUID.
         /// </summary>

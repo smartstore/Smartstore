@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
@@ -20,16 +19,6 @@ namespace Smartstore.Core.Content.Menus
     public class MenuEntity : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
         const string EntityName = "MenuRecord";
-
-        public MenuEntity()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private MenuEntity(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
 
         public override string GetEntityName()
             => EntityName;

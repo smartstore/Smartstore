@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Checkout.Orders;
 
@@ -11,16 +10,6 @@ namespace Smartstore.Core.Identity
     /// </summary>
     public class RewardPointsHistory : BaseEntity
     {
-        public RewardPointsHistory()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private RewardPointsHistory(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the customer identifier.
         /// </summary>

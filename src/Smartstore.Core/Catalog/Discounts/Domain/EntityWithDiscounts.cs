@@ -6,15 +6,6 @@ namespace Smartstore.Core.Catalog.Discounts
     {
         private ICollection<Discount> _appliedDiscounts;
 
-        protected EntityWithDiscounts()
-        {
-        }
-
-        protected EntityWithDiscounts(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <inheritdoc />
         public bool HasDiscountsApplied { get; set; }
 

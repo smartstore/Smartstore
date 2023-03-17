@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Products;
@@ -32,16 +31,6 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(CategoryId), nameof(ProductId), Name = "IX_PCM_Product_and_Category")]
     public partial class ProductCategory : BaseEntity, IDisplayOrder
     {
-        public ProductCategory()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private ProductCategory(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the category identifier.
         /// </summary>

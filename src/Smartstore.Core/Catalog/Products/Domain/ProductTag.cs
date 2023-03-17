@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Localization;
@@ -14,16 +13,6 @@ namespace Smartstore.Core.Catalog.Products
     [LocalizedEntity("Published")]
     public partial class ProductTag : BaseEntity, ILocalizedEntity, IDisplayedEntity
     {
-        public ProductTag()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private ProductTag(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         public string[] GetDisplayNameMemberNames() => new[] { nameof(Name) };
         public string GetDisplayName() => Name;
 

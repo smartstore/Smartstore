@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Localization;
@@ -16,16 +15,6 @@ namespace Smartstore.Core.Checkout.Attributes
     [LocalizedEntity("IsActive")]
     public partial class CheckoutAttribute : EntityWithAttributes, ILocalizedEntity, IStoreRestricted
     {
-        public CheckoutAttribute()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private CheckoutAttribute(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets a value indicating whether the checkout attribute is active
         /// </summary>

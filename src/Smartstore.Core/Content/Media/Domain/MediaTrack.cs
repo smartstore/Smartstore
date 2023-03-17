@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Data.Hooks;
@@ -21,16 +20,6 @@ namespace Smartstore.Core.Content.Media
         private string _entityName;
         private string _property;
         private int? _hashCode;
-
-        public MediaTrack()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private MediaTrack(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
 
         /// <summary>
         /// Gets or sets the media file identifier.

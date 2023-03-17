@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -33,16 +32,6 @@ namespace Smartstore.Core.Checkout.Orders
     {
         private ProductVariantAttributeSelection _attributeSelection;
         private string _rawAttributes;
-
-        public OrderItem()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private OrderItem(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
 
         /// <summary>
         /// Gets or sets the order product variant identifier

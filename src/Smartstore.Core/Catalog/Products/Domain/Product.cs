@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -123,16 +122,6 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         #endregion
-
-        public Product()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private Product(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
 
         /// <inheritdoc/>
         [NotMapped, IgnoreDataMember]

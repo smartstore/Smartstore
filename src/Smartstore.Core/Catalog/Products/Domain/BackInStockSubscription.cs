@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Catalog.Products
@@ -9,16 +8,6 @@ namespace Smartstore.Core.Catalog.Products
     /// </summary>
     public partial class BackInStockSubscription : BaseEntity
     {
-        public BackInStockSubscription()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private BackInStockSubscription(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the store identifier.
         /// </summary>

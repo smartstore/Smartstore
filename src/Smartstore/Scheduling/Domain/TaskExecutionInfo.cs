@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
@@ -10,16 +10,6 @@ namespace Smartstore.Scheduling
     [CacheableEntity(NeverCache = true)]
     public class TaskExecutionInfo : BaseEntity, ICloneable<TaskExecutionInfo>
     {
-        public TaskExecutionInfo()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private TaskExecutionInfo(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         // Legacy compat
         public override string GetEntityName() => "ScheduleTaskHistory";
 
@@ -85,6 +75,7 @@ namespace Smartstore.Scheduling
         public TaskExecutionInfo Clone()
         {
             var clone = (TaskExecutionInfo)MemberwiseClone();
+            clone.LazyLoader = NullLazyLoader.Instance;
             clone.Task = Task.Clone();
             return clone;
         }

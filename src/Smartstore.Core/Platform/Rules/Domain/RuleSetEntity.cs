@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
@@ -20,15 +19,6 @@ namespace Smartstore.Core.Rules
     [CacheableEntity(MaxRows = 1, Expiry = 480)] // MaxRows = 1 caches only ById calls
     public partial class RuleSetEntity : EntityWithAttributes, IAuditable
     {
-        public RuleSetEntity()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private RuleSetEntity(ILazyLoader lazyLoader) : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the name of the rule set.
         /// </summary>

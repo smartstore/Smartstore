@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Identity;
 
@@ -10,15 +9,6 @@ namespace Smartstore.Core.Security
     /// </summary>
     public partial class PermissionRoleMapping : BaseEntity
     {
-        public PermissionRoleMapping()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private PermissionRoleMapping(ILazyLoader lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets a value indicating whether the permission is granted.
         /// </summary>

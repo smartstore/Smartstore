@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Smartstore.Core.Identity
@@ -10,16 +9,6 @@ namespace Smartstore.Core.Identity
     [Index(nameof(ProviderSystemName), nameof(ExternalIdentifier))]
     public partial class ExternalAuthenticationRecord : BaseEntity
     {
-        public ExternalAuthenticationRecord()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private ExternalAuthenticationRecord(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the customer identifier.
         /// </summary>

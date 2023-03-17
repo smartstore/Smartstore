@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Checkout.Orders;
 
@@ -11,16 +10,6 @@ namespace Smartstore.Core.Identity
     [Index(nameof(StoreId), nameof(CreatedOnUtc), Name = "IX_StoreId_CreatedOn")]
     public partial class WalletHistory : BaseEntity
     {
-        public WalletHistory()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private WalletHistory(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the store identifier. Should not be zero.
         /// </summary>

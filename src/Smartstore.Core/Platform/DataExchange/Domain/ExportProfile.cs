@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Scheduling;
@@ -25,16 +24,6 @@ namespace Smartstore.Core.DataExchange
     [DebuggerDisplay("{Name} (provider: {ProviderSystemName})")]
     public partial class ExportProfile : BaseEntity, ICloneable<ExportProfile>
     {
-        public ExportProfile()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private ExportProfile(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// The name of the profile.
         /// </summary>

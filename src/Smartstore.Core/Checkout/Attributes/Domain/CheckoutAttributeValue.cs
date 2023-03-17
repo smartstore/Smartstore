@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -27,16 +26,6 @@ namespace Smartstore.Core.Checkout.Attributes
     [LocalizedEntity("CheckoutAttribute.IsActive")]
     public partial class CheckoutAttributeValue : BaseEntity, ILocalizedEntity
     {
-        public CheckoutAttributeValue()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private CheckoutAttributeValue(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the checkout attribute name
         /// </summary>
