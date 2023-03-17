@@ -68,16 +68,22 @@ namespace Smartstore.Engine
             var coreAssemblies = ResolveCoreAssemblies().ToArray();
             _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies);
 
-            var modules = DiscoverModules();
+            var modules = DiscoverModules().ToArray();
             var appIsInstalled = _appContext.IsInstalled;
-            var loadedModules = ModularState.Instance.InstalledModules;
+            var installedModules = ModularState.Instance.InstalledModules;
             var pendingModules = ModularState.Instance.PendingModules;
+            var loadedModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var module in modules)
             {
-                if (!appIsInstalled || loadedModules.Contains(module.Name) || pendingModules.Contains(module.Name))
+                if (CanLoadModule(module))
                 {
                     LoadModule(module);
+
+                    if (module.Module?.Assembly != null)
+                    {
+                        loadedModules.Add(module.Name);
+                    }
                 }
             }
 
@@ -86,6 +92,26 @@ namespace Smartstore.Engine
 
             // Provide type scanner which also can reflect over module assemblies
             _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies, _appContext.ModuleCatalog, _appContext.Logger);
+
+            bool CanLoadModule(IModuleDescriptor module)
+            {
+                var canLoad = 
+                    !appIsInstalled || 
+                    installedModules.Contains(module.Name) || 
+                    pendingModules.Contains(module.Name);
+
+                return canLoad && CheckDependencyGraphLoaded(module);
+            }
+
+            bool CheckDependencyGraphLoaded(IModuleDescriptor module)
+            {
+                if (module.DependsOn == null || module.DependsOn.Length == 0)
+                {
+                    return true;
+                }
+                
+                return module.DependsOn.All(loadedModules.Contains);
+            }
         }
 
         /// <summary>

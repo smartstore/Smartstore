@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ using Smartstore.Domain;
 
 namespace Smartstore
 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+    [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
     public static class IQueryableExtensions
     {
         private readonly static ConcurrentDictionary<Type, LambdaExpression> _memberInitExpressions = new();
@@ -219,5 +220,4 @@ namespace Smartstore
             return items.OrderBySequence(ids).ToList();
         }
     }
-#pragma warning restore EF1001 // Internal EF Core API usage.
 }

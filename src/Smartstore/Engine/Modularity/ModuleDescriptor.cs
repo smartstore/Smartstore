@@ -326,8 +326,7 @@ namespace Smartstore.Engine.Modularity
 
         public override bool Equals(object obj)
         {
-            var other = obj as ModuleDescriptor;
-            return other != null &&
+            return obj is ModuleDescriptor other &&
                 SystemName != null &&
                 SystemName.EqualsNoCase(other.SystemName);
         }
