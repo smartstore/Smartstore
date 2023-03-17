@@ -90,14 +90,15 @@ namespace Smartstore.Scheduling
                 job = _taskActivator.Activate(normalizedTypeName);
                 stateName = task.Id.ToStringInvariant();
 
+                // Create execution context
+                var ctx = new TaskExecutionContext(_taskStore, _asyncState, httpContext, _componentContext, executionInfo, taskParameters);
+                
                 // Create & set a composite CancellationTokenSource which also contains the global app shoutdown token.
                 var cts = CancellationTokenSource.CreateLinkedTokenSource(_asyncRunner.AppShutdownCancellationToken, cancelToken);
-                await _asyncState.CreateAsync(task, stateName, neverExpires: false, cancelTokenSource: cts);
+                await _asyncState.CreateAsync(ctx.ExecutionInfo.Task, stateName, neverExpires: false, cancelTokenSource: cts);
 
                 // Run the task
                 Logger.Debug("Executing scheduled task: {0}", task.Type);
-                var ctx = new TaskExecutionContext(_taskStore, _asyncState, httpContext, _componentContext, executionInfo, taskParameters);
-
                 await job.Run(ctx, cts.Token);
             }
             catch (Exception ex)

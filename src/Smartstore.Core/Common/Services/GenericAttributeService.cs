@@ -52,7 +52,7 @@ namespace Smartstore.Core.Common.Services
 
         public virtual GenericAttributeCollection GetAttributesForEntity(string entityName, int entityId)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotEmpty(entityName);
 
             if (entityId <= 0)
             {
