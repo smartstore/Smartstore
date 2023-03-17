@@ -2,6 +2,7 @@
 
 @{
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var useGrouping = GetMetadata<bool?>("useGrouping") ?? true;
 }
 
 <input type="number"
@@ -12,4 +13,5 @@
        placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.Empty").Value)"
        min="@(GetMetadata<int?>("min"))"
        max="@(GetMetadata<int?>("max"))"
-       step="@(GetMetadata<int?>("step") ?? 1)" />
+       step="@(GetMetadata<int?>("step") ?? 1)"
+       use-grouping='@(useGrouping ? "true" : "false" )' />

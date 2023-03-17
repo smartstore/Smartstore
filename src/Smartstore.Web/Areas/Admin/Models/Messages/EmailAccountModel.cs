@@ -16,6 +16,7 @@ namespace Smartstore.Admin.Models.Messages
         public string Host { get; set; }
 
         [LocalizedDisplay("*Port")]
+        [AdditionalMetadata("useGrouping", false)]
         public int Port { get; set; }
 
         [LocalizedDisplay("*Username")]
