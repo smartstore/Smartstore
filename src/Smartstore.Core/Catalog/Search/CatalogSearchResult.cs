@@ -9,7 +9,6 @@ namespace Smartstore.Core.Catalog.Search
     {
         private IPagedList<Product> _hits;
 
-        private readonly WeakReference<ISearchEngine> _engine;
         private readonly WeakReference<CatalogSearchQuery> _query;
         private readonly WeakReference<DbSet<Product>> _dbSet;
 
@@ -33,10 +32,10 @@ namespace Smartstore.Core.Catalog.Search
         {
             Guard.NotNull(query);
 
-            _engine = new WeakReference<ISearchEngine>(engine);
             _query = new WeakReference<CatalogSearchQuery>(query);
             _dbSet = new WeakReference<DbSet<Product>>(dbSet);
 
+            Engine = engine;
             TotalHitsCount = totalHitsCount;
             HitsEntityIds = hitsEntityIds ?? Array.Empty<int>();
             SpellCheckerSuggestions = spellCheckerSuggestions ?? Array.Empty<string>();
@@ -64,6 +63,8 @@ namespace Smartstore.Core.Catalog.Search
             }
         }
 
+        public ISearchEngine Engine { get; }
+
         /// <summary>
         /// Entity identifiers of found products.
         /// </summary>
@@ -77,15 +78,6 @@ namespace Smartstore.Core.Catalog.Search
         public string[] SpellCheckerSuggestions { get; set; }
 
         public IDictionary<string, FacetGroup> Facets { get; }
-
-        public ISearchEngine Engine
-        {
-            get
-            {
-                _engine.TryGetTarget(out var engine);
-                return engine;
-            }
-        }
 
         /// <summary>
         /// Gets the product hits. Once loaded, the result is cached so that
