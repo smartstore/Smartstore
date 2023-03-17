@@ -397,17 +397,23 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 _imageFactory.ReleaseMemory();
+
                 await Task.Delay(500);
 
-                GC.Collect();
+                // Aggressive GC
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
                 GC.WaitForPendingFinalizers();
-                GC.Collect();
+
                 await Task.Delay(500);
 
                 NotifySuccess(T("Admin.System.SystemInfo.GarbageCollectSuccessful"));
             }
             catch (Exception ex)
             {
+                // Relaxed GC
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
                 NotifyError(ex);
             }
 
@@ -958,9 +964,9 @@ namespace Smartstore.Admin.Controllers
 
         private static long GetPrivateBytes()
         {
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+            //GC.Collect();
 
             var process = Process.GetCurrentProcess();
             process.Refresh();
