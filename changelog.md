@@ -15,6 +15,7 @@
 	- A significant increase in search speed, especially when dealing with large amounts of data.
 	- Faster indexing.
 	- Word stemming configurable for all languages.
+- More aggressive garbage collector
 - Added `data-invariant` attribute to number input controls 
 
 ### Bugfixes

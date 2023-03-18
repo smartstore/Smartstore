@@ -142,10 +142,8 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            return new ImageModel
+            return new ImageModel(file, pictureSize)
             {
-                File = file,
-                ThumbSize = pictureSize,
                 Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? T("Media.Product.ImageLinkTitleFormat", productName),
                 Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? T("Media.Product.ImageAlternateTextFormat", productName),
                 NoFallback = catalogSettings.HideProductDefaultPictures

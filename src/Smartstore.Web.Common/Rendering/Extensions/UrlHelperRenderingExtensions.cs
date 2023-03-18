@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Content.Media.Imaging;
 
 namespace Smartstore.Web.Rendering
 {
@@ -9,16 +8,12 @@ namespace Smartstore.Web.Rendering
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Media(this IUrlHelper urlHelper, IImageModel model)
         {
-            Guard.NotNull(urlHelper, nameof(urlHelper));
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(urlHelper);
+            Guard.NotNull(model);
 
-            var urlGenerator = urlHelper.ActionContext.HttpContext.RequestServices.GetRequiredService<IMediaUrlGenerator>();
+            var mediaService = urlHelper.ActionContext.HttpContext.RequestServices.GetRequiredService<IMediaService>();
 
-            ProcessImageQuery query = model.ThumbSize > 0
-                ? new ProcessImageQuery { MaxSize = model.ThumbSize.Value }
-                : null;
-
-            return urlGenerator.GenerateUrl(model.File, query, model.Host, !model.NoFallback);
+            return mediaService.GetUrl(model.File, model.ThumbSize ?? 0, model.Host, !model.NoFallback);
         }
     }
 }

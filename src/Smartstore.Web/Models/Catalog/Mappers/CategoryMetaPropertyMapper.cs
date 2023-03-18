@@ -20,16 +20,18 @@ namespace Smartstore.Web.Models.Catalog.Mappers
     public class CategoryMetaPropertyMapper : MetaPropertiesMapperBase<CategoryModel>
     {
         private readonly IUrlHelper _urlHelper;
+        private readonly IMediaService _mediaService;
 
-        public CategoryMetaPropertyMapper(IHttpContextAccessor httpContextAccessor, IUrlHelper urlHelper)
+        public CategoryMetaPropertyMapper(IHttpContextAccessor httpContextAccessor, IUrlHelper urlHelper, IMediaService mediaService)
             : base(httpContextAccessor)
         {
             _urlHelper = urlHelper;
+            _mediaService = mediaService;
         }
 
         protected override MediaFileInfo GetMediaFile(CategoryModel from)
         {
-            return from.Image?.File;
+            return from.Image?.File == null ? null : _mediaService.ConvertMediaFile(from.Image?.File);
         }
 
         protected override Task MapCoreAsync(CategoryModel source, MetaPropertiesModel model, dynamic parameters = null)

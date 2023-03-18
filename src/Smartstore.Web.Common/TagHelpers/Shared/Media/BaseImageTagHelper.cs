@@ -65,7 +65,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             if (Model != null)
             {
-                File ??= Model.File;
+                File ??= Model.File == null ? null : MediaService.ConvertMediaFile(Model.File);
                 Size ??= Model.ThumbSize;
                 Host ??= Model.Host;
                 NoFallback = Model.NoFallback;

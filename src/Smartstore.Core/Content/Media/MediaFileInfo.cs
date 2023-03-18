@@ -55,9 +55,9 @@ namespace Smartstore.Core.Content.Media
         {
             var clone = new MediaFileInfo(File, _mediaService, _urlGenerator, Directory)
             {
-                ThumbSize = this.ThumbSize,
-                _alt = this._alt,
-                _title = this._title
+                ThumbSize = ThumbSize,
+                _alt = _alt,
+                _title = _title
             };
 
             return clone;

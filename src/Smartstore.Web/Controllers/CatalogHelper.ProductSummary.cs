@@ -473,10 +473,8 @@ namespace Smartstore.Web.Controllers
 
                 ctx.MediaFiles.TryGetValue(product.MainPictureId ?? 0, out var file);
 
-                item.Image = new ImageModel
+                item.Image = new ImageModel(file, thumbSize)
                 {
-                    File = file,
-                    ThumbSize = thumbSize,
                     Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? string.Format(ctx.Resources["Media.Product.ImageLinkTitleFormat"], item.Name),
                     Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? string.Format(ctx.Resources["Media.Product.ImageAlternateTextFormat"], item.Name),
                     NoFallback = _catalogSettings.HideProductDefaultPictures

@@ -116,8 +116,7 @@ namespace Smartstore.Web.Models.Cart
                 }
             }
 
-            to.File = file;
-            to.ThumbSize = pictureSize;
+            to.Populate(file, pictureSize);
             to.Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? T("Media.Product.ImageLinkTitleFormat", productName);
             to.Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? T("Media.Product.ImageAlternateTextFormat", productName);
             to.NoFallback = _catalogSettings.HideProductDefaultPictures;

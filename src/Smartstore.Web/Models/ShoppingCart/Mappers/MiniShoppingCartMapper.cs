@@ -178,10 +178,8 @@ namespace Smartstore.Web.Models.Cart
                         {
                             var fileInfo = await _services.MediaService.GetFileByIdAsync(file.MediaFileId, MediaLoadFlags.AsNoTracking);
 
-                            bundleItemModel.ImageModel = new ImageModel
+                            bundleItemModel.ImageModel = new ImageModel(fileInfo, MediaSettings.ThumbnailSizeXxs)
                             {
-                                File = fileInfo,
-                                ThumbSize = MediaSettings.ThumbnailSizeXxs,
                                 Title = file.MediaFile.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageLinkTitleFormat", bundleItemModel.ProductName),
                                 Alt = file.MediaFile.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageAlternateTextFormat", bundleItemModel.ProductName),
                                 NoFallback = _catalogSettings.HideProductDefaultPictures,

@@ -20,16 +20,18 @@ namespace Smartstore.Web.Models.Catalog.Mappers
     public class BrandMetaPropertyMapper : MetaPropertiesMapperBase<BrandModel>
     {
         private readonly IUrlHelper _urlHelper;
+        private readonly IMediaService _mediaService;
 
-        public BrandMetaPropertyMapper(IHttpContextAccessor httpContextAccessor, IUrlHelper urlHelper)
+        public BrandMetaPropertyMapper(IHttpContextAccessor httpContextAccessor, IUrlHelper urlHelper, IMediaService mediaService)
             : base(httpContextAccessor)
         {
             _urlHelper = urlHelper;
+            _mediaService = mediaService;
         }
 
         protected override MediaFileInfo GetMediaFile(BrandModel from)
         {
-            return from.Image?.File;
+            return from.Image?.File == null ? null : _mediaService.ConvertMediaFile(from.Image?.File);
         }
 
         protected override Task MapCoreAsync(BrandModel source, MetaPropertiesModel model, dynamic parameters = null)
