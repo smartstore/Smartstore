@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -90,6 +91,8 @@ namespace Smartstore.Data
 
         #endregion
 
+        protected virtual bool IsPooled { get; }
+
         protected internal virtual DbContextOptions Options { get; }
 
         public DataProvider DataProvider
@@ -117,12 +120,9 @@ namespace Smartstore.Data
             return base.DisposeAsync();
         }
 
+        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
         private void ResetState()
         {
-            // Instance is returned to pool: reset state.
-            MinHookImportance = HookImportance.Normal;
-            SuppressCommit = false;
-            DeferCommit = false;
             _currentSaveOperation = null;
             _hookHandler = null;
 
@@ -130,6 +130,24 @@ namespace Smartstore.Data
             {
                 _dataProvider.Dispose();
                 _dataProvider = null;
+            }
+
+            if (IsPooled)
+            {
+                // Instance is returned to pool: reset state.
+                MinHookImportance = HookImportance.Normal;
+                SuppressCommit = false;
+                DeferCommit = false;
+
+                var trackedEntries = ChangeTracker.Entries<BaseEntity>();
+                foreach (var entry in trackedEntries)
+                {
+                    if (entry.Entity.LazyLoader is LazyLoader lazyLoader)
+                    {
+                        lazyLoader.Dispose();
+                        entry.Entity.LazyLoader = null;
+                    }
+                }
             }
         }
 
