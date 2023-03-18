@@ -37,6 +37,9 @@ namespace Smartstore.Admin.Models.Maintenance
         public long UsedMemorySize { get; set; }
         public string UsedMemorySizeString => Prettifier.HumanizeBytes(UsedMemorySize);
 
+        public long MemoryCacheSize { get; set; }
+        public string MemoryCacheSizeString => Prettifier.HumanizeBytes(MemoryCacheSize);
+
         [LocalizedDisplay("*DataProviderFriendlyName")]
         public string DataProviderFriendlyName { get; set; }
 

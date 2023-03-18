@@ -385,8 +385,8 @@ namespace Smartstore.Admin.Controllers
                 model.LoadedAssemblies.Add(loadedAssembly);
             }
 
-            //// MemCache stats
-            //model.MemoryCacheStats = GetMemoryCacheStats();
+            //// MemCache size in bytes
+            //model.MemoryCacheSize = GetMemCacheBytes();
 
             return View(model);
         }
@@ -907,44 +907,20 @@ namespace Smartstore.Admin.Controllers
         #region Utils
 
         /// <summary>
-        /// Counts the size of all objects in both IMemoryCache and Smartstore memory cache
+        /// Counts the byte size of all objects in both IMemoryCache and Smartstore memory cache
         /// </summary>
-        private IDictionary<string, long> GetMemoryCacheStats()
+        private long GetMemCacheBytes()
         {
+            // System memory cache
+            var size = GetObjectSize(_memCache);
+
+            // Smartstore memory cache
             var cache = Services.CacheFactory.GetMemoryCache();
-            var stats = new Dictionary<string, long>();
-            var instanceLookups = new HashSet<object>(ReferenceEqualityComparer.Instance) { cache, _memCache };
+            size += GetObjectSize(cache);
 
-            // IMemoryCache
-            var memCacheKeys = _memCache.EnumerateKeys().ToArray();
-            foreach (var key in memCacheKeys)
-            {
-                var value = _memCache.Get(key);
-                var size = GetObjectSize(value);
+            return size;
 
-                if (key is string str)
-                {
-                    stats.Add("MemoryCache:" + str.Replace(':', '_'), size + (sizeof(char) + (str.Length + 1)));
-                }
-                else
-                {
-                    stats.Add("MemoryCache:" + key.ToString(), size + GetObjectSize(key));
-                }
-            }
-
-            // Smartstore CacheManager
-            var cacheKeys = cache.Keys("*").ToArray();
-            foreach (var key in cacheKeys)
-            {
-                var value = cache.Get<object>(key);
-                var size = GetObjectSize(value);
-
-                stats.Add(key, size + (sizeof(char) + (key.Length + 1)));
-            }
-
-            return stats;
-
-            long GetObjectSize(object obj)
+            static long GetObjectSize(object obj)
             {
                 if (obj == null)
                 {
@@ -953,7 +929,7 @@ namespace Smartstore.Admin.Controllers
 
                 try
                 {
-                    return CommonHelper.GetObjectSizeInBytes(obj, instanceLookups);
+                    return CommonHelper.CalculateObjectSizeInBytes(obj);
                 }
                 catch
                 {
@@ -964,10 +940,6 @@ namespace Smartstore.Admin.Controllers
 
         private static long GetPrivateBytes()
         {
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-            //GC.Collect();
-
             var process = Process.GetCurrentProcess();
             process.Refresh();
 

@@ -216,165 +216,85 @@ namespace Smartstore.Utilities
         }
 
         /// <summary>
-        /// Calculate the optimistic size af any managed object.
+        /// Calculate the optimistic size af any managed object in bytes.
         /// Get the minimal memory footprint of given <paramref name="obj" />.
         /// Counted are all fields, including auto-generated, private and protected.
         /// Not counted: any static fields, any properties, functions, member methods.
         /// </summary>
-        public static long GetObjectSizeInBytes(object obj, HashSet<object> instanceLookup = null)
+        public static long CalculateObjectSizeInBytes(object obj)
         {
+            // TODO: Ignore Func<>, Action, Work<>, Lazy<>, Stream(?) etc.
             if (obj == null)
             {
-                return sizeof(int);
+                return 0;
             }
 
-            var type = obj.GetType();
-            long size = 0;
+            var size = 0L;
+            var visitedObjects = new HashSet<object>();
+            var objectsToVisit = new Stack<object>();
 
-            if (type.IsPrimitive)
+            objectsToVisit.Push(obj);
+
+            while (objectsToVisit.Count > 0)
             {
-                switch (Type.GetTypeCode(type))
+                var currentObject = objectsToVisit.Pop();
+                if (currentObject == null || visitedObjects.Contains(currentObject))
                 {
-                    case TypeCode.Boolean:
-                    case TypeCode.Byte:
-                    case TypeCode.SByte:
-                        return sizeof(byte);
-                    case TypeCode.Char:
-                        return sizeof(char);
-                    case TypeCode.Single:
-                        return sizeof(float);
-                    case TypeCode.Double:
-                        return sizeof(double);
-                    case TypeCode.Int16:
-                    case TypeCode.UInt16:
-                        return sizeof(short);
-                    case TypeCode.Int32:
-                    case TypeCode.UInt32:
-                        return sizeof(int);
-                    case TypeCode.Int64:
-                    case TypeCode.UInt64:
-                    default:
-                        return sizeof(long);
-                }
-            }
-            else if (obj is decimal)
-            {
-                return sizeof(decimal);
-            }
-            else if (obj is string str)
-            {
-                return sizeof(char) * (str.Length + 1);
-            }
-            else if (obj is StringBuilder sb)
-            {
-                return _pointerSize + (sizeof(char) * (sb.Length + 1));
-            }
-            else if (type.IsEnum)
-            {
-                return sizeof(int);
-            }
-            else if (obj is Stream stream)
-            {
-                return _pointerSize + stream.Length;
-            }
-            else if (obj is IDictionary dic)
-            {
-                foreach (var key in dic.Keys)
-                {
-                    size += GetObjectSizeInBytes(key, instanceLookup);
+                    continue;
                 }
 
-                foreach (var value in dic.Values)
-                {
-                    size += GetObjectSizeInBytes(value, instanceLookup);
-                }
+                visitedObjects.Add(currentObject);
 
-                return _pointerSize + size;
-            }
-            else if (obj is IEnumerable e)
-            {
-                foreach (var item in e)
-                {
-                    size += GetObjectSizeInBytes(item, instanceLookup);
-                }
+                // Add size of current object
+                size += IntPtr.Size;
 
-                return _pointerSize + size;
-            }
-            else if (type.IsValueType)
-            {
-                if (obj is DateTime || obj is DateTimeOffset)
-                {
-                    return 8;
-                }
-                else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
-                {
-                    var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-                    foreach (var prop in properties)
-                    {
-                        size += GetObjectSizeInBytes(prop.GetValue(obj), instanceLookup);
-                    }
-
-                    return size;
-                }
-                else
-                {
-                    try
-                    {
-                        unsafe
-                        {
-                            return Marshal.SizeOf(obj);
-                        }
-                    }
-                    catch
-                    {
-                        return 0;
-                    }
-                }
-            }
-            else if (obj is Pointer)
-            {
-                return _pointerSize;
-            }
-            else if (type.IsClass)
-            {
-                if (ObjectAnalyzed(obj))
-                {
-                    return _pointerSize;
-                }
-
-                if (typeof(BaseEntity).IsAssignableFrom(type) || type.IsNotPublic)
-                {
-                    return _pointerSize;
-                }
-
-                size += _pointerSize;
-                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
+                // Add size of all fields in the object
+                var fields = currentObject.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 foreach (var field in fields)
                 {
-                    size += GetObjectSizeInBytes(field.GetValue(obj), instanceLookup);
+                    if (field.FieldType.IsValueType)
+                    {
+                        if (field.FieldType.IsEnum || field.FieldType.Name.StartsWith("Date"))
+                        {
+                            size += 8;
+                        }
+                        else
+                        {
+                            size += Marshal.SizeOf(field.FieldType);
+                        }
+                    }
+                    else if (field.FieldType == typeof(string))
+                    {
+                        var value = (string)field.GetValue(currentObject);
+                        if (value != null)
+                        {
+                            size += Encoding.Unicode.GetByteCount(value);
+                        }
+                    }
+                    else
+                    {
+                        var fieldValue = field.GetValue(currentObject);
+                        if (fieldValue != null && !visitedObjects.Contains(fieldValue))
+                        {
+                            objectsToVisit.Push(fieldValue);
+                        }
+                    }
                 }
 
-                return size;
+                // Add size of all items in the collection
+                if (currentObject is IEnumerable collection)
+                {
+                    foreach (var item in collection)
+                    {
+                        if (item != null && !visitedObjects.Contains(item))
+                        {
+                            objectsToVisit.Push(item);
+                        }
+                    }
+                }
             }
 
-            return 0;
-
-            bool ObjectAnalyzed(object o)
-            {
-                if (instanceLookup == null)
-                {
-                    instanceLookup = new HashSet<object>(ReferenceEqualityComparer.Instance);
-                }
-
-                if (instanceLookup.Contains(o))
-                {
-                    return true;
-                }
-
-                instanceLookup.Add(o);
-                return false;
-            }
+            return size;
         }
 
         #endregion
