@@ -520,12 +520,10 @@ namespace Smartstore.Core.Checkout.Cart
 
             var cart = await GetCartAsync(customer, cartItem.ShoppingCartType, cartItem.StoreId);
 
-            if (await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cart.Items))
-            {
-                cartItem.Quantity = newQuantity;
-                cartItem.UpdatedOnUtc = DateTime.UtcNow;
-            }
-            else
+            cartItem.Quantity = newQuantity;
+            cartItem.UpdatedOnUtc = DateTime.UtcNow;
+
+            if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cart.Items))
             {
                 warnings.AddRange(ctx.Warnings);
             }
