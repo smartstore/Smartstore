@@ -5,6 +5,7 @@
 ### New Features
 
 - **easyCredit** plugin (commercial)
+- **DependingPrices** plugin (commercial) Enables configuration of prices depending on customer groups, language, store or customer number.
 - New app system settings: `UsePooledDbContextFactory`, `UseDbCache`, `UseSequentialDbDataReader`
 
 ### Improvements
@@ -17,6 +18,7 @@
 	- Word stemming configurable for all languages.
 - More aggressive garbage collector
 - Added `data-invariant` attribute to number input controls 
+- Closed #543 Google Category (GMC) always get lost when copying a product
 
 ### Bugfixes
 
@@ -38,6 +40,8 @@
 - Category or manufacturer discount was not applied if no other changes were made to the category or manufacturer except for the discount assignment.
 - Cart rules assigned to a payment method were not applied in checkout.
 - MegaSearch: fixed a memory leak during indexing.
+- Fixed native validation for quantity inputs
+- Google Analytics: Fixed rendering of prices with thousands separator 
 
 
 ## Smartstore 5.0.3
