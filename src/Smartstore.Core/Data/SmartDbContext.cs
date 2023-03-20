@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
@@ -21,36 +20,15 @@ namespace Smartstore.Core.Data
     [CheckTables("Customer", "Discount", "Order", "Product", "ShoppingCartItem", "QueuedEmailAttachment", "ExportProfile")]
     public partial class SmartDbContext : HookingDbContext
     {
-        private static object _lock = new();
-        private static bool _isPooled;
-        private static bool _isPooledInitialized;
-
         public SmartDbContext(DbContextOptions<SmartDbContext> options)
             : base(options)
         {
-            LazyInitializer.EnsureInitialized(ref _isPooled, ref _isPooledInitialized, ref _lock, CheckPooling);
-        }
-
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
-        private bool CheckPooling()
-        {
-            try
-            {
-                var pool = this.GetService<IDbContextPool<SmartDbContext>>();
-                return pool != null;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         protected SmartDbContext(DbContextOptions options)
             : base(options)
         {
         }
-
-        protected override bool IsPooled => _isPooled;
 
         [SuppressMessage("Performance", "CA1822:Member can be static", Justification = "Seriously?")]
         public DbQuerySettings QuerySettings

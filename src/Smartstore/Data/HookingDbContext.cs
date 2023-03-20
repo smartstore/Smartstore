@@ -16,12 +16,11 @@ using Smartstore.Engine;
 
 namespace Smartstore.Data
 {
+    [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
     public abstract class HookingDbContext : DbContext
     {
-        private DbSaveChangesOperation _currentSaveOperation;
-        private DataProvider _dataProvider;
-        private IDbHookHandler _hookHandler;
-
+        private static readonly FieldInfo _leaseField = typeof(DbContext).GetField("_lease", BindingFlags.NonPublic | BindingFlags.Instance);
+        
         private static readonly ValueConverter _dateTimeConverter =
             new ValueConverter<DateTime, DateTime>(
                 v => v,
@@ -31,6 +30,11 @@ namespace Smartstore.Data
             new ValueConverter<DateTime?, DateTime?>(
                 v => v,
                 v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
+        private DbContextLease? _lease;
+        private DbSaveChangesOperation _currentSaveOperation;
+        private DataProvider _dataProvider;
+        private IDbHookHandler _hookHandler;
 
         public HookingDbContext(DbContextOptions options)
             : base(options)
@@ -78,7 +82,6 @@ namespace Smartstore.Data
             }
         }
 
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void DropLazyLoader(BaseEntity entity)
         {
@@ -91,7 +94,20 @@ namespace Smartstore.Data
 
         #endregion
 
-        protected virtual bool IsPooled { get; }
+        /// <summary>
+        /// Gets a value indicating whether the DbContext instance
+        /// was obtained from the DbContext pool.
+        /// </summary>
+        protected virtual bool IsActiveLease 
+        { 
+            get
+            {
+                _lease ??= (DbContextLease)_leaseField.GetValue(this);
+                _lease ??= DbContextLease.InactiveLease;
+
+                return _lease.Value.IsActive == true;
+            }
+        }
 
         protected internal virtual DbContextOptions Options { get; }
 
@@ -120,7 +136,6 @@ namespace Smartstore.Data
             return base.DisposeAsync();
         }
 
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
         private void ResetState()
         {
             _currentSaveOperation = null;
@@ -132,7 +147,7 @@ namespace Smartstore.Data
                 _dataProvider = null;
             }
 
-            if (IsPooled)
+            if (IsActiveLease)
             {
                 // Instance is returned to pool: reset state.
                 MinHookImportance = HookImportance.Normal;
@@ -318,19 +333,11 @@ namespace Smartstore.Data
 
         protected void CreateModel(ModelBuilder modelBuilder, IEnumerable<Assembly> assemblies)
         {
-            Guard.NotNull(assemblies, nameof(assemblies));
+            Guard.NotNull(assemblies);
 
             RegisterEntities(modelBuilder, assemblies);
             RegisterEntityMappings(modelBuilder, assemblies);
             ApplyConventions(modelBuilder);
-
-            //var entityTypes = modelBuilder.Model.GetEntityTypes();
-            //foreach (var etype in entityTypes)
-            //{
-            //    var props1 = etype.GetServiceProperties();
-            //    var propsDeclared = etype.GetDeclaredServiceProperties();
-            //    var propsDerived = etype.GetDerivedServiceProperties();
-            //}
         }
 
         private static void RegisterEntities(ModelBuilder modelBuilder, IEnumerable<Assembly> assemblies)
@@ -393,7 +400,6 @@ namespace Smartstore.Data
             }
         }
 
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required")]
         private static void ApplyDecimalPrecisionConvention(IMutableProperty property)
         {
             if (property.ClrType == typeof(decimal) || property.ClrType == typeof(decimal?))
@@ -414,7 +420,6 @@ namespace Smartstore.Data
             }
         }
 
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required")]
         private static void ApplyDateTimeUtcConvention(IMutableProperty property)
         {
             if (property.ClrType == typeof(DateTime) && CanConvert())
