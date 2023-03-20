@@ -13,6 +13,7 @@ using Smartstore.Data.Hooks;
 using Smartstore.Data.Providers;
 using Smartstore.Domain;
 using Smartstore.Engine;
+using Smartstore.Utilities;
 
 namespace Smartstore.Data
 {
@@ -41,8 +42,11 @@ namespace Smartstore.Data
         {
             Options = options;
 
-            ChangeTracker.Tracked += OnTracked;
-            ChangeTracker.StateChanged += OnStateChanged;
+            if (CommonHelper.IsHosted)
+            {
+                ChangeTracker.Tracked += OnTracked;
+                ChangeTracker.StateChanged += OnStateChanged;
+            }
         }
 
         #region LazyLoader injection
