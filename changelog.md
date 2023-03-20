@@ -42,7 +42,8 @@
 - MegaSearch: fixed a memory leak during indexing.
 - Fixed native validation for quantity inputs
 - Google Analytics: Fixed rendering of prices with thousands separator
-- #621 Cart item quantity couldn't be updated if cart item validation returned errors  
+- #621 Cart item quantity couldn't be updated if cart item validation returned errors
+- #628 sort Triple DatePicker year descending   
 
 
 ## Smartstore 5.0.3
