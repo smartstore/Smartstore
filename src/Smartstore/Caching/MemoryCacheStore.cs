@@ -357,10 +357,8 @@ namespace Smartstore.Caching
         public virtual void Clear()
         {
             _keys.Clear();
+            _cache.Clear();
 
-            // Faster way of clearing cache: https://stackoverflow.com/questions/8043381/how-do-i-clear-a-system-runtime-caching-memorycache
-            var oldCache = Interlocked.Exchange(ref _cache, CreateCache());
-            oldCache.Dispose();
             GC.Collect();
         }
 
