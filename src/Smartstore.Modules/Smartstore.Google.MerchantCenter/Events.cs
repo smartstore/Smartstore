@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Events;
 using Smartstore.Google.MerchantCenter.Domain;
 using Smartstore.Google.MerchantCenter.Models;
 using Smartstore.Web.Rendering.Events;
+using static Smartstore.Core.Security.Permissions.Catalog;
 
 namespace Smartstore.Google.MerchantCenter
 {
@@ -73,6 +75,30 @@ namespace Smartstore.Google.MerchantCenter
             {
                 _db.GoogleProducts().Add(entity);
             }
+
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task HandleEventAsync(ProductClonedEvent message)
+        {
+            var originalGoogleProduct = await _db.GoogleProducts()
+                .Where(x => x.ProductId == message.Source.Id)
+                .FirstOrDefaultAsync();
+
+            var newGoogleProduct = new GoogleProduct
+            {
+                CreatedOnUtc = DateTime.UtcNow
+            };
+
+            MiniMapper.Map(originalGoogleProduct, newGoogleProduct);
+
+            // Restore entity ID after Minimapper mapped the original ID.
+            newGoogleProduct.Id = 0;
+
+            // Set new product ID.
+            newGoogleProduct.ProductId = message.Clone.Id;
+
+            _db.GoogleProducts().Add(newGoogleProduct);
 
             await _db.SaveChangesAsync();
         }
