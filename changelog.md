@@ -45,7 +45,8 @@
 - #621 Cart item quantity couldn't be updated if cart item validation returned errors
 - #628 sort Triple DatePicker year descending   
 - #622 Tab created with Event.cs does not work on Mobile.
-- FileManager: Files weren't displayed correctly in backend 
+- FileManager: Files weren't displayed correctly in backend.
+- A product should be found by its SKU if there is a deleted product with identical SKU.
 
 
 ## Smartstore 5.0.3

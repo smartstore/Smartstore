@@ -498,21 +498,23 @@ namespace Smartstore.Admin.Controllers
 
             if (sku.HasValue())
             {
-                var product = await _db.Products
+                var products = await _db.Products
                     .IgnoreQueryFilters()
                     .ApplySkuFilter(sku)
                     .Select(x => new { x.Id, x.Deleted })
-                    .FirstOrDefaultAsync();
+                    .OrderBy(x => x.Id)
+                    .ToListAsync();
 
-                if (product != null)
+                if (products.Count > 0)
                 {
-                    if (product.Deleted)
+                    var notDeleted = products.FirstOrDefault(x => !x.Deleted);
+                    if (notDeleted != null)
                     {
-                        NotifyWarning(T("Products.Deleted", product.Id));
+                        return RedirectToAction(nameof(Edit), new { id = notDeleted.Id });
                     }
                     else
                     {
-                        return RedirectToAction(nameof(Edit), new { id = product.Id });
+                        NotifyWarning(T("Products.Deleted", products[0].Id));
                     }
                 }
                 else
