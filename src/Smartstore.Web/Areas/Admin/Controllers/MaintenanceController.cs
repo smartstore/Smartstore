@@ -21,6 +21,7 @@ using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
+using Smartstore.Data.Providers;
 using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.IO;
@@ -321,59 +322,34 @@ namespace Smartstore.Admin.Controllers
             };
 
             // DB size
-            try
+            if (dataProvider.CanComputeSize)
             {
-                model.DatabaseSize = await dataProvider.GetDatabaseSizeAsync();
-            }
-            catch
-            {
+                model.DatabaseSize = await CommonHelper.TryAction(dataProvider.GetDatabaseSizeAsync);
             }
 
             // DB table infos
             if (dataProvider.CanReadTableInfo)
             {
-                try
-                {
-                    var tableInfos = await dataProvider.ReadTableInfosAsync();
-                    model.DbTableInfos = tableInfos;
-                }
-                catch
-                {
-                }
+                model.DbTableInfos = await CommonHelper.TryAction(() => dataProvider.ReadTableInfosAsync(), new List<DbTableInfo>());
             }
 
             // Used RAM
-            try
-            {
-                model.UsedMemorySize = GetPrivateBytes();
-            }
-            catch
-            {
-            }
+            model.UsedMemorySize = CommonHelper.TryAction(GetPrivateBytes);
 
             // DB settings
-            try
+            if (DataSettings.Instance.IsValid())
             {
-                if (DataSettings.Instance.IsValid())
-                {
-                    model.DataProviderFriendlyName = dataProvider.ProviderFriendlyName;
-                    model.ShrinkDatabaseEnabled = dataProvider.CanShrink && Services.Permissions.Authorize(Permissions.System.Maintenance.Read);
-                }
-            }
-            catch
-            {
+                model.DataProviderFriendlyName = dataProvider.ProviderFriendlyName;
+                model.ShrinkDatabaseEnabled = dataProvider.CanShrink && Services.Permissions.Authorize(Permissions.System.Maintenance.Read);
             }
 
             // Loaded assemblies
-            try
+            model.AppDate = CommonHelper.TryAction(() => 
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 var fi = new FileInfo(assembly.Location);
-                model.AppDate = fi.LastWriteTime.ToLocalTime();
-            }
-            catch
-            {
-            }
+                return model.AppDate = fi.LastWriteTime.ToLocalTime();
+            });
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -384,14 +360,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (!assembly.IsDynamic)
                 {
-                    try
-                    {
-                        loadedAssembly.Location = assembly.Location;
-                    }
-                    catch
-                    {
-
-                    }
+                    loadedAssembly.Location = CommonHelper.TryAction(() => assembly.Location);
                 }
 
                 model.LoadedAssemblies.Add(loadedAssembly);

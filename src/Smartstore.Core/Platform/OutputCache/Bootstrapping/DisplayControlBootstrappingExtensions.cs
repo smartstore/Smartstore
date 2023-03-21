@@ -7,10 +7,10 @@ namespace Smartstore.Core.Bootstrapping
     {
         public static IServiceCollection AddDisplayControl(this IServiceCollection services)
         {
-            Guard.NotNull(services, nameof(services));
+            Guard.NotNull(services);
 
             services.TryAddScoped<IDisplayControl, DisplayControl>();
-            services.TryAddSingleton(NullOutputCacheInvalidationObserver.Instance);
+            services.TryAddSingleton<IOutputCacheInvalidationObserver>(NullOutputCacheInvalidationObserver.Instance);
 
             return services;
         }

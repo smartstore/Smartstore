@@ -178,6 +178,84 @@ namespace Smartstore.Utilities
 
         #endregion
 
+        #region TryAction
+
+        /// <summary>
+        /// A simple action executor that tries to execute the given <paramref name="action"/>.
+        /// This method does not throw any exception.
+        /// </summary>
+        /// <param name="action">Action to execute.</param>
+        /// <param name="onException">Optional exception handler.</param>
+        public static void TryAction(
+            Action action, 
+            Action<Exception> onException = null)
+        {
+            Guard.NotNull(action);
+
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                onException?.Invoke(ex);
+            }
+        }
+
+        /// <summary>
+        /// A simple function executor that tries to execute the given <paramref name="action"/>.
+        /// This method does not throw any exception.
+        /// </summary>
+        /// <param name="action">Function to execute.</param>
+        /// <param name="defaultValue">The default value to return when an exception occurs.</param>
+        /// <param name="onException">Optional exception handler.</param>
+        public static TResult TryAction<TResult>(
+            Func<TResult> action, 
+            TResult defaultValue = default, 
+            Action<Exception> onException = null)
+        {
+            Guard.NotNull(action);
+
+            try
+            {
+                return action();
+            }
+            catch (Exception ex)
+            {
+                onException?.Invoke(ex);
+            }
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// A simple function executor that tries to execute the given <paramref name="action"/> asynchronously.
+        /// This method does not throw any exception.
+        /// </summary>
+        /// <param name="action">Function to execute.</param>
+        /// <param name="defaultValue">The default value to return when an exception occurs.</param>
+        /// <param name="onException">Optional exception handler.</param>
+        public static async Task<TResult> TryAction<TResult>(
+            Func<Task<TResult>> action,
+            TResult defaultValue = default,
+            Action<Exception> onException = null)
+        {
+            Guard.NotNull(action);
+
+            try
+            {
+                return await action();
+            }
+            catch (Exception ex)
+            {
+                onException?.Invoke(ex);
+            }
+
+            return defaultValue;
+        }
+
+        #endregion
+
         #region Misc
 
         public static bool IsTruthy(object value)
