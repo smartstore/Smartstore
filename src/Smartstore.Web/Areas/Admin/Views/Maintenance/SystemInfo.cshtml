@@ -37,17 +37,14 @@
 <script sm-target-zone="scripts" data-origin="SystemInfo">
 	$(function () {
         $(document).on('click', '.toggle-panel', function (e) {
-			var btn = $(this);
-            var panel = btn.parent().next();
+			let btn = $(this);
+            let fa = btn.find('.fa');
+            let panel = btn.parent().next();
+            let isPressed = btn.is('.active');
 
-			if (panel.hasClass('d-none')) {
-                btn.html(@T("Admin.Common.Hide").JsValue);
-                panel.removeClass('d-none');
-			}
-			else {
-                btn.html(@T("Admin.Common.Show").JsValue);
-                panel.addClass('d-none');
-			}
+            fa.toggleClass('fa-angle-down', !isPressed);
+            fa.toggleClass('fa-angle-up', isPressed);
+            panel.toggleClass('d-none', !isPressed);
 		});
 
         window.setInterval(refreshMemUsage, 4000);
@@ -91,8 +88,8 @@
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @Html.DisplayFor(model => model.AppVersion)
-                <a href='@Url.Action("CheckUpdate", new { enforce = true })' class="ml-3">@T("Admin.CheckUpdate")</a>
+                <span class="sysmetric">@Html.DisplayFor(model => model.AppVersion)</span>
+                <a href='@Url.Action("CheckUpdate", new { enforce = true })' class="fwm">@T("Admin.CheckUpdate")</a>
             </div>
         </div>
     </div>
@@ -103,26 +100,6 @@
         <div class="adminData">
             <div class="form-control-plaintext">
                 @Model.AppDate.ToString("F")
-            </div>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="OperatingSystem" />
-        </div>
-        <div class="adminData">
-            <div class="form-control-plaintext">
-                @Html.DisplayFor(model => model.OperatingSystem)
-            </div>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="AspNetInfo" />
-        </div>
-        <div class="adminData">
-            <div class="form-control-plaintext">
-                @Html.DisplayFor(model => model.AspNetInfo)
             </div>
         </div>
     </div>
@@ -156,58 +133,28 @@
             </div>
         </div>
     </div>
+
+    <div class="adminRow">
+        <div class="adminSeparator"><hr></div>
+    </div>
+
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="DataProviderFriendlyName" />
+            <smart-label asp-for="OperatingSystem" />
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @Model.DataProviderFriendlyName.NaIfEmpty()
+                @Html.DisplayFor(model => model.OperatingSystem)
             </div>
         </div>
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="DatabaseSize" />
+            <smart-label asp-for="AspNetInfo" />
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                <span class="sysmetric">@Model.DatabaseSizeString.NaIfEmpty()</span>
-                @if (Model.DbTableInfos.Count > 0)
-                {
-                    <a class="toggle-panel mr-2" href="javascript:;">@T("Admin.Common.Show")</a>
-                }
-                @if (Model.ShrinkDatabaseEnabled)
-                {
-                    <a href='@Url.Action("ShrinkDatabase")'>@T("Common.Shrink")</a>
-                }
-            </div>
-            <div sm-if="Model.DbTableInfos.Count > 0" class="d-none mt-3">
-                <div class="table-responsive">
-                    <table class="table table-sm table-striped">
-                        <thead>
-                            <tr>
-                                <th>Table</th>
-                                <th class="text-right">Rows</th>
-                                <th class="text-right">Total space</th>
-                                <th class="text-right">Used space</th>
-                                <th class="text-right">Unused</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var info in Model.DbTableInfos)
-                            {
-                                <tr>
-                                    <td>@info.TableName</td>
-                                    <td class="text-right">@info.NumRows.ToString(CultureInfo.CurrentUICulture)</td>
-                                    <td class="text-right">@Prettifier.HumanizeBytes(info.TotalSpace)</td>
-                                    <td class="text-right">@Prettifier.HumanizeBytes(info.UsedSpace)</td>
-                                    <td class="text-right">@Prettifier.HumanizeBytes(info.TotalSpace - info.UsedSpace)</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                @Html.DisplayFor(model => model.AspNetInfo)
             </div>
         </div>
     </div>
@@ -222,31 +169,7 @@
                     <i id="used-ram-up" class="fa fa-arrow-up text-danger pl-1" style="display: none"></i>
                     <i id="used-ram-down" class="fa fa-arrow-down text-success pl-1" style="display: none"></i>
                 </span>
-                <a href='@Url.Action("GarbageCollect")'>@T("Admin.System.SystemInfo.GarbageCollect")</a>
-            </div>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="LoadedAssemblies" />
-        </div>
-        <div class="adminData wide">
-            <div class="form-control-plaintext">
-                <span class="sysmetric">@Model.LoadedAssemblies.Count</span>
-                <a class="toggle-panel" href="javascript:;">@T("Admin.Common.Show")</a>
-            </div>
-            <div class="d-none mt-3">
-                <p>Directory: <span class="fwm">@AppDomain.CurrentDomain.BaseDirectory</span></p>
-                @foreach (var assembly in Model.LoadedAssemblies)
-                {
-                    @assembly.FullName
-                    if (!string.IsNullOrEmpty(assembly.Location))
-                    {
-                        <br />
-                        <span class="text-muted small">@assembly.Location</span>
-                    }
-                    <br />
-                }
+                <a href='@Url.Action("GarbageCollect")' class="fwm">@T("Admin.System.SystemInfo.GarbageCollect")</a>
             </div>
         </div>
     </div>
@@ -255,8 +178,11 @@
             @Html.SmartLabel("", "HTTP Header")
         </div>
         <div class="adminData wide">
-            <div class="form-control-plaintext">
-                <a class="toggle-panel" href="javascript:;">@T("Admin.Common.Show")</a>
+            <div class="toggle-panel-wrapper">
+                <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
+                    <i class="fa fa-angle-down"></i>
+                    <span>@T("Admin.Common.Show")</span>
+                </button>
             </div>
             <div class="d-none mt-3">
                 <div class="table-responsive">
@@ -280,8 +206,11 @@
             @Html.SmartLabel("", T("Admin.Common.EnvironmentVariables"))
         </div>
         <div class="adminData wide">
-            <div class="form-control-plaintext">
-                <a class="toggle-panel" href="javascript:;">@T("Admin.Common.Show")</a>
+            <div class="toggle-panel-wrapper">
+                <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
+                    <i class="fa fa-angle-down"></i>
+                    <span>@T("Admin.Common.Show")</span>
+                </button>
             </div>
             <div class="d-none mt-3">
                 <div class="table-responsive">
@@ -292,6 +221,101 @@
                                 <tr>
                                     <td class="sv-key" style="min-width: 200px">@(key):</td>
                                     <td><div class="sv-value">@variables[key]</div></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="LoadedAssemblies" />
+        </div>
+        <div class="adminData wide">
+            <div class="toggle-panel-wrapper">
+                <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
+                    <i class="fa fa-angle-down"></i>
+                    <span>@T("Admin.Common.Show") (@Model.LoadedAssemblies.Count)</span>
+                </button>
+            </div>
+            <div class="d-none mt-3">
+                <p>Directory: <span class="fwm">@AppDomain.CurrentDomain.BaseDirectory</span></p>
+                @foreach (var assembly in Model.LoadedAssemblies)
+                {
+                    @assembly.FullName
+                    if (!string.IsNullOrEmpty(assembly.Location))
+                    {
+                        <br />
+                        <span class="text-muted small">@assembly.Location</span>
+                    }
+                    <br />
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="adminRow">
+        <div class="adminSeparator"><hr></div>
+    </div>
+
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DataProviderFriendlyName" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @Model.DataProviderFriendlyName.NaIfEmpty()
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DatabaseSize" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                <span class="sysmetric">@Model.DatabaseSizeString.NaIfEmpty()</span>
+                @if (Model.ShrinkDatabaseEnabled)
+                {
+                    <a href='@Url.Action("ShrinkDatabase")' class="fwm">@T("Common.Shrink")</a>
+                }
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.DbTableInfos.Count > 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DbTableInfos" />
+        </div>
+        <div class="adminData">
+            <div class="toggle-panel-wrapper">
+                <button class="toggle-panel btn btn-secondary btn-sm" data-toggle="button" aria-pressed="false">
+                    <i class="fa fa-angle-down"></i>
+                    <span>@T("Admin.Common.Show")</span>
+                </button>
+            </div>
+            <div class="d-none mt-3">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>@T("Admin.System.SystemInfo.DbTableInfo.TableName")</th>
+                                <th class="text-right" nowrap>@T("Admin.System.SystemInfo.DbTableInfo.NumRows")</th>
+                                <th class="text-right" nowrap>@T("Admin.System.SystemInfo.DbTableInfo.TotalSpace")</th>
+                                <th class="text-right" nowrap>@T("Admin.System.SystemInfo.DbTableInfo.UsedSpace")</th>
+                                <th class="text-right" nowrap>@T("Admin.System.SystemInfo.DbTableInfo.UnusedSpace")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var info in Model.DbTableInfos.Where(x => x.UsedSpace > 0))
+                            {
+                                <tr>
+                                    <td style="word-break: break-all">@info.TableName</td>
+                                    <td class="text-right" nowrap>@info.NumRows.ToString("#,#")</td>
+                                    <td class="text-right" nowrap>@Prettifier.HumanizeBytes(info.TotalSpace)</td>
+                                    <td class="text-right" nowrap>@Prettifier.HumanizeBytes(info.UsedSpace)</td>
+                                    <td class="text-right" nowrap>@Prettifier.HumanizeBytes(info.TotalSpace - info.UsedSpace)</td>
                                 </tr>
                             }
                         </tbody>

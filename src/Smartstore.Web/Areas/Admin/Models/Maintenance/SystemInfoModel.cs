@@ -34,6 +34,7 @@ namespace Smartstore.Admin.Models.Maintenance
         public long DatabaseSize { get; set; }
         public string DatabaseSizeString => DatabaseSize == 0 ? string.Empty : Prettifier.HumanizeBytes(DatabaseSize);
 
+        [LocalizedDisplay("*DbTableInfo")]
         public List<DbTableInfo> DbTableInfos { get; set; } = new();
 
         [LocalizedDisplay("*UsedMemorySize")]
