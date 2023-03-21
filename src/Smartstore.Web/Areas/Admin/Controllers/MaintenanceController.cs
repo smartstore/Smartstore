@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Admin.Models.Maintenance;
-using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
@@ -386,6 +385,21 @@ namespace Smartstore.Admin.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.Maintenance.Read)]
+        public IActionResult UsedMemory()
+        {
+            try
+            {
+                var bytes = GetPrivateBytes();
+                return Json(new { success = true, raw = bytes, pretty = Prettifier.HumanizeBytes(bytes) });
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
