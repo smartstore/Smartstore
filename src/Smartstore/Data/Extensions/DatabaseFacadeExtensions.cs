@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
+using Smartstore.Utilities;
 
 namespace Smartstore
 {
@@ -301,7 +302,11 @@ namespace Smartstore
 
                     if (fastProps.TryGetValue(columnName, out var prop))
                     {
-                        prop.SetValue(obj, reader.GetValue(i));
+                        var value = reader.GetValue(i);
+                        if (ConvertUtility.TryConvert(value, prop.Property.PropertyType, out var converted))
+                        {
+                            prop.SetValue(obj, converted);
+                        }
                     }
                 }
             }
