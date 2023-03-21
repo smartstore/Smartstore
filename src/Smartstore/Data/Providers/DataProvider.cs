@@ -23,7 +23,8 @@ namespace Smartstore.Data.Providers
         StreamBlob = 1 << 6,
         ExecuteSqlScript = 1 << 7,
         StoredProcedures = 1 << 8,
-        ReadSequential = 1 << 9
+        ReadSequential = 1 << 9,
+        ReadTableInfo = 1 << 10
     }
 
     public abstract partial class DataProvider : Disposable
@@ -106,6 +107,11 @@ namespace Smartstore.Data.Providers
         public bool CanExecuteStoredProcedures
         {
             get => Features.HasFlag(DataProviderFeatures.StoredProcedures);
+        }
+
+        public bool CanReadTableInfo
+        {
+            get => Features.HasFlag(DataProviderFeatures.ReadTableInfo);
         }
 
         /// <summary>
@@ -197,20 +203,6 @@ namespace Smartstore.Data.Providers
         /// </returns>
         public abstract bool IsUniquenessViolationException(DbUpdateException ex);
 
-        /// <summary>
-        /// Creates a database backup
-        /// </summary>
-        /// <param name="fullPath">The full physical path to the backup file.</param>
-        protected virtual Task<int> BackupDatabaseCore(string fullPath, bool async, CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
-
-        /// <summary>
-        /// Restores a database backup
-        /// </summary>
-        /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
-        protected virtual Task<int> RestoreDatabaseCore(string backupFullPath, bool async, CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
-
         #endregion
 
         #region Optional overridable features
@@ -258,13 +250,39 @@ namespace Smartstore.Data.Providers
             => throw new NotSupportedException();
 
         /// <summary>
+        /// Creates a database backup
+        /// </summary>
+        /// <param name="fullPath">The full physical path to the backup file.</param>
+        protected virtual Task<int> BackupDatabaseCore(string fullPath, bool async, CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Restores a database backup
+        /// </summary>
+        /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
+        protected virtual Task<int> RestoreDatabaseCore(string backupFullPath, bool async, CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
+        /// <summary>
         /// Splits the given SQL script by provider specific delimiters.
         /// </summary>
         protected virtual IList<string> SplitSqlScript(string sqlScript)
             => throw new NotSupportedException();
 
-
+        /// <summary>
+        /// Opens a sequential BLOB stream.
+        /// </summary>
+        /// <param name="tableName">Table name</param>
+        /// <param name="blobColumnName">Name of BLOB column</param>
+        /// <param name="pkColumnName">Name of primary key column in the given <paramref name="tableName"/>.</param>
+        /// <param name="pkColumnValue">Value of primary key.</param>
         protected virtual Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Reads info/statistics about every public table in the database.
+        /// </summary>
+        protected virtual Task<List<DbTableInfo>> ReadTableInfosCore(bool async, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         #endregion
@@ -438,6 +456,18 @@ namespace Smartstore.Data.Providers
         /// </summary>
         public Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
             => ReIndexTablesCore(true, cancelToken);
+
+        /// <summary>
+        /// Reads info/statistics about every public table in the database.
+        /// </summary>
+        public List<DbTableInfo> ReadTableInfos()
+            => ReadTableInfosCore(false).Await();
+
+        /// <summary>
+        /// Reads info/statistics about every public table in the database.
+        /// </summary>
+        public Task<List<DbTableInfo>> ReadTableInfosAsync(CancellationToken cancelToken = default)
+            => ReadTableInfosCore(true, cancelToken);
 
         /// <summary>
         /// Executes a (multiline) sql script in an atomic transaction.

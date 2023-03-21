@@ -329,6 +329,19 @@ namespace Smartstore.Admin.Controllers
             {
             }
 
+            // DB table infos
+            if (dataProvider.CanReadTableInfo)
+            {
+                try
+                {
+                    var tableInfos = await dataProvider.ReadTableInfosAsync();
+                    model.DbTableInfos = tableInfos;
+                }
+                catch
+                {
+                }
+            }
+
             // Used RAM
             try
             {

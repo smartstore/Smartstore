@@ -173,10 +173,41 @@
         <div class="adminData">
             <div class="form-control-plaintext">
                 <span class="sysmetric">@Model.DatabaseSizeString.NaIfEmpty()</span>
+                @if (Model.DbTableInfos.Count > 0)
+                {
+                    <a class="toggle-panel mr-2" href="javascript:;">@T("Admin.Common.Show")</a>
+                }
                 @if (Model.ShrinkDatabaseEnabled)
                 {
                     <a href='@Url.Action("ShrinkDatabase")'>@T("Common.Shrink")</a>
                 }
+            </div>
+            <div sm-if="Model.DbTableInfos.Count > 0" class="d-none mt-3">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Table</th>
+                                <th class="text-right">Rows</th>
+                                <th class="text-right">Total space</th>
+                                <th class="text-right">Used space</th>
+                                <th class="text-right">Unused</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var info in Model.DbTableInfos)
+                            {
+                                <tr>
+                                    <td>@info.TableName</td>
+                                    <td class="text-right">@info.NumRows.ToString(CultureInfo.CurrentUICulture)</td>
+                                    <td class="text-right">@Prettifier.HumanizeBytes(info.TotalSpace)</td>
+                                    <td class="text-right">@Prettifier.HumanizeBytes(info.UsedSpace)</td>
+                                    <td class="text-right">@Prettifier.HumanizeBytes(info.TotalSpace - info.UsedSpace)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

@@ -77,6 +77,29 @@ namespace Smartstore.Data.SqlServer
                     RAISERROR (@ErrorMessage, 16, 1)
                  END";
 
+        private static string TableInfoSql()
+            => @"SELECT 
+                    t.NAME AS TableName,
+                    p.rows AS NumRows,
+                    SUM(a.total_pages) * 8192 AS TotalSpace, 
+                    SUM(a.used_pages) * 8192 AS UsedSpace
+                FROM 
+                    sys.tables t
+                INNER JOIN      
+                    sys.indexes i ON t.OBJECT_ID = i.object_id
+                INNER JOIN 
+                    sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+                INNER JOIN 
+                    sys.allocation_units a ON p.partition_id = a.container_id
+                WHERE 
+                    t.NAME NOT LIKE 'sys%' 
+                    AND t.is_ms_shipped = 0
+                    AND i.OBJECT_ID > 255 
+                GROUP BY 
+                    t.NAME, p.Rows
+                ORDER BY 
+                    TotalSpace DESC;";
+
         public override DbSystemType ProviderType => DbSystemType.SqlServer;
 
         public override string ProviderFriendlyName
@@ -94,7 +117,8 @@ namespace Smartstore.Data.SqlServer
             | DataProviderFeatures.StreamBlob
             | DataProviderFeatures.ExecuteSqlScript
             | DataProviderFeatures.StoredProcedures
-            | DataProviderFeatures.ReadSequential;
+            | DataProviderFeatures.ReadSequential
+            | DataProviderFeatures.ReadTableInfo;
 
         public override DbParameter CreateParameter()
         {
@@ -275,6 +299,14 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
             return new SqlBlobStream(this, tableName, blobColumnName, pkColumnName, pkColumnValue);
+        }
+
+        protected override async Task<List<DbTableInfo>> ReadTableInfosCore(bool async, CancellationToken cancelToken = default)
+        {
+            var sql = TableInfoSql();
+            return async
+                ? await Database.ExecuteQueryRawAsync<DbTableInfo>(sql, cancelToken).ToListAsync()
+                : Database.ExecuteQueryRaw<DbTableInfo>(sql).ToList();
         }
 
         private long GetSqlServerEdition()
