@@ -14,6 +14,16 @@ namespace Smartstore.Data.MySql
 {
     public class MySqlDataProvider : DataProvider
     {
+        private static string TableInfoSql(string database)
+            => $@"SELECT 
+	                TABLE_NAME AS TableName, 
+	                TABLE_ROWS AS NumRows,
+	                (DATA_LENGTH + INDEX_LENGTH) AS TotalSpace, 
+	                (DATA_LENGTH + INDEX_LENGTH) - DATA_FREE AS UsedSpace
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_SCHEMA = ""{database}""
+                ORDER BY TotalSpace DESC";
+
         public MySqlDataProvider(DatabaseFacade database)
             : base(database)
         {
@@ -33,7 +43,8 @@ namespace Smartstore.Data.MySql
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.ExecuteSqlScript
             | DataProviderFeatures.StoredProcedures
-            | DataProviderFeatures.ReadSequential;
+            | DataProviderFeatures.ReadSequential
+            | DataProviderFeatures.ReadTableInfo;
 
         public override DbParameter CreateParameter()
             => new MySqlParameter();
@@ -133,9 +144,9 @@ LIMIT {take} OFFSET {skip}";
         
         protected override Task<long> GetDatabaseSizeCore(bool async)
         {
-            var sql = $@"SELECT SUM(data_length + index_length) AS 'size'
-                FROM information_schema.TABLES
-                WHERE table_schema = '{DatabaseName}'";
+            var sql = $@"SELECT CAST(SUM(DATA_LENGTH + INDEX_LENGTH) AS SIGNED) AS 'size'
+                FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_SCHEMA = '{DatabaseName}'";
             return async
                 ? Database.ExecuteScalarRawAsync<long>(sql)
                 : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
@@ -224,6 +235,14 @@ LIMIT {take} OFFSET {skip}";
         protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
             return new SqlBlobStream(this, tableName, blobColumnName, pkColumnName, pkColumnValue);
+        }
+
+        protected override async Task<List<DbTableInfo>> ReadTableInfosCore(bool async, CancellationToken cancelToken = default)
+        {
+            var sql = TableInfoSql(DatabaseName);
+            return async
+                ? await Database.ExecuteQueryRawAsync<DbTableInfo>(sql, cancelToken).ToListAsync()
+                : Database.ExecuteQueryRaw<DbTableInfo>(sql).ToList();
         }
     }
 }

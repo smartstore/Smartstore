@@ -270,7 +270,7 @@
             </div>
         </div>
     </div>
-    <div class="adminRow">
+    <div sm-if="Model.DatabaseSize > 0" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="DatabaseSize" />
         </div>
@@ -312,7 +312,7 @@
                             {
                                 <tr>
                                     <td style="word-break: break-all">@info.TableName</td>
-                                    <td class="text-right" nowrap>@info.NumRows.ToString("#,#")</td>
+                                    <td class="text-right" nowrap>@info.NumRows.ToString("N0")</td>
                                     <td class="text-right" nowrap>@Prettifier.HumanizeBytes(info.TotalSpace)</td>
                                     <td class="text-right" nowrap>@Prettifier.HumanizeBytes(info.UsedSpace)</td>
                                     <td class="text-right" nowrap>@Prettifier.HumanizeBytes(info.TotalSpace - info.UsedSpace)</td>
