@@ -385,9 +385,6 @@ namespace Smartstore.Admin.Controllers
                 model.LoadedAssemblies.Add(loadedAssembly);
             }
 
-            //// MemCache size in bytes
-            //model.MemoryCacheSize = GetMemCacheBytes();
-
             return View(model);
         }
 
@@ -906,37 +903,37 @@ namespace Smartstore.Admin.Controllers
 
         #region Utils
 
-        /// <summary>
-        /// Counts the byte size of all objects in both IMemoryCache and Smartstore memory cache
-        /// </summary>
-        private long GetMemCacheBytes()
-        {
-            // System memory cache
-            var size = GetObjectSize(_memCache);
+        ///// <summary>
+        ///// Counts the byte size of all objects in both IMemoryCache and Smartstore memory cache
+        ///// </summary>
+        //private long GetMemCacheBytes()
+        //{
+        //    // System memory cache
+        //    var size = 0L; // GetObjectSize(_memCache);
 
-            // Smartstore memory cache
-            var cache = Services.CacheFactory.GetMemoryCache();
-            size += GetObjectSize(cache);
+        //    // Smartstore memory cache
+        //    var cache = Services.CacheFactory.GetMemoryCache();
+        //    size += GetObjectSize(cache);
 
-            return size;
+        //    return size;
 
-            static long GetObjectSize(object obj)
-            {
-                if (obj == null)
-                {
-                    return 0;
-                }
+        //    static long GetObjectSize(object obj)
+        //    {
+        //        if (obj == null)
+        //        {
+        //            return 0;
+        //        }
 
-                try
-                {
-                    return CommonHelper.CalculateObjectSizeInBytes(obj);
-                }
-                catch
-                {
-                    return 0;
-                }
-            }
-        }
+        //        try
+        //        {
+        //            return CommonHelper.CalculateObjectSizeInBytes(obj);
+        //        }
+        //        catch
+        //        {
+        //            return 0;
+        //        }
+        //    }
+        //}
 
         private static long GetPrivateBytes()
         {

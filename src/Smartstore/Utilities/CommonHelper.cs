@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
-using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.IO;
 
@@ -221,80 +221,165 @@ namespace Smartstore.Utilities
         /// Counted are all fields, including auto-generated, private and protected.
         /// Not counted: any static fields, any properties, functions, member methods.
         /// </summary>
-        public static long CalculateObjectSizeInBytes(object obj)
+        [Obsolete("Don't use, too unstable.")]
+        public static long CalculateObjectSizeInBytes(object obj, ISet<object> visitedObjects = null)
         {
-            // TODO: Ignore Func<>, Action, Work<>, Lazy<>, Stream(?) etc.
             if (obj == null)
             {
-                return 0;
+                return sizeof(int);
             }
 
             var size = 0L;
-            var visitedObjects = new HashSet<object>();
-            var objectsToVisit = new Stack<object>();
+            var type = obj.GetType();
 
-            objectsToVisit.Push(obj);
-
-            while (objectsToVisit.Count > 0)
+            if (type.IsPrimitive)
             {
-                var currentObject = objectsToVisit.Pop();
-                if (currentObject == null || visitedObjects.Contains(currentObject))
+                switch (Type.GetTypeCode(type))
                 {
-                    continue;
-                }
-
-                visitedObjects.Add(currentObject);
-
-                // Add size of current object
-                size += IntPtr.Size;
-
-                // Add size of all fields in the object
-                var fields = currentObject.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                foreach (var field in fields)
-                {
-                    if (field.FieldType.IsValueType)
-                    {
-                        if (field.FieldType.IsEnum || field.FieldType.Name.StartsWith("Date"))
-                        {
-                            size += 8;
-                        }
-                        else
-                        {
-                            size += Marshal.SizeOf(field.FieldType);
-                        }
-                    }
-                    else if (field.FieldType == typeof(string))
-                    {
-                        var value = (string)field.GetValue(currentObject);
-                        if (value != null)
-                        {
-                            size += Encoding.Unicode.GetByteCount(value);
-                        }
-                    }
-                    else
-                    {
-                        var fieldValue = field.GetValue(currentObject);
-                        if (fieldValue != null && !visitedObjects.Contains(fieldValue))
-                        {
-                            objectsToVisit.Push(fieldValue);
-                        }
-                    }
-                }
-
-                // Add size of all items in the collection
-                if (currentObject is IEnumerable collection)
-                {
-                    foreach (var item in collection)
-                    {
-                        if (item != null && !visitedObjects.Contains(item))
-                        {
-                            objectsToVisit.Push(item);
-                        }
-                    }
+                    case TypeCode.Boolean:
+                    case TypeCode.Byte:
+                    case TypeCode.SByte:
+                        return sizeof(byte);
+                    case TypeCode.Char:
+                        return sizeof(char);
+                    case TypeCode.Single:
+                        return sizeof(float);
+                    case TypeCode.Double:
+                        return sizeof(double);
+                    case TypeCode.Decimal:
+                        return sizeof(decimal);
+                    case TypeCode.Int16:
+                    case TypeCode.UInt16:
+                        return sizeof(short);
+                    case TypeCode.Int32:
+                    case TypeCode.UInt32:
+                        return sizeof(int);
+                    case TypeCode.Int64:
+                    case TypeCode.UInt64:
+                    default:
+                        return sizeof(long);
                 }
             }
+            else if (type.IsEnum || obj is DateTime || obj is DateTimeOffset || obj is DateOnly || obj is TimeOnly)
+            {
+                return sizeof(int);
+            }
+            else if (obj is string str)
+            {
+                return sizeof(char) * (str.Length + 1);
+            }
+            else if (obj is StringBuilder sb)
+            {
+                return _pointerSize + (sizeof(char) * (sb.Length + 1));
+            }
+            else if (obj is Stream stream)
+            {
+                return stream.CanSeek ? _pointerSize + stream.Length : _pointerSize;
+            }
+            else if (obj is IDictionary dic)
+            {
+                foreach (var key in dic.Keys)
+                {
+                    size += CalculateObjectSizeInBytes(key, visitedObjects);
+                }
 
-            return size;
+                foreach (var value in dic.Values)
+                {
+                    size += CalculateObjectSizeInBytes(value, visitedObjects);
+                }
+
+                return _pointerSize + size;
+            }
+            else if (obj is IEnumerable e)
+            {
+                foreach (var item in e)
+                {
+                    size += CalculateObjectSizeInBytes(item, visitedObjects);
+                }
+
+                return _pointerSize + size;
+            }
+            else if (obj is Pointer)
+            {
+                return _pointerSize;
+            }
+            else if (obj is IMemoryCache memCache)
+            {
+                foreach (var key in memCache.EnumerateKeys())
+                {
+                    if (memCache.TryGetValue(key, out var value))
+                    {
+                        size += CalculateObjectSizeInBytes(value, visitedObjects);
+                    }
+                }
+                return _pointerSize;
+            }
+            else
+            {
+                size = _pointerSize;
+                
+                if (ObjectVisited(obj))
+                {
+                    return size;
+                }
+
+                if (IsToxicType(type))
+                {
+                    return size;
+                }
+
+                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                foreach (var field in fields)
+                {
+                    if (IsToxicType(type))
+                    {
+                        size = _pointerSize;
+                        continue;
+                    }
+
+                    size += CalculateObjectSizeInBytes(field.GetValue(obj), visitedObjects);
+                }
+
+                return size;
+            }
+
+            bool ObjectVisited(object o)
+            {
+                visitedObjects ??= new HashSet<object>(ReferenceEqualityComparer.Instance);
+
+                if (visitedObjects.Contains(o))
+                {
+                    return true;
+                }
+
+                visitedObjects.Add(o);
+                return false;
+            }
+
+            bool IsToxicType(Type t)
+            {
+                if (typeof(ILazyLoader).IsAssignableFrom(t))
+                {
+                    return true;
+                }
+
+                if (type.IsDelegate())
+                {
+                    // Don't visit delegates (Action, Func<> etc.)
+                    return true;
+                }
+
+                if (type.IsGenericType)
+                {
+                    var gtdef = type.GetGenericTypeDefinition();
+                    if (gtdef == typeof(Lazy<>) || gtdef == typeof(Work<>))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
         #endregion
