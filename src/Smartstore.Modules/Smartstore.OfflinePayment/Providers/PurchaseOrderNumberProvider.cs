@@ -2,6 +2,7 @@
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
+using Smartstore.OfflinePayment.Components;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
 
@@ -21,7 +22,7 @@ namespace Smartstore.OfflinePayment
 
         protected override Type GetViewComponentType()
         {
-            return typeof(PurchaseOrderNumberProvider);
+            return typeof(PurchaseOrderNumberViewComponent);
         }
 
         // TODO: (mh) (core) Not needed here > make optional.
