@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using MailKit.Net.Smtp;
-using MailKit.Security;
 
 namespace Smartstore.Net.Mail
 {
@@ -23,10 +22,7 @@ namespace Smartstore.Net.Mail
         {
             try
             {
-                _client.Connect(
-                    Account.Host,
-                    Account.Port,
-                    Account.EnableSsl ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTlsWhenAvailable);
+                _client.Connect(Account.Host, Account.Port, Account.SecureOption);
 
                 if (Account.UseDefaultCredentials)
                 {
@@ -48,10 +44,7 @@ namespace Smartstore.Net.Mail
         {
             try
             {
-                await _client.ConnectAsync(
-                    Account.Host,
-                    Account.Port,
-                    Account.EnableSsl ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTlsWhenAvailable);
+                await _client.ConnectAsync(Account.Host, Account.Port, Account.SecureOption);
 
                 if (Account.UseDefaultCredentials)
                 {

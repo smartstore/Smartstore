@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using MailKit.Security;
 
 namespace Smartstore.Admin.Models.Messages
 {
@@ -28,8 +29,8 @@ namespace Smartstore.Admin.Models.Messages
         [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string Password { get; set; }
 
-        [LocalizedDisplay("*EnableSsl")]
-        public bool EnableSsl { get; set; }
+        [LocalizedDisplay("*SecureOption")]
+        public SecureSocketOptions SecureOption { get; set; } = SecureSocketOptions.Auto;
 
         [LocalizedDisplay("*UseDefaultCredentials")]
         public bool UseDefaultCredentials { get; set; }
@@ -51,6 +52,8 @@ namespace Smartstore.Admin.Models.Messages
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.DisplayName).NotEmpty();
             RuleFor(x => x.Host).NotEmpty();
+            RuleFor(x => x.Username).NotEmpty().When(x => !x.UseDefaultCredentials);
+            RuleFor(x => x.Password).NotEmpty().When(x => !x.UseDefaultCredentials);
         }
     }
 }

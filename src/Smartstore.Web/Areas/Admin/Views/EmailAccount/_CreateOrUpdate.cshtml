@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Admin.Models.Messages
+@using MailKit.Security
 
 @model EmailAccountModel
 
@@ -62,11 +63,11 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="EnableSsl" />
+            <smart-label asp-for="SecureOption" />
         </div>
         <div class="adminData">
-            <input asp-for="EnableSsl" />
-            <span asp-validation-for="EnableSsl"></span>
+            <select asp-for="SecureOption" asp-items="Html.GetLocalizedEnumSelectList(typeof(SecureSocketOptions))"></select>
+            <span asp-validation-for="SecureOption"></span>
         </div>
     </div>
     <div class="adminRow">

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Autofac;
+using MailKit.Security;
 using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -482,7 +483,7 @@ namespace Smartstore.Core.Installation
                     Port = 25,
                     Username = "123",
                     Password = "123",
-                    EnableSsl = false,
+                    SecureOption = SecureSocketOptions.Auto,
                     UseDefaultCredentials = false
                 }
             };
