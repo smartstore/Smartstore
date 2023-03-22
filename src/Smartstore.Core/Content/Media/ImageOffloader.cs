@@ -28,6 +28,7 @@ namespace Smartstore.Core.Content.Media
         private static readonly Regex _rgEmbeddedImages = EmbeddedImagesRegex();
 
         private const string Base64Fragment = "src=\"data:image/";
+        private const string DefaultMediaFolder = "file/extracted";
 
         private readonly SmartDbContext _db;
         private readonly IMediaService _mediaService;
@@ -52,10 +53,10 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<TreeNode<MediaFolderNode>> GetDefaultMediaFolderAsync()
         {
-            var node = _folderService.GetNodeByPath("file/outsourced");
+            var node = _folderService.GetNodeByPath(DefaultMediaFolder);
             if (node == null)
             {
-                var folder = await _mediaService.CreateFolderAsync("file/outsourced");
+                var folder = await _mediaService.CreateFolderAsync(DefaultMediaFolder);
                 node = folder.Node;
             }
 

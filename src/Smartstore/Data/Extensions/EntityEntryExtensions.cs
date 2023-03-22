@@ -113,7 +113,7 @@ namespace Smartstore
         {
             // Be aware of the entity state. you cannot get modified properties for detached entities.
             EnsureChangesDetected(entry);
-
+            
             if (entry.State != EfState.Modified)
             {
                 yield break;

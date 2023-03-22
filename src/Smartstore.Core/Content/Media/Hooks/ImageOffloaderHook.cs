@@ -10,11 +10,13 @@
 //    internal class ImageOffloaderHook : AsyncDbSaveHook<BaseEntity>
 //    {
 //        private readonly Lazy<IImageOffloder> _imageOffloader;
+//        private readonly Lazy<SmartDbContext> _db;
 //        private readonly HashSet<BaseEntity> _toProcess = new();
 
-//        public ImageOffloaderHook(Lazy<IImageOffloder> imageOffloader)
+//        public ImageOffloaderHook(Lazy<IImageOffloder> imageOffloader, Lazy<SmartDbContext> db)
 //        {
 //            _imageOffloader = imageOffloader;
+//            _db = db;
 //        }
 
 //        private static bool IsValidEntry(IHookedEntity entry)
@@ -41,9 +43,8 @@
 //            }
 //            else if (entry.InitialState == EntityState.Modified)
 //            {
-//                var modifiedProps = entry.Entry.GetModifiedProperties();
-//                var type = entry.EntityType;
-//                var isModified = false;
+//                var entityType = entry.EntityType;
+//                var isModified = entry.IsPropertyModified(GetDescriptionPropName(entityType));
 
 //                if (isModified)
 //                {
@@ -66,14 +67,78 @@
 
 //            var offloader = _imageOffloader.Value;
 //            var folder = await offloader.GetDefaultMediaFolderAsync();
+//            var numSucceeded = 0;
 
-//            foreach (var grp in _toProcess.GroupBy(x => x.GetType()))
+//            foreach (var entry in entries)
 //            {
-//                foreach (var entity in grp)
+//                if (_toProcess.Contains(entry.Entity))
 //                {
-//                    await Task.Delay(10);
+//                    // Get the property name of the entities long HTML description.
+//                    var propName = GetDescriptionPropName(entry.EntityType);
+
+//                    // Get the HTML
+//                    var entityProperty = entry.Entry.Property(propName);
+//                    var html = (string)entityProperty.CurrentValue;
+
+//                    // Short HTML most likely does not contain embedded images.
+//                    if (html.HasValue() && html.Length > 50)
+//                    {
+//                        // Get the file name prefix (tag)
+//                        var entityTag = GetEntityTag(entry.Entity);
+                        
+//                        // Try extraction now
+//                        try
+//                        {
+//                            var offloadResult = await offloader.OffloadEmbeddedImagesAsync(html, folder.Value, entityTag);
+//                            numSucceeded += offloadResult.NumSucceded;
+//                            if (offloadResult.NumSucceded > 0)
+//                            {
+//                                // At least one image was extracted: set the processed HTML as entity current value.
+//                                entityProperty.CurrentValue = offloadResult.ResultHtml;
+//                            }
+//                        }
+//                        catch
+//                        {
+//                            // Something went wrong. Just ignore and do nothing.
+//                        }
+//                    }
 //                }
 //            }
+
+//            _toProcess.Clear();
+
+//            if (numSucceeded > 0)
+//            {
+//                await _db.Value.SaveChangesAsync();
+//            }
+//        }
+
+//        private static string GetDescriptionPropName(Type entityType)
+//        {
+//            if (entityType == typeof(Product))
+//            {
+//                return nameof(Product.FullDescription);
+//            }
+//            else if (entityType == typeof(Topic))
+//            {
+//                return nameof(Topic.Body);
+//            }
+//            else
+//            {
+//                // Category or Manufacturer
+//                return nameof(Category.Description);
+//            }
+//        }
+
+//        private static string GetEntityTag(BaseEntity entity)
+//        {
+//            return entity switch
+//            {
+//                Product x =>        "p" + x.Id.ToStringInvariant(),
+//                Category x =>       "c" + x.Id.ToStringInvariant(),
+//                Manufacturer x =>   "m" + x.Id.ToStringInvariant(),
+//                _ =>                "t" + entity.Id.ToStringInvariant()
+//            };
 //        }
 //    }
 //}

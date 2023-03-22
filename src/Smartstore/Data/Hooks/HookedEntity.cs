@@ -45,16 +45,11 @@ namespace Smartstore.Data.Hooks
 
         public bool IsPropertyModified(string propertyName)
         {
-            Guard.NotEmpty(propertyName, nameof(propertyName));
+            Guard.NotEmpty(propertyName);
 
             if (State == EntityState.Modified)
             {
-                var prop = Entry.Property(propertyName);
-                if (prop == null)
-                {
-                    throw new InvalidOperationException($"An entity property '{propertyName}' does not exist.");
-                }
-
+                var prop = Entry.Property(propertyName) ?? throw new InvalidOperationException($"An entity property '{propertyName}' does not exist.");
                 return prop.CurrentValue != null && !prop.CurrentValue.Equals(prop.OriginalValue);
             }
 

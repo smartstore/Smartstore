@@ -17,7 +17,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<MediaFolderInfo> CreateFolderAsync(string path)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
 
             path = FolderService.NormalizePath(path, false);
             ValidateFolderPath(path, "CreateFolder", nameof(path));
@@ -64,6 +64,9 @@ namespace Smartstore.Core.Content.Media
                         await _db.SaveChangesAsync();
                         folderId = mediaFolder.Id;
                     }
+
+                    // Adding folders from within other hooks will fail otherwise
+                    await _folderService.ClearCacheAsync();
                 }
             }
 
@@ -130,6 +133,9 @@ namespace Smartstore.Core.Content.Media
             // Commit
             await _db.SaveChangesAsync();
 
+            // Adding folders from within other hooks will fail otherwise
+            await _folderService.ClearCacheAsync();
+
             return ConvertMediaFolder(_folderService.GetNodeById(folder.Id));
         }
 
@@ -169,6 +175,9 @@ namespace Smartstore.Core.Content.Media
 
                 // >>>> Do the heavy stuff
                 var folder = await InternalCopyFolder(scope, node, destinationPath, dupeEntryHandling, dupeFiles, cancelToken);
+
+                // Adding folders from within other hooks will fail otherwise
+                await _folderService.ClearCacheAsync();
 
                 var result = new FolderOperationResult
                 {
@@ -250,7 +259,7 @@ namespace Smartstore.Core.Content.Media
                         false /* copyData */,
                         dupeEntryHandling,
                         () => Task.FromResult(destFiles?.Get(file.Name)),
-                        p => UniqueFileNameChecker(p));
+                        UniqueFileNameChecker);
 
                     if (copyResult.Copy != null)
                     {
