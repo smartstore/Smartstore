@@ -33,7 +33,7 @@
                         var widgetInvoker = paymentMethod.InfoWidget;
 
                         var defaultPluginDescKey = "Plugins.PaymentInfo." + paymentMethod.PaymentMethodSystemName;
-                        var defaultPluginDesc = await LocalizationService.GetResourceAsync(defaultPluginDescKey, logIfNotFound: false, returnEmptyIfNotFound: true);
+                        var defaultPluginDesc = LocalizationService.GetResource(defaultPluginDescKey, logIfNotFound: false, returnEmptyIfNotFound: true);
                         var description = paymentMethod.FullDescription?.Value ?? defaultPluginDesc;
 
                         <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>

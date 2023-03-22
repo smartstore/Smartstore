@@ -201,11 +201,11 @@ namespace Smartstore.Core.DataExchange.Export
             string profileSystemName = null,
             int cloneFromProfileId = 0)
         {
-            Guard.NotNull(provider, nameof(provider));
+            Guard.NotNull(provider);
 
             var providerSystemName = provider.Metadata.SystemName;
             var resourceName = provider.Metadata.ResourceKeyPattern.FormatInvariant(providerSystemName, "FriendlyName");
-            var profileName = await _localizationService.GetResourceAsync(resourceName, 0, false, providerSystemName, true);
+            var profileName = _localizationService.GetResource(resourceName, 0, false, providerSystemName, true);
 
             var profile = await InsertExportProfileAsync(
                 providerSystemName,

@@ -941,7 +941,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Reward points history.
             if (ctx.CartTotal.RedeemedRewardPointsAmount > decimal.Zero)
             {
-                var str = await _localizationService.GetResourceAsync("RewardPoints.Message.RedeemedForOrder", order.CustomerLanguageId);
+                var str = _localizationService.GetResource("RewardPoints.Message.RedeemedForOrder", order.CustomerLanguageId);
 
                 ctx.Customer.AddRewardPointsHistoryEntry(
                     -ctx.CartTotal.RedeemedRewardPoints,

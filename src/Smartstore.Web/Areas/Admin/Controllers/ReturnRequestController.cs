@@ -114,13 +114,13 @@ namespace Smartstore.Admin.Controllers
 
             var allStores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
 
-            var rows = await returnRequests.SelectAwait(async x =>
+            var rows = returnRequests.Select(x =>
             {
                 var m = new ReturnRequestModel();
-                await PrepareReturnRequestModel(m, x, orderItems.Get(x.OrderItemId), allStores, false, true);
+                PrepareReturnRequestModel(m, x, orderItems.Get(x.OrderItemId), allStores, false, true);
                 return m;
             })
-            .AsyncToList();
+            .ToList();
 
             return Json(new GridModel<ReturnRequestModel>
             {
@@ -142,7 +142,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = new ReturnRequestModel();
-            await PrepareReturnRequestModel(model, returnRequest);
+            await PrepareReturnRequestModelAsync(model, returnRequest);
 
             return View(model);
         }
@@ -189,7 +189,7 @@ namespace Smartstore.Admin.Controllers
                     : RedirectToAction(nameof(List));
             }
 
-            await PrepareReturnRequestModel(model, returnRequest, true);
+            await PrepareReturnRequestModelAsync(model, returnRequest, true);
 
             return View(model);
         }
@@ -280,7 +280,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(List));
         }
 
-        private async Task<ReturnRequestModel> PrepareReturnRequestModel(
+        private async Task<ReturnRequestModel> PrepareReturnRequestModelAsync(
             ReturnRequestModel model,
             ReturnRequest returnRequest,
             bool excludeProperties = false)
@@ -291,12 +291,12 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.Order)
                 .FindByIdAsync(returnRequest.OrderItemId);
 
-            await PrepareReturnRequestModel(model, returnRequest, orderItem, allStores, excludeProperties);
+            PrepareReturnRequestModel(model, returnRequest, orderItem, allStores, excludeProperties);
 
             return model;
         }
 
-        private async Task PrepareReturnRequestModel(
+        private void PrepareReturnRequestModel(
             ReturnRequestModel model,
             ReturnRequest returnRequest,
             OrderItem orderItem,
@@ -304,7 +304,7 @@ namespace Smartstore.Admin.Controllers
             bool excludeProperties = false,
             bool forList = false)
         {
-            Guard.NotNull(returnRequest, nameof(returnRequest));
+            Guard.NotNull(returnRequest);
 
             var store = allStores.Get(returnRequest.StoreId);
             var order = orderItem?.Order;
@@ -323,7 +323,7 @@ namespace Smartstore.Admin.Controllers
             model.CustomerFullName = customer.GetFullName().NullEmpty() ?? customer.FindEmail().NaIfEmpty();
             model.CanSendEmailToCustomer = customer.FindEmail().HasValue();
             model.Quantity = returnRequest.Quantity;
-            model.ReturnRequestStatusString = await Services.Localization.GetLocalizedEnumAsync(returnRequest.ReturnRequestStatus);
+            model.ReturnRequestStatusString = Services.Localization.GetLocalizedEnum(returnRequest.ReturnRequestStatus);
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(returnRequest.CreatedOnUtc, DateTimeKind.Utc);
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(returnRequest.UpdatedOnUtc, DateTimeKind.Utc);
             model.EditUrl = Url.Action(nameof(Edit), "ReturnRequest", new { id = returnRequest.Id });

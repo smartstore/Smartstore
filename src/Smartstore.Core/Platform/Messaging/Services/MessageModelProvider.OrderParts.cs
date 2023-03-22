@@ -21,8 +21,8 @@ namespace Smartstore.Core.Messaging
     {
         protected virtual async Task<object> CreateModelPartAsync(Order part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var allow = new HashSet<string>
             {
@@ -63,7 +63,7 @@ namespace Smartstore.Core.Messaging
             d.CustomerComment = part.CustomerOrderComment.NullEmpty();
             d.Disclaimer = await _helper.GetTopicAsync("Disclaimer", messageContext);
             d.ConditionsOfUse = await _helper.GetTopicAsync("ConditionsOfUse", messageContext);
-            d.Status = await part.OrderStatus.GetLocalizedEnumAsync(messageContext.Language.Id);
+            d.Status = part.OrderStatus.GetLocalizedEnum(messageContext.Language.Id);
             d.CreatedOn = _helper.ToUserDate(part.CreatedOnUtc, messageContext);
             d.PaidOn = _helper.ToUserDate(part.PaidDateUtc, messageContext);
             d.CurrencyCode = part.CustomerCurrencyCode;
@@ -482,7 +482,7 @@ namespace Smartstore.Core.Messaging
             {
                 { "Id", part.Id },
                 { "Reason", part.ReasonForReturn.NullEmpty() },
-                { "Status", await part.ReturnRequestStatus.GetLocalizedEnumAsync(messageContext.Language.Id) },
+                { "Status", part.ReturnRequestStatus.GetLocalizedEnum(messageContext.Language.Id) },
                 { "RequestedAction", part.RequestedAction.NullEmpty() },
                 { "CustomerComments", HtmlUtility.StripTags(part.CustomerComments).NullEmpty() },
                 { "StaffNotes", HtmlUtility.StripTags(part.StaffNotes).NullEmpty() },

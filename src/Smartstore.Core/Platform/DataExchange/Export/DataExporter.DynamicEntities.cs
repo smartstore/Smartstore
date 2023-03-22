@@ -39,7 +39,7 @@ namespace Smartstore.Core.DataExchange.Export
             var orderItems = await ctx.OrderBatchContext.OrderItems.GetOrLoadAsync(order.Id);
             var shipments = await ctx.OrderBatchContext.Shipments.GetOrLoadAsync(order.Id);
 
-            dynamic dynObject = await ToDynamic(order, ctx);
+            dynamic dynObject = ToDynamic(order, ctx);
 
             if (customer != null)
             {
@@ -625,7 +625,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
         }
 
-        private async Task<dynamic> ToDynamic(Order order, DataExporterContext ctx)
+        private dynamic ToDynamic(Order order, DataExporterContext ctx)
         {
             if (order == null)
             {
@@ -635,9 +635,9 @@ namespace Smartstore.Core.DataExchange.Export
             dynamic result = new DynamicEntity(order);
 
             result.OrderNumber = order.GetOrderNumber();
-            result.OrderStatus = await _services.Localization.GetLocalizedEnumAsync(order.OrderStatus, ctx.LanguageId);
-            result.PaymentStatus = await _services.Localization.GetLocalizedEnumAsync(order.PaymentStatus, ctx.LanguageId);
-            result.ShippingStatus = await _services.Localization.GetLocalizedEnumAsync(order.ShippingStatus, ctx.LanguageId);
+            result.OrderStatus = _services.Localization.GetLocalizedEnum(order.OrderStatus, ctx.LanguageId);
+            result.PaymentStatus = _services.Localization.GetLocalizedEnum(order.PaymentStatus, ctx.LanguageId);
+            result.ShippingStatus = _services.Localization.GetLocalizedEnum(order.ShippingStatus, ctx.LanguageId);
 
             result.Customer = null;
             result.BillingAddress = null;

@@ -497,7 +497,7 @@ namespace Smartstore.Admin.Controllers
                 IsPreSelected = pvav.IsPreSelected,
                 DisplayOrder = pvav.DisplayOrder,
                 ValueTypeId = pvav.ValueTypeId,
-                TypeName = await Services.Localization.GetLocalizedEnumAsync(pvav.ValueType),
+                TypeName = Services.Localization.GetLocalizedEnum(pvav.ValueType),
                 TypeNameClass = pvav.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up",
                 LinkedProductId = pvav.LinkedProductId,
                 Quantity = pvav.Quantity

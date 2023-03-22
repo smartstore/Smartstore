@@ -164,8 +164,8 @@ namespace Smartstore.Admin.Controllers
                 {
                     var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action("Edit", "SpecificationAttribute", new { id = x.Id, area = "Admin" });
-                    model.LocalizedFacetSorting = await x.FacetSorting.GetLocalizedEnumAsync(language.Id);
-                    model.LocalizedFacetTemplateHint = await x.FacetTemplateHint.GetLocalizedEnumAsync(language.Id);
+                    model.LocalizedFacetSorting = x.FacetSorting.GetLocalizedEnum(language.Id);
+                    model.LocalizedFacetTemplateHint = x.FacetTemplateHint.GetLocalizedEnum(language.Id);
 
                     return model;
                 })

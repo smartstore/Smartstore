@@ -165,7 +165,7 @@ namespace Smartstore.Admin.Controllers
                 model.DateOfBirth = customer.BirthDate;
                 model.DisplayVatNumber = _taxSettings.EuVatEnabled;
                 model.DisplayRewardPointsHistory = _rewardPointsSettings.Enabled;
-                model.VatNumberStatusNote = await ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnumAsync();
+                model.VatNumberStatusNote = ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnum();
                 model.CreatedOn = dtHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = dtHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc);
                 model.LastIpAddress = customer.LastIpAddress;

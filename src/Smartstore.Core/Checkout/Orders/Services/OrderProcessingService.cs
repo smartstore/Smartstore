@@ -854,7 +854,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Save new order status.
             await _db.SaveChangesAsync();
 
-            order.AddOrderNote(T("Admin.OrderNotice.OrderStatusChanged", await _localizationService.GetLocalizedEnumAsync(status)));
+            order.AddOrderNote(T("Admin.OrderNotice.OrderStatusChanged", _localizationService.GetLocalizedEnum(status)));
 
             if (prevOrderStatus != OrderStatus.Complete && status == OrderStatus.Complete && notifyCustomer)
             {

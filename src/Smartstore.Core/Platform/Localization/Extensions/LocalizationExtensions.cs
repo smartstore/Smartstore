@@ -350,21 +350,6 @@ namespace Smartstore.Core.Localization
                 .GetLocalizedEnum(enumValue, languageId, hint) ?? enumValue.ToString();
         }
 
-        /// <summary>
-        /// Gets the localized value of an enum.
-        /// </summary>
-        /// <typeparam name="T">Enum type.</typeparam>
-        /// <param name="enumValue">Enum value.</param>
-        /// <param name="languageId">Language identifier.</param>
-        /// <param name="hint">A value indicating whether to load the hint.</param>
-        /// <returns>Localized value of an enum.</returns>
-        public static async Task<string> GetLocalizedEnumAsync<T>(this T enumValue, int languageId = 0, bool hint = false)
-            where T : struct
-        {
-            return await EngineContext.Current.ResolveService<ILocalizationService>()
-                .GetLocalizedEnumAsync(enumValue, languageId, hint) ?? enumValue.ToString();
-        }
-
         #endregion
 
         #region Modules

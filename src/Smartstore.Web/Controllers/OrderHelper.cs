@@ -297,13 +297,13 @@ namespace Smartstore.Web.Controllers
                 CustomerComment = order.CustomerOrderComment,
                 OrderNumber = order.GetOrderNumber(),
                 CreatedOn = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc),
-                OrderStatus = await _services.Localization.GetLocalizedEnumAsync(order.OrderStatus),
+                OrderStatus = _services.Localization.GetLocalizedEnum(order.OrderStatus),
                 IsReOrderAllowed = orderSettings.IsReOrderAllowed,
                 IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(order),
                 DisplayPdfInvoice = pdfSettings.Enabled,
                 RenderOrderNotes = pdfSettings.RenderOrderNotes,
                 // Shipping info.
-                ShippingStatus = await _services.Localization.GetLocalizedEnumAsync(order.ShippingStatus)
+                ShippingStatus = _services.Localization.GetLocalizedEnum(order.ShippingStatus)
             };
 
             // TODO: refactor modelling for multi-order processing.

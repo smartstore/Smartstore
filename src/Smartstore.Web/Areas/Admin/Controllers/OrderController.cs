@@ -247,14 +247,14 @@ namespace Smartstore.Admin.Controllers
                     x => _moduleManager.GetLocalizedFriendlyName(x.Metadata),
                     StringComparer.OrdinalIgnoreCase);
 
-            var rows = await orders.SelectAwait(async x =>
+            var rows = orders.Select(x =>
             {
                 paymentMethodsDic.TryGetValue(x.PaymentMethodSystemName, out var paymentMethod);
 
                 var shipTo = x.ShippingAddress;
                 var m = new OrderOverviewModel();
 
-                await PrepareOrderOverviewModel(m, x);
+                PrepareOrderOverviewModel(m, x);
 
                 m.PaymentMethod = paymentMethod.NullEmpty() ?? x.PaymentMethodSystemName;
                 m.ViaShippingMethod = viaShippingMethodString.FormatInvariant(m.ShippingMethod);
@@ -272,7 +272,7 @@ namespace Smartstore.Admin.Controllers
 
                 return m;
             })
-            .AsyncToList();
+            .ToList();
 
             var summaryQuery =
                 from q in orderQuery
@@ -1750,7 +1750,7 @@ namespace Smartstore.Admin.Controllers
 
         #region Utilities
 
-        private async Task PrepareOrderOverviewModel(OrderOverviewModel model, Order order)
+        private void PrepareOrderOverviewModel(OrderOverviewModel model, Order order)
         {
             MiniMapper.Map(order, model);
 
@@ -1759,9 +1759,9 @@ namespace Smartstore.Admin.Controllers
             model.CustomerName = order.Customer.GetFullName().NullEmpty() ?? order.BillingAddress.GetFullName().NaIfEmpty();
             model.CustomerEmail = order.BillingAddress?.Email;
             model.OrderTotalString = Format(order.OrderTotal);
-            model.OrderStatusString = await Services.Localization.GetLocalizedEnumAsync(order.OrderStatus);
-            model.PaymentStatusString = await Services.Localization.GetLocalizedEnumAsync(order.PaymentStatus);
-            model.ShippingStatusString = await Services.Localization.GetLocalizedEnumAsync(order.ShippingStatus);
+            model.OrderStatusString = Services.Localization.GetLocalizedEnum(order.OrderStatus);
+            model.PaymentStatusString = Services.Localization.GetLocalizedEnum(order.PaymentStatus);
+            model.ShippingStatusString = Services.Localization.GetLocalizedEnum(order.ShippingStatus);
             model.ShippingMethod = order.ShippingMethod.NaIfEmpty();
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(order.UpdatedOnUtc, DateTimeKind.Utc);
@@ -1779,7 +1779,7 @@ namespace Smartstore.Admin.Controllers
             var taxRates = order.TaxRatesDictionary;
 
             MiniMapper.Map(order, model);
-            await PrepareOrderOverviewModel(model, order);
+            PrepareOrderOverviewModel(model, order);
 
             if (order.AffiliateId != 0)
             {
@@ -2123,21 +2123,21 @@ namespace Smartstore.Admin.Controllers
 
                 if (product.IsRecurring)
                 {
-                    var period = await Services.Localization.GetLocalizedEnumAsync(product.RecurringCyclePeriod);
+                    var period = Services.Localization.GetLocalizedEnum(product.RecurringCyclePeriod);
                     model.RecurringInfo = T("Admin.Orders.Products.RecurringPeriod", product.RecurringCycleLength, period);
                 }
 
                 if (returnRequestsMap.ContainsKey(item.Id))
                 {
-                    model.ReturnRequests = await returnRequestsMap[item.Id]
-                        .SelectAwait(async x => new OrderModel.ReturnRequestModel
+                    model.ReturnRequests = returnRequestsMap[item.Id]
+                        .Select(x => new OrderModel.ReturnRequestModel
                         {
                             Id = x.Id,
                             Quantity = x.Quantity,
                             Status = x.ReturnRequestStatus,
-                            StatusString = await Services.Localization.GetLocalizedEnumAsync(x.ReturnRequestStatus)
+                            StatusString = Services.Localization.GetLocalizedEnum(x.ReturnRequestStatus)
                         })
-                        .AsyncToList();
+                        .ToList();
                 }
 
                 if (giftCardIdsMap.ContainsKey(item.Id))

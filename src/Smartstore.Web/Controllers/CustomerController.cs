@@ -584,7 +584,7 @@ namespace Smartstore.Web.Controllers
                     var itemModel = new CustomerReturnRequestsModel.ReturnRequestModel
                     {
                         Id = returnRequest.Id,
-                        ReturnRequestStatus = await returnRequest.ReturnRequestStatus.GetLocalizedEnumAsync(Services.WorkContext.WorkingLanguage.Id),
+                        ReturnRequestStatus = returnRequest.ReturnRequestStatus.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id),
                         ProductId = orderItem.Product.Id,
                         ProductName = orderItem.Product.GetLocalized(x => x.Name),
                         ProductSeName = await orderItem.Product.GetActiveSlugAsync(),
@@ -1009,7 +1009,7 @@ namespace Smartstore.Web.Controllers
             model.FirstNameRequired = _customerSettings.FirstNameRequired;
             model.LastNameRequired = _customerSettings.LastNameRequired;
             model.DisplayVatNumber = _taxSettings.EuVatEnabled;
-            model.VatNumberStatusNote = await ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnumAsync(Services.WorkContext.WorkingLanguage.Id);
+            model.VatNumberStatusNote = ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id);
             model.GenderEnabled = _customerSettings.GenderEnabled;
             model.TitleEnabled = _customerSettings.TitleEnabled;
             model.DateOfBirthEnabled = _customerSettings.DateOfBirthEnabled;
@@ -1099,7 +1099,7 @@ namespace Smartstore.Web.Controllers
                         Id = x.Id,
                         OrderNumber = x.GetOrderNumber(),
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                        OrderStatus = await _localizationService.GetLocalizedEnumAsync(x.OrderStatus),
+                        OrderStatus = _localizationService.GetLocalizedEnum(x.OrderStatus),
                         IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(x),
                         OrderTotal = orderTotal
                     };
@@ -1130,7 +1130,7 @@ namespace Smartstore.Web.Controllers
                     {
                         Id = x.Id,
                         StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc, DateTimeKind.Utc),
-                        CycleInfo = $"{x.CycleLength} {await _localizationService.GetLocalizedEnumAsync(x.CyclePeriod)}",
+                        CycleInfo = $"{x.CycleLength} {_localizationService.GetLocalizedEnum(x.CyclePeriod)}",
                         NextPayment = nextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc) : null,
                         TotalCycles = x.TotalCycles,
                         CyclesRemaining = await _paymentService.GetRecurringPaymentRemainingCyclesAsync(x),

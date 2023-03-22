@@ -119,7 +119,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action("Edit", "ProductAttribute", new { id = x.Id, area = "Admin" });
-                    model.LocalizedFacetTemplateHint = await x.FacetTemplateHint.GetLocalizedEnumAsync(language.Id);
+                    model.LocalizedFacetTemplateHint = x.FacetTemplateHint.GetLocalizedEnum(language.Id);
 
                     return model;
                 })
@@ -532,7 +532,7 @@ namespace Smartstore.Admin.Controllers
                 model.NameString = model.NameString.HtmlEncode();
                 model.PriceAdjustmentString = option.ValueType == ProductVariantAttributeValueType.Simple ? option.PriceAdjustment.ToString("G29") : string.Empty;
                 model.WeightAdjustmentString = option.ValueType == ProductVariantAttributeValueType.Simple ? option.WeightAdjustment.ToString("G29") : string.Empty;
-                model.TypeName = await Services.Localization.GetLocalizedEnumAsync(option.ValueType);
+                model.TypeName = Services.Localization.GetLocalizedEnum(option.ValueType);
                 model.TypeNameClass = option.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up";
 
                 if (option.LinkedProductId != 0)

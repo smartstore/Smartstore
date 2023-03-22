@@ -86,7 +86,7 @@ namespace Smartstore.Web.Controllers
                     DisplayAdminLink = await _services.Permissions.AuthorizeAsync(Permissions.System.AccessBackend, batchContext.Customer),
                     Condition = product.Condition,
                     ShowCondition = _catalogSettings.ShowProductCondition,
-                    LocalizedCondition = await product.Condition.GetLocalizedEnumAsync(_services.WorkContext.WorkingLanguage.Id, false),
+                    LocalizedCondition = product.Condition.GetLocalizedEnum(_services.WorkContext.WorkingLanguage.Id, false),
                     ShowSku = _catalogSettings.ShowProductSku,
                     Sku = product.Sku,
                     ShowManufacturerPartNumber = _catalogSettings.ShowManufacturerPartNumber,
@@ -803,7 +803,7 @@ namespace Smartstore.Web.Controllers
             model.Name = product.GetLocalized(x => x.Name);
             model.Condition = product.Condition;
             model.ShowCondition = _catalogSettings.ShowProductCondition;
-            model.LocalizedCondition = await product.Condition.GetLocalizedEnumAsync(_services.WorkContext.WorkingLanguage.Id);
+            model.LocalizedCondition = product.Condition.GetLocalizedEnum(_services.WorkContext.WorkingLanguage.Id);
             model.ShowSku = _catalogSettings.ShowProductSku;
             model.Sku = product.Sku;
             model.ShortDescription = product.GetLocalized(x => x.ShortDescription);

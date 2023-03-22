@@ -226,18 +226,18 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var orderModels = await orders
-                .SelectAwait(async x => new AffiliateModel.AffiliatedOrderModel
+            var orderModels = orders
+                .Select(x => new AffiliateModel.AffiliatedOrderModel
                 {
                     Id = x.Id,
-                    OrderStatus = await Services.Localization.GetLocalizedEnumAsync(x.OrderStatus),
-                    PaymentStatus = await Services.Localization.GetLocalizedEnumAsync(x.PaymentStatus),
-                    ShippingStatus = await Services.Localization.GetLocalizedEnumAsync(x.ShippingStatus),
+                    OrderStatus = Services.Localization.GetLocalizedEnum(x.OrderStatus),
+                    PaymentStatus = Services.Localization.GetLocalizedEnum(x.PaymentStatus),
+                    ShippingStatus = Services.Localization.GetLocalizedEnum(x.ShippingStatus),
                     OrderTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(x.OrderTotal),
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                     EditUrl = Url.Action("Edit", "Order", new { id = x.Id })
                 })
-                .AsyncToList();
+                .ToList();
 
             var gridModel = new GridModel<AffiliateModel.AffiliatedOrderModel>
             {

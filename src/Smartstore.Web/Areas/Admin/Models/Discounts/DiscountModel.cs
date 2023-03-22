@@ -113,7 +113,7 @@ namespace Smartstore.Admin.Models.Discounts
             _services = services;
         }
 
-        public async Task MapAsync(Discount from, DiscountModel to, dynamic parameters = null)
+        public Task MapAsync(Discount from, DiscountModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
@@ -121,7 +121,7 @@ namespace Smartstore.Admin.Models.Discounts
             MiniMapper.Map(from, to);
 
             to.NumberOfRules = from.RuleSets?.Count ?? 0;
-            to.DiscountTypeName = await _services.Localization.GetLocalizedEnumAsync(from.DiscountType);
+            to.DiscountTypeName = _services.Localization.GetLocalizedEnum(from.DiscountType);
             to.FormattedDiscountAmount = !from.UsePercentage
                 ? _services.CurrencyService.PrimaryCurrency.AsMoney(from.DiscountAmount).ToString(true)
                 : string.Empty;
@@ -136,6 +136,8 @@ namespace Smartstore.Admin.Models.Discounts
             }
 
             to.EditUrl = _urlHelper.Action("Edit", "Discount", new { id = from.Id, area = "Admin" });
+
+            return Task.CompletedTask;
         }
 
         public Task MapAsync(DiscountModel from, Discount to, dynamic parameters = null)

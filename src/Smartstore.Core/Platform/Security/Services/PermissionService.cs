@@ -340,7 +340,7 @@ namespace Smartstore.Core.Security
         public virtual async Task<string> GetUnauthorizedMessageAsync(string permissionSystemName)
         {
             var displayName = await GetDisplayNameAsync(permissionSystemName);
-            var message = await _localizationService.GetResourceAsync("Admin.AccessDenied.DetailedDescription");
+            var message = _localizationService.GetResource("Admin.AccessDenied.DetailedDescription");
 
             return message.FormatInvariant(displayName.NaIfEmpty(), permissionSystemName.NaIfEmpty());
         }
@@ -459,7 +459,7 @@ namespace Smartstore.Core.Security
 
                     if (log && added.Any())
                     {
-                        var message = await _localizationService.GetResourceAsync("Admin.Permissions.AddedPermissions");
+                        var message = _localizationService.GetResource("Admin.Permissions.AddedPermissions");
                         Logger.Info(message.FormatInvariant(string.Join(", ", added)));
                     }
 
@@ -481,7 +481,7 @@ namespace Smartstore.Core.Security
 
                             if (log)
                             {
-                                var message = await _localizationService.GetResourceAsync("Admin.Permissions.RemovedPermissions");
+                                var message = _localizationService.GetResource("Admin.Permissions.RemovedPermissions");
                                 Logger.Info(message.FormatInvariant(string.Join(", ", toDelete)));
                             }
                         }

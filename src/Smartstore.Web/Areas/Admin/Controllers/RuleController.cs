@@ -118,16 +118,16 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await ruleSets.SelectAwait(async x =>
+            var rows = ruleSets.Select(x =>
             {
                 var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(x);
-                model.ScopeName = await Services.Localization.GetLocalizedEnumAsync(x.Scope);
+                model.ScopeName = Services.Localization.GetLocalizedEnum(x.Scope);
                 model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                 model.EditUrl = Url.Action(nameof(Edit), "Rule", new { id = x.Id, area = "Admin" });
 
                 return model;
             })
-            .AsyncToList();
+            .ToList();
 
             var gridModel = new GridModel<RuleSetModel>
             {
@@ -676,8 +676,8 @@ namespace Smartstore.Admin.Controllers
         {
             var scopes = (entity?.Scope ?? scope ?? RuleScope.Cart).ToSelectList();
 
-            ViewBag.Scopes = await scopes
-                .SelectAwait(async x =>
+            ViewBag.Scopes = scopes
+                .Select(x =>
                 {
                     var item = new ExtendedSelectListItem
                     {
@@ -687,17 +687,17 @@ namespace Smartstore.Admin.Controllers
                     };
 
                     var ruleScope = (RuleScope)x.Value.ToInt();
-                    item.CustomProperties["Description"] = await Services.Localization.GetLocalizedEnumAsync(ruleScope, 0, true);
+                    item.CustomProperties["Description"] = Services.Localization.GetLocalizedEnum(ruleScope, 0, true);
 
                     return item;
                 })
-                .AsyncToList();
+                .ToList();
 
             if ((entity?.Id ?? 0) != 0)
             {
                 var provider = _ruleProvider(entity.Scope);
 
-                model.ScopeName = await Services.Localization.GetLocalizedEnumAsync(entity.Scope);
+                model.ScopeName = Services.Localization.GetLocalizedEnum(entity.Scope);
                 model.ExpressionGroup = await _ruleService.CreateExpressionGroupAsync(entity, provider, true);
 
                 ViewBag.AssignedToDiscounts = entity.Discounts

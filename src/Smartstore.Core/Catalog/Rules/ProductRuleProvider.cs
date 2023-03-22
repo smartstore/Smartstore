@@ -115,13 +115,13 @@ namespace Smartstore.Core.Catalog.Rules
                 .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.Name })
                 .ToArray();
 
-            var visibilities = await ((ProductVisibility[])Enum.GetValues(typeof(ProductVisibility)))
-                .SelectAwait(async x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = await _localizationService.GetLocalizedEnumAsync(x) })
-                .ToArrayAsync();
+            var visibilities = ((ProductVisibility[])Enum.GetValues(typeof(ProductVisibility)))
+                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizationService.GetLocalizedEnum(x) })
+                .ToArray();
 
-            var productTypes = await ((ProductType[])Enum.GetValues(typeof(ProductType)))
-                .SelectAwait(async x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = await _localizationService.GetLocalizedEnumAsync(x) })
-                .ToArrayAsync();
+            var productTypes = ((ProductType[])Enum.GetValues(typeof(ProductType)))
+                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizationService.GetLocalizedEnum(x) })
+                .ToArray();
 
             var ratings = FacetUtility.GetRatings()
                 .Reverse()

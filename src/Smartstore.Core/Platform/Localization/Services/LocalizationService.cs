@@ -184,60 +184,6 @@ namespace Smartstore.Core.Localization
             return result;
         }
 
-        public virtual async Task<string> GetResourceAsync(string resourceKey,
-            int languageId = 0,
-            bool logIfNotFound = true,
-            string defaultValue = "",
-            bool returnEmptyIfNotFound = false)
-        {
-            languageId = languageId > 0 ? languageId : _workContext.Value.WorkingLanguage?.Id ?? 0;
-            if (languageId == 0)
-            {
-                return defaultValue;
-            }
-
-            resourceKey = resourceKey.EmptyNull().Trim();
-
-            var cachedSegment = await GetCacheSegmentAsync(languageId);
-            if (!cachedSegment.TryGetValue(resourceKey, out string result))
-            {
-                if (logIfNotFound)
-                {
-                    LogNotFound(resourceKey, languageId);
-                }
-
-                if (!string.IsNullOrEmpty(defaultValue))
-                {
-                    result = defaultValue;
-                }
-                else
-                {
-                    // Try fallback to default language
-                    if (!_defaultLanguageId.HasValue)
-                    {
-                        _defaultLanguageId = await _languageService.GetMasterLanguageIdAsync();
-                    }
-
-                    var defaultLangId = _defaultLanguageId.Value;
-                    if (defaultLangId > 0 && defaultLangId != languageId)
-                    {
-                        var fallbackResult = await GetResourceAsync(resourceKey, defaultLangId, false, resourceKey);
-                        if (fallbackResult != resourceKey)
-                        {
-                            result = fallbackResult;
-                        }
-                    }
-
-                    if (!returnEmptyIfNotFound && result.IsEmpty())
-                    {
-                        result = resourceKey;
-                    }
-                }
-            }
-
-            return result;
-        }
-
         public virtual string GetLocalizedEnum<T>(T enumValue, int languageId = 0, bool hint = false)
             where T : struct
         {
@@ -252,30 +198,6 @@ namespace Smartstore.Core.Localization
             }
 
             var result = GetResource(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
-
-            // Set default value if required.
-            if (string.IsNullOrEmpty(result))
-            {
-                result = enumValue.ToString().Titleize();
-            }
-
-            return result;
-        }
-
-        public virtual async Task<string> GetLocalizedEnumAsync<T>(T enumValue, int languageId = 0, bool hint = false)
-            where T : struct
-        {
-            Guard.IsEnumType(typeof(T), nameof(enumValue));
-
-            var enumName = typeof(T).GetAttribute<EnumAliasNameAttribute>(false)?.Name ?? typeof(T).Name;
-            var resourceName = $"Enums.{enumName}.{enumValue}";
-
-            if (hint)
-            {
-                resourceName += ".Hint";
-            }
-
-            var result = await GetResourceAsync(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
 
             // Set default value if required.
             if (string.IsNullOrEmpty(result))

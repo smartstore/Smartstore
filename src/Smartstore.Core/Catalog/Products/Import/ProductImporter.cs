@@ -795,7 +795,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<TierPrice>();
-            var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.TierPrice, _services.WorkContext.WorkingLanguage.Id);
+            var entityName = _services.Localization.GetLocalizedEnum(RelatedEntityType.TierPrice, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
@@ -885,7 +885,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<ProductVariantAttributeValue>();
-            var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeValue, _services.WorkContext.WorkingLanguage.Id);
+            var entityName = _services.Localization.GetLocalizedEnum(RelatedEntityType.ProductVariantAttributeValue, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
@@ -969,7 +969,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<ProductVariantAttributeCombination>();
-            var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeCombination, _services.WorkContext.WorkingLanguage.Id);
+            var entityName = _services.Localization.GetLocalizedEnum(RelatedEntityType.ProductVariantAttributeCombination, _services.WorkContext.WorkingLanguage.Id);
             var attributesColumnName = nameof(ProductVariantAttributeCombination.RawAttributes);
             var savedEntities = 0;
 

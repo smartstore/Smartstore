@@ -171,13 +171,13 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => orderIds.Contains(x.Id))
                 .ToDictionaryAsync(x => x.Id, x => x);
 
-            var rows = await recurringPayment.RecurringPaymentHistory.SelectAwait(async x =>
+            var rows = recurringPayment.RecurringPaymentHistory.Select(x =>
             {
                 var m = new RecurringPaymentModel.RecurringPaymentHistoryModel();
-                await PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));
+                PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));
                 return m;
             })
-            .AsyncToList();
+            .ToList();
 
             return Json(new GridModel<RecurringPaymentModel.RecurringPaymentHistoryModel>
             {
@@ -261,7 +261,7 @@ namespace Smartstore.Admin.Controllers
             model.Id = recurringPayment.Id;
             model.CycleLength = recurringPayment.CycleLength;
             model.CyclePeriodId = recurringPayment.CyclePeriodId;
-            model.CyclePeriodString = await Services.Localization.GetLocalizedEnumAsync(recurringPayment.CyclePeriod);
+            model.CyclePeriodString = Services.Localization.GetLocalizedEnum(recurringPayment.CyclePeriod);
             model.TotalCycles = recurringPayment.TotalCycles;
             model.StartDate = Services.DateTimeHelper.ConvertToUserTime(recurringPayment.StartDateUtc, DateTimeKind.Utc);
             model.IsActive = recurringPayment.IsActive;
@@ -296,7 +296,7 @@ namespace Smartstore.Admin.Controllers
                 if (initialOrder != null)
                 {
                     var paymentType = await _paymentService.GetRecurringPaymentTypeAsync(initialOrder.PaymentMethodSystemName);
-                    model.PaymentType = await Services.Localization.GetLocalizedEnumAsync(paymentType);
+                    model.PaymentType = Services.Localization.GetLocalizedEnum(paymentType);
                 }
 
                 var orderIds = recurringPayment.RecurringPaymentHistory.ToDistinctArray(x => x.OrderId);
@@ -305,25 +305,25 @@ namespace Smartstore.Admin.Controllers
                     .Where(x => orderIds.Contains(x.Id))
                     .ToDictionaryAsync(x => x.Id, x => x);
 
-                model.History = await recurringPayment.RecurringPaymentHistory
+                model.History = recurringPayment.RecurringPaymentHistory
                     .OrderBy(x => x.CreatedOnUtc)
-                    .SelectAwait(async x =>
+                    .Select(x =>
                     {
                         var m = new RecurringPaymentModel.RecurringPaymentHistoryModel();
-                        await PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));
+                        PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));
                         return m;
                     })
-                    .AsyncToList();
+                    .ToList();
             }
         }
 
-        private async Task PrepareRecurringPaymentHistoryModel(
+        private void PrepareRecurringPaymentHistoryModel(
             RecurringPaymentModel.RecurringPaymentHistoryModel model,
             RecurringPaymentHistory history,
             Order order)
         {
-            Guard.NotNull(model, nameof(model));
-            Guard.NotNull(history, nameof(history));
+            Guard.NotNull(model);
+            Guard.NotNull(history);
 
             model.Id = history.Id;
             model.OrderId = history.OrderId;
@@ -332,9 +332,9 @@ namespace Smartstore.Admin.Controllers
 
             if (order != null)
             {
-                model.OrderStatus = await Services.Localization.GetLocalizedEnumAsync(order.OrderStatus);
-                model.PaymentStatus = await Services.Localization.GetLocalizedEnumAsync(order.PaymentStatus);
-                model.ShippingStatus = await Services.Localization.GetLocalizedEnumAsync(order.ShippingStatus);
+                model.OrderStatus = Services.Localization.GetLocalizedEnum(order.OrderStatus);
+                model.PaymentStatus = Services.Localization.GetLocalizedEnum(order.PaymentStatus);
+                model.ShippingStatus = Services.Localization.GetLocalizedEnum(order.ShippingStatus);
                 model.OrderNumber = order.GetOrderNumber();
                 model.OrderEditUrl = Url.Action("Edit", "Order", new { id = order.Id });
             }

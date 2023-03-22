@@ -22,34 +22,34 @@ namespace Smartstore.Core.Checkout.Payment.Rules
         public bool Matches(string dataSource)
             => dataSource == KnownRuleOptionDataSourceNames.PaymentMethod;
 
-        public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+        public Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
             if (context.DataSource == KnownRuleOptionDataSourceNames.PaymentMethod)
             {
                 var result = new RuleOptionsResult();
 
-                var options = await _providerManager.GetAllProviders<IPaymentMethod>()
+                var options = _providerManager.GetAllProviders<IPaymentMethod>()
                     .Select(x => x.Metadata)
-                    .SelectAwait(async x => new RuleValueSelectListOption
+                    .Select(x => new RuleValueSelectListOption
                     {
                         Value = x.SystemName,
-                        Text = await GetLocalized(context, x, "FriendlyName") ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
+                        Text = GetLocalized(context, x, "FriendlyName") ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
                         Hint = x.SystemName
                     })
-                    .ToListAsync();
+                    .ToList();
 
                 result.AddOptions(context, options.OrderBy(x => x.Text).ToList());
 
-                return result;
+                return Task.FromResult(result);
             }
 
-            return null;
+            return Task.FromResult<RuleOptionsResult>(null);
         }
 
-        private async Task<string> GetLocalized(RuleOptionsContext context, ProviderMetadata metadata, string propertyName)
+        private string GetLocalized(RuleOptionsContext context, ProviderMetadata metadata, string propertyName)
         {
             var resourceName = metadata.ResourceKeyPattern.FormatInvariant(metadata.SystemName, propertyName);
-            var resource = await _localizationService.GetResourceAsync(resourceName, context.Language.Id, false, string.Empty, true);
+            var resource = _localizationService.GetResource(resourceName, context.Language.Id, false, string.Empty, true);
 
             return resource.NullEmpty();
         }

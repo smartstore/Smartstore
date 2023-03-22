@@ -655,8 +655,8 @@ namespace Smartstore.Admin.Controllers
             else if (provider.Value.EntityType == ExportEntityType.ShoppingCartItem)
             {
                 var guest = T("Admin.Customers.Guest").Value;
-                var cartTypeName = await Services.Localization.GetLocalizedEnumAsync(ShoppingCartType.ShoppingCart);
-                var wishlistTypeName = await Services.Localization.GetLocalizedEnumAsync(ShoppingCartType.Wishlist);
+                var cartTypeName = Services.Localization.GetLocalizedEnum(ShoppingCartType.ShoppingCart);
+                var wishlistTypeName = Services.Localization.GetLocalizedEnum(ShoppingCartType.Wishlist);
 
                 var rows = previewResult.Data
                     .Select(item =>
@@ -846,7 +846,7 @@ namespace Smartstore.Admin.Controllers
             model.Provider = new ExportProfileModel.ProviderModel
             {
                 EntityType = provider.Value.EntityType,
-                EntityTypeName = await Services.Localization.GetLocalizedEnumAsync(provider.Value.EntityType),
+                EntityTypeName = Services.Localization.GetLocalizedEnum(provider.Value.EntityType),
                 FileExtension = provider.Value.FileExtension,
                 ThumbnailUrl = GetThumbnailUrl(provider),
                 FriendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata),
@@ -1033,7 +1033,7 @@ namespace Smartstore.Admin.Controllers
             var model = MiniMapper.Map<ExportDeployment, ExportDeploymentModel>(deployment);
 
             model.EmailAddresses = deployment.EmailAddresses.SplitSafe(',').ToArray();
-            model.DeploymentTypeName = await Services.Localization.GetLocalizedEnumAsync(deployment.DeploymentType);
+            model.DeploymentTypeName = Services.Localization.GetLocalizedEnum(deployment.DeploymentType);
             model.PublicFolderUrl = await _exportProfileService.GetDeploymentDirectoryUrlAsync(deployment);
 
             if (createForEdit)
@@ -1109,13 +1109,13 @@ namespace Smartstore.Admin.Controllers
 
                 if (deployment == null)
                 {
-                    await AddFileInfo(model.ExportFiles, zipFile, rootPath);
+                    AddFileInfo(model.ExportFiles, zipFile, rootPath);
 
                     if (resultInfo.Files != null)
                     {
                         foreach (var fi in resultInfo.Files)
                         {
-                            await AddFileInfo(model.ExportFiles, await dir.GetFileAsync(fi.FileName), rootPath, null, fi);
+                            AddFileInfo(model.ExportFiles, await dir.GetFileAsync(fi.FileName), rootPath, null, fi);
                         }
                     }
                 }
@@ -1128,7 +1128,7 @@ namespace Smartstore.Admin.Controllers
                         {
                             foreach (var fi in resultInfo.Files)
                             {
-                                await AddFileInfo(model.ExportFiles, await deploymentDir.GetFileAsync(fi.FileName), rootPath, null, fi);
+                                AddFileInfo(model.ExportFiles, await deploymentDir.GetFileAsync(fi.FileName), rootPath, null, fi);
                             }
                         }
                     }
@@ -1150,7 +1150,7 @@ namespace Smartstore.Admin.Controllers
                         if (profile.CreateZipArchive)
                         {
                             var url = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, currentStore);
-                            await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(zipFile.Name), rootPath, url);
+                            AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(zipFile.Name), rootPath, url);
                         }
                         else if (resultInfo.Files != null)
                         {
@@ -1160,7 +1160,7 @@ namespace Smartstore.Admin.Controllers
                                 stores.TryGetValue(fi.StoreId, out var store);
 
                                 var url = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, store ?? currentStore);
-                                await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(fi.FileName), rootPath, url, fi, store);
+                                AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(fi.FileName), rootPath, url, fi, store);
                             }
                         }
                     }
@@ -1174,7 +1174,7 @@ namespace Smartstore.Admin.Controllers
             return model;
         }
 
-        private async Task AddFileInfo(
+        private void AddFileInfo(
             List<ExportFileDetailsModel.FileInfo> fileInfos,
             IFile file,
             string rootPath,
@@ -1209,7 +1209,7 @@ namespace Smartstore.Admin.Controllers
 
                     if (fileInfo.RelatedType.HasValue)
                     {
-                        fi.Label += " " + await Services.Localization.GetLocalizedEnumAsync(fileInfo.RelatedType.Value);
+                        fi.Label += " " + Services.Localization.GetLocalizedEnum(fileInfo.RelatedType.Value);
                     }
                 }
             }

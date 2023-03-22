@@ -88,7 +88,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         public virtual async Task<string> GetNewProfileNameAsync(ImportEntityType entityType)
         {
-            var defaultNamesStr = await _localizationService.GetResourceAsync("Admin.DataExchange.Import.DefaultProfileNames");
+            var defaultNamesStr = _localizationService.GetResource("Admin.DataExchange.Import.DefaultProfileNames");
             var defaultNames = defaultNamesStr.SplitSafe(';').ToArray();
             var profileCount = 1 + await _db.ImportProfiles.CountAsync(x => x.EntityTypeId == (int)entityType);
 

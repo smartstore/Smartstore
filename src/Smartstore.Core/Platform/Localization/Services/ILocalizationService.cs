@@ -21,21 +21,6 @@
             bool returnEmptyIfNotFound = false);
 
         /// <summary>
-        /// Gets a resource string value for the given <paramref name="resourceKey"/>.
-        /// </summary>
-        /// <param name="resourceKey">A string representing a resource key.</param>
-        /// <param name="languageId">Language identifier. Auto-resolves to working language id if <c>0</c>.</param>
-        /// <param name="logIfNotFound">A value indicating whether to log a warning if locale string resource is not found.</param>
-        /// <param name="defaultValue">Default value to return if resource is not found.</param>
-        /// <param name="returnEmptyIfNotFound">A value indicating whether an empty string will be returned if a resource is not found and default value is set to empty string.</param>
-        /// <returns>A string representing the requested resource string.</returns>
-        Task<string> GetResourceAsync(string resourceKey,
-            int languageId = 0,
-            bool logIfNotFound = true,
-            string defaultValue = "",
-            bool returnEmptyIfNotFound = false);
-
-        /// <summary>
         /// Gets the localized value of an enum.
         /// </summary>
         /// <typeparam name="T">Enum type.</typeparam>
@@ -44,17 +29,6 @@
         /// <param name="hint">A value indicating whether to load the hint.</param>
         /// <returns>Localized value of an enum.</returns>
         string GetLocalizedEnum<T>(T enumValue, int languageId = 0, bool hint = false)
-            where T : struct;
-
-        /// <summary>
-        /// Gets the localized value of an enum.
-        /// </summary>
-        /// <typeparam name="T">Enum type.</typeparam>
-        /// <param name="enumValue">Enum value.</param>
-        /// <param name="languageId">Language identifier. Auto-resolves to working language id if <c>0</c>.</param>
-        /// <param name="hint">A value indicating whether to load the hint.</param>
-        /// <returns>Localized value of an enum.</returns>
-        Task<string> GetLocalizedEnumAsync<T>(T enumValue, int languageId = 0, bool hint = false)
             where T : struct;
 
         /// <summary>

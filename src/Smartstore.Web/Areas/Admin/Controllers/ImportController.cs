@@ -546,13 +546,13 @@ namespace Smartstore.Admin.Controllers
             model.IsTaskEnabled = profile.Task.Enabled;
             model.LogFileExists = logFile.Exists;
             model.FolderName = PathUtility.MakeRelativePath(CommonHelper.ContentRoot.Root, dir.PhysicalPath);
-            model.EntityTypeName = await Services.Localization.GetLocalizedEnumAsync(profile.EntityType);
+            model.EntityTypeName = Services.Localization.GetLocalizedEnum(profile.EntityType);
             model.ExistingFiles = await _importProfileService.GetImportFilesAsync(profile);
             model.FileType = profile.FileType;
 
             foreach (var file in model.ExistingFiles.Where(x => x.RelatedType.HasValue))
             {
-                file.Label = T("Admin.Common.Data") + " " + await Services.Localization.GetLocalizedEnumAsync(file.RelatedType.Value);
+                file.Label = T("Admin.Common.Data") + " " + Services.Localization.GetLocalizedEnum(file.RelatedType.Value);
             }
 
             if (profile.ResultInfo.HasValue())

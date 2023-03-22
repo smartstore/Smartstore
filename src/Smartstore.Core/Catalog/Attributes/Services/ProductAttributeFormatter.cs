@@ -183,13 +183,13 @@ namespace Smartstore.Core.Catalog.Attributes
                 {
                     // Sender.
                     var giftCardFrom = product.GiftCardType == GiftCardType.Virtual
-                        ? (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Virtual")).FormatInvariant(gci.SenderName, gci.SenderEmail)
-                        : (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Physical")).FormatInvariant(gci.SenderName);
+                        ? _localizationService.GetResource("GiftCardAttribute.From.Virtual").FormatInvariant(gci.SenderName, gci.SenderEmail)
+                        : _localizationService.GetResource("GiftCardAttribute.From.Physical").FormatInvariant(gci.SenderName);
 
                     // Recipient.
                     var giftCardFor = product.GiftCardType == GiftCardType.Virtual
-                        ? (await _localizationService.GetResourceAsync("GiftCardAttribute.For.Virtual")).FormatInvariant(gci.RecipientName, gci.RecipientEmail)
-                        : (await _localizationService.GetResourceAsync("GiftCardAttribute.For.Physical")).FormatInvariant(gci.RecipientName);
+                        ? _localizationService.GetResource("GiftCardAttribute.For.Virtual").FormatInvariant(gci.RecipientName, gci.RecipientEmail)
+                        : _localizationService.GetResource("GiftCardAttribute.For.Physical").FormatInvariant(gci.RecipientName);
 
                     if (htmlEncode)
                     {
