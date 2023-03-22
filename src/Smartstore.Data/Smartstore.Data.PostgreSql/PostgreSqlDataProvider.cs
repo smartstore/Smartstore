@@ -14,6 +14,15 @@ namespace Smartstore.Data.PostgreSql
 {
     public class PostgreSqlDataProvider : DataProvider
     {
+        private static string TableInfoSql()
+            => @"SELECT 
+                    relname AS TableName,
+                    n_live_tup AS NumRows,
+                    pg_total_relation_size(relid) AS TotalSpace,
+                    pg_table_size(relid) AS UsedSpace
+                FROM pg_stat_user_tables
+                ORDER BY pg_total_relation_size(relid) DESC;";
+
         public PostgreSqlDataProvider(DatabaseFacade database)
             : base(database)
         {
@@ -34,7 +43,8 @@ namespace Smartstore.Data.PostgreSql
             | DataProviderFeatures.StreamBlob
             | DataProviderFeatures.ExecuteSqlScript
             | DataProviderFeatures.ReadSequential
-            | DataProviderFeatures.StoredProcedures;
+            | DataProviderFeatures.StoredProcedures
+            | DataProviderFeatures.ReadTableInfo;
 
         public override DbParameter CreateParameter()
         {
@@ -225,6 +235,14 @@ LIMIT {take} OFFSET {skip}";
         protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
             return new SqlBlobStream(this, tableName, blobColumnName, pkColumnName, pkColumnValue);
+        }
+
+        protected override async Task<List<DbTableInfo>> ReadTableInfosCore(bool async, CancellationToken cancelToken = default)
+        {
+            var sql = TableInfoSql();
+            return async
+                ? await Database.ExecuteQueryRawAsync<DbTableInfo>(sql, cancelToken).ToListAsync()
+                : Database.ExecuteQueryRaw<DbTableInfo>(sql).ToList();
         }
     }
 }
