@@ -18,12 +18,17 @@
         // Call the stored reference to the native method
         open.apply(this, arguments);
 
-        if (!isExternalUrl(url) && method?.toLowerCase() == 'post') {
+        if (method?.toLowerCase() == 'post' && !isExternalUrl(url)) {
             var token = getAntiforgeryToken();
             if (token) {
                 // INFO: must be called after .open()
                 this.setRequestHeader("X-XSRF-Token", encodeURIComponent(token));
             }
+        }
+
+        function isExternalUrl(url) {
+            const mergedUrl = new URL(url, window.location.href);
+            return mergedUrl.host !== window.location.host || mergedUrl.protocol !== window.location.protocol;
         }
     };
 
@@ -198,13 +203,6 @@
                 }
             });
         }
-    }
-
-    function isExternalUrl(url) {
-        const currentHost = window.location.hostname;
-        const parsedUrl = new URL(url, window.location.href);
-        const urlHost = parsedUrl.hostname;
-        return currentHost !== urlHost || parsedUrl.protocol !== window.location.protocol;
     }
 
 })(jQuery, window, document);
