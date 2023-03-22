@@ -19,6 +19,7 @@
 - More aggressive garbage collector
 - Added `data-invariant` attribute to number input controls 
 - Closed #543 Google Category (GMC) always get lost when copying a product
+- Ajax request to external URLs do not add X-XSRF-Tokens anymore
 
 ### Bugfixes
 
