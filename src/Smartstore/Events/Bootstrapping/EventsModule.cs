@@ -26,7 +26,7 @@ namespace Smartstore.Bootstrapping
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<NullMessageBus>()
+            builder.RegisterInstance(NullMessageBus.Instance)
                 .As<IMessageBus>()
                 .SingleInstance();
 

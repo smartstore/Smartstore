@@ -13,7 +13,7 @@ namespace Smartstore.Bootstrapping
         {
             Guard.NotNull(services, nameof(services));
 
-            services.TryAddSingleton<ITemplateEngine, NullTemplateEngine>();
+            services.TryAddSingleton<ITemplateEngine>(NullTemplateEngine.Instance);
             services.TryAddSingleton<ITemplateManager, DefaultTemplateManager>();
 
             return services;

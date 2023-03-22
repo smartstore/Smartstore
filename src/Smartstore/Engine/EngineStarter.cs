@@ -157,7 +157,7 @@ namespace Smartstore.Engine
             services.AddDistributedSemaphoreLockProvider();
 
             services.AddSingleton<INativeLibraryManager, NativeLibraryManager>();
-            services.AddSingleton(x => NullChronometer.Instance);
+            services.AddSingleton<IChronometer>(x => NullChronometer.Instance);
             services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
             services.AddSingleton<IFilePermissionChecker, FilePermissionChecker>();
             services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
