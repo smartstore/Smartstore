@@ -54,12 +54,16 @@ namespace Smartstore.Core.Messaging
         /// <summary>
         /// Gets or sets the option identifier for SSL and/or TLS encryption to be used.
         /// </summary>
+        // TODO: (mg) (core) Convention violation: a property with "Id" suffix implicates an FK field, but this ain't an FK field. Rename.
         public int SecureOptionId { get; set; }
 
         /// <summary>
         /// Gets or sets an option for SSL and/or TLS encryption to be used.
         /// </summary>
         [NotMapped]
+        // TODO: (mg) (core) Never tie entities (or any other high-level SM stuff)
+        // to 3rd party libs other than EF and Newtonsoft.Json. Create a custom enum
+        // which exactly reflects the Mailkit one.
         public SecureSocketOptions SecureOption
         {
             get => (SecureSocketOptions)SecureOptionId;
@@ -87,13 +91,9 @@ namespace Smartstore.Core.Messaging
         }
 
         public EmailAccount Clone()
-        {
-            return (EmailAccount)this.MemberwiseClone();
-        }
+            => (EmailAccount)MemberwiseClone();
 
         object ICloneable.Clone()
-        {
-            return this.MemberwiseClone();
-        }
+            => MemberwiseClone();
     }
 }
