@@ -94,9 +94,9 @@ namespace Smartstore.Google.Analytics.Services
                 model.Id,
                 model.Sku,
                 model.Name,
-                !model.Price.HasDiscount ? "''" : model.Price.Saving.SavingAmount.Value.Amount.ToStringInvariant("n2"),
-                brand != null ? brand.Name : "''",
-                model.Price.FinalPrice.Amount.ToStringInvariant("n2"),
+                !model.Price.HasDiscount ? "''" : model.Price.Saving.SavingAmount.Value.Amount.ToStringInvariant(),
+                brand != null ? brand.Name : string.Empty,
+                model.Price.FinalPrice.Amount.ToStringInvariant(),
                 categoryPathScript, addComma: false);
 
             var eventScript = @$"
@@ -110,7 +110,7 @@ namespace Smartstore.Google.Analytics.Services
             
                 gtag('event', 'view_item', {{
                   currency: '{_workContext.WorkingCurrency.CurrencyCode}',
-                  value: {model.Price.FinalPrice.Amount.ToStringInvariant("n2")},
+                  value: {model.Price.FinalPrice.Amount.ToStringInvariant()},
                   items: [pdItem]
                 }});";
 
@@ -142,7 +142,7 @@ namespace Smartstore.Google.Analytics.Services
 
                 gtag('event', 'view_cart', {{
                     currency: '{currency.CurrencyCode}',
-                    value: {subTotalConverted.Amount.ToStringInvariant("n2")},
+                    value: {subTotalConverted.Amount.ToStringInvariant()},
                     items: cartItems
                 }});";
         }
@@ -176,7 +176,7 @@ namespace Smartstore.Google.Analytics.Services
 
                 gtag('event', '{eventType}', {{
                     currency: '{currency.CurrencyCode}',
-                    value: {subTotalConverted.Amount.ToStringInvariant("n2")},
+                    value: {subTotalConverted.Amount.ToStringInvariant()},
                     coupon: '{model.DiscountBox.CurrentCode}',
                     {(addShippingInfo ? $"shipping_tier: '{model.OrderReviewData.ShippingMethod}'," : string.Empty)}
                     {(addPaymentInfo ? $"payment_type: '{model.OrderReviewData.PaymentMethod}'," : string.Empty)}
@@ -202,9 +202,9 @@ namespace Smartstore.Google.Analytics.Services
                     product.Id,
                     product.Sku,
                     product.ProductName,
-                    product.Discount.Amount.ToStringInvariant("n2"),
+                    product.Discount.Amount.ToStringInvariant(),
                     string.Empty,
-                    product.UnitPrice.Amount.ToStringInvariant("n2"),
+                    product.UnitPrice.Amount.ToStringInvariant(),
                     index: ++i);
             }
 
