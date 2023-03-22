@@ -19,11 +19,15 @@ namespace Smartstore.Core.Identity.Tasks
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
-            Guard.NotNegative(_commonSettings.MaxGuestsRegistrationAgeInMinutes, nameof(_commonSettings.MaxGuestsRegistrationAgeInMinutes));
+            Guard.NotNegative(_commonSettings.MaxGuestsRegistrationAgeInMinutes);
 
             var registrationTo = DateTime.UtcNow.AddMinutes(-_commonSettings.MaxGuestsRegistrationAgeInMinutes);
 
-            await _customerService.DeleteGuestCustomersAsync(null, registrationTo, true, cancelToken);
+            await _customerService.DeleteGuestCustomersAsync(
+                registrationFrom: null, 
+                registrationTo, 
+                onlyWithoutShoppingCart: true, 
+                cancelToken);
         }
     }
 }

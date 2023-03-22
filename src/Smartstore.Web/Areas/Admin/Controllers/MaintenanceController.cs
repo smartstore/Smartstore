@@ -26,6 +26,7 @@ using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.IO;
 using Smartstore.Scheduling;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 
@@ -52,6 +53,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IImportProfileService> _importProfileService;
         private readonly Lazy<UpdateChecker> _updateChecker;
         private readonly MeasureSettings _measureSettings;
+        private readonly IHostApplicationLifetime _appLifetime;
 
         public MaintenanceController(
             SmartDbContext db,
@@ -70,7 +72,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IExportProfileService> exportProfileService,
             Lazy<IImportProfileService> importProfileService,
             Lazy<UpdateChecker> updateChecker,
-            MeasureSettings measureSettings)
+            MeasureSettings measureSettings,
+            IHostApplicationLifetime appLifetime)
         {
             _db = db;
             _memCache = memCache;
@@ -89,6 +92,7 @@ namespace Smartstore.Admin.Controllers
             _importProfileService = importProfileService;
             _updateChecker = updateChecker;
             _measureSettings = measureSettings;
+            _appLifetime = appLifetime;
         }
 
         #region Maintenance
@@ -136,11 +140,13 @@ namespace Smartstore.Admin.Controllers
             DateTime? endDateValue = model.DeleteGuests.EndDate == null
                 ? null
                 : dtHelper.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
-
+            
+            // Execute
             var numDeletedCustomers = await _customerService.DeleteGuestCustomersAsync(
                 startDateValue,
                 endDateValue,
-                model.DeleteGuests.OnlyWithoutShoppingCart);
+                model.DeleteGuests.OnlyWithoutShoppingCart,
+                _appLifetime.ApplicationStopping);
 
             NotifyInfo(T("Admin.System.Maintenance.DeleteGuests.TotalDeleted", numDeletedCustomers));
 
