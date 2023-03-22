@@ -16,7 +16,7 @@ namespace Smartstore.Core.Localization
         private readonly IWorkContext _workContext;
 
         private readonly int _languageCount;
-        private readonly Language _defaultLanguage;
+        private readonly Language _masterLanguage;
 
         public LocalizedEntityHelper(
             SmartDbContext db,
@@ -34,7 +34,7 @@ namespace Smartstore.Core.Localization
             _workContext = workContext;
 
             _languageCount = _languageService.GetAllLanguages().Count();
-            _defaultLanguage = _db.Languages.FindById(_languageService.GetMasterLanguageId());
+            _masterLanguage = _db.Languages.FindById(_languageService.GetMasterLanguageId());
         }
 
         public LocalizedValue<TProp> GetLocalizedValue<T, TProp>(T obj,
@@ -100,7 +100,7 @@ namespace Smartstore.Core.Localization
             // Set default value if required
             if (returnDefaultValue && string.IsNullOrEmpty(str))
             {
-                currentLanguage = _defaultLanguage;
+                currentLanguage = _masterLanguage;
                 result = fallback(obj);
             }
 

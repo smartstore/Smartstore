@@ -1,4 +1,6 @@
-﻿using Humanizer;
+﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+using Humanizer;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
@@ -13,13 +15,23 @@ namespace Smartstore.Core.Localization
         const string CACHE_SEGMENT_KEY = "localization:{0}";
         const string CACHE_SEGMENT_PATTERN = "localization:*";
 
+        const string EnumPrefix = "Enums.";
+        const string HintSuffix = ".Hint";
+
+        private static readonly ConcurrentDictionary<Type, string> _enumNames = new();
+
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
         private readonly Lazy<IWorkContext> _workContext;
         private readonly ILanguageService _languageService;
+        private readonly bool _isMultiLanguageEnvironment;
 
         private int _notFoundLogCount = 0;
-        private int? _defaultLanguageId;
+        private int? _masterLanguageId;
+
+        // Scope cache
+        private Dictionary<string, string> _singleCacheSegment;
+        private Dictionary<int, Dictionary<string, string>> _cacheSegments;
 
         public LocalizationService(
             SmartDbContext db,
@@ -31,6 +43,7 @@ namespace Smartstore.Core.Localization
             _cache = cache;
             _workContext = workContext;
             _languageService = languageService;
+            _isMultiLanguageEnvironment = languageService.IsMultiLanguageEnvironment();
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -57,11 +70,28 @@ namespace Smartstore.Core.Localization
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual Dictionary<string, string> GetCacheSegment(int languageId)
         {
+            // Perf (hot path): first try faster lookup in request scope, then access cache.
+            if (!_isMultiLanguageEnvironment)
+            {
+                if (_singleCacheSegment != null)
+                {
+                    return _singleCacheSegment;
+                }
+            }
+            else
+            {
+                if (_cacheSegments != null && _cacheSegments.TryGetValue(languageId, out var segment))
+                {
+                    return segment;
+                }
+            }
+            
             var cacheKey = BuildCacheSegmentKey(languageId);
 
-            return _cache.Get(cacheKey, (o) =>
+            var cacheSegment = _cache.Get(cacheKey, (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
 
@@ -79,30 +109,19 @@ namespace Smartstore.Core.Localization
 
                 return dict;
             });
-        }
 
-        protected virtual async Task<Dictionary<string, string>> GetCacheSegmentAsync(int languageId)
-        {
-            var cacheKey = BuildCacheSegmentKey(languageId);
-
-            return await _cache.GetAsync(cacheKey, async (o) =>
+            // Put resolved segment to scope cache
+            if (!_isMultiLanguageEnvironment)
             {
-                o.ExpiresIn(TimeSpan.FromDays(1));
+                _singleCacheSegment = cacheSegment;
+            }
+            else
+            {
+                _cacheSegments ??= new();
+                _cacheSegments[languageId] = cacheSegment;
+            }
 
-                var resources = await _db.LocaleStringResources
-                    .Where(x => x.LanguageId == languageId)
-                    .Select(x => new { x.ResourceName, x.ResourceValue })
-                    .ToListAsync();
-
-                var dict = new Dictionary<string, string>(resources.Count, StringComparer.OrdinalIgnoreCase);
-
-                foreach (var res in resources)
-                {
-                    dict[res.ResourceName] = res.ResourceValue;
-                }
-
-                return dict;
-            });
+            return cacheSegment;
         }
 
         /// <summary>
@@ -111,16 +130,21 @@ namespace Smartstore.Core.Localization
         /// <param name="languageId">Language Id. If <c>null</c>, segments for all cached languages will be invalidated</param>
         protected virtual Task ClearCacheSegmentAsync(int? languageId = null)
         {
+            _singleCacheSegment = null;
+            
             if (languageId.HasValue && languageId.Value > 0)
             {
+                _cacheSegments?.Remove(languageId.Value);
                 return _cache.RemoveAsync(BuildCacheSegmentKey(languageId.Value));
             }
             else
             {
+                _cacheSegments = null;
                 return _cache.RemoveByPatternAsync(CACHE_SEGMENT_PATTERN);
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual string BuildCacheSegmentKey(int languageId)
         {
             return string.Format(CACHE_SEGMENT_KEY, languageId);
@@ -130,54 +154,74 @@ namespace Smartstore.Core.Localization
 
         #region LocaleStringResources
 
-        public virtual string GetResource(string resourceKey,
+        public virtual string GetResource(
+            string resourceKey,
             int languageId = 0,
             bool logIfNotFound = true,
             string defaultValue = "",
             bool returnEmptyIfNotFound = false)
         {
-            languageId = languageId > 0 ? languageId : _workContext.Value.WorkingLanguage?.Id ?? 0;
-            if (languageId == 0)
+            if (string.IsNullOrEmpty(resourceKey))
             {
-                return defaultValue;
+                return string.Empty;
+            }
+            
+            if (languageId <= 0)
+            {
+                languageId = _workContext.Value.WorkingLanguage?.Id ?? 0;
+                if (languageId == 0)
+                {
+                    return defaultValue;
+                }
             }
 
-            resourceKey = resourceKey.EmptyNull().Trim();
-
-            var cachedSegment = GetCacheSegment(languageId);
-            if (!cachedSegment.TryGetValue(resourceKey, out string result))
+            // Trim whitespace (avoid string allocations if not necessary)
+            var trim = char.IsWhiteSpace(resourceKey[0]) || (resourceKey.Length > 1 && char.IsWhiteSpace(resourceKey[^1]));
+            if (trim)
             {
-                if (logIfNotFound)
-                {
-                    LogNotFound(resourceKey, languageId);
-                }
+                resourceKey = resourceKey.Trim();
+            }
 
-                if (!string.IsNullOrEmpty(defaultValue))
+            var cacheSegment = GetCacheSegment(languageId);
+
+            if (cacheSegment.TryGetValue(resourceKey, out string result))
+            {
+                return result;
+            }
+
+            if (logIfNotFound)
+            {
+                LogNotFound(resourceKey, languageId);
+            }
+
+            if (!string.IsNullOrEmpty(defaultValue))
+            {
+                result = defaultValue;
+            }
+            else
+            {
+                if (_isMultiLanguageEnvironment)
                 {
-                    result = defaultValue;
-                }
-                else
-                {
-                    // Try fallback to default language
-                    if (!_defaultLanguageId.HasValue)
+                    // Try fallback to default/master language
+                    if (!_masterLanguageId.HasValue)
                     {
-                        _defaultLanguageId = _languageService.GetMasterLanguageId();
+                        _masterLanguageId = _languageService.GetMasterLanguageId();
                     }
 
-                    var defaultLangId = _defaultLanguageId.Value;
-                    if (defaultLangId > 0 && defaultLangId != languageId)
+                    var masterLangId = _masterLanguageId.Value;
+                    if (masterLangId > 0 && masterLangId != languageId)
                     {
-                        var fallbackResult = GetResource(resourceKey, defaultLangId, false, resourceKey);
+                        var fallbackResult = GetResource(resourceKey, masterLangId, false, resourceKey);
                         if (fallbackResult != resourceKey)
                         {
                             result = fallbackResult;
                         }
                     }
+                }
 
-                    if (!returnEmptyIfNotFound && result.IsEmpty())
-                    {
-                        result = resourceKey;
-                    }
+                if (!returnEmptyIfNotFound && result.IsEmpty())
+                {
+                    result = resourceKey;
                 }
             }
 
@@ -187,22 +231,30 @@ namespace Smartstore.Core.Localization
         public virtual string GetLocalizedEnum<T>(T enumValue, int languageId = 0, bool hint = false)
             where T : struct
         {
-            Guard.IsEnumType(typeof(T), nameof(enumValue));
+            Guard.IsEnumType(typeof(T));
 
-            var enumName = typeof(T).GetAttribute<EnumAliasNameAttribute>(false)?.Name ?? typeof(T).Name;
-            var resourceName = $"Enums.{enumName}.{enumValue}";
+            var enumName = _enumNames.GetOrAdd(typeof(T), type =>
+            {
+                return type.GetAttribute<EnumAliasNameAttribute>(false)?.Name ?? type.Name;
+            });
 
+            var enumValueStr = enumValue.ToString();
+            var resourceName = EnumPrefix + enumName + '.' + enumValueStr;
             if (hint)
             {
-                resourceName += ".Hint";
+                resourceName += HintSuffix;
             }
 
-            var result = GetResource(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
+            var result = GetResource(
+                resourceName, 
+                languageId, 
+                logIfNotFound: false, 
+                returnEmptyIfNotFound: true);
 
             // Set default value if required.
             if (string.IsNullOrEmpty(result))
             {
-                result = enumValue.ToString().Titleize();
+                result = enumValueStr.Titleize();
             }
 
             return result;

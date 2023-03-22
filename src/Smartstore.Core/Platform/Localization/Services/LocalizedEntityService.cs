@@ -345,8 +345,8 @@ namespace Smartstore.Core.Localization
 
         protected virtual Dictionary<int, string> GetCacheSegment(string localeKeyGroup, string localeKey, int entityId, int languageId)
         {
-            Guard.NotEmpty(localeKeyGroup, nameof(localeKeyGroup));
-            Guard.NotEmpty(localeKey, nameof(localeKey));
+            Guard.NotEmpty(localeKeyGroup);
+            Guard.NotEmpty(localeKey);
 
             var segmentKey = GetSegmentKeyPart(localeKeyGroup, localeKey, entityId, out var minEntityId, out var maxEntityId);
             var cacheKey = BuildCacheSegmentKey(segmentKey, languageId);
