@@ -305,7 +305,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         {
             var sql = TableInfoSql();
             return async
-                ? await Database.ExecuteQueryRawAsync<DbTableInfo>(sql, cancelToken).ToListAsync()
+                ? await Database.ExecuteQueryRawAsync<DbTableInfo>(sql, cancelToken).ToListAsync(cancelToken)
                 : Database.ExecuteQueryRaw<DbTableInfo>(sql).ToList();
         }
 

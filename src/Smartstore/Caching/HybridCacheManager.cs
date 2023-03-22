@@ -1,5 +1,4 @@
-﻿
-using Smartstore.Engine;
+﻿using Smartstore.Engine;
 using Smartstore.Threading;
 using Smartstore.Utilities;
 
@@ -11,7 +10,6 @@ namespace Smartstore.Caching
 
         private readonly ICacheStore[] _stores;
         private readonly Work<ICacheScopeAccessor> _scopeAccessor;
-        private readonly bool _isMultiLevel;
         private readonly bool _isDistributed;
         private readonly int _lastIndex;
 
@@ -35,7 +33,6 @@ namespace Smartstore.Caching
             }
 
             _scopeAccessor = scopeAccessor;
-            _isMultiLevel = _stores.Length > 1;
             _lastIndex = _stores.Length - 1;
         }
 

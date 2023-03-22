@@ -24,10 +24,9 @@ namespace Smartstore
         /// </returns>
         public static bool EnsureCreatedSchemaless(this DatabaseFacade databaseFacade)
         {
-            Guard.NotNull(databaseFacade, nameof(databaseFacade));
+            Guard.NotNull(databaseFacade);
 
-            var creator = GetFacadeDependencies(databaseFacade).DatabaseCreator as RelationalDatabaseCreator;
-            if (creator != null)
+            if (GetFacadeDependencies(databaseFacade).DatabaseCreator is RelationalDatabaseCreator creator)
             {
                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
@@ -329,14 +328,9 @@ namespace Smartstore
 
         internal static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
         {
-            Guard.NotNull(databaseFacade, nameof(databaseFacade));
+            Guard.NotNull(databaseFacade);
 
-            var service = databaseFacade.Instance.GetService<TService>();
-            if (service == null)
-            {
-                throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
-            }
-
+            var service = databaseFacade.Instance.GetService<TService>() ?? throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
             return service;
         }
     }
