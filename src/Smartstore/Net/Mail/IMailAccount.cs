@@ -1,6 +1,4 @@
-﻿using MailKit.Security;
-
-namespace Smartstore.Net.Mail
+﻿namespace Smartstore.Net.Mail
 {
     /// <summary>
     /// Mail/SMTP account abstraction
@@ -30,7 +28,7 @@ namespace Smartstore.Net.Mail
         /// <summary>
         /// Gets an option for SSL and/or TLS encryption to be used.
         /// </summary>
-        public SecureSocketOptions SecureOption { get; }
+        public MailSecureOption MailSecureOption { get; }
 
         /// <summary>
         /// Gets a value that controls whether the default system credentials of the application are sent with requests.

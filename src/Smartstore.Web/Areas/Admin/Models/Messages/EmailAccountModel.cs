@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using MailKit.Security;
+using Smartstore.Net.Mail;
 
 namespace Smartstore.Admin.Models.Messages
 {
@@ -29,8 +29,8 @@ namespace Smartstore.Admin.Models.Messages
         [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string Password { get; set; }
 
-        [LocalizedDisplay("*SecureOption")]
-        public SecureSocketOptions SecureOption { get; set; } = SecureSocketOptions.Auto;
+        [LocalizedDisplay("*MailSecureOption")]
+        public MailSecureOption MailSecureOption { get; set; } = MailSecureOption.Auto;
 
         [LocalizedDisplay("*UseDefaultCredentials")]
         public bool UseDefaultCredentials { get; set; }

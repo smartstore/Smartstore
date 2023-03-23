@@ -34,6 +34,7 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Net.Mail;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Installation
@@ -483,7 +484,7 @@ namespace Smartstore.Core.Installation
                     Port = 25,
                     Username = "123",
                     Password = "123",
-                    SecureOption = SecureSocketOptions.Auto,
+                    MailSecureOption = MailSecureOption.Auto,
                     UseDefaultCredentials = false
                 }
             };

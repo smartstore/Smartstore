@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
-using MailKit.Security;
 using Smartstore.Data.Caching;
 using Smartstore.Net.Mail;
 
@@ -52,22 +51,18 @@ namespace Smartstore.Core.Messaging
         public bool EnableSsl { get; set; }
 
         /// <summary>
-        /// Gets or sets the option identifier for SSL and/or TLS encryption to be used.
+        /// Gets or sets the option value for SSL and/or TLS encryption to use.
         /// </summary>
-        // TODO: (mg) (core) Convention violation: a property with "Id" suffix implicates an FK field, but this ain't an FK field. Rename.
-        public int SecureOptionId { get; set; }
+        public int SecureOption { get; set; }
 
         /// <summary>
-        /// Gets or sets an option for SSL and/or TLS encryption to be used.
+        /// Gets or sets an option for SSL and/or TLS encryption to use.
         /// </summary>
         [NotMapped]
-        // TODO: (mg) (core) Never tie entities (or any other high-level SM stuff)
-        // to 3rd party libs other than EF and Newtonsoft.Json. Create a custom enum
-        // which exactly reflects the Mailkit one.
-        public SecureSocketOptions SecureOption
+        public MailSecureOption MailSecureOption
         {
-            get => (SecureSocketOptions)SecureOptionId;
-            set => SecureOptionId = (int)value;
+            get => (MailSecureOption)SecureOption;
+            set => SecureOption = (int)value;
         }
 
         /// <summary>
