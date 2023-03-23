@@ -84,7 +84,7 @@ namespace Smartstore.Data.SqlServer
 
         public override TContext CreateDbContext<TContext>(string connectionString, int? commandTimeout = null)
         {
-            Guard.NotEmpty(connectionString, nameof(connectionString));
+            Guard.NotEmpty(connectionString);
 
             var optionsBuilder = new DbContextOptionsBuilder<TContext>()
                 .UseSqlServer(connectionString, sql =>

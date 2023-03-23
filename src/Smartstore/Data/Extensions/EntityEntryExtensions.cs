@@ -165,10 +165,14 @@ namespace Smartstore
             var ctx = entry.Context;
 
             if (ctx.ChangeTracker.AutoDetectChangesEnabled && state == EfState.Modified)
+            {
                 return;
+            }
 
-            if ((ctx as HookingDbContext)?.IsInSaveOperation == true)
+            if (ctx is HookingDbContext { IsInSaveOperation: true })
+            {
                 return;
+            }  
 
             if (state == EfState.Unchanged || state == EfState.Modified)
             {

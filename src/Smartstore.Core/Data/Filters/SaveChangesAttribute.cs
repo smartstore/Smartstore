@@ -46,7 +46,7 @@ namespace Smartstore.Core.Data
                 }
 
                 var db = context.HttpContext.RequestServices.GetRequiredService(DbContextType) as DbContext;
-                if (db != null)
+                if (db != null && db.HasChanges())
                 {
                     await db.SaveChangesAsync();
                 }
