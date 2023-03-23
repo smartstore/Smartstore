@@ -52,8 +52,8 @@ namespace Smartstore.Admin.Models.Messages
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.DisplayName).NotEmpty();
             RuleFor(x => x.Host).NotEmpty();
-            RuleFor(x => x.Username).NotEmpty().When(x => !x.UseDefaultCredentials);
-            RuleFor(x => x.Password).NotEmpty().When(x => !x.UseDefaultCredentials);
+
+            // INFO: do not validate Username or Password. A server sometimes does not need them even if UseDefaultCredentials is disabled.
         }
     }
 }
