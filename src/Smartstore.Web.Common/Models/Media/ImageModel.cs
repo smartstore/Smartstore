@@ -97,7 +97,7 @@ namespace Smartstore.Web.Models.Media
         [JsonProperty("dimensions")]
         public Size PixelSize
         {
-            get => new(File?.Width ?? 0, File.Height ?? 0);
+            get => new(File?.Width ?? 0, File?.Height ?? 0);
         }
 
         public bool HasImage() => File != null || !NoFallback;
