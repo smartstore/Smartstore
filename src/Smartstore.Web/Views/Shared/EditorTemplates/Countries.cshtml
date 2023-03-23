@@ -106,15 +106,14 @@
         data-placeholder="@T("Address.SelectCountry").Value"
         class="edit-control"
         data-editor="select">
-    @if (IsNullable || modelType == typeof(int?) || placeholder.HasValue())
-    {
-        <option value="">@(placeholder ?? T("Common.Unspecified").Value)</option>
-    }
+
+    <option sm-if="IsNullable || modelType == typeof(int?) || placeholder.HasValue()" value="">@(placeholder ?? T("Common.Unspecified").Value)</option>
+    
     @foreach (var item in items)
     {
         <option value="@item.Value"
                 attr-selected='(item.Selected, "selected")'
-                data-imageurl="@Url.Content(flagsPath + item.TwoLetterIsoCode + ".png")">
+                data-imageurl="@Url.Content(flagsPath + item.TwoLetterIsoCode.ToLower() + ".png")">
             @item.Text
         </option>
     }
