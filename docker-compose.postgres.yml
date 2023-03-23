@@ -1,0 +1,26 @@
+version: "3.4"
+services:
+  web:
+    image: ghcr.io/smartstore/smartstore-linux
+    container_name: web
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+    volumes:
+      - "D:/mount/smtenants/postgres-db:/app/App_Data/Tenants"
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: super_admin
+      POSTGRES_PASSWORD: Smartstore2022!
+      PGDATA: /data/postgres
+    volumes:
+       - postgres-db:/data/postgres
+    ports:
+      - "5432:5432"
+
+
+volumes:
+  postgres-db:
+    driver: local
