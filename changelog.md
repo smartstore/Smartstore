@@ -4,31 +4,38 @@
 
 ### New Features
 
+- **PostgreSQL** database support
+- **SQLite** database support
 - **easyCredit** plugin (commercial)
-- **DependingPrices** plugin (commercial) Enables configuration of prices depending on customer groups, language, store or customer number.
+- **DependingPrices** plugin (commercial). Enables configuration of prices depending on customer groups, language, store or customer number.
 - Embedded Base64 image offloader: finds embedded images in long HTML descriptions, extracts and saves them to the media storage.
-- New app system settings: `UsePooledDbContextFactory`, `UseDbCache`, `UseSequentialDbDataReader`
 - New option for mail accounts to configure SMTP connection encryption.
+- New app system settings: `UsePooledDbContextFactory`, `UseDbCache`, `UseSequentialDbDataReader`
 
 ### Improvements
 
+- Memory management
+  - Fixed several memory leaks
+  - Disabled DbContext pooling (causes memory leaks)
+  - New sequential data reader (disabled by default) uses significantly less memory than the built-in reader. Should be enabled if HTML descriptions are extremely large (> 1 MB).
+  - More aggressive garbage collector
+  - App now uses significantly less memory under heavy load
 - Added price settings for discount requirements to be validated in product lists.
 - Faster loading of product lists that contain bundles with per-item pricing.
 - MegaSearch:
 	- A significant increase in search speed, especially when dealing with large amounts of data.
 	- Faster indexing.
 	- Word stemming configurable for all languages.
-- More aggressive garbage collector
 - Added `data-invariant` attribute to number input controls 
 - Closed #543 Google Category (GMC) always get lost when copying a product
 - Ajax request to external URLs do not add X-XSRF-Tokens anymore
 
 ### Bugfixes
 
-- Fixed a serious memory leak (`LocalizedValue` held references to `Language.LazyLoader` --> `DbContext`)
 - #557 If the state is optional for addresses, none should be preselected when creating them.
 - #608 Build DeleteGuestCustomers query with LINQ again.
 - Fixed ArgumentException "The source argument contains duplicate keys" in case of menus with duplicate system names.
+- Fixed SqlClient deadlock exception when resolving guest account by client identity.
 - MySQL: fixed migration failure when UTC_TIMESTAMP was used as default value for date columns.
 - High data payload: 
 	- Fixed InvalidOperationException "A second operation was started on this context instance before a previous operation completed" when opening category (and others) edit page.
