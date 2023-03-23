@@ -30,7 +30,7 @@ namespace Smartstore.Core.Packaging
                 var manifest = archive.GetEntry(PackagingUtility.ManifestFileName);
                 if (manifest == null)
                 {
-                    throw new Exception("Manifest file could not be extracted from zip archive.");
+                    throw new ArgumentException("Manifest file could not be extracted from zip archive.");
                 }
 
                 // TODO: (core) Throw typed message if deserialization fails, catch in controller and notify with localized message. 
