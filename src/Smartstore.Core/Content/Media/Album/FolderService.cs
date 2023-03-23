@@ -5,6 +5,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Media
 {
+    [Important(HookImportance.Essential)]
     public partial class FolderService : AsyncDbSaveHook<MediaFolder>, IFolderService
     {
         internal static TimeSpan FolderTreeCacheDuration = TimeSpan.FromHours(3);
@@ -24,12 +25,12 @@ namespace Smartstore.Core.Content.Media
 
         #region Invalidation Hook
 
-        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public override Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
             return Task.FromResult(HookResult.Ok);
         }
 
-        public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             return ClearCacheAsync();
         }
@@ -140,13 +141,13 @@ namespace Smartstore.Core.Content.Media
 
         public TreeNode<MediaFolderNode> GetNodeByPath(string path)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
             return GetRootNode().SelectNodeById(NormalizePath(path));
         }
 
         public bool CheckUniqueFolderName(string path, out string newName)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
 
             // TODO: (mm) (mc) throw when path is not a folder path
 
@@ -183,7 +184,17 @@ namespace Smartstore.Core.Content.Media
 
         protected internal static string NormalizePath(string path, bool forQuery = true)
         {
-            path = path.Replace('\\', '/').Trim('/');
+            if (path.IndexOf('\\') > -1)
+            {
+                path = path.Replace('\\', '/');
+            }
+
+            var trim = path[0] == '/' || (path.Length > 1 && path[^1] == '/');
+            if (trim)
+            {
+                path = path.Trim('/');
+            }
+
             return forQuery ? path.ToLower() : path;
         }
     }

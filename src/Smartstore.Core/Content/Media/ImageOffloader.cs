@@ -175,9 +175,15 @@ namespace Smartstore.Core.Content.Media
                     var filePath = PathUtility.Join(destinationFolder.Path, fileName);
                     var fileInfo = await _mediaService.SaveFileAsync(filePath, stream, false);
 
-                    result.OffloadedFiles.Add(fileInfo);
-
-                    fragment = fileInfo.Url;
+                    if (fileInfo?.File?.IsTransientRecord() == true)
+                    {
+                        fragment = match.Value;
+                    }
+                    else
+                    {
+                        result.OffloadedFiles.Add(fileInfo);
+                        fragment = fileInfo.Url;
+                    }
                 }
                 catch
                 {
