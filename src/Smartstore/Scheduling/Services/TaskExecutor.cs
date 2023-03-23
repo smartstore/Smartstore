@@ -58,8 +58,11 @@ namespace Smartstore.Scheduling
             ITask job = null;
             Type taskType = null;
             Exception exception = null;
-            bool faulted = false, canceled = false;
-            string lastError = null, stateName = null, normalizedTypeName = null;
+            bool faulted = false;
+            bool canceled = false;
+            string lastError = null;
+            string stateName = null; 
+            string normalizedTypeName = null;
 
             var executionInfo = _taskStore.CreateExecutionInfo(task);
 

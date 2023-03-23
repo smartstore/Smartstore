@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Humanizer;
 using Smartstore.Caching;
@@ -7,7 +8,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Localization
 {
-    public partial class LocalizationService : AsyncDbSaveHook<LocaleStringResource>, ILocalizationService
+    public partial class LocalizationService : AsyncDbSaveHook<LocaleStringResource>, ILocalizationService, IDisposable
     {
         /// <summary>
         /// 0 = language id
@@ -19,6 +20,7 @@ namespace Smartstore.Core.Localization
         const string HintSuffix = ".Hint";
 
         private static readonly ConcurrentDictionary<Type, string> _enumNames = new();
+        private static readonly ConcurrentDictionary<string, byte> _missingResKeys = new(StringComparer.OrdinalIgnoreCase);
 
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
@@ -26,12 +28,11 @@ namespace Smartstore.Core.Localization
         private readonly ILanguageService _languageService;
         private readonly bool _isMultiLanguageEnvironment;
 
-        private int _notFoundLogCount = 0;
-        private int? _masterLanguageId;
-
         // Scope cache
+        private int? _masterLanguageId;
         private Dictionary<string, string> _singleCacheSegment;
         private Dictionary<int, Dictionary<string, string>> _cacheSegments;
+        private readonly HashSet<(string Key, int LangId)> _missedKeysInScope = new();
 
         public LocalizationService(
             SmartDbContext db,
@@ -191,7 +192,7 @@ namespace Smartstore.Core.Localization
 
             if (logIfNotFound)
             {
-                LogNotFound(resourceKey, languageId);
+                HandleMissingResource(resourceKey, languageId);
             }
 
             if (!string.IsNullOrEmpty(defaultValue))
@@ -260,20 +261,6 @@ namespace Smartstore.Core.Localization
             return result;
         }
 
-        private void LogNotFound(string resourceKey, int languageId)
-        {
-            if (_notFoundLogCount < 50)
-            {
-                Logger.Warn("Resource string ({0}) does not exist. Language ID = {1}", resourceKey, languageId);
-            }
-            else if (_notFoundLogCount == 50)
-            {
-                Logger.Warn("Too many language resources do not exist (> 50). Stopped logging missing resources to prevent performance drop.");
-            }
-
-            _notFoundLogCount++;
-        }
-
         public virtual Task<LocaleStringResource> GetLocaleStringResourceByNameAsync(string resourceName)
         {
             if (_workContext.Value.WorkingLanguage != null)
@@ -325,5 +312,44 @@ namespace Smartstore.Core.Localization
         }
 
         #endregion
+
+        private void HandleMissingResource(string resourceKey, int languageId)
+        {
+            var missKey = resourceKey + '.' + languageId.ToStringInvariant();
+
+            if (_missingResKeys.ContainsKey(missKey))
+            {
+                // Has been logged already, don't warn again.
+                return;
+            }
+
+            _missingResKeys.TryAdd(missKey, 1);
+            _missedKeysInScope.Add((resourceKey, languageId));
+        }
+
+        [SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "<Pending>")]
+        void IDisposable.Dispose()
+        {
+            if (_missedKeysInScope.Count == 1)
+            {
+                var missedKey = _missedKeysInScope.First();
+                Logger.Warn("Resource string {0} does not exist. Language ID = {1}.", missedKey.Key, missedKey.LangId);
+            }
+            else if (_missedKeysInScope.Count > 1)
+            {
+                var title = $"{_missedKeysInScope.Count} resource strings are missing. See full message for details.";
+                var lines = _missedKeysInScope.Take(100).Select(x => $"{x.Key} (Language ID = {x.LangId})");
+                var fullMessage =
+                    "Missing resource strings (max. 100 items):" +
+                    Environment.NewLine +
+                    "------------------------------------------------------------------" +
+                    Environment.NewLine +
+                    string.Join(Environment.NewLine, lines);
+
+                Logger.Warn(new Exception(fullMessage), title);
+            }
+
+            _missedKeysInScope.Clear();
+        }
     }
 }

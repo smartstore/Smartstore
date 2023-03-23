@@ -93,7 +93,7 @@
         <Value>Microsoft SQL Server (Express)</Value>
     </LocaleResource>
     <LocaleResource Name="UseMySql">
-        <Value>MySql</Value>
+        <Value>MySQL</Value>
     </LocaleResource>
     <LocaleResource Name="UsePostgreSql">
         <Value>PostgreSQL</Value>
