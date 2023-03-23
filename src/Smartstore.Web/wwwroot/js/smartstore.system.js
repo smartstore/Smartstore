@@ -31,6 +31,10 @@
     if (Modernizr.touchevents) {
         window.document.documentElement.classList.remove("no-touchevents");
         window.document.documentElement.classList.add("touchevents");
+
+        if ((/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()))) {
+            window.document.documentElement.classList.add("mobile-device");
+        }
     }
 
     // #region String.prototype

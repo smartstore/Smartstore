@@ -222,8 +222,10 @@
             }
 
             if (Modernizr.touchevents && !sel.hasClass("skin") && !sel.data("select-url")) {
-                if (sel.find('option[data-color], option[data-imageurl]').length === 0) {
-                    // skip skinning if device is mobile and no rich content exists (color & image)
+                if (sel.find('option[data-color], option[data-imageurl]').length === 0
+                    || (sel.data("tags") && window.document.documentElement.classList.contains("mobile-device"))) {
+                    // Skip skinning if device is mobile and no rich content exists (color & image)
+                    // or if device is mobile and no data tags exist.
                     return;
                 }
             }
