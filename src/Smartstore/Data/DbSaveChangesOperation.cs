@@ -21,12 +21,24 @@ namespace Smartstore.Data
 
         private IEnumerable<EntityEntry> _changedEntries;
         private HookingDbContext _ctx;
+
         private readonly IDbCache _dbCache;
+        private readonly bool _isNestedOperation;
+        private readonly HookImportance _minHookImportance;
 
         public DbSaveChangesOperation(HookingDbContext ctx)
         {
             _ctx = ctx;
             _dbCache = ((IInfrastructure<IServiceProvider>)ctx).Instance.GetService<IDbCache>();
+            _minHookImportance = _ctx.MinHookImportance;
+        }
+
+        public DbSaveChangesOperation(DbSaveChangesOperation parent)
+        {
+            _ctx = parent._ctx;
+            _dbCache = parent._dbCache;
+            _isNestedOperation = true;
+            _minHookImportance = HookImportance.Essential;
         }
 
         public DbSaveStage Stage { get; private set; }
@@ -35,7 +47,7 @@ namespace Smartstore.Data
 
         public int Execute(bool acceptAllChangesOnSuccess)
         {
-            return ExecuteInternal(acceptAllChangesOnSuccess, false).Await();
+            return ExecuteInternal(acceptAllChangesOnSuccess, false).GetAwaiter().GetResult();
         }
 
         public Task<int> ExecuteAsync(bool acceptAllChangesOnSuccess, CancellationToken cancelToken)
@@ -51,9 +63,14 @@ namespace Smartstore.Data
             {
                 try
                 {
-                    return async
-                        ? await _ctx.SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancelToken)
-                        : _ctx.SaveChangesCore(acceptAllChangesOnSuccess);
+                    if (async)
+                    {
+                        return await _ctx.SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancelToken);
+                    }
+                    else
+                    {
+                        return _ctx.SaveChangesCore(acceptAllChangesOnSuccess);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -74,7 +91,9 @@ namespace Smartstore.Data
                 // we need to ignore merge on them. Otherwise
                 // EF's change detection may think that properties has changed
                 // where they actually didn't.
-                var mergeableEntities = _ctx.ChangeTracker.GetMergeableEntities().ToArray();
+                var mergeableEntities = !_isNestedOperation 
+                    ? _ctx.ChangeTracker.GetMergeableEntities().ToArray() 
+                    : Array.Empty<IMergedData>();
 
                 // Now ignore merged data, otherwise merged data will be saved to database
                 IgnoreMergedData(mergeableEntities, true);
@@ -94,6 +113,11 @@ namespace Smartstore.Data
 
                 async ValueTask EndExecute()
                 {
+                    if (_isNestedOperation)
+                    {
+                        return;
+                    }
+                    
                     try
                     {
                         // Post
@@ -131,7 +155,7 @@ namespace Smartstore.Data
                     .ToArray();
 
                 // Regardless of validation (possible fixing validation errors too)
-                result = await _ctx.DbHookHandler.SavingChangesAsync(entries, _ctx.MinHookImportance, cancelToken);
+                result = await _ctx.DbHookHandler.SavingChangesAsync(entries, _minHookImportance, cancelToken);
 
                 if (result.ProcessedHooks.Any() && entries.Any(x => x.State == EntityState.Modified))
                 {
@@ -166,7 +190,7 @@ namespace Smartstore.Data
             // EfCache invalidation
             _dbCache?.Invalidate(changedHookEntries.Select(x => x.EntityType).ToArray());
 
-            return await _ctx.DbHookHandler.SavedChangesAsync(changedHookEntries, _ctx.MinHookImportance, cancelToken);
+            return await _ctx.DbHookHandler.SavedChangesAsync(changedHookEntries, _minHookImportance, cancelToken);
         }
 
         private IEnumerable<EntityEntry> GetChangedEntries()

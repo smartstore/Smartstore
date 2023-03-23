@@ -33,7 +33,7 @@ namespace Smartstore.Data
                 v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
 
         private DbContextLease? _lease;
-        private DbSaveChangesOperation _currentSaveOperation;
+        private readonly Stack<DbSaveChangesOperation> _saveOperations = new(2);
         private DataProvider _dataProvider;
         private IDbHookHandler _hookHandler;
 
@@ -142,7 +142,11 @@ namespace Smartstore.Data
 
         private void ResetState()
         {
-            _currentSaveOperation = null;
+            while (_saveOperations.TryPop(out var op))
+            {
+                op.Dispose();
+            }
+
             _hookHandler = null;
 
             if (_dataProvider != null)
@@ -215,58 +219,19 @@ namespace Smartstore.Data
             set => _hookHandler = value;
         }
 
-        protected internal bool IsInSaveOperation => _currentSaveOperation != null;
+        protected internal bool IsInSaveOperation => _saveOperations.Count > 0;
 
         /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
-        {
-            if (SuppressCommit)
-            {
-                DeferCommit = true;
-                return 0;
-            }
-            else
-            {
-                DeferCommit = false;
-            }
-
-            var op = _currentSaveOperation;
-
-            if (op != null)
-            {
-                if (op.Stage == DbSaveStage.PreSave)
-                {
-                    // This was called from within a PRE action hook. We must get out:... 
-                    // 1.) to prevent cyclic calls
-                    // 2.) we want new entities in the state tracker (added by pre hooks) to be committed atomically in the core SaveChanges() call later on.
-                    return 0;
-                }
-                else if (op.Stage == DbSaveStage.PostSave)
-                {
-                    // This was called from within a POST action hook. Core SaveChanges() has already been called,
-                    // but new entities could have been added to the state tracker by hooks.
-                    // Therefore we need to commit them and get outta here, otherwise: cyclic nightmare!
-                    // DetectChanges() here is important, 'cause we turned it off for the save process.
-                    ChangeTracker.DetectChanges();
-                    return SaveChangesCore(acceptAllChangesOnSuccess);
-                }
-            }
-
-            _currentSaveOperation = new DbSaveChangesOperation(this);
-
-            try
-            {
-                return _currentSaveOperation.Execute(acceptAllChangesOnSuccess);
-            }
-            finally
-            {
-                _currentSaveOperation?.Dispose();
-                _currentSaveOperation = null;
-            }
-        }
+            => SaveChangesInternal(acceptAllChangesOnSuccess, false).GetAwaiter().GetResult();
 
         /// <inheritdoc/>
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+            => SaveChangesInternal(acceptAllChangesOnSuccess, true, cancellationToken);
+
+        private async Task<int> SaveChangesInternal(bool acceptAllChangesOnSuccess, bool async, CancellationToken cancelToken = default)
         {
             if (SuppressCommit)
             {
@@ -278,38 +243,48 @@ namespace Smartstore.Data
                 DeferCommit = false;
             }
 
-            var op = _currentSaveOperation;
+            _saveOperations.TryPeek(out var currentSaveOperation);
 
-            if (op != null)
+            if (currentSaveOperation == null)
             {
-                if (op.Stage == DbSaveStage.PreSave)
+                // No operation currently running. Create a new operation.
+                currentSaveOperation = new DbSaveChangesOperation(this);
+            }
+            else
+            {
+                if (currentSaveOperation.Stage == DbSaveStage.PreSave)
                 {
                     // This was called from within a PRE action hook. We must get out:... 
                     // 1.) to prevent cyclic calls
                     // 2.) we want new entities in the state tracker (added by pre hooks) to be committed atomically in the core SaveChanges() call later on.
                     return 0;
                 }
-                else if (op.Stage == DbSaveStage.PostSave)
+                else if (currentSaveOperation.Stage == DbSaveStage.PostSave)
                 {
                     // This was called from within a POST action hook. Core SaveChanges() has already been called,
                     // but new entities could have been added to the state tracker by hooks.
-                    // Therefore we need to commit them and get outta here, otherwise: cyclic nightmare!
-                    // DetectChanges() here is important, 'cause we turned it off for the save process.
-                    base.ChangeTracker.DetectChanges();
-                    return await SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancellationToken);
+                    // Therefore we allow a new nested save operation where only ESSENTIAL PRE hooks may run.
+                    currentSaveOperation = new DbSaveChangesOperation(currentSaveOperation);
                 }
             }
 
-            _currentSaveOperation = new DbSaveChangesOperation(this);
+            _saveOperations.Push(currentSaveOperation);
 
             try
             {
-                return await _currentSaveOperation.ExecuteAsync(acceptAllChangesOnSuccess, cancellationToken);
+                if (async)
+                {
+                    return await currentSaveOperation.ExecuteAsync(acceptAllChangesOnSuccess, cancelToken);
+                }
+                else
+                {
+                    return currentSaveOperation.Execute(acceptAllChangesOnSuccess);
+                }
             }
             finally
             {
-                _currentSaveOperation?.Dispose();
-                _currentSaveOperation = null;
+                _saveOperations.TryPop(out currentSaveOperation);
+                currentSaveOperation.Dispose();
             }
         }
 
