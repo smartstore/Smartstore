@@ -214,6 +214,15 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public QuantizationMethod GifQuantizationMethod { get; set; } = QuantizationMethod.Octree;
 
+        /// <summary>
+        /// Finds embedded Base64 images in long HTML descriptions, extracts and saves them
+        /// to the media storage, and replaces the Base64 fragment with the media path.
+        /// Offloading is automatically triggered by saving an entity to the database.
+        /// Currently supported entity types are: 
+        /// <c>Product</c>, <c>Category</c>, <c>Manufacturer</c> and <c>Topic</c>.
+        /// </summary>
+        public bool OffloadEmbeddedImagesOnSave { get; set; } = true;
+
         #endregion
 
         #region Response Caching

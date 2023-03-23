@@ -12,12 +12,17 @@ namespace Smartstore.Core.Content.Media.Hooks
     {
         private readonly Lazy<IImageOffloder> _imageOffloader;
         private readonly Lazy<SmartDbContext> _db;
+        private readonly MediaSettings _mediaSettings;
         private readonly HashSet<BaseEntity> _toProcess = new();
 
-        public ImageOffloaderHook(Lazy<IImageOffloder> imageOffloader, Lazy<SmartDbContext> db)
+        public ImageOffloaderHook(
+            Lazy<IImageOffloder> imageOffloader, 
+            Lazy<SmartDbContext> db, 
+            MediaSettings mediaSettings)
         {
             _imageOffloader = imageOffloader;
             _db = db;
+            _mediaSettings = mediaSettings;
         }
 
         private static bool IsValidEntry(IHookedEntity entry)
@@ -36,6 +41,11 @@ namespace Smartstore.Core.Content.Media.Hooks
             if (!IsValidEntry(entry))
             {
                 return Task.FromResult(HookResult.Void);
+            }
+
+            if (!_mediaSettings.OffloadEmbeddedImagesOnSave)
+            {
+                return Task.FromResult(HookResult.Ok);
             }
 
             if (entry.InitialState == EntityState.Added)
@@ -57,7 +67,9 @@ namespace Smartstore.Core.Content.Media.Hooks
         }
 
         public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(IsValidEntry(entry) ? HookResult.Ok : HookResult.Void);
+            => Task.FromResult(IsValidEntry(entry) 
+                    ? HookResult.Ok 
+                    : HookResult.Void);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {

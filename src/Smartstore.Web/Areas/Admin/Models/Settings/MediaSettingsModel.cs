@@ -123,6 +123,9 @@ namespace Smartstore.Admin.Models
 
         public QuantizationMethod GifQuantizationMethod { get; set; }
 
+        [LocalizedDisplay("*OffloadEmbeddedImagesOnSave")]
+        public bool OffloadEmbeddedImagesOnSave { get; set; }
+
         #endregion
 
         #region Response Caching

@@ -6,8 +6,9 @@
 
 - **easyCredit** plugin (commercial)
 - **DependingPrices** plugin (commercial) Enables configuration of prices depending on customer groups, language, store or customer number.
+- Embedded Base64 image offloader: finds embedded images in long HTML descriptions, extracts and saves them to the media storage.
 - New app system settings: `UsePooledDbContextFactory`, `UseDbCache`, `UseSequentialDbDataReader`
-- New option for e-mail accounts to configure SMTP connection encryption.
+- New option for mail accounts to configure SMTP connection encryption.
 
 ### Improvements
 
