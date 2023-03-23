@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Net.Http.Headers;
+//using Polly;
+//using Polly.RateLimit;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Security;
 using Smartstore.Events;
@@ -22,6 +24,12 @@ namespace Smartstore.Core.Content.Media
     {
         const string IdToken = "id";
         const string PathToken = "path";
+
+        //private readonly RateLimitPolicy<TimeSpan> _logThrottle = Policy
+        //    .RateLimit(10, TimeSpan.FromSeconds(10), (retryAfter, context) =>
+        //    {
+        //        return retryAfter.Add(TimeSpan.FromMinutes(30));
+        //    });
 
         private readonly RequestDelegate _next;
         private readonly IApplicationContext _appContext;
@@ -199,6 +207,16 @@ namespace Smartstore.Core.Content.Media
                 // all the other stuff like ActionDescriptor or ModelState (which we cannot access or create from a middleware anyway).
                 await fileResult.ExecuteResultAsync(new ActionContext { HttpContext = context, RouteData = context.GetRouteData() });
             }
+            //catch (MediaFileNotFoundException ex)
+            //{
+            //    // Log
+            //    _logThrottle.Execute(x => 
+            //    { 
+            //        logger.Error(ex);
+            //    });
+
+            //    await NotFound(pathData.MimeType);
+            //}
             finally
             {
                 var imageProcessor = context.RequestServices.GetRequiredService<IImageProcessor>();
