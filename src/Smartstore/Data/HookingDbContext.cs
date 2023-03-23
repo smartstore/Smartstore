@@ -284,7 +284,7 @@ namespace Smartstore.Data
             finally
             {
                 _saveOperations.TryPop(out currentSaveOperation);
-                currentSaveOperation.Dispose();
+                currentSaveOperation?.Dispose();
             }
         }
 

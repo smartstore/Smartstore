@@ -11,6 +11,7 @@
 - Embedded Base64 image offloader: finds embedded images in long HTML descriptions, extracts and saves them to the media storage.
 - New option for mail accounts to configure SMTP connection encryption.
 - New app system settings: `UsePooledDbContextFactory`, `UseDbCache`, `UseSequentialDbDataReader`
+- Database table statistics in System / System Info (row count, total space, used space)
 
 ### Improvements
 
