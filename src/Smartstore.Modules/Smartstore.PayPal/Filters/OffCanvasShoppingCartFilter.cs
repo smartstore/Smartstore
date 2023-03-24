@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Components;
 using Smartstore.PayPal.Services;

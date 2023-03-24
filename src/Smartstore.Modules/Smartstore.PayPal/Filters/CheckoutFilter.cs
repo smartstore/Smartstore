@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
-using Smartstore.Core.Logging;
 using Smartstore.Core.Widgets;
-using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Components;
 using Smartstore.PayPal.Services;
 using Smartstore.Web.Models.Checkout;

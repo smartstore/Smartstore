@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.OutputCache;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Engine.Modularity;
 using Smartstore.Net.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Filters;

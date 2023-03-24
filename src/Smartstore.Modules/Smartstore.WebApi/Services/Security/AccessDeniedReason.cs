@@ -1,5 +1,5 @@
 ﻿namespace Smartstore.Web.Api.Security
-{   
+{
     /// <summary>
     /// Represents the reason for denying an API request.
     /// </summary>

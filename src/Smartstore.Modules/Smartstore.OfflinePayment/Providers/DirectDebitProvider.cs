@@ -1,5 +1,4 @@
-﻿using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;

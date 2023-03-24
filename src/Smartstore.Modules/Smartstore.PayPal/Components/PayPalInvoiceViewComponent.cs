@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common;
-using Smartstore.PayPal.Services;
 using Smartstore.Web.Components;
 
 namespace Smartstore.PayPal.Components

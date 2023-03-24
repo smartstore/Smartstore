@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace Smartstore.Web.Api.Models.Media
+﻿namespace Smartstore.Web.Api.Models.Media
 {
     /// <summary>
     /// Represents a media file.

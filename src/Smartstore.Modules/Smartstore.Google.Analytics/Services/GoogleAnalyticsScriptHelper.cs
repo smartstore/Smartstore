@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
-using Parlot.Fluent;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;

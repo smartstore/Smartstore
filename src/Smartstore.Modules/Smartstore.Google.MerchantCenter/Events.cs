@@ -6,7 +6,6 @@ using Smartstore.Events;
 using Smartstore.Google.MerchantCenter.Domain;
 using Smartstore.Google.MerchantCenter.Models;
 using Smartstore.Web.Rendering.Events;
-using static Smartstore.Core.Security.Permissions.Catalog;
 
 namespace Smartstore.Google.MerchantCenter
 {
