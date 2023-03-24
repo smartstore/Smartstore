@@ -15,7 +15,6 @@ global using Smartstore.Core.Data;
 global using Smartstore.Core.Widgets;
 global using Smartstore.Domain;
 global using Smartstore.Engine;
-global using EntityState = Smartstore.Data.EntityState;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Autofac;

@@ -1,5 +1,4 @@
-﻿using FluentValidation.Validators;
-using Microsoft.AspNetCore.Mvc.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Smartstore.Web.Modelling.Validation

@@ -14,7 +14,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Core.Seo.Routing;
 using Smartstore.IO;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
