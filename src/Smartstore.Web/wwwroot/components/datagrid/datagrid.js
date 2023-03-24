@@ -272,6 +272,7 @@ Vue.component("sm-datagrid", {
             selectedRows: {},
             detailRows: {},
             originalState: {},
+            originalDefaultRow: {},
             isBusy: false,
             ready: false,
             isScrollable: false,
@@ -390,6 +391,8 @@ Vue.component("sm-datagrid", {
 
         // Load user prefs
         this.originalState = this.getGridState();
+        this.originalDefaultRow = JSON.parse(JSON.stringify(this.options.defaultDataRow));
+
         if (this.options.preserveState) {
             const userPrefs = JSON.parse(localStorage.getItem('sm:grid:state:' + this.options.stateKey));
             this.userPrefs = userPrefs?.version === this.options.version ? userPrefs : null;
@@ -467,7 +470,7 @@ Vue.component("sm-datagrid", {
         this.hasFooterTemplate = this.columns.some(c => this.$scopedSlots["colfooter-" + c.member.toLowerCase()]);
         this.hasRowCommands = !!(this.$scopedSlots.rowcommands);
         this.hasDetailView = !!(this.$scopedSlots.detailview);
-
+        
         //this.destroyRowValidator();
 
         // Read data from server. Process initial read after a short delay, 
@@ -1196,8 +1199,8 @@ Vue.component("sm-datagrid", {
             this.cancelEdit();
 
             let row = this.options.defaultDataRow || {};
-            this.rows.splice(0, 0, row);
 
+            this.rows.splice(0, 0, row);
             this.editing.grid = this;
             this.editing.active = true;
             this.editing.insertMode = true;
@@ -1400,7 +1403,7 @@ Vue.component("sm-datagrid", {
                         self.$emit("saved-changes", editing.row);
                         self.read(true);
                         self.cancelEdit();
-                        self.options.defaultDataRow = {};
+                        self.options.defaultDataRow = JSON.parse(JSON.stringify(self.originalDefaultRow));
                     }
                     else {
                         self.isBusy = false;
