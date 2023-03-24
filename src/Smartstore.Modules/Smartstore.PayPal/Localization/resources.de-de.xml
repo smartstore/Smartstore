@@ -285,7 +285,7 @@
                 <Value>Mit diesem Account können keine Zahlungen empfangen werden. Bitte kontaktieren Sie PayPal.</Value>
             </LocaleResource>
             <LocaleResource Name="Error.PrimaryEmailConfirmed">
-                <Value>Die Email Adresse dieses Accounts wurde noch nicht bestätigt. Bitte kontaktieren Sie PayPal oder prüfen Sie Ihre Email-Postfach.</Value>
+                <Value>Die E-Mail Adresse dieses Accounts wurde noch nicht bestätigt. Bitte kontaktieren Sie PayPal oder prüfen Sie Ihre E-Mail-Postfach.</Value>
             </LocaleResource>
             <LocaleResource Name="HasCredentials.True">
                 <Value>Die Zugangsdaten wurden hinterlegt.</Value>
@@ -294,10 +294,10 @@
                 <Value>Die Zugangsdaten wurden nicht hinterlegt.</Value>
             </LocaleResource>
             <LocaleResource Name="PrimaryEmailConfirmed.True">
-                <Value>Die bei PayPal hinterlegte primäre Emailadresse ist bestätigt.</Value>
+                <Value>Die bei PayPal hinterlegte primäre E-Mail-Adresse ist bestätigt.</Value>
             </LocaleResource>
             <LocaleResource Name="PrimaryEmailConfirmed.False">
-                <Value>Die bei PayPal hinterlegte primäre Emailadresse wurde noch nicht bestätigt.</Value>
+                <Value>Die bei PayPal hinterlegte primäre E-Mail-Adresse wurde noch nicht bestätigt.</Value>
             </LocaleResource>
             <LocaleResource Name="PaymentsReceivable.True">
                 <Value>Mit dem hinterlegten Account können Zahlungen empfangen werden.</Value>
