@@ -1,12 +1,12 @@
-﻿using SixLabors.ImageSharp.Drawing.Processing;
+﻿using System.Numerics;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Smartstore.Imaging.Adapters.ImageSharp;
 using SharpColor = SixLabors.ImageSharp.Color;
 using SharpImageFormat = SixLabors.ImageSharp.Formats.IImageFormat;
-using System.Numerics;
-using SixLabors.ImageSharp;
-using SixLabors.Fonts;
 
 namespace Smartstore.Imaging.Barcodes.Impl
 {

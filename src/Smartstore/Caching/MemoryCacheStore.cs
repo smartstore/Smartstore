@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -10,7 +7,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
-using Smartstore.Data;
 using Smartstore.Domain;
 using Smartstore.Events;
 using Smartstore.Threading;

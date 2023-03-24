@@ -1,7 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Data.Common;
-using System.Diagnostics;
-using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
