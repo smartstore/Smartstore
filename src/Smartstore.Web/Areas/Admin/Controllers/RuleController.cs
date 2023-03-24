@@ -174,7 +174,6 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(int id /* ruleSetId */)
         {
             var ruleSet = await _db.RuleSets
-                .AsNoTracking()
                 .Include(x => x.Rules)
                 .FindByIdAsync(id);
 
