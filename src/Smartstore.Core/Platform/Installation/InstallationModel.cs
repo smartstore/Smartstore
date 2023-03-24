@@ -67,12 +67,24 @@ namespace Smartstore.Core.Installation
             RuleFor(x => x.DataProvider).NotEmpty();
             RuleFor(x => x.PrimaryLanguage).NotEmpty();
 
-            RuleFor(x => x.DbRawConnectionString).NotEmpty().When(x => x.UseRawConnectionString).WithMessage(Res("DbRawConnectionStringRequired"));
-            RuleFor(x => x.DbServer).NotEmpty().When(x => !x.UseRawConnectionString).WithMessage(Res("DbServerRequired"));
-            RuleFor(x => x.DbName).NotEmpty().When(x => !x.UseRawConnectionString).WithMessage(Res("DbNameRequired"));
+            RuleFor(x => x.DbRawConnectionString)
+                .NotEmpty()
+                .When(x => x.UseRawConnectionString)
+                .WithMessage(Res("DbRawConnectionStringRequired"));
 
-            RuleFor(x => x.DbUserId).NotEmpty()
-                .When(x => !x.UseRawConnectionString && x.DbAuthType != "windows")
+            RuleFor(x => x.DbServer)
+                .NotEmpty()
+                .Unless(x => x.UseRawConnectionString || x.DataProvider == "sqlite")
+                .WithMessage(Res("DbServerRequired"));
+
+            RuleFor(x => x.DbName)
+                .NotEmpty()
+                .Unless(x => x.UseRawConnectionString)
+                .WithMessage(Res("DbNameRequired"));
+
+            RuleFor(x => x.DbUserId)
+                .NotEmpty()
+                .Unless(x => x.UseRawConnectionString || x.DataProvider == "sqlite" || (x.DataProvider == "sqlserver" && x.DbAuthType == "windows"))
                 .WithMessage(Res("DbUserIdRequired"));
 
             string Res(string key)
