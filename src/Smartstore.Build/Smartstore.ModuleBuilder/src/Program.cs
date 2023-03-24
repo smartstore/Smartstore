@@ -18,7 +18,7 @@ namespace Smartstore.ModuleBuilder
             {
                 var arrOption = arg.Trim().Split('=', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 var argName = arrOption[0];
-                var argValue = arrOption.Length > 1 ? arrOption[1] : string.Empty;
+                var argValue = arrOption.Length > 1 ? arrOption[1].Trim('\'', '"') : string.Empty;
 
                 switch (argName.ToLower())
                 {

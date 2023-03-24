@@ -12,6 +12,6 @@
     	Resolves private module references (packages) and copies them to the output directory.
     	Also deletes unnecessary files and folders from output.
     -->  
-    <Exec Command="dotnet Smartstore.ModuleBuilder.dll OutPath='$(OutPath)' ProjectPath='$(ProjectPath)'" />
+    <Exec Command="dotnet Smartstore.ModuleBuilder.dll &quot;OutPath=$(OutPath)&quot; &quot;ProjectPath=$(ProjectPath)&quot;" />
   </Target>      
 </Project>
