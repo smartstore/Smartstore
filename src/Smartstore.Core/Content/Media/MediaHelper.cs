@@ -9,12 +9,34 @@
 
         public static string NormalizeFileName(string fileName)
         {
-            return string.Join('-', fileName.ToSafe().Split(_invalidFileNameChars));
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return string.Empty;
+            }
+
+            if (fileName.IndexOfAny(_invalidFileNameChars) > -1)
+            {
+                // Don't allocate if not necessary
+                return string.Join('-', fileName.Split(_invalidFileNameChars));
+            }
+            
+            return fileName;
         }
 
         public static string NormalizeFolderName(string folderName)
         {
-            return string.Join('-', folderName.ToSafe().Split(_invalidFolderNameChars));
+            if (string.IsNullOrEmpty(folderName))
+            {
+                return string.Empty;
+            }
+
+            if (folderName.IndexOfAny(_invalidFolderNameChars) > -1)
+            {
+                // Don't allocate if not necessary
+                return string.Join('-', folderName.Split(_invalidFolderNameChars));
+            }
+
+            return folderName;
         }
 
         #endregion

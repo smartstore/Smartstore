@@ -12,8 +12,8 @@ namespace Smartstore.Core.Content.Media
 
         public MediaPathData(TreeNode<MediaFolderNode> node, string fileName, bool normalizeFileName = false)
         {
-            Guard.NotNull(node, nameof(node));
-            Guard.NotEmpty(fileName, nameof(fileName));
+            Guard.NotNull(node);
+            Guard.NotEmpty(fileName);
 
             Node = node;
             _name = normalizeFileName
@@ -23,7 +23,7 @@ namespace Smartstore.Core.Content.Media
 
         public MediaPathData(string path, bool normalizeFileName = false)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
 
             _name = normalizeFileName
                 ? MediaHelper.NormalizeFileName(Path.GetFileName(path)).UrlDecode()
@@ -47,7 +47,7 @@ namespace Smartstore.Core.Content.Media
             get => _name;
             set
             {
-                Guard.NotEmpty(value, nameof(value));
+                Guard.NotEmpty(value);
 
                 _name = value;
                 _title = null;
@@ -56,13 +56,13 @@ namespace Smartstore.Core.Content.Media
             }
         }
 
-        public string FullPath => Folder.Path + "/" + _name;
+        public string FullPath => Folder.Path + '/' + _name;
 
         public string FileTitle => _title ??= Path.GetFileNameWithoutExtension(_name);
 
         public string Extension
         {
-            get => _ext ?? (_ext = Path.GetExtension(_name).EmptyNull().TrimStart('.'));
+            get => _ext ??= Path.GetExtension(_name).EmptyNull().TrimStart('.');
             set => _ext = value?.TrimStart('.');
         }
 
