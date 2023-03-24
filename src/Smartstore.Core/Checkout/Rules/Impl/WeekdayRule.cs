@@ -8,13 +8,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
     {
         public static RuleValueSelectListOption[] GetDefaultValues(Language language)
         {
-            CultureInfo cultureInfo = null;
-
-            try
-            {
-                cultureInfo = CultureInfo.GetCultureInfo(language.LanguageCulture);
-            }
-            catch { }
+            CultureHelper.TryGetCultureInfoForLocale(language.LanguageCulture, out var cultureInfo);
 
             var dtif = cultureInfo?.DateTimeFormat ?? DateTimeFormatInfo.InvariantInfo;
 
@@ -29,7 +23,6 @@ namespace Smartstore.Core.Checkout.Rules.Impl
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
             var match = expression.HasListMatch((int)DateTime.Now.DayOfWeek);
-
             return Task.FromResult(match);
         }
     }

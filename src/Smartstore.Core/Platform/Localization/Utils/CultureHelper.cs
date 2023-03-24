@@ -63,7 +63,7 @@ namespace Smartstore.Core.Localization
 
             try
             {
-                culture = CultureInfo.GetCultureInfoByIetfLanguageTag(locale);
+                culture = CultureInfo.GetCultureInfo(locale);
                 return culture != null;
             }
             catch

@@ -10,16 +10,15 @@ namespace Smartstore.Core.Checkout.Rules
         /// <param name="expression">Rule expression.</param>
         /// <param name="value">Value.</param>
         /// <param name="comparer">Equality comparer.</param>
-        /// <returns><c>true</c> value matches a list, otherwise <c>false</c>.</returns>
+        /// <returns><c>true</c> if value matches a list, otherwise <c>false</c>.</returns>
         public static bool HasListMatch<T>(this RuleExpression expression, T value, IEqualityComparer<T> comparer = null)
         {
-            var right = expression.Value as List<T>;
-            if (!(right?.Any() ?? false))
+            if (expression.Value is not List<T> right || right.Count == 0)
             {
                 return true;
             }
 
-            if (object.Equals(value, default(T)))
+            if (Equals(value, default(T)))
             {
                 return false;
             }
@@ -44,19 +43,29 @@ namespace Smartstore.Core.Checkout.Rules
         /// <returns><c>true</c> values matches a list, otherwise <c>false</c>.</returns>
         public static bool HasListsMatch<T>(this RuleExpression expression, IEnumerable<T> values, IEqualityComparer<T> comparer = null)
         {
-            var right = expression.Value as List<T>;
-            if (!(right?.Any() ?? false))
+            if (expression.Value is not List<T> right || right.Count == 0)
             {
                 return true;
             }
 
-            if (expression.Operator == RuleOperator.IsEqualTo)
+            if (expression.Operator == RuleOperator.IsEqualTo || expression.Operator == RuleOperator.IsNotEqualTo)
             {
-                return !right.Except(values, comparer).Any();
-            }
-            else if (expression.Operator == RuleOperator.IsNotEqualTo)
-            {
-                return right.Except(values, comparer).Any();
+                if (values.TryGetNonEnumeratedCount(out var leftCount))
+                {
+                    leftCount = values.Count();
+                }
+
+                var shouldEqual = expression.Operator == RuleOperator.IsEqualTo;
+                if (leftCount != right.Count)
+                {
+                    return !shouldEqual;
+                }
+
+                var leftOrdered = values.Order();
+                var rightOrdered = right.Order();
+                var sequenceEqual = leftOrdered.SequenceEqual(rightOrdered, comparer);
+
+                return shouldEqual ? sequenceEqual : !sequenceEqual;
             }
             else if (expression.Operator == RuleOperator.Contains)
             {

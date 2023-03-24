@@ -11,16 +11,13 @@ namespace Smartstore.Core.Content.Media
     {
         const string _fallbackImagesRootPath = "images/";
 
-        private readonly IMediaStorageConfiguration _storageConfig;
         private readonly MediaSettings _mediaSettings;
-
         private readonly string _host;
         private readonly string _pathBase;
         private readonly string _fallbackImageFileName;
         private readonly string _processedImagesRootPath;
 
         public MediaUrlGenerator(
-            IApplicationContext appContext,
             IMediaStorageConfiguration storageConfig,
             ISettingService settingService,
             MediaSettings mediaSettings,
@@ -28,8 +25,6 @@ namespace Smartstore.Core.Content.Media
             IHttpContextAccessor httpContextAccessor)
         {
             _mediaSettings = mediaSettings;
-
-            _storageConfig = storageConfig;
             _processedImagesRootPath = storageConfig.PublicPath;
 
             var httpContext = httpContextAccessor.HttpContext;

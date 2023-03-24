@@ -93,7 +93,7 @@ namespace Smartstore.Core.Checkout.Rules
 
         public async Task<bool> RuleMatchesAsync(int[] ruleSetIds, LogicalRuleOperator logicalOperator)
         {
-            Guard.NotNull(ruleSetIds, nameof(ruleSetIds));
+            Guard.NotNull(ruleSetIds);
 
             if (ruleSetIds.Length == 0)
             {
@@ -111,7 +111,7 @@ namespace Smartstore.Core.Checkout.Rules
 
         public async Task<bool> RuleMatchesAsync(IRulesContainer entity, LogicalRuleOperator logicalOperator = LogicalRuleOperator.Or)
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             var ruleSets = entity.RuleSets.Where(x => x.Scope == RuleScope.Cart).ToArray();
             if (!ruleSets.Any())
@@ -130,7 +130,7 @@ namespace Smartstore.Core.Checkout.Rules
 
         public async Task<bool> RuleMatchesAsync(RuleExpression[] expressions, LogicalRuleOperator logicalOperator)
         {
-            Guard.NotNull(expressions, nameof(expressions));
+            Guard.NotNull(expressions);
 
             if (expressions.Length == 0)
             {
