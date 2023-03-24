@@ -121,7 +121,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Added", "Price label was successfully added.", "Das Preis Label wurde erfolgreich zugefügt.");
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Updated", "Price label was successfully updated.", "Das Preis Label wurde erfolgreich aktualisiert.");
             
-            // TODO: (mh) (core) Check all of these again.
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.Name",
                 "Name",
                 "Name",
