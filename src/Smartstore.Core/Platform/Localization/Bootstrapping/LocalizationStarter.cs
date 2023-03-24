@@ -1,6 +1,4 @@
 ﻿using Autofac;
-using Microsoft.AspNetCore.Builder;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Engine.Builders;
 

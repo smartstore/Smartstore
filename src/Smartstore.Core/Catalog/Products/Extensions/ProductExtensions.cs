@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Products

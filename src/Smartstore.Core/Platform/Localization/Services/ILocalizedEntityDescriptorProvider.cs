@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Autofac;
+﻿using Autofac;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Localization

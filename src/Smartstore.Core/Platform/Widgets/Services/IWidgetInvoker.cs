@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using Autofac.Core;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;

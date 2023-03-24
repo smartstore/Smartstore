@@ -6,7 +6,6 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Collections;
 using Smartstore.Core.Stores;
-using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Web

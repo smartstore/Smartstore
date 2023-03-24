@@ -3,7 +3,6 @@ using Autofac;
 using Autofac.Core;
 using Autofac.Core.Activators.Reflection;
 using Autofac.Core.Registration;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Logging;
 using Smartstore.Data;
 

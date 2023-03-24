@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Data;

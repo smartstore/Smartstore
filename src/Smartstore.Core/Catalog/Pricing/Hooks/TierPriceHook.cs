@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Pricing

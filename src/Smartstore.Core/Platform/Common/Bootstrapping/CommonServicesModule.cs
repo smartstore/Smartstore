@@ -1,10 +1,9 @@
 ﻿using System.Reflection;
-using Autofac.Core.Registration;
-using Autofac.Core;
 using Autofac;
-using Smartstore.ComponentModel;
-using Smartstore.Data;
+using Autofac.Core;
+using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
+using Smartstore.Data;
 
 namespace Smartstore.Core.Bootstrapping
 {

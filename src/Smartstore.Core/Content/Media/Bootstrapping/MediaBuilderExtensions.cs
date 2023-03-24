@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Smartstore.Bootstrapping;
 using Smartstore.Core.Content.Media;
 
 namespace Smartstore.Core.Bootstrapping

@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using Autofac;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;

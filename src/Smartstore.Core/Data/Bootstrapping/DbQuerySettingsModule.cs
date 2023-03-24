@@ -3,7 +3,6 @@ using Autofac;
 using Autofac.Core;
 using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;

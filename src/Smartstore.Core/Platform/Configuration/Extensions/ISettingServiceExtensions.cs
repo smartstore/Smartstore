@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Configuration;
 
 namespace Smartstore

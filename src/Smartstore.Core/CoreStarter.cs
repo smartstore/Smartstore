@@ -26,7 +26,6 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.JsonConverters;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
-using Smartstore.Core.Localization;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Providers;
