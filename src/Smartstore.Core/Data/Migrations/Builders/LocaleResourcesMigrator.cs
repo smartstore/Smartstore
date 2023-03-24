@@ -114,7 +114,7 @@ namespace Smartstore.Core.Data.Migrations
 
                 try
                 {
-                    if (toAdd.Any() || toDelete.Any())
+                    if (toAdd.Any() || toDelete.Any() || toUpdate.Any())
                     {
                         // add new resources to context
                         _resources.AddRange(toAdd);
