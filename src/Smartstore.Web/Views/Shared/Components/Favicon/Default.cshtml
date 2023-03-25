@@ -1,17 +1,28 @@
 ﻿@model FaviconModel
 
+@{
+    var hasIcon = false;
+}
+
 @if (Model.FavIconUrl.HasValue())
 {
+    hasIcon = true;
     <link rel="shortcut icon" href='@($"{Model.FavIconUrl}?v={ SmartstoreVersion.CurrentVersion}")' />
 }
 
 @if (Model.PngIcons.Count > 0)
 {
+    hasIcon = true;
     <!-- png icons -->
     foreach (var icon in Model.PngIcons)
     {
         <link rel="icon" type="image/png" sizes="@icon.Size" href="@icon.Url" />
     }
+}
+
+@if (!hasIcon)
+{
+    <link rel="shortcut icon" href='@Url.Content("~/favicon.ico")' />
 }
 
 @if (Model.AppleTouchIcons.Count > 0)
