@@ -101,7 +101,7 @@ namespace Smartstore.Scheduling
 
             if (url.IsEmpty())
             {
-                url = WebHelper.GetAbsoluteUrl(RootPath + '/', httpContext.Request);
+                url = WebHelper.GetAbsoluteUrl("~/" + RootPath + '/', httpContext.Request);
             }
 
             BaseUrl = url;
