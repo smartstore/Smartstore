@@ -23,7 +23,7 @@ namespace Smartstore.Data.Sqlite
             string userId,
             string password)
         {
-            Guard.NotEmpty(server);
+            Guard.NotEmpty(database);
 
             var dbRelativePath = PathUtility.Join("App_Data", "Tenants", DataSettings.Instance.TenantName, $"{database}.db");
 
