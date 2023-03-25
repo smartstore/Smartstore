@@ -17,7 +17,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            if (TagName.HasValue())
+            if (!string.IsNullOrWhiteSpace(TagName))
             {
                 output.TagName = TagName;
             }

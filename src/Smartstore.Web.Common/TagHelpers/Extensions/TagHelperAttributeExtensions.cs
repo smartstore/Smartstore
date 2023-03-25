@@ -1,5 +1,4 @@
-﻿using System.Text.Encodings.Web;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers
@@ -8,20 +7,13 @@ namespace Smartstore.Web.TagHelpers
     {
         public static string ValueAsString(this TagHelperAttribute attribute)
         {
-            Guard.NotNull(attribute, nameof(attribute));
+            Guard.NotNull(attribute);
 
             var value = attribute.Value;
 
-            if (value is HtmlString htmlString)
+            if (value is IHtmlContent htmlContent)
             {
-                return htmlString.ToString();
-            }
-            else if (value is IHtmlContent htmlContent)
-            {
-                using var writer = new StringWriter();
-                htmlContent.WriteTo(writer, HtmlEncoder.Default);
-
-                return writer.ToString();
+                return htmlContent.ToHtmlString().ToString();
             }
 
             return value?.ToString();

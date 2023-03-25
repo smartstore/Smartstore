@@ -13,8 +13,8 @@ namespace Smartstore.Web.TagHelpers
         /// </summary>
         public static void CopyTo(this TagHelperAttributeList attributes, AttributeDictionary target)
         {
-            Guard.NotNull(attributes, nameof(attributes));
-            Guard.NotNull(target, nameof(target));
+            Guard.NotNull(attributes);
+            Guard.NotNull(target);
 
             foreach (var attr in attributes)
             {
@@ -32,7 +32,7 @@ namespace Smartstore.Web.TagHelpers
         /// <remarks><paramref name="name"/> is compared case-insensitively.</remarks>
         public static void SetAttributeNoReplace(this TagHelperAttributeList attributes, string name, object value, bool ignoreNull = true)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             if (!attributes.ContainsName(name) && (value != null || !ignoreNull))
             {
@@ -50,7 +50,7 @@ namespace Smartstore.Web.TagHelpers
         /// <remarks><paramref name="name"/> is compared case-insensitively.</remarks>
         public static void SetAttributeNoReplace(this TagHelperAttributeList attributes, string name, Func<object> valueAccessor, bool ignoreNull = true)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             if (!attributes.ContainsName(name))
             {
@@ -73,12 +73,12 @@ namespace Smartstore.Web.TagHelpers
         /// <returns><see langword="true"/> if an attribute has been copied, <see langword="false"/> otherwise.</returns>
         public static bool CopyAttribute(this TagHelperAttributeList attributes, TagBuilder target, string name, bool replaceExisting = true, bool ignoreNull = true)
         {
-            Guard.NotEmpty(name, nameof(name));
-            Guard.NotNull(target, nameof(target));
+            Guard.NotEmpty(name);
+            Guard.NotNull(target);
 
             if (attributes.TryGetAttribute(name, out var attribute))
             {
-                return target.MergeAttribute(name, () => attribute.ValueAsString(), replaceExisting, ignoreNull);
+                return target.MergeAttribute(name, attribute.ValueAsString, replaceExisting, ignoreNull);
             }
 
             return false;
@@ -95,12 +95,12 @@ namespace Smartstore.Web.TagHelpers
         /// <returns><see langword="true"/> if an attribute has been moved, <see langword="false"/> otherwise.</returns>
         public static bool MoveAttribute(this TagHelperAttributeList attributes, TagBuilder target, string name, bool replaceExisting = true, bool ignoreNull = true)
         {
-            Guard.NotEmpty(name, nameof(name));
-            Guard.NotNull(target, nameof(target));
+            Guard.NotEmpty(name);
+            Guard.NotNull(target);
 
             if (attributes.TryGetAttribute(name, out var attribute))
             {
-                if (target.MergeAttribute(name, () => attribute.ValueAsString(), replaceExisting, ignoreNull))
+                if (target.MergeAttribute(name, attribute.ValueAsString, replaceExisting, ignoreNull))
                 {
                     attributes.RemoveAll(name);
                     return true;

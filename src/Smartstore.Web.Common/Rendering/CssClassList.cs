@@ -174,7 +174,7 @@ namespace Smartstore.Web.Rendering
 
         private static void ValidateClass(string value, string paramName)
         {
-            if (value.Any(c => Char.IsWhiteSpace(c)))
+            if (value.Any(char.IsWhiteSpace))
             {
                 throw new ArgumentException($"The class provided ('{value}') contains whitespace characters, which is not valid", paramName);
             }
