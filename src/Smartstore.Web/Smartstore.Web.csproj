@@ -20,6 +20,7 @@
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.4.0" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.4.0" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.4.0" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.4">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
