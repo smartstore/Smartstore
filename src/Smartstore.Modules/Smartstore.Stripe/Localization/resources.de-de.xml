@@ -1,8 +1,8 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
-	<LocaleResource Name="Plugins.FriendlyName.Smartstore.StripeElements" AppendRootKey="false">
+	<LocaleResource Name="Plugins.FriendlyName.Smartstore.Stripe" AppendRootKey="false">
 		<Value>Stripe</Value>
 	</LocaleResource>
-	<LocaleResource Name="Plugins.Description.Smartstore.StripeElements" AppendRootKey="false">
+	<LocaleResource Name="Plugins.Description.Smartstore.Stripe" AppendRootKey="false">
 		<Value>Erweitert den Shop um die Zahlungsfunktionen von Stripe.</Value>
 	</LocaleResource>
 	
