@@ -4,7 +4,7 @@
   "Group": "Mobile",
   "SystemName": "Smartstore.Clickatell",
   "FriendlyName": "Clickatell SMS Provider",
-  "Description": "Sends order notifications to shop administrator via SMS",
+  "Description": "Sends order notifications to shop administrator via SMS.",
   "Version": "5.0.3",
   "MinAppVersion": "5.0.3",
   "Order": 1,

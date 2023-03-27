@@ -1,5 +1,11 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
-
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.ShippingByWeight" AppendRootKey="false">
+        <Value>Versand nach Gewicht</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.ShippingByWeight" AppendRootKey="false">
+        <Value>Stellt Versandarten für den Versand basierend auf Gesamtgewicht der Bestellung zur Verfügung.</Value>
+    </LocaleResource>
+    
     <LocaleResource Name="Plugins.FriendlyName.Shipping.ShippingByWeight" AppendRootKey="false">
         <Value>Versand nach Gewicht</Value>
     </LocaleResource>

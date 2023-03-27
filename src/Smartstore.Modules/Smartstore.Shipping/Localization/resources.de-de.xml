@@ -4,7 +4,7 @@
         <Value>Versandarten</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.SmartStore.Shipping" AppendRootKey="false">
-        <Value>Stellt Versandarten für Versand mit festen Preisen und basierend auf Gewicht zur Verfügung.</Value>
+        <Value>Stellt Versandarten für Versand mit festen Preisen und basierend auf Gesamtsumme des Bestellwertes zur Verfügung.</Value>
     </LocaleResource>
 
     <LocaleResource Name="Plugins.FriendlyName.Shipping.ByTotal" AppendRootKey="false">

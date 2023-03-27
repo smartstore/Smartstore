@@ -4,7 +4,7 @@
         <Value>Shipping methods</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.SmartStore.Shipping" AppendRootKey="false">
-        <Value>Provides shipping methods for fixed rate shipping and computation based on weight.</Value>
+        <Value>Provides shipping methods for fixed rate shipping and computation based on order total.</Value>
     </LocaleResource>
 
     <LocaleResource Name="Plugins.FriendlyName.Shipping.ByTotal" AppendRootKey="false">

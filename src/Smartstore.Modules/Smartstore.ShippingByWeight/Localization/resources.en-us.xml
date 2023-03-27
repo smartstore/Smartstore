@@ -1,4 +1,10 @@
 ﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.ShippingByWeight" AppendRootKey="false">
+        <Value>Shipping by weight</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.ShippingByWeight" AppendRootKey="false">
+        <Value>Provides shipping methods for computation based on weight.</Value>
+    </LocaleResource>
     <LocaleResource Name="Plugins.FriendlyName.Shipping.ShippingByWeight" AppendRootKey="false">
         <Value>Shipping by weight</Value>
     </LocaleResource>
