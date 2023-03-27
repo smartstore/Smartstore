@@ -59,6 +59,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Plugins.Description.Step1",
                 "Use the <a id='{0}' href='{1}' data-toggle='modal'>package uploader</a> or upload the plugin manually - eg. via FTP - to the <i>/Modules</i> folder in your Smartstore directory.",
                 "Verwenden Sie den <a id='{0}' href='{1}' data-toggle='modal'>Paket Uploader</a> oder laden Sie das Plugin manuell - bspw. per FTP - in den <i>/Modules</i> Ordner hoch.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Search.SearchFieldsNote",
+                "The Name, SKU and Short Description fields can be searched in the standard search. Other fields require a search plugin such as the MegaSearch plugin from <a href='https://smartstore.com/en/editions-prices' target='_blank'>Premium Edition</a>.",
+                "In der Standardsuche können die Felder Name, SKU und Kurzbeschreibung durchsucht werden. Für weitere Felder ist ein Such-Plugin wie etwa das MegaSearch-Plugin aus der <a href='https://smartstore.com/en/editions-prices' target='_blank'>Premium Edition</a> notwendig.");
         }
     }
 }
