@@ -19,7 +19,6 @@ namespace Smartstore.Core.Catalog.Attributes
         protected override async Task<HookResult> OnInsertingAsync(ProductVariantAttributeValue entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             await ResetPreselectedProductVariantAttributeValues(entity, cancelToken);
-
             return HookResult.Ok;
         }
 
@@ -29,7 +28,6 @@ namespace Smartstore.Core.Catalog.Attributes
         protected override async Task<HookResult> OnUpdatingAsync(ProductVariantAttributeValue entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             await ResetPreselectedProductVariantAttributeValues(entity, cancelToken);
-
             return HookResult.Ok;
         }
 
@@ -54,7 +52,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
         private async Task ResetPreselectedProductVariantAttributeValues(ProductVariantAttributeValue entity, CancellationToken cancelToken)
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             if (entity.IsPreSelected)
             {
