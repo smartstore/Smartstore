@@ -27,7 +27,7 @@ namespace Smartstore.Core.Catalog.Attributes
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             var deletedAttributeIds = entries
-                .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted)
+                .Where(x => x.InitialState == EntityState.Deleted)
                 .Select(x => x.Entity)
                 .OfType<ProductVariantAttribute>()
                 .Select(x => x.Id)

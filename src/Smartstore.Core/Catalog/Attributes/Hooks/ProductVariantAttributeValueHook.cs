@@ -13,13 +13,33 @@ namespace Smartstore.Core.Catalog.Attributes
             _db = db;
         }
 
+        /// <summary>
+        /// Sets all product variant attribute values to <see cref="ProductVariantAttributeValue.IsPreSelected"/> = false if the currently inserted entity is preselected.
+        /// </summary>
+        protected override async Task<HookResult> OnInsertingAsync(ProductVariantAttributeValue entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            await ResetPreselectedProductVariantAttributeValues(entity, cancelToken);
+
+            return HookResult.Ok;
+        }
+
+        /// <summary>
+        /// Sets all product variant attribute values to <see cref="ProductVariantAttributeValue.IsPreSelected"/> = false if the currently updated entity is preselected.
+        /// </summary>
+        protected override async Task<HookResult> OnUpdatingAsync(ProductVariantAttributeValue entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            await ResetPreselectedProductVariantAttributeValues(entity, cancelToken);
+
+            return HookResult.Ok;
+        }
+
         protected override Task<HookResult> OnDeletedAsync(ProductVariantAttributeValue entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             var deletedValues = entries
-                .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted)
+                .Where(x => x.InitialState == EntityState.Deleted)
                 .Select(x => x.Entity)
                 .OfType<ProductVariantAttributeValue>()
                 .ToList();
@@ -29,6 +49,24 @@ namespace Smartstore.Core.Catalog.Attributes
                 await _db.ProductBundleItemAttributeFilter
                     .Where(x => x.AttributeId == deletedValue.ProductVariantAttributeId && x.AttributeValueId == deletedValue.Id)
                     .ExecuteDeleteAsync(cancelToken);
+            }
+        }
+
+        private async Task ResetPreselectedProductVariantAttributeValues(ProductVariantAttributeValue entity, CancellationToken cancelToken)
+        {
+            Guard.NotNull(entity, nameof(entity));
+
+            if (entity.IsPreSelected)
+            {
+                var productVariantAttributeValues = await _db.ProductVariantAttributeValues
+                    .Where(x => x.IsPreSelected && x.ProductVariantAttributeId == entity.ProductVariantAttributeId && x.Id != entity.Id)
+                    .ToListAsync(cancelToken);
+
+                if (productVariantAttributeValues.Any())
+                {
+                    productVariantAttributeValues.Each(x => x.IsPreSelected = false);
+                    await _db.SaveChangesAsync(cancelToken);
+                }
             }
         }
     }

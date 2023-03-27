@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Data;
+﻿using Smartstore.Core.Common;
+using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Attributes
