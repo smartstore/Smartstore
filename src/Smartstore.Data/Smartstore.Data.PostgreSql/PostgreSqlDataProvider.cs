@@ -173,8 +173,8 @@ LIMIT {take} OFFSET {skip}";
             var sql = $"SELECT COALESCE(last_value + CASE WHEN is_called THEN 1 ELSE 0 END, 1) as Value FROM {seqName}";
 
             return async
-               ? (await Database.ExecuteScalarRawAsync<int>(sql)).Convert<int?>()
-               : Database.ExecuteScalarRaw<int>(sql).Convert<int?>();
+               ? await Database.ExecuteScalarRawAsync<int?>(sql)
+               : Database.ExecuteScalarRaw<int?>(sql);
         }
 
         protected override async Task SetTableIncrementCore(string tableName, int ident, bool async)

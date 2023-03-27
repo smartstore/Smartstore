@@ -145,13 +145,13 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        protected override async Task<int?> GetTableIncrementCore(string tableName, bool async)
+        protected override Task<int?> GetTableIncrementCore(string tableName, bool async)
         {
             var sql = $"SELECT seq FROM sqlite_sequence WHERE name = \"{tableName}\"";
 
             return async
-               ? (await Database.ExecuteScalarRawAsync<int>(sql)).Convert<int?>()
-               : Database.ExecuteScalarRaw<int>(sql).Convert<int?>();
+               ? Database.ExecuteScalarRawAsync<int?>(sql)
+               : Task.FromResult(Database.ExecuteScalarRaw<int?>(sql));
         }
 
         protected override Task SetTableIncrementCore(string tableName, int ident, bool async)
