@@ -5,6 +5,7 @@ services:
     container_name: web
     ports:
       - "80:80"
+    restart: unless-stopped
     depends_on:
       - db
     volumes:
