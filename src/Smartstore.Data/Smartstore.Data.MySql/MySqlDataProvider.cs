@@ -19,7 +19,7 @@ namespace Smartstore.Data.MySql
 	                TABLE_NAME AS TableName, 
 	                TABLE_ROWS AS NumRows,
 	                (DATA_LENGTH + INDEX_LENGTH) AS TotalSpace, 
-	                (DATA_LENGTH + INDEX_LENGTH) - DATA_FREE AS UsedSpace
+	                CAST((DATA_LENGTH + INDEX_LENGTH) AS SIGNED) - CAST(DATA_FREE AS SIGNED) AS UsedSpace
                 FROM INFORMATION_SCHEMA.TABLES 
                 WHERE TABLE_SCHEMA = ""{database}""
                 ORDER BY TotalSpace DESC";
