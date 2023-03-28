@@ -67,20 +67,26 @@ namespace Smartstore.Core.Common.Services
         public virtual TimeZoneInfo GetCustomerTimeZone(Customer customer)
         {
             if (_cachedUserTimeZone != null)
+            {
                 return _cachedUserTimeZone;
+            } 
 
-            // registered user
+            // Registered user
             TimeZoneInfo timeZone = null;
             if (_dateTimeSettings.AllowCustomersToSetTimeZone)
             {
-                string timeZoneId = string.Empty;
+                var timeZoneId = string.Empty;
                 if (customer != null)
+                {
                     timeZoneId = customer.TimeZoneId;
+                } 
 
                 try
                 {
                     if (timeZoneId.HasValue())
+                    {
                         timeZone = FindTimeZoneById(timeZoneId);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -89,8 +95,7 @@ namespace Smartstore.Core.Common.Services
             }
 
             // default timezone
-            if (timeZone == null)
-                timeZone = this.DefaultStoreTimeZone;
+            timeZone ??= DefaultStoreTimeZone;
 
             _cachedUserTimeZone = timeZone;
 
@@ -105,21 +110,22 @@ namespace Smartstore.Core.Common.Services
                 try
                 {
                     if (_dateTimeSettings.DefaultStoreTimeZoneId.HasValue())
+                    {
                         timeZoneInfo = FindTimeZoneById(_dateTimeSettings.DefaultStoreTimeZoneId);
+                    }
                 }
                 catch (Exception ex)
                 {
                     Debug.Write(ex.ToString());
                 }
 
-                if (timeZoneInfo == null)
-                    timeZoneInfo = TimeZoneInfo.Local;
+                timeZoneInfo ??= TimeZoneInfo.Local;
 
                 return timeZoneInfo;
             }
             set
             {
-                string defaultTimeZoneId = string.Empty;
+                var defaultTimeZoneId = string.Empty;
                 if (value != null)
                 {
                     defaultTimeZoneId = value.Id;
