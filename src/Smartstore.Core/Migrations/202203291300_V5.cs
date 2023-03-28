@@ -942,8 +942,6 @@ namespace Smartstore.Core.Data.Migrations
 
         private static Dictionary<string, string> GetEnumNameMap()
         {
-            // TODO: (mh) (core) Add missing enum localization map entries when they are available.
-            // TODO: (mh) (core) Assign an alias names to enums in plugins if enum name is too generic.
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["SmartStore.Core.Domain.Catalog.AttributeControlType"] = nameof(AttributeControlType),

@@ -282,10 +282,10 @@
                 <Value>Ihr Shop wurde erfolgreich mit Ihrem PayPal-Konto verknüpft.</Value>
             </LocaleResource>
             <LocaleResource Name="Error.PaymentsReceivable">
-                <Value>Mit diesem Account können keine Zahlungen empfangen werden. Bitte kontaktieren Sie PayPal.</Value>
+                <Value>Mit diesem PayPal-Konto können keine Zahlungen empfangen werden. Bitte kontaktieren Sie PayPal.</Value>
             </LocaleResource>
             <LocaleResource Name="Error.PrimaryEmailConfirmed">
-                <Value>Die E-Mail Adresse dieses Accounts wurde noch nicht bestätigt. Bitte kontaktieren Sie PayPal oder prüfen Sie Ihre E-Mail-Postfach.</Value>
+                <Value>Die E-Mail-Adresse für dieses PayPal-Konto wurde noch nicht bestätigt. Bitte kontaktieren Sie PayPal oder überprüfen Sie Ihren Posteingang.</Value>
             </LocaleResource>
             <LocaleResource Name="HasCredentials.True">
                 <Value>Die Zugangsdaten wurden hinterlegt.</Value>
@@ -300,10 +300,10 @@
                 <Value>Die bei PayPal hinterlegte primäre E-Mail-Adresse wurde noch nicht bestätigt.</Value>
             </LocaleResource>
             <LocaleResource Name="PaymentsReceivable.True">
-                <Value>Mit dem hinterlegten Account können Zahlungen empfangen werden.</Value>
+                <Value>Mit dem hinterlegten PayPal-Konto können Zahlungen empfangen werden.</Value>
             </LocaleResource>
             <LocaleResource Name="PaymentsReceivable.False">
-                <Value>Mit dem hinterlegten Account können keine Zahlungen empfangen werden. Bitten wenden Sie sich an PayPal.</Value>
+                <Value>Mit dem hinterlegten PayPal-Konto können keine Zahlungen empfangen werden. Bitten wenden Sie sich an PayPal.</Value>
             </LocaleResource>
             <LocaleResource Name="WebHookCreated.True">
                 <Value>Es wurde ein Webhook angelegt.</Value>
