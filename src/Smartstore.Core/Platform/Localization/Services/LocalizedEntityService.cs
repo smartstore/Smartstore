@@ -169,7 +169,7 @@ namespace Smartstore.Core.Localization
             bool isRange = false,
             bool isSorted = false)
         {
-            Guard.NotEmpty(localeKeyGroup, nameof(localeKeyGroup));
+            Guard.NotEmpty(localeKeyGroup);
 
             using (new DbContextScope(_db, lazyLoading: false))
             {
@@ -280,9 +280,9 @@ namespace Smartstore.Core.Localization
             TPropType value,
             int languageId) where T : class
         {
-            Guard.NotNull(obj, nameof(obj));
-            Guard.NotEmpty(keyGroup, nameof(keyGroup));
-            Guard.NotZero(languageId, nameof(languageId));
+            Guard.NotNull(obj);
+            Guard.NotEmpty(keyGroup);
+            Guard.NotZero(languageId);
 
             var propInfo = keySelector.ExtractPropertyInfo();
             if (propInfo == null)
@@ -301,8 +301,11 @@ namespace Smartstore.Core.Localization
             {
                 if (string.IsNullOrEmpty(valueStr))
                 {
-                    // Delete
-                    setProps.Remove(entity);
+                    if (!entity.IsHidden)
+                    {
+                        // Delete (but only visible/user-defined entries)
+                        setProps.Remove(entity);
+                    }
                 }
                 else
                 {
@@ -379,8 +382,8 @@ namespace Smartstore.Core.Localization
 
         protected virtual Task<Dictionary<int, string>> GetCacheSegmentAsync(string localeKeyGroup, string localeKey, int entityId, int languageId)
         {
-            Guard.NotEmpty(localeKeyGroup, nameof(localeKeyGroup));
-            Guard.NotEmpty(localeKey, nameof(localeKey));
+            Guard.NotEmpty(localeKeyGroup);
+            Guard.NotEmpty(localeKey);
 
             var segmentKey = GetSegmentKeyPart(localeKeyGroup, localeKey, entityId, out var minEntityId, out var maxEntityId);
             var cacheKey = BuildCacheSegmentKey(segmentKey, languageId);

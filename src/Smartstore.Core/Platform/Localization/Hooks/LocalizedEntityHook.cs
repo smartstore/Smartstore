@@ -18,7 +18,7 @@ namespace Smartstore.Core.Localization
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             var deletedEntities = entries
-                .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted)
+                .Where(x => x.InitialState == EntityState.Deleted)
                 .Select(x => x.Entity)
                 .OfType<ILocalizedEntity>()
                 .Select(x => x as BaseEntity)
