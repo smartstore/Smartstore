@@ -58,13 +58,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 var productVariantAttributeValues = await _db.ProductVariantAttributeValues
                     .Where(x => x.IsPreSelected && x.ProductVariantAttributeId == entity.ProductVariantAttributeId && x.Id != entity.Id)
-                    .ToListAsync(cancelToken);
-
-                if (productVariantAttributeValues.Any())
-                {
-                    productVariantAttributeValues.Each(x => x.IsPreSelected = false);
-                    await _db.SaveChangesAsync(cancelToken);
-                }
+                    .ExecuteUpdateAsync(x => x.SetProperty(p => p.IsPreSelected, p => false), cancelToken);
             }
         }
     }

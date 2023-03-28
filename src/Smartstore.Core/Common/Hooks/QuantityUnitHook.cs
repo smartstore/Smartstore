@@ -124,13 +124,7 @@ namespace Smartstore.Core.Common.Hooks
             {
                 var quantityUnits = await _db.QuantityUnits
                     .Where(x => x.IsDefault && x.Id != entity.Id)
-                    .ToListAsync(cancelToken);
-
-                if (quantityUnits.Any())
-                {
-                    quantityUnits.Each(x => x.IsDefault = false);
-                    await _db.SaveChangesAsync(cancelToken);
-                }
+                    .ExecuteUpdateAsync(x => x.SetProperty(p => p.IsDefault, p => false), cancelToken);
             }
         }
     }
