@@ -2,6 +2,9 @@
     <LocaleResource Name="Plugins.FriendlyName.SmartStore.Google.Analytics" AppendRootKey="false">
         <Value>Google Analytics</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.Description.SmartStore.Google.Analytics" AppendRootKey="false">
+        <Value>Fügt dem Shop die Tracking-Skripte von Google Analytics hinzu.</Value>
+    </LocaleResource>
     <LocaleResource Name="AdminInstruction">
         <Value>
             <![CDATA[
