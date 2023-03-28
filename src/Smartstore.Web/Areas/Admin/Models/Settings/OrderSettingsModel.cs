@@ -50,6 +50,7 @@ namespace Smartstore.Admin.Models
         public int StoreCount { get; set; }
 
         [LocalizedDisplay("*OrderIdent")]
+        [AdditionalMetadata("invariant", true)]
         public int? OrderIdent { get; set; }
 
         [LocalizedDisplay("*DisplayOrdersOfAllStores")]
@@ -88,6 +89,12 @@ namespace Smartstore.Admin.Models
 
             RuleFor(x => x.OrderTotalMaximum)
                 .GreaterThan(x => x.OrderTotalMinimum ?? 0);
+
+            RuleFor(x => x.OrderTotalMinimum)
+                .GreaterThan(0);
+
+            RuleFor(x => x.OrderIdent)
+                .GreaterThan(0);
         }
     }
 }
