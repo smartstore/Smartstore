@@ -32,7 +32,7 @@ A comprehensive set of tools for CRM & CMS, Sales, Marketing, Payment & Shipping
 
 The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity Framework Core 7` and Domain Driven Design approach - makes it easy to extend, extremely flexible and basically fun to work with ;-)
 
-* :house: **Website:** [http://www.smartstore.com/en/net](http://www.smartstore.com/en/net)
+* :house: **Website:** [http://www.smartstore.com](http://www.smartstore.com)
 * :speech_balloon: **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
 * :mega: **Marketplace:** [http://community.smartstore.com/marketplace](http://community.smartstore.com/marketplace)
 * :earth_americas: **Translations:** [http://translate.smartstore.com/](http://translate.smartstore.com/)
