@@ -371,6 +371,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Produkte in einzelnen Positionen in den Warenkorb legen",
                 "Enable this option if you want products with different quantities to be added to the shopping cart in single position.",
                 "Aktivieren Sie diese Option, wenn Produkte mit verschiedenen Mengenangaben als Einzelpositionen in den Warenkorb gelegt werden sollen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Category.Stores.AssignToSubCategoriesAndProducts.Hint")
+                .Value("de", "Diese Funktion übernimmt die Shop-Konfiguration dieser Warengruppe für alle Unterwarengruppen und Produkte. Bitte beachten Sie, dass die Änderungen an der Store-Konfiguration zunächst gespeichert werden müssen, bevor diese für Unterkategorien und Produkte übernommen werden können. <b>Vorsicht:</b> Bitte beachten Sie, <b>dass vorhandene Store-Konfigurationen überschrieben bzw. gelöscht werden</b>.");
+
         }
     }
 }
