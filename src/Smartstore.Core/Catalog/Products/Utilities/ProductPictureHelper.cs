@@ -6,8 +6,6 @@ namespace Smartstore.Core.Catalog.Products.Utilities
 {
     public static partial class ProductPictureHelper
     {
-        #region MainPictureId
-
         /// <summary>
         /// Fixes 'MainPictureId' property of a single product entity.
         /// </summary>
@@ -133,7 +131,5 @@ namespace Smartstore.Core.Catalog.Products.Utilities
             var map = files.ToMultimap(x => x.ProductId, x => x.MediaFileId);
             return map;
         }
-
-        #endregion
     }
 }

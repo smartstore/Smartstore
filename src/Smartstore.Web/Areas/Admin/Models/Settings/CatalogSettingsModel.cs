@@ -297,7 +297,7 @@ namespace Smartstore.Admin.Models
                 .When(x => x.PriceSettings.ShowOfferCountdownRemainingHours != null);
 
             RuleFor(x => x.MaxItemsToDisplayInCatalogMenu)
-                .GreaterThan(0);
+                .GreaterThanOrEqualTo(0);
 
             RuleFor(x => x.HtmlTextCollapsedHeight)
                 .GreaterThan(0);
