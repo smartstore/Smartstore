@@ -10,7 +10,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Rules;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;

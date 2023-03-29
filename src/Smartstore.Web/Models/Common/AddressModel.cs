@@ -2,7 +2,7 @@
 using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering;
 

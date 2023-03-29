@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;

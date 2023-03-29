@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -146,9 +146,11 @@ namespace Smartstore.Core.Common.Services
             set
             {
                 if (!_dateTimeSettings.AllowCustomersToSetTimeZone)
+                {
                     return;
+                }  
 
-                string timeZoneId = string.Empty;
+                var timeZoneId = string.Empty;
                 if (value != null)
                 {
                     timeZoneId = value.Id;

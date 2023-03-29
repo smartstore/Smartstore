@@ -1,7 +1,7 @@
 ﻿using FluentValidation.AspNetCore;
 using Smartstore.Admin.Models.Scheduling;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Security;
 using Smartstore.Scheduling;
 using Smartstore.Threading;

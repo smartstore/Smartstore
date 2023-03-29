@@ -29,7 +29,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
 using Smartstore.Bootstrapping;
 using Smartstore.Core.Bootstrapping;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;

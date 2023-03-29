@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Stores;
 using Smartstore.Http;

@@ -27,7 +27,7 @@ namespace Smartstore.Core.Common.Services
 
         public LookupCountryResponse LookupCountry(IPAddress addr)
         {
-            Guard.NotNull(addr, nameof(addr));
+            Guard.NotNull(addr);
 
             if (_reader.TryCountry(addr, out var response) && response.Country != null)
             {

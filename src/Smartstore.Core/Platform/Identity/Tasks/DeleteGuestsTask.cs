@@ -1,4 +1,4 @@
-﻿using Smartstore.Core.Common.Settings;
+﻿using Smartstore.Core.Common.Configuration;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Identity.Tasks

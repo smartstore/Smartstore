@@ -3,8 +3,8 @@ using System.Linq;
 using NUnit.Framework;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Common

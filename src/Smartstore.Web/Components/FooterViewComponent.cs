@@ -1,5 +1,5 @@
 ﻿using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Theming;

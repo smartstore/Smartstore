@@ -6,7 +6,7 @@ using NUnit.Framework;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;

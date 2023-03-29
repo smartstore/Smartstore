@@ -1,7 +1,7 @@
 ﻿using System.Linq.Dynamic.Core;
 using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;

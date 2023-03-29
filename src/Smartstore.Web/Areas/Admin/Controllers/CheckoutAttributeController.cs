@@ -2,8 +2,8 @@
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;

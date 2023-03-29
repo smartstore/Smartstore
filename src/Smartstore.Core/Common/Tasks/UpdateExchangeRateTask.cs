@@ -1,5 +1,5 @@
-﻿using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
+﻿using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Scheduling;
 

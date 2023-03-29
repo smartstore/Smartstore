@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Common

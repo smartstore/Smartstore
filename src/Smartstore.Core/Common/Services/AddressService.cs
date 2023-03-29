@@ -1,4 +1,4 @@
-﻿using Smartstore.Core.Common.Settings;
+﻿using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Messaging;
 using Smartstore.Data.Hooks;
@@ -80,15 +80,11 @@ namespace Smartstore.Core.Common.Services
 
         public virtual async Task<bool> IsAddressValidAsync(Address address)
         {
-            Guard.NotNull(address, nameof(address));
+            Guard.NotNull(address);
 
-            if (!address.FirstName.HasValue())
-                return false;
-
-            if (!address.LastName.HasValue())
-                return false;
-
-            if (!address.Email.HasValue())
+            if (!address.FirstName.HasValue() || 
+                !address.LastName.HasValue() || 
+                !address.Email.HasValue())
                 return false;
 
             if (_addressSettings.CompanyEnabled &&
@@ -109,6 +105,21 @@ namespace Smartstore.Core.Common.Services
             if (_addressSettings.ZipPostalCodeEnabled &&
                 _addressSettings.ZipPostalCodeRequired &&
                 !address.ZipPostalCode.HasValue())
+                return false;
+
+            if (_addressSettings.CityEnabled &&
+                _addressSettings.CityRequired &&
+                !address.City.HasValue())
+                return false;
+
+            if (_addressSettings.PhoneEnabled &&
+                _addressSettings.PhoneRequired &&
+                !address.PhoneNumber.HasValue())
+                return false;
+
+            if (_addressSettings.FaxEnabled &&
+                _addressSettings.FaxRequired &&
+                address.FaxNumber.HasValue())
                 return false;
 
             if (_addressSettings.CountryEnabled)
@@ -139,27 +150,12 @@ namespace Smartstore.Core.Common.Services
                 }
             }
 
-            if (_addressSettings.CityEnabled &&
-                _addressSettings.CityRequired &&
-                !address.City.HasValue())
-                return false;
-
-            if (_addressSettings.PhoneEnabled &&
-                _addressSettings.PhoneRequired &&
-                !address.PhoneNumber.HasValue())
-                return false;
-
-            if (_addressSettings.FaxEnabled &&
-                _addressSettings.FaxRequired &&
-                address.FaxNumber.HasValue())
-                return false;
-
             return true;
         }
 
         public virtual async Task<string> FormatAddressAsync(CompanyInformationSettings settings, bool newLineToBr = false)
         {
-            Guard.NotNull(settings, nameof(settings));
+            Guard.NotNull(settings);
 
             var address = new Address
             {
@@ -181,7 +177,7 @@ namespace Smartstore.Core.Common.Services
 
         public virtual async Task<string> FormatAddressAsync(Address address, bool newLineToBr = false)
         {
-            Guard.NotNull(address, nameof(address));
+            Guard.NotNull(address);
 
             var messageContext = new MessageContext
             {
@@ -205,7 +201,7 @@ namespace Smartstore.Core.Common.Services
 
         public virtual async Task<string> FormatAddressAsync(object address, string template = null, IFormatProvider formatProvider = null)
         {
-            Guard.NotNull(address, nameof(address));
+            Guard.NotNull(address);
 
             template = template.NullEmpty() ?? Address.DefaultAddressFormat;
 

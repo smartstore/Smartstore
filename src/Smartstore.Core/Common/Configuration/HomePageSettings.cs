@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Core.Common.Settings
+namespace Smartstore.Core.Common.Configuration
 {
     public class HomePageSettings : ISettings
     {

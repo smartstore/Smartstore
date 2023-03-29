@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Common.Settings
+namespace Smartstore.Core.Common.Configuration
 {
     public class AdminAreaSettings : ISettings
     {

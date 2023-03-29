@@ -1,4 +1,4 @@
-﻿using Smartstore.Core.Common.Settings;
+﻿using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Common.Services

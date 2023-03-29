@@ -1,7 +1,7 @@
 ﻿using System.Security;
 using Autofac;
 using Smartstore.Collections;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.DataExchange.Csv;
 using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.DataExchange.Import.Internal;

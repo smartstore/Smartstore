@@ -1,6 +1,6 @@
 ﻿using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;

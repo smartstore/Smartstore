@@ -5,7 +5,7 @@ using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
