@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using Autofac;
-
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
