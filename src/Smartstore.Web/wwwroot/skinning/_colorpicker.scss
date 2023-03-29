@@ -1,0 +1,24 @@
+/// <reference path="../shared/_mixins.scss" />
+/// <reference path="../bs4/scss/bootstrap.scss" />
+
+
+/* COLORPICKER skinning
+------------------------------------*/
+
+.colorpicker-component {
+	.input-group-text {
+		padding-left: $input-padding-y;
+		padding-right: $input-padding-y;
+
+		.thecolor {
+			display: inline-block;
+			height: auto;
+			width: calc(#{$input-height} - #{$input-padding-y} * 2);
+			outline: 1px solid rgba(0,0,0, 0.2);
+
+			&:hover {
+				outline-color: rgba(0,0,0, 0.4);
+			}
+		}
+	}
+}
