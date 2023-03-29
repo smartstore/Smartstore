@@ -37,7 +37,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity
 * :mega: **Marketplace:** [http://community.smartstore.com/marketplace](http://community.smartstore.com/marketplace)
 * :earth_americas: **Translations:** [http://translate.smartstore.com/](http://translate.smartstore.com/)
 * :blue_book: **Documentation:** [Smartstore Documentation in English](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118583/Getting+Started)
-* :azure: **Azure Marketplace:"" [https://azuremarketplace.microsoft.com/marketplace/apps/smartstore-ag.smartstorenet?tab=Overview](https://azuremarketplace.microsoft.com)
+* ▶️ **Azure Marketplace:"" [https://azuremarketplace.microsoft.com/marketplace/apps/smartstore-ag.smartstorenet?tab=Overview](https://azuremarketplace.microsoft.com)
 <p>&nbsp;</p>
 
 ## Technology & Design
