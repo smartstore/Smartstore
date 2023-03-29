@@ -363,6 +363,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Enums.TaxDisplayType.ExcludingTax")
                 .Value("de", "Zzgl. Mehrwertsteuer");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.AllowAnonymousUsersToEmailAFriend")
+                .Value("de", "Gästen erlauben, E-Mails an Freunde zu versenden");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AddProductsToBasketInSinglePositions",
                 "Add products to cart in single positions",
                 "Produkte in einzelnen Positionen in den Warenkorb legen",

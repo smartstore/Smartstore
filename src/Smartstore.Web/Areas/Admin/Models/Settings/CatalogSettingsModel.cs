@@ -295,6 +295,30 @@ namespace Smartstore.Admin.Models
             RuleFor(x => x.PriceSettings.ShowOfferCountdownRemainingHours)
                 .GreaterThan(0)
                 .When(x => x.PriceSettings.ShowOfferCountdownRemainingHours != null);
+
+            RuleFor(x => x.MaxItemsToDisplayInCatalogMenu)
+                .GreaterThan(0);
+
+            RuleFor(x => x.HtmlTextCollapsedHeight)
+                .GreaterThan(0);
+
+            RuleFor(x => x.ManufacturerItemsToDisplayOnHomepage)
+                .GreaterThan(0);
+
+            RuleFor(x => x.NumberOfBestsellersOnHomepage)
+                .GreaterThan(0);
+
+            RuleFor(x => x.DefaultProductListPageSize)
+                .GreaterThan(0);
+
+            RuleFor(x => x.NumberOfProductTags)
+                .GreaterThan(0);
+
+            RuleFor(x => x.RecentlyViewedProductsNumber)
+                .GreaterThan(0);
+
+            RuleFor(x => x.RecentlyAddedProductsNumber)
+                .GreaterThan(0);
         }
     }
 }
