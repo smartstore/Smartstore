@@ -393,24 +393,25 @@
         // Adjust initPNotify global defaults
         if (typeof PNotify !== 'undefined') {
             var stack = {
-                "dir1": "up",
-                "dir2": rtl ? "left" : "right",
-                "push": "down",
-                "firstpos1": $('html').data('pnotify-firstpos1') || 0,
-                "spacing1": 0,
-                "spacing2": 16,
-                "context": $("body")
+                dir1: "up",
+                dir2: rtl ? "right" : "left",
+                push: "down",
+                firstpos1: $('html').data('pnotify-firstpos1') || 0,
+                firstpos2: $('html').data('pnotify-firstpos2') || 16,
+                spacing1: 0,
+                spacing2: 16,
+                context: $("body")
             };
             PNotify.prototype.options = $.extend(PNotify.prototype.options, {
                 styling: "fontawesome",
                 stack: stack,
-                addclass: 'stack-bottom' + (rtl ? 'right' : 'left'),
+                addclass: 'stack-bottom' + (rtl ? 'left' : 'right'),
                 width: "500px",
                 mobile: { swipe_dismiss: true, styling: true },
                 animate: {
                     animate: true,
                     in_class: "fadeInDown",
-                    out_class: "fadeOut" + (rtl ? 'Right' : 'Left')
+                    out_class: "fadeOut" + (rtl ? 'Left' : 'Right')
                 }
             });
         }
