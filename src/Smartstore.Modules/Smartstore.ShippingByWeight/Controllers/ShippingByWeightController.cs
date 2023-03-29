@@ -162,9 +162,9 @@ namespace Smartstore.ShippingByWeight.Controllers
 
             if (ids.Any())
             {
-                var ShippingRates = await _db.ShippingRatesByWeight().GetManyAsync(ids, true);
+                var shippingRates = await _db.ShippingRatesByWeight().GetManyAsync(ids, true);
 
-                _db.ShippingRatesByWeight().RemoveRange(ShippingRates);
+                _db.ShippingRatesByWeight().RemoveRange(shippingRates);
 
                 numDeleted = await _db.SaveChangesAsync();
                 success = true;

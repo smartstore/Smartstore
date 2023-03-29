@@ -29,7 +29,7 @@ namespace Smartstore.PayPal.Components
 
             var productDetailsModel = (ProductDetailsModel)model;
 
-            // PayPal allows pay later only for amount between 99€ und 5.000€.
+            // PayPal allows pay later only for amounts between 99€ und 5.000€.
             if (productDetailsModel != null && productDetailsModel.Price.FinalPrice.Amount >= 99 && productDetailsModel.Price.FinalPrice.Amount <= 5000)
             {
                 var scriptUrl = $"https://www.paypal.com/sdk/js" +

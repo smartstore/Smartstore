@@ -4,7 +4,7 @@
   "Group": "Analytics",
   "SystemName": "Smartstore.Google.Analytics",
   "FriendlyName": "Google Analytics",
-  "Description": "Adds Google Analytics tracking scripts to the shop",
+  "Description": "Adds Google Analytics tracking scripts to the shop.",
   "Version": "5.0.3",
   "MinAppVersion": "5.0.3",
   "Order": 1,
