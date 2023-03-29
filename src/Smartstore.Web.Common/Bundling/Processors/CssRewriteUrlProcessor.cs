@@ -5,7 +5,7 @@ namespace Smartstore.Web.Bundling.Processors
 {
     public partial class CssRewriteUrlProcessor : BundleProcessor
     {
-        [GeneratedRegex("url\\(['\"]?(?<url>[^)]+?)['\"]?\\)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "de-DE")]
+        [GeneratedRegex("url\\(['\"]?(?<url>[^)]+?)['\"]?\\)", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
         private static partial Regex CssUrlRegex();
 
         internal static readonly CssRewriteUrlProcessor Instance = new(true);
@@ -45,7 +45,7 @@ namespace Smartstore.Web.Bundling.Processors
 
                 foreach (var asset in context.Content)
                 {
-                    var baseUrl = asset.Path.Substring(0, Path.GetDirectoryName(asset.Path).Length + 1);
+                    var baseUrl = asset.Path[..(Path.GetDirectoryName(asset.Path).Length + 1)];
                     asset.Content = ConvertUrlsToAbsolute(asset, webPathBase, baseUrl, asset.Content);
                 }
 
@@ -79,10 +79,9 @@ namespace Smartstore.Web.Bundling.Processors
 
         internal string RebaseUrlToAbsolute(AssetContent asset, string webBasePath, string baseUrl, string url)
         {
-            // Don't do anything to invalid urls, absolute urls or embedded images
+            // Don't do anything to invalid urls or embedded images
             if (string.IsNullOrWhiteSpace(url) ||
                 string.IsNullOrWhiteSpace(baseUrl) ||
-                url.StartsWith('/') ||
                 url.StartsWith("http"))
             {
                 return url;
