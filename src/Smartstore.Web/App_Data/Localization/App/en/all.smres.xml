@@ -4087,12 +4087,6 @@
 	<LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.Email.Hint">
 		<Value>This is the from address for all outgoing emails from your store e.g. 'sales@yourstore.com'.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.EnableSsl">
-		<Value>SSL</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.EnableSsl.Hint">
-		<Value>Check the box to use Secure Sockets Layer (SSL) to encrypt the SMTP connection.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.Host">
 		<Value>Host</Value>
 	</LocaleResource>
@@ -4101,6 +4095,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.IsDefaultEmailAccount">
 		<Value>Is default email account</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.MailSecureOption">
+		<Value>Encryption</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.MailSecureOption.Hint">
+		<Value>Specifies the encryption for the SMTP connection.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.EmailAccounts.Fields.MarkAsDefaultEmail">
 		<Value>Mark as default email account</Value>
@@ -4511,7 +4511,7 @@
 		<Value>Install or update plugins</Value>
 	</LocaleResource>
 	<LocaleResource Name="admin.configuration.plugins.description.step1">
-		<Value>Use the &lt;a id='{0}' href='{1}' data-toggle='modal'&gt;package uploader&lt;/a&gt; or upload the plugin manually - eg. via FTP - to the &lt;i&gt;/Plugins&lt;/i&gt; folder in your SmartStore.NET directory.</Value>
+		<Value>Use the &lt;a id='{0}' href='{1}' data-toggle='modal'&gt;package uploader&lt;/a&gt; or upload the plugin manually - eg. via FTP - to the &lt;i&gt;/Modules&lt;/i&gt; folder in your Smartstore directory.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Plugins.Description.Step2">
 		<Value>With manual uploads: restart your application (or click &lt;i&gt;Reload list of plugins&lt;/i&gt; button).</Value>
@@ -6753,6 +6753,12 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Media.MoveMediaNote">
 		<Value>Do not forget to backup your database before changing this option. Please bear in mind that this operation can take several minutes depending on the amount of media files.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Media.OffloadEmbeddedImagesOnSave">
+		<Value>Offload embedded Base64 images on save</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Media.OffloadEmbeddedImagesOnSave.Hint">
+		<Value>Finds embedded Base64 images in long HTML descriptions, extracts and saves them to the media storage, and replaces the Base64 fragment with the media path. Offloading is automatically triggered by saving an entity to the database. Currently supported entity types are: Product, Category, Manufacturer and Topic.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Media.PicturesStoredIntoDatabase.Change">
 		<Value>Change</Value>
 	</LocaleResource>
@@ -7134,6 +7140,24 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Price.ShowVariantCombinationPriceAdjustment.Hint">
 		<Value>Specifies whether variant combination price adjustments should be displayed.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ValidateDiscountGiftCardsInLists">
+		<Value>Check cart for gift cards when validating discounts in product lists</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ValidateDiscountGiftCardsInLists.Hint">
+		<Value>Specifies whether to check the shopping cart for the existence of gift cards when validating discounts in product lists. In case of gift cards no discount is applied because the customer could earn money through that. Enabling this option may reduce the performance.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ValidateDiscountLimitationsInLists">
+		<Value>Validate discount limitations in product lists</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ValidateDiscountLimitationsInLists.Hint">
+		<Value>Enabling this option may reduce the performance.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ValidateDiscountRulesInLists">
+		<Value>Validate cart rules of discounts in product lists</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Price.ValidateDiscountRulesInLists.Hint">
+		<Value>Enabling this option may reduce the performance.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.RewardPoints">
 		<Value>Reward points</Value>
 	</LocaleResource>
@@ -7276,7 +7300,7 @@
 		<Value>Specifies additional search fields. The product name is always searched.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Search.SearchFieldsNote">
-		<Value>The Name, SKU and Short Description fields can be searched in the standard search. Other fields require a search plugin such as the MegaSearch plugin from &lt;a href='https://www.smartstore.com/de/net#section-pricing' target='_blank'&gt;Premium Edition&lt;/a&gt;.</Value>
+		<Value>The Name, SKU and Short Description fields can be searched in the standard search. Other fields require a search plugin such as the MegaSearch plugin from &lt;a href='https://smartstore.com/en/editions-prices' target='_blank'&gt;Premium Edition&lt;/a&gt;.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Search.SearchMode">
 		<Value>Search mode</Value>
@@ -7364,6 +7388,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart">
 		<Value>Shopping cart settings</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.AddProductsToBasketInSinglePositions">
+		<Value>Add products to cart in single positions</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.AddProductsToBasketInSinglePositions.Hint">
+		<Value>Enable this option if you want products with different quantities to be added to the shopping cart in single position.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.AllowAnonymousUsersToEmailWishlist">
 		<Value>Allow guests to email their wishlists</Value>
@@ -13717,10 +13747,28 @@
 		<Value>The number of megabytes that the database takes on the server hard disk.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.SystemInfo.DataProviderFriendlyName">
-		<Value>Data provider</Value>
+		<Value>Database</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.SystemInfo.DataProviderFriendlyName.Hint">
 		<Value>The name of the data provider.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.SystemInfo.DbTableInfo">
+		<Value>Table statistics</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.SystemInfo.DbTableInfo.NumRows">
+		<Value>Rows</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.SystemInfo.DbTableInfo.TableName">
+		<Value>Table name</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.SystemInfo.DbTableInfo.TotalSpace">
+		<Value>Total space</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.SystemInfo.DbTableInfo.UnusedSpace">
+		<Value>Unused</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.SystemInfo.DbTableInfo.UsedSpace">
+		<Value>Used space</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.SystemInfo.GarbageCollect">
 		<Value>Collect</Value>
@@ -14641,17 +14689,29 @@
 	<LocaleResource Name="Common.Entity.ProductVariantAttributeValue">
 		<Value>Product attribute option</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.Entity.SelectCategories">
+		<Value>Select categories</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Entity.SelectCategory">
 		<Value>Select category</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Entity.SelectManufacturer">
 		<Value>Select manufacturer</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.Entity.SelectManufacturers">
+		<Value>Select manufacturers</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Entity.SelectProduct">
 		<Value>Select product</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.Entity.SelectProducts">
+		<Value>Select products</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Entity.SelectTopic">
 		<Value>Select topic</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.Entity.SelectTopics">
+		<Value>Select topics</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Entity.SpecificationAttributeOption">
 		<Value>Specification attribute option</Value>
@@ -15751,6 +15811,21 @@
 	<LocaleResource Name="Enums.LowStockActivity.Unpublish">
 		<Value>Unpublish</Value>
 	</LocaleResource>
+	<LocaleResource Name="Enums.MailSecureOption.Auto">
+		<Value>Automatic (SSL or TLS if available, otherwise no encryption)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.MailSecureOption.None">
+		<Value>No encryption</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.MailSecureOption.SslOnConnect">
+		<Value>Immediately (encrypt connection immediately with SSL or TLS)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.MailSecureOption.StartTls">
+		<Value>StartTLS (always encrypt with TLS after greeting)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.MailSecureOption.StartTlsWhenAvailable">
+		<Value>StartTLS optional (encrypt with TLS after greeting, if available)</Value>
+	</LocaleResource>
 	<LocaleResource Name="Enums.ManageInventoryMethod.DontManageStock">
 		<Value>Don't track inventory</Value>
 	</LocaleResource>
@@ -15981,720 +16056,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Enums.ShoppingCartType.Wishlist">
 		<Value>Wishlist</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Blogs.PreviewDisplayType.Bare">
-		<Value>Minimal (no image, no background)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Blogs.PreviewDisplayType.Default">
-		<Value>Picture over text</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Blogs.PreviewDisplayType.DefaultSectionBg">
-		<Value>Picture behind text</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Blogs.PreviewDisplayType.Preview">
-		<Value>Preview picture over text</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Blogs.PreviewDisplayType.PreviewSectionBg">
-		<Value>Preview picture behind text</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Blogs.PreviewDisplayType.SectionBg">
-		<Value>Background color</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeChoiceBehaviour.GrayOutUnavailable">
-		<Value>Gray out unavailable attributes</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeChoiceBehaviour.None">
-		<Value>None</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeControlType.Boxes">
-		<Value>Boxes (color &amp; image)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeControlType.Checkboxes">
-		<Value>Checkboxes</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeControlType.Datepicker">
-		<Value>Date picker</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeControlType.DropdownList">
-		<Value>Drop-down list</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeControlType.FileUpload">
-		<Value>File upload</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeControlType.MultilineTextbox">
-		<Value>Multiline textbox</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeControlType.RadioList">
-		<Value>Radio button list</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.AttributeControlType.TextBox">
-		<Value>Textbox</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.BackorderMode.AllowQtyBelow0">
-		<Value>Allow qty below 0</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.BackorderMode.AllowQtyBelow0AndNotifyCustomer">
-		<Value>Allow qty below 0 and notify customer</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.BackorderMode.NoBackorders">
-		<Value>No backorders</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.DownloadActivationType.Manually">
-		<Value>Manually</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.DownloadActivationType.WhenOrderIsPaid">
-		<Value>When order is paid</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.GiftCardType.Physical">
-		<Value>Physical</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.GiftCardType.Virtual">
-		<Value>Virtual</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.GridColumnSpan.Max2Cols">
-		<Value>Always 2 (mobile &amp; desktop) -not recommended</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.GridColumnSpan.Max3Cols">
-		<Value>2 (mobile) to 3 (desktop)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.GridColumnSpan.Max4Cols">
-		<Value>2 (mobile) to 4 (desktop) - recommended</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.GridColumnSpan.Max5Cols">
-		<Value>2 (mobile) to 5 (desktop)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.GridColumnSpan.Max6Cols">
-		<Value>2 (mobile) to 6 (desktop)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.LowStockActivity.DisableBuyButton">
-		<Value>Disable buy button</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.LowStockActivity.Nothing">
-		<Value>Nothing</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.LowStockActivity.Unpublish">
-		<Value>Unpublish</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ManageInventoryMethod.DontManageStock">
-		<Value>Don't track inventory</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ManageInventoryMethod.ManageStock">
-		<Value>Track inventory</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ManageInventoryMethod.ManageStockByAttributes">
-		<Value>Track inventory by product attributes</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.PriceDisplayStyle.BadgeAll">
-		<Value>In bagdes</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.PriceDisplayStyle.BadgeFreeProductsOnly">
-		<Value>Badge free products only</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.PriceDisplayStyle.Default">
-		<Value>Default</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.PriceDisplayType.Hide">
-		<Value>No price indication</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.PriceDisplayType.LowestPrice">
-		<Value>Minimum feasible price</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.PriceDisplayType.PreSelectedPrice">
-		<Value>Price preselected on detail page</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.PriceDisplayType.PriceWithoutDiscountsAndAttributes">
-		<Value>Price without discounts and attributes</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductCondition.Damaged">
-		<Value>Damaged</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductCondition.New">
-		<Value>New</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductCondition.Refurbished">
-		<Value>Refurbished</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductCondition.Used">
-		<Value>Used</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.CreatedOn">
-		<Value>Newest Arrivals</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.CreatedOnAsc">
-		<Value>Date: Oldest first</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.Initial">
-		<Value>Position</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.NameAsc">
-		<Value>Name: A to Z</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.NameDesc">
-		<Value>Name: Z to A</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.PriceAsc">
-		<Value>Price: Low to High</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.PriceDesc">
-		<Value>Price: High to Low</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductSortingEnum.Relevance">
-		<Value>Relevance</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductType.BundledProduct">
-		<Value>Bundled product</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductType.GroupedProduct">
-		<Value>Grouped product</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductType.SimpleProduct">
-		<Value>Simple product</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductVariantAttributeValueType.ProductLinkage">
-		<Value>Product</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductVariantAttributeValueType.Simple">
-		<Value>Simple</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductVisibility.Full">
-		<Value>Fully visible</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductVisibility.Hidden">
-		<Value>Not visible</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductVisibility.ProductPage">
-		<Value>On product detail pages</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.ProductVisibility.SearchResults">
-		<Value>In search results</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.RecurringProductCyclePeriod.Days">
-		<Value>Days</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.RecurringProductCyclePeriod.Months">
-		<Value>Months</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.RecurringProductCyclePeriod.Weeks">
-		<Value>Weeks</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.RecurringProductCyclePeriod.Years">
-		<Value>Years</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.SubCategoryDisplayType.AboveProductList">
-		<Value>Above product list</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.SubCategoryDisplayType.Bottom">
-		<Value>At bottom of page</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.SubCategoryDisplayType.Hide">
-		<Value>Do not display</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Common.PageTitleSeoAdjustment.PagenameAfterStorename">
-		<Value>Page name comes after store name</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Common.PageTitleSeoAdjustment.StorenameAfterPagename">
-		<Value>Store name comes after page name</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerLoginType.Email">
-		<Value>Email</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerLoginType.Username">
-		<Value>Username</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerLoginType.UsernameOrEmail">
-		<Value>Username or email</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNameFormat.ShowEmails">
-		<Value>Show emails</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNameFormat.ShowFirstName">
-		<Value>Show first name</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNameFormat.ShowFullNames">
-		<Value>Show full names</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNameFormat.ShowNameAndCity">
-		<Value>Show shorted name and city</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNameFormat.ShowUsernames">
-		<Value>Show usernames</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNumberMethod.AutomaticallySet">
-		<Value>Automatically assigned</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNumberMethod.Disabled">
-		<Value>Disabled</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNumberMethod.Enabled">
-		<Value>Enabled</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNumberVisibility.Display">
-		<Value>Display</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNumberVisibility.Editable">
-		<Value>Always editable</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNumberVisibility.EditableIfEmpty">
-		<Value>Editable if empty</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.CustomerNumberVisibility.None">
-		<Value>Do not display</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.PasswordFormat.Clear">
-		<Value>Clear</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.PasswordFormat.Encrypted">
-		<Value>Encrypted</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.PasswordFormat.Hashed">
-		<Value>Hashed</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.WalletPostingReason.Admin">
-		<Value>Administration</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.WalletPostingReason.Debit">
-		<Value>Debit</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.WalletPostingReason.PartialRefund">
-		<Value>Partial refund</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.WalletPostingReason.Purchase">
-		<Value>Purchase</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.WalletPostingReason.Refill">
-		<Value>Refilling</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Customers.WalletPostingReason.Refund">
-		<Value>Refund</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportAttributeValueMerging.AppendAllValuesToName">
-		<Value>Append all values to the product name</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportAttributeValueMerging.None">
-		<Value>Not specified</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDeploymentType.Email">
-		<Value>Email</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDeploymentType.FileSystem">
-		<Value>File system</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDeploymentType.Ftp">
-		<Value>FTP</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDeploymentType.Http">
-		<Value>HTTP POST</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDeploymentType.PublicFolder">
-		<Value>Public folder</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDescriptionMerging.Description">
-		<Value>Description</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDescriptionMerging.ManufacturerAndNameAndDescription">
-		<Value>Manufacturer + Product name + long description</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDescriptionMerging.ManufacturerAndNameAndShortDescription">
-		<Value>Manufacturer + Product name + short description</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDescriptionMerging.NameAndDescription">
-		<Value>Product name + long description</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDescriptionMerging.NameAndShortDescription">
-		<Value>Product name + short description</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDescriptionMerging.None">
-		<Value>None</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDescriptionMerging.ShortDescription">
-		<Value>Short description</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportDescriptionMerging.ShortDescriptionOrNameIfEmpty">
-		<Value>Short description or name if empty</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportEntityType.Category">
-		<Value>Category</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportEntityType.Customer">
-		<Value>Customer</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportEntityType.Manufacturer">
-		<Value>Manufacturer</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportEntityType.NewsLetterSubscription">
-		<Value>Newsletter Subscribers</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportEntityType.Order">
-		<Value>Order</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportEntityType.Product">
-		<Value>Product</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportEntityType.ShoppingCartItem">
-		<Value>Shopping Cart</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportHttpTransmissionType.MultipartFormDataPost">
-		<Value>Multipart form data POST</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportHttpTransmissionType.SimplePost">
-		<Value>Simple POST</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportOrderStatusChange.Complete">
-		<Value>Complete</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportOrderStatusChange.None">
-		<Value>None</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ExportOrderStatusChange.Processing">
-		<Value>Processing</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ImportEntityType.Category">
-		<Value>Category</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ImportEntityType.Customer">
-		<Value>Customer</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ImportEntityType.NewsLetterSubscription">
-		<Value>Newsletter Subscriber</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ImportEntityType.Product">
-		<Value>Product</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ImportFileType.CSV">
-		<Value>Delimiter separated values (.csv, .txt, .tab)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.ImportFileType.XLSX">
-		<Value>Excel (.xlsx)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.RelatedEntityType.ProductVariantAttributeCombination">
-		<Value>Attribute combination</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.RelatedEntityType.ProductVariantAttributeValue">
-		<Value>Attribute option</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.DataExchange.RelatedEntityType.TierPrice">
-		<Value>Tier price</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Directory.CurrencyRoundingRule.AlwaysRoundDown">
-		<Value>Always round down (e.g. 0.05 rounding: 9.24 will round to 9.20)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Directory.CurrencyRoundingRule.AlwaysRoundUp">
-		<Value>Always round up (e.g. 0.05 rounding, 9.26 will round to 9.30)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Directory.CurrencyRoundingRule.RoundMidpointDown">
-		<Value>Round midpoint down (e.g. 0.05 rounding: 9.225 will round to 9.20)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Directory.CurrencyRoundingRule.RoundMidpointUp">
-		<Value>Round midpoint up (e.g. 0.05 rounding: 9.225 will round to 9.25)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Directory.DeliveryTimesPresentation.DateOnly">
-		<Value>Date only (if possible)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Directory.DeliveryTimesPresentation.LabelAndDate">
-		<Value>Label and date</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Directory.DeliveryTimesPresentation.LabelOnly">
-		<Value>Label only</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Directory.DeliveryTimesPresentation.None">
-		<Value>Do not display</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Discounts.DiscountLimitationType.NTimesOnly">
-		<Value>N times only</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Discounts.DiscountLimitationType.NTimesPerCustomer">
-		<Value>N times per customer</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Discounts.DiscountLimitationType.Unlimited">
-		<Value>Unlimited</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Discounts.DiscountType.AssignedToCategories">
-		<Value>Assigned to categories</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Discounts.DiscountType.AssignedToManufacturers">
-		<Value>Assigned to manufacturers</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Discounts.DiscountType.AssignedToOrderSubTotal">
-		<Value>Assigned to order subtotal</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Discounts.DiscountType.AssignedToOrderTotal">
-		<Value>Assigned to order total</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Discounts.DiscountType.AssignedToShipping">
-		<Value>Assigned to shipping</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Discounts.DiscountType.AssignedToSkus">
-		<Value>Assigned to products</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Localization.DefaultLanguageRedirectBehaviour.DoNoRedirect">
-		<Value>Do not redirect</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Localization.DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect">
-		<Value>Prepend SEO code to url and redirect</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Localization.DefaultLanguageRedirectBehaviour.StripSeoCode">
-		<Value>Strip SEO code if specified (recommended)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Localization.InvalidLanguageRedirectBehaviour.FallbackToWorkingLanguage">
-		<Value>Fallback to working language</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Localization.InvalidLanguageRedirectBehaviour.ReturnHttp404">
-		<Value>Return HTTP 404 (page not found) (recommended)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Localization.InvalidLanguageRedirectBehaviour.Tolerate">
-		<Value>Tolerate</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Logging.LogLevel.Debug">
-		<Value>Debug</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Logging.LogLevel.Error">
-		<Value>Error</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Logging.LogLevel.Fatal">
-		<Value>Fatal</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Logging.LogLevel.Information">
-		<Value>Information</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Logging.LogLevel.Warning">
-		<Value>Warning</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.CheckoutNewsLetterSubscription.Activated">
-		<Value>Show activated</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.CheckoutNewsLetterSubscription.Deactivated">
-		<Value>Show deactivated</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.CheckoutNewsLetterSubscription.None">
-		<Value>Do not show</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.CheckoutThirdPartyEmailHandOver.Activated">
-		<Value>Show activated</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.CheckoutThirdPartyEmailHandOver.Deactivated">
-		<Value>Show deactivated</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.CheckoutThirdPartyEmailHandOver.None">
-		<Value>Do not show</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.OrderStatus.Cancelled">
-		<Value>Cancelled</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.OrderStatus.Complete">
-		<Value>Complete</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.OrderStatus.Pending">
-		<Value>Pending</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.OrderStatus.Processing">
-		<Value>Processing</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.ReturnRequestStatus.Cancelled">
-		<Value>Cancelled</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.ReturnRequestStatus.ItemsRefunded">
-		<Value>Item(s) refunded</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.ReturnRequestStatus.ItemsRepaired">
-		<Value>Item(s) repaired</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.ReturnRequestStatus.Pending">
-		<Value>Pending</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.ReturnRequestStatus.Received">
-		<Value>Received</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.ReturnRequestStatus.RequestRejected">
-		<Value>Request rejected</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.ReturnRequestStatus.ReturnAuthorized">
-		<Value>Return authorized</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.ShoppingCartType.ShoppingCart">
-		<Value>Shopping Cart</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Orders.ShoppingCartType.Wishlist">
-		<Value>Wishlist</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Payments.CapturePaymentReason.OrderDelivered">
-		<Value>The order has been marked as delivered</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Payments.CapturePaymentReason.OrderShipped">
-		<Value>The order has been marked as shipped</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Payments.PaymentStatus.Authorized">
-		<Value>Authorized</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Payments.PaymentStatus.Paid">
-		<Value>Paid</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Payments.PaymentStatus.PartiallyRefunded">
-		<Value>Partially refunded</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Payments.PaymentStatus.Pending">
-		<Value>Pending</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Payments.PaymentStatus.Refunded">
-		<Value>Refunded</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Payments.PaymentStatus.Voided">
-		<Value>Voided</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Security.PasswordFormat.Clear">
-		<Value>Clear</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Security.PasswordFormat.Encrypted">
-		<Value>Encrypted</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Security.PasswordFormat.Hashed">
-		<Value>Hashed</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Security.UserRegistrationType.AdminApproval">
-		<Value>A customer should be approved by administrator</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Security.UserRegistrationType.Disabled">
-		<Value>Registration is disabled</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Security.UserRegistrationType.EmailValidation">
-		<Value>Email validation is required after registration</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Security.UserRegistrationType.Standard">
-		<Value>Standard account creation</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Seo.CanonicalHostNameRule.NoRule">
-		<Value>Don't apply</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Seo.CanonicalHostNameRule.OmitWww">
-		<Value>Omit www prefix</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Seo.CanonicalHostNameRule.RequireWww">
-		<Value>Require www prefix</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Shipping.ShippingStatus.Delivered">
-		<Value>Delivered</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Shipping.ShippingStatus.NotYetShipped">
-		<Value>Not yet shipped</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Shipping.ShippingStatus.PartiallyShipped">
-		<Value>Partially shipped</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Shipping.ShippingStatus.Shipped">
-		<Value>Shipped</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Shipping.ShippingStatus.ShippingNotRequired">
-		<Value>Shipping not required</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.AuxiliaryServicesTaxType.HighestCartAmount">
-		<Value>Highest amount in cart</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.AuxiliaryServicesTaxType.HighestTaxRate">
-		<Value>Highest tax rate in cart</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.AuxiliaryServicesTaxType.ProRata">
-		<Value>Pro rata in accordance with main service</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.AuxiliaryServicesTaxType.SpecifiedTaxCategory">
-		<Value>Specified tax category</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.TaxBasedOn.BillingAddress">
-		<Value>Billing address</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.TaxBasedOn.DefaultAddress">
-		<Value>Default address</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.TaxBasedOn.ShippingAddress">
-		<Value>Shipping address</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.TaxDisplayType.ExcludingTax">
-		<Value>Excluding tax</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.TaxDisplayType.IncludingTax">
-		<Value>Including tax</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.VatNumberStatus.Empty">
-		<Value>Empty</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.VatNumberStatus.Invalid">
-		<Value>Invalid</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.VatNumberStatus.Unknown">
-		<Value>Unknown</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Domain.Tax.VatNumberStatus.Valid">
-		<Value>Valid</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.Facets.FacetSorting.DisplayOrder">
-		<Value>According to display order</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.Facets.FacetSorting.HitsDesc">
-		<Value>Hit count: highest first</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.Facets.FacetSorting.LabelAsc">
-		<Value>Displayed Name: A to Z</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.Facets.FacetSorting.ValueAsc">
-		<Value>Name: A to Z</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.Facets.FacetTemplateHint.Checkboxes">
-		<Value>Checkboxes</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.Facets.FacetTemplateHint.Custom">
-		<Value>Boxes (color &amp; image)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.Facets.FacetTemplateHint.NumericRange">
-		<Value>Numeric range</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.IndexingStatus.Idle">
-		<Value>Idle</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.IndexingStatus.Rebuilding">
-		<Value>Rebuilding</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.IndexingStatus.Unavailable">
-		<Value>Unavailable</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.IndexingStatus.Updating">
-		<Value>Updating</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.SearchMode.Contains">
-		<Value>Contains (wildcard)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.SearchMode.ExactMatch">
-		<Value>Is equal to (term)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Core.Search.SearchMode.StartsWith">
-		<Value>Starts with (prefix)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Rules.RuleScope.Cart">
-		<Value>Cart</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Rules.RuleScope.Cart.Hint">
-		<Value>Rule to grant discounts to the customer or offer shipping and payment methods.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Rules.RuleScope.Customer">
-		<Value>Customer</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Rules.RuleScope.Customer.Hint">
-		<Value>Rule to automatically assign customers to customer roles per scheduled task.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Rules.RuleScope.OrderItem">
-		<Value>Order item</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Rules.RuleScope.Product">
-		<Value>Product</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Rules.RuleScope.Product.Hint">
-		<Value>Rule to automatically assign products to categories per scheduled task.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Services.Payments.RecurringPaymentType.Automatic">
-		<Value>Automatic</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Services.Payments.RecurringPaymentType.Manual">
-		<Value>Manual</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.SmartStore.Services.Payments.RecurringPaymentType.NotSupported">
-		<Value>Not supported</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.SubCategoryDisplayType.AboveProductList">
 		<Value>Above product list</Value>
