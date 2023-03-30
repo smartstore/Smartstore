@@ -49,7 +49,7 @@
     {
         if (isLinesMode)
         {
-            <div class="art-info-group@(list.ShowRatings && list.ShowBrand ? " floating" : "")">
+            <div class="art-info-group" attr-class='(list.ShowRatings && list.ShowBrand, "floating")'>
                 @if (list.ShowBrand)
                 {
                     <partial name="Product.List.Item.Brand" model="Model" />
@@ -86,32 +86,20 @@
         </div>
     }
 
-    @if (showAttrs)
-    {
-        <table class="art-attrs">
-            @if (list.ShowSku && Model.Sku.HasValue())
-            {
-                <tr>
-                    <td>@T("Products.Sku")</td>
-                    <td>@Model.Sku</td>
-                </tr>
-            }
-            @if (list.ShowWeight && Model.Weight.HasValue())
-            {
-                <tr>
-                    <td>@T("Products.Weight")</td>
-                    <td>@Model.Weight</td>
-                </tr>
-            }
-            @if (list.ShowDimensions && Model.Dimensions.HasValue())
-            {
-                <tr>
-                    <td>@T("Products.Dimensions") <span class="lrm">(@Model.DimensionMeasureUnit)</span></td>
-                    <td>@Model.Dimensions</td>
-                </tr>
-            }
-        </table>
-    }
+    <table sm-if="showAttrs" class="art-attrs">
+        <tr sm-if="list.ShowSku && Model.Sku.HasValue()">
+            <td>@T("Products.Sku")</td>
+            <td>@Model.Sku</td>
+        </tr>
+        <tr sm-if="list.ShowWeight && Model.Weight.HasValue()">
+            <td>@T("Products.Weight")</td>
+            <td>@Model.Weight</td>
+        </tr>
+        <tr sm-if="list.ShowDimensions && Model.Dimensions.HasValue()">
+            <td>@T("Products.Dimensions") <span class="lrm">(@Model.DimensionMeasureUnit)</span></td>
+            <td>@Model.Dimensions</td>
+        </tr>
+    </table>
 
     @if (!isLinesMode)
     {
@@ -124,12 +112,9 @@
         <partial name="Product.List.Item.Variants" model="Model" />
     }
 
-    @if (list.ShowLegalInfo)
-    {
-        <div class="art-legalinfo">
-            <span>*</span> <span>@Html.Raw(Model.LegalInfo)</span>
-        </div>
-    }
+    <div sm-if="list.ShowLegalInfo" class="art-legalinfo">
+        <span>*</span> <span>@Html.Raw(Model.LegalInfo)</span>
+    </div>
 
     @if (isLinesMode)
     {
@@ -150,21 +135,18 @@
     }
 
     @{
-        if (!isLinesMode)
+        if (!isLinesMode && showDrop)
         {
-            if (showDrop)
-            {
-                <div class="art-drop">
-                    @if (showVariants)
-                    {
-                        <partial name="Product.List.Item.Variants" model="Model" />
-                    }
-                    @if (showButtons)
-                    {
-                        <partial name="Product.List.Item.Buttons" model="Model" />
-                    }
-                </div>
-            }
+            <div class="art-drop">
+                @if (showVariants)
+                {
+                    <partial name="Product.List.Item.Variants" model="Model" />
+                }
+                @if (showButtons)
+                {
+                    <partial name="Product.List.Item.Buttons" model="Model" />
+                }
+            </div>
         }
     }
 </article>
