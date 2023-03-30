@@ -41,7 +41,7 @@ class Build : NukeBuild
     [GitVersion]
     readonly GitVersion GitVersion;
 
-    readonly string Version = "5.0.3";
+    readonly string Version = "5.0.4";
 
     AbsolutePath SourceDirectory => RootDirectory / "src";
     AbsolutePath TestsDirectory => RootDirectory / "test";

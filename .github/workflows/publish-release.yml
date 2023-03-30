@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version, e.g. 5.0.3'
+        description: 'Version, e.g. 5.0.4'
         required: true
   
 env:
