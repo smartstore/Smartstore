@@ -5,8 +5,8 @@
   "SystemName": "Smartstore.Clickatell",
   "FriendlyName": "Clickatell SMS Provider",
   "Description": "Sends order notifications to shop administrator via SMS.",
-  "Version": "5.0.3",
-  "MinAppVersion": "5.0.3",
+  "Version": "5.0.4",
+  "MinAppVersion": "5.0.4",
   "Order": 1,
   "ResourceRootKey": "Plugins.Sms.Clickatell"
 }
