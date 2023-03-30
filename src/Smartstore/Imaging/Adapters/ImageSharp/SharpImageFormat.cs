@@ -7,7 +7,7 @@ using SixLabors.ImageSharp.Formats.Webp;
 using SharpBmpBitsPerPixel = SixLabors.ImageSharp.Formats.Bmp.BmpBitsPerPixel;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 using SharpGifColorTableMode = SixLabors.ImageSharp.Formats.Gif.GifColorTableMode;
-using SharpJpgColorType = SixLabors.ImageSharp.Formats.Jpeg.JpegColorType;
+using SharpJpgColorType = SixLabors.ImageSharp.Formats.Jpeg.JpegEncodingColor;
 using SharpPngBitDepth = SixLabors.ImageSharp.Formats.Png.PngBitDepth;
 using SharpPngChunkFilter = SixLabors.ImageSharp.Formats.Png.PngChunkFilter;
 using SharpPngColorType = SixLabors.ImageSharp.Formats.Png.PngColorType;
@@ -48,7 +48,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             => _sharpFormat.MimeTypes;
 
         public virtual IImageEncoder CreateEncoder()
-            => SixLabors.ImageSharp.Configuration.Default.ImageFormatsManager.FindEncoder(_sharpFormat);
+            => SixLabors.ImageSharp.Configuration.Default.ImageFormatsManager.GetEncoder(_sharpFormat);
     }
 
     internal class BmpFormat : SharpImageFormat, IBmpFormat
@@ -163,6 +163,8 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
                 || TransparentColorMode != null
                 || IgnoreMetadata)
             {
+                var defaultEncoder = new PngEncoder();
+                
                 var encoder = new PngEncoder
                 {
                     BitDepth = (SharpPngBitDepth?)BitDepth,
@@ -171,15 +173,11 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
                     InterlaceMethod = (SharpPngInterlaceMode?)InterlaceMode,
                     ChunkFilter = (SharpPngChunkFilter?)ChunkFilter,
                     Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod),
-                    IgnoreMetadata = IgnoreMetadata
+                    Threshold = Threshold ?? defaultEncoder.Threshold,
+                    TransparentColorMode = TransparentColorMode == null ? defaultEncoder.TransparentColorMode : (SharpPngTransparentColorMode)TransparentColorMode.Value,
+                    CompressionLevel = CompressionLevel == null ? defaultEncoder.CompressionLevel : (SharpPngCompressionLevel)CompressionLevel.Value,
+                    SkipMetadata = IgnoreMetadata
                 };
-
-                if (TransparentColorMode != null)
-                    encoder.TransparentColorMode = (SharpPngTransparentColorMode)TransparentColorMode.Value;
-                if (CompressionLevel != null)
-                    encoder.CompressionLevel = (SharpPngCompressionLevel)CompressionLevel;
-                if (Threshold != null)
-                    encoder.Threshold = Threshold.Value;
 
                 return encoder;
             }
@@ -234,27 +232,20 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
                 || NearLossless != null
                 || NearLosslessQuality != null)
             {
+                var defaultEncoder = new WebpEncoder();
+                
                 var encoder = new WebpEncoder
                 {
-                    FileFormat = (SharpWebpFileFormatType?)FileFormat
+                    FileFormat = (SharpWebpFileFormatType?)FileFormat,
+                    Quality = Quality ?? defaultEncoder.Quality,
+                    UseAlphaCompression = UseAlphaCompression ?? defaultEncoder.UseAlphaCompression,
+                    EntropyPasses = EntropyPasses ?? defaultEncoder.EntropyPasses,
+                    SpatialNoiseShaping = SpatialNoiseShaping ?? defaultEncoder.SpatialNoiseShaping,
+                    FilterStrength = FilterStrength ?? defaultEncoder.FilterStrength,
+                    NearLossless = NearLossless ?? defaultEncoder.NearLossless,
+                    NearLosslessQuality = NearLosslessQuality ?? defaultEncoder.NearLosslessQuality,
+                    Method = Method == null ? defaultEncoder.Method : (SharpWebpEncodingMethod)Method.Value
                 };
-
-                if (Quality != null)
-                    encoder.Quality = Quality.Value;
-                if (Method != null)
-                    encoder.Method = (SharpWebpEncodingMethod)Method.Value;
-                if (UseAlphaCompression != null)
-                    encoder.UseAlphaCompression = UseAlphaCompression.Value;
-                if (EntropyPasses != null)
-                    encoder.EntropyPasses = EntropyPasses.Value;
-                if (SpatialNoiseShaping != null)
-                    encoder.SpatialNoiseShaping = SpatialNoiseShaping.Value;
-                if (FilterStrength != null)
-                    encoder.FilterStrength = FilterStrength.Value;
-                if (NearLossless != null)
-                    encoder.NearLossless = NearLossless.Value;
-                if (NearLosslessQuality != null)
-                    encoder.NearLosslessQuality = NearLosslessQuality.Value;
 
                 return encoder;
             }

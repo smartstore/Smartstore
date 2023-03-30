@@ -64,10 +64,10 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
         public IImageInfo DetectInfo(Stream stream)
         {
-            var info = Image.Identify(stream, out var format);
-            if (info != null && format != null)
+            var info = Image.Identify(stream);
+            if (info?.Metadata?.DecodedImageFormat != null)
             {
-                return new SharpImageInfo(info, format);
+                return new SharpImageInfo(info);
             }
 
             return null;
@@ -75,13 +75,10 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
         public async Task<IImageInfo> DetectInfoAsync(Stream stream)
         {
-            var result = await Image.IdentifyWithFormatAsync(stream);
-            var info = result.ImageInfo;
-            var format = result.Format;
-
-            if (info != null && format != null)
+            var info = await Image.IdentifyAsync(stream);
+            if (info?.Metadata?.DecodedImageFormat != null)
             {
-                return new SharpImageInfo(info, format);
+                return new SharpImageInfo(info);
             }
 
             return null;
@@ -89,20 +86,20 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
         public IProcessableImage Load(string path)
         {
-            var image = Image.Load(path, out var format);
-            return new SharpImage(image, format);
+            var image = Image.Load(path);
+            return new SharpImage(image);
         }
 
         public IProcessableImage Load(Stream stream)
         {
-            var image = Image.Load(stream, out var format);
-            return new SharpImage(image, format);
+            var image = Image.Load(stream);
+            return new SharpImage(image);
         }
 
         public async Task<IProcessableImage> LoadAsync(Stream stream)
         {
-            var result = await Image.LoadWithFormatAsync(stream);
-            return new SharpImage(result.Image, result.Format);
+            var image = await Image.LoadAsync(stream);
+            return new SharpImage(image);
         }
 
         internal static SixLabors.ImageSharp.Formats.IImageFormat FindInternalImageFormat(string extension)
@@ -112,7 +109,12 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
                 return null;
             }
 
-            return SharpConfiguration.Default.ImageFormatsManager.FindFormatByFileExtension(extension);
+            if (SharpConfiguration.Default.ImageFormatsManager.TryFindFormatByFileExtension(extension, out var format))
+            {
+                return format;
+            }
+
+            return null;
         }
 
         public void ReleaseMemory()

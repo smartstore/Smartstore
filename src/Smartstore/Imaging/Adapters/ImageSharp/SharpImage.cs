@@ -1,25 +1,31 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 using Size = System.Drawing.Size;
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal sealed class SharpImage : Disposable, IProcessableImage
     {
+        internal readonly static SharpImageFormat PngFormat = 
+            ImageSharpUtility.CreateFormat(SharpImageFactory.FindInternalImageFormat("png"));
+
         private readonly Image _image;
         private SharpImageFormat _format;
 
-        public SharpImage(Image image, SharpFormat sharpFormat)
-            : this(image, ImageSharpUtility.CreateFormat(sharpFormat))
+        public SharpImage(Image image)
         {
+            _image = Guard.NotNull(image);
+            _format = image.Metadata.DecodedImageFormat != null
+                ? ImageSharpUtility.CreateFormat(image.Metadata.DecodedImageFormat)
+                : PngFormat;
+            SourceSize = new Size(image.Width, image.Height);
         }
 
-        private SharpImage(Image image, SharpImageFormat format)
+        public SharpImage(Image image, SharpImageFormat format)
         {
-            _image = image;
-            _format = format;
-            SourceSize = new System.Drawing.Size(image.Width, image.Height);
+            _image = Guard.NotNull(image);
+            _format = Guard.NotNull(format);
+            SourceSize = new Size(image.Width, image.Height);
         }
 
         #region IImageInfo
@@ -42,7 +48,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             get => _format;
             set
             {
-                Guard.NotNull(value, nameof(value));
+                Guard.NotNull(value);
                 Guard.IsTypeOf<SharpImageFormat>(value);
 
                 _format = (SharpImageFormat)value;

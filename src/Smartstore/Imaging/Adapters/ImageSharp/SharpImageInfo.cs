@@ -7,13 +7,15 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal sealed class SharpImageInfo : IImageInfo
     {
-        private readonly SixLabors.ImageSharp.IImageInfo _info;
+        private readonly SixLabors.ImageSharp.ImageInfo _info;
         private readonly IImageFormat _format;
 
-        public SharpImageInfo(SixLabors.ImageSharp.IImageInfo info, SixLabors.ImageSharp.Formats.IImageFormat format)
+        public SharpImageInfo(SixLabors.ImageSharp.ImageInfo info)
         {
+            Guard.NotNull(info);
+            
             _info = info;
-            _format = ImageSharpUtility.CreateFormat(format);
+            _format = ImageSharpUtility.CreateFormat(info.Metadata.DecodedImageFormat);
         }
 
         public int Width

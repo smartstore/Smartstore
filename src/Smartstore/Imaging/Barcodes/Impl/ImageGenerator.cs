@@ -6,31 +6,29 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Smartstore.Imaging.Adapters.ImageSharp;
 using SharpColor = SixLabors.ImageSharp.Color;
-using SharpImageFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 
 namespace Smartstore.Imaging.Barcodes.Impl
 {
     internal class ImageGenerator
     {
-        private readonly static SharpImageFormat PngFormat = SharpImageFactory.FindInternalImageFormat("png");
         private readonly BarcodeImageOptions _options;
 
         public ImageGenerator(BarcodeImageOptions options)
         {
-            _options = Guard.NotNull(options, nameof(options));
+            _options = Guard.NotNull(options);
 
             if (options.Margin.HasValue)
             {
-                Guard.NotNegative(options.Margin.Value, nameof(options.Margin));
+                Guard.NotNegative(options.Margin.Value);
             }
 
-            Guard.IsPositive(options.Scale, nameof(options.Scale));
-            Guard.IsPositive(options.BarHeightFor1DCode, nameof(options.BarHeightFor1DCode));
+            Guard.IsPositive(options.Scale);
+            Guard.IsPositive(options.BarHeightFor1DCode);
         }
 
         public IImage GenerateImage(Barcoder.IBarcode barcode)
         {
-            Guard.NotNull(barcode, nameof(barcode));
+            Guard.NotNull(barcode);
 
             // Clone and fix options
             var opts = new ImageOptions(_options, barcode);
@@ -78,8 +76,8 @@ namespace Smartstore.Imaging.Barcodes.Impl
             {
                 EanTextRenderer.Render(image, barcode, o);
             }
-
-            return new SharpImage(image, PngFormat);
+            
+            return new SharpImage(image);
         }
 
         private static IImage Generate2D(Barcoder.IBarcode barcode, ImageOptions o)
@@ -110,7 +108,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
                 }
             });
 
-            return new SharpImage(image, PngFormat);
+            return new SharpImage(image);
         }
 
         #region ImageOptions
