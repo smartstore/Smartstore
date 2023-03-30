@@ -135,6 +135,13 @@
     }
 
     <div sm-if="!isLinesMode && showDrop" class="art-drop">
-        <partial name="Product.List.Item.@(showVariants ? "Variants" : "Buttons")" model="Model" />
+        @if (showVariants)
+        {
+            <partial name="Product.List.Item.Variants" model="Model" />
+        }
+        @if (showButtons)
+        {
+            <partial name="Product.List.Item.Buttons" model="Model" />
+        }
     </div>
 </article>
