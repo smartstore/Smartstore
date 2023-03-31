@@ -70,11 +70,22 @@ namespace Smartstore.Core.OutputCache
     }
 
     /// <summary>
-    /// Provides routes to resources that can be cached by output cache.
+    /// Provides routes to resources (pages and view components) that can be cached by output cache.
     /// </summary>
     public interface ICacheableRouteProvider
     {
         int Order { get; }
+
+        /// <summary>
+        /// Gets the route keys of cacheable resources.
+        /// </summary>
         IEnumerable<string> GetCacheableRoutes();
+
+        /// <summary>
+        /// Gets the route keys of overridden/uncacheable routes.
+        /// For example, implement this method if your module makes view components
+        /// from other application parts uncacheable.
+        /// </summary>
+        IEnumerable<string> GetOverriddenRoutes() => null;
     }
 }
