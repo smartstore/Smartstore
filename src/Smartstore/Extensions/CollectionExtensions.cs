@@ -34,12 +34,6 @@ namespace Smartstore
             return new SyncedCollection<T>(source);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNullOrEmpty<T>(this ICollection<T> source)
-        {
-            return source == null || source.Count == 0;
-        }
-
         #endregion
 
         #region List

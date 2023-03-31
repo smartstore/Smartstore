@@ -35,6 +35,25 @@ namespace Smartstore
         #region IEnumerable
 
         /// <summary>
+        /// Checks whether given <paramref name="source"/> collection is either
+        /// <c>null</c> or empty.
+        /// </summary>
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T> source)
+        {
+            if (source == null)
+            {
+                return true;
+            }
+
+            if (source.TryGetNonEnumeratedCount(out var count))
+            {
+                return count == 0;
+            }
+
+            return !source.Any();
+        }
+
+        /// <summary>
         /// Performs an action on each item while iterating through a list. 
         /// This is a handy shortcut for <c>foreach(item in list) { ... }</c>
         /// </summary>
