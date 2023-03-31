@@ -42,7 +42,8 @@ namespace Smartstore.Scheduling
             { "IndexingTask", "SmartStore.MegaSearch.IndexingTask, SmartStore.MegaSearch" },
             { "ForumIndexingTask", "SmartStore.MegaSearch.ForumIndexingTask, SmartStore.MegaSearch" },
             { "BMEcatImportTask", "SmartStore.BMEcat.FileImportTask, SmartStore.BMEcat" },
-            { "CleanupCartApprovalTask", "SmartStore.CartApproval.Tasks.DeleteObsoleteRecordsTask, SmartStore.CartApproval" }
+            { "CleanupCartApprovalTask", "SmartStore.CartApproval.Tasks.DeleteObsoleteRecordsTask, SmartStore.CartApproval" },
+            { "CleanupPersonalPromoTask", "SmartStore.PersonalPromo.CleanupTask, SmartStore.PersonalPromo" },
         };
 
         private readonly IDbContextFactory<SmartDbContext> _dbFactory;
