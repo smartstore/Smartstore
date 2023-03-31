@@ -97,11 +97,19 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity
 
 ### System requirements
 
+#### Supported operating systems
+
 * Windows 10 (or higher) / Windows Server 2012 R2 (or higher)
 * Ubuntu 14.04+
 * Debian 11+
 * Mac OS X 10.11+
-* MS SQL Server 2008 Express (or higher), MySQL
+
+#### Supported database systems
+
+- MS SQL Server 2008 Express (or higher)
+- MySQL 8.0+
+- PostgreSQL 11+
+- SQLite 3.20+
 
 ### Upgrade from Smartstore.NET 4.2
 
