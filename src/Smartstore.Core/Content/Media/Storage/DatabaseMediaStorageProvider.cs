@@ -275,11 +275,11 @@ namespace Smartstore.Core.Content.Media.Storage
 
         Task IMediaSender.OnCompletedAsync(MediaMoverContext context, bool succeeded, CancellationToken cancelToken)
         {
-            if (succeeded && context.AffectedFiles.Any() && _db.DataProvider.ProviderType == DbSystemType.SqlServer)
+            if (succeeded && context.AffectedFiles.Any())
             {
                 // Shrink database after sending/removing at least one blob,
                 // but only in MS SQL Server (takes too long in other systems)
-                return _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
+                return _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken);
             }
 
             return Task.CompletedTask;

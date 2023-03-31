@@ -220,7 +220,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
-        protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
+        protected override Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
         {
             var sql = "DBCC SHRINKDATABASE(0)";
             return async

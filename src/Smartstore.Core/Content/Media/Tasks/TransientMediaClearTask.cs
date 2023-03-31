@@ -2,6 +2,7 @@
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Scheduling;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media.Tasks
 {
@@ -43,15 +44,9 @@ namespace Smartstore.Core.Content.Media.Tasks
                     .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
                     .ExecuteDeleteAsync(cancelToken);
 
-                if (numDeleted > 0 && _db.DataProvider.CanShrink)
+                if (numDeleted > 1000 && _db.DataProvider.CanShrink)
                 {
-                    try
-                    {
-                        await _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
-                    }
-                    catch
-                    {
-                    }
+                    await CommonHelper.TryAction(() => _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken));
                 }
             }
         }

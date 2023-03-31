@@ -1,4 +1,6 @@
 ﻿using Smartstore.Core.Data;
+using Smartstore.Data;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Logging
 {
@@ -33,7 +35,7 @@ namespace Smartstore.Core.Logging
 
             if (numDeleted > 100 && _db.DataProvider.CanShrink)
             {
-                await _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
+                await CommonHelper.TryAction(() => _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken));
             }
 
             return numDeleted;

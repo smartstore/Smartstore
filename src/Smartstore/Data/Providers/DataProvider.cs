@@ -222,9 +222,13 @@ namespace Smartstore.Data.Providers
             => throw new NotSupportedException();
 
         /// <summary>
-        /// Shrinks / compacts the database
+        /// Shrinks / compacts the database.
         /// </summary>
-        protected virtual Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
+        /// <param name="onlyWhenFast">
+        /// If <c>true</c>, performs the shrink operation only if the underlying
+        /// data provider is capable of fast shrinking.
+        /// </param>
+        protected virtual Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -434,16 +438,24 @@ namespace Smartstore.Data.Providers
             => GetDatabaseSizeCore(true);
 
         /// <summary>
-        /// Shrinks / compacts the database
+        /// Shrinks / compacts the database.
         /// </summary>
-        public int ShrinkDatabase()
-            => ShrinkDatabaseCore(false).Await();
+        /// <param name="onlyWhenFast">
+        /// If <c>true</c>, performs the shrink operation only if the underlying
+        /// data provider is capable of fast shrinking.
+        /// </param>
+        public int ShrinkDatabase(bool onlyWhenFast = true)
+            => ShrinkDatabaseCore(false, onlyWhenFast).Await();
 
         /// <summary>
-        /// Shrinks / compacts the database
+        /// Shrinks / compacts the database.
         /// </summary>
-        public Task<int> ShrinkDatabaseAsync(CancellationToken cancelToken = default)
-            => ShrinkDatabaseCore(true, cancelToken);
+        /// <param name="onlyWhenFast">
+        /// If <c>true</c>, performs the shrink operation only if the underlying
+        /// data provider is capable of fast shrinking.
+        /// </param>
+        public Task<int> ShrinkDatabaseAsync(bool onlyWhenFast = true, CancellationToken cancelToken = default)
+            => ShrinkDatabaseCore(true, onlyWhenFast, cancelToken);
 
         /// <summary>
         /// Reindexes all tables

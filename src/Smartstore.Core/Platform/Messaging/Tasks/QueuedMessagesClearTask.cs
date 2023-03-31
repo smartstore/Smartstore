@@ -1,6 +1,7 @@
 ﻿using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Scheduling;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Messaging.Tasks
 {
@@ -22,13 +23,13 @@ namespace Smartstore.Core.Messaging.Tasks
         {
             var olderThan = DateTime.UtcNow.AddDays(-Math.Abs(_commonSettings.MaxQueuedMessagesAgeInDays));
 
-            await _db.QueuedEmails
+            var numDeleted = await _db.QueuedEmails
                 .Where(x => x.SentOnUtc.HasValue && x.CreatedOnUtc < olderThan)
                 .ExecuteDeleteAsync(cancellationToken: cancelToken);
 
-            if (_db.DataProvider.CanShrink)
+            if (numDeleted > 100 && _db.DataProvider.CanShrink)
             {
-                await _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
+                await CommonHelper.TryAction(() => _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken));
             }
         }
     }

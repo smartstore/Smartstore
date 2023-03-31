@@ -152,8 +152,13 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
-        protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
+        protected override Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
         {
+            if (onlyWhenFast)
+            {
+                return Task.FromResult(0);
+            }
+            
             return async
                 ? ReIndexTablesAsync(cancelToken)
                 : Task.FromResult(ReIndexTables());

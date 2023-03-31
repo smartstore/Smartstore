@@ -11,6 +11,7 @@ using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Diagnostics;
 using Smartstore.Events;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Identity
 {
@@ -215,6 +216,11 @@ namespace Smartstore.Core.Identity
                 }
 
                 numberOfDeletedCustomers += numDeleted;
+            }
+
+            if (numberOfDeletedCustomers + numberOfDeletedAttributes > 10000 && !cancelToken.IsCancellationRequested && _db.DataProvider.CanShrink)
+            {
+                await CommonHelper.TryAction(() => _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken));
             }
 
             Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
