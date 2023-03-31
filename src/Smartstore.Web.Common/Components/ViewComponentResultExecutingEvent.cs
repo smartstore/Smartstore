@@ -11,7 +11,7 @@ namespace Smartstore.Web.Components
         public ViewComponentResultExecutingEvent(ViewComponentContext context, IViewComponentResult result)
             : base(context)
         {
-            Result = Guard.NotNull(result, nameof(result));
+            Result = Guard.NotNull(result);
         }
 
         public IViewComponentResult Result { get; set; }

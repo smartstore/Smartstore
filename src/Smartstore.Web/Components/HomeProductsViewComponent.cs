@@ -31,6 +31,13 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync(int? productThumbPictureSize = null)
         {
+            var invokeEvent = new ViewComponentInvokingEvent<ProductSummaryItemModel>(ViewComponentContext);
+            await Services.EventPublisher.PublishAsync(invokeEvent);
+            if (invokeEvent.Model != null)
+            {
+                return View(invokeEvent.Model);
+            }
+
             var products = await _db.Products
                 .AsNoTracking()
                 .ApplyStandardFilter(false)
@@ -38,7 +45,7 @@ namespace Smartstore.Web.Components
                 .OrderBy(x => x.HomePageDisplayOrder)
                 .SelectSummary()
                 .ToListAsync();
-
+            
             // ACL and store mapping
             products = await products
                 .WhereAwait(async c => (await _aclService.AuthorizeAsync(c)) && (await _storeMappingService.AuthorizeAsync(c)))
