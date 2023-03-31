@@ -255,19 +255,47 @@ namespace Smartstore.Core.Localization
         /// <returns>A map of store languages where key is the store id and values are tuples of language ids and seo codes</returns>
         protected Multimap<int, LanguageStub> GetStoreLanguageMap()
         {
-            return GetStoreLanguageMapInternal(false).Await();
+            var result = _cache.Get(STORE_LANGUAGE_MAP_KEY, (o) =>
+            {
+                o.ExpiresIn(TimeSpan.FromDays(1));
+
+                var map = new Multimap<int, LanguageStub>();
+
+                var allStores = _storeContext.GetAllStores();
+                foreach (var store in allStores)
+                {
+                    var languages = GetAllLanguages(false, store.Id);
+                    if (!languages.Any())
+                    {
+                        // language-less stores aren't allowed but could exist accidentally. Correct this.
+                        var firstStoreLang = GetAllLanguages(true, store.Id).FirstOrDefault();
+                        if (firstStoreLang == null)
+                        {
+                            // absolute fallback
+                            firstStoreLang = GetAllLanguages(true).FirstOrDefault();
+                        }
+                        map.Add(store.Id, new LanguageStub { Id = firstStoreLang.Id, UniqueSeoCode = firstStoreLang.UniqueSeoCode });
+                    }
+                    else
+                    {
+                        foreach (var lang in languages)
+                        {
+                            map.Add(store.Id, new LanguageStub { Id = lang.Id, UniqueSeoCode = lang.UniqueSeoCode });
+                        }
+                    }
+                }
+
+                return map;
+            });
+
+            return result;
         }
 
         /// <summary>
         /// Gets a map of active/published store languages
         /// </summary>
         /// <returns>A map of store languages where key is the store id and values are tuples of language ids and seo codes</returns>
-        protected Task<Multimap<int, LanguageStub>> GetStoreLanguageMapAsync()
-        {
-            return GetStoreLanguageMapInternal(true);
-        }
-
-        private async Task<Multimap<int, LanguageStub>> GetStoreLanguageMapInternal(bool async)
+        protected async Task<Multimap<int, LanguageStub>> GetStoreLanguageMapAsync()
         {
             var result = await _cache.GetAsync(STORE_LANGUAGE_MAP_KEY, async (o) =>
             {
@@ -278,15 +306,15 @@ namespace Smartstore.Core.Localization
                 var allStores = _storeContext.GetAllStores();
                 foreach (var store in allStores)
                 {
-                    var languages = async ? await GetAllLanguagesAsync(false, store.Id) : GetAllLanguages(false, store.Id);
+                    var languages = await GetAllLanguagesAsync(false, store.Id);
                     if (!languages.Any())
                     {
                         // language-less stores aren't allowed but could exist accidentally. Correct this.
-                        var firstStoreLang = (async ? await GetAllLanguagesAsync(true, store.Id) : GetAllLanguages(true, store.Id)).FirstOrDefault();
+                        var firstStoreLang = (await GetAllLanguagesAsync(true, store.Id)).FirstOrDefault();
                         if (firstStoreLang == null)
                         {
                             // absolute fallback
-                            firstStoreLang = (async ? await GetAllLanguagesAsync(true) : GetAllLanguages(true)).FirstOrDefault();
+                            firstStoreLang = (await GetAllLanguagesAsync(true)).FirstOrDefault();
                         }
                         map.Add(store.Id, new LanguageStub { Id = firstStoreLang.Id, UniqueSeoCode = firstStoreLang.UniqueSeoCode });
                     }
