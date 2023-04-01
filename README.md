@@ -106,10 +106,10 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity
 
 #### Supported database systems
 
-- MS SQL Server 2008 Express (or higher)
+- Microsoft SQL Server 2008 Express (or higher)
 - MySQL 8.0+
 - PostgreSQL 11+
-- SQLite 3.20+
+- SQLite 3.31+
 
 ### Upgrade from Smartstore.NET 4.2
 

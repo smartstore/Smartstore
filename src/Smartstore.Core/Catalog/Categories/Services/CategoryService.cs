@@ -231,7 +231,9 @@ namespace Smartstore.Core.Catalog.Categories
                 {
                     scope.DbContext.DetachEntities(x => x is Product || x is Category || x is AclRecord, false);
                 }
-                catch { }
+                catch 
+                { 
+                }
 
                 foreach (var subCategory in subCategories)
                 {
@@ -433,7 +435,7 @@ namespace Smartstore.Core.Catalog.Categories
             string aliasPattern = null,
             string separator = " » ")
         {
-            Guard.NotNull(categoryNode, nameof(categoryNode));
+            Guard.NotNull(categoryNode);
 
             var treeNode = await GetCategoryTreeAsync(categoryNode.Id, true);
             if (treeNode != null)
@@ -450,7 +452,7 @@ namespace Smartstore.Core.Catalog.Categories
             string aliasPattern = null,
             string separator = " » ")
         {
-            Guard.NotNull(treeNode, nameof(treeNode));
+            Guard.NotNull(treeNode);
 
             var lookupKey = "Path.{0}.{1}.{2}".FormatInvariant(separator, languageId ?? 0, aliasPattern.HasValue());
             var cachedPath = treeNode.GetMetadata<string>(lookupKey, false);
