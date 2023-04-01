@@ -26,7 +26,7 @@ namespace Smartstore.Core.Content.Media
     /// </summary>
     [Index(nameof(ParentId), nameof(Name), Name = "IX_NameParentId", IsUnique = true)]
     [CacheableEntity]
-    public partial class MediaFolder : EntityWithAttributes
+    public partial class MediaFolder : EntityWithAttributes//, ITreeNode<MediaFolder>
     {
         /// <summary>
         /// Gets or sets the parent folder id.
