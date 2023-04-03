@@ -150,8 +150,8 @@ namespace Smartstore.Core.DataExchange.Import
                     // Process parent category mappings.
                     // ===========================================================================
                     if (segmenter.HasColumn(nameof(Category.Id)) &&
-                        segmenter.HasColumn(nameof(Category.ParentCategoryId)) &&
-                        !segmenter.IsIgnored(nameof(Category.ParentCategoryId)))
+                        segmenter.HasColumn("ParentCategoryId") &&
+                        !segmenter.IsIgnored("ParentCategoryId"))
                     {
                         await ProcessParentMappingsAsync(context, scope, batch);
                     }
@@ -256,7 +256,7 @@ namespace Smartstore.Core.DataExchange.Import
                 if (row.IsTransient)
                 {
                     // Only update parent category relationship if child and parent were inserted.
-                    if (row.TryGetDataValue(nameof(Category.ParentCategoryId), out int parentId) && parentId != 0 && id != 0)
+                    if (row.TryGetDataValue("ParentCategoryId", out int parentId) && parentId > 0 && id > 0)
                     {
                         parentCategoryIds[id] = parentId;
                     }
@@ -328,10 +328,10 @@ namespace Smartstore.Core.DataExchange.Import
             foreach (var item in parentCategoryIds)
             {
                 // Find new parent category ID.
-                if (categoryIds.TryGetValue(item.Value/* old parent ID */, out var newParentId) && newParentId != 0)
+                if (categoryIds.TryGetValue(item.Value/* old parent ID */, out var newParentId) && newParentId > 0)
                 {
                     // Find new child category ID.
-                    if (categoryIds.TryGetValue(item.Key/* old child ID */, out var newChildId) && newChildId != 0)
+                    if (categoryIds.TryGetValue(item.Key/* old child ID */, out var newChildId) && newChildId > 0)
                     {
                         newIds[newChildId] = newParentId;
                     }
@@ -351,9 +351,9 @@ namespace Smartstore.Core.DataExchange.Import
 
                 foreach (var childCategory in childCategories)
                 {
-                    if (newIds.TryGetValue(childCategory.Id, out var parentId))
+                    if (newIds.TryGetValue(childCategory.Id, out var parentId) && parentId > 0)
                     {
-                        childCategory.ParentCategoryId = parentId;
+                        childCategory.ParentId = parentId;
                     }
                 }
 

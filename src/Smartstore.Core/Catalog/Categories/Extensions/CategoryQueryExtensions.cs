@@ -6,7 +6,7 @@ namespace Smartstore.Core.Catalog.Categories
     public static partial class CategoryQueryExtensions
     {
         /// <summary>
-        /// Applies standard filter and sorts by <see cref="Category.ParentCategoryId"/>, then by <see cref="Category.DisplayOrder"/>, then by <see cref="Category.Name"/>.
+        /// Applies standard filter and sorts by <see cref="Category.ParentId"/>, then by <see cref="Category.DisplayOrder"/>, then by <see cref="Category.Name"/>.
         /// </summary>
         /// <param name="query">Category query.</param>
         /// <param name="includeHidden">Applies filter by <see cref="Category.Published"/>.</param>
@@ -37,7 +37,7 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             return query
-                .OrderBy(x => x.ParentCategoryId)
+                .OrderBy(x => x.ParentId)
                 .ThenBy(x => x.DisplayOrder)
                 .ThenBy(x => x.Name);
         }

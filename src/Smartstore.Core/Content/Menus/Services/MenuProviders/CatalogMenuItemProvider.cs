@@ -118,7 +118,7 @@ namespace Smartstore.Core.Content.Menus
             }
 
             // Picture
-            if (node.Id > 0 && node.ParentCategoryId == 0 && node.Published && node.MediaFileId != null)
+            if (node.Id > 0 && node.ParentId == null && node.Published && node.MediaFileId != null)
             {
                 menuItem.ImageId = node.MediaFileId;
             }

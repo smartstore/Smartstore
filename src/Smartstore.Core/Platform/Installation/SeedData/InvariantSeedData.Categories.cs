@@ -185,7 +185,7 @@ namespace Smartstore.Core.Installation
                 CategoryTemplateId = gridOrLinesTemplate.Id,
                 MediaFile = CreatePicture("category/jackets.jpg"),
                 Published = true,
-                ParentCategoryId = categories["Fashion"].Id,
+                ParentId = categories["Fashion"].Id,
                 DisplayOrder = 1,
                 MetaTitle = "Jackets",
                 ShowOnHomePage = true
@@ -198,7 +198,7 @@ namespace Smartstore.Core.Installation
                 CategoryTemplateId = gridOrLinesTemplate.Id,
                 MediaFile = CreatePicture("category/shoes.png"),
                 Published = true,
-                ParentCategoryId = categories["Fashion"].Id,
+                ParentId = categories["Fashion"].Id,
                 DisplayOrder = 1,
                 MetaTitle = "Shoes",
                 ShowOnHomePage = true
@@ -211,7 +211,7 @@ namespace Smartstore.Core.Installation
                 CategoryTemplateId = gridOrLinesTemplate.Id,
                 MediaFile = CreatePicture("category/glasses.png"),
                 Published = true,
-                ParentCategoryId = categories["Fashion"].Id,
+                ParentId = categories["Fashion"].Id,
                 DisplayOrder = 1,
                 MetaTitle = "Sunglasses",
                 ShowOnHomePage = true
@@ -224,7 +224,7 @@ namespace Smartstore.Core.Installation
                 CategoryTemplateId = gridOrLinesTemplate.Id,
                 MediaFile = CreatePicture("category/trousers.png"),
                 Published = true,
-                ParentCategoryId = categories["Fashion"].Id,
+                ParentId = categories["Fashion"].Id,
                 DisplayOrder = 1,
                 MetaTitle = "Trousers",
                 ShowOnHomePage = true
@@ -242,7 +242,7 @@ namespace Smartstore.Core.Installation
                 CategoryTemplateId = gridOrLinesTemplate.Id,
                 MediaFile = CreatePicture("category/golf.jpg"),
                 Published = true,
-                ParentCategoryId = categories["Sports"].Id,
+                ParentId = categories["Sports"].Id,
                 DisplayOrder = 1,
                 MetaTitle = "Golf",
                 ShowOnHomePage = true
@@ -255,7 +255,7 @@ namespace Smartstore.Core.Installation
                 CategoryTemplateId = gridOrLinesTemplate.Id,
                 MediaFile = CreatePicture("category/soccer.png"),
                 Published = true,
-                ParentCategoryId = categories["Sports"].Id,
+                ParentId = categories["Sports"].Id,
                 DisplayOrder = 1,
                 MetaTitle = "Soccer",
                 ShowOnHomePage = true
@@ -268,7 +268,7 @@ namespace Smartstore.Core.Installation
                 CategoryTemplateId = gridOrLinesTemplate.Id,
                 MediaFile = CreatePicture("category/basketball.png"),
                 Published = true,
-                ParentCategoryId = categories["Sports"].Id,
+                ParentId = categories["Sports"].Id,
                 DisplayOrder = 1,
                 MetaTitle = "Basketball",
                 ShowOnHomePage = true
@@ -281,7 +281,7 @@ namespace Smartstore.Core.Installation
                 CategoryTemplateId = gridOrLinesTemplate.Id,
                 MediaFile = CreatePicture("category/0000930_spiegel-bestseller.png", BuildSlug("SPIEGEL-Bestseller")),
                 Published = true,
-                ParentCategoryId = categories["Books"].Id,
+                ParentId = categories["Books"].Id,
                 DisplayOrder = 1,
                 MetaTitle = "SPIEGEL-Bestseller"
             };
@@ -293,7 +293,7 @@ namespace Smartstore.Core.Installation
                 CategoryTemplateId = gridOrLinesTemplate.Id,
                 MediaFile = CreatePicture("category/0000936_kochen-geniesen.jpeg", BuildSlug("Cook and enjoy")),
                 Published = true,
-                ParentCategoryId = categories["Books"].Id,
+                ParentId = categories["Books"].Id,
                 DisplayOrder = 2,
                 MetaTitle = "Cook and enjoy"
             };
@@ -303,7 +303,7 @@ namespace Smartstore.Core.Installation
                 Name = "Gaming Accessories",
                 Alias = "Gaming Accessories",
                 CategoryTemplateId = gridOrLinesTemplate.Id,
-                ParentCategoryId = categories["Gaming"].Id,
+                ParentId = categories["Gaming"].Id,
                 MediaFile = CreatePicture("category/gaming_accessories.png"),
                 Published = true,
                 DisplayOrder = 2,
@@ -315,7 +315,7 @@ namespace Smartstore.Core.Installation
                 Name = "Games",
                 Alias = "Games",
                 CategoryTemplateId = gridOrLinesTemplate.Id,
-                ParentCategoryId = categories["Gaming"].Id,
+                ParentId = categories["Gaming"].Id,
                 MediaFile = CreatePicture("category/games.jpg"),
                 Published = true,
                 DisplayOrder = 3,
@@ -327,7 +327,7 @@ namespace Smartstore.Core.Installation
                 Name = "Sofas",
                 Alias = "Sofas",
                 CategoryTemplateId = gridOrLinesTemplate.Id,
-                ParentCategoryId = categories["Furniture"].Id,
+                ParentId = categories["Furniture"].Id,
                 MediaFile = CreatePicture("category/sofas.jpg"),
                 Published = true,
                 DisplayOrder = 3,
@@ -339,7 +339,7 @@ namespace Smartstore.Core.Installation
                 Name = "Chairs",
                 Alias = "Chairs",
                 CategoryTemplateId = gridOrLinesTemplate.Id,
-                ParentCategoryId = categories["Furniture"].Id,
+                ParentId = categories["Furniture"].Id,
                 MediaFile = CreatePicture("category/furniture.jpg"),
                 Published = true,
                 DisplayOrder = 3,
@@ -351,7 +351,7 @@ namespace Smartstore.Core.Installation
                 Name = "Tables",
                 Alias = "Tables",
                 CategoryTemplateId = gridOrLinesTemplate.Id,
-                ParentCategoryId = categories["Furniture"].Id,
+                ParentId = categories["Furniture"].Id,
                 MediaFile = CreatePicture("category/tables.jpg"),
                 Published = true,
                 DisplayOrder = 3,

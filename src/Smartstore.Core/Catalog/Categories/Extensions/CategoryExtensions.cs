@@ -20,7 +20,7 @@ namespace Smartstore.Core.Catalog.Categories
 
             var sourceCount = source.Count();
             var result = new List<T>(sourceCount);
-            var lookup = source.ToLookup(x => x.ParentCategoryId);
+            var lookup = source.ToLookup(x => x.ParentId.GetValueOrDefault());
 
             result.AddRange(SortCategoryNodesForTreeInternal(parentId, lookup));
 
@@ -78,7 +78,7 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 var sourceCount = _source.Count();
                 var result = new List<T>(sourceCount);
-                var lookup = _source.ToLookup(x => x.ParentCategoryId);
+                var lookup = _source.ToLookup(x => x.ParentId.GetValueOrDefault());
 
                 result.AddRange(SortInternal(_parentId, lookup));
 

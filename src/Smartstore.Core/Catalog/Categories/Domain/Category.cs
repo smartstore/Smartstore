@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -54,7 +55,7 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(Deleted), Name = "IX_Deleted")]
     [Index(nameof(DisplayOrder), Name = "IX_Category_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_Category_LimitedToStores")]
-    [Index(nameof(ParentCategoryId), Name = "IX_Category_ParentCategoryId")]
+    [Index(nameof(ParentId), Name = "IX_Category_ParentCategoryId")]
     [Index(nameof(SubjectToAcl), Name = "IX_Category_SubjectToAcl")]
     [LocalizedEntity("Published and !Deleted")]
     public partial class Category : EntityWithDiscounts, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
@@ -141,7 +142,8 @@ namespace Smartstore.Core.Catalog.Categories
         /// <summary>
         /// Gets or sets the parent category identifier.
         /// </summary>
-        public int ParentCategoryId { get; set; }
+        [Column("ParentCategoryId")]
+        public int? ParentId { get; set; }
 
         /// <summary>
         /// Gets or sets the media file identifier.

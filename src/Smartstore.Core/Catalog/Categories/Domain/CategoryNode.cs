@@ -9,7 +9,7 @@ namespace Smartstore.Core.Catalog.Categories
     public interface ICategoryNode : ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted
     {
         new int Id { get; }
-        int ParentCategoryId { get; }
+        int? ParentId { get; }
         string Name { get; }
         string ExternalLink { get; }
         string Alias { get; }
@@ -25,7 +25,7 @@ namespace Smartstore.Core.Catalog.Categories
     public class CategoryNode : ICategoryNode, IKeyedNode
     {
         public int Id { get; set; }
-        public int ParentCategoryId { get; set; }
+        public int? ParentId { get; set; }
         public string Name { get; set; }
         public string ExternalLink { get; set; }
         public string Alias { get; set; }

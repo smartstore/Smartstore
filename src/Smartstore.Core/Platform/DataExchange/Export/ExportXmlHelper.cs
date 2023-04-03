@@ -415,7 +415,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteElementString(nameof(Category.MetaDescription), (string)category.MetaDescription);
                 _writer.WriteElementString(nameof(Category.MetaTitle), (string)category.MetaTitle);
                 _writer.WriteElementString("SeName", (string)category.SeName);
-                _writer.WriteElementString(nameof(Category.ParentCategoryId), entity.ParentCategoryId.ToString());
+                _writer.WriteElementString(nameof(Category.ParentId), entity.ParentId.GetValueOrDefault().ToStringInvariant());
                 _writer.WriteElementString(nameof(Category.MediaFileId), entity.MediaFileId.ToString());
                 _writer.WriteElementString(nameof(Category.PageSize), entity.PageSize.ToString());
                 _writer.WriteElementString(nameof(Category.AllowCustomersToSelectPageSize), entity.AllowCustomersToSelectPageSize.ToString());

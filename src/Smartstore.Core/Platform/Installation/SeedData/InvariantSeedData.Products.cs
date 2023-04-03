@@ -134,7 +134,7 @@ namespace Smartstore.Core.Installation
             };
 
             _db.Products
-                .Where(x => x.ProductCategories.Any(x => x.Category.ParentCategoryId == 4))
+                .Where(x => x.ProductCategories.Any(x => x.Category.ParentId == 4))
                 .ToList()
                 .Each(y => y.ProductTags.Add(productTagFurniture));
 

@@ -277,11 +277,11 @@ namespace Smartstore.Admin.Controllers
             switch (position)
             {
                 case "over":
-                    category.ParentCategoryId = targetCategory.Id;
+                    category.ParentId = targetCategory.Id;
                     break;
                 case "before":
                 case "after":
-                    category.ParentCategoryId = targetCategory.ParentCategoryId;
+                    category.ParentId = targetCategory.ParentId;
                     break;
             }
 
@@ -289,7 +289,7 @@ namespace Smartstore.Admin.Controllers
             // INFO: apply the same sort order as when loading the tree.
             var tmpDisplayOrder = 0;
             var childCategories = await _db.Categories
-                .Where(x => x.ParentCategoryId == category.ParentCategoryId)
+                .Where(x => x.ParentId == category.ParentId)
                 .ApplyStandardFilter(true, null, 0)
                 .ToListAsync();
 
@@ -428,7 +428,7 @@ namespace Smartstore.Admin.Controllers
             {
                 var mapper = MapperFactory.GetMapper<CategoryModel, Category>();
                 await mapper.MapAsync(model, category);
-                category.ParentCategoryId = model.ParentCategoryId ?? 0;
+                category.ParentId = model.ParentCategoryId;
 
                 var validateSlugResult = await category.ValidateSlugAsync(model.SeName, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);

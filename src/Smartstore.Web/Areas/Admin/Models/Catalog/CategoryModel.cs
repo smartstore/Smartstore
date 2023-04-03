@@ -179,6 +179,7 @@ namespace Smartstore.Admin.Models.Catalog
         public async Task MapAsync(Category from, CategoryModel to, dynamic parameters = null)
         {
             MiniMapper.Map(from, to);
+            to.ParentCategoryId = from.ParentId;
             to.SeName = await from.GetActiveSlugAsync(0, true, false);
             to.PictureId = from.MediaFileId;
         }
@@ -186,6 +187,7 @@ namespace Smartstore.Admin.Models.Catalog
         public Task MapAsync(CategoryModel from, Category to, dynamic parameters = null)
         {
             MiniMapper.Map(from, to);
+            to.ParentId = from.ParentCategoryId;
             to.MediaFileId = from.PictureId.ZeroToNull();
 
             return Task.CompletedTask;

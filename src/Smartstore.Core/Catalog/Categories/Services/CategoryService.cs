@@ -100,7 +100,7 @@ namespace Smartstore.Core.Catalog.Categories
                         }
                         else
                         {
-                            category.ParentCategoryId = 0;
+                            category.ParentId = null;
                         }
                     }
 
@@ -144,7 +144,7 @@ namespace Smartstore.Core.Catalog.Categories
                 // Process sub-categories.
                 var subCategories = await _db.Categories
                     .AsQueryable()
-                    .Where(x => x.ParentCategoryId == c.Id)
+                    .Where(x => x.ParentId == c.Id)
                     .OrderBy(x => x.DisplayOrder)
                     .ToListAsync();
 
@@ -275,7 +275,7 @@ namespace Smartstore.Core.Catalog.Categories
                 // Process sub-categories.
                 var subCategories = await _db.Categories
                     .AsQueryable()
-                    .Where(x => x.ParentCategoryId == c.Id)
+                    .Where(x => x.ParentId == c.Id)
                     .OrderBy(x => x.DisplayOrder)
                     .ToListAsync();
 
@@ -387,7 +387,7 @@ namespace Smartstore.Core.Catalog.Categories
 
                 var query = _db.Categories
                     .AsNoTracking()
-                    .Where(x => x.ParentCategoryId == parentCategoryId)
+                    .Where(x => x.ParentId == parentCategoryId)
                     .ApplyStandardFilter(includeHidden, customerRoleIds, includeHidden ? 0 : storeId);
 
                 var entities = await query.ToListAsync();
@@ -516,7 +516,7 @@ namespace Smartstore.Core.Catalog.Categories
                     .Select(x => new
                     {
                         x.Id,
-                        x.ParentCategoryId,
+                        x.ParentId,
                         x.Name,
                         x.ExternalLink,
                         x.Alias,
@@ -534,7 +534,7 @@ namespace Smartstore.Core.Catalog.Categories
                 var unsortedNodes = categories.Select(x => new CategoryNode
                 {
                     Id = x.Id,
-                    ParentCategoryId = x.ParentCategoryId,
+                    ParentId = x.ParentId,
                     Name = x.Name,
                     ExternalLink = x.ExternalLink,
                     Alias = x.Alias,
@@ -548,7 +548,7 @@ namespace Smartstore.Core.Catalog.Categories
                     SubjectToAcl = x.SubjectToAcl
                 });
 
-                var nodeMap = unsortedNodes.ToMultimap(x => x.ParentCategoryId, x => x);
+                var nodeMap = unsortedNodes.ToMultimap(x => x.ParentId.GetValueOrDefault(), x => x);
                 var curParent = new TreeNode<ICategoryNode>(new CategoryNode { Name = "Home" });
 
                 AddChildTreeNodes(curParent, 0, nodeMap);

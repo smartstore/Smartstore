@@ -39,7 +39,7 @@ namespace Smartstore.Core.Catalog.Categories
         // Hierarchy affecting category prop names.
         private static readonly string[] _h = new string[]
         {
-            nameof(Category.ParentCategoryId),
+            nameof(Category.ParentId),
             nameof(Category.Published),
             nameof(Category.Deleted),
             nameof(Category.DisplayOrder)
