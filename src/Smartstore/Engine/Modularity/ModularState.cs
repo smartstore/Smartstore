@@ -110,7 +110,11 @@ namespace Smartstore.Engine.Modularity
                 var content = file.ReadAllText();
                 var lines = content.GetLines(true, true)
                     .Select(x => isLegacy ? x.Replace("SmartStore", "Smartstore") : x)
-                    .Select(x => isLegacy ? x.Replace("GoogleAnalytics", "Google.Analytics") : x);
+                    .Select(x => isLegacy ? x.Replace("GoogleAnalytics", "Google.Analytics") : x)
+                    .Select(x => isLegacy ? x.Replace("GoogleMerchantCenter", "Google.MerchantCenter") : x)
+                    .Select(x => isLegacy ? x.Replace("GoogleRemarketing", "Google.Remarketing") : x)
+                    .Select(x => isLegacy ? x.Replace("FacebookAuth", "Facebook.Auth") : x)
+                    .Select(x => isLegacy ? x.Replace("TwitterAuth", "Twitter.Auth") : x);
 
                 if (isLegacy)
                 {
