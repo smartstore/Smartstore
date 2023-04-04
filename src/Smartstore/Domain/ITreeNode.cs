@@ -3,7 +3,7 @@
 namespace Smartstore.Domain
 {
     /// <summary>
-    /// Represents a tree node.
+    /// Represents a tree node entity.
     /// </summary>
     public interface ITreeNode
     {
@@ -28,7 +28,6 @@ namespace Smartstore.Domain
         /// <summary>
         /// Enumerates the child nodes.
         /// </summary>
-        /// <returns></returns>
         IEnumerable<ITreeNode> GetChildNodes();
     }
 

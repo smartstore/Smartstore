@@ -18,6 +18,11 @@ namespace Smartstore.Core.Catalog.Categories
         {
             builder.HasQueryFilter(c => !c.Deleted);
 
+            builder.HasOne(c => c.Parent)
+                .WithMany(c => c.Children)
+                .HasForeignKey(c => c.ParentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             builder.HasOne(c => c.MediaFile)
                 .WithMany()
                 .HasForeignKey(c => c.MediaFileId)
@@ -56,10 +61,59 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(DisplayOrder), Name = "IX_Category_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_Category_LimitedToStores")]
     [Index(nameof(ParentId), Name = "IX_Category_ParentCategoryId")]
+    [Index(nameof(TreePath), Name = "IX_Category_TreePath")]
     [Index(nameof(SubjectToAcl), Name = "IX_Category_SubjectToAcl")]
     [LocalizedEntity("Published and !Deleted")]
-    public partial class Category : EntityWithDiscounts, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
+    public partial class Category : 
+        EntityWithDiscounts,
+        ITreeNode,
+        ICategoryNode, 
+        IAuditable, 
+        ISoftDeletable, 
+        IPagingOptions, 
+        IDisplayOrder, 
+        IRulesContainer
     {
+        #region ITreeNode 
+
+        /// <summary>
+        /// Gets or sets the parent category identifier.
+        /// </summary>
+        [Column("ParentCategoryId")]
+        public int? ParentId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the tree path.
+        /// </summary>
+        [Required, StringLength(400)]
+        public string TreePath { get; set; }
+
+        private Category _parent;
+        /// <summary>
+        /// Gets or sets the parent folder.
+        /// </summary>
+        [IgnoreDataMember]
+        public Category Parent
+        {
+            get => _parent ?? LazyLoader.Load(this, ref _parent);
+            set => _parent = value;
+        }
+        ITreeNode ITreeNode.GetParentNode() => Parent;
+
+        private ICollection<Category> _children;
+        /// <summary>
+        /// Gets or sets the child folders.
+        /// </summary>
+        [IgnoreDataMember]
+        public ICollection<Category> Children
+        {
+            get => _children ?? LazyLoader.Load(this, ref _children) ?? (_children ??= new HashSet<Category>());
+            protected set => _children = value;
+        }
+        IEnumerable<ITreeNode> ITreeNode.GetChildNodes() => Children;
+
+        #endregion
+
         /// <summary>
         /// Gets or sets the category name.
         /// </summary>
@@ -77,14 +131,14 @@ namespace Smartstore.Core.Catalog.Categories
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
-        [MaxLength]
+        [MaxLength, NonSummary]
         [LocalizedProperty]
         public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets a description displayed at the bottom of the category page.
         /// </summary>
-        [MaxLength]
+        [MaxLength, NonSummary]
         [LocalizedProperty]
         public string BottomDescription { get; set; }
 
@@ -138,12 +192,6 @@ namespace Smartstore.Core.Catalog.Categories
         [StringLength(400)]
         [LocalizedProperty]
         public string MetaTitle { get; set; }
-
-        /// <summary>
-        /// Gets or sets the parent category identifier.
-        /// </summary>
-        [Column("ParentCategoryId")]
-        public int? ParentId { get; set; }
 
         /// <summary>
         /// Gets or sets the media file identifier.

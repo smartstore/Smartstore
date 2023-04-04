@@ -25,13 +25,22 @@ namespace Smartstore.Core.Content.Media
     /// Represents a media folder.
     /// </summary>
     [Index(nameof(ParentId), nameof(Name), Name = "IX_NameParentId", IsUnique = true)]
+    [Index(nameof(TreePath), Name = "IX_TreePath")]
     [CacheableEntity]
-    public partial class MediaFolder : EntityWithAttributes//, ITreeNode<MediaFolder>
+    public partial class MediaFolder : EntityWithAttributes, ITreeNode
     {
+        #region ITreeNode 
+
         /// <summary>
         /// Gets or sets the parent folder id.
         /// </summary>
         public int? ParentId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the tree path.
+        /// </summary>
+        [Required, StringLength(400)]
+        public string TreePath { get; set; }
 
         private MediaFolder _parent;
         /// <summary>
@@ -43,6 +52,21 @@ namespace Smartstore.Core.Content.Media
             get => _parent ?? LazyLoader.Load(this, ref _parent);
             set => _parent = value;
         }
+        ITreeNode ITreeNode.GetParentNode() => Parent;
+
+        private ICollection<MediaFolder> _children;
+        /// <summary>
+        /// Gets or sets the child folders.
+        /// </summary>
+        [IgnoreDataMember]
+        public ICollection<MediaFolder> Children
+        {
+            get => _children ?? LazyLoader.Load(this, ref _children) ?? (_children ??= new HashSet<MediaFolder>());
+            protected set => _children = value;
+        }
+        IEnumerable<ITreeNode> ITreeNode.GetChildNodes() => Children;
+
+        #endregion
 
         /// <summary>
         /// Gets or sets the media folder name.
@@ -71,17 +95,6 @@ namespace Smartstore.Core.Content.Media
         /// (Perf) Gets or sets the total number of files in this folder (excluding files from sub-folders).
         /// </summary>
         public int FilesCount { get; set; }
-
-        private ICollection<MediaFolder> _children;
-        /// <summary>
-        /// Gets or sets the child folders.
-        /// </summary>
-        [IgnoreDataMember]
-        public ICollection<MediaFolder> Children
-        {
-            get => _children ?? LazyLoader.Load(this, ref _children) ?? (_children ??= new HashSet<MediaFolder>());
-            protected set => _children = value;
-        }
 
         private ICollection<MediaFile> _files;
         /// <summary>
