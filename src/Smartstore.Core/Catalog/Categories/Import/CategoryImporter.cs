@@ -150,8 +150,8 @@ namespace Smartstore.Core.DataExchange.Import
                     // Process parent category mappings.
                     // ===========================================================================
                     if (segmenter.HasColumn(nameof(Category.Id)) &&
-                        segmenter.HasColumn("ParentCategoryId") &&
-                        !segmenter.IsIgnored("ParentCategoryId"))
+                        segmenter.HasColumn(nameof(Category.ParentId)) &&
+                        !segmenter.IsIgnored(nameof(Category.ParentId)))
                     {
                         await ProcessParentMappingsAsync(context, scope, batch);
                     }
@@ -256,7 +256,7 @@ namespace Smartstore.Core.DataExchange.Import
                 if (row.IsTransient)
                 {
                     // Only update parent category relationship if child and parent were inserted.
-                    if (row.TryGetDataValue("ParentCategoryId", out int parentId) && parentId > 0 && id > 0)
+                    if (row.TryGetDataValue(nameof(Category.ParentId), out int parentId) && parentId > 0 && id > 0)
                     {
                         parentCategoryIds[id] = parentId;
                     }
