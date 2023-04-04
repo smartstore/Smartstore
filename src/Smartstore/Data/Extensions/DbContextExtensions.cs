@@ -83,17 +83,6 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Checks whether at least one entity in the change tracker is in <see cref="EfState.Added"/>, 
-        /// <see cref="EfState.Deleted"/> or <see cref="EfState.Modified"/> state.
-        /// </summary>
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
-        public static bool HasChanges(this DbContext ctx)
-        {
-            var stateManager = ctx.GetDependencies().StateManager;
-            return stateManager.ChangedCount > 0;
-        }
-
-        /// <summary>
         /// Sets the state of an entity to <see cref="EfState.Modified"/> if it is detached.
         /// </summary>
         /// <typeparam name="TEntity">Type of entity</typeparam>

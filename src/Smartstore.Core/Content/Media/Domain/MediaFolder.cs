@@ -40,7 +40,7 @@ namespace Smartstore.Core.Content.Media
         /// Gets or sets the tree path.
         /// </summary>
         [Required, StringLength(400)]
-        public string TreePath { get; set; }
+        public string TreePath { get; set; } = string.Empty;
 
         private MediaFolder _parent;
         /// <summary>

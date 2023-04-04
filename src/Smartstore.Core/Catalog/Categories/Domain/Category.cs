@@ -86,7 +86,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// Gets or sets the tree path.
         /// </summary>
         [Required, StringLength(400)]
-        public string TreePath { get; set; }
+        public string TreePath { get; set; } = string.Empty;
 
         private Category _parent;
         /// <summary>
