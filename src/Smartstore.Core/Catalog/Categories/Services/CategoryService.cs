@@ -399,7 +399,7 @@ namespace Smartstore.Core.Catalog.Categories
 
         public virtual async Task<IList<ProductCategory>> GetProductCategoriesByProductIdsAsync(int[] productIds, bool includeHidden = false)
         {
-            Guard.NotNull(productIds, nameof(productIds));
+            Guard.NotNull(productIds);
 
             if (!productIds.Any())
             {
@@ -518,6 +518,7 @@ namespace Smartstore.Core.Catalog.Categories
                         x.Id,
                         x.ParentId,
                         x.Name,
+                        x.TreePath,
                         x.ExternalLink,
                         x.Alias,
                         x.MediaFileId,
@@ -536,6 +537,7 @@ namespace Smartstore.Core.Catalog.Categories
                     Id = x.Id,
                     ParentId = x.ParentId,
                     Name = x.Name,
+                    TreePath = x.TreePath,
                     ExternalLink = x.ExternalLink,
                     Alias = x.Alias,
                     MediaFileId = x.MediaFileId,

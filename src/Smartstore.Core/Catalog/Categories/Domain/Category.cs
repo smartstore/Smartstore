@@ -56,7 +56,7 @@ namespace Smartstore.Core.Catalog.Categories
     /// <summary>
     /// Represents a category of products.
     /// </summary>
-    [DebuggerDisplay("{Id}: {Name} (Parent: {ParentCategoryId})")]
+    [DebuggerDisplay("{Id}: {Name} (TreePath: {TreePath})")]
     [Index(nameof(Deleted), Name = "IX_Deleted")]
     [Index(nameof(DisplayOrder), Name = "IX_Category_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_Category_LimitedToStores")]
