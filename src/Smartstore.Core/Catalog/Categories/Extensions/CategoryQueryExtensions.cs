@@ -19,7 +19,7 @@ namespace Smartstore.Core.Catalog.Categories
             int[] customerRoleIds = null,
             int storeId = 0)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (!includeHidden)
             {
