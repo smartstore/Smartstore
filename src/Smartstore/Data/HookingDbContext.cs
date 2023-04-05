@@ -35,7 +35,7 @@ namespace Smartstore.Data
         private DbContextLease? _lease;
         private readonly Stack<DbSaveChangesOperation> _saveOperations = new(2);
         private DataProvider _dataProvider;
-        private IDbHookHandler _hookHandler;
+        private IDbHookProcessor _hookProcessor;
 
         public HookingDbContext(DbContextOptions options)
             : base(options)
@@ -147,7 +147,7 @@ namespace Smartstore.Data
                 op.Dispose();
             }
 
-            _hookHandler = null;
+            _hookProcessor = null;
 
             if (_dataProvider != null)
             {
@@ -196,27 +196,27 @@ namespace Smartstore.Data
         /// </summary>
         internal bool DeferCommit { get; set; }
 
-        protected internal IDbHookHandler DbHookHandler
+        protected internal IDbHookProcessor DbHookProcessor
         {
             get 
             {
-                if (_hookHandler != null)
+                if (_hookProcessor != null)
                 {
-                    return _hookHandler;
+                    return _hookProcessor;
                 }
 
-                IDbHookHandler handler = null;
+                IDbHookProcessor handler = null;
                 try
                 {
-                    handler = EngineContext.Current?.Scope?.ResolveOptional<IDbHookHandler>();
+                    handler = EngineContext.Current?.Scope?.ResolveOptional<IDbHookProcessor>();
                 }
                 catch
                 {
                 }
 
-                return handler ?? NullDbHookHandler.Instance;
+                return handler ?? NullDbHookProcessor.Instance;
             }
-            set => _hookHandler = value;
+            set => _hookProcessor = value;
         }
 
         protected internal bool IsInSaveOperation => _saveOperations.Count > 0;

@@ -20,7 +20,7 @@ namespace Smartstore.Tests.Data.Hooks
     {
         private SmartDbContext _db;
         private Lazy<IDbSaveHook, HookMetadata>[] _hooks;
-        private IDbHookHandler _handler;
+        private IDbHookProcessor _handler;
         private IDbHookRegistry _registry;
 
         [OneTimeSetUp]
@@ -39,7 +39,7 @@ namespace Smartstore.Tests.Data.Hooks
             };
             _registry = new DefaultDbHookRegistry(_hooks);
             //_handler = new LegacyDbHookHandler(_hooks);
-            _handler = new DefaultDbHookHandler(_registry, new SimpleDbHookActivator());
+            _handler = new DefaultDbHookProcessor(_registry, new SimpleDbHookActivator());
         }
 
         [Test]

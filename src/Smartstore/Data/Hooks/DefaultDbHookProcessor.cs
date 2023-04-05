@@ -5,7 +5,7 @@ using Smartstore.Collections;
 
 namespace Smartstore.Data.Hooks
 {
-    public class DefaultDbHookHandler : IDbHookHandler
+    public class DefaultDbHookProcessor : IDbHookProcessor
     {
         const string PreSaveHook = "PreSaveHook";
         const string PostSaveHook = "PostSaveHook";
@@ -17,7 +17,7 @@ namespace Smartstore.Data.Hooks
         // Prevents repetitive hooking of the same entity/state/[pre|post] combination within a single request
         private readonly HashSet<HookedEntityKey> _hookedEntities = new();
 
-        public DefaultDbHookHandler(IDbHookRegistry registry, IDbHookActivator activator)
+        public DefaultDbHookProcessor(IDbHookRegistry registry, IDbHookActivator activator)
         {
             _registry = registry;
             _activator = activator;

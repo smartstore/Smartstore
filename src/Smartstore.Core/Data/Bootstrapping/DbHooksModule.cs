@@ -22,7 +22,7 @@ namespace Smartstore.Core.Bootstrapping
         {
             builder.RegisterType<DefaultDbHookRegistry>().As<IDbHookRegistry>().SingleInstance();
             builder.RegisterType<DefaultDbHookActivator>().As<IDbHookActivator>().InstancePerLifetimeScope();
-            builder.RegisterType<DefaultDbHookHandler>().As<IDbHookHandler>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultDbHookProcessor>().As<IDbHookProcessor>().InstancePerLifetimeScope();
 
             var appInstalled = _appContext.IsInstalled;
             var hookTypes = _appContext.TypeScanner.FindTypes<IDbSaveHook>();

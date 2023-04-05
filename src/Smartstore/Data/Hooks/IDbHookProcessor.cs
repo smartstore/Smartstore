@@ -27,9 +27,9 @@
     }
 
     /// <summary>
-    /// Responsible for executing all discovered hooks on data commit.
+    /// Responsible for processing all discovered hooks on data commit.
     /// </summary>
-    public interface IDbHookHandler
+    public interface IDbHookProcessor
     {
         /// <summary>
         /// Triggers all pre action hooks
@@ -58,9 +58,9 @@
             CancellationToken cancelToken = default);
     }
 
-    public sealed class NullDbHookHandler : IDbHookHandler
+    public sealed class NullDbHookProcessor : IDbHookProcessor
     {
-        public static NullDbHookHandler Instance { get; } = new NullDbHookHandler();
+        public static NullDbHookProcessor Instance { get; } = new NullDbHookProcessor();
 
         public Task<DbSavingChangesResult> SavingChangesAsync(
             IHookedEntity[] entries,

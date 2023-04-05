@@ -155,7 +155,7 @@ namespace Smartstore.Data
                     .ToArray();
 
                 // Regardless of validation (possible fixing validation errors too)
-                result = await _ctx.DbHookHandler.SavingChangesAsync(entries, _minHookImportance, cancelToken);
+                result = await _ctx.DbHookProcessor.SavingChangesAsync(entries, _minHookImportance, cancelToken);
 
                 if (result.ProcessedHooks.Any() && entries.Any(x => x.State == EntityState.Modified))
                 {
@@ -190,7 +190,7 @@ namespace Smartstore.Data
             // EfCache invalidation
             _dbCache?.Invalidate(changedHookEntries.Select(x => x.EntityType).ToArray());
 
-            return await _ctx.DbHookHandler.SavedChangesAsync(changedHookEntries, _minHookImportance, cancelToken);
+            return await _ctx.DbHookProcessor.SavedChangesAsync(changedHookEntries, _minHookImportance, cancelToken);
         }
 
         private IEnumerable<EntityEntry> GetChangedEntries()
