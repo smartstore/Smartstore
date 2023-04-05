@@ -1,4 +1,4 @@
-﻿namespace Smartstore
+﻿namespace Smartstore.Core.Catalog.Categories
 {
     public static class ITreeNodeQueryExtensions
     {
@@ -58,7 +58,6 @@
             Guard.NotNull(query);
             Guard.NotEmpty(treePath);
 
-            // TODO: Validate treePath
             if (treePath.Length < 3 || (treePath[0] != '/' && treePath[^1] != '/'))
             {
                 throw new ArgumentException("Invalid treePath format.", nameof(treePath));

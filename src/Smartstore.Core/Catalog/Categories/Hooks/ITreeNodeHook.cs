@@ -1,44 +1,43 @@
-﻿//using Smartstore.Core.Data;
-//using Smartstore.Data.Hooks;
+﻿using Smartstore.Core.Data;
+using Smartstore.Data.Hooks;
 
-//namespace Smartstore.Core.Catalog.Categories
-//{
-//    [Important(HookImportance.Essential)]
-//    internal class TreeNodeHook : AsyncDbSaveHook<ITreeNode>
-//    {
-//        private readonly SmartDbContext _db;
-//        private readonly HashSet<ITreeNode> _toUpdate;
-        
-//        public TreeNodeHook(SmartDbContext db)
-//        {
-//            _db = db;
-//        }
+namespace Smartstore.Core.Catalog.Categories
+{
+    [Important(HookImportance.Essential)]
+    internal class TreeNodeHook : AsyncDbSaveHook<ITreeNode>
+    {
+        private readonly SmartDbContext _db;
 
-//        protected override Task<HookResult> OnUpdatingAsync(ITreeNode entity, IHookedEntity entry, CancellationToken cancelToken)
-//        {
-//            if (entry.IsPropertyModified(nameof(entity.ParentId)))
-//            {
-//                _toUpdate.Add(entity);
-//            }
+        public TreeNodeHook(SmartDbContext db)
+        {
+            _db = db;
+        }
 
-//            return Task.FromResult(HookResult.Ok);
-//        }
+        protected override async Task<HookResult> OnUpdatingAsync(ITreeNode entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (entry.Entry.TryGetModifiedProperty(nameof(entity.ParentId), out var originalValue))
+            {
+                // ParentId has changed: fix TreePaths of ALL descendants.
+                var oldTreePath = entity.TreePath;
+                var newTreePath = entity.BuildTreePath();
+                var query = entity.GetQuery(_db).ApplyDescendantsFilter(entity);
 
-//        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-//        {
-//            _toUpdate.Clear();
-//            return base.OnBeforeSaveCompletedAsync(entries, cancelToken);
-//        }
+                entity.TreePath = newTreePath;
 
-//        protected override Task<HookResult> OnInsertedAsync(ITreeNode entity, IHookedEntity entry, CancellationToken cancelToken)
-//        {
-//            return Task.FromResult(HookResult.Ok);
-//        }
+                // Replace old parent path with new parent path batch-wise.
+                await query.ExecuteUpdateAsync(
+                    x => x.SetProperty(p => p.TreePath, p => p.TreePath.Replace(oldTreePath, newTreePath)));
+            }
 
-//        public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-//        {
-//            _toUpdate.Clear();
-//            return base.OnAfterSaveCompletedAsync(entries, cancelToken);
-//        }
-//    }
-//}
+            return HookResult.Ok;
+        }
+
+        protected override async Task<HookResult> OnInsertedAsync(ITreeNode entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            entity.TreePath = entity.BuildTreePath();
+            await _db.SaveChangesAsync(cancelToken);
+
+            return HookResult.Ok;
+        }
+    }
+}

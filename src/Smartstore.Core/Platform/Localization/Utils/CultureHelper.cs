@@ -160,7 +160,7 @@ namespace Smartstore.Core.Localization
 
         public static IDisposable Use(string culture, string uiCulture = null)
         {
-            Guard.NotEmpty(culture, nameof(culture));
+            Guard.NotEmpty(culture);
 
             return Use(
                 new CultureInfo(culture),
@@ -170,9 +170,14 @@ namespace Smartstore.Core.Localization
             );
         }
 
+        public static IDisposable UseInvariant()
+        {
+            return Use(CultureInfo.InvariantCulture);
+        }
+
         public static IDisposable Use(CultureInfo culture, CultureInfo uiCulture = null)
         {
-            Guard.NotNull(culture, nameof(culture));
+            Guard.NotNull(culture);
 
             var currentCulture = CultureInfo.CurrentCulture;
             var currentUiCulture = CultureInfo.CurrentUICulture;

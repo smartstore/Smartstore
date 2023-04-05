@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 
@@ -111,6 +112,8 @@ namespace Smartstore.Core.Catalog.Categories
             protected set => _children = value;
         }
         IEnumerable<ITreeNode> ITreeNode.GetChildNodes() => Children;
+
+        IQueryable<ITreeNode> ITreeNode.GetQuery(SmartDbContext db) => db.Categories;
 
         #endregion
 

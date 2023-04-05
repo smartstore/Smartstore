@@ -10,7 +10,10 @@
         /// <param name="categoryId">Applies filter by <see cref="ProductCategory.CategoryId"/>.</param>
         /// <param name="isSystemMapping">Applies filter by <see cref="ProductCategory.IsSystemMapping"/></param>
         /// <returns>Product category query.</returns>
-        public static IOrderedQueryable<ProductCategory> ApplyCategoryFilter(this IQueryable<ProductCategory> query, int categoryId, bool? isSystemMapping = null)
+        public static IOrderedQueryable<ProductCategory> ApplyCategoryFilter(
+            this IQueryable<ProductCategory> query, 
+            int categoryId, 
+            bool? isSystemMapping = null)
         {
             Guard.NotNull(query, nameof(query));
 

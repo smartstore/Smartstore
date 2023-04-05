@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
-namespace Smartstore.Domain
+using Smartstore.Core.Data;
+
+namespace Smartstore.Core.Catalog.Categories
 {
     /// <summary>
     /// Represents a tree node entity.
@@ -29,6 +31,11 @@ namespace Smartstore.Domain
         /// Enumerates the child nodes.
         /// </summary>
         IEnumerable<ITreeNode> GetChildNodes();
+
+        /// <summary>
+        /// Gets the <see cref="IQueryable{ITreeNode}"/> used to access the entity storage.
+        /// </summary>
+        IQueryable<ITreeNode> GetQuery(SmartDbContext db);
     }
 
     public static class ITreeNodeExtensions

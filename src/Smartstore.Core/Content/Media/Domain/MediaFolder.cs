@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Data;
 using Smartstore.Data.Caching;
 
 namespace Smartstore.Core.Content.Media
@@ -24,6 +27,7 @@ namespace Smartstore.Core.Content.Media
     /// <summary>
     /// Represents a media folder.
     /// </summary>
+    [DebuggerDisplay("{Id}: {Name} (TreePath: {TreePath})")]
     [Index(nameof(ParentId), nameof(Name), Name = "IX_NameParentId", IsUnique = true)]
     [Index(nameof(TreePath), Name = "IX_TreePath")]
     [CacheableEntity]
@@ -65,6 +69,8 @@ namespace Smartstore.Core.Content.Media
             protected set => _children = value;
         }
         IEnumerable<ITreeNode> ITreeNode.GetChildNodes() => Children;
+
+        IQueryable<ITreeNode> ITreeNode.GetQuery(SmartDbContext db) => db.MediaFolders;
 
         #endregion
 
