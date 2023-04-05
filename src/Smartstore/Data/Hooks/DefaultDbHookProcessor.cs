@@ -14,9 +14,6 @@ namespace Smartstore.Data.Hooks
         private readonly IDbHookActivator _activator;
         private readonly bool _hasHooks;
 
-        // Prevents repetitive hooking of the same entity/state/[pre|post] combination within a single request
-        private readonly HashSet<HookedEntityKey> _hookedEntities = new();
-
         public DefaultDbHookProcessor(IDbHookRegistry registry, IDbHookActivator activator)
         {
             _registry = registry;
@@ -50,7 +47,7 @@ namespace Smartstore.Data.Hooks
             HookImportance minHookImportance,
             CancellationToken cancelToken)
         {
-            Guard.NotNull(entries, nameof(entries));
+            Guard.NotNull(entries);
 
             var pre = stage == HookStage.PreSave;
             if (!_hasHooks || entries.Length == 0)
@@ -74,12 +71,6 @@ namespace Smartstore.Data.Hooks
 
                 if (cancelToken.IsCancellationRequested)
                 {
-                    continue;
-                }
-
-                if (HandledAlready(e, stage))
-                {
-                    // Prevent repetitive hooking of the same entity/state/pre combination within a single request
                     continue;
                 }
 
@@ -171,33 +162,6 @@ namespace Smartstore.Data.Hooks
             }
 
             return sharedHooks != null;
-        }
-
-        private bool HandledAlready(IHookedEntity entry, HookStage stage)
-        {
-            var entity = entry.Entity;
-
-            if (entity == null || entity.IsTransientRecord())
-            {
-                return false;
-            }
-
-            var key = new HookedEntityKey(entry, stage, entity.Id);
-            if (_hookedEntities.Contains(key))
-            {
-                return true;
-            }
-
-            _hookedEntities.Add(key);
-            return false;
-        }
-
-        class HookedEntityKey : Tuple<Type, Type, int, EntityState, HookStage>
-        {
-            public HookedEntityKey(IHookedEntity entry, HookStage stage, int entityId)
-                : base(entry.DbContext.GetType(), entry.EntityType, entityId, entry.InitialState, stage)
-            {
-            }
         }
     }
 }

@@ -35,7 +35,6 @@ namespace Smartstore.Data
         private DbContextLease? _lease;
         private readonly Stack<DbSaveChangesOperation> _saveOperations = new(2);
         private DataProvider _dataProvider;
-        private IDbHookProcessor _hookProcessor;
 
         public HookingDbContext(DbContextOptions options)
             : base(options)
@@ -147,8 +146,6 @@ namespace Smartstore.Data
                 op.Dispose();
             }
 
-            _hookProcessor = null;
-
             if (_dataProvider != null)
             {
                 _dataProvider.Dispose();
@@ -196,27 +193,16 @@ namespace Smartstore.Data
         /// </summary>
         internal bool DeferCommit { get; set; }
 
-        protected internal IDbHookProcessor DbHookProcessor
+        protected internal IDbHookProcessor ActivateHookProcessor()
         {
-            get 
+            try
             {
-                if (_hookProcessor != null)
-                {
-                    return _hookProcessor;
-                }
-
-                IDbHookProcessor handler = null;
-                try
-                {
-                    handler = EngineContext.Current?.Scope?.ResolveOptional<IDbHookProcessor>();
-                }
-                catch
-                {
-                }
-
-                return handler ?? NullDbHookProcessor.Instance;
+                return EngineContext.Current?.Scope?.ResolveOptional<IDbHookProcessor>();
             }
-            set => _hookProcessor = value;
+            catch
+            {
+                return NullDbHookProcessor.Instance;
+            }
         }
 
         protected internal bool IsInSaveOperation => _saveOperations.Count > 0;
@@ -248,7 +234,7 @@ namespace Smartstore.Data
             if (currentSaveOperation == null)
             {
                 // No operation currently running. Create a new operation.
-                currentSaveOperation = new DbSaveChangesOperation(this);
+                currentSaveOperation = new DbSaveChangesOperation(this, ActivateHookProcessor());
             }
             else
             {
@@ -305,6 +291,25 @@ namespace Smartstore.Data
         {
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
+
+        //private static MethodBase TryFindCallingHookMember(StackTrace trace)
+        //{
+        //    var numFrames = trace.FrameCount;
+
+        //    for (int i = 0; i < numFrames; i++)
+        //    {
+        //        var method = trace.GetFrame(i)?.GetMethod();
+        //        if (method != null)
+        //        {
+        //            if (typeof(IDbSaveHook).IsAssignableFrom(method.ReflectedType))
+        //            {
+        //                return method;
+        //            }
+        //        }
+        //    }
+
+        //    return null;
+        //}
 
         #endregion
 

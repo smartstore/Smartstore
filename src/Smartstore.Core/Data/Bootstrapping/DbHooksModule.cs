@@ -21,8 +21,8 @@ namespace Smartstore.Core.Bootstrapping
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<DefaultDbHookRegistry>().As<IDbHookRegistry>().SingleInstance();
-            builder.RegisterType<DefaultDbHookActivator>().As<IDbHookActivator>().InstancePerLifetimeScope();
-            builder.RegisterType<DefaultDbHookProcessor>().As<IDbHookProcessor>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultDbHookActivator>().As<IDbHookActivator>().InstancePerDependency();
+            builder.RegisterType<DefaultDbHookProcessor>().As<IDbHookProcessor>().InstancePerDependency();
 
             var appInstalled = _appContext.IsInstalled;
             var hookTypes = _appContext.TypeScanner.FindTypes<IDbSaveHook>();
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Bootstrapping
 
                 var registration = builder.RegisterType(hookType)
                     .As<IDbSaveHook>()
-                    .InstancePerAttributedLifetime()
+                    .InstancePerAttributedLifetime(fallback: ServiceLifetime.Transient)
                     .WithMetadata<HookMetadata>(m =>
                     {
                         m.For(em => em.HookedType, types.EntityType);

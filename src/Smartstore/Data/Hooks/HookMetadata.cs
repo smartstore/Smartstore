@@ -68,7 +68,7 @@ namespace Smartstore.Data.Hooks
             where THook : IDbSaveHook
             where TContext : DbContext
         {
-            Guard.NotNull(hookedType, nameof(hookedType));
+            Guard.NotNull(hookedType);
 
             return new HookMetadata
             {

@@ -5,6 +5,7 @@ namespace Smartstore.Data.Hooks
 {
     public class DefaultDbHookActivator : IDbHookActivator
     {
+        private readonly Dictionary<HookMetadata, IDbSaveHook> _instances = new();
         private readonly ILifetimeScope _scope;
 
         public DefaultDbHookActivator(ILifetimeScope scope)
@@ -19,15 +20,19 @@ namespace Smartstore.Data.Hooks
                 throw new ArgumentNullException(nameof(hook));
             }
 
+            if (_instances.TryGetValue(hook, out var instance))
+            {
+                return instance;
+            }
+
             try
             {
-                IDbSaveHook instance = null;
-
                 for (var i = 0; i < hook.ServiceTypes.Length; i++)
                 {
                     if (_scope.TryResolve(hook.ServiceTypes[i], out var obj) && obj is IDbSaveHook saveHook)
                     {
-                        return saveHook;
+                        instance = _instances[hook] = saveHook;
+                        break;
                     }
                 }
 

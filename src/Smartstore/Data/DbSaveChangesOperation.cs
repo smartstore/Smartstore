@@ -22,13 +22,15 @@ namespace Smartstore.Data
         private IEnumerable<EntityEntry> _changedEntries;
         private HookingDbContext _ctx;
 
+        private readonly IDbHookProcessor _hookProcessor;
         private readonly IDbCache _dbCache;
         private readonly bool _isNestedOperation;
         private readonly HookImportance _minHookImportance;
 
-        public DbSaveChangesOperation(HookingDbContext ctx)
+        public DbSaveChangesOperation(HookingDbContext ctx, IDbHookProcessor hookProcessor)
         {
             _ctx = ctx;
+            _hookProcessor = hookProcessor;
             _dbCache = ((IInfrastructure<IServiceProvider>)ctx).Instance.GetService<IDbCache>();
             _minHookImportance = _ctx.MinHookImportance;
         }
@@ -36,6 +38,7 @@ namespace Smartstore.Data
         public DbSaveChangesOperation(DbSaveChangesOperation parent)
         {
             _ctx = parent._ctx;
+            _hookProcessor = parent._hookProcessor;
             _dbCache = parent._dbCache;
             _isNestedOperation = true;
             _minHookImportance = HookImportance.Essential;
@@ -155,7 +158,7 @@ namespace Smartstore.Data
                     .ToArray();
 
                 // Regardless of validation (possible fixing validation errors too)
-                result = await _ctx.DbHookProcessor.SavingChangesAsync(entries, _minHookImportance, cancelToken);
+                result = await _hookProcessor.SavingChangesAsync(entries, _minHookImportance, cancelToken);
 
                 if (result.ProcessedHooks.Any() && entries.Any(x => x.State == EntityState.Modified))
                 {
@@ -190,7 +193,7 @@ namespace Smartstore.Data
             // EfCache invalidation
             _dbCache?.Invalidate(changedHookEntries.Select(x => x.EntityType).ToArray());
 
-            return await _ctx.DbHookProcessor.SavedChangesAsync(changedHookEntries, _minHookImportance, cancelToken);
+            return await _hookProcessor.SavedChangesAsync(changedHookEntries, _minHookImportance, cancelToken);
         }
 
         private IEnumerable<EntityEntry> GetChangedEntries()

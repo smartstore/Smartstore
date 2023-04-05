@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Data.Hooks
 {
     /// <summary>
-    /// Responsible for creating hook implementation instances.
+    /// Responsible for resolving or creating hook implementation instances.
     /// </summary>
     public interface IDbHookActivator
     {

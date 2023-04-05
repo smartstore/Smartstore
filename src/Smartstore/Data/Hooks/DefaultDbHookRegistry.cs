@@ -6,6 +6,7 @@ namespace Smartstore.Data.Hooks
     {
         private readonly ReaderWriterLockSlim _rwLock = new();
         private readonly HookMetadata[] _allMetadata;
+        // TBD: (mc) Is sync dictionary with manual locking really faster for reading than concurrent dictionary?
         private readonly Dictionary<HookKey, HookMetadata[]> _hookCache = new();
 
         public DefaultDbHookRegistry(IEnumerable<Lazy<IDbSaveHook, HookMetadata>> hooks)
