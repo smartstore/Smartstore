@@ -45,7 +45,7 @@ namespace Smartstore.Web.Api.Controllers
         {
             var model = MiniMapper.Map<WebApiSettings, ConfigurationModel>(settings);
 
-            model.ApiOdataUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/odata/v1"), Request, true).EnsureEndsWith("/");
+            model.ApiOdataUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/odata/v1"), Request, true).EnsureEndsWith('/');
             model.ApiOdataMetadataUrl = model.ApiOdataUrl + "$metadata";
             model.ApiDocsUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/" + WebApiSettings.SwaggerRoutePrefix), Request, true);
 

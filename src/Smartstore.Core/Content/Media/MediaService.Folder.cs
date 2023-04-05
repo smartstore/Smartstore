@@ -146,7 +146,7 @@ namespace Smartstore.Core.Content.Media
             ValidateFolderPath(path, "CopyFolder", nameof(path));
 
             destinationPath = FolderService.NormalizePath(destinationPath);
-            if (destinationPath.EnsureEndsWith("/").StartsWith(path.EnsureEndsWith("/")))
+            if (destinationPath.EnsureEndsWith('/').StartsWith(path.EnsureEndsWith('/')))
             {
                 throw new ArgumentException(T("Admin.Media.Exception.DescendantFolder", destinationPath, path), nameof(destinationPath));
             }

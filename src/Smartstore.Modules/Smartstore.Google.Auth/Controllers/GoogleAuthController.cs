@@ -25,7 +25,7 @@ namespace Smartstore.Google.Auth.Controllers
         public IActionResult Configure(GoogleExternalAuthSettings settings)
         {
             var model = MiniMapper.Map<GoogleExternalAuthSettings, ConfigurationModel>(settings);
-            var host = Services.StoreContext.CurrentStore.GetHost(true).EnsureEndsWith("/");
+            var host = Services.StoreContext.CurrentStore.GetHost(true).EnsureEndsWith('/');
             model.RedirectUrl = $"{host}signin-google";
 
             ViewBag.Provider = _providerManager.GetProvider("Smartstore.Google.Auth").Metadata;

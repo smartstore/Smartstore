@@ -120,7 +120,7 @@ namespace Smartstore.Admin.Controllers
                 var store = await MapperFactory.MapAsync<StoreModel, Store>(model);
 
                 // Ensure we have "/" at the end.
-                store.Url = store.Url.EnsureEndsWith("/");
+                store.Url = store.Url.EnsureEndsWith('/');
 
                 // INFO: we have to do this because we have a foreign key constraint on these fields.
                 store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
@@ -172,7 +172,7 @@ namespace Smartstore.Admin.Controllers
                 await MapperFactory.MapAsync(model, store);
 
                 // Ensure we have "/" at the end.
-                store.Url = store.Url.EnsureEndsWith("/");
+                store.Url = store.Url.EnsureEndsWith('/');
 
                 // INFO: we have to do this because we have a foreign key constraint on these fields.
                 store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
