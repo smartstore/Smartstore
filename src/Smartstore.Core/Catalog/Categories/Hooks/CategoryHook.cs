@@ -87,7 +87,7 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 if (categoryId == parent.Id)
                 {
-                    // Same ID > invalid.
+                    // Same ID = invalid.
                     return false;
                 }
 
