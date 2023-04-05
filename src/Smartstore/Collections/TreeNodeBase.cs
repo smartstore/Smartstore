@@ -492,7 +492,7 @@ namespace Smartstore.Collections
         {
             get
             {
-                var trail = new List<T>();
+                var trail = _depth.HasValue ? new List<T>(_depth.Value + 1) : new List<T>();
                 
                 var node = (T)this;
                 do

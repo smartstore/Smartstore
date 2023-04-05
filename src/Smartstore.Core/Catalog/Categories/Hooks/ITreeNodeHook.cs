@@ -32,12 +32,24 @@ namespace Smartstore.Core.Catalog.Categories
             return HookResult.Ok;
         }
 
-        protected override async Task<HookResult> OnInsertedAsync(ITreeNode entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnInsertedAsync(ITreeNode entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            entity.TreePath = entity.BuildTreePath();
-            await _db.SaveChangesAsync(cancelToken);
+            return Task.FromResult(HookResult.Ok);
+        }
 
-            return HookResult.Ok;
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            var nodes = entries
+                .Select(x => x.Entity)
+                .OfType<ITreeNode>()
+                .ToArray();
+
+            foreach (var node in nodes)
+            {
+                node.TreePath = node.BuildTreePath();
+            }
+
+            await _db.SaveChangesAsync(cancelToken);
         }
     }
 }

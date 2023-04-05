@@ -1,10 +1,12 @@
-﻿using System.Text;
+﻿#nullable enable
+
+using System.Text;
 using Smartstore.Collections;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Categories
 {
-    public static partial class CategoryExtensions
+    public static partial class CategoryNodeExtensions
     {
         /// <summary>
         /// Sort categories for tree representation.
@@ -13,10 +15,13 @@ namespace Smartstore.Core.Catalog.Categories
         /// <param name="parentId">Parent category identifier.</param>
         /// <param name="ignoreDetachedCategories">A value indicating whether categories without existing parent category in provided category list (source) should be ignored.</param>
         /// <returns>Sorted categories</returns>
-        public static IEnumerable<T> SortCategoryNodesForTree<T>(this IEnumerable<T> source, int parentId = 0, bool ignoreDetachedCategories = false)
+        public static IEnumerable<T> SortCategoryNodesForTree<T>(
+            this IEnumerable<T> source, 
+            int parentId = 0, bool 
+            ignoreDetachedCategories = false)
             where T : ICategoryNode
         {
-            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(source);
 
             var sourceCount = source.Count();
             var result = new List<T>(sourceCount);
@@ -132,7 +137,7 @@ namespace Smartstore.Core.Catalog.Categories
             int? languageId = null,
             bool withAlias = true)
         {
-            Guard.NotNull(treeNode, nameof(treeNode));
+            Guard.NotNull(treeNode);
 
             var sb = new StringBuilder(100);
             var indentSize = treeNode.Depth - 1;
@@ -158,6 +163,52 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Gets the tree path of a category.
+        /// </summary>
+        /// <param name="treeNode">Tree node to get tree path for.</param>
+        /// <returns>The tree path, or <c>null</c> if the given <paramref name="treeNode"/> is a root node.</returns>
+        public static string? GetTreePath(this TreeNode<ICategoryNode> treeNode)
+        {
+            Guard.NotNull(treeNode);
+
+            using var _ = CultureHelper.UseInvariant();
+
+            if (treeNode.Depth == 0)
+            {
+                return null;
+            }
+            else if (treeNode.Depth == 1)
+            {
+                // Very fast path
+                return $"/{treeNode.Value.Id}/";
+            }
+            else if (treeNode.Depth == 2)
+            {
+                // Fast path
+                return $"/{treeNode.Parent!.Value.Id}/{treeNode.Value.Id}/";
+            }
+            else
+            {
+                // Slow path
+                var sb = new StringBuilder("/", 32);
+                var trail = treeNode.Trail;
+
+                foreach (var node in trail)
+                {
+                    if (node.IsRoot)
+                    {
+                        continue;
+                    }
+
+                    sb.Append(node.Value.Id);
+                    sb.Append('/');
+                }
+
+                return sb.ToString();
+            }
         }
     }
 }

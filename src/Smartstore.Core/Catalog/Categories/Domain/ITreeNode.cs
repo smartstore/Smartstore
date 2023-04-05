@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Categories
 {
@@ -40,10 +41,12 @@ namespace Smartstore.Core.Catalog.Categories
 
     public static class ITreeNodeExtensions
     {
-        const string PathSeparator = "/";
+        const char PathSeparator = '/';
         
         public static string BuildTreePath(this ITreeNode node)
         {
+            using var _ = CultureHelper.UseInvariant();
+
             if (node.ParentId == null || node.GetParentNode() is not ITreeNode parentNode)
             {
                 return $"/{node.Id}/";

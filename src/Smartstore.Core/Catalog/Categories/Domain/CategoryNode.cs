@@ -11,7 +11,6 @@ namespace Smartstore.Core.Catalog.Categories
         new int Id { get; }
         int? ParentId { get; }
         string Name { get; }
-        string TreePath { get; }
         string ExternalLink { get; }
         string Alias { get; }
         int? MediaFileId { get; }
@@ -28,7 +27,6 @@ namespace Smartstore.Core.Catalog.Categories
         public int Id { get; set; }
         public int? ParentId { get; set; }
         public string Name { get; set; }
-        public string TreePath { get; set; }
         public string ExternalLink { get; set; }
         public string Alias { get; set; }
         public int? MediaFileId { get; set; }
