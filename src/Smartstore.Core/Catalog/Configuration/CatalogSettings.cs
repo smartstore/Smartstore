@@ -100,12 +100,12 @@ namespace Smartstore.Core.Catalog
         /// <summary>
         /// Gets or sets a value indicating whether number of products should be displayed beside each category
         /// </summary>
-        public bool ShowCategoryProductNumber { get; set; }
+        public bool ShowCategoryProductNumber { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether we include subcategories (when 'ShowCategoryProductNumber' is 'true')
         /// </summary>
-        public bool ShowCategoryProductNumberIncludingSubcategories { get; set; }
+        public bool ShowCategoryProductNumberIncludingSubcategories { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether category breadcrumb is enabled
