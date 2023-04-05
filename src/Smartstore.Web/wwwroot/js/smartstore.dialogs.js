@@ -29,7 +29,7 @@
             <button class="confirm2" data-confirm-message="@T("Resource")" data-confirm-post-url="@ActionURL" />
             <button type="submit" class="confirm2" data-confirm-message="@T("Resource")" />
         */
-        $("button.confirm2[data-confirm-message]").on("click", confirm2ClickHandler);
+        $(".confirm2[data-confirm-message]").on("click", onConfirm2Click);
     });
 
     var iconHints = {
@@ -167,7 +167,7 @@
         return modal;
     }
 
-    function confirm2ClickHandler(e) {
+    function onConfirm2Click(e) {
         e.preventDefault();
 
         let btn = $(this);
