@@ -119,8 +119,8 @@ namespace Smartstore.Scheduling
 
         public virtual TaskDescriptor CreateDescriptor(string name, Type type)
         {
-            Guard.NotEmpty(name, nameof(name));
-            Guard.NotNull(type, nameof(type));
+            Guard.NotEmpty(name);
+            Guard.NotNull(type);
             Guard.IsAssignableFrom<ITask>(type);
 
             return new TaskDescriptor
@@ -193,7 +193,7 @@ namespace Smartstore.Scheduling
 
         public virtual async Task<List<TaskDescriptor>> GetPendingTasksAsync()
         {
-            if (Db.DataProvider.ProviderType == DbSystemType.SQLite)
+            if (Db.DataProvider.ProviderType is (DbSystemType.MySql or DbSystemType.SQLite))
             {
                 return await GetPendingTasksLiteAsync();
             }
@@ -272,7 +272,7 @@ namespace Smartstore.Scheduling
 
         public virtual Task InsertTaskAsync(TaskDescriptor task)
         {
-            Guard.NotNull(task, nameof(task));
+            Guard.NotNull(task);
 
             Db.TaskDescriptors.Add(task);
             return Db.SaveChangesAsync();
@@ -280,7 +280,7 @@ namespace Smartstore.Scheduling
 
         public virtual Task UpdateTaskAsync(TaskDescriptor task)
         {
-            Guard.NotNull(task, nameof(task));
+            Guard.NotNull(task);
 
             try
             {
@@ -296,7 +296,7 @@ namespace Smartstore.Scheduling
 
         public virtual Task DeleteTaskAsync(TaskDescriptor task)
         {
-            Guard.NotNull(task, nameof(task));
+            Guard.NotNull(task);
 
             Db.TaskDescriptors.Remove(task);
             return Db.SaveChangesAsync();
@@ -304,7 +304,7 @@ namespace Smartstore.Scheduling
 
         public virtual async Task<TaskDescriptor> GetOrAddTaskAsync<T>(Action<TaskDescriptor> createAction) where T : ITask
         {
-            Guard.NotNull(createAction, nameof(createAction));
+            Guard.NotNull(createAction);
 
             var type = typeof(T);
 
@@ -332,7 +332,7 @@ namespace Smartstore.Scheduling
 
         public virtual async Task CalculateFutureSchedulesAsync(IEnumerable<TaskDescriptor> tasks, bool isAppStart = false)
         {
-            Guard.NotNull(tasks, nameof(tasks));
+            Guard.NotNull(tasks);
 
             foreach (var task in tasks)
             {
@@ -418,7 +418,7 @@ namespace Smartstore.Scheduling
 
         public virtual TaskExecutionInfo CreateExecutionInfo(TaskDescriptor task)
         {
-            Guard.NotNull(task, nameof(task));
+            Guard.NotNull(task);
 
             return new TaskExecutionInfo
             {
@@ -461,7 +461,7 @@ namespace Smartstore.Scheduling
 
         public virtual async Task<TaskExecutionInfo> GetLastExecutionInfoByTaskAsync(TaskDescriptor task, bool? runningOnly = null)
         {
-            Guard.NotNull(task, nameof(task));
+            Guard.NotNull(task);
 
             var query = Db.IsCollectionLoaded(task, x => x.ExecutionHistory)
                 ? task.ExecutionHistory.AsQueryable()
@@ -486,7 +486,7 @@ namespace Smartstore.Scheduling
 
         public virtual Task InsertExecutionInfoAsync(TaskExecutionInfo info)
         {
-            Guard.NotNull(info, nameof(info));
+            Guard.NotNull(info);
 
             Db.TaskExecutionInfos.Add(info);
             return Db.SaveChangesAsync();
@@ -494,7 +494,7 @@ namespace Smartstore.Scheduling
 
         public virtual Task UpdateExecutionInfoAsync(TaskExecutionInfo info)
         {
-            Guard.NotNull(info, nameof(info));
+            Guard.NotNull(info);
 
             try
             {
@@ -511,7 +511,7 @@ namespace Smartstore.Scheduling
 
         public virtual Task DeleteExecutionInfoAsync(TaskExecutionInfo info)
         {
-            Guard.NotNull(info, nameof(info));
+            Guard.NotNull(info);
             Guard.IsTrue(!info.IsRunning, nameof(info.IsRunning), "Cannot delete a running task execution info entry.");
 
             Db.TaskExecutionInfos.Remove(info);
