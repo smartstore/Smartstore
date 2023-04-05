@@ -14,6 +14,22 @@
         $(document).on('hidden.bs.modal', '.modal', function () {
             $('body').removeClass('modal-has-backdrop modal-backdrop-inverse modal-backdrop-invisible');
         });
+
+        /*
+        Event handler to use confirm2 on submit buttons.
+        Required Attributes:
+            - data-confirm-message: The message to display in the confirm dialog.
+
+        Optional Attributes:
+            - data-confirm-post-url: The url to post to. If not set, the form action will be used.
+            - data-progress-message: The message to display in the progress dialog.
+            - type="submit": When surrounded by a form, the data-confirm-post-url attribute is ignored.
+
+        Usage:
+            <button class="confirm2" data-confirm-message="@T("Resource")" data-confirm-post-url="@ActionURL" />
+            <button type="submit" class="confirm2" data-confirm-message="@T("Resource")" />
+        */
+        $("button.confirm2[data-confirm-message]").on("click", confirm2ClickHandler);
     });
 
     var iconHints = {
@@ -149,6 +165,50 @@
         });
 
         return modal;
+    }
+
+    function confirm2ClickHandler(e) {
+        e.preventDefault();
+
+        let btn = $(this);
+        let confirmMessage = btn.attr('data-confirm-message');
+        let progressMessage = btn.attr('data-progress-message') || "";
+        let formPostUrl = btn.attr('data-confirm-post-url') || "";
+
+        let isSubmittable = btn.attr('type') === 'submit';
+        let nearestForm = btn.closest('form');
+        let hasForm = nearestForm.length == 1;
+
+        confirm2({
+            message: confirmMessage.unescapeHtml(),
+            icon: { type: 'question' },
+            callback: accepted => {
+                if (accepted) {
+                    $.throbber.show({
+                        message: progressMessage
+                    });
+                    if (hasForm) {
+                        if (!isSubmittable) {
+                            // Change the form action.
+                            nearestForm[0].action = formPostUrl;
+                        }
+                    } else {
+                        // Create new form.
+                        nearestForm[0] = document.createElement("form");
+
+                        nearestForm[0].method = "POST";
+                        nearestForm[0].action = formPostUrl;
+
+                        document.body.appendChild(nearestForm[0]);
+                    }
+
+                    // Submit the form
+                    nearestForm[0].submit();
+                }
+            }
+        });
+
+        return false;
     }
 
     window.alert2 = function (message) {
