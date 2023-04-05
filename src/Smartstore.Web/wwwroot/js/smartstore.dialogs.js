@@ -1,5 +1,4 @@
 ﻿(function ($, window) {
-
     $(function () {
         // Global modal event handlers
         $(document).on('show.bs.modal', '.modal', function () {
@@ -11,13 +10,11 @@
                 body.toggleClass('modal-backdrop-inverse', backdrop === 'invert');
             }
         });
+
         $(document).on('hidden.bs.modal', '.modal', function () {
             $('body').removeClass('modal-has-backdrop modal-backdrop-inverse modal-backdrop-invisible');
         });
     });
-
-
-
 
     var iconHints = {
         check: { name: 'fa fa-check', color: 'success' },

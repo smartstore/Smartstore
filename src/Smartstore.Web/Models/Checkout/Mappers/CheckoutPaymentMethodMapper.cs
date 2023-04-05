@@ -55,7 +55,7 @@ namespace Smartstore.Web.Models.Checkout
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
 
-            // Was shipping skipped.
+            // Was shipping skipped?
             var shippingOptions = (await _shippingService.GetShippingOptionsAsync(from, from.Customer.ShippingAddress, string.Empty, from.StoreId)).ShippingOptions;
 
             if (!from.IsShippingRequired() || (shippingOptions.Count <= 1 && _shippingSettings.SkipShippingIfSingleOption))

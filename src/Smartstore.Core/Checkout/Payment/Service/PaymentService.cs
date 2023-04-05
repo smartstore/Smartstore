@@ -1,5 +1,4 @@
-﻿
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
