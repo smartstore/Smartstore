@@ -30,7 +30,7 @@ namespace Smartstore.Engine.Modularity
                     // Create symlink only if theme dir does not exist
                     try
                     {
-                        File.CreateSymbolicLink(themeDir.PhysicalPath, descriptor.PhysicalPath);
+                        File.CreateSymbolicLink(themeDir.PhysicalPath, Path.Combine(descriptor.PhysicalPath, "Themes", descriptor.Theme));
                     }
                     catch (Exception ex)
                     {
