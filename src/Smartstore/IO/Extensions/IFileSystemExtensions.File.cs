@@ -84,8 +84,8 @@ namespace Smartstore
 
         private static async Task<bool> TryDeleteFileInternal(IFileSystem fs, IFile file, bool async)
         {
-            Guard.NotNull(fs, nameof(fs));
-            Guard.NotNull(file, nameof(file));
+            Guard.NotNull(fs);
+            Guard.NotNull(file);
 
             if (!file.Exists)
             {

@@ -34,7 +34,7 @@ namespace Smartstore.Engine.Modularity.NuGet
             _indexUri = new Uri("https://api.nuget.org/v3/index.json");
             _packageDownloadPath = appContext.GetTempDirectory().PhysicalPath;
 
-            _appContext = Guard.NotNull(appContext, nameof(appContext));
+            _appContext = Guard.NotNull(appContext);
             _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance;
             _nuLogger = new NuGetLogger(_logger);
             _sourceCacheContext = sourceCacheContext ?? new SourceCacheContext();

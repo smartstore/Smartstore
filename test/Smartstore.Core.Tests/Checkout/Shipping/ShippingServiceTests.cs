@@ -35,11 +35,11 @@ namespace Smartstore.Core.Tests.Shipping
             };
 
             var downloadService = new Mock<IDownloadService>();
-
+            
             _productAttributeMaterializer = new ProductAttributeMaterializer(
                 null,
                 null,
-                new NullRequestCache(),
+                NullRequestCache.Instance,
                 null,
                 null,
                 new Lazy<IDownloadService>(() => downloadService.Object),

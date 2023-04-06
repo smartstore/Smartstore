@@ -197,7 +197,7 @@ namespace Smartstore.Data
         {
             try
             {
-                return EngineContext.Current?.Scope?.ResolveOptional<IDbHookProcessor>();
+                return EngineContext.Current?.Scope?.ResolveOptional<IDbHookProcessor>() ?? NullDbHookProcessor.Instance;
             }
             catch
             {
