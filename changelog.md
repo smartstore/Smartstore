@@ -1,5 +1,15 @@
 # Release Notes
 
+## Smartstore 5.1.0
+
+### New Features
+
+### Improvements
+
+### Bugfixes
+
+- Fixed display of orders in MyAccount area when orderSettings.DisplayOrdersOfAllStores was set to true
+
 ## Smartstore 5.0.4
 
 ### New Features
