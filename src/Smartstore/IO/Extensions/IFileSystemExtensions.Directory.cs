@@ -409,11 +409,11 @@ namespace Smartstore
                 {
                     if (async)
                     {
-                        await ClearDirectoryInternal(fs, subDir, true, olderThan, ignoreFiles, cancelToken, true);
+                        await ClearDirectoryInternal(fs, subDir, deleteIfEmpfy, olderThan, ignoreFiles, cancelToken, true);
                     }
                     else
                     {
-                        ClearDirectoryInternal(fs, subDir, true, olderThan, ignoreFiles, cancelToken, false).Await();
+                        ClearDirectoryInternal(fs, subDir, deleteIfEmpfy, olderThan, ignoreFiles, cancelToken, false).Await();
                     }
                 }
             }
