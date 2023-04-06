@@ -27,7 +27,7 @@ namespace Smartstore.Web.Api
             return typeName;
         }
 
-        public static string FullNameSansTypeParameters(this Type type)
+        private static string FullNameSansTypeParameters(this Type type)
         {
             var fullName = type.FullName;
             if (string.IsNullOrEmpty(fullName))
