@@ -11,7 +11,7 @@ namespace Smartstore.Bootstrapping
     {
         public static IServiceCollection AddWkHtmlToPdf(this IServiceCollection services)
         {
-            Guard.NotNull(services, nameof(services));
+            Guard.NotNull(services);
 
             // Don't overwrite any options setups that a user may have added.
             services.TryAddEnumerable(
@@ -25,8 +25,8 @@ namespace Smartstore.Bootstrapping
 
         public static IServiceCollection AddWkHtmlToPdf(this IServiceCollection services, Action<WkHtmlToPdfOptions> setupAction)
         {
-            Guard.NotNull(services, nameof(services));
-            Guard.NotNull(setupAction, nameof(setupAction));
+            Guard.NotNull(services);
+            Guard.NotNull(setupAction);
 
             services.AddWkHtmlToPdf();
             services.Configure(setupAction);
@@ -45,7 +45,7 @@ namespace Smartstore.Bootstrapping
 
             public void Configure(WkHtmlToPdfOptions options)
             {
-                Guard.NotNull(options, nameof(options));
+                Guard.NotNull(options);
 
                 options.TempFilesPath = _appContext.GetTenantTempDirectory("PdfGen").PhysicalPath.EnsureEndsWith(Path.DirectorySeparatorChar);
 
