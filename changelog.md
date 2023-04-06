@@ -8,7 +8,8 @@
 
 ### Bugfixes
 
-- Fixed display of orders in MyAccount area when orderSettings.DisplayOrdersOfAllStores was set to true
+- PdfConverter failed after cron job cleaned up temporary files in App_Data directory
+- Fixed display of orders in MyAccount area when `OrderSettings.DisplayOrdersOfAllStores` was set to `true`
 
 ## Smartstore 5.0.4
 
