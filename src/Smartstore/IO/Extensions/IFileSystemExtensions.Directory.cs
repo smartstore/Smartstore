@@ -272,20 +272,20 @@ namespace Smartstore
         /// Safe way to delete all directory content
         /// </summary>
         /// <param name="directory">Directory</param>
-        /// <param name="deleteIfEmpfy">Delete directory as well if it doesn't contain any entries after deletion.</param>
+        /// <param name="deleteIfEmpty">Delete directory as well if it doesn't contain any entries after deletion.</param>
         /// <param name="olderThan">Delete only files older than this TimeSpan</param>
         /// <param name="ignoreFiles">Name of files to ignore (not to delete).</param>
         public static void ClearDirectory(
             this IFileSystem fs,
             IDirectory directory,
-            bool deleteIfEmpfy,
+            bool deleteIfEmpty,
             TimeSpan olderThan,
             params string[] ignoreFiles)
             => ClearDirectoryInternal(
                 false,
                 fs,
                 directory,
-                deleteIfEmpfy,
+                deleteIfEmpty,
                 olderThan,
                 ignoreFiles).Await();
 
@@ -293,13 +293,13 @@ namespace Smartstore
         /// Safe way to delete all directory content
         /// </summary>
         /// <param name="directory">Directory</param>
-        /// <param name="deleteIfEmpfy">Delete directory as well if it doesn't contain any entries after deletion.</param>
+        /// <param name="deleteIfEmpty">Delete directory as well if it doesn't contain any entries after deletion.</param>
         /// <param name="olderThan">Delete only files older than this TimeSpan</param>
         /// <param name="ignoreFiles">Name of files to ignore (not to delete).</param>
         public static Task ClearDirectoryAsync(
             this IFileSystem fs,
             IDirectory directory,
-            bool deleteIfEmpfy,
+            bool deleteIfEmpty,
             TimeSpan olderThan,
             CancellationToken cancelToken = default,
             params string[] ignoreFiles)
@@ -307,7 +307,7 @@ namespace Smartstore
                 true,
                 fs,
                 directory,
-                deleteIfEmpfy,
+                deleteIfEmpty,
                 olderThan,
                 ignoreFiles,
                 cancelToken);
@@ -316,14 +316,14 @@ namespace Smartstore
         /// Safe way to delete all directory content
         /// </summary>
         /// <param name="directory">Directory</param>
-        /// <param name="deleteIfEmpfy">Delete directory as well if it doesn't contain any entries after deletion.</param>
+        /// <param name="deleteIfEmpty">Delete directory as well if it doesn't contain any entries after deletion.</param>
         /// <param name="olderThan">Delete only files older than this TimeSpan</param>
         /// <param name="ignoreFiles">Name of files to ignore (not to delete).</param>
         private static async Task ClearDirectoryInternal(
             bool async,
             IFileSystem fs,
             IDirectory directory,
-            bool deleteIfEmpfy,
+            bool deleteIfEmpty,
             TimeSpan olderThan,
             string[] ignoreFiles,
             CancellationToken cancelToken = default)
@@ -362,15 +362,15 @@ namespace Smartstore
                 }
             }
 
-            if (deleteIfEmpfy)
+            if (deleteIfEmpty)
             {
                 try
                 {
                     if (async)
                     {
-                        if (!await directory.EnumerateEntriesAsync().AnyAsync(x => true))
+                        if (!await directory.EnumerateEntriesAsync(cancelToken: cancelToken).AnyAsync(x => true, cancelToken))
                         {
-                            await directory.DeleteAsync();
+                            await directory.DeleteAsync(cancelToken);
                         }
                     }
                     else
@@ -408,11 +408,11 @@ namespace Smartstore
                 {
                     if (async)
                     {
-                        await ClearDirectoryInternal(true, fs, subDir, deleteIfEmpfy, olderThan, ignoreFiles, cancelToken);
+                        await ClearDirectoryInternal(true, fs, subDir, true, olderThan, ignoreFiles, cancelToken);
                     }
                     else
                     {
-                        ClearDirectoryInternal(false, fs, subDir, deleteIfEmpfy, olderThan, ignoreFiles).Await();
+                        ClearDirectoryInternal(false, fs, subDir, true, olderThan, ignoreFiles).Await();
                     }
                 }
             }
