@@ -18,7 +18,7 @@ namespace Smartstore.Pdf.WkHtml
     // TODO: (core) Implement BatchMode
     public class WkHtmlToPdfConverter : IPdfConverter
     {
-        private static string _tempPath;
+        private static string _tempDir;
         private static AsyncLazy<string> _toolName = new(GetToolNameAsync);
         //private readonly static string[] _ignoreErrLines = new string[] 
         //{ 
@@ -107,7 +107,7 @@ namespace Smartstore.Pdf.WkHtml
 
         public virtual IPdfInput CreateFileInput(string urlOrPath, bool prefetch = false)
         {
-            Guard.NotEmpty(urlOrPath, nameof(urlOrPath));
+            Guard.NotEmpty(urlOrPath);
 
             if (prefetch && (urlOrPath.IsWebUrl() || WebHelper.IsLocalUrl(urlOrPath)))
             {
@@ -133,13 +133,13 @@ namespace Smartstore.Pdf.WkHtml
 
         public virtual IPdfInput CreateHtmlInput(string html)
         {
-            Guard.NotEmpty(html, nameof(html));
+            Guard.NotEmpty(html);
             return new WkHtmlInput(html, _options, _httpContextAccessor.HttpContext);
         }
 
         public Task<Stream> GeneratePdfAsync(PdfConversionSettings settings, CancellationToken cancelToken = default)
         {
-            Guard.NotNull(settings, nameof(settings));
+            Guard.NotNull(settings);
 
             if (settings.Page == null)
             {
@@ -156,12 +156,14 @@ namespace Smartstore.Pdf.WkHtml
 
             try
             {
+                EnsureTempDirectoryExists(_options);
+                
                 // Build command / arguments
                 using var psb = StringBuilderPool.Instance.Get(out var sb);
                 await _commandBuilder.BuildCommandAsync(settings, sb);
 
                 // Create output PDF temp file name
-                var outputFileName = GetTempFileName(_options, ".pdf");
+                var outputFileName = GetTempFileName(".pdf");
                 sb.AppendFormat(" \"{0}\" ", outputFileName);
 
                 var arguments = sb.ToString();
@@ -261,24 +263,29 @@ namespace Smartstore.Pdf.WkHtml
 
         #region WkHtml utilities
 
-        internal static string GetTempFileName(WkHtmlToPdfOptions options, string extension)
+        internal static string EnsureTempDirectoryExists(WkHtmlToPdfOptions options)
         {
-            return Path.Combine(GetTempPath(options), "pdfgen-" + Path.GetRandomFileName() + extension.EmptyNull());
-        }
-
-        internal static string GetTempPath(WkHtmlToPdfOptions options)
-        {
-            LazyInitializer.EnsureInitialized(ref _tempPath, () =>
+            LazyInitializer.EnsureInitialized(ref _tempDir, () =>
             {
-                if (options.TempFilesPath.HasValue() && !Directory.Exists(options.TempFilesPath))
+                if (options.TempFilesPath.HasValue() && Path.IsPathRooted(options.TempFilesPath))
                 {
-                    Directory.CreateDirectory(options.TempFilesPath);
+                    return options.TempFilesPath;
                 }
-
-                return options.TempFilesPath ?? Path.GetTempPath();
+                else
+                {
+                    return Path.GetTempPath();
+                }
             });
 
-            return _tempPath;
+            // Ensure that directory exists (it could have been deleted in the meantime)
+            Directory.CreateDirectory(_tempDir);
+
+            return _tempDir;
+        }
+
+        internal static string GetTempFileName(string extension)
+        {
+            return Path.Combine(_tempDir, "pdfgen-" + Path.GetRandomFileName() + extension.EmptyNull());
         }
 
         private void CheckProcess()
