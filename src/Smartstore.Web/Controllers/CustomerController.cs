@@ -1075,7 +1075,7 @@ namespace Smartstore.Web.Controllers
 
             var orders = await _db.Orders
                 .AsNoTracking()
-                .ApplyStandardFilter(customer.Id, _orderSettings.DisplayOrdersOfAllStores ? 0 : store.Id)
+                .ApplyStandardFilter(customer.Id, _orderSettings.DisplayOrdersOfAllStores ? null : store.Id)
                 .ToPagedList(orderPageIndex, _orderSettings.OrderListPageSize)
                 .LoadAsync();
 
