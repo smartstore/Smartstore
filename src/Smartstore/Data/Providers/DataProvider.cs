@@ -268,12 +268,6 @@ namespace Smartstore.Data.Providers
             => throw new NotSupportedException();
 
         /// <summary>
-        /// Splits the given SQL script by provider specific delimiters.
-        /// </summary>
-        protected virtual IList<string> SplitSqlScript(string sqlScript)
-            => throw new NotSupportedException();
-
-        /// <summary>
         /// Opens a sequential BLOB stream.
         /// </summary>
         /// <param name="tableName">Table name</param>
@@ -288,6 +282,133 @@ namespace Smartstore.Data.Providers
         /// </summary>
         protected virtual Task<List<DbTableInfo>> ReadTableInfosCore(bool async, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
+
+        protected virtual bool SqlSupportsDelimiterStatement
+        {
+            get => false;
+        }
+
+        protected virtual string SqlBatchTerminator
+        {
+            get => null;
+        }
+
+        /// <summary>
+        /// Splits the given SQL script by provider specific delimiters.
+        /// </summary>
+        protected virtual IList<string> SplitSqlScript(string sqlScript)
+        {
+            var delimiter = ";";
+            var canTerminateBatch = SqlBatchTerminator.HasValue();
+            var inMultilineComment = false;
+            var commands = new List<string>();
+            var command = string.Empty;
+            var lines = sqlScript.GetLines(true);
+
+            foreach (var line in lines)
+            {
+                // Ignore comments
+                var commandLine = ReadSqlCommandLine(line, ref inMultilineComment);
+                if (commandLine.IsEmpty())
+                {
+                    continue;
+                }
+
+                // In some DB systems (e.g. MySQL), you can change the delimiter using the DELIMITER statement.
+                // To handle this scenario, we need to track the current delimiter
+                // and change it whenever we encounter a DELIMITER statement
+                if (SqlSupportsDelimiterStatement && commandLine.StartsWithNoCase("DELIMITER"))
+                {
+                    delimiter = commandLine.Split(' ')[1].Trim();
+                    continue;
+                }
+
+                // MSSQL can terminate batches with the "GO" statement
+                var isBatchTerminator = canTerminateBatch && commandLine.EqualsNoCase(SqlBatchTerminator);
+
+                if (isBatchTerminator)
+                {
+                    if (command.HasValue())
+                    {
+                        commands.Add(command);
+                        command = string.Empty;
+                    }
+                }
+                else if (!commandLine.EndsWith(delimiter))
+                {
+                    command += commandLine + Environment.NewLine;
+                }
+                else
+                {
+                    command += commandLine[..^delimiter.Length];
+                    commands.Add(command.Trim());
+                    command = string.Empty;
+                }
+            }
+
+            if (command.Length > 0)
+            {
+                commands.Add(command.Trim());
+            }
+
+            return commands;
+        }
+
+        /// <summary>
+        /// Reads a single sql command line while skipping single- and multi-line comments.
+        /// </summary>
+        protected virtual string ReadSqlCommandLine(string line, ref bool inMultilineComment)
+        {
+            if (line.IsEmpty())
+            {
+                return line;
+            }
+
+            if (inMultilineComment)
+            {
+                var endCommentIndex = line.IndexOf("*/");
+                if (endCommentIndex > -1)
+                {
+                    inMultilineComment = false;
+                    line = line[(endCommentIndex + 2)..];
+                }
+                else
+                {
+                    line = string.Empty;
+                }
+            }
+
+            var singleLineCommentIndex = line.IndexOf("--");
+            if (singleLineCommentIndex > -1)
+            {
+                line = line[..singleLineCommentIndex];
+            }
+            else
+            {
+                singleLineCommentIndex = line.IndexOf('#');
+                if (singleLineCommentIndex > -1)
+                {
+                    line = line[..singleLineCommentIndex];
+                }
+            }
+
+            var startCommentIndex = line.IndexOf("/*");
+            if (startCommentIndex > -1)
+            {
+                var endCommentIndex = line.IndexOf("*/", startCommentIndex + 2);
+                if (endCommentIndex > -1)
+                {
+                    line = string.Concat(line.AsSpan(0, startCommentIndex), line.AsSpan(endCommentIndex + 2));
+                }
+                else
+                {
+                    inMultilineComment = true;
+                    line = line[..startCommentIndex];
+                }
+            }
+
+            return line.Trim();
+        }
 
         #endregion
 
@@ -498,9 +619,19 @@ namespace Smartstore.Data.Providers
             Guard.NotEmpty(sqlScript);
 
             var sqlCommands = SplitSqlScript(sqlScript);
-            var rowsAffected = 0;
 
-            using var tx = async ? await Database.BeginTransactionAsync(cancelToken) : Database.BeginTransaction();
+            if (sqlCommands.Count == 0)
+            {
+                return 0;
+            }
+
+            var rowsAffected = 0;
+            var isInTransaction = Database.CurrentTransaction != null;
+
+            using var tx = isInTransaction
+                ? null
+                : (async ? await Database.BeginTransactionAsync(cancelToken) : Database.BeginTransaction());
+
             try
             {
                 foreach (var command in sqlCommands.Select(Sql))
@@ -508,26 +639,32 @@ namespace Smartstore.Data.Providers
                     rowsAffected += async ? await Database.ExecuteSqlRawAsync(command, cancelToken) : Database.ExecuteSqlRaw(command);
                 }
 
-                if (async)
+                if (!isInTransaction)
                 {
-                    await tx.CommitAsync(cancelToken);
-                }
-                else
-                {
-                    tx.Commit();
-                }
-                
+                    if (async)
+                    {
+                        await tx.CommitAsync(cancelToken);
+                    }
+                    else
+                    {
+                        tx.Commit();
+                    }
+                }            
             }
             catch
             {
-                if (async)
+                if (!isInTransaction)
                 {
-                    await tx.RollbackAsync(cancelToken);
+                    if (async)
+                    {
+                        await tx.RollbackAsync(cancelToken);
+                    }
+                    else
+                    {
+                        tx.Rollback();
+                    }
                 }
-                else
-                {
-                    tx.Rollback();
-                }
+
                 throw;
             }
 

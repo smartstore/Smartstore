@@ -102,7 +102,8 @@ namespace Smartstore.Admin.Controllers
             var model = new MaintenanceModel
             {
                 CanExecuteSql = _db.DataProvider.CanExecuteSqlScript,
-                CanCreateBackup = _db.DataProvider.CanBackup
+                CanCreateBackup = _db.DataProvider.CanBackup,
+                SqlQuery = TempData["Maintenance.SqlQuery"].Convert<string>()
             };
 
             model.DeleteGuests.EndDate = DateTime.UtcNow.AddDays(-7);
@@ -184,6 +185,8 @@ namespace Smartstore.Admin.Controllers
         {
             if (_db.DataProvider.CanExecuteSqlScript && model.SqlQuery.HasValue())
             {
+                TempData["Maintenance.SqlQuery"] = model.SqlQuery;
+
                 try
                 {
                     var rowsAffected = await _db.DataProvider.ExecuteSqlScriptAsync(model.SqlQuery);

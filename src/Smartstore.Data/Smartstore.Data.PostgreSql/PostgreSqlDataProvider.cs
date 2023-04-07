@@ -46,6 +46,11 @@ namespace Smartstore.Data.PostgreSql
             | DataProviderFeatures.StoredProcedures
             | DataProviderFeatures.ReadTableInfo;
 
+        protected override bool SqlSupportsDelimiterStatement
+        {
+            get => true;
+        }
+
         public override DbParameter CreateParameter()
         {
             return new NpgsqlParameter();
@@ -205,36 +210,6 @@ LIMIT {take} OFFSET {skip}";
                : Task.FromResult(Database.ExecuteScalarRaw<string>(sql));
 
             return seqName;
-        }
-
-        protected override IList<string> SplitSqlScript(string sqlScript)
-        {
-            var commands = new List<string>();
-            var lines = sqlScript.GetLines(true);
-            var command = string.Empty;
-            var delimiter = ";";
-
-            foreach (var line in lines)
-            {
-                // Ignore comments
-                if (line.StartsWith("--"))
-                {
-                    continue;
-                }
-
-                if (!line.EndsWith(delimiter))
-                {
-                    command += line + Environment.NewLine;
-                }
-                else
-                {
-                    command += line[..^delimiter.Length];
-                    commands.Add(command);
-                    command = string.Empty;
-                }
-            }
-
-            return commands;
         }
 
         protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)

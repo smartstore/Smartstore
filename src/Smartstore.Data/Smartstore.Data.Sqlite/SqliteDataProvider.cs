@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -200,36 +199,6 @@ LIMIT {take} OFFSET {skip}";
             }
             
             return 1;
-        }
-
-        protected override IList<string> SplitSqlScript(string sqlScript)
-        {
-            var commands = new List<string>();
-            var lines = sqlScript.GetLines(true);
-            var command = string.Empty;
-            var delimiter = ";";
-
-            foreach (var line in lines)
-            {
-                // Ignore comments
-                if (line.StartsWith("--"))
-                {
-                    continue;
-                }
-
-                if (!line.EndsWith(delimiter))
-                {
-                    command += line + Environment.NewLine;
-                }
-                else
-                {
-                    command += line[..^delimiter.Length];
-                    commands.Add(command);
-                    command = string.Empty;
-                }
-            }
-
-            return commands;
         }
 
         protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)

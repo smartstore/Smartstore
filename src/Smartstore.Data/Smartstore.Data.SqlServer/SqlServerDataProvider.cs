@@ -120,6 +120,11 @@ namespace Smartstore.Data.SqlServer
             | DataProviderFeatures.ReadSequential
             | DataProviderFeatures.ReadTableInfo;
 
+        protected override string SqlBatchTerminator
+        {
+            get => "GO";
+        }
+
         public override DbParameter CreateParameter()
         {
             return new SqlParameter();
@@ -264,36 +269,6 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             return async
                 ? Database.ExecuteSqlRawAsync(RestoreDatabaseSql(DatabaseName), new object[] { backupFullPath }, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(RestoreDatabaseSql(DatabaseName), new object[] { backupFullPath }));
-        }
-
-        protected override IList<string> SplitSqlScript(string sqlScript)
-        {
-            var commands = new List<string>();
-            var lines = sqlScript.GetLines(true);
-            var command = string.Empty;
-
-            foreach (var line in lines)
-            {
-                // Ignore comments
-                if (line.StartsWith("--") || line.StartsWith("/*"))
-                {
-                    continue;
-                }
-
-                var isDelimiter = line.EqualsNoCase("GO");
-
-                if (!isDelimiter)
-                {
-                    command += line + Environment.NewLine;
-                }
-                else
-                {
-                    commands.Add(command);
-                    command = string.Empty;
-                }
-            }
-
-            return commands;
         }
 
         protected override Stream OpenBlobStreamCore(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
