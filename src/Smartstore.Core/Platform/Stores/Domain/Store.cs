@@ -11,13 +11,13 @@ namespace Smartstore.Core.Stores
     {
         public void Configure(EntityTypeBuilder<Store> builder)
         {
+#pragma warning disable CS0618
             builder
                 .HasOne(x => x.DefaultCurrency)
                 .WithMany()
                 .HasForeignKey(x => x.DefaultCurrencyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-#pragma warning disable CS0618
             builder
                 .HasOne(x => x.PrimaryExchangeRateCurrency)
                 .WithMany()
@@ -128,6 +128,7 @@ namespace Smartstore.Core.Stores
         /// <summary>
         /// Gets or sets the default currency.
         /// </summary>
+        [Obsolete("Use ICurrencyService.PrimaryCurrency")]
         public Currency DefaultCurrency
         {
             get => _defaultCurrency ?? LazyLoader.Load(this, ref _defaultCurrency);
