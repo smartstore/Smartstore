@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using NUnit.Framework;
-using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
@@ -13,15 +12,13 @@ namespace Smartstore.Core.Tests.Common
     public class CurrencyServiceTests : ServiceTestBase
     {
         CurrencySettings _currencySettings;
-        TaxSettings _taxSettings;
         ICurrencyService _currencyService;
-
         Currency _currencyUSD, _currencyJPY, _currencyEUR;
 
         [SetUp]
         public new void SetUp()
         {
-            _currencyUSD = new Currency()
+            _currencyUSD = new()
             {
                 Id = 1,
                 Name = "US Dollar",
@@ -34,7 +31,7 @@ namespace Smartstore.Core.Tests.Common
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
             };
-            _currencyEUR = new Currency()
+            _currencyEUR = new()
             {
                 Id = 2,
                 Name = "Euro",
@@ -47,7 +44,7 @@ namespace Smartstore.Core.Tests.Common
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
             };
-            _currencyJPY = new Currency()
+            _currencyJPY = new()
             {
                 Id = 3,
                 Name = "Japanese yen",
@@ -61,16 +58,13 @@ namespace Smartstore.Core.Tests.Common
                 UpdatedOnUtc = DateTime.UtcNow,
             };
 
-            _currencySettings = new CurrencySettings();
-            _taxSettings = new TaxSettings();
+            _currencySettings = new();
 
             _currencyService = new CurrencyService(
                 DbContext,
-                null,
                 ProviderManager,
                 null,
                 _currencySettings,
-                _taxSettings,
                 null)
             {
                 PrimaryCurrency = _currencyUSD,

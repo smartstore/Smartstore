@@ -2,10 +2,7 @@
 using NUnit.Framework;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Configuration;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Tests.Domain
@@ -25,12 +22,10 @@ namespace Smartstore.Tests.Domain
                 null,
                 null,
                 null,
-                null,
-                new CurrencySettings { PrimaryCurrencyId = 1 },
-                new TaxSettings { DefaultTaxAddressId = 10, EuVatUseWebService = true },
+                new() { PrimaryCurrencyId = 1 },
                 null)
             {
-                PrimaryCurrency = new Currency()
+                PrimaryCurrency = new()
             };
 
             _giftCardService = new GiftCardService(null, _currencyService);
@@ -44,7 +39,7 @@ namespace Smartstore.Tests.Domain
                 Amount = 100,
                 IsGiftCardActivated = true,
                 PurchasedWithOrderItemId = 2,
-                PurchasedWithOrderItem = new OrderItem
+                PurchasedWithOrderItem = new()
                 {
                     Id = 2,
                     OrderId = 1,
@@ -55,9 +50,9 @@ namespace Smartstore.Tests.Domain
                 }
             };
 
-            gc.GiftCardUsageHistory.Add(new GiftCardUsageHistory() { UsedValue = 30 });
-            gc.GiftCardUsageHistory.Add(new GiftCardUsageHistory() { UsedValue = 20 });
-            gc.GiftCardUsageHistory.Add(new GiftCardUsageHistory() { UsedValue = 5 });
+            gc.GiftCardUsageHistory.Add(new() { UsedValue = 30 });
+            gc.GiftCardUsageHistory.Add(new() { UsedValue = 20 });
+            gc.GiftCardUsageHistory.Add(new() { UsedValue = 5 });
 
             // valid
             (await _giftCardService.ValidateGiftCardAsync(gc, 1)).ShouldEqual(true);
@@ -81,14 +76,14 @@ namespace Smartstore.Tests.Domain
         [Test]
         public async Task Can_calculate_giftCard_remainingAmountAsync()
         {
-            var gc = new GiftCard()
+            var gc = new GiftCard
             {
                 Amount = 100
             };
 
-            gc.GiftCardUsageHistory.Add(new GiftCardUsageHistory() { UsedValue = 30 });
-            gc.GiftCardUsageHistory.Add(new GiftCardUsageHistory() { UsedValue = 20 });
-            gc.GiftCardUsageHistory.Add(new GiftCardUsageHistory() { UsedValue = 5 });
+            gc.GiftCardUsageHistory.Add(new() { UsedValue = 30 });
+            gc.GiftCardUsageHistory.Add(new() { UsedValue = 20 });
+            gc.GiftCardUsageHistory.Add(new() { UsedValue = 5 });
 
             (await _giftCardService.GetRemainingAmountAsync(gc)).Amount.ShouldEqual(45);
         }

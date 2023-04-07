@@ -1,4 +1,3 @@
-using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
@@ -13,11 +12,9 @@ namespace Smartstore.Core.Common.Services
     public partial class CurrencyService : AsyncDbSaveHook<Currency>, ICurrencyService
     {
         private readonly SmartDbContext _db;
-        private readonly ILocalizationService _localizationService;
         private readonly IProviderManager _providerManager;
         private readonly IWorkContext _workContext;
         private readonly CurrencySettings _currencySettings;
-        private readonly TaxSettings _taxSettings;
         private readonly ISettingFactory _settingFactory;
 
         private Currency _primaryCurrency;
@@ -25,19 +22,15 @@ namespace Smartstore.Core.Common.Services
 
         public CurrencyService(
             SmartDbContext db,
-            ILocalizationService localizationService,
             IProviderManager providerManager,
             IWorkContext workContext,
             CurrencySettings currencySettings,
-            TaxSettings taxSettings,
             ISettingFactory settingFactory)
         {
             _db = db;
-            _localizationService = localizationService;
             _providerManager = providerManager;
             _workContext = workContext;
             _currencySettings = currencySettings;
-            _taxSettings = taxSettings;
             _settingFactory = settingFactory;
         }
 
