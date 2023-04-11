@@ -41,7 +41,7 @@ namespace Smartstore.Scheduling
             bool throwOnError = false,
             CancellationToken cancelToken = default)
         {
-            Guard.NotNull(task, nameof(task));
+            Guard.NotNull(task);
 
             if (_asyncRunner.AppShutdownCancellationToken.IsCancellationRequested)
             {

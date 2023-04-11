@@ -172,7 +172,7 @@
         /// <param name="force"><c>true</c> always enforces a reload, even if data is loaded already.</param>
         public static async Task LoadLastExecutionInfoAsync(this ITaskStore store, TaskDescriptor task, bool force = false)
         {
-            Guard.NotNull(task, nameof(task));
+            Guard.NotNull(task);
 
             if (task.LastExecution == null || force)
             {
@@ -187,7 +187,7 @@
 
         public static Task<TaskDescriptor> GetTaskByTypeAsync(this ITaskStore store, Type taskType)
         {
-            Guard.NotNull(taskType, nameof(taskType));
+            Guard.NotNull(taskType);
 
             var type = taskType.GetAttribute<TaskNameAttribute>(false)?.Name ?? taskType.Name;
             return store.GetTaskByTypeAsync(type);

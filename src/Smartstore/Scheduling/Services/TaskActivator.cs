@@ -9,6 +9,7 @@ namespace Smartstore.Scheduling
         {
             { "FileImportTask", "BMEcatImportTask" },
             { "PaymentStatusPollingTask", "SantanderStatusPollingTask" },
+            { "CleanupTask", "CleanupPersonalPromoTask" }
         };
 
         private readonly static ConcurrentDictionary<string, string> _normalizedTypeNames = new(StringComparer.OrdinalIgnoreCase);
@@ -22,7 +23,7 @@ namespace Smartstore.Scheduling
 
         public virtual string GetNormalizedTypeName(TaskDescriptor task)
         {
-            Guard.NotNull(task, nameof(task));
+            Guard.NotNull(task);
 
             if (task.Type.IsEmpty())
             {
@@ -53,7 +54,7 @@ namespace Smartstore.Scheduling
 
         public virtual Type GetTaskClrType(string normalizedTypeName, bool throwOnError = false)
         {
-            Guard.NotEmpty(normalizedTypeName, nameof(normalizedTypeName));
+            Guard.NotEmpty(normalizedTypeName);
 
             var lazyTask = _componentContext.ResolveOptionalNamed<Lazy<ITask, TaskMetadata>>(normalizedTypeName);
             if (throwOnError && lazyTask == null)
@@ -66,7 +67,7 @@ namespace Smartstore.Scheduling
 
         public virtual ITask Activate(string normalizedTypeName)
         {
-            Guard.NotEmpty(normalizedTypeName, nameof(normalizedTypeName));
+            Guard.NotEmpty(normalizedTypeName);
 
             try
             {
