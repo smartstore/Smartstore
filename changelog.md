@@ -10,6 +10,7 @@
 
 - PdfConverter failed after cron job cleaned up temporary files in App_Data directory
 - Fixed display of orders in MyAccount area when `OrderSettings.DisplayOrdersOfAllStores` was set to `true`
+- When an order was placed, the stock quantity of attribute combinations were not updated if the stock is managed by attributes.
 
 ## Smartstore 5.0.4
 
