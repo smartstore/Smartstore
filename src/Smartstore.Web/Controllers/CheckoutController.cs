@@ -560,8 +560,19 @@ namespace Smartstore.Web.Controllers
                 return new EmptyResult();
             }
 
-            var widgetContent = await infoWidget.InvokeAsync(new WidgetContext(ControllerContext));
-            return Content(widgetContent.ToHtmlString().ToString());
+            try
+            {
+                var widgetContent = await infoWidget.InvokeAsync(new WidgetContext(ControllerContext));
+                return Content(widgetContent.ToHtmlString().ToString());
+            }
+            catch (Exception ex)
+            {
+                // Log all but do not display inner exceptions.
+                Logger.Error(ex);
+                NotifyError(ex.Message);
+
+                return new EmptyResult();
+            }
         }
 
         public async Task<IActionResult> Confirm()
