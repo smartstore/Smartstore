@@ -280,7 +280,7 @@ namespace Smartstore.Core.Catalog.Products
                 break;
                 case ManageInventoryMethod.ManageStockByAttributes:
                 {
-                    var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
+                    var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection, true);
                     if (combination != null)
                     {
                         result.StockQuantityOld = combination.StockQuantity;

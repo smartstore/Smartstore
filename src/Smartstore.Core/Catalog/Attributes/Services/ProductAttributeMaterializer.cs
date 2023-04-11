@@ -22,8 +22,8 @@ namespace Smartstore.Core.Catalog.Attributes
         private const string ATTRIBUTEVALUES_BY_JSON_KEY = "materialized-attributevalues:byjson-{0}";
         private const string ATTRIBUTEVALUES_PATTERN_KEY = "materialized-attributevalues:*";
 
-        // 0 = ProductId, 1 = Attribute JSON
-        private const string ATTRIBUTECOMBINATION_BY_IDJSON_KEY = "attributecombination:byjson-{0}-{1}";
+        // 0 = ProductId, 1 = tracked, 2 = Attribute JSON
+        private const string ATTRIBUTECOMBINATION_BY_IDJSON_KEY = "attributecombination:byjson-{0}-{1}-{2}";
         internal const string ATTRIBUTECOMBINATION_PATTERN_KEY = "attributecombination:*";
 
         // 0 = ProductId
@@ -310,14 +310,17 @@ namespace Smartstore.Core.Catalog.Attributes
             _requestCache.RemoveByPattern(ATTRIBUTEVALUES_PATTERN_KEY);
         }
 
-        public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)
+        public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(
+            int productId,
+            ProductVariantAttributeSelection selection, 
+            bool tracked = false)
         {
             if (productId == 0 || !(selection?.AttributesMap?.Any() ?? false))
             {
                 return null;
             }
 
-            var cacheKey = ATTRIBUTECOMBINATION_BY_IDJSON_KEY.FormatInvariant(productId, selection.AsJson().XxHash());
+            var cacheKey = ATTRIBUTECOMBINATION_BY_IDJSON_KEY.FormatInvariant(productId, tracked, selection.AsJson().XxHash());
 
             var combination = await _requestCache.GetAsync(cacheKey, async () =>
             {
@@ -325,9 +328,9 @@ namespace Smartstore.Core.Catalog.Attributes
 
                 selection = await NormalizeSelectionAsync(selection);
 
-                var query = from x in _db.ProductVariantAttributeCombinations.AsNoTracking()
-                            where x.ProductId == productId
-                            select x;
+                var query = _db.ProductVariantAttributeCombinations
+                    .ApplyTracking(tracked)
+                    .Where(x => x.ProductId == productId);
 
                 // Try to determine whether it is more beneficial to scan from end to start
                 var reverseScanKey = "CombinationLookupReverse:" + cacheKey;
