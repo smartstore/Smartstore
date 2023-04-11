@@ -7,7 +7,8 @@ namespace Smartstore.Scheduling
     {
         private readonly static Dictionary<string, string> _legacyTypeNamesMap = new(StringComparer.OrdinalIgnoreCase)
         {
-            { "FileImportTask", "BMEcatImportTask" }
+            { "FileImportTask", "BMEcatImportTask" },
+            { "PaymentStatusPollingTask", "SantanderStatusPollingTask" },
         };
 
         private readonly static ConcurrentDictionary<string, string> _normalizedTypeNames = new(StringComparer.OrdinalIgnoreCase);
