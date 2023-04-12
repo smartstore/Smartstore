@@ -74,7 +74,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool ShowPaginator { get; set; } = true;
 
         [HtmlAttributeName(MaxPagesToDisplayAttributeName)]
-        public int MaxPagesToDisplay { get; set; } = 8;
+        public int MaxPagesToDisplay { get; set; } = 6;
 
         [HtmlAttributeName(SkipActiveStateAttributeName)]
         public bool SkipActiveState { get; set; }
@@ -256,6 +256,29 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             using var classList = itemLi.GetClassList();
 
+            classList.Add("page-item");
+
+            if (item.IsNavButton)
+            {
+                classList.Add("page-item-nav");
+                if (item.Type == PagerItemType.PreviousPage)
+                {
+                    classList.Add("prev");
+                }
+                else if (item.Type == PagerItemType.FirstPage)
+                {
+                    classList.Add("first");
+                }
+                else if (item.Type == PagerItemType.NextPage)
+                {
+                    classList.Add("next");
+                }
+                else if (item.Type == PagerItemType.LastPage)
+                {
+                    classList.Add("last");
+                }
+            }
+
             if (item.State == PagerItemState.Disabled)
             {
                 classList.Add("disabled");
@@ -269,13 +292,6 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 classList.Add("shrinked");
             }
-
-            if (Style == PagerStyle.Blog && item.IsNavButton)
-            {
-                classList.Add((item.Type == PagerItemType.PreviousPage || item.Type == PagerItemType.FirstPage) ? "previous" : "next");
-            }
-
-            classList.Add("page-item");
 
             // Dispose here to write all collected classes into tag.
             classList.Dispose();
