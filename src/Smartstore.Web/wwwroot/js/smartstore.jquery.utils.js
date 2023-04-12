@@ -310,6 +310,7 @@
                 self.addClass("masonry-grid");
 
                 // first call so aos can be initialized correctly
+                var hasResized = false;
                 resizeAllGridItems();
 
                 self.imagesLoaded(function () {
@@ -329,6 +330,12 @@
                     var computedStyle = window.getComputedStyle(grid);
                     var rowHeight = parseInt(computedStyle.getPropertyValue('grid-auto-rows'));
                     var rowGap = parseInt(computedStyle.getPropertyValue('grid-row-gap'));
+
+                    if (hasResized) {
+                        item.style.gridRowEnd = undefined;
+                        innerItem.style.height = "";
+                    }
+
                     var rowSpan = Math.ceil((innerItem.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap));
                     item.style.gridRowEnd = "span " + rowSpan;
                     innerItem.style.height = "100%";
@@ -338,6 +345,7 @@
                     allItems.each(function () {
                         resizeGridItem($(this)[0]);
                     });
+                    hasResized = true;
                 }
 
                 var timeout;
