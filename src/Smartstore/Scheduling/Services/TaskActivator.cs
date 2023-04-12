@@ -9,7 +9,8 @@ namespace Smartstore.Scheduling
         {
             { "FileImportTask", "BMEcatImportTask" },
             { "PaymentStatusPollingTask", "SantanderStatusPollingTask" },
-            { "CleanupTask", "CleanupPersonalPromoTask" }
+            { "CleanupTask", "CleanupPersonalPromoTask" },
+            { "DeleteObsoleteRecordsTask", "CleanupCartApprovalTask" }
         };
 
         private readonly static ConcurrentDictionary<string, string> _normalizedTypeNames = new(StringComparer.OrdinalIgnoreCase);
