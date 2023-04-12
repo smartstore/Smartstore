@@ -26,7 +26,7 @@ namespace Smartstore.Core.Catalog.Categories
 
                 // Replace old parent path with new parent path batch-wise.
                 await query.ExecuteUpdateAsync(
-                    x => x.SetProperty(p => p.TreePath, p => p.TreePath.Replace(oldTreePath, newTreePath)));
+                    x => x.SetProperty(p => p.TreePath, p => p.TreePath.Replace(oldTreePath, newTreePath)), cancelToken);
             }
 
             return HookResult.Ok;

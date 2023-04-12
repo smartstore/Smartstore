@@ -101,13 +101,13 @@ namespace Smartstore.Core.Catalog.Search
             query = ApplySearchTerm(ctx, query);
 
             var productIds = GetIdList(ctx.Filters, "id");
-            if (productIds.Any())
+            if (productIds.Count > 0)
             {
                 query = query.Where(x => productIds.Contains(x.Id));
             }
 
             var categoryIds = GetIdList(ctx.Filters, "categoryid");
-            if (categoryIds.Any())
+            if (categoryIds.Count > 0)
             {
                 ctx.CategoryId ??= categoryIds.First();
                 if (categoryIds.Count == 1 && ctx.CategoryId == 0)
@@ -124,13 +124,13 @@ namespace Smartstore.Core.Catalog.Search
 
             var featuredCategoryIds = GetIdList(ctx.Filters, "featuredcategoryid");
             var notFeaturedCategoryIds = GetIdList(ctx.Filters, "notfeaturedcategoryid");
-            if (featuredCategoryIds.Any())
+            if (featuredCategoryIds.Count > 0)
             {
                 ctx.IsGroupingRequired = true;
                 ctx.CategoryId ??= featuredCategoryIds.First();
                 query = ApplyCategoriesFilter(query, featuredCategoryIds, true);
             }
-            if (notFeaturedCategoryIds.Any())
+            if (notFeaturedCategoryIds.Count > 0)
             {
                 ctx.IsGroupingRequired = true;
                 ctx.CategoryId ??= notFeaturedCategoryIds.First();
@@ -138,7 +138,7 @@ namespace Smartstore.Core.Catalog.Search
             }
 
             var manufacturerIds = GetIdList(ctx.Filters, "manufacturerid");
-            if (manufacturerIds.Any())
+            if (manufacturerIds.Count > 0)
             {
                 ctx.ManufacturerId ??= manufacturerIds.First();
                 if (manufacturerIds.Count == 1 && ctx.ManufacturerId == 0)
@@ -155,13 +155,13 @@ namespace Smartstore.Core.Catalog.Search
 
             var featuredManuIds = GetIdList(ctx.Filters, "featuredmanufacturerid");
             var notFeaturedManuIds = GetIdList(ctx.Filters, "notfeaturedmanufacturerid");
-            if (featuredManuIds.Any())
+            if (featuredManuIds.Count > 0)
             {
                 ctx.IsGroupingRequired = true;
                 ctx.ManufacturerId ??= featuredManuIds.First();
                 query = ApplyManufacturersFilter(query, featuredManuIds, true);
             }
-            if (notFeaturedManuIds.Any())
+            if (notFeaturedManuIds.Count > 0)
             {
                 ctx.IsGroupingRequired = true;
                 ctx.ManufacturerId ??= notFeaturedManuIds.First();
@@ -169,7 +169,7 @@ namespace Smartstore.Core.Catalog.Search
             }
 
             var tagIds = GetIdList(ctx.Filters, "tagid");
-            if (tagIds.Any())
+            if (tagIds.Count > 0)
             {
                 ctx.IsGroupingRequired = true;
                 query =
@@ -179,19 +179,19 @@ namespace Smartstore.Core.Catalog.Search
             }
 
             var deliverTimeIds = GetIdList(ctx.Filters, "deliveryid");
-            if (deliverTimeIds.Any())
+            if (deliverTimeIds.Count > 0)
             {
                 query = query.Where(x => x.DeliveryTimeId != null && deliverTimeIds.Contains(x.DeliveryTimeId.Value));
             }
 
             var parentProductIds = GetIdList(ctx.Filters, "parentid");
-            if (parentProductIds.Any())
+            if (parentProductIds.Count > 0)
             {
                 query = query.Where(x => parentProductIds.Contains(x.ParentGroupedProductId));
             }
 
             var conditions = GetIdList(ctx.Filters, "condition");
-            if (conditions.Any())
+            if (conditions.Count > 0)
             {
                 query = query.Where(x => conditions.Contains((int)x.Condition));
             }
@@ -600,6 +600,27 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     query = query.Where(x => x.ProductCategories.Count > 0);
                 }
+            }
+            else if (rf.FieldName == "featuredcategorypath"
+                || rf.FieldName == "notfeaturedcategorypath"
+                || rf.FieldName == "categorypath")
+            {
+                ctx.IsGroupingRequired = true;
+
+                var treePath = (string)rf.Term;
+                ctx.CategoryId ??= treePath.EmptyNull().TrimEnd('/').SplitSafe('/').LastOrDefault()?.ToInt() ?? 0;
+
+                bool? featuredOnly = null;
+                if (rf.FieldName == "featuredcategorypath")
+                    featuredOnly = true;
+                else if (rf.FieldName == "notfeaturedcategorypath")
+                    featuredOnly = false;
+
+                query =
+                    from p in query
+                    from pc in p.ProductCategories.Where(x => x.Category.TreePath.StartsWith(treePath))
+                    where !featuredOnly.HasValue || featuredOnly.Value == pc.IsFeaturedProduct
+                    select p;
             }
             else if (rf.FieldName == "manufacturerid")
             {

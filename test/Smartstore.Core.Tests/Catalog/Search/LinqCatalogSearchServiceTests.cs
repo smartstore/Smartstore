@@ -23,24 +23,34 @@ namespace Smartstore.Core.Tests.Catalog.Search
         private LinqCatalogSearchService _linqCatalogSearchService;
         private MockCommonServices _services;
 
-        private async Task InitTestDataAsync(IEnumerable<Product> products)
+        private async Task InitTestDataAsync(IEnumerable<Product> products, IEnumerable<Category> categories = null)
         {
             DbContext.StoreMappings.RemoveRange(DbContext.StoreMappings);
             DbContext.AclRecords.RemoveRange(DbContext.AclRecords);
+            DbContext.Categories.RemoveRange(DbContext.Categories);
             DbContext.Products.RemoveRange(DbContext.Products);
             await DbContext.SaveChangesAsync();
 
             DbContext.StoreMappings.AddRange(new StoreMapping { Id = 1, StoreId = 3, EntityName = "Product", EntityId = 99 });
             DbContext.AclRecords.AddRange(new AclRecord { Id = 1, CustomerRoleId = 3, EntityName = "Product", EntityId = 99 });
+
+            if (categories != null)
+            {
+                DbContext.Categories.AddRange(categories);
+            }
+
             DbContext.Products.AddRange(products);
             await DbContext.SaveChangesAsync();
         }
 
-        private async Task<CatalogSearchResult> SearchAsync(CatalogSearchQuery query, IEnumerable<Product> products)
+        private async Task<CatalogSearchResult> SearchAsync(
+            CatalogSearchQuery query,
+            IEnumerable<Product> products,
+            IEnumerable<Category> categories = null)
         {
             Trace.WriteLine(query.ToString());
 
-            await InitTestDataAsync(products);
+            await InitTestDataAsync(products, categories);
 
             return await _linqCatalogSearchService.SearchAsync(query);
         }
@@ -313,14 +323,14 @@ namespace Smartstore.Core.Tests.Catalog.Search
         {
             var products = new List<Product>
             {
-                new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 11 } }) { Id = 1 },
-                new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 12, IsFeaturedProduct = true } }) { Id = 2 },
-                new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 13 } }) { Id = 3 },
-                new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 14 } }) { Id = 4 },
-                new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 15 } }) { Id = 5 },
-                new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 16, IsFeaturedProduct = true } }) { Id = 6 },
-                new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 17 } }) { Id = 7 },
-                new SearchProduct(new ProductCategory[] { new ProductCategory { CategoryId = 18 } }) { Id = 8 }
+                new SearchProduct(new ProductCategory[] { new() { CategoryId = 11 } }) { Id = 1 },
+                new SearchProduct(new ProductCategory[] { new() { CategoryId = 12, IsFeaturedProduct = true } }) { Id = 2 },
+                new SearchProduct(new ProductCategory[] { new() { CategoryId = 13 } }) { Id = 3 },
+                new SearchProduct(new ProductCategory[] { new() { CategoryId = 14 } }) { Id = 4 },
+                new SearchProduct(new ProductCategory[] { new() { CategoryId = 15 } }) { Id = 5 },
+                new SearchProduct(new ProductCategory[] { new() { CategoryId = 16, IsFeaturedProduct = true } }) { Id = 6 },
+                new SearchProduct(new ProductCategory[] { new() { CategoryId = 17 } }) { Id = 7 },
+                new SearchProduct(new ProductCategory[] { new() { CategoryId = 18 } }) { Id = 8 }
             };
 
             var result = await SearchAsync(new CatalogSearchQuery().WithCategoryIds(null, 68, 98), products);
@@ -334,6 +344,48 @@ namespace Smartstore.Core.Tests.Catalog.Search
 
             result = await SearchAsync(new CatalogSearchQuery().WithCategoryIds(false, 12, 15, 18, 24), products);
             Assert.That(result.TotalHitsCount, Is.EqualTo(2));
+        }
+
+        [TestCase(4, "/1/11/")]
+        [TestCase(2, "/2/21/")]
+        [TestCase(6, "/2/")]
+        [TestCase(2, "/2/", true)]
+        [TestCase(4, "/2/", false)]
+        public async Task LinqSearch_filter_with_category_treepath(int hits, string treePath, bool? isFeatured = null)
+        {
+            var idCount = 9999;
+            var categories = new List<Category>();
+            var products = new List<Product>();
+
+            var treePaths = new string[]
+            {
+                "/1/",
+                "/1/11/", "/1/11/111/", "/1/11/112/", "/1/11/113/",
+                "/1/12/", "/1/12/121/",
+
+                "/2/",
+                "/2/21/", "/2/21/211/",
+                "/2/22/",
+                "/2/23/",
+                "/2/24/",
+
+                "/3/",
+            };
+
+            foreach (var path in treePaths)
+            {
+                var categoryId = path.TrimEnd('/').SplitSafe('/').LastOrDefault().ToInt();
+                var pc = new ProductCategory[]
+                {
+                    new() { CategoryId = categoryId, IsFeaturedProduct = path == "/2/21/211/" || path == "/2/23/" }
+                };
+
+                categories.Add(new() { Id = categoryId, TreePath = path, Name = $"Category {categoryId}" });
+                products.Add(new SearchProduct(pc) { Id = ++idCount });
+            }
+
+            var result = await SearchAsync(new CatalogSearchQuery().WithCategoryTreePath(isFeatured, treePath), products, categories);
+            Assert.That(result.TotalHitsCount, Is.EqualTo(hits));
         }
 
         [Test]
@@ -670,11 +722,10 @@ namespace Smartstore.Core.Tests.Catalog.Search
                 ICollection<ProductManufacturer> manufacturers,
                 ICollection<ProductTag> tags)
             {
-                Id = id == 0 ? (new Random()).Next(100, int.MaxValue) : id;
+                Id = id == 0 ? new Random().Next(100, int.MaxValue) : id;
                 ProductCategories.AddRange(categories ?? new HashSet<ProductCategory>());
                 ProductManufacturers.AddRange(manufacturers ?? new HashSet<ProductManufacturer>());
                 ProductTags.AddRange(tags ?? new HashSet<ProductTag>());
-
 
                 Name = "Holisticly implement optimal web services";
                 ShortDescription = "Continually synthesize fully researched benefits with granular benefits.";

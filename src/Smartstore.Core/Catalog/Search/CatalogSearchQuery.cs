@@ -244,6 +244,29 @@ namespace Smartstore.Core.Catalog.Search
             return CreateFilter(fieldName, ids);
         }
 
+        /// <summary>
+        /// Filter by category tree path.
+        /// </summary>
+        /// <param name="featuredOnly">
+        /// A value indicating whether loaded products are marked as featured (relates only to categories and manufacturers). 
+        /// <c>false</c> to load featured products only, <c>true</c> to load unfeatured products only, <c>null</c> to load all products.
+        /// </param>
+        /// <param name="treePath">The parent's tree path to get descendants from.</param>
+        /// <returns>Search query.</returns>
+        public CatalogSearchQuery WithCategoryTreePath(bool? featuredOnly, string treePath)
+        {
+            if (treePath.HasValue())
+            {
+                var fieldName = featuredOnly.HasValue
+                    ? featuredOnly.Value ? "featuredcategorypath" : "notfeaturedcategorypath"
+                    : "categorypath";
+
+                return WithFilter(SearchFilter.ByRange(fieldName, treePath, null, true, false).Mandatory().NotAnalyzed());
+            }
+
+            return this;
+        }
+
         /// <remarks>Includes only published categories.</remarks>
         public CatalogSearchQuery HasAnyCategory(bool value)
         {
