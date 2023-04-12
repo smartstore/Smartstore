@@ -565,11 +565,11 @@ namespace Smartstore.Core.Catalog.Search
                         join lp in lpQuery on p.Id equals lp.EntityId into plp
                         from lp in plp.DefaultIfEmpty()
                         where
-                        (fields.Contains("name") && p.Name.StartsWith(term)) ||
-                        (fields.Contains("sku") && p.Sku.StartsWith(term)) ||
-                        (fields.Contains("shortdescription") && p.ShortDescription.StartsWith(term)) ||
-                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith(term)) ||
-                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.StartsWith(term))
+                            (fields.Contains("name") && p.Name.StartsWith(term)) ||
+                            (fields.Contains("sku") && p.Sku.StartsWith(term)) ||
+                            (fields.Contains("shortdescription") && p.ShortDescription.StartsWith(term)) ||
+                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith(term)) ||
+                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.StartsWith(term))
                         select p;
                 }
                 else
@@ -579,11 +579,11 @@ namespace Smartstore.Core.Catalog.Search
                         join lp in lpQuery on p.Id equals lp.EntityId into plp
                         from lp in plp.DefaultIfEmpty()
                         where
-                        (fields.Contains("name") && p.Name.Contains(term)) ||
-                        (fields.Contains("sku") && p.Sku.Contains(term)) ||
-                        (fields.Contains("shortdescription") && p.ShortDescription.Contains(term)) ||
-                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains(term)) ||
-                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.Contains(term))
+                            (fields.Contains("name") && p.Name.Contains(term)) ||
+                            (fields.Contains("sku") && p.Sku.Contains(term)) ||
+                            (fields.Contains("shortdescription") && p.ShortDescription.Contains(term)) ||
+                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains(term)) ||
+                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.Contains(term))
                         select p;
                 }
             }
@@ -601,23 +601,19 @@ namespace Smartstore.Core.Catalog.Search
                     query = query.Where(x => x.ProductCategories.Count > 0);
                 }
             }
-            else if (rf.FieldName == "featuredcategorypath"
-                || rf.FieldName == "notfeaturedcategorypath"
-                || rf.FieldName == "categorypath")
+            else if (rf.FieldName.EndsWith("categorypath"))
             {
                 ctx.IsGroupingRequired = true;
 
                 var treePath = (string)rf.Term;
+                // TODO: (mg) WTF?! Bad code style.
                 ctx.CategoryId ??= treePath.EmptyNull().Trim('/').SplitSafe('/').FirstOrDefault()?.ToInt() ?? 0;
 
-                bool? featuredOnly = null;
-                if (rf.FieldName == "featuredcategorypath")
-                    featuredOnly = true;
-                else if (rf.FieldName == "notfeaturedcategorypath")
-                    featuredOnly = false;
+                bool? featuredOnly = rf.FieldName == "categorypath" ? null : rf.FieldName.StartsWith("featured");
 
                 query =
                     from p in query
+                    // TODO: (mg) "includeSelf" handling is missing.
                     from pc in p.ProductCategories.Where(x => x.Category.TreePath.StartsWith(treePath))
                     where !featuredOnly.HasValue || featuredOnly.Value == pc.IsFeaturedProduct
                     select p;

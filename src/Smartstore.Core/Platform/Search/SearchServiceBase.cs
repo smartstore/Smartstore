@@ -61,7 +61,7 @@ namespace Smartstore.Core.Search
 
             foreach (IAttributeSearchFilter filter in filters)
             {
-                if (!(filter is IRangeSearchFilter) && filter.FieldName == fieldName)
+                if (filter is not IRangeSearchFilter && filter.FieldName == fieldName)
                 {
                     result.Add((int)filter.Term);
                 }

@@ -255,6 +255,9 @@ namespace Smartstore.Core.Catalog.Search
         /// <returns>Search query.</returns>
         public CatalogSearchQuery WithCategoryTreePath(bool? featuredOnly, string treePath)
         {
+            // TODO: (mg) "includeSelf" parameter is missing.
+            // TODO: (mg) bad param ordering: treePath must come first.
+            // TODO: (mg) Describe: WithCategoryTreePath and WithCategoryIds are exclusive.
             if (treePath.HasValue())
             {
                 var fieldName = featuredOnly.HasValue
