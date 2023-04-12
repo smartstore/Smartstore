@@ -613,7 +613,7 @@ namespace Smartstore.Core.Catalog.Search
 
                 query =
                     from p in query
-                    // TODO: (mg) "includeSelf" handling is missing.
+                    // TODO: (mg) "includeSelf" handling is missing (ApplyDescendantsFilter extension method should not be used here because of the "IsFeaturedProduct" projection)
                     from pc in p.ProductCategories.Where(x => x.Category.TreePath.StartsWith(treePath))
                     where !featuredOnly.HasValue || featuredOnly.Value == pc.IsFeaturedProduct
                     select p;
