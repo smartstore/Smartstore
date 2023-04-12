@@ -608,7 +608,7 @@ namespace Smartstore.Core.Catalog.Search
                 ctx.IsGroupingRequired = true;
 
                 var treePath = (string)rf.Term;
-                ctx.CategoryId ??= treePath.EmptyNull().TrimEnd('/').SplitSafe('/').LastOrDefault()?.ToInt() ?? 0;
+                ctx.CategoryId ??= treePath.EmptyNull().Trim('/').SplitSafe('/').FirstOrDefault()?.ToInt() ?? 0;
 
                 bool? featuredOnly = null;
                 if (rf.FieldName == "featuredcategorypath")
