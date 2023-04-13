@@ -1076,7 +1076,6 @@ namespace Smartstore.Web.Controllers
             var alsoPurchasedProductIds = await _services.Cache.GetAsync(string.Format(ModelCacheInvalidator.PRODUCTS_ALSO_PURCHASED_IDS_KEY, product.Id, storeId), async () =>
             {
                 return await _db.OrderItems
-                    .AsNoTracking()
                     .SelectAlsoPurchasedProductIds(product.Id, _catalogSettings.ProductsAlsoPurchasedNumber, storeId)
                     .ToArrayAsync();
             });

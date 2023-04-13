@@ -108,39 +108,56 @@ namespace Smartstore
         /// <param name="storeId">Store identifier to get orders from.</param>
         /// <param name="includeHidden">A value indicating whether to include unpublished products.</param>
         /// <returns>Query of product identifiers.</returns>
-        public static IQueryable<int> SelectAlsoPurchasedProductIds(this IQueryable<OrderItem> query, int productId, int? recordsToReturn = 5, int storeId = 0, bool includeHidden = false)
+        public static IQueryable<int> SelectAlsoPurchasedProductIds(this IQueryable<OrderItem> query,
+            int productId, 
+            int? recordsToReturn = 5, 
+            int storeId = 0,
+            bool includeHidden = false)
         {
             Guard.NotNull(query, nameof(query));
 
             if (productId == 0)
+            {
                 return Array.Empty<int>().AsQueryable();
+            }
 
             var db = query.GetDbContext<SmartDbContext>();
 
-            // This inner query retrieves all order identifiers which contain the productId.
             var orderIdsQuery = db.OrderItems
-                .ApplyProductFilter(new[] { productId }, includeHidden)
+                .Where(x => x.ProductId == productId)
                 .Select(x => x.OrderId);
 
-            var productsQuery = query
-                .Where(x => orderIdsQuery.Contains(x.OrderId)
-                    && x.Product.Id != productId
-                    && (storeId == 0 || x.Order.StoreId == storeId))
-                .GroupBy(x => x.ProductId)
-                .Select(x => new
-                {
-                    Product = x.Key,
-                    ProductsPurchased = x.Sum(x => x.Quantity)
-                })
-                .OrderByDescending(x => x.ProductsPurchased)
-                .Select(x => x.Product);
+            var orderItemsQuery = 
+                from orderItem in db.OrderItems
+                join p in db.Products on orderItem.ProductId equals p.Id
+                where orderIdsQuery.Contains(orderItem.OrderId) &&
+                (p.Id != productId) &&
+                (includeHidden || p.Published) &&
+                (!orderItem.Order.Deleted) &&
+                (storeId == 0 || orderItem.Order.StoreId == storeId) &&
+                (!p.Deleted) && (!p.IsSystemProduct) &&
+                (includeHidden || p.Published)
+                select new { orderItem, p };
 
-            if (recordsToReturn.GetValueOrDefault() > 0)
+            var productIdsQuery1 = 
+                from oi in orderItemsQuery
+                group oi by oi.p.Id into g
+                select new
+                {
+                    ProductId = g.Key,
+                    ProductsPurchased = g.Sum(x => x.orderItem.Quantity),
+                };
+
+            var productIdsQuery2 = productIdsQuery1
+                .OrderByDescending(x => x.ProductsPurchased)
+                .Select(x => x.ProductId);
+
+            if (recordsToReturn > 0)
             {
-                productsQuery = productsQuery.Take(recordsToReturn.Value);
+                productIdsQuery2 = productIdsQuery2.Take(recordsToReturn.Value);
             }
 
-            return productsQuery;
+            return productIdsQuery2;
         }
 
         /// <summary>
