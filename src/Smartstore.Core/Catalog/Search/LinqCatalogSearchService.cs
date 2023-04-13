@@ -9,6 +9,30 @@ using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Catalog.Search
 {
+    public class QueryBuilderContext
+    {
+        public CatalogSearchQuery SearchQuery { get; init; }
+        public DateTime Now { get; init; } = DateTime.UtcNow;
+        public bool IsGroupingRequired { get; set; }
+        public int? CategoryId { get; set; }
+        public int? ManufacturerId { get; set; }
+
+        /// <summary>
+        /// All filters flattened.
+        /// </summary>
+        public List<ISearchFilter> Filters { get; init; } = new();
+
+        /// <summary>
+        /// Attribute filters except range filters.
+        /// </summary>
+        public List<IAttributeSearchFilter> AttributeFilters { get; init; } = new();
+
+        /// <summary>
+        /// Range filters only.
+        /// </summary>
+        public List<IRangeSearchFilter> RangeFilters { get; init; } = new();
+    }
+
     public partial class LinqCatalogSearchService : SearchServiceBase, ICatalogSearchService
     {
         private static readonly int[] _priceThresholds = new[] { 10, 25, 50, 100, 250, 500, 1000 };
@@ -910,15 +934,5 @@ namespace Smartstore.Core.Catalog.Search
         }
 
         #endregion
-
-        protected class QueryBuilderContext
-        {
-            public CatalogSearchQuery SearchQuery { get; init; }
-            public List<ISearchFilter> Filters { get; init; } = new();
-            public DateTime Now { get; init; } = DateTime.UtcNow;
-            public bool IsGroupingRequired { get; set; }
-            public int? CategoryId { get; set; }
-            public int? ManufacturerId { get; set; }
-        }
     }
 }
