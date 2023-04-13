@@ -315,7 +315,7 @@ namespace Smartstore.Core.Search
                     return WithFilter(SearchFilter.ByField(fieldName, values[0]).Mandatory().ExactMatch().NotAnalyzed());
                 }
 
-                return WithFilter(SearchFilter.Combined(values.Select(x => SearchFilter.ByField(fieldName, x).ExactMatch().NotAnalyzed()).ToArray()));
+                return WithFilter(SearchFilter.Combined(fieldName, values.Select(x => SearchFilter.ByField(fieldName, x).ExactMatch().NotAnalyzed()).ToArray()));
             }
 
             return this as TQuery;

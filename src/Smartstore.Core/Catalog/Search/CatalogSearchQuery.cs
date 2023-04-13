@@ -134,7 +134,7 @@ namespace Smartstore.Core.Catalog.Search
                 if (roleIds.Any())
                 {
                     roleIds.Insert(0, 0);
-                    return WithFilter(SearchFilter.Combined(roleIds.Select(x => SearchFilter.ByField("roleid", x).ExactMatch().NotAnalyzed()).ToArray()));
+                    return WithFilter(SearchFilter.Combined("roleid", roleIds.Select(x => SearchFilter.ByField("roleid", x).ExactMatch().NotAnalyzed()).ToArray()));
                 }
             }
 
@@ -197,7 +197,7 @@ namespace Smartstore.Core.Catalog.Search
             }
             else
             {
-                WithFilter(SearchFilter.Combined(
+                WithFilter(SearchFilter.Combined("storeid",
                     SearchFilter.ByField("storeid", 0).ExactMatch().NotAnalyzed(),
                     SearchFilter.ByField("storeid", id).ExactMatch().NotAnalyzed())
                 );
@@ -332,7 +332,7 @@ namespace Smartstore.Core.Catalog.Search
                     return WithFilter(SearchFilter.ByField("condition", (int)conditions[0]).Mandatory().ExactMatch().NotAnalyzed());
                 }
 
-                return WithFilter(SearchFilter.Combined(conditions.Select(x => SearchFilter.ByField("condition", (int)x).ExactMatch().NotAnalyzed()).ToArray()));
+                return WithFilter(SearchFilter.Combined("condition", conditions.Select(x => SearchFilter.ByField("condition", (int)x).ExactMatch().NotAnalyzed()).ToArray()));
             }
 
             return this;

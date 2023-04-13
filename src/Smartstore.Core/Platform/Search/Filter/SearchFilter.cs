@@ -115,8 +115,21 @@
 
         public static CombinedSearchFilter Combined(params ISearchFilter[] filters)
         {
-            var filter = new CombinedSearchFilter(filters);
-            filter.Occurence = SearchFilterOccurence.Must;
+            var filter = new CombinedSearchFilter(filters)
+            {
+                Occurence = SearchFilterOccurence.Must
+            };
+
+            return filter;
+        }
+
+        public static CombinedSearchFilter Combined(string name, params ISearchFilter[] filters)
+        {
+            var filter = new CombinedSearchFilter(name, filters)
+            {
+                Occurence = SearchFilterOccurence.Must
+            };
+
             return filter;
         }
 
@@ -147,7 +160,7 @@
 
         private static SearchFilter ByField(string fieldName, object term, IndexTypeCode typeCode)
         {
-            Guard.NotEmpty(fieldName, nameof(fieldName));
+            Guard.NotEmpty(fieldName);
 
             return new SearchFilter
             {
@@ -203,7 +216,7 @@
 
         public override string ToString()
         {
-            return $"{FieldName}: {Term.ToString()}";
+            return $"{FieldName}: {Term}";
         }
     }
 

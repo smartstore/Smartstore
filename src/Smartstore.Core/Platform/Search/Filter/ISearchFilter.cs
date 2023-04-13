@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Search
+﻿#nullable enable
+
+namespace Smartstore.Core.Search
 {
     public interface ISearchFilter
     {
@@ -8,6 +10,7 @@
 
     public interface ICombinedSearchFilter : ISearchFilter
     {
+        string? Name { get; }
         ICollection<ISearchFilter> Filters { get; }
     }
 
@@ -15,7 +18,7 @@
     {
         string FieldName { get; }
         IndexTypeCode TypeCode { get; }
-        object Term { get; }
+        object? Term { get; }
         public SearchMode Mode { get; }
         bool IsNotAnalyzed { get; }
         int ParentId { get; }
@@ -23,7 +26,7 @@
 
     public interface IRangeSearchFilter : IAttributeSearchFilter
     {
-        object UpperTerm { get; }
+        object? UpperTerm { get; }
         bool IncludesLower { get; }
         bool IncludesUpper { get; }
     }

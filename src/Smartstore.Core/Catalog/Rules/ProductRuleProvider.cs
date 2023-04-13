@@ -434,7 +434,7 @@ namespace Smartstore.Core.Catalog.Rules
                     var variants = await variantsQuery.ToPagedList(++pageIndex, 1000).LoadAsync();
                     foreach (var variant in variants)
                     {
-                        var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined(filters("variantvalueid", variant.Id, x))))
+                        var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined("variantvalueid", filters("variantvalueid", variant.Id, x))))
                         {
                             Name = $"Variant{variant.Id}",
                             DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
@@ -464,7 +464,7 @@ namespace Smartstore.Core.Catalog.Rules
                     var attributes = await attributesQuery.ToPagedList(++pageIndex, 1000).LoadAsync();
                     foreach (var attribute in attributes)
                     {
-                        var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined(filters("attrvalueid", attribute.Id, x))))
+                        var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined("attrvalueid", filters("attrvalueid", attribute.Id, x))))
                         {
                             Name = $"Attribute{attribute.Id}",
                             DisplayName = attribute.GetLocalized(x => x.Name, language, true, false),
