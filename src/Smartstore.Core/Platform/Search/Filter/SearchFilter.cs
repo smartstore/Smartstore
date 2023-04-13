@@ -25,7 +25,11 @@
             protected set;
         }
 
-        public SearchMode Mode { get; protected set; } = SearchMode.Contains;
+        public SearchMode Mode 
+        { 
+            get; 
+            protected set; 
+        } = SearchMode.Contains;
 
         public bool IsNotAnalyzed
         {
