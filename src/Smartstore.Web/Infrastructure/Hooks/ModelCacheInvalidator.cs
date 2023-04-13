@@ -140,8 +140,8 @@ namespace Smartstore.Web.Infrastructure.Hooks
         /// {0} : current product id
         /// {1} : current store id
         /// </remarks>
-        public const string PRODUCTS_ALSO_PURCHASED_IDS_KEY = "pres:alsopuchased-{0}-{1}";
-        public const string PRODUCTS_ALSO_PURCHASED_IDS_PATTERN_KEY = "pres:alsopuchased*";
+        public const string PRODUCTS_ALSO_PURCHASED_IDS_KEY = "pres:alsopurchased-{0}-{1}";
+        public const string PRODUCTS_ALSO_PURCHASED_IDS_PATTERN_KEY = "pres:alsopurchased*";
 
         /// <summary>
         /// Key for states by country id
