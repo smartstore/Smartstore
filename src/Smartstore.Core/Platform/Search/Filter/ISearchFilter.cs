@@ -16,7 +16,7 @@
         string FieldName { get; }
         IndexTypeCode TypeCode { get; }
         object Term { get; }
-        bool IsExactMatch { get; }
+        public SearchMode Mode { get; }
         bool IsNotAnalyzed { get; }
         int ParentId { get; }
     }

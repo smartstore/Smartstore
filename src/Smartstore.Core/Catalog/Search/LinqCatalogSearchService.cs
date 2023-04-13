@@ -342,6 +342,22 @@ namespace Smartstore.Core.Catalog.Search
                         (x.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStockByAttributes && x.ProductVariantAttributeCombinations.Any(pvac => pvac.StockQuantity > 0 || pvac.AllowOutOfStockOrders))
                     );
                 }
+                else if (filter.FieldName.EndsWith("categorypath"))
+                {
+                    ctx.IsGroupingRequired = true;
+
+                    var treePath = (string)filter.Term;
+                    ctx.CategoryId ??= treePath.EmptyNull().Trim('/').SplitSafe('/').FirstOrDefault()?.ToInt() ?? 0;
+
+                    bool? featuredOnly = filter.FieldName == "categorypath" ? null : filter.FieldName.StartsWith("featured");
+
+                    query =
+                        from p in query
+                        // TODO: (mg) "includeSelf" handling is missing (ApplyDescendantsFilter extension method should not be used here because of the "IsFeaturedProduct" projection)
+                        from pc in p.ProductCategories.Where(x => x.Category.TreePath.StartsWith(treePath))
+                        where !featuredOnly.HasValue || featuredOnly.Value == pc.IsFeaturedProduct
+                        select p;
+                }
             }
 
             query = ApplyAclFilter(ctx, query);
@@ -624,23 +640,6 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     query = query.Where(x => x.ProductCategories.Count > 0);
                 }
-            }
-            else if (rf.FieldName.EndsWith("categorypath"))
-            {
-                ctx.IsGroupingRequired = true;
-
-                var treePath = (string)rf.Term;
-                // TODO: (mg) WTF?! Bad code style.
-                ctx.CategoryId ??= treePath.EmptyNull().Trim('/').SplitSafe('/').FirstOrDefault()?.ToInt() ?? 0;
-
-                bool? featuredOnly = rf.FieldName == "categorypath" ? null : rf.FieldName.StartsWith("featured");
-
-                query =
-                    from p in query
-                    // TODO: (mg) "includeSelf" handling is missing (ApplyDescendantsFilter extension method should not be used here because of the "IsFeaturedProduct" projection)
-                    from pc in p.ProductCategories.Where(x => x.Category.TreePath.StartsWith(treePath))
-                    where !featuredOnly.HasValue || featuredOnly.Value == pc.IsFeaturedProduct
-                    select p;
             }
             else if (rf.FieldName == "manufacturerid")
             {

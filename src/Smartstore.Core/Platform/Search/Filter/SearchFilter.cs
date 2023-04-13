@@ -25,11 +25,7 @@
             protected set;
         }
 
-        public bool IsExactMatch
-        {
-            get;
-            protected set;
-        }
+        public SearchMode Mode { get; protected set; } = SearchMode.Contains;
 
         public bool IsNotAnalyzed
         {
@@ -69,7 +65,13 @@
         /// </summary>
         public SearchFilter ExactMatch()
         {
-            IsExactMatch = true;
+            Mode = SearchMode.ExactMatch;
+            return this;
+        }
+
+        public SearchFilter StartsWith()
+        {
+            Mode = SearchMode.StartsWith;
             return this;
         }
 

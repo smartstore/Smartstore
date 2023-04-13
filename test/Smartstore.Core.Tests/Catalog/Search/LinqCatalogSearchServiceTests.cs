@@ -351,7 +351,7 @@ namespace Smartstore.Core.Tests.Catalog.Search
         [TestCase(6, "/2/")]
         [TestCase(2, "/2/", true)]
         [TestCase(4, "/2/", false)]
-        public async Task LinqSearch_filter_with_category_treepath(int hits, string treePath, bool? isFeatured = null)
+        public async Task LinqSearch_filter_with_category_treepath(int hits, string treePath, bool? featuredOnly = null)
         {
             var idCount = 9999;
             var categories = new List<Category>();
@@ -384,7 +384,7 @@ namespace Smartstore.Core.Tests.Catalog.Search
                 products.Add(new SearchProduct(pc) { Id = ++idCount });
             }
 
-            var result = await SearchAsync(new CatalogSearchQuery().WithCategoryTreePath(isFeatured, treePath), products, categories);
+            var result = await SearchAsync(new CatalogSearchQuery().WithCategoryTreePath(treePath, featuredOnly), products, categories);
             Assert.That(result.TotalHitsCount, Is.EqualTo(hits));
         }
 

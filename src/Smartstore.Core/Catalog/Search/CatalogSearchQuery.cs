@@ -247,16 +247,16 @@ namespace Smartstore.Core.Catalog.Search
         /// <summary>
         /// Filter by category tree path.
         /// </summary>
+        /// <param name="treePath">The parent's tree path to get descendants from.</param>
         /// <param name="featuredOnly">
         /// A value indicating whether loaded products are marked as featured (relates only to categories and manufacturers). 
         /// <c>false</c> to load featured products only, <c>true</c> to load unfeatured products only, <c>null</c> to load all products.
         /// </param>
-        /// <param name="treePath">The parent's tree path to get descendants from.</param>
+        /// <param name="includeSelf"><c>true</c> = add the parent node to the result list, <c>false</c> = ignore the parent node.</param>
         /// <returns>Search query.</returns>
-        public CatalogSearchQuery WithCategoryTreePath(bool? featuredOnly, string treePath)
+        public CatalogSearchQuery WithCategoryTreePath(string treePath, bool? featuredOnly, bool includeSelf = true)
         {
             // TODO: (mg) "includeSelf" parameter is missing.
-            // TODO: (mg) bad param ordering: treePath must come first.
             // TODO: (mg) Describe: WithCategoryTreePath and WithCategoryIds are exclusive.
             if (treePath.HasValue())
             {
@@ -264,7 +264,14 @@ namespace Smartstore.Core.Catalog.Search
                     ? featuredOnly.Value ? "featuredcategorypath" : "notfeaturedcategorypath"
                     : "categorypath";
 
-                return WithFilter(SearchFilter.ByRange(fieldName, treePath, null, true, false).Mandatory().NotAnalyzed());
+                if (!includeSelf)
+                {
+                    // TODO: (mg) so, what exactly to do now? There is nothing similar to "TreePath.Length > term.Length" logic in Lucene.
+                    // Workaround and add an extra filter that filters an extra integer index field "treepathlength"?
+                    // PS: in catalog search "includeSelf" is always "true".
+                }
+
+                return WithFilter(SearchFilter.ByField(fieldName, treePath).StartsWith().Mandatory().NotAnalyzed());
             }
 
             return this;
