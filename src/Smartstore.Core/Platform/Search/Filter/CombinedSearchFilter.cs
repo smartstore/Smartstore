@@ -11,7 +11,7 @@ namespace Smartstore.Core.Search
 
         public CombinedSearchFilter(string? name)
         {
-            Name = name;
+            FieldName = name;
             Filters = new List<ISearchFilter>();
         }
 
@@ -24,11 +24,11 @@ namespace Smartstore.Core.Search
         {
             Guard.NotNull(filters);
 
-            Name = name;
+            FieldName = name;
             Filters = new List<ISearchFilter>(filters);
         }
 
-        public string? Name { get; init; }
+        public string? FieldName { get; init; }
 
         public ICollection<ISearchFilter> Filters { get; }
 
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Search
             if (Filters.Count > 0)
             {
                 return string.Concat(
-                    Name.RightPad(),
+                    FieldName.RightPad(),
                     "(",
                     string.Join(", ", Filters.Select(x => x.ToString())), 
                     ")");

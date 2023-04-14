@@ -18,9 +18,9 @@
 
         protected virtual Expression CreateBodyExpression(ParameterExpression node, IQueryProvider provider)
         {
-            return this.Descriptor.GetExpression(
-                this.Operator,
-                ExpressionHelper.CreateValueExpression(Descriptor.MemberExpression.Body.Type, this.Value),
+            return Descriptor.GetExpression(
+                Operator,
+                ExpressionHelper.CreateValueExpression(Descriptor.MemberExpression.Body.Type, Value),
                 provider);
         }
     }
