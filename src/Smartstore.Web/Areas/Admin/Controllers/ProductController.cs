@@ -419,30 +419,6 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
-        /// <summary>
-        /// (AJAX) Gets a list of all product tags.
-        /// </summary>
-        /// <param name="selectedNames">Names of selected tags.</param>
-        public async Task<IActionResult> AllProductTags(string selectedNames)
-        {
-            var allTags = await _db.ProductTags
-                .AsNoTracking()
-                .OrderBy(x => x.Name)
-                .Select(x => x.Name)
-                .ToListAsync();
-
-            var list = allTags
-                .Select(x => new ChoiceListItem
-                {
-                    Id = x,
-                    Text = x,
-                    Selected = selectedNames?.Contains(x) ?? false
-                })
-                .ToList();
-
-            return new JsonResult(list);
-        }
-
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> LoadEditTab(int id, string tabName, string viewPath = null)
         {
