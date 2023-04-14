@@ -1538,6 +1538,7 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(product);
                 model.OriginalStockQuantity = product.StockQuantity;
                 model.HasOrders = await _db.OrderItems.AnyAsync(x => x.ProductId == product.Id);
+                model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
 
                 if (product.LimitedToStores)
                 {
@@ -1643,18 +1644,13 @@ namespace Smartstore.Admin.Controllers
                 .ToList();
 
             // Product tags.
-            if (product != null)
-            {
-                model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
+            var allTags = await _db.ProductTags
+                .AsNoTracking()
+                .OrderBy(x => x.Name)
+                .Select(x => x.Name)
+                .ToListAsync();
 
-                ViewBag.SelectedProductTags = model.ProductTagNames
-                    .Select(x => new SelectListItem { Value = x, Text = x, Selected = true })
-                    .ToList();
-            }
-            else
-            {
-                ViewBag.SelectedProductTags = new List<SelectListItem>();
-            }
+            ViewBag.AvailableProductTags = new MultiSelectList(allTags, model.ProductTagNames);
 
             // Tax categories.
             var taxCategories = await _db.TaxCategories
