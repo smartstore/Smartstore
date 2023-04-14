@@ -199,7 +199,7 @@
             bool includeLower,
             bool includeUpper)
         {
-            Guard.NotEmpty(fieldName, nameof(fieldName));
+            Guard.NotEmpty(fieldName);
 
             return new RangeSearchFilter
             {

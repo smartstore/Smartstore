@@ -5,8 +5,7 @@
         public FilterDescriptor(LambdaExpression memberExpression)
             : base(RuleScope.Customer)
         {
-            Guard.NotNull(memberExpression, nameof(memberExpression));
-            MemberExpression = memberExpression;
+            MemberExpression = Guard.NotNull(memberExpression);
         }
 
         public LambdaExpression MemberExpression { get; private set; }
@@ -22,7 +21,7 @@
         public FilterDescriptor(Expression<Func<T, TValue>> expression)
             : base(expression) // TODO
         {
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(expression);
 
             MemberExpression = expression;
         }

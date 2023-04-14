@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 
@@ -92,9 +93,11 @@ namespace Smartstore.Core.Catalog.Search
 
         protected virtual void VisitNamedFilter(INamedSearchFilter filter)
         {
-            if (filter.FieldName == "id")
+            var names = CatalogSearchQuery.KnownFilters;
+            
+            if (filter.FieldName == names.ProductId)
             {
-                ApplyMemberExpression(x => x.Id, filter);
+                ApplySimpleMemberExpression(x => x.Id, filter);
 
                 //if (filter is IRangeSearchFilter rf)
                 //{
@@ -130,19 +133,19 @@ namespace Smartstore.Core.Catalog.Search
                 //    }
                 //}
             }
-            else if (filter.FieldName == "stockquantity")
+            else if (filter.FieldName == names.StockQuantity)
             {
-                ApplyMemberExpression(x => x.StockQuantity, filter);
+                ApplySimpleMemberExpression(x => x.StockQuantity, filter);
             }
-            else if (filter.FieldName == "deliveryid")
+            else if (filter.FieldName == names.DeliveryId)
             {
-                ApplyMemberExpression(x => x.DeliveryTimeId, filter);
+                ApplySimpleMemberExpression(x => x.DeliveryTimeId, filter);
             }
-            else if (filter.FieldName == "parentid")
+            else if (filter.FieldName == names.ParentId)
             {
-                ApplyMemberExpression(x => x.ParentGroupedProductId, filter);
+                ApplySimpleMemberExpression(x => x.ParentGroupedProductId, filter);
             }
-            else if (filter.FieldName == "categoryid")
+            else if (filter.FieldName == names.CategoryId)
             {
                 if (filter is IRangeSearchFilter rf)
                 {
@@ -171,7 +174,7 @@ namespace Smartstore.Core.Catalog.Search
                     }
                 }
             }
-            else if (filter.FieldName == "featuredcategoryid")
+            else if (filter.FieldName == names.FeaturedCategoryId)
             {
                 var featuredCategoryIds = filter.GetTermsArray<int>();
                 if (featuredCategoryIds.Length > 0)
@@ -181,7 +184,7 @@ namespace Smartstore.Core.Catalog.Search
                     DbQuery = ApplyCategoriesFilter(DbQuery, featuredCategoryIds, true);
                 }
             }
-            else if (filter.FieldName == "notfeaturedcategoryid")
+            else if (filter.FieldName == names.NotFeaturedCategoryId)
             {
                 var notFeaturedCategoryIds = filter.GetTermsArray<int>();
                 if (notFeaturedCategoryIds.Length > 0)
@@ -191,7 +194,7 @@ namespace Smartstore.Core.Catalog.Search
                     DbQuery = ApplyCategoriesFilter(DbQuery, notFeaturedCategoryIds, false);
                 }
             }
-            else if (filter.FieldName == "manufacturerid")
+            else if (filter.FieldName == names.ManufacturerId)
             {
                 if (filter is IRangeSearchFilter rf)
                 {
@@ -220,7 +223,7 @@ namespace Smartstore.Core.Catalog.Search
                     }
                 }
             }
-            else if (filter.FieldName == "featuredmanufacturerid")
+            else if (filter.FieldName == names.FeaturedManufacturerId)
             {
                 var featuredManuIds = filter.GetTermsArray<int>();
                 if (featuredManuIds.Length > 0)
@@ -230,7 +233,7 @@ namespace Smartstore.Core.Catalog.Search
                     DbQuery = ApplyManufacturersFilter(DbQuery, featuredManuIds, true);
                 }
             }
-            else if (filter.FieldName == "notfeaturedmanufacturerid")
+            else if (filter.FieldName == names.NotFeaturedManufacturerId)
             {
                 var notFeaturedManuIds = filter.GetTermsArray<int>();
                 if (notFeaturedManuIds.Length > 0)
@@ -240,7 +243,7 @@ namespace Smartstore.Core.Catalog.Search
                     DbQuery = ApplyManufacturersFilter(DbQuery, notFeaturedManuIds, false);
                 }
             }
-            else if (filter.FieldName == "tagid")
+            else if (filter.FieldName == names.TagId)
             {
                 var tagIds = filter.GetTermsArray<int>();
                 if (tagIds.Length > 0)
@@ -252,7 +255,7 @@ namespace Smartstore.Core.Catalog.Search
                         select p;
                 }
             }
-            else if (filter.FieldName == "condition")
+            else if (filter.FieldName == names.Condition)
             {
                 var conditions = filter.GetTermsArray<int>();
                 if (conditions.Length == 1)
@@ -268,7 +271,9 @@ namespace Smartstore.Core.Catalog.Search
 
         protected virtual void VisitRangeFilter(IRangeSearchFilter filter)
         {
-            if (filter.FieldName == "availablestart")
+            var names = CatalogSearchQuery.KnownFilters;
+            
+            if (filter.FieldName == names.AvailableStart)
             {
                 var lower = filter.Term as DateTime?;
                 var upper = filter.UpperTerm as DateTime?;
@@ -289,7 +294,7 @@ namespace Smartstore.Core.Catalog.Search
                         DbQuery = DbQuery.Where(x => !x.AvailableStartDateTimeUtc.HasValue || x.AvailableStartDateTimeUtc < upper.Value);
                 }
             }
-            else if (filter.FieldName == "availableend")
+            else if (filter.FieldName == names.AvailableEnd)
             {
                 var lower = filter.Term as DateTime?;
                 var upper = filter.UpperTerm as DateTime?;
@@ -310,7 +315,7 @@ namespace Smartstore.Core.Catalog.Search
                         DbQuery = DbQuery.Where(x => !x.AvailableEndDateTimeUtc.HasValue || x.AvailableEndDateTimeUtc < upper.Value);
                 }
             }
-            else if (filter.FieldName == "rating")
+            else if (filter.FieldName == names.Rating)
             {
                 var lower = filter.Term as double?;
                 var upper = filter.UpperTerm as double?;
@@ -331,7 +336,7 @@ namespace Smartstore.Core.Catalog.Search
                         DbQuery = DbQuery.Where(x => x.ApprovedTotalReviews > 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) < upper.Value);
                 }
             }
-            else if (filter.FieldName == "createdon")
+            else if (filter.FieldName == names.CreatedOn)
             {
                 var lower = filter.Term as DateTime?;
                 var upper = filter.UpperTerm as DateTime?;
@@ -352,7 +357,7 @@ namespace Smartstore.Core.Catalog.Search
                         DbQuery = DbQuery.Where(x => x.CreatedOnUtc < upper.Value);
                 }
             }
-            else if (filter.FieldName.StartsWith("price"))
+            else if (filter.FieldName.StartsWith(names.Price))
             {
                 var lower = filter.Term as double?;
                 var upper = filter.UpperTerm as double?;
@@ -393,7 +398,7 @@ namespace Smartstore.Core.Catalog.Search
             }
         }
 
-        protected void ApplyMemberExpression<TMember>(
+        protected void ApplySimpleMemberExpression<TMember>(
             Expression<Func<Product, TMember>> memberExpression, 
             INamedSearchFilter filter)
         {
