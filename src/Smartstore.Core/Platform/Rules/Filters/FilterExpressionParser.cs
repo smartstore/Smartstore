@@ -122,8 +122,8 @@ namespace Smartstore.Core.Rules.Filters
         public static bool TryParse<T, TValue>(Expression<Func<T, TValue>> memberExpression, string filter, out FilterExpression result)
              where T : class
         {
-            Guard.NotNull(memberExpression, nameof(memberExpression));
-            Guard.NotEmpty(filter, nameof(filter));
+            Guard.NotNull(memberExpression);
+            Guard.NotEmpty(filter);
 
             result = null;
 

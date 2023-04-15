@@ -37,8 +37,8 @@ namespace Smartstore.Core.Catalog.Search
         public readonly string ShowOnHomepage = "showonhomepage";
         public readonly string IsDownload = "download";
         public readonly string IsRecurring = "recurring";
-        public readonly string IsShipEnabled = "shipenabled";
-        public readonly string IsShipFree = "shipfree";
+        public readonly string IsShippingEnabled = "shipenabled";
+        public readonly string IsFreeShipping = "shipfree";
         public readonly string IsTaxExempt = "taxexempt";
         public readonly string IsEsd = "esd";
         public readonly string HasDiscount = "discount";
@@ -417,12 +417,12 @@ namespace Smartstore.Core.Catalog.Search
 
         public CatalogSearchQuery ShipEnabledOnly(bool value)
         {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsShipEnabled, value).Mandatory().ExactMatch().NotAnalyzed());
+            return WithFilter(SearchFilter.ByField(KnownFilters.IsShippingEnabled, value).Mandatory().ExactMatch().NotAnalyzed());
         }
 
         public CatalogSearchQuery FreeShippingOnly(bool value)
         {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsShipFree, value).Mandatory().ExactMatch().NotAnalyzed());
+            return WithFilter(SearchFilter.ByField(KnownFilters.IsFreeShipping, value).Mandatory().ExactMatch().NotAnalyzed());
         }
 
         public CatalogSearchQuery TaxExemptOnly(bool value)

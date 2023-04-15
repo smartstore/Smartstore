@@ -38,6 +38,38 @@ namespace Smartstore.Core.Search
 
     public static class ISearchFilterExtensions
     {
+        /// <summary>
+        /// Searches for a filter including <see cref="ICombinedSearchFilter"/>.
+        /// </summary>
+        public static ISearchFilter? FindFilter(this IEnumerable<ISearchFilter> filters, string? fieldName)
+        {
+            Guard.NotNull(filters);
+            
+            if (fieldName.IsEmpty())
+            {
+                return null;
+            }
+            
+            foreach (var filter in filters)
+            {
+                if (filter is IAttributeSearchFilter attrFilter && attrFilter.FieldName == fieldName)
+                {
+                    return attrFilter;
+                }
+
+                if (filter is ICombinedSearchFilter combinedFilter)
+                {
+                    var filter2 = FindFilter(combinedFilter.Filters, fieldName);
+                    if (filter2 != null)
+                    {
+                        return filter2;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public static T[] GetTermsArray<T>(this INamedSearchFilter filter)
         {
             Guard.NotNull(filter);

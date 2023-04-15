@@ -87,7 +87,7 @@
                 query,
                 filter,
                 LogicalRuleOperator.And, // Doesn't matter
-                Guard.NotNull(memberExpression, nameof(memberExpression)));
+                Guard.NotNull(memberExpression));
         }
 
         /// <inheritdoc cref="ApplySearchFilterFor{T, TValue}(IQueryable{T}, Expression{Func{T, TValue}}, string)"/>

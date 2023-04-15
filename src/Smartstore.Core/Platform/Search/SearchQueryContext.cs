@@ -1,6 +1,4 @@
-﻿using Smartstore.Collections;
-
-namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search
 {
     public class SearchQueryContext<TQuery> where TQuery : ISearchQuery
     {
