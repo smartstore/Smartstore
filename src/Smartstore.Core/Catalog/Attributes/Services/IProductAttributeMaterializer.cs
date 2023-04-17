@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Smartstore.Core.Catalog.Products;
+﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Catalog.Attributes
@@ -57,9 +56,8 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         /// <param name="productId">Product identifier.</param>
         /// <param name="selection">Attribute selection.</param>
-        /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
         /// <returns>Found attribute combination or <c>null</c> if none was found.</returns>
-        Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection, bool tracked = false);
+        Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection);
 
         /// <summary>
         /// Finds an attribute combination by attribute selection and applies its data to the product.
