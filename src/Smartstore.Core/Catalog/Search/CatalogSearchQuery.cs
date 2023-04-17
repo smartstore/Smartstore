@@ -286,14 +286,19 @@ namespace Smartstore.Core.Catalog.Search
         }
 
         /// <summary>
-        /// Filter by category identifiers.
+        /// Filter products by category identifiers.
+        /// For a large number of category IDs, it is recommended to use <see cref="WithCategoryTreePath(string, bool?, bool)"/> because it is faster.
         /// </summary>
         /// <param name="featuredOnly">
-        /// A value indicating whether loaded products are marked as featured (relates only to categories and manufacturers). 
+        /// A value indicating whether loaded products are marked as "featured" at their category assignment.
         /// <c>false</c> to load featured products only, <c>true</c> to load unfeatured products only, <c>null</c> to load all products.
         /// </param>
         /// <param name="ids">The category identifiers.</param>
         /// <returns>Search query.</returns>
+        /// <remarks>
+        /// Use <see cref="WithCategoryIds(bool?, int[])"/> or <see cref="WithCategoryTreePath(string, bool?, bool)"/>, but not both together.
+        /// Both do the same thing (filter products based on their category assignments), just in different ways.
+        /// </remarks>
         public CatalogSearchQuery WithCategoryIds(bool? featuredOnly, params int[] ids)
         {
             var fieldName = featuredOnly.HasValue
@@ -304,19 +309,23 @@ namespace Smartstore.Core.Catalog.Search
         }
 
         /// <summary>
-        /// Filter by category tree path.
+        /// Filter products by category tree path.
+        /// For a large number of category assignments, this method is faster than <see cref="WithCategoryIds(bool?, int[])"/>.
         /// </summary>
         /// <param name="treePath">The parent's tree path to get descendants from.</param>
         /// <param name="featuredOnly">
-        /// A value indicating whether loaded products are marked as featured (relates only to categories and manufacturers). 
+        /// A value indicating whether loaded products are marked as "featured" at their category assignment.
         /// <c>false</c> to load featured products only, <c>true</c> to load unfeatured products only, <c>null</c> to load all products.
         /// </param>
         /// <param name="includeSelf"><c>true</c> = add the parent node to the result list, <c>false</c> = ignore the parent node.</param>
         /// <returns>Search query.</returns>
+        /// <remarks>
+        /// Use <see cref="WithCategoryIds(bool?, int[])"/> or <see cref="WithCategoryTreePath(string, bool?, bool)"/>, but not both together.
+        /// Both do the same thing (filter products based on their category assignments), just in different ways.
+        /// </remarks>
         public CatalogSearchQuery WithCategoryTreePath(string treePath, bool? featuredOnly, bool includeSelf = true)
         {
             // TODO: (mg) "includeSelf" parameter is missing.
-            // TODO: (mg) Describe: WithCategoryTreePath and WithCategoryIds are exclusive.
             if (treePath.HasValue())
             {
                 var fieldName = featuredOnly.HasValue
