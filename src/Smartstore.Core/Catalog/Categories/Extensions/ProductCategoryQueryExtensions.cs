@@ -40,7 +40,7 @@
         public static IQueryable<ProductCategory> ApplyDescendantsFilter(
             this IQueryable<ProductCategory> query,
             string treePath,
-            bool includeSelf = false)
+            bool includeSelf = true)
         {
             Guard.NotNull(query);
             Guard.NotEmpty(treePath);

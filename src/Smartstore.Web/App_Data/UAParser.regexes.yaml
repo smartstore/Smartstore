@@ -396,7 +396,7 @@ user_agent_parsers:
   - regex: '(SznProhlizec)/(\d+)\.(\d+)(?:\.(\d+)|)'
     family_replacement: 'Seznam prohlížeč'
 
-  # Coc Coc browser, based on Chrome (used in Vietnam)
+  # Coc Coc browser, based on Chrome (used in Vietnam)
   - regex: '(coc_coc_browser)/(\d+)\.(\d+)(?:\.(\d+)|)'
     family_replacement: 'Coc Coc'
 
@@ -932,7 +932,7 @@ user_agent_parsers:
     family_replacement: 'Python Requests'
 
   # headless user-agents
-  - regex: '\b(Windows-Update-Agent|WindowsPowerShell|Microsoft-CryptoAPI|SophosUpdateManager|SophosAgent|Debian APT-HTTP|Ubuntu APT-HTTP|libcurl-agent|libwww-perl|urlgrabber|curl|PycURL|Wget|wget2|aria2|Axel|OpenBSD ftp|lftp|jupdate|insomnia|fetch libfetch|akka-http|got|CloudCockpitBackend|ReactorNetty|axios|Jersey|Vert.x-WebClient|Apache-CXF|Go-CF-client|go-resty|AHC)(?:[ /](\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)'
+  - regex: '\b(Windows-Update-Agent|WindowsPowerShell|Microsoft-CryptoAPI|SophosUpdateManager|SophosAgent|Debian APT-HTTP|Ubuntu APT-HTTP|libcurl-agent|libwww-perl|urlgrabber|curl|PycURL|Wget|wget2|aria2|Axel|OpenBSD ftp|lftp|jupdate|insomnia|fetch libfetch|akka-http|got|CloudCockpitBackend|ReactorNetty|axios|Jersey|Vert.x-WebClient|Apache-CXF|Go-CF-client|go-resty|AHC|HTTPie)(?:[ /](\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)'
 
   # CloudFoundry
   - regex: '^(cf)\/(\d+)\.(\d+)\.(\S+)'

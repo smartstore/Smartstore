@@ -65,41 +65,41 @@ namespace Smartstore.Core.Web
                 return (_ipAddress = IPAddress.None);
             }
 
-            IPAddress result = null;
+            var result = HttpContext?.Connection?.RemoteIpAddress;
 
-            var headers = request.Headers;
-            if (headers != null)
+            if (result == null)
             {
-                var keysToCheck = _ipHeaderNames;
-
-                foreach (var key in keysToCheck)
+                var headers = request.Headers;
+                if (headers != null)
                 {
-                    if (result != null)
-                    {
-                        break;
-                    }
+                    var keysToCheck = _ipHeaderNames;
 
-                    if (headers.TryGetValue(key, out var ipString))
+                    foreach (var key in keysToCheck)
                     {
-                        // Iterate list from end to start (IPv6 addresses usually have precedence)
-                        for (int i = ipString.Count - 1; i >= 0; i--)
+                        if (result != null)
                         {
-                            ipString = ipString[i].Trim();
+                            break;
+                        }
 
-                            if (TryParseIPAddress(ipString, out var address))
+                        if (headers.TryGetValue(key, out var ipString))
+                        {
+                            // Iterate list from end to start (IPv6 addresses usually have precedence)
+                            for (int i = ipString.Count - 1; i >= 0; i--)
                             {
-                                result = address;
-                                break;
+                                ipString = ipString[i].Trim();
+
+                                if (TryParseIPAddress(ipString, out var address))
+                                {
+                                    result = address;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
 
-            if (result == null && HttpContext.Connection.RemoteIpAddress != null)
-            {
-                result = HttpContext.Connection.RemoteIpAddress;
-            }
+            result ??= request.HttpContext.Connection.RemoteIpAddress;
 
             if (result != null && result.AddressFamily == AddressFamily.InterNetworkV6)
             {

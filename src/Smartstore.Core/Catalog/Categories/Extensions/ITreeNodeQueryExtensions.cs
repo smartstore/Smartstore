@@ -24,7 +24,7 @@
             this IQueryable<ITreeNode> query,
             int parentNodeId,
             bool deep = true,
-            bool includeSelf = false)
+            bool includeSelf = true)
         {
             if (parentNodeId <= 0)
             {
@@ -53,7 +53,7 @@
         public static IQueryable<ITreeNode> ApplyDescendantsFilter(
             this IQueryable<ITreeNode> query, 
             string treePath,
-            bool includeSelf = false)
+            bool includeSelf = true)
         {
             Guard.NotNull(query);
             Guard.NotEmpty(treePath);
