@@ -17,6 +17,7 @@ using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
+using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Builders;
@@ -60,6 +61,10 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<CategoryImporter>().Keyed<IEntityImporter>(ImportEntityType.Category).InstancePerLifetimeScope();
 
             // Search.
+            builder.RegisterType<CatalogSearchQueryVisitor>()
+                .As<LinqSearchQueryVisitor<Product, CatalogSearchQuery>>()
+                .SingleInstance();
+
             builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().As<IXmlSitemapPublisher>().InstancePerLifetimeScope();
             builder.RegisterType<LinqCatalogSearchService>().Named<ICatalogSearchService>("linq").InstancePerLifetimeScope();
             builder.RegisterType<CatalogSearchQueryFactory>().As<ICatalogSearchQueryFactory>().InstancePerLifetimeScope();

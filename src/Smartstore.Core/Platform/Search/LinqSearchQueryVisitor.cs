@@ -9,6 +9,11 @@ namespace Smartstore.Core.Search
     {
         private IQueryable<TEntity> _resultQuery;
 
+        public virtual int Order
+        {
+            get => 0;
+        }
+
         public TQuery SearchQuery
         {
             get => Context.SearchQuery;
@@ -70,7 +75,7 @@ namespace Smartstore.Core.Search
             }
 
             // Default sorting
-            if (query is not IOrderedQueryable<TEntity>)
+            if (query.Expression.Type != typeof(IOrderedQueryable<TEntity>))
             {
                 query = ApplyDefaultSorting(query);
             }
@@ -141,7 +146,7 @@ namespace Smartstore.Core.Search
                     expressions.Add(new FilterExpression
                     {
                         Descriptor = descriptor,
-                        Operator = negate ? RuleOperator.NotContains : RuleOperator.Contains,
+                        Operator = negate ? RuleOperator.NotIn : RuleOperator.In,
                         Value = terms
                     });
                 }
@@ -149,16 +154,12 @@ namespace Smartstore.Core.Search
 
             if (expressions.Count > 0)
             {
-                var compositeExpression = new FilterExpressionGroup(typeof(TEntity))
+                var combinedExpression = new FilterExpressionGroup(typeof(TEntity), expressions.ToArray())
                 {
                     LogicalOperator = LogicalRuleOperator.And,
                 };
-                compositeExpression.AddExpressions(expressions);
 
-                // Create lambda predicate
-                var predicate = compositeExpression.ToPredicate(query.Provider);
-
-                return query.Where(predicate).Cast<TEntity>();
+                return query.Where(combinedExpression).Cast<TEntity>();
             }
 
             return query;
@@ -177,15 +178,18 @@ namespace Smartstore.Core.Search
             Expression<Func<TEntity, TKey>> keySelector,
             bool descending = false)
         {
-            if (query is IOrderedQueryable<TEntity> orderedQuery)
+            // Don't check with "is...": will always return true.
+            var isOrdered = query.Expression.Type == typeof(IOrderedQueryable<TEntity>);
+
+            if (isOrdered)
             {
                 if (descending)
                 {
-                    return orderedQuery.ThenByDescending(keySelector);
+                    return ((IOrderedQueryable<TEntity>)query).ThenByDescending(keySelector);
                 }
                 else
                 {
-                    return orderedQuery.ThenBy(keySelector);
+                    return ((IOrderedQueryable<TEntity>)query).ThenBy(keySelector);
                 }
             }
             else

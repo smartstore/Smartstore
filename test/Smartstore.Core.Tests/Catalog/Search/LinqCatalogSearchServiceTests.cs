@@ -62,7 +62,11 @@ namespace Smartstore.Core.Tests.Catalog.Search
 
             _services = new MockCommonServices(DbContext, builder.Build());
 
-            _linqCatalogSearchService = new LinqCatalogSearchService(DbContext, _services, It.IsAny<ICategoryService>());
+            _linqCatalogSearchService = new LinqCatalogSearchService(
+                DbContext,
+                new[] { new CatalogSearchQueryVisitor() },
+                _services, 
+                It.IsAny<ICategoryService>());
         }
 
         [Test]

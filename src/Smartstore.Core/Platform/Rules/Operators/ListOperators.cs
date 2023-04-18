@@ -23,34 +23,23 @@ namespace Smartstore.Core.Rules.Operators
 
         protected override Expression GenerateExpression(Expression left /* member expression */, Expression right /* collection instance */, IQueryProvider provider)
         {
-            var constantExpr = right as ConstantExpression;
-            if (constantExpr == null)
+            if (right is not ConstantExpression constantExpr)
+            {
                 throw new ArgumentException($"The expression must be of type '{nameof(ConstantExpression)}'.", nameof(right));
+            }
 
-            if (constantExpr.Value == null || !constantExpr.Type.IsClosedGenericTypeOf(typeof(ICollection<>)))
+            var rightType = constantExpr.Type;
+            if (constantExpr.Value == null || !(rightType.IsClosedGenericTypeOf(typeof(ICollection<>)) && rightType.IsEnumerableType(out var itemType)))
             {
                 throw new ArgumentException("The 'In' operator only supports non-null instances from types that implement 'ICollection<T>'.", nameof(right));
             }
 
-            var itemType = right.Type.GetGenericArguments()[0];
             var containsMethod = ExpressionHelper.GetCollectionContainsMethod(itemType);
 
             return Expression.Equal(
                 Expression.Call(right, containsMethod, left),
                 Negate ? ExpressionHelper.FalseLiteral : ExpressionHelper.TrueLiteral);
         }
-
-        //private Expression GetExpressionHandlingNullables(MemberExpression left, ConstantExpression right, Type type, MethodInfo inInfo)
-        //{
-        //    var listUnderlyingType = Nullable.GetUnderlyingType(type.GetGenericArguments()[0]);
-        //    var memberUnderlingType = Nullable.GetUnderlyingType(left.Type);
-        //    if (listUnderlyingType != null && memberUnderlingType == null)
-        //    {
-        //        return Expression.Call(right, inInfo, left.Expression);
-        //    }
-
-        //    return null;
-        //}
     }
 
 
