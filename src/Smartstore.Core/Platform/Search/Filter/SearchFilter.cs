@@ -7,12 +7,6 @@
         {
         }
 
-        public string FieldName
-        {
-            get;
-            protected set;
-        }
-
         public IndexTypeCode TypeCode
         {
             get;

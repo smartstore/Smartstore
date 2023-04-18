@@ -28,8 +28,6 @@ namespace Smartstore.Core.Search
             Filters = new List<ISearchFilter>(filters);
         }
 
-        public string? FieldName { get; init; }
-
         public ICollection<ISearchFilter> Filters { get; }
 
         public CombinedSearchFilter Add(ISearchFilter filter)

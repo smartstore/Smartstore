@@ -7,6 +7,12 @@
             Occurence = SearchFilterOccurence.Should;
         }
 
+        public string FieldName
+        {
+            get;
+            protected internal set;
+        }
+
         public float Boost
         {
             get;
@@ -18,11 +24,5 @@
             get;
             protected internal set;
         }
-
-        #region Fluent builder
-
-        // [...]
-
-        #endregion
     }
 }

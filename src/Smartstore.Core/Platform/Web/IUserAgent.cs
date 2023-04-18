@@ -54,7 +54,7 @@
 
     public sealed class UserAgentInfo
     {
-        private static readonly HashSet<string> s_Bots = new(StringComparer.InvariantCultureIgnoreCase)
+        private static readonly HashSet<string> _bots = new(StringComparer.InvariantCultureIgnoreCase)
         {
             "BingPreview"
         };
@@ -81,7 +81,7 @@
             {
                 if (!_isBot.HasValue)
                 {
-                    _isBot = s_Bots.Contains(Family);
+                    _isBot = _bots.Contains(Family);
                 }
                 return _isBot.Value;
             }

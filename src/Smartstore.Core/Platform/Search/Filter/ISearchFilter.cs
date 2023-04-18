@@ -6,21 +6,17 @@ namespace Smartstore.Core.Search
 {
     public interface ISearchFilter
     {
+        string FieldName { get; }
         SearchFilterOccurence Occurence { get; }
         float Boost { get; }
     }
 
-    public interface INamedSearchFilter : ISearchFilter
-    {
-        string FieldName { get; }
-    }
-
-    public interface ICombinedSearchFilter : INamedSearchFilter
+    public interface ICombinedSearchFilter : ISearchFilter
     {
         ICollection<ISearchFilter> Filters { get; }
     }
 
-    public interface IAttributeSearchFilter : INamedSearchFilter
+    public interface IAttributeSearchFilter : ISearchFilter
     {
         IndexTypeCode TypeCode { get; }
         object? Term { get; }
@@ -70,7 +66,7 @@ namespace Smartstore.Core.Search
             return null;
         }
 
-        public static T[] GetTermsArray<T>(this INamedSearchFilter filter)
+        public static T[] GetTermsArray<T>(this ISearchFilter filter)
         {
             Guard.NotNull(filter);
 

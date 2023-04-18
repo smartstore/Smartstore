@@ -37,16 +37,7 @@ namespace Smartstore.Core.Catalog.Search
             // Filters
             for (var i = 0; i < context.Filters.Count; i++)
             {
-                var filter = context.Filters[i];
-
-                if (filter is INamedSearchFilter namedFilter)
-                {
-                    query = VisitNamedFilter(namedFilter, query);
-                }
-                else
-                {
-                    query = VisitFilter(filter, query);
-                }
+                query = VisitFilter(context.Filters[i], query);
             }
 
             // Not supported by EF Core 5+
@@ -131,11 +122,6 @@ namespace Smartstore.Core.Catalog.Search
         }
 
         protected virtual IQueryable<Product> VisitFilter(ISearchFilter filter, IQueryable<Product> query)
-        {
-            return query;
-        }
-
-        protected virtual IQueryable<Product> VisitNamedFilter(INamedSearchFilter filter, IQueryable<Product> query)
         {
             var names = CatalogSearchQuery.KnownFilters;
             var fieldName = filter.FieldName;
@@ -541,7 +527,7 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected virtual IQueryable<Product> VisitRoleFilter(INamedSearchFilter filter, IQueryable<Product> query)
+        protected virtual IQueryable<Product> VisitRoleFilter(ISearchFilter filter, IQueryable<Product> query)
         {
             var db = Context.Services.DbContext;
             if (!db.QuerySettings.IgnoreAcl)
@@ -561,7 +547,7 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected virtual IQueryable<Product> VisitStoreFilter(INamedSearchFilter filter, IQueryable<Product> query)
+        protected virtual IQueryable<Product> VisitStoreFilter(ISearchFilter filter, IQueryable<Product> query)
         {
             var db = Context.Services.DbContext;
             if (!db.QuerySettings.IgnoreMultiStore)
@@ -626,8 +612,8 @@ namespace Smartstore.Core.Catalog.Search
         }
 
         protected IQueryable<Product> ApplySimpleMemberExpression<TMember>(
-            Expression<Func<Product, TMember>> memberExpression, 
-            INamedSearchFilter filter,
+            Expression<Func<Product, TMember>> memberExpression,
+            ISearchFilter filter,
             IQueryable<Product> query)
             where TMember : struct
         {
