@@ -28,6 +28,9 @@ namespace Smartstore.Web.Api.Models
         [LocalizedDisplay("*MaxExpansionDepth")]
         public int MaxExpansionDepth { get; set; }
 
+        [LocalizedDisplay("*SSLRequirementOverride")]
+        public bool SSLRequirementOverride { get; set; }
+
         #region Batch
 
         [LocalizedDisplay("*MaxBatchNestingDepth")]

@@ -115,6 +115,15 @@
                             <span asp-validation-for="MaxBatchReceivedMessageSize"></span>
                         </div>
                     </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SSLRequirementOverride" />
+                        </div>
+                        <div class="adminData form-control-plaintext">
+                            <editor asp-for="SSLRequirementOverride" />
+                            <span asp-validation-for="SSLRequirementOverride"></span>
+                        </div>
+                    </div>
                 </div>
 
             </div>

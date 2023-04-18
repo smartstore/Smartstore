@@ -30,6 +30,11 @@ namespace Smartstore.Web.Api
         /// </summary>
         public int MaxExpansionDepth { get; set; } = 8;
 
+        /// <summary>
+        /// Gets or sets the override for SSL encryption requirement.
+        /// </summary>
+        public bool SSLRequirementOverride { get; set; } = false;
+
         #region Batch
 
         /// <summary>

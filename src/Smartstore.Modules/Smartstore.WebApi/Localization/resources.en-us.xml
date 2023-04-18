@@ -123,4 +123,10 @@
     <LocaleResource Name="MaxBatchReceivedMessageSize.Hint">
         <Value>Specifies the maximum amount of data (in KB) that should be read from a batch message.</Value>
     </LocaleResource>
+    <LocaleResource Name="SSLRequirementOverride">
+        <Value>Determines whether API access should be possible without SSL.</Value>
+    </LocaleResource>
+    <LocaleResource Name="SSLRequirementOverride.Hint">
+        <Value>Only use if, for example, the shop is behind a proxy or load balancer and SSL encryption is done differently</Value>
+    </LocaleResource>
 </Language>

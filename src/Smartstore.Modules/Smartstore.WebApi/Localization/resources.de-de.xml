@@ -123,4 +123,10 @@
     <LocaleResource Name="MaxBatchReceivedMessageSize.Hint">
         <Value>Legt die maximale Datenmenge (in KB) fest, die aus einer Stapelnachricht gelesen werden soll.</Value>
     </LocaleResource>
+    <LocaleResource Name="SSLRequirementOverride">
+        <Value>Legt fest, ob API-Zugriff ohne SSL möglich sein soll.</Value>
+    </LocaleResource>
+    <LocaleResource Name="SSLRequirementOverride.Hint">
+        <Value>Nur verwenden, wenn z.B. der Shop hinter einem Proxy oder Loadbalancer liegt und SSL-Verschlüsselung anders geregelt ist.</Value>
+    </LocaleResource>
 </Language>

@@ -101,7 +101,8 @@ namespace Smartstore.Web.Api
                     IsActive = (descriptor?.IsInstalled() ?? false) && settings.IsActive,
                     ModuleVersion = descriptor?.Version?.ToString()?.NullEmpty() ?? "1.0",
                     MaxTop = settings.MaxTop,
-                    MaxExpansionDepth = settings.MaxExpansionDepth
+                    MaxExpansionDepth = settings.MaxExpansionDepth,
+                    SSLRequirementOverride = settings.SSLRequirementOverride
                 };
 
                 return state;

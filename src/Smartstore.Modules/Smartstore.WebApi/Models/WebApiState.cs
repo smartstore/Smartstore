@@ -26,5 +26,10 @@
         /// Current API version.
         /// </summary>
         public string Version => $"1 {ModuleVersion}";
+
+        /// <summary>
+        /// Is SSL requirement overridden
+        /// </summary>
+        public bool SSLRequirementOverride { get; set; } = false;
     }
 }

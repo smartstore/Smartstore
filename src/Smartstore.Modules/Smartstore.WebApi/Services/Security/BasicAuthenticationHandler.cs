@@ -60,7 +60,7 @@ namespace Smartstore.Web.Api.Security
                     return Failure(AccessDeniedReason.ApiDisabled);
                 }
 
-                if (!Request.IsHttps && Options.SslRequired)
+                if (!Request.IsHttps && Options.SslRequired && !state.SSLRequirementOverride)
                 {
                     return Failure(AccessDeniedReason.SslRequired, null, Status421MisdirectedRequest);
                 }
