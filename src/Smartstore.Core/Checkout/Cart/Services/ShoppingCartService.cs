@@ -194,16 +194,16 @@ namespace Smartstore.Core.Checkout.Cart
                 // Product is already in cart, find existing item
                 var newQuantity = ctx.Quantity + existingCartItem.Quantity;
 
+                existingCartItem.Quantity = newQuantity;
+                existingCartItem.UpdatedOnUtc = DateTime.UtcNow;
+                existingCartItem.RawAttributes = ctx.AttributeSelection.AsJson();
+
                 if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, existingCartItem, cart.Items))
                 {
                     return false;
                 }
 
                 // Update cart item
-                existingCartItem.Quantity = newQuantity;
-                existingCartItem.UpdatedOnUtc = DateTime.UtcNow;
-                existingCartItem.RawAttributes = ctx.AttributeSelection.AsJson();
-
                 await _db.SaveChangesAsync();
                 return true;
             }

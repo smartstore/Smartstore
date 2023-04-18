@@ -347,21 +347,25 @@ namespace Smartstore.Core.Checkout.Cart
                 currentWarnings.Add(T("ShoppingCart.CustomerEnteredPrice.RangeError", min, max));
             }
 
-            var quanitityToValidate = quantity ?? cartItem.Quantity;
             // Quantity validation
+            var hasQuantityWarnings = false;
+            var quanitityToValidate = quantity ?? cartItem.Quantity;
             if (quanitityToValidate <= 0)
             {
                 currentWarnings.Add(T("ShoppingCart.QuantityShouldPositive"));
+                hasQuantityWarnings = true;
             }
 
             if (quanitityToValidate < product.OrderMinimumQuantity)
             {
                 currentWarnings.Add(T("ShoppingCart.MinimumQuantity", product.OrderMinimumQuantity));
+                hasQuantityWarnings = true;
             }
 
             if (quanitityToValidate > product.OrderMaximumQuantity)
             {
                 currentWarnings.Add(T("ShoppingCart.MaximumQuantity", product.OrderMaximumQuantity));
+                hasQuantityWarnings = true;
             }
 
             var allowedQuantities = product.ParseAllowedQuantities();
@@ -372,7 +376,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             // Stock validation
             var validateOutOfStock = cartItem.ShoppingCartType == ShoppingCartType.ShoppingCart || !_cartSettings.AllowOutOfStockItemsToBeAddedToWishlist;
-            if (validateOutOfStock)
+            if (validateOutOfStock && !hasQuantityWarnings)
             {
                 switch (product.ManageInventoryMethod)
                 {
