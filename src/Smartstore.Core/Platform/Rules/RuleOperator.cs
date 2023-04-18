@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Rules.Operators;
 
@@ -135,9 +136,28 @@ namespace Smartstore.Core.Rules
             if (!valid)
             {
                 throw new ArgumentException("Operator '{0}' is incompatible with operand types '{1}' and '{2}'.".FormatInvariant(
-                    this.Operator,
+                    Operator,
                     GetTypeName(targetType),
                     GetTypeName(right.Type)));
+            }
+
+            if (provider is EntityQueryProvider && right is ConstantExpression constExpr && constExpr.Value != null)
+            {
+                // For EF Core, it's always better to parameterize the generated
+                // SQL query for some value types instead of using constant literals.
+                // We do this by wrapping the value in a constant Tuple and return
+                // an expression referencing the Item1 property.
+                var rtype = right.Type;
+                if (
+                    rtype == typeof(DateTime) ||
+                    rtype == typeof(DateTimeOffset) ||
+                    rtype == typeof(DateOnly) ||
+                    rtype == typeof(TimeOnly))
+                {
+                    var closureType = typeof(Tuple<>).MakeGenericType(rtype);
+                    var closure = Activator.CreateInstance(closureType, constExpr.Value);
+                    right = Expression.Property(Expression.Constant(closure), "Item1");
+                }
             }
 
             return GenerateExpression(left, right, provider);
@@ -166,13 +186,16 @@ namespace Smartstore.Core.Rules
 
         private bool TryConvertNullableValue(Expression left, ref Expression right)
         {
-            var c = right as ConstantExpression;
-            if (c == null)
+            if (right is not ConstantExpression c)
+            {
                 return true;
+            }   
 
             var targetType = GetBodyType(left);
             if (targetType == right.Type)
+            {
                 return true;
+            }  
 
             var leftIsNullable = targetType.IsNullableType(out _);
             var rightIsNullObj = ExpressionHelper.IsNullObjectConstantExpression(right);
@@ -214,7 +237,7 @@ namespace Smartstore.Core.Rules
             return true;
         }
 
-        private bool TryConvertList(Type targetType, ref Expression right)
+        private static bool TryConvertList(Type targetType, ref Expression right)
         {
             // If left is int?, but right is List<int>: make right List<int?>
             try
@@ -328,9 +351,13 @@ namespace Smartstore.Core.Rules
         protected Type GetBodyType(Expression expr)
         {
             if (expr is LambdaExpression lambda)
+            {
                 return lambda.Body.Type;
+            }
             else
+            {
                 return expr.Type;
+            }  
         }
 
         #endregion

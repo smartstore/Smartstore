@@ -149,13 +149,16 @@ namespace Smartstore.Core.Search
 
             if (expressions.Count > 0)
             {
-                var compositeExpression = new FilterExpressionGroup(typeof(TEntity), expressions.ToArray())
+                var compositeExpression = new FilterExpressionGroup(typeof(TEntity))
                 {
                     LogicalOperator = LogicalRuleOperator.And,
-                    IsSubGroup = true
                 };
+                compositeExpression.AddExpressions(expressions);
 
-                return query.Where(compositeExpression).Cast<TEntity>();
+                // Create lambda predicate
+                var predicate = compositeExpression.ToPredicate(query.Provider);
+
+                return query.Where(predicate).Cast<TEntity>();
             }
 
             return query;

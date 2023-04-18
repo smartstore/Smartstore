@@ -155,8 +155,8 @@ namespace Smartstore.Core.Search
 
         public TQuery WithCurrency(Currency currency)
         {
-            Guard.NotNull(currency, nameof(currency));
-            Guard.NotEmpty(currency.CurrencyCode, nameof(currency.CurrencyCode));
+            Guard.NotNull(currency);
+            Guard.NotEmpty(currency.CurrencyCode);
 
             CurrencyCode = currency.CurrencyCode;
 
@@ -165,8 +165,8 @@ namespace Smartstore.Core.Search
 
         public TQuery Slice(int skip, int take)
         {
-            Guard.NotNegative(skip, nameof(skip));
-            Guard.NotNegative(take, nameof(take));
+            Guard.NotNegative(skip);
+            Guard.NotNegative(take);
 
             Skip = skip;
             Take = take;
