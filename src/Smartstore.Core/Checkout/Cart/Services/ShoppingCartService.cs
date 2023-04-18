@@ -523,6 +523,8 @@ namespace Smartstore.Core.Checkout.Cart
             cartItem.Quantity = newQuantity;
             cartItem.UpdatedOnUtc = DateTime.UtcNow;
 
+            // INFO: we execute SaveChangesAsync despite warnings because the quantity on cart page
+            // must be updatable at all times (see issue #621).
             if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cart.Items))
             {
                 warnings.AddRange(ctx.Warnings);
