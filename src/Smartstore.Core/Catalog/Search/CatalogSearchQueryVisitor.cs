@@ -1,80 +1,15 @@
 ﻿using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 
 namespace Smartstore.Core.Catalog.Search
 {
-    public class CatalogSearchQueryVisitor
+    public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, CatalogSearchQuery>
     {
-        private IQueryable<Product> _resultQuery;
+        public override CatalogSearchQueryContext Context 
+            => (CatalogSearchQueryContext)base.Context;
 
-        public CatalogSearchQuery SearchQuery 
-        {
-            get => Context.SearchQuery;
-        }
-
-        public IQueryable<Product> ResultDbQuery 
-        {
-            get => _resultQuery;
-        }
-
-        public CatalogSearchQueryContext Context 
-        { 
-            get; 
-            private set; 
-        }
-
-        public virtual IQueryable<Product> Visit(CatalogSearchQueryContext context, IQueryable<Product> baseQuery)
-        {
-            Context = Guard.NotNull(context);
-
-            var query = Guard.NotNull(baseQuery);
-
-            // TODO: (mg) Refactor after Terms isolation is implemented.
-            query = VisitTerm(query);
-
-            // Filters
-            for (var i = 0; i < context.Filters.Count; i++)
-            {
-                query = VisitFilter(context.Filters[i], query);
-            }
-
-            // Not supported by EF Core 5+
-            //if (Context.IsGroupingRequired)
-            //{
-            //    query =
-            //        from p in query
-            //        group p by p.Id into grp
-            //        orderby grp.Key
-            //        select grp.FirstOrDefault();
-            //}
-
-            // INFO: Distinct does not preserve ordering.
-            if (Context.IsGroupingRequired)
-            {
-                // Distinct is very slow if there are many products.
-                query = query.Distinct();
-            }
-
-            // Sorting
-            foreach (var sorting in SearchQuery.Sorting)
-            {
-                query = VisitSorting(sorting, query);
-            }
-
-            // Default sorting
-            if (query is not IOrderedQueryable<Product>)
-            {
-                query = ApplyDefaultSorting(query);
-            }
-
-            _resultQuery = query;
-
-            return query;
-        }
-
-        protected virtual IQueryable<Product> VisitTerm(IQueryable<Product> query)
+        protected override IQueryable<Product> VisitTerm(IQueryable<Product> query)
         {
             // TODO: (mg) Refactor after Terms isolation is implemented.
             var term = Context.SearchQuery.Term;
@@ -121,7 +56,7 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected virtual IQueryable<Product> VisitFilter(ISearchFilter filter, IQueryable<Product> query)
+        protected override IQueryable<Product> VisitFilter(ISearchFilter filter, IQueryable<Product> query)
         {
             var names = CatalogSearchQuery.KnownFilters;
             var fieldName = filter.FieldName;
@@ -567,7 +502,7 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected virtual IQueryable<Product> VisitSorting(SearchSort sorting, IQueryable<Product> query)
+        protected override IQueryable<Product> VisitSorting(SearchSort sorting, IQueryable<Product> query)
         {
             var names = CatalogSearchQuery.KnownSortings;
             
@@ -599,7 +534,7 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected virtual IOrderedQueryable<Product> ApplyDefaultSorting(IQueryable<Product> query)
+        protected override IOrderedQueryable<Product> ApplyDefaultSorting(IQueryable<Product> query)
         {
             if (SearchQuery.Filters.FindFilter(CatalogSearchQuery.KnownFilters.ParentId) != null)
             {
@@ -608,128 +543,6 @@ namespace Smartstore.Core.Catalog.Search
             else
             {
                 return query.OrderBy(x => x.Id);
-            }
-        }
-
-        protected IQueryable<Product> ApplySimpleMemberExpression<TMember>(
-            Expression<Func<Product, TMember>> memberExpression,
-            ISearchFilter filter,
-            IQueryable<Product> query)
-            where TMember : struct
-        {
-            var descriptor = new FilterDescriptor<Product, TMember>(memberExpression);
-            var expressions = new List<FilterExpression>(2);
-            var negate = filter.Occurence == SearchFilterOccurence.MustNot;
-
-            if (filter is IRangeSearchFilter rf)
-            {
-                var lower = rf.Term as TMember?;
-                var upper = rf.UpperTerm as TMember?;
-
-                if (lower.HasValue)
-                {
-                    expressions.Add(new FilterExpression
-                    {
-                        Descriptor = descriptor,
-                        Operator = negate 
-                            ? (rf.IncludesLower ? RuleOperator.LessThan : RuleOperator.LessThanOrEqualTo)
-                            : (rf.IncludesLower ? RuleOperator.GreaterThanOrEqualTo : RuleOperator.GreaterThan),
-                        Value = lower.Value
-                    });
-                }
-
-                if (upper.HasValue)
-                {
-                    expressions.Add(new FilterExpression
-                    {
-                        Descriptor = descriptor,
-                        Operator = negate
-                            ? (rf.IncludesUpper ? RuleOperator.GreaterThan : RuleOperator.GreaterThanOrEqualTo)
-                            : (rf.IncludesUpper ? RuleOperator.LessThanOrEqualTo : RuleOperator.LessThan),
-                        Value = upper.Value
-                    });
-                }
-            }
-            else
-            {
-                var terms = filter.GetTermsArray<TMember>();
-
-                if (terms.Length == 1)
-                {
-                    expressions.Add(new FilterExpression
-                    {
-                        Descriptor = descriptor,
-                        Operator = negate ? RuleOperator.IsNotEqualTo : RuleOperator.IsEqualTo,
-                        Value = terms[0]
-                    });
-                }
-                else if (terms.Length > 1)
-                {
-                    expressions.Add(new FilterExpression
-                    {
-                        Descriptor = descriptor,
-                        Operator = negate ? RuleOperator.NotContains : RuleOperator.Contains,
-                        Value = terms
-                    });
-                }
-            }
-
-            if (expressions.Count > 0)
-            {
-                var compositeExpression = new FilterExpressionGroup(typeof(Product), expressions.ToArray())
-                {
-                    LogicalOperator = LogicalRuleOperator.And
-                };
-
-                return query.Where(compositeExpression).Cast<Product>();
-            }
-
-            return query;
-
-            //if (expressions.Count == 1)
-            //{
-            //    return query.Where(expressions[0]).Cast<Product>();
-            //}
-            //else
-            //{
-            //    var compositeExpression = new FilterExpressionGroup(typeof(Product), expressions.ToArray())
-            //    {
-            //        LogicalOperator = LogicalRuleOperator.And
-            //    };
-
-            //    return query.Where(compositeExpression).Cast<Product>();
-            //}
-        }
-
-        /// <summary>
-        /// Helper to apply ordering to a query.
-        /// </summary>
-        protected virtual IOrderedQueryable<TEntity> OrderBy<TEntity, TKey>(
-            IQueryable<TEntity> query,
-            Expression<Func<TEntity, TKey>> keySelector,
-            bool descending = false)
-        {
-            if (query is IOrderedQueryable<TEntity> orderedQuery)
-            {
-                if (descending)
-                {
-                    return orderedQuery.ThenByDescending(keySelector);
-                }
-                else
-                {
-                    return orderedQuery.ThenBy(keySelector);
-                }
-            }
-            else
-            {
-                if (descending)
-                {
-                    return query.OrderByDescending(keySelector);
-                }
-                else
-                {
-                    return query.OrderBy(keySelector);
-                }
             }
         }
 
