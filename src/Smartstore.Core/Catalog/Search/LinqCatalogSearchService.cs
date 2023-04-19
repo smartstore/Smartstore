@@ -93,8 +93,8 @@ namespace Smartstore.Core.Catalog.Search
         {
             // Create context
             var context = new CatalogSearchQueryContext(searchQuery, _services);
-            
-            // prepare base db query
+
+            // Prepare base db query
             var query = baseQuery ?? _db.Products;
             query = query.Where(x => !x.IsSystemProduct);
 
