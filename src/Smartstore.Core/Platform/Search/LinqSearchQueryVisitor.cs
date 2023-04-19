@@ -74,12 +74,39 @@ namespace Smartstore.Core.Search
             return query;
         }
 
+        /// <summary>
+        /// Visits a search term.
+        /// </summary>
+        /// <param name="context">The search query context.</param>
+        /// <param name="query">The LINQ query to apply the term to.</param>
+        /// <returns>The modified or the original LINQ query.</returns>
         protected abstract IQueryable<TEntity> VisitTerm(TContext context, IQueryable<TEntity> query);
 
+        /// <summary>
+        /// Visits a search filter expression.
+        /// </summary>
+        /// <param name="filter">The visited filter.</param>
+        /// <param name="context">The search query context.</param>
+        /// <param name="query">The LINQ query to apply the filter to.</param>
+        /// <returns>The modified or the original LINQ query.</returns>
         protected abstract IQueryable<TEntity> VisitFilter(ISearchFilter filter, TContext context, IQueryable<TEntity> query);
 
+        /// <summary>
+        /// Visits a search sorting expression.
+        /// </summary>
+        /// <param name="sorting">The visited sorting expression.</param>
+        /// <param name="context">The search query context.</param>
+        /// <param name="query">The LINQ query to apply the filter to.</param>
+        /// <returns>The modified or the original LINQ query.</returns>
         protected abstract IQueryable<TEntity> VisitSorting(SearchSort sorting, TContext context, IQueryable<TEntity> query);
 
+        /// <summary>
+        /// Helper to apply a search filter to simple member expressions.
+        /// </summary>
+        /// <param name="memberExpression">The member expression to apply the <paramref name="filter"/> to.</param>
+        /// <param name="filter">The filter to apply.</param>
+        /// <param name="query">The LINQ query to apply the filter to.</param>
+        /// <returns>The modified LINQ query.</returns>
         protected IQueryable<TEntity> ApplySimpleMemberExpression<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression,
             ISearchFilter filter,
@@ -156,13 +183,21 @@ namespace Smartstore.Core.Search
             return query;
         }
 
+        /// <summary>
+        /// Applies a default sort to a LINQ query if the source search query does not
+        /// contain any sort expressions.
+        /// By default the query is sorted by <see cref="BaseEntity.Id"/> ascending.
+        /// </summary>
+        /// <param name="context">The search query context.</param>
+        /// <param name="query">The LINQ query to apply the sort to.</param>
+        /// <returns>The modified LINQ query.</returns>
         protected virtual IOrderedQueryable<TEntity> ApplyDefaultSorting(TContext context, IQueryable<TEntity> query)
         {
             return query.OrderBy(x => x.Id);
         }
 
         /// <summary>
-        /// Helper to apply ordering to a query.
+        /// Helper to apply sort to a query.
         /// </summary>
         protected IOrderedQueryable<TEntity> OrderBy<TKey>(
             IQueryable<TEntity> query,
