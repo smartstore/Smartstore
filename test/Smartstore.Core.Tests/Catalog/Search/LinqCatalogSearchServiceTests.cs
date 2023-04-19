@@ -537,10 +537,10 @@ namespace Smartstore.Core.Tests.Catalog.Search
 
             var eur = new Currency { CurrencyCode = "EUR" };
 
-            var money100 = new Money(100M, eur);
-            var money200 = new Money(200M, eur);
-            var money14_90 = new Money(14.90M, eur);
-            var money59_90 = new Money(59.90M, eur);
+            var money100 = 100M;
+            var money200 = 200M;
+            var money14_90 = 14.90M;
+            var money59_90 = 59.90M;
 
             var result = await SearchAsync(new CatalogSearchQuery().WithCurrency(eur).PriceBetween(money100, money200), products);
             Assert.That(result.TotalHitsCount, Is.EqualTo(1));

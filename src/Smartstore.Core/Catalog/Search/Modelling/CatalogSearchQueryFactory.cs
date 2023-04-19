@@ -471,11 +471,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
                 if (minPrice.HasValue || maxPrice.HasValue)
                 {
-                    var currency = _services.WorkContext.WorkingCurrency;
-
                     query.PriceBetween(
-                        minPrice.HasValue ? new((decimal)minPrice.Value, currency) : null,
-                        maxPrice.HasValue ? new((decimal)maxPrice.Value, currency) : null);
+                        minPrice.HasValue ? (decimal)minPrice.Value : null,
+                        maxPrice.HasValue ? (decimal)maxPrice.Value : null);
                 }
             }
 

@@ -695,14 +695,11 @@ namespace Smartstore.Core.DataExchange.Export
                 if (ctx.Request.ProductQuery != null)
                     return ctx.Request.ProductQuery;
 
-                var priceFrom = f.PriceMinimum.HasValue ? new Money(f.PriceMinimum.Value, ctx.ContextCurrency) : (Money?)null;
-                var priceTo = f.PriceMaximum.HasValue ? new Money(f.PriceMaximum.Value, ctx.ContextCurrency) : (Money?)null;
-
                 var searchQuery = new CatalogSearchQuery()
                     .WithCurrency(ctx.ContextCurrency)
                     .WithLanguage(ctx.ContextLanguage)
                     .HasStoreId(storeId)
-                    .PriceBetween(priceFrom, priceTo)
+                    .PriceBetween(f.PriceMinimum, f.PriceMaximum)
                     .WithStockQuantity(f.AvailabilityMinimum, f.AvailabilityMaximum)
                     .CreatedBetween(f.CreatedFrom, f.CreatedTo);
 

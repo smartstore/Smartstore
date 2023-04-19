@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿#nullable enable
+
+using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Smartstore.Core.Catalog.Products;
@@ -480,8 +482,16 @@ namespace Smartstore.Core.Catalog.Search
         }
 
         public CatalogSearchQuery PriceBetween(
-            Money? fromPrice,
-            Money? toPrice,
+            decimal? fromPrice,
+            decimal? toPrice,
+            bool? includeFrom = null,
+            bool? includeTo = null)
+            => PriceBetween(null, fromPrice, toPrice, includeFrom, includeTo);
+
+        public CatalogSearchQuery PriceBetween(
+            string? currencyCode,
+            decimal? fromPrice,
+            decimal? toPrice,
             bool? includeFrom = null,
             bool? includeTo = null)
         {
@@ -490,7 +500,15 @@ namespace Smartstore.Core.Catalog.Search
                 return this;
             }
 
-            Guard.NotEmpty(CurrencyCode);
+            if (currencyCode.HasValue())
+            {
+                CurrencyCode = currencyCode;
+            }
+            
+            if (CurrencyCode.IsEmpty())
+            {
+                throw new ArgumentException("A currency code is required to filter by price.", nameof(currencyCode));
+            }
 
             var fieldName = "price_c-" + CurrencyCode.EmptyNull().ToLower();
 
@@ -499,7 +517,7 @@ namespace Smartstore.Core.Catalog.Search
                 var forbidden = includeFrom.HasValue && includeTo.HasValue && !includeFrom.Value && !includeTo.Value;
 
                 return WithFilter(SearchFilter
-                    .ByField(fieldName, decimal.ToDouble(fromPrice.Value.Amount))
+                    .ByField(fieldName, decimal.ToDouble(fromPrice.Value))
                     .Mandatory(!forbidden)
                     .ExactMatch()
                     .NotAnalyzed());
@@ -507,8 +525,8 @@ namespace Smartstore.Core.Catalog.Search
             else
             {
                 var filter = SearchFilter.ByRange(fieldName,
-                    fromPrice.HasValue ? decimal.ToDouble(fromPrice.Value.Amount) : null,
-                    toPrice.HasValue ? decimal.ToDouble(toPrice.Value.Amount) : null,
+                    fromPrice.HasValue ? decimal.ToDouble(fromPrice.Value) : null,
+                    toPrice.HasValue ? decimal.ToDouble(toPrice.Value) : null,
                     includeFrom ?? fromPrice.HasValue,
                     includeTo ?? toPrice.HasValue);
 
