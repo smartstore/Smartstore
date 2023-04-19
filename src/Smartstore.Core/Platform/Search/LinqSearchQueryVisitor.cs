@@ -3,52 +3,43 @@ using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Core.Search
 {
-    public abstract class LinqSearchQueryVisitor<TEntity, TQuery>
+    /// <summary>
+    /// Represents a stateless visitor for search queries of type <typeparamref name="TQuery"/>.
+    /// A visitor is reponsible for creating LINQ expressions
+    /// for search query terms, filters and sortings.
+    /// A concrete visitor implementation should be registered as a transient dependency via DI.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity the visitor handles</typeparam>
+    /// <typeparam name="TQuery">The type of search query the visitor handles</typeparam>
+    /// <typeparam name="TContext">The concrete type of the search query context.</typeparam>
+    public abstract class LinqSearchQueryVisitor<TEntity, TQuery, TContext>
         where TEntity : BaseEntity
         where TQuery : ISearchQuery
+        where TContext : SearchQueryContext<TQuery>
     {
-        private IQueryable<TEntity> _resultQuery;
-
         public virtual int Order
         {
             get => 0;
         }
 
-        public TQuery SearchQuery
+        /// <summary>
+        /// Dispatches the search query to one of the more specialized visit methods in this class.
+        /// </summary>
+        /// <param name="context">The search context that also provides the <typeparamref name="TQuery"/> instance.</param>
+        /// <param name="baseQuery">The base LINQ query to start with.</param>
+        /// <returns>The final LINQ query after all query nodes have been visited.</returns>
+        public IQueryable<TEntity> Visit(TContext context, IQueryable<TEntity> baseQuery)
         {
-            get => Context.SearchQuery;
-        }
+            Guard.NotNull(context);
+            Guard.NotNull(baseQuery);
 
-        public virtual SearchQueryContext<TQuery> Context
-        {
-            get;
-            protected set;
-        }
-
-        public IQueryable<TEntity> ResultDbQuery
-        {
-            get => _resultQuery;
-        }
-
-        public IQueryable<TEntity> Visit(SearchQueryContext<TQuery> context, IQueryable<TEntity> baseQuery)
-        {
-            Context = Guard.NotNull(context);
-
-            _resultQuery = Guard.NotNull(baseQuery);
-            _resultQuery = VisitCore(context, _resultQuery);
-
-            return _resultQuery;
-        }
-
-        protected virtual IQueryable<TEntity> VisitCore(SearchQueryContext<TQuery> context, IQueryable<TEntity> query)
-        {
             // TODO: (mg) Refactor after Terms isolation is implemented.
-            query = VisitTerm(query);
+            var query = VisitTerm(context, baseQuery);
 
             // Filters
             for (var i = 0; i < context.Filters.Count; i++)
             {
-                query = VisitFilter(context.Filters[i], query);
+                query = VisitFilter(context.Filters[i], context, query);
             }
 
             // Not supported by EF Core 5+
@@ -62,32 +53,32 @@ namespace Smartstore.Core.Search
             //}
 
             // INFO: Distinct does not preserve ordering.
-            if (Context.IsGroupingRequired)
+            if (context.IsGroupingRequired)
             {
                 // Distinct is very slow if there are many products.
                 query = query.Distinct();
             }
 
             // Sorting
-            foreach (var sorting in SearchQuery.Sorting)
+            foreach (var sorting in context.SearchQuery.Sorting)
             {
-                query = VisitSorting(sorting, query);
+                query = VisitSorting(sorting, context, query);
             }
 
             // Default sorting
             if (query.Expression.Type != typeof(IOrderedQueryable<TEntity>))
             {
-                query = ApplyDefaultSorting(query);
+                query = ApplyDefaultSorting(context, query);
             }
 
             return query;
         }
 
-        protected abstract IQueryable<TEntity> VisitTerm(IQueryable<TEntity> query);
+        protected abstract IQueryable<TEntity> VisitTerm(TContext context, IQueryable<TEntity> query);
 
-        protected abstract IQueryable<TEntity> VisitFilter(ISearchFilter filter, IQueryable<TEntity> query);
+        protected abstract IQueryable<TEntity> VisitFilter(ISearchFilter filter, TContext context, IQueryable<TEntity> query);
 
-        protected abstract IQueryable<TEntity> VisitSorting(SearchSort sorting, IQueryable<TEntity> query);
+        protected abstract IQueryable<TEntity> VisitSorting(SearchSort sorting, TContext context, IQueryable<TEntity> query);
 
         protected IQueryable<TEntity> ApplySimpleMemberExpression<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression,
@@ -165,7 +156,7 @@ namespace Smartstore.Core.Search
             return query;
         }
 
-        protected virtual IOrderedQueryable<TEntity> ApplyDefaultSorting(IQueryable<TEntity> query)
+        protected virtual IOrderedQueryable<TEntity> ApplyDefaultSorting(TContext context, IQueryable<TEntity> query)
         {
             return query.OrderBy(x => x.Id);
         }

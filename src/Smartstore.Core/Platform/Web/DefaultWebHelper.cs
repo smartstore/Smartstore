@@ -14,9 +14,10 @@ namespace Smartstore.Core.Web
     {
         private readonly static string[] _ipHeaderNames = new string[]
         {
+            "X-Forwarded-For",
+            "X-Forwarded-Proto",
             "HTTP_X_FORWARDED_FOR",
             "HTTP_X_FORWARDED",
-            "X-FORWARDED-FOR",
             "HTTP_CF_CONNECTING_IP",
             "CF_CONNECTING_IP",
             "HTTP_CLIENT_IP",

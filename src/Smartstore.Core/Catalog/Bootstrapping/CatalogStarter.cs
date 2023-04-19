@@ -62,7 +62,7 @@ namespace Smartstore.Core.Bootstrapping
 
             // Search.
             builder.RegisterType<CatalogSearchQueryVisitor>()
-                .As<LinqSearchQueryVisitor<Product, CatalogSearchQuery>>()
+                .As<LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>>()
                 .SingleInstance();
 
             builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().As<IXmlSitemapPublisher>().InstancePerLifetimeScope();

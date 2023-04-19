@@ -4,26 +4,23 @@ using Smartstore.Core.Search;
 
 namespace Smartstore.Core.Catalog.Search
 {
-    public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, CatalogSearchQuery>
+    public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>
     {
-        public override CatalogSearchQueryContext Context 
-            => (CatalogSearchQueryContext)base.Context;
-
-        protected override IQueryable<Product> VisitTerm(IQueryable<Product> query)
+        protected override IQueryable<Product> VisitTerm(CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             // TODO: (mg) Refactor after Terms isolation is implemented.
-            var term = Context.SearchQuery.Term;
-            var fields = Context.SearchQuery.Fields;
-            var languageId = Context.SearchQuery.LanguageId ?? 0;
+            var term = context.SearchQuery.Term;
+            var fields = context.SearchQuery.Fields;
+            var languageId = context.SearchQuery.LanguageId ?? 0;
 
             if (term.HasValue() && fields != null && fields.Length != 0 && fields.Any(x => x.HasValue()))
             {
-                Context.IsGroupingRequired = true;
+                context.IsGroupingRequired = true;
 
-                var lpQuery = Context.Services.DbContext.LocalizedProperties.AsNoTracking();
+                var lpQuery = context.Services.DbContext.LocalizedProperties.AsNoTracking();
 
                 // SearchMode.ExactMatch doesn't make sense here
-                if (Context.SearchQuery.Mode == SearchMode.StartsWith)
+                if (context.SearchQuery.Mode == SearchMode.StartsWith)
                 {
                     return
                         from p in query
@@ -56,7 +53,7 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected override IQueryable<Product> VisitFilter(ISearchFilter filter, IQueryable<Product> query)
+        protected override IQueryable<Product> VisitFilter(ISearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             var names = CatalogSearchQuery.KnownFilters;
             var fieldName = filter.FieldName;
@@ -147,19 +144,19 @@ namespace Smartstore.Core.Catalog.Search
             }
             else if (fieldName == names.Rating)
             {
-                return VisitRatingFilter(filter as IAttributeSearchFilter, query);
+                return VisitRatingFilter(filter as IAttributeSearchFilter, context, query);
             }
             else if (fieldName == names.RoleId)
             {
-                return VisitRoleFilter(filter, query);
+                return VisitRoleFilter(filter, context, query);
             }
             else if (fieldName == names.StoreId)
             {
-                return VisitStoreFilter(filter, query);
+                return VisitStoreFilter(filter, context, query);
             }
             else if (fieldName.StartsWith(names.Price))
             {
-                return VisitPriceFilter(filter as IAttributeSearchFilter, query);
+                return VisitPriceFilter(filter as IAttributeSearchFilter, context, query);
             }
             else if (fieldName.EndsWith(names.CategoryId))
             {
@@ -178,23 +175,23 @@ namespace Smartstore.Core.Catalog.Search
                     if (categoryIds.Length > 0)
                     {
                         bool? featuredOnly = filter.FieldName == names.CategoryId ? null : filter.FieldName.StartsWith("featured");
-                        Context.CategoryId ??= categoryIds.First();
+                        context.CategoryId ??= categoryIds.First();
 
                         if (featuredOnly.HasValue)
                         {
-                            Context.IsGroupingRequired = true;
+                            context.IsGroupingRequired = true;
                             return ApplyCategoriesFilter(query, categoryIds, featuredOnly);
                         }
                         else
                         {
-                            if (categoryIds.Length == 1 && Context.CategoryId == 0)
+                            if (categoryIds.Length == 1 && context.CategoryId == 0)
                             {
                                 // Has no category.
                                 return query.Where(x => x.ProductCategories.Count == 0);
                             }
                             else
                             {
-                                Context.IsGroupingRequired = true;
+                                context.IsGroupingRequired = true;
                                 return ApplyCategoriesFilter(query, categoryIds, null);
                             }
                         }
@@ -217,23 +214,23 @@ namespace Smartstore.Core.Catalog.Search
                     if (manufacturerIds.Length > 0)
                     {
                         bool? featuredOnly = filter.FieldName == names.ManufacturerId ? null : filter.FieldName.StartsWith("featured");
-                        Context.ManufacturerId ??= manufacturerIds.First();
+                        context.ManufacturerId ??= manufacturerIds.First();
 
                         if (featuredOnly.HasValue)
                         {
-                            Context.IsGroupingRequired = true;
+                            context.IsGroupingRequired = true;
                             return ApplyManufacturersFilter(query, manufacturerIds, featuredOnly);
                         }
                         else
                         {
-                            if (manufacturerIds.Length == 1 && Context.ManufacturerId == 0)
+                            if (manufacturerIds.Length == 1 && context.ManufacturerId == 0)
                             {
                                 // Has no manufacturer.
                                 return query.Where(x => x.ProductManufacturers.Count == 0);
                             }
                             else
                             {
-                                Context.IsGroupingRequired = true;
+                                context.IsGroupingRequired = true;
                                 return ApplyManufacturersFilter(query, manufacturerIds, null);
                             }
                         }
@@ -245,7 +242,7 @@ namespace Smartstore.Core.Catalog.Search
                 var tagIds = filter.GetTermsArray<int>();
                 if (tagIds.Length > 0)
                 {
-                    Context.IsGroupingRequired = true;
+                    context.IsGroupingRequired = true;
                     return
                         from p in query
                         from pt in p.ProductTags.Where(pt => tagIds.Contains(pt.Id))
@@ -320,10 +317,10 @@ namespace Smartstore.Core.Catalog.Search
                 }
                 else if (fieldName.EndsWith(names.CategoryPath))
                 {
-                    Context.IsGroupingRequired = true;
+                    context.IsGroupingRequired = true;
 
                     var treePath = (string)af.Term;
-                    Context.CategoryId ??= treePath.EmptyNull().Trim('/').SplitSafe('/').FirstOrDefault()?.ToInt() ?? 0;
+                    context.CategoryId ??= treePath.EmptyNull().Trim('/').SplitSafe('/').FirstOrDefault()?.ToInt() ?? 0;
 
                     bool? featuredOnly = filter.FieldName == names.CategoryPath ? null : filter.FieldName.StartsWith("featured");
 
@@ -339,7 +336,7 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected virtual IQueryable<Product> VisitPriceFilter(IAttributeSearchFilter filter, IQueryable<Product> query)
+        protected virtual IQueryable<Product> VisitPriceFilter(IAttributeSearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             if (filter is IRangeSearchFilter rf)
             {
@@ -352,13 +349,13 @@ namespace Smartstore.Core.Catalog.Search
 
                     query = query.Where(x =>
                         ((x.SpecialPrice.HasValue &&
-                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < Context.Now) &&
-                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > Context.Now))) &&
+                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < context.Now) &&
+                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > context.Now))) &&
                         (x.SpecialPrice >= minPrice))
                         ||
                         ((!x.SpecialPrice.HasValue ||
-                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > Context.Now) ||
-                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < Context.Now))) &&
+                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > context.Now) ||
+                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < context.Now))) &&
                         (x.Price >= minPrice))
                     );
                 }
@@ -369,13 +366,13 @@ namespace Smartstore.Core.Catalog.Search
 
                     query = query.Where(x =>
                         ((x.SpecialPrice.HasValue &&
-                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < Context.Now) &&
-                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > Context.Now))) &&
+                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < context.Now) &&
+                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > context.Now))) &&
                         (x.SpecialPrice <= maxPrice))
                         ||
                         ((!x.SpecialPrice.HasValue ||
-                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > Context.Now) ||
-                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < Context.Now))) &&
+                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > context.Now) ||
+                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < context.Now))) &&
                         (x.Price <= maxPrice))
                     );
                 }
@@ -388,13 +385,13 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     query = query.Where(x =>
                         ((x.SpecialPrice.HasValue &&
-                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < Context.Now) &&
-                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > Context.Now))) &&
+                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < context.Now) &&
+                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > context.Now))) &&
                         (x.SpecialPrice != price))
                         ||
                         ((!x.SpecialPrice.HasValue ||
-                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > Context.Now) ||
-                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < Context.Now))) &&
+                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > context.Now) ||
+                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < context.Now))) &&
                         (x.Price != price))
                     );
                 }
@@ -402,13 +399,13 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     query = query.Where(x =>
                         ((x.SpecialPrice.HasValue &&
-                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < Context.Now) &&
-                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > Context.Now))) &&
+                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < context.Now) &&
+                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > context.Now))) &&
                         (x.SpecialPrice == price))
                         ||
                         ((!x.SpecialPrice.HasValue ||
-                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > Context.Now) ||
-                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < Context.Now))) &&
+                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > context.Now) ||
+                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < context.Now))) &&
                         (x.Price == price))
                     );
                 }
@@ -417,7 +414,7 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected virtual IQueryable<Product> VisitRatingFilter(IAttributeSearchFilter filter, IQueryable<Product> query)
+        protected virtual IQueryable<Product> VisitRatingFilter(IAttributeSearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             if (filter is IRangeSearchFilter rf)
             {
@@ -462,9 +459,9 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected virtual IQueryable<Product> VisitRoleFilter(ISearchFilter filter, IQueryable<Product> query)
+        protected virtual IQueryable<Product> VisitRoleFilter(ISearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
-            var db = Context.Services.DbContext;
+            var db = context.Services.DbContext;
             if (!db.QuerySettings.IgnoreAcl)
             {
                 var roleIds = filter.GetTermsArray<int>();
@@ -482,9 +479,9 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected virtual IQueryable<Product> VisitStoreFilter(ISearchFilter filter, IQueryable<Product> query)
+        protected virtual IQueryable<Product> VisitStoreFilter(ISearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
-            var db = Context.Services.DbContext;
+            var db = context.Services.DbContext;
             if (!db.QuerySettings.IgnoreMultiStore)
             {
                 var storeIds = filter.GetTermsArray<int>();
@@ -502,20 +499,20 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected override IQueryable<Product> VisitSorting(SearchSort sorting, IQueryable<Product> query)
+        protected override IQueryable<Product> VisitSorting(SearchSort sorting, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             var names = CatalogSearchQuery.KnownSortings;
             
             if (sorting.FieldName.IsEmpty())
             {
                 // Sort by relevance.
-                if (Context.CategoryId > 0)
+                if (context.CategoryId > 0)
                 {
-                    query = OrderBy(query, x => x.ProductCategories.Where(pc => pc.CategoryId == Context.CategoryId.Value).FirstOrDefault().DisplayOrder);
+                    query = OrderBy(query, x => x.ProductCategories.Where(pc => pc.CategoryId == context.CategoryId.Value).FirstOrDefault().DisplayOrder);
                 }
-                else if (Context.ManufacturerId > 0)
+                else if (context.ManufacturerId > 0)
                 {
-                    query = OrderBy(query, x => x.ProductManufacturers.Where(pm => pm.ManufacturerId == Context.ManufacturerId.Value).FirstOrDefault().DisplayOrder);
+                    query = OrderBy(query, x => x.ProductManufacturers.Where(pm => pm.ManufacturerId == context.ManufacturerId.Value).FirstOrDefault().DisplayOrder);
                 }
             }
             else if (sorting.FieldName == names.CreatedOn)
@@ -534,9 +531,9 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected override IOrderedQueryable<Product> ApplyDefaultSorting(IQueryable<Product> query)
+        protected override IOrderedQueryable<Product> ApplyDefaultSorting(CatalogSearchQueryContext context, IQueryable<Product> query)
         {
-            if (SearchQuery.Filters.FindFilter(CatalogSearchQuery.KnownFilters.ParentId) != null)
+            if (context.SearchQuery.Filters.FindFilter(CatalogSearchQuery.KnownFilters.ParentId) != null)
             {
                 return query.OrderBy(x => x.DisplayOrder);
             }

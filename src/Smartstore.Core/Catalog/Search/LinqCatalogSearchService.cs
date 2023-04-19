@@ -14,13 +14,13 @@ namespace Smartstore.Core.Catalog.Search
         private static readonly int[] _priceThresholds = new[] { 10, 25, 50, 100, 250, 500, 1000 };
 
         private readonly SmartDbContext _db;
-        private readonly LinqSearchQueryVisitor<Product, CatalogSearchQuery>[] _queryVisitors;
+        private readonly LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>[] _queryVisitors;
         private readonly ICommonServices _services;
         private readonly ICategoryService _categoryService;
 
         public LinqCatalogSearchService(
             SmartDbContext db,
-            IEnumerable<LinqSearchQueryVisitor<Product, CatalogSearchQuery>> queryVisitors,
+            IEnumerable<LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>> queryVisitors,
             ICommonServices services,
             ICategoryService categoryService)
         {
