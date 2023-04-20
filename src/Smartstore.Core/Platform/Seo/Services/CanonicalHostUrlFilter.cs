@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Seo
 {
@@ -16,9 +17,9 @@ namespace Smartstore.Core.Seo
                 return;
             }
 
-            if (httpContext.Connection.IsLocal())
+            if (CommonHelper.IsDevEnvironment || httpContext.Connection.IsLocal())
             {
-                // Allows testing of "localtest.me"
+                // Don't attempt to redirect on local host or in dev environment
                 return;
             }
 
@@ -26,7 +27,7 @@ namespace Smartstore.Core.Seo
 
             if (rule == CanonicalHostNameRule.OmitWww && hasWww)
             {
-                policy.Host.Modify(policy.Host.Value.Substring(4));
+                policy.Host.Modify(policy.Host.Value[4..]);
             }
             else if (rule == CanonicalHostNameRule.RequireWww && !hasWww)
             {

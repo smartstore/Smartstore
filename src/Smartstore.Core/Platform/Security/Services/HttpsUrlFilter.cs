@@ -3,6 +3,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Security
 {
@@ -13,6 +14,12 @@ namespace Smartstore.Core.Security
     {
         public void Apply(UrlPolicy policy, HttpContext httpContext)
         {
+            // Don't redirect in dev environment.
+            if (CommonHelper.IsDevEnvironment)
+            {
+                return;
+            }
+
             // Don't redirect on localhost if not allowed.
             if (httpContext.Connection.IsLocal())
             {
