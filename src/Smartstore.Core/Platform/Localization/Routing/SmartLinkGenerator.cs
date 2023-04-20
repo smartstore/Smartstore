@@ -66,15 +66,31 @@ namespace Smartstore.Core.Localization.Routing
                 return pathBase;
             }
 
+            if (address is not RouteValuesAddress routeValueAddress)
+            {
+                return pathBase;
+            }
+
+            var explicitValues = routeValueAddress.ExplicitValues;
+            var ambientValues = routeValueAddress.AmbientValues;
+            if (ambientValues == null || explicitValues == null)
+            {
+                return pathBase;
+            }
+
+            if (explicitValues.TryGetValueAs<string>("culture", out var explicitCulture))
+            {
+                // "culture" has been set as explicit route value, e.g. with "a" TagHelper > asp-route-culture
+
+                // Remove explicit culture from route values.
+                // Otherwise, "culture" will be appended as querystring to the generated URL.
+                routeValueAddress.ExplicitValues.Remove("culture");
+            }
+
             var localizationSettings = urlPolicy.LocalizationSettings;
             if (!localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
                 // No need to go further if SEO url generation is turned off.
-                return pathBase;
-            }
-
-            if (address is not RouteValuesAddress routeValueAddress)
-            {
                 return pathBase;
             }
 
@@ -85,25 +101,20 @@ namespace Smartstore.Core.Localization.Routing
                 return pathBase;
             }
 
-            var explicitValues = routeValueAddress.ExplicitValues;
-            var ambientValues = routeValueAddress.AmbientValues;
-
-            if (ambientValues == null || explicitValues == null)
-            {
-                return pathBase;
-            }
-
             var shouldStripDefaultCode = localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode;
 
-            if (explicitValues.TryGetValueAs<string>("culture", out var explicitCulture))
+            if (!string.IsNullOrEmpty(explicitCulture))
             {
-                // "culture" has been set as explicit route value, e.g. with "a" tag helper > asp-route-culture
-
-                // Remove explicit culture from route values.
-                // Otherwise, "culture" will be appended as querystring to the generated URL.
-                routeValueAddress.ExplicitValues.Remove("culture");
-
-                return TryAppendToPathBase(explicitCulture);
+                if (shouldStripDefaultCode && explicitCulture.EqualsNoCase(urlPolicy.DefaultCultureCode))
+                {
+                    // Explicit culture is the default culture, and default code should be stripped.
+                    return pathBase;
+                }
+                else
+                {
+                    // Append explicit culture to PathBase
+                    return TryAppendToPathBase(explicitCulture);
+                }
             }
 
             if (!ambientValues.TryGetValueAs<string>("culture", out var currentCultureCode))
