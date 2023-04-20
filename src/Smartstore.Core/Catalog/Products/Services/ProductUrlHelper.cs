@@ -251,7 +251,7 @@ namespace Smartstore.Core.Catalog.Products
                 url = url.TrimEnd('/') + ToQueryString(query);
             }
 
-            return store.GetHost() + url;
+            return store.GetHost() + url.TrimStart('/');
         }
     }
 }
