@@ -638,6 +638,12 @@
             var el = $(this);
             var selectedCountryId = el.val();
             var ddlStates = $(el.data("region-control-selector"));
+            var ajaxUrl = el.data("states-ajax-url");
+
+            if (!ajaxUrl || !ddlStates) {
+                // // No data to load.
+                return;
+            }
 
             if (selectedCountryId == '0') {
                 // No data to load.
@@ -645,7 +651,6 @@
                 return;
             }
 
-            var ajaxUrl = el.data("states-ajax-url");
             var addEmptyStateIfRequired = el.data("addemptystateifrequired");
             var addAsterisk = el.data("addasterisk");
             var selectedId = ddlStates.data('select-selected-id');
