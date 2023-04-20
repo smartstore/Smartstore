@@ -9,17 +9,6 @@ namespace Smartstore
 {
     public static class HttpRequestExtensions
     {
-        private static readonly List<(string, string)> _sslHeaders = new List<(string, string)>
-        {
-            ("X-Forwarded-Proto", "https"),
-            ("HTTP_CLUSTER_HTTPS", "on"),
-            ("HTTP_X_FORWARDED_PROTO", "https"),
-            ("x-arr-ssl", null),
-            ("X-Forwarded-Protocol", "https"),
-            ("X-Forwarded-Ssl", "on"),
-            ("X-Url-Scheme", "https")
-        };
-
         /// <summary>
         /// Tries to read a request value first from <see cref="HttpRequest.Form"/> (if method is POST), then from
         /// <see cref="HttpRequest.Query"/>.
@@ -118,29 +107,6 @@ namespace Smartstore
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Gets a value which indicates whether the HTTP connection uses secure sockets (HTTPS protocol). 
-        /// Works with cloud's load balancers.
-        /// </summary>
-        public static bool IsSecureConnection(this HttpRequest httpRequest)
-        {
-            if (httpRequest.IsHttps)
-            {
-                return true;
-            }
-            
-            foreach (var tuple in _sslHeaders)
-            {
-                var serverVar = httpRequest.Headers[tuple.Item1];
-                if (serverVar != StringValues.Empty)
-                {
-                    return tuple.Item2 == null || tuple.Item2.Equals(serverVar, StringComparison.OrdinalIgnoreCase);
-                }
-            }
-
-            return false;
         }
 
         /// <summary>

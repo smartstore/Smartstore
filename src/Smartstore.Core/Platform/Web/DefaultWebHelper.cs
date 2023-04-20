@@ -12,25 +12,10 @@ namespace Smartstore.Core.Web
 {
     public partial class DefaultWebHelper : IWebHelper
     {
-        private readonly static string[] _ipHeaderNames = new string[]
-        {
-            "X-Forwarded-For",
-            "HTTP_X_FORWARDED_FOR",
-            "HTTP_X_FORWARDED",
-            "HTTP_CF_CONNECTING_IP",
-            "CF_CONNECTING_IP",
-            "HTTP_CLIENT_IP",
-            "HTTP_X_CLUSTER_CLIENT_IP",
-            "HTTP_FORWARDED_FOR",
-            "HTTP_FORWARDED",
-            "REMOTE_ADDR"
-        };
-
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Work<IStoreContext> _storeContext;
 
-        private bool? _isCurrentConnectionSecured;
         private IPAddress _ipAddress;
         private bool _urlReferrerResolved;
         private Uri _urlReferrer;
@@ -62,53 +47,22 @@ namespace Smartstore.Core.Web
             var request = HttpContext?.Request;
             if (request == null)
             {
-                return (_ipAddress = IPAddress.None);
+                return _ipAddress = IPAddress.None;
             }
 
-            var result = HttpContext?.Connection?.RemoteIpAddress;
-
-            if (result == null || result == IPAddress.None)
+            if (HttpContext.Connection?.RemoteIpAddress is IPAddress ip)
             {
-                var headers = request.Headers;
-                if (headers != null)
+                if (ip != null && ip.AddressFamily == AddressFamily.InterNetworkV6)
                 {
-                    var keysToCheck = _ipHeaderNames;
-
-                    foreach (var key in keysToCheck)
-                    {
-                        if (result != null)
-                        {
-                            break;
-                        }
-
-                        if (headers.TryGetValue(key, out var ipString))
-                        {
-                            // Iterate list from end to start (IPv6 addresses usually have precedence)
-                            for (int i = ipString.Count - 1; i >= 0; i--)
-                            {
-                                ipString = ipString[i].Trim();
-
-                                if (TryParseIPAddress(ipString, out var address))
-                                {
-                                    result = address;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    ip = (ip == IPAddress.IPv6Loopback)
+                        ? IPAddress.Loopback
+                        : ip.MapToIPv4();
                 }
+
+                _ipAddress = ip;
             }
 
-            result ??= request.HttpContext.Connection.RemoteIpAddress;
-
-            if (result != null && result.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                result = result == IPAddress.IPv6Loopback
-                    ? IPAddress.Loopback
-                    : result.MapToIPv4();
-            }
-
-            return (_ipAddress = (result ?? IPAddress.None));
+            return _ipAddress ??= IPAddress.None;
         }
 
         public async Task<IPAddress> GetPublicIPAddressAsync()
@@ -248,7 +202,7 @@ namespace Smartstore.Core.Web
 
         public virtual bool IsCurrentConnectionSecured()
         {
-            return _isCurrentConnectionSecured ??= HttpContext?.Request?.IsSecureConnection() == true;
+            return HttpContext?.Request?.IsHttps == true;
         }
 
         public virtual string GetStoreLocation(bool? secured = null)

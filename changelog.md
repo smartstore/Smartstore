@@ -4,6 +4,8 @@
 
 ### New Features
 
+- Reverse proxy configuration using `ForwardedHeadersMiddleware`
+
 ### Improvements
 
 ### Bugfixes
