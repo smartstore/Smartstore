@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Http;
-using Smartstore.Utilities;
 
 namespace Smartstore.Scheduling
 {
@@ -90,7 +89,7 @@ namespace Smartstore.Scheduling
 
             var url = string.Empty;
 
-            if (baseUrl.HasValue() && !CommonHelper.IsDevEnvironment)
+            if (baseUrl.HasValue())
             {
                 if (!baseUrl.IsWebUrl())
                 {
