@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Seo.Routing
 {
@@ -66,7 +67,7 @@ namespace Smartstore.Core.Seo.Routing
 
             Task HandleRedirect(string path)
             {
-                context.Response.StatusCode = context.Connection.IsLocal() ? 302 : 301;
+                context.Response.StatusCode = CommonHelper.IsDevEnvironment ? 302 : 301;
                 context.Response.Headers[HeaderNames.Location] = path;
                 return Task.CompletedTask;
             }
