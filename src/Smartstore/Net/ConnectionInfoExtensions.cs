@@ -18,7 +18,7 @@ namespace Smartstore
             {
                 return false;
             }
-
+            
             // If the RemoteAddress is an IPv6 address, the method converts
             // it to an IPv4-mapped address using the MapToIPv4 method and
             // checks if that address is a loopback address as well.

@@ -15,7 +15,6 @@ namespace Smartstore.Core.Web
         private readonly static string[] _ipHeaderNames = new string[]
         {
             "X-Forwarded-For",
-            "X-Forwarded-Proto",
             "HTTP_X_FORWARDED_FOR",
             "HTTP_X_FORWARDED",
             "HTTP_CF_CONNECTING_IP",
@@ -68,7 +67,7 @@ namespace Smartstore.Core.Web
 
             var result = HttpContext?.Connection?.RemoteIpAddress;
 
-            if (result == null)
+            if (result == null || result == IPAddress.None)
             {
                 var headers = request.Headers;
                 if (headers != null)

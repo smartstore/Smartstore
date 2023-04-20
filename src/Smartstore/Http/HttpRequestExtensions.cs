@@ -11,9 +11,9 @@ namespace Smartstore
     {
         private static readonly List<(string, string)> _sslHeaders = new List<(string, string)>
         {
+            ("X-Forwarded-Proto", "https"),
             ("HTTP_CLUSTER_HTTPS", "on"),
             ("HTTP_X_FORWARDED_PROTO", "https"),
-            ("X-Forwarded-Proto", "https"),
             ("x-arr-ssl", null),
             ("X-Forwarded-Protocol", "https"),
             ("X-Forwarded-Ssl", "on"),
@@ -130,7 +130,7 @@ namespace Smartstore
             {
                 return true;
             }
-
+            
             foreach (var tuple in _sslHeaders)
             {
                 var serverVar = httpRequest.Headers[tuple.Item1];
