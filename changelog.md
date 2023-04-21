@@ -1,6 +1,6 @@
 # Release Notes
 
-## Smartstore 5.1.0
+## Smartstore 5.0.5
 
 ### New Features
 
@@ -15,6 +15,7 @@
 - When an order was placed, the stock quantity of attribute combinations were not updated if the stock is managed by attributes.
 - Fixed "also purchased products" should not display unpublished products.
 - #651 Fixed product can be added to cart even if the availability limit was reached.
+- Logout was not possible after new customer registrations.
 
 ## Smartstore 5.0.4
 
