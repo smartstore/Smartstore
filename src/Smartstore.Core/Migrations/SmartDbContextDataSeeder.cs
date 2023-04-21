@@ -19,8 +19,8 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-
-
+            builder.AddOrUpdate("Account.Fields.Password", "Password", "Passwort");
+            builder.AddOrUpdate("Account.Fields.PasswordSecurity", "Password security", "Passwortsicherheit");
         }
     }
 }
