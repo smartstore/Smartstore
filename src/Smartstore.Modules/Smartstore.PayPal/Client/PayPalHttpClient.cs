@@ -723,7 +723,7 @@ namespace Smartstore.PayPal.Client
         {
             if (request.ContentType == null)
             {
-                throw new IOException("HttpRequest did not have content-type header set");
+                throw new PayPalException("HttpRequest did not have content-type header set");
             }
 
             request.ContentType = request.ContentType.ToLower();
@@ -742,7 +742,7 @@ namespace Smartstore.PayPal.Client
 
             if (content == null)
             {
-                throw new IOException($"Unable to serialize request with Content-Type {request.ContentType} because it is not supported.");
+                throw new PayPalException($"Unable to serialize request with Content-Type {request.ContentType} because it is not supported.");
             }
 
             return content;
@@ -752,7 +752,7 @@ namespace Smartstore.PayPal.Client
         {
             if (content.Headers.ContentType == null)
             {
-                throw new IOException("HTTP response did not have content-type header set");
+                throw new PayPalException("HTTP response did not have content-type header set");
             }
 
             var contentType = content.Headers.ContentType.ToString().ToLower();
@@ -766,7 +766,7 @@ namespace Smartstore.PayPal.Client
             }
             else
             {
-                throw new IOException($"Unable to deserialize response with Content-Type {contentType} because it is not supported.");
+                throw new PayPalException($"Unable to deserialize response with Content-Type {contentType} because it is not supported.");
             }
         }
 

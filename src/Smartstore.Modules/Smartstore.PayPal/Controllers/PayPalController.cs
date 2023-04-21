@@ -141,7 +141,7 @@ namespace Smartstore.PayPal.Controllers
                             await HandleRefundAsync(order, resource);
                             break;
                         default:
-                            throw new IOException("Cannot proccess resource type.");
+                            throw new PayPalException("Cannot proccess resource type.");
                     };
 
                     // Update order.
@@ -268,7 +268,7 @@ namespace Smartstore.PayPal.Controllers
             }
             else
             {
-                throw new IOException("Could not verify request.");
+                throw new PayPalException("Could not verify request.");
             }
         }
     }

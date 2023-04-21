@@ -657,7 +657,7 @@ namespace Smartstore.Web.Controllers
                 processPaymentRequest.StoreId = store.Id;
                 processPaymentRequest.CustomerId = customer.Id;
                 processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
-                
+
                 var placeOrderExtraData = new Dictionary<string, string>
                 {
                     ["CustomerComment"] = Request.Form["customercommenthidden"].ToString(),
@@ -672,6 +672,10 @@ namespace Smartstore.Web.Controllers
                     model.Warnings.AddRange(placeOrderResult.Errors.Select(HtmlUtility.ConvertPlainTextToHtml));
                 }
             }
+            catch (PaymentException ex)
+            {
+                return PaymentFailure(ex);
+            }
             catch (Exception ex)
             {
                 Logger.Error(ex);
@@ -684,25 +688,6 @@ namespace Smartstore.Web.Controllers
 
             if (placeOrderResult == null || !placeOrderResult.Success || model.Warnings.Any())
             {
-                var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
-                if (paymentMethod != null && 
-                    (paymentMethod.Value.PaymentMethodType == PaymentMethodType.Button || paymentMethod.Value.PaymentMethodType == PaymentMethodType.StandardAndButton))
-                {
-                    model.Warnings.Take(3).Each(x => NotifyError(x));
-
-                    if (paymentMethod.Value.PaymentMethodType == PaymentMethodType.Button)
-                    {
-                        // Redirect back to where the payment button is.
-                        return RedirectToAction(nameof(ShoppingCartController.Cart), "ShoppingCart");
-                    }
-
-                    if (paymentMethod.Value.PaymentMethodType == PaymentMethodType.StandardAndButton)
-                    {
-                        // Redirect back to payment selection page.
-                        return RedirectToAction(nameof(PaymentMethod));
-                    }
-                }
-
                 return View(model);
             }
 
@@ -714,6 +699,10 @@ namespace Smartstore.Web.Controllers
             try
             {
                 await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
+            }
+            catch (PaymentException ex)
+            {
+                return PaymentFailure(ex);
             }
             catch (Exception ex)
             {
@@ -731,6 +720,19 @@ namespace Smartstore.Web.Controllers
             }
 
             return RedirectToAction(nameof(Completed));
+
+            IActionResult PaymentFailure(PaymentException ex)
+            {
+                Logger.Error(ex);
+                NotifyError(ex.Message);
+
+                if (ex.RedirectRoute != null)
+                {
+                    return Redirect(Url.RouteUrl(ex.RedirectRoute));
+                }
+
+                return RedirectToAction(nameof(PaymentMethod));
+            }
         }
 
         public async Task<IActionResult> Completed()
