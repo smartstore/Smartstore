@@ -17,6 +17,7 @@ using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Engine.Modularity;
+using Smartstore.Net;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Identity;
 using Smartstore.Web.Rendering;
@@ -739,6 +740,9 @@ namespace Smartstore.Web.Controllers
                     // Send customer welcome message.
                     await _messageFactory.SendCustomerWelcomeMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
                     await _signInManager.SignInAsync(customer, isPersistent: false);
+                    
+                    // Delete the visitor cookie.
+                    HttpContext.Response.Cookies.Delete(CookieNames.Visitor);
 
                     var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
                     if (returnUrl.HasValue())
