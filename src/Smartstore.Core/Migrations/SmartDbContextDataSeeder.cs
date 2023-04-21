@@ -21,6 +21,8 @@ namespace Smartstore.Core.Data.Migrations
         {
             builder.AddOrUpdate("Account.Fields.Password", "Password", "Passwort");
             builder.AddOrUpdate("Account.Fields.PasswordSecurity", "Password security", "Passwortsicherheit");
+
+            builder.AddOrUpdate("Account.Register.Result.AlreadyRegistered", "You are already registered.", "Sie sind bereits registriert.");
         }
     }
 }

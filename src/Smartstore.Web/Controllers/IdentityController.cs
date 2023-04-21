@@ -252,9 +252,9 @@ namespace Smartstore.Web.Controllers
             if (customer.IsRegistered())
             {
                 // Already registered customer. 
-                await _signInManager.SignOutAsync();
+                // await _signInManager.SignOutAsync();
 
-                Services.WorkContext.CurrentCustomer = null;
+                return RedirectToRoute("RegisterResult", new { message = T("Account.Register.Result.AlreadyRegistered").Value });
             }
 
             if (_captchaSettings.ShowOnRegistrationPage && captchaError.HasValue())
@@ -303,29 +303,33 @@ namespace Smartstore.Web.Controllers
 
         [HttpGet]
         [RequireSsl, AllowAnonymous, NeverAuthorize]
-        [LocalizedRoute("/registerresult/{resultId:int}", Name = "RegisterResult")]
-        public IActionResult RegisterResult(int resultId)
+        [LocalizedRoute("/registerresult", Name = "RegisterResult")]
+        public IActionResult RegisterResult(int? resultId, string message = "")
         {
             var resultText = string.Empty;
-            switch ((UserRegistrationType)resultId)
+
+            if (resultId != null)
             {
-                case UserRegistrationType.Disabled:
-                    resultText = T("Account.Register.Result.Disabled");
-                    break;
-                case UserRegistrationType.Standard:
-                    resultText = T("Account.Register.Result.Standard");
-                    break;
-                case UserRegistrationType.AdminApproval:
-                    resultText = T("Account.Register.Result.AdminApproval");
-                    break;
-                case UserRegistrationType.EmailValidation:
-                    resultText = T("Account.Register.Result.EmailValidation");
-                    break;
-                default:
-                    break;
+                switch ((UserRegistrationType)resultId)
+                {
+                    case UserRegistrationType.Disabled:
+                        resultText = T("Account.Register.Result.Disabled");
+                        break;
+                    case UserRegistrationType.Standard:
+                        resultText = T("Account.Register.Result.Standard");
+                        break;
+                    case UserRegistrationType.AdminApproval:
+                        resultText = T("Account.Register.Result.AdminApproval");
+                        break;
+                    case UserRegistrationType.EmailValidation:
+                        resultText = T("Account.Register.Result.EmailValidation");
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            ViewBag.RegisterResult = resultText;
+            ViewBag.RegisterResult = resultText.HasValue() ? resultText + " " + message : message;
             return View();
         }
 
