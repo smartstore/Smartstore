@@ -424,6 +424,7 @@ namespace Smartstore.Admin.Controllers
                     ProductName = x.Product.Name,
                     ProductTypeName = x.Product.GetProductTypeLabel(Services.Localization),
                     ProductTypeLabelHint = x.Product.ProductTypeLabelHint,
+                    ProductEditUrl = Url.Action(nameof(ProductController.Edit), "Product", new { id = x.Product.Id, area = "Admin" }),
                     Sku = x.Product.Sku,
                     Quantity = x.Quantity,
                     Discount = x.Discount,

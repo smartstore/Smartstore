@@ -44,7 +44,7 @@
     <columns>
         <column for="ProductName" hideable="false" width="4fr" readonly entity-member="Product.Name">
             <display-template>
-                @Html.LabeledProductName()
+                @Html.LabeledProductName(urlExpression: "item.row.ProductEditUrl", valueExpression: "item.row.ProductName")
             </display-template>
         </column>
         <column for="Sku" width="1fr" entity-member="Product.Sku" />

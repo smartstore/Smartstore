@@ -417,6 +417,7 @@ namespace Smartstore.Admin.Models.Catalog
             [LocalizedDisplay("Admin.Catalog.Products.Fields.ProductType")]
             public string ProductTypeName { get; set; }
             public string ProductTypeLabelHint { get; set; }
+            public string ProductEditUrl { get; set; }
 
             [LocalizedDisplay("Admin.Catalog.Products.Fields.Sku")]
             public string Sku { get; set; }

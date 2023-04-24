@@ -65,11 +65,12 @@ namespace Smartstore.Core.Checkout.Cart
         /// Validates product settings, authorization and availability.
         /// </summary>
         /// <param name="cartItem">Shopping cart item with product and settings.</param>
+        /// <param name="cartItems">Shopping cart items of customer to validate.</param>
         /// <param name="warnings">List of errors as string.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <param name="quantity">Quantity to validate. If <c>null</c>, <see cref="ShoppingCartItem.Quantity"/> is instead.</param>
         /// <returns><c>True</c> when product is valid, otherwise <c>false</c>.</returns>
-        Task<bool> ValidateProductAsync(ShoppingCartItem cartItem, IList<string> warnings, int? storeId = null, int? quantity = null);
+        Task<bool> ValidateProductAsync(ShoppingCartItem cartItem, IEnumerable<OrganizedShoppingCartItem> cartItems, IList<string> warnings, int? storeId = null, int? quantity = null);
 
         /// <summary>
         /// Validates selected product attributes.

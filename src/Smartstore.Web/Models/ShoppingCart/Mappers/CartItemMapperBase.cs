@@ -46,8 +46,8 @@ namespace Smartstore.Web.Models.Cart
 
         public override async Task MapAsync(OrganizedShoppingCartItem from, TModel to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             var item = from.Item;
             var product = from.Item.Product;
@@ -203,18 +203,17 @@ namespace Smartstore.Web.Models.Cart
             }
 
             var itemWarnings = new List<string>();
-
-            if (!await ShoppingCartValidator.ValidateProductAsync(from.Item, itemWarnings))
+            if (!await ShoppingCartValidator.ValidateProductAsync(from.Item, null, itemWarnings))
             {
                 to.Warnings.AddRange(itemWarnings);
             }
 
-            var attrWarnings = new List<string>();
             var cart = await ShoppingCartService.GetCartAsync(customer, shoppingCartType, store.Id);
 
-            if (!await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, attrWarnings))
+            var attributeWarnings = new List<string>();
+            if (!await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, attributeWarnings))
             {
-                to.Warnings.AddRange(attrWarnings);
+                to.Warnings.AddRange(attributeWarnings);
             }
         }
     }
