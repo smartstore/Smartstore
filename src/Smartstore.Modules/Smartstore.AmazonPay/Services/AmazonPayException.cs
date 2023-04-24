@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Amazon.Pay.API.Types;
-using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Http;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.AmazonPay.Services
@@ -16,7 +16,7 @@ namespace Smartstore.AmazonPay.Services
         public AmazonPayException(string message, Exception innerException)
             : base(message, innerException, AmazonPayProvider.SystemName)
         {
-            RedirectRoute = CreateRouteValues();
+            RedirectRoute = CreateRouteInfo();
         }
 
         public AmazonPayException(AmazonPayResponse response)
@@ -36,17 +36,10 @@ namespace Smartstore.AmazonPay.Services
                   new Exception(response.GetFullMessage()),
                   AmazonPayProvider.SystemName)
         {
-            RedirectRoute = CreateRouteValues();
+            RedirectRoute = CreateRouteInfo();
         }
 
-        private RouteValueDictionary CreateRouteValues()
-        {
-            // Redirect back to where the payment button is.
-            return new()
-            {
-                { "controller", "ShoppingCart" },
-                { "action", nameof(ShoppingCartController.Cart) }
-            };
-        }
+        private RouteInfo CreateRouteInfo()
+            => new(nameof(ShoppingCartController.Cart), "ShoppingCart", (object)null);
     }
 }

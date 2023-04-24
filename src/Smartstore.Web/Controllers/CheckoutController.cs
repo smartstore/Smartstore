@@ -8,6 +8,7 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Modularity;
+using Smartstore.Http;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Cart;
 using Smartstore.Web.Models.Checkout;
@@ -726,9 +727,9 @@ namespace Smartstore.Web.Controllers
                 Logger.Error(ex);
                 NotifyError(ex.Message);
 
-                if (ex.RedirectRoute != null)
+                if (ex.RedirectRoute is RouteInfo routeInfo)
                 {
-                    return Redirect(Url.RouteUrl(ex.RedirectRoute));
+                    return RedirectToAction(routeInfo.Action, routeInfo.Controller, routeInfo.RouteValues);
                 }
 
                 return RedirectToAction(nameof(PaymentMethod));

@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using Microsoft.AspNetCore.Routing;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Checkout.Payment
 {
@@ -86,6 +87,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// Gets or sets route values for redirecting.
         /// If <c>null</c>, the buyer is redirected back to the payment method list in checkout.
         /// </summary>
-        public RouteValueDictionary? RedirectRoute { get; init; }
+        public RouteInfo? RedirectRoute { get; init; }
     }
 }
