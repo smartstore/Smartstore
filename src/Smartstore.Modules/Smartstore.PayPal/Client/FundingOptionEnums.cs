@@ -3,7 +3,6 @@
     public enum DisableFundingOptions
     {
         card,
-        credit,
         bancontact,
         blik,
         eps,
@@ -20,7 +19,6 @@
     public enum EnableFundingOptions
     {
         card,
-        credit,
         paylater,
         venmo,
         bancontact,
