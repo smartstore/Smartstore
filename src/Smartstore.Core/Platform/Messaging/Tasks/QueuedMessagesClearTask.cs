@@ -24,7 +24,7 @@ namespace Smartstore.Core.Messaging.Tasks
             var olderThan = DateTime.UtcNow.AddDays(-Math.Abs(_commonSettings.MaxQueuedMessagesAgeInDays));
 
             var numDeleted = await _db.QueuedEmails
-                .Where(x => x.SentOnUtc.HasValue && x.CreatedOnUtc < olderThan)
+                .Where(x => x.CreatedOnUtc < olderThan && (x.SentOnUtc.HasValue || x.SentTries >= 3))
                 .ExecuteDeleteAsync(cancellationToken: cancelToken);
 
             if (numDeleted > 100 && _db.DataProvider.CanShrink)
