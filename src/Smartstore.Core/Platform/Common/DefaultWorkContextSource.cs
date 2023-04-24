@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
@@ -478,8 +479,14 @@ namespace Smartstore.Core
         {
             if (context.HttpContext != null)
             {
-                var hasWebhookAttribute = context.HttpContext?.GetEndpoint()?.Metadata?.GetMetadata<WebhookEndpointAttribute>() != null;
-                if (hasWebhookAttribute)
+                var isWebhook = context.HttpContext?.GetEndpoint()?.Metadata?.GetMetadata<WebhookEndpointAttribute>() != null;
+
+                if (!isWebhook && context.HttpContext?.Response?.StatusCode == StatusCodes.Status401Unauthorized)
+                {
+                    isWebhook = context.HttpContext?.Features?.Get<IExceptionHandlerPathFeature>()?.Path?.StartsWithNoCase("/odata/") ?? false;
+                }
+
+                if (isWebhook)
                 {
                     var customer = await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.WebhookClient);
                     if (customer == null)
