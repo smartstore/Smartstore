@@ -92,6 +92,11 @@ namespace Smartstore.Core.Catalog.Search
         {
         }
 
+        public CatalogSearchQuery(SearchTerm[] terms)
+            : base(terms)
+        {
+        }
+
         public CatalogSearchQuery Clone()
             => (CatalogSearchQuery)MemberwiseClone();
 

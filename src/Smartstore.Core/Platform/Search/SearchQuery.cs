@@ -1,19 +1,9 @@
-﻿using System.Text;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Search
 {
-    [Flags]
-    public enum SearchResultFlags
-    {
-        WithHits = 1 << 0,
-        WithFacets = 1 << 1,
-        WithSuggestions = 1 << 2,
-        Full = WithHits | WithFacets | WithSuggestions
-    }
-
     public class SearchQuery : SearchQuery<SearchQuery>
     {
         /// <summary>
@@ -33,11 +23,16 @@ namespace Smartstore.Core.Search
             : base(fields, term, mode, escape, isFuzzySearch)
         {
         }
+
+        public SearchQuery(SearchTerm[] terms)
+            : base(terms)
+        {
+        }
     }
 
     public class SearchQuery<TQuery> : ISearchQuery where TQuery : class, ISearchQuery
     {
-        private readonly Dictionary<string, FacetDescriptor> _facetDescriptors;
+        private readonly Dictionary<string, FacetDescriptor> _facetDescriptors = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, object> _customData;
 
         protected SearchQuery(string[] fields, string term, SearchMode mode = SearchMode.Contains, bool escape = false, bool isFuzzySearch = false)
@@ -47,17 +42,11 @@ namespace Smartstore.Core.Search
             Mode = mode;
             EscapeTerm = escape;
             IsFuzzySearch = isFuzzySearch;
+        }
 
-            Filters = new List<ISearchFilter>();
-            Sorting = new List<SearchSort>();
-            _facetDescriptors = new Dictionary<string, FacetDescriptor>(StringComparer.OrdinalIgnoreCase);
-
-            Take = int.MaxValue;
-
-            SpellCheckerMinQueryLength = 4;
-            SpellCheckerMaxHitCount = 3;
-
-            ResultFlags = SearchResultFlags.WithHits;
+        protected SearchQuery(SearchTerm[] terms)
+        {
+            Terms = terms;
         }
 
         // Language, Currency & Store
@@ -91,15 +80,20 @@ namespace Smartstore.Core.Search
         /// </summary>
         public bool IsFuzzySearch { get; protected set; }
 
+        /// <summary>
+        /// Specifies the search terms.
+        /// </summary>
+        public SearchTerm[] Terms { get; protected set; }
+
         // Filtering
-        public ICollection<ISearchFilter> Filters { get; }
+        public ICollection<ISearchFilter> Filters { get; } = new List<ISearchFilter>();
 
         // Facets
         public IReadOnlyDictionary<string, FacetDescriptor> FacetDescriptors => _facetDescriptors;
 
         // Paging
         public int Skip { get; protected set; }
-        public int Take { get; protected set; }
+        public int Take { get; protected set; } = int.MaxValue;
         public int PageIndex
         {
             get
@@ -112,15 +106,15 @@ namespace Smartstore.Core.Search
         }
 
         // Sorting
-        public ICollection<SearchSort> Sorting { get; }
+        public ICollection<SearchSort> Sorting { get; } = new List<SearchSort>();
 
         // Spell checker
         public int SpellCheckerMaxSuggestions { get; protected set; }
-        public int SpellCheckerMinQueryLength { get; protected set; }
-        public int SpellCheckerMaxHitCount { get; protected set; }
+        public int SpellCheckerMinQueryLength { get; protected set; } = 4;
+        public int SpellCheckerMaxHitCount { get; protected set; } = 3;
 
         // Result control
-        public SearchResultFlags ResultFlags { get; protected set; }
+        public SearchResultFlags ResultFlags { get; protected set; } = SearchResultFlags.WithHits;
 
         /// <summary>
         /// Gets the origin of the search. Examples:
@@ -278,29 +272,10 @@ namespace Smartstore.Core.Search
 
         public override string ToString()
         {
-            var sb = new StringBuilder(100);
+            var terms = Terms.Select(x => string.Join(Environment.NewLine, x.ToString()));
+            var filters = Filters.Select(x => string.Join(' ', x.ToString()));
 
-            var fields = (Fields?.Any() ?? false) ? string.Join(", ", Fields) : "".NaIfEmpty();
-            var parameters = string.Join(" ", EscapeTerm ? "escape" : "", IsFuzzySearch ? "fuzzy" : Mode.ToString()).TrimSafe();
-
-            sb.AppendFormat("'{0}' in {1}", Term.EmptyNull(), fields);
-            if (parameters.HasValue())
-            {
-                sb.AppendFormat(" ({0})", parameters);
-            }
-            sb.Append(". ");
-
-            foreach (var filter in Filters)
-            {
-                if (sb.Length > 0)
-                {
-                    sb.Append(' ');
-                }
-
-                sb.Append(filter.ToString());
-            }
-
-            return sb.ToString();
+            return terms + Environment.NewLine + filters;
         }
 
         #region Utilities

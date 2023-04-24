@@ -18,6 +18,15 @@
         Contains
     }
 
+    [Flags]
+    public enum SearchResultFlags
+    {
+        WithHits = 1 << 0,
+        WithFacets = 1 << 1,
+        WithSuggestions = 1 << 2,
+        Full = WithHits | WithFacets | WithSuggestions
+    }
+
     public enum IndexTypeCode
     {
         Empty = 0,
