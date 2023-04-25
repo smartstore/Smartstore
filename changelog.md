@@ -11,12 +11,14 @@
 ### Bugfixes
 
 - PdfConverter failed after cron job cleaned up temporary files in App_Data directory
+- Link from Admin area to a named area-less frontend route did not properly prepend culture code
 - Fixed display of orders in MyAccount area when `OrderSettings.DisplayOrdersOfAllStores` was set to `true`
 - When an order was placed, the stock quantity of attribute combinations were not updated if the stock is managed by attributes.
 - Fixed "also purchased products" should not display unpublished products.
 - #651 Fixed product can be added to cart even if the availability limit was reached.
 - Logout was not possible after new customer registrations.
 - Fixed unpublished products should be assignable as "promoted" to a product.
+- UrlRewriter: raw rules were not loaded from legacy storage
 
 
 ## Smartstore 5.0.4

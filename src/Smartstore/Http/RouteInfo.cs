@@ -30,7 +30,7 @@ namespace Smartstore.Http
         public RouteInfo(string action, string controller, IDictionary<string, object> routeValues)
             : this(action, controller, new RouteValueDictionary(routeValues))
         {
-            Guard.NotNull(routeValues, nameof(routeValues));
+            Guard.NotNull(routeValues);
         }
 
         public RouteInfo(string action, RouteValueDictionary routeValues)
@@ -41,8 +41,8 @@ namespace Smartstore.Http
         [JsonConstructor]
         public RouteInfo(string action, string controller, RouteValueDictionary routeValues)
         {
-            Guard.NotEmpty(action, nameof(action));
-            Guard.NotNull(routeValues, nameof(routeValues));
+            Guard.NotEmpty(action);
+            Guard.NotNull(routeValues);
 
             Action = action;
             Controller = controller;

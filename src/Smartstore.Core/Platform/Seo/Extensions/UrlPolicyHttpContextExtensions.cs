@@ -22,7 +22,7 @@ namespace Smartstore.Core.Seo.Routing
         /// <returns>The <see cref="UrlPolicy"/>.</returns>
         public static UrlPolicy? GetUrlPolicy(this HttpContext context)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             return context.Features.Get<IUrlPolicyFeature>()?.UrlPolicy;
         }
@@ -34,7 +34,7 @@ namespace Smartstore.Core.Seo.Routing
         /// <param name="policy">The <see cref="UrlPolicy"/>.</param>
         public static void SetUrlPolicy(this HttpContext context, UrlPolicy? policy)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             var feature = context.Features.Get<IUrlPolicyFeature>();
 

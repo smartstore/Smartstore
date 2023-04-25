@@ -23,6 +23,11 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Account.Fields.PasswordSecurity", "Password security", "Passwortsicherheit");
 
             builder.AddOrUpdate("Account.Register.Result.AlreadyRegistered", "You are already registered.", "Sie sind bereits registriert.");
+            builder.AddOrUpdate("Admin.Common.Cleanup", "Cleanup", "Aufräumen");
+
+            builder.AddOrUpdate("Admin.System.QueuedEmails.DeleteAll.Confirm",
+                "Are you sure you want to delete all sent or undeliverable emails?",
+                "Sind Sie sicher, dass alle gesendeten oder unzustellbaren E-Mails gelöscht werden sollen?");
         }
     }
 }

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search.Modelling;
-using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Search;
 
@@ -332,21 +331,18 @@ namespace Smartstore.Core.Catalog.Search
         /// </remarks>
         public CatalogSearchQuery WithCategoryTreePath(string treePath, bool? featuredOnly, bool includeSelf = true)
         {
-            // TODO: (mg) "includeSelf" parameter is missing.
             if (treePath.HasValue())
             {
                 var fieldName = featuredOnly.HasValue
                     ? featuredOnly.Value ? KnownFilters.FeaturedCategoryPath : KnownFilters.NotFeaturedCategoryPath
                     : KnownFilters.CategoryPath;
 
+                WithFilter(SearchFilter.ByField(fieldName, treePath).StartsWith().Mandatory().NotAnalyzed());
+
                 if (!includeSelf)
                 {
-                    // TODO: (mg) so, what exactly to do now? There is nothing similar to "TreePath.Length > term.Length" logic in Lucene.
-                    // Workaround and add an extra filter that filters an extra integer index field "treepathlength"?
-                    // PS: in catalog search "includeSelf" is always "true".
+                    WithFilter(SearchFilter.ByField(fieldName, treePath).ExactMatch().Mandatory(false).NotAnalyzed());
                 }
-
-                return WithFilter(SearchFilter.ByField(fieldName, treePath).StartsWith().Mandatory().NotAnalyzed());
             }
 
             return this;

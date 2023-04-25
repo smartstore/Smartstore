@@ -351,11 +351,13 @@ namespace Smartstore.Core.Tests.Catalog.Search
         }
 
         [TestCase(4, "/1/11/")]
-        [TestCase(2, "/2/21/")]
-        [TestCase(6, "/2/")]
-        [TestCase(2, "/2/", true)]
+        [TestCase(3, "/2/21/")]
+        [TestCase(7, "/2/")]
+        [TestCase(3, "/2/", true)]
         [TestCase(4, "/2/", false)]
-        public async Task LinqSearch_filter_with_category_treepath(int hits, string treePath, bool? featuredOnly = null)
+        [TestCase(6, "/2/", null, false)]
+        [TestCase(1, "/2/21/", true, false)]
+        public async Task LinqSearch_filter_with_category_treepath(int hits, string treePath, bool? featuredOnly = null, bool includeSelf = true)
         {
             var idCount = 9999;
             var categories = new List<Category>();
@@ -368,7 +370,7 @@ namespace Smartstore.Core.Tests.Catalog.Search
                 "/1/12/", "/1/12/121/",
 
                 "/2/",
-                "/2/21/", "/2/21/211/",
+                "/2/21/", "/2/21/211/", "/2/21/212/",
                 "/2/22/",
                 "/2/23/",
                 "/2/24/",
@@ -381,14 +383,14 @@ namespace Smartstore.Core.Tests.Catalog.Search
                 var categoryId = path.TrimEnd('/').SplitSafe('/').LastOrDefault().ToInt();
                 var pc = new ProductCategory[]
                 {
-                    new() { CategoryId = categoryId, IsFeaturedProduct = path == "/2/21/211/" || path == "/2/23/" }
+                    new() { CategoryId = categoryId, IsFeaturedProduct = path == "/2/21/211/" || path == "/2/23/" || path == "/2/21/" }
                 };
 
                 categories.Add(new() { Id = categoryId, TreePath = path, Name = $"Category {categoryId}" });
                 products.Add(new SearchProduct(pc) { Id = ++idCount });
             }
 
-            var result = await SearchAsync(new CatalogSearchQuery().WithCategoryTreePath(treePath, featuredOnly), products, categories);
+            var result = await SearchAsync(new CatalogSearchQuery().WithCategoryTreePath(treePath, featuredOnly, includeSelf), products, categories);
             Assert.That(result.TotalHitsCount, Is.EqualTo(hits));
         }
 

@@ -477,13 +477,12 @@ namespace Smartstore.Core
 
         private static async Task<Customer> DetectWebhookEndpoint(DetectCustomerContext context)
         {
-            if (context.HttpContext != null)
+            if (context.HttpContext is HttpContext httpContext)
             {
-                var isWebhook = context.HttpContext?.GetEndpoint()?.Metadata?.GetMetadata<WebhookEndpointAttribute>() != null;
-
-                if (!isWebhook && context.HttpContext?.Response?.StatusCode == StatusCodes.Status401Unauthorized)
+                var isWebhook = httpContext.GetEndpoint()?.Metadata?.GetMetadata<WebhookEndpointAttribute>() != null;
+                if (!isWebhook && httpContext.Response.StatusCode == StatusCodes.Status401Unauthorized)
                 {
-                    isWebhook = context.HttpContext?.Features?.Get<IExceptionHandlerPathFeature>()?.Path?.StartsWithNoCase("/odata/") ?? false;
+                    isWebhook = httpContext.Features.Get<IExceptionHandlerPathFeature>()?.Path?.StartsWithNoCase("/odata/") ?? false;
                 }
 
                 if (isWebhook)
