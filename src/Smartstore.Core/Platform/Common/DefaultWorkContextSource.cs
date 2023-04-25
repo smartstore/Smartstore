@@ -525,7 +525,7 @@ namespace Smartstore.Core
         private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)
         {
             // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent)
-            var customer = await context.CustomerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 180);
+            var customer = await context.CustomerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 600);
 
             if (customer != null)
             {
