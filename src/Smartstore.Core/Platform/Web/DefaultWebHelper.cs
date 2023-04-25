@@ -194,7 +194,7 @@ namespace Smartstore.Core.Web
 
             if (ipAddress != IPAddress.None && userAgent.HasValue())
             {
-                return (ipAddress.ToString() + userAgent).GetHashCode().ToString();
+                return (ipAddress.ToString() + userAgent).XxHash();
             }
 
             return null;

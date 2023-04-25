@@ -22,7 +22,6 @@ namespace Smartstore.Core.Identity
         private readonly IWebHelper _webHelper;
         private readonly IEventPublisher _eventPublisher;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserAgent _userAgent;
         private readonly IChronometer _chronometer;
         private readonly RewardPointsSettings _rewardPointsSettings;
 
@@ -35,7 +34,6 @@ namespace Smartstore.Core.Identity
             IWebHelper webHelper,
             IEventPublisher eventPublisher,
             IHttpContextAccessor httpContextAccessor,
-            IUserAgent userAgent,
             IChronometer chronometer,
             RewardPointsSettings rewardPointsSettings)
         {
@@ -44,7 +42,6 @@ namespace Smartstore.Core.Identity
             _webHelper = webHelper;
             _eventPublisher = eventPublisher;
             _httpContextAccessor = httpContextAccessor;
-            _userAgent = userAgent;
             _chronometer = chronometer;
             _rewardPointsSettings = rewardPointsSettings;
         }
@@ -107,11 +104,6 @@ namespace Smartstore.Core.Identity
 
         public virtual async Task<Customer> FindGuestCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60)
         {
-            if (_httpContextAccessor.HttpContext == null || _userAgent.IsBot || _userAgent.IsPdfConverter)
-            {
-                return null;
-            }
-
             using (_chronometer.Step("FindGuestCustomerByClientIdent"))
             {
                 clientIdent = clientIdent.NullEmpty() ?? _webHelper.GetClientIdent();
