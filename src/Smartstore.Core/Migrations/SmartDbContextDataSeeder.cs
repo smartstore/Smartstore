@@ -30,8 +30,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Sind Sie sicher, dass alle gesendeten oder unzustellbaren E-Mails gelöscht werden sollen?");
 
             builder.AddOrUpdate("Admin.ContentManagement.Menus.Item.InvalidTargetLink",
-                "The target \"{0}\" of menu link \"{1}\" is invalid.",
-                "Das Ziel \"{0}\" von Menü-Link \"{1}\" ist ungültig.");
+                "Unknown or invalid target \"{0}\" at menu link \"{1}\".",
+                "Unbekanntes oder ungültiges Ziel \"{0}\" bei Menü-Link \"{1}\".");
         }
     }
 }
