@@ -18,6 +18,7 @@
 - #651 Fixed product can be added to cart even if the availability limit was reached.
 - Logout was not possible after new customer registrations.
 - Fixed unpublished products should be assignable as "promoted" to a product.
+- UrlRewriter: raw rules were not loaded from legacy storage
 
 
 ## Smartstore 5.0.4
