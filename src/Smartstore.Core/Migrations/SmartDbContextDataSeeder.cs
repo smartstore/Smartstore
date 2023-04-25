@@ -21,6 +21,10 @@ namespace Smartstore.Core.Data.Migrations
         {
 
 
+
+            builder.AddOrUpdate("Admin.ContentManagement.Menus.Item.InvalidTargetLink",
+                "The target \"{0}\" of menu link \"{1}\" is invalid.",
+                "Das Ziel \"{0}\" von Menü-Link \"{1}\" ist ungültig.");
         }
     }
 }
