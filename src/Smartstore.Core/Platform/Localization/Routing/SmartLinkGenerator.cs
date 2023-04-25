@@ -210,6 +210,12 @@ namespace Smartstore.Core.Localization.Routing
                 }
             }
 
+            if (!string.IsNullOrEmpty(address.RouteName) && endpoints.Last() is RouteEndpoint routeEndpoint)
+            {
+                // e.g.: link from Admin area to a named area-less frontend route
+                return routeEndpoint.Metadata.GetMetadata<ILocalizedRoute>() != null;
+            }
+
             return false;
         }
 
