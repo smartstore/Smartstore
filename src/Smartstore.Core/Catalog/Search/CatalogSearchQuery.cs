@@ -77,7 +77,7 @@ namespace Smartstore.Core.Catalog.Search
         /// Initializes a new instance of the <see cref="CatalogSearchQuery"/> class without a search term being set
         /// </summary>
         public CatalogSearchQuery()
-            : base((string[])null, null)
+            : base((string[])null!, null)
         {
         }
 
@@ -332,6 +332,9 @@ namespace Smartstore.Core.Catalog.Search
                     ? featuredOnly.Value ? KnownFilters.FeaturedCategoryPath : KnownFilters.NotFeaturedCategoryPath
                     : KnownFilters.CategoryPath;
 
+                // TODO: (mg) I don't like this pattern because it produces too much confusing noise, especially on LINQ-side.
+                //            Better: create a special filter class, e.g. CategoryTreePathFilter which
+                //            contains the IncludeSelf property. Then let the visitor handle the filter type decidedly.
                 WithFilter(SearchFilter.ByField(fieldName, treePath).StartsWith().Mandatory().NotAnalyzed());
 
                 if (!includeSelf)
