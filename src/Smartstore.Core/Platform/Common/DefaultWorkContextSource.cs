@@ -482,11 +482,9 @@ namespace Smartstore.Core
             // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent)
             var customer = await context.CustomerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 300);
 
-            if (customer != null)
+            if (customer != null && !customer.IsRegistered())
             {
-                // If we came so far, visitor cookie was not present.
-                // Try to append for the next request.
-                context.CustomerService.AppendVisitorCookie(customer);
+                return null;
             }
 
             return customer;
