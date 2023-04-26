@@ -36,6 +36,7 @@ namespace Smartstore.Core.Search
     }
 
     // TODO: (mg) should we use such a new interface for term filters to distinguish more easily? I guess so:
+    // RE: No. SearchTermFilter class is sufficient. It should implement IAttributeSearchFilter.
     public interface ISearchTermFilter : ISearchFilter
     {
         string? Term { get; }
@@ -47,6 +48,7 @@ namespace Smartstore.Core.Search
     // TODO: (mg) move to new file when ready.
     public class SearchTermFilter : SearchFilterBase, ISearchTermFilter
     {
+        // TODO: (core) Either rename or remove this.
         public string? Term
         {
             get;

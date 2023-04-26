@@ -9,6 +9,8 @@ namespace Smartstore.Core.Catalog.Search
         protected override IQueryable<Product> VisitTerm(ISearchTermFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             // TODO: (mg) Refactor after Terms isolation is implemented.
+            // RE: just a hint: VisitTerm can be removed, because terms are regular filters now and thus should be handled by
+            // VisitFilter(ISearchFilter) --> VistTermFilter(SearchTermFilter), just like e.g. VisitPriceFilter().
             var term = context.SearchQuery.Term;
             var fields = context.SearchQuery.Fields;
             var languageId = context.SearchQuery.LanguageId ?? 0;

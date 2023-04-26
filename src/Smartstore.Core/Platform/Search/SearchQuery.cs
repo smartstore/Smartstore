@@ -198,16 +198,31 @@ namespace Smartstore.Core.Search
         }
 
         public TQuery WithTerm(
-            string? term,
-            string[]? fields,
+            string term,
+            string fieldName,
             SearchMode mode = SearchMode.Contains,
             bool escape = false,
             bool isAnalyzed = true)
         {
-            var len = fields?.Length ?? 0;
-            if (len > 0)
+            return WithFilter(SearchFilter.BySearchTerm(fieldName, term, mode, escape, isAnalyzed));
+        }
+
+        public TQuery WithTerm(
+            string term,
+            string[] fields,
+            SearchMode mode = SearchMode.Contains,
+            bool escape = false,
+            bool isAnalyzed = true)
+        {
+            Guard.NotEmpty(term);
+            Guard.NotEmpty(fields);
+
+            // TODO: (mg) Insufficient API design. TBD with MC.
+            // TODO: (mg) Don't forget to take CombinedSearchFilter into account.
+
+            if (fields.Length > 0)
             {
-                if (len == 1)
+                if (fields.Length == 1)
                 {
                     return WithFilter(SearchFilter.BySearchTerm(fields![0], term, mode, escape, isAnalyzed));
                 }

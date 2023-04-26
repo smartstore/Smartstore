@@ -220,6 +220,7 @@
             bool escape = false,
             bool isAnalyzed = true)
         {
+            Guard.NotEmpty(term);
             Guard.NotEmpty(fieldName);
 
             return new SearchTermFilter
