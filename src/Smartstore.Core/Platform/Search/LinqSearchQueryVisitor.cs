@@ -34,7 +34,8 @@ namespace Smartstore.Core.Search
             Guard.NotNull(baseQuery);
 
             // TODO: (mg) Refactor after Terms isolation is implemented.
-            var query = VisitTerm(context, baseQuery);
+            // TODO: (mg) Filter context.Filters for ISearchTermFilter.
+            var query = VisitTerm(null, context, baseQuery);
 
             // Filters
             for (var i = 0; i < context.Filters.Count; i++)
@@ -80,7 +81,7 @@ namespace Smartstore.Core.Search
         /// <param name="context">The search query context.</param>
         /// <param name="query">The LINQ query to apply the term to.</param>
         /// <returns>The modified or the original LINQ query.</returns>
-        protected abstract IQueryable<TEntity> VisitTerm(TContext context, IQueryable<TEntity> query);
+        protected abstract IQueryable<TEntity> VisitTerm(ISearchTermFilter filter, TContext context, IQueryable<TEntity> query);
 
         /// <summary>
         /// Visits a search filter expression.

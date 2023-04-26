@@ -17,8 +17,6 @@ namespace Smartstore.Core.Search
         bool EscapeTerm { get; }
         bool IsFuzzySearch { get; }
 
-        SearchTerm[] Terms { get; }
-
         // Filtering
         ICollection<ISearchFilter> Filters { get; }
 

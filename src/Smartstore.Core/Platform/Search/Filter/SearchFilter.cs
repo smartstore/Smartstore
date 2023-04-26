@@ -25,6 +25,12 @@
             protected set; 
         } = SearchMode.Contains;
 
+        public bool Escape
+        {
+            get;
+            protected set;
+        }
+
         public bool IsNotAnalyzed
         {
             get;
@@ -206,11 +212,31 @@
             };
         }
 
+        
+        public static SearchTermFilter BySearchTerm(
+            string fieldName,
+            string term,
+            SearchMode mode = SearchMode.Contains,
+            bool escape = false,
+            bool isAnalyzed = true)
+        {
+            Guard.NotEmpty(fieldName);
+
+            return new SearchTermFilter
+            {
+                FieldName = fieldName,
+                Term = term,
+                Mode = mode,
+                Escape = escape,
+                IsAnalyzed = isAnalyzed
+            };
+        }
+
         #endregion
 
         public override string ToString()
         {
-            return $"{FieldName}: {Term}";
+            return $"{FieldName}:{Term}";
         }
     }
 

@@ -6,48 +6,46 @@ namespace Smartstore.Core.Catalog.Search
 {
     public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>
     {
-        protected override IQueryable<Product> VisitTerm(CatalogSearchQueryContext context, IQueryable<Product> query)
+        protected override IQueryable<Product> VisitTerm(ISearchTermFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
-            var terms = context.SearchQuery.Terms.Where(x => x.Term.HasValue() && x.Fields.Length > 0);
-            if (!terms.Any())
-            {
-                return query;
-            }
-
-            context.IsGroupingRequired = true;
-
+            // TODO: (mg) Refactor after Terms isolation is implemented.
+            var term = context.SearchQuery.Term;
+            var fields = context.SearchQuery.Fields;
             var languageId = context.SearchQuery.LanguageId ?? 0;
-            var lpQuery = context.Services.DbContext.LocalizedProperties.AsNoTracking();
 
-            foreach (var t in terms)
+            if (term.HasValue() && fields != null && fields.Length != 0 && fields.Any(x => x.HasValue()))
             {
-                // SearchMode.ExactMatch doesn't make sense here.
-                if (t.Mode == SearchMode.StartsWith)
+                context.IsGroupingRequired = true;
+
+                var lpQuery = context.Services.DbContext.LocalizedProperties.AsNoTracking();
+
+                // SearchMode.ExactMatch doesn't make sense here
+                if (context.SearchQuery.Mode == SearchMode.StartsWith)
                 {
-                    query =
+                    return
                         from p in query
                         join lp in lpQuery on p.Id equals lp.EntityId into plp
                         from lp in plp.DefaultIfEmpty()
                         where
-                            (t.Fields.Contains("name") && p.Name.StartsWith(t.Term)) ||
-                            (t.Fields.Contains("sku") && p.Sku.StartsWith(t.Term)) ||
-                            (t.Fields.Contains("shortdescription") && p.ShortDescription.StartsWith(t.Term)) ||
-                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith(t.Term)) ||
-                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.StartsWith(t.Term))
+                            (fields.Contains("name") && p.Name.StartsWith(term)) ||
+                            (fields.Contains("sku") && p.Sku.StartsWith(term)) ||
+                            (fields.Contains("shortdescription") && p.ShortDescription.StartsWith(term)) ||
+                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith(term)) ||
+                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.StartsWith(term))
                         select p;
                 }
                 else
                 {
-                    query =
+                    return
                         from p in query
                         join lp in lpQuery on p.Id equals lp.EntityId into plp
                         from lp in plp.DefaultIfEmpty()
                         where
-                            (t.Fields.Contains("name") && p.Name.Contains(t.Term)) ||
-                            (t.Fields.Contains("sku") && p.Sku.Contains(t.Term)) ||
-                            (t.Fields.Contains("shortdescription") && p.ShortDescription.Contains(t.Term)) ||
-                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains(t.Term)) ||
-                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.Contains(t.Term))
+                            (fields.Contains("name") && p.Name.Contains(term)) ||
+                            (fields.Contains("sku") && p.Sku.Contains(term)) ||
+                            (fields.Contains("shortdescription") && p.ShortDescription.Contains(term)) ||
+                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains(term)) ||
+                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.Contains(term))
                         select p;
                 }
             }

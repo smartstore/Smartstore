@@ -20,9 +20,12 @@ namespace Smartstore.Core.Search
     {
         IndexTypeCode TypeCode { get; }
         object? Term { get; }
-        public SearchMode Mode { get; }
+        SearchMode Mode { get; }
         bool IsNotAnalyzed { get; }
         int ParentId { get; }
+
+        //bool IsTextual
+        //    => TypeCode == IndexTypeCode.String;
     }
 
     public interface IRangeSearchFilter : IAttributeSearchFilter
@@ -30,6 +33,43 @@ namespace Smartstore.Core.Search
         object? UpperTerm { get; }
         bool IncludesLower { get; }
         bool IncludesUpper { get; }
+    }
+
+    // TODO: (mg) should we use such a new interface for term filters to distinguish more easily? I guess so:
+    public interface ISearchTermFilter : ISearchFilter
+    {
+        string? Term { get; }
+        SearchMode Mode { get; }
+        bool Escape { get; }
+        bool IsAnalyzed { get; }
+    }
+
+    // TODO: (mg) move to new file when ready.
+    public class SearchTermFilter : SearchFilterBase, ISearchTermFilter
+    {
+        public string? Term
+        {
+            get;
+            protected internal set;
+        }
+
+        public SearchMode Mode
+        {
+            get;
+            protected internal set;
+        }
+
+        public bool Escape
+        {
+            get;
+            protected internal set;
+        }
+
+        public bool IsAnalyzed
+        {
+            get;
+            protected internal set;
+        }
     }
 
     public static class ISearchFilterExtensions
