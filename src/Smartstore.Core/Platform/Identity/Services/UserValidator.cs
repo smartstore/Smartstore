@@ -34,7 +34,7 @@ namespace Smartstore.Core.Identity
                 throw new InvalidOperationException(T("Admin.Customers.CustomerRoles.CannotFoundRole", "Registered"));
             }
 
-            if (user.IsSearchEngineAccount())
+            if (user.IsBot())
             {
                 return Failed(T("Account.Register.Errors.CannotRegisterSearchEngine"));
             }

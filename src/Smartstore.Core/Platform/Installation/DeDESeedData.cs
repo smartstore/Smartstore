@@ -40,7 +40,7 @@ namespace Smartstore.Core.Installation
         {
             base.Alter(entity);
 
-            if (entity.SystemName == SystemCustomerNames.SearchEngine)
+            if (entity.SystemName == SystemCustomerNames.Bot)
             {
                 entity.AdminComment = "System-Gastkonto für Suchmaschinenanfragen.";
             }

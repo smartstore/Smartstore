@@ -408,7 +408,7 @@ namespace Smartstore.Core.Installation
                 AdminComment = "Built-in system guest record used for requests from search engines.",
                 Active = true,
                 IsSystemAccount = true,
-                SystemName = SystemCustomerNames.SearchEngine,
+                SystemName = SystemCustomerNames.Bot,
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
             };
