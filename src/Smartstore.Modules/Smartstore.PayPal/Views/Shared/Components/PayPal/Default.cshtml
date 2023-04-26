@@ -1,115 +1,18 @@
 ﻿@model PublicPaymentMethodModel
+
 <!-- Set up a container element for the paypal button -->
 <div id="paypal-button-container"
+     class="paypal-button-container"
      data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
      data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
      data-forward-url="@(Model.IsPaymentSelection ? Url.Action("Confirm", "Checkout") : Url.Action("BillingAddress", "Checkout"))"
+     data-shape="@Model.ButtonShape"
+     data-color="@Model.ButtonColor"
      attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'></div>
 
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-button">
     $(function () {
-        if (typeof paypal !== 'undefined') {
-            initPayPal();
-        }
-        else {
-            var script = document.getElementById("paypal-js");
-            script.onload = function () {
-                initPayPal()
-            };
-        }    
+        const ppButton = new PayPalButton("#paypal-button-container", "paypal");
     });
-
-    function initPayPal() {
-        var fundingSources = @(Model.IsPaymentSelection ? Html.Raw("['paypal']") : "paypal.getFundingSources()");
-        var displayableFundingSources = "@(Model.Fundings)";
-        var btnContainer = $("#paypal-button-container");
-
-        fundingSources.forEach(function (fundingSource) {
-            // PayPal checkout button should always be displayed.
-            if (!displayableFundingSources.includes(fundingSource) && fundingSource != "paypal") {
-                return;
-            }
-
-            if (!paypal.isFundingEligible(fundingSource)) {
-                return;
-            }
-
-            // Render PayPal buttons into #paypal-button-container
-            paypal.Buttons({
-                fundingSource: fundingSource,
-                style: {
-                    layout: 'horizontal',
-                    label: 'checkout',
-                    shape: '@Model.ButtonShape',
-                    color: fundingSource == "paypal" || fundingSource == "paylater" ? '@Model.ButtonColor' : 'white'
-                },
-                // Create order
-                createOrder: function (data, actions) {
-                    var orderId;
-
-                    $.ajax({
-                        async: false,   // IMPORTANT INFO: we must wait to get the order id.
-                        type: 'POST',
-                        url: btnContainer.data("create-order-url"),
-                        cache: false,
-                        success: function (resp) {
-                            orderId = resp.id;
-                        }
-                    });
-
-                    return orderId;
-                },
-                // Save obtained order id in checkout state.
-                onApprove: function (data, actions) {
-                    $.ajax({
-                        type: 'POST',
-                        url: btnContainer.data("init-transaction-url"),
-                        data: { orderId: data.orderID },
-                        cache: false,
-                        success: function (resp) {
-                            if (resp.success) {
-                                // Lead customer to address selection or to confirm page if PayPal was choosen from payment selection page.
-                                location.href = btnContainer.data("forward-url");
-                            }
-                            else {
-                                displayNotification(resp.message, 'error');
-                            }
-                        }
-                    });
-                },
-                onCancel: function (data) {
-                    // Do nothing here, just let the user have it's way
-                },
-                onError: function (err) {
-                    displayNotification(err, 'error');
-                }
-            })
-            .render('#paypal-button-container');
-        });
-        @if (Model.IsPaymentSelection)
-        {
-            <text>
-                var btnNext = $(".payment-method-next-step-button");
-
-                // Listen for changes to the radio fields.
-                $(document, "input[name='paymentmethod']").on("change", function (e) {
-                    if (e.target.value == "Payments.PayPalStandard") {
-                        btnNext[0].style.display = 'none';
-                        btnContainer[0].style.display = 'block';
-                    }
-                    else {
-                        btnNext[0].style.display = 'block';
-                        btnContainer[0].style.display = 'none';
-                    }
-                });
-            </text>
-        }
-    }
 </script>
-
-<style sm-if="Model.IsPaymentSelection && Model.IsSelectedMethod">
-    .payment-method-next-step-button {
-        display: none;
-    }
-</style>

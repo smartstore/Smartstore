@@ -10,7 +10,7 @@ namespace Smartstore.PayPal
         {
             return new string[]
             {
-                "vc:Smartstore.PayPal/PayPalPayLater"
+                "vc:Smartstore.PayPal/PayPalPayLaterMessage"
             };
         }
     }

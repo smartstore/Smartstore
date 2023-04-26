@@ -1,7 +1,7 @@
 ﻿@model PublicPaymentMethodModel
 
 <!-- Set up a container element for the paypal button -->
-<div id="paypal-paylater-button-container"
+<div id="paypal-sepa-button-container"
      class="paypal-button-container"
      data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
      data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
@@ -10,9 +10,9 @@
      data-color="@Model.ButtonColor"
      attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'></div>
 
-@*INFO: No target zone here because this can also be rendered via AJAX (in OffCanvasCart)*@
-<script data-origin="paypal-paylater-button">
+@*INFO: No target zone here as can also be rendered via AJAX*@
+<script data-origin="paypal-sepa-button">
     $(function () {
-        const ppPayLaterButton = new PayPalButton("#paypal-paylater-button-container", "paylater");
+        const ppSepaButton = new PayPalButton("#paypal-sepa-button-container", "sepa");
     });
 </script>

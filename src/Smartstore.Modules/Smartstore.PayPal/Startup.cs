@@ -46,6 +46,7 @@ namespace Smartstore.PayPal
                 });
 
             services.AddScoped<PayPalHelper>();
+            services.AddScoped<PayPalApmServiceContext>();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

@@ -17,7 +17,7 @@ namespace Smartstore.PayPal.Components
         /// </summary>
         /// <param name="isPaymentInfoInvoker">Defines whether the widget is invoked from payment method's GetPaymentInfoWidget.</param>
         /// <param name="isSelected">Defines whether the payment method is selected on page load.</param>
-        public IViewComponentResult Invoke(bool isPaymentInfoInvoker, bool isSelected)
+        public IViewComponentResult Invoke(string funding, bool isPaymentInfoInvoker, bool isSelected)
         {
             // If client id or secret haven't been configured yet, don't render buttons.
             if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -40,23 +40,13 @@ namespace Smartstore.PayPal.Components
                 return Empty();
             }
 
-            var fundingEnumIds = isCartPage ? 
-                _settings.FundingsCart.ToIntArray() :
-                _settings.FundingsOffCanvasCart.ToIntArray();
-
-            var fundings = string.Empty;
-            foreach (var fundingId in fundingEnumIds)
-            {
-                fundings += ((EnableFundingOptions)fundingId).ToStringInvariant() + ',';
-            }
-
             var model = new PublicPaymentMethodModel
             {
                 IsPaymentSelection = isPaymentSelectionPage,
                 ButtonColor = _settings.ButtonColor,
                 ButtonShape = _settings.ButtonShape,
                 IsSelectedMethod = isSelected,
-                Fundings = fundings
+                Funding = funding
             };
 
             return View(model);

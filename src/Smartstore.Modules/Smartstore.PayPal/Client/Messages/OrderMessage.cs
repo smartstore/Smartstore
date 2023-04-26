@@ -29,7 +29,6 @@ namespace Smartstore.PayPal.Client.Messages
         [JsonProperty("purchase_units", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public PurchaseUnit[] PurchaseUnits;
 
-        // TODO: (mh) (core) This must be an interface as Payment sources may differ
         /// <summary>
         /// Holds information about the payment method to be used.
         /// </summary>
@@ -156,6 +155,30 @@ namespace Smartstore.PayPal.Client.Messages
     {
         [JsonProperty("pay_upon_invoice", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public PaymentSourceInvoice PaymentSourceInvoice;
+
+        [JsonProperty("giropay", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PaymentSourceApm PaymentSourceGiroPay;
+
+        [JsonProperty("bancontact", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PaymentSourceApm PaymentSourceBancontact;
+
+        [JsonProperty("blik", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PaymentSourceApm PaymentSourceBlik;
+
+        [JsonProperty("eps", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PaymentSourceApm PaymentSourceEps;
+
+        [JsonProperty("ideal", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PaymentSourceApm PaymentSourceIdeal;
+
+        [JsonProperty("mybank", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PaymentSourceApm PaymentSourceMyBank;
+
+        [JsonProperty("p24", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PaymentSourceApm PaymentSourceP24;
+
+        [JsonProperty("sofort", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PaymentSourceApm PaymentSourceSofort;
     }
 
     public class ShippingDetail
@@ -256,6 +279,15 @@ namespace Smartstore.PayPal.Client.Messages
         public ExperienceContext ExperienceContext;
     }
 
+    public class PaymentSourceApm
+    {
+        [JsonProperty("name", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Name;
+
+        [JsonProperty("country_code", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string CountryCode;
+    }
+
     public class NameMessage
     {
         /// <summary>
@@ -323,6 +355,24 @@ namespace Smartstore.PayPal.Client.Messages
     {
         [JsonProperty("shipping_preference")]
         public ShippingPreference ShippingPreference;
+
+        /// <summary>
+        /// Region info e.g. de-DE
+        /// </summary>
+        [JsonProperty("locale", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Locale;
+
+        /// <summary>
+        /// Specifies the URL to which the customer's browser is returned after payment was made.
+        /// </summary>
+        [JsonProperty("return_url", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string ReturnUrl;
+
+        /// <summary>
+        /// Specifies the URL to which the customer's browser is returned if payment was cancelled.
+        /// </summary>
+        [JsonProperty("cancel_url", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string CancelUrl;
     }
 
     public enum Intent

@@ -39,8 +39,6 @@ namespace Smartstore.PayPal.Controllers
         {
             var model = MiniMapper.Map<PayPalSettings, ConfigurationModel>(settings);
 
-            model.EnabledFundings = settings.EnabledFundings.SplitSafe(',').ToArray();
-            model.DisabledFundings = settings.DisabledFundings.SplitSafe(',').ToArray();
             model.WebhookUrl = Url.Action(nameof(PayPalController.WebhookHandler), "PayPal", new { area = string.Empty }, "https");
 
             ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
@@ -82,10 +80,6 @@ namespace Smartstore.PayPal.Controllers
 
             ModelState.Clear();
             MiniMapper.Map(model, settings);
-
-            // TODO: (mh) (core) Check if this is must be implmented some oth way.
-            string.Join(',', model.EnabledFundings ?? Array.Empty<string>());
-            string.Join(',', model.DisabledFundings ?? Array.Empty<string>());
 
             foreach (var localized in model.Locales)
             {

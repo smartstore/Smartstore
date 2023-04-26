@@ -7,17 +7,17 @@ using Smartstore.PayPal.Components;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalStandard")]
-    [FriendlyName("PayPal Standard")]
+    [SystemName("Payments.PayPalPayLater")]
+    [FriendlyName("PayPal Pay Later")]
     [Order(1)]
-    public class PayPalStandardProvider : PayPalProviderBase
+    public class PayPalPayLaterProvider : PayPalProviderBase
     {
-        public PayPalStandardProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings)
+        public PayPalPayLaterProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings)
             : base(db, client, settings)
         {
         }
 
         public override Widget GetPaymentInfoWidget()
-            => new ComponentWidget(typeof(PayPalViewComponent), true);
+            => new ComponentWidget(typeof(PayPalPayLaterViewComponent), true);
     }
 }

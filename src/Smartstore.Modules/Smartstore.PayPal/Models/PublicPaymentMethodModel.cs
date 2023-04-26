@@ -13,13 +13,13 @@
         /// </summary>
         public bool IsSelectedMethod { get; set; }
 
-        /// <summary>
-        /// Funding sources to display
-        /// </summary>
-        public string Fundings { get; set; }
-
         public string ButtonShape { get; set; }
 
         public string ButtonColor { get; set; }
+
+        /// <summary>
+        /// Funding source to display
+        /// </summary>
+        public string Funding { get; set; }
     }
 }

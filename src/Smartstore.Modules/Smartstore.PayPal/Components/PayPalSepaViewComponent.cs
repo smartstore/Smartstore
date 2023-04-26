@@ -3,11 +3,11 @@ using Smartstore.Web.Components;
 
 namespace Smartstore.PayPal.Components
 {
-    public class PayPalPayLaterViewComponent : SmartViewComponent
+    public class PayPalSepaViewComponent : SmartViewComponent
     {
         private readonly PayPalSettings _settings;
 
-        public PayPalPayLaterViewComponent(PayPalSettings settings)
+        public PayPalSepaViewComponent(PayPalSettings settings)
         {
             _settings = settings;
         }

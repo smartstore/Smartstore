@@ -1,0 +1,54 @@
+﻿@model PublicPaymentMethodModel
+
+<!-- Set up a container element for the paypal button -->
+<div id="paypal-button-container"
+     class="paypal-button-container"
+     data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
+     data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
+     data-forward-url="@(Model.IsPaymentSelection ? Url.Action("Confirm", "Checkout") : Url.Action("BillingAddress", "Checkout"))"
+     data-shape="@Model.ButtonShape"
+     data-color="@Model.ButtonColor"
+     attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'></div>
+
+@*INFO: No target zone here as can also be rendered via AJAX*@
+<script data-origin="paypal-button">
+    $(function () {
+        var ppButton = new PayPalButton("#paypal-button-container", "paypal");
+        var btnNext = $(".payment-method-next-step-button");
+        var btnContainer = $("#paypal-button-container");
+
+        // Listen for changes to the radio fields.
+        $(document, "input[name='paymentmethod']").on("change", function (e) {
+            var isPayPal = false;
+            var fundingSource = "paypal";
+
+            if (e.target.value == "Payments.PayPalStandard") {
+                isPayPal = true;
+            }
+            else if (e.target.value == "Payments.PayPalSepa") {
+                isPayPal = true;
+                fundingSource = "sepa";
+            }
+            else if (e.target.value == "Payments.PayPalPayLater") {
+                isPayPal = true;
+                fundingSource = "paylater";
+            }
+
+            if (isPayPal) {
+                ppButton.initPayPalButton(fundingSource, true)
+                btnNext[0].style.display = 'none';
+                btnContainer[0].style.display = 'block';
+            }
+            else {
+                btnNext[0].style.display = 'block';
+                btnContainer[0].style.display = 'none';
+            }
+        });
+    });
+</script>
+
+<style sm-if="Model.IsPaymentSelection && Model.IsSelectedMethod">
+    .payment-method-next-step-button {
+        display: none;
+    }
+</style>

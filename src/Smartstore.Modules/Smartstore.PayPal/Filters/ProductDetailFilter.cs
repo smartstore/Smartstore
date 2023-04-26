@@ -31,7 +31,7 @@ namespace Smartstore.PayPal.Filters
 
             if (_settings.DisplayProductDetailPayLaterWidget && context.Result.IsHtmlViewResult())
             {
-                _widgetProvider.RegisterViewComponent<PayPalPayLaterViewComponent>("productdetail_action_links_after");
+                _widgetProvider.RegisterViewComponent<PayPalPayLaterMessageViewComponent>("productdetail_action_links_after");
             }
 
             await next();

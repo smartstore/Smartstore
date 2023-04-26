@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Net;
+using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +9,12 @@ using Newtonsoft.Json.Linq;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.PayPal.Controllers
@@ -88,6 +91,169 @@ namespace Smartstore.PayPal.Controllers
             dynamic jResponse = JObject.Parse(rawResponse);
 
             return Json(jResponse);
+        }
+
+        /// <summary>
+        /// AJAX
+        /// Called after buyer clicked buy-now-button but before the order was created.
+        /// Processes payment and return redirect URL if there is any.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> ConfirmOrder(string formData)
+        {
+            string redirectUrl = null;
+            var messages = new List<string>();
+            var success = false;
+
+            try
+            {
+                var store = Services.StoreContext.CurrentStore;
+                var customer = Services.WorkContext.CurrentCustomer;
+
+                if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) || paymentRequest == null)
+                {
+                    paymentRequest = new ProcessPaymentRequest();
+                }
+
+                await CreateOrderApmAsync();
+
+                var state = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
+
+                paymentRequest.StoreId = store.Id;
+                paymentRequest.CustomerId = customer.Id;
+                paymentRequest.PaymentMethodSystemName = state.ApmProviderSystemName;
+
+                // We must check here if an order can be placed to avoid creating unauthorized transactions.
+                var (warnings, cart) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
+                if (warnings.Count == 0)
+                {
+                    if (await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
+                    {
+                        success = true;
+                        state.IsConfirmed = true;
+                        state.FormData = formData.EmptyNull();
+
+                        paymentRequest.PayPalOrderId = state.OrderId;
+                        redirectUrl = state.ApmRedirectActionUrl;
+                    }
+                    else
+                    {
+                        messages.Add(T("Checkout.MinOrderPlacementInterval"));
+                    }
+                }
+                else
+                {
+                    messages.AddRange(warnings.Select(HtmlUtility.ConvertPlainTextToHtml));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                messages.Add(ex.Message);
+            }
+
+            return Json(new { success, redirectUrl, messages });
+        }
+
+        private async Task CreateOrderApmAsync()
+        {
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(true);
+            var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
+
+            // Get values from checkout input fields which were saved in CheckoutState.
+            orderMessage.PaymentSource = GetPaymentSource(checkoutState);
+
+            orderMessage.AppContext.Locale = Services.WorkContext.WorkingLanguage.LanguageCulture;
+
+            // Get ReturnUrl & CancelUrl and add them to PayPalApplicationContext for proper redirection after payment was made or cancelled.
+            var storeUrl = Services.StoreContext.CurrentStore.GetHost(true).TrimEnd('/');
+            orderMessage.AppContext.ReturnUrl = storeUrl + Url.Action("RedirectionSuccess", "PayPal");
+            orderMessage.AppContext.CancelUrl = storeUrl + Url.Action("RedirectionCancel", "PayPal");
+
+            var response = await _client.CreateOrderAsync(orderMessage);
+            var rawResponse = response.Body<object>().ToString();
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            // Save redirect url in CheckoutState.
+            var status = (string)jResponse.status;
+            checkoutState.OrderId = (string)jResponse.id;
+            if (status == "PAYER_ACTION_REQUIRED")
+            {
+                var link = ((JObject)jResponse).SelectToken("links")
+                            .Where(t => t["rel"].Value<string>() == "payer-action")
+                            .First()["href"].Value<string>();
+
+                checkoutState.ApmRedirectActionUrl = link;
+            }
+        }
+
+        private PaymentSource GetPaymentSource(PayPalCheckoutState checkoutState)
+        {
+            var apmPaymentSource = new PaymentSourceApm
+            {
+                CountryCode = checkoutState.ApmCountryCode,
+                Name = checkoutState.ApmFullname
+            };
+
+            var paymentSource = new PaymentSource();
+
+            switch (checkoutState.ApmProviderSystemName)
+            {
+                case "Payments.PayPalGiropay":
+                    paymentSource.PaymentSourceGiroPay = apmPaymentSource;
+                    break;
+                case "Payments.PayPalSofort":
+                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    break;
+                case "Payments.PayPalBancontact":
+                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    break;
+                case "Payments.PayPalBlik":
+                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    break;
+                case "Payments.PayPalEps":
+                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    break;
+                case "Payments.PayPalIdeal":
+                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    break;
+                case "Payments.PayPalMyBank":
+                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    break;
+                case "Payments.PayPalPrzelewy24":
+                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    break;
+                default:
+                    break;
+            }
+
+            return paymentSource;
+        }
+
+        public IActionResult RedirectionSuccess()
+        {
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
+            if (state.OrderId != null)
+            {
+                state.SubmitForm = true;
+            }
+            else
+            {
+                _checkoutStateAccessor.CheckoutState.RemoveCustomState<PayPalCheckoutState>();
+                NotifyWarning(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(state.OrderId)));
+
+                return RedirectToAction(nameof(CheckoutController.PaymentMethod), "Checkout");
+            }
+    
+            return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+        }
+
+        public IActionResult RedirectionCancel()
+        {
+            _checkoutStateAccessor.CheckoutState.RemoveCustomState<PayPalCheckoutState>();
+            NotifyWarning(T("Payment.PaymentFailure"));
+
+            return RedirectToAction(nameof(CheckoutController.PaymentMethod), "Checkout");
         }
 
         [HttpPost]
