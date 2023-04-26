@@ -295,7 +295,7 @@ namespace Smartstore.Core.Seo
                 // Impersonate
                 var prevCustomer = _services.WorkContext.CurrentCustomer;
                 // no need to vary xml sitemap by customer roles: it's relevant to crawlers only.
-                _services.WorkContext.CurrentCustomer = (await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.SearchEngine, false)) ?? prevCustomer;
+                _services.WorkContext.CurrentCustomer = (await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot, false)) ?? prevCustomer;
 
                 try
                 {

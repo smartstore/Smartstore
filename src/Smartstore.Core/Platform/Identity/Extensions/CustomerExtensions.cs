@@ -49,7 +49,7 @@ namespace Smartstore
         /// <summary>
         /// Gets a value indicating whether customer is a search engine.
         /// </summary>
-        public static bool IsSearchEngineAccount(this Customer customer)
+        public static bool IsBot(this Customer customer)
         {
             Guard.NotNull(customer);
 
@@ -58,7 +58,7 @@ namespace Smartstore
                 return false;
             }
 
-            return customer.SystemName.EqualsNoCase(SystemCustomerNames.SearchEngine);
+            return customer.SystemName.EqualsNoCase(SystemCustomerNames.Bot);
         }
 
         /// <summary>
