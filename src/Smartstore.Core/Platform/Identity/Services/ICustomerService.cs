@@ -45,6 +45,13 @@ namespace Smartstore.Core.Identity
             CancellationToken cancelToken = default);
 
         /// <summary>
+        /// Tries to append a cookie to the HTTP response that makes it possible 
+        /// to identify the (anonymous guest) customer in subsequent requests.
+        /// </summary>
+        /// <param name="customer">The customer to append cookie for.</param>
+        void AppendVisitorCookie(Customer customer);
+
+        /// <summary>
         /// Gets customer by system name.
         /// </summary>
         /// <param name="systemName">System name</param>

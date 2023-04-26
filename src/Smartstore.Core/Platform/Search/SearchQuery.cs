@@ -1,4 +1,7 @@
-﻿using Smartstore.Core.Common;
+﻿#nullable enable
+
+using System.Text;
+using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search.Facets;
 
@@ -10,16 +13,26 @@ namespace Smartstore.Core.Search
         /// Initializes a new instance of the <see cref="SearchQuery"/> class without a search term being set
         /// </summary>
         public SearchQuery()
-            : base((string[])null, null)
+            : base((string[]?)null, null)
         {
         }
 
-        public SearchQuery(string field, string term, SearchMode mode = SearchMode.Contains, bool escape = false, bool isFuzzySearch = false)
-            : base(field.HasValue() ? new[] { field } : null, term, mode, escape, isFuzzySearch)
+        public SearchQuery(
+            string? field, 
+            string? term, 
+            SearchMode mode = SearchMode.Contains, 
+            bool escape = false, 
+            bool isFuzzySearch = false)
+            : base(field.HasValue() ? new[] { field! } : null, term, mode, escape, isFuzzySearch)
         {
         }
 
-        public SearchQuery(string[] fields, string term, SearchMode mode = SearchMode.Contains, bool escape = false, bool isFuzzySearch = false)
+        public SearchQuery(
+            string[]? fields, 
+            string? term, 
+            SearchMode mode = SearchMode.Contains, 
+            bool escape = false, 
+            bool isFuzzySearch = false)
             : base(fields, term, mode, escape, isFuzzySearch)
         {
         }
@@ -33,9 +46,14 @@ namespace Smartstore.Core.Search
     public class SearchQuery<TQuery> : ISearchQuery where TQuery : class, ISearchQuery
     {
         private readonly Dictionary<string, FacetDescriptor> _facetDescriptors = new(StringComparer.OrdinalIgnoreCase);
-        private Dictionary<string, object> _customData;
+        private Dictionary<string, object>? _customData;
 
-        protected SearchQuery(string[] fields, string term, SearchMode mode = SearchMode.Contains, bool escape = false, bool isFuzzySearch = false)
+        protected SearchQuery(
+            string[]? fields, 
+            string? term, 
+            SearchMode mode = SearchMode.Contains, 
+            bool escape = false, 
+            bool isFuzzySearch = false)
         {
             Fields = fields;
             Term = term;
@@ -51,16 +69,16 @@ namespace Smartstore.Core.Search
 
         // Language, Currency & Store
         public int? LanguageId { get; protected set; }
-        public string LanguageCulture { get; protected set; }
-        public string CurrencyCode { get; protected set; }
+        public string? LanguageCulture { get; protected set; }
+        public string? CurrencyCode { get; protected set; }
         public int? StoreId { get; protected set; }
 
         /// <summary>
         /// Specifies the fields to be searched.
         /// </summary>
-        public string[] Fields { get; set; }
+        public string[]? Fields { get; set; }
 
-        public string Term { get; set; }
+        public string? Term { get; set; }
 
         /// <summary>
         /// A value indicating whether to escape the search term.
@@ -121,7 +139,7 @@ namespace Smartstore.Core.Search
         /// Search/Search: main catalog search page.
         /// Search/InstantSearch: catalog instant search.
         /// </summary>
-        public string Origin { get; protected set; }
+        public string? Origin { get; protected set; }
 
         public IDictionary<string, object> CustomData => _customData ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
@@ -129,22 +147,22 @@ namespace Smartstore.Core.Search
 
         public virtual TQuery HasStoreId(int id)
         {
-            Guard.NotNegative(id, nameof(id));
+            Guard.NotNegative(id);
 
             StoreId = id;
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         public TQuery WithLanguage(Language language)
         {
-            Guard.NotNull(language, nameof(language));
+            Guard.NotNull(language);
             Guard.NotEmpty(language.LanguageCulture, nameof(language.LanguageCulture));
 
             LanguageId = language.Id;
             LanguageCulture = language.LanguageCulture;
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         public TQuery WithCurrency(Currency currency)
@@ -154,7 +172,7 @@ namespace Smartstore.Core.Search
 
             CurrencyCode = currency.CurrencyCode;
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         public TQuery Slice(int skip, int take)
@@ -165,7 +183,7 @@ namespace Smartstore.Core.Search
             Skip = skip;
             Take = take;
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         /// <summary>
@@ -174,8 +192,8 @@ namespace Smartstore.Core.Search
         /// <param name="maxSuggestions">Number of returned suggestions. 0 to disable spell check.</param>
         public TQuery CheckSpelling(int maxSuggestions, int minQueryLength = 4, int maxHitCount = 3)
         {
-            Guard.IsPositive(minQueryLength, nameof(minQueryLength));
-            Guard.IsPositive(maxHitCount, nameof(maxHitCount));
+            Guard.IsPositive(minQueryLength);
+            Guard.IsPositive(maxHitCount);
 
             if (maxSuggestions > 0)
             {
@@ -190,32 +208,32 @@ namespace Smartstore.Core.Search
             SpellCheckerMinQueryLength = minQueryLength;
             SpellCheckerMaxHitCount = maxHitCount;
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         public TQuery WithFilter(ISearchFilter filter)
         {
-            Guard.NotNull(filter, nameof(filter));
+            Guard.NotNull(filter);
 
             Filters.Add(filter);
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         public TQuery SortBy(SearchSort sort)
         {
-            Guard.NotNull(sort, nameof(sort));
+            Guard.NotNull(sort);
 
             Sorting.Add(sort);
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         public TQuery BuildHits(bool build)
         {
             if (build)
             {
-                ResultFlags = ResultFlags | SearchResultFlags.WithHits;
+                ResultFlags |= SearchResultFlags.WithHits;
             }
             else
             {
@@ -223,7 +241,7 @@ namespace Smartstore.Core.Search
             }
 
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         /// <summary>
@@ -242,12 +260,12 @@ namespace Smartstore.Core.Search
             }
 
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         public TQuery WithFacet(FacetDescriptor facetDescription)
         {
-            Guard.NotNull(facetDescription, nameof(facetDescription));
+            Guard.NotNull(facetDescription);
 
             if (_facetDescriptors.ContainsKey(facetDescription.Key))
             {
@@ -256,16 +274,16 @@ namespace Smartstore.Core.Search
 
             _facetDescriptors.Add(facetDescription.Key, facetDescription);
 
-            return (this as TQuery);
+            return (this as TQuery)!;
         }
 
         public TQuery OriginatesFrom(string origin)
         {
-            Guard.NotEmpty(origin, nameof(origin));
+            Guard.NotEmpty(origin);
 
             Origin = origin;
 
-            return this as TQuery;
+            return (this as TQuery)!;
         }
 
         #endregion
@@ -287,13 +305,15 @@ namespace Smartstore.Core.Search
             {
                 if (len == 1)
                 {
-                    return WithFilter(SearchFilter.ByField(fieldName, values[0]).Mandatory().ExactMatch().NotAnalyzed());
+                    return WithFilter(SearchFilter.ByField(fieldName, values![0]).Mandatory().ExactMatch().NotAnalyzed());
                 }
 
-                return WithFilter(SearchFilter.Combined(fieldName, values.Select(x => SearchFilter.ByField(fieldName, x).ExactMatch().NotAnalyzed()).ToArray()));
+                return WithFilter(SearchFilter.Combined(
+                    fieldName, 
+                    values!.Select(x => SearchFilter.ByField(fieldName, x).ExactMatch().NotAnalyzed()).ToArray()));
             }
 
-            return this as TQuery;
+            return (this as TQuery)!;
         }
 
         #endregion

@@ -11,6 +11,7 @@ using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Diagnostics;
 using Smartstore.Events;
+using Smartstore.Net;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Identity
@@ -22,9 +23,9 @@ namespace Smartstore.Core.Identity
         private readonly IWebHelper _webHelper;
         private readonly IEventPublisher _eventPublisher;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserAgent _userAgent;
         private readonly IChronometer _chronometer;
         private readonly RewardPointsSettings _rewardPointsSettings;
+        private readonly PrivacySettings _privacySettings;
 
         private Customer _authCustomer;
         private bool _authCustomerResolved;
@@ -35,18 +36,18 @@ namespace Smartstore.Core.Identity
             IWebHelper webHelper,
             IEventPublisher eventPublisher,
             IHttpContextAccessor httpContextAccessor,
-            IUserAgent userAgent,
             IChronometer chronometer,
-            RewardPointsSettings rewardPointsSettings)
+            RewardPointsSettings rewardPointsSettings,
+            PrivacySettings privacySettings)
         {
             _db = db;
             _userManager = userManager;
             _webHelper = webHelper;
             _eventPublisher = eventPublisher;
             _httpContextAccessor = httpContextAccessor;
-            _userAgent = userAgent;
             _chronometer = chronometer;
             _rewardPointsSettings = rewardPointsSettings;
+            _privacySettings = privacySettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -107,11 +108,6 @@ namespace Smartstore.Core.Identity
 
         public virtual async Task<Customer> FindGuestCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60)
         {
-            if (_httpContextAccessor.HttpContext == null || _userAgent.IsBot || _userAgent.IsPdfConverter)
-            {
-                return null;
-            }
-
             using (_chronometer.Step("FindGuestCustomerByClientIdent"))
             {
                 clientIdent = clientIdent.NullEmpty() ?? _webHelper.GetClientIdent();
@@ -226,6 +222,49 @@ namespace Smartstore.Core.Identity
             Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
 
             return numberOfDeletedCustomers;
+        }
+
+        public virtual void AppendVisitorCookie(Customer customer)
+        {
+            Guard.NotNull(customer);
+            
+            if (_httpContextAccessor.HttpContext is HttpContext httpContext)
+            {
+                var cookieExpiry = customer.CustomerGuid == Guid.Empty
+                    ? DateTime.Now.AddMonths(-1)
+                    : DateTime.Now.AddDays(365); // TODO make configurable
+
+                // Set visitor cookie
+                var cookieOptions = new CookieOptions
+                {
+                    Expires = cookieExpiry,
+                    HttpOnly = true,
+                    IsEssential = true,
+                    Secure = _webHelper.IsCurrentConnectionSecured(),
+                    SameSite = SameSiteMode.Lax
+                };
+
+                // INFO: Global OnAppendCookie does not always run for visitor cookie.
+                if (cookieOptions.Secure)
+                {
+                    cookieOptions.SameSite = _privacySettings.SameSiteMode;
+                }
+
+                if (httpContext.Request.PathBase.HasValue)
+                {
+                    cookieOptions.Path = httpContext.Request.PathBase;
+                }
+
+                var cookies = httpContext.Response.Cookies;
+                try
+                {
+                    cookies.Delete(CookieNames.Visitor, cookieOptions);
+                }
+                finally
+                {
+                    cookies.Append(CookieNames.Visitor, customer.CustomerGuid.ToString(), cookieOptions);
+                }
+            }
         }
 
         #endregion

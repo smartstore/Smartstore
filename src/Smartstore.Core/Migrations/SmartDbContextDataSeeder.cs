@@ -28,6 +28,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.QueuedEmails.DeleteAll.Confirm",
                 "Are you sure you want to delete all sent or undeliverable emails?",
                 "Sind Sie sicher, dass alle gesendeten oder unzustellbaren E-Mails gelöscht werden sollen?");
+
+            builder.AddOrUpdate("Admin.ContentManagement.Menus.Item.InvalidTargetLink",
+                "Unknown or invalid target \"{0}\" at menu link \"{1}\".",
+                "Unbekanntes oder ungültiges Ziel \"{0}\" bei Menü-Link \"{1}\".");
         }
     }
 }

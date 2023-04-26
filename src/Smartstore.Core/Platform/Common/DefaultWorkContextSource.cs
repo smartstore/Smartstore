@@ -46,7 +46,6 @@ namespace Smartstore.Core
         private readonly ICustomerService _customerService;
         private readonly Lazy<ITaxService> _taxService;
         private readonly Lazy<ICurrencyService> _currencyService;
-        private readonly PrivacySettings _privacySettings;
         private readonly TaxSettings _taxSettings;
         private readonly ICacheManager _cache;
         private readonly IUserAgent _userAgent;
@@ -61,7 +60,6 @@ namespace Smartstore.Core
             ICustomerService customerService,
             Lazy<ITaxService> taxService,
             Lazy<ICurrencyService> currencyService,
-            PrivacySettings privacySettings,
             TaxSettings taxSettings,
             ICacheManager cache,
             IUserAgent userAgent,
@@ -73,7 +71,6 @@ namespace Smartstore.Core
             _languageResolver = languageResolver;
             _storeContext = storeContext;
             _customerService = customerService;
-            _privacySettings = privacySettings;
             _taxSettings = taxSettings;
             _taxService = taxService;
             _currencyService = currencyService;
@@ -180,56 +177,14 @@ namespace Smartstore.Core
         {
             var customer = await _customerService.CreateGuestCustomerAsync();
 
-            TryAppendVisitorCookie(customer, this);
+            _customerService.AppendVisitorCookie(customer);
 
             return customer;
         }
 
-        private static void TryAppendVisitorCookie(Customer customer, DefaultWorkContextSource source)
-        {
-            var httpContext = source._httpContextAccessor.HttpContext;
-            if (httpContext != null)
-            {
-                var cookieExpiry = customer.CustomerGuid == Guid.Empty
-                    ? DateTime.Now.AddMonths(-1)
-                    : DateTime.Now.AddDays(365); // TODO make configurable
-
-                // Set visitor cookie
-                var cookieOptions = new CookieOptions
-                {
-                    Expires = cookieExpiry,
-                    HttpOnly = true,
-                    IsEssential = true,
-                    Secure = source._webHelper.IsCurrentConnectionSecured(),
-                    SameSite = SameSiteMode.Lax
-                };
-
-                // INFO: Global OnAppendCookie does not always run for visitor cookie.
-                if (cookieOptions.Secure)
-                {
-                    cookieOptions.SameSite = source._privacySettings.SameSiteMode;
-                }
-
-                if (httpContext.Request.PathBase.HasValue)
-                {
-                    cookieOptions.Path = httpContext.Request.PathBase;
-                }
-
-                var cookies = httpContext.Response.Cookies;
-                try
-                {
-                    cookies.Delete(CookieNames.Visitor, cookieOptions);
-                }
-                finally
-                {
-                    cookies.Append(CookieNames.Visitor, customer.CustomerGuid.ToString(), cookieOptions);
-                }
-            }
-        }
-
         public async virtual Task<Language> ResolveWorkingLanguageAsync(Customer customer)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
             
             // Resolve the current working language
             var language = await _languageResolver.ResolveLanguageAsync(customer, _httpContextAccessor.HttpContext);
@@ -261,9 +216,9 @@ namespace Smartstore.Core
                 // Find current customer currency
                 var storeCurrenciesMap = query.ApplyStandardFilter(false, _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
 
-                if (customer != null && !customer.IsSearchEngineAccount())
+                if (customer != null && !customer.IsBot())
                 {
-                    // Search engines should always crawl by primary store currency
+                    // Bots should always crawl by primary store currency
                     var customerCurrencyId = customer.GenericAttributes.CurrencyId;
                     if (customerCurrencyId > 0)
                     {
@@ -407,8 +362,8 @@ namespace Smartstore.Core
 
         public Task SaveCustomerAttribute(Customer customer, string name, int? value, bool async)
         {
-            Guard.NotNull(customer, nameof(customer));
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotNull(customer);
+            Guard.NotEmpty(name);
 
             if (customer.IsSystemAccount)
             {
@@ -469,7 +424,7 @@ namespace Smartstore.Core
         {
             if (context.UserAgent.IsBot)
             {
-                return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.SearchEngine);
+                return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
             }
 
             return Task.FromResult<Customer>(null);
@@ -525,13 +480,13 @@ namespace Smartstore.Core
         private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)
         {
             // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent)
-            var customer = await context.CustomerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 180);
+            var customer = await context.CustomerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 300);
 
             if (customer != null)
             {
                 // If we came so far, visitor cookie was not present.
                 // Try to append for the next request.
-                TryAppendVisitorCookie(customer, context.WorkContextSource);
+                context.CustomerService.AppendVisitorCookie(customer);
             }
 
             return customer;

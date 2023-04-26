@@ -134,7 +134,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (systemCustomer != null)
                 {
-                    if (systemCustomer.IsSearchEngineAccount())
+                    if (systemCustomer.IsBot())
                     {
                         model.SystemAccountName = T("Admin.System.SystemCustomerNames.SearchEngine");
                     }

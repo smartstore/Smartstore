@@ -151,7 +151,7 @@ namespace Smartstore.Core
 
         public async Task<TaxDisplayType> GetTaxDisplayTypeAsync(Customer customer, int storeId)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
 
             var key = (_customer.Id, storeId);
 

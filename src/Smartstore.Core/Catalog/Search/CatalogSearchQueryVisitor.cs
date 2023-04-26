@@ -114,7 +114,7 @@ namespace Smartstore.Core.Catalog.Search
             }
             else if (fieldName == names.IsAvailable)
             {
-                return query.Where(x => 
+                return query.Where(x =>
                     x.ManageInventoryMethodId == (int)ManageInventoryMethod.DontManageStock ||
                     (x.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStock && (x.StockQuantity > 0 || x.BackorderModeId != (int)BackorderMode.NoBackorders)) ||
                     (x.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStockByAttributes && x.ProductVariantAttributeCombinations.Any(pvac => pvac.StockQuantity > 0 || pvac.AllowOutOfStockOrders))
@@ -301,6 +301,28 @@ namespace Smartstore.Core.Catalog.Search
                     return query;
                 }
             }
+            else if (filter is CategoryTreePathFilter tpf)
+            {
+                context.IsGroupingRequired = true;
+                context.CategoryId ??= tpf.CategoryId;
+
+                if (tpf.IncludeSelf)
+                {
+                    return
+                        from p in query
+                        from pc in p.ProductCategories.Where(x => x.Category.TreePath.StartsWith(tpf.TreePath))
+                        where !tpf.FeaturedOnly.HasValue || tpf.FeaturedOnly.Value == pc.IsFeaturedProduct
+                        select p;
+                }
+                else
+                {
+                    return
+                        from p in query
+                        from pc in p.ProductCategories.Where(x => x.Category.TreePath.StartsWith(tpf.TreePath) && x.Category.TreePath.Length > tpf.TreePath.Length)
+                        where !tpf.FeaturedOnly.HasValue || tpf.FeaturedOnly.Value == pc.IsFeaturedProduct
+                        select p;
+                }
+            }
             else if (filter is IAttributeSearchFilter af)
             {
                 // Attribute filters except range filters
@@ -316,39 +338,6 @@ namespace Smartstore.Core.Catalog.Search
                         ProductVisibility.SearchResults => query.Where(x => x.Visibility <= visibility),
                         _ => query.Where(x => x.Visibility == visibility),
                     };
-                }
-                else if (fieldName.EndsWith(names.CategoryPath) && af.Mode == SearchMode.StartsWith)
-                {
-                    context.IsGroupingRequired = true;
-                    
-                    var treePath = (string)af.Term;
-                    context.CategoryId ??= treePath.EmptyNull().Trim('/').SplitSafe('/').FirstOrDefault()?.ToInt() ?? 0;
-
-                    bool? featuredOnly = filter.FieldName == names.CategoryPath ? null : filter.FieldName.StartsWith("featured");
-
-                    var notIncludeSelf = context.Filters
-                        .Select(x => x.FieldName.EndsWith(names.CategoryPath) 
-                            && x is IAttributeSearchFilter af2 
-                            && af2.Mode == SearchMode.ExactMatch 
-                            && af2.Occurence == SearchFilterOccurence.MustNot ? af2 : null)
-                        .Any(x => x != null);
-
-                    if (notIncludeSelf)
-                    {
-                        return
-                            from p in query
-                            from pc in p.ProductCategories.Where(x => x.Category.TreePath.StartsWith(treePath) && x.Category.TreePath.Length > treePath.Length)
-                            where !featuredOnly.HasValue || featuredOnly.Value == pc.IsFeaturedProduct
-                            select p;
-                    }
-                    else
-                    {
-                        return
-                            from p in query
-                            from pc in p.ProductCategories.Where(x => x.Category.TreePath.StartsWith(treePath))
-                            where !featuredOnly.HasValue || featuredOnly.Value == pc.IsFeaturedProduct
-                            select p;
-                    }
                 }
             }
 

@@ -77,7 +77,7 @@ namespace Smartstore.Core.Catalog.Search
         /// Initializes a new instance of the <see cref="CatalogSearchQuery"/> class without a search term being set
         /// </summary>
         public CatalogSearchQuery()
-            : base((string[])null, null)
+            : base((string[])null!, null)
         {
         }
 
@@ -333,16 +333,7 @@ namespace Smartstore.Core.Catalog.Search
         {
             if (treePath.HasValue())
             {
-                var fieldName = featuredOnly.HasValue
-                    ? featuredOnly.Value ? KnownFilters.FeaturedCategoryPath : KnownFilters.NotFeaturedCategoryPath
-                    : KnownFilters.CategoryPath;
-
-                WithFilter(SearchFilter.ByField(fieldName, treePath).StartsWith().Mandatory().NotAnalyzed());
-
-                if (!includeSelf)
-                {
-                    WithFilter(SearchFilter.ByField(fieldName, treePath).ExactMatch().Mandatory(false).NotAnalyzed());
-                }
+                WithFilter(new CategoryTreePathFilter(treePath, featuredOnly, includeSelf));
             }
 
             return this;
@@ -400,13 +391,13 @@ namespace Smartstore.Core.Catalog.Search
             {
                 if (len == 1)
                 {
-                    return WithFilter(SearchFilter.ByField(KnownFilters.Condition, (int)conditions[0]).Mandatory().ExactMatch().NotAnalyzed());
+                    return WithFilter(SearchFilter.ByField(KnownFilters.Condition, (int)conditions![0]).Mandatory().ExactMatch().NotAnalyzed());
                 }
 
                 return WithFilter(
                     SearchFilter.Combined(
                         KnownFilters.Condition, 
-                        conditions.Select(x => SearchFilter.ByField(KnownFilters.Condition, (int)x).ExactMatch().NotAnalyzed()).ToArray()));
+                        conditions!.Select(x => SearchFilter.ByField(KnownFilters.Condition, (int)x).ExactMatch().NotAnalyzed()).ToArray()));
             }
 
             return this;
