@@ -106,7 +106,7 @@ namespace Smartstore.Core.Identity
             return customer;
         }
 
-        public virtual async Task<Customer> FindGuestCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60)
+        public virtual async Task<Customer> FindCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60)
         {
             using (_chronometer.Step("FindGuestCustomerByClientIdent"))
             {
