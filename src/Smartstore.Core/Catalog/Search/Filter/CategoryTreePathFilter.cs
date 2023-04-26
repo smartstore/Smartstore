@@ -47,6 +47,6 @@ namespace Smartstore.Core.Catalog.Search
         /// Category identifier from <see cref="TreePath"/>.
         /// </summary>
         public int CategoryId
-            => TreePath.EmptyNull().Trim('/').SplitSafe('/').FirstOrDefault()?.ToInt() ?? 0;
+            => TreePath.Trim('/').Tokenize('/').FirstOrDefault()?.ToInt() ?? 0;
     }
 }
