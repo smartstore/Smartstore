@@ -5,6 +5,7 @@
 ### New Features
 
 - Reverse proxy configuration using `ForwardedHeadersMiddleware`
+- SqliteDataProvider: implemented BackupRestore feature
 
 ### Improvements
 
