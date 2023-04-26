@@ -479,12 +479,20 @@ namespace Smartstore.Core
 
         private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)
         {
-            // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent)
-            var customer = await context.CustomerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 300);
+            // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent combination)
+            var customer = await context.CustomerService.FindCustomerByClientIdentAsync(maxAgeSeconds: 300);
 
-            if (customer != null && !customer.IsRegistered())
+            if (customer != null)
             {
-                return null;
+                if (customer.IsRegistered() || !customer.IsGuest())
+                {
+                    // Ignore registered and non-guest accounts.
+                    return null;
+                }
+                else
+                {
+                    customer.DetectedByClientIdent = true;
+                }
             }
 
             return customer;

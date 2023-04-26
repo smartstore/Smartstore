@@ -21,7 +21,7 @@ namespace Smartstore.Core.Identity
         Task<Customer> CreateGuestCustomerAsync(bool generateClientIdent = true, Action<Customer> customAction = null);
 
         /// <summary>
-        /// Tries to find a guest/anonymous customer record by client ident. This method should be called when an
+        /// Tries to find a customer record by client ident. This method should be called when an
         /// anonymous visitor rejects cookies and therefore cannot be identified automatically.
         /// </summary>
         /// <param name="clientIdent">
@@ -29,7 +29,7 @@ namespace Smartstore.Core.Identity
         /// Call <see cref="IWebHelper.GetClientIdent()"/> to obtain an ident string, or pass <c>null</c> to let this method obtain it automatically.</param>
         /// <param name="maxAgeSeconds">The max age of the newly created guest customer record. The shorter, the better (default is 1 min.)</param>
         /// <returns>The identified customer or <c>null</c></returns>
-        Task<Customer> FindGuestCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60);
+        Task<Customer> FindCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60);
 
         /// <summary>
         /// Deletes guest customer records including generic attributes.
