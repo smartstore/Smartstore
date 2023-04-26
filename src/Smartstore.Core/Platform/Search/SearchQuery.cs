@@ -199,20 +199,10 @@ namespace Smartstore.Core.Search
 
         public TQuery WithTerm(
             string term,
-            string fieldName,
-            SearchMode mode = SearchMode.Contains,
-            bool escape = false,
-            bool isNotAnalyzed = false)
-        {
-            return WithFilter(SearchFilter.BySearchTerm(fieldName, term, mode, escape, isAnalyzed));
-        }
-
-        public TQuery WithTerm(
-            string term,
             string[] fields,
             SearchMode mode = SearchMode.Contains,
             bool escape = false,
-            bool isAnalyzed = true)
+            bool isNotAnalyzed = true)
         {
             Guard.NotEmpty(term);
             Guard.NotEmpty(fields);
