@@ -212,24 +212,23 @@
             };
         }
 
-        
-        public static SearchTermFilter BySearchTerm(
+        public static SearchFilter BySearchTerm(
             string fieldName,
             string term,
             SearchMode mode = SearchMode.Contains,
             bool escape = false,
-            bool isAnalyzed = true)
+            bool isNotAnalyzed = true)
         {
             Guard.NotEmpty(term);
             Guard.NotEmpty(fieldName);
 
-            return new SearchTermFilter
+            return new SearchFilter
             {
                 FieldName = fieldName,
                 Term = term,
                 Mode = mode,
                 Escape = escape,
-                IsAnalyzed = isAnalyzed
+                IsNotAnalyzed = isNotAnalyzed
             };
         }
 

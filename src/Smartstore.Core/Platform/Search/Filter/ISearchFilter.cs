@@ -35,44 +35,41 @@ namespace Smartstore.Core.Search
         bool IncludesUpper { get; }
     }
 
-    // TODO: (mg) should we use such a new interface for term filters to distinguish more easily? I guess so:
-    // RE: No. SearchTermFilter class is sufficient. It should implement IAttributeSearchFilter.
-    public interface ISearchTermFilter : ISearchFilter
-    {
-        string? Term { get; }
-        SearchMode Mode { get; }
-        bool Escape { get; }
-        bool IsAnalyzed { get; }
-    }
+    // TODO: (mg) should we use such a new interface for term filters to distinguish more easily? No ;)
+    //public interface ISearchTermFilter : ISearchFilter
+    //{
+    //    string? Term { get; }
+    //    SearchMode Mode { get; }
+    //    bool Escape { get; }
+    //    bool IsAnalyzed { get; }
+    //}
 
-    // TODO: (mg) move to new file when ready.
-    public class SearchTermFilter : SearchFilterBase, ISearchTermFilter
-    {
-        // TODO: (core) Either rename or remove this.
-        public string? Term
-        {
-            get;
-            protected internal set;
-        }
+    //public class SearchTermFilter : SearchFilterBase, ISearchTermFilter
+    //{
+    //    public string? Term
+    //    {
+    //        get;
+    //        protected internal set;
+    //    }
 
-        public SearchMode Mode
-        {
-            get;
-            protected internal set;
-        }
+    //    public SearchMode Mode
+    //    {
+    //        get;
+    //        protected internal set;
+    //    }
 
-        public bool Escape
-        {
-            get;
-            protected internal set;
-        }
+    //    public bool Escape
+    //    {
+    //        get;
+    //        protected internal set;
+    //    }
 
-        public bool IsAnalyzed
-        {
-            get;
-            protected internal set;
-        }
-    }
+    //    public bool IsAnalyzed
+    //    {
+    //        get;
+    //        protected internal set;
+    //    }
+    //}
 
     public static class ISearchFilterExtensions
     {

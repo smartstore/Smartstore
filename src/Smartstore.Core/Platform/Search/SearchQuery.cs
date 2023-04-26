@@ -202,7 +202,7 @@ namespace Smartstore.Core.Search
             string fieldName,
             SearchMode mode = SearchMode.Contains,
             bool escape = false,
-            bool isAnalyzed = true)
+            bool isNotAnalyzed = false)
         {
             return WithFilter(SearchFilter.BySearchTerm(fieldName, term, mode, escape, isAnalyzed));
         }
@@ -224,11 +224,12 @@ namespace Smartstore.Core.Search
             {
                 if (fields.Length == 1)
                 {
-                    return WithFilter(SearchFilter.BySearchTerm(fields![0], term, mode, escape, isAnalyzed));
+                    return WithFilter(SearchFilter.BySearchTerm(fields![0], term, mode, escape, isNotAnalyzed));
                 }
 
                 return WithFilter(SearchFilter.Combined(
-                    fields!.Select(field => SearchFilter.BySearchTerm(field, term, mode, escape, isAnalyzed)).ToArray()));
+                    "searchterm",
+                    fields!.Select(field => SearchFilter.BySearchTerm(field, term, mode, escape, isNotAnalyzed)).ToArray()));
             }
 
             return (this as TQuery)!;

@@ -1,12 +1,14 @@
 ﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
+using Smartstore.Linq;
 
 namespace Smartstore.Core.Catalog.Search
 {
     public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>
     {
-        protected override IQueryable<Product> VisitTerm(ISearchTermFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
+        protected override IQueryable<Product> VisitTerm(CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             // TODO: (mg) Refactor after Terms isolation is implemented.
             // RE: just a hint: VisitTerm can be removed, because terms are regular filters now and thus should be handled by
@@ -338,6 +340,31 @@ namespace Smartstore.Core.Catalog.Search
                         ProductVisibility.SearchResults => query.Where(x => x.Visibility <= visibility),
                         _ => query.Where(x => x.Visibility == visibility),
                     };
+                }
+                else if (fieldName == names.Sku)
+                {
+                    var predicates = new List<Expression<Func<Product, bool>>>(5);
+
+                    if (af.Mode == SearchMode.ExactMatch)
+                        predicates.Add(x => x.Sku == (string)af.Term);
+                    else if (af.Mode == SearchMode.StartsWith)
+                        predicates.Add(x => x.Sku.StartsWith((string)af.Term));
+                    else if (af.Mode == SearchMode.Contains)
+                        predicates.Add(x => x.Sku.Contains((string)af.Term));
+
+                    var predicate = PredicateBuilder.New(predicates.First());
+                    for (var i = 1; i < predicates.Count; i++)
+                    {
+                        predicate = PredicateBuilder.Or(predicate, predicates[i]);
+                    }
+                    query = query.Where(predicate);
+                    // TODO: (mg) doesn't make sense. no idea what I'm doing here.
+                }
+                else if (fieldName == names.Name)
+                {
+                }
+                else if (fieldName == names.ShortDescription)
+                {
                 }
             }
 
