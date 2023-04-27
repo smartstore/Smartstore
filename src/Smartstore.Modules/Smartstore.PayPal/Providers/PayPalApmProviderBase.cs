@@ -56,7 +56,10 @@ namespace Smartstore.PayPal.Providers
             var model = new PublicApmModel
             {
                 FullName = form["FullName"],
-                CountryCode = country.TwoLetterIsoCode
+                CountryCode = country.TwoLetterIsoCode,
+                BIC = form["BIC"],
+                Email = form["Email"],
+                Funding = form["Funding"]
             };
 
             var result = await _validator.ValidateAsync(model);
@@ -67,13 +70,17 @@ namespace Smartstore.PayPal.Providers
         {   
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
 
-            // Add Fullname & CountryCode to checkout state
+            // Add Fullname & CountryCode to checkout state.
             var countryId = Convert.ToInt32(form["CountryId"]);
             var country = await _db.Countries.FindByIdAsync(countryId, false);
 
             state.ApmFullname = form["FullName"];
             state.ApmCountryCode = country.TwoLetterIsoCode;
             state.ApmProviderSystemName = form["paymentmethod"];
+
+            // Add Email & BIC to checkout state if available.
+            state.ApmEmail = form["Email"].ToString().HasValue() ? form["Email"] : string.Empty;
+            state.ApmBIC = form["BIC"].ToString().HasValue() ? form["BIC"] : string.Empty;
 
             // INFO: OrderGuid is stored in checkout state, otherwise the transaction data hash may not match.
             // When going back in checkout, the user would be redirected to PayPal again, even though his payment details have not changed at all.

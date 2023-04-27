@@ -23,12 +23,15 @@ namespace Smartstore.PayPal.Components
                 return Empty();
             }
 
+            var billingAddress = Services.WorkContext.CurrentCustomer.BillingAddress;
+
             var model = new PublicApmModel
             {
-                Funding = funding
+                Funding = funding,
+                CountryId = billingAddress?.CountryId ?? 0,
+                FullName = billingAddress?.GetFullName() ?? string.Empty,
+                Email = billingAddress?.Email ?? string.Empty,
             };
-
-            // TODO: (mh) (core) Preselect Name & Country from billing address.
 
             return View(model);
         }

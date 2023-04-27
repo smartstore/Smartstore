@@ -67,8 +67,7 @@ namespace Smartstore.PayPal.Filters
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
-                // TODO: Only set if credit card is active.
-                var clientToken = await GetClientToken();
+                var clientToken = await _payPalHelper.IsCreditCardActiveAsync() ? await GetClientToken() : string.Empty;
 
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>"));
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='/Modules/Smartstore.PayPal/js/paypal.utils.js'></script>"));
@@ -169,19 +168,6 @@ namespace Smartstore.PayPal.Filters
             {
                 result += ",card";
             }
-
-
-            // TODO: (mh) (core) Add more funding options if needed or remove the following.
-            // As we don't render any buttons for APMs we might not need to add payment sources here 
-            //if (await _payPalHelper.IsGiropayActiveAsync())
-            //{
-            //    result += ",giropay";
-            //}
-
-            //if (await _payPalHelper.IsSofortActiveAsync())
-            //{
-            //    result += ",sofort";
-            //}
 
             return result;
         }
