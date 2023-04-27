@@ -1,0 +1,36 @@
+﻿@model PublicApmModel
+
+@*INFO: No target zone here as can also be rendered via AJAX*@
+<script data-origin="paypal-@(Model.Funding)">
+    $(function () {
+        if (!paypal.isFundingEligible("@Model.Funding")) {
+            console.log("Not eligible: @Model.Funding");
+        }
+    });
+</script>
+
+<div class="opt-form">
+    <div class="form-group row">
+        <label asp-for="FullName" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <input asp-for="FullName" sm-required="true" />
+            <span asp-validation-for="FullName"></span>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label asp-for="CountryId" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            @{
+                var countrySelectorViewData = new
+                {
+                    placeholder = T("Address.SelectCountry").Value,
+                    includeHidden = false,
+                    storeId = CommonServices.StoreContext.CurrentStore.Id,
+                };
+            }
+            <editor asp-for="CountryId" class="country-input country-selector" asp-additional-viewdata='countrySelectorViewData' />
+            <span asp-validation-for="CountryId"></span>
+        </div>
+    </div>
+</div>

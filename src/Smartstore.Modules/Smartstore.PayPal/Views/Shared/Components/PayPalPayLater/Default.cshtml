@@ -1,8 +1,18 @@
-﻿<div style="border-top: 1px solid rgba(0, 0, 0, 0.15);" 
-     class="text-center pt-3 mt-2"
-     data-pp-message
-     data-pp-style-text-align="center"
-     data-pp-placement="product"
-     data-pp-style-text-size="13"
-     data-pp-amount="@ViewBag.Price">
-</div>  
+﻿@model PublicPaymentMethodModel
+
+<!-- Set up a container element for the paypal button -->
+<div id="paypal-paylater-button-container"
+     class="paypal-button-container"
+     data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
+     data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
+     data-forward-url="@(Model.IsPaymentSelection ? Url.Action("Confirm", "Checkout") : Url.Action("BillingAddress", "Checkout"))"
+     data-shape="@Model.ButtonShape"
+     data-color="@Model.ButtonColor"
+     attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'></div>
+
+@*INFO: No target zone here because this can also be rendered via AJAX (in OffCanvasCart)*@
+<script data-origin="paypal-paylater-button">
+    $(function () {
+        const ppPayLaterButton = new PayPalButton("#paypal-paylater-button-container", "paylater");
+    });
+</script>

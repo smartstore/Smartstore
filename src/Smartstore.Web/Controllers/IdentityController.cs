@@ -705,6 +705,9 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         private async Task<IActionResult> FinalizeCustomerRegistrationAsync(Customer customer, string returnUrl)
         {
+            // Remove ClientIdent: no other "same-building" guest should be identified by this ident.
+            customer.GenericAttributes.ClientIdent = null;
+
             await AssignCustomerRolesAsync(customer);
 
             // Add reward points for customer registration (if enabled).

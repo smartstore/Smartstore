@@ -46,26 +46,6 @@ namespace Smartstore.PayPal.Settings
         public string WebhookId { get; set; }
 
         /// <summary>
-        /// Specifies which payment options should be disabled.
-        /// </summary>
-        public string DisabledFundings { get; set; }
-
-        /// <summary>
-        /// Specifies which payment options should be enabled.
-        /// </summary>
-        public string EnabledFundings { get; set; }
-
-        /// <summary>
-        /// Specifies which payment options should be displayed in OffCanvasCart.
-        /// </summary>
-        public string FundingsOffCanvasCart { get; set; } = "paylater";
-
-        /// <summary>
-        /// Specifies which payment options should be displayed on cart page.
-        /// </summary>
-        public string FundingsCart { get; set; } = "paylater";
-
-        /// <summary>
         /// Specifies whether to display the pay later widget on product detail pages.
         /// </summary>
         public bool DisplayProductDetailPayLaterWidget { get; set; } = false;
@@ -73,7 +53,7 @@ namespace Smartstore.PayPal.Settings
         /// <summary>
         /// Specifies whether the payment will be captured immediately or just authorized.
         /// </summary>
-        public PayPalTransactionType Intent { get; set; } = PayPalTransactionType.Authorize;
+        public PayPalTransactionType Intent { get; set; } = PayPalTransactionType.Capture;
 
         /// <summary>
         /// Specifies the form of the buttons.
@@ -86,20 +66,32 @@ namespace Smartstore.PayPal.Settings
         public string ButtonColor { get; set; }
 
         /// <summary>
-        /// Specifies a text that is displayed by PayPal as service instruction.
+        /// Specifies a text that is displayed by PayPal as service instruction (mandatory for pay upon invoice). 
         /// </summary>
         [LocalizedProperty]
         public string CustomerServiceInstructions { get; set; }
 
+        // TODO: (mh) (core) Remove this setting and render buttons if there are any fundings configured in FundingsOffCanvasCart.
         /// <summary>
         /// Specifies whether to display the checkout button in offcanvas shopping cart.
         /// </summary>
         public bool ShowButtonInMiniShoppingCart { get; set; } = true;
 
         /// <summary>
+        /// Specifies which payment options should be displayed in OffCanvasCart.
+        /// </summary>
+        public string FundingsOffCanvasCart { get; set; } = "paypal";
+
+        // TODO: (mh) (core) Remove this setting and render buttons if there are any fundings configured in FundingsCart.
+        /// <summary>
         /// Specifies whether to display the checkout button on shopping cart page.
         /// </summary>
         public bool ShowButtonOnCartPage { get; set; } = true;
+
+        /// <summary>
+        /// Specifies which payment options should be displayed on cart page.
+        /// </summary>
+        public string FundingsCart { get; set; } = "paypal";
 
         /// <summary>
         /// Specifies the limit to which the Pay Upon Invoice should be offered.

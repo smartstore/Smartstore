@@ -38,12 +38,6 @@ namespace Smartstore.PayPal.Models
         [LocalizedDisplay("*WebhookUrl")]
         public string WebhookUrl { get; set; }
 
-        [LocalizedDisplay("*DisabledFundings")]
-        public string[] DisabledFundings { get; set; }
-
-        [LocalizedDisplay("*EnabledFundings")]
-        public string[] EnabledFundings { get; set; }
-
         [LocalizedDisplay("*DisplayProductDetailPayLaterWidget")]
         public bool DisplayProductDetailPayLaterWidget { get; set; }
 

@@ -8,6 +8,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Components;
 using Smartstore.PayPal.Services;
+using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.Checkout;
 
 namespace Smartstore.PayPal.Filters
@@ -56,57 +57,97 @@ namespace Smartstore.PayPal.Filters
             }
 
             var checkoutState = _checkoutStateAccessor.CheckoutState;
+            var customer = _services.WorkContext.CurrentCustomer;
+            var action = filterContext.RouteData.Values.GetActionName();
 
-            if (!checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed"))
+            if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
             {
-                if (filterContext.Result is not ViewResult viewResult || viewResult.Model is not CheckoutPaymentMethodModel model)
+
+                if (!checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed"))
                 {
+                    if (filterContext.Result is not ViewResult viewResult || viewResult.Model is not CheckoutPaymentMethodModel model)
+                    {
+                        await next();
+                        return;
+                    }
+
+                    var isSelected = false;
+                    var firstPaymentMethod = model.PaymentMethods.First();
+                    if (firstPaymentMethod != null)
+                    {
+                        isSelected = firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalStandard" && firstPaymentMethod.Selected;
+                    }
+
+                    _widgetProvider.Value.RegisterViewComponent<PayPalPaymentSelectionViewComponent>("checkout_payment_method_buttons", new { isPaymentInfoInvoker = false, isSelected });
+
                     await next();
                     return;
                 }
 
-                var isSelected = false;
-                var firstPaymentMethod = model.PaymentMethods.First(); 
-                if (firstPaymentMethod != null)
+                var skipPaymentPage = (bool)checkoutState.CustomProperties.Get("PayPalButtonUsed");
+
+                // Should only run on a full view rendering result or HTML ContentResult.
+                if ((filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult()) && skipPaymentPage)
                 {
-                    isSelected = firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalStandard" && firstPaymentMethod.Selected;
+                    customer.GenericAttributes.SelectedPaymentMethod = "Payments.PayPalStandard";
+                    await _db.SaveChangesAsync();
+
+                    var session = _httpContextAccessor.HttpContext.Session;
+
+                    if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
+                    {
+                        processPaymentRequest = new ProcessPaymentRequest();
+                    }
+
+                    processPaymentRequest.PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId");
+                    processPaymentRequest.StoreId = _services.StoreContext.CurrentStore.Id;
+                    processPaymentRequest.CustomerId = customer.Id;
+                    processPaymentRequest.PaymentMethodSystemName = "Payments.PayPalStandard";
+
+                    _httpContextAccessor.HttpContext.Session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+
+                    // Delete property for backward navigation.
+                    checkoutState.CustomProperties.Remove("PayPalButtonUsed");
+
+                    filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = "" });
                 }
-
-                _widgetProvider.Value.RegisterViewComponent<PayPalViewComponent>("checkout_payment_method_buttons", new { isPaymentInfoInvoker = false, isSelected });
-
-                await next();
-                return;
             }
-
-            var skipPaymentPage = (bool)checkoutState.CustomProperties.Get("PayPalButtonUsed");
-
-            // Should only run on a full view rendering result or HTML ContentResult.
-            if ((filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult()) && skipPaymentPage)
+            else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
             {
-                _services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod = "Payments.PayPalStandard";
-                await _db.SaveChangesAsync();
-
-                var session = _httpContextAccessor.HttpContext.Session;
-
-                if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
+                if (IsApm(customer.GenericAttributes.SelectedPaymentMethod))
                 {
-                    processPaymentRequest = new ProcessPaymentRequest();
+                    var state = _checkoutStateAccessor.CheckoutState;
+
+                    if (state.IsPaymentRequired && await _payPalHelper.IsGiropayActiveAsync())
+                    {
+                        _widgetProvider.Value.RegisterWidget("end",
+                            new PartialViewWidget("_CheckoutConfirm", state.GetCustomState<PayPalCheckoutState>(), "Smartstore.PayPal"));
+                    }
                 }
-
-                processPaymentRequest.PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId");
-                processPaymentRequest.StoreId = _services.StoreContext.CurrentStore.Id;
-                processPaymentRequest.CustomerId = _services.WorkContext.CurrentCustomer.Id;
-                processPaymentRequest.PaymentMethodSystemName = "Payments.PayPalStandard";
-
-                _httpContextAccessor.HttpContext.Session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
-
-                // Delete property for backward navigation.
-                checkoutState.CustomProperties.Remove("PayPalButtonUsed");
-
-                filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = "" });
             }
-
+            
             await next();
+        }
+
+        /// <summary>
+        /// Checks if the choosen payment method is an APM (alternative payment method).
+        /// </summary>
+        /// <param name="systemname"></param>
+        /// <returns></returns>
+        private static bool IsApm(string systemname)
+        {
+            string[] apms = { 
+                "Payments.PayPalGiropay",
+                "Payments.PayPalSofort",
+                "Payments.PayPalBancontact",
+                "Payments.PayPalBlik",
+                "Payments.PayPalEps",
+                "Payments.PayPalIdeal",
+                "Payments.PayPalMyBank",
+                "Payments.PayPalPrzelewy24"
+            };
+
+            return apms.Contains(systemname);
         }
     }
 }

@@ -19,8 +19,12 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<MeasureService>().As<IMeasureService>().InstancePerLifetimeScope();
             builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultWebHelper>().As<IWebHelper>().InstancePerLifetimeScope();
-            builder.RegisterType<UAParserUserAgent>().As<IUserAgent>().InstancePerLifetimeScope();
             builder.RegisterType<PreviewModeCookie>().As<IPreviewModeCookie>().InstancePerLifetimeScope();
+
+            // User agent
+            builder.RegisterType<UAParserUserAgent>().As<IUserAgent>().InstancePerLifetimeScope();
+            builder.RegisterType<UAUserAgentParser>().As<IUserAgentParser>().SingleInstance();
+            builder.RegisterType<DefaultUserAgent>().As<IUserAgent2>().InstancePerLifetimeScope();
 
             // Rule options provider.
             builder.RegisterType<CommonRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();

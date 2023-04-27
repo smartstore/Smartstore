@@ -16,7 +16,40 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalPayUponInvoice" AppendRootKey="false">
         <Value>Kauf auf Rechnung</Value>
     </LocaleResource>
-
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalSepa" AppendRootKey="false">
+        <Value>PayPal Sepa</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalPayLater" AppendRootKey="false">
+        <Value>PayPal später zahlen</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalCreditCard" AppendRootKey="false">
+        <Value>PayPal Kreditkarte</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalGiroPay" AppendRootKey="false">
+        <Value>Giropay</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalSofort" AppendRootKey="false">
+        <Value>Sofortüberweisung</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalBancontact" AppendRootKey="false">
+        <Value>Bancontact</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalBlik" AppendRootKey="false">
+        <Value>BLIK</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalEps" AppendRootKey="false">
+        <Value>eps</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalIdeal" AppendRootKey="false">
+        <Value>iDEAL</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalMyBank" AppendRootKey="false">
+        <Value>MyBank</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalPrzelewy24" AppendRootKey="false">
+        <Value>Przelewy24</Value>
+    </LocaleResource>
+    
     <!-- Backend provider description -->
     <LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
@@ -34,24 +67,186 @@
               ]]>
         </Value>
     </LocaleResource>
-
+    <LocaleResource Name="Plugins.Description.Payments.PayPalSepa" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei PayPal durchgeführt wird.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalPayLater" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei PayPal durchgeführt wird.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalCreditCard" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Bietet die Möglichkeit, mit Kreditkarte zu bezahlen.
+                Die Felder für die Eingabe der Kreditkartendaten sind über Iframes, die direkt von PayPal angeboten werden, in den Checkout integriert. 
+                Die Kreditkartendaten kommen somit nicht mit dem Shop in Berührung.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalGiroPay" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Nach Abschluss der Bestellung wird der Kunde direkt zu GiroPay weitergeleitet, um den Bezahlvorgang abzuschließen.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalSofort" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Nach Abschluss der Bestellung wird der Kunde direkt zu Sofortüberweisung weitergeleitet, um den Bezahlvorgang abzuschließen.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalBancontact" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Nach Abschluss der Bestellung wird der Kunde direkt zu Bancontact weitergeleitet, um den Bezahlvorgang abzuschließen.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalBlik" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Nach Abschluss der Bestellung wird der Kunde direkt zu BLIK weitergeleitet, um den Bezahlvorgang abzuschließen.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalEps" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Nach Abschluss der Bestellung wird der Kunde direkt zu eps-Überweisung weitergeleitet, um den Bezahlvorgang abzuschließen.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalIdeal" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Nach Abschluss der Bestellung wird der Kunde direkt zu iDEAL weitergeleitet, um den Bezahlvorgang abzuschließen.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalMyBank" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Nach Abschluss der Bestellung wird der Kunde direkt zu MyBank weitergeleitet, um den Bezahlvorgang abzuschließen.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalPrzelewy24" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Nach Abschluss der Bestellung wird der Kunde direkt zu Przelewy24 weitergeleitet, um den Bezahlvorgang abzuschließen.
+            ]]>
+        </Value>
+    </LocaleResource>
+    
     <!-- Should be rendered in frontend by default. As long as the shop admin doesn't enter a FullDescription for the PaymentMethod -->
-    <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalStandard" AppendRootKey="false">
-        <Value>
-            <![CDATA[
-				Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
-				Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
-              ]]>
-        </Value>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="PayPalStandard" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+				        Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
+				        Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalPayUponInvoice" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Sie geben die Bestellung auf, erhalten die Ware und bezahlen dann die Rechnung innerhalb von 30 Tagen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalSepa" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+				        Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
+				        Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalPayLater" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+				        Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
+				        Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalCreditCard" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Ihre Kreditkartendaten werden direkt auf dem PayPal-Server erfasst.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalGiroPay" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Sie werden auf die Website von Giropay weitergeleitet, um die Zahlung abzuschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalSofort" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Sie werden auf die Website von Sofortüberweisung weitergeleitet, um die Zahlung abzuschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalBancontact" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Sie werden auf die Website von Bancontact weitergeleitet, um die Zahlung abzuschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalBlik" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Sie werden auf die Website von BLIK weitergeleitet, um die Zahlung abzuschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalEps" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Sie werden auf die Website von eps-Überweisung weitergeleitet, um die Zahlung abzuschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalIdeal" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Sie werden auf die Website von iDEAL weitergeleitet, um die Zahlung abzuschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalMyBank" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Sie werden auf die Website von MyBank weitergeleitet, um die Zahlung abzuschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalPrzelewy24" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        Sie werden auf die Website von Przelewy24 weitergeleitet, um die Zahlung abzuschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+        </Children>
     </LocaleResource>
-    <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalPayUponInvoice" AppendRootKey="false">
-        <Value>
-            <![CDATA[
-                Sie geben die Bestellung auf, erhalten die Ware und bezahlen dann die Rechnung innerhalb von 30 Tagen.
-              ]]>
-        </Value>
-    </LocaleResource>
-
+    
     <LocaleResource Name="Plugins.Smartstore.PayPal" AppendRootKey="false">
         <Children>
             <LocaleResource Name="AdminInstruction">
@@ -150,24 +345,6 @@
             </LocaleResource>
             <LocaleResource Name="ShowButtonOnCartPage.Hint">
                 <Value>Legt fest, ob PayPal-Buttons auf der Warenkorbseite angezeigt werden sollen.</Value>
-            </LocaleResource>
-            <LocaleResource Name="DisabledFundings">
-                <Value>Deaktivierte Zahlungsoptionen</Value>
-            </LocaleResource>
-            <LocaleResource Name="DisabledFundings.Hint">
-                <Value>
-                    Die Anzeige einer Zahlungsoption wird automatisch durch eine Reihe von Faktoren bestimmt.
-                    Bestimmen Sie hier die Zahlungsoptionen, die nicht angeboten werden dürfen.
-                </Value>
-            </LocaleResource>
-            <LocaleResource Name="EnabledFundings">
-                <Value>Aktivierte Zahlungsoptionen</Value>
-            </LocaleResource>
-            <LocaleResource Name="EnabledFundings.Hint">
-                <Value>
-                    Die Anzeige einer Zahlungsoption wird automatisch durch eine Reihe von Faktoren bestimmt.
-                    Bestimmen Sie hier die Zahlungsoptionen, die auf jeden Fall angeboten werden sollen, sofern sie verfügbar sind.
-                </Value>
             </LocaleResource>
             <LocaleResource Name="DisplayProductDetailPayLaterWidget">
                 <Value>Ratenzahlungs-Widget anzeigen</Value>
@@ -340,6 +517,22 @@
             <LocaleResource Name="PhoneNumber.Invalid">
                 <Value>Bitte geben Sie eine gültige Telefonnummer ohne Leerzeichen an.</Value>
             </LocaleResource>
+            
+            <LocaleResource Name="FullName">
+                <Value>Vollständiger Name</Value>
+            </LocaleResource>
+            <LocaleResource Name="FullName.NotEmpty">
+                <Value>Bitte geben Sie Ihren vollständigen Namen an.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Country.NotEmpty">
+                <Value>Bitte wählen Sie ein Land aus.</Value>
+            </LocaleResource>
+            <LocaleResource Name="BIC">
+                <Value>BIC</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.CreditCardData">
+                <Value>Bitte überprüfen Sie Ihre Kreditkartendaten.</Value>
+            </LocaleResource>
             <LocaleResource Name="SupportTools">
                 <Value>Support-Tools</Value>
             </LocaleResource>
@@ -388,80 +581,13 @@
         </Children>
     </LocaleResource>
 
-    <LocaleResource Name="Enums.DisableFundingOptions.Card" AppendRootKey="false">
-        <Value>Kreditkarten</Value>
+    <LocaleResource Name="Enums.FundingOptions.PayPal" AppendRootKey="false">
+        <Value>PayPal</Value>
     </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.Credit" AppendRootKey="false">
-        <Value>PayPal Credit</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.Bancontact" AppendRootKey="false">
-        <Value>Bancontact</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.Blik" AppendRootKey="false">
-        <Value>BLIK</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.Eps" AppendRootKey="false">
-        <Value>eps</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.Giropay" AppendRootKey="false">
-        <Value>giropay</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.Ideal" AppendRootKey="false">
-        <Value>iDEAL</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.MercadoPago" AppendRootKey="false">
-        <Value>Mercado Pago</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.P24" AppendRootKey="false">
-        <Value>Przelewy24</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.Sepa" AppendRootKey="false">
-        <Value>SEPA-Lastschrift</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.Sofort" AppendRootKey="false">
-        <Value>Sofort</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.DisableFundingOptions.Venmo" AppendRootKey="false">
-        <Value>Venmo</Value>
-    </LocaleResource>
-
-    <LocaleResource Name="Enums.EnableFundingOptions.Card" AppendRootKey="false">
-        <Value>Kreditkarten</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.Credit" AppendRootKey="false">
-        <Value>PayPal Credit</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.Bancontact" AppendRootKey="false">
-        <Value>Bancontact</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.Blik" AppendRootKey="false">
-        <Value>BLIK</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.Eps" AppendRootKey="false">
-        <Value>eps</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.Giropay" AppendRootKey="false">
-        <Value>giropay</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.Ideal" AppendRootKey="false">
-        <Value>iDEAL</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.MercadoPago" AppendRootKey="false">
-        <Value>Mercado Pago</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.P24" AppendRootKey="false">
-        <Value>Przelewy24</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.Sepa" AppendRootKey="false">
-        <Value>SEPA-Lastschrift</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.Sofort" AppendRootKey="false">
-        <Value>Sofort</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.Venmo" AppendRootKey="false">
-        <Value>Venmo</Value>
-    </LocaleResource>
-    <LocaleResource Name="Enums.EnableFundingOptions.PayLater" AppendRootKey="false">
+    <LocaleResource Name="Enums.FundingOptions.PayLater" AppendRootKey="false">
         <Value>Pay Later</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.FundingOptions.Sepa" AppendRootKey="false">
+        <Value>Sepa</Value>
     </LocaleResource>
 </Language>

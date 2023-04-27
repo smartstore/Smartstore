@@ -154,9 +154,9 @@
     {
         public static string Format(params string[] parts)
         {
-            return string.Join(".", (from v in parts
+            return string.Join('.', (from v in parts
                                      where !string.IsNullOrEmpty(v)
-                                     select v).ToArray<string>());
+                                     select v).ToArray());
         }
     }
 }

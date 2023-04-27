@@ -27,6 +27,7 @@ namespace Smartstore.Data.Sqlite
 
         public override DataProviderFeatures Features
             => DataProviderFeatures.Backup
+            | DataProviderFeatures.Restore
             | DataProviderFeatures.Shrink
             | DataProviderFeatures.ReIndex
             | DataProviderFeatures.ComputeSize
@@ -166,6 +167,53 @@ LIMIT {take} OFFSET {skip}";
                : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
+        protected override async Task<int> RestoreDatabaseCore(string backupFullPath, bool async, CancellationToken cancelToken = default)
+        {
+            if (async)
+            {
+                await Database.CloseConnectionAsync();
+            }
+            else
+            {
+                Database.CloseConnection();
+            }
+            
+            using var backupConnection = Database.GetDbConnection() as SqliteConnection;
+            var thisConnection = new SqliteConnection("Data Source=" + backupFullPath);
+
+            try
+            {
+                SqliteConnection.ClearAllPools();
+                if (async)
+                {
+                    await thisConnection.OpenAsync(cancelToken);
+                }
+                else
+                {
+                    thisConnection.Open();
+                }
+                thisConnection.BackupDatabase(backupConnection);
+            }
+            finally
+            {
+                if (async)
+                {
+                    await backupConnection.CloseAsync();
+                    await thisConnection.CloseAsync();
+                }
+                else
+                {
+                    backupConnection.Close();
+                    thisConnection.Close();
+                }
+                SqliteConnection.ClearPool(thisConnection);
+                SqliteConnection.ClearPool(backupConnection);
+            }
+
+            return 1;
+        }
+
+
         protected override async Task<int> BackupDatabaseCore(string fullPath, bool async, CancellationToken cancelToken = default)
         {
             using var backupConnection = new SqliteConnection($"Data Source={fullPath}");
@@ -181,7 +229,7 @@ LIMIT {take} OFFSET {skip}";
                 {
                     thisConnection.Open();
                 }
-                
+
                 thisConnection.BackupDatabase(backupConnection);
             }
             finally
@@ -196,8 +244,11 @@ LIMIT {take} OFFSET {skip}";
                     backupConnection.Close();
                     thisConnection.Close();
                 }
+
+                SqliteConnection.ClearPool(backupConnection);
+                SqliteConnection.ClearPool(thisConnection);
             }
-            
+
             return 1;
         }
 

@@ -22,7 +22,7 @@ namespace Smartstore
             {
                 var role = mapping.CustomerRole;
 
-                if (role.SystemName.EqualsNoCase(roleSystemName))
+                if (role.SystemName.Equals(roleSystemName, StringComparison.OrdinalIgnoreCase))
                 {
                     return !onlyActiveRoles || role.Active;
                 }

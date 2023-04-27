@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Newtonsoft.Json.Linq;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Widgets;
+using Smartstore.PayPal.Client;
+using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Services;
 using Smartstore.Utilities;
 
@@ -10,7 +13,7 @@ namespace Smartstore.PayPal.Filters
 {
     /// <summary>
     /// Renders a script to detect buyer fraud early by collecting the buyer's browser information during checkout and passing it to PayPal (must be active for pay per invoice). 
-    /// Also renders the standard script.
+    /// Also renders the PayPal JS SDK standard script & PayPal helper script which contains function to initialize Buttons, Hosted Fields and APMs (alternative payment methods).
     /// </summary>
     public class ScriptIncludeFilter : IAsyncActionFilter
     {
@@ -19,19 +22,22 @@ namespace Smartstore.PayPal.Filters
         private readonly ICommonServices _services;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly PayPalHelper _payPalHelper;
+        private readonly PayPalHttpClient _client;
 
         public ScriptIncludeFilter(
             PayPalSettings settings, 
             IWidgetProvider widgetProvider,
             ICommonServices services,
             ICheckoutStateAccessor checkoutStateAccessor,
-            PayPalHelper payPalHelper)
+            PayPalHelper payPalHelper,
+            PayPalHttpClient client)
         {
             _settings = settings;
             _widgetProvider = widgetProvider;
             _services = services;
             _checkoutStateAccessor = checkoutStateAccessor;
             _payPalHelper = payPalHelper;
+            _client = client;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -51,24 +57,21 @@ namespace Smartstore.PayPal.Filters
                     $"?client-id={_settings.ClientId}" +
                     $"&currency={currency}" +
                     // Ensures no breaking changes will be applied in SDK.
-                    $"&integration-date=2021-12-14" +
-                    $"&commit=false" +
-                    $"&components=messages,buttons,funding-eligibility";
+                    $"&integration-date=2021-04-13" +
+                    // TODO: (mh) (core) Must not be set for APMs but for paypal, paylater & sepa if intent is set to authorize.
+                    //$"&commit=false" +
+                    $"&components=messages,buttons,hosted-fields,funding-eligibility";
 
-                if (_settings.DisabledFundings.HasValue())
-                {
-                    scriptUrl += $"&disable-funding={GetFundingOptions<DisableFundingOptions>(_settings.DisabledFundings)}";
-                }
-
-                if (_settings.EnabledFundings.HasValue())
-                {
-                    scriptUrl += $"&enable-funding={GetFundingOptions<EnableFundingOptions>(_settings.EnabledFundings)}";
-                }
+                scriptUrl += $"&enable-funding=" + await GetFundingOptionsAsync();
 
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
-                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' async id='paypal-js'></script>"));
+                // TODO: Only set if credit card is active.
+                var clientToken = await GetClientToken();
+
+                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>"));
+                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='/Modules/Smartstore.PayPal/js/paypal.utils.js'></script>"));
             }
 
             if (!await _payPalHelper.IsPayUponInvoiceActiveAsync())
@@ -153,25 +156,47 @@ namespace Smartstore.PayPal.Filters
             return $"{merchantName}_{payerId}_{pageType}";
         }
 
-        private static string GetFundingOptions<TEnum>(string fundings) where TEnum : struct
+        /// <summary>
+        /// Gets active funding sources by checking active providers combined with default fundings.
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> GetFundingOptionsAsync()
         {
-            var result = string.Empty;
-            TEnum resultInputType = default;
+            // Set default fundings which are always available
+            var result = "sepa,paylater";
 
-            var arr = fundings.SplitSafe(',')
-                .Select(x =>
-                {
-                    Enum.TryParse(x, true, out resultInputType);
-                    return resultInputType.ToString();
-                })
-                .ToArray();
-
-            if (arr.Length > 0)
+            if (await _payPalHelper.IsCreditCardActiveAsync())
             {
-                result = string.Join(',', arr ?? Array.Empty<string>());
+                result += ",card";
             }
 
+
+            // TODO: (mh) (core) Add more funding options if needed or remove the following.
+            // As we don't render any buttons for APMs we might not need to add payment sources here 
+            //if (await _payPalHelper.IsGiropayActiveAsync())
+            //{
+            //    result += ",giropay";
+            //}
+
+            //if (await _payPalHelper.IsSofortActiveAsync())
+            //{
+            //    result += ",sofort";
+            //}
+
             return result;
+        }
+
+        /// <summary>
+        /// Generates a client token by requesting one from PayPal REST API.
+        /// </summary>
+        /// <returns>Client token to be placed as data attribute in PayPal JS script include.</returns>
+        private async Task<string> GetClientToken()
+        {
+            var response = await _client.ExecuteRequestAsync(new GenerateClientTokenRequest());
+            var rawResponse = response.Body<object>().ToString();
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            return (string)jResponse.client_token;
         }
     }
 }
