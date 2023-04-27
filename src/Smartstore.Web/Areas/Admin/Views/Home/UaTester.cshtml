@@ -1,6 +1,7 @@
 ﻿@using Smartstore.Core.Web
 
 @model IUserAgent
+@inject IUserAgent2 ua2
 
 @{
     ViewBag.Title = "User Agent Tester";
@@ -21,7 +22,41 @@
             <button type="submit" class="btn btn-secondary mt-3">Test</button>
         </div>
 
-        <div class="mt-4">
+        <div class="row mt-4">
+            <div class="col-auto">
+                OS: <strong>@ua.OS.Family</strong> (@ua.OS)<br />
+                User Agent: <strong>@ua.UserAgent.Family</strong>, (@ua.UserAgent)<br />
+                Device: <strong>@ua.Device.Family</strong>, (@ua.Device)<br />
+                <br />
+                IsBot: <span style='font-weight:@(ua.IsBot ? "bold" : "normal")'>@ua.IsBot</span><br />
+                IsMobileDevice: <span style='font-weight:@(ua.IsMobileDevice ? "bold" : "normal")'>@ua.IsMobileDevice</span><br />
+                IsTablet: <span style='font-weight:@(ua.IsTablet ? "bold" : "normal")'>@ua.IsTablet</span><br />
+                IsPdfConverter: <span style='font-weight:@(ua.IsPdfConverter ? "bold" : "normal")'>@ua.IsPdfConverter</span><br />
+            </div>
+            <div class="col-auto">
+                @if (ua2.Platform.HasValue)
+                {
+                    <div>
+                        Platform: <strong>@ua2.Platform.Value.Name.NaIfEmpty()</strong> (Family: @ua2.Platform.Value.Family.ToString())<br />
+                    </div>
+                }
+                else
+                {
+                    <div>
+                        Platform: n/a
+                    </div>
+                }
+                
+                User Agent: <strong>@ua2.Name</strong> (@ua2.Version.ToString())<br />
+                Mobile Device: <strong>@ua2.MobileDeviceName.NaIfEmpty()</strong><br />
+                <br />
+                IsBot: <span style='font-weight:@(ua2.IsBot ? "bold" : "normal")'>@ua2.IsBot</span><br />
+                IsMobileDevice: <span style='font-weight:@(ua2.IsMobileDevice ? "bold" : "normal")'>@ua2.IsMobileDevice</span><br />
+                IsTablet: <span style='font-weight:@(ua2.IsTablet ? "bold" : "normal")'>@ua2.IsTablet</span><br />
+                IsPdfConverter: <span style='font-weight:@(ua2.IsPdfConverter ? "bold" : "normal")'>@ua2.IsPdfConverter</span><br />
+            </div>
+        </div>
+@*        <div class="mt-4">
             OS: <strong>@ua.OS.Family</strong> (@ua.OS)<br />
             User Agent: <strong>@ua.UserAgent.Family</strong>, (@ua.UserAgent)<br />
             Device: <strong>@ua.Device.Family</strong>, (@ua.Device)<br />
@@ -30,7 +65,7 @@
             IsMobileDevice: <span style='font-weight:@(ua.IsMobileDevice ? "bold" : "normal")'>@ua.IsMobileDevice</span><br />
             IsTablet: <span style='font-weight:@(ua.IsTablet ? "bold" : "normal")'>@ua.IsTablet</span><br />
             IsPdfConverter: <span style='font-weight:@(ua.IsPdfConverter ? "bold" : "normal")'>@ua.IsPdfConverter</span><br />
-        </div>
+        </div>*@
     </form>
 </div>
 
