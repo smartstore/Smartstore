@@ -62,3 +62,25 @@
 
     window.ClientId = "@WorkContext.CurrentCustomer.CustomerGuid";
 </script>
+
+<script sm-target-zone="end">
+    $.extend($.validator.messages, {
+        required: window.Res["Jquery.Validate.Required"],
+        remote: window.Res["Jquery.Validate.Remote"],
+        email: window.Res["Jquery.Validate.Email"],
+        url: window.Res["Jquery.Validate.Url"],
+        date: window.Res["Jquery.Validate.Date"],
+        dateISO: window.Res["Jquery.Validate.DateISO"],
+        number: window.Res["Jquery.Validate.Number"],
+        digits: window.Res["Jquery.Validate.Digits"],
+        creditcard: window.Res["Jquery.Validate.Creditcard"],
+        equalTo: window.Res["Jquery.Validate.Equalto"],
+        extension: window.Res["Jquery.Validate.Extension"],
+        maxlength: $.validator.format(window.Res["Jquery.Validate.Maxlength"]),
+        minlength: $.validator.format(window.Res["Jquery.Validate.Minlength"]),
+        rangelength: $.validator.format(window.Res["Jquery.Validate.Rangelength"]),
+        range: $.validator.format(window.Res["Jquery.Validate.Range"]),
+        max: $.validator.format(window.Res["Jquery.Validate.Max"]),
+        min: $.validator.format(window.Res["Jquery.Validate.Min"])
+    });
+</script>
