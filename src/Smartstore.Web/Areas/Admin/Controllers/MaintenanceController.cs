@@ -326,7 +326,8 @@ namespace Smartstore.Admin.Controllers
                 UtcTime = DateTime.UtcNow,
                 ServerTimeZone = TimeZoneInfo.Local.StandardName,
                 AspNetInfo = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
-                OperatingSystem = $"{runtimeInfo.OSDescription} ({runtimeInfo.ProcessArchitecture.ToString().ToLower()})"
+                OperatingSystem = $"{runtimeInfo.OSDescription} ({runtimeInfo.ProcessArchitecture.ToString().ToLower()})",
+                IPAddress = HttpContext.Connection.LocalIpAddress
             };
 
             // DB size
