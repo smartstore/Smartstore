@@ -35,42 +35,6 @@ namespace Smartstore.Core.Search
         bool IncludesUpper { get; }
     }
 
-    // TODO: (mg) should we use such a new interface for term filters to distinguish more easily? No ;)
-    //public interface ISearchTermFilter : ISearchFilter
-    //{
-    //    string? Term { get; }
-    //    SearchMode Mode { get; }
-    //    bool Escape { get; }
-    //    bool IsAnalyzed { get; }
-    //}
-
-    //public class SearchTermFilter : SearchFilterBase, ISearchTermFilter
-    //{
-    //    public string? Term
-    //    {
-    //        get;
-    //        protected internal set;
-    //    }
-
-    //    public SearchMode Mode
-    //    {
-    //        get;
-    //        protected internal set;
-    //    }
-
-    //    public bool Escape
-    //    {
-    //        get;
-    //        protected internal set;
-    //    }
-
-    //    public bool IsAnalyzed
-    //    {
-    //        get;
-    //        protected internal set;
-    //    }
-    //}
-
     public static class ISearchFilterExtensions
     {
         /// <summary>

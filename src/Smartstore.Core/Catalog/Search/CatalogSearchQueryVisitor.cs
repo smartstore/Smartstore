@@ -1,13 +1,20 @@
-﻿using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Content.Media;
+﻿using AngleSharp.Dom;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
-using Smartstore.Linq;
 
 namespace Smartstore.Core.Catalog.Search
 {
     public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>
     {
+        private static readonly string[] _searchTermFields = new[]
+        {
+            CatalogSearchQuery.KnownFilters.Name,
+            CatalogSearchQuery.KnownFilters.Sku,
+            CatalogSearchQuery.KnownFilters.ShortDescription
+        };
+
         protected override IQueryable<Product> VisitTerm(CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             // TODO: (mg) Refactor after Terms isolation is implemented.
@@ -26,6 +33,7 @@ namespace Smartstore.Core.Catalog.Search
                 // SearchMode.ExactMatch doesn't make sense here
                 if (context.SearchQuery.Mode == SearchMode.StartsWith)
                 {
+                    // TODO: (mg) by the way, this query is wrong. LocalizedProperty should only be filtered if the related field is contained.
                     return
                         from p in query
                         join lp in lpQuery on p.Id equals lp.EntityId into plp
@@ -62,7 +70,11 @@ namespace Smartstore.Core.Catalog.Search
             var names = CatalogSearchQuery.KnownFilters;
             var fieldName = filter.FieldName;
 
-            if (fieldName == names.ProductId)
+            if (_searchTermFields.Contains(fieldName) || fieldName == "searchterm")
+            {
+                return VisitTermFilter(filter, context, query);
+            }
+            else if (fieldName == names.ProductId)
             {
                 return ApplySimpleMemberExpression(x => x.Id, filter, query);
             }
@@ -341,34 +353,122 @@ namespace Smartstore.Core.Catalog.Search
                         _ => query.Where(x => x.Visibility == visibility),
                     };
                 }
-                else if (fieldName == names.Sku)
-                {
-                    var predicates = new List<Expression<Func<Product, bool>>>(5);
-
-                    if (af.Mode == SearchMode.ExactMatch)
-                        predicates.Add(x => x.Sku == (string)af.Term);
-                    else if (af.Mode == SearchMode.StartsWith)
-                        predicates.Add(x => x.Sku.StartsWith((string)af.Term));
-                    else if (af.Mode == SearchMode.Contains)
-                        predicates.Add(x => x.Sku.Contains((string)af.Term));
-
-                    var predicate = PredicateBuilder.New(predicates.First());
-                    for (var i = 1; i < predicates.Count; i++)
-                    {
-                        predicate = PredicateBuilder.Or(predicate, predicates[i]);
-                    }
-                    query = query.Where(predicate);
-                    // TODO: (mg) doesn't make sense. no idea what I'm doing here.
-                }
-                else if (fieldName == names.Name)
-                {
-                }
-                else if (fieldName == names.ShortDescription)
-                {
-                }
             }
 
             return query;
+        }
+
+        protected virtual IQueryable<Product> VisitTermFilter(ISearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
+        {
+            var names = CatalogSearchQuery.KnownFilters;
+            //var lpQuery = context.Services.DbContext.LocalizedProperties.AsNoTracking();
+            //var languageId = context.SearchQuery.LanguageId ?? 0;
+            FilterExpression expression = null;
+
+            if (filter is ICombinedSearchFilter cf)
+            {
+                // OR-combine.
+                var termFilters = cf.Filters
+                    .OfType<IAttributeSearchFilter>()
+                    .ToArray();
+
+                var expressions = termFilters
+                    .Select(af =>
+                    {
+                        if (af.FieldName == names.Sku)
+                            return GetSearchTermExpression(x => x.Sku, af);
+                        else if (af.FieldName == names.Name)
+                            return GetSearchTermExpression(x => x.Name, af);
+                        else if (af.FieldName == names.ShortDescription)
+                            return GetSearchTermExpression(x => x.ShortDescription, af);
+                        return null;
+                    })
+                    .Where(x => x != null)
+                    .ToArray();
+
+                if (expressions.Length > 0)
+                {
+                    expression = new FilterExpressionGroup(typeof(Product), expressions.ToArray())
+                    {
+                        LogicalOperator = LogicalRuleOperator.Or
+                    };
+                }
+            }
+            else if (filter is IAttributeSearchFilter af)
+            {
+                // AND-combine.
+                if (af.FieldName == names.Sku)
+                {
+                    expression = GetSearchTermExpression(x => x.Sku, af);
+                }
+                else if (af.FieldName == names.Name)
+                {
+                    expression = GetSearchTermExpression(x => x.Name, af);
+
+                    // TODO: (mg) howto consider LocalizedProperty? howto outer-join both entities into one FilterExpression without rewriting the query and maintain perf benefit?
+
+                    //if (af.Mode == SearchMode.StartsWith)
+                    //{
+                    //    query =
+                    //        from p in query
+                    //        join lp in lpQuery on p.Id equals lp.EntityId into plp
+                    //        from lp in plp.DefaultIfEmpty()
+                    //        where p.Name.StartsWith((string)af.Term) ||
+                    //            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith((string)af.Term))
+                    //        select p;
+                    //}
+                    //else
+                    //{
+                    //    query =
+                    //        from p in query
+                    //        join lp in lpQuery on p.Id equals lp.EntityId into plp
+                    //        from lp in plp.DefaultIfEmpty()
+                    //        where p.Name.Contains((string)af.Term) ||
+                    //            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains((string)af.Term))
+                    //        select p;
+                    //}
+                }
+                else if (af.FieldName == names.ShortDescription)
+                {
+                    expression = GetSearchTermExpression(x => x.ShortDescription, af);
+                }
+            }
+
+            if (expression != null)
+            {
+                return query.Where(expression).Cast<Product>();
+            }
+
+            return query;
+        }
+
+        private static FilterExpression GetSearchTermExpression(
+            Expression<Func<Product, string>> memberExpression,
+            IAttributeSearchFilter filter)
+        {
+            var negate = filter.Occurence == SearchFilterOccurence.MustNot;
+            RuleOperator op;
+
+            switch (filter.Mode)
+            {
+                case SearchMode.StartsWith:
+                    op = RuleOperator.StartsWith;
+                    break;
+                case SearchMode.Contains:
+                    op = negate ? RuleOperator.NotContains : RuleOperator.Contains;
+                    break;
+                case SearchMode.ExactMatch:
+                default:
+                    op = negate ? RuleOperator.IsNotEqualTo : RuleOperator.IsEqualTo;
+                    break;
+            }
+
+            return new FilterExpression
+            {
+                Descriptor = new FilterDescriptor<Product, string>(memberExpression),
+                Operator = op,
+                Value = (string)filter.Term
+            };
         }
 
         protected virtual IQueryable<Product> VisitPriceFilter(IAttributeSearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
