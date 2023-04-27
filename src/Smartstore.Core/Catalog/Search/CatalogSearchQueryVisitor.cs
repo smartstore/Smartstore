@@ -360,9 +360,6 @@ namespace Smartstore.Core.Catalog.Search
 
         protected virtual IQueryable<Product> VisitTermFilter(ISearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
-            var names = CatalogSearchQuery.KnownFilters;
-            //var lpQuery = context.Services.DbContext.LocalizedProperties.AsNoTracking();
-            //var languageId = context.SearchQuery.LanguageId ?? 0;
             FilterExpression expression = null;
 
             if (filter is ICombinedSearchFilter cf)
@@ -372,66 +369,12 @@ namespace Smartstore.Core.Catalog.Search
                     .OfType<IAttributeSearchFilter>()
                     .ToArray();
 
-                var expressions = termFilters
-                    .Select(af =>
-                    {
-                        if (af.FieldName == names.Sku)
-                            return GetSearchTermExpression(x => x.Sku, af);
-                        else if (af.FieldName == names.Name)
-                            return GetSearchTermExpression(x => x.Name, af);
-                        else if (af.FieldName == names.ShortDescription)
-                            return GetSearchTermExpression(x => x.ShortDescription, af);
-                        return null;
-                    })
-                    .Where(x => x != null)
-                    .ToArray();
-
-                if (expressions.Length > 0)
-                {
-                    expression = new FilterExpressionGroup(typeof(Product), expressions.ToArray())
-                    {
-                        LogicalOperator = LogicalRuleOperator.Or
-                    };
-                }
+                expression = GetSearchTermExpression(context, LogicalRuleOperator.Or, termFilters);
             }
             else if (filter is IAttributeSearchFilter af)
             {
                 // AND-combine.
-                if (af.FieldName == names.Sku)
-                {
-                    expression = GetSearchTermExpression(x => x.Sku, af);
-                }
-                else if (af.FieldName == names.Name)
-                {
-                    expression = GetSearchTermExpression(x => x.Name, af);
-
-                    // TODO: (mg) howto consider LocalizedProperty? howto outer-join both entities into one FilterExpression without rewriting the query and maintain perf benefit?
-
-                    //if (af.Mode == SearchMode.StartsWith)
-                    //{
-                    //    query =
-                    //        from p in query
-                    //        join lp in lpQuery on p.Id equals lp.EntityId into plp
-                    //        from lp in plp.DefaultIfEmpty()
-                    //        where p.Name.StartsWith((string)af.Term) ||
-                    //            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith((string)af.Term))
-                    //        select p;
-                    //}
-                    //else
-                    //{
-                    //    query =
-                    //        from p in query
-                    //        join lp in lpQuery on p.Id equals lp.EntityId into plp
-                    //        from lp in plp.DefaultIfEmpty()
-                    //        where p.Name.Contains((string)af.Term) ||
-                    //            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains((string)af.Term))
-                    //        select p;
-                    //}
-                }
-                else if (af.FieldName == names.ShortDescription)
-                {
-                    expression = GetSearchTermExpression(x => x.ShortDescription, af);
-                }
+                expression = GetSearchTermExpression(context, LogicalRuleOperator.And, af);                
             }
 
             if (expression != null)
@@ -442,9 +385,74 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        private static FilterExpression GetSearchTermExpression(
-            Expression<Func<Product, string>> memberExpression,
-            IAttributeSearchFilter filter)
+        private static FilterExpression GetSearchTermExpression(CatalogSearchQueryContext context, LogicalRuleOperator op, params IAttributeSearchFilter[] filters)
+        {
+            var names = CatalogSearchQuery.KnownFilters;
+            var lpQuery = context.Services.DbContext.LocalizedProperties.AsNoTracking();
+            var languageId = context.SearchQuery.LanguageId ?? 0;
+
+            var expressions = filters
+                .Select(af =>
+                {
+                    if (af.FieldName == names.Sku)
+                    {
+                        return GetSearchTermExpression<Product>(x => x.Sku, af);
+                    }
+                    else if (af.FieldName == names.Name)
+                    {
+                        if (languageId != 0)
+                        {
+                            // TODO: (mg) howto consider LocalizedProperty? howto outer-join both entities into one FilterExpression?
+
+                            //if (af.Mode == SearchMode.StartsWith)
+                            //{
+                            //    query =
+                            //        from p in query
+                            //        join lp in lpQuery on p.Id equals lp.EntityId into plp
+                            //        from lp in plp.DefaultIfEmpty()
+                            //        where p.Name.StartsWith((string)af.Term) ||
+                            //            (lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith((string)af.Term))
+                            //        select p;
+                            //}
+                            //else
+                            //{
+                            //    query =
+                            //        from p in query
+                            //        join lp in lpQuery on p.Id equals lp.EntityId into plp
+                            //        from lp in plp.DefaultIfEmpty()
+                            //        where p.Name.Contains((string)af.Term) ||
+                            //            (lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains((string)af.Term))
+                            //        select p;
+                            //}
+                        }
+                        else
+                        {
+                            return GetSearchTermExpression<Product>(x => x.Name, af);
+                        }
+                    }
+                    else if (af.FieldName == names.ShortDescription)
+                    {
+                        return GetSearchTermExpression<Product>(x => x.ShortDescription, af);
+                    }
+
+                    return null;
+                })
+                .Where(x => x != null)
+                .ToArray();
+
+            if (expressions.Length > 0)
+            {
+                return new FilterExpressionGroup(typeof(Product), expressions.ToArray())
+                {
+                    LogicalOperator = op
+                };
+            }
+
+            return null;
+        }
+
+        private static FilterExpression GetSearchTermExpression<TEntity>(Expression<Func<TEntity, string>> memberExpression, IAttributeSearchFilter filter)
+            where TEntity : BaseEntity
         {
             var negate = filter.Occurence == SearchFilterOccurence.MustNot;
             RuleOperator op;
@@ -465,7 +473,7 @@ namespace Smartstore.Core.Catalog.Search
 
             return new FilterExpression
             {
-                Descriptor = new FilterDescriptor<Product, string>(memberExpression),
+                Descriptor = new FilterDescriptor<TEntity, string>(memberExpression),
                 Operator = op,
                 Value = (string)filter.Term
             };
