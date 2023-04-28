@@ -217,7 +217,7 @@
             string term,
             SearchMode mode = SearchMode.Contains,
             bool escape = false,
-            bool isNotAnalyzed = true)
+            bool isNotAnalyzed = false)
         {
             Guard.NotEmpty(term);
             Guard.NotEmpty(fieldName);
@@ -236,7 +236,7 @@
 
         public override string ToString()
         {
-            return $"{FieldName}:{Term}";
+            return $"{FieldName}({Mode}):{Term}";
         }
     }
 

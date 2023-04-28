@@ -55,7 +55,20 @@ namespace Smartstore.Core.Search
             EscapeTerm = escape;
             IsFuzzySearch = isFuzzySearch;
 
-            WithTerm(term, fields, mode, escape);
+            // TODO: (mg) Insufficient API design. TBD with MC.
+            // TODO: (mg) Don't forget to take CombinedSearchFilter into account.
+            if (term.HasValue() && !fields.IsNullOrEmpty())
+            {
+                if (fields!.Length == 1)
+                {
+                    WithFilter(SearchFilter.BySearchTerm(fields![0], term, mode, escape));
+                }
+                else
+                {
+                    WithFilter(SearchFilter.Combined("searchterm",
+                        fields!.Select(field => SearchFilter.BySearchTerm(field, term, mode, escape)).ToArray()));
+                }
+            }
         }
 
         // Language, Currency & Store
@@ -207,34 +220,6 @@ namespace Smartstore.Core.Search
             return WithFilter(SearchFilter.BySearchTerm(fieldName, term, mode, escape, isNotAnalyzed));
         }
 
-        public TQuery WithTerm(
-            string term,
-            string[] fields,
-            SearchMode mode = SearchMode.Contains,
-            bool escape = false,
-            bool isNotAnalyzed = true)
-        {
-            Guard.NotEmpty(term);
-            Guard.NotEmpty(fields);
-
-            // TODO: (mg) Insufficient API design. TBD with MC.
-            // TODO: (mg) Don't forget to take CombinedSearchFilter into account.
-
-            if (fields.Length > 0)
-            {
-                if (fields.Length == 1)
-                {
-                    return WithFilter(SearchFilter.BySearchTerm(fields![0], term, mode, escape, isNotAnalyzed));
-                }
-
-                return WithFilter(SearchFilter.Combined(
-                    "searchterm",
-                    fields!.Select(field => SearchFilter.BySearchTerm(field, term, mode, escape, isNotAnalyzed)).ToArray()));
-            }
-
-            return (this as TQuery)!;
-        }
-
         public TQuery WithFilter(ISearchFilter filter)
         {
             Guard.NotNull(filter);
@@ -314,11 +299,14 @@ namespace Smartstore.Core.Search
 
         public override string ToString()
         {
-            var fields = string.Join(' ', Fields ?? Array.Empty<string>());
-            var mode = IsFuzzySearch ? "fuzzy" : Mode.ToString();
-            var filters = Filters.Select(x => string.Join(' ', x.ToString()));
+            var str = string.Join(", ", Filters.Select(x => x.ToString()));
 
-            return $"'{Term.EmptyNull()}' in {fields} ({mode})" + Environment.NewLine + filters;
+            if (IsFuzzySearch)
+            {
+                str += " (fuzzy)";
+            }
+
+            return str;
         }
 
         #region Utilities

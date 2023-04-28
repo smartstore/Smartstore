@@ -22,7 +22,7 @@
 
         public override string ToString()
         {
-            return "{0}: {1} - {2}".FormatInvariant(
+            return "{0}:{1} - {2}".FormatInvariant(
                 FieldName,
                 Term != null ? Term.ToString() : "*",
                 UpperTerm != null ? UpperTerm.ToString() : "*");
