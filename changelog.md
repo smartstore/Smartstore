@@ -24,6 +24,7 @@
 - MainMenuShrinker was missing.
 - Added missing properties in customer grid.
 - Fixed popular product tags were not loaded based on the frequency of their product assignments on homepage.
+- Fixed after a login the user was not redirected to the previous page.
 
 
 ## Smartstore 5.0.4
