@@ -59,7 +59,7 @@ namespace Smartstore.Core.Seo.Routing
 
         public UrlPolicy(HttpContext httpContext)
         {
-            Guard.NotNull(httpContext, nameof(httpContext));
+            Guard.NotNull(httpContext);
 
             _httpContext = httpContext;
             _services = httpContext.RequestServices;
