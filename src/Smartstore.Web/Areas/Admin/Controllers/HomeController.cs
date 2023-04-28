@@ -28,7 +28,7 @@ namespace Smartstore.Admin.Controllers
             if (ua.HasValue())
             {
                 _userAgent.RawValue = ua;
-                _userAgent2.RawValue = ua;
+                _userAgent2.UserAgent = ua;
             }
 
             return View(_userAgent);

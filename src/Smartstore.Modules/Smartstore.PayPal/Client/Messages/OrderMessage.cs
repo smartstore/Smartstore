@@ -286,6 +286,12 @@ namespace Smartstore.PayPal.Client.Messages
 
         [JsonProperty("country_code", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string CountryCode;
+
+        [JsonProperty("email", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Email;
+
+        [JsonProperty("bic", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string BIC;
     }
 
     public class NameMessage

@@ -18,11 +18,11 @@ namespace Smartstore.PayPal.Models
 
         public string CountryCode { get; set; }
 
-        // EMail is needed for blik & Przelewy24
+        // EMail is needed for BLIK & Przelewy24
         [LocalizedDisplay("Address.Fields.Email")]
         public string Email { get; set; }
 
-        // BIC is needed for ideal
+        // BIC is needed for iDEAL
         [LocalizedDisplay("Plugins.Smartstore.PayPal.BIC")]
         public string BIC { get; set; }
     }
@@ -34,6 +34,15 @@ namespace Smartstore.PayPal.Models
             RuleFor(x => x.FullName)
                 .NotEmpty()
                 .WithMessage(T("Plugins.Smartstore.PayPal.FullName.NotEmpty"));
+
+            RuleFor(x => x.BIC)
+                .Matches(RegularExpressions.IsBic)
+                .When(x => x.Funding == "ideal");
+
+            RuleFor(x => x.Email)
+                .NotEmpty()
+                .EmailAddress()
+                .When(x => x.Funding == "p24" || x.Funding == "blik");
 
             RuleFor(x => x.CountryId)
                 .GreaterThan(0)

@@ -1,0 +1,27 @@
+﻿@using Smartstore.Admin.Models.Common
+@model CountrySearchListModel
+
+<div class="form-group">
+    <smart-label asp-for="SearchName" />
+    <editor asp-for="SearchName" asp-template="SearchExpression" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchTwoLetterIsoCode" />
+    <editor asp-for="SearchTwoLetterIsoCode" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchAllowsBilling" />
+    <editor asp-for="SearchAllowsBilling" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchAllowsShipping" />
+    <editor asp-for="SearchAllowsShipping" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchSubjectToVat" />
+    <editor asp-for="SearchSubjectToVat" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchPublished" />
+    <editor asp-for="SearchPublished" />
+</div>

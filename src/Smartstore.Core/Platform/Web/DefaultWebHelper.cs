@@ -80,14 +80,8 @@ namespace Smartstore.Core.Web
 
             try
             {
-                try
-                {
-                    string response = await client.GetStringAsync("http://checkip.amazonaws.com/");
-                    ipString = response.Trim();
-                }
-                catch
-                {
-                }
+                string response = await client.GetStringAsync("http://checkip.amazonaws.com/");
+                ipString = response.Trim();
             }
             catch
             {

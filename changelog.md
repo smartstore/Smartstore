@@ -21,6 +21,8 @@
 - Fixed unpublished products should be assignable as "promoted" to a product.
 - UrlRewriter: raw rules were not loaded from legacy storage
 - Fixed a topic was not editable if a menu link with an invalid target was associated.
+- MainMenuShrinker was missing.
+- Added missing properties in customer grid.
 
 
 ## Smartstore 5.0.4

@@ -5,6 +5,8 @@
     /// </summary>
     public readonly struct UserAgentPlatform
     {
+        internal readonly static UserAgentPlatform UnknownPlatform = new("Unknown", UserAgentPlatformFamily.Unknown);
+
         /// <summary>
         /// Creates a new instance of <see cref="UserAgentPlatform"/>
         /// </summary>

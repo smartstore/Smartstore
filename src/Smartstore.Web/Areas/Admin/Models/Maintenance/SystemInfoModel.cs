@@ -1,4 +1,5 @@
-﻿using Smartstore.Data.Providers;
+﻿using System.Net;
+using Smartstore.Data.Providers;
 using Smartstore.Utilities;
 
 namespace Smartstore.Admin.Models.Maintenance
@@ -23,6 +24,9 @@ namespace Smartstore.Admin.Models.Maintenance
 
         [LocalizedDisplay("*ServerTimeZone")]
         public string ServerTimeZone { get; set; }
+
+        [LocalizedDisplay("Admin.System.Log.Fields.IPAddress")]
+        public IPAddress IPAddress { get; set; }
 
         [LocalizedDisplay("*UTCTime")]
         public DateTime UtcTime { get; set; }

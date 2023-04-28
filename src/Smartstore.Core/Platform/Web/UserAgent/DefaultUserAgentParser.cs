@@ -7,8 +7,6 @@ namespace Smartstore.Core.Web
 {
     public class DefaultUserAgentParser : IUserAgentParser
     {
-        const string Unknown = "Unknown";
-
         public UserAgentInformation Parse(string? userAgent)
         {
             userAgent = userAgent.TrimSafe();
@@ -16,24 +14,31 @@ namespace Smartstore.Core.Web
             if (userAgent.IsEmpty())
             {
                 // Empty useragent > bad bot!
-                return UserAgentInformation.CreateForBot(Unknown);
+                return UserAgentInformation.UnknownBot;
             }
 
-            // analyze
+            // Analyze Bot
             if (TryGetBot(userAgent!, out string? botName))
             {
-                return UserAgentInformation.CreateForBot(botName);
+                return UserAgentInformation.CreateForBot(botName, GetPlatform(userAgent!));
             }
 
-            UserAgentPlatform? platform = GetPlatform(userAgent!);
-            string? mobileDeviceType = GetMobileDevice(userAgent!);
+            // Analyze Platform
+            var platform = GetPlatform(userAgent!);
 
+            // Analyze device
+            var device = GetDevice(userAgent!);
+
+            // Analyze Browser
             if (TryGetBrowser(userAgent!, out (string Name, string? Version)? browser))
             {
-                return UserAgentInformation.CreateForBrowser(platform, browser?.Name, browser?.Version, mobileDeviceType);
+                var type = browser?.Name is "Smartstore" ? UserAgentType.Application : UserAgentType.Browser;
+                return new UserAgentInformation(type, browser?.Name, browser?.Version, platform, device);
             }
-
-            return UserAgentInformation.CreateForUnknown(platform, mobileDeviceType);
+            else
+            {
+                return UserAgentInformation.CreateForUnknown(platform, device);
+            }
         }
 
         /// <summary>
@@ -49,7 +54,7 @@ namespace Smartstore.Core.Web
                 }
             }
 
-            return new UserAgentPlatform("Unknown", UserAgentPlatformFamily.Unknown);
+            return null;
         }
 
         /// <summary>
@@ -79,7 +84,7 @@ namespace Smartstore.Core.Web
         }
 
         /// <summary>
-        /// returns true if browser was found
+        /// Returns true if browser was found
         /// </summary>
         public static bool TryGetBrowser(string userAgent, [NotNullWhen(true)] out (string Name, string? Version)? browser)
         {
@@ -88,7 +93,7 @@ namespace Smartstore.Core.Web
         }
 
         /// <summary>
-        /// returns the robot or null
+        /// Returns the robot or null
         /// </summary>
         public static string? GetBot(string userAgent)
         {
@@ -113,15 +118,16 @@ namespace Smartstore.Core.Web
         }
 
         /// <summary>
-        /// returns the device or null
+        /// Returns the device or null
         /// </summary>
-        public static string? GetMobileDevice(string userAgent)
+        public static UserAgentDevice? GetDevice(string userAgent)
         {
             foreach ((string key, string value) in UserAgentPatterns.Mobiles)
             {
                 if (userAgent.Contains(key, StringComparison.OrdinalIgnoreCase))
                 {
-                    return value;
+                    var isTablet = key == "ipad" || UserAgentPatterns.IsTablet(userAgent);
+                    return new UserAgentDevice(value, isTablet ? UserAgentDeviceType.Tablet : UserAgentDeviceType.Smartphone);
                 }
             }
 
@@ -129,11 +135,11 @@ namespace Smartstore.Core.Web
         }
 
         /// <summary>
-        /// returns true if device was found
+        /// Returns true if device was found
         /// </summary>
-        public static bool TryGetMobileDevice(string userAgent, [NotNullWhen(true)] out string? device)
+        public static bool TryGetDevice(string userAgent, [NotNullWhen(true)] out UserAgentDevice? device)
         {
-            device = GetMobileDevice(userAgent);
+            device = GetDevice(userAgent);
             return device is not null;
         }
     }

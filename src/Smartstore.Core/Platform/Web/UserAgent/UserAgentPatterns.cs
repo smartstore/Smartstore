@@ -19,12 +19,14 @@ namespace Smartstore.Core.Web
     /// <summary>
     /// Parser settings
     /// </summary>
-    public static class UserAgentPatterns
+    public static partial class UserAgentPatterns
     {
         /// <summary>
         /// Regex defauls for platform mappings
         /// </summary>
         private const RegexOptions DefaultPlatformsRegexFlags = RegexOptions.IgnoreCase | RegexOptions.Compiled;
+
+        private static readonly Regex TabletRegex = GeneratedTabletRegex();
 
         /// <summary>
         /// Creates default platform mapping regex
@@ -88,28 +90,40 @@ namespace Smartstore.Core.Web
         /// Creates default browser mapping regex
         /// </summary>
         private static Regex CreateDefaultBrowserRegex(string key) => new($@"{key}.*?([0-9\.]+)", DefaultBrowserRegexFlags);
+        /// <summary>
+        /// Creates browser mapping regex that matches Version/[Version]...
+        /// </summary>
+        private static Regex CreateVersionBrowserRegex(string key) => new($@"Version/([0-9\.]+).*?{key}", DefaultBrowserRegexFlags);
 
         /// <summary>
         /// Browsers
         /// </summary>
         public static Dictionary<Regex, string> Browsers = new()
         {
-            { CreateDefaultBrowserRegex("OPR"), "Opera" },
-            { CreateDefaultBrowserRegex("Flock"), "Flock" },
+            // Common browsers
+            { CreateDefaultBrowserRegex("OPIOS/"), "Opera" },
+            { CreateDefaultBrowserRegex("OPR/"), "Opera" },
+            { CreateDefaultBrowserRegex("OPT/"), "Opera" },
+            { CreateDefaultBrowserRegex("Chrome"), "Chrome" },
+            { CreateDefaultBrowserRegex("Firefox"), "Firefox" },
+            { CreateDefaultBrowserRegex("Opera.*?Version"), "Opera" },
+            { CreateDefaultBrowserRegex("Opera"), "Opera" },
+            { CreateVersionBrowserRegex("Safari"), "Safari" },
+            { CreateDefaultBrowserRegex("Safari"), "Safari" },
             { CreateDefaultBrowserRegex("Edge"), "Edge" },
             { CreateDefaultBrowserRegex("EdgA"), "Edge" },
             { CreateDefaultBrowserRegex("Edg"), "Edge" },
-            { CreateDefaultBrowserRegex("Vivaldi"), "Vivaldi" },
+            { CreateDefaultBrowserRegex("OPR"), "Opera" },
             { CreateDefaultBrowserRegex("Brave Chrome"), "Brave" },
-            { CreateDefaultBrowserRegex("Chrome"), "Chrome" },
             { CreateDefaultBrowserRegex("CriOS"), "Chrome" },
-            { CreateDefaultBrowserRegex("Opera.*?Version"), "Opera" },
-            { CreateDefaultBrowserRegex("Opera"), "Opera" },
             { CreateDefaultBrowserRegex("MSIE"), "Internet Explorer" },
             { CreateDefaultBrowserRegex("Internet Explorer"), "Internet Explorer" },
             { CreateDefaultBrowserRegex("Trident.* rv"), "Internet Explorer" },
+            
+            // Other browsers
+            { CreateDefaultBrowserRegex("Vivaldi"), "Vivaldi" },
+            { CreateDefaultBrowserRegex("Flock"), "Flock" },
             { CreateDefaultBrowserRegex("Shiira"), "Shiira" },
-            { CreateDefaultBrowserRegex("Firefox"), "Firefox" },
             { CreateDefaultBrowserRegex("FxiOS"), "Firefox" },
             { CreateDefaultBrowserRegex("Chimera"), "Chimera" },
             { CreateDefaultBrowserRegex("Phoenix"), "Phoenix" },
@@ -117,7 +131,6 @@ namespace Smartstore.Core.Web
             { CreateDefaultBrowserRegex("Camino"), "Camino" },
             { CreateDefaultBrowserRegex("Netscape"), "Netscape" },
             { CreateDefaultBrowserRegex("OmniWeb"), "OmniWeb" },
-            { CreateDefaultBrowserRegex("Safari"), "Safari" },
             { CreateDefaultBrowserRegex("Mozilla"), "Mozilla" },
             { CreateDefaultBrowserRegex("Konqueror"), "Konqueror" },
             { CreateDefaultBrowserRegex("icab"), "iCab" },
@@ -129,6 +142,7 @@ namespace Smartstore.Core.Web
             { CreateDefaultBrowserRegex("Maxthon"), "Maxthon" },
             { CreateDefaultBrowserRegex("ipod touch"), "Apple iPod" },
             { CreateDefaultBrowserRegex("Ubuntu"), "Ubuntu Web Browser" },
+            { CreateDefaultBrowserRegex("Smartstore"), "Smartstore" }
         };
 
         /// <summary>
@@ -147,7 +161,7 @@ namespace Smartstore.Core.Web
             { "ipad", "Apple iPad" },
             { "ipod", "Apple iPod" },
             { "iphone", "Apple iPhone" },
-            { "sony", "Sony Ericsson" },
+            { "sonyericsson", "Sony Ericsson" },
             { "ericsson", "Sony Ericsson" },
             { "blackberry", "BlackBerry" },
             { "cocoon", "O2 Cocoon" },
@@ -183,6 +197,13 @@ namespace Smartstore.Core.Web
             { "wii", "Nintendo Wii" },
             { "open web", "Open Web" },
             { "openweb", "OpenWeb" },
+            { "nexus", "Nexus" },
+            { "XOOM", "Motorola Xoom" },
+            { "Transformer ", "Transformer" },
+            { "kindle ", "Kindle" },
+            { "silk ", "Kindle Fire" },
+            { "playbook ", "Playbook" },
+            { "puffin ", "Puffin" },
             // Operating Systems
             { "android", "Android" },
             { "symbian", "Symbian" },
@@ -224,40 +245,69 @@ namespace Smartstore.Core.Web
         /// </summary>
         public static readonly (string Key, string Value)[] Robots =
         {
+            // Common bots
             ( "googlebot", "Googlebot" ),
+            ( "Applebot", "Applebot" ),
             ( "googleweblight", "Google Web Light" ),
-            ( "PetalBot", "PetalBot"),
-            ( "DuplexWeb-Google", "DuplexWeb-Google"),
-            ( "Storebot-Google", "Storebot-Google"),
-            ( "msnbot", "MSNBot"),
-            ( "baiduspider", "Baiduspider"),
-            ( "Google Favicon", "Google Favicon"),
-            ( "Jobboerse", "Jobboerse"),
-            ( "bingbot", "BingBot"),
-            ( "BingPreview", "Bing Preview"),
-            ( "slurp", "Slurp"),
-            ( "yahoo", "Yahoo"),
-            ( "ask jeeves", "Ask Jeeves"),
-            ( "fastcrawler", "FastCrawler"),
-            ( "infoseek", "InfoSeek Robot 1.0"),
-            ( "lycos", "Lycos"),
             ( "YandexBot", "YandexBot"),
+            ( "yandex-bot", "YandexBot"),
             ( "YandexImages", "YandexImages"),
             ( "mediapartners-google", "Mediapartners Google"),
             ( "apis-google", "APIs Google"),
-            ( "CRAZYWEBCRAWLER", "Crazy Webcrawler"),
+            ( "Google Favicon", "Google Favicon"),
+            ( "baiduspider", "Baiduspider"),
+            ( "PetalBot", "PetalBot"),
+            ( "bingbot", "BingBot"),
+            ( "slurp", "Slurp"),
+            ( "yahoo", "Yahoo"),
+            ( "ask jeeves", "Ask Jeeves"),
             ( "AdsBot-Google-Mobile", "AdsBot Google Mobile"),
             ( "adsbot-google", "AdsBot Google"),
             ( "feedfetcher-google", "FeedFetcher-Google"),
+            ( "facebookexternalhit", "Facebook"),
+            ( "adscanner", "AdScanner"),
+            ( "AhrefsBot", "Ahrefs"),
+
+            // Common tools, readers & apps
+            ( "python/", "Python"),
+            ( "python-", "Python Requests"),
+            ( "curl/", "cURL"),
+            ( "urlwatch", "urlwatch"),
+            ( "okhttp/", "OkHttp"),
+            ( "HeadlessChrome", "Headless Chromium"),
+            ( "Chrome-Lighthouse", "Chrome Lighthouse"),
+            ( "Nessus", "Nessus"),
+            ( "Pingdom", "Pingdom"),
+            ( "axios/", "Axios"),
+            ( "kube-prob/", "Kube Probe"),
+            ( "Prometheus/", "Prometheus"),
+            ( "GuzzleHttp/", "Guzzle Http"),
+            ( "Feedly", "Feedly"),
+
+            // Other bots
+            ( "DuplexWeb-Google", "DuplexWeb-Google"),
+            ( "Storebot-Google", "Storebot-Google"),
+            ( "msnbot", "MSNBot"),
+            ( "Wappalyzer", "Wappalyzer"),
+            ( "BW/1.1", "BuiltWith"),
+            ( "PayPal IPN", "PayPal IPN"),
+            ( "Amazonbot", "Amazonbot"),
+            ( "AddThis.com", "AddThis.com"),
+            ( "W3C", "W3C Validator/Checker"),
+            ( "ShopAlike", "ShopAlike"),
+            ( "ImageProxy", "ImageProxy"),
+            ( "BingPreview", "Bing Preview"),
+            ( "fastcrawler", "FastCrawler"),
+            ( "infoseek", "InfoSeek Robot 1.0"),
+            ( "lycos", "Lycos"),
+            ( "Cloudflare", "Cloudflare"),
+            ( "CRAZYWEBCRAWLER", "Crazy Webcrawler"),
             ( "google-read-aloud", "Google-Read-Aloud"),
             ( "curious george", "Curious George"),
             ( "ia_archiver", "Alexa Crawler"),
             ( "MJ12bot", "Majestic"),
             ( "Uptimebot", "Uptimebot"),
             ( "CheckMarkNetwork", "CheckMark"),
-            ( "facebookexternalhit", "Facebook"),
-            ( "adscanner", "AdScanner"),
-            ( "AhrefsBot", "Ahrefs"),
             ( "BLEXBot", "BLEXBot"),
             ( "DotBot", "OpenSite"),
             ( "Mail.RU_Bot", "Mail.ru"),
@@ -265,15 +315,22 @@ namespace Smartstore.Core.Web
             ( "SemrushBot", "SEMRush"),
             ( "SEOkicks", "SEOkicks"),
             ( "seoscanners.net", "SEO Scanners"),
-            ( "Sistrix", "Sistrix" )
+            ( "Sistrix", "Sistrix" ),
+            ( "check_http", "Check HTTP"),
+            ( "NetNewsWire", "NetNewsWire RSS reader"),
+            ( "iisbot", "IIS Bot"),
+            ( "Yeti/", "Yeti bot"),
+            ( "yacybot", "Yacy bot"),
+            ( "crawler", "Generic crawler"),
+            ( "-bot/", "Generic bot"),
         };
 
-        /// <summary>
-        /// Tools
-        /// </summary>
-        public static readonly Dictionary<string, string> Tools = new()
+        public static bool IsTablet(string userAgent)
         {
-            { "curl", "curl" }
-        };
+            return TabletRegex.IsMatch(userAgent);
+        }
+
+        [GeneratedRegex("(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))", RegexOptions.IgnoreCase | RegexOptions.Compiled, "de-DE")]
+        private static partial Regex GeneratedTabletRegex();
     }
 }

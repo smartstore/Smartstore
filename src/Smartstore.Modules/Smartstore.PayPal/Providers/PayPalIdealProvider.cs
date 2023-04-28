@@ -17,7 +17,5 @@ namespace Smartstore.PayPal.Providers
 
         public override Widget GetPaymentInfoWidget()
             => new ComponentWidget(typeof(PayPalApmViewComponent), "ideal");
-
-        // TODO: (mh) (core) Add BIC Input field
     }
 }

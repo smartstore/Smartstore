@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.DataGrid;
@@ -80,10 +81,42 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Country.Read)]
-        public async Task<IActionResult> CountryList(GridCommand command)
+        public async Task<IActionResult> CountryList(GridCommand command, CountrySearchListModel model)
         {
-            var countries = await _db.Countries
-                .AsNoTracking()
+            var query = _db.Countries
+                .AsNoTracking();
+
+            if (model.SearchName.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Name, model.SearchName);
+            }
+
+            if (model.SearchTwoLetterIsoCode.HasValue())
+            {
+                query = query.Where(x => x.TwoLetterIsoCode == model.SearchTwoLetterIsoCode);
+            }
+
+            if (model.SearchAllowsBilling.HasValue)
+            {
+                query = query.Where(x => x.AllowsBilling == model.SearchAllowsBilling);
+            }
+
+            if (model.SearchAllowsShipping.HasValue)
+            {
+                query = query.Where(x => x.AllowsShipping == model.SearchAllowsShipping);
+            }
+
+            if (model.SearchSubjectToVat.HasValue)
+            {
+                query = query.Where(x => x.SubjectToVat == model.SearchSubjectToVat);
+            }
+
+            if (model.SearchPublished.HasValue)
+            {
+                query = query.Where(x => x.Published == model.SearchPublished);
+            }
+
+            var countries = await query
                 .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)

@@ -47,6 +47,25 @@ namespace Smartstore.PayPal.Models
             set => SetProperty(value);
         }
 
+        /// <summary>
+        /// Holds the email of the customer. Required for Przelewy24 & BLIK.
+        /// </summary>
+        public string ApmEmail
+        {
+            get => GetProperty<string>();
+            set => SetProperty(value);
+        }
+
+        /// <summary>
+        /// Holds the BIC of the customer. Required for iDEAL.
+        /// </summary>
+        public string ApmBIC
+        {
+            get => GetProperty<string>();
+            set => SetProperty(value);
+        }
+
+
         #region Confirmation flow
 
         public bool IsConfirmed

@@ -206,22 +206,23 @@ namespace Smartstore.PayPal.Controllers
                     paymentSource.PaymentSourceSofort = apmPaymentSource;
                     break;
                 case "Payments.PayPalBancontact":
-                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    paymentSource.PaymentSourceBancontact = apmPaymentSource;
                     break;
                 case "Payments.PayPalBlik":
-                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    paymentSource.PaymentSourceBlik = apmPaymentSource;
                     break;
                 case "Payments.PayPalEps":
-                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    paymentSource.PaymentSourceEps = apmPaymentSource;
                     break;
                 case "Payments.PayPalIdeal":
-                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    paymentSource.PaymentSourceIdeal = apmPaymentSource;
                     break;
                 case "Payments.PayPalMyBank":
-                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    paymentSource.PaymentSourceMyBank = apmPaymentSource;
                     break;
                 case "Payments.PayPalPrzelewy24":
-                    paymentSource.PaymentSourceSofort = apmPaymentSource;
+                    paymentSource.PaymentSourceP24 = apmPaymentSource;
+                    apmPaymentSource.Email = checkoutState.ApmEmail;
                     break;
                 default:
                     break;

@@ -101,26 +101,6 @@ namespace Smartstore.Admin.Controllers
             return result;
         }
 
-        private CustomerModel CreateCustomerModelForList(Customer customer)
-        {
-            return new CustomerModel
-            {
-                Id = customer.Id,
-                Email = customer.Email.HasValue() ? customer.Email : (customer.IsGuest() ? T("Admin.Customers.Guest") : StringExtensions.NotAvailable),
-                Username = customer.Username,
-                FullName = customer.GetFullName(),
-                Company = customer.Company,
-                CustomerNumber = customer.CustomerNumber,
-                ZipPostalCode = customer.GenericAttributes.ZipPostalCode,
-                Active = customer.Active,
-                Phone = customer.GenericAttributes.Phone,
-                CustomerRoleNames = string.Join(", ", customer.CustomerRoleMappings.Select(x => x.CustomerRole).Select(x => x.Name)),
-                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
-                LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
-                EditUrl = Url.Action(nameof(Edit), "Customer", new { id = customer.Id })
-            };
-        }
-
         private async Task PrepareCustomerModel(CustomerModel model, Customer customer)
         {
             var dtHelper = Services.DateTimeHelper;
@@ -417,7 +397,32 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = customers.Select(x => CreateCustomerModelForList(x)).ToList();
+            string guestStr = T("Admin.Customers.Guest");
+            var dtHelper = Services.DateTimeHelper;
+
+            var rows = customers
+                .Select(x => new CustomerModel
+                {
+                    Id = x.Id,
+                    Email = x.Email.HasValue() ? x.Email : (x.IsGuest() ? guestStr : StringExtensions.NotAvailable),
+                    Username = x.Username,
+                    FullName = x.GetFullName(),
+                    Company = x.Company,
+                    CustomerNumber = x.CustomerNumber,
+                    ZipPostalCode = x.GenericAttributes.ZipPostalCode,
+                    Active = x.Active,
+                    Phone = x.GenericAttributes.Phone,
+                    CustomerRoleNames = string.Join(", ", x.CustomerRoleMappings.Select(x => x.CustomerRole).Select(x => x.Name)),
+                    CreatedOn = dtHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    LastActivityDate = dtHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
+                    EditUrl = Url.Action(nameof(Edit), "Customer", new { id = x.Id }),
+                    IsTaxExempt = x.IsTaxExempt,
+                    LastIpAddress = x.LastIpAddress,
+                    DateOfBirth = x.BirthDate.HasValue ? dtHelper.ConvertToUserTime(x.BirthDate.Value, DateTimeKind.Utc) : null,
+                    Gender = x.Gender,
+                    VatNumber = x.GenericAttributes.VatNumber
+                })
+                .ToList();
 
             return Json(new GridModel<CustomerModel>
             {

@@ -10,11 +10,28 @@
 </script>
 
 <div class="opt-form">
+    <input type="hidden" asp-for="Funding" />
     <div class="form-group row">
         <label asp-for="FullName" class="col-md-3 col-form-label required"></label>
         <div class="col-md-9">
             <input asp-for="FullName" sm-required="true" />
             <span asp-validation-for="FullName"></span>
+        </div>
+    </div>
+
+    <div sm-if='Model.Funding == "blik" || Model.Funding == "p24"' class="form-group row">
+        <label asp-for="Email" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <input asp-for="Email" sm-required="true" />
+            <span asp-validation-for="Email"></span>
+        </div>
+    </div>
+
+    <div sm-if='Model.Funding == "ideal"' class="form-group row">
+        <label asp-for="BIC" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <input asp-for="BIC" sm-required="true" />
+            <span asp-validation-for="BIC"></span>
         </div>
     </div>
 

@@ -34,26 +34,14 @@
                 IsPdfConverter: <span style='font-weight:@(ua.IsPdfConverter ? "bold" : "normal")'>@ua.IsPdfConverter</span><br />
             </div>
             <div class="col-auto">
-                @if (ua2.Platform.HasValue)
-                {
-                    <div>
-                        Platform: <strong>@ua2.Platform.Value.Name.NaIfEmpty()</strong> (Family: @ua2.Platform.Value.Family.ToString())<br />
-                    </div>
-                }
-                else
-                {
-                    <div>
-                        Platform: n/a
-                    </div>
-                }
-                
-                User Agent: <strong>@ua2.Name</strong> (@ua2.Version.ToString())<br />
-                Mobile Device: <strong>@ua2.MobileDeviceName.NaIfEmpty()</strong><br />
+                <div>Platform: <strong>@ua2.Platform.Name.NaIfEmpty()</strong> (Family: @ua2.Platform.Family.ToString())</div>
+                <div>User Agent: <strong>@ua2.Name</strong> <span sm-if="ua2.Version != null">@ua2.Version.ToString()</span> (Type: @ua2.Type.ToString())</div>
+                <div>Device: <strong>@ua2.Device.Name</strong> (Type: @ua2.Device.Type.ToString())</div>
                 <br />
-                IsBot: <span style='font-weight:@(ua2.IsBot ? "bold" : "normal")'>@ua2.IsBot</span><br />
-                IsMobileDevice: <span style='font-weight:@(ua2.IsMobileDevice ? "bold" : "normal")'>@ua2.IsMobileDevice</span><br />
-                IsTablet: <span style='font-weight:@(ua2.IsTablet ? "bold" : "normal")'>@ua2.IsTablet</span><br />
-                IsPdfConverter: <span style='font-weight:@(ua2.IsPdfConverter ? "bold" : "normal")'>@ua2.IsPdfConverter</span><br />
+                <div>IsBot: <span style='font-weight:@(ua2.IsBot() ? "bold" : "normal")'>@ua2.IsBot()</span></div>
+                <div>IsMobileDevice: <span style='font-weight:@(ua2.IsMobileDevice() ? "bold" : "normal")'>@ua2.IsMobileDevice()</span></div>
+                <div>IsTablet: <span style='font-weight:@(ua2.IsTablet() ? "bold" : "normal")'>@ua2.IsTablet()</span></div>
+                <div>IsPdfConverter: <span style='font-weight:@(ua2.IsPdfConverter() ? "bold" : "normal")'>@ua2.IsPdfConverter()</span></div>
             </div>
         </div>
 @*        <div class="mt-4">

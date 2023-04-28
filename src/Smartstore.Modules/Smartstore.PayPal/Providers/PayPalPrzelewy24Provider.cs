@@ -17,7 +17,5 @@ namespace Smartstore.PayPal.Providers
 
         public override Widget GetPaymentInfoWidget()
             => new ComponentWidget(typeof(PayPalApmViewComponent), "p24");
-
-        // TODO: (mh) (core) Implement email request.
     }
 }

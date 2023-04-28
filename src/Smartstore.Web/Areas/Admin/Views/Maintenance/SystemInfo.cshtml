@@ -111,6 +111,16 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="IPAddress" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @Html.DisplayFor(model => model.IPAddress)
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="ServerTimeZone" />
         </div>
         <div class="adminData">
