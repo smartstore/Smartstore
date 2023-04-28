@@ -225,12 +225,43 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
-        protected override Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
+        protected override async Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
         {
-            var sql = "DBCC SHRINKDATABASE(0)";
+            if (onlyWhenFast)
+            {
+                return 0;
+            }
+
+            // Reorganize indexes
+            var tableNames = async ? await GetTableNamesAsync() : GetTableNames();
+            foreach (var tableName in tableNames)
+            {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                var alterIndexSql = $"ALTER INDEX ALL ON [{tableName}] REORGANIZE";
+                if (async)
+                {
+                    await Database.ExecuteSqlRawAsync(alterIndexSql, cancelToken);
+                }
+                else
+                {
+                    Database.ExecuteSqlRaw(alterIndexSql);
+                }
+            }
+
+            if (cancelToken.IsCancellationRequested)
+            {
+                return 0;
+            }
+
+            // Shrink database
+            var shrinkSql = "DBCC SHRINKDATABASE(0)";
             return async
-                ? Database.ExecuteSqlRawAsync(sql, cancelToken)
-                : Task.FromResult(Database.ExecuteSqlRaw(sql));
+                ? await Database.ExecuteSqlRawAsync(shrinkSql, cancelToken)
+                : Database.ExecuteSqlRaw(shrinkSql);
         }
 
         protected override Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
