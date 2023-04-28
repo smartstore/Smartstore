@@ -81,7 +81,7 @@ namespace Smartstore.Core.Search
         /// <param name="context">The search query context.</param>
         /// <param name="query">The LINQ query to apply the term to.</param>
         /// <returns>The modified or the original LINQ query.</returns>
-        protected abstract IQueryable<TEntity> VisitTerm(TContext context, IQueryable<TEntity> query);
+        //protected abstract IQueryable<TEntity> VisitTerm(TContext context, IQueryable<TEntity> query);
 
         /// <summary>
         /// Visits a search filter expression.
