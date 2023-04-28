@@ -487,6 +487,7 @@ namespace Smartstore.Admin.Controllers
             var bundleItem = await _db.ProductBundleItem
                 .Include(x => x.BundleProduct)
                 .Include(x => x.Product)
+                .Include(x => x.AttributeFilters)
                 .FindByIdAsync(id, false);
 
             if (bundleItem == null)
@@ -511,6 +512,7 @@ namespace Smartstore.Admin.Controllers
                 var bundleItem = await _db.ProductBundleItem
                     .Include(x => x.BundleProduct)
                     .Include(x => x.Product)
+                    .Include(x => x.AttributeFilters)
                     .FindByIdAsync(model.Id);
 
                 if (bundleItem == null)
