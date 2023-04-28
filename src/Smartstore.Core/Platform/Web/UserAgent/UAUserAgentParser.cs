@@ -7,7 +7,6 @@ namespace Smartstore.Core.Web
 {
     public class UAUserAgentParser : IUserAgentParser
     {
-        const string Unknown = "Unknown";
         const string Other = "Other";
 
         private readonly UAParser.Parser _uap;
@@ -128,7 +127,7 @@ namespace Smartstore.Core.Web
             if (userAgent.IsEmpty())
             {
                 // Empty useragent > bad bot!
-                return UserAgentInformation.CreateForBot(Unknown);
+                return UserAgentInformation.UnknownBot;
             }
 
             var info = _uap.Parse(userAgent);
@@ -138,7 +137,7 @@ namespace Smartstore.Core.Web
                 name: GetName(info), 
                 version: GetVersion(info), 
                 platform: GetPlatform(info), 
-                mobileDeviceName: GetMobileDeviceName(info));
+                device: GetDevice(info));
         }
 
         private static UserAgentType GetType(ClientInfo info)
@@ -203,21 +202,21 @@ namespace Smartstore.Core.Web
             return new UserAgentPlatform(family, platformFamily);
         }
 
-        private static string? GetMobileDeviceName(ClientInfo info)
+        private static UserAgentDevice? GetDevice(ClientInfo info)
         {
             if (_mobileOS.Contains(info.OS.Family))
             {
-                return info.OS.Family;
+                return new UserAgentDevice(info.OS.Family, UserAgentDeviceType.Smartphone);
             }
 
             if (_mobileBrowsers.Contains(info.UA.Family))
             {
-                return info.UA.Family;
+                return new UserAgentDevice(info.UA.Family, UserAgentDeviceType.Smartphone);
             }
 
             if (_mobileDevices.Contains(info.Device.Family))
             {
-                return info.Device.Family;
+                return new UserAgentDevice(info.Device.Family, UserAgentDeviceType.Smartphone);
             }
 
             return null;

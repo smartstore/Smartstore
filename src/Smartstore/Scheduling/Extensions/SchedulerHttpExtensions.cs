@@ -10,7 +10,7 @@ namespace Smartstore
         /// </summary>
         public static bool IsCalledByTaskScheduler(this HttpRequest request)
         {
-            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(request);
             return 
                 request.Headers.ContainsKey(DefaultTaskScheduler.AuthTokenName) || 
                 request.Path.StartsWithSegments("/taskscheduler");

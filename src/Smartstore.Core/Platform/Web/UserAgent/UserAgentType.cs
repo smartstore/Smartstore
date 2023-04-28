@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Core.Web
 {
     /// <summary>
-    /// User Agent Types
+    /// User Agent types
     /// </summary>
     public enum UserAgentType : byte
     {
@@ -10,12 +10,16 @@
         /// </summary>
         Unknown,
         /// <summary>
-        /// Browser
+        /// Browser, e.g. "Chrome", "Firefox" etc.
         /// </summary>
         Browser,
         /// <summary>
-        /// Robot
+        /// Bot, Crawler, Spider, Tool
         /// </summary>
-        Bot
+        Bot,
+        /// <summary>
+        /// Smartstore
+        /// </summary>
+        Application
     }
 }

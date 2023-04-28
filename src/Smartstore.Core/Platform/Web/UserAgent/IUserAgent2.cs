@@ -10,46 +10,36 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// The raw user agent string.
         /// </summary>
-        string RawValue { get; set; }
+        string UserAgent { get; set; }
 
         /// <summary>
-        /// Checks if agent is a bot.
+        /// Type of user agent, see <see cref="UserAgentType"/>
         /// </summary>
-        bool IsBot { get; }
+        UserAgentType Type { get; }
 
         /// <summary>
-        /// Checks if agent is a mobile device.
+        /// Name of user agent, e.g. "Chrome", "Edge", "Firefox", "Opera Mobile", "Googlebot" etc.
         /// </summary>
-        bool IsMobileDevice { get; }
+        string Name { get; }
 
         /// <summary>
-        /// Checks if agent is a mobile tablet device.
+        /// Version of user agent.
         /// </summary>
-        bool IsTablet { get; }
+        SemanticVersion? Version { get; }
 
         /// <summary>
-        /// Checks if agent is the PDF converter client.
+        /// Platform/OS of user agent, see <see cref="UserAgentPlatform"/>.
         /// </summary>
-        bool IsPdfConverter { get; }
+        UserAgentPlatform Platform { get; }
 
         /// <summary>
-        /// Browser or Bot name of user agent, e.g. "Chrome", "Edge", "Firefox", "Opera Mobile", "Googlebot" etc.
+        /// Device name of agent, e.g. "Android", "Apple iPhone", "BlackBerry", "Samsung", "PlayStation", "Windows CE" etc.
         /// </summary>
-        string? Name { get; }
+        UserAgentDevice Device { get; }
 
         /// <summary>
-        /// Version of Browser or Bot.
+        /// Checks whether the user agent supports the WebP image type.
         /// </summary>
-        SemanticVersion Version { get; }
-
-        /// <summary>
-        /// Platform/OS of agent, see <see cref="UserAgentPlatform"/>.
-        /// </summary>
-        UserAgentPlatform? Platform { get; }
-
-        /// <summary>
-        /// Mobile device name of agent, e.g. "Android", "Apple iPhone", "BlackBerry", "Samsung", "PlayStation", "Windows CE" etc.
-        /// </summary>
-        string? MobileDeviceName { get; }
+        bool SupportsWebP { get; }
     }
 }
