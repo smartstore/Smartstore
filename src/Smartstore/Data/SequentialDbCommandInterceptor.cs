@@ -26,7 +26,7 @@ namespace Smartstore.Data
             {
                 return result;
             }
-            
+
             var behavior = CommandBehavior.SequentialAccess;
             var reader = await command.ExecuteReaderAsync(behavior, cancellationToken);
             var columns = await reader.GetColumnSchemaAsync(cancellationToken);
@@ -61,7 +61,7 @@ namespace Smartstore.Data
             private DbColumn[] _columns;
             private TypeCase[] _columnTypeCases;
             private int[] _ordinalToIndexMap;
-            private int[] _nullOrdinalToIndexMap;
+            private int[] _nullableOrdinalToIndexMap;
 
             private bool[] _nulls;
             private bool[] _bools;
@@ -113,7 +113,7 @@ namespace Smartstore.Data
 
                 _columnTypeCases = Enumerable.Repeat(TypeCase.Empty, fieldCount).ToArray();
                 _ordinalToIndexMap = Enumerable.Repeat(-1, fieldCount).ToArray();
-                _nullOrdinalToIndexMap = Enumerable.Repeat(-1, fieldCount).ToArray();
+                _nullableOrdinalToIndexMap = Enumerable.Repeat(-1, fieldCount).ToArray();
 
                 for (var i = 0; i < fieldCount; i++)
                 {
@@ -121,7 +121,7 @@ namespace Smartstore.Data
 
                     if (column.AllowDBNull == true)
                     {
-                        _nullOrdinalToIndexMap[i] = nullCount;
+                        _nullableOrdinalToIndexMap[i] = nullCount;
                         nullCount++;
                     }
 
@@ -267,7 +267,7 @@ namespace Smartstore.Data
                 _columns = null;
                 _columnTypeCases = null;
                 _ordinalToIndexMap = null;
-                _nullOrdinalToIndexMap = null;
+                _nullableOrdinalToIndexMap = null;
             }
 
             public override object this[int ordinal] 
@@ -307,7 +307,6 @@ namespace Smartstore.Data
 
             public override int GetOrdinal(string name)
                 => _reader.GetOrdinal(name);
-
 
             public override bool GetBoolean(int ordinal)
                 => _columnTypeCases[ordinal] == TypeCase.Bool
@@ -399,7 +398,7 @@ namespace Smartstore.Data
 
                 for (var i = 0; i < min; i++)
                 {
-                    var nullIndex = _nullOrdinalToIndexMap[i];
+                    var nullIndex = _nullableOrdinalToIndexMap[i];
                     if (IsDBNull(i))
                     {
                         values[i] = null;
@@ -437,8 +436,8 @@ namespace Smartstore.Data
 
             public override bool IsDBNull(int ordinal)
             {
-                var nullIndex = _nullOrdinalToIndexMap[ordinal];
-                return nullIndex == -1 || _nulls[nullIndex];
+                var nullIndex = _nullableOrdinalToIndexMap[ordinal];
+                return nullIndex != -1 && _nulls[nullIndex];
             }
 
             public override bool NextResult() 
@@ -494,7 +493,7 @@ namespace Smartstore.Data
                 for (int i = 0; i < _columns.Length; ++i)
                 {
                     var column = _columns[i];
-                    var nullIndex = _nullOrdinalToIndexMap[i];
+                    var nullIndex = _nullableOrdinalToIndexMap[i];
 
                     if (nullIndex != -1 && _reader.IsDBNull(i))
                     {
