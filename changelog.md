@@ -9,6 +9,9 @@
 
 ### Improvements
 
+- Better PayPal implementaion. Added providers for every single payment option.
+- Added a search filter for country grid.
+
 ### Bugfixes
 
 - PdfConverter failed after cron job cleaned up temporary files in App_Data directory
@@ -25,6 +28,8 @@
 - Added missing properties in customer grid.
 - Fixed popular product tags were not loaded based on the frequency of their product assignments on homepage.
 - Fixed after a login the user was not redirected to the previous page.
+- Fixed problem where bundles couldn't be added to the basket if bundleitems had  attributes.
+- GMC: when there was no Google category defined in a product, copying the product threw with null reference exception
 
 
 ## Smartstore 5.0.4
