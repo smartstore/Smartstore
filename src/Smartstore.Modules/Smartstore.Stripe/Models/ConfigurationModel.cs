@@ -5,9 +5,6 @@ namespace Smartstore.StripeElements.Models
     [LocalizedDisplay("Plugins.Smartstore.Stripe.")]
     public class ConfigurationModel : ModelBase
     {
-        [LocalizedDisplay("*UseSandbox")]
-        public bool UseSandbox { get; set; }
-
         [LocalizedDisplay("*PublicApiKey")]
         public string PublicApiKey { get; set; }
 

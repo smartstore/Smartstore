@@ -171,7 +171,7 @@ namespace Smartstore.StripeElements.Controllers
                 paymentRequest.CustomerId = customer.Id;
                 paymentRequest.PaymentMethodSystemName = StripeElementsProvider.SystemName;
 
-                // We must check here if an order can be placed to avoid creating unauthorized Sofort transactions.
+                // We must check here if an order can be placed to avoid creating unauthorized transactions.
                 var (warnings, cart) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
                 if (warnings.Count == 0)
                 {
@@ -185,7 +185,7 @@ namespace Smartstore.StripeElements.Controllers
                         {
                             Amount = cartTotal.ConvertedAmount.Total.Value.RoundedAmount.ToSmallestCurrencyUnit(),
                             Currency = state.PaymentIntent.Currency,
-                            PaymentMethod = state.PaymentMethod,
+                            PaymentMethod = state.PaymentMethod
                         };
 
                         var service = new PaymentIntentService();
@@ -214,7 +214,7 @@ namespace Smartstore.StripeElements.Controllers
                 }
                 else
                 {
-                    messages.AddRange(warnings.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
+                    messages.AddRange(warnings.Select(HtmlUtility.ConvertPlainTextToHtml));
                 }
             }
             catch (Exception ex)
@@ -230,7 +230,9 @@ namespace Smartstore.StripeElements.Controllers
         {
             var error = false;
             string message = null;
-            var success = redirect_status == "succeeded" || redirect_status == "pending";
+            var success = redirect_status == "succeeded" || redirect_status == "pending" || !redirect_status.HasValue();
+
+            //Logger.LogInformation($"Stripe redirection result: '{redirect_status}'");
 
             if (success)
             {

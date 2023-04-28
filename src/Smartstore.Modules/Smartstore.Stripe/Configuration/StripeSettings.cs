@@ -5,11 +5,6 @@ namespace Smartstore.StripeElements.Settings
     public class StripeSettings : ISettings
     {
         /// <summary>
-        /// Specifies whether to use sandbox mode.
-        /// </summary>
-        public bool UseSandbox { get; set; }
-
-        /// <summary>
         /// Public Api key. Used to render Stripe Elements via JS-SDK.
         /// </summary>
         public string PublicApiKey { get; set; }
