@@ -285,9 +285,9 @@ namespace Smartstore.Core.Web
             ( "Feedly", "Feedly"),
 
             // Other bots
-            ( "DuplexWeb-Google", "DuplexWeb-Google"),
-            ( "Storebot-Google", "Storebot-Google"),
-            ( "msnbot", "MSNBot"),
+            ( "DuplexWeb-Google", "Google DuplexWeb"),
+            ( "Storebot-Google", "Google Storebot"),
+            ( "msnbot", "MSN Bot"),
             ( "Wappalyzer", "Wappalyzer"),
             ( "BW/1.1", "BuiltWith"),
             ( "PayPal IPN", "PayPal IPN"),
