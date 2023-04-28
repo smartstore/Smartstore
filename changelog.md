@@ -29,7 +29,8 @@
 - Fixed popular product tags were not loaded based on the frequency of their product assignments on homepage.
 - Fixed after a login the user was not redirected to the previous page.
 - Fixed problem where bundles couldn't be added to the basket if bundleitems had  attributes.
-- GMC: when there was no Google category defined in a product, copying the product threw with null reference exception
+- GMC: when there was no Google category defined in a product, copying the product threw with null reference exception.
+- Fixed attribute filters of bundle items were not loaded in bundle item dialog.
 
 
 ## Smartstore 5.0.4
