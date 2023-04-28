@@ -22,6 +22,7 @@
 - #651 Fixed product can be added to cart even if the availability limit was reached.
 - Logout was not possible after new customer registrations.
 - Fixed unpublished products should be assignable as "promoted" to a product.
+- SequentialDataReader: fixed a problem where occasionally nullable string fields were not read
 - UrlRewriter: raw rules were not loaded from legacy storage
 - Fixed a topic was not editable if a menu link with an invalid target was associated.
 - MainMenuShrinker was missing.
