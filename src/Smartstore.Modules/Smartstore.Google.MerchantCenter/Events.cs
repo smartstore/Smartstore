@@ -84,6 +84,11 @@ namespace Smartstore.Google.MerchantCenter
                 .Where(x => x.ProductId == message.Source.Id)
                 .FirstOrDefaultAsync();
 
+            if (originalGoogleProduct == null)
+            {
+                return;
+            }
+
             var newGoogleProduct = new GoogleProduct
             {
                 CreatedOnUtc = DateTime.UtcNow
