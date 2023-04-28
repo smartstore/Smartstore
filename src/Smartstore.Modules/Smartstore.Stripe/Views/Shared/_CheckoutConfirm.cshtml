@@ -77,7 +77,7 @@
 
         function reportError(message) {
             var errorEvent = jQuery.Event('reportError');
-            errorEvent.message = message
+            errorEvent.message = message;
             $(document).trigger(errorEvent);
         }
     });
