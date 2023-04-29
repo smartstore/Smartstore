@@ -24,7 +24,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// Regex defauls for platform mappings
         /// </summary>
-        private const RegexOptions DefaultPlatformsRegexFlags = RegexOptions.IgnoreCase | RegexOptions.Compiled;
+        private const RegexOptions DefaultPlatformsRegexFlags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline;
 
         private static readonly Regex TabletRegex = GeneratedTabletRegex();
 
@@ -85,7 +85,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// Regex defauls for browser mappings
         /// </summary>
-        private const RegexOptions DefaultBrowserRegexFlags = RegexOptions.IgnoreCase | RegexOptions.Compiled;
+        private const RegexOptions DefaultBrowserRegexFlags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline;
         /// <summary>
         /// Creates default browser mapping regex
         /// </summary>
