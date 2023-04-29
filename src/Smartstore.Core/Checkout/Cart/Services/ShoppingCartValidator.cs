@@ -463,19 +463,14 @@ namespace Smartstore.Core.Checkout.Cart
             customer ??= _workContext.CurrentCustomer;
             cartItems ??= Enumerable.Empty<OrganizedShoppingCartItem>();
 
-            var currentWarnings = new List<string>();
-
             // Check if the product is a bundle. Since bundles have no attributes, the customer has nothing to select.
             if (product.ProductType == ProductType.BundledProduct ||
                 (bundleItem?.BundleProduct != null && !bundleItem.BundleProduct.BundlePerItemPricing))
             {
-                if (selection.AttributesMap.Any())
-                {
-                    warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
-                }
-
                 return true;
             }
+
+            var currentWarnings = new List<string>();
 
             // Get selected product variant attributes and check for product errors.
             var selectedAttributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(selection);

@@ -203,7 +203,7 @@ namespace Smartstore.Web.Controllers
             var helper = new LocalizedUrlHelper(Request.PathBase, returnUrl ?? string.Empty);
             var urlPolicy = HttpContext.GetUrlPolicy();
 
-            if (urlPolicy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
+            if (urlPolicy != null && urlPolicy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
                 // Don't prepend culture code if it is master language and master is prefixless by configuration.
                 if (language.UniqueSeoCode != urlPolicy.DefaultCultureCode || urlPolicy.LocalizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect)

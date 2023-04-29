@@ -2,6 +2,30 @@
 
     // TODO: Implement ValidationAttributes in Smartstore.Validation namespace
 
+    // Message localization
+    if ($.validator.messages && window.Res) {
+        let r = window.Res;
+        $.extend($.validator.messages, {
+            required: r["Jquery.Validate.Required"],
+            remote: r["Jquery.Validate.Remote"],
+            email: r["Jquery.Validate.Email"],
+            url: r["Jquery.Validate.Url"],
+            date: r["Jquery.Validate.Date"],
+            dateISO: r["Jquery.Validate.DateISO"],
+            number: r["Jquery.Validate.Number"],
+            digits: r["Jquery.Validate.Digits"],
+            creditcard: r["Jquery.Validate.Creditcard"],
+            equalTo: r["Jquery.Validate.Equalto"],
+            extension: r["Jquery.Validate.Extension"],
+            maxlength: $.validator.format(r["Jquery.Validate.Maxlength"]),
+            minlength: $.validator.format(r["Jquery.Validate.Minlength"]),
+            rangelength: $.validator.format(r["Jquery.Validate.Rangelength"]),
+            range: $.validator.format(r["Jquery.Validate.Range"]),
+            max: $.validator.format(r["Jquery.Validate.Max"]),
+            min: $.validator.format(r["Jquery.Validate.Min"])
+        });
+    }
+
     // FileExtensions validation
     $.validator.unobtrusive.adapters.add('fileextensions', ['extensions'], function (options) {
         var params = {

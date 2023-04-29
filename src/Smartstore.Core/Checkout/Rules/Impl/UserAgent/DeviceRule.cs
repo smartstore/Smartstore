@@ -14,35 +14,16 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
         public static RuleValueSelectListOption[] GetDefaultOptions()
         {
-            return new[]
-            {
-                "BlackBerry",
-                "Generic Feature Phone",
-                "Generic Smartphone",
-                "Generic Tablet",
-                "HP TouchPad",
-                "iPad",
-                "iPhone",
-                "iPod",
-                "Kindle",
-                "Kindle Fire",
-                "Lumia",
-                "Mac",
-                "Microsoft Surface RT",
-                "Motorola",
-                "Nokia",
-                "Palm",
-                "Samsung",
-                "Spider",
-                "Other"
-            }
-            .Select(x => new RuleValueSelectListOption { Value = x, Text = x })
-            .ToArray();
+            return UserAgentPatterns.Mobiles.Values
+                .Distinct()
+                .OrderBy(x => x)
+                .Select(x => new RuleValueSelectListOption { Value = x, Text = x })
+                .ToArray();
         }
 
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
-            var match = expression.HasListMatch(_userAgent.Device.Family.NullEmpty());
+            var match = _userAgent.IsMobileDevice() && expression.HasListMatch(_userAgent.Device.Name.NullEmpty());
             return Task.FromResult(match);
         }
     }

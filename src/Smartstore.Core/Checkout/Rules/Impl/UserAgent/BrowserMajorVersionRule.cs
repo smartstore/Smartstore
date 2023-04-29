@@ -16,9 +16,9 @@ namespace Smartstore.Core.Checkout.Rules.Impl
         {
             var match = false;
 
-            if (_userAgent.UserAgent.Major.HasValue() && int.TryParse(_userAgent.UserAgent.Major, out var majorVersion))
+            if (_userAgent.Version?.Version is Version version && version.Major > 0)
             {
-                match = expression.Operator.Match(majorVersion, expression.Value);
+                match = expression.Operator.Match(version.Major, expression.Value);
             }
 
             return Task.FromResult(match);

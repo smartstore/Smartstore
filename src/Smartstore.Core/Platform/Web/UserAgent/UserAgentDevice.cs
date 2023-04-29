@@ -25,6 +25,8 @@
         /// Type of device.
         /// </summary>
         public UserAgentDeviceType Type { get; }
+
+        public bool IsUnknown() => Name == "Unknown";
     }
 
     /// <summary>

@@ -5,15 +5,15 @@ namespace Smartstore.Core.Web
     /// <summary>
     /// Parsed user agent info
     /// </summary>
-    public readonly struct UserAgentInformation
+    public readonly struct UserAgentInfo
     {
         internal const string Unknown = "Unknown";
-        internal readonly static UserAgentInformation UnknownBot = new(UserAgentType.Bot, Unknown, null, null, null);
+        internal readonly static UserAgentInfo UnknownBot = new(UserAgentType.Bot, Unknown, null, null, null);
 
         /// <summary>
-        /// Creates a new instance of <see cref="UserAgentInformation"/>
+        /// Creates a new instance of <see cref="UserAgentInfo"/>
         /// </summary>
-        public UserAgentInformation(
+        public UserAgentInfo(
             UserAgentType type,
             string? name,
             string? version,
@@ -28,21 +28,21 @@ namespace Smartstore.Core.Web
         }
 
         /// <summary>
-        /// Creates <see cref="UserAgentInformation"/> for a bot.
+        /// Creates <see cref="UserAgentInfo"/> for a bot.
         /// </summary>
-        internal static UserAgentInformation CreateForBot(string botName, UserAgentPlatform? platform)
+        internal static UserAgentInfo CreateForBot(string botName, UserAgentPlatform? platform)
             => new(UserAgentType.Bot, botName, null, platform, null);
 
         /// <summary>
-        /// Creates <see cref="UserAgentInformation"/> for a browser.
+        /// Creates <see cref="UserAgentInfo"/> for a browser.
         /// </summary>
-        internal static UserAgentInformation CreateForBrowser(string? browserName, string? browserVersion, UserAgentPlatform? platform, UserAgentDevice? device)
+        internal static UserAgentInfo CreateForBrowser(string? browserName, string? browserVersion, UserAgentPlatform? platform, UserAgentDevice? device)
             => new(UserAgentType.Browser, browserName, browserVersion, platform, device);
 
         /// <summary>
-        /// Creates <see cref="UserAgentInformation"/> for an unknown agent type.
+        /// Creates <see cref="UserAgentInfo"/> for an unknown agent type.
         /// </summary>
-        internal static UserAgentInformation CreateForUnknown(UserAgentPlatform? platform, UserAgentDevice? device)
+        internal static UserAgentInfo CreateForUnknown(UserAgentPlatform? platform, UserAgentDevice? device)
             => new(UserAgentType.Unknown, null, null, platform, device);
 
         /// <summary>

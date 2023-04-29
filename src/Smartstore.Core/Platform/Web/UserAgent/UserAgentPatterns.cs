@@ -24,7 +24,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// Regex defauls for platform mappings
         /// </summary>
-        private const RegexOptions DefaultPlatformsRegexFlags = RegexOptions.IgnoreCase | RegexOptions.Compiled;
+        private const RegexOptions DefaultPlatformsRegexFlags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline;
 
         private static readonly Regex TabletRegex = GeneratedTabletRegex();
 
@@ -85,7 +85,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// Regex defauls for browser mappings
         /// </summary>
-        private const RegexOptions DefaultBrowserRegexFlags = RegexOptions.IgnoreCase | RegexOptions.Compiled;
+        private const RegexOptions DefaultBrowserRegexFlags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline;
         /// <summary>
         /// Creates default browser mapping regex
         /// </summary>
@@ -159,6 +159,7 @@ namespace Smartstore.Core.Web
             { "nokia", "Nokia" },
             { "palm", "Palm" },
             { "ipad", "Apple iPad" },
+            { "surface", "Microsoft Surface" },
             { "ipod", "Apple iPod" },
             { "iphone", "Apple iPhone" },
             { "sonyericsson", "Sony Ericsson" },
@@ -285,9 +286,9 @@ namespace Smartstore.Core.Web
             ( "Feedly", "Feedly"),
 
             // Other bots
-            ( "DuplexWeb-Google", "DuplexWeb-Google"),
-            ( "Storebot-Google", "Storebot-Google"),
-            ( "msnbot", "MSNBot"),
+            ( "DuplexWeb-Google", "Google DuplexWeb"),
+            ( "Storebot-Google", "Google Storebot"),
+            ( "msnbot", "MSN Bot"),
             ( "Wappalyzer", "Wappalyzer"),
             ( "BW/1.1", "BuiltWith"),
             ( "PayPal IPN", "PayPal IPN"),

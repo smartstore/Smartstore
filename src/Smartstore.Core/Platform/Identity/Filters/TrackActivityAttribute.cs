@@ -127,7 +127,7 @@ namespace Smartstore.Core.Identity
             if (_attribute.TrackUserAgent)
             {
                 // TODO: (mh) (core) Make new setting CustomerSettings.StoreLastUserAgent
-                var currentUserAgent = _userAgent.RawValue;
+                var currentUserAgent = _userAgent.UserAgent;
                 if (currentUserAgent.HasValue())
                 {
                     dirty = dirty || customer.LastUserAgent != currentUserAgent;
@@ -139,11 +139,11 @@ namespace Smartstore.Core.Identity
             if (_attribute.TrackDeviceFamily)
             {
                 // TODO: (mh) (core) Make new setting CustomerSettings.StoreLastDeviceFamily
-                var currentDeviceFamily = _userAgent.Device.Family;
-                if (currentDeviceFamily.HasValue())
+                var currentDeviceName = _userAgent.Device.IsUnknown() ? _userAgent.Platform.Name : _userAgent.Device.Name;
+                if (currentDeviceName.HasValue() && currentDeviceName != "Unknown")
                 {
-                    dirty = dirty || customer.LastUserDeviceType != currentDeviceFamily;
-                    customer.LastUserDeviceType = currentDeviceFamily;
+                    dirty = dirty || customer.LastUserDeviceType != currentDeviceName;
+                    customer.LastUserDeviceType = currentDeviceName;
                 }
             }
 

@@ -1,7 +1,7 @@
 ﻿@model TopBarModel
 
 @{
-    string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { returnUrl = Context.Request.Query["returnUrl"] });
+    string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { returnUrl = Request.RawUrl() });
 }
 
 <zone name="header_menu_top"></zone>

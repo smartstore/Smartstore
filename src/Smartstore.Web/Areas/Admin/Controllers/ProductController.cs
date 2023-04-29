@@ -1493,7 +1493,7 @@ namespace Smartstore.Admin.Controllers
 
         #endregion
 
-        #region Utitilies
+        #region Utilities
 
         private async Task PrepareProductModelAsync(ProductModel model, Product product, bool setPredefinedValues, bool excludeProperties)
         {
@@ -1817,7 +1817,7 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var attribute in attributes)
             {
-                var attributeModel = new ProductBundleItemAttributeModel()
+                var attributeModel = new ProductBundleItemAttributeModel
                 {
                     Id = attribute.Id,
                     Name = attribute.ProductAttribute.Alias.HasValue() ? $"{attribute.ProductAttribute.Name} ({attribute.ProductAttribute.Alias})" : attribute.ProductAttribute.Name
@@ -1833,7 +1833,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var filteredValue = bundleItem.AttributeFilters.FirstOrDefault(x => x.AttributeId == attribute.Id && x.AttributeValueId == attributeValue.Id);
 
-                    attributeModel.Values.Add(new SelectListItem()
+                    attributeModel.Values.Add(new SelectListItem
                     {
                         Text = attributeValue.Name,
                         Value = attributeValue.Id.ToString(),
@@ -1842,7 +1842,7 @@ namespace Smartstore.Admin.Controllers
 
                     if (filteredValue != null)
                     {
-                        attributeModel.PreSelect.Add(new SelectListItem()
+                        attributeModel.PreSelect.Add(new SelectListItem
                         {
                             Text = attributeValue.Name,
                             Value = attributeValue.Id.ToString(),
@@ -1855,7 +1855,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     if (attributeModel.PreSelect.Count > 0)
                     {
-                        attributeModel.PreSelect.Insert(0, new SelectListItem() { Text = T("Admin.Common.PleaseSelect") });
+                        attributeModel.PreSelect.Insert(0, new SelectListItem { Text = T("Admin.Common.PleaseSelect") });
                     }
 
                     model.Attributes.Add(attributeModel);

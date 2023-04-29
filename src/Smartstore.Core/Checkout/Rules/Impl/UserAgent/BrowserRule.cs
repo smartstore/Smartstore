@@ -17,18 +17,16 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             return new[]
             {
                 "Chrome",
-                "Chrome Mobile",
                 "Edge",
                 "Firefox",
-                "Firefox Mobile",
-                "IE",
-                "IE Mobile",
-                "Mobile Safari",
-                "Opera",
-                "Opera Mobile",
-                "Opera Mini",
+                "Internet Explorer",
                 "Safari",
-                "Samsung Internet"
+                "Opera",
+                "Brave",
+                "Netscape",
+                "Mozilla",
+                "Konqueror",
+                "Ubuntu Web Browser"
             }
             .Select(x => new RuleValueSelectListOption { Value = x, Text = x })
             .ToArray();
@@ -36,7 +34,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
-            var match = expression.HasListMatch(_userAgent.UserAgent.Family.NullEmpty());
+            var match = _userAgent.IsBrowser() && expression.HasListMatch(_userAgent.Name.NullEmpty());
             return Task.FromResult(match);
         }
     }

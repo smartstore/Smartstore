@@ -6,6 +6,15 @@ namespace Smartstore.Tests
     public class PerformanceTests
     {
         //[Test]
+        //public void YamlParseTest()
+        //{
+        //    var yaml = File.ReadAllText(@"D:\Git\Smartstore.Full\Smartstore\src\Smartstore.Web\App_Data\UAParser.regexes.yaml");
+        //    var parser = new MinimalYamlParser(yaml);
+        //    var mappings = parser.Mappings;
+        //    var deviceMapping = parser.ReadMapping("device_parsers");
+        //}
+
+        //[Test]
         //public void InstantiatePerfTest()
         //{
         //	int cycles = 500000;

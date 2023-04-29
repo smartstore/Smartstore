@@ -7,6 +7,6 @@ namespace Smartstore.Core.Web
     /// </summary>
     public interface IUserAgentParser
     {
-        UserAgentInformation Parse(string? userAgent);
+        UserAgentInfo Parse(string? userAgent);
     }
 }

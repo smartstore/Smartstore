@@ -29,7 +29,7 @@ namespace Smartstore.Core.Seo.Routing
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var userAgent = context.HttpContext.RequestServices.GetRequiredService<IUserAgent>();
-            if (userAgent.IsBot)
+            if (userAgent.IsBot())
             {
                 context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             }

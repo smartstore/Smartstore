@@ -36,12 +36,6 @@
 					  ]]>
 				</Value>
 			</LocaleResource>
-			<LocaleResource Name="UseSandbox">
-				<Value>Testmodus nutzen</Value>
-			</LocaleResource>
-			<LocaleResource Name="UseSandbox.Hint">
-				<Value>Bestimmt, ob die Zahlungen im Testmodus ausgeführt werden.</Value>
-			</LocaleResource>
             <LocaleResource Name="CaptureMethod">
                 <Value>Geldeinzug</Value>
             </LocaleResource>

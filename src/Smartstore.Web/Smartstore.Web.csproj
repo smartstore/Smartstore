@@ -46,7 +46,6 @@
 	<!-- Copy publishable files in App_Data directory -->
 	<ItemGroup>
 		<None Include="App_Data\icons.json" CopyToPublishDirectory="PreserveNewest" />
-        <None Include="App_Data\UAParser.regexes.yaml" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\widgetzones.json" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\EmailTemplates\**" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\Geo\**" CopyToPublishDirectory="PreserveNewest" />

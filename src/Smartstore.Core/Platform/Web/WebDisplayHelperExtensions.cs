@@ -79,7 +79,7 @@ namespace Smartstore
             return displayHelper.HttpContext.GetItem(nameof(IsMobileDevice), () =>
             {
                 var userAgent = displayHelper.Resolve<IUserAgent>();
-                return userAgent.IsMobileDevice && !userAgent.IsTablet;
+                return userAgent.IsMobileDevice() && !userAgent.IsTablet();
             });
         }
 

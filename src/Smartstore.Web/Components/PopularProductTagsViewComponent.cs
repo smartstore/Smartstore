@@ -2,7 +2,6 @@
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
-using Smartstore.Data;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 
@@ -35,34 +34,32 @@ namespace Smartstore.Web.Components
             {
                 o.ExpiresIn(TimeSpan.FromHours(1));
 
-                var model = new PopularProductTagsModel();
                 var productCountsMap = await _productTagService.GetProductCountsMapAsync(null, store.Id);
-                var pager = new FastPager<ProductTag>(_db.ProductTags.AsNoTracking().Where(x => x.Published), 1000);
 
-                while (model.Tags.Count < _catalogSettings.NumberOfProductTags && (await pager.ReadNextPageAsync<ProductTag>()).Out(out var tags))
-                {
-                    foreach (var tag in tags)
+                var tagIds = productCountsMap
+                    .Where(x => x.Value > 0)
+                    .OrderByDescending(x => x.Value)
+                    .Select(x => x.Key)
+                    .Take(_catalogSettings.NumberOfProductTags)
+                    .ToArray();
+
+                var tags = await _db.ProductTags.GetManyAsync(tagIds);
+
+                var tagModels = tags
+                    .Select(tag => new ProductTagModel
                     {
-                        if (productCountsMap.TryGetValue(tag.Id, out var productCount) && productCount > 0)
-                        {
-                            model.Tags.Add(new ProductTagModel
-                            {
-                                Id = tag.Id,
-                                Name = tag.GetLocalized(x => x.Name),
-                                Slug = tag.BuildSlug(),
-                                ProductCount = productCount
-                            });
+                        Id = tag.Id,
+                        Name = tag.GetLocalized(x => x.Name),
+                        Slug = tag.BuildSlug(),
+                        ProductCount = productCountsMap.Get(tag.Id)
+                    })
+                    .ToList();
 
-                            if (model.Tags.Count >= _catalogSettings.NumberOfProductTags)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                model.Tags = model.Tags.OrderBy(x => x.Name).ToList();
-                model.TotalTags = productCountsMap.Count(x => x.Value > 0);
+                var model = new PopularProductTagsModel
+                {
+                    Tags = tagModels.OrderBy(x => x.Name).ToList(),
+                    TotalTags = productCountsMap.Count(x => x.Value > 0)
+                };
 
                 return model;
             });

@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 namespace Smartstore.Core.Web
 {
-    public class DefaultUserAgent : IUserAgent2
+    public class DefaultUserAgent : IUserAgent
     {
         const int UaStringSizeLimit = 512;
 
@@ -13,19 +12,19 @@ namespace Smartstore.Core.Web
         });
         
         private readonly IUserAgentParser _parser;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private string _userAgent;
-        private UserAgentInformation _info;
+        private UserAgentInfo _info;
         private SemanticVersion _version;
         private bool _versionParsed;
-        private bool? _supportsWebP;
 
-        public DefaultUserAgent(/*IUserAgentParser parser, */IHttpContextAccessor httpContextAccessor)
+        public DefaultUserAgent(string userAgent, IUserAgentParser parser)
         {
-            _parser = new DefaultUserAgentParser();
-            _httpContextAccessor = httpContextAccessor;
-            _userAgent = _httpContextAccessor.HttpContext?.Request?.UserAgent() ?? string.Empty;
+            Guard.NotNull(userAgent);
+            Guard.NotNull(parser);
+
+            _userAgent = userAgent.Trim();
+            _parser = parser;
             _info = GetUserAgentInfo(_userAgent);
         }
 
@@ -42,7 +41,6 @@ namespace Smartstore.Core.Web
                 _version = null;
                 _versionParsed = false;
                 _info = GetUserAgentInfo(value);
-                _supportsWebP = null;
             }
         }
 
@@ -53,7 +51,7 @@ namespace Smartstore.Core.Web
 
         public virtual string Name
         {
-            get => _info.Name ?? UserAgentInformation.Unknown;
+            get => _info.Name ?? UserAgentInfo.Unknown;
         }
 
         public virtual SemanticVersion Version
@@ -69,7 +67,10 @@ namespace Smartstore.Core.Web
                         return null;
                     }
 
-                    _ = SemanticVersion.TryParse(_info.Version, out _version);
+                    if (SemanticVersion.TryParse(_info.Version, out _version))
+                    {
+                        return _version;
+                    }
                 }
                 
                 return _version;
@@ -86,54 +87,7 @@ namespace Smartstore.Core.Web
             get => _info.Device;
         }
 
-        public virtual bool SupportsWebP
-        {
-            get 
-            {
-                if (_supportsWebP == null)
-                {
-                    if (Version == null)
-                    {
-                        _supportsWebP = false;
-                    }
-                    else
-                    {
-                        var name = Name;
-                        var v = Version.Version;
-                        var m = this.IsMobileDevice();
-
-                        if (name == "Chrome")
-                        {
-                            _supportsWebP = v.Major >= (m ? 79 : 32);
-                        }
-                        else if (name == "Firefox")
-                        {
-                            _supportsWebP = v.Major >= (m ? 68 : 65);
-                        }
-                        else if (name == "Edge")
-                        {
-                            _supportsWebP = v.Major >= 18;
-                        }
-                        else if (name == "Opera")
-                        {
-                            _supportsWebP = m || v.Major >= 19;
-                        }
-                        else if (name == "Safari")
-                        {
-                            _supportsWebP = v.Major >= (m ? 14 : 16);
-                        }
-                        else
-                        {
-                            _supportsWebP = false;
-                        }
-                    }
-                }
-
-                return _supportsWebP.Value;
-            }
-        }
-
-        protected virtual UserAgentInformation GetUserAgentInfo(string userAgent)
+        protected virtual UserAgentInfo GetUserAgentInfo(string userAgent)
         {
             Guard.NotNull(userAgent);
 

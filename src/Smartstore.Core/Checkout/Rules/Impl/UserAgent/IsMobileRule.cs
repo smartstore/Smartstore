@@ -14,7 +14,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
-            var match = expression.Operator.Match(_userAgent.IsMobileDevice, expression.Value);
+            var match = expression.Operator.Match(_userAgent.IsMobileDevice(), expression.Value);
             return Task.FromResult(match);
         }
     }

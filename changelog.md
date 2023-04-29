@@ -9,6 +9,10 @@
 
 ### Improvements
 
+- Better PayPal implementaion. Added providers for every single payment option.
+- New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
+- Added a search filter for country grid.
+
 ### Bugfixes
 
 - PdfConverter failed after cron job cleaned up temporary files in App_Data directory
@@ -19,10 +23,16 @@
 - #651 Fixed product can be added to cart even if the availability limit was reached.
 - Logout was not possible after new customer registrations.
 - Fixed unpublished products should be assignable as "promoted" to a product.
+- SequentialDataReader: fixed a problem where occasionally nullable string fields were not read
 - UrlRewriter: raw rules were not loaded from legacy storage
 - Fixed a topic was not editable if a menu link with an invalid target was associated.
 - MainMenuShrinker was missing.
 - Added missing properties in customer grid.
+- Fixed popular product tags were not loaded based on the frequency of their product assignments on homepage.
+- Fixed after a login the user was not redirected to the previous page.
+- Fixed problem where bundles couldn't be added to the basket if bundleitems had  attributes.
+- GMC: when there was no Google category defined in a product, copying the product threw with null reference exception.
+- Fixed attribute filters of bundle items were not loaded in bundle item dialog.
 
 
 ## Smartstore 5.0.4
