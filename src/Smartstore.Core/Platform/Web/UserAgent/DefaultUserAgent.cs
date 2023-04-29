@@ -2,7 +2,7 @@
 
 namespace Smartstore.Core.Web
 {
-    public class DefaultUserAgent : IUserAgent2
+    public class DefaultUserAgent : IUserAgent
     {
         const int UaStringSizeLimit = 512;
 
@@ -14,7 +14,7 @@ namespace Smartstore.Core.Web
         private readonly IUserAgentParser _parser;
 
         private string _userAgent;
-        private UserAgentInformation _info;
+        private UserAgentInfo _info;
         private SemanticVersion _version;
         private bool _versionParsed;
 
@@ -51,7 +51,7 @@ namespace Smartstore.Core.Web
 
         public virtual string Name
         {
-            get => _info.Name ?? UserAgentInformation.Unknown;
+            get => _info.Name ?? UserAgentInfo.Unknown;
         }
 
         public virtual SemanticVersion Version
@@ -87,7 +87,7 @@ namespace Smartstore.Core.Web
             get => _info.Device;
         }
 
-        protected virtual UserAgentInformation GetUserAgentInfo(string userAgent)
+        protected virtual UserAgentInfo GetUserAgentInfo(string userAgent)
         {
             Guard.NotNull(userAgent);
 

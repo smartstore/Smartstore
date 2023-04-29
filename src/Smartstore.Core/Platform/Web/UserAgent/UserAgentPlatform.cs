@@ -25,6 +25,8 @@
         /// Platform/OS family.
         /// </summary>
         public UserAgentPlatformFamily Family { get; }
+
+        public bool IsUnknown() => Name == "Unknown";
     }
 
     /// <summary>

@@ -412,7 +412,7 @@ namespace Smartstore.Core
 
         private static Task<Customer> DetectPdfConverter(DetectCustomerContext context)
         {
-            if (context.UserAgent.IsPdfConverter)
+            if (context.UserAgent.IsPdfConverter())
             {
                 return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.PdfConverter);
             }
@@ -422,7 +422,7 @@ namespace Smartstore.Core
 
         private static Task<Customer> DetectBot(DetectCustomerContext context)
         {
-            if (context.UserAgent.IsBot)
+            if (context.UserAgent.IsBot())
             {
                 return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
             }

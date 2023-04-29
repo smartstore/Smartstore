@@ -123,7 +123,7 @@ namespace Smartstore.DevTools
             }
 
             var ua = services.GetRequiredService<IUserAgent>();
-            if (ua.IsMobileDevice && !ua.IsTablet)
+            if (ua.IsMobileDevice() && !ua.IsTablet())
             {
                 return false;
             }
@@ -152,7 +152,7 @@ namespace Smartstore.DevTools
         internal static bool ResultsAuthorize(HttpRequest request)
         {
             var ua = request.HttpContext.RequestServices.GetRequiredService<IUserAgent>();
-            if (ua.IsPdfConverter || ua.IsBot)
+            if (ua.IsPdfConverter() || ua.IsBot())
             {
                 return false;
             }

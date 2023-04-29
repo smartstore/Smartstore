@@ -159,6 +159,7 @@ namespace Smartstore.Core.Web
             { "nokia", "Nokia" },
             { "palm", "Palm" },
             { "ipad", "Apple iPad" },
+            { "surface", "Microsoft Surface" },
             { "ipod", "Apple iPod" },
             { "iphone", "Apple iPhone" },
             { "sonyericsson", "Sony Ericsson" },

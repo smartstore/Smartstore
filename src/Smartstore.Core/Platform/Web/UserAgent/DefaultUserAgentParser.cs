@@ -9,20 +9,20 @@ namespace Smartstore.Core.Web
     {
         const string GenericBot = "Generic bot";
         
-        public UserAgentInformation Parse(string? userAgent)
+        public UserAgentInfo Parse(string? userAgent)
         {
             userAgent = userAgent.TrimSafe();
 
             if (userAgent.IsEmpty())
             {
                 // Empty useragent > bad bot!
-                return UserAgentInformation.UnknownBot;
+                return UserAgentInfo.UnknownBot;
             }
 
             // Analyze Bot
             if (TryGetBot(userAgent!, out string? botName))
             {
-                return UserAgentInformation.CreateForBot(botName, GetPlatform(userAgent!));
+                return UserAgentInfo.CreateForBot(botName, GetPlatform(userAgent!));
             }
 
             // Analyze Platform
@@ -35,7 +35,7 @@ namespace Smartstore.Core.Web
             if (TryGetBrowser(userAgent!, out (string Name, string? Version)? browser))
             {
                 var type = browser?.Name is "Smartstore" ? UserAgentType.Application : UserAgentType.Browser;
-                return new UserAgentInformation(type, browser?.Name, browser?.Version, platform, device);
+                return new UserAgentInfo(type, browser?.Name, browser?.Version, platform, device);
             }
             else
             {
@@ -43,11 +43,11 @@ namespace Smartstore.Core.Web
                 {
                     // No bot or browser detected. Just check if "bot" is
                     // contained within agent string and simply assume that it's a bot.
-                    return UserAgentInformation.CreateForBot(GenericBot, platform);
+                    return UserAgentInfo.CreateForBot(GenericBot, platform);
                 }
                 else
                 {
-                    return UserAgentInformation.CreateForUnknown(platform, device);
+                    return UserAgentInfo.CreateForUnknown(platform, device);
                 }
             }
         }

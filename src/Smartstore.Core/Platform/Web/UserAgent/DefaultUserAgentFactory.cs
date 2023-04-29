@@ -9,7 +9,7 @@
             _parser = parser;
         }
 
-        public IUserAgent2 CreateUserAgent(string userAgent)
+        public IUserAgent CreateUserAgent(string userAgent)
         {
             return new DefaultUserAgent(userAgent, _parser);
         }

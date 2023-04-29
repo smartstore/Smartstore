@@ -28,8 +28,7 @@ namespace Smartstore.Core.Bootstrapping
             // User agent
             builder.RegisterType<DefaultUserAgentParser>().As<IUserAgentParser>().SingleInstance();
             builder.RegisterType<DefaultUserAgentFactory>().As<IUserAgentFactory>().SingleInstance();
-            builder.RegisterType<DefaultUserAgent>().As<IUserAgent2>().InstancePerLifetimeScope();
-            builder.Register<IUserAgent2>(c =>
+            builder.Register<IUserAgent>(c =>
             {
                 // Resolve factory
                 var factory = c.Resolve<IUserAgentFactory>();

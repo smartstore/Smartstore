@@ -91,7 +91,7 @@ namespace Smartstore.Core.Identity
                     }
                     else
                     {
-                        if (_userAgent.IsBot)
+                        if (_userAgent.IsBot())
                         {
                             // Don't ask consent from search engines, also don't set cookies.
                             _cookieConsentManager.SetConsentCookie(true, true);
