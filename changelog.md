@@ -10,6 +10,7 @@
 ### Improvements
 
 - Better PayPal implementaion. Added providers for every single payment option.
+- New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
 - Added a search filter for country grid.
 
 ### Bugfixes
