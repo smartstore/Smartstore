@@ -36,10 +36,5 @@ namespace Smartstore.Core.Web
         /// Device name of agent, e.g. "Android", "Apple iPhone", "BlackBerry", "Samsung", "PlayStation", "Windows CE" etc.
         /// </summary>
         UserAgentDevice Device { get; }
-
-        /// <summary>
-        /// Checks whether the user agent supports the WebP image type.
-        /// </summary>
-        bool SupportsWebP { get; }
     }
 }

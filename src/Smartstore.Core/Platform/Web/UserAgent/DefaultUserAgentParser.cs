@@ -7,6 +7,8 @@ namespace Smartstore.Core.Web
 {
     public class DefaultUserAgentParser : IUserAgentParser
     {
+        const string GenericBot = "Generic bot";
+        
         public UserAgentInformation Parse(string? userAgent)
         {
             userAgent = userAgent.TrimSafe();
@@ -37,7 +39,16 @@ namespace Smartstore.Core.Web
             }
             else
             {
-                return UserAgentInformation.CreateForUnknown(platform, device);
+                if (userAgent!.ContainsNoCase("bot"))
+                {
+                    // No bot or browser detected. Just check if "bot" is
+                    // contained within agent string and simply assume that it's a bot.
+                    return UserAgentInformation.CreateForBot(GenericBot, platform);
+                }
+                else
+                {
+                    return UserAgentInformation.CreateForUnknown(platform, device);
+                }
             }
         }
 
