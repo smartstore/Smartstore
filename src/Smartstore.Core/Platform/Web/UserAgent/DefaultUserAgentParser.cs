@@ -39,7 +39,7 @@ namespace Smartstore.Core.Web
             }
             else
             {
-                if (userAgent!.ContainsNoCase("bot"))
+                if (userAgent!.ContainsNoCase("bot") && !userAgent!.ContainsNoCase("cubot"))
                 {
                     // No bot or browser detected. Just check if "bot" is
                     // contained within agent string and simply assume that it's a bot.
