@@ -1,4 +1,5 @@
 ﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Memory;
 using Smartstore.Engine;
 using SharpConfiguration = SixLabors.ImageSharp.Configuration;

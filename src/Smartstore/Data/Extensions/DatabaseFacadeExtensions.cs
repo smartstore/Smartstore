@@ -84,9 +84,9 @@ namespace Smartstore
 
         public static T ExecuteScalarRaw<T>(this DatabaseFacade databaseFacade, string sql, IEnumerable<object> parameters)
         {
-            Guard.NotNull(databaseFacade, nameof(databaseFacade));
-            Guard.NotEmpty(sql, nameof(sql));
-            Guard.NotNull(parameters, nameof(parameters));
+            Guard.NotNull(databaseFacade);
+            Guard.NotEmpty(sql);
+            Guard.NotNull(parameters);
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
             var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
@@ -97,7 +97,7 @@ namespace Smartstore
                 var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
 
-                return (T)rawSqlCommand
+                var scalarValue = rawSqlCommand
                     .RelationalCommand
                     .ExecuteScalar(
                         new RelationalCommandParameterObject(
@@ -106,6 +106,8 @@ namespace Smartstore
                             null,
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
                             logger));
+
+                return scalarValue.Convert<T>();
             }
         }
 
@@ -121,9 +123,9 @@ namespace Smartstore
             IEnumerable<object> parameters,
             CancellationToken cancelToken = default)
         {
-            Guard.NotNull(databaseFacade, nameof(databaseFacade));
-            Guard.NotEmpty(sql, nameof(sql));
-            Guard.NotNull(parameters, nameof(parameters));
+            Guard.NotNull(databaseFacade);
+            Guard.NotEmpty(sql);
+            Guard.NotNull(parameters);
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
             var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
@@ -134,7 +136,7 @@ namespace Smartstore
                 var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
 
-                return (T)await rawSqlCommand
+                var scalarValue = await rawSqlCommand
                     .RelationalCommand
                     .ExecuteScalarAsync(
                         new RelationalCommandParameterObject(
@@ -144,6 +146,8 @@ namespace Smartstore
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
                             logger), cancelToken)
                     .ConfigureAwait(false);
+
+                return scalarValue.Convert<T>();
             }
         }
 
