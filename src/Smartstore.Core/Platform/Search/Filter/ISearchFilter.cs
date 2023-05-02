@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using Smartstore.Core.Rules;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Search
@@ -23,9 +24,6 @@ namespace Smartstore.Core.Search
         SearchMode Mode { get; }
         bool IsNotAnalyzed { get; }
         int ParentId { get; }
-
-        //bool IsTextual
-        //    => TypeCode == IndexTypeCode.String;
     }
 
     public interface IRangeSearchFilter : IAttributeSearchFilter
@@ -96,6 +94,22 @@ namespace Smartstore.Core.Search
                 .ToArray();
 
             return terms;
+        }
+
+        public static RuleOperator GetOperator(this IAttributeSearchFilter filter)
+        {
+            var negate = filter!.Occurence == SearchFilterOccurence.MustNot;
+
+            switch (filter.Mode)
+            {
+                case SearchMode.StartsWith:
+                    return RuleOperator.StartsWith;
+                case SearchMode.Contains:
+                    return negate ? RuleOperator.NotContains : RuleOperator.Contains;
+                case SearchMode.ExactMatch:
+                default:
+                    return negate ? RuleOperator.IsNotEqualTo : RuleOperator.IsEqualTo;
+            }
         }
     }
 }

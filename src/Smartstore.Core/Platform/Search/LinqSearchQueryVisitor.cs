@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Rules;
+﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Core.Search
@@ -114,7 +115,8 @@ namespace Smartstore.Core.Search
             IQueryable<TEntity> query)
             where TMember : struct
         {
-            var descriptor = new FilterDescriptor<TEntity, TMember>(memberExpression);
+            var entityType = typeof(TEntity);
+            var descriptor = new FilterDescriptor<TEntity, TMember>(memberExpression, entityType == typeof(Product) ? RuleScope.Product : RuleScope.Other);
             var expressions = new List<FilterExpression>(2);
             var negate = filter.Occurence == SearchFilterOccurence.MustNot;
 
@@ -173,7 +175,7 @@ namespace Smartstore.Core.Search
 
             if (expressions.Count > 0)
             {
-                var combinedExpression = new FilterExpressionGroup(typeof(TEntity), expressions.ToArray())
+                var combinedExpression = new FilterExpressionGroup(entityType, expressions.ToArray())
                 {
                     LogicalOperator = LogicalRuleOperator.And,
                 };

@@ -11,6 +11,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Common;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -23,20 +24,30 @@ namespace Smartstore.Core.Tests.Catalog.Search
         private LinqCatalogSearchService _linqCatalogSearchService;
         private MockCommonServices _services;
 
-        private async Task InitTestDataAsync(IEnumerable<Product> products, IEnumerable<Category> categories = null)
+        private async Task InitTestDataAsync(
+            IEnumerable<Product> products, 
+            IEnumerable<Category> categories = null,
+            IEnumerable<LocalizedProperty> translations = null)
         {
             DbContext.StoreMappings.RemoveRange(DbContext.StoreMappings);
             DbContext.AclRecords.RemoveRange(DbContext.AclRecords);
             DbContext.Categories.RemoveRange(DbContext.Categories);
             DbContext.Products.RemoveRange(DbContext.Products);
+            DbContext.Languages.RemoveRange(DbContext.Languages);
+            DbContext.LocalizedProperties.RemoveRange(DbContext.LocalizedProperties);
             await DbContext.SaveChangesAsync();
 
-            DbContext.StoreMappings.AddRange(new StoreMapping { Id = 1, StoreId = 3, EntityName = "Product", EntityId = 99 });
-            DbContext.AclRecords.AddRange(new AclRecord { Id = 1, CustomerRoleId = 3, EntityName = "Product", EntityId = 99 });
+            DbContext.StoreMappings.Add(new StoreMapping { Id = 1, StoreId = 3, EntityName = "Product", EntityId = 99 });
+            DbContext.AclRecords.Add(new AclRecord { Id = 1, CustomerRoleId = 3, EntityName = "Product", EntityId = 99 });
+            DbContext.Languages.Add(new Language { Id = 1, Name = "Deutsch", LanguageCulture = "de-DE", UniqueSeoCode = "de", Published = true });
 
             if (categories != null)
             {
                 DbContext.Categories.AddRange(categories);
+            }
+            if (translations != null)
+            {
+                DbContext.LocalizedProperties.AddRange(translations);
             }
 
             DbContext.Products.AddRange(products);
@@ -122,20 +133,40 @@ namespace Smartstore.Core.Tests.Catalog.Search
             Assert.That(result.SpellCheckerSuggestions.Any(), Is.EqualTo(false));
         }
 
-        [Test]
-        public async Task LinqSearch_find_term()
+        [TestCase(3, "Smart")]
+        [TestCase(4, "Smart", SearchMode.Contains, 1)]
+        public async Task LinqSearch_find_term(int hits, string term, SearchMode mode = SearchMode.Contains, int languageId = 0)
         {
             var products = new List<Product>
             {
                 new SearchProduct(1) { Name = "Smartstore" },
                 new SearchProduct(2) { Name = "Apple iPhone Smartphone 6" },
                 new SearchProduct(3) { Name = "Energistically recaptiualize superior e-markets without next-generation platforms" },
-                new SearchProduct(4) { Name = "Rapidiously conceptualize future-proof imperatives", ShortDescription = "Shopping System powered by Smartstore" }
+                new SearchProduct(4) { Name = "Rapidiously conceptualize future-proof imperatives", ShortDescription = "Shopping System powered by Smartstore" },
+                new SearchProduct(5) { Name = "Enthusiastically pursue leading-edge e-tailers with worldwide schemas", ShortDescription = "Authoritatively evisculate open-source after interdependent data." },
             };
 
-            var result = await SearchAsync(new CatalogSearchQuery(new string[] { "name", "shortdescription" }, "Smart", SearchMode.Contains), products);
+            List<LocalizedProperty> translations = null;
+            if (languageId > 0)
+            {
+                translations = new List<LocalizedProperty>
+                {
+                    new() { LocaleKeyGroup = "Product", LocaleKey = "Name", EntityId = 5, LocaleValue = "Holisticly leadership extensible for Smartstore pontificate.", LanguageId = languageId }
+                };
+            }
 
-            Assert.That(result.TotalHitsCount, Is.EqualTo(3));
+            await InitTestDataAsync(products, null, translations);
+
+            var query = new CatalogSearchQuery(new[] { "name", "shortdescription" }, term, mode);
+            if (languageId > 0)
+            {
+                query = query.WithLanguage(await DbContext.Languages.FindByIdAsync(languageId));
+            }
+
+            Trace.WriteLine(query.ToString());
+
+            var result = await _linqCatalogSearchService.SearchAsync(query);
+            Assert.That(result.TotalHitsCount, Is.EqualTo(hits));
         }
 
         [Test]
