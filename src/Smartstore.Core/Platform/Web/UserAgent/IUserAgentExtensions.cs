@@ -50,7 +50,7 @@
             else
             {
                 var name = userAgent.Name;
-                var v = userAgent.Version.Version;
+                var v = userAgent.Version;
                 var m = userAgent.IsMobileDevice();
 
                 if (name == "Chrome")

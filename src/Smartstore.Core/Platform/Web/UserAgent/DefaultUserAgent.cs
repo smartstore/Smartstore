@@ -15,7 +15,7 @@ namespace Smartstore.Core.Web
 
         private string _userAgent;
         private UserAgentInfo _info;
-        private SemanticVersion _version;
+        private Version _version;
         private bool _versionParsed;
 
         public DefaultUserAgent(string userAgent, IUserAgentParser parser)
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Web
             get => _info.Name ?? UserAgentInfo.Unknown;
         }
 
-        public virtual SemanticVersion Version
+        public virtual Version Version
         {
             get
             {
@@ -67,9 +67,9 @@ namespace Smartstore.Core.Web
                         return null;
                     }
 
-                    if (SemanticVersion.TryParse(_info.Version, out _version))
+                    if (SemanticVersion.TryParse(_info.Version, out var version))
                     {
-                        return _version;
+                        _version = version.Version;
                     }
                 }
                 
