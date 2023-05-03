@@ -3,7 +3,7 @@
 namespace Smartstore.Core.Web
 {
     /// <summary>
-    /// Response for parsing and materializing user agent string.
+    /// Responsible for parsing and materializing a user agent string.
     /// </summary>
     public interface IUserAgentParser
     {

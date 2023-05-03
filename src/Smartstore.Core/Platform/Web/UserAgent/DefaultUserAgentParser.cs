@@ -1,15 +1,142 @@
-﻿#nullable enable
-
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.Web
 {
     public class DefaultUserAgentParser : IUserAgentParser
     {
-        const string GenericBot = "Generic bot";
+        enum UaGroup : byte
+        {
+            Browser,
+            Platform,
+            Bot,
+            Device
+        }
         
-        public UserAgentInfo Parse(string? userAgent)
+        const string GenericBot = "Generic bot";
+
+        private List<UaMatcher> _browsers = new();
+        private List<UaMatcher> _platforms = new();
+        private List<UaMatcher> _bots = new();
+        private List<UaMatcher> _devices = new();
+
+        private readonly ReaderWriterLockSlim _rwLock = new();
+        private readonly IApplicationContext _appContext;
+
+        public DefaultUserAgentParser(IApplicationContext appContext)
+        {
+            _appContext = appContext;
+            //ReadMappings();
+        }
+
+        #region YAML
+
+        private void ReadMappings()
+        {
+            // Read YAML from file or embedded resource
+            var yaml = ReadYaml();
+
+            // Parse YAML content to YAML mappings
+            var mappings = ParseYaml(yaml);
+
+            // Create matchers for browsers
+            ConvertMapping(mappings.Get("browsers"), _browsers, UaGroup.Browser);
+            // Create matchers for platforms
+            ConvertMapping(mappings.Get("platforms"), _platforms, UaGroup.Platform);
+            // Create matchers for bots
+            ConvertMapping(mappings.Get("bots"), _bots, UaGroup.Bot);
+            // Create matchers for devices
+            ConvertMapping(mappings.Get("devices"), _devices, UaGroup.Device);
+        }
+
+        private string ReadYaml()
+        {
+            var physicalFile = _appContext.AppDataRoot.GetFile("useragent.yml");
+            if (physicalFile.Exists)
+            {
+                return physicalFile.ReadAllText();
+            }
+
+            using var stream = Assembly
+                .GetEntryAssembly()
+                .GetManifestResourceStream("Smartstore.Web.App_Data.useragent.yml");
+
+            return stream.AsString();
+        }
+
+        private static IDictionary<string, YamlMapping> ParseYaml(string yaml)
+        {
+            var parser = new MinimalYamlParser(yaml);
+            return parser.Mappings;
+        }
+
+        private static void ConvertMapping(YamlMapping mapping, List<UaMatcher> target, UaGroup group)
+        {
+            target.Clear();
+
+            var isRegexMatch = group is UaGroup.Browser or UaGroup.Platform;
+            var hasPlatform = group is UaGroup.Platform;
+            var regexFlags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline;
+
+            for (var i = 0; i < mapping.Sequences.Count; i++) 
+            {
+                var sequence = mapping.Sequences[i];
+                
+                if (!sequence.TryGetValue("match", out var match))
+                {
+                    continue;
+                }
+
+                UaMatcher matcher;
+                if (isRegexMatch)
+                {
+                    var regex = new Regex(match, regexFlags);
+                    matcher = new RegexMatcher(regex);
+                }
+                else
+                {
+                    matcher = new ContainsMatcher(match);
+                }
+
+                matcher.Name = SeekMapping("name", i) ?? match;
+
+                if (hasPlatform)
+                {
+                    var platformStr = SeekMapping("family", i);
+                    if (platformStr.HasValue() && Enum.TryParse<UserAgentPlatformFamily>(platformStr, out var family))
+                    {
+                        matcher.Platform = family;
+                    }
+                    else
+                    {
+                        matcher.Platform = UserAgentPlatformFamily.Generic;
+                    }
+                }
+
+                target.Add(matcher);
+            }
+
+            string SeekMapping(string name, int startIndex)
+            {
+                for (var i = startIndex; i < mapping.Sequences.Count; i++)
+                {
+                    if (mapping.Sequences[i].TryGetValue(name, out var value))
+                    {
+                        return value;
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        #endregion
+
+        #region UserAgent
+
+        public UserAgentInfo Parse(string userAgent)
         {
             userAgent = userAgent.TrimSafe();
 
@@ -20,7 +147,7 @@ namespace Smartstore.Core.Web
             }
 
             // Analyze Bot
-            if (TryGetBot(userAgent!, out string? botName))
+            if (TryGetBot(userAgent!, out string botName))
             {
                 return UserAgentInfo.CreateForBot(botName, GetPlatform(userAgent!));
             }
@@ -32,7 +159,7 @@ namespace Smartstore.Core.Web
             var device = GetDevice(userAgent!);
 
             // Analyze Browser
-            if (TryGetBrowser(userAgent!, out (string Name, string? Version)? browser))
+            if (TryGetBrowser(userAgent, out (string Name, string Version)? browser))
             {
                 var type = browser?.Name is "Smartstore" ? UserAgentType.Application : UserAgentType.Browser;
                 return new UserAgentInfo(type, browser?.Name, browser?.Version, platform, device);
@@ -71,7 +198,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// returns true if platform was found
         /// </summary>
-        public static bool TryGetPlatform(string userAgent, [NotNullWhen(true)] out UserAgentPlatform? platform)
+        private static bool TryGetPlatform(string userAgent, out UserAgentPlatform? platform)
         {
             platform = GetPlatform(userAgent);
             return platform is not null;
@@ -80,9 +207,9 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// returns the browser or null
         /// </summary>
-        public static (string Name, string? Version)? GetBrowser(string userAgent)
+        private static (string Name, string Version)? GetBrowser(string userAgent)
         {
-            foreach ((Regex key, string? value) in UserAgentPatterns.Browsers)
+            foreach ((Regex key, string value) in UserAgentPatterns.Browsers)
             {
                 Match match = key.Match(userAgent);
                 if (match.Success)
@@ -97,7 +224,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// Returns true if browser was found
         /// </summary>
-        public static bool TryGetBrowser(string userAgent, [NotNullWhen(true)] out (string Name, string? Version)? browser)
+        public static bool TryGetBrowser(string userAgent, [NotNullWhen(true)] out (string Name, string Version)? browser)
         {
             browser = GetBrowser(userAgent);
             return browser is not null;
@@ -106,7 +233,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// Returns the robot or null
         /// </summary>
-        public static string? GetBot(string userAgent)
+        private static string GetBot(string userAgent)
         {
             foreach ((string key, string value) in UserAgentPatterns.Robots)
             {
@@ -122,7 +249,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// Returns true if robot was found
         /// </summary>
-        public static bool TryGetBot(string userAgent, [NotNullWhen(true)] out string? robotName)
+        public static bool TryGetBot(string userAgent, out string robotName)
         {
             robotName = GetBot(userAgent);
             return robotName is not null;
@@ -153,5 +280,7 @@ namespace Smartstore.Core.Web
             device = GetDevice(userAgent);
             return device is not null;
         }
+
+        #endregion
     }
 }
