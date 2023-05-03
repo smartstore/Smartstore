@@ -1,0 +1,85 @@
+browsers:
+  # Common browsers
+  - match: (OPIOS|OPR|OPT)/.*?(?<v>[0-9\.]+)
+    name: Opera
+
+  - match: Chrome.*?(?<v>[0-9\.]+)
+    name: Chrome
+
+  - match: Firefox.*?(?<v>[0-9\.]+)
+    name: Firefox
+
+  - match: Opera.*?Version.*?(?<v>[0-9\.]+)
+  - match: Opera.*?(?<v>[0-9\.]+)
+    name: Opera
+
+  - match: Version/(?<v>[0-9\.]+).*?Safari
+  - match: Safari.*?(?<v>[0-9\.]+)
+    name: Safari
+      
+
+platforms:
+  - match: windows nt 10\.0
+    name: Windows 10
+
+  - match: windows nt 6\.3
+    name: Windows 8.1
+
+  - match: windows nt 6\.2
+    name: Windows 8
+    family: Windows
+
+  - match: android
+    name: Android
+    family: Android
+
+  #continue
+
+  - match: windows nt 6\.1
+    name: Windows 7
+
+  - match: windows nt 6\.0
+    name: Windows Vista
+
+  - match: windows nt 5\.2
+    name: Windows 2003
+
+  - match: windows nt 5\.1
+    name: Windows XP
+
+  - match: windows nt 5\.0
+    name: Windows 2000
+
+  - match: windows nt 4\.0
+  - match: winnt4.0
+    name: Windows NT 4.0
+
+  - match: winnt 4\.0
+  - match: winnt
+    name: Windows NT
+
+  - match: windows 98
+  - match: win98
+    name: Windows 98
+
+  - match: windows 95
+  - match: win95
+    name: Windows 95
+
+  - match: windows phone
+    name: Windows Phone
+
+  - match: windows
+    name: Unknown Windows OS
+    family: Windows
+
+bots:
+  - match: googlebot
+    name: Googlebot
+
+  - match: Applebot
+    name: Applebot
+
+devices:
+  - match: mobileexplorer
+    name: Mobile Explorer  
