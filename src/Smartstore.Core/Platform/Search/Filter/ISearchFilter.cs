@@ -98,6 +98,8 @@ namespace Smartstore.Core.Search
 
         public static RuleOperator GetOperator(this IAttributeSearchFilter filter)
         {
+            Guard.NotNull(filter);
+
             var negate = filter!.Occurence == SearchFilterOccurence.MustNot;
 
             switch (filter.Mode)

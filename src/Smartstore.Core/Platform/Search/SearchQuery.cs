@@ -56,7 +56,6 @@ namespace Smartstore.Core.Search
             IsFuzzySearch = isFuzzySearch;
 
             // TODO: (mg) Insufficient API design. TBD with MC.
-            // TODO: (mg) Don't forget to take CombinedSearchFilter into account.
             if (term.HasValue() && !fields.IsNullOrEmpty())
             {
                 if (fields!.Length == 1)
