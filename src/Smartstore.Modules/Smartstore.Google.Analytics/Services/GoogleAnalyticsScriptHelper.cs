@@ -361,14 +361,14 @@ namespace Smartstore.Google.Analytics.Services
 
                 if (_settings.EcommerceDetailScript.HasValue())
                 {
-                    var productIds = order.OrderItems.Select(x => x.ProductId).ToArray();
-                    var categories = (await _categoryService.GetProductCategoriesByProductIdsAsync(productIds))
+                    var productIds = order.OrderItems.ToDistinctArray(x => x.ProductId);
+                    var categories = (await _categoryService.GetProductCategoriesByProductIdsAsync(productIds, true))
                         .ToDictionarySafe(x => x.ProductId);
 
                     foreach (var item in order.OrderItems)
                     {
-                        var defaultProductCategory = categories[item.ProductId];
-                        var categoryName = defaultProductCategory != null ? defaultProductCategory.Category?.Name : string.Empty;
+                        categories.TryGetValue(item.ProductId, out var defaultProductCategory);
+                        var categoryName = defaultProductCategory?.Category?.Name ?? string.Empty;
 
                         // The SKU code is a required parameter for every item that is added to the transaction.
                         var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(item.ProductId, item.AttributeSelection);
