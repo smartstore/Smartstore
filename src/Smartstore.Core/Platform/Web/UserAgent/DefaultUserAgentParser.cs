@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Smartstore.ComponentModel;
 using Smartstore.Threading;
@@ -9,19 +8,10 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Web
 {
-    public class UserAgentParserOptions
-    {
-        public const string DefaultYamlPath = "App_Data/useragent.yml";
-
-        /// <summary>
-        /// Get or set location for YAML file (relative to application content root) 
-        /// </summary>
-        public string YamlFilePath { get; set; } = DefaultYamlPath;
-    }
-
     public class DefaultUserAgentParser : Disposable, IUserAgentParser
     {
         const string GenericBot = "Generic bot";
+        const string DefaultYamlPath = "App_Data/useragent.yml";
 
         private List<UaMatcher> _browsers = new();
         private List<UaMatcher> _platforms = new();
@@ -31,11 +21,11 @@ namespace Smartstore.Core.Web
         private IDisposable _yamlWatcher;
 
         private readonly ReaderWriterLockSlim _rwLock = new();
-        private readonly IOptions<UserAgentParserOptions> _options;
+        private readonly ILogger _logger;
 
-        public DefaultUserAgentParser(IOptions<UserAgentParserOptions> options)
+        public DefaultUserAgentParser(ILogger logger)
         {
-            _options = options;
+            _logger = logger;
 
             // Don't lock initial build-up, we don't expect concurrency issues here.
             ReadMappings();
@@ -54,36 +44,45 @@ namespace Smartstore.Core.Web
 
         private void ReadMappings()
         {
-            // Read YAML from file or embedded resource
-            using var yamlStream = OpenYamlStream();
-            if (yamlStream == null)
+            IChangeToken changeToken = null;
+            
+            try
             {
-                return;
+                // Read YAML from file or embedded resource
+                using var yamlStream = OpenYamlStream(out changeToken);
+
+                // Parse YAML content to YAML mappings
+                var mappings = ParseYaml(yamlStream);
+
+                // Create matchers for browsers
+                ConvertMapping(mappings.Get("browsers"), _browsers, UserAgentSegment.Browser);
+                // Create matchers for platforms
+                ConvertMapping(mappings.Get("platforms"), _platforms, UserAgentSegment.Platform);
+                // Create matchers for bots
+                ConvertMapping(mappings.Get("bots"), _bots, UserAgentSegment.Bot);
+                // Create matchers for devices
+                ConvertMapping(mappings.Get("devices"), _devices, UserAgentSegment.Device);
+                // Create matchers for tablets
+                ConvertMapping(mappings.Get("tablets"), _tablets, UserAgentSegment.Device);
             }
-
-            // Parse YAML content to YAML mappings
-            var mappings = ParseYaml(yamlStream);
-
-            // Create matchers for browsers
-            ConvertMapping(mappings.Get("browsers"), _browsers, UserAgentSegment.Browser);
-            // Create matchers for platforms
-            ConvertMapping(mappings.Get("platforms"), _platforms, UserAgentSegment.Platform);
-            // Create matchers for bots
-            ConvertMapping(mappings.Get("bots"), _bots, UserAgentSegment.Bot);
-            // Create matchers for devices
-            ConvertMapping(mappings.Get("devices"), _devices, UserAgentSegment.Device);
-            // Create matchers for tablets
-            ConvertMapping(mappings.Get("tablets"), _tablets, UserAgentSegment.Device);
-
-            // Get change token and monitor YAML file for changes
-            if (_yamlWatcher != null)
+            catch (Exception ex)
             {
-                _yamlWatcher.Dispose();
-                _yamlWatcher = null;
+                _logger.Error(ex, "Failed to read User Agent mappings from YAML file.");
             }
+            finally
+            {
+                // Change monitoring
+                if (_yamlWatcher != null)
+                {
+                    _yamlWatcher.Dispose();
+                    _yamlWatcher = null;
+                }
 
-            var changeToken = GetYamlChangeToken();
-            _yamlWatcher = changeToken.RegisterChangeCallback(OnYamlChanged, null);
+                if (changeToken != null)
+                {
+                    _yamlWatcher = changeToken.RegisterChangeCallback(OnYamlChanged, null);
+                }
+            }
         }
 
         private void OnYamlChanged(object state)
@@ -98,26 +97,24 @@ namespace Smartstore.Core.Web
             }
         }
 
-        protected virtual Stream OpenYamlStream()
+        protected virtual Stream OpenYamlStream(out IChangeToken changeToken)
         {
-            var yamlPath = GetYamlPath();
-            var physicalFile = CommonHelper.ContentRoot.GetFile(yamlPath);
+            changeToken = CommonHelper.ContentRoot.Watch(DefaultYamlPath);
+
+            // First check if physical file exists in App_Data
+            var physicalFile = CommonHelper.ContentRoot.GetFile(DefaultYamlPath);
             if (physicalFile.Exists)
             {
                 return physicalFile.OpenRead();
             }
 
-            return null;
-        }
+            // If physical file does exist, read embedded file from assembly
+            var assembly = typeof(IUserAgent).Assembly;
+            var fullPath = assembly.GetManifestResourceNames()
+                .Where(x => x.EndsWith("useragent.yml"))
+                .FirstOrDefault();
 
-        protected virtual IChangeToken GetYamlChangeToken()
-        {
-            return CommonHelper.ContentRoot.Watch(GetYamlPath());
-        }
-
-        private string GetYamlPath()
-        {
-            return _options.Value.YamlFilePath.EmptyNull() ?? UserAgentParserOptions.DefaultYamlPath;
+            return assembly.GetManifestResourceStream(fullPath);
         }
 
         private static IDictionary<string, YamlMapping> ParseYaml(Stream yamlStream)
