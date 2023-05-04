@@ -33,6 +33,7 @@
 - Fixed problem where bundles couldn't be added to the basket if bundleitems had  attributes.
 - GMC: when there was no Google category defined in a product, copying the product threw with null reference exception.
 - Fixed attribute filters of bundle items were not loaded in bundle item dialog.
+- Fixed a NullReferenceException in GoogleAnalyticsViewComponent.
 
 
 ## Smartstore 5.0.4

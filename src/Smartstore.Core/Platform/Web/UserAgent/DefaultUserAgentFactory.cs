@@ -9,9 +9,9 @@
             _parser = parser;
         }
 
-        public IUserAgent CreateUserAgent(string userAgent)
+        public IUserAgent CreateUserAgent(string userAgent, bool enableCache = true)
         {
-            return new DefaultUserAgent(userAgent, _parser);
+            return new DefaultUserAgent(userAgent, enableCache, _parser);
         }
     }
 }

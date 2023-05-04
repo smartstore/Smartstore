@@ -1,0 +1,606 @@
+# ===================================
+# Browsers
+# ===================================
+
+browsers:
+  # Common browsers
+  # ------------------------------------------
+  - match: /(OPIOS|OPR|OPT)/.*?(?<v>[0-9\.]+)/
+  - match: /Opera.*?Version.*?(?<v>[0-9\.]+)/ 
+  - match: /Opera.*?(?<v>[0-9\.]+)/
+    name: Opera
+
+  - match: /Edge.*?(?<v>[0-9\.]+)/
+  - match: /EdgA.*?(?<v>[0-9\.]+)/
+  - match: /Edg.*?(?<v>[0-9\.]+)/
+    name: Edge
+
+  - match: /Brave Chrome.*?(?<v>[0-9\.]+)/
+    name: Brave
+
+  - match: /Chrome.*?(?<v>[0-9\.]+)/
+  - match: /CriOS.*?(?<v>[0-9\.]+)/
+    name: Chrome
+
+  - match: /Firefox.*?(?<v>[0-9\.]+)/
+  - match: /FxiOS.*?(?<v>[0-9\.]+)/
+    name: Firefox
+
+  - match: /Version/(?<v>[0-9\.]+).*?Safari/
+  - match: /Safari.*?(?<v>[0-9\.]+)/
+    name: Safari
+
+    # Must come after Safari
+  - match: /OPR.*?(?<v>[0-9\.]+)/
+    name: Opera
+
+  - match: /MSIE.*?(?<v>[0-9\.]+)/
+  - match: /Internet Explorer.*?(?<v>[0-9\.]+)/
+  - match: /Trident.* rv.*?(?<v>[0-9\.]+)/
+    name: Internet Explorer
+
+  # Other browsers
+  # ------------------------------------------
+
+  - match: /Vivaldi.*?(?<v>[0-9\.]+)/
+    name: Vivaldi
+
+  - match: /Flock.*?(?<v>[0-9\.]+)/
+    name: Flock
+
+  - match: /Shiira.*?(?<v>[0-9\.]+)/
+    name: Shiira
+
+  - match: /Chimera.*?(?<v>[0-9\.]+)/
+    name: Chimera
+
+  - match: /Phoenix.*?(?<v>[0-9\.]+)/
+    name: Phoenix
+
+  - match: /Firebird.*?(?<v>[0-9\.]+)/
+    name: Firebird
+
+  - match: /Camino.*?(?<v>[0-9\.]+)/
+    name: Camino
+
+  - match: /Netscape.*?(?<v>[0-9\.]+)/
+    name: Netscape
+
+  - match: /OmniWeb.*?(?<v>[0-9\.]+)/
+    name: OmniWeb
+
+  - match: /Mozilla.*?(?<v>[0-9\.]+)/
+    name: Mozilla
+
+  - match: /Konqueror.*?(?<v>[0-9\.]+)/
+    name: Konqueror
+
+  - match: /icab.*?(?<v>[0-9\.]+)/
+    name: iCab
+
+  - match: /Lynx.*?(?<v>[0-9\.]+)/
+    name: Lynx
+
+  - match: /Links.*?(?<v>[0-9\.]+)/
+    name: Links
+
+  - match: /hotjava.*?(?<v>[0-9\.]+)/
+    name: HotJava
+
+  - match: /amaya.*?(?<v>[0-9\.]+)/
+    name: Amaya
+
+  - match: /IBrowse.*?(?<v>[0-9\.]+)/
+    name: IBrowse
+
+  - match: /Maxthon.*?(?<v>[0-9\.]+)/
+    name: Maxthon
+
+  - match: /ipod touch.*?(?<v>[0-9\.]+)/
+    name: Apple iPod
+
+  - match: /Ubuntu.*?(?<v>[0-9\.]+)/
+    name: Ubuntu Web Browser
+
+  - match: /Smartstore.*?(?<v>[0-9\.]+)/
+    name: Smartstore
+
+      
+# ===================================
+# Platforms
+# ===================================
+
+platforms:
+  - match: windows nt 10.0
+    name: Windows 10
+
+  - match: windows nt 6.3
+    name: Windows 8.1
+
+  - match: windows nt 6.2
+    name: Windows 8
+    family: Windows
+
+  - match: android
+    name: Android
+    family: Android
+
+  - match: iphone
+  - match: ipad
+  - match: ipod
+    name: iOS
+    family: IOS
+
+  - match: os x
+    name: Mac OS X
+  - match: ppc mac
+    name: Power PC Mac
+    family: MacOS
+
+  - match: BlackBerry
+    name: BlackBerry
+    family: BlackBerry
+
+  - match: FreeBSD
+    name: FreeBSD
+  - match: ppc
+    name: Macintosh
+  - match: linux
+    name: Linux
+  - match: debian
+    name: Debian
+    family: Linux
+
+  - match: sunos
+    name: Sun Solaris
+  - match: beos
+    name: BeOS
+  - match: apachebench
+    name: ApacheBench
+  - match: aix
+    name: AIX
+  - match: irix
+    name: Irix
+  - match: osf
+    name: DEC OSF
+  - match: netbsd
+    name: NetBSD
+  - match: bsdi
+    name: BSDi
+    family: Generic
+
+  - match: hp-ux
+    name: HP-UX
+    family: Windows
+
+  - match: openbsd
+    name: OpenBSD
+    family: Unix
+
+  - match: gnu
+    name: GNU/Linux
+    family: Linux
+
+  - match: unix
+    name: Unknown Unix OS
+    family: Unix
+
+  - match: symbian
+    name: Symbian OS
+    family: Symbian
+
+  - match: windows nt 6.1
+    name: Windows 7
+
+  - match: windows nt 6.0
+    name: Windows Vista
+
+  - match: windows nt 5.2
+    name: Windows 2003
+
+  - match: windows nt 5.1
+    name: Windows XP
+
+  - match: windows nt 5.0
+    name: Windows 2000
+
+  - match: windows nt 4.0
+  - match: winnt4.0
+    name: Windows NT 4.0
+
+  - match: winnt 4.0
+  - match: winnt
+    name: Windows NT
+
+  - match: windows 98
+  - match: win98
+    name: Windows 98
+
+  - match: windows 95
+  - match: win95
+    name: Windows 95
+
+  - match: windows phone
+    name: Windows Phone
+
+  - match: windows
+    name: Unknown Windows OS
+    family: Windows
+
+
+# ===================================
+# Bots
+# ===================================
+
+bots:
+  # Common bots
+  - match: Googlebot
+  - match: Applebot
+    name: $1
+
+  - match: googleweblight
+    name: Google Web Light
+
+  - match: YandexBot
+  - match: yandex-bot
+    name: YandexBot
+
+  - match: YandexImages
+    name: $1
+
+  - match: /Sogou.*?Spider/
+    name: Sogou Spider
+
+  - match: mediapartners-google
+    name: Mediapartners Google
+
+  - match: apis-google
+    name: APIs Google
+
+  - match: Google Favicon
+  - match: Baiduspider
+  - match: PetalBot
+  - match: BingBot
+  - match: Slurp
+  - match: Yahoo
+  - match: Ask Jeeves
+  - match: Exabot
+  - match: Swiftbot
+  - match: CCBot
+  - match: GoogleOther
+    name: $1
+
+  - match: AdsBot-Google-Mobile
+    name: Google AdsBot Mobile
+
+  - match: adsbot-google
+    name: Google AdsBot
+
+  - match: feedfetcher-google
+    name: Google FeedFetcher
+
+  - match: facebookexternalhit
+    name: Facebook
+
+  - match: AdScanner
+  - match: AhrefsBot
+    name: $1
+  
+  # Common tools, readers & apps
+  - match: python/
+    name: Python
+
+  - match: python-
+    name: Python Requests
+
+  - match: curl/
+    name: cURL
+
+  - match: urlwatch
+    name: urlwatch
+
+  - match: okhttp/
+    name: OkHttp
+
+  - match: HeadlessChrome
+    name: Headless Chromium
+
+  - match: Chrome-Lighthouse
+    name: Chrome Lighthouse
+
+  - match: Nessus
+  - match: Pingdom
+    name: $1
+
+  - match: axios/
+    name: Axios
+
+  - match: kube-prob/
+    name: Kube Probe
+
+  - match: Prometheus/
+    name: Prometheus
+
+  - match: GuzzleHttp/
+    name: Guzzle Http
+
+  - match: Feedly
+    name: Feedly
+
+  # Other bots
+  - match: DuplexWeb-Google
+    name: Google DuplexWeb
+
+  - match: Storebot-Google
+    name: Google Storebot
+
+  - match: msnbot
+    name: MSN Bot
+
+  - match: BW/1.1
+    name: BuiltWith
+
+  - match: W3C
+    name: W3C Validator/Checker
+
+  - match: Wappalyzer
+  - match: PayPal IPN
+  - match: Amazonbot
+  - match: AddThis.com
+  - match: ShopAlike
+  - match: ImageProxy
+  - match: FastCrawler
+  - match: Lycos
+  - match: Cloudflare
+  - match: Curious George
+  - match: BingPreview
+  - match: LinkedInBot
+    name: $1
+
+  - match: infoseek
+    name: InfoSeek Robot 1.0
+
+  - match: CRAZYWEBCRAWLER
+    name: Crazy Webcrawler
+
+  - match: google-read-aloud
+    name: Google ReadAloud
+
+  - match: ia_archiver
+    name: Alexa Crawler
+
+  - match: MJ12bot
+    name: Majestic
+
+  - match: CheckMarkNetwork
+  - match: Uptimebot
+  - match: BLEXBot
+    name: $1
+
+  - match: DotBot
+    name: OpenSite
+
+  - match: Mail.RU_Bot
+    name: Mail.ru
+
+  - match: MegaIndex
+  - match: SemrushBot
+  - match: SEOkicks
+    name: $1
+
+  - match: seoscanners.net
+    name: SEO Scanners
+
+  - match: sistrix
+    name: Sistrix
+
+  - match: check_http
+    name: Check HTTP
+
+  - match: NetNewsWire
+    name: NetNewsWire RSS reader
+
+  - match: iisbot
+    name: IIS Bot
+
+  - match: bitlybot
+    name: Bitly bot
+
+  - match: Yeti/
+    name: Yeti bot
+
+  - match: yacybot
+    name: Yacy bot
+
+  - match: crawler
+  - match: spider
+    name: Generic crawler
+
+  - match: -bot/
+    name: Generic bot
+
+
+# ===================================
+# Devices
+# ===================================
+
+devices:
+  # Legacy
+  - match: mobileexplorer
+    name: Mobile Explorer
+
+  - match: palmsource
+  - match: palm
+    name: Palm
+
+  - match: Palmscape
+    name: $1 
+
+  # Phones and Manufacturers
+  - match: Motorola
+  - match: Nokia
+    name: $1
+
+  - match: ipad
+    name: Apple iPad
+
+  - match: iphone
+    name: Apple iPhone
+
+  - match: ipod
+    name: Apple iPod 
+
+  - match: surface
+    name: Microsoft Surface 
+
+  - match: sonyericsson
+  - match: ericsson
+    name: Sony Ericsson
+
+  - match: BlackBerry
+    name: $1 
+
+  - match: cocoon
+    name: O2 Cocoon
+
+  - match: blazer
+    name: Treo 
+
+  - match: LG
+  - match: Amoi
+  - match: XDA
+  - match: MDA
+  - match: Vario
+  - match: HTC
+  - match: Samsung
+  - match: Sharp
+    name: $1 
+
+  - match: sie-
+    name: Siemens 
+
+  - match: Alcatel
+  - match: BenQ
+    name: $1
+
+  - match: ipaq
+    name: HP iPaq
+
+  - match: mot-
+    name: Motorola
+
+  - match: PlayStation Portable
+  - match: PlayStation 3
+  - match: PlayStation 4
+  - match: PlayStation 5
+  - match: PlayStation Vita
+    name: $1 
+
+  - match: hiptop
+    name: Danger Hiptop
+
+  - match: nec-
+    name: NEC 
+
+  - match: Panasonic
+  - match: Philips
+  - match: Sagem
+  - match: Sanyo
+  - match: SPV
+  - match: ZTE
+  - match: Sendo
+  - match: Nintendo DSi
+  - match: Nintendo DS
+  - match: Nintendo 3DS
+    name: $1
+
+  - match: wii
+    name: Nintendo Wii
+
+  - match: Open Web
+  - match: OpenWeb
+  - match: Nexus
+    name: $1
+
+  - match: XOOM
+    name: Motorola Xoom 
+
+  - match: Transformer
+  - match: Kindle
+    name: $1
+
+  - match: silk
+    name: Kindle Fire 
+
+  - match: Playbook
+  - match: Puffin
+    name: $1
+
+  # Operating Systems
+  - match: Android
+  - match: Symbian
+  - match: SymbianOS
+    name: $1
+
+  - match: elaine
+    name: Palm
+
+  - match: series60
+    name: Symbian S60 
+
+  - match: Windows CE
+    name: $1
+
+  # Browsers
+  - match: Obigo
+    name: $1 
+
+  - match: netfront
+    name: Netfront Browser
+
+  - match: openwave
+    name: Openwave Browser
+
+  - match: operamini
+  - match: opera mini
+    name: Opera Mini
+
+  - match: opera mobi
+    name: Opera Mobile
+
+  - match: fennec
+    name: Firefox Mobile
+
+  # Other
+  - match: Digital Paths
+  - match: AvantGo
+  - match: Xiino
+  - match: Vodafone
+  - match: O2
+    name: $1 
+
+  - match: novarra
+    name: Novarra Transcoder 
+
+  - match: docomo
+    name: NTT DoCoMo 
+
+  # Fallback
+  - match: mobile
+  - match: wireless
+  - match: j2me
+  - match: midp
+  - match: cldc
+  - match: up.link
+  - match: up.browser
+  - match: smartphone
+  - match: cellphone
+    name: Generic Mobile
+
+
+# ===================================
+# Tablets
+# ===================================
+
+tablets:
+  - match: /(ipad|tablet|surface|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/ 

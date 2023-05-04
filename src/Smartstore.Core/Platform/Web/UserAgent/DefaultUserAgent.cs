@@ -12,19 +12,21 @@ namespace Smartstore.Core.Web
         });
         
         private readonly IUserAgentParser _parser;
+        private readonly bool _enableCache;
 
         private string _userAgent;
         private UserAgentInfo _info;
-        private SemanticVersion _version;
+        private Version _version;
         private bool _versionParsed;
 
-        public DefaultUserAgent(string userAgent, IUserAgentParser parser)
+        public DefaultUserAgent(string userAgent, bool enableCache, IUserAgentParser parser)
         {
             Guard.NotNull(userAgent);
             Guard.NotNull(parser);
 
             _userAgent = userAgent.Trim();
             _parser = parser;
+            _enableCache = enableCache;
             _info = GetUserAgentInfo(_userAgent);
         }
 
@@ -54,7 +56,7 @@ namespace Smartstore.Core.Web
             get => _info.Name ?? UserAgentInfo.Unknown;
         }
 
-        public virtual SemanticVersion Version
+        public virtual Version Version
         {
             get
             {
@@ -67,9 +69,9 @@ namespace Smartstore.Core.Web
                         return null;
                     }
 
-                    if (SemanticVersion.TryParse(_info.Version, out _version))
+                    if (SemanticVersion.TryParse(_info.Version, out var version))
                     {
-                        return _version;
+                        _version = version.Version;
                     }
                 }
                 
@@ -95,6 +97,11 @@ namespace Smartstore.Core.Web
             {
                 // Limiting the length of the useragent string protects from hackers sending in extremely long user agent strings.
                 userAgent = userAgent[..UaStringSizeLimit];
+            }
+
+            if (!_enableCache)
+            {
+                return _parser.Parse(userAgent);
             }
 
             return _memCache.GetOrCreate(userAgent, entry =>

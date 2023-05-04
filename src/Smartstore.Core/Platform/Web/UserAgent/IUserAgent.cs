@@ -25,7 +25,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// Version of user agent.
         /// </summary>
-        SemanticVersion? Version { get; }
+        Version? Version { get; }
 
         /// <summary>
         /// Platform/OS of user agent, see <see cref="UserAgentPlatform"/>.

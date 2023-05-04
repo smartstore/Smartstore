@@ -331,7 +331,7 @@ namespace Smartstore.Core.Web
             return TabletRegex.IsMatch(userAgent);
         }
 
-        [GeneratedRegex("(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))", RegexOptions.IgnoreCase | RegexOptions.Compiled, "de-DE")]
+        [GeneratedRegex("(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
         private static partial Regex GeneratedTabletRegex();
     }
 }

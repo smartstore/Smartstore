@@ -57,7 +57,7 @@ namespace Smartstore.Core.Messaging
 
         public string BuildUrl(string url, MessageContext ctx)
         {
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + url.EnsureStartsWith('/');
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + url.EmptyNull().EnsureStartsWith('/');
         }
 
         public string BuildRouteUrl(object routeValues, MessageContext ctx)
