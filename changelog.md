@@ -23,17 +23,19 @@
 - #651 Fixed product can be added to cart even if the availability limit was reached.
 - Logout was not possible after new customer registrations.
 - Fixed unpublished products should be assignable as "promoted" to a product.
-- SequentialDataReader: fixed a problem where occasionally nullable string fields were not read
+- `SequentialDataReader`: fixed a problem where occasionally nullable string fields were not read
 - UrlRewriter: raw rules were not loaded from legacy storage
 - Fixed a topic was not editable if a menu link with an invalid target was associated.
-- MainMenuShrinker was missing.
+- `MainMenuShrinker` was missing.
 - Added missing properties in customer grid.
 - Fixed popular product tags were not loaded based on the frequency of their product assignments on homepage.
 - Fixed after a login the user was not redirected to the previous page.
 - Fixed problem where bundles couldn't be added to the basket if bundleitems had  attributes.
-- GMC: when there was no Google category defined in a product, copying the product threw with null reference exception.
+- GMC: when there was no Google category defined in a product, copying the product threw `NullReferenceException`.
 - Fixed attribute filters of bundle items were not loaded in bundle item dialog.
-- Fixed a NullReferenceException in GoogleAnalyticsViewComponent.
+- GoogleAnalytics:
+  - Fixed a `NullReferenceException` in `GoogleAnalyticsViewComponent`.
+  - Fixed `KeyNotFoundException` in `GoogleAnalyticsScriptHelper.GetOrderCompletedScriptAsync`.
 
 
 ## Smartstore 5.0.4
