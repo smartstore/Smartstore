@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Rules;
+﻿using Autofac;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
@@ -14,9 +15,8 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
         public static RuleValueSelectListOption[] GetDefaultOptions()
         {
-            return UserAgentPatterns.Platforms
-                .Select(x => x.Name)
-                .OrderBy(x => x)
+            return EngineContext.Current.Application.Services.Resolve<IUserAgentParser>()
+                .GetDetectablePlatforms()
                 .Concat(new[] { "Unknown" })
                 .Select(x => new RuleValueSelectListOption { Value = x, Text = x })
                 .ToArray();

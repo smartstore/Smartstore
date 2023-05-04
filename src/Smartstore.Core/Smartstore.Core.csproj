@@ -45,6 +45,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Remove="Platform\Web\UserAgent\useragent.yml" />
+        <EmbeddedResource Include="Platform\Web\UserAgent\useragent.yml" CopyToOutputDirectory="Never">
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
         <Reference Include="System.ServiceModel" />
     </ItemGroup>
 

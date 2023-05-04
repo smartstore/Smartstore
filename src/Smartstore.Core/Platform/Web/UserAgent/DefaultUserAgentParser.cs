@@ -9,16 +9,18 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Web
 {
+    public class UserAgentParserOptions
+    {
+        public const string DefaultYamlPath = "App_Data/useragent.yml";
+
+        /// <summary>
+        /// Get or set location for YAML file (relative to application content root) 
+        /// </summary>
+        public string YamlFilePath { get; set; } = DefaultYamlPath;
+    }
+
     public class DefaultUserAgentParser : Disposable, IUserAgentParser
     {
-        enum UaGroup : byte
-        {
-            Browser,
-            Platform,
-            Bot,
-            Device
-        }
-        
         const string GenericBot = "Generic bot";
 
         private List<UaMatcher> _browsers = new();
@@ -63,15 +65,15 @@ namespace Smartstore.Core.Web
             var mappings = ParseYaml(yamlStream);
 
             // Create matchers for browsers
-            ConvertMapping(mappings.Get("browsers"), _browsers, UaGroup.Browser);
+            ConvertMapping(mappings.Get("browsers"), _browsers, UserAgentSegment.Browser);
             // Create matchers for platforms
-            ConvertMapping(mappings.Get("platforms"), _platforms, UaGroup.Platform);
+            ConvertMapping(mappings.Get("platforms"), _platforms, UserAgentSegment.Platform);
             // Create matchers for bots
-            ConvertMapping(mappings.Get("bots"), _bots, UaGroup.Bot);
+            ConvertMapping(mappings.Get("bots"), _bots, UserAgentSegment.Bot);
             // Create matchers for devices
-            ConvertMapping(mappings.Get("devices"), _devices, UaGroup.Device);
+            ConvertMapping(mappings.Get("devices"), _devices, UserAgentSegment.Device);
             // Create matchers for tablets
-            ConvertMapping(mappings.Get("tablets"), _tablets, UaGroup.Device);
+            ConvertMapping(mappings.Get("tablets"), _tablets, UserAgentSegment.Device);
 
             // Get change token and monitor YAML file for changes
             if (_yamlWatcher != null)
@@ -125,11 +127,11 @@ namespace Smartstore.Core.Web
             return parser.Mappings;
         }
 
-        private static void ConvertMapping(YamlMapping mapping, List<UaMatcher> target, UaGroup group)
+        private static void ConvertMapping(YamlMapping mapping, List<UaMatcher> target, UserAgentSegment segment)
         {
             target.Clear();
 
-            var hasPlatform = group is UaGroup.Platform;
+            var hasPlatform = segment is UserAgentSegment.Platform;
             var regexFlags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline;
 
             for (var i = 0; i < mapping.Sequences.Count; i++) 
@@ -196,6 +198,19 @@ namespace Smartstore.Core.Web
         #endregion
 
         #region UserAgent
+
+        public IEnumerable<string> GetDetectableAgents(UserAgentSegment segment)
+        {
+            var matchers = segment switch
+            {
+                UserAgentSegment.Bot => _bots,
+                UserAgentSegment.Platform => _platforms,
+                UserAgentSegment.Device => _devices,
+                _ => _browsers
+            };
+
+            return matchers.Select(m => m.Name).Distinct().Order();
+        }
 
         public UserAgentInfo Parse(string userAgent)
         {
