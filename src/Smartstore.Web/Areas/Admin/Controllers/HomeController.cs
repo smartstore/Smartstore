@@ -27,7 +27,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (ua.HasValue())
             {
-                return View(_userAgentFactory.CreateUserAgent(ua));
+                return View(_userAgentFactory.CreateUserAgent(ua, false));
             }
             else
             {

@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Web
+﻿#nullable enable
+
+namespace Smartstore.Core.Web
 {
     /// <summary>
     /// User agent platform info.
@@ -10,10 +12,11 @@
         /// <summary>
         /// Creates a new instance of <see cref="UserAgentPlatform"/>
         /// </summary>
-        public UserAgentPlatform(string name, UserAgentPlatformFamily family)
+        public UserAgentPlatform(string name, UserAgentPlatformFamily family, string? version = null)
         {
             Name = name;
             Family = family;
+            Version = version;
         }
 
         /// <summary>
@@ -25,6 +28,11 @@
         /// Platform/OS family.
         /// </summary>
         public UserAgentPlatformFamily Family { get; }
+
+        /// <summary>
+        /// For future use.
+        /// </summary>
+        public string? Version { get; }
 
         public bool IsUnknown() => Name == "Unknown";
     }

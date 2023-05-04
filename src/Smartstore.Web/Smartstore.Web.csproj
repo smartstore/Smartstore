@@ -47,7 +47,6 @@
 	<ItemGroup>
 		<None Include="App_Data\icons.json" CopyToPublishDirectory="PreserveNewest" />
         <None Include="App_Data\useragent.yml" CopyToPublishDirectory="PreserveNewest" />
-        <EmbeddedResource Include="App_Data\useragent.yml" />
 		<None Include="App_Data\widgetzones.json" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\EmailTemplates\**" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\Geo\**" CopyToPublishDirectory="PreserveNewest" />

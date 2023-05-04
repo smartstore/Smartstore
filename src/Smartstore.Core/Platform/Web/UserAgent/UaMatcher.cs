@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -9,24 +10,25 @@ namespace Smartstore.Core.Web
     internal abstract class UaMatcher
     {
         public string Name { get; set; } = default!;
-        public UserAgentPlatformFamily? Platform { get; set; }
+        public UserAgentPlatformFamily? PlatformFamily { get; set; }
         public abstract bool Match(string userAgent, [MaybeNullWhen(true)] out string? version);
     }
 
+    [DebuggerDisplay("Regex: {Regex}, Name: {Name}, Platform: {PlatformFamily}")]
     internal class RegexMatcher : UaMatcher
     {
-        private readonly Regex _rg;
-
         public RegexMatcher(Regex rg)
         {
-            _rg = Guard.NotNull(rg);
+            Regex = Guard.NotNull(rg);
         }
+
+        public Regex Regex { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Match(string userAgent, [MaybeNullWhen(true)] out string? version)
         {
             version = null;
-            var match = _rg.Match(userAgent);
+            var match = Regex.Match(userAgent);
             if (match.Success)
             {
                 if (match.Groups.ContainsKey("v"))
@@ -45,21 +47,22 @@ namespace Smartstore.Core.Web
         }
     }
 
+    [DebuggerDisplay("Contains: {Contains}, Name: {Name}, Platform: {PlatformFamily}")]
     internal class ContainsMatcher : UaMatcher
     {
-        private readonly string _match;
-
         public ContainsMatcher(string match)
         {
             Guard.NotEmpty(match);
-            _match = match;
+            Contains = match;
         }
+
+        public string Contains { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Match(string userAgent, [MaybeNullWhen(true)] out string? version)
         {
             version = null;
-            return userAgent.Contains(_match, StringComparison.OrdinalIgnoreCase);
+            return userAgent.Contains(Contains, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
