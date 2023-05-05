@@ -39,7 +39,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 if (setting.Name.EqualsNoCase(TypeHelper.NameOf<PerformanceSettings>(x => x.MaxUnavailableAttributeCombinations, true)))
                 {
-                    await _cache.RemoveByPatternAsync(ProductAttributeMaterializer.UNAVAILABLE_COMBINATIONS_PATTERN_KEY);
+                    await _cache.RemoveByPatternAsync(ProductAttributeMaterializer.UanavailableCombinationsPatternKey);
                 }
             }
             else if (entity is Product)
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (productId != 0)
             {
-                await _cache.RemoveAsync(ProductAttributeMaterializer.UNAVAILABLE_COMBINATIONS_KEY.FormatInvariant(productId));
+                await _cache.RemoveAsync(ProductAttributeMaterializer.UnavailableCombinationsKey.FormatInvariant(productId));
             }
 
             return HookResult.Ok;
