@@ -21,6 +21,10 @@ namespace Smartstore
             foreach (var mapping in customer.CustomerRoleMappings)
             {
                 var role = mapping.CustomerRole;
+                if (role == null)
+                {
+                    continue;
+                }
 
                 if (role.SystemName.Equals(roleSystemName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -107,7 +111,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value indicating whether customer is guest (navigation properties CustomerRoleMappings then CustomerRole are required).
+        /// Gets a value indicating whether customer is guest (navigation properties CustomerRoleMappings, then CustomerRole are required).
         /// </summary>
         /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -182,6 +186,11 @@ namespace Smartstore
         /// <returns>Formatted customer name.</returns>
         public static string FormatUserName(this Customer? customer, bool stripTooLong)
         {
+            if (customer == null)
+            {
+                return string.Empty;
+            }
+
             var engine = EngineContext.Current.Scope;
 
             var userName = FormatUserName(
