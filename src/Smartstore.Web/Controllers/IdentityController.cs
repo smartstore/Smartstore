@@ -740,9 +740,6 @@ namespace Smartstore.Web.Controllers
                     // Send customer welcome message.
                     await _messageFactory.SendCustomerWelcomeMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
                     await _signInManager.SignInAsync(customer, isPersistent: false);
-                    
-                    // Delete the visitor cookie.
-                    HttpContext.Response.Cookies.Delete(CookieNames.Visitor);
 
                     var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
                     if (returnUrl.HasValue())
@@ -923,15 +920,9 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            // Remove customer from 'Guests' role.
-            var mappings = customer
-                .CustomerRoleMappings
-                .Where(x => !x.IsSystemMapping && x.CustomerRole.SystemName == SystemCustomerRoleNames.Guests)
-                .Select(x => x.CustomerRole.Name)
-                .ToList();
-
-            await _userManager.RemoveFromRolesAsync(customer, mappings);
-            await _db.SaveChangesAsync();
+            // INFO: don't remove guest role here. Let IWorkContext's
+            // customer resolver check if both roles are assigned
+            // and let it take appropriate actions.
         }
 
         private IActionResult RedirectToLocal(string returnUrl)
