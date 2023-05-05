@@ -10,7 +10,7 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// The raw user agent string.
         /// </summary>
-        string UserAgent { get; set; }
+        string UserAgent { get; }
 
         /// <summary>
         /// Type of user agent, see <see cref="UserAgentType"/>
