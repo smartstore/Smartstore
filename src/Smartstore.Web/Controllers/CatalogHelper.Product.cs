@@ -1234,46 +1234,31 @@ namespace Smartstore.Web.Controllers
 
         public async Task PrepareProductReviewsModelAsync(ProductReviewsModel model, Product product, int? take = null)
         {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(product);
+            Guard.NotNull(model);
 
             model.ProductId = product.Id;
             model.ProductName = product.GetLocalized(x => x.Name);
             model.ProductSeName = await product.GetActiveSlugAsync();
+            model.CanCurrentCustomerLeaveReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !_services.WorkContext.CurrentCustomer.IsGuest();
+            model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnProductReviewPage;
+            model.ShowVerfiedPurchaseBadge = _catalogSettings.ShowVerfiedPurchaseBadge;
 
-            product = _db.FindTracked<Product>(product.Id) ?? product;
+            await _db.LoadCollectionAsync(product, x => x.ProductReviews, false, q => q
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole));
 
-            // TODO: (mh) (core) Use LoadCollectionAsync
-            var collectionLoaded = _db.IsCollectionLoaded(product, x => x.ProductReviews, out var collectionEntry);
+            model.TotalReviewsCount = product.ProductReviews.Count(x => x.IsApproved);
 
-            if (!collectionLoaded)
+            var reviews = product.ProductReviews
+                .Where(x => x.IsApproved)
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .Take(take ?? int.MaxValue)
+                .ToList();
+
+            if (reviews.Count > 0)
             {
-                _db.Attach(product);
-            }
-
-            // We need the query for total count resolution.
-            var query = collectionEntry
-                .Query()
-                .Where(x => x.IsApproved);
-
-            model.TotalReviewsCount = collectionLoaded
-                ? product.ProductReviews.Count
-                : await query.CountAsync();
-
-            if (model.TotalReviewsCount > 0)
-            {
-                query = query.OrderByDescending(x => x.CreatedOnUtc);
-
-                if (take.HasValue)
-                {
-                    query = query.Take(take.Value);
-                }
-
-                // TODO: (mh) (core) Inlcude CustomerRoles
-                var reviews = collectionLoaded
-                    ? product.ProductReviews.Take(take ?? int.MaxValue).ToList()
-                    : await query.Include(x => x.Customer).ToListAsync();
-
                 var unverifiedCustomerIds = reviews
                     .Where(x => x.IsVerifiedPurchase == null)
                     .ToDistinctArray(x => x.CustomerId);
@@ -1286,7 +1271,8 @@ namespace Smartstore.Web.Controllers
                 foreach (var review in reviews)
                 {
                     var writtenOn = _services.DateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc);
-                    var reviewModel = new ProductReviewModel
+
+                    model.Items.Add(new()
                     {
                         Id = review.Id,
                         CustomerId = review.CustomerId,
@@ -1295,7 +1281,7 @@ namespace Smartstore.Web.Controllers
                         Title = review.Title,
                         ReviewText = review.ReviewText,
                         Rating = review.Rating,
-                        Helpfulness = new ProductReviewHelpfulnessModel
+                        Helpfulness = new()
                         {
                             ProductReviewId = review.Id,
                             HelpfulYesTotal = review.HelpfulYesTotal,
@@ -1305,15 +1291,9 @@ namespace Smartstore.Web.Controllers
                         IsVerifiedPurchase = review.IsVerifiedPurchase ?? orderCustomerIds.Contains(review.CustomerId),
                         WrittenOnStr = writtenOn.ToString("M") + ' ' + writtenOn.ToString("yyyy"),
                         WrittenOn = review.CreatedOnUtc
-                    };
-
-                    model.Items.Add(reviewModel);
+                    });
                 }
             }
-
-            model.CanCurrentCustomerLeaveReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !_services.WorkContext.CurrentCustomer.IsGuest();
-            model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnProductReviewPage;
-            model.ShowVerfiedPurchaseBadge = _catalogSettings.ShowVerfiedPurchaseBadge;
         }
 
         private MediaFileInfo PrepareMediaFileInfo(MediaFileInfo file, MediaGalleryModel model)
