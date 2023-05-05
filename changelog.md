@@ -36,6 +36,7 @@
 - GoogleAnalytics:
   - Fixed a `NullReferenceException` in `GoogleAnalyticsViewComponent`.
   - Fixed `KeyNotFoundException` in `GoogleAnalyticsScriptHelper.GetOrderCompletedScriptAsync`.
+- Fixed incorrect order of product attributes on the shopping cart page.
 
 
 ## Smartstore 5.0.4
