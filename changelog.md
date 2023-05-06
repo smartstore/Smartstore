@@ -37,6 +37,8 @@
   - Fixed a `NullReferenceException` in `GoogleAnalyticsViewComponent`.
   - Fixed `KeyNotFoundException` in `GoogleAnalyticsScriptHelper.GetOrderCompletedScriptAsync`.
 - Fixed incorrect order of product attributes on the shopping cart page.
+- Fixed #687 Product `MainPictureId` changed each time a new picture is uploaded.
+- Fixed ArgumentNullException in `FixProductMainPictureId` when uploading new image on product edit page.
 
 
 ## Smartstore 5.0.4
