@@ -21,7 +21,8 @@ namespace Smartstore
             foreach (var mapping in customer.CustomerRoleMappings)
             {
                 var role = mapping.CustomerRole;
-                if (role == null)
+
+                if (role?.SystemName == null)
                 {
                     continue;
                 }
@@ -45,7 +46,7 @@ namespace Smartstore
             if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
             {
                 return false;
-            } 
+            }
 
             return customer.SystemName.EqualsNoCase(SystemCustomerNames.BackgroundTask);
         }
@@ -75,7 +76,7 @@ namespace Smartstore
             if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
             {
                 return false;
-            }  
+            }
 
             return customer.SystemName.EqualsNoCase(SystemCustomerNames.PdfConverter);
         }
@@ -136,12 +137,12 @@ namespace Smartstore
             }
 
             var name = customer.BillingAddress?.GetFullName();
-            
+
             if (name.IsEmpty())
             {
                 name = customer.ShippingAddress?.GetFullName();
             }
-            
+
             if (name.IsEmpty())
             {
                 name = customer.Addresses.FirstOrDefault()?.GetFullName();
@@ -223,7 +224,7 @@ namespace Smartstore
             {
                 return string.Empty;
             }
-            
+
             if (customer.IsGuest())
             {
                 return T("Customer.Guest");
