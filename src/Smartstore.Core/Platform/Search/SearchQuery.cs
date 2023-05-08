@@ -56,8 +56,13 @@ namespace Smartstore.Core.Search
             IsFuzzySearch = isFuzzySearch;
 
             // TODO: (mg) Insufficient API design. TBD with MC.
-            if (term.HasValue() && !fields.IsNullOrEmpty())
+            if (term.HasValue())
             {
+                if (fields.IsNullOrEmpty() || !fields!.Any(x => x.HasValue()))
+                {
+                    throw new ArgumentException("At least one search field must be specified when you want to search by term.", nameof(fields));
+                }
+
                 if (fields!.Length == 1)
                 {
                     WithFilter(SearchFilter.BySearchTerm(fields![0], term, mode, escape));

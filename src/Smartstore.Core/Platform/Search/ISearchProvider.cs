@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Search.Facets;
+using Smartstore.Core.Search.Indexing;
 
 namespace Smartstore.Core.Search
 {
@@ -18,6 +19,23 @@ namespace Smartstore.Core.Search
         /// <param name="query">Search query.</param>
         /// <returns>New sorting. <c>null</c> to let the caller handle sorting.</returns>
         SearchSort GetSorting(SearchSort sort, ISearchQuery query);
+
+        /// <summary>
+        /// Gets the boost factor for a search filter.
+        /// The value will be multiplied into the score of all hits on the related index field.
+        /// </summary>
+        /// <param name="filter">Search filter.</param>
+        /// <returns>Boost value. <see cref="ISearchFilter.Boost"/> by default. 0 to make no boost.</returns>
+        float GetBoost(ISearchFilter filter);
+
+        /// <summary>
+        /// Gets the localized field name for a search filter.
+        /// See also <seealso cref="IndexField.CreateName"/>.
+        /// </summary>
+        /// <param name="filter">Search filter.</param>
+        /// <param name="languageCulture">Language culture.</param>
+        /// <returns>Localized field name. <c>null</c> if no localized field name exists.</returns>
+        string GetLocalizedFieldName(ISearchFilter filter, string languageCulture);
 
         /// <summary>
         /// Gets fields to be searched.

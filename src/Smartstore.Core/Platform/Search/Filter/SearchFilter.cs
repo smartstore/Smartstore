@@ -226,6 +226,7 @@
             {
                 FieldName = fieldName,
                 Term = term,
+                TypeCode = IndexTypeCode.String,
                 Mode = mode,
                 Escape = escape,
                 IsNotAnalyzed = isNotAnalyzed
@@ -235,9 +236,7 @@
         #endregion
 
         public override string ToString()
-        {
-            return $"{FieldName}({Mode}):{Term}";
-        }
+            => $"{FieldName}({Mode}):{Term}";
     }
 
     public enum SearchFilterOccurence
