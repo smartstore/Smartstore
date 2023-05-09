@@ -31,7 +31,7 @@ namespace Smartstore.Core.Seo
             return new XmlSitemapNode
             {
                 LastMod = entity.LastMod,
-                Loc = baseUrl + slug.EmptyNull().TrimStart('/')
+                Loc = baseUrl + slug.EmptyNull().TrimStart('/').EnsureEndsWith('/'),
             };
         }
 
