@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Smartstore.Data.Providers;
 using Smartstore.Data.Sqlite.Translators;
 using Smartstore.IO;
 
 namespace Smartstore.Data.Sqlite
 {
+    [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
     internal class SqliteDbFactory : DbFactory
     {
         public override DbSystemType DbSystem { get; } = DbSystemType.SQLite;
@@ -44,24 +47,20 @@ namespace Smartstore.Data.Sqlite
         {
             Guard.NotEmpty(connectionString);
 
-            var connection = CreateConnection(connectionString);
-
             var optionsBuilder = new DbContextOptionsBuilder<TContext>()
-                .UseSqlite(connection, sql =>
+                .UseSqlite(connectionString, sql =>
                 {
                     sql.CommandTimeout(commandTimeout);
-                })
-                .ReplaceService<IQueryTranslationPostprocessorFactory, SqliteNoCaseQueryTranslationPostprocessorFactory>()
-                .ReplaceService<IMethodCallTranslatorProvider, SqliteMappingMethodCallTranslatorProvider>();
+                });
+
+            optionsBuilder = (DbContextOptionsBuilder<TContext>)ReplaceServices(optionsBuilder);
 
             return (TContext)Activator.CreateInstance(typeof(TContext), new object[] { optionsBuilder.Options });
         }
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
         {
-            var connection = CreateConnection(connectionString);
-
-            return builder.UseSqlite(connection, sql =>
+            var optionsBuilder = builder.UseSqlite(connectionString, sql =>
             {
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
 
@@ -82,9 +81,17 @@ namespace Smartstore.Data.Sqlite
                     if (extension.UseRelationalNulls.HasValue)
                         sql.UseRelationalNulls(extension.UseRelationalNulls.Value);
                 }
-            })
-            .ReplaceService<IQueryTranslationPostprocessorFactory, SqliteNoCaseQueryTranslationPostprocessorFactory>()
-            .ReplaceService<IMethodCallTranslatorProvider, SqliteMappingMethodCallTranslatorProvider>();
+            });
+
+            return ReplaceServices(optionsBuilder);
+        }
+
+        private static DbContextOptionsBuilder ReplaceServices(DbContextOptionsBuilder builder)
+        {
+            return builder
+                .ReplaceService<ISqliteRelationalConnection, SqliteSmartRelationalConnection>()
+                .ReplaceService<IQueryTranslationPostprocessorFactory, SqliteNoCaseQueryTranslationPostprocessorFactory>()
+                .ReplaceService<IMethodCallTranslatorProvider, SqliteMappingMethodCallTranslatorProvider>();
         }
 
         public override void ConfigureModelConventions(ModelConfigurationBuilder configurationBuilder)
@@ -97,40 +104,6 @@ namespace Smartstore.Data.Sqlite
         public override void CreateModel(ModelBuilder modelBuilder)
         {
             modelBuilder.UseCollation("NOCASE");
-        }
-
-        private static SqliteConnection CreateConnection(string connectionString)
-        {
-            var connection = new SqliteConnection(connectionString);
-
-            connection.CreateCollation("NOCASE", SqliteNoCase);
-            connection.CreateFunction<string, string>("lower", SqliteLower, isDeterministic: true);
-            connection.CreateFunction<string, string>("upper", SqliteUpper, isDeterministic: true);
-            connection.CreateFunction<string, string, int?>("instr", SqliteInstr, isDeterministic: true);
-
-            return connection;
-        }
-
-        private static int SqliteNoCase(string left, string right)
-            => string.Compare(left, right, ignoreCase: true);
-
-        private static string SqliteLower(string input)
-            => input?.ToLower();
-
-        private static string SqliteUpper(string input)
-            => input?.ToUpper();
-
-        private static int? SqliteInstr(string input, string substr)
-        {
-            if (input == null || substr == null)
-            {
-                return null;
-            }
-
-            var index = input.IndexOf(substr, StringComparison.CurrentCultureIgnoreCase);
-
-            // SQLite instr is 1-based.
-            return index + 1;
         }
     }
 }
