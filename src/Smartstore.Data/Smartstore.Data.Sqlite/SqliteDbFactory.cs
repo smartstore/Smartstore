@@ -111,23 +111,23 @@ namespace Smartstore.Data.Sqlite
             return connection;
         }
 
-        private static int SqliteNoCase(string x, string y)
-            => string.Compare(x, y, ignoreCase: true);
+        private static int SqliteNoCase(string left, string right)
+            => string.Compare(left, right, ignoreCase: true);
 
-        private static string SqliteLower(string x)
-            => x?.ToLower();
+        private static string SqliteLower(string input)
+            => input?.ToLower();
 
-        private static string SqliteUpper(string x)
-            => x?.ToUpper();
+        private static string SqliteUpper(string input)
+            => input?.ToUpper();
 
-        private static int? SqliteInstr(string left, string right)
+        private static int? SqliteInstr(string input, string substr)
         {
-            if (left == null || right == null)
+            if (input == null || substr == null)
             {
                 return null;
             }
 
-            var index = left.IndexOf(right, StringComparison.CurrentCultureIgnoreCase);
+            var index = input.IndexOf(substr, StringComparison.CurrentCultureIgnoreCase);
 
             // SQLite instr is 1-based.
             return index + 1;
