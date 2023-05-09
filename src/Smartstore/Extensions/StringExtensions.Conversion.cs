@@ -218,15 +218,29 @@ namespace Smartstore
             }
         }
 
+        /// <summary>
+        /// Converts an uri component to its escaped representation.
+        /// Don't pass full uris to this method because it will also escape reserved chars (/?=#.&:;$@),
+        /// pass only fragments like query key/value, filename etc.
+        /// </summary>
+        /// <param name="value">The uri component to escape.</param>
+        /// <returns>The escaped uri component.</returns>
+        /// <remarks>This method internally calls <see cref="Uri.EscapeDataString(string)"/>.</remarks>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string? UrlEncode(this string? value)
-            => HttpUtility.UrlEncode(value);
+            => value.IsEmpty() ? value : Uri.EscapeDataString(value!);
 
+        /// <summary>
+        /// Converts an escaped uri component to its unescaped representation.
+        /// </summary>
+        /// <param name="value">The uri component to unescape.</param>
+        /// <returns>The unescaped uri component.</returns>
+        /// <remarks>This method internally calls <see cref="Uri.UnescapeDataString(string)"/>.</remarks>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string? UrlDecode(this string? value)
-            => HttpUtility.UrlDecode(value);
+            => value.IsEmpty() ? value : Uri.UnescapeDataString(value!);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
