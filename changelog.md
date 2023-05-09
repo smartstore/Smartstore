@@ -39,6 +39,7 @@
 - Fixed incorrect order of product attributes on the shopping cart page.
 - Fixed #687 Product `MainPictureId` changed each time a new picture is uploaded.
 - Fixed ArgumentNullException in `FixProductMainPictureId` when uploading new image on product edit page.
+- Fixed links to assigned shipping methods were not displayed when editing a rule.
 
 
 ## Smartstore 5.0.4
