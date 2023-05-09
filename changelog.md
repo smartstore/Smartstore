@@ -5,7 +5,9 @@
 ### New Features
 
 - Reverse proxy configuration using `ForwardedHeadersMiddleware`
-- SqliteDataProvider: implemented BackupRestore feature
+- SqliteDataProvider: 
+  - Fixed case-insensitive `Contains()` and `Like()` failing on non-ascii characters.
+  - Implemented BackupRestore feature
 
 ### Improvements
 
