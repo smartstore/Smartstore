@@ -65,7 +65,7 @@ namespace Smartstore.Core.Search
 
                 if (fields!.Length == 1)
                 {
-                    WithFilter(SearchFilter.BySearchTerm(fields![0], term, mode, escape));
+                    WithFilter(SearchFilter.BySearchTerm(fields![0], term, mode, escape).Mandatory());
                 }
                 else
                 {
