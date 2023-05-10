@@ -692,7 +692,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var mru = new TrimmedBuffer<string>(
                         _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories,
-                        model.Category,
+                        model.CategoryId,
                         _catalogSettings.MostRecentlyUsedCategoriesMaxSize);
 
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories = mru.ToString();
