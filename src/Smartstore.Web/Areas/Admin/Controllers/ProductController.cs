@@ -649,7 +649,7 @@ namespace Smartstore.Admin.Controllers
 
                 var mru = new TrimmedBuffer<string>(
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories,
-                    model.Category,
+                    model.CategoryId.ToString(),
                     _catalogSettings.MostRecentlyUsedCategoriesMaxSize);
 
                 _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories = mru.ToString();
@@ -782,7 +782,7 @@ namespace Smartstore.Admin.Controllers
 
                 var mru = new TrimmedBuffer<string>(
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers,
-                    model.Manufacturer,
+                    model.ManufacturerId.ToString(),
                     _catalogSettings.MostRecentlyUsedManufacturersMaxSize);
 
                 _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers = mru.ToString();
@@ -825,7 +825,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var mru = new TrimmedBuffer<string>(
                         _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers,
-                        model.Manufacturer,
+                        model.ManufacturerId.ToString(),
                         _catalogSettings.MostRecentlyUsedManufacturersMaxSize);
 
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers = mru.ToString();
