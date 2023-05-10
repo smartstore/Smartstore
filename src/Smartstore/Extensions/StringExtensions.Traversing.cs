@@ -58,7 +58,7 @@ namespace Smartstore
                 return value;
             }
 
-            var sb = new StringBuilder(value.Length + 5);
+            var sb = new ValueStringBuilder(value.Length + 5);
             char[] ca = value.ToCharArray();
 
             sb.Append(ca[0]);
