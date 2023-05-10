@@ -283,11 +283,11 @@ namespace Smartstore.StripeElements.Controllers
 
             try
             {
-                // TODO: (mh) (core) Find a way to define the used API version if there is any way.
-                var stripeEvent = EventUtility.ParseEvent(json, false);
                 var signatureHeader = Request.Headers["Stripe-Signature"];
 
-                // TODO: (mh) (core) Find a way to define the used API version if there is any way.
+                // INFO: There should never be a version mismatch, as long as the hook was created in Smartstore backend.
+                // But to keep even more stable we don't throw an exception on API version mismatch.
+                var stripeEvent = EventUtility.ParseEvent(json, false);
                 stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret, throwOnApiVersionMismatch: false);
 
                 if (stripeEvent.Type == Stripe.Events.PaymentIntentSucceeded)
