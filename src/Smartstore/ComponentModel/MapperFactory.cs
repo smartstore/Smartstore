@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Engine;
@@ -20,6 +21,7 @@ namespace Smartstore.ComponentModel
     {
         private static IDictionary<TypePair, Type> _mapperTypes = null;
         private readonly static object _lock = new();
+        private static IDictionary<TypePair, List<Type>> _mapperCallbacks = null;
 
         private static void EnsureInitialized()
         {
@@ -39,7 +41,37 @@ namespace Smartstore.ComponentModel
                             RegisterMappers(mapperTypes.ToArray());
                         }
 
+                        var mapperCallbackTypes = typeScanner?.FindTypes(typeof(IMapperCallback<,>));
+
+                        if (mapperCallbackTypes != null)
+                        {
+                            RegisterMapperCallbacks(mapperCallbackTypes.ToArray());
+                        }
                     }
+                }
+            }
+        }
+
+        private static void RegisterMapperCallbacks(Type[] mapperCallbackTypes)
+        {
+            if (_mapperCallbacks == null)
+            {
+                _mapperCallbacks = new Dictionary<TypePair, List<Type>>();
+            }
+
+            foreach (var type in mapperCallbackTypes)
+            {
+                var closedTypes = type.GetClosedGenericTypesOf(typeof(IMapperCallback<,>));
+                foreach (var closedType in closedTypes)
+                {
+                    var args = closedType.GetGenericArguments();
+                    var typePair = new TypePair(args[0], args[1]);
+                    if (!_mapperCallbacks.ContainsKey(typePair))
+                    {
+                        _mapperCallbacks.Add(typePair, new List<Type>());
+                    }
+
+                    _mapperCallbacks[typePair].Add(type);
                 }
             }
         }
@@ -142,6 +174,27 @@ namespace Smartstore.ComponentModel
             }
 
             return new GenericMapper<TFrom, TTo>();
+        }
+
+        public static void MapCallback<TFrom, TTo>(TFrom from, TTo to)
+            where TFrom : class
+            where TTo : class
+        {
+            EnsureInitialized();
+            var typePair = new TypePair(from.GetType(), to.GetType());
+            if (_mapperCallbacks.TryGetValue(typePair, out var callbackTypeList))
+            {
+                var scope = EngineContext.Current.Scope;
+                foreach (var callbackType in callbackTypeList)
+                {
+                    if (scope?.ResolveUnregistered(callbackType) is IMapperCallback<TFrom, TTo> instance)
+                    {
+                        scope.InjectProperties(instance);
+
+                        instance.MapCallback(from, to);
+                    }
+                }
+            }
         }
 
         class TypePair : Tuple<Type, Type>

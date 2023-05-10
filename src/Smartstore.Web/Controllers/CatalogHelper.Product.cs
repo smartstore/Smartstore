@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Collections;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -54,6 +55,8 @@ namespace Smartstore.Web.Controllers
 
             // Also purchased products
             await PrepareAlsoPurchasedProductsModelAsync(model, product);
+
+            MapperFactory.MapCallback(product, model);
 
             return model;
         }

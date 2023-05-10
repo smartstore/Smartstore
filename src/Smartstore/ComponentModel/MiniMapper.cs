@@ -103,6 +103,8 @@ namespace Smartstore.ComponentModel
                     toProp.SetValue(to, targetValue);
                 }
             }
+
+            MapperFactory.MapCallback(from, to);
         }
 
         private static FastProperty[] GetFastPropertiesFor(Type type)
