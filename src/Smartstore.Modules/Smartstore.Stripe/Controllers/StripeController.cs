@@ -283,10 +283,12 @@ namespace Smartstore.StripeElements.Controllers
 
             try
             {
-                var stripeEvent = EventUtility.ParseEvent(json);
+                // TODO: (mh) (core) Find a way to define the used API version if there is any way.
+                var stripeEvent = EventUtility.ParseEvent(json, false);
                 var signatureHeader = Request.Headers["Stripe-Signature"];
 
-                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret);
+                // TODO: (mh) (core) Find a way to define the used API version if there is any way.
+                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret, throwOnApiVersionMismatch: false);
 
                 if (stripeEvent.Type == Stripe.Events.PaymentIntentSucceeded)
                 {

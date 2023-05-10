@@ -41,23 +41,23 @@ namespace Smartstore.Data
 
         protected virtual StreamReader ReadSqlFile()
         {
-            var fileName = this.FileName;
+            var fileName = FileName;
 
             if (Path.IsPathFullyQualified(fileName))
             {
                 if (!File.Exists(fileName))
                 {
-                    throw new FileNotFoundException("Sql file '{0}' not found".FormatInvariant(this.FileName));
+                    throw new FileNotFoundException("Sql file '{0}' not found".FormatInvariant(FileName));
                 }
 
                 return new StreamReader(File.OpenRead(fileName));
             }
 
             // SQL file is obviously an embedded resource
-            var assembly = this.Assembly;
-            var asmName = assembly.FullName.Substring(0, assembly.FullName.IndexOf(','));
-            var location = this.Location ?? asmName + ".Sql";
-            var name = String.Format("{0}.{1}", location, fileName);
+            var assembly = Assembly;
+            var asmName = assembly.FullName[..assembly.FullName.IndexOf(',')];
+            var location = Location ?? asmName + ".Sql";
+            var name = string.Format("{0}.{1}", location, fileName);
 
             try
             {

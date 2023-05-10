@@ -8,7 +8,8 @@
           allow-resize="true"
           allow-row-selection="true"
           allow-edit="true"
-          max-height="500px">
+          max-height="500px"
+          onrowclass="relatedProducts_onRowClass">
     <datasource read="@Url.Action("RelatedProductList", new { productId = parentModel.Id })"
                 delete="@Url.Action("RelatedProductDelete")"
                 update="@Url.Action("RelatedProductUpdate")" />
@@ -102,4 +103,10 @@
         });
         return true;
     };
+
+    function relatedProducts_onRowClass(row) {
+        if (!row.Product2Published) {
+            return { 'text-muted': true };
+        }
+    }
 </script>

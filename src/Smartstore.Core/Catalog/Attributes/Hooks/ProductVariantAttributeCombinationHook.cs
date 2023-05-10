@@ -66,7 +66,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 }
             }
 
-            _requestCache.RemoveByPattern(ProductAttributeMaterializer.ATTRIBUTECOMBINATION_PATTERN_KEY);
+            _requestCache.RemoveByPattern(ProductAttributeMaterializer.AttributeCombinationPatternKey);
         }
     }
 }

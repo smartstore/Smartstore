@@ -1,3 +1,27 @@
+# useragent.yml
+# -------------
+# This file is embedded in the Smartstore.Core assembly. 
+# To customize it, first copy it to the "App_Data" directory and then start customizing. 
+# Any changes made will take effect immediately (without restarting the app).
+#
+# The mappings "browsers", "platforms", "bots" and "devices" are mandatory.
+# Each mapping contains 0-n matcher objects with the following attributes:
+#
+#   match:
+#     Required. A regular expression to match or a substring to search for. A regex must be enclosed in slashes.
+#
+#   name:
+#     Required. Agent friendly name or $1 to set value of "match" attribute.
+#
+#   family:
+#     Required only in "platforms" segment. Valid values are (case sensitive):
+#     Generic, Windows, Linux, Unix, IOS, MacOS, BlackBerry, Android, Symbian.
+#
+# The attributes "name" and "family" can be omitted at item level, but they must be present 
+# in any item that follows. This allows you to group matcher items.
+
+
+
 # ===================================
 # Browsers
 # ===================================

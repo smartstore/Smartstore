@@ -649,7 +649,7 @@ namespace Smartstore.Admin.Controllers
 
                 var mru = new TrimmedBuffer<string>(
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories,
-                    model.Category,
+                    model.CategoryId.ToString(),
                     _catalogSettings.MostRecentlyUsedCategoriesMaxSize);
 
                 _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories = mru.ToString();
@@ -692,7 +692,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var mru = new TrimmedBuffer<string>(
                         _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories,
-                        model.Category,
+                        model.CategoryId.ToString(),
                         _catalogSettings.MostRecentlyUsedCategoriesMaxSize);
 
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories = mru.ToString();
@@ -782,7 +782,7 @@ namespace Smartstore.Admin.Controllers
 
                 var mru = new TrimmedBuffer<string>(
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers,
-                    model.Manufacturer,
+                    model.ManufacturerId.ToString(),
                     _catalogSettings.MostRecentlyUsedManufacturersMaxSize);
 
                 _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers = mru.ToString();
@@ -825,7 +825,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var mru = new TrimmedBuffer<string>(
                         _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers,
-                        model.Manufacturer,
+                        model.ManufacturerId.ToString(),
                         _catalogSettings.MostRecentlyUsedManufacturersMaxSize);
 
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers = mru.ToString();
@@ -874,14 +874,15 @@ namespace Smartstore.Admin.Controllers
                     .ToListAsync();
 
                 var pictureIds = new HashSet<int>(pictures.ToIntArray());
-                var ordinal = 5;
+                var displayOrder = 1;
 
                 foreach (var id in pictureIds)
                 {
                     var productPicture = files.Where(x => x.Id == id).FirstOrDefault();
                     if (productPicture != null)
                     {
-                        productPicture.DisplayOrder = ordinal;
+                        // Same value for display order as in MediaImporter.
+                        productPicture.DisplayOrder = displayOrder;
 
                         // Add all relevant data of product picture to response.
                         dynamic file = new
@@ -893,7 +894,7 @@ namespace Smartstore.Admin.Controllers
 
                         response.Add(file);
                     }
-                    ordinal += 5;
+                    ++displayOrder;
                 }
 
                 await _db.SaveChangesAsync();
@@ -916,33 +917,38 @@ namespace Smartstore.Admin.Controllers
                 .Distinct()
                 .ToArray();
 
-            if (!ids.Any())
+            if (ids.Length == 0)
             {
                 throw new ArgumentException("Missing picture identifiers.");
             }
 
             var success = false;
-            var product = await _db.Products.FindByIdAsync(entityId, false);
+            var product = await _db.Products
+                .Include(x => x.ProductMediaFiles)
+                .FindByIdAsync(entityId);
+
             if (product == null)
             {
                 throw new ArgumentException(T("Products.NotFound", entityId));
             }
 
             var response = new List<dynamic>();
-            var existingFiles = product.ProductMediaFiles.Select(x => x.MediaFileId).ToList();
+            var existingFileIds = product.ProductMediaFiles.Select(x => x.MediaFileId).ToList();
+            var displayOrder = product.ProductMediaFiles.Count > 0 ? product.ProductMediaFiles.Max(x => x.DisplayOrder) : 0;
             var files = (await _mediaService.GetFilesByIdsAsync(ids, MediaLoadFlags.AsNoTracking)).ToDictionary(x => x.Id);
 
             foreach (var id in ids)
             {
-                var exists = existingFiles.Contains(id);
+                var exists = existingFileIds.Contains(id);
 
                 // No duplicate assignments!
                 if (!exists)
                 {
                     var productPicture = new ProductMediaFile
                     {
+                        ProductId = entityId,
                         MediaFileId = id,
-                        ProductId = entityId
+                        DisplayOrder = ++displayOrder
                     };
 
                     _db.ProductMediaFiles.Add(productPicture);

@@ -20,7 +20,6 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly ILocalizationService _localizationService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly CatalogSettings _catalogSettings;
         private readonly PriceSettings _priceSettings;
 
         public ProductAttributeFormatter(
@@ -31,7 +30,6 @@ namespace Smartstore.Core.Catalog.Attributes
             ILocalizationService localizationService,
             IPriceCalculationService priceCalculationService,
             ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings,
             PriceSettings priceSettings)
         {
             _db = db;
@@ -41,7 +39,6 @@ namespace Smartstore.Core.Catalog.Attributes
             _localizationService = localizationService;
             _priceCalculationService = priceCalculationService;
             _shoppingCartSettings = shoppingCartSettings;
-            _catalogSettings = catalogSettings;
             _priceSettings = priceSettings;
         }
 
@@ -68,21 +65,21 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 var languageId = _workContext.WorkingLanguage.Id;
                 var attributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(selection);
-                var attributesDic = attributes.ToDictionary(x => x.Id);
 
                 // Key: ProductVariantAttributeValue.Id, value: calculated attribute price adjustment.
                 var priceAdjustments = includePrices && _priceSettings.ShowVariantCombinationPriceAdjustment
                     ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, selection, 1, _priceCalculationService.CreateDefaultOptions(false, customer, null, batchContext))
                     : new Dictionary<int, CalculatedPriceAdjustment>();
 
-                foreach (var kvp in selection.AttributesMap)
+                foreach (var pva in attributes)
                 {
-                    if (!attributesDic.TryGetValue(kvp.Key, out var pva))
+                    var pair = selection.AttributesMap.FirstOrDefault(x => x.Key == pva.Id);
+                    if (pair.Key == 0)
                     {
                         continue;
                     }
 
-                    foreach (var value in kvp.Value)
+                    foreach (var value in pair.Value)
                     {
                         var valueStr = value.ToString().EmptyNull();
                         var pvaAttribute = string.Empty;

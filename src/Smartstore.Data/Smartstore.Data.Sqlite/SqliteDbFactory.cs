@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Smartstore.Data.Providers;
 using Smartstore.Data.Sqlite.Translators;
 using Smartstore.IO;
 
 namespace Smartstore.Data.Sqlite
 {
+    [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
     internal class SqliteDbFactory : DbFactory
     {
         public override DbSystemType DbSystem { get; } = DbSystemType.SQLite;
@@ -48,15 +51,16 @@ namespace Smartstore.Data.Sqlite
                 .UseSqlite(connectionString, sql =>
                 {
                     sql.CommandTimeout(commandTimeout);
-                })
-                .ReplaceService<IMethodCallTranslatorProvider, SqliteMappingMethodCallTranslatorProvider>();
+                });
+
+            optionsBuilder = (DbContextOptionsBuilder<TContext>)ReplaceServices(optionsBuilder);
 
             return (TContext)Activator.CreateInstance(typeof(TContext), new object[] { optionsBuilder.Options });
         }
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
         {
-            return builder.UseSqlite(connectionString, sql =>
+            var optionsBuilder = builder.UseSqlite(connectionString, sql =>
             {
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
 
@@ -77,8 +81,17 @@ namespace Smartstore.Data.Sqlite
                     if (extension.UseRelationalNulls.HasValue)
                         sql.UseRelationalNulls(extension.UseRelationalNulls.Value);
                 }
-            })
-            .ReplaceService<IMethodCallTranslatorProvider, SqliteMappingMethodCallTranslatorProvider>();
+            });
+
+            return ReplaceServices(optionsBuilder);
+        }
+
+        private static DbContextOptionsBuilder ReplaceServices(DbContextOptionsBuilder builder)
+        {
+            return builder
+                .ReplaceService<ISqliteRelationalConnection, SqliteSmartRelationalConnection>()
+                .ReplaceService<IQueryTranslationPostprocessorFactory, SqliteNoCaseQueryTranslationPostprocessorFactory>()
+                .ReplaceService<IMethodCallTranslatorProvider, SqliteMappingMethodCallTranslatorProvider>();
         }
 
         public override void ConfigureModelConventions(ModelConfigurationBuilder configurationBuilder)

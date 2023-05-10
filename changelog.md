@@ -5,7 +5,9 @@
 ### New Features
 
 - Reverse proxy configuration using `ForwardedHeadersMiddleware`
-- SqliteDataProvider: implemented BackupRestore feature
+- SqliteDataProvider: 
+  - Fixed case-insensitive `Contains()` and `Like()` failing on non-ascii characters.
+  - Implemented BackupRestore feature
 
 ### Improvements
 
@@ -23,17 +25,24 @@
 - #651 Fixed product can be added to cart even if the availability limit was reached.
 - Logout was not possible after new customer registrations.
 - Fixed unpublished products should be assignable as "promoted" to a product.
-- SequentialDataReader: fixed a problem where occasionally nullable string fields were not read
+- `SequentialDataReader`: fixed a problem where occasionally nullable string fields were not read
 - UrlRewriter: raw rules were not loaded from legacy storage
 - Fixed a topic was not editable if a menu link with an invalid target was associated.
-- MainMenuShrinker was missing.
+- `MainMenuShrinker` was missing.
 - Added missing properties in customer grid.
 - Fixed popular product tags were not loaded based on the frequency of their product assignments on homepage.
 - Fixed after a login the user was not redirected to the previous page.
 - Fixed problem where bundles couldn't be added to the basket if bundleitems had  attributes.
-- GMC: when there was no Google category defined in a product, copying the product threw with null reference exception.
+- GMC: when there was no Google category defined in a product, copying the product threw `NullReferenceException`.
 - Fixed attribute filters of bundle items were not loaded in bundle item dialog.
-- Fixed a NullReferenceException in GoogleAnalyticsViewComponent.
+- GoogleAnalytics:
+  - Fixed a `NullReferenceException` in `GoogleAnalyticsViewComponent`.
+  - Fixed `KeyNotFoundException` in `GoogleAnalyticsScriptHelper.GetOrderCompletedScriptAsync`.
+- Fixed incorrect order of product attributes on the shopping cart page.
+- Fixed #687 Product `MainPictureId` changed each time a new picture is uploaded.
+- Fixed ArgumentNullException in `FixProductMainPictureId` when uploading new image on product edit page.
+- Fixed links to assigned shipping methods were not displayed when editing a rule.
+- Fixed SearchLog did not show top search terms in instant search.
 
 
 ## Smartstore 5.0.4

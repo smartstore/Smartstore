@@ -7,6 +7,13 @@
     var ua = Model;
 }
 
+@functions {
+    bool IsKnown(string name)
+    {
+        return name.HasValue() && name != "Unknown";
+    }
+}
+
 <div class="section-header">
     <div class="title">
         <i class="fa fa-mobile-alt"></i>
@@ -22,15 +29,28 @@
         </div>
 
         <div class="mt-4">
-            <div>User Agent: <strong>@ua.Name</strong> <span sm-if="ua.Version != null">@ua.Version.ToString()</span> (Type: @ua.Type.ToString())</div>
-            <div>Device: <strong>@ua.Device.Name</strong> (Type: @ua.Device.Type.ToString())</div>
-            <div>Platform: <strong>@ua.Platform.Name.NaIfEmpty()</strong> (Family: @ua.Platform.Family.ToString())</div>
-            <div>Supports WebP: <span style='font-weight:@(ua.SupportsWebP() ? "bold" : "normal")'>@ua.SupportsWebP()</span></div>
+            <div>
+                User Agent: 
+                <span attr-class='(IsKnown(ua.Name), "fwb")'>@ua.Name</span> 
+                <span sm-if="ua.Version != null">@ua.Version.ToString()</span> 
+                <span sm-if="ua.Type != UserAgentType.Unknown">(Type: @ua.Type.ToString())</span>
+            </div>
+            <div>
+                Device: 
+                <span attr-class='(IsKnown(ua.Device.Name), "fwb")'>@ua.Device.Name</span> 
+                <span sm-if="ua.Device.Type != UserAgentDeviceType.Unknown">(Type: @ua.Device.Type.ToString())</span>
+            </div>
+            <div>
+                Platform:
+                <span attr-class='(IsKnown(ua.Platform.Name), "fwb")'>@ua.Platform.Name</span>
+                <span sm-if="ua.Platform.Family != UserAgentPlatformFamily.Unknown">(Family: @ua.Platform.Family.ToString())</span>
+            </div>
+            <div>Supports WebP: <span attr-class='(ua.SupportsWebP(), "fwb")'>@ua.SupportsWebP()</span></div>
             <br />
-            <div>IsBot: <span style='font-weight:@(ua.IsBot() ? "bold" : "normal")'>@ua.IsBot()</span></div>
-            <div>IsMobileDevice: <span style='font-weight:@(ua.IsMobileDevice() ? "bold" : "normal")'>@ua.IsMobileDevice()</span></div>
-            <div>IsTablet: <span style='font-weight:@(ua.IsTablet() ? "bold" : "normal")'>@ua.IsTablet()</span></div>
-            <div>IsPdfConverter: <span style='font-weight:@(ua.IsPdfConverter() ? "bold" : "normal")'>@ua.IsPdfConverter()</span></div>
+            <div>IsBot: <span attr-class='(ua.IsBot(), "fwb")'>@ua.IsBot()</span></div>
+            <div>IsMobileDevice: <span attr-class='(ua.IsMobileDevice(), "fwb")'>@ua.IsMobileDevice()</span></div>
+            <div>IsTablet: <span attr-class='(ua.IsTablet(), "fwb")'>@ua.IsTablet()</span></div>
+            <div>IsPdfConverter: <span attr-class='(ua.IsPdfConverter(), "fwb")'>@ua.IsPdfConverter()</span></div>
         </div>
     </form>
 </div>

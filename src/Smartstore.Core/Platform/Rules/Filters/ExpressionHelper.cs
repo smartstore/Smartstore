@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Smartstore.Utilities;
 using EFCore = Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,10 @@ namespace Smartstore.Core.Rules.Filters
 
         public readonly static MethodInfo DbLikeMethod
             = typeof(EFCore.DbFunctionsExtensions).GetRuntimeMethod("Like",
+                new Type[] { typeof(EFCore.DbFunctions), typeof(string), typeof(string) });
+
+        public readonly static MethodInfo DbLikeMethodWithEscape
+            = typeof(EFCore.DbFunctionsExtensions).GetRuntimeMethod("Like",
                 new Type[] { typeof(EFCore.DbFunctions), typeof(string), typeof(string), typeof(string) });
 
         public readonly static IQueryProvider LinqToObjectsProvider = Enumerable.Empty<int>().AsQueryable().Provider;
@@ -34,7 +39,15 @@ namespace Smartstore.Core.Rules.Filters
                 stringExpression = LiftStringExpressionToEmpty(stringExpression);
             }
 
-            return Expression.Call(stringExpression, StringToLowerMethod);
+            if (provider is EntityQueryProvider)
+            {
+                // EF: handle collation on database level.
+                return stringExpression;
+            }
+            else
+            {
+                return Expression.Call(stringExpression, StringToLowerMethod);
+            } 
         }
 
         public static Expression CallIsNullOrEmpty(this Expression stringExpression)

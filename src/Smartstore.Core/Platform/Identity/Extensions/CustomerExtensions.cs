@@ -22,6 +22,11 @@ namespace Smartstore
             {
                 var role = mapping.CustomerRole;
 
+                if (role?.SystemName == null)
+                {
+                    continue;
+                }
+
                 if (role.SystemName.Equals(roleSystemName, StringComparison.OrdinalIgnoreCase))
                 {
                     return !onlyActiveRoles || role.Active;
@@ -41,7 +46,7 @@ namespace Smartstore
             if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
             {
                 return false;
-            } 
+            }
 
             return customer.SystemName.EqualsNoCase(SystemCustomerNames.BackgroundTask);
         }
@@ -71,7 +76,7 @@ namespace Smartstore
             if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
             {
                 return false;
-            }  
+            }
 
             return customer.SystemName.EqualsNoCase(SystemCustomerNames.PdfConverter);
         }
@@ -107,7 +112,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value indicating whether customer is guest (navigation properties CustomerRoleMappings then CustomerRole are required).
+        /// Gets a value indicating whether customer is guest (navigation properties CustomerRoleMappings, then CustomerRole are required).
         /// </summary>
         /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -132,12 +137,12 @@ namespace Smartstore
             }
 
             var name = customer.BillingAddress?.GetFullName();
-            
+
             if (name.IsEmpty())
             {
                 name = customer.ShippingAddress?.GetFullName();
             }
-            
+
             if (name.IsEmpty())
             {
                 name = customer.Addresses.FirstOrDefault()?.GetFullName();
@@ -182,6 +187,11 @@ namespace Smartstore
         /// <returns>Formatted customer name.</returns>
         public static string FormatUserName(this Customer? customer, bool stripTooLong)
         {
+            if (customer == null)
+            {
+                return string.Empty;
+            }
+
             var engine = EngineContext.Current.Scope;
 
             var userName = FormatUserName(
@@ -214,7 +224,7 @@ namespace Smartstore
             {
                 return string.Empty;
             }
-            
+
             if (customer.IsGuest())
             {
                 return T("Customer.Guest");

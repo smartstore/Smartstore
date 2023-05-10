@@ -17,8 +17,8 @@ namespace Smartstore.Core.Content.Media
 
             Node = node;
             _name = normalizeFileName
-                ? MediaHelper.NormalizeFileName(fileName).UrlDecode()
-                : fileName.UrlDecode();
+                ? Uri.UnescapeDataString(MediaHelper.NormalizeFileName(fileName))
+                : Uri.UnescapeDataString(fileName);
         }
 
         public MediaPathData(string path, bool normalizeFileName = false)
@@ -26,8 +26,8 @@ namespace Smartstore.Core.Content.Media
             Guard.NotEmpty(path);
 
             _name = normalizeFileName
-                ? MediaHelper.NormalizeFileName(Path.GetFileName(path)).UrlDecode()
-                : Path.GetFileName(path).UrlDecode();
+                ? Uri.UnescapeDataString(MediaHelper.NormalizeFileName(Path.GetFileName(path)))
+                : Uri.UnescapeDataString(Path.GetFileName(path));
         }
 
         public MediaPathData(MediaPathData pathData)
