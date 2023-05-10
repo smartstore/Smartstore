@@ -133,9 +133,25 @@
             return filter;
         }
 
-        public static SearchFilter ByField(string fieldName, string term)
+        public static SearchFilter ByField(
+            string fieldName,
+            string term,
+            SearchMode mode = SearchMode.Contains,
+            bool escape = false,
+            bool isNotAnalyzed = false)
         {
-            return ByField(fieldName, term, IndexTypeCode.String);
+            Guard.NotEmpty(term);
+            Guard.NotEmpty(fieldName);
+
+            return new SearchFilter
+            {
+                FieldName = fieldName,
+                Term = term,
+                TypeCode = IndexTypeCode.String,
+                Mode = mode,
+                Escape = escape,
+                IsNotAnalyzed = isNotAnalyzed
+            };
         }
 
         public static SearchFilter ByField(string fieldName, int term)
@@ -209,27 +225,6 @@
                 TypeCode = typeCode,
                 IncludesLower = includeLower,
                 IncludesUpper = includeUpper
-            };
-        }
-
-        public static SearchFilter BySearchTerm(
-            string fieldName,
-            string term,
-            SearchMode mode = SearchMode.Contains,
-            bool escape = false,
-            bool isNotAnalyzed = false)
-        {
-            Guard.NotEmpty(term);
-            Guard.NotEmpty(fieldName);
-
-            return new SearchFilter
-            {
-                FieldName = fieldName,
-                Term = term,
-                TypeCode = IndexTypeCode.String,
-                Mode = mode,
-                Escape = escape,
-                IsNotAnalyzed = isNotAnalyzed
             };
         }
 

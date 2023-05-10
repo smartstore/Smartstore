@@ -65,12 +65,12 @@ namespace Smartstore.Core.Search
 
                 if (fields!.Length == 1)
                 {
-                    WithFilter(SearchFilter.BySearchTerm(fields![0], term, mode, escape).Mandatory());
+                    WithFilter(SearchFilter.ByField(fields![0], term, mode, escape).Mandatory());
                 }
                 else
                 {
                     WithFilter(SearchFilter.Combined("searchterm",
-                        fields!.Select(field => SearchFilter.BySearchTerm(field, term, mode, escape)).ToArray()));
+                        fields!.Select(field => SearchFilter.ByField(field, term, mode, escape)).ToArray()));
                 }
             }
         }
@@ -218,10 +218,14 @@ namespace Smartstore.Core.Search
             string term,
             string fieldName,
             SearchMode mode = SearchMode.Contains,
+            SearchFilterOccurence occurence = SearchFilterOccurence.Must,
             bool escape = false,
             bool isNotAnalyzed = false)
         {
-            return WithFilter(SearchFilter.BySearchTerm(fieldName, term, mode, escape, isNotAnalyzed));
+            var filter = SearchFilter.ByField(fieldName, term, mode, escape, isNotAnalyzed);
+            filter.Occurence = occurence;
+
+            return WithFilter(filter);
         }
 
         public TQuery WithFilter(ISearchFilter filter)
