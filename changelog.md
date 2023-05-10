@@ -42,6 +42,7 @@
 - Fixed #687 Product `MainPictureId` changed each time a new picture is uploaded.
 - Fixed ArgumentNullException in `FixProductMainPictureId` when uploading new image on product edit page.
 - Fixed links to assigned shipping methods were not displayed when editing a rule.
+- Fixed SearchLog did not show top search terms in instant search.
 
 
 ## Smartstore 5.0.4
