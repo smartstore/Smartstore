@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -183,6 +184,7 @@ namespace Smartstore
         /// <param name="value">The input string</param>
         /// <returns>xxHash</returns>
         [DebuggerStepThrough]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? XxHash(this string? value)
         {
             if (value.IsEmpty())
@@ -197,6 +199,7 @@ namespace Smartstore
         /// </summary>
         [DebuggerStepThrough]
         [Obsolete("Microsoft recommends SHA256 or SHA512 class instead of MD5. Use MD5 only for compatibility with legacy applications and data.")]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? Hash(this string? value, Encoding encoding, bool toBase64 = false)
         {
             if (value.IsEmpty())
@@ -228,6 +231,7 @@ namespace Smartstore
         /// <remarks>This method internally calls <see cref="Uri.EscapeDataString(string)"/>.</remarks>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? UrlEncode(this string? value)
             => value.IsEmpty() ? value : Uri.EscapeDataString(value!);
 
@@ -239,28 +243,32 @@ namespace Smartstore
         /// <remarks>This method internally calls <see cref="Uri.UnescapeDataString(string)"/>.</remarks>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? UrlDecode(this string? value)
             => value.IsEmpty() ? value : Uri.UnescapeDataString(value!);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? AttributeEncode(this string? value)
             => HttpUtility.HtmlAttributeEncode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? HtmlEncode(this string? value)
             => HttpUtility.HtmlEncode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? HtmlDecode(this string? value)
             => HttpUtility.HtmlDecode(value);
 
-        public static string? EncodeJsString(this string? value)
+        public static string EncodeJsString(this string? value)
             => EncodeJsString(value, '"', true);
 
-        public static string? EncodeJsString(this string? value, char delimiter, bool appendDelimiters)
+        public static string EncodeJsString(this string? value, char delimiter, bool appendDelimiters)
         {
             var result = value.HasValue()
                 ? JavaScriptEncoder.Default.Encode(value!)
@@ -275,7 +283,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string? SanitizeHtmlId(this string? value)
+        public static string SanitizeHtmlId(this string? value)
         {
             return TagBuilder.CreateSanitizedId(value, "_");
         }
