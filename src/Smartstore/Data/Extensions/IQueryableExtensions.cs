@@ -219,5 +219,67 @@ namespace Smartstore
 
             return items.OrderBySequence(ids).ToList();
         }
+
+        #region ExecuteDelete
+
+        /// <inheritdoc cref="RelationalQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})"/>
+        /// <summary>
+        /// Deletes database rows for the entity instances which match the LINQ query from the database in bulk.
+        /// </summary>
+        /// <param name="bulkSize">Number of rows to be deleted in a single delete operation.</param>
+        public static int ExecuteDelete<TEntity>(this IQueryable<TEntity> query, int bulkSize)
+            where TEntity : BaseEntity
+        {
+            Guard.NotNull(query);
+            Guard.IsPositive(bulkSize);
+
+            var numTotal = 0;
+
+            query = query.Take(bulkSize);
+
+            while (true)
+            {
+                var num = query.ExecuteDelete();
+                numTotal += num;
+
+                if (num < bulkSize)
+                {
+                    break;
+                }
+            }
+
+            return numTotal;
+        }
+
+        /// <inheritdoc cref="RelationalQueryableExtensions.ExecuteDeleteAsync{TSource}(IQueryable{TSource}, CancellationToken)"/>
+        /// <summary>
+        /// Asynchronously deletes database rows for the entity instances which match the LINQ query from the database in bulk.
+        /// </summary>
+        /// <param name="bulkSize">Number of rows to be deleted in a single delete operation.</param>
+        public static async Task<int> ExecuteDeleteAsync<TEntity>(this IQueryable<TEntity> query, int bulkSize, CancellationToken cancellationToken = default)
+            where TEntity : BaseEntity
+        {
+            Guard.NotNull(query);
+            Guard.IsPositive(bulkSize);
+
+            var numTotal = 0;
+
+            query = query.Take(bulkSize);
+
+            while (true)
+            {
+                var num = await query.ExecuteDeleteAsync(cancellationToken);
+                numTotal += num;
+
+                if (num < bulkSize)
+                {
+                    break;
+                }
+            }
+
+            return numTotal;
+        }
+
+        #endregion
     }
 }
