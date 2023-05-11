@@ -21,7 +21,7 @@ namespace Smartstore.StripeElements
                     context => context.ControllerIs<CheckoutController>(x => x.PaymentMethod()) && !context.HttpContext.Request.IsAjax()
                     || context.ControllerIs<CheckoutController>(x => x.Confirm()) && !context.HttpContext.Request.IsAjax(), 200);
 
-                o.Filters.AddConditional<ScriptIncludeFilter>(
+                o.Filters.AddConditional<StripeScriptIncludeFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjax());
             });
 

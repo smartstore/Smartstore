@@ -9,13 +9,13 @@ namespace Smartstore.StripeElements.Filters
     /// <summary>
     /// Renders the Stripe JS SDK script. Unfortunatelly it must be included in <head>-Tag.
     /// </summary>
-    public class ScriptIncludeFilter : IAsyncActionFilter
+    public class StripeScriptIncludeFilter : IAsyncActionFilter
     {
         private readonly StripeSettings _settings;
         private readonly IWidgetProvider _widgetProvider;
         private readonly StripeHelper _stripeHelper;
 
-        public ScriptIncludeFilter(StripeSettings settings, IWidgetProvider widgetProvider, StripeHelper stripeHelper)
+        public StripeScriptIncludeFilter(StripeSettings settings, IWidgetProvider widgetProvider, StripeHelper stripeHelper)
         {
             _settings = settings;
             _widgetProvider = widgetProvider;

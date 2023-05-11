@@ -15,7 +15,7 @@ namespace Smartstore.PayPal.Filters
     /// Renders a script to detect buyer fraud early by collecting the buyer's browser information during checkout and passing it to PayPal (must be active for pay per invoice). 
     /// Also renders the PayPal JS SDK standard script & PayPal helper script which contains function to initialize Buttons, Hosted Fields and APMs (alternative payment methods).
     /// </summary>
-    public class ScriptIncludeFilter : IAsyncActionFilter
+    public class PayPalScriptIncludeFilter : IAsyncActionFilter
     {
         private readonly PayPalSettings _settings;
         private readonly IWidgetProvider _widgetProvider;
@@ -24,7 +24,7 @@ namespace Smartstore.PayPal.Filters
         private readonly PayPalHelper _payPalHelper;
         private readonly PayPalHttpClient _client;
 
-        public ScriptIncludeFilter(
+        public PayPalScriptIncludeFilter(
             PayPalSettings settings, 
             IWidgetProvider widgetProvider,
             ICommonServices services,
@@ -67,6 +67,7 @@ namespace Smartstore.PayPal.Filters
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
+                // TODO: (mh) (core) NO GO!!!
                 var clientToken = await _payPalHelper.IsCreditCardActiveAsync() ? await GetClientToken() : string.Empty;
 
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>"));
@@ -178,6 +179,7 @@ namespace Smartstore.PayPal.Filters
         /// <returns>Client token to be placed as data attribute in PayPal JS script include.</returns>
         private async Task<string> GetClientToken()
         {
+            // TODO: (mh) (core) Cache client token for 1 hour.
             var response = await _client.ExecuteRequestAsync(new GenerateClientTokenRequest());
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
