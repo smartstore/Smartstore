@@ -23,7 +23,7 @@ namespace Smartstore.Web.Controllers
     {
         public async Task<ProductDetailsModel> MapProductDetailsPageModelAsync(Product product, ProductVariantQuery query)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             var customer = _services.WorkContext.CurrentCustomer;
             var store = _services.StoreContext.CurrentStore;
@@ -60,7 +60,7 @@ namespace Smartstore.Web.Controllers
 
         protected internal virtual async Task<ProductDetailsModel> MapProductDetailsPageModelAsync(ProductDetailsModelContext modelContext)
         {
-            Guard.NotNull(modelContext, nameof(modelContext));
+            Guard.NotNull(modelContext);
 
             var product = modelContext.Product;
             var query = modelContext.VariantQuery;
@@ -366,8 +366,8 @@ namespace Smartstore.Web.Controllers
 
         public async Task PrepareProductDetailModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity = 1)
         {
-            Guard.NotNull(model, nameof(model));
-            Guard.NotNull(modelContext, nameof(modelContext));
+            Guard.NotNull(model);
+            Guard.NotNull(modelContext);
 
             var product = modelContext.Product;
 

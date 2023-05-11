@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Collections;
 using Smartstore.Engine;
 
 namespace Smartstore.ComponentModel
@@ -18,7 +19,7 @@ namespace Smartstore.ComponentModel
     /// </remarks>
     public static class MapperFactory
     {
-        private static IDictionary<TypePair, Type> _mapperTypes = null;
+        private static Multimap<TypePair, Type> _mapperTypes = null;
         private readonly static object _lock = new();
 
         private static void EnsureInitialized()
@@ -29,7 +30,7 @@ namespace Smartstore.ComponentModel
                 {
                     if (_mapperTypes == null)
                     {
-                        _mapperTypes = new Dictionary<TypePair, Type>();
+                        _mapperTypes = new Multimap<TypePair, Type>();
 
                         var typeScanner = EngineContext.Current.Application.Services.ResolveOptional<ITypeScanner>();
                         var mapperTypes = typeScanner?.FindTypes(typeof(IMapper<,>));
@@ -49,10 +50,7 @@ namespace Smartstore.ComponentModel
         /// </summary>
         internal static void RegisterMappers(params Type[] mapperTypes)
         {
-            if (_mapperTypes == null)
-            {
-                _mapperTypes = new Dictionary<TypePair, Type>();
-            }
+            _mapperTypes ??= new Multimap<TypePair, Type>();
 
             foreach (var type in mapperTypes)
             {
@@ -77,7 +75,7 @@ namespace Smartstore.ComponentModel
             where TFrom : class
             where TTo : class, new()
         {
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(from);
 
             var to = new TTo();
             await GetMapper<TFrom, TTo>().MapAsync(from, to, parameters);
@@ -96,8 +94,8 @@ namespace Smartstore.ComponentModel
             where TTo : class
         {
             return GetMapper<TFrom, TTo>().MapAsync(
-                Guard.NotNull(from, nameof(from)),
-                Guard.NotNull(to, nameof(to)),
+                Guard.NotNull(from),
+                Guard.NotNull(to),
                 parameters);
         }
 
@@ -106,7 +104,7 @@ namespace Smartstore.ComponentModel
             where TFrom : class
             where TTo : class, new()
         {
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(from);
             return await IMapperExtensions.MapListAsync(GetMapper<TFrom, TTo>(), await from.ToListAsync(), parameters);
         }
 
@@ -130,18 +128,45 @@ namespace Smartstore.ComponentModel
 
             var key = new TypePair(typeof(TFrom), typeof(TTo));
 
-            if (_mapperTypes.TryGetValue(key, out var mapperType))
+            if (_mapperTypes.TryGetValues(key, out var mapperTypes))
             {
                 var scope = EngineContext.Current.Scope;
+
+                if (mapperTypes.Count == 1)
+                {
+                    var instance = ResolveMapper(mapperTypes.First(), scope);
+                    if (instance == null)
+                    {
+                        return instance;
+                    }
+                }
+                else if (mapperTypes.Count > 1)
+                {
+                    var instances = mapperTypes
+                        .Select(t => ResolveMapper(t, scope))
+                        .Where(x => x != null)
+                        .ToArray();
+
+                    if (instances.Length > 0)
+                    {
+                        return new CompositeMapper<TFrom, TTo>(instances);
+                    }
+                }
+            }
+
+            return new GenericMapper<TFrom, TTo>();
+
+            static IMapper<TFrom, TTo> ResolveMapper(Type mapperType, ScopedServiceContainer scope)
+            {
                 var instance = scope?.ResolveUnregistered(mapperType);
                 if (instance != null)
                 {
                     scope.InjectProperties(instance);
                     return (IMapper<TFrom, TTo>)instance;
                 }
-            }
 
-            return new GenericMapper<TFrom, TTo>();
+                return null;
+            }
         }
 
         class TypePair : Tuple<Type, Type>
@@ -161,6 +186,26 @@ namespace Smartstore.ComponentModel
         {
             protected override void Map(TFrom from, TTo to, dynamic parameters = null)
                 => MiniMapper.Map(from, to);
+        }
+
+        class CompositeMapper<TFrom, TTo> : IMapper<TFrom, TTo>
+            where TFrom : class
+            where TTo : class
+        {
+            public CompositeMapper(IMapper<TFrom, TTo>[] mappers)
+            {
+                Mappers = mappers;
+            }
+
+            private IMapper<TFrom, TTo>[] Mappers { get; }
+
+            public async Task MapAsync(TFrom from, TTo to, dynamic parameters = null)
+            {
+                foreach (var mapper in Mappers)
+                {
+                    await mapper.MapAsync(from, to, parameters);
+                }
+            }
         }
     }
 }
