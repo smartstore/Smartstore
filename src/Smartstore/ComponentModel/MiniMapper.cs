@@ -104,7 +104,7 @@ namespace Smartstore.ComponentModel
                 }
             }
 
-            MapperFactory.MapCallback(from, to);
+            MapperFactory.MapCallback(from, to).GetAwaiter().GetResult();
         }
 
         private static FastProperty[] GetFastPropertiesFor(Type type)

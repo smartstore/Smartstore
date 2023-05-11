@@ -176,7 +176,23 @@ namespace Smartstore.ComponentModel
             return new GenericMapper<TFrom, TTo>();
         }
 
-        public static void MapCallback<TFrom, TTo>(TFrom from, TTo to)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static async Task MapCallback<TFrom, TTo>(TFrom from, TTo to, dynamic parameters = null)
+            where TFrom : class
+            where TTo : class
+        {
+            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(to, nameof(to));
+
+            var callbacks = GetMapperCallback<TFrom, TTo>(from, to);
+            foreach (var callback in callbacks)
+            {
+                await callback.MapCallbackAsync(from, to, parameters);
+            }
+        }
+
+
+        public static IEnumerable<IMapperCallback<TFrom, TTo>> GetMapperCallback<TFrom, TTo>(TFrom from, TTo to)
             where TFrom : class
             where TTo : class
         {
@@ -191,7 +207,7 @@ namespace Smartstore.ComponentModel
                     {
                         scope.InjectProperties(instance);
 
-                        instance.MapCallback(from, to);
+                        yield return instance;
                     }
                 }
             }
