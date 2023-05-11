@@ -1,4 +1,5 @@
 ﻿using Smartstore.Collections;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
@@ -590,6 +591,8 @@ namespace Smartstore.Web.Controllers
                     DisplayOrder = -10
                 });
             }
+
+            MapperFactory.MapCallback(product, item);
 
             model.Items.Add(item);
         }

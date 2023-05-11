@@ -363,6 +363,8 @@ namespace Smartstore.Web.Controllers
 
                 #endregion
 
+                MapperFactory.MapCallback(product, model);
+
                 return model;
             }
         }
