@@ -11,7 +11,7 @@ namespace Smartstore.Core.Search
         int? StoreId { get; }
 
         // Search term
-        string[] Fields { get; }
+        //string[] Fields { get; }
         string Term { get; }
         SearchMode Mode { get; }
         bool EscapeTerm { get; }

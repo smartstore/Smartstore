@@ -44,7 +44,7 @@ namespace Smartstore.Core.Search
         /// <param name="query">Search query.</param>
         /// <param name="languageCulture">Language culture.</param>
         /// <returns>Search fields.</returns>
-        IList<SearchField> GetFields(ISearchQuery query, string languageCulture);
+        //IList<SearchField> GetFields(ISearchQuery query, string languageCulture);
 
         #endregion
 
