@@ -135,7 +135,7 @@ namespace Smartstore.ComponentModel
                 if (mapperTypes.Count == 1)
                 {
                     var instance = ResolveMapper(mapperTypes.First(), scope);
-                    if (instance == null)
+                    if (instance != null)
                     {
                         return instance;
                     }
