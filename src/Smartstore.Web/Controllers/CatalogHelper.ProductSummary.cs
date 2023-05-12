@@ -1,4 +1,5 @@
 ﻿using Smartstore.Collections;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
@@ -328,6 +329,7 @@ namespace Smartstore.Web.Controllers
                     AllowShoppingCart = allowShoppingCart,
                     AllowWishlist = allowWishlist,
                     ShippingChargeTaxFormat = _taxService.GetTaxFormat(priceIncludesTax: calculationOptions.TaxInclusive, target: PricingTarget.ShippingCharge, language: language),
+                    CustomMapper = MapperFactory.GetRegisteredMapper<Product, ProductSummaryItemModel>()
                 };
 
                 if (settings.MapPictures)
@@ -589,6 +591,12 @@ namespace Smartstore.Web.Controllers
                     Style = "warning",
                     DisplayOrder = -10
                 });
+            }
+
+            // Custom mapping
+            if (ctx.CustomMapper != null)
+            {
+                await ctx.CustomMapper.MapAsync(product, item, new { Context = ctx });
             }
 
             model.Items.Add(item);

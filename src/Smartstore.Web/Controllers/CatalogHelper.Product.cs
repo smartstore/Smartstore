@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Collections;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -259,7 +260,7 @@ namespace Smartstore.Web.Controllers
                 #endregion
 
                 // ----> Core mapper <------
-                await PrepareProductDetailModelAsync(model, modelContext);
+                await PrepareProductDetailModelAsync(model, modelContext, 1);
 
                 #region Action items
 
@@ -388,6 +389,9 @@ namespace Smartstore.Web.Controllers
 
             // GiftCards
             PrepareProductGiftCardsModel(model, modelContext);
+
+            // Custom mapping
+            await MapperFactory.MapWithRegisteredMapperAsync(product, model, new { Context = modelContext, Quantity = selectedQuantity });
 
             _services.DisplayControl.Announce(product);
         }
