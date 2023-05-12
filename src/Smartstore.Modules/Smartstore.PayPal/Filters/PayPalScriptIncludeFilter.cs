@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core;
@@ -23,6 +24,7 @@ namespace Smartstore.PayPal.Filters
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly PayPalHelper _payPalHelper;
         private readonly PayPalHttpClient _client;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public PayPalScriptIncludeFilter(
             PayPalSettings settings, 
@@ -30,7 +32,8 @@ namespace Smartstore.PayPal.Filters
             ICommonServices services,
             ICheckoutStateAccessor checkoutStateAccessor,
             PayPalHelper payPalHelper,
-            PayPalHttpClient client)
+            PayPalHttpClient client,
+            IHttpContextAccessor httpContextAccessor)
         {
             _settings = settings;
             _widgetProvider = widgetProvider;
@@ -38,6 +41,7 @@ namespace Smartstore.PayPal.Filters
             _checkoutStateAccessor = checkoutStateAccessor;
             _payPalHelper = payPalHelper;
             _client = client;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -174,17 +178,30 @@ namespace Smartstore.PayPal.Filters
         }
 
         /// <summary>
-        /// Generates a client token by requesting one from PayPal REST API.
+        /// Gets a client token from session or by requesting PayPal REST API.
         /// </summary>
         /// <returns>Client token to be placed as data attribute in PayPal JS script include.</returns>
         private async Task<string> GetClientToken()
         {
-            // TODO: (mh) (core) Cache client token for 1 hour.
+            // Get client token from session if available.
+            var session = _httpContextAccessor.HttpContext.Session;
+
+            var clientToken = session.GetString("PayPalClientToken");
+            if (clientToken.HasValue())
+            {
+                return clientToken;
+            }
+
+            // Get client token from PayPal REST API.
             var response = await _client.ExecuteRequestAsync(new GenerateClientTokenRequest());
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
 
-            return (string)jResponse.client_token;
+            clientToken = (string)jResponse.client_token;
+
+            session.SetString("PayPalClientToken", clientToken);
+
+            return clientToken;
         }
     }
 }

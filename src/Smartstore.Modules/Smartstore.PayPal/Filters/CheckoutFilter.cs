@@ -104,7 +104,7 @@ namespace Smartstore.PayPal.Filters
                     processPaymentRequest.CustomerId = customer.Id;
                     processPaymentRequest.PaymentMethodSystemName = "Payments.PayPalStandard";
 
-                    _httpContextAccessor.HttpContext.Session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+                    session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
 
                     // Delete property for backward navigation.
                     checkoutState.CustomProperties.Remove("PayPalButtonUsed");
