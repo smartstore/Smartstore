@@ -21,8 +21,8 @@ namespace Smartstore
 
         public static object ResolveUnregistered(this IComponentContext scope, Type type)
         {
-            Guard.NotNull(scope, nameof(scope));
-            Guard.NotNull(type, nameof(type));
+            Guard.NotNull(scope);
+            Guard.NotNull(type);
 
             object[] parameterInstances = null;
 
@@ -53,7 +53,12 @@ namespace Smartstore
 
                 if (parameterInstances != null)
                 {
-                    return ctor.Invoke(parameterInstances);
+                    var instance = ctor.Invoke(parameterInstances);
+                    if (instance != null)
+                    {
+                        scope.InjectProperties(instance);
+                        return instance;
+                    }
                 }
             }
 
