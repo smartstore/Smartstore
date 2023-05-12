@@ -15,6 +15,18 @@ namespace Smartstore.PayPal.Filters
 {
     public class CheckoutFilter : IAsyncResultFilter
     {
+        private static readonly string[] _apms =
+        {
+            "Payments.PayPalGiropay",
+            "Payments.PayPalSofort",
+            "Payments.PayPalBancontact",
+            "Payments.PayPalBlik",
+            "Payments.PayPalEps",
+            "Payments.PayPalIdeal",
+            "Payments.PayPalMyBank",
+            "Payments.PayPalPrzelewy24"
+        };
+
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly PayPalSettings _settings;
@@ -132,22 +144,7 @@ namespace Smartstore.PayPal.Filters
         /// <summary>
         /// Checks if the choosen payment method is an APM (alternative payment method).
         /// </summary>
-        /// <param name="systemname"></param>
-        /// <returns></returns>
-        private static bool IsApm(string systemname)
-        {
-            string[] apms = { 
-                "Payments.PayPalGiropay",
-                "Payments.PayPalSofort",
-                "Payments.PayPalBancontact",
-                "Payments.PayPalBlik",
-                "Payments.PayPalEps",
-                "Payments.PayPalIdeal",
-                "Payments.PayPalMyBank",
-                "Payments.PayPalPrzelewy24"
-            };
-
-            return apms.Contains(systemname);
-        }
+        private static bool IsApm(string systemName)
+            => _apms.Contains(systemName);
     }
 }
