@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Collections;
@@ -7,6 +8,7 @@ using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -15,6 +17,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
+        private readonly IWebHelper _webHelper;
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
@@ -23,6 +26,7 @@ namespace Smartstore.Core.Catalog.Products
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
+            IWebHelper webHelper,
             Lazy<IUrlHelper> urlHelper,
             IHttpContextAccessor httpContextAccessor,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper)
@@ -30,6 +34,7 @@ namespace Smartstore.Core.Catalog.Products
             _db = db;
             _workContext = workContext;
             _storeContext = storeContext;
+            _webHelper = webHelper;
             _urlHelper = urlHelper;
             _httpContextAccessor = httpContextAccessor;
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
@@ -241,6 +246,10 @@ namespace Smartstore.Core.Catalog.Products
             store ??= _storeContext.CurrentStore;
             language ??= _workContext.WorkingLanguage;
 
+            // INFO: Fixes url generation for shops in virtual directories (part 1).
+            //var protocol = _webHelper.IsCurrentConnectionSecured() ? "https" : "http";
+            //var url = _urlHelper.Value.RouteUrl("Product", new { SeName = productSlug, culture = language.UniqueSeoCode }, protocol);
+
             var url = _urlHelper.Value.RouteUrl("Product", new { SeName = productSlug, culture = language.UniqueSeoCode });
 
             if (selection?.AttributesMap?.Any() ?? false)
@@ -252,6 +261,9 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             return store.GetHost() + url.TrimStart('/');
+
+            // INFO: Fixes url generation for shops in virtual directories (part 2).
+            //return url;
         }
     }
 }
