@@ -405,11 +405,12 @@ namespace Smartstore.StripeElements.Controllers
             }
             catch (StripeException e)
             {
-                Logger.Error("Error: {0}", e.Message);
+                Logger.Error("Stripe Error: {0}", e.Message);
                 return BadRequest();
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Error("Error: {0}", e.Message);
                 return StatusCode(500);
             }
         }
