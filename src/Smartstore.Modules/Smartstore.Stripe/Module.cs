@@ -23,6 +23,9 @@ namespace Smartstore.StripeElements
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        // INFO: Update API Version when updating Stripe.net dll
+        public static string ApiVersion => "2022-08-01";
+
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "StripeAdmin", new { area = "Admin" });
 

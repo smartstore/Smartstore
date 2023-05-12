@@ -14,8 +14,6 @@ namespace Smartstore.StripeElements.Services
 {
     public class StripeHelper
     {
-        internal const string ApiVersion = "2022-08-01";
-        
         private readonly ICommonServices _services;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ITaxService _taxService;
@@ -111,8 +109,7 @@ namespace Smartstore.StripeElements.Services
                 // Create webhook
                 var createOptions = new WebhookEndpointCreateOptions
                 {
-                    // INFO: Update API Version when updating Stripe.net dll
-                    ApiVersion = ApiVersion,
+                    ApiVersion = Module.ApiVersion,
                     Url = storeUrl + "stripe/webhookhandler",
                     EnabledEvents = new List<string>
                     {

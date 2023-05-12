@@ -20,12 +20,12 @@
     <script>
         $(function () {
             if (typeof Stripe !== 'undefined') {
-                Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@Model.ClientSecret');
+                Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@Model.ClientSecret', '@Module.ApiVersion');
             }
             else {
                 var script = document.getElementById("stripe-js");
                 script.onload = function () {
-                    Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@Model.ClientSecret');
+                    Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@Model.ClientSecret', '@Module.ApiVersion');
                 };
             }
 
@@ -46,12 +46,12 @@ else
         $(function () {
             var paymentRequest = @Html.Raw(Model.PaymentRequest);
             if (typeof Stripe !== 'undefined') {
-                Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest);
+                Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest, '@Module.ApiVersion');
             } 
             else {
                 var script = document.getElementById("stripe-js");
                 script.onload = function () {
-                    Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest);
+                    Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest, '@Module.ApiVersion');
                 };
             }
         });
