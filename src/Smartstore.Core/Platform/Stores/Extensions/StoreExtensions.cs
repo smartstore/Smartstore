@@ -13,7 +13,7 @@
         /// <returns>The host name</returns>
         public static string GetHost(this Store store, bool? secure = null)
         {
-            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(store);
 
             return store.GetHost(secure ?? store.ForceSslForAllPages);
         }
@@ -24,14 +24,15 @@
         /// <param name="store">Store entity</param>
         public static bool IsStoreDataValid(this Store store)
         {
-            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(store);
 
             if (store.Url.IsEmpty())
-                return false;
-
-            try
             {
-                var uri = new Uri(store.Url);
+                return false;
+            } 
+
+            if (Uri.TryCreate(store.Url, UriKind.Absolute, out var uri))
+            {
                 var domain = uri.DnsSafeHost.EmptyNull().ToLower();
 
                 switch (domain)
@@ -47,7 +48,7 @@
                         return store.Url.IsWebUrl();
                 }
             }
-            catch
+            else
             {
                 return false;
             }
@@ -61,7 +62,7 @@
         /// <returns>true - contains, false - no</returns>
         public static bool ContainsHostValue(this Store store, string host)
         {
-            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(store);
 
             if (string.IsNullOrEmpty(host))
             {
@@ -69,7 +70,8 @@
             }
 
             var contains = store.ParseHostValues()
-                                .FirstOrDefault(x => x.Equals(host, StringComparison.InvariantCultureIgnoreCase)) != null;
+                .FirstOrDefault(x => x.Equals(host, StringComparison.InvariantCultureIgnoreCase)) != null;
+
             return contains;
         }
 
@@ -80,7 +82,7 @@
         /// <returns>Comma-separated hosts</returns>
         public static string[] ParseHostValues(this Store store)
         {
-            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(store);
 
             if (string.IsNullOrWhiteSpace(store.Hosts))
             {
