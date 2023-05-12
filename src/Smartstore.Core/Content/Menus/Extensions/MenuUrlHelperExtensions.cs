@@ -17,7 +17,7 @@ namespace Smartstore.Core.Content.Menus
         /// </remarks>
         public static Task<string> TopicAsync(this IUrlHelper urlHelper, string systemName, bool popup = false)
         {
-            Guard.NotEmpty(systemName, nameof(systemName));
+            Guard.NotEmpty(systemName);
 
             var expression = "topic:" + systemName;
             if (popup)
@@ -39,7 +39,7 @@ namespace Smartstore.Core.Content.Menus
         /// </remarks>
         public static Task<string> TopicLabelAsync(this IUrlHelper urlHelper, string systemName)
         {
-            Guard.NotEmpty(systemName, nameof(systemName));
+            Guard.NotEmpty(systemName);
 
             return EntityLabelAsync(urlHelper, "topic:" + systemName);
         }
@@ -56,7 +56,7 @@ namespace Smartstore.Core.Content.Menus
         /// </remarks>
         public static async Task<string> EntityAsync(this IUrlHelper urlHelper, string expression)
         {
-            Guard.NotEmpty(expression, nameof(expression));
+            Guard.NotEmpty(expression);
 
             var linkResolver = urlHelper.ActionContext.HttpContext.GetServiceScope().Resolve<ILinkResolver>();
             var link = await linkResolver.ResolveAsync(expression);

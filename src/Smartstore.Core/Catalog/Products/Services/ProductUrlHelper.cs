@@ -7,8 +7,10 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -246,10 +248,6 @@ namespace Smartstore.Core.Catalog.Products
             store ??= _storeContext.CurrentStore;
             language ??= _workContext.WorkingLanguage;
 
-            // INFO: Fixes url generation for shops in virtual directories (part 1).
-            //var protocol = _webHelper.IsCurrentConnectionSecured() ? "https" : "http";
-            //var url = _urlHelper.Value.RouteUrl("Product", new { SeName = productSlug, culture = language.UniqueSeoCode }, protocol);
-
             var url = _urlHelper.Value.RouteUrl("Product", new { SeName = productSlug, culture = language.UniqueSeoCode });
 
             if (selection?.AttributesMap?.Any() ?? false)
@@ -260,10 +258,7 @@ namespace Smartstore.Core.Catalog.Products
                 url = url.TrimEnd('/') + ToQueryString(query);
             }
 
-            return store.GetHost() + url.TrimStart('/');
-
-            // INFO: Fixes url generation for shops in virtual directories (part 2).
-            //return url;
+            return store.GetAbsoluteUrl(request.PathBase, url);
         }
     }
 }
