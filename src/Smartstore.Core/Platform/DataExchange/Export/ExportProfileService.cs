@@ -189,7 +189,7 @@ namespace Smartstore.Core.DataExchange.Export
                 // so that IIS application path can be prepended if applicable. 
                 var path = WebHelper.ToAppRelativePath(PathUtility.Join(DataExporter.PublicDirectoryName, deployment.SubFolder));
 
-                return store.Url.TrimEnd('/') + _urlHelper.Value.Content(path).EnsureEndsWith('/');
+                return store.GetAbsoluteUrl(_urlHelper.Value.Content(path).EnsureEndsWith('/'));
             }
 
             return null;
