@@ -16,12 +16,14 @@ namespace Smartstore.Bootstrapping
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<DefaultTaskScheduler>().As<ITaskScheduler>().SingleInstance();
+            builder.RegisterType<DefaultTaskScheduler>()
+                .As<ITaskScheduler>()
+                // Register as hosted service
+                .As<IHostedService>()
+                .SingleInstance();
+
             builder.RegisterType<TaskExecutor>().As<ITaskExecutor>().InstancePerLifetimeScope();
             builder.RegisterType<TaskActivator>().As<ITaskActivator>().InstancePerLifetimeScope();
-
-            // Register as hosted service
-            builder.Register<IHostedService>(c => c.Resolve<ITaskScheduler>()).SingleInstance();
 
             // Register all ITask impls
             var taskTypes = _appContext.TypeScanner.FindTypes<ITask>();
