@@ -12,6 +12,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.Utilities.Html;
@@ -166,9 +167,9 @@ namespace Smartstore.PayPal.Controllers
             orderMessage.AppContext.Locale = Services.WorkContext.WorkingLanguage.LanguageCulture;
 
             // Get ReturnUrl & CancelUrl and add them to PayPalApplicationContext for proper redirection after payment was made or cancelled.
-            var storeUrl = Services.StoreContext.CurrentStore.GetHost(true).TrimEnd('/');
-            orderMessage.AppContext.ReturnUrl = storeUrl + Url.Action("RedirectionSuccess", "PayPal");
-            orderMessage.AppContext.CancelUrl = storeUrl + Url.Action("RedirectionCancel", "PayPal");
+            var store = Services.StoreContext.CurrentStore;
+            orderMessage.AppContext.ReturnUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionSuccess), "PayPal"), true);
+            orderMessage.AppContext.CancelUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionCancel), "PayPal"), true);
 
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();

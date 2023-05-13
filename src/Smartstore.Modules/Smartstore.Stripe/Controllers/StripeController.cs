@@ -12,6 +12,7 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Providers;
 using Smartstore.StripeElements.Services;
@@ -193,7 +194,7 @@ namespace Smartstore.StripeElements.Controllers
 
                         var confirmOptions = new PaymentIntentConfirmOptions
                         {
-                            ReturnUrl = store.GetHost(true) + Url.Action("RedirectionResult", "Stripe").TrimStart('/')
+                            ReturnUrl = store.GetAbsoluteUrl(Url.Action("RedirectionResult", "Stripe").TrimStart('/'), true)
                         };
 
                         paymentIntent = await service.ConfirmAsync(paymentIntent.Id, confirmOptions);

@@ -263,8 +263,7 @@ namespace Smartstore.PayPal.Controllers
             // Get store URL
             var storeScope = GetActiveStoreScopeConfiguration();
             var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
-
-            var storeUrl = store.GetHost(true).EnsureEndsWith('/');
+            var storeUrl = store.GetHost(true);
 
             if (webhooks.Hooks.Length < 1 || !webhooks.Hooks.Any(x => x.Url.ContainsNoCase(storeUrl)))
             {
@@ -273,7 +272,7 @@ namespace Smartstore.PayPal.Controllers
                 {
                     EventTypes = new EventType[]
                     {
-                        new EventType { Name = "*" }
+                        new() { Name = "*" }
                     },
                     Url = storeUrl + "paypal/webhookhandler"
                 };

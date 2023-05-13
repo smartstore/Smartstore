@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Topics;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -421,8 +420,7 @@ namespace Smartstore.Admin.Controllers
                         var store = Services.StoreContext.GetStoreById(Services.StoreContext.CurrentStore.Id);
                         if (store != null)
                         {
-                            var baseUri = new Uri(store.GetHost());
-                            url = baseUri.GetLeftPart(UriPartial.Authority) + Url.RouteUrl("Topic", new { SeName = await topic.GetActiveSlugAsync() });
+                            url = store.GetAbsoluteUrl(Url.RouteUrl("Topic", new { SeName = await topic.GetActiveSlugAsync() }));
                         }
                     }
                 }
