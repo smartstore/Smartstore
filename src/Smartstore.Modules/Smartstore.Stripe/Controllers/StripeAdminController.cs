@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Providers;
+using Smartstore.StripeElements.Services;
 using Smartstore.StripeElements.Settings;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
@@ -17,11 +19,16 @@ namespace Smartstore.StripeElements.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IProviderManager _providerManager;
+        private readonly StripeHelper _stripeHelper;
 
-        public StripeAdminController(SmartDbContext db, IProviderManager providerManager)
+        public StripeAdminController(
+            SmartDbContext db, 
+            IProviderManager providerManager, 
+            StripeHelper stripeHelper)
         {
             _db = db;
             _providerManager = providerManager;
+            _stripeHelper = stripeHelper;
         }
 
         [LoadSetting, AuthorizeAdmin]
@@ -62,6 +69,35 @@ namespace Smartstore.StripeElements.Controllers
 
             ModelState.Clear();
             MiniMapper.Map(model, settings);
+
+            return RedirectToAction(nameof(Configure));
+        }
+
+        [HttpPost]
+        [AuthorizeAdmin]
+        [FormValueRequired("createwebhook"), ActionName("Configure")]
+        public async Task<IActionResult> CreateWebhook(ConfigurationModel model)
+        {
+            var storeScope = GetActiveStoreScopeConfiguration();
+            var settings = await Services.SettingFactory.LoadSettingsAsync<StripeSettings>(storeScope);
+            
+            if (settings.PublicApiKey.HasValue() && settings.SecrectApiKey.HasValue() && !settings.WebhookSecret.HasValue())
+            {
+                // Get Webhook ID vie API.
+                try
+                {
+                    // Get store URL
+                    var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
+                    var storeUrl = store.GetHost(true);
+
+                    settings.WebhookSecret = await _stripeHelper.GetWebHookIdAsync(settings.SecrectApiKey, storeUrl);
+                    await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex.Message);
+                }
+            }
 
             return RedirectToAction(nameof(Configure));
         }

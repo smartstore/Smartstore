@@ -86,7 +86,7 @@ namespace Smartstore.Core.Seo
             bool? dash = null;
             bool? space;
 
-            var sb = new StringBuilder(len);
+            var vsb = new ValueStringBuilder(len);
 
             options ??= new();
             var charConversionMap = options.CharConversionMap;
@@ -112,25 +112,25 @@ namespace Smartstore.Core.Seo
 
                 if (charConversionMap != null && charConversionMap.TryGetValue(c, out var userChar))
                 {
-                    sb.Append(userChar);
+                    vsb.Append(userChar);
                     continue;
                 }
 
                 if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
                 {
-                    sb.Append(c);
+                    vsb.Append(c);
                     continue;
                 }
 
                 if (!options.ForceLowerCase && (c >= 'A' && c <= 'Z'))
                 {
-                    sb.Append(c);
+                    vsb.Append(c);
                     continue;
                 }
 
                 if (options.AllowedChars != null && options.AllowedChars.Contains(c))
                 {
-                    sb.Append(c);
+                    vsb.Append(c);
                     continue;
                 }
 
@@ -143,7 +143,7 @@ namespace Smartstore.Core.Seo
                             (i > 0 && !char.IsWhiteSpace(input[i - 1])) ||
                             (i + 1 < len && !char.IsWhiteSpace(input[i + 1])))
                         {
-                            sb.Append(c);
+                            vsb.Append(c);
                         }
                     }
 
@@ -154,14 +154,14 @@ namespace Smartstore.Core.Seo
                 {
                     if (options.AllowSpace)
                     {
-                        if (!options.CollapseWhiteSpace || !IsPrevSpace())
+                        if (!options.CollapseWhiteSpace || !IsPrevSpace(ref vsb))
                         {
-                            sb.Append(c);
+                            vsb.Append(c);
                         }
                     }
-                    else if (!IsPrevDash())
+                    else if (!IsPrevDash(ref vsb))
                     {
-                        sb.Append('-');
+                        vsb.Append('-');
                     }
 
                     continue;
@@ -169,9 +169,9 @@ namespace Smartstore.Core.Seo
 
                 if (c == ',' || c == '.' || c == '\\' || c == '-' || c == '_' || c == '=')
                 {
-                    if (!IsPrevDash())
+                    if (!IsPrevDash(ref vsb))
                     {
-                        sb.Append('-');
+                        vsb.Append('-');
                     }
 
                     continue;
@@ -180,9 +180,9 @@ namespace Smartstore.Core.Seo
                 var category = CharUnicodeInfo.GetUnicodeCategory(c);
                 if (category >= UnicodeCategory.ConnectorPunctuation && category <= UnicodeCategory.MathSymbol)
                 {
-                    if (!IsPrevDash())
+                    if (!IsPrevDash(ref vsb))
                     {
-                        sb.Append('-');
+                        vsb.Append('-');
                     }
 
                     continue;
@@ -192,44 +192,44 @@ namespace Smartstore.Core.Seo
                 {
                     if (options.RemoveDiacritic && c.TryRemoveDiacritic(out var normalized))
                     {
-                        sb.Append(normalized);
+                        vsb.Append(normalized);
                     }
                     else if (options.AllowUnicodeChars && char.IsLetterOrDigit(c))
                     {
-                        sb.Append(c);
+                        vsb.Append(c);
                     }
                 }
             }
 
             // Trim allocation-free
-            if (sb.Length > 0)
+            if (vsb.Length > 0)
             {
-                if (IsPrevDash())
+                if (IsPrevDash(ref vsb))
                 {
-                    sb.Remove(sb.Length - 1, 1);
+                    vsb.Slice(0, vsb.Length - 1);
                 }
 
-                if (sb[0] == '/')
+                if (vsb[0] == '/')
                 {
-                    sb.Remove(0, 1);
+                    vsb.Slice(1);
                 }
 
-                if (sb[^1] == '/')
+                if (vsb[^1] == '/')
                 {
-                    sb.Remove(sb.Length - 1, 1);
+                    vsb.Slice(0, vsb.Length - 1);
                 }
             }
 
-            return sb.ToString();
+            return vsb.ToString();
 
-            bool IsPrevDash()
+            bool IsPrevDash(ref ValueStringBuilder vsb)
             {
-                return dash ??= sb.Length > 0 && (sb[^1] == '-' || sb[^1] == '_');
+                return dash ??= vsb.Length > 0 && (vsb[^1] == '-' || vsb[^1] == '_');
             }
 
-            bool IsPrevSpace()
+            bool IsPrevSpace(ref ValueStringBuilder vsb)
             {
-                return space ??= sb.Length > 0 && sb[^1] == ' ';
+                return space ??= vsb.Length > 0 && vsb[^1] == ' ';
             }
         }
     }

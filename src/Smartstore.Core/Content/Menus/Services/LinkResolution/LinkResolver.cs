@@ -89,7 +89,7 @@ namespace Smartstore.Core.Content.Menus
 
         public virtual async Task<LinkResolutionResult> ResolveAsync(LinkExpression expression, IEnumerable<CustomerRole> roles = null, int languageId = 0, int storeId = 0)
         {
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(expression);
 
             if (expression.Target.IsEmpty())
             {

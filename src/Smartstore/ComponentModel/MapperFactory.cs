@@ -1,6 +1,10 @@
-﻿using System.Runtime.CompilerServices;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Collections;
 using Smartstore.Engine;
 
 namespace Smartstore.ComponentModel
@@ -18,8 +22,10 @@ namespace Smartstore.ComponentModel
     /// </remarks>
     public static class MapperFactory
     {
-        private static IDictionary<TypePair, Type> _mapperTypes = null;
+        private static Multimap<TypePair, Type> _mapperTypes = default!;
         private readonly static object _lock = new();
+
+        #region Init
 
         private static void EnsureInitialized()
         {
@@ -29,7 +35,7 @@ namespace Smartstore.ComponentModel
                 {
                     if (_mapperTypes == null)
                     {
-                        _mapperTypes = new Dictionary<TypePair, Type>();
+                        _mapperTypes = new Multimap<TypePair, Type>();
 
                         var typeScanner = EngineContext.Current.Application.Services.ResolveOptional<ITypeScanner>();
                         var mapperTypes = typeScanner?.FindTypes(typeof(IMapper<,>));
@@ -49,10 +55,7 @@ namespace Smartstore.ComponentModel
         /// </summary>
         internal static void RegisterMappers(params Type[] mapperTypes)
         {
-            if (_mapperTypes == null)
-            {
-                _mapperTypes = new Dictionary<TypePair, Type>();
-            }
+            _mapperTypes ??= new Multimap<TypePair, Type>();
 
             foreach (var type in mapperTypes)
             {
@@ -66,6 +69,10 @@ namespace Smartstore.ComponentModel
             }
         }
 
+        #endregion
+
+        #region Map
+
         /// <summary>
         /// Maps instance of <typeparamref name="TFrom"/> to instance of <typeparamref name="TTo"/>.
         /// </summary>
@@ -73,11 +80,11 @@ namespace Smartstore.ComponentModel
         /// <param name="parameters">Custom parameters for the underlying mapper.</param>
         /// <returns>The mapped target instance.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async static Task<TTo> MapAsync<TFrom, TTo>(TFrom from, dynamic parameters = null)
+        public async static Task<TTo> MapAsync<TFrom, TTo>(TFrom from, dynamic? parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(from);
 
             var to = new TTo();
             await GetMapper<TFrom, TTo>().MapAsync(from, to, parameters);
@@ -91,38 +98,85 @@ namespace Smartstore.ComponentModel
         /// <param name="to">Target instance</param>
         /// <param name="parameters">Custom parameters for the underlying mapper.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task MapAsync<TFrom, TTo>(TFrom from, TTo to, dynamic parameters = null)
+        public static Task MapAsync<TFrom, TTo>(TFrom from, TTo to, dynamic? parameters = null)
             where TFrom : class
             where TTo : class
         {
             return GetMapper<TFrom, TTo>().MapAsync(
-                Guard.NotNull(from, nameof(from)),
-                Guard.NotNull(to, nameof(to)),
+                Guard.NotNull(from),
+                Guard.NotNull(to),
                 parameters);
         }
 
+        /// <summary>
+        /// Tries to map instance of <typeparamref name="TFrom"/> to <typeparamref name="TTo"/>.
+        /// This method will do nothing if no mapper is registered for the given type pair.
+        /// </summary>
+        /// <param name="from">Source instance</param>
+        /// <param name="to">Target instance</param>
+        /// <param name="parameters">Custom parameters for the underlying mapper.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static async Task<List<TTo>> MapListAsync<TFrom, TTo>(IQueryable<TFrom> from, dynamic parameters = null)
+        public static Task MapWithRegisteredMapperAsync<TFrom, TTo>(TFrom from, TTo to, dynamic? parameters = null)
+            where TFrom : class
+            where TTo : class
+        {
+            Guard.NotNull(from);
+            Guard.NotNull(to);
+
+            var mapper = GetRegisteredMapper<TFrom, TTo>();
+
+            if (mapper != null)
+            {
+                return mapper.MapAsync(from, to, parameters);
+            }
+            else
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static async Task<List<TTo>> MapListAsync<TFrom, TTo>(IQueryable<TFrom> from, dynamic? parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(from);
             return await IMapperExtensions.MapListAsync(GetMapper<TFrom, TTo>(), await from.ToListAsync(), parameters);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<List<TTo>> MapListAsync<TFrom, TTo>(IEnumerable<TFrom> from, dynamic parameters = null)
+        public static Task<List<TTo>> MapListAsync<TFrom, TTo>(IEnumerable<TFrom> from, dynamic? parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
             return IMapperExtensions.MapListAsync(GetMapper<TFrom, TTo>(), from, parameters);
         }
 
+        #endregion
+
+        #region GetMapper
+
         /// <summary>
         /// Gets a mapper implementation for <typeparamref name="TFrom"/> as source and <typeparamref name="TTo"/> as target.
         /// </summary>
         /// <returns>The mapper implementation or a generic mapper if not found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IMapper<TFrom, TTo> GetMapper<TFrom, TTo>()
+            where TFrom : class
+            where TTo : class
+            => GetMapperInternal<TFrom, TTo>(false)!;
+
+        /// <summary>
+        /// Gets a mapper implementation for <typeparamref name="TFrom"/> as source and <typeparamref name="TTo"/> as target.
+        /// </summary>
+        /// <returns>The mapper implementation or <c>null</c> if not found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IMapper<TFrom, TTo>? GetRegisteredMapper<TFrom, TTo>()
+            where TFrom : class
+            where TTo : class
+            => GetMapperInternal<TFrom, TTo>(true);
+
+        private static IMapper<TFrom, TTo>? GetMapperInternal<TFrom, TTo>([NotNullWhen(false)] bool onlyRegisteredMapper)
             where TFrom : class
             where TTo : class
         {
@@ -130,19 +184,52 @@ namespace Smartstore.ComponentModel
 
             var key = new TypePair(typeof(TFrom), typeof(TTo));
 
-            if (_mapperTypes.TryGetValue(key, out var mapperType))
+            if (_mapperTypes.TryGetValues(key, out var mapperTypes))
             {
                 var scope = EngineContext.Current.Scope;
-                var instance = scope?.ResolveUnregistered(mapperType);
-                if (instance != null)
+
+                if (mapperTypes.Count == 1)
                 {
-                    scope.InjectProperties(instance);
-                    return (IMapper<TFrom, TTo>)instance;
+                    var instance = ResolveMapper(mapperTypes.First(), scope);
+                    if (instance != null)
+                    {
+                        return instance;
+                    }
+                }
+                else if (mapperTypes.Count > 1)
+                {
+                    var instances = mapperTypes
+                        .Select(t => ResolveMapper(t, scope))
+                        .Where(x => x != null)
+                        .ToArray();
+
+                    if (instances.Length > 0)
+                    {
+                        return new CompositeMapper<TFrom, TTo>(instances!);
+                    }
                 }
             }
 
-            return new GenericMapper<TFrom, TTo>();
+            return onlyRegisteredMapper 
+                ? null 
+                : new GenericMapper<TFrom, TTo>();
+
+            static IMapper<TFrom, TTo>? ResolveMapper(Type mapperType, ScopedServiceContainer? scope)
+            {
+                var instance = scope?.ResolveUnregistered(mapperType);
+                if (instance != null)
+                {
+                    scope!.InjectProperties(instance);
+                    return (IMapper<TFrom, TTo>)instance;
+                }
+
+                return null;
+            }
         }
+
+        #endregion
+
+        #region Private nested classes
 
         class TypePair : Tuple<Type, Type>
         {
@@ -159,8 +246,30 @@ namespace Smartstore.ComponentModel
             where TFrom : class
             where TTo : class
         {
-            protected override void Map(TFrom from, TTo to, dynamic parameters = null)
+            protected override void Map(TFrom from, TTo to, dynamic? parameters = null)
                 => MiniMapper.Map(from, to);
         }
+
+        class CompositeMapper<TFrom, TTo> : IMapper<TFrom, TTo>
+            where TFrom : class
+            where TTo : class
+        {
+            public CompositeMapper(IMapper<TFrom, TTo>[] mappers)
+            {
+                Mappers = mappers;
+            }
+
+            private IMapper<TFrom, TTo>[] Mappers { get; }
+
+            public async Task MapAsync(TFrom from, TTo to, dynamic? parameters = null)
+            {
+                foreach (var mapper in Mappers)
+                {
+                    await mapper.MapAsync(from, to, parameters);
+                }
+            }
+        }
+
+        #endregion
     }
 }

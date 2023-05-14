@@ -16,6 +16,9 @@ namespace Smartstore
     [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
     public static class IQueryableExtensions
     {
+        public readonly static MethodInfo StringSubstringMethod = typeof(string)
+            .GetMethod(nameof(string.Substring), new Type[] { typeof(int), typeof(int) });
+
         private readonly static ConcurrentDictionary<Type, LambdaExpression> _memberInitExpressions = new();
         
         #region EF reflection
@@ -70,7 +73,15 @@ namespace Smartstore
             Guard.NotNull(query);
 
             var selector = GetEntitySummarySelector<T>();
-            return query.Select(selector);
+
+            if (selector != null)
+            {
+                return query.Select(selector);
+            }
+            else
+            {
+                return query;
+            }
         }
 
         private static Expression<Func<T, T>> GetEntitySummarySelector<T>()
@@ -85,6 +96,7 @@ namespace Smartstore
                 var newEntity = Expression.New(typeof(T));
 
                 var memberBindings = new List<MemberBinding>();
+                var numNonSummaryAttributes = 0;
 
                 var props = FastProperty.GetProperties(typeof(T));
                 foreach (var kvp in props)
@@ -96,9 +108,16 @@ namespace Smartstore
                         continue;
                     }
 
-                    if (prop.HasAttribute<NonSummaryAttribute>(true))
+                    var nonSummaryAttribute = prop.GetAttribute<NonSummaryAttribute>(true);
+                    if (nonSummaryAttribute != null)
                     {
-                        continue;
+                        numNonSummaryAttributes++;
+
+                        if (nonSummaryAttribute.MaxLength == null || prop.PropertyType != typeof(string))
+                        {
+                            // A specified MaxLength has no effect on non-string properties.
+                            continue;
+                        }
                     }
 
                     if (prop.HasAttribute<NotMappedAttribute>(true))
@@ -112,11 +131,32 @@ namespace Smartstore
                     }
 
                     // { Name = --> x.Name <-- }
-                    var sourcePropExpression = Expression.Property(local, prop);
+                    Expression sourceExpression = Expression.Property(local, prop);
+
+                    if (nonSummaryAttribute?.MaxLength > 0)
+                    {
+                        // { Name = x.Name-->.Substring(0, MaxLength)<-- }
+                        sourceExpression = Expression.Call(
+                            // x.Name
+                            sourceExpression, 
+                            // it.Substring()
+                            StringSubstringMethod,
+                            // it.Substring(--> 0 <--, ...)
+                            Expression.Constant(0),
+                            // it.Substring(0, --> MaxLength <--)
+                            Expression.Constant(nonSummaryAttribute.MaxLength.Value));
+                    }
 
                     // { --> Name = x.Name <-- }
-                    var binding = Expression.Bind(prop, sourcePropExpression);
+                    var binding = Expression.Bind(prop, sourceExpression);
                     memberBindings.Add(binding);
+                }
+
+                if (numNonSummaryAttributes == 0)
+                {
+                    // If the scanned entity is not annotated with NonSummaryAttribute,
+                    // we should cache null. We won't call .Select(...) in that case later.
+                    return null;
                 }
 
                 // Create a MemberInitExpression that represents initializing
@@ -219,5 +259,67 @@ namespace Smartstore
 
             return items.OrderBySequence(ids).ToList();
         }
+
+        #region ExecuteDelete
+
+        /// <inheritdoc cref="RelationalQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})"/>
+        /// <summary>
+        /// Deletes database rows for the entity instances which match the LINQ query from the database in bulk.
+        /// </summary>
+        /// <param name="bulkSize">Number of rows to be deleted in a single delete operation.</param>
+        public static int ExecuteDelete<TEntity>(this IQueryable<TEntity> query, int bulkSize)
+            where TEntity : BaseEntity
+        {
+            Guard.NotNull(query);
+            Guard.IsPositive(bulkSize);
+
+            var numTotal = 0;
+
+            query = query.Take(bulkSize);
+
+            while (true)
+            {
+                var num = query.ExecuteDelete();
+                numTotal += num;
+
+                if (num < bulkSize)
+                {
+                    break;
+                }
+            }
+
+            return numTotal;
+        }
+
+        /// <inheritdoc cref="RelationalQueryableExtensions.ExecuteDeleteAsync{TSource}(IQueryable{TSource}, CancellationToken)"/>
+        /// <summary>
+        /// Asynchronously deletes database rows for the entity instances which match the LINQ query from the database in bulk.
+        /// </summary>
+        /// <param name="bulkSize">Number of rows to be deleted in a single delete operation.</param>
+        public static async Task<int> ExecuteDeleteAsync<TEntity>(this IQueryable<TEntity> query, int bulkSize, CancellationToken cancellationToken = default)
+            where TEntity : BaseEntity
+        {
+            Guard.NotNull(query);
+            Guard.IsPositive(bulkSize);
+
+            var numTotal = 0;
+
+            query = query.Take(bulkSize);
+
+            while (true)
+            {
+                var num = await query.ExecuteDeleteAsync(cancellationToken);
+                numTotal += num;
+
+                if (num < bulkSize)
+                {
+                    break;
+                }
+            }
+
+            return numTotal;
+        }
+
+        #endregion
     }
 }

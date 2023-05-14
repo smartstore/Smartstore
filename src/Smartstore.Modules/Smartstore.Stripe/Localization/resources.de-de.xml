@@ -29,13 +29,14 @@
                             <li>Erstellen Sie ein Konto bei Stripe oder loggen Sie sich mit Ihrem bestehenden Konto ein.</li>
                             <li>Navigieren Sie zu <b>Entwickler / API-Schlüssel</b></li>
                             <li>Kopieren Sie den <b>Veröffentlichbaren Schlüssel</b> und den <b>Geheimschlüssel</b> weiter unten in die dafür vorgesehenen Felder.</li>
-                            <li>Navigieren Sie zu <b>Entwickler / Webhooks</b></li>
-                            <li>Fügen Sie nun einen neuen Endpoint hinzu. Als URL tragen Sie die URL ein, die weiter unten dargestellt wird.</li>
-                            <li>Geben Sie nun den Geheimschlüssel für die Signatur in dem dafür vorgesehenen Formularfeld weiter unten an.</li>
+                            <li>Fügen Sie nun einen neuen Endpunkt hinzu, indem Sie auf die Schaltfläche Webhook erstellen klicken.</li>
                         </ul>
 					  ]]>
 				</Value>
 			</LocaleResource>
+            <LocaleResource Name="CookieInfo">
+                <Value>Stripe nutzt Cookies zur Darstellung und Abwicklung des Zahlungsvorgangs.</Value>
+            </LocaleResource>
             <LocaleResource Name="CaptureMethod">
                 <Value>Geldeinzug</Value>
             </LocaleResource>
@@ -68,6 +69,9 @@
             </LocaleResource>
             <LocaleResource Name="WebhookUrl">
                 <Value>Endpoint-URL</Value>
+            </LocaleResource>
+            <LocaleResource Name="CreateWebhook">
+                <Value>Webhook erstellen</Value>
             </LocaleResource>
             <LocaleResource Name="WebhookUrl.Hint">
                 <Value>Hinterlegen Sie diese URL in Ihrem Stripe-Konto als Endpoint-URL für den Webhook.</Value>

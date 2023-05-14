@@ -182,9 +182,9 @@ namespace Smartstore.Core.Identity
             var cookiePublishers = _cookiePublisherTypes
                 .Select(type =>
                 {
-                    if (typeof(ModuleBase).IsAssignableFrom(type) && _componentContext.TryResolve(type, out var module))
+                    if (_componentContext.IsRegistered(type) && _componentContext.TryResolve(type, out var publisher))
                     {
-                        return (ICookiePublisher)module;
+                        return (ICookiePublisher)publisher;
                     }
 
                     return _componentContext.ResolveUnregistered(type) as ICookiePublisher;

@@ -1,9 +1,10 @@
 ﻿using Smartstore.Core;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.PayPal.Services
 {
-    public class PayPalHelper
+    public class PayPalHelper : ICookiePublisher
     {
         private readonly ICommonServices _services;
         private readonly IPaymentService _paymentService;
@@ -13,6 +14,8 @@ namespace Smartstore.PayPal.Services
             _services = services;
             _paymentService = paymentService;
         }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public Task<bool> IsPayPalStandardActiveAsync()
             => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalStandard", null, _services.StoreContext.CurrentStore.Id);
@@ -35,6 +38,38 @@ namespace Smartstore.PayPal.Services
         public Task<bool> IsSofortActiveAsync()
             => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalSofort", null, _services.StoreContext.CurrentStore.Id);
 
+        public async Task<bool> IsAnyMethodActiveAsync(params string[] providerSystemNames)
+        {
+            Guard.NotEmpty(providerSystemNames);
+
+            var activePaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(null, _services.StoreContext.CurrentStore.Id);
+            return activePaymentMethods.Any(x => providerSystemNames.Contains(x.Metadata.SystemName));
+        }
+
         // TODO: (mh) (core) Add the others Bancontact, Blik, Eps,  Ideal, MercadoPago, P24, Venmo
+
+        public async Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
+        {
+            // INFO: APMs don't need cookies as everything on page is handled via API requests.
+            // The pages to which the customer is redirected when using APMs must handle cookie consent themsleves.
+            if (await IsAnyMethodActiveAsync(
+                "Payments.PayPalStandard",
+                "Payments.PayPalPayUponInvoice",
+                "Payments.PayPalCreditCard",
+                "Payments.PayPalPayLater",
+                "Payments.PayPalSepa"))
+            {
+                var cookieInfo = new CookieInfo
+                {
+                    Name = T("Plugins.FriendlyName.Smartstore.PayPal"),
+                    Description = T("Plugins.Smartstore.PayPal.CookieInfo"),
+                    CookieType = CookieType.Required
+                };
+
+                return new List<CookieInfo> { cookieInfo }.AsEnumerable();
+            }
+
+            return null;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore
@@ -26,6 +27,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? TrimSafe(this string? value)
         {
             return !string.IsNullOrEmpty(value) ? value.Trim() : value;
@@ -40,6 +42,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? NullEmpty(this string? value)
         {
             return string.IsNullOrEmpty(value) ? null : value;

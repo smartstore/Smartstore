@@ -34,24 +34,24 @@ namespace Smartstore.Data.Sqlite
             {
                 sqliteConnection.CreateCollation(
                     "NOCASE",
-                    (string left, string right) => 
+                    static (string left, string right) => 
                     {
                         // Override equality check (Sqlite cannot compare non-ascii chars uncased)
                         return string.Compare(left, right, ignoreCase: true);
                     });
 
-                sqliteConnection.CreateFunction<string, string>(
+                sqliteConnection.CreateFunction(
                     "lower",
-                    (string input) =>
+                    static (string input) =>
                     {
                         // Override lower function (Sqlite ignores non-ascii chars)
                         return input?.ToLower();
                     },
                     isDeterministic: true);
 
-                sqliteConnection.CreateFunction<string, string>(
+                sqliteConnection.CreateFunction(
                     "upper",
-                    (string input) =>
+                    static (string input) =>
                     {
                         // Override upper function (Sqlite ignores non-ascii chars)
                         return input?.ToUpper();
@@ -60,7 +60,7 @@ namespace Smartstore.Data.Sqlite
 
                 sqliteConnection.CreateFunction<string, string, int?>(
                     "instr",
-                    (string input, string substr) =>
+                    static (string input, string substr) =>
                     {
                         // Override instr function (Sqlite cannot compare non-ascii chars uncased)
                         if (input == null || substr == null)

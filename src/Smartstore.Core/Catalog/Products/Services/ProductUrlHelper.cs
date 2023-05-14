@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Collections;
@@ -6,7 +7,10 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Web;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -15,6 +19,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
+        private readonly IWebHelper _webHelper;
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
@@ -23,6 +28,7 @@ namespace Smartstore.Core.Catalog.Products
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
+            IWebHelper webHelper,
             Lazy<IUrlHelper> urlHelper,
             IHttpContextAccessor httpContextAccessor,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper)
@@ -30,6 +36,7 @@ namespace Smartstore.Core.Catalog.Products
             _db = db;
             _workContext = workContext;
             _storeContext = storeContext;
+            _webHelper = webHelper;
             _urlHelper = urlHelper;
             _httpContextAccessor = httpContextAccessor;
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
@@ -251,7 +258,7 @@ namespace Smartstore.Core.Catalog.Products
                 url = url.TrimEnd('/') + ToQueryString(query);
             }
 
-            return store.GetHost() + url.TrimStart('/');
+            return store.GetAbsoluteUrl(request.PathBase, url);
         }
     }
 }

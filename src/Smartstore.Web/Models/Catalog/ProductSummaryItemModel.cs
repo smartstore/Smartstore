@@ -1,4 +1,5 @@
 ﻿using Smartstore.Collections;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
@@ -26,6 +27,8 @@ namespace Smartstore.Web.Models.Catalog
         public bool AllowShoppingCart { get; set; }
         public bool AllowWishlist { get; set; }
         public string ShippingChargeTaxFormat { get; set; }
+
+        internal IMapper<Product, ProductSummaryItemModel> CustomMapper { get; set; }
     }
 
     public class ProductSummaryItemModel : EntityModelBase

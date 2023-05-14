@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core;
@@ -15,7 +16,7 @@ namespace Smartstore.PayPal.Filters
     /// Renders a script to detect buyer fraud early by collecting the buyer's browser information during checkout and passing it to PayPal (must be active for pay per invoice). 
     /// Also renders the PayPal JS SDK standard script & PayPal helper script which contains function to initialize Buttons, Hosted Fields and APMs (alternative payment methods).
     /// </summary>
-    public class ScriptIncludeFilter : IAsyncActionFilter
+    public class PayPalScriptIncludeFilter : IAsyncActionFilter
     {
         private readonly PayPalSettings _settings;
         private readonly IWidgetProvider _widgetProvider;
@@ -24,7 +25,7 @@ namespace Smartstore.PayPal.Filters
         private readonly PayPalHelper _payPalHelper;
         private readonly PayPalHttpClient _client;
 
-        public ScriptIncludeFilter(
+        public PayPalScriptIncludeFilter(
             PayPalSettings settings, 
             IWidgetProvider widgetProvider,
             ICommonServices services,
@@ -67,7 +68,10 @@ namespace Smartstore.PayPal.Filters
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
-                var clientToken = await _payPalHelper.IsCreditCardActiveAsync() ? await GetClientToken() : string.Empty;
+                // TODO: (mh) (core) NO GO!!!
+                var clientToken = await _payPalHelper.IsCreditCardActiveAsync() 
+                    ? await GetClientToken(context.HttpContext) 
+                    : string.Empty;
 
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>"));
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='/Modules/Smartstore.PayPal/js/paypal.utils.js'></script>"));
@@ -173,16 +177,30 @@ namespace Smartstore.PayPal.Filters
         }
 
         /// <summary>
-        /// Generates a client token by requesting one from PayPal REST API.
+        /// Gets a client token from session or by requesting PayPal REST API.
         /// </summary>
         /// <returns>Client token to be placed as data attribute in PayPal JS script include.</returns>
-        private async Task<string> GetClientToken()
+        private async Task<string> GetClientToken(HttpContext httpContext)
         {
+            // Get client token from session if available.
+            var session = httpContext.Session;
+            
+            var clientToken = session.GetString("PayPalClientToken");
+            if (clientToken.HasValue())
+            {
+                return clientToken;
+            }
+
+            // Get client token from PayPal REST API.
             var response = await _client.ExecuteRequestAsync(new GenerateClientTokenRequest());
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
 
-            return (string)jResponse.client_token;
+            clientToken = (string)jResponse.client_token;
+
+            session.SetString("PayPalClientToken", clientToken);
+
+            return clientToken;
         }
     }
 }

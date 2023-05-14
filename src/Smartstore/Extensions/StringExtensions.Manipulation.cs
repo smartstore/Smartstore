@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -57,6 +58,7 @@ namespace Smartstore
         /// <param name="length">Number of characters to leave untouched.</param>
         /// <returns>The mask string</returns>
         [DebuggerStepThrough]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? Mask(this string? value, int length)
         {
             if (!string.IsNullOrEmpty(value))
@@ -84,10 +86,11 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? Truncate(this string? value, int maxLength, string end = "")
         {
-            Guard.NotNull(end, nameof(end));
-            Guard.IsPositive(maxLength, nameof(maxLength));
+            Guard.NotNull(end);
+            Guard.IsPositive(maxLength);
 
             int lenSubStr = maxLength - end.Length;
 
@@ -114,7 +117,7 @@ namespace Smartstore
         /// <returns>The compacted string</returns>
         public static string Compact(this string input, bool removeEmptyLines = false)
         {
-            Guard.NotNull(input, nameof(input));
+            Guard.NotNull(input);
 
             var sb = new StringBuilder(input.Length);
             var lines = GetLines(input.Trim(), true, removeEmptyLines).ToArray();
@@ -325,6 +328,7 @@ namespace Smartstore
             return HtmlUtility.StripTags(source).Trim().HtmlDecode()!;
         }
 
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? RemoveEncloser(this string? value, string? encloser, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             if (value.IsEnclosedIn(encloser, comparison))
@@ -523,10 +527,11 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
+        [return: NotNullIfNotNull(nameof(input))]
         public static string? HighlightKeywords(this string? input, string? keywords, string preMatch = "<strong>", string postMatch = "</strong>")
         {
-            Guard.NotNull(preMatch, nameof(preMatch));
-            Guard.NotNull(postMatch, nameof(postMatch));
+            Guard.NotNull(preMatch);
+            Guard.NotNull(postMatch);
 
             if (string.IsNullOrWhiteSpace(input) || string.IsNullOrWhiteSpace(keywords))
             {
@@ -549,10 +554,16 @@ namespace Smartstore
         /// <summary>
         /// Capitalizes the word.
         /// </summary>
-        /// <param name="word">string. The word to capitalize.</param>
+        /// <param name="word">The word to capitalize.</param>
         /// <returns>The Capitalized word.</returns>
-        public static string Capitalize(this string word)
+        [return: NotNullIfNotNull(nameof(word))]
+        public static string? Capitalize(this string? word)
         {
+            if (string.IsNullOrWhiteSpace(word))
+            {
+                return word;
+            }
+
             return word[..1].ToUpper() + word[1..].ToLower();
         }
 
@@ -560,9 +571,15 @@ namespace Smartstore
         /// Revers of <see cref="Capitalize"/>
         /// </summary>
         /// <param name="word">string. The word to un-capitalize.</param>
-        /// <returns></returns>
-        public static string Uncapitalize(this string word)
+        /// <returns>The uncapitalized word</returns>
+        [return: NotNullIfNotNull(nameof(word))]
+        public static string? Uncapitalize(this string? word)
         {
+            if (string.IsNullOrWhiteSpace(word))
+            {
+                return word;
+            }
+
             return word[..1].ToLower() + word[1..];
         }
 

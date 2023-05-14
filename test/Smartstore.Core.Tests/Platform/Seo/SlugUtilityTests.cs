@@ -41,7 +41,7 @@ namespace Smartstore.Core.Tests.Seo
         [Test]
         public void Should_replace_space_with_dash()
         {
-            SlugUtility.Slugify("test test", false, false).ShouldEqual("test-test");
+            SlugUtility.Slugify("/test test", false, false).ShouldEqual("test-test");
             SlugUtility.Slugify("test     test", false, false).ShouldEqual("test-test");
         }
 
@@ -50,7 +50,7 @@ namespace Smartstore.Core.Tests.Seo
         {
             // German letters with diacritics
             SlugUtility.Slugify("testäöü", true, false).ShouldEqual("testaou");
-            SlugUtility.Slugify("testäöü", false, false).ShouldEqual("test");
+            SlugUtility.Slugify("/testäöü", false, false).ShouldEqual("test");
 
             var charConversions = string.Join(Environment.NewLine, new string[] { "ä;ae", "ö;oe", "ü;ue" });
             var seoSettings = new SeoSettings { SeoNameCharConversion = charConversions };

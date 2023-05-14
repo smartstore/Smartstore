@@ -1,19 +1,77 @@
-﻿namespace Smartstore.Core.Stores
+﻿#nullable enable
+
+using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Http;
+using Smartstore.Http;
+
+namespace Smartstore.Core.Stores
 {
     public static class StoreExtensions
     {
+        /// <inheritdoc cref="GetAbsoluteUrl(Store, PathString, string?, bool?)" />
+        /// <param name="path">
+        /// The path. May start with current request's base path, in which case it is stripped,
+        /// because it is assumed that the store host (base URI) already ends with the base path.
+        /// </param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetAbsoluteUrl(this Store store, string? path, bool? secure = null)
+            => GetAbsoluteUrl(store, WebHelper.WebBasePath, path, secure);
+
+        /// <summary>
+        /// Generates an absolute URL for the store (scheme + host + pathBase + relativePath). 
+        /// </summary>
+        /// <param name="store">The store to generate an absolute URL for.</param>
+        /// <param name="pathBase">The current request's base application path.</param>
+        /// <param name="path">
+        /// The path. May start with <paramref name="pathBase"/>, in which case it is stripped,
+        /// because it is assumed that the store host (base URI) already ends with the base path.
+        /// </param>
+        /// <param name="secure">
+        /// If <c>null</c>, checks whether all pages should be secured per <see cref="Store.ForceSslForAllPages"/>.
+        /// If <c>true</c>, returns the secure URL, but only if SSL is enabled for the store.
+        /// </param>
+        /// <returns>The absolute URL.</returns>
+        public static string GetAbsoluteUrl(this Store store, PathString pathBase, string? path, bool? secure = null)
+        {
+            Guard.NotNull(store);
+
+            var baseUrl = store.GetHost(secure);
+            
+            if (string.IsNullOrEmpty(path))
+            {
+                return baseUrl;
+            }
+            
+            if (!pathBase.HasValue)
+            {
+                // If BasePath is empty just concat baseUri and relative path.
+                return baseUrl + path.TrimStart('/');
+            }
+
+            var pathString = new PathString(path.EnsureStartsWith('/'));
+
+            // Check if relativePath starts, and baseUrl ends with pathBase.
+            // If true, strip it before combining.
+            if (pathString.StartsWithSegments(pathBase, out var remainingPath) && baseUrl.EndsWith(pathBase + '/'))
+            {
+                pathString = remainingPath;
+            }
+
+            return baseUrl + pathString.Value!.TrimStart('/');
+        }
+
         /// <summary>
         /// Gets the store host name
         /// </summary>
         /// <param name="store">The store to get the host name for</param>
         /// <param name="secure">
         /// If <c>null</c>, checks whether all pages should be secured per <see cref="Store.ForceSslForAllPages"/>.
-        /// If <c>true</c>, returns the secure url, but only if SSL is enabled for the store.
+        /// If <c>true</c>, returns the secure URL, but only if SSL is enabled for the store.
         /// </param>
         /// <returns>The host name</returns>
         public static string GetHost(this Store store, bool? secure = null)
         {
-            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(store);
 
             return store.GetHost(secure ?? store.ForceSslForAllPages);
         }
@@ -24,14 +82,15 @@
         /// <param name="store">Store entity</param>
         public static bool IsStoreDataValid(this Store store)
         {
-            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(store);
 
             if (store.Url.IsEmpty())
-                return false;
-
-            try
             {
-                var uri = new Uri(store.Url);
+                return false;
+            } 
+
+            if (Uri.TryCreate(store.Url, UriKind.Absolute, out var uri))
+            {
                 var domain = uri.DnsSafeHost.EmptyNull().ToLower();
 
                 switch (domain)
@@ -47,7 +106,7 @@
                         return store.Url.IsWebUrl();
                 }
             }
-            catch
+            else
             {
                 return false;
             }
@@ -61,7 +120,7 @@
         /// <returns>true - contains, false - no</returns>
         public static bool ContainsHostValue(this Store store, string host)
         {
-            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(store);
 
             if (string.IsNullOrEmpty(host))
             {
@@ -69,7 +128,8 @@
             }
 
             var contains = store.ParseHostValues()
-                                .FirstOrDefault(x => x.Equals(host, StringComparison.InvariantCultureIgnoreCase)) != null;
+                .FirstOrDefault(x => x.Equals(host, StringComparison.InvariantCultureIgnoreCase)) != null;
+
             return contains;
         }
 
@@ -80,7 +140,7 @@
         /// <returns>Comma-separated hosts</returns>
         public static string[] ParseHostValues(this Store store)
         {
-            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(store);
 
             if (string.IsNullOrWhiteSpace(store.Hosts))
             {

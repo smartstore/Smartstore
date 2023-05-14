@@ -12,6 +12,7 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 using Smartstore.StripeElements.Models;
 using Smartstore.StripeElements.Providers;
 using Smartstore.StripeElements.Services;
@@ -193,7 +194,7 @@ namespace Smartstore.StripeElements.Controllers
 
                         var confirmOptions = new PaymentIntentConfirmOptions
                         {
-                            ReturnUrl = store.GetHost(true) + Url.Action("RedirectionResult", "Stripe").TrimStart('/')
+                            ReturnUrl = store.GetAbsoluteUrl(Url.Action("RedirectionResult", "Stripe").TrimStart('/'), true)
                         };
 
                         paymentIntent = await service.ConfirmAsync(paymentIntent.Id, confirmOptions);
@@ -283,11 +284,11 @@ namespace Smartstore.StripeElements.Controllers
 
             try
             {
-                // TODO: (mh) (core) Find a way to define the used API version if there is any way.
-                var stripeEvent = EventUtility.ParseEvent(json, false);
                 var signatureHeader = Request.Headers["Stripe-Signature"];
 
-                // TODO: (mh) (core) Find a way to define the used API version if there is any way.
+                // INFO: There should never be a version mismatch, as long as the hook was created in Smartstore backend.
+                // But to keep even more stable we don't throw an exception on API version mismatch.
+                var stripeEvent = EventUtility.ParseEvent(json, false);
                 stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret, throwOnApiVersionMismatch: false);
 
                 if (stripeEvent.Type == Stripe.Events.PaymentIntentSucceeded)
@@ -405,11 +406,12 @@ namespace Smartstore.StripeElements.Controllers
             }
             catch (StripeException e)
             {
-                Logger.Error("Error: {0}", e.Message);
+                Logger.Error("Stripe Error: {0}", e.Message);
                 return BadRequest();
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Error("Error: {0}", e.Message);
                 return StatusCode(500);
             }
         }

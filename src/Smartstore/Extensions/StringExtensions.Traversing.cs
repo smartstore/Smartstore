@@ -50,6 +50,7 @@ namespace Smartstore
         /// <param name="value">String to split</param>
         /// <returns>The string after being split</returns>
         [DebuggerStepThrough]
+        [return: NotNullIfNotNull(nameof(value))]
         public static string? SplitPascalCase(this string? value)
         {
             if (string.IsNullOrEmpty(value))
@@ -57,7 +58,7 @@ namespace Smartstore
                 return value;
             }
 
-            var sb = new StringBuilder(value.Length + 5);
+            var sb = new ValueStringBuilder(value.Length + 5);
             char[] ca = value.ToCharArray();
 
             sb.Append(ca[0]);

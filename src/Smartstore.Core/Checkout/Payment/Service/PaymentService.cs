@@ -66,7 +66,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<bool> IsPaymentMethodActiveAsync(string systemName, ShoppingCart cart = null, int storeId = 0)
         {
-            Guard.NotEmpty(systemName, nameof(systemName));
+            Guard.NotEmpty(systemName);
 
             var activePaymentMethods = await LoadActivePaymentMethodsAsync(cart, storeId, null, false);
             var method = activePaymentMethods.FirstOrDefault(x => x.Metadata.SystemName == systemName);

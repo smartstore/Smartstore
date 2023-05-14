@@ -14,7 +14,7 @@ namespace Smartstore.Threading
 
         public PortableTimer(Func<CancellationToken, Task> onTick)
         {
-            _onTick = Guard.NotNull(onTick, nameof(onTick));
+            _onTick = Guard.NotNull(onTick);
 
             using (ExecutionContext.SuppressFlow())
             {
@@ -22,7 +22,7 @@ namespace Smartstore.Threading
             }
         }
 
-        public void Start(TimeSpan interval)
+        public void Start(TimeSpan interval, TimeSpan? dueTime = null)
         {
             if (interval < TimeSpan.Zero)
             {
@@ -36,7 +36,7 @@ namespace Smartstore.Threading
                     throw new ObjectDisposedException(nameof(PortableTimer));
                 }
 
-                _timer.Change(interval, interval);
+                _timer.Change(dueTime ?? interval, interval);
             }
         }
 

@@ -24,18 +24,19 @@
 			<LocaleResource Name="AdminInstruction">
 				<Value>
 					<![CDATA[
-						<p>To set up <b>Stripe Elements</b>:</p>
+						<p>To set up <b>Stripe</b>:</p>
                         <ul>
                             <li>Create an account with Stripe or log in with your existing account.</li>
                             <li>Navigate to <b>Developer / API Key</b>.</li>
                             <li>Copy the <b>Publishable Key</b> and the <b>Secret Key</b> below into the fields provided.</li>
-                            <li>Navigate to <b>Developer / Webhooks</b></li>
-                            <li>Now add a new endpoint. For the URL, enter the URL that is shown below.</li>
-                            <li>Now enter the secret key for the signature in the form field provided below.</li>
+                            <li>Now add a new endpoint by clicking the Create Webhook button.</li>
                         </ul>
 					]]>
 				</Value>
 			</LocaleResource>
+            <LocaleResource Name="CookieInfo">
+                <Value>Stripe uses cookies to display and process the payment transaction.</Value>
+            </LocaleResource>
             <LocaleResource Name="CaptureMethod">
                 <Value>Capture method</Value>
             </LocaleResource>
@@ -77,6 +78,9 @@
             </LocaleResource>
             <LocaleResource Name="WebhookUrl.CopySuccess">
                 <Value>The link was successfully copied to the clipboard.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CreateWebhook">
+                <Value>Create webhook</Value>
             </LocaleResource>
 			<LocaleResource Name="AdditionalFee">
 				<Value>Additional fee</Value>

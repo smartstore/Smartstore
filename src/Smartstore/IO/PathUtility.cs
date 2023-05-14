@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 
@@ -303,6 +304,7 @@ namespace Smartstore.IO
         /// </summary>
         /// <param name="name">Path/File name</param>
         /// <returns>Sanitized path/file name</returns>
+        [return: NotNullIfNotNull(nameof(fileName))]
         public static string? SanitizeFileName(string? fileName, string replacement = "-")
         {
             if (fileName.IsEmpty())
@@ -318,6 +320,7 @@ namespace Smartstore.IO
         /// </summary>
         /// <param name="path">path</param>
         /// <returns>Sanitized path</returns>
+        [return: NotNullIfNotNull(nameof(path))]
         public static string? SanitizePath(string? path, string replacement = "-")
         {
             if (path.IsEmpty())
@@ -387,6 +390,7 @@ namespace Smartstore.IO
             return false;
         }
 
+        [return: NotNullIfNotNull(nameof(path))]
         public static string? EnsureTrailingSlash(string? path)
         {
             if (!string.IsNullOrEmpty(path) && path[^1] != Path.DirectorySeparatorChar)
