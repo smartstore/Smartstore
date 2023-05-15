@@ -68,7 +68,6 @@ namespace Smartstore.PayPal.Filters
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
-                // TODO: (mh) (core) NO GO!!!
                 var clientToken = await _payPalHelper.IsCreditCardActiveAsync() 
                     ? await GetClientToken(context.HttpContext) 
                     : string.Empty;

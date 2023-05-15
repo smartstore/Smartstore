@@ -543,6 +543,9 @@
             <LocaleResource Name="Country.NotEmpty">
                 <Value>Please select a country.</Value>
             </LocaleResource>
+            <LocaleResource Name="StateProvince.NotEmpty">
+                <Value>Please select a state/province.</Value>
+            </LocaleResource>
             <LocaleResource Name="BIC">
                 <Value>BIC</Value>
             </LocaleResource>

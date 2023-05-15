@@ -95,6 +95,20 @@ namespace Smartstore.PayPal.Controllers
         }
 
         /// <summary>
+        /// Called by ajax from credit card hosted fields to get two letter country code by id.
+        /// </summary>
+        /// <param name="id">The id of the selected country</param>
+        /// <returns>ISO Code of the selected country</returns>
+        [HttpPost]
+        public async Task<IActionResult> GetCountryCodeById(int countryId)
+        {
+            var country = await _db.Countries.FindByIdAsync(countryId, false);
+            var code = country?.TwoLetterIsoCode;
+
+            return Json(code);
+        }
+
+        /// <summary>
         /// AJAX
         /// Called after buyer clicked buy-now-button but before the order was created.
         /// Processes payment and return redirect URL if there is any.

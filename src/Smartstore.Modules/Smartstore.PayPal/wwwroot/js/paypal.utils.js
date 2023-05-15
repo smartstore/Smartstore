@@ -89,7 +89,7 @@
 
             if (!paypal.isFundingEligible("card")) {
                 console.log("Not eligible: card");
-                return;
+                return true;
             }
 
             // Render PayPal hosted fields into #paypal-creditcard-hosted-fields-container
@@ -118,6 +118,7 @@
                 },
                 // Save obtained order id in checkout state.
                 onApprove: function (data, actions) {
+                    console.log("onApprove", data);
                     initTransaction(self.hostedFieldsContainer);
                 },
                 onError: function (err) {
@@ -128,7 +129,7 @@
                 $(".payment-method-next-step-button").on("click", function (e) {
                     var selectedPaymentSystemName = $("input[name='paymentmethod']:checked").val();
                     if (selectedPaymentSystemName != "Payments.PayPalCreditCard") {
-                        return;
+                        return true;
                     }
 
                     if (!cardFields._state.fields.cvv.isValid
@@ -150,6 +151,13 @@
                     }
 
                     if (form.valid()) {
+                        var getCountryCodeUrl = self.hostedFieldsContainer.data("get-country-code-url");
+                        var countryId = document.getElementById("CountryId").value;
+                        var countryCode = getCountryCode(getCountryCodeUrl, countryId);
+
+                        var stateProvince = document.getElementById("StateProvinceId");
+                        var region = stateProvince.options[stateProvince.selectedIndex].text;
+
                         cardFields
                             .submit({
                                 // Cardholder's first and last name
@@ -165,17 +173,18 @@
                                     // Postal Code
                                     postalCode: document.getElementById("ZipPostalCode").value,
                                     // Country Code
-                                    // TODO: (mh) (core) Add country code to checkout address form.
-                                    countryCodeAlpha2: "DE",
-                                    //countryCodeAlpha2: document.getElementById("CountryId").value,
+                                    countryCodeAlpha2: countryCode,
                                     // State
-                                    region: document.getElementById("StateProvinceId").value,
+                                    region: region,
                                 },
                             })
                             .catch((err) => {
                                 console.log(err);
                                 displayNotification(err.message, 'error');
                             });
+
+                        console.log("Redirecting now");
+                        location.href = self.hostedFieldsContainer.data("forward-url");
                     }
                     else {
                         e.preventDefault();
@@ -220,6 +229,23 @@
                 }
             }
         });
+    }
+
+    function getCountryCode(getCountryCodeUrl, countryId) {
+        var countryCode;
+
+        $.ajax({
+            async: false,   // IMPORTANT INFO: we must wait to get the country code.
+            type: 'POST',
+            url: getCountryCodeUrl,
+            data: { countryId: countryId },
+            cache: false,
+            success: function (resp) {
+                countryCode = resp;
+            }
+        });
+
+        return countryCode;
     }
 
 })(jQuery, this, document);

@@ -3,6 +3,8 @@
 <!-- Set up a container element for the paypal button -->
 <div id="paypal-creditcard-hosted-fields-container" 
      data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
+     data-get-country-code-url="@Url.Action("GetCountryCodeById", "PayPal")"
+     data-forward-url="@Url.Action("Confirm", "Checkout")"
      data-creditcard-error-message="@T("Plugins.Smartstore.PayPal.Error.CreditCardData")"></div>
 
 @*INFO: No target zone here as can also be rendered via AJAX*@
@@ -45,7 +47,7 @@
             <div class="form-group row">
                 <label asp-for="CardholderName" class="col-md-3 col-form-label required"></label>
                 <div class="col-md-9">
-                    <input asp-for="CardholderName" sm-required="true" />
+                    <input asp-for="CardholderName" />
                     <span asp-validation-for="CardholderName"></span>
                 </div>
             </div>
@@ -55,13 +57,13 @@
                 <div class="col-md-9">
                     <div class="row sm-gutters d-flex">
                         <div class="col-6">
-                            <input asp-for="Address1" sm-required="true" />
+                            <input asp-for="Address1" />
                         </div>
                         <div class="col col-3">
                             <label asp-for="Address2" class="text-right col-form-label required d-block"></label>
                         </div>
                         <div class="col col-3">
-                            <input asp-for="Address2" sm-required="true" />
+                            <input asp-for="Address2" />
                         </div>
                     </div>
                     <div class="row sm-gutters d-flex">
@@ -78,13 +80,13 @@
                 <div class="col-md-9">
                     <div class="row sm-gutters d-flex">
                         <div class="col-6">
-                            <input asp-for="City" sm-required="true" />
+                            <input asp-for="City" />
                         </div>
                         <div class="col col-3">
                             <label asp-for="ZipPostalCode" class="text-right col-form-label required d-block"></label>
                         </div>
                         <div class="col col-3">
-                            <input asp-for="ZipPostalCode" sm-required="true" />
+                            <input asp-for="ZipPostalCode" />
                         </div>
                     </div>
                     <div class="row sm-gutters d-flex">
@@ -123,7 +125,6 @@
                 <div class="col-md-9">
                     <select asp-for="StateProvinceId"
                             x-asp-items="Model.AvailableStates"
-                            sm-required="true"
                             placeholder="@T("Common.PleaseSelect")"
                             data-select-selected-id="@Model.StateProvinceId"></select>
                     <span asp-validation-for="StateProvinceId"></span>

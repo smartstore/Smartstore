@@ -527,6 +527,9 @@
             <LocaleResource Name="Country.NotEmpty">
                 <Value>Bitte wählen Sie ein Land aus.</Value>
             </LocaleResource>
+            <LocaleResource Name="StateProvince.NotEmpty">
+                <Value>Bitte wählen Sie ein Bundesland aus.</Value>
+            </LocaleResource>
             <LocaleResource Name="BIC">
                 <Value>BIC</Value>
             </LocaleResource>

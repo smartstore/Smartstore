@@ -43,9 +43,8 @@ namespace Smartstore.PayPal.Providers
                 Address1 = form["Address1"],
                 Address2 = form["Address2"],
                 ZipPostalCode = form["ZipPostalCode"],
-                // TODO: (mh) (core)
-                //CountryId = form["CountryId"],
-                //StateProvinceId = form["StateProvinceId"]
+                CountryId = int.Parse(form["CountryId"]),
+                StateProvinceId = int.Parse(form["StateProvinceId"])
             };
 
             var result = await _validator.ValidateAsync(model);
@@ -54,18 +53,9 @@ namespace Smartstore.PayPal.Providers
 
         public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
         {
-            // TODO: (mh) (core) Check which fields must be set here.
             var request = new ProcessPaymentRequest
             {
-                CreditCardType = form["CreditCardType"],
-                CreditCardName = form["CardholderName"],
-                CreditCardNumber = form["CardNumber"],
-                CreditCardCvv2 = form["CardCode"],
-                CreditCardExpireMonth = int.Parse(form["ExpireMonth"]),
-                CreditCardExpireYear = int.Parse(form["ExpireYear"]),
-                CreditCardStartMonth = int.Parse(form["StartMonth"]),
-                CreditCardStartYear = int.Parse(form["StartYear"]),
-                CreditCardIssueNumber = form["IssueNumber"]
+                OrderGuid = Guid.NewGuid()
             };
 
             return Task.FromResult(request);
