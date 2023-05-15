@@ -191,7 +191,6 @@ logs/
 /src/Smartstore.Modules/*-sym
 /test/*-sym
 /src/Smartstore.Web/Themes/*-sym
-/src/Smartstore.Web/Themes/HP
 
 
 # =========================
@@ -218,6 +217,12 @@ src/Smartstore.Web/App_Data/*
 !src/Smartstore.Web/App_Data/icons.json
 !src/Smartstore.Web/App_Data/widgetzones.json
 
+# Themes
+src/Smartstore.Web/Themes/*
+!src/Smartstore.Web/Themes/Flex/
+!src/Smartstore.Web/Themes/FlexBlue/
+!src/Smartstore.Web/Themes/FlexBlack/
+
 # DataProtection
 DataProtection-Keys/
 
@@ -233,4 +238,3 @@ src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.sln
 
 src/Smartstore.Packager.sln
 Log.txt
-src/Smartstore.Web/Themes/FlexMuseo/
