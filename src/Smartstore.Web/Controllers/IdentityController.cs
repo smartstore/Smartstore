@@ -90,7 +90,6 @@ namespace Smartstore.Web.Controllers
         [HttpGet]
         [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
-        [DisallowRobot(true)]
         [LocalizedRoute("/login", Name = "Login")]
         public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
         {
@@ -217,7 +216,6 @@ namespace Smartstore.Web.Controllers
 
         [HttpGet]
         [RequireSsl, AllowAnonymous, NeverAuthorize]
-        [DisallowRobot(true)]
         [LocalizedRoute("/register", Name = "Register")]
         public async Task<IActionResult> Register(string returnUrl = null)
         {
