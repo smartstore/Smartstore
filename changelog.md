@@ -43,6 +43,7 @@
 - Fixed ArgumentNullException in `FixProductMainPictureId` when uploading new image on product edit page.
 - Fixed links to assigned shipping methods were not displayed when editing a rule.
 - Fixed SearchLog did not show top search terms in instant search.
+- Fixed redirect to login page instead of an error message when a guest wants to checkout and anonymous checkout is not allowed.
 
 
 ## Smartstore 5.0.4
