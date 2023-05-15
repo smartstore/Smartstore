@@ -30,31 +30,26 @@ namespace Smartstore.PayPal.Filters
                 await next();
                 return;
             }
-
-            var isActivePayPalStandard = await _payPalHelper.IsPayPalStandardActiveAsync() && _settings.FundingsOffCanvasCart.Contains(((int)FundingOptions.paypal).ToString());
-            var isActiveSepa = await _payPalHelper.IsSepaActiveAsync() && _settings.FundingsOffCanvasCart.Contains(((int)FundingOptions.sepa).ToString());
-            var isActivePayLater = await _payPalHelper.IsPayLaterActiveAsync() && _settings.FundingsOffCanvasCart.Contains(((int)FundingOptions.paylater).ToString());
-
-            if (!isActivePayPalStandard && !isActiveSepa && !isActivePayLater)
-            {
-                await next();
-                return;
-            }
             
             // Should only run on a full view rendering result or HTML ContentResult.
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
             {
-                if (isActivePayPalStandard)
+                var fundings = _settings.FundingsOffCanvasCart;
+
+                // PayPalStandard
+                if (fundings.Contains(FundingOptions.paypal.ToString()) && await _payPalHelper.IsPayPalStandardActiveAsync())
                 {
                     _widgetProvider.RegisterViewComponent<PayPalViewComponent>("offcanvas_cart_summary");
                 }
 
-                if (isActiveSepa)
+                // SEPA
+                if (fundings.Contains(FundingOptions.sepa.ToString()) && await _payPalHelper.IsSepaActiveAsync())
                 {
                     _widgetProvider.RegisterViewComponent<PayPalSepaViewComponent>("offcanvas_cart_summary");
                 }
 
-                if (isActivePayLater)
+                // PayLater
+                if (fundings.Contains(FundingOptions.paylater.ToString()) && await _payPalHelper.IsPayLaterActiveAsync())
                 {
                     _widgetProvider.RegisterViewComponent<PayPalPayLaterViewComponent>("offcanvas_cart_summary");
                 }

@@ -48,7 +48,9 @@ namespace Smartstore.PayPal.Components
                     model.DateOfBirthMonth = birthDate.Month;
                     model.DateOfBirthYear = birthDate.Year;
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
             else if (customer.BirthDate != null)
             {
