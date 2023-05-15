@@ -19,12 +19,20 @@
             internal set;
         }
 
+        /// <summary>
+        /// Specifies the search mode.
+        /// Note that the mode has an impact on the performance of the search. <see cref="SearchMode.ExactMatch"/> is the fastest,
+        /// <see cref="SearchMode.StartsWith"/> is slower and <see cref="SearchMode.Contains"/> the slowest.
+        /// </summary>
         public SearchMode Mode 
         { 
             get; 
             protected set; 
         } = SearchMode.Contains;
 
+        /// <summary>
+        /// A value indicating whether to escape the search term.
+        /// </summary>
         public bool Escape
         {
             get;
