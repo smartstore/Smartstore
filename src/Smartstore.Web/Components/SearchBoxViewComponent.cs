@@ -27,7 +27,7 @@ namespace Smartstore.Web.Components
                 InstantSearchEnabled = _searchSettings.InstantSearchEnabled && await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop),
                 ShowThumbsInInstantSearch = _searchSettings.ShowProductImagesInInstantSearch,
                 SearchTermMinimumLength = _searchSettings.InstantSearchTermMinLength,
-                CurrentQuery = _queryFactory.Current?.Term
+                CurrentQuery = _queryFactory.Current?.DefaultTerm
             };
 
             return View(model);

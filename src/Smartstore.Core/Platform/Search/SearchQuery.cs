@@ -52,7 +52,7 @@ namespace Smartstore.Core.Search
             bool isFuzzySearch = false)
         {
             //Fields = fields;
-            Term = term;
+            //Term = term;
             //Mode = mode;
             //EscapeTerm = escape;
             IsFuzzySearch = isFuzzySearch;
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Search
         /// </summary>
         //public string[]? Fields { get; set; }
 
-        public string? Term { get; set; }
+        //public string? Term { get; set; }
 
         public string? DefaultTerm
         {

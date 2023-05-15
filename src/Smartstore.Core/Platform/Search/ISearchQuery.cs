@@ -12,7 +12,7 @@ namespace Smartstore.Core.Search
 
         // Search term
         //string[] Fields { get; }
-        string Term { get; }
+        //string Term { get; }
         string DefaultTerm { get; }
         //SearchMode Mode { get; }
         //bool EscapeTerm { get; }
