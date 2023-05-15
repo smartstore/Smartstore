@@ -780,6 +780,9 @@ namespace Smartstore.Core.Checkout.Orders
                     }
 
                     ctx.Order.OrderItems.Add(orderItem);
+                    
+                    await _db.SaveChangesAsync();
+                    await _eventPublisher.PublishOrderItemAddedAsync(orderItem, cartItem);
 
                     // Gift cards.
                     if (product.IsGiftCard)
