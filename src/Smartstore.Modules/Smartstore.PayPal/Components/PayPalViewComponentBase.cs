@@ -12,12 +12,11 @@ namespace Smartstore.PayPal.Components
             _settings = settings;
         }
 
+        // TODO: (mh) Try to use base view component.
         /// <summary>
         /// Renders PayPal buttons widget.
         /// </summary>
-        /// <param name="isPaymentInfoInvoker">Defines whether the widget is invoked from payment method's GetPaymentInfoWidget.</param>
-        /// <param name="isSelected">Defines whether the payment method is selected on page load.</param>
-        public IViewComponentResult Invoke(bool isPaymentInfoInvoker, bool isSelected)
+        public IViewComponentResult Invoke()
         {
             // If client id or secret haven't been configured yet, don't render buttons.
             if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -26,26 +25,11 @@ namespace Smartstore.PayPal.Components
             }
 
             var routeIdent = Request.RouteValues.GenerateRouteIdentifier();
-            var isPaymentSelectionPage = routeIdent == "Checkout.PaymentMethod";
-
-            if (isPaymentSelectionPage && isPaymentInfoInvoker)
-            {
-                return Empty();
-            }
-
-            // Get displayable options from settings depending on location (OffCanvasCart or Cart).
-            var isCartPage = routeIdent == "ShoppingCart.Cart";
-            if (isCartPage && !_settings.ShowButtonOnCartPage)
-            {
-                return Empty();
-            }
-
+            
             var model = new PublicPaymentMethodModel
             {
-                IsPaymentSelection = isPaymentSelectionPage,
                 ButtonColor = _settings.ButtonColor,
-                ButtonShape = _settings.ButtonShape,
-                IsSelectedMethod = isSelected
+                ButtonShape = _settings.ButtonShape
             };
 
             return View(model);

@@ -43,7 +43,11 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (await _payPalHelper.IsPayPalStandardActiveAsync())
+            if (await _payPalHelper.IsAnyMethodActiveAsync(
+                "Payments.PayPalStandard",
+                "Payments.PayPalCreditCard",
+                "Payments.PayPalPayLater",
+                "Payments.PayPalSepa"))
             {
                 // If client id or secret haven't been configured yet, don't show button.
                 if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
