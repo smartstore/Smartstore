@@ -13,8 +13,9 @@ namespace Smartstore.Core.Search
         // Search term
         //string[] Fields { get; }
         string Term { get; }
-        SearchMode Mode { get; }
-        bool EscapeTerm { get; }
+        string DefaultTerm { get; }
+        //SearchMode Mode { get; }
+        //bool EscapeTerm { get; }
         bool IsFuzzySearch { get; }
 
         // Filtering

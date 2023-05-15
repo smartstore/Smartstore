@@ -41,6 +41,8 @@ namespace Smartstore.Core.Search
     {
         private readonly Dictionary<string, FacetDescriptor> _facetDescriptors = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, object>? _customData;
+        private SearchFilter? _defaultTermFilter = null;
+        private bool _defaultTermFilterFound;
 
         protected SearchQuery(
             string[]? fields, 
@@ -51,8 +53,8 @@ namespace Smartstore.Core.Search
         {
             //Fields = fields;
             Term = term;
-            Mode = mode;
-            EscapeTerm = escape;
+            //Mode = mode;
+            //EscapeTerm = escape;
             IsFuzzySearch = isFuzzySearch;
 
             // TODO: (mg) Insufficient API design. TBD with MC.
@@ -88,17 +90,58 @@ namespace Smartstore.Core.Search
 
         public string? Term { get; set; }
 
+        public string? DefaultTerm
+        {
+            get
+            {
+                return DefaultTermFilter?.Term as string;
+            }
+            set
+            {
+                var filter = DefaultTermFilter;
+                if (filter != null)
+                {
+                    filter.Term = value;
+                }
+            }
+        }
+
+        private SearchFilter? DefaultTermFilter
+        {
+            get
+            {
+                if (!_defaultTermFilterFound)
+                {
+                    var filter = Filters.OfType<ICombinedSearchFilter>().FirstOrDefault(x => x.FieldName == "searchterm");
+                    if (filter != null)
+                    {
+                        _defaultTermFilter = (IAttributeSearchFilter)filter.Filters.First() as SearchFilter;
+                    }
+                    else
+                    {
+                        _defaultTermFilter = Filters
+                            .OfType<IAttributeSearchFilter>()
+                            .FirstOrDefault(x => x.TypeCode == IndexTypeCode.String && !x.IsNotAnalyzed) as SearchFilter;
+                    }
+
+                    _defaultTermFilterFound = true;
+                }
+
+                return _defaultTermFilter;
+            }
+        }
+
         /// <summary>
         /// A value indicating whether to escape the search term.
         /// </summary>
-        public bool EscapeTerm { get; protected set; }
+        //public bool EscapeTerm { get; protected set; }
 
         /// <summary>
         /// Specifies the search mode.
         /// Note that the mode has an impact on the performance of the search. <see cref="SearchMode.ExactMatch"/> is the fastest,
         /// <see cref="SearchMode.StartsWith"/> is slower and <see cref="SearchMode.Contains"/> the slowest.
         /// </summary>
-        public SearchMode Mode { get; protected set; }
+        //public SearchMode Mode { get; protected set; }
 
         /// <summary>
         /// A value idicating whether to search by distance. For example "roam" finds "foam" and "roams".

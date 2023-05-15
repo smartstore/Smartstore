@@ -16,7 +16,7 @@
         public object Term
         {
             get;
-            protected set;
+            internal set;
         }
 
         public SearchMode Mode 
