@@ -12,14 +12,14 @@ namespace Smartstore.Core.Data.Migrations
 
         public LocaleResourcesMigrator(SmartDbContext db)
         {
-            _db = Guard.NotNull(db, nameof(db));
+            _db = Guard.NotNull(db);
             _languages = db.Languages;
             _resources = db.LocaleStringResources;
         }
 
         public async Task<int> MigrateAsync(IEnumerable<LocaleResourceEntry> entries, bool updateTouchedResources = false)
         {
-            Guard.NotNull(entries, nameof(entries));
+            Guard.NotNull(entries);
 
             if (!entries.Any() || !_languages.Any())
                 return 0;
