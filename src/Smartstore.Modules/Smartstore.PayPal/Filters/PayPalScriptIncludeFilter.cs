@@ -63,12 +63,14 @@ namespace Smartstore.PayPal.Filters
                     $"&currency={currency}" +
                     // Ensures no breaking changes will be applied in SDK.
                     $"&integration-date=2021-04-13" +
-                    // TODO: (mh) (core) Must not be set for APMs but for paypal, paylater & sepa if intent is set to authorize.
-                    //$"&commit=false" +
                     $"&components=messages,buttons,hosted-fields,funding-eligibility";
 
-                scriptUrl += $"&enable-funding=" + await GetFundingOptionsAsync();
+                if (_settings.Intent == PayPalTransactionType.Authorize)
+                {
+                    scriptUrl += $"&commit=false";
+                }
 
+                scriptUrl += $"&enable-funding=" + await GetFundingOptionsAsync();
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
