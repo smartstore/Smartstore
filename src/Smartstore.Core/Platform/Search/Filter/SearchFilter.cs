@@ -16,14 +16,28 @@
         public object Term
         {
             get;
-            protected set;
+            internal set;
         }
 
+        /// <summary>
+        /// Specifies the search mode.
+        /// Note that the mode has an impact on the performance of the search. <see cref="SearchMode.ExactMatch"/> is the fastest,
+        /// <see cref="SearchMode.StartsWith"/> is slower and <see cref="SearchMode.Contains"/> the slowest.
+        /// </summary>
         public SearchMode Mode 
         { 
             get; 
             protected set; 
         } = SearchMode.Contains;
+
+        /// <summary>
+        /// A value indicating whether to escape the search term.
+        /// </summary>
+        public bool Escape
+        {
+            get;
+            protected set;
+        }
 
         public bool IsNotAnalyzed
         {
@@ -127,9 +141,25 @@
             return filter;
         }
 
-        public static SearchFilter ByField(string fieldName, string term)
+        public static SearchFilter ByField(
+            string fieldName,
+            string term,
+            SearchMode mode = SearchMode.Contains,
+            bool escape = false,
+            bool isNotAnalyzed = false)
         {
-            return ByField(fieldName, term, IndexTypeCode.String);
+            Guard.NotEmpty(term);
+            Guard.NotEmpty(fieldName);
+
+            return new SearchFilter
+            {
+                FieldName = fieldName,
+                Term = term,
+                TypeCode = IndexTypeCode.String,
+                Mode = mode,
+                Escape = escape,
+                IsNotAnalyzed = isNotAnalyzed
+            };
         }
 
         public static SearchFilter ByField(string fieldName, int term)
@@ -209,9 +239,7 @@
         #endregion
 
         public override string ToString()
-        {
-            return $"{FieldName}: {Term}";
-        }
+            => $"{FieldName}({Mode}):{Term}";
     }
 
     public enum SearchFilterOccurence

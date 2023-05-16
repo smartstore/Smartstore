@@ -56,9 +56,9 @@ namespace Smartstore.Web.Models.Search
             string preMatch = "<strong>",
             string postMatch = "</strong>")
         {
-            Guard.NotEmpty(fieldName, nameof(fieldName));
+            Guard.NotEmpty(fieldName);
 
-            if (query?.Term == null || input.IsEmpty())
+            if (query?.DefaultTerm == null || input.IsEmpty())
             {
                 return input;
             }
@@ -71,7 +71,9 @@ namespace Smartstore.Web.Models.Search
                 {
                     hilite = engine.Highlight(input, fieldName, preMatch, postMatch);
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             if (hilite.HasValue())
@@ -79,14 +81,14 @@ namespace Smartstore.Web.Models.Search
                 return hilite;
             }
 
-            return input.HighlightKeywords(query.Term, preMatch, postMatch);
+            return input.HighlightKeywords(query.DefaultTerm, preMatch, postMatch);
         }
 
         public class HitGroup : IOrdered
         {
             public HitGroup(SearchResultModelBase parent)
             {
-                Guard.NotNull(parent, nameof(parent));
+                Guard.NotNull(parent);
 
                 Parent = parent;
             }

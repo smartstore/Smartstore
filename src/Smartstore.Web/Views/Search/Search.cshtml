@@ -3,9 +3,12 @@
 @model SearchResultModel
 
 @{
-    var suggestions = new string[0];
     var encodedTerm = Model.Term.EmptyNull().HtmlEncode();
     var encodedAttemptedTerm = Model.AttemptedTerm.EmptyNull().HtmlEncode();
+
+    var suggestions = Model.TotalProductsCount > 0
+        ? Model.SearchResult.SpellCheckerSuggestions
+        : Array.Empty<string>();
 
     Assets.AppendTitleParts(encodedTerm.HasValue() ? T("Search.PageTitle", "\"" + encodedTerm + "\"") : T("Search.Title"));
 

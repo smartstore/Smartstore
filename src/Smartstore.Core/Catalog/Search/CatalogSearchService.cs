@@ -195,9 +195,12 @@ namespace Smartstore.Core.Catalog.Search
             // Apply "rating" labels.
             if (facets.TryGetValue("rating", out group))
             {
+                var oneAndMoreStr = T("Search.Facet.1StarAndMore");
+                var xAndMoreStr = T("Search.Facet.XStarsAndMore");
+
                 foreach (var facet in group.Facets)
                 {
-                    facet.Value.Label = T(facet.Key == "1" ? "Search.Facet.1StarAndMore" : "Search.Facet.XStarsAndMore", facet.Value.Value).Value;
+                    facet.Value.Label = (facet.Key == "1" ? oneAndMoreStr : xAndMoreStr).Value.FormatInvariant(facet.Value.Value);
                 }
             }
 

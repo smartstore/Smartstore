@@ -2,8 +2,8 @@
 {
     public class FilterDescriptor : RuleDescriptor
     {
-        public FilterDescriptor(LambdaExpression memberExpression)
-            : base(RuleScope.Customer)
+        public FilterDescriptor(LambdaExpression memberExpression, RuleScope scope = RuleScope.Customer)
+            : base(scope)
         {
             MemberExpression = Guard.NotNull(memberExpression);
         }
@@ -18,8 +18,8 @@
 
     public class FilterDescriptor<T, TValue> : FilterDescriptor where T : class
     {
-        public FilterDescriptor(Expression<Func<T, TValue>> expression)
-            : base(expression) // TODO
+        public FilterDescriptor(Expression<Func<T, TValue>> expression, RuleScope scope = RuleScope.Customer)
+            : base(expression, scope) // TODO
         {
             Guard.NotNull(expression);
 

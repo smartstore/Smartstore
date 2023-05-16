@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Rules;
+﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Core.Search
@@ -33,8 +34,7 @@ namespace Smartstore.Core.Search
             Guard.NotNull(context);
             Guard.NotNull(baseQuery);
 
-            // TODO: (mg) Refactor after Terms isolation is implemented.
-            var query = VisitTerm(context, baseQuery);
+            var query = baseQuery;
 
             // Filters
             for (var i = 0; i < context.Filters.Count; i++)
@@ -75,14 +75,6 @@ namespace Smartstore.Core.Search
         }
 
         /// <summary>
-        /// Visits a search term.
-        /// </summary>
-        /// <param name="context">The search query context.</param>
-        /// <param name="query">The LINQ query to apply the term to.</param>
-        /// <returns>The modified or the original LINQ query.</returns>
-        protected abstract IQueryable<TEntity> VisitTerm(TContext context, IQueryable<TEntity> query);
-
-        /// <summary>
         /// Visits a search filter expression.
         /// </summary>
         /// <param name="filter">The visited filter.</param>
@@ -113,7 +105,8 @@ namespace Smartstore.Core.Search
             IQueryable<TEntity> query)
             where TMember : struct
         {
-            var descriptor = new FilterDescriptor<TEntity, TMember>(memberExpression);
+            var entityType = typeof(TEntity);
+            var descriptor = new FilterDescriptor<TEntity, TMember>(memberExpression, entityType == typeof(Product) ? RuleScope.Product : RuleScope.Other);
             var expressions = new List<FilterExpression>(2);
             var negate = filter.Occurence == SearchFilterOccurence.MustNot;
 
@@ -172,7 +165,7 @@ namespace Smartstore.Core.Search
 
             if (expressions.Count > 0)
             {
-                var combinedExpression = new FilterExpressionGroup(typeof(TEntity), expressions.ToArray())
+                var combinedExpression = new FilterExpressionGroup(entityType, expressions.ToArray())
                 {
                     LogicalOperator = LogicalRuleOperator.And,
                 };

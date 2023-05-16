@@ -16,6 +16,8 @@ namespace Smartstore.Core.Catalog.Search
         internal KnownFilterNames() { }
         public readonly string ProductId = "id";
         public readonly string Name = "name";
+        public readonly string Sku = "sku";
+        public readonly string ShortDescription = "shortdescription";
         public readonly string CategoryId = "categoryid";
         public readonly string FeaturedCategoryId = "featuredcategoryid";
         public readonly string NotFeaturedCategoryId = "notfeaturedcategoryid";

@@ -1,21 +1,11 @@
 ﻿#nullable enable
 
-using System.Text;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Search
 {
-    [Flags]
-    public enum SearchResultFlags
-    {
-        WithHits = 1 << 0,
-        WithFacets = 1 << 1,
-        WithSuggestions = 1 << 2,
-        Full = WithHits | WithFacets | WithSuggestions
-    }
-
     public class SearchQuery : SearchQuery<SearchQuery>
     {
         /// <summary>
@@ -49,8 +39,10 @@ namespace Smartstore.Core.Search
 
     public class SearchQuery<TQuery> : ISearchQuery where TQuery : class, ISearchQuery
     {
-        private readonly Dictionary<string, FacetDescriptor> _facetDescriptors;
+        private readonly Dictionary<string, FacetDescriptor> _facetDescriptors = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, object>? _customData;
+        private SearchFilter? _defaultTermFilter = null;
+        private bool _isDefaultTermFilterSet;
 
         protected SearchQuery(
             string[]? fields, 
@@ -59,22 +51,26 @@ namespace Smartstore.Core.Search
             bool escape = false, 
             bool isFuzzySearch = false)
         {
-            Fields = fields;
-            Term = term;
-            Mode = mode;
-            EscapeTerm = escape;
             IsFuzzySearch = isFuzzySearch;
 
-            Filters = new List<ISearchFilter>();
-            Sorting = new List<SearchSort>();
-            _facetDescriptors = new Dictionary<string, FacetDescriptor>(StringComparer.OrdinalIgnoreCase);
+            // TODO: (mg) Insufficient API design. TBD with MC.
+            if (term.HasValue())
+            {
+                if (fields.IsNullOrEmpty() || !fields!.Any(x => x.HasValue()))
+                {
+                    throw new ArgumentException("At least one search field must be specified when you want to search by term.", nameof(fields));
+                }
 
-            Take = int.MaxValue;
-
-            SpellCheckerMinQueryLength = 4;
-            SpellCheckerMaxHitCount = 3;
-
-            ResultFlags = SearchResultFlags.WithHits;
+                if (fields!.Length == 1)
+                {
+                    WithFilter(SearchFilter.ByField(fields![0], term, mode, escape).Mandatory());
+                }
+                else
+                {
+                    WithFilter(SearchFilter.Combined("searchterm",
+                        fields!.Select(field => SearchFilter.ByField(field, term, mode, escape)).ToArray()));
+                }
+            }
         }
 
         // Language, Currency & Store
@@ -84,23 +80,48 @@ namespace Smartstore.Core.Search
         public int? StoreId { get; protected set; }
 
         /// <summary>
-        /// Specifies the fields to be searched.
+        /// Gets or sets the default search term.
         /// </summary>
-        public string[]? Fields { get; set; }
+        public string? DefaultTerm
+        {
+            get
+            {
+                return DefaultTermFilter?.Term as string;
+            }
+            set
+            {
+                var filter = DefaultTermFilter;
+                if (filter != null)
+                {
+                    filter.Term = value;
+                }
+            }
+        }
 
-        public string? Term { get; set; }
+        private SearchFilter? DefaultTermFilter
+        {
+            get
+            {
+                if (!_isDefaultTermFilterSet)
+                {
+                    var filter = Filters.OfType<ICombinedSearchFilter>().FirstOrDefault(x => x.FieldName == "searchterm");
+                    if (filter != null)
+                    {
+                        _defaultTermFilter = (IAttributeSearchFilter)filter.Filters.First() as SearchFilter;
+                    }
+                    else
+                    {
+                        _defaultTermFilter = Filters
+                            .OfType<IAttributeSearchFilter>()
+                            .FirstOrDefault(x => x.TypeCode == IndexTypeCode.String && !x.IsNotAnalyzed) as SearchFilter;
+                    }
 
-        /// <summary>
-        /// A value indicating whether to escape the search term.
-        /// </summary>
-        public bool EscapeTerm { get; protected set; }
+                    _isDefaultTermFilterSet = true;
+                }
 
-        /// <summary>
-        /// Specifies the search mode.
-        /// Note that the mode has an impact on the performance of the search. <see cref="SearchMode.ExactMatch"/> is the fastest,
-        /// <see cref="SearchMode.StartsWith"/> is slower and <see cref="SearchMode.Contains"/> the slowest.
-        /// </summary>
-        public SearchMode Mode { get; protected set; }
+                return _defaultTermFilter;
+            }
+        }
 
         /// <summary>
         /// A value idicating whether to search by distance. For example "roam" finds "foam" and "roams".
@@ -109,14 +130,14 @@ namespace Smartstore.Core.Search
         public bool IsFuzzySearch { get; protected set; }
 
         // Filtering
-        public ICollection<ISearchFilter> Filters { get; }
+        public ICollection<ISearchFilter> Filters { get; } = new List<ISearchFilter>();
 
         // Facets
         public IReadOnlyDictionary<string, FacetDescriptor> FacetDescriptors => _facetDescriptors;
 
         // Paging
         public int Skip { get; protected set; }
-        public int Take { get; protected set; }
+        public int Take { get; protected set; } = int.MaxValue;
         public int PageIndex
         {
             get
@@ -129,15 +150,15 @@ namespace Smartstore.Core.Search
         }
 
         // Sorting
-        public ICollection<SearchSort> Sorting { get; }
+        public ICollection<SearchSort> Sorting { get; } = new List<SearchSort>();
 
         // Spell checker
         public int SpellCheckerMaxSuggestions { get; protected set; }
-        public int SpellCheckerMinQueryLength { get; protected set; }
-        public int SpellCheckerMaxHitCount { get; protected set; }
+        public int SpellCheckerMinQueryLength { get; protected set; } = 4;
+        public int SpellCheckerMaxHitCount { get; protected set; } = 3;
 
         // Result control
-        public SearchResultFlags ResultFlags { get; protected set; }
+        public SearchResultFlags ResultFlags { get; protected set; } = SearchResultFlags.WithHits;
 
         /// <summary>
         /// Gets the origin of the search. Examples:
@@ -214,6 +235,20 @@ namespace Smartstore.Core.Search
             SpellCheckerMaxHitCount = maxHitCount;
 
             return (this as TQuery)!;
+        }
+
+        public TQuery WithTerm(
+            string term,
+            string fieldName,
+            SearchMode mode = SearchMode.Contains,
+            SearchFilterOccurence occurence = SearchFilterOccurence.Must,
+            bool escape = false,
+            bool isNotAnalyzed = false)
+        {
+            var filter = SearchFilter.ByField(fieldName, term, mode, escape, isNotAnalyzed);
+            filter.Occurence = occurence;
+
+            return WithFilter(filter);
         }
 
         public TQuery WithFilter(ISearchFilter filter)
@@ -295,29 +330,14 @@ namespace Smartstore.Core.Search
 
         public override string ToString()
         {
-            var sb = new StringBuilder(100);
+            var str = string.Join(", ", Filters.Select(x => x.ToString()));
 
-            var fields = (Fields?.Any() ?? false) ? string.Join(", ", Fields) : "".NaIfEmpty();
-            var parameters = string.Join(" ", EscapeTerm ? "escape" : string.Empty, IsFuzzySearch ? "fuzzy" : Mode.ToString()).TrimSafe();
-
-            sb.AppendFormat("'{0}' in {1}", Term.EmptyNull(), fields);
-            if (parameters.HasValue())
+            if (IsFuzzySearch)
             {
-                sb.AppendFormat(" ({0})", parameters);
-            }
-            sb.Append(". ");
-
-            foreach (var filter in Filters)
-            {
-                if (sb.Length > 0)
-                {
-                    sb.Append(' ');
-                }
-
-                sb.Append(filter.ToString());
+                str += " (fuzzy)";
             }
 
-            return sb.ToString();
+            return str;
         }
 
         #region Utilities

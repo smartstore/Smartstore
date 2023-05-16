@@ -10,11 +10,7 @@ namespace Smartstore.Core.Search
         string CurrencyCode { get; }
         int? StoreId { get; }
 
-        // Search term
-        string[] Fields { get; }
-        string Term { get; }
-        SearchMode Mode { get; }
-        bool EscapeTerm { get; }
+        string DefaultTerm { get; }
         bool IsFuzzySearch { get; }
 
         // Filtering

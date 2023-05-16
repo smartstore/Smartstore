@@ -1,4 +1,7 @@
-﻿using Smartstore.Core.Catalog.Products;
+﻿using System.Linq.Dynamic.Core;
+using AngleSharp.Dom;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 
@@ -6,59 +9,23 @@ namespace Smartstore.Core.Catalog.Search
 {
     public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>
     {
-        protected override IQueryable<Product> VisitTerm(CatalogSearchQueryContext context, IQueryable<Product> query)
+        private static readonly string[] _searchTermFields = new[]
         {
-            // TODO: (mg) Refactor after Terms isolation is implemented.
-            var term = context.SearchQuery.Term;
-            var fields = context.SearchQuery.Fields;
-            var languageId = context.SearchQuery.LanguageId ?? 0;
-
-            if (term.HasValue() && fields != null && fields.Length != 0 && fields.Any(x => x.HasValue()))
-            {
-                context.IsGroupingRequired = true;
-
-                var lpQuery = context.Services.DbContext.LocalizedProperties.AsNoTracking();
-
-                // SearchMode.ExactMatch doesn't make sense here
-                if (context.SearchQuery.Mode == SearchMode.StartsWith)
-                {
-                    return
-                        from p in query
-                        join lp in lpQuery on p.Id equals lp.EntityId into plp
-                        from lp in plp.DefaultIfEmpty()
-                        where
-                            (fields.Contains("name") && p.Name.StartsWith(term)) ||
-                            (fields.Contains("sku") && p.Sku.StartsWith(term)) ||
-                            (fields.Contains("shortdescription") && p.ShortDescription.StartsWith(term)) ||
-                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith(term)) ||
-                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.StartsWith(term))
-                        select p;
-                }
-                else
-                {
-                    return
-                        from p in query
-                        join lp in lpQuery on p.Id equals lp.EntityId into plp
-                        from lp in plp.DefaultIfEmpty()
-                        where
-                            (fields.Contains("name") && p.Name.Contains(term)) ||
-                            (fields.Contains("sku") && p.Sku.Contains(term)) ||
-                            (fields.Contains("shortdescription") && p.ShortDescription.Contains(term)) ||
-                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains(term)) ||
-                            (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.Contains(term))
-                        select p;
-                }
-            }
-
-            return query;
-        }
+            CatalogSearchQuery.KnownFilters.Name,
+            CatalogSearchQuery.KnownFilters.Sku,
+            CatalogSearchQuery.KnownFilters.ShortDescription
+        };
 
         protected override IQueryable<Product> VisitFilter(ISearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             var names = CatalogSearchQuery.KnownFilters;
             var fieldName = filter.FieldName;
 
-            if (fieldName == names.ProductId)
+            if (_searchTermFields.Contains(fieldName) || fieldName == "searchterm")
+            {
+                return VisitTermFilter(filter, context, query);
+            }
+            else if (fieldName == names.ProductId)
             {
                 return ApplySimpleMemberExpression(x => x.Id, filter, query);
             }
@@ -342,6 +309,72 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
+        protected virtual IQueryable<Product> VisitTermFilter(ISearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
+        {
+            var op = LogicalRuleOperator.And;
+            IAttributeSearchFilter[] filters = null;
+
+            if (filter is ICombinedSearchFilter cf)
+            {
+                op = LogicalRuleOperator.Or;
+                filters = cf.Filters.OfType<IAttributeSearchFilter>().ToArray();
+            }
+            else if (filter is IAttributeSearchFilter af)
+            {
+                filters = new[] { af };
+            }
+
+            if (filters.IsNullOrEmpty())
+            {
+                return query;
+            }
+
+            var names = CatalogSearchQuery.KnownFilters;
+            var languageId = context.SearchQuery.LanguageId ?? 0;
+
+            var baseQuery =
+                from p in query
+                join lp in context.Services.DbContext.LocalizedProperties on p.Id equals lp.EntityId into plp
+                from lp in plp.DefaultIfEmpty()
+                select new TermSearchProduct { Product = p, Translation = lp };
+
+            var expressions = filters
+                .Select(af =>
+                {
+                    if (af.FieldName == names.Sku)
+                    {
+                        return TermSearchProduct.CreateFilter(x => x.Product.Sku, af);
+                    }
+                    else if (af.FieldName == names.Name)
+                    {
+                        return TermSearchProduct.CreateFilter(x => x.Product.Name, af, languageId);
+                    }
+                    else if (af.FieldName == names.ShortDescription)
+                    {
+                        return TermSearchProduct.CreateFilter(x => x.Product.ShortDescription, af, languageId);
+                    }
+
+                    return null;
+                })
+                .Where(x => x != null)
+                .ToArray();
+
+            if (expressions.IsNullOrEmpty())
+            {
+                return query;
+            }
+
+            context.IsGroupingRequired = true;
+
+            var group = expressions.Length == 1 && expressions[0] is FilterExpressionGroup group2
+                ? group2
+                : new FilterExpressionGroup(typeof(TermSearchProduct), expressions.ToArray()) { LogicalOperator = op };
+
+            baseQuery = baseQuery.Where(group).Cast<TermSearchProduct>();
+
+            return baseQuery.Select(x => x.Product);
+        }
+
         protected virtual IQueryable<Product> VisitPriceFilter(IAttributeSearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             if (filter is IRangeSearchFilter rf)
@@ -508,7 +541,7 @@ namespace Smartstore.Core.Catalog.Search
         protected override IQueryable<Product> VisitSorting(SearchSort sorting, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             var names = CatalogSearchQuery.KnownSortings;
-            
+
             if (sorting.FieldName.IsEmpty())
             {
                 // Sort by relevance.

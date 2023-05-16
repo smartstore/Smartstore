@@ -45,7 +45,9 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/instantsearch", Name = "InstantSearch")]
         public async Task<IActionResult> InstantSearch(CatalogSearchQuery query)
         {
-            if (!query.Term.HasValue() || query.Term.Length < _searchSettings.InstantSearchTermMinLength)
+            var term = query.DefaultTerm;
+
+            if (!term.HasValue() || term.Length < _searchSettings.InstantSearchTermMinLength)
             {
                 return Content(string.Empty);
             }
@@ -60,7 +62,7 @@ namespace Smartstore.Web.Controllers
             var model = new SearchResultModel(query)
             {
                 SearchResult = result,
-                Term = query.Term,
+                Term = term,
                 TotalProductsCount = result.TotalHitsCount
             };
 
@@ -96,10 +98,11 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/search", Name = "Search")]
         public async Task<IActionResult> Search(CatalogSearchQuery query)
         {
-            var model = new SearchResultModel(query);
             CatalogSearchResult result = null;
+            var model = new SearchResultModel(query);
+            var term = query.DefaultTerm;
 
-            if (query.Term == null || query.Term.Length < _searchSettings.InstantSearchTermMinLength)
+            if (term == null || term.Length < _searchSettings.InstantSearchTermMinLength)
             {
                 model.SearchResult = new CatalogSearchResult(query);
                 model.TopProducts = ProductSummaryModel.Empty;
@@ -117,7 +120,7 @@ namespace Smartstore.Web.Controllers
             {
                 if (_searchSettings.SearchProductByIdentificationNumber)
                 {
-                    var (product, attributeCombination) = await _productService.Value.GetProductByIdentificationNumberAsync(query.Term);
+                    var (product, attributeCombination) = await _productService.Value.GetProductByIdentificationNumberAsync(term);
                     if (product != null)
                     {
                         if (attributeCombination != null)
@@ -140,30 +143,29 @@ namespace Smartstore.Web.Controllers
                 result = new CatalogSearchResult(query);
             }
 
-            if (result.TotalHitsCount == 0 && result.SpellCheckerSuggestions.Any())
+            if (result.TotalHitsCount == 0 && result.SpellCheckerSuggestions.Length > 0)
             {
                 // No matches, but spell checker made a suggestion.
                 // We implicitly search again with the first suggested term.
                 var oldSuggestions = result.SpellCheckerSuggestions;
-                var oldTerm = query.Term;
-                query.Term = oldSuggestions[0];
 
+                query.DefaultTerm = oldSuggestions[0];
                 result = await _catalogSearchService.SearchAsync(query);
 
                 if (result.TotalHitsCount > 0)
                 {
-                    model.AttemptedTerm = oldTerm;
+                    model.AttemptedTerm = term;
                     // Restore the original suggestions.
-                    result.SpellCheckerSuggestions = oldSuggestions.Where(x => x != query.Term).ToArray();
+                    result.SpellCheckerSuggestions = oldSuggestions.Where(x => x != query.DefaultTerm).ToArray();
                 }
                 else
                 {
-                    query.Term = oldTerm;
+                    query.DefaultTerm = term;
                 }
             }
 
             model.SearchResult = result;
-            model.Term = query.Term;
+            model.Term = query.DefaultTerm;
             model.TotalProductsCount = result.TotalHitsCount;
 
             var productSummaryViewMode = query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list")
