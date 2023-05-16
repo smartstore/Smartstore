@@ -273,6 +273,11 @@ $facet-selection-color:             darken($success, 15%);
 
 .facet-body {
     padding-bottom: 1rem;
+
+    .numberinput-group {
+        // Make number-input steppers smaller
+        --ni-addon-width: 1.5rem;
+    }
 }
 
 .facet-body-inner {
@@ -292,7 +297,7 @@ $facet-selection-color:             darken($success, 15%);
 
 
 //
-// Facetes (Check/Radio)
+// Facets (Check/Radio)
 // --------------------------------------------------
 
 .facet-control-ui {
@@ -406,7 +411,7 @@ $facet-selection-color:             darken($success, 15%);
 
 
 //
-// Facetes (active filters)
+// Facets (active filters)
 // --------------------------------------------------
 
 .active-filters-container {

@@ -372,15 +372,6 @@
                 <div class="head">@T("Plugins.Smartstore.PayPal.Misc")</div>
             </div>
         </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ShowButtonInMiniShoppingCart" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ShowButtonInMiniShoppingCart" data-toggler-for=".pnlFundingsOffCanvasCart"></setting-editor>
-                <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
-            </div>
-        </div>
 
         <div class="adminRow pnlFundingsOffCanvasCart">
             <div class="adminTitle">
@@ -391,15 +382,6 @@
                     <select asp-for="FundingsOffCanvasCart" asp-items="Html.GetLocalizedEnumSelectList(typeof(FundingOptions))" multiple="multiple" data-tags="true"></select>
                 </setting-editor>
                 <span asp-validation-for="FundingsOffCanvasCart"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ShowButtonOnCartPage" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ShowButtonOnCartPage" data-toggler-for=".pnlFundingsCart"></setting-editor>
-                <span asp-validation-for="ShowButtonOnCartPage"></span>
             </div>
         </div>
 

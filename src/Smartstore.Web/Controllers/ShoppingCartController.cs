@@ -221,14 +221,10 @@ namespace Smartstore.Web.Controllers
             {
                 if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
                 {
-                    return RedirectToAction("BillingAddress", "Checkout");
-                }
-                else if (_orderSettings.AnonymousCheckoutAllowed)
-                {
-                    return RedirectToRoute("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") });
+                    return RedirectToAction(nameof(CheckoutController.BillingAddress), "Checkout");
                 }
 
-                return new UnauthorizedResult();
+                return RedirectToRoute("Login", new { checkoutAsGuest = _orderSettings.AnonymousCheckoutAllowed, returnUrl = Url.RouteUrl("ShoppingCart") });
             }
 
             return RedirectToRoute("Checkout");

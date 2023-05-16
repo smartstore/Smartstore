@@ -106,7 +106,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return RedirectToRoute("Login", new { returnUrl = Url.RouteUrl("ShoppingCart") });
             }
 
             customer.ResetCheckoutData(storeId);

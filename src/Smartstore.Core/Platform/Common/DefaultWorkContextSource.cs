@@ -461,20 +461,26 @@ namespace Smartstore.Core
             return null;
         }
 
-        private static Task<Customer> DetectGuest(DetectCustomerContext context)
+        private static async Task<Customer> DetectGuest(DetectCustomerContext context)
         {
             var visitorCookie = context.HttpContext?.Request?.Cookies[CookieNames.Visitor];
             if (visitorCookie != null && Guid.TryParse(visitorCookie, out var customerGuid))
             {
                 // Cookie present. Try to load guest customer by it's value.
-                return context.Db.Customers
+                var customer = await context.Db.Customers
                     //.IncludeShoppingCart()
                     .IncludeCustomerRoles()
                     .Where(c => c.CustomerGuid == customerGuid)
                     .FirstOrDefaultAsync();
+
+                if (!customer.IsRegistered())
+                {
+                    // Don't treat registered customers as guests.
+                    return customer;
+                }
             }
 
-            return Task.FromResult<Customer>(null);
+            return null;
         }
 
         private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)

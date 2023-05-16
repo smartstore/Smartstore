@@ -71,22 +71,10 @@ namespace Smartstore.PayPal.Settings
         [LocalizedProperty]
         public string CustomerServiceInstructions { get; set; }
 
-        // TODO: (mh) (core) Remove this setting and render buttons if there are any fundings configured in FundingsOffCanvasCart.
-        /// <summary>
-        /// Specifies whether to display the checkout button in offcanvas shopping cart.
-        /// </summary>
-        public bool ShowButtonInMiniShoppingCart { get; set; } = true;
-
         /// <summary>
         /// Specifies which payment options should be displayed in OffCanvasCart.
         /// </summary>
         public string FundingsOffCanvasCart { get; set; } = "paypal";
-
-        // TODO: (mh) (core) Remove this setting and render buttons if there are any fundings configured in FundingsCart.
-        /// <summary>
-        /// Specifies whether to display the checkout button on shopping cart page.
-        /// </summary>
-        public bool ShowButtonOnCartPage { get; set; } = true;
 
         /// <summary>
         /// Specifies which payment options should be displayed on cart page.

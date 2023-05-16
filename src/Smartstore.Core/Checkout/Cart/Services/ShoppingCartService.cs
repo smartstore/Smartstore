@@ -430,8 +430,8 @@ namespace Smartstore.Core.Checkout.Cart
 
         public virtual async Task<bool> MigrateCartAsync(Customer fromCustomer, Customer toCustomer)
         {
-            Guard.NotNull(fromCustomer, nameof(fromCustomer));
-            Guard.NotNull(toCustomer, nameof(toCustomer));
+            Guard.NotNull(fromCustomer);
+            Guard.NotNull(toCustomer);
 
             if (fromCustomer.Id == toCustomer.Id)
             {

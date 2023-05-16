@@ -27,9 +27,6 @@ namespace Smartstore.PayPal.Providers
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "PayPal", new { area = "Admin" });
 
-        //public override Widget GetPaymentInfoWidget()
-        //    => new ComponentWidget(typeof(PayPalViewComponent), true);
-
         public override bool SupportCapture => true;
 
         public override bool SupportPartiallyRefund => true;

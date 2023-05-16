@@ -89,7 +89,6 @@ namespace Smartstore.Web.Controllers
         [HttpGet]
         [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
-        [DisallowRobot(true)]
         [LocalizedRoute("/login", Name = "Login")]
         public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
         {
@@ -216,7 +215,6 @@ namespace Smartstore.Web.Controllers
 
         [HttpGet]
         [RequireSsl, AllowAnonymous, NeverAuthorize]
-        [DisallowRobot(true)]
         [LocalizedRoute("/register", Name = "Register")]
         public async Task<IActionResult> Register(string returnUrl = null)
         {
@@ -926,9 +924,13 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            // INFO: don't remove guest role here. Let IWorkContext's
-            // customer resolver check if both roles are assigned
-            // and let it take appropriate actions.
+            // Remove customer from 'Guests' role.
+            var guestsRoleName = await _db.CustomerRoles
+                .Where(x => x.SystemName == SystemCustomerRoleNames.Guests)
+                .Select(x => x.Name)
+                .FirstOrDefaultAsync();
+
+            await _userManager.RemoveFromRoleAsync(customer, guestsRoleName);
         }
 
         private IActionResult RedirectToLocal(string returnUrl)

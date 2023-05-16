@@ -19,6 +19,7 @@
 
 - PdfConverter failed after cron job cleaned up temporary files in App_Data directory
 - Link from Admin area to a named area-less frontend route did not properly prepend culture code
+- Identity: fixed *checkout loop* after logout
 - Fixed display of orders in MyAccount area when `OrderSettings.DisplayOrdersOfAllStores` was set to `true`
 - When an order was placed, the stock quantity of attribute combinations were not updated if the stock is managed by attributes.
 - Fixed "also purchased products" should not display unpublished products.
@@ -43,6 +44,7 @@
 - Fixed ArgumentNullException in `FixProductMainPictureId` when uploading new image on product edit page.
 - Fixed links to assigned shipping methods were not displayed when editing a rule.
 - Fixed SearchLog did not show top search terms in instant search.
+- Fixed redirect to login page instead of an error message when a guest wants to checkout and anonymous checkout is not allowed.
 
 
 ## Smartstore 5.0.4

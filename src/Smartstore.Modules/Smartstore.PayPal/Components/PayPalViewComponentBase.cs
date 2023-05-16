@@ -1,54 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core;
 using Smartstore.Web.Components;
 
 namespace Smartstore.PayPal.Components
 {
-    public class PayPalViewComponentBase : SmartViewComponent
+    public abstract class PayPalViewComponentBase : SmartViewComponent
     {
-        private readonly PayPalSettings _settings;
+        private PayPalSettings _settings;
+        private string _routeIdent;
 
-        public PayPalViewComponentBase(PayPalSettings settings)
+        protected PayPalSettings Settings
         {
-            _settings = settings;
+            get => _settings ??= Services.Resolve<PayPalSettings>();
         }
 
+        protected string RouteIdent
+        {
+            get => _routeIdent ??= Request.RouteValues.GenerateRouteIdentifier();
+        }
+
+        // TODO: (mh) Try to use base view component.
         /// <summary>
         /// Renders PayPal buttons widget.
         /// </summary>
-        /// <param name="isPaymentInfoInvoker">Defines whether the widget is invoked from payment method's GetPaymentInfoWidget.</param>
-        /// <param name="isSelected">Defines whether the payment method is selected on page load.</param>
-        public IViewComponentResult Invoke(bool isPaymentInfoInvoker, bool isSelected)
+        public Task<IViewComponentResult> InvokeAsync()
         {
             // If client id or secret haven't been configured yet, don't render buttons.
             if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
             {
-                return Empty();
+                return Task.FromResult(Empty());
             }
 
-            var routeIdent = Request.RouteValues.GenerateRouteIdentifier();
-            var isPaymentSelectionPage = routeIdent == "Checkout.PaymentMethod";
-
-            if (isPaymentSelectionPage && isPaymentInfoInvoker)
-            {
-                return Empty();
-            }
-
-            // Get displayable options from settings depending on location (OffCanvasCart or Cart).
-            var isCartPage = routeIdent == "ShoppingCart.Cart";
-            if (isCartPage && !_settings.ShowButtonOnCartPage)
-            {
-                return Empty();
-            }
-
-            var model = new PublicPaymentMethodModel
-            {
-                IsPaymentSelection = isPaymentSelectionPage,
-                ButtonColor = _settings.ButtonColor,
-                ButtonShape = _settings.ButtonShape,
-                IsSelectedMethod = isSelected
-            };
-
-            return View(model);
+            return InvokeCoreAsync();
         }
+
+        protected virtual Task<IViewComponentResult> InvokeCoreAsync()
+            => Task.FromResult(InvokeCore());
+
+        protected abstract IViewComponentResult InvokeCore();
     }
 }

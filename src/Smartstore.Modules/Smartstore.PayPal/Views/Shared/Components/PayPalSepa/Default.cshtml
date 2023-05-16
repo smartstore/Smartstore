@@ -5,10 +5,9 @@
      class="paypal-button-container"
      data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
      data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
-     data-forward-url="@(Model.IsPaymentSelection ? Url.Action("Confirm", "Checkout") : Url.Action("BillingAddress", "Checkout"))"
+     data-forward-url="@Url.Action("BillingAddress", "Checkout")"
      data-shape="@Model.ButtonShape"
-     data-color="@Model.ButtonColor"
-     attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'></div>
+     data-color="@Model.ButtonColor"></div>
 
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-sepa-button">

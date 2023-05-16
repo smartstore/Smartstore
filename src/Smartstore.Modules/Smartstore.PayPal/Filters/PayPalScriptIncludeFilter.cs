@@ -43,7 +43,11 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (await _payPalHelper.IsPayPalStandardActiveAsync())
+            if (await _payPalHelper.IsAnyMethodActiveAsync(
+                "Payments.PayPalStandard",
+                "Payments.PayPalCreditCard",
+                "Payments.PayPalPayLater",
+                "Payments.PayPalSepa"))
             {
                 // If client id or secret haven't been configured yet, don't show button.
                 if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -68,7 +72,6 @@ namespace Smartstore.PayPal.Filters
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
-                // TODO: (mh) (core) NO GO!!!
                 var clientToken = await _payPalHelper.IsCreditCardActiveAsync() 
                     ? await GetClientToken(context.HttpContext) 
                     : string.Empty;

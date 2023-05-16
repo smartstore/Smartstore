@@ -333,18 +333,6 @@
             <LocaleResource Name="WebhookUrl.Hint">
                 <Value>Save this URL in your PayPal app as a webhook URL.</Value>
             </LocaleResource>
-            <LocaleResource Name="ShowButtonInMiniShoppingCart">
-                <Value>Show buttons in mini shopping cart</Value>
-            </LocaleResource>
-            <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
-                <Value>Specifies whether to show the checkout buttons in the mini shopping cart.</Value>
-            </LocaleResource>
-            <LocaleResource Name="ShowButtonOnCartPage">
-                <Value>Show buttons in shopping cart</Value>
-            </LocaleResource>
-            <LocaleResource Name="ShowButtonOnCartPage.Hint">
-                <Value>Specifies whether to show the checkout buttons on the shopping cart page.</Value>
-            </LocaleResource>
             <LocaleResource Name="DisabledFundings">
                 <Value>Disabled fundings</Value>
             </LocaleResource>
@@ -542,6 +530,9 @@
             </LocaleResource>
             <LocaleResource Name="Country.NotEmpty">
                 <Value>Please select a country.</Value>
+            </LocaleResource>
+            <LocaleResource Name="StateProvince.NotEmpty">
+                <Value>Please select a state/province.</Value>
             </LocaleResource>
             <LocaleResource Name="BIC">
                 <Value>BIC</Value>
