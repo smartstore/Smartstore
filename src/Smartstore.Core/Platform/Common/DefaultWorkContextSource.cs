@@ -473,14 +473,10 @@ namespace Smartstore.Core
                     .Where(c => c.CustomerGuid == customerGuid)
                     .FirstOrDefaultAsync();
 
-                // INFO: Only ask if customer is registered if (customer != null) else calling IsRegistered() will throw an exception.
-                if (customer != null)
+                if (customer != null && !customer.IsRegistered())
                 {
-                    if (!customer.IsRegistered())
-                    {
-                        // Don't treat registered customers as guests.
-                        return customer;
-                    }
+                    // Don't treat registered customers as guests.
+                    return customer;
                 }
             }
 

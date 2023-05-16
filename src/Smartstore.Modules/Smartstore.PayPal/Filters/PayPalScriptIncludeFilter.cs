@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿using System.Text;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json.Linq;
@@ -8,7 +9,6 @@ using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Services;
-using Smartstore.Utilities;
 
 namespace Smartstore.PayPal.Filters
 {
@@ -102,7 +102,7 @@ namespace Smartstore.PayPal.Filters
             
             var sourceIdentifier = GetSourceIdentifier(_settings.MerchantName, _settings.PayerId, routeId);
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder();
             sb.Append("<script type='application/json' fncls='fnparams-dede7cc5-15fd-4c75-a9f4-36c430ee3a99'>");
             // INFO: Single quotes (') aren't allowed to delimit strings.
             sb.Append("{\"sandbox\":" + (_settings.UseSandbox ? "true" : "false") + ",\"f\":\"" + clientMetaId + "\",\"s\":\"" + sourceIdentifier + "\" }");
