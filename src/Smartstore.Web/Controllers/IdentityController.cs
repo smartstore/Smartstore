@@ -924,9 +924,8 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            // INFO: don't remove guest role here. Let IWorkContext's
-            // customer resolver check if both roles are assigned
-            // and let it take appropriate actions.
+            // Remove customer from 'Guests' role.
+            await _userManager.RemoveFromRoleAsync(customer, SystemCustomerRoleNames.Guests);
         }
 
         private IActionResult RedirectToLocal(string returnUrl)

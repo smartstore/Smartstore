@@ -335,8 +335,8 @@ namespace Smartstore.Core.Identity
         public async Task RemoveFromRoleAsync(Customer user, string normalizedRoleName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(user, nameof(user));
-            Guard.NotEmpty(normalizedRoleName, nameof(normalizedRoleName));
+            Guard.NotNull(user);
+            Guard.NotEmpty(normalizedRoleName);
 
             var roleId = await FindRoleIdAsync(normalizedRoleName, false, cancellationToken);
 
@@ -353,7 +353,7 @@ namespace Smartstore.Core.Identity
         public async Task<IList<string>> GetRolesAsync(Customer user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(user, nameof(user));
+            Guard.NotNull(user);
 
             return (await GetOrLoadRolesAsync(user, true)).Select(x => x.Name).ToList();
         }
