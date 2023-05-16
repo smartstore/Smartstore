@@ -21,9 +21,6 @@ namespace Smartstore.Core.Search
             => false;
 
         /// <inheritdoc/>
-        //public abstract IList<SearchField> GetFields(ISearchQuery query, string languageCulture);
-
-        /// <inheritdoc/>
         public abstract IDictionary<string, FacetGroup> GetFacetMap(ISearchEngine searchEngine, IFacetMetadataStorage storage);
 
         /// <inheritdoc/>

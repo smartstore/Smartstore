@@ -37,15 +37,6 @@ namespace Smartstore.Core.Search
         /// <returns>Localized field name. <c>null</c> if no localized field name exists.</returns>
         string GetLocalizedFieldName(ISearchFilter filter, string languageCulture);
 
-        /// <summary>
-        /// Gets fields to be searched.
-        /// Allows additional fields (e.g. of localized data) to be searched as well.
-        /// </summary>
-        /// <param name="query">Search query.</param>
-        /// <param name="languageCulture">Language culture.</param>
-        /// <returns>Search fields.</returns>
-        //IList<SearchField> GetFields(ISearchQuery query, string languageCulture);
-
         #endregion
 
         #region Facets
