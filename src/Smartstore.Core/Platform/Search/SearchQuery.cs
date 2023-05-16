@@ -53,7 +53,6 @@ namespace Smartstore.Core.Search
         {
             IsFuzzySearch = isFuzzySearch;
 
-            // TODO: (mg) Insufficient API design. TBD with MC.
             if (term.HasValue())
             {
                 if (fields.IsNullOrEmpty() || !fields!.Any(x => x.HasValue()))
