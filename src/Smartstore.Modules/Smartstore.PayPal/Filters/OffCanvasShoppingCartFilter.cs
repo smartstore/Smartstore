@@ -37,19 +37,19 @@ namespace Smartstore.PayPal.Filters
                 var fundings = _settings.FundingsOffCanvasCart;
 
                 // PayPalStandard
-                if (fundings.Contains(FundingOptions.paypal.ToString()) && await _payPalHelper.IsPayPalStandardActiveAsync())
+                if (fundings.Contains(((int)FundingOptions.paypal).ToString()) && await _payPalHelper.IsPayPalStandardActiveAsync())
                 {
                     _widgetProvider.RegisterViewComponent<PayPalViewComponent>("offcanvas_cart_summary");
                 }
 
                 // SEPA
-                if (fundings.Contains(FundingOptions.sepa.ToString()) && await _payPalHelper.IsSepaActiveAsync())
+                if (fundings.Contains(((int)FundingOptions.sepa).ToString()) && await _payPalHelper.IsSepaActiveAsync())
                 {
                     _widgetProvider.RegisterViewComponent<PayPalSepaViewComponent>("offcanvas_cart_summary");
                 }
 
                 // PayLater
-                if (fundings.Contains(FundingOptions.paylater.ToString()) && await _payPalHelper.IsPayLaterActiveAsync())
+                if (fundings.Contains(((int)FundingOptions.paylater).ToString()) && await _payPalHelper.IsPayLaterActiveAsync())
                 {
                     _widgetProvider.RegisterViewComponent<PayPalPayLaterViewComponent>("offcanvas_cart_summary");
                 }

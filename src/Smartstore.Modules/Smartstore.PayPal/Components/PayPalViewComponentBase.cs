@@ -19,14 +19,13 @@ namespace Smartstore.PayPal.Components
             get => _routeIdent ??= Request.RouteValues.GenerateRouteIdentifier();
         }
 
-        // TODO: (mh) Try to use base view component.
         /// <summary>
         /// Renders PayPal buttons widget.
         /// </summary>
         public Task<IViewComponentResult> InvokeAsync()
         {
             // If client id or secret haven't been configured yet, don't render buttons.
-            if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
+            if (!Settings.ClientId.HasValue() || !Settings.Secret.HasValue())
             {
                 return Task.FromResult(Empty());
             }
