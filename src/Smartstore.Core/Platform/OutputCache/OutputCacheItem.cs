@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Text;
+using Microsoft.Net.Http.Headers;
 
 namespace Smartstore.Core.OutputCache
 {
@@ -7,6 +9,9 @@ namespace Smartstore.Core.OutputCache
     [DebuggerDisplay("{CacheKey}, Url: {Url}, Query: {QueryString}, Duration: {Duration}, Tags: {Tags}")]
     public class OutputCacheItem : ICloneable<OutputCacheItem>
     {
+        const string DefaultContentType = "text/html; charset=utf-8";
+        internal MediaTypeHeaderValue DefaultMediaType = MediaTypeHeaderValue.Parse(DefaultContentType);
+
         // used for serialization compatibility
         public static readonly string Version = "2";
 
@@ -32,6 +37,27 @@ namespace Smartstore.Core.OutputCache
 
         [IgnoreDataMember]
         public DateTime ExpiresOnUtc => CachedOnUtc.AddSeconds(Duration);
+
+        [IgnoreDataMember]
+        public Encoding ResponseEncoding 
+        { 
+            get
+            {
+                if (ContentType == DefaultContentType)
+                {
+                    return DefaultMediaType.Encoding;
+                }
+                
+                if (MediaTypeHeaderValue.TryParse(ContentType, out var mediaType) && mediaType.Encoding != null)
+                {
+                    return mediaType.Encoding;
+                }
+
+                ContentType = DefaultContentType;
+                
+                return DefaultMediaType.Encoding;
+            }
+        }
 
         public bool IsValid(DateTime utcNow)
         {
