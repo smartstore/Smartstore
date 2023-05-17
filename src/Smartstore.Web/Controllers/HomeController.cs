@@ -64,6 +64,8 @@ namespace Smartstore.Web.Controllers
             ViewBag.MetaDescription = _homePageSettings.GetLocalizedSetting(x => x.MetaDescription, storeId);
             ViewBag.MetaKeywords = _homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, storeId);
 
+            var opts = "Baggage".Convert<ActivityTrackingOptions>();
+            var hrr = (int)opts;
             return View();
         }
 

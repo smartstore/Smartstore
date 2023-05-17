@@ -57,16 +57,12 @@ namespace Smartstore.PayPal.Controllers
             // Convert FundingOptions from settings to Array<int> so the corresponding taghelper in configure view can work with it.
             model.FundingsCart = settings.FundingsCart
                 .SplitSafe(",")
-                .Select(x => { 
-                    return ((int)Enum.Parse(typeof(FundingOptions), x)).ToString(); 
-                })
+                .Select(x => ((int)x.Convert<FundingOptions>()).ToString())
                 .ToArray();
 
             model.FundingsOffCanvasCart = settings.FundingsOffCanvasCart
                 .SplitSafe(",")
-                .Select(x => {
-                    return ((int)Enum.Parse(typeof(FundingOptions), x)).ToString();
-                })
+                .Select(x => ((int)x.Convert<FundingOptions>()).ToString())
                 .ToArray();
 
             model.DisplayOnboarding = !settings.ClientId.HasValue() && !settings.Secret.HasValue();
@@ -97,18 +93,11 @@ namespace Smartstore.PayPal.Controllers
             MiniMapper.Map(model, settings);
 
             // Convert FundingOptions for cart & OffCanvasCart to comma separated string.
-            var fundingsCart = model.FundingsCart == null ? Array.Empty<string>() : model.FundingsCart.Select(x =>
-            {
-                return ((FundingOptions)Convert.ToInt32(x)).ToString();
-            });
+            var fundingsCart = model.FundingsCart?.Select(x => x.Convert<FundingOptions>().ToString()) ?? Array.Empty<string>();
+            var fundingsOffCanvasCart = model.FundingsOffCanvasCart?.Select(x => x.Convert<FundingOptions>().ToString()) ?? Array.Empty<string>();
 
-            var fundingsOffCanvasCart = model.FundingsOffCanvasCart == null ? Array.Empty<string>() : model.FundingsOffCanvasCart.Select(x =>
-            {
-                return ((FundingOptions)Convert.ToInt32(x)).ToString();
-            });
-
-            settings.FundingsCart = string.Join(",", fundingsCart);
-            settings.FundingsOffCanvasCart = string.Join(",", fundingsOffCanvasCart);
+            settings.FundingsCart = string.Join(',', fundingsCart);
+            settings.FundingsOffCanvasCart = string.Join(',', fundingsOffCanvasCart);
 
             // Localization
             foreach (var localized in model.Locales)
