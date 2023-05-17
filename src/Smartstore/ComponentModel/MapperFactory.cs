@@ -12,8 +12,8 @@ namespace Smartstore.ComponentModel
 {
     /// <summary>
     /// A static factory that can create type mapper instances (<see cref="IMapper{TFrom, TTo}"/>).
-    /// To resolve a mapper instance, use <see cref="GetMapper{TFrom, TTo}"/>. To map object instances,
-    /// call one of the <c>Map*() methods</c> (the corresponding mapper is resolved internally in this case).
+    /// To resolve a mapper instance, use <see cref="GetMapper{TFrom, TTo}(string?)"/>. To map object instances,
+    /// call one of the <c>Map*() methods</c> (the corresponding nameless default mapper is resolved internally in this case).
     /// </summary>
     /// <remarks>
     /// <see cref="MapperFactory"/> automatically scans for all concrete <see cref="IMapper{TFrom, TTo}"/> classes 
