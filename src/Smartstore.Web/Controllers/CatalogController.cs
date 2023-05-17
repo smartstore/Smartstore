@@ -124,14 +124,10 @@ namespace Smartstore.Web.Controllers
             }
 
             // Products.
-            var catIds = new int[] { categoryId };
-            if (_catalogSettings.ShowProductsFromSubcategories)
-            {
-                // Include subcategories.
-                catIds = catIds.Concat(await _helper.GetChildCategoryIdsAsync(categoryId)).ToArray();
-            }
-
-            query.WithCategoryIds(_catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false, catIds);
+            var featuredOnly = _catalogSettings.IncludeFeaturedProductsInNormalLists ? (bool?)null : false;
+            query = _catalogSettings.ShowProductsFromSubcategories
+                ? query.WithCategoryTreePath(category.TreePath, featuredOnly)
+                : query.WithCategoryIds(featuredOnly, new[] { categoryId });
 
             var searchResult = await _catalogSearchService.SearchAsync(query);
             model.SearchResult = searchResult;

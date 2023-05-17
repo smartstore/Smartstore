@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
-using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Search;
@@ -138,25 +137,41 @@ namespace Smartstore.Core.Catalog.Rules
 
             #region Special filters
 
-            CatalogSearchQuery categoryFilter(SearchFilterContext ctx, int[] x)
+            CatalogSearchQuery categoryFilter(SearchFilterContext ctx, int[] categoryIds)
             {
-                if (x?.Any() ?? false)
+                if (!categoryIds.IsNullOrEmpty())
                 {
-                    var ids = new HashSet<int>(x);
+                    var featuredOnly = _catalogSettings.IncludeFeaturedProductsInNormalLists ? (bool?)null : false;
 
                     if (_catalogSettings.ShowProductsFromSubcategories)
                     {
-                        foreach (var id in x)
+                        if (categoryIds.Length == 1)
                         {
-                            var node = categoryTree.SelectNodeById(id);
+                            var node = categoryTree.SelectNodeById(categoryIds[0]);
                             if (node != null)
                             {
-                                ids.AddRange(node.Flatten(false).Select(y => y.Id));
+                                return ctx.Query.WithCategoryTreePath(node.GetTreePath(), featuredOnly);
                             }
                         }
-                    }
+                        else
+                        {
+                            var ids = new HashSet<int>(categoryIds);
+                            foreach (var id in categoryIds)
+                            {
+                                var node = categoryTree.SelectNodeById(id);
+                                if (node != null)
+                                {
+                                    ids.AddRange(node.Flatten(false).Select(y => y.Id));
+                                }
+                            }
 
-                    return ctx.Query.WithCategoryIds(_catalogSettings.IncludeFeaturedProductsInNormalLists ? (bool?)null : false, ids.ToArray());
+                            return ctx.Query.WithCategoryIds(featuredOnly, ids.ToArray());
+                        }
+                    }
+                    else
+                    {
+                        return ctx.Query.WithCategoryIds(featuredOnly, categoryIds);
+                    }
                 }
 
                 return ctx.Query;
