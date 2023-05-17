@@ -70,7 +70,15 @@ namespace Smartstore.PayPal.Filters
                     scriptUrl += $"&commit=false";
                 }
 
-                scriptUrl += $"&enable-funding=" + await GetFundingOptionsAsync();
+                // paypal,sepa,paylater are the default funding options which are always available.
+                scriptUrl += $"&enable-funding=paypal,sepa,paylater";
+
+                // Add credit card funding option if credit card is active.
+                if (await _payPalHelper.IsCreditCardActiveAsync())
+                {
+                    scriptUrl += ",card";
+                }
+                
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
@@ -162,23 +170,6 @@ namespace Smartstore.PayPal.Filters
             }
 
             return $"{merchantName}_{payerId}_{pageType}";
-        }
-
-        /// <summary>
-        /// Gets active funding sources by checking active providers combined with default fundings.
-        /// </summary>
-        /// <returns></returns>
-        private async Task<string> GetFundingOptionsAsync()
-        {
-            // Set default fundings which are always available
-            var result = "sepa,paylater";
-
-            if (await _payPalHelper.IsCreditCardActiveAsync())
-            {
-                result += ",card";
-            }
-
-            return result;
         }
 
         /// <summary>
