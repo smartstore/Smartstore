@@ -54,6 +54,21 @@ namespace Smartstore.PayPal.Controllers
                 model.WebHookCreated = true;
             }
 
+            // Convert FundingOptions from settings to Array<int> so the corresponding taghelper in configure view can work with it.
+            model.FundingsCart = settings.FundingsCart
+                .SplitSafe(",")
+                .Select(x => { 
+                    return ((int)Enum.Parse(typeof(FundingOptions), x)).ToString(); 
+                })
+                .ToArray();
+
+            model.FundingsOffCanvasCart = settings.FundingsOffCanvasCart
+                .SplitSafe(",")
+                .Select(x => {
+                    return ((int)Enum.Parse(typeof(FundingOptions), x)).ToString();
+                })
+                .ToArray();
+
             model.DisplayOnboarding = !settings.ClientId.HasValue() && !settings.Secret.HasValue();
 
             AddLocales(model.Locales, (locale, languageId) =>
@@ -81,6 +96,21 @@ namespace Smartstore.PayPal.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
+            // Convert FundingOptions for cart & OffCanvasCart to comma separated string.
+            var fundingsCart = model.FundingsCart == null ? Array.Empty<string>() : model.FundingsCart.Select(x =>
+            {
+                return ((FundingOptions)Convert.ToInt32(x)).ToString();
+            });
+
+            var fundingsOffCanvasCart = model.FundingsOffCanvasCart == null ? Array.Empty<string>() : model.FundingsOffCanvasCart.Select(x =>
+            {
+                return ((FundingOptions)Convert.ToInt32(x)).ToString();
+            });
+
+            settings.FundingsCart = string.Join(",", fundingsCart);
+            settings.FundingsOffCanvasCart = string.Join(",", fundingsOffCanvasCart);
+
+            // Localization
             foreach (var localized in model.Locales)
             {
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.CustomerServiceInstructions, localized.CustomerServiceInstructions, localized.LanguageId, storeId);

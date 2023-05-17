@@ -11,7 +11,7 @@ namespace Smartstore.PayPal.Components
         {
             // Get displayable options from settings depending on location (OffCanvasCart or Cart).
             var isCartPage = RouteIdent == "ShoppingCart.Cart";
-            if (isCartPage && !Settings.FundingsCart.Contains(((int)FundingOptions.paylater).ToString()))
+            if (isCartPage && !Settings.FundingsCart.Contains(FundingOptions.paylater.ToString()))
             {
                 return Empty();
             }
