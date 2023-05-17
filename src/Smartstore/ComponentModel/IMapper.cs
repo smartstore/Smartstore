@@ -1,5 +1,11 @@
 ﻿namespace Smartstore.ComponentModel
 {
+    /// <summary>
+    /// Responsible for mapping objects of type <typeparamref name="TFrom"/>
+    /// to type <typeparamref name="TTo"/>.
+    /// </summary>
+    /// <typeparam name="TFrom">The source type</typeparam>
+    /// <typeparam name="TTo">The target type</typeparam>
     public interface IMapper<in TFrom, in TTo>
         where TFrom : class
         where TTo : class
@@ -13,6 +19,19 @@
         Task MapAsync(TFrom from, TTo to, dynamic parameters = null);
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public sealed class MapperAttribute : Attribute
+    {
+        public string Name { get; set; }
+        public int Order { get; set; }
+    }
+
+    /// <summary>
+    /// Responsible for mapping objects of type <typeparamref name="TFrom"/>
+    /// to type <typeparamref name="TTo"/>.
+    /// </summary>
+    /// <typeparam name="TFrom">The source type</typeparam>
+    /// <typeparam name="TTo">The target type</typeparam>
     public abstract class Mapper<TFrom, TTo> : IMapper<TFrom, TTo>
         where TFrom : class
         where TTo : class
@@ -41,8 +60,8 @@
             where TFrom : class
             where TTo : class, new()
         {
-            Guard.NotNull(mapper, nameof(mapper));
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(mapper);
+            Guard.NotNull(from);
 
             var to = Activator.CreateInstance<TTo>();
             await mapper.MapAsync(from, to, parameters);
@@ -62,8 +81,8 @@
             where TFrom : class
             where TTo : class, new()
         {
-            Guard.NotNull(mapper, nameof(mapper));
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(mapper);
+            Guard.NotNull(from);
 
             return await from
                 .SelectAwait<TFrom, TTo>(async x => await MapAsync(mapper, x, parameters))
@@ -83,8 +102,8 @@
             where TFrom : class
             where TTo : class, new()
         {
-            Guard.NotNull(mapper, nameof(mapper));
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(mapper);
+            Guard.NotNull(from);
 
             return await from
                 .SelectAwait<TFrom, TTo>(async x => await MapAsync<TFrom, TTo>(mapper, x, parameters))
@@ -105,9 +124,9 @@
             where TFrom : class
             where TTo : class, new()
         {
-            Guard.NotNull(mapper, nameof(mapper));
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(mapper);
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             to.Clear();
             var items = await MapArrayAsync(mapper, from, (object)parameters);
