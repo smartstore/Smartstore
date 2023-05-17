@@ -441,8 +441,8 @@ namespace Smartstore.Web.Rendering
 
         public static IEnumerable<SelectListItem> GetLocalizedEnumSelectList(this IHtmlHelper helper, Type enumType)
         {
-            Guard.NotNull(helper, nameof(helper));
-            Guard.IsEnumType(enumType, nameof(enumType));
+            Guard.NotNull(helper);
+            Guard.IsEnumType(enumType);
 
             var requestServices = helper.ViewContext.HttpContext.RequestServices;
             var metadataProvider = requestServices.GetService<IModelMetadataProvider>();

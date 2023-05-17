@@ -925,12 +925,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Remove customer from 'Guests' role.
-            var guestsRoleName = await _db.CustomerRoles
-                .Where(x => x.SystemName == SystemCustomerRoleNames.Guests)
-                .Select(x => x.Name)
-                .FirstOrDefaultAsync();
-
-            await _userManager.RemoveFromRoleAsync(customer, guestsRoleName);
+            await _userManager.RemoveFromRoleAsync(customer, SystemCustomerRoleNames.Guests);
         }
 
         private IActionResult RedirectToLocal(string returnUrl)

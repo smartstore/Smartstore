@@ -5,7 +5,7 @@
     {
         public SystemNameAttribute(string name)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
             Name = name;
         }
 

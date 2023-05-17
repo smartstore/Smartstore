@@ -275,7 +275,7 @@ namespace Smartstore
 
             var numTotal = 0;
 
-            query = query.Take(bulkSize);
+            query = query.OrderBy(x => x.Id).Take(bulkSize);
 
             while (true)
             {
@@ -304,7 +304,7 @@ namespace Smartstore
 
             var numTotal = 0;
 
-            query = query.Take(bulkSize);
+            query = query.OrderBy(x => x.Id).Take(bulkSize);
 
             while (true)
             {
