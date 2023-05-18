@@ -51,6 +51,7 @@
 - Fixed SearchLog did not show top search terms in instant search.
 - Fixed redirect to login page instead of an error message when a guest wants to checkout and anonymous checkout is not allowed.
 - Fixed the category number in category navigation was not displayed when the catalog setting `ShowCategoryProductNumberIncludingSubcategories` was changed.
+- #681 For a message template, the assignment to the e-mail account is not removed when the e-mail account is deleted.
 
 
 ## Smartstore 5.0.4
