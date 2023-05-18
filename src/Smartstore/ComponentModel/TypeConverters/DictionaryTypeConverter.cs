@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Reflection;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json.Linq;
+using Smartstore.Collections;
 using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel.TypeConverters
@@ -42,6 +43,10 @@ namespace Smartstore.ComponentModel.TypeConverters
             else if (to == typeof(Dictionary<string, object>))
             {
                 return (Dictionary<string, object>)dict;
+            }
+            else if (to == typeof(HybridDictionary<string, object>))
+            {
+                return new HybridDictionary<string, object>(dict);
             }
             else if (to == typeof(ExpandoObject))
             {

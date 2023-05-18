@@ -12,7 +12,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="combination">Source attribute combination.</param>
         public static void MergeWithCombination(this Product product, ProductVariantAttributeCombination combination)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             var values = product.MergedDataValues;
 
