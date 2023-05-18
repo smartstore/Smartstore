@@ -67,8 +67,8 @@ namespace Smartstore.Web.Controllers
             {
                 ViewBag.AvailableCustomerSearchTypes = new List<SelectListItem>
                 {
-                    new SelectListItem { Text = "Name", Value = "Name", Selected = true },
-                    new SelectListItem { Text = "Email", Value = "Email" }
+                    new() { Text = "Name", Value = "Name", Selected = true },
+                    new() { Text = "Email", Value = "Email" }
                 };
 
                 if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
@@ -137,7 +137,7 @@ namespace Smartstore.Web.Controllers
                         var node = await _categoryService.GetCategoryTreeAsync(model.CategoryId, true);
                         if (node != null)
                         {
-                            searchQuery = searchQuery.WithCategoryIds(null, node.Flatten(true).Select(x => x.Id).ToArray());
+                            searchQuery = searchQuery.WithCategoryTreePath(node.GetTreePath(), null);
                         }
                     }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AngleSharp.Dom;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog;
@@ -35,7 +36,7 @@ namespace Smartstore.Core.Content.Menus
             SearchSettings searchSettings,
             IEnumerable<Lazy<IMenuItemProvider, MenuItemProviderMetadata>> menuItemProviders)
         {
-            Guard.NotEmpty(menuName, nameof(menuName));
+            Guard.NotEmpty(menuName);
 
             Name = menuName;
             Services = services;
@@ -96,39 +97,41 @@ namespace Smartstore.Core.Content.Menus
                                             continue;
                                         }
 
-                                        var entityIds = new HashSet<int>();
-                                        if (isCategory && _catalogSettings.ShowCategoryProductNumberIncludingSubcategories)
-                                        {
-                                            // Include sub-categories.
-                                            node.Traverse(x => entityIds.Add(x.Value.EntityId), true);
-                                        }
-                                        else
-                                        {
-                                            entityIds.Add(item.EntityId);
-                                        }
-
-                                        var context = new CatalogSearchQuery()
+                                        var storeId = Services.StoreContext.CurrentStoreIdIfMultiStoreMode;
+                                        var query = new CatalogSearchQuery()
                                             .VisibleOnly()
                                             .WithVisibility(ProductVisibility.Full)
-                                            .HasStoreId(Services.StoreContext.CurrentStoreIdIfMultiStoreMode)
+                                            .HasStoreId(storeId)
                                             .BuildFacetMap(false)
                                             .BuildHits(false);
 
                                         if (isCategory)
                                         {
-                                            context = context.WithCategoryIds(null, entityIds.ToArray());
+                                            if (_catalogSettings.ShowCategoryProductNumberIncludingSubcategories)
+                                            {
+                                                var categoryTree = await _categoryService.Value.GetCategoryTreeAsync(0, false, storeId);
+                                                var categoryNode = categoryTree.SelectNodeById(item.EntityId);
+                                                if (categoryNode != null)
+                                                {
+                                                    query = query.WithCategoryTreePath(categoryNode.GetTreePath(), null);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                query = query.WithCategoryIds(null, new[] { item.EntityId });
+                                            }
                                         }
                                         else
                                         {
-                                            context = context.WithManufacturerIds(null, entityIds.ToArray());
+                                            query = query.WithManufacturerIds(null, new[] { item.EntityId });
                                         }
 
                                         if (!_searchSettings.IncludeNotAvailable)
                                         {
-                                            context = context.AvailableOnly(true);
+                                            query = query.AvailableOnly(true);
                                         }
 
-                                        var searchResult = await _catalogSearchService.Value.SearchAsync(context);
+                                        var searchResult = await _catalogSearchService.Value.SearchAsync(query);
                                         item.ElementsCount = searchResult.TotalHitsCount;
                                         item.ElementsCountResolved = true;
                                     }
@@ -148,7 +151,7 @@ namespace Smartstore.Core.Content.Menus
 
         public override async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionContext actionContext)
         {
-            Guard.NotNull(actionContext, nameof(actionContext));
+            Guard.NotNull(actionContext);
 
             if (actionContext == null || !await ContainsProviderAsync("catalog"))
             {
