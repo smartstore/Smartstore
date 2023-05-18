@@ -8,6 +8,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Net.Mail;
 using Smartstore.Web.Models.DataGrid;
 
@@ -126,6 +127,7 @@ namespace Smartstore.Admin.Controllers
             var mapper = MapperFactory.GetMapper<EmailAccount, EmailAccountModel>();
             ViewBag.EmailAccounts = await _db.EmailAccounts
                 .AsNoTracking()
+                .AsNoCaching()
                 .SelectAwait(async x => await mapper.MapAsync(x))
                 .AsyncToList();
         }

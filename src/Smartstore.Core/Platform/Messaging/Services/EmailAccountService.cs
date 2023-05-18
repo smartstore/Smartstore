@@ -38,6 +38,9 @@ namespace Smartstore.Core.Messaging
             return HookResult.Ok;
         }
 
+        protected override Task<HookResult> OnDeletedAsync(EmailAccount entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
         public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             if (_hookErrorMessage.HasValue())
@@ -49,6 +52,23 @@ namespace Smartstore.Core.Messaging
             }
 
             return Task.CompletedTask;
+        }
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            var deletedAccountIds = entries
+                .Where(x => x.InitialState == EntityState.Deleted)
+                .Select(x => x.Entity)
+                .OfType<EmailAccount>()
+                .Select(x => x.Id)
+                .ToList();
+
+            if (deletedAccountIds.Count > 0)
+            {
+                await _db.MessageTemplates
+                    .Where(x => deletedAccountIds.Contains(x.EmailAccountId))
+                    .ExecuteUpdateAsync(x => x.SetProperty(p => p.EmailAccountId, p => _emailAccountSettings.DefaultEmailAccountId), cancelToken);
+            }
         }
 
         #endregion
