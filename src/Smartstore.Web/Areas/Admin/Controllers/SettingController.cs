@@ -412,7 +412,8 @@ namespace Smartstore.Admin.Controllers
             ModelState.Clear();
 
             // We need to clear the sitemap cache if MaxItemsToDisplayInCatalogMenu has changed.
-            if (catalogSettings.MaxItemsToDisplayInCatalogMenu != model.MaxItemsToDisplayInCatalogMenu)
+            if (catalogSettings.MaxItemsToDisplayInCatalogMenu != model.MaxItemsToDisplayInCatalogMenu
+                || catalogSettings.ShowCategoryProductNumberIncludingSubcategories != model.ShowCategoryProductNumberIncludingSubcategories)
             {
                 // Clear cached navigation model.
                 await _menuService.Value.ClearCacheAsync("Main");

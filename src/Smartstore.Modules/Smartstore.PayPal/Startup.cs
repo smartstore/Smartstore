@@ -56,7 +56,7 @@ namespace Smartstore.PayPal
 
             observer.ObserveSettingProperty<PayPalSettings>(
                 x => x.DisplayProductDetailPayLaterWidget, 
-                p => p.InvalidateByRouteAsync("Product/ProductDetails"));
+                p => p.InvalidateByRouteAsync(OutputCacheDefaults.ProductDetailsRoute));
         }
     }
 }

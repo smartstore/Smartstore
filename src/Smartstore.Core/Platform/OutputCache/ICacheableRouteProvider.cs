@@ -11,7 +11,7 @@ namespace Smartstore.Core.OutputCache
     {
         public CacheableRoute(string route)
         {
-            Guard.NotEmpty(route, nameof(route));
+            Guard.NotEmpty(route);
             Route = route;
         }
 

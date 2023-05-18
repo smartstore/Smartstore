@@ -70,7 +70,6 @@ namespace Smartstore.Core.Configuration
 
                 using (GetOrCreateDbContext(out var db))
                 {
-                    
                     var rawSettings = GetRawSettings(db, settingsType, storeId, true, false);
                     return MaterializeSettings(settingsType, rawSettings);
                 }

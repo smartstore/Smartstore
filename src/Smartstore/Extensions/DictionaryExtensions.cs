@@ -130,8 +130,8 @@ namespace Smartstore
 
         public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IDictionary<TKey, TValue> from, bool replaceExisting = true)
         {
-            Guard.NotNull(instance, nameof(instance));
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(instance);
+            Guard.NotNull(from);
 
             foreach (var kvp in from)
             {
@@ -146,8 +146,8 @@ namespace Smartstore
 
         public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, TValue value, bool replaceExisting = true)
         {
-            Guard.NotNull(instance, nameof(instance));
-            Guard.NotNull(key, nameof(key));
+            Guard.NotNull(instance);
+            Guard.NotNull(key);
 
             if (replaceExisting || !instance.ContainsKey(key))
             {

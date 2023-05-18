@@ -254,22 +254,22 @@ namespace Smartstore.Core.Configuration
 
         internal static string BuildCacheKeyForClassAccess(Type settingsType, int storeId)
         {
-            return ClassCacheKeyPattern.FormatInvariant(settingsType.Name, storeId.ToStringInvariant());
+            return ClassCacheKeyPattern.FormatInvariant(settingsType.Name.ToLowerInvariant(), storeId.ToStringInvariant());
         }
 
         internal static string BuildCacheKeyForClassAccess(string prefix, string suffix)
         {
-            return ClassCacheKeyPattern.FormatInvariant(prefix, suffix);
+            return ClassCacheKeyPattern.FormatInvariant(prefix.ToLowerInvariant(), suffix);
         }
 
         internal static string BuildCacheKeyForRawAccess(string prefix, int storeId)
         {
-            return RawCacheKeyPattern.FormatInvariant(prefix, storeId.ToStringInvariant());
+            return RawCacheKeyPattern.FormatInvariant(prefix.ToLowerInvariant(), storeId.ToStringInvariant());
         }
 
         internal static string BuildCacheKeyForRawAccess(string prefix, string suffix)
         {
-            return RawCacheKeyPattern.FormatInvariant(prefix, suffix);
+            return RawCacheKeyPattern.FormatInvariant(prefix.ToLowerInvariant(), suffix);
         }
 
         #endregion
