@@ -2,8 +2,13 @@
 
 ## Smartstore 5.0.5
 
+### Breaking Changes
+
+- Reindexing of MegaSearch search index required to include new category tree path.
+
 ### New Features
 
+- Increased performance: category tree path to filter products by categories.
 - Reverse proxy configuration using `ForwardedHeadersMiddleware`
 - SqliteDataProvider: 
   - Fixed case-insensitive `Contains()` and `Like()` failing on non-ascii characters.
