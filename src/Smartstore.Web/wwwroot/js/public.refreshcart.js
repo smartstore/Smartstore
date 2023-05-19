@@ -8,7 +8,10 @@ $(function () {
     orderSummary.on("click", ".ajax-action-link", function (e) {
         e.preventDefault();
         var link = $(this);
-        updateShoppingCartItems(link, link.data);
+        // What is "link.data"?
+        var data = link.data('post-form') ? $(this).closest('form').serialize() : link.data;
+        
+        updateShoppingCartItems(link, data);
         return false;
     });
 
@@ -52,7 +55,8 @@ $(function () {
 
                 var cartBody = $(".cart-body");
                 var totals = $("#order-totals");
-                var coupon = $(".cart-action-coupon");
+                var discountCoupon = $(".cart-action-coupon");
+                var giftCardCoupon = $(".cart-action-giftcard");
 
                 if (response.success) {
                     $("#start-checkout-buttons").toggleClass("d-none", !response.displayCheckoutButtons);
@@ -60,7 +64,13 @@ $(function () {
                     // Replace HTML.
                     cartBody.html(response.cartHtml);
                     totals.html(response.totalsHtml);
-                    coupon.html(response.discountHtml);
+
+                    if (discountCoupon) {
+                        discountCoupon.html(response.discountHtml);
+                    }
+                    if (giftCardCoupon) {
+                        giftCardCoupon.html(response.giftCardHtml);
+                    }
                 }
 
                 displayNotification(response.message, response.success ? "success" : "error");

@@ -29,24 +29,23 @@
             <div class="input-group" attr-class='(Model.CurrentCode.HasValue(), "has-success")'>
                 <input name="discountcouponcode" type="text" class="form-control form-control-success discount-coupon-code" value="@Model.CurrentCode" placeholder="@T("ShoppingCart.DiscountCouponCode.Tooltip")" />
                 <span class="input-group-btn input-group-append">
-                    @if (Model.CurrentCode.HasValue())
+                    @if (Model.CurrentCode.IsEmpty())
+                    {
+                        <a href="#"
+                           data-href='@Url.Action("ApplyDiscountCoupon", "ShoppingCart")'
+                           data-post-form="true"
+                           class="btn btn-primary apply-discount-coupon-code-button ajax-action-link">
+                            <i class="fa fa-check"></i>
+                            <span>@T("ShoppingCart.DiscountCouponCode.Button")</span>
+                        </a>
+                    }
+                    else
                     {
                         <a href="#"
                            data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
                            class="btn btn-danger remove-discount-button ajax-action-link">
                             <span>@T("Common.Remove")</span>
                         </a>
-                    }
-                    else
-                    {
-                        <button type="submit"
-                                class="btn btn-primary apply-discount-coupon-code-button"
-                                title="@T("ShoppingCart.DiscountCouponCode.Button")"
-                                name="applydiscountcouponcode"
-                                value="applydiscountcouponcode">
-                            <i class="fa fa-check"></i>
-                            <span>@T("ShoppingCart.DiscountCouponCode.Button")</span>
-                        </button>
                     }
                 </span>
             </div>

@@ -188,6 +188,7 @@ namespace Smartstore.Web.Components
             if (cartTotal.DiscountAmount > decimal.Zero)
             {
                 var orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
+
                 model.OrderTotalDiscount = orderTotalDiscountAmount * -1;
                 model.AllowRemovingOrderTotalDiscount = cartTotal.AppliedDiscount != null
                     && cartTotal.AppliedDiscount.RequiresCouponCode

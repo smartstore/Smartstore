@@ -24,8 +24,7 @@
         <td class="cart-summary-label">
             @if (Model.AllowRemovingSubTotalDiscount)
             {
-                <a href="#"
-                   data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
+                <a href="#" data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
                    class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
                    title="@T("Common.Remove")">
                     <i class="fa">&times;</i>
@@ -88,8 +87,7 @@
         <td class="cart-summary-label">
             @if (Model.AllowRemovingOrderTotalDiscount)
             {
-                <a href="#"
-                   data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
+                <a href="#" data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
                    class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
                    title="@T("Common.Remove")">
                     <i class="fa">&times;</i>
@@ -110,7 +108,7 @@
 
                     <div sm-if="Model.IsEditable" class="col col-auto">
                         <a href="#"
-                           data-href='@Url.Action("RemoveGiftCardCode", "ShoppingCart", new { giftCardId = gc.Id })'
+                           data-href='@Url.Action("RemoveGiftCardCoupon", "ShoppingCart", new { giftCardId = gc.Id })'
                            class="btn-remove remove-discount-button pretty-link ajax-action-link"
                            title="@T("Common.Remove")">
                             <i class="fa">&times;</i>
