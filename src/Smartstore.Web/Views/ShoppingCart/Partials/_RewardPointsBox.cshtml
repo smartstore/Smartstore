@@ -27,10 +27,13 @@
         </div>
 
         <div class="form-group">
-            <button type="submit" name="applyrewardpoints" value="applyrewardpoints" class="btn btn-primary">
+            <a href="#"
+               data-href='@Url.Action("ApplyRewardPoints", "ShoppingCart")'
+               data-post-form="true"
+               class="btn btn-primary apply-reward-points-button ajax-action-link">
                 <i class="fa fa-check"></i>
                 <span>@T("ShoppingCart.RewardPoints.Button")</span>
-            </button>
+            </a>
         </div>
     </div>
 </div>

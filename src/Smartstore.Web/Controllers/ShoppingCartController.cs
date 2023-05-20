@@ -904,81 +904,6 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
-        [HttpPost, ActionName("Cart")]
-        [IgnoreAntiforgeryToken]
-        [FormValueRequired("estimateshipping")]
-        [LocalizedRoute("/cart", Name = "ShoppingCart")]
-        public async Task<IActionResult> GetEstimateShipping(EstimateShippingModel shippingModel, ProductVariantQuery query)
-        {
-            var storeId = Services.StoreContext.CurrentStore.Id;
-            var currency = Services.WorkContext.WorkingCurrency;
-            var cart = await _shoppingCartService.GetCartAsync(storeId: storeId);
-
-            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
-            await _db.SaveChangesAsync();
-
-            var model = await cart.MapAsync(setEstimateShippingDefaultAddress: false);
-
-            model.EstimateShipping.CountryId = shippingModel.CountryId;
-            model.EstimateShipping.StateProvinceId = shippingModel.StateProvinceId;
-            model.EstimateShipping.ZipPostalCode = shippingModel.ZipPostalCode;
-
-            if (cart.IncludesMatchingItems(x => x.IsShippingEnabled))
-            {
-                var shippingInfoUrl = await Url.TopicAsync("ShippingInfo");
-                if (shippingInfoUrl.HasValue())
-                {
-                    model.EstimateShipping.ShippingInfoUrl = shippingInfoUrl;
-                }
-
-                var address = new Address
-                {
-                    CountryId = shippingModel.CountryId,
-                    Country = await _db.Countries.FindByIdAsync(shippingModel.CountryId.GetValueOrDefault(), false),
-                    StateProvinceId = shippingModel.StateProvinceId,
-                    StateProvince = await _db.StateProvinces.FindByIdAsync(shippingModel.StateProvinceId.GetValueOrDefault(), false),
-                    ZipPostalCode = shippingModel.ZipPostalCode,
-                };
-
-                var getShippingOptionResponse = await _shippingService.GetShippingOptionsAsync(cart, address, storeId: storeId);
-                if (!getShippingOptionResponse.Success)
-                {
-                    model.EstimateShipping.Warnings.AddRange(getShippingOptionResponse.Errors);
-                }
-                else
-                {
-                    if (getShippingOptionResponse.ShippingOptions.Any())
-                    {
-                        var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId);
-                        var shippingTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
-
-                        foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
-                        {
-                            var soModel = new EstimateShippingModel.ShippingOptionModel
-                            {
-                                ShippingMethodId = shippingOption.ShippingMethodId,
-                                Name = shippingOption.Name,
-                                Description = shippingOption.Description
-                            };
-
-                            var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
-                            var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
-                            var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, currency);
-                            soModel.Price = rate.WithPostFormat(shippingTaxFormat).ToString();
-
-                            model.EstimateShipping.ShippingOptions.Add(soModel);
-                        }
-                    }
-                    else
-                    {
-                        model.EstimateShipping.Warnings.Add(T("Checkout.ShippingIsNotAllowed"));
-                    }
-                }
-            }
-
-            return View(model);
-        }
-
         #region Upload
 
         [HttpPost]
@@ -1276,35 +1201,126 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
+            var model = await cart.MapAsync();
+
+            var giftCardHtml = await InvokePartialViewAsync("_GiftCardBox", model.GiftCardBox);
             var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
             return Json(new
             {
                 success = true,
                 totalsHtml,
+                giftCardHtml,
                 displayCheckoutButtons = true
             });
         }
 
         #endregion
 
-        [HttpPost, ActionName("Cart")]
-        [FormValueRequired("applyrewardpoints")]
-        [LocalizedRoute("/cart", Name = "ShoppingCart")]
+        [HttpPost]
         public async Task<IActionResult> ApplyRewardPoints(ProductVariantQuery query, bool useRewardPoints = false)
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
-            var model = new ShoppingCartModel();
-            await cart.MapAsync(model);
-
-            model.RewardPoints.UseRewardPoints = useRewardPoints;
-
             cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
             cart.Customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints;
 
             await _db.SaveChangesAsync();
 
-            return View(model);
+            var model = await cart.MapAsync();
+            model.RewardPoints.UseRewardPoints = useRewardPoints;
+
+            var rewardPointsHtml = await InvokePartialViewAsync("_RewardPointsBox", model.RewardPoints);
+            var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+
+            return Json(new
+            {
+                success = true,
+                totalsHtml,
+                rewardPointsHtml,
+                displayCheckoutButtons = true
+            });
+        }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> EstimateShipping(ProductVariantQuery query, EstimateShippingModel shippingModel)
+        {
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var currency = Services.WorkContext.WorkingCurrency;
+            var cart = await _shoppingCartService.GetCartAsync(storeId: storeId);
+
+            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+            await _db.SaveChangesAsync();
+
+            var model = await cart.MapAsync(setEstimateShippingDefaultAddress: false);
+
+            model.EstimateShipping.CountryId = shippingModel.CountryId;
+            model.EstimateShipping.StateProvinceId = shippingModel.StateProvinceId;
+            model.EstimateShipping.ZipPostalCode = shippingModel.ZipPostalCode;
+
+            if (cart.IncludesMatchingItems(x => x.IsShippingEnabled))
+            {
+                var shippingInfoUrl = await Url.TopicAsync("ShippingInfo");
+                if (shippingInfoUrl.HasValue())
+                {
+                    model.EstimateShipping.ShippingInfoUrl = shippingInfoUrl;
+                }
+
+                var address = new Address
+                {
+                    CountryId = shippingModel.CountryId,
+                    Country = await _db.Countries.FindByIdAsync(shippingModel.CountryId.GetValueOrDefault(), false),
+                    StateProvinceId = shippingModel.StateProvinceId,
+                    StateProvince = await _db.StateProvinces.FindByIdAsync(shippingModel.StateProvinceId.GetValueOrDefault(), false),
+                    ZipPostalCode = shippingModel.ZipPostalCode,
+                };
+
+                var getShippingOptionResponse = await _shippingService.GetShippingOptionsAsync(cart, address, storeId: storeId);
+                if (!getShippingOptionResponse.Success)
+                {
+                    model.EstimateShipping.Warnings.AddRange(getShippingOptionResponse.Errors);
+                }
+                else
+                {
+                    if (getShippingOptionResponse.ShippingOptions.Any())
+                    {
+                        var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId);
+                        var shippingTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
+
+                        foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
+                        {
+                            var soModel = new EstimateShippingModel.ShippingOptionModel
+                            {
+                                ShippingMethodId = shippingOption.ShippingMethodId,
+                                Name = shippingOption.Name,
+                                Description = shippingOption.Description
+                            };
+
+                            var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
+                            var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
+                            var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, currency);
+                            soModel.Price = rate.WithPostFormat(shippingTaxFormat).ToString();
+
+                            model.EstimateShipping.ShippingOptions.Add(soModel);
+                        }
+                    }
+                    else
+                    {
+                        model.EstimateShipping.Warnings.Add(T("Checkout.ShippingIsNotAllowed"));
+                    }
+                }
+            }
+
+            var estimateShippingHtml = await InvokePartialViewAsync("EstimateShipping", model.EstimateShipping);
+            var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+
+            return Json(new
+            {
+                success = true,
+                totalsHtml,
+                estimateShippingHtml,
+                displayCheckoutButtons = true
+            });
         }
     }
 }

@@ -54,28 +54,34 @@ $(function () {
                 }
 
                 var cartBody = $(".cart-body");
-                var totals = $("#order-totals");
-                var discountCoupon = $(".cart-action-coupon");
-                var giftCardCoupon = $(".cart-action-giftcard");
 
                 if (response.success) {
                     $("#start-checkout-buttons").toggleClass("d-none", !response.displayCheckoutButtons);
 
                     // Replace HTML.
-                    cartBody.html(response.cartHtml);
-                    totals.html(response.totalsHtml);
-
-                    if (discountCoupon) {
-                        discountCoupon.html(response.discountHtml);
+                    if (!_.isEmpty(response.cartHtml)) {
+                        cartBody.html(response.cartHtml);
                     }
-                    if (giftCardCoupon) {
-                        giftCardCoupon.html(response.giftCardHtml);
+                    if (!_.isEmpty(response.totalsHtml)) {
+                        $('#order-totals').html(response.totalsHtml);
+                    }
+                    if (!_.isEmpty(response.discountHtml)) {
+                        $('.cart-action-coupon').replaceWith(response.discountHtml);
+                    }
+                    if (!_.isEmpty(response.giftCardHtml)) {
+                        $('.cart-action-giftcard').replaceWith(response.giftCardHtml);
+                    }
+                    if (!_.isEmpty(response.rewardPointsHtml)) {
+                        $('.cart-action-rewardpoints').replaceWith(response.rewardPointsHtml);
+                    }
+                    if (!_.isEmpty(response.estimateShippingHtml)) {
+                        $('.cart-action-shipping').replaceWith(response.estimateShippingHtml);
                     }
                 }
 
                 displayNotification(response.message, response.success ? "success" : "error");
 
-                // Reinit qty controls.
+                // Reinit quantity controls.
                 applyCommonPlugins(cartBody);
 
                 // Update shopbar.

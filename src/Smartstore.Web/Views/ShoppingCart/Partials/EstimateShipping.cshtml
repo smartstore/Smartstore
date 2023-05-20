@@ -35,7 +35,7 @@
 		<div sm-if="isExpanded" class="alert alert-success">
 			@foreach (var shippingOption in Model.ShippingOptions)
 			{
-				<div class="shipping-option-item mb-2">
+				<div class="shipping-option-item mb-1">
 					<div class="option-name font-weight-medium">
 						@Html.Raw(HttpUtility.HtmlDecode(shippingOption.Name))
 						(@shippingOption.Price)
@@ -68,7 +68,12 @@
 				<span asp-validation-for="ZipPostalCode"></span>
             </div>
             <div class="form-group">
-                <input type="submit" name="estimateshipping" value="@T("ShoppingCart.EstimateShipping.Button")" class="btn btn-warning estimate-shipping-button" />
+                <a href="#"
+                   data-href='@Url.Action("EstimateShipping", "ShoppingCart")'
+                   data-post-form="true"
+                   class="btn btn-warning estimate-shipping-button ajax-action-link">
+                    <span>@T("ShoppingCart.RewardPoints.Button")</span>
+                </a>
             </div>
         </div>
 
