@@ -3,23 +3,18 @@
 @model SearchResultModel
 
 @{
-    var hitGroups = Model.HitGroups.Where(x => x.Hits.Any()).OrderBy(x => x.Ordinal).ToArray();
-    var hasContent = Model.TopProducts.Items.Count > 0 || hitGroups.Any();
-    var isMultiCol = false;
-    if (hasContent)
-    {
-        isMultiCol =
-            Model.TopProducts.Items.Count > 0
-            && (hitGroups.Length > 1 && hitGroups.Sum(x => x.Hits.Count) > 4);
-    }
+    var hitGroups = Model.HitGroups.Where(x => x.Hits.Count > 0).OrderBy(x => x.Ordinal).ToArray();
+    var hasContent = Model.TopProducts.Items.Count > 0 || hitGroups.Length > 0;
+    var isMultiCol = hasContent && hitGroups.Length > 1 && hitGroups.Sum(x => x.Hits.Count) > 4;
 }
 
 @if (!hasContent)
 {
-    return;
+    <div class="instasearch-no-hits">
+        @T("Search.NoResultsText")
+    </div>
 }
-
-@if (isMultiCol)
+else if (isMultiCol)
 {
     <div class="row no-gutters instasearch-row">
         <div class="col col-sm-6 col-xl-5 instasearch-col">
@@ -44,7 +39,6 @@ else
     if (Model.TopProducts.Items.Count > 0)
     {
         <h6 class="instasearch-group-header">@T("Search.Hits")</h6>
-
         <partial name="InstantSearch.TopProducts" model="Model" />
     }
 }
