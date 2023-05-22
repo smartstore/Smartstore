@@ -143,9 +143,8 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 // Process sub-categories.
                 var subCategories = await _db.Categories
-                    .AsQueryable()
-                    .Where(x => x.ParentId == c.Id)
-                    .OrderBy(x => x.DisplayOrder)
+                    .ApplyDescendantsFilter(c)
+                    .Select(x => (Category)x)
                     .ToListAsync();
 
                 foreach (var subCategory in subCategories)
@@ -274,9 +273,8 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 // Process sub-categories.
                 var subCategories = await _db.Categories
-                    .AsQueryable()
-                    .Where(x => x.ParentId == c.Id)
-                    .OrderBy(x => x.DisplayOrder)
+                    .ApplyDescendantsFilter(c)
+                    .Select(x => (Category)x)
                     .ToListAsync();
 
                 foreach (var subCategory in subCategories)
