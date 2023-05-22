@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.OData.Formatter;
+using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Web.Api.Models.Checkout;
 using Smartstore.Web.Controllers;
 
@@ -15,14 +18,20 @@ namespace Smartstore.Web.Api.Controllers
     public class OrdersController : WebApiController<Order>
     {
         private readonly Lazy<IOrderProcessingService> _orderProcessingService;
+        private readonly Lazy<ISettingFactory> _settingFactory;
         private readonly Lazy<OrderHelper> _orderHelper;
+        private readonly IWorkContext _workContext;
 
         public OrdersController(
             Lazy<IOrderProcessingService> orderProcessingService,
-            Lazy<OrderHelper> orderHelper)
+            Lazy<ISettingFactory> settingFactory,
+            Lazy<OrderHelper> orderHelper,
+            IWorkContext workContext)
         {
             _orderProcessingService = orderProcessingService;
+            _settingFactory = settingFactory;
             _orderHelper = orderHelper;
+            _workContext = workContext;
         }
 
         [HttpGet("Orders"), ApiQueryable]
@@ -117,6 +126,86 @@ namespace Smartstore.Web.Api.Controllers
         }
 
         #region Actions and functions
+
+        /// <summary>
+        /// Gets prepared order details like the SKU or image URL of the ordered product variant.
+        /// </summary>
+        [HttpGet("Orders/GetDetails(id={id})")]
+        [Permission(Permissions.Order.Read)]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(OrderDetails), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> GetDetails(int id)
+        {
+            IActionResult result = null;
+            Language workingLanguage = null;
+
+            try
+            {
+                var entity = await Entities
+                    .Include(x => x.ShippingAddress)
+                    .Include(x => x.BillingAddress)
+                    .Include(x => x.OrderItems)
+                    .ThenInclude(x => x.Product)
+                    .FindByIdAsync(id);
+
+                if (entity == null)
+                {
+                    return NotFound(id);
+                }
+
+                if (entity.CustomerLanguageId != _workContext.WorkingLanguage.Id)
+                {
+                    // Get details in context of language that was applied at the time the order was placed.
+                    workingLanguage = _workContext.WorkingLanguage;
+                    _workContext.WorkingLanguage = await Db.Languages.FindByIdAsync(entity.CustomerLanguageId, false);
+                }
+
+                var model = await _orderHelper.Value.PrepareOrderDetailsModelAsync(entity);
+
+                var items = model.Items
+                    .Select(x => new OrderDetails.OrderItemDetails
+                    {
+                        OrderItemId = x.Id,
+                        ProductId = x.ProductId,
+                        Sku = x.Sku,
+                        ProductName = x.ProductName,
+                        ProductSlug = x.ProductSeName,
+                        ProductUrl = x.ProductUrl,
+                        UnitPrice = x.UnitPrice.RoundedAmount,
+                        SubTotal = x.SubTotal.RoundedAmount,
+                        ProductImageUrl = x.Image?.Url,
+                        ProductThumbUrl = x.Image?.ThumbUrl
+                    })
+                    .ToList();
+
+                var details = new OrderDetails
+                {
+                    Id = entity.Id,
+                    ShowSku = model.ShowSku,
+                    ShowProductImages = model.ShowProductImages,
+                    OrderTotal = model.OrderTotal.RoundedAmount,
+                    OrderSubtotal = model.OrderSubtotal.RoundedAmount,
+                    Items = items
+                };
+
+                result = Ok(details);
+            }
+            catch (Exception ex)
+            {
+                result = ErrorResult(ex);
+            }
+            finally
+            {
+                if (workingLanguage != null)
+                {
+                    _workContext.WorkingLanguage = workingLanguage;
+                }
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Gets additional shipment information for an order.
@@ -363,6 +452,7 @@ namespace Smartstore.Web.Api.Controllers
         [Permission(Permissions.Order.Update)]
         [Produces(Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
+        [ProducesResponseType(Status403Forbidden)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> ReOrder(int key)
@@ -370,6 +460,13 @@ namespace Smartstore.Web.Api.Controllers
             try
             {
                 var entity = await GetRequiredById(key);
+                var orderSettings = await _settingFactory.Value.LoadSettingsAsync<OrderSettings>(entity.StoreId);
+
+                if (!orderSettings.IsReOrderAllowed)
+                {
+                    return Forbidden($"Reorder is forbidden due to setting {nameof(OrderSettings)}.{nameof(OrderSettings.IsReOrderAllowed)} for store with ID {entity.StoreId}.");
+                }
+
                 await _orderProcessingService.Value.ReOrderAsync(entity);
 
                 return Ok(entity);
