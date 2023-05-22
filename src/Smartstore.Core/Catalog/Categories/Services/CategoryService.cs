@@ -11,6 +11,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Categories
 {
@@ -149,10 +150,7 @@ namespace Smartstore.Core.Catalog.Categories
 
                 foreach (var subCategory in subCategories)
                 {
-                    if (subCategory.SubjectToAcl != referenceCategory.SubjectToAcl)
-                    {
-                        subCategory.SubjectToAcl = referenceCategory.SubjectToAcl;
-                    }
+                    subCategory.SubjectToAcl = referenceCategory.SubjectToAcl;
 
                     var aclRecords = await _db.AclRecords
                         .ApplyEntityFilter(subCategory)
@@ -179,13 +177,7 @@ namespace Smartstore.Core.Catalog.Categories
                 await scope.CommitAsync();
                 affectedCategories += subCategories.Count;
 
-                // Process products.
-                var categoryIds = new HashSet<int>(subCategories.Select(x => x.Id))
-                {
-                    c.Id
-                };
-
-                var searchQuery = new CatalogSearchQuery().WithCategoryIds(null, categoryIds.ToArray());
+                var searchQuery = new CatalogSearchQuery().WithCategoryTreePath(c.TreePath, featuredOnly: null, includeSelf: true);
                 var productsQuery = _catalogSearchService.PrepareQuery(searchQuery);
                 var productsPager = new FastPager<Product>(productsQuery, 500);
 
@@ -193,10 +185,7 @@ namespace Smartstore.Core.Catalog.Categories
                 {
                     foreach (var product in products)
                     {
-                        if (product.SubjectToAcl != referenceCategory.SubjectToAcl)
-                        {
-                            product.SubjectToAcl = referenceCategory.SubjectToAcl;
-                        }
+                        product.SubjectToAcl = referenceCategory.SubjectToAcl;
 
                         var aclRecords = await _db.AclRecords
                             .ApplyEntityFilter(product)
@@ -226,18 +215,7 @@ namespace Smartstore.Core.Catalog.Categories
 
                 await scope.CommitAsync();
 
-                try
-                {
-                    scope.DbContext.DetachEntities(x => x is Product || x is Category || x is AclRecord, false);
-                }
-                catch 
-                { 
-                }
-
-                foreach (var subCategory in subCategories)
-                {
-                    await ProcessCategory(scope, subCategory);
-                }
+                CommonHelper.TryAction(() => scope.DbContext.DetachEntities(x => x is Product || x is Category || x is AclRecord, false));
             }
         }
 

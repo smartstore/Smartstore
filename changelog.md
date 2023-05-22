@@ -8,7 +8,6 @@
 
 ### New Features
 
-- Increased performance: category tree path to filter products by categories.
 - Reverse proxy configuration using `ForwardedHeadersMiddleware`
 - SqliteDataProvider: 
   - Fixed case-insensitive `Contains()` and `Like()` failing on non-ascii characters.
@@ -17,7 +16,8 @@
 
 ### Improvements
 
-- Better PayPal implementaion. Added providers for every single payment option.
+- Increased performance: category tree path to filter products by categories.
+- Better PayPal implementaion: added providers for every single payment option.
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
 - Added a search filter for country grid.
 
