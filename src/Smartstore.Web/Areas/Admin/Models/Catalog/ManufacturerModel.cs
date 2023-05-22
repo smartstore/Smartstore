@@ -131,6 +131,7 @@ namespace Smartstore.Admin.Models.Catalog
         }
     }
 
+    [Mapper(Lifetime = ServiceLifetime.Singleton)]
     public class ManufacturerMapper :
         IMapper<Manufacturer, ManufacturerModel>,
         IMapper<ManufacturerModel, Manufacturer>

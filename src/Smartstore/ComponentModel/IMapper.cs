@@ -1,4 +1,6 @@
-﻿namespace Smartstore.ComponentModel
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace Smartstore.ComponentModel
 {
     /// <summary>
     /// Responsible for mapping objects of type <typeparamref name="TFrom"/>
@@ -24,6 +26,7 @@
     {
         public string Name { get; set; }
         public int Order { get; set; }
+        public ServiceLifetime Lifetime { get; set; } = ServiceLifetime.Scoped;
     }
 
     /// <summary>

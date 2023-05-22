@@ -24,8 +24,8 @@ namespace Smartstore.Admin.Models.Logging
         public string SystemAccountName { get; set; }
     }
 
-    public class ActivityLogMapper :
-        IMapper<ActivityLog, ActivityLogModel>
+    [Mapper(Lifetime = ServiceLifetime.Singleton)]
+    public class ActivityLogMapper : IMapper<ActivityLog, ActivityLogModel>
     {
         public Task MapAsync(ActivityLog from, ActivityLogModel to, dynamic parameters = null)
         {

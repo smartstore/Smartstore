@@ -153,7 +153,10 @@ namespace Smartstore.Admin.Models
         }
     }
 
-    public class MediaSettingsMapper : IMapper<MediaSettings, MediaSettingsModel>, IMapper<MediaSettingsModel, MediaSettings>
+    [Mapper(Lifetime = ServiceLifetime.Singleton)]
+    public class MediaSettingsMapper :
+        IMapper<MediaSettings, MediaSettingsModel>, 
+        IMapper<MediaSettingsModel, MediaSettings>
     {
         public Task MapAsync(MediaSettings from, MediaSettingsModel to, dynamic parameters = null)
         {

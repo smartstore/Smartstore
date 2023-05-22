@@ -80,8 +80,8 @@ namespace Smartstore.Admin.Models.Common
         }
     }
 
-    public class CountryMapper :
-        IMapper<Country, CountryModel>
+    [Mapper(Lifetime = ServiceLifetime.Singleton)]
+    public class CountryMapper : IMapper<Country, CountryModel>
     {
         public Task MapAsync(Country from, CountryModel to, dynamic parameters = null)
         {

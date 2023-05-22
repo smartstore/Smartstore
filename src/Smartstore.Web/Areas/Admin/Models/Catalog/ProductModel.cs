@@ -732,6 +732,7 @@ namespace Smartstore.Admin.Models.Catalog
         }
     }
 
+    [Mapper(Lifetime = ServiceLifetime.Singleton)]
     public class ProductMapper : IMapper<Product, ProductModel>
     {
         public async Task MapAsync(Product from, ProductModel to, dynamic parameters = null)

@@ -185,6 +185,7 @@ namespace Smartstore.Admin.Models.Topics
         }
     }
 
+    [Mapper(Lifetime = ServiceLifetime.Singleton)]
     public class TopicMapper : IMapper<Topic, TopicModel>
     {
         public async Task MapAsync(Topic from, TopicModel to, dynamic parameters = null)

@@ -172,6 +172,7 @@ namespace Smartstore.Admin.Models.Catalog
         }
     }
 
+    [Mapper(Lifetime = ServiceLifetime.Singleton)]
     public class CategoryMapper :
         IMapper<Category, CategoryModel>,
         IMapper<CategoryModel, Category>

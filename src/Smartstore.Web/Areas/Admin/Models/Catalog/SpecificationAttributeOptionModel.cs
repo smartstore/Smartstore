@@ -57,6 +57,7 @@ namespace Smartstore.Admin.Models.Catalog
         }
     }
 
+    [Mapper(Lifetime = ServiceLifetime.Singleton)]
     public class SpecificationAttributeOptionMapper :
         IMapper<SpecificationAttributeOption, SpecificationAttributeOptionModel>,
         IMapper<SpecificationAttributeOptionModel, SpecificationAttributeOption>

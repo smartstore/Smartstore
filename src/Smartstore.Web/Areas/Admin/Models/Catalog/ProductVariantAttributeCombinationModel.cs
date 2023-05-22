@@ -115,6 +115,7 @@ namespace Smartstore.Admin.Models.Catalog
         #endregion
     }
 
+    [Mapper(Lifetime = ServiceLifetime.Singleton)]
     public class ProductVariantAttributeCombinationMapper :
         IMapper<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>,
         IMapper<ProductVariantAttributeCombinationModel, ProductVariantAttributeCombination>
