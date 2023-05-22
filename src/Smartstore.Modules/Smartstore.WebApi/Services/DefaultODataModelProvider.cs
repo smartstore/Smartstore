@@ -303,6 +303,11 @@ namespace Smartstore.Web.Api
             var set = builder.EntitySet<Order>("Orders");
             var config = set.EntityType.Collection;
 
+            config.Function(nameof(OrdersController.GetDetails))
+                .Returns<OrderDetails>()
+                .Parameter<int>("id")
+                .Required();
+
             config.Function(nameof(OrdersController.GetShipmentInfo))
                 .Returns<OrderShipmentInfo>()
                 .Parameter<int>("id")
