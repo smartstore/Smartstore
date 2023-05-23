@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Checkout.Orders;
 
@@ -49,7 +48,6 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets or sets the gift card
         /// </summary>
-        [IgnoreDataMember]
         public GiftCard GiftCard
         {
             get => _giftCard ?? LazyLoader.Load(this, ref _giftCard);
@@ -60,7 +58,6 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets the order associated with the gift card
         /// </summary>
-        [IgnoreDataMember]
         public Order UsedWithOrder
         {
             get => _usedWithOrder ?? LazyLoader.Load(this, ref _usedWithOrder);

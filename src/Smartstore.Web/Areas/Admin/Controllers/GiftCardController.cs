@@ -134,7 +134,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [Permission(Permissions.Promotion.Discount.Create)]
+        [Permission(Permissions.Order.GiftCard.Create)]
         public async Task<IActionResult> Create(GiftCardModel model, bool continueEditing)
         {
             if (ModelState.IsValid)

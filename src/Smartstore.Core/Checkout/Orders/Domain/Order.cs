@@ -542,7 +542,6 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets gift card usage history (gift card that were used with this order)
         /// </summary>
-        [IgnoreDataMember]
         public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
             get => _giftCardUsageHistory ?? LazyLoader.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
