@@ -12,7 +12,9 @@
 - SqliteDataProvider: 
   - Fixed case-insensitive `Contains()` and `Like()` failing on non-ascii characters.
   - Implemented BackupRestore feature
-- #709 Web API: added an endpoint that returns order data prepared for an invoice (including variant SKU).
+- Web API:
+  - #709 added an endpoint that returns order data prepared for an invoice (including variant SKU).
+  - #717 added `GiftCard` and `GiftCardUsageHistory`.
 
 ### Improvements
 
