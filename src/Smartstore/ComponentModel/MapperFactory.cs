@@ -25,25 +25,25 @@ namespace Smartstore.ComponentModel
     public static class MapperFactory
     {
         // Mapper registrations map
-        private static Multimap<MapperKey, MapperType> _mapperTypes = default!;
         private static Dictionary<MapperKey, MapperRegistration> _mapperRegistrations = default!;
-        // Singleton mapper instances cache
-        private static readonly Dictionary<MapperKey, object> _mapperInstances = new();
-        private static readonly SingletonMapperLifetime _singletonMapperLifetime = new();
-
+        // Lifetimes
+        private readonly static MapperLifetime _singletonMapperLifetime = new SingletonMapperLifetime();
+        private readonly static MapperLifetime _scopeMapperLifetime = new ScopeMapperLifetime();
+        private readonly static MapperLifetime _transientMapperLifetime = new TransientMapperLifetime();
+        // Init lock
         private readonly static object _lock = new();
 
         #region Init
 
         private static void EnsureInitialized()
         {
-            if (_mapperTypes == null)
+            if (_mapperRegistrations == null)
             {
                 lock (_lock)
                 {
-                    if (_mapperTypes == null)
+                    if (_mapperRegistrations == null)
                     {
-                        _mapperTypes = new Multimap<MapperKey, MapperType>();
+                        _mapperRegistrations = new Dictionary<MapperKey, MapperRegistration>();
 
                         var typeScanner = EngineContext.Current.Application.Services.ResolveOptional<ITypeScanner>();
                         var mapperTypes = typeScanner?.FindTypes(typeof(IMapper<,>));
@@ -51,7 +51,6 @@ namespace Smartstore.ComponentModel
                         if (mapperTypes != null)
                         {
                             RegisterMappers(mapperTypes.ToArray());
-                            //RegisterMappers2(mapperTypes.ToArray());
                         }
 
                     }
@@ -62,41 +61,19 @@ namespace Smartstore.ComponentModel
         /// <summary>
         /// For testing purposes
         /// </summary>
-        internal static void RegisterMappers(params Type[] mapperTypes)
-        {
-            _mapperTypes ??= new Multimap<MapperKey, MapperType>();
-
-            foreach (var type in mapperTypes)
-            {
-                var closedTypes = type.GetClosedGenericTypesOf(typeof(IMapper<,>));
-                var mapperAttribute = type.GetAttribute<MapperAttribute>(true);
-
-                foreach (var closedType in closedTypes)
-                {
-                    var args = closedType.GetGenericArguments();
-
-                    var typePair = new MapperKey(
-                        args[0],
-                        args[1], 
-                        mapperAttribute?.Name.NullEmpty());
-
-                    _mapperTypes.Add(typePair, new MapperType(type, mapperAttribute?.Order ?? 0));
-                }
-            }
-        }
-
-        /// <summary>
-        /// For testing purposes
-        /// </summary>
-        internal static void RegisterMappers2(params Type[] implTypes)
+        internal static void RegisterMappers(params Type[] implTypes)
         {
             var defaultMapperAttribute = new MapperAttribute();
+
             // Item1 = ImplType, Item2 = declared or default attribute
             var mapperTypes = new Multimap<MapperKey, (Type Type, MapperAttribute Attr)>();
 
             foreach (var type in implTypes)
             {
+                // Extract ALL IMapper<TFrom, TTo> closed types from impl type.
                 var closedTypes = type.GetClosedGenericTypesOf(typeof(IMapper<,>));
+
+                // Look up MapperAttribute annotation on impl type or create default.
                 var mapperAttr = type.GetAttribute<MapperAttribute>(true) ?? defaultMapperAttribute;
 
                 foreach (var closedType in closedTypes)
@@ -121,13 +98,18 @@ namespace Smartstore.ComponentModel
                     .Select(x => x.Type)
                     .ToArray();
 
-                var lifetime = kvp.Value
+                var lifetimeEnum = kvp.Value
                     .Select(x => x.Attr.Lifetime)
                     .Max();
 
-                var registration = new MapperRegistration(orderedMapperTypes, lifetime);
+                var lifetime = lifetimeEnum switch
+                {
+                    ServiceLifetime.Singleton   => _singletonMapperLifetime,
+                    ServiceLifetime.Transient   => _transientMapperLifetime,
+                    _                           => _scopeMapperLifetime,
+                };
 
-                _mapperRegistrations[kvp.Key] = registration;
+                _mapperRegistrations[kvp.Key] = new MapperRegistration(orderedMapperTypes, lifetime);
             }
         }
 
@@ -164,35 +146,43 @@ namespace Smartstore.ComponentModel
             EnsureInitialized();
 
             var mapperKey = new MapperKey(typeof(TFrom), typeof(TTo), name);
-            var scope = EngineContext.Current.Scope;
-            var requestCache = scope.Resolve<IRequestCache>();
 
-            var mapper = requestCache.Get(mapperKey, () =>
+            if (_mapperRegistrations.TryGetValue(mapperKey, out var registration))
             {
-                if (_mapperTypes.TryGetValues(mapperKey, out var mapperTypes))
+                // Found a registration, try to resolve instance from lifetime.
+                var instance = registration.Lifetime.GetMapper(mapperKey);
+                if (instance != null)
                 {
-                    var instances = mapperTypes
-                        .OrderBy(t => t.Order)
-                        .Select(t => ResolveMapper(t.Type, scope))
-                        .Where(x => x != null)
-                        .ToArray();
-
-                    if (instances.Length == 1)
-                    {
-                        return instances[0];
-                    }
-                    else if (instances.Length > 1)
-                    {
-                        return new CompositeMapper<TFrom, TTo>(instances!);
-                    }
+                    // Mapper instance exists, return.
+                    return (IMapper<TFrom, TTo>)instance;
                 }
 
-                return null;
-            });
+                // No instance yet, must activate.
+                var instances = registration.ImplTypes
+                    .Select(t => ResolveMapper(t, EngineContext.Current.Scope))
+                    .Where(x => x != null)
+                    .ToArray();
 
-            return mapper != null || onlyRegisteredMapper
-                ? mapper
-                : new GenericMapper<TFrom, TTo>();
+                if (instances.Length == 1)
+                {
+                    registration.Lifetime.SetMapper(mapperKey, instances[0]!);
+                    return instances[0];
+                }
+                else if (instances.Length > 1)
+                {
+                    // Create and return a composite mapper if more than one instance exists.
+                    var mapper = new CompositeMapper<TFrom, TTo>(instances!);
+                    registration.Lifetime.SetMapper(mapperKey, mapper);
+                    return mapper;
+                }
+            }
+
+            if (onlyRegisteredMapper)
+            {
+                return null;
+            }
+
+            return new GenericMapper<TFrom, TTo>();
 
             static IMapper<TFrom, TTo>? ResolveMapper(Type mapperType, ScopedServiceContainer? scope)
             {
@@ -320,14 +310,14 @@ namespace Smartstore.ComponentModel
 
         readonly struct MapperRegistration
         {
-            public MapperRegistration(Type[] implTypes, ServiceLifetime lifetime)
+            public MapperRegistration(Type[] implTypes, MapperLifetime lifetime)
             {
                 ImplTypes = implTypes;
                 Lifetime = lifetime;
             }
 
             public Type[] ImplTypes { get; }
-            public ServiceLifetime Lifetime { get; }
+            public MapperLifetime Lifetime { get; }
         }
 
         abstract class MapperLifetime
@@ -344,19 +334,23 @@ namespace Smartstore.ComponentModel
 
         class ScopeMapperLifetime : MapperLifetime
         {
-            private readonly IRequestCache _requestCache;
-            public ScopeMapperLifetime(IRequestCache requestCache) =>
-                _requestCache = requestCache;
-
             public override object? GetMapper(MapperKey key) 
-                => _requestCache.Get<object>(key);
+                => RequestCache.Get<object>(key);
 
             public override void SetMapper(MapperKey key, object mapper)
-                => _requestCache.Put(key, mapper);
+                => RequestCache.Put(key, mapper);
+
+            static IRequestCache RequestCache
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => EngineContext.Current.Scope.ResolveOptional<IRequestCache>() ?? NullRequestCache.Instance;
+            }
         }
 
         class SingletonMapperLifetime : MapperLifetime
         {
+            private readonly Dictionary<MapperKey, object> _mapperInstances = new();
+
             public override object? GetMapper(MapperKey key)
                 => _mapperInstances.Get(key);
 
