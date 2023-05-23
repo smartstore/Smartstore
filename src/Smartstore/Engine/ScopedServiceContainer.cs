@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.AspNetCore.Http;
@@ -13,9 +16,9 @@ namespace Smartstore.Engine
 
         public ScopedServiceContainer(ILifetimeScopeAccessor scopeAccessor, IHttpContextAccessor httpContextAccessor, ILifetimeScope rootContainer)
         {
-            Guard.NotNull(scopeAccessor, nameof(scopeAccessor));
-            Guard.NotNull(httpContextAccessor, nameof(httpContextAccessor));
-            Guard.NotNull(rootContainer, nameof(rootContainer));
+            Guard.NotNull(scopeAccessor);
+            Guard.NotNull(httpContextAccessor);
+            Guard.NotNull(rootContainer);
 
             _scopeAccessor = scopeAccessor;
             _httpContextAccessor = httpContextAccessor;
@@ -42,7 +45,7 @@ namespace Smartstore.Engine
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T ResolveOptional<T>() where T : class
+        public T? ResolveOptional<T>() where T : class
             => RequestContainer.ResolveOptional<T>();
 
         [DebuggerStepThrough]
@@ -52,7 +55,7 @@ namespace Smartstore.Engine
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T ResolveOptionalKeyed<T>(object key) where T : class
+        public T? ResolveOptionalKeyed<T>(object key) where T : class
             => RequestContainer.ResolveOptionalKeyed<T>(key);
 
         [DebuggerStepThrough]
@@ -62,7 +65,7 @@ namespace Smartstore.Engine
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T ResolveOptionalNamed<T>(string name) where T : class
+        public T? ResolveOptionalNamed<T>(string name) where T : class
             => RequestContainer.ResolveOptionalNamed<T>(name);
 
         [DebuggerStepThrough]
@@ -92,13 +95,13 @@ namespace Smartstore.Engine
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T ResolveUnregistered<T>() where T : class
-            => RequestContainer.ResolveUnregistered(typeof(T)) as T;
+            => (T)RequestContainer.ResolveUnregistered(typeof(T));
 
         public object ResolveUnregistered(Type type)
             => RequestContainer.ResolveUnregistered(type);
 
         [DebuggerStepThrough]
-        public bool TryResolve(Type serviceType, out object instance)
+        public bool TryResolve(Type serviceType, [MaybeNullWhen(false)] out object? instance)
         {
             instance = null;
 
@@ -113,14 +116,14 @@ namespace Smartstore.Engine
         }
 
         [DebuggerStepThrough]
-        public bool TryResolve<T>(out T instance)
+        public bool TryResolve<T>([MaybeNullWhen(false)] out T? instance)
             where T : class
         {
             instance = default;
 
             try
             {
-                return RequestContainer.TryResolve<T>(out instance);
+                return RequestContainer.TryResolve(out instance);
             }
             catch
             {
@@ -131,13 +134,13 @@ namespace Smartstore.Engine
         public bool IsRegistered(Type serviceType)
             => RequestContainer.IsRegistered(serviceType);
 
-        public object ResolveOptional(Type serviceType)
+        public object? ResolveOptional(Type serviceType)
             => RequestContainer.ResolveOptional(serviceType);
 
-        public T InjectProperties<T>(T instance)
+        public T InjectProperties<T>(T instance) where T : notnull
             => RequestContainer.InjectProperties(instance);
 
-        public T InjectUnsetProperties<T>(T instance)
+        public T InjectUnsetProperties<T>(T instance) where T : notnull
             => RequestContainer.InjectUnsetProperties(instance);
     }
 }
