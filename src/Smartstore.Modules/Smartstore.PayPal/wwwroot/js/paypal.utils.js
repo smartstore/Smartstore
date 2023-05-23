@@ -89,7 +89,12 @@
 
             if (!paypal.isFundingEligible("card")) {
                 console.log("Not eligible: card");
-                return true;
+                return;
+            }
+
+            if (!paypal.HostedFields.isEligible()) {
+                console.log("Not eligible: hosted fields");
+                return;
             }
 
             // Render PayPal hosted fields into #paypal-creditcard-hosted-fields-container
