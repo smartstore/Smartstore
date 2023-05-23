@@ -31,7 +31,7 @@
     <div class="collapse navbar-collapse ml-auto">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle navbar-tool" href="javascript:void(0)" title='@T("Admin.Common.Actions")' data-toggle="dropdown">
+                <a class="nav-link dropdown-toggle navbar-tool" href="javascript:;" title='@T("Admin.Common.Actions")' data-toggle="dropdown">
                     <i class="icm icm-cog navbar-icon"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
@@ -39,7 +39,7 @@
                     {
                         <a class="dropdown-item" href="@store.Url" title="@T("Admin.Header.PublicStore") - @store.Name">
                             <bootstrap-icon name="shop-window" class="bi-fw" />
-                            @store.Name.Truncate(32, "...")
+                            @store.Name.Truncate(32, "…")
                         </a>
                     }
                     <a class="dropdown-item" href='@Url.Action("Preview", "Theme")'>
@@ -47,11 +47,11 @@
                         @T("Admin.Configuration.Themes.PreviewMode")
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="clear-cache" href="#" data-url="@Url.Action("ClearCache", "Maintenance", new { area = "Admin" })">
+                    <a class="dropdown-item" id="clear-cache" href="javascript:;" data-url="@Url.Action("ClearCache", "Maintenance", new { area = "Admin" })">
                         <bootstrap-icon name="trash" class="bi-fw" />
                         @T("Admin.Header.ClearCache")
                     </a>
-                    <a class="dropdown-item" id="clear-database-cache" href="#" data-url="@Url.Action("ClearDatabaseCache", "Maintenance", new { area = "Admin" })">
+                    <a class="dropdown-item" id="clear-database-cache" href="javascript:;" data-url="@Url.Action("ClearDatabaseCache", "Maintenance", new { area = "Admin" })">
                         <i class="bi bi-fw"></i>
                         @T("Admin.Header.ClearDbCache")
                     </a>
@@ -66,7 +66,7 @@
             @await Component.InvokeAsync("AdminLanguageSelector")
 
             <li id="navtool-help" class="nav-item dropdown d-none d-md-block">
-                <a class="nav-link dropdown-toggle navbar-tool" href="javascript:void(0)" title='@T("Admin.Help")' data-toggle="dropdown">
+                <a class="nav-link dropdown-toggle navbar-tool" href="javascript:;" title='@T("Admin.Help")' data-toggle="dropdown">
                     <i class="icm icm-bubble-question navbar-icon"></i>
                     @if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
                     {
@@ -121,18 +121,13 @@
 
 <script sm-target-zone="scripts" data-origin="admin-navbar">
     $(function () {
-		$("#clear-database-cache, #clear-cache").on('click', function (e) {
-            e.preventDefault();
-
+		$("#clear-database-cache, #clear-cache").on('click', function () {
             $({}).ajax({
-                url: $(e.target).data("url"),
+                url: $(this).data("url"),
                 success: function (data) {
-					displayNotification(data.Message, 'success');
-					$(e.target).closest(".dropdown").dropdown('toggle');
+                    displayNotification(data.Message, 'success');
                 }
             });
-
-            return false;
         });
 
         // add mainmenu tooltips;
