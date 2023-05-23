@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Web.Api.Models.Checkout;
 
@@ -42,6 +43,13 @@ namespace Smartstore.Web.Api.Controllers
         public SingleResult<Product> GetProduct(int key)
         {
             return GetRelatedEntity(key, x => x.Product);
+        }
+
+        [HttpGet("OrderItems({key})/AssociatedGiftCards"), ApiQueryable]
+        [Permission(Permissions.Order.GiftCard.Read)]
+        public IQueryable<GiftCard> GetAssociatedGiftCards(int key)
+        {
+            return GetRelatedQuery(key, x => x.AssociatedGiftCards);
         }
 
         [HttpPost]

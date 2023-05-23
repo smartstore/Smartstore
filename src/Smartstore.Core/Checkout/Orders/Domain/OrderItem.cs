@@ -177,7 +177,6 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the associated gift card
         /// </summary>
-        [IgnoreDataMember]
         public ICollection<GiftCard> AssociatedGiftCards
         {
             get => _associatedGiftCards ?? LazyLoader.Load(this, ref _associatedGiftCards) ?? (_associatedGiftCards ??= new HashSet<GiftCard>());

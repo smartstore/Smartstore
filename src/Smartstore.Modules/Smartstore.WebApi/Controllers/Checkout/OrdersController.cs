@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.OData.Formatter;
 using Smartstore.Core;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
@@ -67,6 +68,13 @@ namespace Smartstore.Web.Api.Controllers
         public SingleResult<Address> GetShippingAddress(int key)
         {
             return GetRelatedEntity(key, x => x.ShippingAddress);
+        }
+
+        [HttpGet("Orders({key})/GiftCardUsageHistory"), ApiQueryable]
+        [Permission(Permissions.Order.GiftCard.Read)]
+        public IQueryable<GiftCardUsageHistory> GetGiftCardUsageHistory(int key)
+        {
+            return GetRelatedQuery(key, x => x.GiftCardUsageHistory);
         }
 
         [HttpGet("Orders({key})/OrderNotes"), ApiQueryable]

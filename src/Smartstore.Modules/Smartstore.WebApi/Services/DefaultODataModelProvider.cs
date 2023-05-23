@@ -7,6 +7,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
@@ -44,6 +45,8 @@ namespace Smartstore.Web.Api
             builder.EntitySet<Discount>("Discounts");
             builder.EntitySet<Download>("Downloads");
             builder.EntitySet<GenericAttribute>("GenericAttributes");
+            builder.EntitySet<GiftCard>("GiftCards");
+            builder.EntitySet<GiftCardUsageHistory>("GiftCardUsageHistory");
             builder.EntitySet<Language>("Languages");
             builder.EntitySet<LocalizedProperty>("LocalizedProperties");
             builder.EntitySet<Manufacturer>("Manufacturers");
