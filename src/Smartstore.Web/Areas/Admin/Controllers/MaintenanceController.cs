@@ -279,14 +279,10 @@ namespace Smartstore.Admin.Controllers
             // Clear IMemoryCache Smartstore: region
             _memCache.RemoveByPattern(_memCache.BuildScopedKey("*"));
 
-            return new JsonResult
-            (
-                new
-                {
-                    Success = true,
-                    Message = T("Admin.Common.TaskSuccessfullyProcessed").Value
-                }
-            );
+            string message = T("Admin.Common.TaskSuccessfullyProcessed");
+            NotifySuccess(message);
+
+            return new JsonResult (new { Success = true, Message = message });
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
@@ -299,14 +295,10 @@ namespace Smartstore.Admin.Controllers
                 await dbCache.ClearAsync();
             }
 
-            return new JsonResult
-            (
-                new
-                {
-                    Success = true,
-                    Message = T("Admin.Common.TaskSuccessfullyProcessed").Value
-                }
-            );
+            string message = T("Admin.Common.TaskSuccessfullyProcessed");
+            NotifySuccess(message);
+
+            return new JsonResult(new { Success = true, Message = message });
         }
 
         #endregion

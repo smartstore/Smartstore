@@ -47,11 +47,11 @@
                         @T("Admin.Configuration.Themes.PreviewMode")
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="clear-cache" href="javascript:;" data-url="@Url.Action("ClearCache", "Maintenance", new { area = "Admin" })">
+                    <a class="dropdown-item" id="clear-cache" href="javascript:;" data-url="@Url.Action("ClearCache", "Maintenance", new { area = "Admin", silent = true })">
                         <bootstrap-icon name="trash" class="bi-fw" />
                         @T("Admin.Header.ClearCache")
                     </a>
-                    <a class="dropdown-item" id="clear-database-cache" href="javascript:;" data-url="@Url.Action("ClearDatabaseCache", "Maintenance", new { area = "Admin" })">
+                    <a class="dropdown-item" id="clear-database-cache" href="javascript:;" data-url="@Url.Action("ClearDatabaseCache", "Maintenance", new { area = "Admin", silent = true })">
                         <i class="bi bi-fw"></i>
                         @T("Admin.Header.ClearDbCache")
                     </a>
@@ -124,8 +124,9 @@
 		$("#clear-database-cache, #clear-cache").on('click', function () {
             $({}).ajax({
                 url: $(this).data("url"),
+                global: false,
                 success: function (data) {
-                    displayNotification(data.Message, 'success');
+                    location.reload();
                 }
             });
         });

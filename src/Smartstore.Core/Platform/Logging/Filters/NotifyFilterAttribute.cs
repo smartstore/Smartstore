@@ -27,7 +27,7 @@ namespace Smartstore.Core.Logging
                 if (_notifier.Entries.Count == 0)
                     return;
 
-                if (context.HttpContext.Request.IsAjax())
+                if (context.HttpContext.Request.IsAjax() && !context.HttpContext.Request.Query.ContainsKey("silent"))
                 {
                     HandleAjaxRequest(_notifier.Entries.FirstOrDefault(), context.HttpContext.Response);
                     return;
