@@ -30,5 +30,13 @@
             RecentlyAddedProductsRoute,
             RecentlyAddedProductsRssRoute
         };
+
+        public static string[] AllProductListsWithSearchFiltersRoutes { get; } = new[]
+        {
+            CategoryRoute,
+            ManufacturerRoute,
+            ProductsByTagRoute,
+            SearchRoute
+        };
     }
 }
