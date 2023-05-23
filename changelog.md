@@ -22,6 +22,10 @@
 - Better PayPal implementaion: added providers for every single payment option.
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
 - Added a search filter for country grid.
+- (DEV) Model mapping (`IMapper<TFrom, TTo>`):
+  - Composite mappers: multiple mappers for a single type pair
+  - Named mappers
+  - Mapper lifetimes (transient, scoped, singleton)
 
 ### Bugfixes
 
