@@ -121,7 +121,6 @@ namespace Smartstore.Core.Catalog.Categories
             var affectedProducts = 0;
 
             var allCustomerRoleIds = await _db.CustomerRoles
-                .AsQueryable()
                 .Select(x => x.Id)
                 .ToListAsync();
 
@@ -145,7 +144,6 @@ namespace Smartstore.Core.Catalog.Categories
                 foreach (var subCategory in subCategories)
                 {
                     subCategory.SubjectToAcl = referenceCategory.SubjectToAcl;
-
                     ProcessRoles(subCategory.Id, nameof(Category), aclRecords);
                 }
 
@@ -167,7 +165,6 @@ namespace Smartstore.Core.Catalog.Categories
                     foreach (var product in products)
                     {
                         product.SubjectToAcl = referenceCategory.SubjectToAcl;
-
                         ProcessRoles(product.Id, nameof(Product), aclRecords);
                     }
 
@@ -239,7 +236,6 @@ namespace Smartstore.Core.Catalog.Categories
                 foreach (var subCategory in subCategories)
                 {
                     subCategory.LimitedToStores = referenceCategory.LimitedToStores;
-
                     ProcessStoreMappings(subCategory.Id, nameof(Category), storeMappings);
                 }
 
@@ -261,7 +257,6 @@ namespace Smartstore.Core.Catalog.Categories
                     foreach (var product in products)
                     {
                         product.LimitedToStores = referenceCategory.LimitedToStores;
-
                         ProcessStoreMappings(product.Id, nameof(Product), storeMappings);
                     }
 
