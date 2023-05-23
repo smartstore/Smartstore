@@ -56,6 +56,9 @@ namespace Smartstore.Web.Controllers
             // Also purchased products
             await PrepareAlsoPurchasedProductsModelAsync(model, product);
 
+            // Custom mapping
+            await MapperFactory.MapWithRegisteredMapperAsync(product, model, new { Context = modelContext, Quantity = 1 });
+
             return model;
         }
 
@@ -365,7 +368,11 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        public async Task PrepareProductDetailModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity = 1)
+        public async Task PrepareProductDetailModelAsync(
+            ProductDetailsModel model, 
+            ProductDetailsModelContext modelContext, 
+            int selectedQuantity = 1,
+            bool callCustomMapper = false)
         {
             Guard.NotNull(model);
             Guard.NotNull(modelContext);
@@ -391,7 +398,10 @@ namespace Smartstore.Web.Controllers
             PrepareProductGiftCardsModel(model, modelContext);
 
             // Custom mapping
-            await MapperFactory.MapWithRegisteredMapperAsync(product, model, new { Context = modelContext, Quantity = selectedQuantity });
+            if (callCustomMapper)
+            {
+                await MapperFactory.MapWithRegisteredMapperAsync(product, model, new { Context = modelContext, Quantity = selectedQuantity });
+            }
 
             _services.DisplayControl.Announce(product);
         }

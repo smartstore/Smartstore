@@ -301,7 +301,7 @@ namespace Smartstore.Web.Controllers
 
             // Get merged model data.
             var model = new ProductDetailsModel();
-            await _helper.PrepareProductDetailModelAsync(model, modelContext, quantity);
+            await _helper.PrepareProductDetailModelAsync(model, modelContext, quantity, callCustomMapper: true);
 
             if (bundleItem != null)
             {
