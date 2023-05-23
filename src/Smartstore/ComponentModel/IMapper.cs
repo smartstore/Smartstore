@@ -48,6 +48,34 @@ namespace Smartstore.ComponentModel
         }
     }
 
+    internal class GenericMapper<TFrom, TTo> : Mapper<TFrom, TTo>
+        where TFrom : class
+        where TTo : class
+    {
+        protected override void Map(TFrom from, TTo to, dynamic? parameters = null)
+            => MiniMapper.Map(from, to);
+    }
+
+    internal class CompositeMapper<TFrom, TTo> : IMapper<TFrom, TTo>
+        where TFrom : class
+        where TTo : class
+    {
+        public CompositeMapper(IMapper<TFrom, TTo>[] mappers)
+        {
+            Mappers = mappers;
+        }
+
+        private IMapper<TFrom, TTo>[] Mappers { get; }
+
+        public async Task MapAsync(TFrom from, TTo to, dynamic? parameters = null)
+        {
+            foreach (var mapper in Mappers)
+            {
+                await mapper.MapAsync(from, to, parameters);
+            }
+        }
+    }
+
     public static class IMapperExtensions
     {
         /// <summary>

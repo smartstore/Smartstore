@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Engine;
@@ -23,7 +24,13 @@ namespace Smartstore.ComponentModel
     /// </remarks>
     public static class MapperFactory
     {
+        // Mapper registrations map
         private static Multimap<MapperKey, MapperType> _mapperTypes = default!;
+        private static Dictionary<MapperKey, MapperRegistration> _mapperRegistrations = default!;
+        // Singleton mapper instances cache
+        private static readonly Dictionary<MapperKey, object> _mapperInstances = new();
+        private static readonly SingletonMapperLifetime _singletonMapperLifetime = new();
+
         private readonly static object _lock = new();
 
         #region Init
@@ -44,6 +51,7 @@ namespace Smartstore.ComponentModel
                         if (mapperTypes != null)
                         {
                             RegisterMappers(mapperTypes.ToArray());
+                            //RegisterMappers2(mapperTypes.ToArray());
                         }
 
                     }
@@ -74,6 +82,128 @@ namespace Smartstore.ComponentModel
 
                     _mapperTypes.Add(typePair, new MapperType(type, mapperAttribute?.Order ?? 0));
                 }
+            }
+        }
+
+        /// <summary>
+        /// For testing purposes
+        /// </summary>
+        internal static void RegisterMappers2(params Type[] implTypes)
+        {
+            var defaultMapperAttribute = new MapperAttribute();
+            // Item1 = ImplType, Item2 = declared or default attribute
+            var mapperTypes = new Multimap<MapperKey, (Type Type, MapperAttribute Attr)>();
+
+            foreach (var type in implTypes)
+            {
+                var closedTypes = type.GetClosedGenericTypesOf(typeof(IMapper<,>));
+                var mapperAttr = type.GetAttribute<MapperAttribute>(true) ?? defaultMapperAttribute;
+
+                foreach (var closedType in closedTypes)
+                {
+                    var args = closedType.GetGenericArguments();
+
+                    var typePair = new MapperKey(
+                        args[0],
+                        args[1],
+                        mapperAttr?.Name.NullEmpty());
+
+                    mapperTypes.Add(typePair, (type, mapperAttr!));
+                }
+            }
+
+            _mapperRegistrations ??= new Dictionary<MapperKey, MapperRegistration>();
+
+            foreach (var kvp in mapperTypes)
+            {
+                var orderedMapperTypes = kvp.Value
+                    .OrderBy(x => x.Attr.Order)
+                    .Select(x => x.Type)
+                    .ToArray();
+
+                var lifetime = kvp.Value
+                    .Select(x => x.Attr.Lifetime)
+                    .Max();
+
+                var registration = new MapperRegistration(orderedMapperTypes, lifetime);
+
+                _mapperRegistrations[kvp.Key] = registration;
+            }
+        }
+
+        #endregion
+
+        #region GetMapper
+
+        /// <summary>
+        /// Gets a mapper implementation for <typeparamref name="TFrom"/> as source and <typeparamref name="TTo"/> as target.
+        /// </summary>
+        /// <param name="name">Mapper name or <c>null</c> to resolve default mapper.</param>
+        /// <returns>The mapper implementation or a generic mapper if not found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IMapper<TFrom, TTo> GetMapper<TFrom, TTo>(string? name = null)
+            where TFrom : class
+            where TTo : class
+            => GetMapperInternal<TFrom, TTo>(name.NullEmpty(), false)!;
+
+        /// <summary>
+        /// Gets a mapper implementation for <typeparamref name="TFrom"/> as source and <typeparamref name="TTo"/> as target.
+        /// </summary>
+        /// <param name="name">Mapper name or <c>null</c> to resolve default mapper.</param>
+        /// <returns>The mapper implementation or <c>null</c> if not found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IMapper<TFrom, TTo>? GetRegisteredMapper<TFrom, TTo>(string? name = null)
+            where TFrom : class
+            where TTo : class
+            => GetMapperInternal<TFrom, TTo>(name.NullEmpty(), true);
+
+        private static IMapper<TFrom, TTo>? GetMapperInternal<TFrom, TTo>(string? name, [NotNullWhen(false)] bool onlyRegisteredMapper)
+            where TFrom : class
+            where TTo : class
+        {
+            EnsureInitialized();
+
+            var mapperKey = new MapperKey(typeof(TFrom), typeof(TTo), name);
+            var scope = EngineContext.Current.Scope;
+            var requestCache = scope.Resolve<IRequestCache>();
+
+            var mapper = requestCache.Get(mapperKey, () =>
+            {
+                if (_mapperTypes.TryGetValues(mapperKey, out var mapperTypes))
+                {
+                    var instances = mapperTypes
+                        .OrderBy(t => t.Order)
+                        .Select(t => ResolveMapper(t.Type, scope))
+                        .Where(x => x != null)
+                        .ToArray();
+
+                    if (instances.Length == 1)
+                    {
+                        return instances[0];
+                    }
+                    else if (instances.Length > 1)
+                    {
+                        return new CompositeMapper<TFrom, TTo>(instances!);
+                    }
+                }
+
+                return null;
+            });
+
+            return mapper != null || onlyRegisteredMapper
+                ? mapper
+                : new GenericMapper<TFrom, TTo>();
+
+            static IMapper<TFrom, TTo>? ResolveMapper(Type mapperType, ScopedServiceContainer? scope)
+            {
+                var instance = scope?.ResolveUnregistered(mapperType);
+                if (instance != null)
+                {
+                    scope!.InjectProperties(instance);
+                    return (IMapper<TFrom, TTo>)instance;
+                }
+
+                return null;
             }
         }
 
@@ -162,83 +292,7 @@ namespace Smartstore.ComponentModel
 
         #endregion
 
-        #region GetMapper
-
-        /// <summary>
-        /// Gets a mapper implementation for <typeparamref name="TFrom"/> as source and <typeparamref name="TTo"/> as target.
-        /// </summary>
-        /// <param name="name">Mapper name or <c>null</c> to resolve default mapper.</param>
-        /// <returns>The mapper implementation or a generic mapper if not found.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMapper<TFrom, TTo> GetMapper<TFrom, TTo>(string? name = null)
-            where TFrom : class
-            where TTo : class
-            => GetMapperInternal<TFrom, TTo>(name.NullEmpty(), false)!;
-
-        /// <summary>
-        /// Gets a mapper implementation for <typeparamref name="TFrom"/> as source and <typeparamref name="TTo"/> as target.
-        /// </summary>
-        /// <param name="name">Mapper name or <c>null</c> to resolve default mapper.</param>
-        /// <returns>The mapper implementation or <c>null</c> if not found.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMapper<TFrom, TTo>? GetRegisteredMapper<TFrom, TTo>(string? name = null)
-            where TFrom : class
-            where TTo : class
-            => GetMapperInternal<TFrom, TTo>(name.NullEmpty(), true);
-
-        private static IMapper<TFrom, TTo>? GetMapperInternal<TFrom, TTo>(string? name, [NotNullWhen(false)] bool onlyRegisteredMapper)
-            where TFrom : class
-            where TTo : class
-        {
-            EnsureInitialized();
-
-            var mapperKey = new MapperKey(typeof(TFrom), typeof(TTo), name);
-            var scope = EngineContext.Current.Scope;
-            var requestCache = scope.Resolve<IRequestCache>();
-
-            var mapper = requestCache.Get(mapperKey, () =>
-            {
-                if (_mapperTypes.TryGetValues(mapperKey, out var mapperTypes))
-                {
-                    var instances = mapperTypes
-                        .OrderBy(t => t.Order)
-                        .Select(t => ResolveMapper(t.Type, scope))
-                        .Where(x => x != null)
-                        .ToArray();
-
-                    if (instances.Length == 1)
-                    {
-                        return instances[0];
-                    }
-                    else if (instances.Length > 1)
-                    {
-                        return new CompositeMapper<TFrom, TTo>(instances!);
-                    }
-                }
-
-                return null;
-            });
-
-            return mapper != null || onlyRegisteredMapper
-                ? mapper
-                : new GenericMapper<TFrom, TTo>();
-
-            static IMapper<TFrom, TTo>? ResolveMapper(Type mapperType, ScopedServiceContainer? scope)
-            {
-                var instance = scope?.ResolveUnregistered(mapperType);
-                if (instance != null)
-                {
-                    scope!.InjectProperties(instance);
-                    return (IMapper<TFrom, TTo>)instance;
-                }
-
-                return null;
-            }
-        }
-
-        #endregion
-
-        #region Private nested classes
+        #region Internal nested classes
 
         class MapperKey : Tuple<Type, Type, string?>
         {
@@ -264,32 +318,50 @@ namespace Smartstore.ComponentModel
             public int Order { get; }
         }
 
-        class GenericMapper<TFrom, TTo> : Mapper<TFrom, TTo>
-            where TFrom : class
-            where TTo : class
+        readonly struct MapperRegistration
         {
-            protected override void Map(TFrom from, TTo to, dynamic? parameters = null)
-                => MiniMapper.Map(from, to);
+            public MapperRegistration(Type[] implTypes, ServiceLifetime lifetime)
+            {
+                ImplTypes = implTypes;
+                Lifetime = lifetime;
+            }
+
+            public Type[] ImplTypes { get; }
+            public ServiceLifetime Lifetime { get; }
         }
 
-        class CompositeMapper<TFrom, TTo> : IMapper<TFrom, TTo>
-            where TFrom : class
-            where TTo : class
+        abstract class MapperLifetime
         {
-            public CompositeMapper(IMapper<TFrom, TTo>[] mappers)
-            {
-                Mappers = mappers;
-            }
+            public abstract object? GetMapper(MapperKey key);
+            public abstract void SetMapper(MapperKey key, object mapper);
+        }
 
-            private IMapper<TFrom, TTo>[] Mappers { get; }
+        class TransientMapperLifetime : MapperLifetime
+        {
+            public override object? GetMapper(MapperKey key) => null;
+            public override void SetMapper(MapperKey key, object mapper) { }
+        }
 
-            public async Task MapAsync(TFrom from, TTo to, dynamic? parameters = null)
-            {
-                foreach (var mapper in Mappers)
-                {
-                    await mapper.MapAsync(from, to, parameters);
-                }
-            }
+        class ScopeMapperLifetime : MapperLifetime
+        {
+            private readonly IRequestCache _requestCache;
+            public ScopeMapperLifetime(IRequestCache requestCache) =>
+                _requestCache = requestCache;
+
+            public override object? GetMapper(MapperKey key) 
+                => _requestCache.Get<object>(key);
+
+            public override void SetMapper(MapperKey key, object mapper)
+                => _requestCache.Put(key, mapper);
+        }
+
+        class SingletonMapperLifetime : MapperLifetime
+        {
+            public override object? GetMapper(MapperKey key)
+                => _mapperInstances.Get(key);
+
+            public override void SetMapper(MapperKey key, object mapper)
+                => _mapperInstances[key] = mapper;
         }
 
         #endregion
