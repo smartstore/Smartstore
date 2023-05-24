@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Smartstore.Scheduling
 {
@@ -9,15 +10,25 @@ namespace Smartstore.Scheduling
         internal const string RunAction = "run";
         internal const string NoopAction = "noop";
 
-        private readonly ITaskScheduler _scheduler;
+        private readonly CancellationToken _appShutdownToken;
 
-        public TaskSchedulerMiddleware(RequestDelegate next, ITaskScheduler scheduler)
+        public TaskSchedulerMiddleware(RequestDelegate next, IHostApplicationLifetime appLifetime)
         {
-            _scheduler = scheduler;
+            _appShutdownToken = appLifetime.ApplicationStopping;
         }
 
-        public async Task Invoke(HttpContext context, ITaskStore taskStore, ITaskExecutor executor)
+        public async Task Invoke(
+            HttpContext context,
+            ITaskScheduler scheduler,
+            ITaskStore taskStore, 
+            ITaskExecutor executor)
         {
+            if (_appShutdownToken.IsCancellationRequested)
+            {
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                return;
+            }
+            
             var urlSegments = context.Request.Path.Value.Trim('/').SplitSafe('/').ToArray();
             var action = urlSegments.Length > 1 ? urlSegments[1] : string.Empty;
 
@@ -29,7 +40,7 @@ namespace Smartstore.Scheduling
                     return;
                 }
 
-                if (!await _scheduler.VerifyAuthTokenAsync(context.Request.Headers[DefaultTaskScheduler.AuthTokenName]))
+                if (!await scheduler.VerifyAuthTokenAsync(context.Request.Headers[DefaultTaskScheduler.AuthTokenName]))
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     return;
@@ -53,8 +64,14 @@ namespace Smartstore.Scheduling
             }
         }
 
-        private static async Task Poll(HttpContext context, ITaskStore taskStore, ITaskExecutor executor, IDictionary<string, string> taskParameters)
+        private async Task Poll(HttpContext context, ITaskStore taskStore, ITaskExecutor executor, IDictionary<string, string> taskParameters)
         {
+            if (_appShutdownToken.IsCancellationRequested)
+            {
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                return;
+            }
+
             var pendingTasks = await taskStore.GetPendingTasksAsync();
             var numTasks = pendingTasks.Count;
             var numExecuted = 0;
@@ -66,6 +83,12 @@ namespace Smartstore.Scheduling
 
             for (var i = 0; i < numTasks; i++)
             {
+                if (_appShutdownToken.IsCancellationRequested)
+                {
+                    context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                    return;
+                }
+
                 var task = pendingTasks[i];
 
                 if (i > 0 /*&& (DateTime.UtcNow - _sweepStart).TotalMinutes > _taskScheduler.SweepIntervalMinutes*/)
