@@ -70,14 +70,9 @@ namespace Smartstore.PayPal.Filters
                     scriptUrl += $"&commit=false";
                 }
 
-                // paypal,sepa,paylater are the default funding options which are always available.
-                scriptUrl += $"&enable-funding=paypal,sepa,paylater";
-
-                // Add credit card funding option if credit card is active.
-                if (await _payPalHelper.IsCreditCardActiveAsync())
-                {
-                    scriptUrl += ",card";
-                }
+                // paypal & sepa are the default funding options which are always available.
+                // INFO: In fact adding paypal, sepa or card as funding option is breaking the integration in Live mode but not in the Sandbox mode.
+                scriptUrl += $"&enable-funding=paylater";
                 
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
