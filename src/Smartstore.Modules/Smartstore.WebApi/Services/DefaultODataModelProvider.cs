@@ -43,6 +43,7 @@ namespace Smartstore.Web.Api
             builder.EntitySet<CustomerRole>("CustomerRoles");
             builder.EntitySet<Customer>("Customers");
             builder.EntitySet<Discount>("Discounts");
+            builder.EntitySet<DiscountUsageHistory>("DiscountUsageHistory");
             builder.EntitySet<Download>("Downloads");
             builder.EntitySet<GenericAttribute>("GenericAttributes");
             builder.EntitySet<GiftCard>("GiftCards");

@@ -531,7 +531,6 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets discount usage history
         /// </summary>
-        [IgnoreDataMember]
         public ICollection<DiscountUsageHistory> DiscountUsageHistory
         {
             get => _discountUsageHistory ?? LazyLoader.Load(this, ref _discountUsageHistory) ?? (_discountUsageHistory ??= new HashSet<DiscountUsageHistory>());
