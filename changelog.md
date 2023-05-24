@@ -14,7 +14,7 @@
   - Implemented BackupRestore feature
 - Web API:
   - #709 added an endpoint that returns order data prepared for an invoice (including variant SKU).
-  - #717 added `GiftCard` and `GiftCardUsageHistory`.
+  - #717 added `GiftCard`, `GiftCardUsageHistory` and `DiscountUsageHistory`.
 
 ### Improvements
 
