@@ -79,6 +79,9 @@ namespace Smartstore.Core.Checkout.Orders
                 await AddOrderItems(context);
                 await AddAssociatedData(context);
 
+                // Save order items.
+                await _db.SaveChangesAsync();
+
                 // Email messages, order notes etc.
                 await FinalizeOrderPlacement(context);
 
@@ -985,20 +988,19 @@ namespace Smartstore.Core.Checkout.Orders
         private async Task FinalizeOrderPlacement(PlaceOrderContext ctx)
         {
             var order = ctx.Order;
+            var notes = new List<string> { T("Admin.OrderNotice.OrderPlaced") };
 
             // Messages and order notes.
-            order.AddOrderNote(T("Admin.OrderNotice.OrderPlaced"));
-
             var msg = await _messageFactory.SendOrderPlacedStoreOwnerNotificationAsync(order, _localizationSettings.DefaultAdminLanguageId);
             if (msg?.Email?.Id != null)
             {
-                order.AddOrderNote(T("Admin.OrderNotice.MerchantEmailQueued", msg.Email.Id));
+                notes.Add(T("Admin.OrderNotice.MerchantEmailQueued", msg.Email.Id));
             }
 
             msg = await _messageFactory.SendOrderPlacedCustomerNotificationAsync(order, order.CustomerLanguageId);
             if (msg?.Email?.Id != null)
             {
-                order.AddOrderNote(T("Admin.OrderNotice.CustomerEmailQueued", msg.Email.Id));
+                notes.Add(T("Admin.OrderNotice.CustomerEmailQueued", msg.Email.Id));
             }
 
             // Newsletter subscription.
@@ -1008,9 +1010,16 @@ namespace Smartstore.Core.Checkout.Orders
                 var subscriptionResult = await _newsletterSubscriptionService.ApplySubscriptionAsync(addSubscription.ToBool(), email, order.StoreId);
                 if (subscriptionResult.HasValue)
                 {
-                    order.AddOrderNote(T(subscriptionResult.Value ? "Admin.OrderNotice.NewsletterSubscriptionAdded" : "Admin.OrderNotice.NewsletterSubscriptionRemoved"));
+                    notes.Add(T(subscriptionResult.Value ? "Admin.OrderNotice.NewsletterSubscriptionAdded" : "Admin.OrderNotice.NewsletterSubscriptionRemoved"));
                 }
             }
+
+            _db.OrderNotes.AddRange(notes.Select(note => new OrderNote
+            {
+                OrderId = order.Id,
+                Note = note,
+                CreatedOnUtc = DateTime.UtcNow
+            }));
 
             // Log activity.
             if (!ctx.PaymentRequest.IsRecurringPayment)
@@ -1030,7 +1039,7 @@ namespace Smartstore.Core.Checkout.Orders
                 await _shoppingCartService.DeleteCartAsync(ctx.Cart, false);
             }
 
-            // INFO: CheckOrderStatusAsync always perform commits.
+            // INFO: DeleteCartAsync or CheckOrderStatusAsync perform commits.
         }
 
         class PlaceOrderContext
