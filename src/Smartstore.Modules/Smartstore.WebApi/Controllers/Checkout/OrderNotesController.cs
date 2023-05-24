@@ -59,7 +59,9 @@ namespace Smartstore.Web.Api.Controllers
                 return BadRequest("Missing or empty order note text.");
             }
 
-            var order = await Db.Orders.FindByIdAsync(entity.OrderId);
+            var order = await Db.Orders
+                .Include(x => x.Customer)
+                .FindByIdAsync(entity.OrderId);
             if (order == null)
             {
                 return NotFound(entity.OrderId, nameof(Order));
