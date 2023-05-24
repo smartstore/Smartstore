@@ -1405,7 +1405,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> OrderNoteInsert(int orderId, bool displayToCustomer, string message)
         {
-            var order = await _db.Orders.FindByIdAsync(orderId);
+            var order = await _db.Orders
+                .Include(x => x.Customer)
+                .FindByIdAsync(orderId);
             if (order == null)
             {
                 return NotFound();
