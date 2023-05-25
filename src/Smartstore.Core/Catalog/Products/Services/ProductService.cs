@@ -462,7 +462,4 @@ namespace Smartstore.Core.Catalog.Products
                 loadMainMediaOnly);
         }
     }
-
-    // TODO: (mg) (core) Summary of various issues to be checked and done later:
-    // - SystemCustomerAttributeNames.WalletEnabled belongs to Wallet module (as extension method for CustomerAttributeCollection).
 }
