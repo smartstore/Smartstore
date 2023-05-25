@@ -4,7 +4,7 @@ using Smartstore.Core.Data.Migrations;
 namespace Smartstore.ShippingByWeight.Migrations
 {
     // INFO: AutoReversingMigration not possible. Throws NotSupportedException "The AlterColumnExpression cannot be automatically reversed".
-    [MigrationVersion("2023-05-29 10:00:00", "ShippingByWeight: four decimal places")]
+    [MigrationVersion("2023-05-25 10:00:00", "ShippingByWeight: four decimal places")]
     internal class FourDecimalPlaces : Migration
     {
         const string shippingByWeightTable = "ShippingByWeight";
