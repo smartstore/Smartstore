@@ -29,6 +29,7 @@
 
 ### Bugfixes
 
+- App restart/recycle could occasionally leak or fail
 - PdfConverter failed after cron job cleaned up temporary files in App_Data directory
 - Link from Admin area to a named area-less frontend route did not properly prepend culture code
 - Identity: fixed *checkout loop* after logout
