@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query.ExpressionTranslators.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal;
@@ -14,7 +14,7 @@ namespace Smartstore.Data.PostgreSql.Translators
         public PostgreSqlMappingMethodCallTranslatorProvider(
             RelationalMethodCallTranslatorProviderDependencies dependencies,
             IModel model,
-            INpgsqlSingletonOptions options)
+            IDbContextOptions options)
             : base(dependencies, model, options)
         {
             var sqlExpressionFactory = (NpgsqlSqlExpressionFactory)dependencies.SqlExpressionFactory;
