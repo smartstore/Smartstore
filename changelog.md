@@ -61,6 +61,7 @@
 - #681 For a message template, the assignment to the e-mail account is not removed when the e-mail account is deleted.
 - #704 Cart page displays outdated discount information when applying or removing a discount coupon code.
 - ShippingByWeight: fixed missing `SmallQuantityThreshold` in initial migration.
+- #619 Shipping by weight and by total should use 4 instead of 2 decimal places for currency values.
 
 
 ## Smartstore 5.0.4
