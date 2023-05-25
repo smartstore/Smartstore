@@ -5,7 +5,7 @@ namespace Smartstore.Core.Checkout.Payment
     public class PaymentSettings : ISettings
     {
         /// <summary>
-        /// Gets or sets a system names of active payment methods
+        /// Gets or sets the system names of active payment methods
         /// </summary>
         public List<string> ActivePaymentMethodSystemNames { get; set; } = new();
 
@@ -23,10 +23,5 @@ namespace Smartstore.Core.Checkout.Payment
         /// Gets or sets the reason for automatic payment capturing
         /// </summary>
         public CapturePaymentReason? CapturePaymentReason { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the currency in which the wallet is kept.
-        /// </summary>
-        public int WalletCurrencyId { get; set; }
     }
 }
