@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Pricing;
+﻿using Smartstore.Core;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
@@ -15,6 +16,7 @@ namespace Smartstore.Shipping
     internal class ByTotalProvider : IShippingRateComputationMethod, IConfigurable
     {
         private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
         private readonly IShippingService _shippingService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductService _productService;
@@ -22,12 +24,14 @@ namespace Smartstore.Shipping
 
         public ByTotalProvider(
             SmartDbContext db,
+            IWorkContext workContext,
             IShippingService shippingService,
             IPriceCalculationService priceCalculationService,
             IProductService productService,
             ShippingByTotalSettings shippingByTotalSettings)
         {
             _db = db;
+            _workContext = workContext;
             _shippingService = shippingService;
             _priceCalculationService = priceCalculationService;
             _productService = productService;
@@ -84,11 +88,11 @@ namespace Smartstore.Shipping
 
             if (shippingByTotalRecord.UsePercentage)
             {
-                shippingTotal = Math.Round((decimal)(((float)subtotal) * ((float)shippingByTotalRecord.ShippingChargePercentage) / 100f), 2);
+                shippingTotal = _workContext.WorkingCurrency.RoundIfEnabledFor((decimal)(((float)subtotal) * ((float)shippingByTotalRecord.ShippingChargePercentage) / 100f));
                 shippingTotal += baseCharge;
                 if (maxCharge.HasValue && shippingTotal > maxCharge)
                 {
-                    // shipping charge should not exceed MaxCharge
+                    // Shipping charge should not exceed MaxCharge.
                     shippingTotal = Math.Min(shippingTotal.Value, maxCharge.Value);
                 }
             }
