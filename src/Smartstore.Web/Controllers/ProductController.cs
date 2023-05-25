@@ -276,7 +276,9 @@ namespace Smartstore.Web.Controllers
             var product = await _db.Products.FindByIdAsync(productId);
             var batchContext = _productService.CreateProductBatchContext(new[] { product }, includeHidden: false);
             var bundleItem = await _db.ProductBundleItem
+                .Include(x => x.Product)
                 .Include(x => x.BundleProduct)
+                .Include(x => x.AttributeFilters)
                 .FindByIdAsync(bundleItemId, false);
 
             // Quantity required for tier prices.
