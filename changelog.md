@@ -60,6 +60,7 @@
 - Fixed the category number in category navigation was not displayed when the catalog setting `ShowCategoryProductNumberIncludingSubcategories` was changed.
 - #681 For a message template, the assignment to the e-mail account is not removed when the e-mail account is deleted.
 - #704 Cart page displays outdated discount information when applying or removing a discount coupon code.
+- ShippingByWeight: fixed missing `SmallQuantityThreshold` in initial migration.
 
 
 ## Smartstore 5.0.4
