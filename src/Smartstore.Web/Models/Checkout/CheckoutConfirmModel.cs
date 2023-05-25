@@ -7,7 +7,6 @@ namespace Smartstore.Web.Models.Checkout
         public List<string> Warnings { get; set; } = new();
         public bool TermsOfServiceEnabled { get; set; }
         public bool ShowEsdRevocationWaiverBox { get; set; }
-        public bool BypassPaymentMethodInfo { get; set; }
         public bool? SubscribeToNewsletter { get; set; }
         public bool? AcceptThirdPartyEmailHandOver { get; set; }
         public string ThirdPartyEmailHandOverLabel { get; set; }

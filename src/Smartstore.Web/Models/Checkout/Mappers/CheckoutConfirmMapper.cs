@@ -42,7 +42,6 @@ namespace Smartstore.Web.Models.Checkout
 
             to.TermsOfServiceEnabled = _orderSettings.TermsOfServiceEnabled;
             to.ShowEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
-            to.BypassPaymentMethodInfo = _paymentSettings.BypassPaymentMethodInfo;
             to.NewsletterSubscription = _shoppingCartSettings.NewsletterSubscription;
             to.ThirdPartyEmailHandOver = _shoppingCartSettings.ThirdPartyEmailHandOver;
 
