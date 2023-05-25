@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿#nullable enable
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.ComponentModel
 {
@@ -18,13 +20,13 @@ namespace Smartstore.ComponentModel
         /// <param name="from">The source object to map from.</param>
         /// <param name="to">The destination object to map to.</param>
         /// <param name="parameters">Custom parameters</param>
-        Task MapAsync(TFrom from, TTo to, dynamic parameters = null);
+        Task MapAsync(TFrom from, TTo to, dynamic? parameters = null);
     }
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public sealed class MapperAttribute : Attribute
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int Order { get; set; }
         public ServiceLifetime Lifetime { get; set; } = ServiceLifetime.Scoped;
     }
@@ -39,9 +41,9 @@ namespace Smartstore.ComponentModel
         where TFrom : class
         where TTo : class
     {
-        protected abstract void Map(TFrom from, TTo to, dynamic parameters = null);
+        protected abstract void Map(TFrom from, TTo to, dynamic? parameters = null);
 
-        public virtual Task MapAsync(TFrom from, TTo to, dynamic parameters = null)
+        public virtual Task MapAsync(TFrom from, TTo to, dynamic? parameters = null)
         {
             Map(from, to, null);
             return Task.CompletedTask;
@@ -87,7 +89,7 @@ namespace Smartstore.ComponentModel
         /// <param name="from">The source object.</param>
         /// <param name="parameters">Custom parameters</param>
         /// <returns>The mapped object of type <typeparamref name="TTo"/>.</returns>
-        public static async Task<TTo> MapAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, TFrom from, dynamic parameters = null)
+        public static async Task<TTo> MapAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, TFrom from, dynamic? parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
@@ -108,7 +110,7 @@ namespace Smartstore.ComponentModel
         /// <param name="from">The source collection.</param>
         /// <param name="parameters">Custom parameters</param>
         /// <returns>An array of <typeparamref name="TTo"/>.</returns>
-        public static async Task<TTo[]> MapArrayAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, dynamic parameters = null)
+        public static async Task<TTo[]> MapArrayAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, dynamic? parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
@@ -129,7 +131,7 @@ namespace Smartstore.ComponentModel
         /// <param name="from">The source collection.</param>
         /// <param name="parameters">Custom parameters</param>
         /// <returns>A list of <typeparamref name="TTo"/>.</returns>
-        public static async Task<List<TTo>> MapListAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, dynamic parameters = null)
+        public static async Task<List<TTo>> MapListAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, dynamic? parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
@@ -151,7 +153,7 @@ namespace Smartstore.ComponentModel
         /// <param name="to">The destination collection.</param>
         /// <param name="parameters">Custom parameters</param>
         /// <returns>A list of <typeparamref name="TTo"/>.</returns>
-        public static async Task MapCollectionAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, ICollection<TTo> to, dynamic parameters = null)
+        public static async Task MapCollectionAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, ICollection<TTo> to, dynamic? parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
@@ -160,7 +162,7 @@ namespace Smartstore.ComponentModel
             Guard.NotNull(to);
 
             to.Clear();
-            var items = await MapArrayAsync(mapper, from, (object)parameters);
+            var items = await MapArrayAsync(mapper, from, (object?)parameters);
             to.AddRange(items);
         }
     }
