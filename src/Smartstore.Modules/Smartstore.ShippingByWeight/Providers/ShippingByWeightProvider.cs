@@ -21,32 +21,33 @@ namespace Smartstore.Shipping
     internal class ShippingByWeightProvider : IShippingRateComputationMethod, IConfigurable
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
         private readonly IShippingService _shippingService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductService _productService;
         private readonly ICurrencyService _currencyService;
         private readonly ITaxService _taxService;
+        private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ShippingByWeightSettings _shippingByWeightSettings;
 
-        public ShippingByWeightProvider(SmartDbContext db,
-            ICommonServices services,
+        public ShippingByWeightProvider(
+            SmartDbContext db,
             IShippingService shippingService,
             IPriceCalculationService priceCalculationService,
             IProductService productService,
             ICurrencyService currencyService,
             ITaxService taxService,
+            IWorkContext workContext,
             IStoreContext storeContext,
             ShippingByWeightSettings shippingByWeightSettings)
         {
             _db = db;
-            _services = services;
             _shippingService = shippingService;
             _priceCalculationService = priceCalculationService;
             _productService = productService;
             _currencyService = currencyService;
             _taxService = taxService;
+            _workContext = workContext;
             _storeContext = storeContext;
             _shippingByWeightSettings = shippingByWeightSettings;
 
@@ -86,7 +87,7 @@ namespace Smartstore.Shipping
             decimal? shippingTotal;
             if (shippingByWeightRecord.UsePercentage)
             {
-                shippingTotal = Math.Round((decimal)(((float)subtotal) * ((float)shippingByWeightRecord.ShippingChargePercentage) / 100f), 2);
+                shippingTotal = _workContext.WorkingCurrency.RoundIfEnabledFor((decimal)(((float)subtotal) * ((float)shippingByWeightRecord.ShippingChargePercentage) / 100f));
             }
             else
             {
@@ -191,10 +192,9 @@ namespace Smartstore.Shipping
 
             var cart = new ShoppingCart(request.Customer, request.StoreId, request.Items);
             var weight = await _shippingService.GetCartTotalWeightAsync(cart, _shippingByWeightSettings.IncludeWeightOfFreeShippingProducts);
-            var workingCurreny = _services.WorkContext.WorkingCurrency;
             var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, true);
 
-            currentSubTotal = _services.WorkContext.TaxDisplayType == TaxDisplayType.ExcludingTax
+            currentSubTotal = _workContext.TaxDisplayType == TaxDisplayType.ExcludingTax
                 ? subTotalExclTax
                 : subTotalInclTax;
 
