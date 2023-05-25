@@ -104,7 +104,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("ShoppingCart");
             }
 
-            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            if (!customer.IsRegistered() && !_orderSettings.AnonymousCheckoutAllowed)
             {
                 return RedirectToRoute("Login", new { returnUrl = Url.RouteUrl("ShoppingCart") });
             }
