@@ -62,6 +62,7 @@
 - #704 Cart page displays outdated discount information when applying or removing a discount coupon code.
 - ShippingByWeight: fixed missing `SmallQuantityThreshold` in initial migration.
 - #619 Shipping by weight and by total should use 4 instead of 2 decimal places for currency values.
+- For a BundleItem with attribute filters, the attribute selection on the product detail page disappeared as soon as an attribute was selected.
 
 
 ## Smartstore 5.0.4
