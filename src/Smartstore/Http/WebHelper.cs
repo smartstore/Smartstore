@@ -452,26 +452,33 @@ namespace Smartstore.Http
                     return host;
                 }
 
-                var safeHost = await TestHostsAsync(requestUri.Port);
+                // Don't obtain from factory: risk of mem leak if caller is IHostedService.
+                using var httpClient = new HttpClient(new HttpClientHandler(), true)
+                {
+                    Timeout = TimeSpan.FromSeconds(5),
+                };
+                httpClient.DefaultRequestHeaders.ExpectContinue = true;
+
+                var safeHost = await TestHostsAsync(httpClient, requestUri.Port);
                 _safeLocalHostNames.TryAdd(requestUri.Port, safeHost);
 
                 return safeHost;
             }
 
-            async Task<string> TestHostsAsync(int port)
+            async Task<string> TestHostsAsync(HttpClient httpClient, int port)
             {
                 // First try original host
-                if (await TestHostAsync(requestUri, requestUri.Host, 5000))
+                if (await TestHostAsync(requestUri, requestUri.Host, httpClient))
                 {
                     return requestUri.Host;
                 }
-
+                
                 // Try loopback
                 var hostName = Dns.GetHostName();
                 var hosts = new List<string> { "localhost", hostName, "127.0.0.1" };
                 foreach (var host in hosts)
                 {
-                    if (await TestHostAsync(requestUri, host, 500))
+                    if (await TestHostAsync(requestUri, host, httpClient))
                     {
                         return host;
                     }
@@ -484,7 +491,7 @@ namespace Smartstore.Http
 
                 foreach (var host in hosts)
                 {
-                    if (await TestHostAsync(requestUri, host, 500))
+                    if (await TestHostAsync(requestUri, host, httpClient))
                     {
                         return host;
                     }
@@ -495,20 +502,16 @@ namespace Smartstore.Http
             }
         }
 
-        private static async Task<bool> TestHostAsync(Uri originalUri, string host, int timeout)
+        private static async Task<bool> TestHostAsync(Uri originalUri, string host, HttpClient httpClient)
         {
             var url = string.Format("{0}://{1}/taskscheduler/noop",
                 originalUri.Scheme,
                 originalUri.IsDefaultPort ? host : host + ":" + originalUri.Port);
             var uri = new Uri(url);
 
-            var client = EngineContext.Current.Application.Services.Resolve<IHttpClientFactory>()?.CreateClient("local");
-            client.Timeout = TimeSpan.FromMilliseconds(timeout);
-            client.DefaultRequestHeaders.ExpectContinue = false;
-
             try
             {
-                using var response = await client.GetAsync(uri);
+                using var response = await httpClient.GetAsync(uri);
                 if (response.IsSuccessStatusCode)
                 {
                     return true;

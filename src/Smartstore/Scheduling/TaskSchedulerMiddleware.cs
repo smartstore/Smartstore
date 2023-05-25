@@ -10,11 +10,11 @@ namespace Smartstore.Scheduling
         internal const string RunAction = "run";
         internal const string NoopAction = "noop";
 
-        private readonly CancellationToken _appShutdownToken;
+        private readonly CancellationToken _stopping;
 
         public TaskSchedulerMiddleware(RequestDelegate next, IHostApplicationLifetime appLifetime)
         {
-            _appShutdownToken = appLifetime.ApplicationStopping;
+            _stopping = appLifetime.ApplicationStopping;
         }
 
         public async Task Invoke(
@@ -23,7 +23,7 @@ namespace Smartstore.Scheduling
             ITaskStore taskStore, 
             ITaskExecutor executor)
         {
-            if (_appShutdownToken.IsCancellationRequested)
+            if (_stopping.IsCancellationRequested)
             {
                 context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
                 return;
@@ -66,7 +66,7 @@ namespace Smartstore.Scheduling
 
         private async Task Poll(HttpContext context, ITaskStore taskStore, ITaskExecutor executor, IDictionary<string, string> taskParameters)
         {
-            if (_appShutdownToken.IsCancellationRequested)
+            if (_stopping.IsCancellationRequested)
             {
                 context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
                 return;
@@ -83,7 +83,7 @@ namespace Smartstore.Scheduling
 
             for (var i = 0; i < numTasks; i++)
             {
-                if (_appShutdownToken.IsCancellationRequested)
+                if (_stopping.IsCancellationRequested)
                 {
                     context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
                     return;

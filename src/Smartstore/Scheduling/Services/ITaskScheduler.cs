@@ -50,7 +50,7 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// Creates a new <see cref="HttpClient"/> instance configured for the task scheduler.
         /// </summary>
-        Task<HttpClient> CreateHttpClientAsync();
+        HttpClient CreateHttpClient();
 
         /// <summary>
         /// Executes a single task immediately (without waiting for next schedule).
@@ -71,6 +71,6 @@ namespace Smartstore.Scheduling
         /// If empty, <paramref name="httpContext"/> is used to auto-resolve the base url.
         /// </param>
         /// <param name="pollInterval">The scheduler endpoint poll interval in minutes.</param>
-        void Activate(string baseUrl, int pollInterval, HttpContext httpContext);
+        Task ActivateAsync(string baseUrl, int pollInterval, HttpContext httpContext);
     }
 }

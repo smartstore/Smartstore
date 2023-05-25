@@ -265,8 +265,21 @@ namespace Smartstore.Admin.Controllers
         [HttpPost]
         public IActionResult RestartApplication()
         {
-            _hostApplicationLifetime.StopApplication();
-            return new EmptyResult();
+            return new StopApplicationResult();
+        }
+
+        /// <summary>
+        /// It's a matter of order. Shutting down the application should be the last step
+        /// in the request lifecycle.
+        /// </summary>
+        class StopApplicationResult : EmptyResult
+        {
+            public override async Task ExecuteResultAsync(ActionContext context)
+            {
+                var appLifetime = context.HttpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>();
+                await base.ExecuteResultAsync(context);
+                appLifetime.StopApplication();
+            }
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
@@ -460,7 +473,7 @@ namespace Smartstore.Admin.Controllers
             // ====================================
             try
             {
-                var taskSchedulerClient = await _taskScheduler.CreateHttpClientAsync();
+                using var taskSchedulerClient = _taskScheduler.CreateHttpClient();
                 taskSchedulerClient.Timeout = TimeSpan.FromSeconds(5);
 
                 using var response = await taskSchedulerClient.GetAsync("noop");

@@ -33,7 +33,7 @@ namespace Smartstore.Core.Bootstrapping
             var tasks = await taskStore.GetAllTasksAsync(true, true);
             await taskStore.CalculateFutureSchedulesAsync(tasks, true /* isAppStart */);
 
-            scheduler.Activate(
+            await scheduler.ActivateAsync(
                 _appConfig.TaskSchedulerBaseUrl,
                 _appConfig.TaskSchedulerPollInterval,
                 httpContext);

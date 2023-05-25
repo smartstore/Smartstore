@@ -4,7 +4,7 @@
     string returnUrl = ViewBag.ReturnUrl ?? Url.Action("Index", "Home", new { area = "Admin" });
     string postUrl = Url.Action("RestartApplication");
     string pingUrl = Url.Content("~/taskscheduler/noop");
-    string pathBase = Request.PathBase.Value.NullEmpty() ?? "/";
+    string pathBase = Request.PathBase.Value;
 }
 
 <style sm-target-zone="stylesheets" data-origin="RestartApplication">
@@ -16,7 +16,7 @@
         top: 0;
         bottom: 0;
         z-index: -1;
-        background-image: url('/admin/images/bg-mobile.jpg');
+        background-image: url('@(pathBase)/admin/images/bg-mobile.jpg');
         background-repeat: no-repeat;
         background-position: center 0;
         background-size: 100%;
@@ -25,13 +25,13 @@
 
     @@media (min-width: 800px) {
         .cph:after {
-            background-image: url('/admin/images/bg-tablet.jpg');
+            background-image: url('@(pathBase)/admin/images/bg-tablet.jpg');
         }
     }
 
     @@media (min-width: 1200px) {
         .cph:after {
-            background-image: url('/admin/images/bg-desktop.jpg');
+            background-image: url('@(pathBase)/admin/images/bg-desktop.jpg');
         }
     }
 </style>
@@ -48,11 +48,17 @@
                 url: "@postUrl",
                 global: false,
                 complete() {
-                    // Set cookie with 1 min. expiration
-                    _.setCookie(".Smart.RestartingApp", "true", "@pathBase", new Date(Date.now() + 60000));
-                    interval = setInterval(checkAlive, 500);
+                    // Start check alive with slight delay to
+                    // give app the chance to dispose off resources.
+                    setTimeout(startCheckAlive, 1000);
                 }
             });
+        }
+
+        function startCheckAlive() {
+            // Set cookie with 1 min. expiration
+            _.setCookie(".Smart.RestartingApp", "true", "@pathBase.EnsureStartsWith('/')", new Date(Date.now() + 60000));
+            interval = setInterval(checkAlive, 750);
         }
 
         function checkAlive() {
@@ -78,7 +84,8 @@
                     interval = setInterval(checkAlive, 1000);
                 }
                 else {
-                    restartApplication();
+                    // Give browser the chance to load assets before shutting down
+                    setTimeout(restartApplication, 250);
                 }
             }
         });

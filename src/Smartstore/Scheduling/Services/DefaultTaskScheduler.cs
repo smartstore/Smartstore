@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Http;
+using Smartstore.Net.Http;
+using Smartstore.Threading;
 
 namespace Smartstore.Scheduling
 {
@@ -16,16 +18,16 @@ namespace Smartstore.Scheduling
         internal const string AuthTokenName = "X-SCHED-AUTH-TOKEN";
 
         private readonly ICacheManager _cache;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly CancellationTokenSource _stopping;
 
+        private Uri _baseUri;
         private Timer _timer;
-        private bool _shuttingDown;
         private int _errCount;
 
-        public DefaultTaskScheduler(ICacheManager cache, IHttpClientFactory httpClientFactory)
+        public DefaultTaskScheduler(ICacheManager cache)
         {
             _cache = cache;
-            _httpClientFactory = httpClientFactory;
+            _stopping = new CancellationTokenSource();
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -35,6 +37,8 @@ namespace Smartstore.Scheduling
         public string BaseUrl { get; private set; }
 
         public bool IsActive => _timer != null;
+
+        internal bool IsStopping => _stopping.IsCancellationRequested;
 
         public string GetAsyncStateKey(int taskId)
         {
@@ -77,12 +81,21 @@ namespace Smartstore.Scheduling
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _shuttingDown = true;
-            _timer?.Change(Timeout.Infinite, 0);
+            try
+            {
+                _stopping.Cancel();
+            }
+            catch
+            {
+                // Ignore exceptions thrown as a result of a cancellation.
+            }
+
+            DisposeInternal();
+
             return Task.CompletedTask;
         }
 
-        public void Activate(string baseUrl, int pollInterval, HttpContext httpContext)
+        public async Task ActivateAsync(string baseUrl, int pollInterval, HttpContext httpContext)
         {
             Guard.IsPositive(pollInterval);
             Guard.NotNull(httpContext);
@@ -107,10 +120,14 @@ namespace Smartstore.Scheduling
             BaseUrl = url;
             PollInterval = pollInterval;
 
+            _baseUri = await WebHelper.CreateUriForSafeLocalCallAsync(new Uri(BaseUrl));
+
             _timer?.Dispose();
-            _timer = new Timer(DoPoll, "poll",
-                TimeSpan.FromSeconds(GetFixedInterval(pollInterval)), // Next poll (must be whole minute)
-                TimeSpan.FromMinutes(PollInterval)); // continous interval
+            _timer = NonCapturingTimer.Create(OnTimerTick, "poll",
+                // Next poll (must be whole minute)
+                TimeSpan.FromSeconds(GetFixedInterval(pollInterval)),
+                // continous interval
+                TimeSpan.FromMinutes(PollInterval));
 
             static double GetFixedInterval(int interval)
             {
@@ -118,19 +135,6 @@ namespace Smartstore.Scheduling
                 int seconds = (interval * 60) - DateTime.Now.Second;
                 return seconds;
             }
-        }
-
-        public async Task<HttpClient> CreateHttpClientAsync()
-        {
-            var baseUri = await WebHelper.CreateUriForSafeLocalCallAsync(new Uri(BaseUrl));
-
-            var client = _httpClientFactory.CreateClient(HttpClientName);
-            client.BaseAddress = baseUri;
-
-            var authToken = await CreateAuthToken();
-            client.DefaultRequestHeaders.Add(AuthTokenName, authToken);
-
-            return client;
         }
 
         private async Task<string> CreateAuthToken()
@@ -146,30 +150,51 @@ namespace Smartstore.Scheduling
             return "Scheduler:AuthToken:" + authToken;
         }
 
-        private void DoPoll(object state)
+        // Yes, async void. We need to be async. We need to be void. We handle the exceptions in CallEndpointAsync.
+        private async void OnTimerTick(object state)
         {
-            _ = CallEndpointAsync((string)state, true);
+            await CallEndpointAsync((string)state, true);
         }
 
         private async Task CallEndpointAsync(string action, bool isPoll)
         {
-            if (_shuttingDown || _errCount >= 10)
+            if (IsStopping || _errCount >= 10)
+            {
                 return;
+            }
 
             // If passed uri is null, we always assume a poll action.
             action ??= "poll";
-            var client = await CreateHttpClientAsync();
 
             try
             {
-                using var response = await client.PostAsync(action, null);
+                // Forcibly yield - we want to unblock the timer thread.
+                await Task.Yield();
+
+                using var client = CreateHttpClient();
+                using var requestMessage = new HttpRequestMessage(HttpMethod.Post, action);
+
+                // Auth token header
+                requestMessage.Headers.Add(AuthTokenName, await CreateAuthToken());
+
+
+                // Call endpoint
+                using var response = await client.SendAsync(requestMessage, _stopping.Token);
+                
                 // Throw if not a success code.
                 response.EnsureSuccessStatusCode();
+
+                // Success: reset error count.
                 Interlocked.Exchange(ref _errCount, 0);
+            }
+            catch (OperationCanceledException) when (IsStopping)
+            {
+                // This is a cancellation - if the app is shutting down we want to ignore it.
+                // Otherwise, it's a timeout and we want to handle it.
             }
             catch (Exception ex)
             {
-                var uri = new Uri(client.BaseAddress, action);
+                var uri = new Uri(_baseUri, action);
                 HandleException(ex, uri, out var isTimeout);
 
                 if (isPoll || !isTimeout)
@@ -183,6 +208,33 @@ namespace Smartstore.Scheduling
                     }
                 }
             }
+        }
+
+        public HttpClient CreateHttpClient()
+        {
+            if (_baseUri == null)
+            {
+                throw new InvalidOperationException("The task scheduler is not in activated state.");
+            }
+            
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
+            };
+
+            // Don't obtain HttpClient from factory: app shutdown will leak otherwise.
+            var client = new HttpClient(handler, true)
+            {
+                // INFO: avoids HttpClient.Timeout error messages in the log list.
+                // Only affects the HTTP request that starts the task. Does not affect the execution of the task.
+                Timeout = TimeSpan.FromMinutes(240),
+                BaseAddress = _baseUri,
+            };
+
+            // User agent header
+            client.DefaultRequestHeaders.UserAgent.Add(HttpClientBuilderExtensions.UserAgentHeader);
+
+            return client;
         }
 
         private void HandleException(Exception exception, Uri uri, out bool isTimeout)
@@ -213,7 +265,18 @@ namespace Smartstore.Scheduling
         protected override void OnDispose(bool disposing)
         {
             if (disposing)
-                _timer?.Dispose();
+            {
+                DisposeInternal();
+            }  
+        }
+
+        private void DisposeInternal()
+        {
+            if (_timer != null)
+            {
+                _timer.Dispose();
+                _timer = null;
+            }
         }
     }
 }

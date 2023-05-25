@@ -9,13 +9,13 @@ namespace Smartstore.Net.Http
 {
     public static class HttpClientBuilderExtensions
     {
-        private readonly static ProductInfoHeaderValue _userAgentHeader = new("Smartstore", SmartstoreVersion.CurrentFullVersion);
+        internal readonly static ProductInfoHeaderValue UserAgentHeader = new("Smartstore", SmartstoreVersion.CurrentFullVersion);
 
         public static IHttpClientBuilder AddSmartstoreUserAgent(this IHttpClientBuilder builder)
         {
             return builder.ConfigureHttpClient(client =>
             {
-                client.DefaultRequestHeaders.UserAgent.Add(_userAgentHeader);
+                client.DefaultRequestHeaders.UserAgent.Add(UserAgentHeader);
             });
         }
 
