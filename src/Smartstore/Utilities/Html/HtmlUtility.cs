@@ -1,11 +1,14 @@
-﻿using System.Text;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using AngleSharp;
 using AngleSharp.Css.Dom;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
-using Ganss.XSS;
+using Ganss.Xss;
 
 namespace Smartstore.Utilities.Html
 {
@@ -22,7 +25,8 @@ namespace Smartstore.Utilities.Html
         private readonly static Regex _rgParaEnd = new("</p>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
 
         /// <inheritdoc cref="SanitizeHtml(string, HtmlSanitizerOptions, bool)"/>
-        public static string SanitizeHtml(string html, bool isFragment = true)
+        [return: NotNullIfNotNull(nameof(html))]
+        public static string? SanitizeHtml(string? html, bool isFragment = true)
             => SanitizeHtml(html, HtmlSanitizerOptions.Default, isFragment);
 
         /// <summary>
@@ -40,36 +44,47 @@ namespace Smartstore.Utilities.Html
         /// <param name="options">Sanitization options</param>
         /// <param name="isFragment">Whether given HTML is a partial fragment or a document.</param>
         /// <returns>Sanitized HTML</returns>
-        public static string SanitizeHtml(string html, HtmlSanitizerOptions options, bool isFragment = true)
+        [return: NotNullIfNotNull(nameof(html))]
+        public static string? SanitizeHtml(string? html, HtmlSanitizerOptions options, bool isFragment = true)
         {
             if (string.IsNullOrEmpty(html))
+            {
                 return string.Empty;
+            }   
 
-            Guard.NotNull(options, nameof(options));
+            Guard.NotNull(options);
 
-            var sanitizer = new HtmlSanitizer(
-                allowedTags: MergeSets(options.AllowedTags, options.DisallowedTags, HtmlSanitizerOptions.DefaultAllowedTags),
-                allowedAttributes: MergeSets(options.AllowedAttributes, options.DisallowedAttributes, HtmlSanitizerOptions.DefaultAllowedAttributes),
-                uriAttributes: options.UriAttributes)
+            var sanitizerOptions = new Ganss.Xss.HtmlSanitizerOptions();
+
+            MergeSets(sanitizerOptions.AllowedTags, options.AllowedTags ?? HtmlSanitizerOptions.DefaultAllowedTags, options.DisallowedTags);
+            MergeSets(sanitizerOptions.AllowedAttributes, options.AllowedAttributes ?? HtmlSanitizerOptions.DefaultAllowedAttributes, options.DisallowedAttributes);
+            MergeSets(sanitizerOptions.UriAttributes, options.UriAttributes ?? HtmlSanitizerOptions.DefaultUriAttributes, null);
+
+            if (options.AllowedCssClasses != null)
+            {
+                MergeSets(sanitizerOptions.AllowedCssClasses, options.AllowedCssClasses, null);
+            }
+
+            var sanitizer = new HtmlSanitizer(sanitizerOptions)
             {
                 KeepChildNodes = options.KeepChildNodes,
                 AllowDataAttributes = options.AllowDataAttributes
             };
 
-            if (options.AllowedCssClasses != null)
-            {
-                sanitizer.AllowedClasses.AddRange(options.AllowedCssClasses);
-            }
-
             return isFragment
                 ? sanitizer.Sanitize(html)
                 : sanitizer.SanitizeDocument(html);
 
-            static IEnumerable<string> MergeSets(IEnumerable<string> allows, IEnumerable<string> disallows, ISet<string> defaults)
+            static void MergeSets(ISet<string> target, ISet<string> allows, ISet<string>? disallows)
             {
-                return disallows != null
-                    ? (allows ?? defaults).Except(disallows)
-                    : allows;
+                if (disallows == null)
+                {
+                    target.AddRange(allows);
+                }
+                else
+                {
+                    target.AddRange(allows.Except(disallows));
+                }
             }
         }
 
@@ -79,41 +94,41 @@ namespace Smartstore.Utilities.Html
         /// </summary>
         /// <param name="html">Input HTML</param>
         /// <returns>Clean text</returns>
-        public static string StripTags(string html)
+        public static string StripTags(string? html)
         {
-            if (html.IsEmpty())
+            if (string.IsNullOrWhiteSpace(html))
+            {
                 return string.Empty;
+            } 
 
             var removeTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "script", "style", "svg", "img" };
             var parser = new HtmlParser();
 
-            using (var doc = parser.ParseDocument(html))
+            using var doc = parser.ParseDocument(html);
+            List<IElement> removeElements = new();
+
+            foreach (var el in doc.All)
             {
-                List<IElement> removeElements = new();
-
-                foreach (var el in doc.All)
+                if (removeTags.Contains(el.TagName))
                 {
-                    if (removeTags.Contains(el.TagName))
-                    {
-                        removeElements.Add(el);
-                    }
+                    removeElements.Add(el);
                 }
-
-                foreach (var el in removeElements)
-                {
-                    el.Remove();
-                }
-
-                return doc.Body.TextContent;
             }
+
+            foreach (var el in removeElements)
+            {
+                el.Remove();
+            }
+
+            return doc.Body?.TextContent ?? string.Empty;
         }
 
         /// <summary>
         /// Checks whether HTML code only contains whitespace stuff (<![CDATA[<p>&nbsp;</p>]]>)
         /// </summary>
-        public static bool IsEmptyHtml(string html)
+        public static bool IsEmptyHtml(string? html)
         {
-            if (html.IsEmpty())
+            if (string.IsNullOrWhiteSpace(html))
             {
                 return true;
             }
@@ -126,7 +141,7 @@ namespace Smartstore.Utilities.Html
 
             var context = BrowsingContext.New(Configuration.Default);
             var parser = context.GetService<IHtmlParser>();
-            using var doc = parser.ParseDocument(html);
+            using var doc = parser!.ParseDocument(html);
 
             foreach (var el in doc.All)
             {
@@ -170,11 +185,13 @@ namespace Smartstore.Utilities.Html
         /// </summary>
         /// <param name="text">Text</param>
         /// <returns>Text</returns>
-        public static string ReplaceAnchorTags(string text)
+        public static string ReplaceAnchorTags(string? text)
         {
             if (string.IsNullOrEmpty(text))
+            {
                 return string.Empty;
-
+            }
+                
             text = _rgAnchor.Replace(text, "$1");
             return text;
         }
@@ -184,10 +201,12 @@ namespace Smartstore.Utilities.Html
         /// </summary>
         /// <param name="text">Text</param>
         /// <returns>Formatted text</returns>
-        public static string ConvertPlainTextToHtml(string text)
+        public static string ConvertPlainTextToHtml(string? text)
         {
             if (string.IsNullOrEmpty(text))
+            {
                 return string.Empty;
+            }
 
             if (text.IndexOfAny(_textReplacableChars) == -1 && !text.Contains("  "))
             {
@@ -212,13 +231,17 @@ namespace Smartstore.Utilities.Html
         /// <param name="decode">A value indicating whether to decode text</param>
         /// <param name="replaceAnchorTags">A value indicating whether to replace anchor text (remove a tag from the following url <a href="http://example.com">Name</a> and output only the string "Name")</param>
         /// <returns>Formatted text</returns>
-        public static string ConvertHtmlToPlainText(string text, bool decode = false, bool replaceAnchorTags = false)
+        public static string ConvertHtmlToPlainText(string? text, bool decode = false, bool replaceAnchorTags = false)
         {
             if (string.IsNullOrEmpty(text))
+            {
                 return string.Empty;
+            }  
 
             if (decode)
+            {
                 text = HttpUtility.HtmlDecode(text);
+            } 
 
             if (text.IndexOfAny(_htmlReplacableChars) == -1)
             {
@@ -246,7 +269,7 @@ namespace Smartstore.Utilities.Html
         /// </summary>
         /// <param name="text">The text to convert</param>
         /// <returns>The formatted (html) string</returns>
-        public static string ConvertPlainTextToTable(string text, string tableCssClass = null)
+        public static string ConvertPlainTextToTable(string? text, string? tableCssClass = null)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -295,7 +318,7 @@ namespace Smartstore.Utilities.Html
         /// </summary>
         /// <param name="text">Text</param>
         /// <returns>Formatted text</returns>
-        public static string ConvertPlainTextToParagraph(string text)
+        public static string ConvertPlainTextToParagraph(string? text)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -335,12 +358,12 @@ namespace Smartstore.Utilities.Html
         /// <returns></returns>
         public static string RelativizeFontSizes(string html, int baseFontSizePx = 16)
         {
-            Guard.NotEmpty(html, nameof(html));
-            Guard.IsPositive(baseFontSizePx, nameof(baseFontSizePx));
+            Guard.NotEmpty(html);
+            Guard.IsPositive(baseFontSizePx);
 
             var context = BrowsingContext.New(Configuration.Default.WithCss());
             var parser = context.GetService<IHtmlParser>();
-            using var doc = parser.ParseDocument(html);
+            using var doc = parser!.ParseDocument(html);
 
             var nodes = doc.QuerySelectorAll("*[style]");
             foreach (var node in nodes)
@@ -357,7 +380,7 @@ namespace Smartstore.Utilities.Html
                 }
             }
 
-            return doc.Body.InnerHtml;
+            return doc.Body?.InnerHtml ?? string.Empty;
         }
     }
 }
