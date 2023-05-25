@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -12,8 +13,8 @@ namespace Smartstore.PayPal.Providers
     [Order(1)]
     public class PayPalStandardProvider : PayPalProviderBase
     {
-        public PayPalStandardProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings)
-            : base(db, client, settings)
+        public PayPalStandardProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings, IPaymentService paymentService)
+            : base(db, client, settings, paymentService)
         {
         }
 

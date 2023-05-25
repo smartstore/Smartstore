@@ -17,7 +17,7 @@ namespace Smartstore.PayPal.Providers
         private readonly IValidator<PublicApmModel> _validator;
 
         public PayPalApmProviderBase(PayPalApmServiceContext context)
-            : base(context.Db, context.Client, context.Settings)
+            : base(context.Db, context.Client, context.Settings, context.paymentService)
         {
             _db = context.Db;
             _checkoutStateAccessor = context.CheckoutStateAccessor;
@@ -30,6 +30,8 @@ namespace Smartstore.PayPal.Providers
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         public override bool RequiresInteraction => true;
+
+        public override bool SupportCapture => false;
 
         public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request)
         {

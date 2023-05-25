@@ -14,12 +14,14 @@ namespace Smartstore.PayPal.Providers
         private readonly SmartDbContext _db;
         private readonly PayPalHttpClient _client;
         private readonly PayPalSettings _settings;
+        private readonly IPaymentService _paymentService;
         
-        public PayPalProviderBase(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings)
+        public PayPalProviderBase(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings, IPaymentService paymentService)
         {
             _db = db;
             _client = client;
             _settings = settings;
+            _paymentService = paymentService;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -55,7 +57,9 @@ namespace Smartstore.PayPal.Providers
 
             try
             {
-                if (_settings.Intent == PayPalTransactionType.Authorize)
+                var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(request.PaymentMethodSystemName);
+
+                if (_settings.Intent == PayPalTransactionType.Authorize && paymentMethod.Value.SupportCapture)
                 {
                     var response = await _client.AuthorizeOrderAsync(request, result);
                 }
