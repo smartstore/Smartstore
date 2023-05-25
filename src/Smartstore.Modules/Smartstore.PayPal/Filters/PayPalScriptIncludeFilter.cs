@@ -72,8 +72,15 @@ namespace Smartstore.PayPal.Filters
 
                 // paypal & sepa are the default funding options which are always available.
                 // INFO: In fact adding paypal, sepa or card as funding option is breaking the integration in Live mode but not in the Sandbox mode.
-                scriptUrl += $"&enable-funding=paylater";
-                
+                if (!_settings.UseSandbox)
+                {
+                    scriptUrl += $"&enable-funding=paylater";
+                }
+                else
+                {
+                    scriptUrl += $"&enable-funding=paypal,sepa,paylater";
+                }
+
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
