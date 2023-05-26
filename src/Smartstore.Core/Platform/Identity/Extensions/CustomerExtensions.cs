@@ -8,32 +8,146 @@ namespace Smartstore
 {
     public static class CustomerExtensions
     {
+        #region Roles
+
         /// <summary>
-        /// Gets a value indicating whether customer is in a certain customer role.
+        /// Enumerates the system names of the roles the customer is in.
         /// </summary>
-        /// <param name="roleSystemName">Customer role system name.</param>
-        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
-        public static bool IsInRole(this Customer customer, string roleSystemName, bool onlyActiveRoles = true)
+        /// <remarks>
+        /// Navigation properties <see cref="Customer.CustomerRoleMappings"/> 
+        /// then <see cref="CustomerRoleMapping.CustomerRole"/> are required and must be loaded or lazily loadable.
+        /// </remarks>
+        /// <param name="onlyActiveRoles">A value indicating whether to match only active customer roles.</param>
+        public static IEnumerable<string> GetRoleNames(this Customer customer, bool onlyActiveRoles = true)
         {
             Guard.NotNull(customer);
-            Guard.NotEmpty(roleSystemName);
 
             foreach (var mapping in customer.CustomerRoleMappings)
             {
                 var role = mapping.CustomerRole;
 
-                if (role?.SystemName == null)
+                if (string.IsNullOrEmpty(role?.SystemName))
                 {
                     continue;
                 }
 
-                if (role.SystemName.Equals(roleSystemName, StringComparison.OrdinalIgnoreCase))
+                if (!onlyActiveRoles || role.Active)
                 {
-                    return !onlyActiveRoles || role.Active;
+                    yield return role.SystemName;
                 }
             }
+        }
 
-            return false;
+        /// <summary>
+        /// Gets a value indicating whether customer is in a certain customer role.
+        /// </summary>
+        /// <remarks>
+        /// Navigation properties <see cref="Customer.CustomerRoleMappings"/> 
+        /// then <see cref="CustomerRoleMapping.CustomerRole"/> are required and must be loaded or lazily loadable.
+        /// </remarks>
+        /// <param name="roleSystemName">Customer role system name.</param>
+        /// <param name="onlyActiveRoles">A value indicating whether to match only active customer roles.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInRole(this Customer customer, string roleSystemName, bool onlyActiveRoles = true)
+        {
+            Guard.NotEmpty(roleSystemName);
+            return GetRoleNames(customer, onlyActiveRoles)
+                .Any(x => x.Equals(roleSystemName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether customer is administrator.
+        /// </summary>
+        /// <remarks>
+        /// Navigation properties <see cref="Customer.CustomerRoleMappings"/> 
+        /// then <see cref="CustomerRoleMapping.CustomerRole"/> are required and must be loaded or lazily loadable.
+        /// </remarks>
+        /// <param name="onlyActiveRoles">A value indicating whether to match only active customer roles.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAdmin(this Customer customer, bool onlyActiveRoles = true)
+        {
+            return GetRoleNames(customer, onlyActiveRoles)
+                .Any(x => x.Equals(SystemCustomerRoleNames.Administrators, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether customer is super administrator.
+        /// </summary>
+        /// <remarks>
+        /// Navigation properties <see cref="Customer.CustomerRoleMappings"/> 
+        /// then <see cref="CustomerRoleMapping.CustomerRole"/> are required and must be loaded or lazily loadable.
+        /// </remarks>
+        /// <param name="onlyActiveRoles">A value indicating whether to match only active customer roles.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsSuperAdmin(this Customer customer, bool onlyActiveRoles = true)
+        {
+            return GetRoleNames(customer, onlyActiveRoles)
+                .Any(x => x.Equals(SystemCustomerRoleNames.SuperAdministrators, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether customer is registered.
+        /// </summary>
+        /// <remarks>
+        /// Navigation properties <see cref="Customer.CustomerRoleMappings"/> 
+        /// then <see cref="CustomerRoleMapping.CustomerRole"/> are required and must be loaded or lazily loadable.
+        /// </remarks>
+        /// <param name="onlyActiveRoles">A value indicating whether to match only active customer roles.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsRegistered(this Customer customer, bool onlyActiveRoles = true)
+        {
+            return GetRoleNames(customer, onlyActiveRoles)
+                .Any(x => x.Equals(SystemCustomerRoleNames.Registered, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether customer is guest.
+        /// </summary>
+        /// <remarks>
+        /// Navigation properties <see cref="Customer.CustomerRoleMappings"/> 
+        /// then <see cref="CustomerRoleMapping.CustomerRole"/> are required and must be loaded or lazily loadable.
+        /// </remarks>
+        /// <param name="onlyActiveRoles">A value indicating whether to match only active customer roles.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsGuest(this Customer customer, bool onlyActiveRoles = true)
+        {
+            // Hot path code!
+            var roleNames = GetRoleNames(customer, onlyActiveRoles).ToArray();
+
+            if (roleNames.Length == 0)
+            {
+                return false;
+            }
+            else if (roleNames.Length == 1)
+            {
+                return roleNames[0].Equals(SystemCustomerRoleNames.Guests, StringComparison.OrdinalIgnoreCase);
+            }
+            else
+            {
+                var isGuest = false;
+                var isRegistered = false;
+                
+                // A registered user is NOT a guest.
+                for (var i = 0; i < roleNames.Length; i++)
+                {
+                    if (!isGuest && roleNames[i].Equals(SystemCustomerRoleNames.Guests, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isGuest = true;
+                    }
+                    
+                    if (!isRegistered && roleNames[i].Equals(SystemCustomerRoleNames.Registered, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isRegistered = true;
+                    }
+
+                    if (isGuest && isRegistered)
+                    {
+                        break;
+                    }
+                }
+
+                return isGuest && !isRegistered;
+            }
         }
 
         /// <summary>
@@ -81,45 +195,7 @@ namespace Smartstore
             return customer.SystemName.EqualsNoCase(SystemCustomerNames.PdfConverter);
         }
 
-        /// <summary>
-        /// Gets a value indicating whether customer is administrator (navigation properties CustomerRoleMappings then CustomerRole are required).
-        /// </summary>
-        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsAdmin(this Customer customer, bool onlyActiveRoles = true)
-        {
-            return IsInRole(customer, SystemCustomerRoleNames.Administrators, onlyActiveRoles);
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether customer is super administrator (navigation properties CustomerRoleMappings then CustomerRole are required).
-        /// </summary>
-        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsSuperAdmin(this Customer customer, bool onlyActiveRoles = true)
-        {
-            return IsInRole(customer, SystemCustomerRoleNames.SuperAdministrators, onlyActiveRoles);
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether customer is registered (navigation properties CustomerRoleMappings then CustomerRole are required).
-        /// </summary>
-        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsRegistered(this Customer customer, bool onlyActiveRoles = true)
-        {
-            return IsInRole(customer, SystemCustomerRoleNames.Registered, onlyActiveRoles);
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether customer is guest (navigation properties CustomerRoleMappings, then CustomerRole are required).
-        /// </summary>
-        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsGuest(this Customer customer, bool onlyActiveRoles = true)
-        {
-            return IsInRole(customer, SystemCustomerRoleNames.Guests, onlyActiveRoles);
-        }
+        #endregion
 
         /// <summary>
         /// Gets the customer's full name or an empty string if given <paramref name="customer"/> is null.

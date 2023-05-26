@@ -381,7 +381,9 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
             Guard.NotNull(user);
 
-            return (await GetOrLoadRolesAsync(user, true)).Select(x => x.Name).ToList();
+            return (await GetOrLoadRolesAsync(user, true))
+                .Select(x => x.SystemName.NullEmpty() ?? x.Name)
+                .ToList();
         }
 
         public async Task<bool> IsInRoleAsync(Customer user, string normalizedRoleName, CancellationToken cancellationToken = default)

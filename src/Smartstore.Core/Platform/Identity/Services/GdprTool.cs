@@ -129,7 +129,7 @@ namespace Smartstore.Core.Identity
 
         public async Task AnonymizeCustomerAsync(Customer customer, bool pseudomyzeContent)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
 
             var language = GetLanguage(customer);
             var customerName = customer.GetFullName() ?? customer.Username ?? customer.FindEmail();
