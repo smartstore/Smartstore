@@ -26,7 +26,6 @@
         public static string AdminAreaStoreScopeConfiguration => "AdminAreaStoreScopeConfiguration";
         public static string MostRecentlyUsedCategories => "MostRecentlyUsedCategories";
         public static string MostRecentlyUsedManufacturers => "MostRecentlyUsedManufacturers";
-        public static string WalletEnabled => "WalletEnabled";
         public static string HasConsentedToGdpr => "HasConsentedToGdpr";
         public static string ClientIdent => "ClientIdent";
 
