@@ -8,14 +8,14 @@ namespace Smartstore.PayPal.Services
     {
         private readonly ICommonServices _services;
         private readonly IPaymentService _paymentService;
+        private readonly Localizer T;
 
-        public PayPalHelper(ICommonServices services, IPaymentService paymentService)
+        public PayPalHelper(ICommonServices services, IPaymentService paymentService, Localizer localizer)
         {
             _services = services;
             _paymentService = paymentService;
+            T = localizer;
         }
-
-        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public Task<bool> IsPayPalStandardActiveAsync()
             => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalStandard", null, _services.StoreContext.CurrentStore.Id);
