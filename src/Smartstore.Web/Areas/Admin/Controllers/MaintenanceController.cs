@@ -473,7 +473,7 @@ namespace Smartstore.Admin.Controllers
             // ====================================
             try
             {
-                using var taskSchedulerClient = _taskScheduler.CreateHttpClient();
+                using var taskSchedulerClient =  await _taskScheduler.CreateHttpClientAsync();
                 taskSchedulerClient.Timeout = TimeSpan.FromSeconds(5);
 
                 using var response = await taskSchedulerClient.GetAsync("noop");

@@ -20,6 +20,7 @@ namespace Smartstore.Scheduling
         private readonly ICacheManager _cache;
         private readonly CancellationTokenSource _stopping;
 
+        private Task<Uri> _baseUriTask;
         private Uri _baseUri;
         private Timer _timer;
         private int _errCount;
@@ -95,8 +96,13 @@ namespace Smartstore.Scheduling
             return Task.CompletedTask;
         }
 
-        public async Task ActivateAsync(string baseUrl, int pollInterval, HttpContext httpContext)
+        public Task ActivateAsync(string baseUrl, int pollInterval, HttpContext httpContext)
         {
+            if (IsActive)
+            {
+                throw new InvalidOperationException("The task scheduler is already activated.");
+            }
+            
             Guard.IsPositive(pollInterval);
             Guard.NotNull(httpContext);
 
@@ -120,7 +126,8 @@ namespace Smartstore.Scheduling
             BaseUrl = url;
             PollInterval = pollInterval;
 
-            _baseUri = await WebHelper.CreateUriForSafeLocalCallAsync(new Uri(BaseUrl));
+            // Don't await here, await later on first usage.
+            _baseUriTask = WebHelper.CreateUriForSafeLocalCallAsync(new Uri(BaseUrl));
 
             _timer?.Dispose();
             _timer = NonCapturingTimer.Create(OnTimerTick, "poll",
@@ -128,6 +135,8 @@ namespace Smartstore.Scheduling
                 TimeSpan.FromSeconds(GetFixedInterval(pollInterval)),
                 // continous interval
                 TimeSpan.FromMinutes(PollInterval));
+
+            return Task.CompletedTask;
 
             static double GetFixedInterval(int interval)
             {
@@ -171,7 +180,7 @@ namespace Smartstore.Scheduling
                 // Forcibly yield - we want to unblock the timer thread.
                 await Task.Yield();
 
-                using var client = CreateHttpClient();
+                using var client = await CreateHttpClientAsync();
                 using var requestMessage = new HttpRequestMessage(HttpMethod.Post, action);
 
                 // Auth token header
@@ -210,13 +219,21 @@ namespace Smartstore.Scheduling
             }
         }
 
-        public HttpClient CreateHttpClient()
+        public async Task<HttpClient> CreateHttpClientAsync()
         {
-            if (_baseUri == null)
+            if (_baseUriTask == null)
             {
-                throw new InvalidOperationException("The task scheduler is not in activated state.");
+                if (_baseUri == null)
+                {
+                    throw new InvalidOperationException("The task scheduler is not in activated state.");
+                }
             }
-            
+            else
+            {
+                _baseUri = _baseUriTask.IsCompleted ? _baseUriTask.Result : await _baseUriTask;
+                _baseUriTask = null;
+            }
+
             var handler = new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
