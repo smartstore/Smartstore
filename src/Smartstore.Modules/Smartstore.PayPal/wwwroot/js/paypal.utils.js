@@ -47,7 +47,7 @@
                 },
                 // Save obtained order id in checkout state.
                 onApprove: function (data, actions) {
-                    initTransaction(self.buttonContainer);
+                    initTransaction(data, self.buttonContainer);
                 },
                 onCancel: function (data) {
                     // Do nothing here, just let the user have it's way
@@ -124,7 +124,7 @@
                 // Save obtained order id in checkout state.
                 onApprove: function (data, actions) {
                     console.log("onApprove", data);
-                    initTransaction(self.hostedFieldsContainer);
+                    initTransaction(data, self.hostedFieldsContainer);
                 },
                 onError: function (err) {
                     console.log(err);
@@ -218,7 +218,7 @@
         return orderId;
     }
 
-    function initTransaction(container) {
+    function initTransaction(data, container) {
         $.ajax({
             type: 'POST',
             url: container.data("init-transaction-url"),

@@ -47,6 +47,17 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            // TODO: (mh) Find a better (or safer) way to render this script.
+            // The following prevents any PayPal script from being rendered if RequiredCookies weren't accepted yet.
+            // It's a little bit problematic though for the case where a user accepts the cookies for the first time and directly adds a product to cart.
+            // In this case the PayPal buttons won't be rendered in OffCanvasCart (because ConsentManager and OffCanvasCart don't require a new pageload).
+            // But if the user then goes to the checkout page, the buttons will be rendered because its a new pageload.
+            if (!_cookieConsentManager.IsCookieAllowed(CookieType.Required))
+            {
+                await next();
+                return;
+            }
+
             if (await _payPalHelper.IsAnyMethodActiveAsync(
                 "Payments.PayPalStandard",
                 "Payments.PayPalCreditCard",
@@ -82,7 +93,7 @@ namespace Smartstore.PayPal.Filters
                 }
                 else
                 {
-                    scriptUrl += $"&enable-funding=paypal,sepa,paylater";
+                    scriptUrl += $"&enable-funding=sepa,paylater";
                 }
 
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
@@ -97,12 +108,6 @@ namespace Smartstore.PayPal.Filters
             }
 
             if (!await _payPalHelper.IsPayUponInvoiceActiveAsync())
-            {
-                await next();
-                return;
-            }
-
-            if (_cookieConsentManager.IsCookieAllowed(CookieType.Required))
             {
                 await next();
                 return;
