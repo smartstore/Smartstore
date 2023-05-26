@@ -1,40 +1,10 @@
-﻿#region License
-/*
- **************************************************************
- *  Author: Rick Strahl 
- *          © West Wind Technologies, 2012
- *          http://www.west-wind.com/
- * 
- * Created: Feb 2, 2012
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- * 
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- **************************************************************  
-*/
-#endregion
+﻿#nullable enable
 
 using System.Collections;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel
@@ -59,42 +29,41 @@ namespace Smartstore.ComponentModel
     /// 
     /// This type allows you three ways to access its properties:
     /// 
-    /// Directly: any explicitly declared properties are accessible
-    /// Dynamic: dynamic cast allows access to dictionary and native properties/methods
-    /// Dictionary: Any of the extended properties are accessible via IDictionary interface
+    /// Directly: any explicitly declared properties are accessible.
+    /// Dynamic: dynamic cast allows access to dictionary and native properties/methods.
+    /// Dictionary: Any of the extended properties are accessible via dictionary interface
     /// </summary>
     [Serializable]
-    public class HybridExpando : DynamicObject, IDictionary<string, object>, INotifyPropertyChanged
+    public class HybridExpando : DynamicObject, IDictionary<string, object?>, INotifyPropertyChanged
     {
         /// <summary>
         /// Instance of object passed in
         /// </summary>
-        private object _instance;
+        private object? _instance;
 
         /// <summary>
-        /// Cached type of the instance
+        /// Type of the instance
         /// </summary>
-        private Type _instanceType;
+        private Type? _instanceType;
 
         /// <summary>
         /// Adjusted property list for the wrapped instance type after white/black-list members has been applied.
         /// </summary>
-        private IDictionary<string, FastProperty> _instanceProps;
+        private IDictionary<string, FastProperty>? _instanceProps;
         private readonly static IDictionary<string, FastProperty> EmptyProps = new Dictionary<string, FastProperty>();
-
+        
         /// <summary>
         /// String Dictionary that contains the extra dynamic values
         /// stored on this object/instance
         /// </summary>        
-        /// <remarks>Using PropertyBag to support XML Serialization of the dictionary</remarks>
-        public PropertyBag Properties = new();
+        public Dictionary<string, object?> Properties = new();
 
-        private readonly HashSet<string> _optMembers;
+        private readonly ISet<string>? _optMembers;
         private readonly MemberOptMethod _optMethod;
 
         private readonly bool _returnNullWhenFalsy;
 
-        private PropertyChangedEventHandler _propertyChanged;
+        private PropertyChangedEventHandler? _propertyChanged;
 
         /// <summary>
         /// This constructor just works off the internal dictionary and any 
@@ -110,14 +79,10 @@ namespace Smartstore.ComponentModel
         /// <summary>
         /// Allows passing in an existing instance variable to 'extend'.        
         /// </summary>
-        /// <remarks>
-        /// You can pass in null here if you don't want to 
-        /// check native properties and only check the Dictionary!
-        /// </remarks>
         /// <param name="instance"></param>
         public HybridExpando(object instance, bool returnNullWhenFalsy = false)
         {
-            Guard.NotNull(instance, nameof(instance));
+            Guard.NotNull(instance);
 
             _returnNullWhenFalsy = returnNullWhenFalsy;
             Initialize(instance);
@@ -130,14 +95,14 @@ namespace Smartstore.ComponentModel
         /// <param name="instance"></param>
         public HybridExpando(object instance, IEnumerable<string> optMembers, MemberOptMethod optMethod, bool returnNullWhenFalsy = false)
         {
-            Guard.NotNull(instance, nameof(instance));
-
+            Guard.NotNull(instance);
+            
             _returnNullWhenFalsy = returnNullWhenFalsy;
             Initialize(instance);
 
             _optMethod = optMethod;
 
-            if (optMembers is HashSet<string> h)
+            if (optMembers is ISet<string> h)
             {
                 _optMembers = h;
             }
@@ -147,63 +112,42 @@ namespace Smartstore.ComponentModel
             }
         }
 
-        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
         {
             add { _propertyChanged += value; }
             remove { _propertyChanged -= value; }
         }
 
-        protected void Initialize(object instance)
+        protected void Initialize(object? instance)
         {
             _instance = instance;
             _instanceType = instance?.GetType();
         }
 
-        protected object WrappedObject
+        protected object? WrappedObject
         {
             get { return _instance; }
         }
 
         public override IEnumerable<string> GetDynamicMemberNames()
         {
-            foreach (var kvp in this.Properties.Keys)
-            {
-                yield return kvp;
-            }
-
-            foreach (var kvp in GetInstanceProperties())
-            {
-                if (!this.Properties.ContainsKey(kvp.Key))
-                {
-                    yield return kvp.Key;
-                }
-            }
+            return Properties.Keys
+                .Union(InstanceProperties.Keys)
+                .ToArray();
         }
-
 
         /// <summary>
         /// Try to retrieve a member by name first from instance properties
         /// followed by the collection entries.
         /// </summary>
-        /// <param name="binder"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
-        {
-            return TryGetMemberCore(binder.Name, out result);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool TryGetMember(GetMemberBinder binder, out object? result)
+            => TryGetMemberCore(binder.Name, out result);
 
-        protected virtual bool TryGetMemberCore(string name, out object result)
+        protected virtual bool TryGetMemberCore(string name, out object? result)
         {
-            result = null;
-            bool exists = false;
-
-            // first check the Properties collection for member
-            if (Properties.ContainsKey(name))
-            {
-                result = Properties[name];
-                exists = true;
-            }
+            // First check the Properties collection for member
+            var exists = Properties.TryGetValue(name, out result);
 
             // Next check for public properties via Reflection
             if (!exists && _instance != null)
@@ -223,24 +167,20 @@ namespace Smartstore.ComponentModel
                 result = null;
             }
 
-            // failed to retrieve a property
+            // Failed to retrieve a property
             return exists;
         }
 
 
         /// <summary>
         /// Property setter implementation tries to retrieve value from instance 
-        /// first then into this object
+        /// first, then into this object.
         /// </summary>
-        /// <param name="binder"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public override bool TrySetMember(SetMemberBinder binder, object value)
-        {
-            return TrySetMemberCore(binder.Name, value);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool TrySetMember(SetMemberBinder binder, object? value)
+            => TrySetMemberCore(binder.Name, value);
 
-        protected virtual bool TrySetMemberCore(string name, object value)
+        protected virtual bool TrySetMemberCore(string name, object? value)
         {
             var result = false;
 
@@ -263,7 +203,7 @@ namespace Smartstore.ComponentModel
                 }
             }
 
-            // no match - set or add to dictionary
+            // No match - set or add to dictionary
             if (!result)
             {
                 Properties[name] = value;
@@ -282,9 +222,9 @@ namespace Smartstore.ComponentModel
         /// Dynamic invocation method. Currently allows only for Reflection based
         /// operation (no ability to add members dynamically).
         /// </summary>
-        public void Override(string name, object value = null)
+        public void Override(string name, object? value = null)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             Properties.TryGetValue(name, out var oldValue);
 
@@ -301,19 +241,17 @@ namespace Smartstore.ComponentModel
         /// Dynamic invocation method. Currently allows only for Reflection based
         /// operation (no ability to add methods dynamically).
         /// </summary>
-        /// <param name="binder"></param>
-        /// <param name="args"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
+        public override bool TryInvokeMember(InvokeMemberBinder binder, object?[]? args, out object? result)
         {
             if (_instance != null)
             {
                 try
                 {
-                    // check instance passed in for methods to invoke
+                    // Check instance passed in for methods to invoke
                     if (InvokeMethod(_instance, binder.Name, args, out result))
+                    {
                         return true;
+                    }   
                 }
                 catch
                 {
@@ -328,15 +266,11 @@ namespace Smartstore.ComponentModel
         /// <summary>
         /// Reflection Helper method to retrieve a property
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="name"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        protected bool GetProperty(object instance, string name, out object result)
+        protected bool GetProperty(object instance, string name, out object? result)
         {
-            if (GetInstanceProperties().TryGetValue(name, out var fastProp))
+            if (InstanceProperties.TryGetValue(name, out var fastProp))
             {
-                result = fastProp.GetValue(instance ?? this);
+                result = fastProp.GetValue(instance);
                 return true;
             }
 
@@ -347,18 +281,14 @@ namespace Smartstore.ComponentModel
         /// <summary>
         /// Reflection helper method to set a property value
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        protected bool SetProperty(object instance, string name, object value, out object oldValue)
+        protected bool SetProperty(object instance, string name, object? value, out object? oldValue)
         {
             oldValue = null;
 
-            if (GetInstanceProperties().TryGetValue(name, out var fastProp))
+            if (InstanceProperties.TryGetValue(name, out var fastProp))
             {
-                oldValue = fastProp.GetValue(instance ?? this);
-                fastProp.SetValue(instance ?? this, value);
+                oldValue = fastProp.GetValue(instance);
+                fastProp.SetValue(instance, value);
 
                 return true;
             }
@@ -369,18 +299,13 @@ namespace Smartstore.ComponentModel
         /// <summary>
         /// Reflection helper method to invoke a method
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="name"></param>
-        /// <param name="args"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        protected bool InvokeMethod(object instance, string name, object[] args, out object result)
+        protected bool InvokeMethod(object instance, string name, object?[]? args, out object? result)
         {
             // Look at the instanceType
             var mi = _instanceType?.GetMethod(name, BindingFlags.Instance | BindingFlags.Public);
             if (mi != null)
             {
-                result = mi.Invoke(instance ?? this, args);
+                result = mi.Invoke(instance, args);
                 return true;
             }
 
@@ -405,10 +330,7 @@ namespace Smartstore.ComponentModel
         /// The setter checks the instance properties before
         /// checking the Properties dictionary.
         /// </remarks>
-        /// <param name="key"></param>
-        /// 
-        /// <returns></returns>
-        public object this[string key]
+        public object? this[string key]
         {
             get
             {
@@ -427,153 +349,115 @@ namespace Smartstore.ComponentModel
 
 
         /// <summary>
-        /// Returns all properties 
+        /// Enumerates all properties in both dictionary and instance.
         /// </summary>
-        /// <param name="includeInstanceProperties"></param>
-        /// <returns></returns>
-        public IEnumerable<KeyValuePair<string, object>> GetProperties(bool includeInstanceProperties = false)
+        public IEnumerable<KeyValuePair<string, object?>> GetProperties(bool includeInstanceProperties = false)
         {
-            foreach (var kvp in this.Properties)
+            foreach (var kvp in Properties)
             {
                 yield return kvp;
             }
 
             if (includeInstanceProperties)
             {
-                foreach (var prop in GetInstanceProperties().Values)
+                foreach (var kvp2 in InstanceProperties)
                 {
-                    if (!this.Properties.ContainsKey(prop.Name))
+                    var prop = kvp2.Value;
+                    if (!Properties.ContainsKey(prop.Name))
                     {
-                        yield return new KeyValuePair<string, object>(prop.Name, prop.GetValue(_instance));
+                        yield return new KeyValuePair<string, object?>(prop.Name, prop.GetValue(_instance));
                     }
                 }
             }
         }
 
-        private IDictionary<string, FastProperty> GetInstanceProperties()
+        private IDictionary<string, FastProperty> InstanceProperties
         {
-            if (_instance == null)
+            get
             {
-                return EmptyProps;
-            }
-
-            if (_instanceProps == null)
-            {
-                var props = FastProperty.GetProperties(_instance.GetType()) as IDictionary<string, FastProperty>;
-
-                if (_optMembers != null)
+                if (_instance == null)
                 {
-                    props = props
-                        .Where(x => _optMethod == MemberOptMethod.Allow ? _optMembers.Contains(x.Key) : !_optMembers.Contains(x.Key))
-                        .ToDictionary(x => x.Key, x => x.Value);
+                    return EmptyProps;
                 }
 
-                _instanceProps = props;
+                if (_instanceProps == null)
+                {
+                    var props = FastProperty.GetProperties(_instance.GetType()) as IDictionary<string, FastProperty>;
+
+                    if (_optMembers != null)
+                    {
+                        props = props!
+                            .Where(x => _optMethod == MemberOptMethod.Allow ? _optMembers.Contains(x.Key) : !_optMembers.Contains(x.Key))
+                            .ToDictionary(x => x.Key, x => x.Value);
+                    }
+
+                    _instanceProps = props;
+                }
+
+                return _instanceProps!;
             }
-
-            return _instanceProps;
         }
 
         /// <summary>
         /// Checks whether a property exists in the Property collection
         /// or as a property on the instance
         /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public bool Contains(KeyValuePair<string, object> item, bool includeInstanceProperties = false)
-        {
-            return this.Contains(item.Key, includeInstanceProperties);
-        }
+        public bool Contains(KeyValuePair<string, object?> item, bool includeInstanceProperties = false)
+            => Contains(item.Key, includeInstanceProperties);
 
         /// <summary>
         /// Checks whether a property exists in the Property collection
         /// or as a property on the instance
         /// </summary>
-        /// <param name="propertyName"></param>
-        /// <param name="includeInstanceProperties"></param>
-        /// <returns></returns>
         public bool Contains(string propertyName, bool includeInstanceProperties = false)
         {
-            if (Properties.ContainsKey(propertyName))
-            {
-                return true;
-            }
-
-            if (includeInstanceProperties)
-            {
-                return GetInstanceProperties().ContainsKey(propertyName);
-            }
-
-            return false;
+            return 
+                Properties.ContainsKey(propertyName) || 
+                (includeInstanceProperties && InstanceProperties.ContainsKey(propertyName));
         }
 
-        #region IDictionary<string, object>
+        #region IDictionary<string, object?>
 
-        ICollection<string> IDictionary<string, object>.Keys
+        ICollection<string> IDictionary<string, object?>.Keys
         {
-            get
-            {
-                return GetProperties(true).Select(x => x.Key).AsReadOnly();
-            }
+            get => GetProperties(true).Select(x => x.Key).AsReadOnly();
         }
 
-        ICollection<object> IDictionary<string, object>.Values
+        ICollection<object?> IDictionary<string, object?>.Values
         {
-            get
-            {
-                return GetProperties(true).Select(x => x.Value).AsReadOnly();
-            }
+            get => GetProperties(true).Select(x => x.Value).AsReadOnly();
         }
 
-        int ICollection<KeyValuePair<string, object>>.Count
+        int ICollection<KeyValuePair<string, object?>>.Count
         {
-            get
-            {
-                return GetDynamicMemberNames().Count();
-            }
+            get => GetDynamicMemberNames().Count();
         }
 
-        bool ICollection<KeyValuePair<string, object>>.IsReadOnly
+        bool ICollection<KeyValuePair<string, object?>>.IsReadOnly
         {
-            get
-            {
-                return false;
-            }
+            get => false;
         }
 
-        object IDictionary<string, object>.this[string key]
+        object? IDictionary<string, object?>.this[string key]
         {
-            get
-            {
-                return this[key];
-            }
-
-            set
-            {
-                this[key] = value;
-            }
+            get => this[key];
+            set => this[key] = value;
         }
 
-        bool IDictionary<string, object>.ContainsKey(string key)
-        {
-            return Contains(key, true);
-        }
+        bool IDictionary<string, object?>.ContainsKey(string key)
+            => Contains(key, true);
 
-        void IDictionary<string, object>.Add(string key, object value)
-        {
-            throw new NotImplementedException();
-        }
+        void IDictionary<string, object?>.Add(string key, object? value)
+            => throw new NotImplementedException();
 
-        bool IDictionary<string, object>.Remove(string key)
-        {
-            throw new NotImplementedException();
-        }
+        bool IDictionary<string, object?>.Remove(string key)
+            => throw new NotImplementedException();
 
-        public bool TryGetValue(string key, out object value)
+        public bool TryGetValue(string key, out object? value)
         {
             value = null;
 
-            if (this.Contains(key, true))
+            if (Contains(key, true))
             {
                 value = this[key];
                 return true;
@@ -582,40 +466,26 @@ namespace Smartstore.ComponentModel
             return false;
         }
 
-        void ICollection<KeyValuePair<string, object>>.Add(KeyValuePair<string, object> item)
-        {
-            throw new NotImplementedException();
-        }
+        void ICollection<KeyValuePair<string, object?>>.Add(KeyValuePair<string, object?> item)
+            => throw new NotImplementedException();
 
-        void ICollection<KeyValuePair<string, object>>.Clear()
-        {
-            throw new NotImplementedException();
-        }
+        void ICollection<KeyValuePair<string, object?>>.Clear()
+            => throw new NotImplementedException();
 
-        bool ICollection<KeyValuePair<string, object>>.Contains(KeyValuePair<string, object> item)
-        {
-            return Contains(item.Key, true);
-        }
+        bool ICollection<KeyValuePair<string, object?>>.Contains(KeyValuePair<string, object?> item)
+            => TryGetValue(item.Key, out var value) && Equals(value, item.Value);
 
-        void ICollection<KeyValuePair<string, object>>.CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
+        void ICollection<KeyValuePair<string, object?>>.CopyTo(KeyValuePair<string, object?>[] array, int arrayIndex)
+            => throw new NotImplementedException();
 
-        bool ICollection<KeyValuePair<string, object>>.Remove(KeyValuePair<string, object> item)
-        {
-            throw new NotImplementedException();
-        }
+        bool ICollection<KeyValuePair<string, object?>>.Remove(KeyValuePair<string, object?> item)
+            => throw new NotImplementedException();
 
-        IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
-        {
-            return GetProperties(true).GetEnumerator();
-        }
+        IEnumerator<KeyValuePair<string, object?>> IEnumerable<KeyValuePair<string, object?>>.GetEnumerator()
+            => GetProperties(true).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetProperties(true).GetEnumerator();
-        }
+            => GetProperties(true).GetEnumerator();
 
         #endregion
     }
