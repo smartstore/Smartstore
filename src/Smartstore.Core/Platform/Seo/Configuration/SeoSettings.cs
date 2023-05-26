@@ -3,6 +3,46 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Seo
 {
+    public enum CanonicalHostNameRule
+    {
+        /// <summary>
+        /// Doesn't matter (as requested)
+        /// </summary>
+        NoRule,
+        /// <summary>
+        /// The www prefix is required (www.myshop.com is default host)
+        /// </summary>
+        RequireWww,
+        /// <summary>
+		/// The www prefix should be omitted (myshop.com is default host)
+        /// </summary>
+        OmitWww
+    }
+
+    /// <summary>
+    /// Rule to apply when an incoming URL does not match
+    /// the <see cref="SeoSettings.AppendTrailingSlashToLinks"/> setting.
+    /// </summary>
+    public enum TrailingSlashRule
+    {
+        /// <summary>
+        /// Allow the other variant.
+        /// </summary>
+        Allow,
+        /// <summary>
+        /// Redirect to other variant (301).
+        /// </summary>
+        Redirect,
+        /// <summary>
+        /// Disallow the other variant and redirect to homepage.
+        /// </summary>
+        RedirectToHome,
+        /// <summary>
+        /// Disallow the other variant and return 404.
+        /// </summary>
+        Disallow
+    }
+
     public class SeoSettings : ISettings
     {
         public static ISet<string> DefaultRobotDisallows { get; } = new HashSet<string>
@@ -77,6 +117,9 @@ namespace Smartstore.Core.Seo
 
         public bool CanonicalUrlsEnabled { get; set; }
         public CanonicalHostNameRule CanonicalHostNameRule { get; set; } = CanonicalHostNameRule.NoRule;
+
+        public bool AppendTrailingSlashToLinks { get; set; } = true;
+        public TrailingSlashRule TrailingSlashRule { get; set; } = TrailingSlashRule.Allow;
 
         public List<string> ExtraRobotsDisallows { get; set; }
         public List<string> ExtraRobotsAllows { get; set; }

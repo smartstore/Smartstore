@@ -13,6 +13,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<UrlService>().As<IUrlService>().InstancePerLifetimeScope();
             builder.RegisterType<XmlSitemapGenerator>().As<IXmlSitemapGenerator>().InstancePerLifetimeScope();
             builder.RegisterType<CanonicalHostUrlFilter>().As<IUrlFilter>().SingleInstance();
+            builder.RegisterType<TrailingSlashUrlFilter>().As<IUrlFilter>().SingleInstance();
             builder.RegisterType<DefaultRouteHelper>().As<IRouteHelper>().SingleInstance();
         }
 
