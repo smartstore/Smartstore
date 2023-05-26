@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
@@ -24,6 +25,7 @@ namespace Smartstore.PayPal.Filters
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly PayPalHelper _payPalHelper;
         private readonly PayPalHttpClient _client;
+        private readonly ICookieConsentManager _cookieConsentManager;
 
         public PayPalScriptIncludeFilter(
             PayPalSettings settings, 
@@ -31,7 +33,8 @@ namespace Smartstore.PayPal.Filters
             ICommonServices services,
             ICheckoutStateAccessor checkoutStateAccessor,
             PayPalHelper payPalHelper,
-            PayPalHttpClient client)
+            PayPalHttpClient client,
+            ICookieConsentManager cookieConsentManager)
         {
             _settings = settings;
             _widgetProvider = widgetProvider;
@@ -39,6 +42,7 @@ namespace Smartstore.PayPal.Filters
             _checkoutStateAccessor = checkoutStateAccessor;
             _payPalHelper = payPalHelper;
             _client = client;
+            _cookieConsentManager = cookieConsentManager;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -93,6 +97,12 @@ namespace Smartstore.PayPal.Filters
             }
 
             if (!await _payPalHelper.IsPayUponInvoiceActiveAsync())
+            {
+                await next();
+                return;
+            }
+
+            if (_cookieConsentManager.IsCookieAllowed(CookieType.Required))
             {
                 await next();
                 return;
