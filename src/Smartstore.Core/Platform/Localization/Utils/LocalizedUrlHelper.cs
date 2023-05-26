@@ -1,36 +1,35 @@
-﻿using System.Runtime.CompilerServices;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Core.Localization
 {
     public class LocalizedUrlHelper
     {
-        private string _pathBase;
+        private readonly string _pathBase;
         private string _path;
-        private string _cultureCode;
+        private string? _cultureCode;
 
         public LocalizedUrlHelper(HttpRequest httpRequest)
-            : this(httpRequest.PathBase.Value, httpRequest.Path.Value)
+            : this(httpRequest.PathBase.Value!, httpRequest.Path.Value!)
         {
-            Guard.NotNull(httpRequest, nameof(httpRequest));
+            Guard.NotNull(httpRequest);
         }
 
         public LocalizedUrlHelper(string pathBase, string path)
         {
-            Guard.NotNull(pathBase, nameof(pathBase));
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(pathBase);
+            Guard.NotNull(path);
 
-            PathBase = pathBase;
-            Path = path.TrimStart('/');
+            _pathBase = pathBase;
+            _path = path.TrimStart('/');
         }
 
         public string PathBase
         {
             get => _pathBase;
-            private set
-            {
-                _pathBase = value;
-            }
         }
 
         public string Path
@@ -51,7 +50,7 @@ namespace Smartstore.Core.Localization
         {
             get
             {
-                string absPath = PathBase.EnsureEndsWith('/') + Path;
+                var absPath = PathBase.EnsureEndsWith('/') + Path;
 
                 if (absPath.Length > 1 && absPath[0] != '/')
                 {
@@ -64,11 +63,9 @@ namespace Smartstore.Core.Localization
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLocalizedUrl()
-        {
-            return IsLocalizedUrl(out _);
-        }
+            => IsLocalizedUrl(out _);
 
-        public bool IsLocalizedUrl(out string cultureCode)
+        public bool IsLocalizedUrl([MaybeNullWhen(false)] out string? cultureCode)
         {
             cultureCode = _cultureCode;
 
@@ -77,7 +74,7 @@ namespace Smartstore.Core.Localization
                 return true;
             }
 
-            string firstPart = Path;
+            var firstPart = _path;
 
             if (firstPart.IsEmpty())
             {
@@ -88,7 +85,7 @@ namespace Smartstore.Core.Localization
 
             if (firstSlash > 0)
             {
-                firstPart = firstPart.Substring(0, firstSlash);
+                firstPart = firstPart[..firstSlash];
             }
 
             if (CultureHelper.IsValidCultureCode(firstPart))
@@ -102,15 +99,13 @@ namespace Smartstore.Core.Localization
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string StripCultureCode()
-        {
-            return StripCultureCode(out _);
-        }
+            => StripCultureCode(out _);
 
-        public string StripCultureCode(out string cultureCode)
+        public string StripCultureCode(out string? cultureCode)
         {
             if (IsLocalizedUrl(out cultureCode))
             {
-                Path = Path[cultureCode.Length..].TrimStart('/');
+                Path = Path[cultureCode!.Length..].TrimStart('/');
             }
 
             return Path;
@@ -118,11 +113,11 @@ namespace Smartstore.Core.Localization
 
         public string PrependCultureCode(string cultureCode, bool safe = false)
         {
-            Guard.NotEmpty(cultureCode, nameof(cultureCode));
+            Guard.NotEmpty(cultureCode);
 
             if (safe)
             {
-                if (IsLocalizedUrl(out string currentCultureCode))
+                if (IsLocalizedUrl(out var currentCultureCode))
                 {
                     if (cultureCode == currentCultureCode)
                     {
