@@ -177,7 +177,8 @@ namespace Smartstore.Core.Seo.Routing
 
             var culture = Culture.ToString();
             var path = Path.ToString();
-            var combinedPath = CombineSegments(culture, path);
+            var combinedPath = RouteUtility.NormalizePathComponent(CombineSegments(culture, path));
+            var queryString = new QueryString(RouteUtility.NormalizeQueryComponent(QueryString));
 
             if (leftMod)
             {
@@ -186,13 +187,13 @@ namespace Smartstore.Core.Seo.Routing
                     new HostString(Host),
                     PathBase,
                     combinedPath,
-                    new QueryString(QueryString));
+                    queryString);
             }
 
             return UriHelper.BuildRelative(
                 PathBase,
                 combinedPath,
-                new QueryString(QueryString));
+                queryString);
         }
 
         public static string CombineSegments(params string[] segments)

@@ -21,7 +21,7 @@ namespace Smartstore.Core.Seo
 
     /// <summary>
     /// Rule to apply when an incoming URL does not match
-    /// the <see cref="SeoSettings.AppendTrailingSlashToLinks"/> setting.
+    /// the <see cref="SeoSettings.AppendTrailingSlashToUrls"/> setting.
     /// </summary>
     public enum TrailingSlashRule
     {
@@ -118,7 +118,9 @@ namespace Smartstore.Core.Seo
         public bool CanonicalUrlsEnabled { get; set; }
         public CanonicalHostNameRule CanonicalHostNameRule { get; set; } = CanonicalHostNameRule.NoRule;
 
-        public bool AppendTrailingSlashToLinks { get; set; } = true;
+        public bool AppendTrailingSlashToUrls { get; set; } = true;
+        public bool LowercaseUrls { get; set; } = true;
+        public bool LowercaseQueryStrings { get; set; }
         public TrailingSlashRule TrailingSlashRule { get; set; } = TrailingSlashRule.Allow;
 
         public List<string> ExtraRobotsDisallows { get; set; }

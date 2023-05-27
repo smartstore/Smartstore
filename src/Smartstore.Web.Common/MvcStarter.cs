@@ -15,12 +15,14 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Common.JsonConverters;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Web;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
@@ -53,11 +55,10 @@ namespace Smartstore.Web
             services.TryAddEnumerable(
                 ServiceDescriptor.Singleton<IFilterProvider, ConditionalFilterProvider>());
 
-            services.AddRouting(o =>
-            {
-                o.AppendTrailingSlash = true;
-                o.LowercaseUrls = true;
-            });
+            services.TryAddEnumerable(
+                ServiceDescriptor.Singleton<IConfigureOptions<RouteOptions>, RouteOptionsConfigurer>());
+
+            services.AddRouting();
 
             // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
             // with our own serializer which is capable of serializing more stuff.
@@ -271,6 +272,32 @@ namespace Smartstore.Web
             // httpContext.Items[typeof(IUrlHelper)] = urlHelper;
 
             return urlHelper;
+        }
+
+        internal sealed class RouteOptionsConfigurer : IConfigureOptions<RouteOptions>
+        {
+            private readonly IApplicationContext _appContext;
+
+            public RouteOptionsConfigurer(IApplicationContext appContext)
+            {
+                _appContext = appContext;
+            }
+
+            public void Configure(RouteOptions options)
+            {
+                if (_appContext.IsInstalled)
+                {
+                    var seoSettings = _appContext.Services.Resolve<SeoSettings>();
+                    options.AppendTrailingSlash = seoSettings.AppendTrailingSlashToUrls;
+                    options.LowercaseUrls = seoSettings.LowercaseUrls;
+                    options.LowercaseQueryStrings = seoSettings.LowercaseQueryStrings;
+                }
+                else
+                {
+                    options.AppendTrailingSlash = true;
+                    options.LowercaseUrls = true;
+                }
+            }
         }
     }
 }

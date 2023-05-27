@@ -7,6 +7,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
@@ -632,7 +633,7 @@ namespace Smartstore.Core.Seo
 
         private static string GetSitemapIndexUrl(int index, string baseUrl)
         {
-            return baseUrl + SitemapIndexPathPattern.FormatInvariant(index);
+            return RouteUtility.NormalizePathComponent(baseUrl + SitemapIndexPathPattern.FormatInvariant(index));
         }
 
         private XmlSitemapProvider[] CreateProviders(XmlSitemapBuildContext context)

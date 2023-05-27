@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Seo.Routing;
 
 namespace Smartstore.Core.Seo
 {
@@ -31,7 +32,7 @@ namespace Smartstore.Core.Seo
             return new XmlSitemapNode
             {
                 LastMod = entity.LastMod,
-                Loc = baseUrl + slug.EmptyNull().TrimStart('/').EnsureEndsWith('/'),
+                Loc = baseUrl + RouteUtility.NormalizePathComponent(slug.EmptyNull().TrimStart('/')),
             };
         }
 

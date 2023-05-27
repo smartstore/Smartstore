@@ -10,7 +10,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
-using Smartstore.Http;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -59,7 +58,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>URL query string.</returns>
         public virtual string ToQueryString(ProductVariantQuery query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var qs = InitialQuery ?? new MutableQueryCollection();
             var languageId = _workContext.WorkingLanguage.Id;
@@ -114,7 +113,7 @@ namespace Smartstore.Core.Catalog.Products
                 }
             }
 
-            return qs.ToString();
+            return RouteUtility.NormalizeQueryComponent(qs.ToString());
         }
 
         /// <summary>
@@ -205,7 +204,7 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             var url = _urlHelper.Value.RouteUrl("Product", new { SeName = productSlug });
-            return url.TrimEnd('/') + ToQueryString(query);
+            return url + ToQueryString(query);
         }
 
         /// <summary>
@@ -255,7 +254,7 @@ namespace Smartstore.Core.Catalog.Products
                 var query = new ProductVariantQuery();
                 await AddAttributesToQueryAsync(query, selection, productId);
 
-                url = url.TrimEnd('/') + ToQueryString(query);
+                url += ToQueryString(query);
             }
 
             return store.GetAbsoluteUrl(request.PathBase, url);
