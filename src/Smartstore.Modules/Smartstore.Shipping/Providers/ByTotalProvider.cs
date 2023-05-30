@@ -190,7 +190,7 @@ namespace Smartstore.Shipping
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(shoppingCartItem, calculationOptions);
                 var (unitPrice, itemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
-                subTotal += itemSubtotal.FinalPrice.Amount;
+                subTotal += itemSubtotal.FinalPrice.RoundedAmount;
             }
 
             var sqThreshold = _shippingByTotalSettings.SmallQuantityThreshold;
