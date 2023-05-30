@@ -22,12 +22,12 @@ namespace Smartstore.Core
 
         public Task<Language> ResolveWorkingLanguageAsync(Customer customer)
         {
-            return _db.Languages.FirstAsync();
+            return _db.Languages.OrderBy(x => x.Id).FirstAsync();
         }
 
         public Task<Currency> ResolveWorkingCurrencyAsync(Customer customer, bool forAdminArea)
         {
-            return _db.Currencies.FirstAsync();
+            return _db.Currencies.OrderBy(x => x.Id).FirstAsync();
         }
 
         public Task<TaxDisplayType> ResolveTaxDisplayTypeAsync(Customer customer, int storeId)

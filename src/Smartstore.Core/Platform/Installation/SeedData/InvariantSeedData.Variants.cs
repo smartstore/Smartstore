@@ -253,7 +253,7 @@ namespace Smartstore.Core.Installation
                 new { Name = "Dark red", Color = "#5e0000" }
             };
 
-            var products = (_db.Products.ToList()).ToDictionarySafe(x => x.Sku, x => x);
+            var products = _db.Products.ToList().ToDictionarySafe(x => x.Sku, x => x);
 
             #region Oakley custom flak
 
@@ -1984,8 +1984,6 @@ namespace Smartstore.Core.Installation
             var flakPictureIds = productFlak.ProductMediaFiles.Select(pp => pp.MediaFileId).ToList();
             var picturesFlak = _db.MediaFiles.Where(x => flakPictureIds.Contains(x.Id)).ToList();
 
-            //var attributeColorIphone7Plus = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrColor.Id);
-
             var flakLenscolor = _db.ProductVariantAttributes.First(x => x.ProductId == productFlak.Id && x.ProductAttributeId == attrFlakLenscolor.Id);
             var flakLenscolorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == flakLenscolor.Id).ToList();
 
@@ -1995,39 +1993,37 @@ namespace Smartstore.Core.Installation
             var flakFramecolor = _db.ProductVariantAttributes.First(x => x.ProductId == productFlak.Id && x.ProductAttributeId == attrFlakFramecolor.Id);
             var flakFramecolorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == flakFramecolor.Id).ToList();
 
-            //#region matteblack-gray-standard
-
             foreach (var lenscolorValue in flakLenscolorValues)
             {
                 foreach (var framecolorValue in flakFramecolorValues)
                 {
-
                     foreach (var lenstypeValue in flakLenstypeValues)
                     {
                         try
                         {
+                            var rawAttributes = FormatAttributeJson(new List<(int, object)>
+                            {
+                                new(flakLenscolor.Id, lenscolorValue.Id ),
+                                new(flakLenstype.Id, lenstypeValue.Id ),
+                                new(flakFramecolor.Id, framecolorValue.Id )
+                            });
+
+                            var fileId = picturesFlak.FirstOrDefault(x => x.Name.Contains(framecolorValue.Alias + '-' + lenscolorValue.Alias))?.Id.ToString();
+
                             entities.Add(new ProductVariantAttributeCombination
                             {
                                 Product = productFlak,
-                                Sku = productFlak.Sku + string.Concat("-", framecolorValue.Alias, "-", lenscolorValue.Alias, "-", lenstypeValue.Alias),
-                                RawAttributes = FormatAttributeJson(new List<(int, object)>
-                                {
-                                    new(flakLenscolor.Id, lenscolorValue.Id ),
-                                    new(flakLenstype.Id, lenstypeValue.Id ),
-                                    new(flakFramecolor.Id, framecolorValue.Id )
-                                }),
+                                Sku = $"{productFlak.Sku}-{framecolorValue.Alias}-{lenscolorValue.Alias}-{lenstypeValue.Alias}",
+                                RawAttributes = rawAttributes,
                                 StockQuantity = 10000,
                                 AllowOutOfStockOrders = true,
                                 IsActive = true,
-
-                                AssignedMediaFileIds = picturesFlak.First(x => x.Name.Contains(framecolorValue.Alias + "_" + lenscolorValue.Alias)).Id.ToString(),
-
-                                //Price = ballChairPrice
+                                AssignedMediaFileIds = fileId
                             });
                         }
                         catch
                         {
-                            Console.WriteLine("An error occurred: '{0}'", framecolorValue.Alias + "_" + lenscolorValue.Alias);
+                            Console.WriteLine($"An error occurred in {nameof(ProductVariantAttributeCombinations)} at '{framecolorValue.Alias}_{lenscolorValue.Alias}'");
                         }
                     }
                 }

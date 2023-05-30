@@ -603,7 +603,7 @@ namespace Smartstore.Core.Installation
         {
             var typeScanner = EngineContext.Current.Application.TypeScanner;
             var settings = typeScanner.FindTypes<ISettings>()
-                .Select(x => Activator.CreateInstance(x))
+                .Select(Activator.CreateInstance)
                 .OfType<ISettings>()
                 .ToList();
 
@@ -614,8 +614,8 @@ namespace Smartstore.Core.Installation
                 localizationSettings.DefaultAdminLanguageId = defaultLanguageId;
             }
 
-            var defaultDimensionId = _db.MeasureDimensions.FirstOrDefault(x => x.SystemKeyword == "inch")?.Id ?? 0;
-            var defaultWeightId = _db.MeasureWeights.FirstOrDefault(x => x.SystemKeyword == "lb")?.Id ?? 0;
+            var defaultDimensionId = _db.MeasureDimensions.OrderBy(x => x.Id).FirstOrDefault(x => x.SystemKeyword == "inch")?.Id ?? 0;
+            var defaultWeightId = _db.MeasureWeights.OrderBy(x => x.Id).FirstOrDefault(x => x.SystemKeyword == "lb")?.Id ?? 0;
             var measureSettings = settings.OfType<MeasureSettings>().FirstOrDefault();
             if (measureSettings != null)
             {
@@ -635,7 +635,7 @@ namespace Smartstore.Core.Installation
                 };
             }
 
-            var defaultEmailAccountId = _db.EmailAccounts.FirstOrDefault()?.Id ?? 0;
+            var defaultEmailAccountId = _db.EmailAccounts.OrderBy(x => x.Id).FirstOrDefault()?.Id ?? 0;
             var emailAccountSettings = settings.OfType<EmailAccountSettings>().FirstOrDefault();
             if (emailAccountSettings != null)
             {
@@ -645,7 +645,7 @@ namespace Smartstore.Core.Installation
             var currencySettings = settings.OfType<CurrencySettings>().FirstOrDefault();
             if (currencySettings != null)
             {
-                var currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == "EUR") ?? _db.Currencies.First();
+                var currency = _db.Currencies.OrderBy(x => x.Id).FirstOrDefault(x => x.CurrencyCode == "EUR") ?? _db.Currencies.First();
                 if (currency != null)
                 {
                     currencySettings.PrimaryCurrencyId = currency.Id;
@@ -659,8 +659,8 @@ namespace Smartstore.Core.Installation
                 priceSettings.OfferBadgeLabel = "Deal";
                 priceSettings.LimitedOfferBadgeLabel = "Limited time deal";
 
-                var msrpPriceLabel = _db.PriceLabels.FirstOrDefault(x => x.IsRetailPrice) ?? _db.PriceLabels.First();
-                var lowestPriceLabel = _db.PriceLabels.FirstOrDefault(x => x.ShortName == "Lowest" || x.ShortName == "Niedrigster") ?? _db.PriceLabels.First();
+                var msrpPriceLabel = _db.PriceLabels.OrderBy(x => x.Id).FirstOrDefault(x => x.IsRetailPrice) ?? _db.PriceLabels.First();
+                var lowestPriceLabel = _db.PriceLabels.OrderBy(x => x.Id).FirstOrDefault(x => x.ShortName == "Lowest" || x.ShortName == "Niedrigster") ?? _db.PriceLabels.First();
 
                 priceSettings.DefaultComparePriceLabelId = msrpPriceLabel.Id;
                 priceSettings.DefaultRegularPriceLabelId = lowestPriceLabel.Id;
@@ -1385,10 +1385,7 @@ namespace Smartstore.Core.Installation
             string seName = null,
             int displayOrder = 1)
         {
-            if (seName == null)
-            {
-                seName = BuildSlug(Path.GetFileNameWithoutExtension(imageName));
-            }
+            seName ??= BuildSlug(Path.GetFileNameWithoutExtension(imageName));
 
             var picture = CreatePicture(imageName, seName);
             if (picture != null)
