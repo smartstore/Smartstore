@@ -66,6 +66,8 @@ namespace Smartstore.Data.Providers
 
         // Actually not an option. Just there for info.
         public string? ConnectionString { get; set; }
+        
+        public string? Collation { get; set; }
 
         public int? CommandTimeout { get; private set; }
         public DbFactoryOptionsExtension WithCommandTimeout(int? commandTimeout)

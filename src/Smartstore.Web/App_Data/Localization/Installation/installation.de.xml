@@ -32,6 +32,9 @@
     <LocaleResource Name="CustomCollation">
         <Value>Datenbank Collation</Value>
     </LocaleResource>
+    <LocaleResource Name="CustomCollation.Hint">
+        <Value><![CDATA['Collation' legt die Sortierregeln und die Groß- und Kleinschreibung für die Daten in der Datenbank fest. Sie bestimmt, wie die Daten sortiert und verglichen und Akzente behandelt werden. Wählen Sie eine eigene Collation mit Bedacht, sie kann nachträglich nicht mehr geändert werden! Es wird empfohlen, nur Collations zu wählen, bei denen nicht zwischen Groß- und Kleinschreibung unterschieden wird (CI). Mehr Informationen finden Sie <a id="CollationInfoLink" href="#" rel="nofollow" target="_blank">hier</a>.]]></Value>
+    </LocaleResource>
     <LocaleResource Name="DatabaseCreationError">
         <Value>Beim Anlegen der Datenbank ist ein Fehler aufgetreten: {0}</Value>
     </LocaleResource>

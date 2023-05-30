@@ -39,6 +39,9 @@ namespace Smartstore.Core.Installation
 
         public bool InstallSampleData { get; set; }
 
+        public bool UseCustomCollation { get; set; }
+        public string Collation { get; set; }
+
         #region AutoInstall
 
         public bool IsAutoInstall { get; set; }

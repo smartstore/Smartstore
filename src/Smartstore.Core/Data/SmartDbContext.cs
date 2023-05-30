@@ -1,9 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Autofac;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Smartstore.Core.Installation;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
 using Smartstore.Data.Providers;
+using Smartstore.Threading;
 
 namespace Smartstore.Core.Data
 {
@@ -62,22 +65,30 @@ namespace Smartstore.Core.Data
             var currentConString = extension.ConnectionString;
             if (currentConString == null)
             {
-                ChangeConnectionString(attemptedConString);
-            }
+                var asyncState = EngineContext.Current.Application.Services.ResolveOptional<IAsyncState>();
+
+                UpdateExtension(attemptedConString, asyncState?.Get<InstallationResult>()?.Model);
+           }
             else
             {
                 if (attemptedConString != currentConString)
                 {
                     // ConString changed. Refresh!
-                    ChangeConnectionString(attemptedConString);
+                    UpdateExtension(attemptedConString, null);
                 }
 
                 DataSettings.Instance.DbFactory?.ConfigureDbContext(builder, attemptedConString);
             }
 
-            void ChangeConnectionString(string value)
+            void UpdateExtension(string conString, InstallationModel model)
             {
-                extension.ConnectionString = value;
+                extension.ConnectionString = conString;
+
+                if (model != null && model.UseCustomCollation)
+                {
+                    extension.Collation = model.Collation;
+                }
+                
                 ((IDbContextOptionsBuilderInfrastructure)builder).AddOrUpdateExtension(extension);
             }
         }
@@ -97,6 +108,11 @@ namespace Smartstore.Core.Data
             if (options.DefaultSchema.HasValue())
             {
                 modelBuilder.HasDefaultSchema(options.DefaultSchema);
+            }
+
+            if (options.Collation.HasValue())
+            {
+                modelBuilder.UseCollation(options.Collation);
             }
 
             CreateModel(modelBuilder, options.ModelAssemblies);
