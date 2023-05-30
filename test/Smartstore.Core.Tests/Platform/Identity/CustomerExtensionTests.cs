@@ -86,6 +86,10 @@ namespace Smartstore.Core.Tests.Platform.Identity
             _customer.IsGuest().ShouldBeFalse();
 
             _customer.CustomerRoleMappings.Add(_crmGuests);
+            _customer.IsGuest().ShouldBeFalse();
+
+            _customer.CustomerRoleMappings.Clear();
+            _customer.CustomerRoleMappings.Add(_crmGuests);
             _customer.IsGuest().ShouldBeTrue();
         }
 
