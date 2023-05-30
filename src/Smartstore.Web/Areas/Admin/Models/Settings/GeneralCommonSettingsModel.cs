@@ -360,37 +360,37 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*ShowSocialLinksInFooter")]
             public bool ShowSocialLinksInFooter { get; set; }
 
-            [LocalizedDisplay("*FacebookLink")]
+            [LocalizedDisplay("*FacebookLink", "*LeaveEmpty")]
             public string FacebookLink { get; set; }
 
-            [LocalizedDisplay("*TwitterLink")]
+            [LocalizedDisplay("*TwitterLink", "*LeaveEmpty")]
             public string TwitterLink { get; set; }
 
-            [LocalizedDisplay("*PinterestLink")]
+            [LocalizedDisplay("*PinterestLink", "*LeaveEmpty")]
             public string PinterestLink { get; set; }
 
-            [LocalizedDisplay("*YoutubeLink")]
+            [LocalizedDisplay("*YoutubeLink", "*LeaveEmpty")]
             public string YoutubeLink { get; set; }
 
-            [LocalizedDisplay("*InstagramLink")]
+            [LocalizedDisplay("*InstagramLink", "*LeaveEmpty")]
             public string InstagramLink { get; set; }
 
-            [LocalizedDisplay("*FlickrLink")]
+            [LocalizedDisplay("*FlickrLink", "*LeaveEmpty")]
             public string FlickrLink { get; set; }
 
-            [LocalizedDisplay("*LinkedInLink")]
+            [LocalizedDisplay("*LinkedInLink", "*LeaveEmpty")]
             public string LinkedInLink { get; set; }
 
-            [LocalizedDisplay("*XingLink")]
+            [LocalizedDisplay("*XingLink", "*LeaveEmpty")]
             public string XingLink { get; set; }
 
-            [LocalizedDisplay("*TikTokLink")]
+            [LocalizedDisplay("*TikTokLink", "*LeaveEmpty")]
             public string TikTokLink { get; set; }
 
-            [LocalizedDisplay("*SnapchatLink")]
+            [LocalizedDisplay("*SnapchatLink", "*LeaveEmpty")]
             public string SnapchatLink { get; set; }
 
-            [LocalizedDisplay("*VimeoLink")]
+            [LocalizedDisplay("*VimeoLink", "*LeaveEmpty")]
             public string VimeoLink { get; set; }
         }
 

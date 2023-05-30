@@ -1,8 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using NuGet.ContentModel;
-using System.Runtime.ConstrainedExecution;
-using System.Xml.Linq;
-using Smartstore.Data.Migrations;
+﻿using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -51,41 +47,25 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Orders.Address.Address2", "Address 2", "Adresszusatz");
             builder.AddOrUpdate("PDFPackagingSlip.Address2", "Address 2: {0}", "Adresszusatz: {0}");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.FlickrLink",
-                "Flickr Link",
-                "Flickr Link",
-                "Leave this field empty if the Flickr link should not be shown.",
-                "Lassen Sie dieses Feld leer, wenn der Flickr Link nicht angezeigt werden soll.");
+            var socialSettings = "Admin.Configuration.Settings.GeneralCommon.SocialSettings.";
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.LinkedInLink",
-                "LinkedIn Link",
-                "LinkedIn Link",
-                "Leave this field empty if the LinkedIn link should not be shown.",
-                "Lassen Sie dieses Feld leer, wenn der LinkedIn Link nicht angezeigt werden soll.");
+            builder.Delete(
+                $"{socialSettings}FacebookLink.Hint",
+                $"{socialSettings}InstagramLink.Hint",
+                $"{socialSettings}PinterestLink.Hint",
+                $"{socialSettings}TwitterLink.Hint",
+                $"{socialSettings}YoutubeLink.Hint");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.XingLink",
-                "Xing Link",
-                "Xing Link",
-                "Leave this field empty if the Xing link should not be shown.",
-                "Lassen Sie dieses Feld leer, wenn der Xing Link nicht angezeigt werden soll.");
+            builder.AddOrUpdate($"{socialSettings}LeaveEmpty", 
+                "Leave empty to hide the link.", 
+                "Leer lassen, um den Link auszublenden.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TikTokLink",
-                "TikTok Link",
-                "TikTok Link",
-                "Leave this field empty if the TikTok link should not be shown.",
-                "Lassen Sie dieses Feld leer, wenn der TikTok Link nicht angezeigt werden soll.");
-
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.SnapchatLink",
-                "Snapchat Link",
-                "Snapchat Link",
-                "Leave this field empty if the Snapchat link should not be shown.",
-                "Lassen Sie dieses Feld leer, wenn der Snapchat Link nicht angezeigt werden soll.");
-
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.VimeoLink",
-                "Vimeo Link",
-                "Vimeo Link",
-                "Leave this field empty if the Vimeo link should not be shown.",
-                "Lassen Sie dieses Feld leer, wenn der Vimeo Link nicht angezeigt werden soll.");
+            builder.AddOrUpdate($"{socialSettings}FlickrLink", "Flickr Link", "Flickr Link");
+            builder.AddOrUpdate($"{socialSettings}LinkedInLink", "LinkedIn Link", "LinkedIn Link");
+            builder.AddOrUpdate($"{socialSettings}XingLink", "Xing Link", "Xing Link");
+            builder.AddOrUpdate($"{socialSettings}TikTokLink", "TikTok Link", "TikTok Link");
+            builder.AddOrUpdate($"{socialSettings}SnapchatLink", "Snapchat Link", "Snapchat Link");
+            builder.AddOrUpdate($"{socialSettings}VimeoLink", "Vimeo Link", "Vimeo Link");
         }
     }
 }
