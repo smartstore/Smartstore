@@ -61,7 +61,7 @@ namespace Smartstore.Web.Controllers
                 return NotFound();
 
             if (await IsUnauthorizedOrderAsync(order))
-                return new UnauthorizedResult();
+                return RedirectToRoute("Login", new { returnUrl = Url.Action("Details", new { id }) });
 
             var model = await _orderHelper.PrepareOrderDetailsModelAsync(order);
 
