@@ -374,6 +374,24 @@ namespace Smartstore.Admin.Models
 
             [LocalizedDisplay("*InstagramLink")]
             public string InstagramLink { get; set; }
+
+            [LocalizedDisplay("*FlickrLink")]
+            public string FlickrLink { get; set; }
+
+            [LocalizedDisplay("*LinkedInLink")]
+            public string LinkedInLink { get; set; }
+
+            [LocalizedDisplay("*XingLink")]
+            public string XingLink { get; set; }
+
+            [LocalizedDisplay("*TikTokLink")]
+            public string TikTokLink { get; set; }
+
+            [LocalizedDisplay("*SnapchatLink")]
+            public string SnapchatLink { get; set; }
+
+            [LocalizedDisplay("*VimeoLink")]
+            public string VimeoLink { get; set; }
         }
 
         #endregion

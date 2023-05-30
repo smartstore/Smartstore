@@ -20,28 +20,58 @@ namespace Smartstore.Core.Common.Configuration
         public bool ShowSocialLinksInFooter { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the facebook link.
+        /// Gets or sets the Facebook link.
         /// </summary>
         public string FacebookLink { get; set; } = "#";
 
         /// <summary>
-        /// Gets or sets the twitter link.
+        /// Gets or sets the Twitter link.
         /// </summary>
         public string TwitterLink { get; set; } = "#";
 
         /// <summary>
-        /// Gets or sets the pinterest link.
+        /// Gets or sets the Pinterest link.
         /// </summary>
         public string PinterestLink { get; set; } = "#";
 
         /// <summary>
-        /// Gets or sets the youtube link.
+        /// Gets or sets the Youtube link.
         /// </summary>
         public string YoutubeLink { get; set; } = "#";
 
         /// <summary>
-        /// Gets or sets the instagram link.
+        /// Gets or sets the Instagram link.
         /// </summary>
         public string InstagramLink { get; set; } = "#";
+
+        /// <summary>
+        /// Gets or sets the Flickr link.
+        /// </summary>
+        public string FlickrLink { get; set; } = "#";
+
+        /// <summary>
+        /// Gets or sets the LinkedIn link.
+        /// </summary>
+        public string LinkedInLink { get; set; } = "#";
+
+        /// <summary>
+        /// Gets or sets the Xing link.
+        /// </summary>
+        public string XingLink { get; set; } = "#";
+
+        /// <summary>
+        /// Gets or sets the TikTok link.
+        /// </summary>
+        public string TikTokLink { get; set; } = "#";
+
+        /// <summary>
+        /// Gets or sets the Snapchat link.
+        /// </summary>
+        public string SnapchatLink { get; set; } = "#";
+
+        /// <summary>
+        /// Gets or sets the Vimeo link.
+        /// </summary>
+        public string VimeoLink { get; set; } = "#";
     }
 }

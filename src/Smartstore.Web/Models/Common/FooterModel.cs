@@ -15,5 +15,11 @@
         public string PinterestLink { get; set; }
         public string YoutubeLink { get; set; }
         public string InstagramLink { get; set; }
+        public string FlickrLink { get; set; }
+        public string LinkedInLink { get; set; }
+        public string XingLink { get; set; }
+        public string TikTokLink { get; set; }
+        public string SnapchatLink { get; set; }
+        public string VimeoLink { get; set; }
     }
 }

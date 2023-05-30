@@ -154,6 +154,22 @@ $btn-size-sm: $input-height-sm;
     .btn-brand-microsoft {
         @include button-variant($clr-brand-microsoft, $clr-brand-microsoft);
     }
+
+    .btn-brand-flickr {
+        @include button-variant($clr-brand-flickr, $clr-brand-flickr);
+    }
+
+    .btn-brand-tiktok {
+        @include button-variant($clr-brand-tiktok, $clr-brand-tiktok);
+    }
+
+    .btn-brand-snapchat {
+        @include button-variant($clr-brand-snapchat, $clr-brand-snapchat);
+    }
+
+    .btn-brand-vimeo {
+        @include button-variant($clr-brand-vimeo, $clr-brand-vimeo);
+    }
 }
 
 

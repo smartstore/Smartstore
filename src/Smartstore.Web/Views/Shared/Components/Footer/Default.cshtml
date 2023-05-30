@@ -30,6 +30,36 @@
         socialLinks.Add((Model.InstagramLink, "instagram"));
     }
 
+    if (Model.FlickrLink.HasValue())
+    {
+        socialLinks.Add((Model.FlickrLink, "flickr"));
+    }
+
+    if (Model.LinkedInLink.HasValue())
+    {
+        socialLinks.Add((Model.LinkedInLink, "linkedin"));
+    }
+
+    if (Model.XingLink.HasValue())
+    {
+        socialLinks.Add((Model.XingLink, "xing"));
+    }
+
+    if (Model.TikTokLink.HasValue())
+    {
+        socialLinks.Add((Model.TikTokLink, "tiktok"));
+    }
+
+    if (Model.SnapchatLink.HasValue())
+    {
+        socialLinks.Add((Model.SnapchatLink, "snapchat"));
+    }
+
+    if (Model.VimeoLink.HasValue())
+    {
+        socialLinks.Add((Model.VimeoLink, "vimeo"));
+    }
+
     var invserseFooter = Display.GetThemeVariable<bool>("inverse-footer");
 }
 
