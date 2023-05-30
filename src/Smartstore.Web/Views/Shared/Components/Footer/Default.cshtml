@@ -4,62 +4,6 @@
 @model FooterModel
 
 @{
-    var socialLinks = new List<(string link, string cssClass)>();
-    if (Model.FacebookLink.HasValue())
-    {
-        socialLinks.Add((Model.FacebookLink, "facebook-f"));
-    }
-
-    if (Model.TwitterLink.HasValue())
-    {
-        socialLinks.Add((Model.TwitterLink, "twitter"));
-    }
-
-    if (Model.PinterestLink.HasValue())
-    {
-        socialLinks.Add((Model.PinterestLink, "pinterest-p"));
-    }
-
-    if (Model.YoutubeLink.HasValue())
-    {
-        socialLinks.Add((Model.YoutubeLink, "youtube"));
-    }
-
-    if (Model.InstagramLink.HasValue())
-    {
-        socialLinks.Add((Model.InstagramLink, "instagram"));
-    }
-
-    if (Model.FlickrLink.HasValue())
-    {
-        socialLinks.Add((Model.FlickrLink, "flickr"));
-    }
-
-    if (Model.LinkedInLink.HasValue())
-    {
-        socialLinks.Add((Model.LinkedInLink, "linkedin"));
-    }
-
-    if (Model.XingLink.HasValue())
-    {
-        socialLinks.Add((Model.XingLink, "xing"));
-    }
-
-    if (Model.TikTokLink.HasValue())
-    {
-        socialLinks.Add((Model.TikTokLink, "tiktok"));
-    }
-
-    if (Model.SnapchatLink.HasValue())
-    {
-        socialLinks.Add((Model.SnapchatLink, "snapchat"));
-    }
-
-    if (Model.VimeoLink.HasValue())
-    {
-        socialLinks.Add((Model.VimeoLink, "vimeo"));
-    }
-
     var invserseFooter = Display.GetThemeVariable<bool>("inverse-footer");
 }
 
@@ -67,14 +11,14 @@
 
     <zone name="footer_top"></zone>
 
-    <div sm-if="Model.ShowSocialLinks && socialLinks.Any()" class="footer-social-wrapper">
+    <div sm-if="Model.ShowSocialLinks && Model.SocialLinks.Any()" class="footer-social-wrapper">
         <div class="container footer-social">
             <div class="row">
                 <div class="col text-center">
-                    @foreach (var link in socialLinks)
+                    @foreach (var link in Model.SocialLinks)
                     {
-                        <a href="@link.Item1" target="_blank" class="btn x-btn-@(invserseFooter ? "clear" : "secondary") btn-circle btn-social btn-brand-@link.Item2">
-                            <i class="fab fa-@link.Item2"></i>
+                        <a href="@link.Href" target="_blank" class="btn x-btn-@(invserseFooter ? "clear" : "secondary") btn-circle btn-social btn-brand-@link.CssClass">
+                            <i class="fab fa-@link.CssClass"></i>
                         </a>
                     }
                 </div>

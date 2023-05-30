@@ -65,19 +65,23 @@ namespace Smartstore.Web.Components
                 ShowLegalInfo = _taxSettings.ShowLegalHintsInFooter,
                 ShowThemeSelector = availableStoreThemes.Count > 1,
                 HideNewsletterBlock = _customerSettings.HideNewsletterBlock,
-                ShowSocialLinks = _socialSettings.ShowSocialLinksInFooter,
-                FacebookLink = _socialSettings.FacebookLink,
-                TwitterLink = _socialSettings.TwitterLink,
-                PinterestLink = _socialSettings.PinterestLink,
-                YoutubeLink = _socialSettings.YoutubeLink,
-                InstagramLink = _socialSettings.InstagramLink,
-                FlickrLink = _socialSettings.FlickrLink,
-                LinkedInLink = _socialSettings.LinkedInLink,
-                XingLink = _socialSettings.XingLink,
-                TikTokLink = _socialSettings.TikTokLink,
-                SnapchatLink = _socialSettings.SnapchatLink,
-                VimeoLink = _socialSettings.VimeoLink
+                ShowSocialLinks = _socialSettings.ShowSocialLinksInFooter
             };
+
+            if (model.ShowSocialLinks)
+            {
+                TryAddSocialLink(_socialSettings.FacebookLink, "facebook-f");
+                TryAddSocialLink(_socialSettings.TwitterLink, "twitter");
+                TryAddSocialLink(_socialSettings.InstagramLink, "instagram");
+                TryAddSocialLink(_socialSettings.TikTokLink, "tiktok");
+                TryAddSocialLink(_socialSettings.YoutubeLink, "youtube");
+                TryAddSocialLink(_socialSettings.VimeoLink, "vimeo");
+                TryAddSocialLink(_socialSettings.PinterestLink, "pinterest-p");
+                TryAddSocialLink(_socialSettings.SnapchatLink, "snapchat");
+                TryAddSocialLink(_socialSettings.FlickrLink, "flickr");
+                TryAddSocialLink(_socialSettings.LinkedInLink, "linkedin");
+                TryAddSocialLink(_socialSettings.XingLink, "xing");
+            }
 
             var shippingInfoUrl = await Url.TopicAsync("shippinginfo");
             if (shippingInfoUrl.HasValue())
@@ -110,6 +114,14 @@ namespace Smartstore.Web.Components
             }
 
             return View(model);
+
+            void TryAddSocialLink(string href, string cssClass)
+            {
+                if (href.HasValue())
+                {
+                    model.AddSocialLink(href, cssClass);
+                }
+            }
         }
 
         private bool ShouldRenderGDPR()

@@ -10,16 +10,17 @@
         public string SmartStoreHint { get; set; }
         public bool HideNewsletterBlock { get; set; }
         public bool ShowSocialLinks { get; set; }
-        public string FacebookLink { get; set; }
-        public string TwitterLink { get; set; }
-        public string PinterestLink { get; set; }
-        public string YoutubeLink { get; set; }
-        public string InstagramLink { get; set; }
-        public string FlickrLink { get; set; }
-        public string LinkedInLink { get; set; }
-        public string XingLink { get; set; }
-        public string TikTokLink { get; set; }
-        public string SnapchatLink { get; set; }
-        public string VimeoLink { get; set; }
+        public List<SocialLink> SocialLinks { get; } = new();
+
+        public void AddSocialLink(string href, string cssClass)
+        {
+            SocialLinks.Add(new SocialLink { Href = href, CssClass = cssClass });
+        }        
+
+        public class SocialLink
+        {
+            public string Href { get; set; }
+            public string CssClass { get; set; }
+        }
     }
 }
