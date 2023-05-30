@@ -5,6 +5,16 @@
 @{
     Layout = null;
     var availableLanguages = ViewBag.AvailableInstallationLanguages as IList<SelectListItem>;
+
+    // TODO: (mg) Collation UI is too heavy / takes too much space:
+    //  - Remove the separator
+    //  - Collation (DE) --> Sortierung (this is the official Microsoft translation)
+    //  - Checkbox label: "Use custom collation", "Benutzerdefinierte Sortierung verwenden"
+    //  - Toggle textbox and hint panel only on checkbox check
+    //      - Thus, no more readonly textbox
+    //  - Do not display collation at all if SQLite is chosen
+    //  - Better not to describe WHAT collation is (it is too complicated for non-techs)
+    //  - Hint: "...leave empty to use system collation bla bla..."
 }
 
 @functions {

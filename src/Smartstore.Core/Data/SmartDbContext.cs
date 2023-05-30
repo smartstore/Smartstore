@@ -65,12 +65,14 @@ namespace Smartstore.Core.Data
             var currentConString = extension.ConnectionString;
             if (currentConString == null)
             {
+                // No database creation attempt yet
                 var asyncState = EngineContext.Current.Application.Services.ResolveOptional<IAsyncState>();
 
                 UpdateExtension(attemptedConString, asyncState?.Get<InstallationResult>()?.Model);
            }
             else
             {
+                // At least one database creation attempt
                 if (attemptedConString != currentConString)
                 {
                     // ConString changed. Refresh!
