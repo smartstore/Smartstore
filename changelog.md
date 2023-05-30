@@ -15,14 +15,14 @@
 - Web API:
   - #709 added an endpoint that returns order data prepared for an invoice (including variant SKU).
   - #717 added `GiftCard`, `GiftCardUsageHistory` and `DiscountUsageHistory`.
-  - Added settings for more social links (Flickr, LinkedIn, Xing, TikTok, Snapchat, Vimeo
-) to be displayed in the footer.
+- Added settings for more social links (Flickr, LinkedIn, Xing, TikTok, Snapchat, Vimeo) to be displayed in the footer.
 
 ### Improvements
 
 - Increased performance: category tree path to filter products by categories.
 - Better PayPal implementaion: added providers for every single payment option.
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
+- Specify custom database collation during installation.
 - Added a search filter for country grid.
 - (DEV) Model mapping (`IMapper<TFrom, TTo>`):
   - Composite mappers: multiple mappers for a single type pair
