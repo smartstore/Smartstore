@@ -88,7 +88,7 @@ namespace Smartstore.Web.Components
 
                 if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
                 {
-                    if (lang.CultureCode == defaultSeoCode && (int)(_localizationSettings.DefaultLanguageRedirectBehaviour) > 0)
+                    if (lang.CultureCode == defaultSeoCode && (int)_localizationSettings.DefaultLanguageRedirectBehaviour > 0)
                     {
                         helper.StripCultureCode();
                     }
@@ -138,7 +138,7 @@ namespace Smartstore.Web.Components
 
                     if (activeSlug.HasValue())
                     {
-                        var helper = new LocalizedUrlHelper(Request.PathBase, activeSlug);
+                        var helper = new LocalizedUrlHelper(Request.PathBase, activeSlug + Request.QueryString);
                         return helper;
                     }
                 }
