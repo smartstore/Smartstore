@@ -17,7 +17,7 @@
                 <div class="col text-center">
                     @foreach (var link in Model.SocialLinks)
                     {
-                        <a href="@link.Href" target="_blank" class="btn x-btn-@(invserseFooter ? "clear" : "secondary") btn-circle btn-social btn-brand-@link.CssClass">
+                        <a href="@link.Href" target="_blank" class="btn btn-circle btn-social btn-brand-@link.CssClass">
                             <i class="fab fa-@link.CssClass"></i>
                         </a>
                     }

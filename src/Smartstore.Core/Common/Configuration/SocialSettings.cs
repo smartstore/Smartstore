@@ -32,7 +32,7 @@ namespace Smartstore.Core.Common.Configuration
         /// <summary>
         /// Gets or sets the Pinterest link.
         /// </summary>
-        public string PinterestLink { get; set; } = "#";
+        public string PinterestLink { get; set; }
 
         /// <summary>
         /// Gets or sets the Youtube link.
@@ -47,17 +47,17 @@ namespace Smartstore.Core.Common.Configuration
         /// <summary>
         /// Gets or sets the Flickr link.
         /// </summary>
-        public string FlickrLink { get; set; } = "#";
+        public string FlickrLink { get; set; }
 
         /// <summary>
         /// Gets or sets the LinkedIn link.
         /// </summary>
-        public string LinkedInLink { get; set; } = "#";
+        public string LinkedInLink { get; set; }
 
         /// <summary>
         /// Gets or sets the Xing link.
         /// </summary>
-        public string XingLink { get; set; } = "#";
+        public string XingLink { get; set; }
 
         /// <summary>
         /// Gets or sets the TikTok link.
@@ -67,11 +67,11 @@ namespace Smartstore.Core.Common.Configuration
         /// <summary>
         /// Gets or sets the Snapchat link.
         /// </summary>
-        public string SnapchatLink { get; set; } = "#";
+        public string SnapchatLink { get; set; }
 
         /// <summary>
         /// Gets or sets the Vimeo link.
         /// </summary>
-        public string VimeoLink { get; set; } = "#";
+        public string VimeoLink { get; set; }
     }
 }
