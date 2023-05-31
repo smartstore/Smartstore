@@ -25,11 +25,6 @@ namespace Smartstore.Core.Widgets
         {
             Guard.NotEmpty(zone);
 
-            if (_legacyWidgetNameMap.ContainsKey(zone))
-            {
-                zone = _legacyWidgetNameMap[zone];
-            }
-
             var httpContext = _httpContextAccessor.HttpContext;
             var isPublicArea = httpContext != null && httpContext.GetRouteData().Values.GetAreaName().IsEmpty();
             var widgets = Enumerable.Empty<Widget>();
@@ -40,6 +35,21 @@ namespace Smartstore.Core.Widgets
                 if (localWidgets != null)
                 {
                     widgets = widgets.Concat(localWidgets);
+                }
+
+                if (_legacyWidgetNameMap.ContainsValue(zone))
+                {
+                    foreach(var legacyWidget in _legacyWidgetNameMap)
+                    {
+                        if (legacyWidget.Value == zone)
+                        {
+                            var legacyWidgets = await _widgetSources[i].GetWidgetsAsync(legacyWidget.Key, isPublicArea, model);
+                            if (legacyWidgets != null && legacyWidgets.Any())
+                            {
+                                widgets = widgets.Concat(legacyWidgets);
+                            }
+                        }
+                    }
                 }
             }
 
