@@ -63,33 +63,30 @@ namespace Smartstore.Core.Data
             }
 
             var currentConString = extension.ConnectionString;
+            var currentCollation = extension.Collation;
+            var attemptedCollation = DataSettings.Instance.Collation;
+
             if (currentConString == null)
             {
                 // No database creation attempt yet
-                var asyncState = EngineContext.Current.Application.Services.ResolveOptional<IAsyncState>();
-
-                UpdateExtension(attemptedConString, asyncState?.Get<InstallationResult>()?.Model);
+                ChangeConnectionString(attemptedConString, attemptedCollation);
            }
             else
             {
                 // At least one database creation attempt
-                if (attemptedConString != currentConString)
+                if (attemptedConString != currentConString || attemptedCollation != currentCollation)
                 {
                     // ConString changed. Refresh!
-                    UpdateExtension(attemptedConString, null);
+                    ChangeConnectionString(attemptedConString, attemptedCollation);
                 }
 
                 DataSettings.Instance.DbFactory?.ConfigureDbContext(builder, attemptedConString);
             }
 
-            void UpdateExtension(string conString, InstallationModel model)
+            void ChangeConnectionString(string conString, string collation)
             {
                 extension.ConnectionString = conString;
-
-                if (model != null && model.UseCustomCollation)
-                {
-                    extension.Collation = model.Collation;
-                }
+                extension.Collation = collation.NullEmpty();
                 
                 ((IDbContextOptionsBuilderInfrastructure)builder).AddOrUpdateExtension(extension);
             }
@@ -105,7 +102,7 @@ namespace Smartstore.Core.Data
         {
             DataSettings.Instance.DbFactory?.CreateModel(modelBuilder);
 
-            var options = this.Options.FindExtension<DbFactoryOptionsExtension>();
+            var options = Options.FindExtension<DbFactoryOptionsExtension>();
             
             if (options.DefaultSchema.HasValue())
             {

@@ -23,7 +23,7 @@ namespace Smartstore.Core.Widgets
 
         public async Task<IEnumerable<Widget>> GetWidgetsAsync(string zone, object model = null)
         {
-            Guard.NotEmpty(zone, nameof(zone));
+            Guard.NotEmpty(zone);
 
             if (_legacyWidgetNameMap.ContainsKey(zone))
             {

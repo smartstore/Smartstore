@@ -145,6 +145,12 @@ namespace Smartstore.Data
 
         public string ConnectionString { get; set; }
 
+        /// <summary>
+        /// Volatile custom database collation.
+        /// Relevant during installation only.
+        /// </summary>
+        internal string Collation { get; set; }
+
         public bool IsValid()
             => DbFactory != null && ConnectionString.HasValue();
 

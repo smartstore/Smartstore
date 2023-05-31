@@ -138,8 +138,7 @@ namespace Smartstore.Web.Components
 
                     if (activeSlug.HasValue())
                     {
-                        var helper = new LocalizedUrlHelper(Request.PathBase, activeSlug + Request.QueryString);
-                        return helper;
+                        return new LocalizedUrlHelper(Request.PathBase, activeSlug + Request.QueryString);
                     }
                 }
             }
