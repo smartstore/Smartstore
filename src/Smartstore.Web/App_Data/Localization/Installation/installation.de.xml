@@ -30,10 +30,10 @@
         <Value>Beispieldaten erzeugen</Value>
     </LocaleResource>
     <LocaleResource Name="CustomCollation">
-        <Value>Datenbank Collation</Value>
+        <Value>Benutzerdefinierte Sortierung verwenden</Value>
     </LocaleResource>
     <LocaleResource Name="CustomCollation.Hint">
-        <Value><![CDATA['Collation' legt die Sortierregeln und die Groß- und Kleinschreibung für die Daten in der Datenbank fest. Sie bestimmt, wie die Daten sortiert und verglichen und Akzente behandelt werden. Wählen Sie eine eigene Collation mit Bedacht, sie kann nachträglich nicht mehr geändert werden! Es wird empfohlen, nur Collations zu wählen, bei denen nicht zwischen Groß- und Kleinschreibung unterschieden wird (CI). Mehr Informationen finden Sie <a id="CollationInfoLink" href="#" rel="nofollow" target="_blank">hier</a>.]]></Value>
+        <Value><![CDATA[Leer lassen, um die Standard-Sortierung der Datenbank zu verwenden. Bitte wählen Sie eine eigene Sortierung mit Bedacht, sie kann nachträglich nicht mehr geändert werden! Es wird empfohlen, nur Sortierungen zu wählen, bei denen nicht zwischen Groß- und Kleinschreibung unterschieden wird (CI). Mehr Informationen finden Sie <a id="CollationInfoLink" href="#" rel="nofollow" target="_blank">hier</a>.]]></Value>
     </LocaleResource>
     <LocaleResource Name="DatabaseCreationError">
         <Value>Beim Anlegen der Datenbank ist ein Fehler aufgetreten: {0}</Value>

@@ -5,16 +5,6 @@
 @{
     Layout = null;
     var availableLanguages = ViewBag.AvailableInstallationLanguages as IList<SelectListItem>;
-
-    // TODO: (mg) Collation UI is too heavy / takes too much space:
-    //  - Remove the separator
-    //  - Collation (DE) --> Sortierung (this is the official Microsoft translation)
-    //  - Checkbox label: "Use custom collation", "Benutzerdefinierte Sortierung verwenden"
-    //  - Toggle textbox and hint panel only on checkbox check
-    //      - Thus, no more readonly textbox
-    //  - Do not display collation at all if SQLite is chosen
-    //  - Better not to describe WHAT collation is (it is too complicated for non-techs)
-    //  - Hint: "...leave empty to use database default collation bla bla..."
 }
 
 @functions {
@@ -223,22 +213,21 @@
                             </div>
 
                             <!-- Collation -->
-                            <div class="form-group row">
-                                <div class="col-12">
-                                    <hr />
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-md-9 offset-md-3">
-                                    <div class="form-check mb-2">
-                                        <input type="checkbox" asp-for="UseCustomCollation" class="form-check-input remember" />
-                                        <label class="form-check-label" asp-for="UseCustomCollation">@T("CustomCollation")</label>
+                            <div id="CollationPanel">
+                                <div class="form-group row">
+                                    <div class="col-md-9 offset-md-3">
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" asp-for="UseCustomCollation" class="form-check-input remember" />
+                                            <label class="form-check-label" asp-for="UseCustomCollation">@T("CustomCollation")</label>
+                                        </div>
+                                        <div id="CollationInnerPanel" style="display: none">
+                                            <input asp-for="Collation" class="form-control remember" />
+                                            <span asp-validation-for="Collation"></span>
+                                            <small class="form-text text-muted mt-2">
+                                                @Html.Raw(T("CustomCollation.Hint"))
+                                            </small>
+                                        </div>
                                     </div>
-                                    <input asp-for="Collation" class="form-control remember" disabled="disabled" />
-                                    <span asp-validation-for="Collation"></span>
-                                    <small class="form-text text-muted mt-2">
-                                        @Html.Raw(T("CustomCollation.Hint"))
-                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -323,7 +312,8 @@
         var userId = $('#DbUserId');
         var password = $('#DbPassword');
         var useCustomCollation = $('#UseCustomCollation');
-        var collation = $('#Collation');
+        var collationPanel = $('#CollationPanel');
+        var collationInnerPanel = $('#CollationInnerPanel');
 
         function hide(el, thenShow, callback) {
             $(el).slideUp(300, "ease-in-out", function () {
@@ -347,6 +337,7 @@
 
             authGroup.toggle(!isSqlite);
             dbServerCol.toggle(!isSqlite);
+            collationPanel.toggle(!isSqlite);
             authTypeCol.toggle(isSqlServer);
 
             if (isSqlServer) {
@@ -360,13 +351,10 @@
             }
 
             if (isSqlite) {
-                useCustomCollation.prop("checked", false).attr("disabled", "disabled");
-                collation.val(null).attr("disabled", "disabled");
+                useCustomCollation.prop("checked", false);
+                $('#Collation').val(null);
             }
-            else {
-                useCustomCollation.removeAttr("disabled");
-            }
-            
+
             $('#CollationInfoLink').attr("href", getCollationInfoUrl(selectedProvider));
 
             rawConStringHelp.find('> [data-for-provider]').each(function () {
@@ -398,12 +386,7 @@
         }
 
         function toggleCollation() {
-            if (useCustomCollation.is(':checked')) {
-                collation.removeAttr("disabled");
-            }
-            else {
-                collation.attr("disabled", "disabled");
-            }
+            collationInnerPanel.toggle(useCustomCollation.is(':checked'));
         }
 
         function getCollationInfoUrl(provider) {

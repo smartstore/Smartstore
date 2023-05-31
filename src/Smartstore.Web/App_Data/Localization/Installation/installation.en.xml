@@ -30,10 +30,10 @@
         <Value>Create sample data</Value>
     </LocaleResource>
     <LocaleResource Name="CustomCollation">
-        <Value>Specify custom database collation</Value>
+        <Value>Use custom collation</Value>
     </LocaleResource>
     <LocaleResource Name="CustomCollation.Hint">
-        <Value><![CDATA[Collation provides the sorting rules, case, and accent sensitivity properties for the data in the database. It specifies how data is sorted and compared and how accents are treated. Choose a custom collation wisely, it cannot be changed later! It is recommended to only choose case-insensitive collations (CI). Find more info <a id="CollationInfoLink" href="#" rel="nofollow" target="_blank">here</a>.]]></Value>
+        <Value><![CDATA[Leave empty to use the default collation of the database. Choose a custom collation wisely, it cannot be changed later! It is recommended to only choose case-insensitive collations (CI). Find more info <a id="CollationInfoLink" href="#" rel="nofollow" target="_blank">here</a>.]]></Value>
     </LocaleResource>
     <LocaleResource Name="DatabaseCreationError">
         <Value>An error occurred while creating the database: {0}</Value>
