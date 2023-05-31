@@ -12,7 +12,7 @@ namespace Smartstore.DevTools.Filters
     public class WidgetZoneFilter : IActionFilter, IResultFilter
     {
         private static readonly Regex _widgetZonePattern
-            = new(@"^(?!header\b)(?!footer\b)(?!stylesheets\b)(?!head_scripts\b)(?!head_canonical\b)(?!head_links\b)(?!head\b).*$", RegexOptions.Compiled);
+            = new(@"^(?!header$|footer$|stylesheets$|head_scripts$|head_canonical$|head_links$|head$)", RegexOptions.Compiled);
 
         private readonly ICommonServices _services;
         private readonly IWidgetProvider _widgetProvider;
