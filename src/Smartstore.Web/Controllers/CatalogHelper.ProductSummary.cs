@@ -223,7 +223,7 @@ namespace Smartstore.Web.Controllers
                 
                 if (settings.MapLegalInfo)
                 {
-                    var shippingInfoUrl = await _urlHelper.TopicAsync("shippinginfo");
+                    var shippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
                     legalInfo = shippingInfoUrl.HasValue()
                         ? T("Tax.LegalInfoShort", taxInfo, shippingInfoUrl)
                         : T("Tax.LegalInfoShort2", taxInfo);

@@ -83,7 +83,7 @@ namespace Smartstore.Web.Components
                 TryAddSocialLink(_socialSettings.XingLink, "xing");
             }
 
-            var shippingInfoUrl = await Url.TopicAsync("shippinginfo");
+            var shippingInfoUrl = await Url.TopicAsync("ShippingInfo");
             if (shippingInfoUrl.HasValue())
             {
                 model.LegalInfo = T("Tax.LegalInfoFooter", taxInfo, shippingInfoUrl);

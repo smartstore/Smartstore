@@ -46,7 +46,7 @@ namespace Smartstore.AmazonPay.Controllers
             var store = Services.StoreContext.CurrentStore;
             var module = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.AmazonPay");
             var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
-            var topicUrl = await Url.TopicAsync("privacyinfo");
+            var topicUrl = await Url.TopicAsync("PrivacyInfo");
 
             var model = MiniMapper.Map<AmazonPaySettings, ConfigurationModel>(settings);
 

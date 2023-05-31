@@ -10,9 +10,9 @@
     Assets.AddMetaRobots();
 
     var termsLinkTemplate = "<a class='terms-trigger read' href='{0}' data-toggle='modal' data-target='#terms-of-service-modal'>";
-    var termsLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("conditionsofuse", true));
-    var disclaimerLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("disclaimer", true));
-    var privacyLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("privacyinfo", true));
+    var termsLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("ConditionsOfUse", true));
+    var disclaimerLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("Disclaimer", true));
+    var privacyLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("PrivacyInfo", true));
     var terms = T("Checkout.TermsOfService.IAccept", termsLink, "</a>", disclaimerLink, privacyLink);
     var consentZoneHasWidgets = await Display.ZoneHasWidgetsAsync("checkout_submit_data_consent");
 }
