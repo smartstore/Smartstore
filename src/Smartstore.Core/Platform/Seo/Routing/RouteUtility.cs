@@ -3,11 +3,15 @@
 using System.Diagnostics.CodeAnalysis;
 using Autofac;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 
 namespace Smartstore.Core.Seo.Routing
 {
+    /// <summary>
+    /// Helper class for link normalization.
+    /// </summary>
     public static class RouteUtility
     {
         private static RouteOptions _routeOptions = default!;
@@ -21,6 +25,14 @@ namespace Smartstore.Core.Seo.Routing
             set => _routeOptions = Guard.NotNull(value);
         }
 
+        /// <summary>
+        /// Normalizes a path component according to <see cref="RouteOptions.AppendTrailingSlash"/>
+        /// and <see cref="RouteOptions.LowercaseUrls"/>. Call this method if you didn't obtain
+        /// <paramref name="path"/> from any <see cref="IUrlHelper"/> or <see cref="LinkGenerator"/>
+        /// method.
+        /// </summary>
+        /// <param name="path">The path to normalize.</param>
+        /// <returns>The normalized path.</returns>
         [return: NotNullIfNotNull(nameof(path))]
         public static string? NormalizePathComponent(string? path)
         {
@@ -52,6 +64,13 @@ namespace Smartstore.Core.Seo.Routing
             return path;
         }
 
+        /// <summary>
+        /// Normalizes a query string component according to <see cref="RouteOptions.LowercaseQueryStrings"/>. 
+        /// Call this method if you didn't obtain <paramref name="queryString"/> 
+        /// from any <see cref="IUrlHelper"/> or <see cref="LinkGenerator"/> method.
+        /// </summary>
+        /// <param name="queryString">The query string to normalize.</param>
+        /// <returns>The normalized query string.</returns>
         [return: NotNullIfNotNull(nameof(queryString))]
         public static string? NormalizeQueryComponent(string? queryString)
         {
@@ -68,6 +87,11 @@ namespace Smartstore.Core.Seo.Routing
             return queryString;
         }
 
+        /// <summary>
+        /// Normalizes a query string component according to <see cref="RouteOptions.LowercaseQueryStrings"/>. 
+        /// </summary>
+        /// <param name="queryString">The query string to normalize.</param>
+        /// <returns>The normalized query string.</returns>
         [return: NotNullIfNotNull(nameof(queryString))]
         public static QueryString? NormalizeQueryComponent(QueryString? queryString)
         {
