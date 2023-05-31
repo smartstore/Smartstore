@@ -151,20 +151,20 @@ namespace Smartstore.Core.Installation
             footerServiceMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = routeProvider,
-                Model = routeTemplate.FormatInvariant("contactus"),
+                Model = routeTemplate.FormatInvariant("ContactUs"),
                 Title = GetResource("ContactUs"),
                 DisplayOrder = ++order
             });
             footerServiceMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:shippinginfo",
+                Model = "topic:ShippingInfo",
                 DisplayOrder = ++order
             });
             footerServiceMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:paymentinfo",
+                Model = "topic:PaymentInfo",
                 DisplayOrder = ++order
             });
             footerServiceMenu.Items.Add(new MenuItemEntity
@@ -181,31 +181,31 @@ namespace Smartstore.Core.Installation
             footerCompanyMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:aboutus",
+                Model = "topic:AboutUs",
                 DisplayOrder = ++order
             });
             footerCompanyMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:imprint",
+                Model = "topic:Imprint",
                 DisplayOrder = ++order
             });
             footerCompanyMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:disclaimer",
+                Model = "topic:Disclaimer",
                 DisplayOrder = ++order
             });
             footerCompanyMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:privacyinfo",
+                Model = "topic:PrivacyInfo",
                 DisplayOrder = ++order
             });
             footerCompanyMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:conditionsofuse",
+                Model = "topic:ConditionsOfUse",
                 DisplayOrder = ++order
             });
 
@@ -262,26 +262,26 @@ namespace Smartstore.Core.Installation
             serviceMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:aboutus",
+                Model = "topic:AboutUs",
                 DisplayOrder = ++order,
                 BeginGroup = true
             });
             serviceMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:disclaimer",
+                Model = "topic:Disclaimer",
                 DisplayOrder = ++order
             });
             serviceMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:shippinginfo",
+                Model = "topic:ShippingInfo",
                 DisplayOrder = ++order
             });
             serviceMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
-                Model = "topic:conditionsofuse",
+                Model = "topic:ConditionsOfUse",
                 DisplayOrder = ++order
             });
 
