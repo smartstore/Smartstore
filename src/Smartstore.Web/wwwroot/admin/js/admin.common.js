@@ -60,28 +60,33 @@ Smartstore.Admin = {
             });
         }
     },
-    paymentConfigurationAdditionalFeeSwitch: function () {
-        // Switch between the currency code and the percent sign in the postfix of the additional fee on payment configuration.
-        $(function () {
-            let usePercent = $('#AdditionalFeePercentage');
-            let usePercentCheckbox = usePercent.closest('input[type="checkbox"]');
-            let usePercentPostfix = $('#AdditionalFee').parent().find('.numberinput-postfix').first();
-            let currencyCode = usePercentPostfix.text();
+    syncPaymentAdditionalFeePostfix: function () {
+        // INFO: (mw) Think THOROUGHLY about var and method naming. Take some time!
+        // INFO: (mw) DRY: don't touch a million files for such simple UI helpers. Always try to find a central approach.
+
+        // Switch between the currency code and the percent sign in the postfix 
+        // of the additional fee on payment configuration.
+        let usePercentCheckbox = $('#AdditionalFeePercentage');
+        let feePostfix = $('#AdditionalFee').parent().find('.numberinput-postfix').first();
+
+        if (feePostfix.length) {
+            let currencyCode = feePostfix.text();
 
             // Update the postfix text depending on the checkbox state.
-            function updatePercentPostfixText() {
+            function updateFeePostfix() {
                 if (usePercentCheckbox.is(':checked')) {
-                    usePercentPostfix.text('%');
+                    feePostfix.text('%');
                 } else {
-                    usePercentPostfix.text(currencyCode);
+                    feePostfix.text(currencyCode);
                 }
             }
 
-            // Make sure the postfix matches the setting.
-            updatePercentPostfixText();
+            // Make sure the postfix matches the setting on page init.
+            updateFeePostfix();
 
-            usePercentCheckbox.on('change', updatePercentPostfixText);
-        });
+            // Sync postfix on checkbox change.
+            usePercentCheckbox.on('change', updateFeePostfix);
+        }
     },
     togglePanel: function (el /* the toggler */, animate) {
         var ctl = $(el),
