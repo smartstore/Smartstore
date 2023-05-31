@@ -35,8 +35,8 @@ namespace Smartstore.Core.Widgets
 
         public virtual void RegisterWidget(string[] zones, Widget widget)
         {
-            Guard.NotNull(zones, nameof(zones));
-            Guard.NotNull(widget, nameof(widget));
+            Guard.NotNull(zones);
+            Guard.NotNull(widget);
 
             if (_accessor.HttpContext?.Request?.Query?.ContainsKey("nowidgets") == true)
             {
@@ -56,8 +56,8 @@ namespace Smartstore.Core.Widgets
 
         public virtual void RegisterWidget(Regex zonePattern, Widget widget)
         {
-            Guard.NotNull(zonePattern, nameof(zonePattern));
-            Guard.NotNull(widget, nameof(widget));
+            Guard.NotNull(zonePattern);
+            Guard.NotNull(widget);
 
             if (_accessor.HttpContext?.Request?.Query?.ContainsKey("nowidgets") == true)
             {

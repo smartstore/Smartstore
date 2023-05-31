@@ -39,7 +39,7 @@ namespace Smartstore.Core.Widgets
                     for (var y = 0; y < zoneAliases.Length; y++)
                     {
                         var legacyWidgets = await _widgetSources[i].GetWidgetsAsync(zoneAliases[y], isPublicArea, model);
-                        if (legacyWidgets != null && legacyWidgets.Any())
+                        if (legacyWidgets != null)
                         {
                             widgets = widgets.Concat(legacyWidgets);
                         }
