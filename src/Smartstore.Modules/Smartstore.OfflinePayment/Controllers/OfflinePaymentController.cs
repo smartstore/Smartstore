@@ -54,6 +54,8 @@ namespace Smartstore.OfflinePayment.Controllers
             model.PaymentMethodLogo = settings.ThumbnailPictureId;
             ViewBag.Provider = _providerManager.GetProvider("Payments.CashOnDelivery").Metadata;
 
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+
             return View("GenericConfigure", model);
         }
 
@@ -83,6 +85,8 @@ namespace Smartstore.OfflinePayment.Controllers
             model.PostActionName = nameof(InvoiceConfigure);
             model.PaymentMethodLogo = settings.ThumbnailPictureId;
             ViewBag.Provider = _providerManager.GetProvider("Payments.Invoice").Metadata;
+
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
             return View("GenericConfigure", model);
         }
@@ -114,6 +118,8 @@ namespace Smartstore.OfflinePayment.Controllers
             model.PaymentMethodLogo = settings.ThumbnailPictureId;
             ViewBag.Provider = _providerManager.GetProvider("Payments.PayInStore").Metadata;
 
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+
             return View("GenericConfigure", model);
         }
 
@@ -143,6 +149,8 @@ namespace Smartstore.OfflinePayment.Controllers
             model.PostActionName = nameof(PrepaymentConfigure);
             model.PaymentMethodLogo = settings.ThumbnailPictureId;
             ViewBag.Provider = _providerManager.GetProvider("Payments.Prepayment").Metadata;
+
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
             return View("GenericConfigure", model);
         }
@@ -174,6 +182,8 @@ namespace Smartstore.OfflinePayment.Controllers
             model.PaymentMethodLogo = settings.ThumbnailPictureId;
             ViewBag.Provider = _providerManager.GetProvider("Payments.DirectDebit").Metadata;
 
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+
             return View("GenericConfigure", model);
         }
 
@@ -203,6 +213,8 @@ namespace Smartstore.OfflinePayment.Controllers
             model.PostActionName = nameof(PurchaseOrderNumberConfigure);
             model.PaymentMethodLogo = settings.ThumbnailPictureId;
             ViewBag.Provider = _providerManager.GetProvider("Payments.PurchaseOrderNumber").Metadata;
+
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
             return View("GenericConfigure", model);
         }
@@ -244,6 +256,8 @@ namespace Smartstore.OfflinePayment.Controllers
 
             model.PostActionName = nameof(ManualConfigure);
             ViewBag.Provider = _providerManager.GetProvider("Payments.Manual").Metadata;
+
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
             return View("ManualConfigure", model);
         }

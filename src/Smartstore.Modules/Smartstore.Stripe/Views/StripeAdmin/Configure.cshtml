@@ -95,7 +95,7 @@
                 <smart-label asp-for="AdditionalFee" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="AdditionalFee"></setting-editor>
+                <setting-editor asp-for="AdditionalFee" sm-postfix="@ViewBag.CurrentCurrencyCode"></setting-editor>
                 <span asp-validation-for="AdditionalFee"></span>
             </div>
         </div>
@@ -133,4 +133,7 @@
 
         return false;
     });
+</script>
+<script sm-target-zone="scripts">
+    Smartstore.Admin.paymentConfigurationAdditionalFeeSwitch();
 </script>

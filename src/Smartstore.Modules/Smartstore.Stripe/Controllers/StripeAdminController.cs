@@ -22,8 +22,8 @@ namespace Smartstore.StripeElements.Controllers
         private readonly StripeHelper _stripeHelper;
 
         public StripeAdminController(
-            SmartDbContext db, 
-            IProviderManager providerManager, 
+            SmartDbContext db,
+            IProviderManager providerManager,
             StripeHelper stripeHelper)
         {
             _db = db;
@@ -56,6 +56,8 @@ namespace Smartstore.StripeElements.Controllers
                 }
             };
 
+            ViewBag.CurrentCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+
             return View(model);
         }
 
@@ -80,7 +82,7 @@ namespace Smartstore.StripeElements.Controllers
         {
             var storeScope = GetActiveStoreScopeConfiguration();
             var settings = await Services.SettingFactory.LoadSettingsAsync<StripeSettings>(storeScope);
-            
+
             if (settings.PublicApiKey.HasValue() && settings.SecrectApiKey.HasValue() && !settings.WebhookSecret.HasValue())
             {
                 // Get Webhook ID vie API.

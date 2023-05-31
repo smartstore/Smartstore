@@ -60,6 +60,29 @@ Smartstore.Admin = {
             });
         }
     },
+    paymentConfigurationAdditionalFeeSwitch: function () {
+        // Switch between the currency code and the percent sign in the postfix of the additional fee on payment configuration.
+        $(function () {
+            let usePercent = $('#AdditionalFeePercentage');
+            let usePercentCheckbox = usePercent.closest('input[type="checkbox"]');
+            let usePercentPostfix = $('#AdditionalFee').parent().find('.numberinput-postfix').first();
+            let currencyCode = usePercentPostfix.text();
+
+            // Update the postfix text depending on the checkbox state.
+            function updatePercentPostfixText() {
+                if (usePercentCheckbox.is(':checked')) {
+                    usePercentPostfix.text('%');
+                } else {
+                    usePercentPostfix.text(currencyCode);
+                }
+            }
+
+            // Make sure the postfix matches the setting.
+            updatePercentPostfixText();
+
+            usePercentCheckbox.on('change', updatePercentPostfixText);
+        });
+    },
     togglePanel: function (el /* the toggler */, animate) {
         var ctl = $(el),
             show = ctl.is(':checked'),
