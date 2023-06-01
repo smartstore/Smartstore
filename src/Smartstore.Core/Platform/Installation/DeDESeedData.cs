@@ -3128,8 +3128,7 @@ namespace Smartstore.Core.Installation
             entities.WithKey(x => x.DisplayOrder)
                 .Alter(1, x =>
                 {
-                    x.Name = "Mein Shop-Name";
-                    x.Url = "http://www.mein-shop.de/";
+                    x.Name = "Mein Shop";
                     x.Hosts = "mein-shop.de,www.mein-shop.de";
                 });
         }

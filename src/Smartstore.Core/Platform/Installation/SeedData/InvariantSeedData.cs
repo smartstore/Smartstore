@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
 using Autofac;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -103,15 +105,19 @@ namespace Smartstore.Core.Installation
         {
             var imgCompanyLogo = _db.MediaFiles.Where(x => x.Name == "company-logo.png").FirstOrDefault();
             var currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == "EUR") ?? _db.Currencies.First();
+            var httpRequest = _appContext.Services.Resolve<IHttpContextAccessor>().HttpContext?.Request;
+            var url = httpRequest == null
+                ? "http://www.yourstore.com/"
+                : httpRequest.Scheme + "://" + httpRequest.Host + httpRequest.PathBase.Value.EnsureEndsWith('/');
 
             var entities = new List<Store>
             {
                 new Store
                 {
                     Name = "Your store name",
-                    Url = "http://www.yourStore.com/",
+                    Url = url,
+                    SslEnabled = httpRequest?.IsHttps ?? false,
                     Hosts = "yourstore.com,www.yourstore.com",
-                    SslEnabled = false,
                     DisplayOrder = 1,
                     LogoMediaFileId = imgCompanyLogo?.Id ?? 0,
                     DefaultCurrencyId = currency.Id,
