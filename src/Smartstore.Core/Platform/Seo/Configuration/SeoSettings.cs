@@ -47,6 +47,7 @@ namespace Smartstore.Core.Seo
     {
         public static ISet<string> DefaultRobotDisallows { get; } = new HashSet<string>
         {
+            "/admin/",
             "/bin/",
             "/exchange/",
             "/customer/",
@@ -72,8 +73,8 @@ namespace Smartstore.Core.Seo
 
         public SeoSettings()
         {
-            ExtraRobotsDisallows = new List<string> { "/blog/tag/", "/blog/month/", "/producttags/" };
-            ExtraRobotsAllows = new List<string>();
+            ExtraRobotsDisallows = new();
+            ExtraRobotsAllows = new();
             SeoNameCharConversion = string.Join(Environment.NewLine, DefaultCharConversions);
         }
 
@@ -118,9 +119,9 @@ namespace Smartstore.Core.Seo
         public bool CanonicalUrlsEnabled { get; set; }
         public CanonicalHostNameRule CanonicalHostNameRule { get; set; } = CanonicalHostNameRule.NoRule;
 
+        //public bool LowercaseUrls { get; set; } = true;
+        //public bool LowercaseQueryStrings { get; set; }
         public bool AppendTrailingSlashToUrls { get; set; } = true;
-        public bool LowercaseUrls { get; set; } = true;
-        public bool LowercaseQueryStrings { get; set; }
         public TrailingSlashRule TrailingSlashRule { get; set; } = TrailingSlashRule.Allow;
 
         public List<string> ExtraRobotsDisallows { get; set; }

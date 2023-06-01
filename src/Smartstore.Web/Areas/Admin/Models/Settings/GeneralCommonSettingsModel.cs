@@ -104,6 +104,12 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*CanonicalHostNameRule")]
             public CanonicalHostNameRule CanonicalHostNameRule { get; set; }
 
+            [LocalizedDisplay("*AppendTrailingSlashToUrls")]
+            public bool AppendTrailingSlashToUrls { get; set; }
+
+            [LocalizedDisplay("*TrailingSlashRule")]
+            public TrailingSlashRule TrailingSlashRule { get; set; }
+
             [LocalizedDisplay("*ExtraRobotsDisallows")]
             [UIHint("Textarea")]
             [AdditionalMetadata("rows", 10)]

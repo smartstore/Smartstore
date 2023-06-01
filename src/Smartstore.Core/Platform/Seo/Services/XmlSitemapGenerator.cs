@@ -633,7 +633,7 @@ namespace Smartstore.Core.Seo
 
         private static string GetSitemapIndexUrl(int index, string baseUrl)
         {
-            return RouteUtility.NormalizePathComponent(baseUrl + SitemapIndexPathPattern.FormatInvariant(index));
+            return RouteHelper.NormalizePathComponent(baseUrl + SitemapIndexPathPattern.FormatInvariant(index));
         }
 
         private XmlSitemapProvider[] CreateProviders(XmlSitemapBuildContext context)
@@ -709,7 +709,7 @@ namespace Smartstore.Core.Seo
 
         #region Nested classes
 
-        struct NodeEntry
+        readonly struct NodeEntry
         {
             public NamedEntity Entry { get; init; }
             public XmlSitemapProvider Provider { get; init; }

@@ -113,7 +113,7 @@ namespace Smartstore.Core.Catalog.Products
                 }
             }
 
-            return RouteUtility.NormalizeQueryComponent(qs.ToString());
+            return RouteHelper.NormalizeQueryComponent(qs.ToString());
         }
 
         /// <summary>

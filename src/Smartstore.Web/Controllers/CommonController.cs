@@ -102,7 +102,6 @@ namespace Smartstore.Web.Controllers
 
             var disallowPaths = SeoSettings.DefaultRobotDisallows;
             var localizableDisallowPaths = _routeHelper.EnumerateDisallowedRobotPaths();
-            //var localizableDisallowPaths = SeoSettings.DefaultRobotLocalizableDisallows;
 
             #endregion
 

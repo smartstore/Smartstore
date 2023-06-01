@@ -289,8 +289,8 @@ namespace Smartstore.Web
                 {
                     var seoSettings = _appContext.Services.Resolve<SeoSettings>();
                     options.AppendTrailingSlash = seoSettings.AppendTrailingSlashToUrls;
-                    options.LowercaseUrls = seoSettings.LowercaseUrls;
-                    options.LowercaseQueryStrings = seoSettings.LowercaseQueryStrings;
+                    options.LowercaseUrls = true; // seoSettings.LowercaseUrls;
+                    options.LowercaseQueryStrings = false; // seoSettings.LowercaseQueryStrings;
                 }
                 else
                 {

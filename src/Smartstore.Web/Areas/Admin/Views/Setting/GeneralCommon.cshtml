@@ -131,6 +131,35 @@
                         </button>
                     </div>
                 </div>
+                
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.Configuration.Settings.GeneralCommon.SEOSettings.Routing")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="alert alert-warning w-100">
+                        @T("Admin.Configuration.Settings.GeneralCommon.SEOSettings.RestartInfo")
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.AppendTrailingSlashToUrls" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="SeoSettings.AppendTrailingSlashToUrls" />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.TrailingSlashRule" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SeoSettings.TrailingSlashRule" />
+                        <span asp-validation-for="SeoSettings.TrailingSlashRule"></span>
+                    </div>
+                </div>
+
                 <div class="adminRow">
                     <div class="admin-config-group">
                         <div class="title">@T("Admin.System.MetaInfos")</div>

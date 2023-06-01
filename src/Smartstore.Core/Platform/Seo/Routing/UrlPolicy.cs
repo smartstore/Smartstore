@@ -177,8 +177,8 @@ namespace Smartstore.Core.Seo.Routing
 
             var culture = Culture.ToString();
             var path = Path.ToString();
-            var combinedPath = RouteUtility.NormalizePathComponent(CombineSegments(culture, path));
-            var queryString = new QueryString(RouteUtility.NormalizeQueryComponent(QueryString));
+            var combinedPath = RouteHelper.NormalizePathComponent(CombineSegments(culture, path));
+            var queryString = new QueryString(RouteHelper.NormalizeQueryComponent(QueryString));
 
             if (leftMod)
             {

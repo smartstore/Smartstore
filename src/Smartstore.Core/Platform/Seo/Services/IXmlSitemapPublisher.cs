@@ -32,7 +32,7 @@ namespace Smartstore.Core.Seo
             return new XmlSitemapNode
             {
                 LastMod = entity.LastMod,
-                Loc = baseUrl + RouteUtility.NormalizePathComponent(slug.EmptyNull().TrimStart('/')),
+                Loc = baseUrl + RouteHelper.NormalizePathComponent(slug.EmptyNull().TrimStart('/')),
             };
         }
 

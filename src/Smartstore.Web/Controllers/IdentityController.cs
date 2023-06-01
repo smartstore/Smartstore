@@ -368,7 +368,7 @@ namespace Smartstore.Web.Controllers
 
         #region Profile
 
-        [DisallowRobot(true)]
+        [DisallowRobot]
         [LocalizedRoute("/profile/{id:int}", Name = "CustomerProfile")]
         public async Task<IActionResult> CustomerProfile(int id)
         {
