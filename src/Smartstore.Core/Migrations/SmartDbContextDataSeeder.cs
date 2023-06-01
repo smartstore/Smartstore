@@ -103,6 +103,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Enums.TrailingSlashRule.Redirect", "Redirect (recommended)", "Weiterleiten (empfohlen)");
             builder.AddOrUpdate("Enums.TrailingSlashRule.RedirectToHome", "Redirect to home", "Zur Startseite weiterleiten");
             builder.AddOrUpdate("Enums.TrailingSlashRule.Disallow", "Disallow (HTTP 404)", "Nicht zulassen (HTTP 404)");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.LowStockActivity.Hint",
+                "Action to be taken when the stock quantity reaches or falls below the minimum stock quantity.",
+                "Zu ergreifende Maßnahme, wenn der Lagerbestand den Mindestbestand erreicht oder unterschreitet.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.MinStockQuantity.Hint",
+                "Specifies the minimum stock quantity. If the inventory is tracked and the stock reaches or falls below this value, various actions can be performed (e.g. notification or deactivation of the product).",
+                "Legt den Mindestlagerbestand fest. Bei aktivierter Lagerbestandsverwaltung können verschiedene Aktionen ausgeführt werden (z.B. Benachrichtigung oder Deaktivierung des Produktes), sobald der Mindestlagerbestand erreicht oder unterschritten wird.");
         }
     }
 }
