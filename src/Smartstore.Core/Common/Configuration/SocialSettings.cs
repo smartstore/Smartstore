@@ -73,5 +73,20 @@ namespace Smartstore.Core.Common.Configuration
         /// Gets or sets the Vimeo link.
         /// </summary>
         public string VimeoLink { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Tumblr link.
+        /// </summary>
+        public string TumblrLink { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Ello link.
+        /// </summary>
+        public string ElloLink { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Behance link.
+        /// </summary>
+        public string BehanceLink { get; set; }
     }
 }

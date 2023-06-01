@@ -398,6 +398,15 @@ namespace Smartstore.Admin.Models
 
             [LocalizedDisplay("*VimeoLink", "*LeaveEmpty")]
             public string VimeoLink { get; set; }
+
+            [LocalizedDisplay("*TumblrLink", "*LeaveEmpty")]
+            public string TumblrLink { get; set; }
+
+            [LocalizedDisplay("*ElloLink", "*LeaveEmpty")]
+            public string ElloLink { get; set; }
+
+            [LocalizedDisplay("*BehanceLink", "*LeaveEmpty")]
+            public string BehanceLink { get; set; }
         }
 
         #endregion

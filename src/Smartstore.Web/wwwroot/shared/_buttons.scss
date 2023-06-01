@@ -170,6 +170,18 @@ $btn-size-sm: $input-height-sm;
     .btn-brand-vimeo {
         @include button-variant($clr-brand-vimeo, $clr-brand-vimeo);
     }
+
+    .btn-brand-tumblr {
+        @include button-variant($clr-brand-tumblr, $clr-brand-tumblr);
+    }
+
+    .btn-brand-ello {
+        @include button-variant($clr-brand-ello, $clr-brand-ello);
+    }
+
+    .btn-brand-behance {
+        @include button-variant($clr-brand-behance, $clr-brand-behance);
+    }
 }
 
 

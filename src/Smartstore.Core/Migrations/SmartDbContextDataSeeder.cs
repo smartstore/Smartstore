@@ -74,6 +74,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate($"{socialSettings}.TikTokLink", "TikTok Link", "TikTok Link");
             builder.AddOrUpdate($"{socialSettings}.SnapchatLink", "Snapchat Link", "Snapchat Link");
             builder.AddOrUpdate($"{socialSettings}.VimeoLink", "Vimeo Link", "Vimeo Link");
+            builder.AddOrUpdate($"{socialSettings}.TumblrLink", "Tumblr Link", "Tumblr Link");
+            builder.AddOrUpdate($"{socialSettings}.ElloLink", "Ello Link", "Ello Link");
+            builder.AddOrUpdate($"{socialSettings}.BehanceLink", "Behance Link", "Behance Link");
 
             builder.AddOrUpdate($"{generalCommon}").Value("en", "General settings");
             builder.AddOrUpdate($"{generalCommon}.SecuritySettings").Value("en", "Security");

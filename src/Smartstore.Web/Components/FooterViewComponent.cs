@@ -81,6 +81,9 @@ namespace Smartstore.Web.Components
                 TryAddSocialLink(_socialSettings.FlickrLink, "flickr");
                 TryAddSocialLink(_socialSettings.LinkedInLink, "linkedin");
                 TryAddSocialLink(_socialSettings.XingLink, "xing");
+                TryAddSocialLink(_socialSettings.TumblrLink, "tumblr");
+                TryAddSocialLink(_socialSettings.ElloLink, "ello");
+                TryAddSocialLink(_socialSettings.BehanceLink, "behance");
             }
 
             var shippingInfoUrl = await Url.TopicAsync("ShippingInfo");

@@ -15,7 +15,7 @@
 - Web API:
   - #709 added an endpoint that returns order data prepared for an invoice (including variant SKU).
   - #717 added `GiftCard`, `GiftCardUsageHistory` and `DiscountUsageHistory`.
-- Added settings for more social links (Flickr, LinkedIn, Xing, TikTok, Snapchat, Vimeo) to be displayed in the footer.
+- Added settings for more social links (Flickr, LinkedIn, Xing, TikTok, Snapchat, Vimeo, Tumblr, Ello, Behance) to be displayed in the footer.
 
 ### Improvements
 
