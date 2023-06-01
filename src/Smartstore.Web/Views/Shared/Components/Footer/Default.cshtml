@@ -15,12 +15,14 @@
         <div class="container footer-social">
             <div class="row">
                 <div class="col text-center">
-                    @foreach (var link in Model.SocialLinks)
-                    {
-                        <a href="@link.Href" target="_blank" class="btn btn-circle btn-social btn-brand-@link.CssClass">
-                            <i class="fab fa-@link.CssClass"></i>
-                        </a>
-                    }
+                    <div class="d-flex flex-wrap justify-content-center">
+                        @foreach (var link in Model.SocialLinks)
+                        {
+                            <a href="@link.Href" target="_blank" class="btn btn-circle btn-social btn-brand-@link.CssClass">
+                                <i class="fab fa-@link.CssClass"></i>
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
