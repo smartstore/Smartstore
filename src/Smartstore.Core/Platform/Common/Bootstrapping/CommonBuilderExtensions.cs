@@ -6,8 +6,8 @@ namespace Smartstore.Core.Bootstrapping
     {
         public static IServiceCollection AddWorkContext(this IServiceCollection services, IApplicationContext appContext)
         {
-            Guard.NotNull(services, nameof(services));
-            Guard.NotNull(appContext, nameof(appContext));
+            Guard.NotNull(services);
+            Guard.NotNull(appContext);
 
             services.AddScoped<IWorkContext, DefaultWorkContext>();
 
@@ -45,6 +45,18 @@ namespace Smartstore.Core.Bootstrapping
             {
                 // Add X-Powered-By header
                 context.Response.Headers["X-Powered-By"] = $"Smartstore {SmartstoreVersion.CurrentVersion}";
+                await next(context);
+            });
+        }
+
+        /// <summary>
+        /// Adds X-Frame-Options = "SAMEORIGIN" HTTP header.
+        /// </summary>
+        public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
+        {
+            return app.Use(async (context, next) =>
+            {
+                context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
                 await next(context);
             });
         }

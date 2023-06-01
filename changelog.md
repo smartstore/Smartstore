@@ -25,6 +25,7 @@
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
 - Specify custom database collation during installation.
 - Added a search filter for country grid.
+- Add X-Frame-Options `SAMEORIGIN` to response headers
 - (DEV) Model mapping (`IMapper<TFrom, TTo>`):
   - Composite mappers: multiple mappers for a single type pair
   - Named mappers
