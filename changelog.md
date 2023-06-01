@@ -26,6 +26,7 @@
 - Specify custom database collation during installation.
 - Added a search filter for country grid.
 - Add X-Frame-Options `SAMEORIGIN` to response headers
+- Use `308 - Permanent redirect` status code for HTTPS redirection (instead of `301 - Moved permanently`)
 - (DEV) Model mapping (`IMapper<TFrom, TTo>`):
   - Composite mappers: multiple mappers for a single type pair
   - Named mappers
