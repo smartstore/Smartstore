@@ -70,20 +70,20 @@ namespace Smartstore.Web.Components
 
             if (model.ShowSocialLinks)
             {
-                TryAddSocialLink(_socialSettings.FacebookLink, "facebook-f");
-                TryAddSocialLink(_socialSettings.TwitterLink, "twitter");
-                TryAddSocialLink(_socialSettings.InstagramLink, "instagram");
-                TryAddSocialLink(_socialSettings.TikTokLink, "tiktok");
-                TryAddSocialLink(_socialSettings.YoutubeLink, "youtube");
-                TryAddSocialLink(_socialSettings.VimeoLink, "vimeo");
-                TryAddSocialLink(_socialSettings.PinterestLink, "pinterest-p");
-                TryAddSocialLink(_socialSettings.SnapchatLink, "snapchat");
-                TryAddSocialLink(_socialSettings.FlickrLink, "flickr");
-                TryAddSocialLink(_socialSettings.LinkedInLink, "linkedin");
-                TryAddSocialLink(_socialSettings.XingLink, "xing");
-                TryAddSocialLink(_socialSettings.TumblrLink, "tumblr");
-                TryAddSocialLink(_socialSettings.ElloLink, "ello");
-                TryAddSocialLink(_socialSettings.BehanceLink, "behance");
+                TryAddSocialLink(_socialSettings.FacebookLink, "facebook-f", "Facebook");
+                TryAddSocialLink(_socialSettings.TwitterLink, "twitter", "Twitter");
+                TryAddSocialLink(_socialSettings.InstagramLink, "instagram", "Instagram");
+                TryAddSocialLink(_socialSettings.TikTokLink, "tiktok", "TikTok");
+                TryAddSocialLink(_socialSettings.YoutubeLink, "youtube", "Youtube");
+                TryAddSocialLink(_socialSettings.VimeoLink, "vimeo", "Vimeo");
+                TryAddSocialLink(_socialSettings.PinterestLink, "pinterest-p", "Pinterest");
+                TryAddSocialLink(_socialSettings.SnapchatLink, "snapchat", "Snapchat");
+                TryAddSocialLink(_socialSettings.FlickrLink, "flickr", "Flickr");
+                TryAddSocialLink(_socialSettings.LinkedInLink, "linkedin", "LinkedIn");
+                TryAddSocialLink(_socialSettings.XingLink, "xing", "Xing");
+                TryAddSocialLink(_socialSettings.TumblrLink, "tumblr", "Tumblr");
+                TryAddSocialLink(_socialSettings.ElloLink, "ello", "Ello");
+                TryAddSocialLink(_socialSettings.BehanceLink, "behance", "Behance");
             }
 
             var shippingInfoUrl = await Url.TopicAsync("ShippingInfo");
@@ -118,11 +118,11 @@ namespace Smartstore.Web.Components
 
             return View(model);
 
-            void TryAddSocialLink(string href, string cssClass)
+            void TryAddSocialLink(string href, string cssClass, string displayName)
             {
                 if (href.HasValue())
                 {
-                    model.AddSocialLink(href, cssClass);
+                    model.AddSocialLink(href, cssClass, displayName);
                 }
             }
         }
