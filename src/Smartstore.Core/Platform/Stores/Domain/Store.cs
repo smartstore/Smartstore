@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Common;
+using Smartstore.Core.Security;
 using Smartstore.Data.Caching;
 
 namespace Smartstore.Core.Stores
@@ -57,7 +58,8 @@ namespace Smartstore.Core.Stores
         public string SecureUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether all pages will be forced to use SSL (no matter of a specified [RequireHttpsByConfigAttribute] attribute)
+        /// Gets or sets a value indicating whether all pages are forced to use SSL 
+        /// (regardless of any specified <see cref="RequireSslAttribute"/> attribute)
         /// </summary>
         public bool ForceSslForAllPages { get; set; }
 
