@@ -63,11 +63,13 @@
 - Fixed the category number in category navigation was not displayed when the catalog setting `ShowCategoryProductNumberIncludingSubcategories` was changed.
 - #681 For a message template, the assignment to the e-mail account is not removed when the e-mail account is deleted.
 - #704 Cart page displays outdated discount information when applying or removing a discount coupon code.
+- Fixed rare bug where shipping rates wouldn't be applied due to rounding issues
 - ShippingByWeight: fixed missing `SmallQuantityThreshold` in initial migration.
 - #619 Shipping by weight and by total should use 4 instead of 2 decimal places for currency values.
 - For a BundleItem with attribute filters, the attribute selection on the product detail page disappeared as soon as an attribute was selected.
 - #724 Selecting other languages resets selected sorting/items per page setting 
-
+- Legacy widget zones weren't considered anymore
+- DevTools: Some widget zones weren't displayed due to incorrect RegEx
 
 ## Smartstore 5.0.4
 
