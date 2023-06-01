@@ -57,8 +57,8 @@ $footer-color-muted:            $text-muted !default;
 $footer-inverse-color:          #fff !default;
 $footer-inverse-color-muted:    rgba(#fff, 0.5) !default;
 
-$footer-social-bg:              #aaa !default;
-$footer-social-color:           #fff !default;
+$footer-social-bg:              transparent !default;
+$footer-social-color:           darken($footer-color-muted, 10%) !default;
 
 $facet-control-size:			20px !default;
 
