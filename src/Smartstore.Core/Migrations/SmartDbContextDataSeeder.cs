@@ -115,11 +115,19 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies the minimum stock quantity. If the inventory is tracked and the stock reaches or falls below this value, various actions can be performed (e.g. notification or deactivation of the product).",
                 "Legt den Mindestlagerbestand fest. Bei aktivierter Lagerbestandsverwaltung können verschiedene Aktionen ausgeführt werden (z.B. Benachrichtigung oder Deaktivierung des Produktes), sobald der Mindestlagerbestand erreicht oder unterschritten wird.");
 
-            builder.AddOrUpdate($"Admin.Configuration.Stores.Fields.SslPort",
+            var storeFields = "Admin.Configuration.Stores.Fields";
+
+            builder.AddOrUpdate($"{storeFields}.SslPort",
                 "SSL port",
                 "SSL Port",
                 "The HTTPS port to add to the host. Applies only if 'URL' is non-secure.",
                 "Der HTTPS-Port, der dem Host hinzugefügt werden soll. Gilt nur, wenn 'URL' nicht sicher ist.");
+
+            builder.Delete(
+                $"{storeFields}.SslEnabled",
+                $"{storeFields}.SslEnabled.Hint",
+                $"{storeFields}.ForceSslForAllPages",
+                $"{storeFields}.ForceSslForAllPages.Hint");
         }
     }
 }
