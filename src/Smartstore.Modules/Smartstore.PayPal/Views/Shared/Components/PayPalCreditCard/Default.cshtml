@@ -16,120 +16,118 @@
 
 <div class="opt-form paypal-credit-card">
     <div class="card_container">
-        <form id="card-form">
-            <div class="form-group row">
-                <label for="card-number" class="col-md-3 col-form-label required">@T("Payment.CardNumber")</label>
-                <div class="col-md-9">
-                    <div id="card-number" class="card_field form-control"></div>
-                </div>
+        <div class="form-group row">
+            <label for="card-number" class="col-md-3 col-form-label required">@T("Payment.CardNumber")</label>
+            <div class="col-md-9">
+                <div id="card-number" class="card_field form-control"></div>
             </div>
+        </div>
 
-            <div class="form-group row">
-                <label for="expiration-date" class="col-md-3 col-form-label required">@T("Payment.ExpirationDate")</label>
-                <div class="col-md-9">
-                    <div class="row sm-gutters d-flex">
-                        <div class="col-6">
-                            <div id="expiration-date" class="card_field form-control"></div>
-                        </div>
+        <div class="form-group row">
+            <label for="expiration-date" class="col-md-3 col-form-label required">@T("Payment.ExpirationDate")</label>
+            <div class="col-md-9">
+                <div class="row sm-gutters d-flex">
+                    <div class="col-6">
+                        <div id="expiration-date" class="card_field form-control"></div>
+                    </div>
                         
-                        <div class="col col-3">
-                            <label for="cvv" class="text-right col-form-label required d-block">@T("Payment.CardCode")</label>
-                        </div>
-                        <div class="col col-3">
-                            <div id="cvv" class="card_field form-control"></div>
-                        </div>
+                    <div class="col col-3">
+                        <label for="cvv" class="text-right col-form-label required d-block">@T("Payment.CardCode")</label>
+                    </div>
+                    <div class="col col-3">
+                        <div id="cvv" class="card_field form-control"></div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <h5 class="mt-4">@T("Checkout.BillingAddress")</h5>
-            <div><hr></div>
-            <div class="form-group row">
-                <label asp-for="CardholderName" class="col-md-3 col-form-label required"></label>
-                <div class="col-md-9">
-                    <input asp-for="CardholderName" />
-                    <span asp-validation-for="CardholderName"></span>
-                </div>
+        <h5 class="mt-4">@T("Checkout.BillingAddress")</h5>
+        <div><hr></div>
+        <div class="form-group row">
+            <label asp-for="CardholderName" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                <input asp-for="CardholderName" />
+                <span asp-validation-for="CardholderName"></span>
             </div>
+        </div>
 
-            <div class="form-group row">
-                <label asp-for="Address1" class="col-md-3 col-form-label required"></label>
-                <div class="col-md-9">
-                    <div class="row sm-gutters d-flex">
-                        <div class="col-6">
-                            <input asp-for="Address1" />
-                        </div>
-                        <div class="col col-3">
-                            <label asp-for="Address2" class="text-right col-form-label required d-block"></label>
-                        </div>
-                        <div class="col col-3">
-                            <input asp-for="Address2" />
-                        </div>
+        <div class="form-group row">
+            <label asp-for="Address1" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                <div class="row sm-gutters d-flex">
+                    <div class="col-6">
+                        <input asp-for="Address1" />
                     </div>
-                    <div class="row sm-gutters d-flex">
-                        <div class="col col-12">
-                            <span asp-validation-for="Address1"></span>
-                            <span asp-validation-for="Address2"></span>
-                        </div>
+                    <div class="col col-3">
+                        <label asp-for="Address2" class="text-right col-form-label required d-block"></label>
+                    </div>
+                    <div class="col col-3">
+                        <input asp-for="Address2" />
                     </div>
                 </div>
-            </div>
-
-            <div class="form-group row">
-                <label asp-for="City" class="col-md-3 col-form-label required"></label>
-                <div class="col-md-9">
-                    <div class="row sm-gutters d-flex">
-                        <div class="col-6">
-                            <input asp-for="City" />
-                        </div>
-                        <div class="col col-3">
-                            <label asp-for="ZipPostalCode" class="text-right col-form-label required d-block"></label>
-                        </div>
-                        <div class="col col-3">
-                            <input asp-for="ZipPostalCode" />
-                        </div>
-                    </div>
-                    <div class="row sm-gutters d-flex">
-                        <div class="col col-12">
-                            <span asp-validation-for="City"></span>
-                            <span asp-validation-for="ZipPostalCode"></span>
-                        </div>
+                <div class="row sm-gutters d-flex">
+                    <div class="col col-12">
+                        <span asp-validation-for="Address1"></span>
+                        <span asp-validation-for="Address2"></span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="form-group row">
-                <label asp-for="Country" class="col-md-3 col-form-label required"></label>
-                <div class="col-md-9">
-                    @{
-                        var countrySelectorViewData = new
-                        {
-                            nullable = false,
-                            placeholder = T("Address.SelectCountry").Value,
-                            includeHidden = false,
-                            storeId = CommonServices.StoreContext.CurrentStore.Id,
-                        };
-                    }
-                    <editor asp-for="CountryId"
-                            class="country-input country-selector"
-                            asp-additional-viewdata='countrySelectorViewData'
-                            data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
-                            data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
-                            data-addEmptyStateIfRequired="false" />
-                    <span asp-validation-for="CountryId"></span>
+        <div class="form-group row">
+            <label asp-for="City" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                <div class="row sm-gutters d-flex">
+                    <div class="col-6">
+                        <input asp-for="City" />
+                    </div>
+                    <div class="col col-3">
+                        <label asp-for="ZipPostalCode" class="text-right col-form-label required d-block"></label>
+                    </div>
+                    <div class="col col-3">
+                        <input asp-for="ZipPostalCode" />
+                    </div>
+                </div>
+                <div class="row sm-gutters d-flex">
+                    <div class="col col-12">
+                        <span asp-validation-for="City"></span>
+                        <span asp-validation-for="ZipPostalCode"></span>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="form-group row">
-                <label asp-for="StateProvince" class="col-md-3 col-form-label required"></label>
-                <div class="col-md-9">
-                    <select asp-for="StateProvinceId"
-                            x-asp-items="Model.AvailableStates"
-                            placeholder="@T("Common.PleaseSelect")"
-                            data-select-selected-id="@Model.StateProvinceId"></select>
-                    <span asp-validation-for="StateProvinceId"></span>
-                </div>
+        <div class="form-group row">
+            <label asp-for="Country" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                @{
+                    var countrySelectorViewData = new
+                    {
+                        nullable = false,
+                        placeholder = T("Address.SelectCountry").Value,
+                        includeHidden = false,
+                        storeId = CommonServices.StoreContext.CurrentStore.Id,
+                    };
+                }
+                <editor asp-for="CountryId"
+                        class="country-input country-selector"
+                        asp-additional-viewdata='countrySelectorViewData'
+                        data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
+                        data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
+                        data-addEmptyStateIfRequired="false" />
+                <span asp-validation-for="CountryId"></span>
             </div>
-        </form>
+        </div>
+
+        <div class="form-group row">
+            <label asp-for="StateProvince" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                <select asp-for="StateProvinceId"
+                        x-asp-items="Model.AvailableStates"
+                        placeholder="@T("Common.PleaseSelect")"
+                        data-select-selected-id="@Model.StateProvinceId"></select>
+                <span asp-validation-for="StateProvinceId"></span>
+            </div>
+        </div>
     </div>
 </div>
