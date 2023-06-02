@@ -153,7 +153,7 @@ namespace Smartstore.PayPal.Filters
                 {
                     var state = _checkoutStateAccessor.CheckoutState;
 
-                    if (state.IsPaymentRequired && await _payPalHelper.IsGiropayActiveAsync())
+                    if (state.IsPaymentRequired)
                     {
                         _widgetProvider.Value.RegisterWidget("end",
                             new PartialViewWidget("_CheckoutConfirm", state.GetCustomState<PayPalCheckoutState>(), "Smartstore.PayPal"));
