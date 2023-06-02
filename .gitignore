@@ -238,3 +238,22 @@ src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.sln
 
 src/Smartstore.Packager.sln
 Log.txt
+/src/Smartstore.Web/Views/Catalog/ProductsByTag.cshtml
+/src/Smartstore.Core/Platform/Installation/InstallationStarter.cs
+/src/Smartstore.Core/Platform/Installation/TrTRSeedData.cs
+/src/Smartstore.Modules/Smartstore.AmazonPay/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Clickatell/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.DevTools/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Facebook.Auth/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Google.Analytics/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Google.Auth/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Google.MerchantCenter/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Microsoft.Auth/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.OfflinePayment/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.PayPal/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Shipping/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.ShippingByWeight/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Stripe/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Tax/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.Twitter.Auth/Localization/resources.tr-tr.xml
+/src/Smartstore.Modules/Smartstore.WebApi/Localization/resources.tr-tr.xml
