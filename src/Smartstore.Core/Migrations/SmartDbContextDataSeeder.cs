@@ -117,11 +117,23 @@ namespace Smartstore.Core.Data.Migrations
 
             var storeFields = "Admin.Configuration.Stores.Fields";
 
+            builder.AddOrUpdate($"{storeFields}.Url",
+                "Shop URL",
+                "Shop URL",
+                "The root URL of your store, including the base path (if any), e.g. https://mystore.com/",
+                "Die Stamm-URL Ihres Shops, einschließlich des Basispfads (falls vorhanden), z.B. https://mystore.com/");
+
+            builder.AddOrUpdate($"{storeFields}.SslEnabled",
+                "Require HTTPS",
+                "HTTPS erforderlich",
+                "Turn this on to enable automatic HTTP to HTTPS redirection, but only if you have a valid SSL certificate installed on your server.",
+                "Aktiviert HTTP zu HTTPS Weiterleitung. Stellen Sie sicher, dass ein gültiges SSL-Zertifikat auf dem Server installiert ist, ehe Sie diese Option aktivieren.");
+
             builder.AddOrUpdate($"{storeFields}.SslPort",
-                "SSL port",
-                "SSL Port",
-                "The HTTPS port to add to the host. Applies only if 'URL' is non-secure.",
-                "Der HTTPS-Port, der dem Host hinzugefügt werden soll. Gilt nur, wenn 'URL' nicht sicher ist.");
+                "HTTPS port",
+                "HTTPS Port",
+                "Specifies the HTTPS port to append to the host defined in 'Shop URL' for HTTP to HTTPS redirects (but only if 'Shop URL' does not already start with https://).",
+                "Legt den HTTPS Port fest, der dem unter 'Shop URL' definierten Host bei HTTP zu HTTPS Weiterleitungen angehangen werden soll (aber nur, wenn 'Shop URL' nicht bereits mit https:// beginnt).");
 
             builder.Delete(
                 $"{storeFields}.SslEnabled",
