@@ -27,7 +27,7 @@ namespace Smartstore.Core.Stores
         /// because it is assumed that the store host (base URI) already ends with the base path.
         /// </param>
         /// <param name="secure">
-        /// If <c>null</c>, checks whether all pages should be secured per <see cref="Store.ForceSslForAllPages"/>.
+        /// If <c>null</c>, checks whether all pages should be secured per <see cref="Store.SupportsHttps()"/>.
         /// If <c>true</c>, returns the secure URL, but only if SSL is enabled for the store.
         /// </param>
         /// <returns>The absolute URL.</returns>
@@ -65,7 +65,7 @@ namespace Smartstore.Core.Stores
         /// </summary>
         /// <param name="store">The store to get the host name for</param>
         /// <param name="secure">
-        /// If <c>null</c>, checks whether all pages should be secured per <see cref="Store.ForceSslForAllPages"/>.
+        /// If <c>null</c>, checks whether all pages should be secured per <see cref="Store.SupportsHttps()"/>.
         /// If <c>true</c>, returns the secure URL, but only if SSL is enabled for the store.
         /// </param>
         /// <returns>The host name</returns>
@@ -73,7 +73,7 @@ namespace Smartstore.Core.Stores
         {
             Guard.NotNull(store);
 
-            return store.GetHost(secure ?? store.ForceSslForAllPages);
+            return store.GetHost(secure ?? store.SupportsHttps());
         }
 
         /// <summary>

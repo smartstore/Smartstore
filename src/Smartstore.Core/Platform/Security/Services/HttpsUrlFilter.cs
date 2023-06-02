@@ -35,28 +35,25 @@ namespace Smartstore.Core.Security
             {
                 return;
             }
-
-            var currentConnectionSecured = httpContext.RequestServices.GetService<IWebHelper>().IsCurrentConnectionSecured();
+            
+            var isHttps = httpContext.RequestServices.GetService<IWebHelper>().IsCurrentConnectionSecured();
             var currentStore = httpContext.RequestServices.GetService<IStoreContext>().CurrentStore;
             var supportsHttps = currentStore.SupportsHttps();
-            var requireHttps = currentStore.ForceSslForAllPages;
 
-            if (policy.Endpoint != null && supportsHttps && !requireHttps)
+            if (supportsHttps && !isHttps)
             {
-                // Check if RequireSslAttribute is present in endpoint metadata
-                requireHttps = policy.Endpoint.Metadata.GetMetadata<RequireSslAttribute>() != null;
+                var uri = currentStore.GetUri(true);
+                policy.Scheme.Modify(uri.Scheme);
+                policy.Host.Modify(uri.Authority);
+            }
+            else if (!supportsHttps && isHttps)
+            {
+                var uri = currentStore.GetUri(false);
+                policy.Scheme.Modify(uri.Scheme);
+                policy.Host.Modify(uri.Authority);
             }
 
-            requireHttps = requireHttps && supportsHttps;
-
-            if (requireHttps && !currentConnectionSecured)
-            {
-                policy.Scheme.Modify(Uri.UriSchemeHttps);
-            }
-            else if (!requireHttps && currentConnectionSecured)
-            {
-                policy.Scheme.Modify(Uri.UriSchemeHttp);
-            }
+            // TBD: Don't redirect from HTTPS --> HTTP (?)
         }
     }
 }

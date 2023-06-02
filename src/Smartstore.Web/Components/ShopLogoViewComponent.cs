@@ -16,8 +16,9 @@ namespace Smartstore.Web.Components
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var store = Services.StoreContext.CurrentStore;
+            var cacheKey = ModelCacheInvalidator.STORE_LOGO_MODEL_KEY.FormatInvariant(store.Id, HttpContext.Request.Scheme);
 
-            var model = await Services.Cache.GetAsync(ModelCacheInvalidator.STORE_LOGO_MODEL_KEY.FormatInvariant(store.Id), async (o) =>
+            var model = await Services.Cache.GetAsync(cacheKey, async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
 

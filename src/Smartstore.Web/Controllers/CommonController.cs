@@ -105,7 +105,7 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
-            var sitemapUrl = WebHelper.GetAbsoluteUrl(Url.Content("sitemap.xml"), Request, true, Services.StoreContext.CurrentStore.ForceSslForAllPages ? "https" : "http");
+            var sitemapUrl = WebHelper.GetAbsoluteUrl(Url.Content("sitemap.xml"), Request, true, Services.StoreContext.CurrentStore.SupportsHttps() ? "https" : "http");
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             sb.Append("User-agent: *");
             sb.AppendLine();

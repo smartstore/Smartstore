@@ -36,6 +36,26 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="SslEnabled" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SslEnabled" data-toggler-for="#pnlSecureUrl" />
+            <span asp-validation-for="SslEnabled"></span>
+        </div>
+    </div>
+    <div id="pnlSecureUrl">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SslPort" />
+            </div>
+            <div class="adminData">
+                <input asp-for="SslPort" />
+                <span asp-validation-for="SslPort"></span>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="Hosts" />
         </div>
         <div class="adminData">
@@ -59,35 +79,6 @@
         <div class="adminData">
             <select asp-for="DefaultCurrencyId" asp-items="ViewBag.Currencies"></select>
             <span asp-validation-for="DefaultCurrencyId"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="SslEnabled" />
-        </div>
-        <div class="adminData">
-            <input asp-for="SslEnabled" data-toggler-for="pnlSecureUrl" />
-            <span asp-validation-for="SslEnabled"></span>
-        </div>
-    </div>
-    <div id="pnlSecureUrl">
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="SecureUrl" />
-            </div>
-            <div class="adminData">
-                <input asp-for="SecureUrl" />
-                <span asp-validation-for="SecureUrl"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ForceSslForAllPages" />
-            </div>
-            <div class="adminData">
-                <input asp-for="ForceSslForAllPages" />
-                <span asp-validation-for="ForceSslForAllPages"></span>
-            </div>
         </div>
     </div>
     <div class="adminRow">

@@ -186,9 +186,9 @@ namespace Smartstore.Web.Infrastructure.Hooks
         /// Key for shop logo
         /// </summary>
         /// <remarks>
-        /// {0} : current store ID
+        /// {0} : current store ID, {1} = Url scheme
         /// </remarks>
-        public const string STORE_LOGO_MODEL_KEY = "pres:logo-{0}";
+        public const string STORE_LOGO_MODEL_KEY = "pres:logo-{0}-{1}";
         public const string STORE_LOGO_PATTERN_KEY = "pres:logo*";
 
         #endregion

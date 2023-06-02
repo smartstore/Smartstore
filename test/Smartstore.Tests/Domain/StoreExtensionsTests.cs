@@ -14,9 +14,8 @@ namespace Smartstore.Tests.Domain
             var store = new Store
             {
                 Url = "http://mycompany.com/shop",
-                SecureUrl = "https://mycompany.com/shop/",
-                ForceSslForAllPages = true,
-                SslEnabled = true
+                SslEnabled = true,
+                SslPort = 8080
             };
 
             var abs1 = store.GetAbsoluteUrl(new PathString("/shop"), "/shop/path");

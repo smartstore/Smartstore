@@ -14,10 +14,14 @@ namespace Smartstore.Admin.Models.Stores
         public string Url { get; set; }
 
         [LocalizedDisplay("*SslEnabled")]
-        public virtual bool SslEnabled { get; set; }
+        public bool SslEnabled { get; set; }
+
+        [LocalizedDisplay("*SslPort")]
+        [AdditionalMetadata("invariant", true)]
+        public int? SslPort { get; set; }
 
         [LocalizedDisplay("*SecureUrl")]
-        public virtual string SecureUrl { get; set; }
+        public string SecureUrl { get; set; }
 
         [LocalizedDisplay("*ForceSslForAllPages")]
         public bool ForceSslForAllPages { get; set; }
@@ -89,10 +93,9 @@ namespace Smartstore.Admin.Models.Stores
                 .Must(x => x.HasValue() && x.IsWebUrl())
                 .WithMessage(T("Admin.Validation.Url"));
 
-            RuleFor(x => x.SecureUrl)
-                .Must(x => x.HasValue() && x.IsWebUrl())
-                .When(x => x.SslEnabled)
-                .WithMessage(T("Admin.Validation.Url"));
+            RuleFor(x => x.SslPort)
+                .InclusiveBetween(0, ushort.MaxValue)
+                .When(x => x.SslPort.HasValue);
 
             RuleFor(x => x.HtmlBodyId).Matches(@"^([A-Za-z])(\w|\-)*$")
                 .WithMessage(T("Admin.Configuration.Stores.Fields.HtmlBodyId.Validation"));
