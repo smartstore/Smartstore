@@ -55,7 +55,10 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
-            if (!await _payPalHelper.IsPayPalStandardActiveAsync())
+            if (!await _payPalHelper.IsAnyMethodActiveAsync(
+                "Payments.PayPalStandard",
+                "Payments.PayPalPayLater",
+                "Payments.PayPalSepa"))
             {
                 await next();
                 return;
@@ -74,7 +77,6 @@ namespace Smartstore.PayPal.Filters
 
             if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
             {
-
                 if (!checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed"))
                 {
                     if (filterContext.Result is not ViewResult viewResult || viewResult.Model is not CheckoutPaymentMethodModel model)
@@ -85,12 +87,33 @@ namespace Smartstore.PayPal.Filters
 
                     var isSelected = false;
                     var firstPaymentMethod = model.PaymentMethods.First();
+                    var funding = "paypal";
+
                     if (firstPaymentMethod != null)
                     {
-                        isSelected = firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalStandard" && firstPaymentMethod.Selected;
+                        isSelected = 
+                            (firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalStandard" 
+                            || firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalSepa"
+                            || firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalPayLater"
+                            ) && firstPaymentMethod.Selected;
+
+                        if (firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalSepa")
+                        {
+                            funding = "sepa";
+                        }
+                        else if (firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalPayLater")
+                        {
+                            funding = "paylater";
+                        }
                     }
 
-                    _widgetProvider.Value.RegisterViewComponent<PayPalPaymentSelectionViewComponent>("checkout_payment_method_buttons", new { isPaymentInfoInvoker = false, isSelected });
+                    _widgetProvider.Value.RegisterViewComponent<PayPalPaymentSelectionViewComponent>(
+                        "checkout_payment_method_buttons", 
+                        new {
+                            funding,
+                            isSelected 
+                        }
+                     );
 
                     await next();
                     return;

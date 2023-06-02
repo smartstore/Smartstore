@@ -13,7 +13,7 @@
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-payment-selection">
     $(function () {
-        var ppButton = new PayPalButton("#paypal-button-container", "paypal");
+        var ppButton = new PayPalButton("#paypal-button-container", "@Model.Funding");
         var btnNext = $(".payment-method-next-step-button");
         var btnContainer = $("#paypal-button-container");
 

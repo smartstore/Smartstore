@@ -15,8 +15,9 @@ namespace Smartstore.PayPal.Components
         /// <summary>
         /// Renders PayPal buttons (PayPal, Sepa, PayLater) for payment selection page.
         /// </summary>
+        /// <param name="funding">Defines the funding source of the payment method selected on page load.</param>
         /// <param name="isSelected">Defines whether the payment method is selected on page load.</param>
-        public IViewComponentResult Invoke(bool isSelected)
+        public IViewComponentResult Invoke(string funding, bool isSelected)
         {
             // If client id or secret haven't been configured yet, don't render buttons.
             if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -29,7 +30,8 @@ namespace Smartstore.PayPal.Components
                 IsPaymentSelection = true,
                 IsSelectedMethod = isSelected,
                 ButtonColor = _settings.ButtonColor,
-                ButtonShape = _settings.ButtonShape
+                ButtonShape = _settings.ButtonShape,
+                Funding = funding
             };
 
             return View(model);
