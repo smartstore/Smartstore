@@ -172,7 +172,7 @@ namespace Smartstore.PayPal.Controllers
 
         private async Task CreateOrderApmAsync()
         {
-            var orderMessage = await _client.GetOrderForStandardProviderAsync(true);
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(true, true);
             var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
 
             // Get values from checkout input fields which were saved in CheckoutState.

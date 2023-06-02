@@ -576,7 +576,7 @@ namespace Smartstore.PayPal.Client
             return new List<PurchaseUnit> { purchaseUnit };
         }
 
-        public async Task<OrderMessage> GetOrderForStandardProviderAsync(bool isExpressCheckout = true)
+        public async Task<OrderMessage> GetOrderForStandardProviderAsync(bool isExpressCheckout = true, bool isApm = false)
         {
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
             var settings = _settingFactory.LoadSettings<PayPalSettings>(_storeContext.CurrentStore.Id);
@@ -594,9 +594,15 @@ namespace Smartstore.PayPal.Client
                 }
             };
 
+            // APMs only support direct capturing
+            if (isApm)
+            {
+                orderMessage.Intent = Intent.Capture;
+                orderMessage.ProcessingInstruction = "ORDER_COMPLETE_ON_PAYMENT_APPROVAL";
+            }
+            
             return orderMessage;
         }
-
 
         #endregion
 
