@@ -434,7 +434,9 @@ namespace Smartstore.Web.Controllers
         public IActionResult ChangePassword()
         {
             if (!Services.WorkContext.CurrentCustomer.IsRegistered())
-                return new UnauthorizedResult();
+            {
+                return ChallengeOrForbid();
+            }
 
             return View(new ChangePasswordModel());
         }
@@ -446,7 +448,7 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             if (ModelState.IsValid)

@@ -104,7 +104,7 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var model = new CustomerInfoModel();
@@ -121,7 +121,7 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             if (model.Email.IsEmpty())
@@ -342,7 +342,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var models = await customer.Addresses
@@ -355,12 +355,14 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> AddressDelete(int id)
         {
             if (id < 1)
+            {
                 return NotFound();
+            }
 
             var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             // Find address and ensure that it belongs to the current customer.
@@ -381,7 +383,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var model = new AddressModel();
@@ -396,7 +398,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var address = new Address();
@@ -427,7 +429,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             // Find address and ensure that it belongs to the current customer.
@@ -449,7 +451,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             // Find address and ensure that it belongs to the current customer.
@@ -489,7 +491,7 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var ordersPageIndex = Math.Max((page ?? 0) - 1, 0);
@@ -511,7 +513,7 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             // Get recurring payment identifier.
@@ -556,7 +558,7 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var model = new CustomerReturnRequestsModel();
@@ -606,7 +608,7 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var model = new CustomerDownloadableProductsModel();
@@ -720,12 +722,12 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             if (!_customerSettings.AllowCustomersToUploadAvatars)
             {
-                return RedirectToAction("Info");
+                return RedirectToAction(nameof(Info));
             }
 
             var model = new CustomerAvatarEditModel
@@ -818,7 +820,7 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             if (!_rewardPointsSettings.Enabled)

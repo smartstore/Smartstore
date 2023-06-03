@@ -57,10 +57,13 @@ namespace Smartstore.Web.Controllers
                 .FindByIdAsync(id, false);
 
             if (await IsNonExistentOrderAsync(order))
+            {
                 return NotFound();
-
+            }
             if (await IsUnauthorizedOrderAsync(order))
-                return RedirectToRoute("Login", new { returnUrl = Url.Action("Details", new { id }) });
+            {
+                return ChallengeOrForbid();
+            }
 
             var model = await _orderHelper.PrepareOrderDetailsModelAsync(order);
 
@@ -79,10 +82,9 @@ namespace Smartstore.Web.Controllers
             {
                 return NotFound();
             }
-
             if (await IsUnauthorizedOrderAsync(order))
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             return await PrintCore(new List<Order> { order }, pdf);
@@ -164,10 +166,13 @@ namespace Smartstore.Web.Controllers
                 .FindByIdAsync(id);
 
             if (await IsNonExistentOrderAsync(order))
+            {
                 return NotFound();
-
+            }
             if (await IsUnauthorizedOrderAsync(order))
-                return new UnauthorizedResult();
+            {
+                return ChallengeOrForbid();
+            }
 
             await _orderProcessingService.ReOrderAsync(order);
 
@@ -181,10 +186,13 @@ namespace Smartstore.Web.Controllers
             var order = await _db.Orders.FindByIdAsync(id);
 
             if (await IsNonExistentOrderAsync(order))
+            {
                 return NotFound();
-
+            }
             if (await IsUnauthorizedOrderAsync(order))
-                return new UnauthorizedResult();
+            {
+                return ChallengeOrForbid();
+            }
 
             try
             {
@@ -215,7 +223,9 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShipmentDetails(int id /* shipmentId */)
         {
-            var shipment = await _db.Shipments.FindByIdAsync(id);
+            var shipment = await _db.Shipments
+                .Include(x => x.Order)
+                .FindByIdAsync(id);
 
             if (shipment == null)
             {
@@ -228,10 +238,9 @@ namespace Smartstore.Web.Controllers
             {
                 return NotFound();
             }
-
             if (await IsUnauthorizedOrderAsync(order))
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var model = await PrepareShipmentDetailsModelAsync(shipment);
@@ -241,7 +250,7 @@ namespace Smartstore.Web.Controllers
 
         protected async Task<ShipmentDetailsModel> PrepareShipmentDetailsModelAsync(Shipment shipment)
         {
-            Guard.NotNull(shipment, nameof(shipment));
+            Guard.NotNull(shipment);
 
             var order = shipment.Order;
             if (order == null)
@@ -370,9 +379,13 @@ namespace Smartstore.Web.Controllers
         private async Task<bool> IsUnauthorizedOrderAsync(Order order)
         {
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+            {
                 return order == null || order.CustomerId != Services.WorkContext.CurrentCustomer.Id;
+            }
             else
+            {
                 return order == null;
+            }
         }
     }
 }

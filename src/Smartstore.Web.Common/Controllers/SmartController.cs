@@ -22,6 +22,31 @@ namespace Smartstore.Web.Controllers
 
         public ICommonServices Services { get; set; } = default!;
 
+        #region Results
+
+        /// <summary>
+        /// Returns <see cref="ForbidResult"/> when the user is authenticated
+        /// or <see cref="ChallengeResult"/> when the user is not authenticated.
+        /// </summary>
+        protected ActionResult ChallengeOrForbid()
+            => IsAuthenticated ? Forbid() : Challenge();
+
+        /// <summary>
+        /// Returns <see cref="ForbidResult"/> when the user is authenticated
+        /// or <see cref="ChallengeResult"/> when the user is not authenticated.
+        /// </summary>
+        /// <param name="authenticationSchemes">The authentication schemes to challenge.</param>
+        protected ActionResult ChallengeOrForbid(params string[] authenticationSchemes)
+            => IsAuthenticated ? Forbid(authenticationSchemes) : Challenge(authenticationSchemes);
+
+        /// <summary>
+        /// Gets a value indicating whether the user associated with the executing action is authenticated.
+        /// </summary>
+        private bool IsAuthenticated
+            => User?.Identity?.IsAuthenticated ?? false;
+
+        #endregion
+
         #region Widget, View & Component rendering
 
         /// <summary>

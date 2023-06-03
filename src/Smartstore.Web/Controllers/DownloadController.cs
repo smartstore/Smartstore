@@ -86,7 +86,7 @@ namespace Smartstore.Web.Controllers
                 var customer = Services.WorkContext.CurrentCustomer;
                 if (customer == null)
                 {
-                    return new UnauthorizedResult();
+                    return ChallengeOrForbid();
                 }
 
                 if (order.CustomerId != customer.Id)
@@ -192,7 +192,7 @@ namespace Smartstore.Web.Controllers
                 var customer = Services.WorkContext.CurrentCustomer;
                 if (customer == null)
                 {
-                    return new UnauthorizedResult();
+                    return ChallengeOrForbid();
                 }
 
                 if (order.CustomerId != customer.Id)

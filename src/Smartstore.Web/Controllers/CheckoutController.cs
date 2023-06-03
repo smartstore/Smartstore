@@ -106,7 +106,7 @@ namespace Smartstore.Web.Controllers
 
             if (!customer.IsRegistered() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return RedirectToRoute("Login", new { returnUrl = Url.RouteUrl("ShoppingCart") });
+                return ChallengeOrForbid();
             }
 
             customer.ResetCheckoutData(storeId);
@@ -173,7 +173,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var model = await PrepareCheckoutAddressModelAsync(false);
@@ -236,7 +236,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             if (ModelState.IsValid)
@@ -283,7 +283,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             if (!cart.IncludesMatchingItems(x => x.IsShippingEnabled))
@@ -328,7 +328,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             if (!cart.IsShippingRequired())
@@ -380,7 +380,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             if (!cart.IsShippingRequired())
@@ -450,7 +450,7 @@ namespace Smartstore.Web.Controllers
 
             if (!_orderSettings.AnonymousCheckoutAllowed && customer.IsGuest())
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             // Check whether payment workflow is required. We ignore reward points during cart total calculation.
@@ -501,7 +501,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             // Payment method 
@@ -587,7 +587,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var model = new CheckoutConfirmModel();
@@ -610,7 +610,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var warnings = new List<string>();
@@ -742,7 +742,7 @@ namespace Smartstore.Web.Controllers
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return new UnauthorizedResult();
+                return ChallengeOrForbid();
             }
 
             var store = Services.StoreContext.CurrentStore;

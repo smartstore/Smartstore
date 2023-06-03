@@ -48,9 +48,14 @@ namespace Smartstore.Web.Controllers
                 .ThenInclude(x => x.Product)
                 .FindByIdAsync(id);
 
-            if (order == null || Services.WorkContext.CurrentCustomer.Id != order.CustomerId)
+            if (order == null)
             {
-                return new UnauthorizedResult();
+                return NotFound();
+            }
+
+            if (Services.WorkContext.CurrentCustomer.Id != order.CustomerId)
+            {
+                return ChallengeOrForbid();
             }
 
             if (!_orderProcessingService.IsReturnRequestAllowed(order))
@@ -69,9 +74,14 @@ namespace Smartstore.Web.Controllers
             var order = await _db.Orders.FindByIdAsync(id);
             var customer = Services.WorkContext.CurrentCustomer;
 
-            if (order == null || customer.Id != order.CustomerId)
+            if (order == null)
             {
-                return new UnauthorizedResult();
+                return NotFound();
+            }
+
+            if (customer.Id != order.CustomerId)
+            {
+                return ChallengeOrForbid();
             }
 
             if (!_orderProcessingService.IsReturnRequestAllowed(order))
