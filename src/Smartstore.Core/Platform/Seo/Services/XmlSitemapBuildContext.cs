@@ -17,7 +17,6 @@ namespace Smartstore.Core.Seo
 
             Store = store;
             Languages = languages;
-            Protocol = store.SupportsHttps() ? "https" : "http";
 
             _settingFactory = settingFactory;
             _isSingleStoreMode = isSingleStoreMode;
@@ -31,8 +30,6 @@ namespace Smartstore.Core.Seo
         public int RequestStoreId { get; init; }
         public Language[] Languages { get; init; }
         public int MaximumNodeCount { get; init; } = XmlSitemapGenerator.MaximumSiteMapNodeCount;
-
-        public string Protocol { get; init; }
 
         public T LoadSettings<T>() where T : ISettings, new()
         {

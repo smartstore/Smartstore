@@ -36,6 +36,7 @@ using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Serilog.Filters;
 using Smartstore;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Utilities;
 
@@ -94,10 +95,7 @@ AddPathToEnv(appContext.RuntimeInfo.NativeLibraryDirectory);
 engineStarter.ConfigureServices(builder.Services);
 
 // Add services to the Autofac container.
-builder.Host.ConfigureContainer<ContainerBuilder>(container =>
-{
-    engineStarter.ConfigureContainer(container);
-});
+builder.Host.ConfigureContainer<ContainerBuilder>(engineStarter.ConfigureContainer);
 
 // Build the application
 var app = builder.Build();
@@ -119,6 +117,11 @@ app.Lifetime.ApplicationStarted.Register(() =>
     engineStarter.Dispose();
     engineStarter = null;
 });
+
+// Initialize databases
+await InitializeDatabases();
+
+// Configure application
 engineStarter.ConfigureApplication(app);
 
 // Run application
@@ -127,6 +130,23 @@ app.Run();
 
 
 #region Setup helpers
+
+async Task InitializeDatabases()
+{
+    if (appContext.IsInstalled)
+    {
+        var scopeAccessor = appContext.Services.Resolve<ILifetimeScopeAccessor>();
+        using (scopeAccessor.BeginContextAwareScope(out var scope))
+        {
+            var initializer = scope.ResolveOptional<IDatabaseInitializer>();
+            if (initializer != null)
+            {
+                var appLifetime = scope.ResolveOptional<IHostApplicationLifetime>();
+                await initializer.InitializeDatabasesAsync(appLifetime?.ApplicationStopping ?? CancellationToken.None);
+            }
+        }
+    }
+}
 
 bool IsDevEnvironment()
 {
