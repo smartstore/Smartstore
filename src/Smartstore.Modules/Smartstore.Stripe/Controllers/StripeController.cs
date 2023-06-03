@@ -194,7 +194,7 @@ namespace Smartstore.StripeElements.Controllers
 
                         var confirmOptions = new PaymentIntentConfirmOptions
                         {
-                            ReturnUrl = store.GetAbsoluteUrl(Url.Action("RedirectionResult", "Stripe").TrimStart('/'), true)
+                            ReturnUrl = store.GetAbsoluteUrl(Url.Action("RedirectionResult", "Stripe").TrimStart('/'))
                         };
 
                         paymentIntent = await service.ConfirmAsync(paymentIntent.Id, confirmOptions);

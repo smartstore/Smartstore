@@ -24,7 +24,7 @@ namespace Smartstore.Twitter.Auth.Controllers
         public IActionResult Configure(TwitterExternalAuthSettings settings)
         {
             var model = MiniMapper.Map<TwitterExternalAuthSettings, ConfigurationModel>(settings);
-            var host = Services.StoreContext.CurrentStore.GetHost(true);
+            var host = Services.StoreContext.CurrentStore.GetBaseUrl();
             model.RedirectUrl = $"{host}signin-twitter";
 
             ViewBag.Provider = _providerManager.GetProvider("Smartstore.Twitter.Auth").Metadata;

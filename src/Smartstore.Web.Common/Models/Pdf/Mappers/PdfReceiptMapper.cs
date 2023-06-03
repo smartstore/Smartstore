@@ -32,7 +32,7 @@ namespace Smartstore.Web.Models.Pdf
 
             to.StoreId = from.Id;
             to.StoreName = from.Name;
-            to.StoreUrl = from.Url;
+            to.StoreUrl = from.GetBaseUrl();
             to.LogoId = pdfSettings.LogoPictureId != 0 ? pdfSettings.LogoPictureId : from.LogoMediaFileId;
 
             to.MerchantCompanyInfo = companyInfoSettings;

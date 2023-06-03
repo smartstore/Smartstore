@@ -24,7 +24,7 @@ namespace Smartstore.Microsoft.Auth.Controllers
         public IActionResult Configure(MicrosoftExternalAuthSettings settings)
         {
             var model = MiniMapper.Map<MicrosoftExternalAuthSettings, ConfigurationModel>(settings);
-            var host = Services.StoreContext.CurrentStore.GetHost(true);
+            var host = Services.StoreContext.CurrentStore.GetBaseUrl();
             model.RedirectUrl = $"{host}signin-microsoft";
 
             ViewBag.Provider = _providerManager.GetProvider("Smartstore.Microsoft.Auth").Metadata;

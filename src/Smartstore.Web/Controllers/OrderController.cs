@@ -48,7 +48,6 @@ namespace Smartstore.Web.Controllers
             _orderSettings = orderSettings;
         }
 
-        [RequireSsl]
         public async Task<IActionResult> Details(int id)
         {
             var order = await _db.Orders
@@ -68,7 +67,6 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        [RequireSsl]
         public async Task<IActionResult> Print(int id, bool pdf = false)
         {
             var order = await _db.Orders
@@ -215,7 +213,6 @@ namespace Smartstore.Web.Controllers
             return RedirectToAction(nameof(Details), "Order", new { id = order.Id });
         }
 
-        [RequireSsl]
         public async Task<IActionResult> ShipmentDetails(int id /* shipmentId */)
         {
             var shipment = await _db.Shipments.FindByIdAsync(id);

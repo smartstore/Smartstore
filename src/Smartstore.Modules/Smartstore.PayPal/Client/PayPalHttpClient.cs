@@ -128,7 +128,7 @@ namespace Smartstore.PayPal.Client
             var language = _workContext.WorkingLanguage;
             var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
 
-            var logoUrl = store.LogoMediaFileId != 0 ? await _mediaService.GetUrlAsync(store.LogoMediaFileId, 0, store.GetHost(true), false) : string.Empty;
+            var logoUrl = store.LogoMediaFileId != 0 ? await _mediaService.GetUrlAsync(store.LogoMediaFileId, 0, store.GetBaseUrl(), false) : string.Empty;
 
             paymentData.TryGetValueAs<string>("PayPalInvoiceBirthdate", out var birthDate);
             paymentData.TryGetValueAs<string>("PayPalInvoicePhoneNumber", out var phoneNumber);

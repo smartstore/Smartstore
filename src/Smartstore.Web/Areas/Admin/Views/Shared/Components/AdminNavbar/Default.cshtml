@@ -37,7 +37,7 @@
                 <div class="dropdown-menu dropdown-menu-right">
                     @foreach (var store in stores)
                     {
-                        <a class="dropdown-item" href="@store.Url" title="@T("Admin.Header.PublicStore") - @store.Name">
+                        <a class="dropdown-item" href="@store.GetBaseUrl()" title="@T("Admin.Header.PublicStore") - @store.Name">
                             <bootstrap-icon name="shop-window" class="bi-fw" />
                             @store.Name.Truncate(32, "…")
                         </a>

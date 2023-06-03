@@ -51,7 +51,7 @@ namespace Smartstore.Core.Messaging
         public bool TestMode { get; set; }
 
         /// <summary>
-        /// If <c>null</c>, obtained from <see cref="Store.GetHost(bool)"/>.
+        /// If <c>null</c>, obtained from <see cref="Store.GetBaseUrl()"/>.
         /// </summary>
         public Uri BaseUri { get; set; }
 

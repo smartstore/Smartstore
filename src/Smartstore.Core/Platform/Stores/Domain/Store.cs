@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Security;
 using Smartstore.Data.Caching;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Stores
 {
@@ -55,8 +56,7 @@ namespace Smartstore.Core.Stores
                 if (_url != value)
                 {
                     _url = value;
-                    _httpUri = null;
-                    _httpsUri = null;
+                    _baseUri = null;
                 }
             }
         }
@@ -73,7 +73,7 @@ namespace Smartstore.Core.Stores
                 if (_sslEnabled != value)
                 {
                     _sslEnabled = value;
-                    _httpsUri = null;
+                    _baseUri = null;
                 }
             }
         }
@@ -91,7 +91,7 @@ namespace Smartstore.Core.Stores
                 if (_sslPort != value)
                 {
                     _sslPort = value;
-                    _httpsUri = null;
+                    _baseUri = null;
                 }
             }
         }
@@ -104,8 +104,7 @@ namespace Smartstore.Core.Stores
         public string SecureUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether all pages are forced to use SSL 
-        /// (regardless of any specified <see cref="RequireSslAttribute"/> attribute)
+        /// Gets or sets a value indicating whether all pages are forced to use SSL.
         /// </summary>
         [Obsolete("SSL applies to all pages by default now (if enabled).")]
         public bool ForceSslForAllPages { get; set; }
@@ -204,61 +203,39 @@ namespace Smartstore.Core.Stores
             return SslEnabled || Url.StartsWith("https");
         }
 
-        private Uri _httpUri;
-        private Uri _httpsUri;
+        private Uri _baseUri;
         /// <summary>
-        /// Gets the store root URI (Scheme + Host + PathBase + /)
+        /// Gets the store's base URI (Scheme + Host + PathBase + /).
         /// </summary>
-        /// <param name="secure">
-        /// If <c>false</c>, returns the default unsecured URI.
-        /// If <c>true</c>, returns the secure URI, but only if SSL is enabled for the store.
-        /// </param>
-        /// <returns>The store root URI</returns>
-        public Uri GetUri(bool secure)
+        /// <returns>The store base URI</returns>
+        public Uri GetBaseUri()
         {
-            Uri result;
-            if (secure && SupportsHttps())
+            LazyInitializer.EnsureInitialized(ref _baseUri, () =>
             {
-                LazyInitializer.EnsureInitialized(ref _httpsUri, () =>
+                var url = Url;
+                if (SslEnabled && !url.StartsWith("https"))
                 {
-                    string url;
-                    if (Url.StartsWith("https"))
-                    {
-                        url = Url;
-                    }
-                    else
-                    {
-                        if (SslPort == null || SslPort == 443)
-                        {
-                            url = Url.Replace("http:/", "https:/");
-                        }
-                        else
-                        {
-                            var uri = new Uri(Url);
-                            url = "https://" + new HostString(uri.Host, SslPort.Value) + uri.AbsolutePath;
-                        }
-                    }
+                    var httpBaseUri = new Uri(url.EnsureEndsWith('/'));
+                    var httpsPort = SslPort ?? WebHelper.GetServerHttpsPort();
+                    var host = httpsPort == -1 || httpsPort == 443
+                        ? new HostString(httpBaseUri.Host)
+                        : new HostString(httpBaseUri.Host, httpsPort);
 
-                    return new Uri(url.EnsureEndsWith('/'));
-                });
+                    url = "https://" + host + httpBaseUri.AbsolutePath;
+                }
 
-                result = _httpsUri;
-            }
-            else
-            {
-                LazyInitializer.EnsureInitialized(ref _httpUri, () => new Uri(Url.EnsureEndsWith('/')));
-                result = _httpUri;
-            }
+                return new Uri(url.EnsureEndsWith('/'));
+            });
 
-            return result;
+            return _baseUri;
         }
 
-        /// <inheritdoc cref="GetUri(bool)" />
         /// <summary>
-        /// Gets the store root URL (Scheme + Host + PathBase + /)
+        /// Gets the store's base URL (Scheme + Host + PathBase + /).
         /// </summary>
+        /// <returns>The store base URL</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string GetHost(bool secure)
-            => GetUri(secure).ToString();
+        public string GetBaseUrl()
+            => GetBaseUri().ToString();
     }
 }

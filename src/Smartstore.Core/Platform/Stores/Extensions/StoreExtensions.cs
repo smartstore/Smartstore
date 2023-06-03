@@ -8,14 +8,14 @@ namespace Smartstore.Core.Stores
 {
     public static class StoreExtensions
     {
-        /// <inheritdoc cref="GetAbsoluteUrl(Store, PathString, string?, bool?)" />
+        /// <inheritdoc cref="GetAbsoluteUrl(Store, PathString, string?)" />
         /// <param name="path">
         /// The path. May start with current request's base path, in which case it is stripped,
         /// because it is assumed that the store host (base URI) already ends with the base path.
         /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string GetAbsoluteUrl(this Store store, string? path, bool? secure = null)
-            => GetAbsoluteUrl(store, WebHelper.WebBasePath, path, secure);
+        public static string GetAbsoluteUrl(this Store store, string? path)
+            => GetAbsoluteUrl(store, WebHelper.WebBasePath, path);
 
         /// <summary>
         /// Generates an absolute URL for the store (scheme + host + pathBase + relativePath). 
@@ -26,16 +26,12 @@ namespace Smartstore.Core.Stores
         /// The path. May start with <paramref name="pathBase"/>, in which case it is stripped,
         /// because it is assumed that the store host (base URI) already ends with the base path.
         /// </param>
-        /// <param name="secure">
-        /// If <c>null</c>, checks whether all pages should be secured per <see cref="Store.SupportsHttps()"/>.
-        /// If <c>true</c>, returns the secure URL, but only if SSL is enabled for the store.
-        /// </param>
         /// <returns>The absolute URL.</returns>
-        public static string GetAbsoluteUrl(this Store store, PathString pathBase, string? path, bool? secure = null)
+        public static string GetAbsoluteUrl(this Store store, PathString pathBase, string? path)
         {
             Guard.NotNull(store);
 
-            var baseUrl = store.GetHost(secure);
+            var baseUrl = store.GetBaseUrl();
             
             if (string.IsNullOrEmpty(path))
             {
@@ -58,22 +54,6 @@ namespace Smartstore.Core.Stores
             }
 
             return baseUrl + pathString.Value!.TrimStart('/');
-        }
-
-        /// <summary>
-        /// Gets the store host name
-        /// </summary>
-        /// <param name="store">The store to get the host name for</param>
-        /// <param name="secure">
-        /// If <c>null</c>, checks whether all pages should be secured per <see cref="Store.SupportsHttps()"/>.
-        /// If <c>true</c>, returns the secure URL, but only if SSL is enabled for the store.
-        /// </param>
-        /// <returns>The host name</returns>
-        public static string GetHost(this Store store, bool? secure = null)
-        {
-            Guard.NotNull(store);
-
-            return store.GetHost(secure ?? store.SupportsHttps());
         }
 
         /// <summary>

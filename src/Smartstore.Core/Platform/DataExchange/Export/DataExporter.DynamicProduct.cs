@@ -491,13 +491,13 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     var file = _mediaService.ConvertMediaFile(mediaFiles.Select(x => x.MediaFile).First());
 
-                    dynObject._MainPictureUrl = _mediaService.GetUrl(file, imageQuery, ctx.Store.GetHost());
+                    dynObject._MainPictureUrl = _mediaService.GetUrl(file, imageQuery, ctx.Store.GetBaseUrl());
                     dynObject._MainPictureRelativeUrl = _mediaService.GetUrl(file, imageQuery);
                 }
                 else if (!_catalogSettings.HideProductDefaultPictures)
                 {
                     // Get fallback image URL.
-                    dynObject._MainPictureUrl = _mediaService.GetUrl(null, imageQuery, ctx.Store.GetHost());
+                    dynObject._MainPictureUrl = _mediaService.GetUrl(null, imageQuery, ctx.Store.GetBaseUrl());
                     dynObject._MainPictureRelativeUrl = _mediaService.GetUrl(null, imageQuery);
                 }
                 else

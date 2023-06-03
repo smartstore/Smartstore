@@ -199,36 +199,41 @@ namespace Smartstore.Core.Web
             return HttpContext?.Request?.IsHttps == true;
         }
 
-        public virtual string GetStoreLocation(bool? secured = null)
+        public virtual string GetStoreLocation()
         {
-            secured ??= IsCurrentConnectionSecured();
-
             string location;
 
-            if (TryGetHostFromHttpContext(secured.Value, out var host))
+            if (TryGetHostFromHttpContext(out var host))
             {
-                location = host + HttpContext.Request.PathBase;
+                location = host.EnsureEndsWith('/');
             }
             else
             {
                 var currentStore = _storeContext.Value.CurrentStore;
-                location = currentStore.GetHost(secured.Value);
+                location = currentStore.GetBaseUrl();
             }
 
-            return location.EnsureEndsWith('/');
+            return location;
         }
 
-        protected virtual bool TryGetHostFromHttpContext(bool secured, out string host)
+        protected virtual bool TryGetHostFromHttpContext(out string host)
         {
             host = null;
 
-            var hostHeader = HttpContext?.Request?.Headers?[HeaderNames.Host] ?? StringValues.Empty;
-
-            if (!StringValues.IsNullOrEmpty(hostHeader))
+            var request = HttpContext?.Request;
+            if (request == null)
             {
-                host = (secured ? Uri.UriSchemeHttps : Uri.UriSchemeHttp)
+                return false;
+            }
+
+            var hostString = request.Host;
+
+            if (hostString.HasValue)
+            {
+                host = request.Scheme
                     + Uri.SchemeDelimiter
-                    + hostHeader[0];
+                    + hostString
+                    + request.PathBase;
 
                 return true;
             }
@@ -236,7 +241,7 @@ namespace Smartstore.Core.Web
             return false;
         }
 
-        public virtual string GetCurrentPageUrl(bool withQueryString = false, bool? secured = null, bool lowercaseUrl = false)
+        public virtual string GetCurrentPageUrl(bool withQueryString = false, bool lowercaseUrl = false)
         {
             var httpRequest = HttpContext?.Request;
             if (httpRequest == null)
@@ -244,7 +249,7 @@ namespace Smartstore.Core.Web
                 return string.Empty;
             }
 
-            var storeLocation = GetStoreLocation(secured ?? IsCurrentConnectionSecured());
+            var storeLocation = GetStoreLocation();
 
             var url = storeLocation.TrimEnd('/') + httpRequest.Path;
 

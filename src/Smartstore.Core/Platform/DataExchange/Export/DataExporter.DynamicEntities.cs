@@ -209,7 +209,7 @@ namespace Smartstore.Core.DataExchange.Export
                 var file = await _mediaService.GetFileByIdAsync(fileId, MediaLoadFlags.AsNoTracking);
                 if (file != null)
                 {
-                    dynObject._AvatarPictureUrl = _mediaService.GetUrl(file, new ProcessImageQuery { MaxSize = _mediaSettings.AvatarPictureSize }, ctx.Store.GetHost());
+                    dynObject._AvatarPictureUrl = _mediaService.GetUrl(file, new ProcessImageQuery { MaxSize = _mediaSettings.AvatarPictureSize }, ctx.Store.GetBaseUrl());
                 }
             }
 
@@ -607,7 +607,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             try
             {
-                var host = ctx.Store.GetHost();
+                var host = ctx.Store.GetBaseUrl();
                 dynamic result = new DynamicEntity(file.File);
 
                 result._FileName = file.Name;

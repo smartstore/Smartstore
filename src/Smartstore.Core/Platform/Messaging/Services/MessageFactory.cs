@@ -329,7 +329,7 @@ namespace Smartstore.Core.Messaging
 
             if (ctx.BaseUri == null)
             {
-                ctx.BaseUri = new Uri(ctx.Store.GetHost(true));
+                ctx.BaseUri = ctx.Store.GetBaseUri();
             }
 
             if (ctx.LanguageId.GetValueOrDefault() == 0)

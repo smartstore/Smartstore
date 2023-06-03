@@ -25,7 +25,7 @@ namespace Smartstore.Facebook.Auth.Controllers
         {
             var model = MiniMapper.Map<FacebookExternalAuthSettings, ConfigurationModel>(settings);
 
-            var host = Services.StoreContext.CurrentStore.GetHost(true);
+            var host = Services.StoreContext.CurrentStore.GetBaseUrl();
             model.RedirectUrl = $"{host}signin-facebook";
 
             ViewBag.Provider = _providerManager.GetProvider("Smartstore.Facebook.Auth").Metadata;

@@ -1444,8 +1444,8 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             var languageId = ctx.Projection.LanguageId ?? 0;
-            var protocol = ctx.Store.SslEnabled ? "https" : "http";
-            var storeInfo = $"{ctx.Store.Name} ({ctx.Store.Url})";
+            var uri = ctx.Store.GetBaseUri();
+            var storeInfo = $"{ctx.Store.Name} ({uri})";
             var intro = _services.Localization.GetResource("Admin.DataExchange.Export.CompletedEmail.Body", languageId).FormatInvariant(storeInfo);
 
             using var psb = StringBuilderPool.Instance.Get(out var body);
@@ -1458,7 +1458,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (ctx.IsFileBasedExport && ctx.ZipFile.Exists)
             {
-                var downloadUrl = _urlHelper.Value.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, ctx.ZipFile.Name }, protocol);
+                var downloadUrl = _urlHelper.Value.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, ctx.ZipFile.Name }, uri.Scheme, uri.Authority);
                 body.AppendFormat("<p><a href='{0}' download>{1}</a></p>", downloadUrl, ctx.ZipFile.Name);
             }
 
@@ -1467,7 +1467,7 @@ namespace Smartstore.Core.DataExchange.Export
                 body.Append("<p>");
                 foreach (var file in ctx.Result.Files)
                 {
-                    var downloadUrl = _urlHelper.Value.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, name = file.FileName }, protocol);
+                    var downloadUrl = _urlHelper.Value.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, name = file.FileName }, uri.Scheme, uri.Authority);
                     body.AppendFormat("<div><a href='{0}' download>{1}</a></div>", downloadUrl, file.FileName);
                 }
                 body.Append("</p>");
@@ -1656,8 +1656,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             try
             {
-                var uri = new Uri(ctx.Store.Url);
-                sb.AppendLine($"Store: {uri.DnsSafeHost.NaIfEmpty()} (ID {ctx.Store.Id})");
+                sb.AppendLine($"Store: {ctx.Store.GetBaseUri().DnsSafeHost.NaIfEmpty()} (ID {ctx.Store.Id})");
             }
             catch
             {

@@ -86,7 +86,7 @@ namespace Smartstore.Core.Packaging
                     client.Timeout = TimeSpan.FromSeconds(3);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    client.DefaultRequestHeaders.Add("Authorization-Key", _storeContext.CurrentStore.Url.TrimEnd('/'));
+                    client.DefaultRequestHeaders.Add("Authorization-Key", _storeContext.CurrentStore.GetBaseUrl().TrimEnd('/'));
                     client.DefaultRequestHeaders.Add("X-Application-ID", _appContext.RuntimeInfo.ApplicationIdentifier);
                     client.DefaultRequestHeaders.Add("X-Environment-ID", _appContext.RuntimeInfo.EnvironmentIdentifier);
 

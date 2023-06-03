@@ -98,7 +98,6 @@ namespace Smartstore.Web.Controllers
             _mediaSettings = mediaSettings;
         }
 
-        [RequireSsl]
         public async Task<IActionResult> Info()
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -338,7 +337,6 @@ namespace Smartstore.Web.Controllers
 
         #region Addresses
 
-        [RequireSsl]
         public async Task<IActionResult> Addresses()
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -354,7 +352,6 @@ namespace Smartstore.Web.Controllers
             return View(models);
         }
 
-        [RequireSsl]
         public async Task<IActionResult> AddressDelete(int id)
         {
             if (id < 1)
@@ -379,7 +376,6 @@ namespace Smartstore.Web.Controllers
             return RedirectToAction(nameof(Addresses));
         }
 
-        [RequireSsl]
         public async Task<IActionResult> AddressAdd()
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -421,7 +417,6 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        [RequireSsl]
         public async Task<IActionResult> AddressEdit(int id)
         {
             if (id < 1)
@@ -488,7 +483,6 @@ namespace Smartstore.Web.Controllers
 
         #region Orders
 
-        [RequireSsl]
         public async Task<IActionResult> Orders(int? page, int? recurringPaymentsPage)
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -556,7 +550,6 @@ namespace Smartstore.Web.Controllers
 
         #region Return request
 
-        [RequireSsl]
         public async Task<IActionResult> ReturnRequests()
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -607,7 +600,6 @@ namespace Smartstore.Web.Controllers
 
         #region Downloadable products
 
-        [RequireSsl]
         public async Task<IActionResult> DownloadableProducts()
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -722,7 +714,6 @@ namespace Smartstore.Web.Controllers
 
         #region Avatar
 
-        [RequireSsl]
         public async Task<IActionResult> Avatar()
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -821,7 +812,6 @@ namespace Smartstore.Web.Controllers
 
         #region Reward points
 
-        [RequireSsl]
         public IActionResult RewardPoints()
         {
             var customer = Services.WorkContext.CurrentCustomer;

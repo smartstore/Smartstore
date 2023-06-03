@@ -244,7 +244,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             var result = ctx.ExecuteContext.Result;
             var store = _services.StoreContext.CurrentStore;
-            var storeInfo = $"{store.Name} ({store.Url})";
+            var storeInfo = $"{store.Name} ({store.GetBaseUrl()})";
 
             using var psb = StringBuilderPool.Instance.Get(out var body);
 

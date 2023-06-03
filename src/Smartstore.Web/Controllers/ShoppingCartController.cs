@@ -143,7 +143,7 @@ namespace Smartstore.Web.Controllers
             });
         }
 
-        [RequireSsl, DisallowRobot(true)]
+        [DisallowRobot(true)]
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> Cart(ProductVariantQuery query)
         {
@@ -166,7 +166,6 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        [RequireSsl]
         [DisallowRobot]
         [LocalizedRoute("/wishlist/{customerGuid:guid?}", Name = "Wishlist")]
         public async Task<IActionResult> Wishlist(Guid? customerGuid)
@@ -829,7 +828,6 @@ namespace Smartstore.Web.Controllers
 
         #region Email wishlist
 
-        [RequireSsl]
         [GdprConsent]
         public async Task<IActionResult> EmailWishlist()
         {

@@ -88,7 +88,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpGet]
         [TypeFilter(typeof(DisplayExternalAuthWidgets))]
-        [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
+        [AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
         public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
         {
@@ -214,7 +214,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpGet]
-        [RequireSsl, AllowAnonymous, NeverAuthorize]
+        [AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/register", Name = "Register")]
         public async Task<IActionResult> Register(string returnUrl = null)
         {
@@ -299,7 +299,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpGet]
-        [RequireSsl, AllowAnonymous, NeverAuthorize]
+        [AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/registerresult", Name = "RegisterResult")]
         public IActionResult RegisterResult(int? resultId, string message = "")
         {
@@ -331,7 +331,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpGet]
-        [RequireSsl, AllowAnonymous, NeverAuthorize]
+        [AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/customer/activation", Name = "AccountActivation")]
         public async Task<IActionResult> AccountActivation(string token, string email)
         {
@@ -430,7 +430,7 @@ namespace Smartstore.Web.Controllers
 
         #region Change password
 
-        [RequireSsl, DisallowRobot]
+        [DisallowRobot]
         public IActionResult ChangePassword()
         {
             if (!Services.WorkContext.CurrentCustomer.IsRegistered())
@@ -470,7 +470,7 @@ namespace Smartstore.Web.Controllers
 
         #region Password recovery
 
-        [RequireSsl, DisallowRobot]
+        [DisallowRobot]
         [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
         public IActionResult PasswordRecovery()
         {
@@ -510,7 +510,6 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        [RequireSsl]
         public IActionResult PasswordRecoveryConfirm(string token, string email)
         {
             var model = new PasswordRecoveryConfirmModel

@@ -282,7 +282,7 @@ namespace Smartstore.PayPal.Controllers
             // Get store URL
             var storeScope = GetActiveStoreScopeConfiguration();
             var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
-            var storeUrl = store.GetHost(true);
+            var storeUrl = store.GetBaseUrl();
 
             if (webhooks.Hooks.Length < 1 || !webhooks.Hooks.Any(x => x.Url.ContainsNoCase(storeUrl)))
             {

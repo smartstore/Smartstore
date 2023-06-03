@@ -38,10 +38,9 @@ namespace Smartstore.Core.Web
         /// Gets the full URL of the current page (including scheme and host part)
         /// </summary>
         /// <param name="withQueryString">Value indicating whether to include query string part</param>
-        /// <param name="secured">Value indicating whether to get SSL protected page URL. Pass <c>null</c> to auto-determine scheme.</param>
         /// <param name="lowercaseUrl">Value indicating whether to lowercase URL</param>
         /// <returns>Page URL</returns>
-        string GetCurrentPageUrl(bool withQueryString = false, bool? secured = null, bool lowercaseUrl = false);
+        string GetCurrentPageUrl(bool withQueryString = false, bool lowercaseUrl = false);
 
         /// <summary>
         /// Gets a value indicating whether current connection is secured
@@ -59,9 +58,8 @@ namespace Smartstore.Core.Web
         /// <summary>
         /// Gets store location (Scheme + Host + PathBase)
         /// </summary>
-        /// <param name="secured">Value indicating whether to get SSL protected location. Pass <c>null</c> to auto-determine scheme.</param>
         /// <returns>Store location</returns>
-        string GetStoreLocation(bool? secured = null);
+        string GetStoreLocation();
 
         /// <summary>
         /// Returns true if the requested resource is one of the typical resources that don't need to be processed by the routing system.

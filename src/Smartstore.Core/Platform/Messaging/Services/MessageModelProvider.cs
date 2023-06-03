@@ -107,14 +107,14 @@ namespace Smartstore.Core.Messaging
 
         public async Task<object> CreateModelPartAsync(object part, bool ignoreNullMembers, params string[] ignoreMemberNames)
         {
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(part);
 
             var store = _services.StoreContext.CurrentStore;
             var messageContext = new MessageContext
             {
                 Language = _services.WorkContext.WorkingLanguage,
                 Store = store,
-                BaseUri = new Uri(store.GetHost()),
+                BaseUri = store.GetBaseUri(),
                 Model = new TemplateModel()
             };
 

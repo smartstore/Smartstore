@@ -183,32 +183,32 @@ namespace Smartstore.AmazonPay.Controllers
             foreach (var entity in allStores)
             {
                 // SSL required!
-                if (Uri.TryCreate(entity.SslEnabled ? entity.SecureUrl : entity.Url, UriKind.Absolute, out var uri))
+                var uri = entity.GetBaseUri();
+                var loginUrl = uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority).EmptyNull().TrimEnd('/');
+
+                if (loginUrl.HasValue())
                 {
-                    var loginUrl = uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority).EmptyNull().TrimEnd('/');
-                    if (loginUrl.HasValue())
-                    {
-                        model.MerchantLoginDomains.Add(loginUrl);
-
-                        if (entity.Id == store.Id)
-                        {
-                            model.CurrentMerchantLoginDomains.Add(loginUrl);
-                        }
-                    }
-
-                    var storeScheme = entity.SslEnabled ? "https" : "http";
-                    var checkoutReviewUrl = Url.Action(nameof(AmazonPayController.CheckoutReview), "AmazonPay", new { area = string.Empty }, storeScheme).TrimEnd('/');
-                    var signIn = Url.Action(nameof(AmazonPayController.SignIn), "AmazonPay", new { area = string.Empty }, storeScheme).TrimEnd('/');
-
-                    model.MerchantLoginRedirectUrls.Add(checkoutReviewUrl);
-                    model.MerchantLoginRedirectUrls.Add(signIn);
+                    model.MerchantLoginDomains.Add(loginUrl);
 
                     if (entity.Id == store.Id)
                     {
-                        model.CurrentMerchantLoginRedirectUrls.Add(checkoutReviewUrl);
-                        model.CurrentMerchantLoginRedirectUrls.Add(signIn);
+                        model.CurrentMerchantLoginDomains.Add(loginUrl);
                     }
                 }
+
+                var storeScheme = entity.SupportsHttps() ? "https" : "http";
+                var checkoutReviewUrl = Url.Action(nameof(AmazonPayController.CheckoutReview), "AmazonPay", new { area = string.Empty }, storeScheme).TrimEnd('/');
+                var signIn = Url.Action(nameof(AmazonPayController.SignIn), "AmazonPay", new { area = string.Empty }, storeScheme).TrimEnd('/');
+
+                model.MerchantLoginRedirectUrls.Add(checkoutReviewUrl);
+                model.MerchantLoginRedirectUrls.Add(signIn);
+
+                if (entity.Id == store.Id)
+                {
+                    model.CurrentMerchantLoginRedirectUrls.Add(checkoutReviewUrl);
+                    model.CurrentMerchantLoginRedirectUrls.Add(signIn);
+                }
+
             }
 
             ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;

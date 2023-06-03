@@ -40,7 +40,7 @@ namespace Smartstore.Web.Controllers
             _localizationSettings = localizationSettings;
         }
 
-        [RequireSsl, DisallowRobot]
+        [DisallowRobot]
         public async Task<IActionResult> ReturnRequest(int id /* orderId */)
         {
             var order = await _db.Orders

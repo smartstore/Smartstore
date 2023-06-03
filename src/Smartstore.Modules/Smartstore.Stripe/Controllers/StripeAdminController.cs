@@ -90,7 +90,7 @@ namespace Smartstore.StripeElements.Controllers
                 {
                     // Get store URL
                     var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
-                    var storeUrl = store.GetHost(true);
+                    var storeUrl = store.GetBaseUrl();
 
                     settings.WebhookSecret = await _stripeHelper.GetWebHookIdAsync(settings.SecrectApiKey, storeUrl);
                     await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);

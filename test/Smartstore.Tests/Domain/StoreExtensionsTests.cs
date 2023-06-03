@@ -15,7 +15,7 @@ namespace Smartstore.Tests.Domain
             {
                 Url = "http://mycompany.com/shop",
                 SslEnabled = true,
-                SslPort = 8080
+                //SslPort = 8080
             };
 
             var abs1 = store.GetAbsoluteUrl(new PathString("/shop"), "/shop/path");
@@ -23,6 +23,12 @@ namespace Smartstore.Tests.Domain
 
             var abs2 = store.GetAbsoluteUrl("/shop/path");
             abs2.ShouldEqual("https://mycompany.com/shop/shop/path");
+
+            store.SslPort = 8080;
+            abs1 = store.GetAbsoluteUrl(new PathString("/shop"), "/shop/path");
+            abs1.ShouldEqual("https://mycompany.com:8080/shop/path");
+            abs2 = store.GetAbsoluteUrl("/shop/path");
+            abs2.ShouldEqual("https://mycompany.com:8080/shop/shop/path");
 
             store.SslEnabled = false;
 

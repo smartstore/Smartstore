@@ -7,7 +7,6 @@ namespace Smartstore.Admin.Controllers
 {
     [Area("Admin")]
     [TrackActivity(Order = 100)]
-    [RequireSsl]
     public class MediaController : SmartController
     {
         private readonly SmartDbContext _db;

@@ -1534,7 +1534,7 @@ namespace Smartstore.Admin.Controllers
                         {
                             var store = Services.StoreContext.GetStoreById(storeMapping.StoreId);
                             if (store != null)
-                                model.ProductUrl = store.Url.EnsureEndsWith('/') + await product.GetActiveSlugAsync();
+                                model.ProductUrl = store.GetBaseUrl() + await product.GetActiveSlugAsync();
                         }
                     }
                 }

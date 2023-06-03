@@ -7,7 +7,7 @@
 
 @{
     // TODO: (mh) (core) Customers uploaded product variant file is lost after selecting any other variant option (in product details).
-    var storeUrl = WebHelper.GetStoreLocation(false);
+    var storeUrl = WebHelper.GetStoreLocation();
     var controlId = Model.BuildControlId();
     var clientId = "upload" + CommonHelper.GenerateRandomInteger();
     var containerId = clientId + "container";

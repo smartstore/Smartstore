@@ -152,7 +152,7 @@ namespace Smartstore.Web.Controllers
 
         public IActionResult Sitemap()
         {
-            return RedirectPermanent(Services.StoreContext.CurrentStore.Url);
+            return RedirectPermanent(Services.StoreContext.CurrentStore.GetBaseUrl());
         }
     }
 }

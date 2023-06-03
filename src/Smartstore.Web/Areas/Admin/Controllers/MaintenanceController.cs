@@ -459,14 +459,14 @@ namespace Smartstore.Admin.Controllers
 
             // Store URL
             // ====================================
-            var storeUrl = store.Url.EnsureEndsWith('/');
-            if (storeUrl.HasValue() && (storeUrl.EqualsNoCase(Services.WebHelper.GetStoreLocation(false)) || storeUrl.EqualsNoCase(Services.WebHelper.GetStoreLocation(true))))
+            var storeUrl = store.GetBaseUrl();
+            if (storeUrl.HasValue() && storeUrl.EqualsNoCase(Services.WebHelper.GetStoreLocation()))
             {
                 AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.URL.Match"));
             }
             else
             {
-                AddEntry(SystemWarningLevel.Warning, T("Admin.System.Warnings.URL.NoMatch", storeUrl, Services.WebHelper.GetStoreLocation(false)));
+                AddEntry(SystemWarningLevel.Warning, T("Admin.System.Warnings.URL.NoMatch", storeUrl, Services.WebHelper.GetStoreLocation()));
             }
 
             // TaskScheduler reachability

@@ -37,7 +37,7 @@ namespace Smartstore.Admin.Components
                         new("ip", _webHelper.GetClientIpAddress().ToString()),
                         new("modules", string.Join(',', Services.ApplicationContext.ModuleCatalog.Modules.Select(x => x.Name))),
                         new("id", Services.ApplicationContext.RuntimeInfo.ApplicationIdentifier),
-                        new("auth", Services.StoreContext.CurrentStore.Url.TrimEnd('/'))
+                        new("auth", Services.StoreContext.CurrentStore.GetBaseUrl().TrimEnd('/'))
                     });
 
                     var response = await client.PostAsync(url, formContent);

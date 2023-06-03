@@ -474,7 +474,7 @@ namespace Smartstore.Web.Controllers
 
             var result = await _catalogSearchService.SearchAsync(query);
             var hits = await result.GetHitsAsync();
-            var storeUrl = store.GetHost();
+            var storeUrl = store.GetBaseUrl();
 
             // Prefetching.
             var fileIds = hits

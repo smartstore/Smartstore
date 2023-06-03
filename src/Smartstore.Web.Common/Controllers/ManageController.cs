@@ -6,7 +6,6 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Controllers
 {
-    [RequireSsl]
     [TrackActivity(Order = 100)]
     [SaveChanges(typeof(SmartDbContext), Order = int.MaxValue)]
     public abstract class ManageController : SmartController

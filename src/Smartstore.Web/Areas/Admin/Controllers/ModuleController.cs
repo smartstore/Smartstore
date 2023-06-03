@@ -514,10 +514,10 @@ namespace Smartstore.Admin.Controllers
                     {
                         StoreId = store.Id,
                         StoreName = store.Name,
-                        StoreUrl = store.Url
+                        StoreUrl = store.GetBaseUrl()
                     };
 
-                    var license = await PrepareLicenseLabelModelAsync(licenseModel.LicenseLabel, descriptor, store.Url);
+                    var license = await PrepareLicenseLabelModelAsync(licenseModel.LicenseLabel, descriptor, store.GetBaseUrl());
                     if (license != null)
                     {
                         licenseModel.LicenseKey = license.TruncatedLicenseKey;
@@ -603,7 +603,7 @@ namespace Smartstore.Admin.Controllers
 
                 foreach (var store in allStores.Where(x => x.Id != currentStoreId && x.Url.HasValue()))
                 {
-                    subShopResult = await LicenseChecker.ResetStateAsync(systemName, store.Url);
+                    subShopResult = await LicenseChecker.ResetStateAsync(systemName, store.GetBaseUrl());
                     if (!subShopResult.Success)
                     {
                         result = subShopResult;

@@ -493,7 +493,7 @@ namespace Smartstore.Admin.Controllers
                     var availableResources = checkResult.Resources.First(x => x.Id == availableLanguageSetId.Value);
 
                     var client = _httpClientFactory.CreateClient();
-                    var xmlDoc = await DownloadAvailableResources(client, availableResources.DownloadUrl, Services.StoreContext.CurrentStore.Url);
+                    var xmlDoc = await DownloadAvailableResources(client, availableResources.DownloadUrl, Services.StoreContext.CurrentStore.GetBaseUrl());
 
                     await _xmlResourceManager.ImportResourcesFromXmlAsync(language, xmlDoc, null, false, mode, updateTouched);
 
@@ -532,7 +532,7 @@ namespace Smartstore.Admin.Controllers
                 var ctx = new LanguageDownloadContext(setId)
                 {
                     AvailableResources = resources,
-                    StoreUrl = Services.StoreContext.CurrentStore.Url,
+                    StoreUrl = Services.StoreContext.CurrentStore.GetBaseUrl(),
                     StringResouces = new()
                     {
                         { "Admin.Configuration.Languages.ImportResources", T("Admin.Configuration.Languages.ImportResources") },
@@ -690,7 +690,7 @@ namespace Smartstore.Admin.Controllers
                     client.Timeout = TimeSpan.FromMilliseconds(10000);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
-                    client.DefaultRequestHeaders.Add("Authorization-Key", Services.StoreContext.CurrentStore.Url.EmptyNull().TrimEnd('/'));
+                    client.DefaultRequestHeaders.Add("Authorization-Key", Services.StoreContext.CurrentStore.GetBaseUrl().TrimEnd('/'));
 
                     var url = Services.ApplicationContext.AppConfiguration.TranslateCheckUrl.FormatInvariant(currentVersion);
                     var response = await client.GetAsync(url);

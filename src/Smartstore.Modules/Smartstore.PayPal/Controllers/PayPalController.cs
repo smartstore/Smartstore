@@ -182,8 +182,8 @@ namespace Smartstore.PayPal.Controllers
 
             // Get ReturnUrl & CancelUrl and add them to PayPalApplicationContext for proper redirection after payment was made or cancelled.
             var store = Services.StoreContext.CurrentStore;
-            orderMessage.AppContext.ReturnUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionSuccess), "PayPal"), true);
-            orderMessage.AppContext.CancelUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionCancel), "PayPal"), true);
+            orderMessage.AppContext.ReturnUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionSuccess), "PayPal"));
+            orderMessage.AppContext.CancelUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionCancel), "PayPal"));
 
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
