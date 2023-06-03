@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- `Store.SecureUrl` and `Store.ForceSslForAllPages` are deprecated now. By default, all pages are secured if `Store.SslEnabled` is true.
 - Reindexing of MegaSearch search index required to include new category tree path.
 
 ### New Features
