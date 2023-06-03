@@ -17,14 +17,18 @@ namespace Smartstore.Core.Seo.Routing
     {
         #region Static
 
-        private static RouteOptions _routeOptions = default!;
+        private static RouteOptions? _routeOptions;
 
         /// <summary>
         /// For testing purposes.
         /// </summary>
         internal static RouteOptions RouteOptions
         {
-            get => _routeOptions ??= (EngineContext.Current.Application.Services.ResolveOptional<IOptions<RouteOptions>>()?.Value ?? new RouteOptions());
+            get
+            {
+                _routeOptions ??= EngineContext.Current.Application.Services.ResolveOptional<IOptions<RouteOptions>>()?.Value;
+                return _routeOptions ?? new RouteOptions { AppendTrailingSlash = true, LowercaseUrls = true };
+            }
             set => _routeOptions = Guard.NotNull(value);
         }
 
