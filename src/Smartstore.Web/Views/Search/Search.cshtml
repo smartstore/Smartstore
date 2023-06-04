@@ -24,7 +24,7 @@
 
 <div class="page search-page">
     <div class="page-title">
-        <h1 class="h3">
+        <h1 class="h3 d-flex align-items-baseline">
             @if (encodedTerm.HasValue())
             {
                 @Html.Raw(T("Search.PageTitle", "<small class='search-term'>" + encodedTerm + "</small>"))

@@ -30,7 +30,7 @@
                 langAttrs = $" lang=\"{Model.TagName.CurrentLanguage.GetTwoLetterISOLanguageName()}\" dir=\"rtl\"";
             }
         }
-        <h1 class="h3 d-flex align-items-baseline">@Html.Raw(T("Products.Tags.ProductsTaggedWith", $"<small{langAttrs} class='search-term pl-2'>{Model.TagName}</small>"))</h1>
+        <h1 class="h3 d-flex align-items-baseline">@Html.Raw(T("Products.Tags.ProductsTaggedWith", $"<small{langAttrs} class='search-term'>{Model.TagName}</small>"))</h1>
 
         @if (Model.SearchResult.TotalHitsCount > 0)
         {
