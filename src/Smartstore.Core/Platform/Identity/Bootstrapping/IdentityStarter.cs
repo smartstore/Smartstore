@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -10,6 +11,7 @@ using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
 
@@ -34,19 +36,21 @@ namespace Smartstore.Core.Bootstrapping
             {
                 services.ConfigureApplicationCookie(options =>
                 {
+                    var ctx = appContext.Services.Resolve<IHttpContextAccessor>()?.HttpContext;
+
                     options.Cookie.Name = CookieNames.Identity;
-                    options.LoginPath = "/login";
-                    options.LogoutPath = "/logout";
-                    options.AccessDeniedPath = "/access-denied";
+                    options.LoginPath = RouteHelper.NormalizePathComponent("/login");
+                    options.LogoutPath = RouteHelper.NormalizePathComponent("/logout");
+                    options.AccessDeniedPath = RouteHelper.NormalizePathComponent("/access-denied");
                     options.ReturnUrlParameter = "returnUrl";
                 });
 
                 services.ConfigureExternalCookie(options =>
                 {
                     options.Cookie.Name = CookieNames.ExternalAuthentication;
-                    options.LoginPath = "/login";
-                    options.LogoutPath = "/logout";
-                    options.AccessDeniedPath = "/access-denied";
+                    options.LoginPath = RouteHelper.NormalizePathComponent("/login");
+                    options.LogoutPath = RouteHelper.NormalizePathComponent("/logout");
+                    options.AccessDeniedPath = RouteHelper.NormalizePathComponent("/access-denied");
                     options.ReturnUrlParameter = "returnUrl";
                 });
 
