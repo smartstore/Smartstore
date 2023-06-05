@@ -312,7 +312,7 @@ namespace Smartstore.Admin.Controllers
 
             model.Id = returnRequest.Id;
             model.ProductId = orderItem?.ProductId ?? 0;
-            model.ProductSku = orderItem?.Product?.Sku;
+            model.ProductSku = orderItem?.Sku?.NullEmpty() ?? orderItem?.Product?.Sku;
             model.ProductName = orderItem?.Product?.Name;
             model.ProductTypeName = orderItem?.Product?.GetProductTypeLabel(Services.Localization);
             model.ProductTypeLabelHint = orderItem?.Product?.ProductTypeLabelHint;

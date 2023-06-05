@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Attributes;
@@ -47,6 +46,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets or sets the product identifier
         /// </summary>
         public int ProductId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the stock keeping unit (SKU).
+        /// This is either the SKU of the product variant if a variant was ordered, otherwise the product SKU.
+        /// </summary>
+        [StringLength(400)]
+        public string Sku { get; set; }
 
         /// <summary>
         /// Gets or sets the quantity

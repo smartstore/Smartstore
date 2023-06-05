@@ -20,8 +20,8 @@ namespace Smartstore.Core.Checkout.Cart
     public partial class ShoppingCartService : IShoppingCartService
     {
         // 0 = CustomerId, 1 = CartType, 2 = StoreId
-        private const string CART_ITEMS_KEY = "shoppingcartitems:{0}-{1}-{2}";
-        private const string CART_ITEMS_PATTERN_KEY = "shoppingcartitems:*";
+        private const string CartItemsKey = "shoppingcartitems:{0}-{1}-{2}";
+        private const string CartItemsPatternKey = "shoppingcartitems:*";
 
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
@@ -66,8 +66,8 @@ namespace Smartstore.Core.Checkout.Cart
 
         public virtual async Task AddItemToCartAsync(AddToCartContext ctx)
         {
-            Guard.NotNull(ctx, nameof(ctx));
-            Guard.NotNull(ctx.Item, nameof(ctx.Item));
+            Guard.NotNull(ctx);
+            Guard.NotNull(ctx.Item);
 
             var customer = ctx.Customer ?? _workContext.CurrentCustomer;
 
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         public virtual async Task<bool> AddToCartAsync(AddToCartContext ctx)
         {
-            Guard.NotNull(ctx, nameof(ctx));
+            Guard.NotNull(ctx);
 
             // This is called when customer adds a product to cart
             ctx.Customer ??= _workContext.CurrentCustomer;
@@ -249,7 +249,7 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
-            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
+            _requestCache.RemoveByPattern(CartItemsPatternKey);
 
             // If ctx.Product is a bundle product and the setting to automatically add bundle products is true, try to add all corresponding BundleItems.
 
@@ -302,7 +302,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         public virtual async Task<bool> CopyAsync(AddToCartContext ctx)
         {
-            Guard.NotNull(ctx, nameof(ctx));
+            Guard.NotNull(ctx);
 
             var childItems = ctx.ChildItems;
             ctx.ChildItems = new();
@@ -333,14 +333,14 @@ namespace Smartstore.Core.Checkout.Cart
                 return false;
             }
 
-            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
+            _requestCache.RemoveByPattern(CartItemsPatternKey);
 
             return !ctx.Warnings.Any();
         }
 
         public virtual async Task DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
         {
-            Guard.NotNull(cartItem, nameof(cartItem));
+            Guard.NotNull(cartItem);
 
             var customer = cartItem.Customer;
             var storeId = cartItem.StoreId;
@@ -364,7 +364,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             await _db.SaveChangesAsync();
 
-            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
+            _requestCache.RemoveByPattern(CartItemsPatternKey);
 
             if (removeInvalidCheckoutAttributes && cartItem.ShoppingCartType == ShoppingCartType.ShoppingCart && customer != null)
             {
@@ -374,7 +374,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         public virtual async Task<int> DeleteCartAsync(ShoppingCart cart, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             var itemsToDelete = new List<ShoppingCartItem>(cart.Items.Select(x => x.Item));
 
@@ -388,7 +388,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             var num = await _db.SaveChangesAsync();
 
-            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
+            _requestCache.RemoveByPattern(CartItemsPatternKey);
 
             if (resetCheckoutData)
             {
@@ -407,7 +407,7 @@ namespace Smartstore.Core.Checkout.Cart
         {
             customer ??= _workContext.CurrentCustomer;
 
-            var cacheKey = CART_ITEMS_KEY.FormatInvariant(customer.Id, (int)cartType, storeId);
+            var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId);
 
             var result = _requestCache.Get(cacheKey, async () =>
             {
@@ -484,7 +484,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         public virtual async Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
 
             await LoadCartItemCollection(customer);
 
@@ -532,7 +532,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             await _db.SaveChangesAsync();
 
-            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
+            _requestCache.RemoveByPattern(CartItemsPatternKey);
 
             return warnings;
         }
@@ -579,7 +579,7 @@ namespace Smartstore.Core.Checkout.Cart
             var mergeRequiringItems = new List<ShoppingCartItem>();
             var childItemsMap = items.ToMultimap(x => x.ParentItemId ?? 0, x => x);
 
-            foreach (var parent in items.Where(x => x.ParentItemId == null))
+            foreach (var parent in items.Where(x => x.ParentItemId == null).OrderBy(x => x.Id))
             {
                 var parentItem = new OrganizedShoppingCartItem(parent);
 

@@ -377,10 +377,12 @@ namespace Smartstore.Google.Analytics.Services
                             item.Product.MergeWithCombination(attributeCombination);
                         }
 
+                        var sku = item.Sku.NullEmpty() ?? item.Product.Sku;
+
                         var itemTokens = new Dictionary<string, Func<string>>
                         {
                             ["ORDERID"] = () => order.GetOrderNumber(),
-                            ["PRODUCTSKU"] = () => FixIllegalJavaScriptChars(item.Product.Sku),
+                            ["PRODUCTSKU"] = () => FixIllegalJavaScriptChars(sku),
                             ["PRODUCTNAME"] = () => FixIllegalJavaScriptChars(item.Product.Name),
                             ["CATEGORYNAME"] = () => FixIllegalJavaScriptChars(categoryName),
                             ["UNITPRICE"] = () => item.UnitPriceInclTax.ToStringInvariant("0.00"),

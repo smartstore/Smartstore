@@ -727,13 +727,14 @@ namespace Smartstore.Core.Checkout.Orders
                     var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
                     var discountTax = await _taxCalculator.CalculateProductTaxAsync(product, subtotal.DiscountAmount.Amount, null, ctx.Customer);
 
-                    subtotal.AppliedDiscounts.Each(x => ctx.AddDiscount(x));
+                    subtotal.AppliedDiscounts.Each(ctx.AddDiscount);
 
                     var orderItem = new OrderItem
                     {
                         OrderItemGuid = Guid.NewGuid(),
                         Order = ctx.Order,
                         ProductId = item.ProductId,
+                        Sku = product.Sku,
                         UnitPriceInclTax = unitPrice.Tax.Value.PriceGross,
                         UnitPriceExclTax = unitPrice.Tax.Value.PriceNet,
                         PriceInclTax = subtotal.Tax.Value.PriceGross,
@@ -820,6 +821,7 @@ namespace Smartstore.Core.Checkout.Orders
                         OrderItemGuid = Guid.NewGuid(),
                         Order = ctx.Order,
                         ProductId = oi.ProductId,
+                        Sku = oi.Sku,
                         UnitPriceInclTax = oi.UnitPriceInclTax,
                         UnitPriceExclTax = oi.UnitPriceExclTax,
                         PriceInclTax = oi.PriceInclTax,

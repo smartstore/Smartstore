@@ -1543,6 +1543,8 @@ namespace Smartstore.Admin.Controllers
                 return View(model);
             }
 
+            await _productAttributeMaterializer.MergeWithCombinationAsync(product, selection);
+
             var attributeDescription = await _productAttributeFormatter.Value.FormatAttributesAsync(selection, product, order.Customer);
             var productCost = await _priceCalculationService.Value.CalculateProductCostAsync(product, selection);
 
@@ -1557,6 +1559,7 @@ namespace Smartstore.Admin.Controllers
                 OrderItemGuid = Guid.NewGuid(),
                 Order = order,
                 ProductId = product.Id,
+                Sku = product.Sku,
                 UnitPriceInclTax = model.UnitPriceInclTax,
                 UnitPriceExclTax = model.UnitPriceExclTax,
                 PriceInclTax = model.PriceInclTax,
@@ -2110,7 +2113,7 @@ namespace Smartstore.Admin.Controllers
 
                 var model = MiniMapper.Map<OrderItem, OrderModel.OrderItemModel>(item);
                 model.ProductName = product.GetLocalized(x => x.Name);
-                model.Sku = product.Sku;
+                model.Sku = item.Sku.NullEmpty() ?? product.Sku;
                 model.ProductType = product.ProductType;
                 model.ProductTypeName = product.GetProductTypeLabel(Services.Localization);
                 model.ProductTypeLabelHint = product.ProductTypeLabelHint;

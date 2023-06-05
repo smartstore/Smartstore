@@ -341,7 +341,7 @@ namespace Smartstore.Web.Controllers
                 var shipmentItemModel = new ShipmentDetailsModel.ShipmentItemModel
                 {
                     Id = shipmentItem.Id,
-                    Sku = orderItem.Product.Sku,
+                    Sku = orderItem.Sku.NullEmpty() ?? orderItem.Product.Sku,
                     ProductId = orderItem.Product.Id,
                     ProductName = orderItem.Product.GetLocalized(x => x.Name),
                     ProductSeName = await orderItem.Product.GetActiveSlugAsync(),

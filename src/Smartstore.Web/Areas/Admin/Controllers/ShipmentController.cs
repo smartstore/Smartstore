@@ -530,7 +530,7 @@ namespace Smartstore.Admin.Controllers
                 ProductType = product.ProductType,
                 ProductTypeName = product.GetProductTypeLabel(Services.Localization),
                 ProductTypeLabelHint = product.ProductTypeLabelHint,
-                Sku = product.Sku,
+                Sku = orderItem.Sku.NullEmpty() ?? product.Sku,
                 Gtin = product.Gtin,
                 AttributeInfo = orderItem.AttributeDescription,
                 ItemWeight = orderItem.ItemWeight.HasValue
