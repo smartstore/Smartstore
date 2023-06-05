@@ -16,6 +16,7 @@
 - Web API:
   - #709 added an endpoint that returns order data prepared for an invoice (including variant SKU).
   - #717 added `GiftCard`, `GiftCardUsageHistory` and `DiscountUsageHistory`.
+  - #723 store the SKU of the ordered product variant at the `OrderItem` entity.
 - Added settings for more social links (Flickr, LinkedIn, Xing, TikTok, Snapchat, Vimeo, Tumblr, Ello, Behance) to be displayed in the footer.
 - SEO: trailing slash options for internal links (*Append trailing slash to links*, *Trailing slash mismatch rule*)
 
