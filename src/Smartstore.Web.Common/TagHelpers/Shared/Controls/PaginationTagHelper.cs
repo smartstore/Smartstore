@@ -156,7 +156,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // First link.
             if (ShowFirst /*&& pageNumber > 1*/)
             {
-                item = new PagerItem(T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
+                item = new PagerItem(1, T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
                 {
                     State = (pageNumber > 1) ? PagerItemState.Normal : PagerItemState.Disabled
                 };
@@ -166,7 +166,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Previous link.
             if (ShowPrevious /*&& pageNumber > 1*/)
             {
-                item = new PagerItem(T("Pager.Previous"), GenerateUrl(pageNumber - 1), PagerItemType.PreviousPage)
+                item = new PagerItem(pageNumber - 1, T("Pager.Previous"), GenerateUrl(pageNumber - 1), PagerItemType.PreviousPage)
                 {
                     State = (pageNumber > 1) ? PagerItemState.Normal : PagerItemState.Disabled
                 };
@@ -181,9 +181,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             // Next link.
             var hasNext = false;
-            if (ShowNext /*&& pageNumber < pageCount*/)
+            if (ShowNext)
             {
-                item = new PagerItem(T("Pager.Next"), GenerateUrl(pageNumber + 1), PagerItemType.NextPage)
+                item = new PagerItem(pageNumber + 1, T("Pager.Next"), GenerateUrl(pageNumber + 1), PagerItemType.NextPage)
                 {
                     State = (pageNumber == pageCount) ? PagerItemState.Disabled : PagerItemState.Normal
                 };
@@ -194,7 +194,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Last link.
             if (ShowLast /*&& pageNumber < pageCount*/)
             {
-                item = new PagerItem(T("Pager.Last"), GenerateUrl(pageCount), PagerItemType.LastPage)
+                item = new PagerItem(pageCount, T("Pager.Last"), GenerateUrl(pageCount), PagerItemType.LastPage)
                 {
                     State = (pageNumber == pageCount) ? PagerItemState.Disabled : PagerItemState.Normal
                 };
@@ -226,13 +226,13 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (start > 3 && !ShowFirst)
             {
-                items.Add(new PagerItem("1", GenerateUrl(1)));
-                items.Add(new PagerItem("...", "", PagerItemType.Text));
+                items.Add(new PagerItem(1, "1", GenerateUrl(1)));
+                items.Add(new PagerItem(-1, "...", "", PagerItemType.Text));
             }
 
             for (int i = start; i <= end; i++)
             {
-                var item = new PagerItem(i.ToString(), GenerateUrl(i));
+                var item = new PagerItem(i, i.ToString(), GenerateUrl(i));
                 if (i == pageNumber && !SkipActiveState)
                 {
                     item.State = PagerItemState.Selected;
@@ -242,8 +242,8 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (end < (pageCount - 3) && !ShowLast)
             {
-                items.Add(new PagerItem("...", "", PagerItemType.Text));
-                items.Add(new PagerItem(pageCount.ToString(), GenerateUrl(pageCount)));
+                items.Add(new PagerItem(-1, "...", "", PagerItemType.Text));
+                items.Add(new PagerItem(pageCount, pageCount.ToString(), GenerateUrl(pageCount)));
             }
         }
 
