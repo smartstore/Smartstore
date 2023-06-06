@@ -28,10 +28,10 @@ namespace Smartstore.Net.Mail
 
         public MailMessage(string to, string subject, string body, string from)
         {
-            Guard.NotEmpty(to, nameof(to));
-            Guard.NotEmpty(subject, nameof(subject));
-            Guard.NotEmpty(body, nameof(body));
-            Guard.NotEmpty(from, nameof(from));
+            Guard.NotEmpty(to);
+            Guard.NotEmpty(subject);
+            Guard.NotEmpty(body);
+            Guard.NotEmpty(from);
 
             To.AddRange(TokenizeAddressParameter(to));
             Subject = subject;
@@ -42,10 +42,10 @@ namespace Smartstore.Net.Mail
         public MailMessage(MailAddress to, string subject, string body, MailAddress from)
             : this()
         {
-            Guard.NotNull(to, nameof(to));
-            Guard.NotEmpty(subject, nameof(subject));
-            Guard.NotEmpty(body, nameof(body));
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(to);
+            Guard.NotEmpty(subject);
+            Guard.NotEmpty(body);
+            Guard.NotNull(from);
 
             To.Add(to);
             Subject = subject;
@@ -73,13 +73,12 @@ namespace Smartstore.Net.Mail
             return addresses
                 .Trim()
                 .SplitSafe(';')
-                .Where(x => x.Trim().HasValue())
                 .Select(x => new MailAddress(x));
         }
 
         public async Task BodyFromFileAsync(string filePathOrUrl)
         {
-            Guard.NotEmpty(filePathOrUrl, nameof(filePathOrUrl));
+            Guard.NotEmpty(filePathOrUrl);
 
             StreamReader sr;
 

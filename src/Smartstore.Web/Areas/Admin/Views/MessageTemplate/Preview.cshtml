@@ -17,11 +17,6 @@
     return;
 }
 
-@{
-    var from = new MailAddress(Model.From);
-    var replyTo = Model.ReplyTo.HasValue() ? new MailAddress(Model.ReplyTo) : (MailAddress)null;
-}
-
 <script sm-target-zone="scripts" data-origin="message-template-preview">
 	function onTestMailSent(xhr) {
 		if (xhr && xhr.responseJSON && xhr.responseJSON.success) {
@@ -59,15 +54,15 @@
             <div class="text-white">
                 <div class="form-row flex-nowrap">
                     <div class="col font-weight-medium" style="max-width: 100px">@T("Admin.MessageTemplate.Preview.From"):</div>
-                    <div class="col text-truncate"><span title="@Model.From">@from.Address</span></div>
+                    <div class="col text-truncate"><span title="@Model.From">@Model.From</span></div>
                 </div>
                 <div class="form-row flex-nowrap">
                     <div class="col font-weight-medium" style="max-width: 100px">@T("Admin.MessageTemplate.Preview.To"):</div>
                     <div class="col text-truncate"><span title="@Model.To">@Model.To</span></div>
                 </div>
-                <div sm-if="replyTo != null" class="form-row flex-nowrap">
+                <div sm-if="Model.ReplyTo.HasValue()" class="form-row flex-nowrap">
                     <div class="col font-weight-medium" style="max-width: 100px">@T("Admin.MessageTemplate.Preview.ReplyTo"):</div>
-                    <div class="col text-truncate"><span title="@Model.ReplyTo">@replyTo.Address</span></div>
+                    <div class="col text-truncate"><span title="@Model.ReplyTo">@Model.ReplyTo</span></div>
                 </div>
                 <div class="mt-2 fs-h6" style="opacity:0.7">@Model.Subject</div>
             </div>

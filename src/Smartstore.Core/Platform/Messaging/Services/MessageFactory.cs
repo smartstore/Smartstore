@@ -197,16 +197,10 @@ namespace Smartstore.Core.Messaging
 
                 if (required || parsed.HasValue())
                 {
-                    var parsedEmails = new List<MailAddress>();
-                    var emails = parsed.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(x => x.Trim())
-                        .Where(x => x.HasValue())
+                    var parsedEmails = parsed
+                        .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Select(e => e.Convert<MailAddress>())
                         .ToList();
-
-                    foreach (var e in emails)
-                    {
-                        parsedEmails.Add(e.Convert<MailAddress>());
-                    }
 
                     return parsedEmails;
                 }
