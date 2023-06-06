@@ -6,8 +6,10 @@ namespace Smartstore.Core.Content.Menus
     /// The parsed representation of a link expression.
     /// </summary>
     [DebuggerDisplay("LinkExpression: {RawExpression}")]
-    public class LinkExpression
+    public class LinkExpression : ICloneable<LinkExpression>
     {
+        private static readonly string[] _knownSchemas = new[] { "http", "https", "mailto", "javascript" };
+
         public string RawExpression { get; private set; }
 
         public string Schema { get; private set; }
@@ -33,12 +35,19 @@ namespace Smartstore.Core.Content.Menus
 
             if (!TokenizeExpression(result) || string.IsNullOrWhiteSpace(result.Schema))
             {
-                result.Schema = "url";
-                result.Target = expression.EmptyNull();
-                result.Query = string.Empty;
+                result.Reset();
             }
 
             return result;
+        }
+
+        internal LinkExpression Reset()
+        {
+            Schema = "url";
+            Target = RawExpression.EmptyNull();
+            Query = string.Empty;
+
+            return this;
         }
 
         private static bool TokenizeExpression(LinkExpression expression)
@@ -52,7 +61,7 @@ namespace Smartstore.Core.Content.Menus
             if (colonIndex > -1)
             {
                 expression.Schema = expression.RawExpression[..colonIndex].ToLower();
-                if (expression.Schema.StartsWith("http") || expression.Schema.EqualsNoCase("mailto"))
+                if (_knownSchemas.Any(x => x.EqualsNoCase(expression.Schema)))
                 {
                     expression.Schema = null;
                     colonIndex = -1;
@@ -81,5 +90,21 @@ namespace Smartstore.Core.Content.Menus
 
         public override string ToString()
             => RawExpression;
+
+        public LinkExpression Clone()
+        {
+            return new LinkExpression
+            {
+                RawExpression = RawExpression,
+                Schema = Schema,
+                Target = Target,
+                Query = Query
+            };
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
     }
 }

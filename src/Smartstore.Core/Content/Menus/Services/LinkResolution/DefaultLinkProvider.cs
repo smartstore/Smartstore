@@ -14,7 +14,7 @@ namespace Smartstore.Core.Content.Menus
         public const string SchemaCategory = "category";
         public const string SchemaManufacturer = "manufacturer";
 
-        private static string[] _supportedSchemas =
+        private static readonly string[] _supportedSchemas =
             new[] { SchemaTopic, SchemaProduct, SchemaCategory, SchemaManufacturer };
 
         private readonly SmartDbContext _db;

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Caching;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -68,18 +67,15 @@ namespace Smartstore.Core.Content.Menus
             {
                 lock (_lock)
                 {
-                    if (_metadata == null)
-                    {
-                        _metadata = providers
-                            .SelectMany(x => x.GetBuilderMetadata())
-                            .Concat(new[]
-                            {
-                                new LinkBuilderMetadata { Schema = SchemaFile, Icon = "far fa-folder-open", ResKey = "Common.File", Order = 100 },
-                                new LinkBuilderMetadata { Schema = SchemaUrl, Icon = "fa fa-link", ResKey = "Common.Url", Order = 200 }
-                            })
-                            .OrderBy(x => x.Order)
-                            .ToArray();
-                    }
+                    _metadata ??= providers
+                        .SelectMany(x => x.GetBuilderMetadata())
+                        .Concat(new[]
+                        {
+                            new LinkBuilderMetadata { Schema = SchemaFile, Icon = "far fa-folder-open", ResKey = "Common.File", Order = 100 },
+                            new LinkBuilderMetadata { Schema = SchemaUrl, Icon = "fa fa-link", ResKey = "Common.Url", Order = 200 }
+                        })
+                        .OrderBy(x => x.Order)
+                        .ToArray();
                 }
             }
         }
@@ -93,7 +89,7 @@ namespace Smartstore.Core.Content.Menus
 
             if (expression.Target.IsEmpty())
             {
-                return new LinkResolutionResult(expression, LinkStatus.NotFound);
+                return new(expression, LinkStatus.NotFound);
             }
 
             if (expression.Schema == SchemaUrl)
@@ -104,20 +100,20 @@ namespace Smartstore.Core.Content.Menus
                     url = _urlHelper.Value.Content(url);
                 }
 
-                return new LinkResolutionResult(expression, new LinkTranslationResult { Link = url }, LinkStatus.Ok);
+                return new(expression, new() { Link = url, Label = url }, LinkStatus.Ok);
             }
             else if (expression.Schema == SchemaFile)
             {
-                return new LinkResolutionResult(
-                    expression,
-                    new LinkTranslationResult { Link = expression.Target, Label = expression.Target },
-                    LinkStatus.Ok);
+                return new(expression, new() { Link = expression.Target, Label = expression.Target }, LinkStatus.Ok);
+            }
+            else if (expression.Schema.HasValue() && !_metadata.Any(x => x.Schema == expression.Schema))
+            {
+                // Provide fallback for unknown schema.
+                var clone = expression.Clone().Reset();
+                return new(clone, new() { Link = clone.RawExpression, Label = clone.RawExpression }, LinkStatus.Ok);
             }
 
-            if (roles == null)
-            {
-                roles = _workContext.CurrentCustomer.CustomerRoleMappings.Select(x => x.CustomerRole);
-            }
+            roles ??= _workContext.CurrentCustomer.CustomerRoleMappings.Select(x => x.CustomerRole);
 
             if (languageId == 0)
             {
@@ -133,7 +129,7 @@ namespace Smartstore.Core.Content.Menus
                 expression.SchemaAndTarget.ToLower(),
                 languageId,
                 storeId,
-                string.Join(",", roles.Where(x => x.Active).Select(x => x.Id)));
+                string.Join(',', roles.Where(x => x.Active).Select(x => x.Id)));
 
             var cachedResult = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
@@ -188,13 +184,13 @@ namespace Smartstore.Core.Content.Menus
                 }
             }
 
-            return new LinkResolutionResult(expression, cachedResult, status);
+            return new(expression, cachedResult, status);
         }
 
         public virtual void InvalidateLink(string schema, object target)
         {
-            Guard.NotEmpty(schema, nameof(schema));
-            Guard.NotNull(target, nameof(target));
+            Guard.NotEmpty(schema);
+            Guard.NotNull(target);
 
             var keyPattern = LinkCacheKeyPattern.FormatInvariant(string.Concat(schema, ":", target));
             _cacheFactory.GetMemoryCache().RemoveByPattern(keyPattern);

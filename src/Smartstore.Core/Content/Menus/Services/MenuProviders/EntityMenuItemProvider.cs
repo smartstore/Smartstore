@@ -42,10 +42,14 @@ namespace Smartstore.Core.Content.Menus
             if (request.IsEditMode)
             {
                 var info = _linkResolver.GetBuilderMetadata().FirstOrDefault(x => x.Schema == result.Expression.Schema);
-                item.Summary = T(info.ResKey);
-                item.Icon = info.Icon;
 
-                if (item.Url.IsEmpty())
+                if (info != null)
+                {
+                    item.Summary = T(info.ResKey);
+                    item.Icon = info.Icon;
+                }
+
+                if (info == null || item.Url.IsEmpty())
                 {
                     item.Text = null;
                     item.ResKey = "Admin.ContentManagement.Menus.SpecifyLinkTarget";

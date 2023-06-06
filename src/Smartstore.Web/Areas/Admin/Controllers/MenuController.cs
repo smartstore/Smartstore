@@ -71,7 +71,6 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareModelAsync(MenuItemModel model, MenuItemEntity entity)
         {
-            Lazy<IMenuItemProvider, MenuItemProviderMetadata> provider = null;
             var entities = await _db.MenuItems
                 .AsNoTracking()
                 .Include(x => x.Menu)
@@ -87,7 +86,7 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(entity);
             }
 
-            if (_menuItemProviders.TryGetValue(model.ProviderName, out provider))
+            if (_menuItemProviders.TryGetValue(model.ProviderName, out var provider))
             {
                 model.ProviderAppendsMultipleItems = provider.Metadata.AppendsMultipleItems;
             }
