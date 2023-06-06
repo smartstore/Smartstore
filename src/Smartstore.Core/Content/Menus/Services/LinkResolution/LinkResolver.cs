@@ -109,7 +109,7 @@ namespace Smartstore.Core.Content.Menus
             else if (expression.Schema.HasValue() && !_metadata.Any(x => x.Schema == expression.Schema))
             {
                 // Provide fallback for unknown schema.
-                var clone = expression.Clone().Reset();
+                var clone = expression.Clone().ConvertToUrl();
                 return new(clone, new() { Link = clone.RawExpression, Label = clone.RawExpression }, LinkStatus.Ok);
             }
 

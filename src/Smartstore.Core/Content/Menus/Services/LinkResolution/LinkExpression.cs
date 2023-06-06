@@ -35,13 +35,13 @@ namespace Smartstore.Core.Content.Menus
 
             if (!TokenizeExpression(result) || string.IsNullOrWhiteSpace(result.Schema))
             {
-                result.Reset();
+                result.ConvertToUrl();
             }
 
             return result;
         }
 
-        internal LinkExpression Reset()
+        internal LinkExpression ConvertToUrl()
         {
             Schema = "url";
             Target = RawExpression.EmptyNull();
