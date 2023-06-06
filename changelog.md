@@ -48,6 +48,7 @@
 - Fixed unpublished products should be assignable as "promoted" to a product.
 - `SequentialDataReader`: fixed a problem where occasionally nullable string fields were not read
 - UrlRewriter: raw rules were not loaded from legacy storage
+- #731 Entering invalid URL as menu item url results in unrecoverable error.
 - Fixed a topic was not editable if a menu link with an invalid target was associated.
 - `MainMenuShrinker` was missing.
 - Added missing properties in customer grid.
