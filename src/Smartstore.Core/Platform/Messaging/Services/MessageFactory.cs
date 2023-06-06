@@ -148,9 +148,9 @@ namespace Smartstore.Core.Messaging
             {
                 Priority = 5,
                 From = messageContext.SenderMailAddress ?? messageContext.EmailAccount.ToMailAddress(),
-                To = to.ToString(),
+                To = string.Join(";", to.Select(x => x.ToString())),
                 Bcc = bcc,
-                ReplyTo = replyTo?.ToString(),
+                ReplyTo = replyTo == null ? null : string.Join(";", replyTo.Select(x => x.ToString())),
                 Subject = subject,
                 Body = body,
                 CreatedOnUtc = DateTime.UtcNow,
@@ -187,7 +187,7 @@ namespace Smartstore.Core.Messaging
             await _db.SaveChangesAsync();
         }
 
-        private async Task<MailAddress> RenderEmailAddressAsync(string email, MessageContext ctx, bool required = true)
+        private async Task<List<MailAddress>> RenderEmailAddressAsync(string email, MessageContext ctx, bool required = true)
         {
             string parsed = null;
 
@@ -197,7 +197,18 @@ namespace Smartstore.Core.Messaging
 
                 if (required || parsed.HasValue())
                 {
-                    return parsed.Convert<MailAddress>();
+                    var parsedEmails = new List<MailAddress>();
+                    var emails = parsed.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .Where(x => x.HasValue())
+                        .ToList();
+
+                    foreach (var e in emails)
+                    {
+                        parsedEmails.Add(e.Convert<MailAddress>());
+                    }
+
+                    return parsedEmails;
                 }
                 else
                 {
@@ -208,7 +219,7 @@ namespace Smartstore.Core.Messaging
             {
                 if (ctx.TestMode)
                 {
-                    return new MailAddress("john@doe.com", "John Doe");
+                    return new List<MailAddress>() { new MailAddress("john@doe.com", "John Doe") };
                 }
 
                 var ex2 = new InvalidOperationException($"Failed to parse email address for variable '{email}'. Value was '{parsed.EmptyNull()}': {ex.Message}", ex);
