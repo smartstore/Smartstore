@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Orders;
+﻿using Smartstore.Core;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 
@@ -9,11 +10,13 @@ namespace Smartstore.PayPal.Services
     /// </summary>
     public partial class PayUponInvoicePaymentFilter : IPaymentMethodFilter
     {
+        private readonly ICommonServices _services;
         private readonly Lazy<ISettingFactory> _settingFactory;
         private readonly IOrderCalculationService _orderCalculationService;
         
-        public PayUponInvoicePaymentFilter(Lazy<ISettingFactory> settingFactory, IOrderCalculationService orderCalculationService)
+        public PayUponInvoicePaymentFilter(ICommonServices services, Lazy<ISettingFactory> settingFactory, IOrderCalculationService orderCalculationService)
         {
+            _services = services;
             _settingFactory = settingFactory;
             _orderCalculationService = orderCalculationService;
         }
@@ -32,9 +35,13 @@ namespace Smartstore.PayPal.Services
 
                 if (request.Cart != null)
                 {
-                    // Do not render Pay Upon Invoice if order total is above limit.
+                    // Do not render Pay Upon Invoice if order total is above limit or below 5 €.
+                    // Info: it's save to use € here directly, because PayPal offers Pay Upon Invoice only in Germany.
                     var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(request.Cart);
-                    if (cartTotal.Total.HasValue && cartTotal.Total.Value.Amount >= settings.PayUponInvoiceLimit)
+                    if (cartTotal.Total.HasValue 
+                        && cartTotal.Total.Value.Amount >= settings.PayUponInvoiceLimit
+                        && cartTotal.Total.Value.Amount <= 5
+                        && _services.WorkContext.WorkingCurrency.CurrencyCode == "EUR")
                     {
                         return true;
                     }
