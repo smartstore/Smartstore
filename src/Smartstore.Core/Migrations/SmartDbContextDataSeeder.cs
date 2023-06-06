@@ -140,6 +140,9 @@ namespace Smartstore.Core.Data.Migrations
                 $"{storeFields}.SslEnabled.Hint",
                 $"{storeFields}.ForceSslForAllPages",
                 $"{storeFields}.ForceSslForAllPages.Hint");
+
+            builder.AddOrUpdate("Pager.Previous", "Previous", "Zurück");
+            builder.AddOrUpdate("Pager.Next", "Next", "Weiter");
         }
     }
 }

@@ -36,6 +36,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string AlignmentAttributeName = "sm-alignment";
         const string SizeAttributeName = "sm-size";
         const string StyleAttributeName = "sm-style";
+        const string ShowNavLabelAttributeName = "sm-show-nav-label";
         const string ShowFirstAttributeName = "sm-show-first";
         const string ShowLastAttributeName = "sm-show-last";
         const string ShowNextAttributeName = "sm-show-next";
@@ -57,6 +58,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         [HtmlAttributeName(StyleAttributeName)]
         public PagerStyle Style { get; set; }
+
+        [HtmlAttributeName(ShowNavLabelAttributeName)]
+        public bool ShowNavLabel { get; set; }
 
         [HtmlAttributeName(ShowFirstAttributeName)]
         public bool ShowFirst { get; set; } = false;
@@ -357,7 +361,17 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (item.IsNavButton)
             {
+                if (ShowNavLabel && item.Type is (PagerItemType.LastPage or PagerItemType.NextPage))
+                {
+                    innerAOrSpan.InnerHtml.AppendHtml($"<span class='pr-1'>{item.Text}</span>");
+                }
+                
                 innerAOrSpan.InnerHtml.AppendHtml(iconI);
+
+                if (ShowNavLabel && item.Type is (PagerItemType.FirstPage or PagerItemType.PreviousPage))
+                {
+                    innerAOrSpan.InnerHtml.AppendHtml($"<span class='pl-1'>{item.Text}</span>");
+                }
             }
 
             return innerAOrSpan;
