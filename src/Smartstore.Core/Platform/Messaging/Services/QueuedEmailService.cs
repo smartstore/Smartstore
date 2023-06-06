@@ -163,7 +163,6 @@ namespace Smartstore.Core.Messaging
             target.AddRange(addresses
                 .TrimSafe()
                 .SplitSafe(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Where(x => x.HasValue())
                 .Select(x => new MailAddress(x)));
 
             return target;
@@ -182,15 +181,7 @@ namespace Smartstore.Core.Messaging
 
             if (qe.ReplyTo.HasValue())
             {
-                var emailAddresses = qe.ReplyTo.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .Where(x => x.HasValue())
-                    .ToList();
-
-                foreach (var emailAddress in emailAddresses)
-                {
-                    msg.ReplyTo.Add(new MailAddress(emailAddress));
-                }
+                AddMailAddresses(qe.ReplyTo, msg.ReplyTo);
             }
 
             AddMailAddresses(qe.CC, msg.Cc);
