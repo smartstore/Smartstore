@@ -19,7 +19,6 @@
 
 @{
     var from = new MailAddress(Model.From);
-    var to = new MailAddress(Model.To);
     var replyTo = Model.ReplyTo.HasValue() ? new MailAddress(Model.ReplyTo) : (MailAddress)null;
 }
 
@@ -64,7 +63,7 @@
                 </div>
                 <div class="form-row flex-nowrap">
                     <div class="col font-weight-medium" style="max-width: 100px">@T("Admin.MessageTemplate.Preview.To"):</div>
-                    <div class="col text-truncate"><span title="@Model.To">@to.Address</span></div>
+                    <div class="col text-truncate"><span title="@Model.To">@Model.To</span></div>
                 </div>
                 <div sm-if="replyTo != null" class="form-row flex-nowrap">
                     <div class="col font-weight-medium" style="max-width: 100px">@T("Admin.MessageTemplate.Preview.ReplyTo"):</div>

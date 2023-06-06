@@ -349,8 +349,6 @@ namespace Smartstore.Admin.Controllers
                 model.Token = Guid.NewGuid().ToString();
                 model.BodyUrl = Url.Action("PreviewBody", new { token = model.Token });
 
-                // INFO: (mh) (core) Our hybrid cache does not support sliding or file expirations. Whenever you need expiration logic
-                // other than absolute expiration you need to switch over to native IMemoryCache.
                 using (var entry = _memCache.CreateEntry("mtpreview:" + model.Token))
                 {
                     entry.Value = model;
