@@ -240,11 +240,11 @@ $pagination-focus-outline:          0;
 $pagination-color:					$body-color;
 $pagination-bg:						$gray-100;
 $pagination-border-width:           1px;
-$pagination-border-color:			$pagination-bg;
+$pagination-border-color:			transparent;
 
 $pagination-hover-color:			$pagination-color;
 $pagination-hover-bg:				$gray-200;
-$pagination-hover-border-color:		$pagination-hover-bg;
+$pagination-hover-border-color:		transparent;
 
 $pagination-active-color:			$body-color;
 $pagination-active-bg:				$gray-200;

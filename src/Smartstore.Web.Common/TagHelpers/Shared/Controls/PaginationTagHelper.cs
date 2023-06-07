@@ -78,7 +78,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool ShowPaginator { get; set; } = true;
 
         [HtmlAttributeName(MaxPagesToDisplayAttributeName)]
-        public int MaxPagesToDisplay { get; set; } = 6;
+        public int MaxPagesToDisplay { get; set; } = 7;
 
         [HtmlAttributeName(SkipActiveStateAttributeName)]
         public bool SkipActiveState { get; set; }
@@ -148,7 +148,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         protected List<PagerItem> CreateItemList()
         {
             if (!ShowPaginator || ListItems.TotalPages <= 1)
+            {
                 return new List<PagerItem>();
+            }   
 
             var pageNumber = ListItems.PageNumber;
             var pageCount = ListItems.TotalPages;
@@ -157,8 +159,8 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             PagerItem item;
 
-            // First link.
-            if (ShowFirst /*&& pageNumber > 1*/)
+            // First link
+            if (ShowFirst)
             {
                 item = new PagerItem(1, T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
                 {
@@ -167,8 +169,8 @@ namespace Smartstore.Web.TagHelpers.Shared
                 results.Add(item);
             }
 
-            // Previous link.
-            if (ShowPrevious /*&& pageNumber > 1*/)
+            // Previous link
+            if (ShowPrevious)
             {
                 item = new PagerItem(pageNumber - 1, T("Pager.Previous"), GenerateUrl(pageNumber - 1), PagerItemType.PreviousPage)
                 {
@@ -196,7 +198,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             // Last link.
-            if (ShowLast /*&& pageNumber < pageCount*/)
+            if (ShowLast)
             {
                 item = new PagerItem(pageCount, T("Pager.Last"), GenerateUrl(pageCount), PagerItemType.LastPage)
                 {
@@ -225,10 +227,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             var pageNumber = ListItems.PageNumber;
             var pageCount = ListItems.TotalPages;
 
-            int start = GetFirstPageIndex() + 1;
-            int end = GetLastPageIndex() + 1;
+            var (start, end) = CalculateIndexes(out var startEllipsis, out var endEllipsis);
 
-            if (start > 3 && !ShowFirst)
+            if (startEllipsis)
             {
                 items.Add(new PagerItem(1, "1", GenerateUrl(1)));
                 items.Add(new PagerItem(-1, "...", "", PagerItemType.Text));
@@ -244,7 +245,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 items.Add(item);
             }
 
-            if (end < (pageCount - 3) && !ShowLast)
+            if (endEllipsis)
             {
                 items.Add(new PagerItem(-1, "...", "", PagerItemType.Text));
                 items.Add(new PagerItem(pageCount, pageCount.ToString(), GenerateUrl(pageCount)));
@@ -377,6 +378,53 @@ namespace Smartstore.Web.TagHelpers.Shared
             return innerAOrSpan;
         }
 
+        protected virtual (int start, int end) CalculateIndexes(out bool startEllipsis, out bool endEllipsis)
+        {
+            var items = ListItems;
+            var currentIndex = items.PageNumber;
+            var start = 1;
+            var end = items.TotalPages;
+
+            startEllipsis = false;
+            endEllipsis = false;
+
+            if (items.TotalPages > MaxPagesToDisplay + 1)
+            {
+                // Tolerate +1 to spare ellipsis
+
+                var half = MaxPagesToDisplay / 2;
+
+                start = currentIndex - half;
+                end = currentIndex + half;
+
+                if (start <= 1)
+                {
+                    start = 1;
+                    end = MaxPagesToDisplay;
+                }
+                else if (end >= items.TotalPages)
+                {
+                    end = items.TotalPages;
+                    start = end - MaxPagesToDisplay;
+                }
+
+                // Check if ellipsis items should be displayed
+                if (!ShowFirst && currentIndex > 3)
+                {
+                    startEllipsis = true;
+                    start += 1;
+                }
+
+                if (!ShowLast && currentIndex < (items.TotalPages - 3))
+                {
+                    endEllipsis = true;
+                    end -= 1;
+                }
+            }
+
+            return (start, end);
+        }
+
         /// <summary>
         /// Gets first individual page index.
         /// </summary>
@@ -396,30 +444,30 @@ namespace Smartstore.Web.TagHelpers.Shared
             return ListItems.PageIndex - (MaxPagesToDisplay / 2);
         }
 
-        /// <summary>
-        /// Get last individual page index.
-        /// </summary>
-        /// <returns>Page index</returns>
-        protected virtual int GetLastPageIndex()
-        {
-            int num = MaxPagesToDisplay / 2;
-            if ((MaxPagesToDisplay % 2) == 0)
-            {
-                num--;
-            }
+        ///// <summary>
+        ///// Get last individual page index.
+        ///// </summary>
+        ///// <returns>Page index</returns>
+        //protected virtual int GetLastPageIndex()
+        //{
+        //    int num = MaxPagesToDisplay / 2;
+        //    if ((MaxPagesToDisplay % 2) == 0)
+        //    {
+        //        num--;
+        //    }
 
-            if ((ListItems.TotalPages < MaxPagesToDisplay) || ((ListItems.PageIndex + num) >= ListItems.TotalPages))
-            {
-                return ListItems.TotalPages - 1;
-            }
+        //    if ((ListItems.TotalPages < MaxPagesToDisplay) || ((ListItems.PageIndex + num) >= ListItems.TotalPages))
+        //    {
+        //        return ListItems.TotalPages - 1;
+        //    }
 
-            if ((ListItems.PageIndex - (MaxPagesToDisplay / 2)) < 0)
-            {
-                return MaxPagesToDisplay - 1;
-            }
+        //    if ((ListItems.PageIndex - (MaxPagesToDisplay / 2)) < 0)
+        //    {
+        //        return MaxPagesToDisplay - 1;
+        //    }
 
-            return ListItems.PageIndex + num;
-        }
+        //    return ListItems.PageIndex + num;
+        //}
 
         /// <summary>
         /// Generates and returns URL for pager item.
