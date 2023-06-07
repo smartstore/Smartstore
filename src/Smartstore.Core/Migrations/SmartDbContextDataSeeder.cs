@@ -147,6 +147,19 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.ProductWithDeliveryTimeInCart",
                 "Product with delivery time in cart",
                 "Produkt mit Lieferzeit im Warenkorb");
+
+            builder.AddOrUpdate("Admin.DataExchange.Export.Filter.IncludeSubCategories",
+                "Include subcategories",
+                "Unterkategorien einschließen",
+                "Specifies whether products from subcategories should also be filtered.",
+                "Legt fest, ob Produkte von Unterwarengruppen ebenfalls gefiltert werden sollen.");
+
+            // Typos.
+            builder.AddOrUpdate("Admin.DataExchange.Export.Filter.CategoryIds.Hint")
+                .Value("en", "Filter by categories.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductsFromSubcategories.Hint")
+                .Value("de", "Legt fest, ob Unterwarengruppen in Warengruppen-Detailseiten angezeigt werden sollen.");
         }
     }
 }

@@ -315,7 +315,14 @@
 
 		// Toggle product category filter (cannot be done with toggler because the control is nullable select).
 		$('#@(Html.IdFor(x => x.Filter.WithoutCategories))').on('change', function () {
-			$('#FilterCategoryIdsContainer').toggle(_.isEmpty($(this).val()));
+            $('#CategoryFiltersPanel').toggle(_.isEmpty($(this).val()));
+        }).trigger('change');
+
+        // Toggle category id(s) filter.
+        $('#@(Html.IdFor(x => x.Filter.IncludeSubCategories))').on('change', function () {
+            var isChecked = $(this).is(':checked');
+            $('#CategoryIdPanel').toggle(isChecked);
+            $('#CategoryIdsPanel').toggle(!isChecked);
 		}).trigger('change');
 
 		// Toggle product manufacturer filter (cannot be done with toggler because the control is nullable select).

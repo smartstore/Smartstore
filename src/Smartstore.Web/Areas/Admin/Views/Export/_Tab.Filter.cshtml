@@ -8,11 +8,13 @@
 
 @{
     var stores = (List<SelectListItem>)ViewBag.Stores;
+    string allString = T("Admin.Common.All");
 }
 
 <div sm-if="Model.Provider.EntityType == ExportEntityType.Product" class="adminContent">
     @{
-        var selectedCategories = (List<SelectListItem>)ViewBag.SelectedCategories;
+        var selectedCategoryId = (List<SelectListItem>)ViewBag.SelectedCategoryId;
+        var selectedCategoryIds = (List<SelectListItem>)ViewBag.SelectedCategoryIds;
     }
     <div sm-if="stores.Count > 1" class="adminRow">
         <div class="adminTitle">
@@ -28,7 +30,7 @@
             <smart-label asp-for="Filter.ProductType" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ProductType" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductType))" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.ProductType" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductType))" asp-placeholder="@allString"></select>
             <span asp-validation-for="Filter.ProductType"></span>
         </div>
     </div>
@@ -46,7 +48,7 @@
             <smart-label asp-for="Filter.Visibility" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.Visibility" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductVisibility))" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.Visibility" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductVisibility))" asp-placeholder="@allString"></select>
             <span asp-validation-for="Filter.Visibility"></span>
         </div>
     </div>
@@ -106,28 +108,23 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Filter.WithoutCategories" />
+            <smart-label asp-for="Filter.ProductTagId" />
         </div>
         <div class="adminData">
-            <editor asp-for="Filter.WithoutCategories" />
-            <span asp-validation-for="Filter.WithoutCategories"></span>
+            <select asp-for="Filter.ProductTagId" asp-items="ViewBag.ProductTags" asp-placeholder="@allString"></select>
+            <span asp-validation-for="Filter.ProductTagId"></span>
         </div>
     </div>
-    <div id="FilterCategoryIdsContainer" class="adminRow">
+    <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Filter.CategoryIds" />
+            <smart-label asp-for="Filter.FeaturedProducts" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.CategoryIds" 
-                asp-items="@selectedCategories" 
-                multiple="multiple"
-                data-select="True" 
-                data-select-lazy="True" 
-                data-select-url="@Url.Action("AllCategories", "Category", new { selectedIds = string.Join(",", selectedCategories.Select(x => x.Value)) })">
-            </select>
-            <span asp-validation-for="Filter.CategoryIds"></span>
+            <editor asp-for="Filter.FeaturedProducts" />
+            <span asp-validation-for="Filter.FeaturedProducts"></span>
         </div>
     </div>
+
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="Filter.WithoutManufacturers" />
@@ -142,26 +139,58 @@
             <smart-label asp-for="Filter.ManufacturerId" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ManufacturerId" asp-items="ViewBag.Manufacturers" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.ManufacturerId" asp-items="ViewBag.Manufacturers" asp-placeholder="@allString"></select>
             <span asp-validation-for="Filter.ManufacturerId"></span>
         </div>
     </div>
+
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Filter.ProductTagId" />
+            <smart-label asp-for="Filter.WithoutCategories" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ProductTagId" asp-items="ViewBag.ProductTags" asp-placeholder="@T("Admin.Common.All")"></select>
-            <span asp-validation-for="Filter.ProductTagId"></span>
+            <editor asp-for="Filter.WithoutCategories" />
+            <span asp-validation-for="Filter.WithoutCategories"></span>
         </div>
     </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="Filter.FeaturedProducts" />
+    <div id="CategoryFiltersPanel">
+        <div id="CategoryIdPanel" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Filter.CategoryId" />
+            </div>
+            <div class="adminData">
+                <select asp-for="Filter.CategoryId"
+                        asp-items="@selectedCategoryId"
+                        asp-placeholder="@allString"
+                        data-select-url="@Url.Action("AllCategories", "Category", new { selectedIds = string.Join(",", selectedCategoryId.Select(x => x.Value)) })">
+                </select>
+                <span asp-validation-for="Filter.CategoryId"></span>
+            </div>
         </div>
-        <div class="adminData">
-            <editor asp-for="Filter.FeaturedProducts" />
-            <span asp-validation-for="Filter.FeaturedProducts"></span>
+        <div id="CategoryIdsPanel" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Filter.CategoryIds" />
+            </div>
+            <div class="adminData">
+                <select asp-for="Filter.CategoryIds"
+                        asp-items="@selectedCategoryIds"
+                        asp-placeholder="@allString"
+                        multiple="multiple"
+                        data-select="True"
+                        data-select-lazy="True"
+                        data-select-url="@Url.Action("AllCategories", "Category", new { selectedIds = string.Join(",", selectedCategoryIds.Select(x => x.Value)) })">
+                </select>
+                <span asp-validation-for="Filter.CategoryIds"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Filter.IncludeSubCategories" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Filter.IncludeSubCategories" />
+                <span asp-validation-for="Filter.IncludeSubCategories"></span>
+            </div>
         </div>
     </div>
 </div>
@@ -454,7 +483,7 @@
             <smart-label asp-for="Filter.ShoppingCartTypeId" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ShoppingCartTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ShoppingCartType))" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.ShoppingCartTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ShoppingCartType))" asp-placeholder="@allString"></select>
             <span asp-validation-for="Filter.ShoppingCartTypeId"></span>
         </div>
     </div>

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Export;
 using Smartstore.Admin.Models.Scheduling;
+using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -293,9 +294,9 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 var configInfo = provider.Value.ConfigurationInfo;
-                if (configInfo != null && model.CustomProperties.ContainsKey("ProviderConfigData"))
+                if (configInfo != null && model.CustomProperties.TryGetValue("ProviderConfigData", out object configData))
                 {
-                    profile.ProviderConfigData = XmlHelper.Serialize(model.CustomProperties["ProviderConfigData"], configInfo.ModelType);
+                    profile.ProviderConfigData = XmlHelper.Serialize(configData, configInfo.ModelType);
                 }
             }
             catch (Exception ex)
@@ -976,24 +977,12 @@ namespace Smartstore.Admin.Controllers
                     ViewBag.AppendDescriptionTexts = new MultiSelectList(projection.AppendDescriptionText.SplitSafe(','));
                     ViewBag.CriticalCharacters = new MultiSelectList(projection.CriticalCharacters.SplitSafe(','));
 
-                    if (model.Filter.CategoryIds?.Any() ?? false)
-                    {
-                        var tree = await _categoryService.GetCategoryTreeAsync(0, true);
+                    var categoryTree = !model.Filter.CategoryIds.IsNullOrEmpty() || model.Filter.CategoryId.GetValueOrDefault() != 0
+                        ? await _categoryService.GetCategoryTreeAsync(0, true)
+                        : null;
 
-                        ViewBag.SelectedCategories = model.Filter.CategoryIds
-                            .Where(x => x != 0)
-                            .Select(x =>
-                            {
-                                var node = tree.SelectNodeById(x);
-                                var item = new SelectListItem { Selected = true, Value = x.ToString(), Text = node == null ? x.ToString() : _categoryService.GetCategoryPath(node) };
-                                return item;
-                            })
-                            .ToList();
-                    }
-                    else
-                    {
-                        ViewBag.SelectedCategories = new List<SelectListItem>();
-                    }
+                    ViewBag.SelectedCategoryId = CreateSelectedCategoriesList(new[] { model.Filter.CategoryId ?? 0 }, categoryTree);
+                    ViewBag.SelectedCategoryIds = CreateSelectedCategoriesList(model.Filter.CategoryIds, categoryTree);
                 }
                 else if (model.Provider.EntityType == ExportEntityType.Customer)
                 {
@@ -1021,6 +1010,23 @@ namespace Smartstore.Admin.Controllers
                 {
                     NotifyError(ex);
                 }
+            }
+
+            List<SelectListItem> CreateSelectedCategoriesList(int[] ids, TreeNode<ICategoryNode> categoryTree)
+            {
+                if (ids.IsNullOrEmpty())
+                {
+                    return new();
+                }
+
+                return ids
+                    .Where(x => x != 0)
+                    .Select(x =>
+                    {
+                        var node = categoryTree.SelectNodeById(x);
+                        return new SelectListItem { Selected = true, Value = x.ToString(), Text = node == null ? x.ToString() : _categoryService.GetCategoryPath(node) };
+                    })
+                    .ToList();
             }
         }
 

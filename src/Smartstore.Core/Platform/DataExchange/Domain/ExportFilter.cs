@@ -61,24 +61,30 @@ namespace Smartstore.Core.DataExchange
         public bool? IsPublished { get; set; }
 
         /// <summary>
-        /// Category identifiers.
-        /// </summary>
-        public int[] CategoryIds { get; set; }
-
-        /// <summary>
         /// A value indicating whether to load products without any catgory mapping.
         /// </summary>
         public bool? WithoutCategories { get; set; }
 
         /// <summary>
-        /// Manufacturer identifier.
+        /// Category identifiers.
         /// </summary>
-        public int? ManufacturerId { get; set; }
+        public int[] CategoryIds { get; set; }
+        public int? CategoryId { get; set; }
+
+        /// <summary>
+        /// A value indicating whether products from subcategories should also be filtered.
+        /// </summary>
+        public bool IncludeSubCategories { get; set; }
 
         /// <summary>
         /// A value indicating whether to load products without any manufacturer mapping.
         /// </summary>
         public bool? WithoutManufacturers { get; set; }
+
+        /// <summary>
+        /// Manufacturer identifier.
+        /// </summary>
+        public int? ManufacturerId { get; set; }
 
         /// <summary>
         /// Identifiers of product tag.

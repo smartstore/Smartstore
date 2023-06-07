@@ -296,7 +296,7 @@ namespace Smartstore.Core.DataExchange.Export
                 TotalRecords = ctx.ShopMetadata.First().Value.TotalRecords
             };
 
-            var query = GetEntitiesQuery(ctx);
+            var query = await GetEntitiesQuery(ctx);
             query = ApplyPaging(query, skip, take, ctx);
             var data = await query.ToListAsync(cancellation.Token);
 
@@ -401,7 +401,7 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 ctx.Store = store;
 
-                var query = GetEntitiesQuery(ctx);
+                var query = await GetEntitiesQuery(ctx);
                 query = ApplyPaging(query, ctx.Request.Profile.Offset, int.MaxValue, ctx);
 
                 ctx.ShopMetadata[store.Id] = new ShopMetadata
@@ -598,7 +598,7 @@ namespace Smartstore.Core.DataExchange.Export
                 return null;
             }
 
-            var query = GetEntitiesQuery(ctx);
+            var query = await GetEntitiesQuery(ctx);
             query = ApplyPaging(query, null, PageSize, ctx);
             var entities = await query.ToListAsync(ctx.CancelToken);
 
@@ -674,7 +674,7 @@ namespace Smartstore.Core.DataExchange.Export
             return productEntities?.Cast<TEntity>() ?? entities.Cast<TEntity>();
         }
 
-        private IQueryable<BaseEntity> GetEntitiesQuery(DataExporterContext ctx)
+        private async Task<IQueryable<BaseEntity>> GetEntitiesQuery(DataExporterContext ctx)
         {
             var f = ctx.Filter;
             var entityType = ctx.Request.Provider.Value.EntityType;
@@ -715,20 +715,31 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.ProductTagId.HasValue)
                     searchQuery = searchQuery.WithProductTagIds(f.ProductTagId.Value);
 
+                if (ctx.Request.EntitiesToExport.Any())
+                    searchQuery = searchQuery.WithProductIds(ctx.Request.EntitiesToExport.ToArray());
+                else
+                    searchQuery = searchQuery.WithProductId(f.IdMinimum, f.IdMaximum);
+
                 if (f.WithoutManufacturers.HasValue)
                     searchQuery = searchQuery.HasAnyManufacturer(!f.WithoutManufacturers.Value);
                 else if (f.ManufacturerId.HasValue)
                     searchQuery = searchQuery.WithManufacturerIds(f.FeaturedProducts, f.ManufacturerId.Value);
 
                 if (f.WithoutCategories.HasValue)
+                {
                     searchQuery = searchQuery.HasAnyCategory(!f.WithoutCategories.Value);
-                else if (f.CategoryIds != null && f.CategoryIds.Length > 0)
+                }
+                else if (!f.IncludeSubCategories && !f.CategoryIds.IsNullOrEmpty())
+                {
                     searchQuery = searchQuery.WithCategoryIds(f.FeaturedProducts, f.CategoryIds);
+                }
+                else if (f.IncludeSubCategories && f.CategoryId.GetValueOrDefault() != 0)
+                {
+                    var categoryTree = await _categoryService.GetCategoryTreeAsync(0, true);
+                    var treePath = categoryTree.SelectNodeById(f.CategoryId.Value)?.GetTreePath();
 
-                if (ctx.Request.EntitiesToExport.Any())
-                    searchQuery = searchQuery.WithProductIds(ctx.Request.EntitiesToExport.ToArray());
-                else
-                    searchQuery = searchQuery.WithProductId(f.IdMinimum, f.IdMaximum);
+                    searchQuery = searchQuery.WithCategoryTreePath(treePath, f.FeaturedProducts);
+                }
 
                 return _catalogSearchService.PrepareQuery(searchQuery)
                     .AsNoTracking()

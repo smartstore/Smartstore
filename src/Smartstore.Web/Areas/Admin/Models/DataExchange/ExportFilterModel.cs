@@ -54,23 +54,29 @@ namespace Smartstore.Admin.Models.Export
         [LocalizedDisplay("*AvailabilityMaximum")]
         public int? AvailabilityMaximum { get; set; }
 
-        [LocalizedDisplay("*CategoryIds")]
-        public int[] CategoryIds { get; set; }
-
-        [LocalizedDisplay("*WithoutCategories")]
-        public bool? WithoutCategories { get; set; }
-
-        [LocalizedDisplay("*ManufacturerId")]
-        public int? ManufacturerId { get; set; }
-
-        [LocalizedDisplay("*WithoutManufacturers")]
-        public bool? WithoutManufacturers { get; set; }
-
         [LocalizedDisplay("*ProductTagId")]
         public int? ProductTagId { get; set; }
 
         [LocalizedDisplay("*FeaturedProducts")]
         public bool? FeaturedProducts { get; set; }
+
+        [LocalizedDisplay("*WithoutManufacturers")]
+        public bool? WithoutManufacturers { get; set; }
+
+        [LocalizedDisplay("*ManufacturerId")]
+        public int? ManufacturerId { get; set; }
+
+        [LocalizedDisplay("*WithoutCategories")]
+        public bool? WithoutCategories { get; set; }
+
+        [LocalizedDisplay("*CategoryIds")]
+        public int[] CategoryIds { get; set; }
+
+        [LocalizedDisplay("*CategoryIds")]
+        public int? CategoryId { get; set; }
+
+        [LocalizedDisplay("*IncludeSubCategories")]
+        public bool IncludeSubCategories { get; set; }
 
         #endregion
 
