@@ -150,7 +150,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.DataExchange.Export.Filter.IncludeSubCategories",
                 "Include subcategories",
-                "Unterkategorien einschließen",
+                "Unterwarengruppen einschließen",
                 "Specifies whether products from subcategories should also be filtered.",
                 "Legt fest, ob Produkte von Unterwarengruppen ebenfalls gefiltert werden sollen.");
 

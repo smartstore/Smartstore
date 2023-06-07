@@ -61,7 +61,7 @@ namespace Smartstore.Core.DataExchange
         public bool? IsPublished { get; set; }
 
         /// <summary>
-        /// A value indicating whether to load products without any catgory mapping.
+        /// A value indicating whether to load products without any category mapping.
         /// </summary>
         public bool? WithoutCategories { get; set; }
 
