@@ -370,7 +370,6 @@ bots:
   - match: Wappalyzer
   - match: PayPal IPN
   - match: Amazonbot
-  - match: AddThis.com
   - match: ShopAlike
   - match: ImageProxy
   - match: FastCrawler
