@@ -343,7 +343,7 @@ namespace Smartstore.StripeElements.Controllers
                         order.PaymentStatus = PaymentStatus.Voided;
 
                         // Write some infos into order notes.
-                        WriteOrderNotes(order, paymentIntent.Charges.FirstOrDefault());
+                        WriteOrderNotes(order, paymentIntent.LatestCharge);
 
                         await _db.SaveChangesAsync();
                     }
