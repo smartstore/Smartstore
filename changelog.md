@@ -19,6 +19,7 @@
   - #723 store the SKU of the ordered product variant at the `OrderItem` entity.
 - Added settings for more social links (Flickr, LinkedIn, Xing, TikTok, Snapchat, Vimeo, Tumblr, Ello, Behance) to be displayed in the footer.
 - SEO: trailing slash options for internal links (*Append trailing slash to links*, *Trailing slash mismatch rule*)
+- #480 Product export: add a filter for categories and an option to include all sub-categories.
 - #437 Rule builder: add cart rule for delivery time.
 
 ### Improvements
