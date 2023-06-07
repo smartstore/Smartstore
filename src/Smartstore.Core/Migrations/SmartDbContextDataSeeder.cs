@@ -143,6 +143,10 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Pager.Previous", "Previous", "Zurück");
             builder.AddOrUpdate("Pager.Next", "Next", "Weiter");
+
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.ProductWithDeliveryTimeInCart",
+                "Product with delivery time in cart",
+                "Produkt mit Lieferzeit im Warenkorb");
         }
     }
 }
