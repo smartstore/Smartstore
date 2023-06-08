@@ -10,7 +10,7 @@ namespace Smartstore.Web.Rendering
 
         internal CssClassList(object source)
         {
-            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(source);
 
             string currentValue = null;
 
@@ -131,7 +131,7 @@ namespace Smartstore.Web.Rendering
 
         public void ApplyTo(TagHelperAttributeList target)
         {
-            Guard.NotNull(target, nameof(target));
+            Guard.NotNull(target);
 
             if (_list.Count == 0)
             {
@@ -145,7 +145,7 @@ namespace Smartstore.Web.Rendering
 
         public void ApplyTo(IDictionary<string, string> target)
         {
-            Guard.NotNull(target, nameof(target));
+            Guard.NotNull(target);
 
             if (_list.Count == 0)
             {

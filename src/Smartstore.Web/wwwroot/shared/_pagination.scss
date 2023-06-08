@@ -39,6 +39,10 @@
     --pag-font-size: #{$font-size-xs};
 }
 
+.page-item {
+    display: block;
+}
+
 .page-link {
     display: inline-flex;
     align-items: center;

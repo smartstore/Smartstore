@@ -142,114 +142,100 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
 
         /// <summary>
-        /// Creates complete item list by adding navigation items for.
+        /// Creates complete item list by adding navigation items.
         /// </summary>
-        /// <returns></returns>
-        protected List<PagerItem> CreateItemList()
+        protected virtual List<PagerItem> CreateItemList()
         {
             if (!ShowPaginator || ListItems.TotalPages <= 1)
             {
                 return new List<PagerItem>();
-            }   
+            }
 
-            var pageNumber = ListItems.PageNumber;
-            var pageCount = ListItems.TotalPages;
+            // INFO: behaves like DataGrid's paginator.
 
-            var results = new List<PagerItem>();
+            var currentIndex = ListItems.PageNumber;
+            var totalPages = ListItems.TotalPages;
+            var maxPages = MaxPagesToDisplay;
+            var start = 1;
 
-            PagerItem item;
+            if (currentIndex > maxPages)
+            {
+                var v = currentIndex % maxPages;
+                start = v == 0 ? currentIndex - maxPages + 1 : currentIndex - v + 1;
+            }
+
+            var p = start + maxPages - 1;
+            p = Math.Min(p, totalPages);
+
+            var items = new List<PagerItem>();
 
             // First link
             if (ShowFirst)
             {
-                item = new PagerItem(1, T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
+                items.Add(new PagerItem(1, T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
                 {
-                    State = (pageNumber > 1) ? PagerItemState.Normal : PagerItemState.Disabled
-                };
-                results.Add(item);
+                    State = (currentIndex > 1) ? PagerItemState.Normal : PagerItemState.Disabled
+                });
             }
 
             // Previous link
             if (ShowPrevious)
             {
-                item = new PagerItem(pageNumber - 1, T("Pager.Previous"), GenerateUrl(pageNumber - 1), PagerItemType.PreviousPage)
+                items.Add(new PagerItem(currentIndex - 1, T("Pager.Previous"), GenerateUrl(currentIndex - 1), PagerItemType.PreviousPage)
                 {
-                    State = (pageNumber > 1) ? PagerItemState.Normal : PagerItemState.Disabled
-                };
-                results.Add(item);
+                    State = (currentIndex > 1) ? PagerItemState.Normal : PagerItemState.Disabled
+                });
             }
 
             // Add the page number items.
-            if (MaxPagesToDisplay > 0)
+            if (maxPages > 0)
             {
-                AddPageItemsList(results);
+                if (start > 1)
+                {
+                    if (!ShowFirst)
+                    {
+                        items.Add(new PagerItem(1, "1", GenerateUrl(1)));
+                    }
+                    items.Add(new PagerItem(start - 1, "...", GenerateUrl(start - 1)));
+                }
+
+                for (var i = start; i <= p; i++)
+                {
+                    items.Add(new PagerItem(i, i.ToString(), GenerateUrl(i))
+                    {
+                        State = (i == currentIndex && !SkipActiveState) ? PagerItemState.Selected : PagerItemState.Normal
+                    });
+                }
+
+                if (p < totalPages)
+                {
+                    items.Add(new PagerItem(p + 1, "...", GenerateUrl(p + 1)));
+                    if (!ShowLast)
+                    {
+                        items.Add(new PagerItem(totalPages, totalPages.ToString(), GenerateUrl(totalPages)));
+                    }
+                }
             }
 
             // Next link.
-            var hasNext = false;
             if (ShowNext)
             {
-                item = new PagerItem(pageNumber + 1, T("Pager.Next"), GenerateUrl(pageNumber + 1), PagerItemType.NextPage)
+                items.Add(new PagerItem(currentIndex + 1, T("Pager.Next"), GenerateUrl(currentIndex + 1), PagerItemType.NextPage)
                 {
-                    State = (pageNumber == pageCount) ? PagerItemState.Disabled : PagerItemState.Normal
-                };
-                results.Add(item);
-                hasNext = true;
+                    State = (currentIndex == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal,
+                });
             }
 
             // Last link.
             if (ShowLast)
             {
-                item = new PagerItem(pageCount, T("Pager.Last"), GenerateUrl(pageCount), PagerItemType.LastPage)
+                items.Add(new PagerItem(totalPages, T("Pager.Last"), GenerateUrl(totalPages), PagerItemType.LastPage)
                 {
-                    State = (pageNumber == pageCount) ? PagerItemState.Disabled : PagerItemState.Normal
-                };
-                if (Style == PagerStyle.Pagination || !hasNext)
-                {
-                    results.Add(item);
-                }
-                else
-                {
-                    // BlogStyle Last-Item is right-aligned, so shift left.
-                    results.Insert(results.Count - 1, item);
-                }
+                    State = (currentIndex == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal
+                });
             }
 
-            return results;
-        }
-
-        /// <summary>
-        /// Can be overridden in a custom renderer in order to apply a custom numbering sequence.
-        /// </summary>
-        /// <param name="items"></param>
-        protected virtual void AddPageItemsList(List<PagerItem> items)
-        {
-            var pageNumber = ListItems.PageNumber;
-            var pageCount = ListItems.TotalPages;
-
-            var (start, end) = CalculateIndexes(out var startEllipsis, out var endEllipsis);
-
-            if (startEllipsis)
-            {
-                items.Add(new PagerItem(1, "1", GenerateUrl(1)));
-                items.Add(new PagerItem(-1, "...", "", PagerItemType.Text));
-            }
-
-            for (int i = start; i <= end; i++)
-            {
-                var item = new PagerItem(i, i.ToString(), GenerateUrl(i));
-                if (i == pageNumber && !SkipActiveState)
-                {
-                    item.State = PagerItemState.Selected;
-                }
-                items.Add(item);
-            }
-
-            if (endEllipsis)
-            {
-                items.Add(new PagerItem(-1, "...", "", PagerItemType.Text));
-                items.Add(new PagerItem(pageCount, pageCount.ToString(), GenerateUrl(pageCount)));
-            }
+            return items;
         }
 
         /// <summary>
@@ -296,6 +282,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (item.Type == PagerItemType.Text)
             {
                 classList.Add("shrinked");
+            }
+
+            if (item.CssClass.HasValue())
+            {
+                classList.Add(item.CssClass.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
             }
 
             // Dispose here to write all collected classes into tag.
@@ -378,97 +369,6 @@ namespace Smartstore.Web.TagHelpers.Shared
             return innerAOrSpan;
         }
 
-        protected virtual (int start, int end) CalculateIndexes(out bool startEllipsis, out bool endEllipsis)
-        {
-            var items = ListItems;
-            var currentIndex = items.PageNumber;
-            var start = 1;
-            var end = items.TotalPages;
-
-            startEllipsis = false;
-            endEllipsis = false;
-
-            if (items.TotalPages > MaxPagesToDisplay + 1)
-            {
-                // Tolerate +1 to spare ellipsis
-
-                var half = MaxPagesToDisplay / 2;
-
-                start = currentIndex - half;
-                end = currentIndex + half;
-
-                if (start <= 1)
-                {
-                    start = 1;
-                    end = MaxPagesToDisplay;
-                }
-                else if (end >= items.TotalPages)
-                {
-                    end = items.TotalPages;
-                    start = end - MaxPagesToDisplay;
-                }
-
-                // Check if ellipsis items should be displayed
-                if (!ShowFirst && currentIndex > 3)
-                {
-                    startEllipsis = true;
-                    start += 1;
-                }
-
-                if (!ShowLast && currentIndex < (items.TotalPages - 3))
-                {
-                    endEllipsis = true;
-                    end -= 1;
-                }
-            }
-
-            return (start, end);
-        }
-
-        /// <summary>
-        /// Gets first individual page index.
-        /// </summary>
-        /// <returns>Page index</returns>
-        protected virtual int GetFirstPageIndex()
-        {
-            if ((ListItems.TotalPages < MaxPagesToDisplay) || ((ListItems.PageIndex - (MaxPagesToDisplay / 2)) < 0))
-            {
-                return 0;
-            }
-
-            if ((ListItems.PageIndex + (MaxPagesToDisplay / 2)) >= ListItems.TotalPages)
-            {
-                return ListItems.TotalPages - MaxPagesToDisplay;
-            }
-
-            return ListItems.PageIndex - (MaxPagesToDisplay / 2);
-        }
-
-        ///// <summary>
-        ///// Get last individual page index.
-        ///// </summary>
-        ///// <returns>Page index</returns>
-        //protected virtual int GetLastPageIndex()
-        //{
-        //    int num = MaxPagesToDisplay / 2;
-        //    if ((MaxPagesToDisplay % 2) == 0)
-        //    {
-        //        num--;
-        //    }
-
-        //    if ((ListItems.TotalPages < MaxPagesToDisplay) || ((ListItems.PageIndex + num) >= ListItems.TotalPages))
-        //    {
-        //        return ListItems.TotalPages - 1;
-        //    }
-
-        //    if ((ListItems.PageIndex - (MaxPagesToDisplay / 2)) < 0)
-        //    {
-        //        return MaxPagesToDisplay - 1;
-        //    }
-
-        //    return ListItems.PageIndex + num;
-        //}
-
         /// <summary>
         /// Generates and returns URL for pager item.
         /// </summary>
@@ -485,7 +385,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 foreach (var item in query)
                 {
-                    if (!newValues.Keys.Contains(item.Key))
+                    if (!newValues.ContainsKey(item.Key))
                     {
                         newValues.Add(item.Key, item.Value);
                     }
