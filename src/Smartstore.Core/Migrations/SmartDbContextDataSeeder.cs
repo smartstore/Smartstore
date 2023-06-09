@@ -160,6 +160,8 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductsFromSubcategories.Hint")
                 .Value("de", "Legt fest, ob Unterwarengruppen in Warengruppen-Detailseiten angezeigt werden sollen.");
+
+            builder.AddOrUpdate("Forum.TotalPosts", "Posts", "Beiträge");
         }
     }
 }
