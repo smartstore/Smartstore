@@ -18,6 +18,8 @@ namespace Smartstore.Admin.Models.Messages
 
         [LocalizedDisplay("*Port")]
         [AdditionalMetadata("invariant", true)]
+        [AdditionalMetadata("min", 0)]
+        [AdditionalMetadata("max", 65535)]
         public int Port { get; set; }
 
         [LocalizedDisplay("*Username")]
