@@ -12,6 +12,7 @@
                     </div>
                     <div class="adminData">
                         <editor asp-for="CopyProductModel.NumberOfCopies" />
+                        <span asp-validation-for="CopyProductModel.NumberOfCopies"></span>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -20,6 +21,7 @@
                     </div>
                     <div class="adminData">
                         <input asp-for="CopyProductModel.Name" />
+                        <span asp-validation-for="CopyProductModel.Name"></span>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -28,6 +30,7 @@
                     </div>
                     <div class="adminData">
                         <input asp-for="CopyProductModel.Published" />
+                        <span asp-validation-for="CopyProductModel.Published"></span>
                     </div>
                 </div>
             </div>

@@ -545,7 +545,7 @@ namespace Smartstore.Admin.Controllers
                     .Include(x => x.ProductVariantAttributeCombinations)
                     .FindByIdAsync(copyModel.Id);
 
-                for (var i = 1; i <= copyModel.NumberOfCopies; ++i)
+                for (var i = 1; i <= copyModel.NumberOfCopies && i <= 100; ++i)
                 {
                     var newName = copyModel.NumberOfCopies > 1 ? $"{copyModel.Name} {i}" : copyModel.Name;
                     clone = await _productCloner.Value.CloneProductAsync(product, newName, copyModel.Published);
