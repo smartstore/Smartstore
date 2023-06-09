@@ -188,7 +188,8 @@
                 }
                 else {
                     newValue = parseFloat(newValue);
-                    newValue = Math.min(Math.max(newValue, min), max);
+                    // INFO: This should be handled by validation framework or in frontend by native HTML elements.
+                    //newValue = Math.min(Math.max(newValue, min), max);
                     //newValue = Math.round(newValue * Math.pow(10, decimals)) / Math.pow(10, decimals);
                     newValue = newValue.toFixed(decimals);
                     if (updateInput) $input[0].value = newValue;
