@@ -35,6 +35,7 @@
   - Composite mappers: multiple mappers for a single type pair
   - Named mappers
   - Mapper lifetimes (transient, scoped, singleton)
+- #658 Limit number of product clones to generate either via UI or code (or both)
 
 ### Bugfixes
 
@@ -78,6 +79,7 @@
 - #724 Selecting other languages resets selected sorting/items per page setting 
 - Legacy widget zones weren't considered anymore
 - DevTools: Some widget zones weren't displayed due to incorrect RegEx
+- NumberInput: Min Max should be handled by validation framework or in frontend by native HTML elements.
 
 ## Smartstore 5.0.4
 
