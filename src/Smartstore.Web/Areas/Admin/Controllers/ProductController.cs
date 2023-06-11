@@ -531,6 +531,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> CopyProduct(ProductModel model)
         {
             var copyModel = model.CopyProductModel;
+
             try
             {
                 Product clone = null;
@@ -545,9 +546,11 @@ namespace Smartstore.Admin.Controllers
                     .Include(x => x.ProductVariantAttributeCombinations)
                     .FindByIdAsync(copyModel.Id);
 
+                var name = copyModel.Name.NullEmpty() ?? T("Admin.Common.CopyOf", product.Name);
+
                 for (var i = 1; i <= copyModel.NumberOfCopies && i <= 100; ++i)
                 {
-                    var newName = copyModel.NumberOfCopies > 1 ? $"{copyModel.Name} {i}" : copyModel.Name;
+                    var newName = copyModel.NumberOfCopies > 1 ? $"{name} {i}" : name;
                     clone = await _productCloner.Value.CloneProductAsync(product, newName, copyModel.Published);
 
                     await _eventPublisher.PublishAsync(new ProductClonedEvent(product, clone));

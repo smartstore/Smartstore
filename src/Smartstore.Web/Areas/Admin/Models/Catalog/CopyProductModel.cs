@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Smartstore.Admin.Models.Catalog
+﻿namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Catalog.Products.Copy.")]
     public class CopyProductModel : EntityModelBase
@@ -10,7 +8,6 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*NumberOfCopies")]
         public int NumberOfCopies { get; set; } = 1;
 
-        [Required]
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
