@@ -176,7 +176,7 @@ namespace Smartstore.Core.Configuration
         /// <inheritdoc/>
         public virtual async Task<ApplySettingResult> ApplySettingAsync<T>(string key, T value, int storeId = 0)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             var str = value.Convert<string>();
             var setting = await _setSettings.FirstOrDefaultAsync(x => x.Name == key && x.StoreId == storeId);

@@ -9,7 +9,7 @@
 
 ### New Features
 
-- #251 MegaSearch: new option, when activated the search hits must contain all searched terms (logical AND operation). The more terms are entered, the fewer hits are returned.
+- #251 MegaSearch: New option, when enabled, search hits must contain all search terms (logical AND operation). The more terms you enter, the fewer hits will be returned.
 - Reverse proxy configuration using `ForwardedHeadersMiddleware`
 - SqliteDataProvider: 
   - Fixed case-insensitive `Contains()` and `Like()` failing on non-ascii characters.
