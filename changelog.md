@@ -9,6 +9,7 @@
 
 ### New Features
 
+- #251 MegaSearch: new option, when activated the search hits must contain all searched terms (logical AND operation). The more terms are entered, the fewer hits are returned.
 - Reverse proxy configuration using `ForwardedHeadersMiddleware`
 - SqliteDataProvider: 
   - Fixed case-insensitive `Contains()` and `Like()` failing on non-ascii characters.
