@@ -547,10 +547,11 @@ namespace Smartstore.Admin.Controllers
                     .FindByIdAsync(copyModel.Id);
 
                 var name = copyModel.Name.NullEmpty() ?? T("Admin.Common.CopyOf", product.Name);
+                var numCopies = Math.Min(100, copyModel.NumberOfCopies);
 
-                for (var i = 1; i <= copyModel.NumberOfCopies && i <= 100; ++i)
+                for (var i = 1; i <= numCopies; ++i)
                 {
-                    var newName = copyModel.NumberOfCopies > 1 ? $"{name} {i}" : name;
+                    var newName = numCopies > 1 ? $"{name} {i}" : name;
                     clone = await _productCloner.Value.CloneProductAsync(product, newName, copyModel.Published);
 
                     await _eventPublisher.PublishAsync(new ProductClonedEvent(product, clone));
