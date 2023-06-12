@@ -15,6 +15,9 @@ namespace Smartstore.Core.Checkout.Tax
     {
         const string DefaultTaxFormat = "{0} *";
 
+        [GeneratedRegex("^(\\w{2})(.*)")]
+        private static partial Regex VatNumberRegex();
+
         private readonly Dictionary<TaxRateCacheKey, TaxRate> _cachedTaxRates = new();
         private readonly Dictionary<TaxAddressKey, Address> _cachedTaxAddresses = new();
         private readonly IGeoCountryLookup _geoCountryLookup;
@@ -76,7 +79,7 @@ namespace Smartstore.Core.Checkout.Tax
             var activeTaxProvider = LoadActiveTaxProvider();
             if (activeTaxProvider == null || await IsTaxExemptAsync(product, customer))
             {
-                return new TaxRate(0m, taxCategoryId);
+                return new(0m, taxCategoryId);
             }
 
             var request = new TaxRateRequest
@@ -91,19 +94,18 @@ namespace Smartstore.Core.Checkout.Tax
 
         public virtual async Task<VatCheckResult> GetVatNumberStatusAsync(string fullVatNumber)
         {
-            if (!fullVatNumber.HasValue())
+            if (fullVatNumber.IsEmpty())
             {
-                return new VatCheckResult(VatNumberStatus.Empty, fullVatNumber);
+                return new(VatNumberStatus.Empty, fullVatNumber);
             }
 
             // DE 111 1111 111 or DE1111111111
             // More advanced regex - https://forum.codeigniter.com/thread-31835.html
             // This regex only checks whether the first two chars are alphanumeric...
-            var regex = new Regex(@"^(\w{2})(.*)");
-            var match = regex.Match(fullVatNumber.Trim());
+            var match = VatNumberRegex().Match(fullVatNumber.Trim());
             if (!match.Success)
             {
-                return new VatCheckResult(VatNumberStatus.Invalid, fullVatNumber);
+                return new(VatNumberStatus.Invalid, fullVatNumber);
             }
 
             var twoLetterIsoCode = match.Groups[1].Value;
@@ -111,12 +113,12 @@ namespace Smartstore.Core.Checkout.Tax
 
             if (twoLetterIsoCode.IsEmpty() || vatNumber.IsEmpty())
             {
-                return new VatCheckResult(VatNumberStatus.Empty, fullVatNumber);
+                return new(VatNumberStatus.Empty, fullVatNumber);
             }
 
             if (!_taxSettings.EuVatUseWebService)
             {
-                return new VatCheckResult(VatNumberStatus.Unknown, fullVatNumber);
+                return new(VatNumberStatus.Unknown, fullVatNumber);
             }
 
             try
@@ -129,18 +131,16 @@ namespace Smartstore.Core.Checkout.Tax
                     countryCode = twoLetterIsoCode.ToUpper()
                 });
 
-                var result = new VatCheckResult(response.valid ? VatNumberStatus.Valid : VatNumberStatus.Invalid, fullVatNumber)
+                return new(response.valid ? VatNumberStatus.Valid : VatNumberStatus.Invalid, fullVatNumber)
                 {
                     Name = response.name,
                     Address = response.address,
                     CountryCode = response.countryCode,
                 };
-
-                return result;
             }
             catch (Exception ex)
             {
-                return new VatCheckResult(VatNumberStatus.Unknown, fullVatNumber)
+                return new(VatNumberStatus.Unknown, fullVatNumber)
                 {
                     Exception = ex
                 };
@@ -345,7 +345,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// </returns>
         protected virtual async Task<Address> GetTaxAddressAsync(Customer customer, Product product = null)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
 
             var productIsEsd = product?.IsEsd ?? false;
             var cacheKey = new TaxAddressKey(customer.Id, productIsEsd);

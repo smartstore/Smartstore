@@ -44,5 +44,10 @@
         /// <c>null</c> if the VAT service is operating properly.
         /// </summary>
         public Exception Exception { get; init; }
+
+        public override string ToString()
+        {
+            return $"VAT:{VatNumber} {Status}. name:{Name} country:{CountryCode} address:{Address}";
+        }
     }
 }

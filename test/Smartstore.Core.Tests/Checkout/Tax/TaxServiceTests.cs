@@ -103,19 +103,25 @@ namespace Smartstore.Core.Tests.Tax
 
         // TODO: (mh) (core) Implement test for Can_get_productPrice_priceIncludesTax_includingTax in PriceCalculation tests.
 
-        [Test]
-        public async Task Can_do_VAT_check()
+        [TestCase("DE814160246", VatNumberStatus.Valid)]
+        [TestCase("DE000000000", VatNumberStatus.Invalid)]
+        public async Task Can_check_VAT_number(string vatNumber, VatNumberStatus status)
         {
-            // Check VAT of DB Vertrieb GmbH (Deutsche Bahn).
-            var vatNumberStatus1 = await _taxService.GetVatNumberStatusAsync("DE814160246");
-            if (vatNumberStatus1.Exception == null)
-            {
-                vatNumberStatus1.Status.ShouldEqual(VatNumberStatus.Valid);
-            }
+            var result = await _taxService.GetVatNumberStatusAsync(vatNumber);
 
-            var vatNumberStatus2 = await _taxService.GetVatNumberStatusAsync("DE000000000");
-            vatNumberStatus2.Status.ShouldEqual(VatNumberStatus.Invalid);
-            vatNumberStatus2.Exception.ShouldBeNull();
+            if (status == VatNumberStatus.Invalid)
+            {
+                result.Exception.ShouldBeNull();
+                result.Status.ShouldEqual(status);
+            }
+            else if (result.Exception == null)
+            {
+                result.Status.ShouldEqual(status);
+            }
+            else
+            {
+                Assert.Warn($"{nameof(ITaxService.GetVatNumberStatusAsync)} threw an exception. Is the VAT check service perhaps temporarily out of service? {result.Exception.Message}");
+            }
         }
     }
 }
