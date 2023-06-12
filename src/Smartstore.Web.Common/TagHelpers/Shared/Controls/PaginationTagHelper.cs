@@ -190,31 +190,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Add the page number items.
             if (maxPages > 0)
             {
-                if (start > 1)
-                {
-                    if (!ShowFirst)
-                    {
-                        items.Add(new PagerItem(1, "1", GenerateUrl(1)));
-                    }
-                    items.Add(new PagerItem(start - 1, "...", GenerateUrl(start - 1)));
-                }
-
-                for (var i = start; i <= p; i++)
-                {
-                    items.Add(new PagerItem(i, i.ToString(), GenerateUrl(i))
-                    {
-                        State = (i == currentIndex && !SkipActiveState) ? PagerItemState.Selected : PagerItemState.Normal
-                    });
-                }
-
-                if (p < totalPages)
-                {
-                    items.Add(new PagerItem(p + 1, "...", GenerateUrl(p + 1)));
-                    if (!ShowLast)
-                    {
-                        items.Add(new PagerItem(totalPages, totalPages.ToString(), GenerateUrl(totalPages)));
-                    }
-                }
+                AddPageItemsToList(items, start, p, currentIndex, totalPages);
             }
 
             // Next link.
@@ -236,6 +212,35 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             return items;
+        }
+
+        protected virtual void AddPageItemsToList(List<PagerItem> items, int start, int end, int currentIndex, int totalPages)
+        {
+            if (start > 1)
+            {
+                if (!ShowFirst)
+                {
+                    items.Add(new PagerItem(1, "1", GenerateUrl(1)));
+                }
+                items.Add(new PagerItem(start - 1, "...", GenerateUrl(start - 1)));
+            }
+
+            for (var i = start; i <= end; i++)
+            {
+                items.Add(new PagerItem(i, i.ToString(), GenerateUrl(i))
+                {
+                    State = (i == currentIndex && !SkipActiveState) ? PagerItemState.Selected : PagerItemState.Normal
+                });
+            }
+
+            if (end < totalPages)
+            {
+                items.Add(new PagerItem(end + 1, "...", GenerateUrl(end + 1)));
+                if (!ShowLast)
+                {
+                    items.Add(new PagerItem(totalPages, totalPages.ToString(), GenerateUrl(totalPages)));
+                }
+            }
         }
 
         /// <summary>
