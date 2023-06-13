@@ -126,8 +126,8 @@ namespace Smartstore.Core.Configuration
         /// </summary>
         public static async Task<int> SaveSettingsAsync(SmartDbContext db, ISettings settings, bool overwriteExisting = true, int storeId = 0)
         {
-            Guard.NotNull(db, nameof(db));
-            Guard.NotNull(settings, nameof(settings));
+            Guard.NotNull(db);
+            Guard.NotNull(settings);
 
             var settingsType = settings.GetType();
             var prefix = settingsType.Name;
@@ -139,11 +139,15 @@ namespace Smartstore.Core.Configuration
             {
                 // Get only properties we can read and write to
                 if (!prop.IsPublicSettable)
+                {
                     continue;
+                }
 
                 var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
                 if (converter == null || !converter.CanConvertFrom(typeof(string)))
+                {
                     continue;
+                }   
 
                 var key = prefix + '.' + prop.Name;
                 var currentValue = prop.GetValue(settings).Convert<string>();
@@ -221,8 +225,8 @@ namespace Smartstore.Core.Configuration
 
         private ISettings MaterializeSettings(Type settingsType, IDictionary<string, Setting> rawSettings)
         {
-            Guard.NotNull(settingsType, nameof(settingsType));
-            Guard.NotNull(rawSettings, nameof(rawSettings));
+            Guard.NotNull(settingsType);
+            Guard.NotNull(rawSettings);
 
             var instance = (ISettings)Activator.CreateInstance(settingsType);
             var prefix = settingsType.Name;
@@ -233,14 +237,16 @@ namespace Smartstore.Core.Configuration
 
                 // Get properties we can read and write to
                 if (!prop.CanWrite)
+                {
                     continue;
+                } 
 
-                string key = prefix + "." + prop.Name;
+                var key = prefix + "." + prop.Name;
                 rawSettings.TryGetValue(key, out var rawSetting);
 
-                string setting = rawSetting?.Value;
+                var valueStr = rawSetting?.Value;
 
-                if (setting == null)
+                if (valueStr == null)
                 {
                     if (fastProp.IsSequenceType)
                     {
@@ -260,11 +266,13 @@ namespace Smartstore.Core.Configuration
                 var converter = TypeConverterFactory.GetConverter(prop.PropertyType);
 
                 if (converter == null || !converter.CanConvertFrom(typeof(string)))
+                {
                     continue;
+                }     
 
                 try
                 {
-                    object value = converter.ConvertFrom(setting);
+                    object value = converter.ConvertFrom(valueStr);
 
                     // Set property
                     fastProp.SetValue(instance, value);

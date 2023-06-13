@@ -178,7 +178,7 @@ namespace Smartstore.Core.Configuration
         {
             Guard.NotEmpty(key);
 
-            var str = value.Convert<string>();
+            var str = value.Convert<string>() ?? string.Empty;
             var setting = await _setSettings.FirstOrDefaultAsync(x => x.Name == key && x.StoreId == storeId);
 
             if (setting == null)

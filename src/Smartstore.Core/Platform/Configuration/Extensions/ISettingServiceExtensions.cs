@@ -45,8 +45,7 @@ namespace Smartstore
             var propInfo = keySelector.ExtractPropertyInfo();
             var key = string.Concat(typeof(T).Name, ".", propInfo.Name);
 
-            // Duck typing is not supported in C#. That's why we're using dynamic type.
-            dynamic currentValue = propInfo.GetValue(settings);
+            var currentValue = (TPropType)propInfo.GetValue(settings);
 
             return await service.ApplySettingAsync(key, currentValue, storeId);
         }

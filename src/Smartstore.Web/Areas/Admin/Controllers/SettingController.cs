@@ -848,8 +848,6 @@ namespace Smartstore.Admin.Controllers
 
             await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form);
 
-            // INFO: ApplySettingAsync throws RuntimeBinderException if SearchFields is null;
-            settings.SearchFields ??= new();
             await Services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
 
             // Facet settings (CommonFacetSettingsModel).
