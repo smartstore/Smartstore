@@ -37,6 +37,7 @@
   - Named mappers
   - Mapper lifetimes (transient, scoped, singleton)
 - #658 Limit number of product clones to generate either via UI or code (or both)
+- #736 Backend > Product grid: Search By SKU should also search for GTIN & MPN
 
 ### Bugfixes
 
