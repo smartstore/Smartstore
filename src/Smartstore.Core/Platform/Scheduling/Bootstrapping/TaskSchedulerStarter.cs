@@ -17,9 +17,10 @@ namespace Smartstore.Core.Bootstrapping
                     // INFO: we gonna need "/noop" during install
                     if (builder.ApplicationContext.IsInstalled)
                     {
-                        p.UseSession();
+                        p.UseLocalizedRouting(builder.ApplicationContext);
                         p.UseWorkContext();
                         p.UseRequestLogging();
+                        p.UseSession();
                     }
                 });
             });
