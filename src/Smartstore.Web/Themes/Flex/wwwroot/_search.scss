@@ -10,30 +10,20 @@ $facet-selection-color:             darken($success, 15%);
     position: relative;
 }
 
-#instasearch-progress {
-    position: absolute;
-    z-index: 2;
-    width: 20px;
-    height: 20px;
-    top: 50%;
-    margin-top: -10px;
-    right: 56px;
-}
-
 .instasearch-term {
     position: relative;
     padding-left: 1rem;
-    padding-right: 1rem;
+    padding-right: 60px;
     background-color: $searchbox-bg-1;
     border-color: $searchbox-border-color;
     box-shadow: none;
     transition-property: background-color, color, box-shadow, border;
     transition-duration: 0.2s;
     transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
-    padding-right: 60px;
 
     &:hover:not(:focus):not(:active) {
         background-color: $searchbox-bg-2;
+        border-color: $searchbox-border-hover-color;
     }
     &:hover, &:focus, &:active {
         box-shadow: $box-shadow-sm-var;
@@ -44,19 +34,43 @@ $facet-selection-color:             darken($success, 15%);
     }
 
     @include media-breakpoint-up(lg) {
-        background-color: $searchbox-bg-2;
+        background-color: $searchbox-bg-3;
+    }
+}
+
+.instasearch-addon {
+    position: absolute !important;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    margin-top: -12px;
+    right: 52px;
+}
+
+.instasearch-clear {
+    width: 26px !important;
+    height: 26px !important;
+    line-height: 26px !important;
+    margin-top: -13px !important;
+    right: 48px;
+    color: $gray-700;
+    display: none !important;
+
+    .search-focused .instasearch-term:not(:placeholder-shown) ~ & {
+        display: block !important;
     }
 }
 
 .instasearch-button {
     position: absolute !important;
     z-index: 1;
-    top: 0;
     right: 0;
+    top: 0;
     bottom: 0;
     border-left-width: 0;
     height: initial !important;
-    font-size: 1.2rem;
+    font-size: 1rem;
     padding: 0 0.25rem !important;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
@@ -65,7 +79,7 @@ $facet-selection-color:             darken($success, 15%);
 
 .instasearch-icon {
     position: relative;
-    top: 0.12rem;
+    font-size: 1rem;
 }
 
 @if ($searchbox-pill == true) {

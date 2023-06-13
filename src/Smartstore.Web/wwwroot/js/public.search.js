@@ -8,7 +8,8 @@
         $('form.instasearch-form').each(function () {
             var form = $(this),
                 box = form.find('.instasearch-term'),
-                spinner = $('#instasearch-progress');
+                spinner = form.find('.instasearch-progress'),
+                clearer = form.find('.instasearch-clear');
 
             if (box.length == 0 || box.data('instasearch') === false)
                 return;
@@ -19,6 +20,12 @@
                 minLength = box.data("minlength"),
                 url = box.data("url"),
                 keyNav = null;
+
+            clearer.on('click', function (e) {
+                box[0].value = '';
+                doSearch('');
+                box[0].focus();
+            });
 
             box.parent().on('click', function (e) {
                 e.stopPropagation();
@@ -69,7 +76,9 @@
                 }
 
                 if (spinner.length === 0) {
-                    spinner = createCircularSpinner(20).attr('id', 'instasearch-progress').appendTo(box.parent());
+                    spinner = createCircularSpinner(20)
+                        .addClass('instasearch-addon instasearch-progress')
+                        .appendTo(box.parent());
                 }
                 // Don't show spinner when result is coming fast (< 100 ms.)
                 var spinnerTimeout = setTimeout(function () { spinner.addClass('active'); }, 100)

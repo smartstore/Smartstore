@@ -47,8 +47,9 @@ $searchbox-pill:                true !default;
 $searchbox-bg-1:                $light !default;
 $searchbox-bg-2:                #fff !default;
 $searchbox-bg-3:                #fff !default;
-$searchbox-border-color:        rgba(0,0,0, 0.1) !default;
-$searchbox-border-active-color: rgba(0,0,0, 0.1) !default;
+$searchbox-border-color:        rgba(0,0,0, 0.12) !default;
+$searchbox-border-hover-color:  rgba(0,0,0, 0.12) !default;
+$searchbox-border-active-color: rgba(0,0,0, 0.12) !default;
 $searchbox-hit-tag-color:       darken($warning, 10%) !default;
 
 $footer-bg:                     $gray-100 !default;
