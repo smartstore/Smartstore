@@ -54,6 +54,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         /// <summary>
         /// Gets or sets the full description.
+        /// It is displayed in the payment method list in checkout.
         /// </summary>
         [StringLength(4000)]
         public string FullDescription { get; set; }

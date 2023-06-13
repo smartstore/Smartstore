@@ -41,7 +41,7 @@ namespace Smartstore.Admin.Models.Catalog
         public int[] SearchDeliveryTimeIds { get; set; }
 
         [LocalizedDisplay("*GoDirectlyToSku")]
-        public string GoDirectlyToSku { get; set; }
+        public string IdentificationNumber { get; set; }
 
         public bool DisplayProductPictures { get; set; }
         public bool IsSingleStoreMode { get; set; }

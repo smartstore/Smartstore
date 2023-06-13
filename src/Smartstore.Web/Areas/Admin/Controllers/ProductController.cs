@@ -466,19 +466,18 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost, ActionName("List")]
-        [FormValueRequired("go-to-product-by-sku")]
+        [FormValueRequired("go-to-product")]
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> GoToSku(ProductListModel model)
+        public async Task<IActionResult> GoToProduct(ProductListModel model)
         {
-            var sku = model.GoDirectlyToSku.TrimSafe();
+            var number = model.IdentificationNumber;
 
-            if (sku.HasValue())
+            if (number.HasValue())
             {
                 var products = await _db.Products
                     .IgnoreQueryFilters()
-                    .ApplySkuFilter(sku)
+                    .ApplyIdentificationNumberFilter(number)
                     .Select(x => new { x.Id, x.Deleted })
-                    .OrderBy(x => x.Id)
                     .ToListAsync();
 
                 if (products.Count > 0)
@@ -496,10 +495,9 @@ namespace Smartstore.Admin.Controllers
                 else
                 {
                     var query =
-                        from ac in _db.ProductVariantAttributeCombinations
+                        from ac in _db.ProductVariantAttributeCombinations.ApplyIdentificationNumberFilter(number)
                         join p in _db.Products.AsNoTracking().IgnoreQueryFilters() on ac.ProductId equals p.Id into acp
                         from p in acp.DefaultIfEmpty()
-                        where ac.Sku == sku
                         select new { Combination = ac, Product = p };
 
                     var pvac = await query.FirstOrDefaultAsync();

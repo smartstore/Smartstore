@@ -48,19 +48,19 @@ namespace Smartstore.Core.Catalog.Products
                 return (null, null);
             }
 
-            identificationNumber = identificationNumber.Trim();
-
             var pq = _db.Products
                 .ApplyTracking(tracked)
-                .ApplyStandardFilter(includeHidden)
-                .Where(x => x.Sku == identificationNumber || x.ManufacturerPartNumber == identificationNumber || x.Gtin == identificationNumber);
+                .ApplyStandardFilter(includeHidden);
 
             if (!includeHidden)
             {
                 pq = pq.Where(x => x.Visibility <= ProductVisibility.SearchResults);
             }
 
-            var product = await pq.FirstOrDefaultAsync();
+            var product = await pq
+                .ApplyIdentificationNumberFilter(identificationNumber)
+                .FirstOrDefaultAsync();
+
             if (product != null)
             {
                 return (product, null);
@@ -70,7 +70,7 @@ namespace Smartstore.Core.Catalog.Products
                 .Include(x => x.Product)
                 .ApplyTracking(tracked)
                 .ApplyStandardFilter(includeHidden)
-                .Where(x => x.Sku == identificationNumber || x.ManufacturerPartNumber == identificationNumber || x.Gtin == identificationNumber);
+                .ApplyIdentificationNumberFilter(identificationNumber);
 
             if (!includeHidden)
             {
@@ -84,7 +84,7 @@ namespace Smartstore.Core.Catalog.Products
 
         public virtual async Task<Multimap<int, ProductTag>> GetProductTagsByProductIdsAsync(int[] productIds, bool includeHidden = false)
         {
-            Guard.NotNull(productIds, nameof(productIds));
+            Guard.NotNull(productIds);
 
             var map = new Multimap<int, ProductTag>();
             if (!productIds.Any())
@@ -122,7 +122,7 @@ namespace Smartstore.Core.Catalog.Products
 
         public virtual async Task<IList<Product>> GetCrossSellProductsByProductIdsAsync(int[] productIds, int numberOfProducts, bool includeHidden = false)
         {
-            Guard.NotNull(productIds, nameof(productIds));
+            Guard.NotNull(productIds);
 
             var result = new List<Product>();
 
@@ -161,7 +161,7 @@ namespace Smartstore.Core.Catalog.Products
 
         public virtual void ApplyProductReviewTotals(Product product)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             // TODO: (core) Make a faster ApplyProductReviewTotals later without the necessity to eager load reviews.
 
@@ -193,7 +193,7 @@ namespace Smartstore.Core.Catalog.Products
 
         public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(OrderItem orderItem, bool decrease, int quantity)
         {
-            Guard.NotNull(orderItem, nameof(orderItem));
+            Guard.NotNull(orderItem);
 
             if (orderItem.Product.ProductType == ProductType.BundledProduct && orderItem.Product.BundlePerItemShoppingCart)
             {
@@ -233,8 +233,8 @@ namespace Smartstore.Core.Catalog.Products
 
         public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, ProductVariantAttributeSelection selection, bool decrease, int quantity)
         {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(selection, nameof(selection));
+            Guard.NotNull(product);
+            Guard.NotNull(selection);
 
             var result = new AdjustInventoryResult();
 

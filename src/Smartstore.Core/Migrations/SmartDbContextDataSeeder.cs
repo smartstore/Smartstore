@@ -162,6 +162,18 @@ namespace Smartstore.Core.Data.Migrations
                 .Value("de", "Legt fest, ob Unterwarengruppen in Warengruppen-Detailseiten angezeigt werden sollen.");
 
             builder.AddOrUpdate("Forum.TotalPosts", "Posts", "Beiträge");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.List.GoDirectlyToSku",
+                "Find by SKU, GTIN or MPN",
+                "Nach SKU, EAN oder MPN suchen",
+                "Opens directly the edit page of the product with the specified SKU, EAN or MPN (manufacturer part number).",
+                "Öffnet direkt die Bearbeitungsseite des Produktes mit der angegebenen SKU, GTIN oder MPN (Hersteller-Produktnummer).");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.ManufacturerPartNumber",
+                "Manufacturer part number (MPN)",
+                "Hersteller-Produktnummer (MPN)",
+                "Specifies the manufacturer's part number (MPN).",
+                "Legt die Produktnummer des Herstellers (MPN) fest.");
         }
     }
 }
