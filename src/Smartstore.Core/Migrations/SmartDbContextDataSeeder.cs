@@ -174,6 +174,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Hersteller-Produktnummer (MPN)",
                 "Specifies the manufacturer's part number (MPN).",
                 "Legt die Produktnummer des Herstellers (MPN) fest.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.EmailAccount.DefaultEmailAccountId",
+                "Default email account",
+                "Standard E-Mail-Konto",
+                "Specifies the default email account.",
+                "Legt das Standard E-Mail-Konto fest.");
         }
     }
 }

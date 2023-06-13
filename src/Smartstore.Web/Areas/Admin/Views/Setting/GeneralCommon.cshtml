@@ -44,6 +44,7 @@
                         <span asp-validation-for="StoreInformationSettings.StoreClosedAllowForAdmins"></span>
                     </div>
                 </div>
+
                 <div class="adminRow">
                     <div class="admin-config-group">
                         <div class="title">@T("Admin.Configuration.Settings.CustomerUser.DateTimeSettings")</div>
@@ -67,6 +68,23 @@
                     <div class="adminData">
                         <setting-editor asp-for="DateTimeSettings.AllowCustomersToSetTimeZone"></setting-editor>
                         <span asp-validation-for="DateTimeSettings.AllowCustomersToSetTimeZone"></span>
+                    </div>
+                </div>
+
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.Configuration.EmailAccounts")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="EmailAccountSettings.DefaultEmailAccountId" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="EmailAccountSettings.DefaultEmailAccountId">
+                            <select asp-for="EmailAccountSettings.DefaultEmailAccountId" asp-items="ViewBag.EmailAccounts"></select>
+                        </setting-editor>
+                        <span asp-validation-for="EmailAccountSettings.DefaultEmailAccountId"></span>
                     </div>
                 </div>
             </div>

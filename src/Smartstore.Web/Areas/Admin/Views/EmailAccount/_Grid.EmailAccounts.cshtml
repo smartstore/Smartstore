@@ -45,30 +45,7 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsDefaultEmailAccount }">@T("Common.SetDefault")</a>
         <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
-
-<script sm-target-zone="scripts" data-origin="email-accounts-grid">
-    $(function () {
-        $(document).on('click', '.grid-set-default', function (e) {
-            e.preventDefault();
-
-            $.ajax({
-				cache: false,
-				type: 'POST',
-				url: '@(Url.Action("SetDefaultEmailAccount", "EmailAccount"))',
-				data: {
-					"id": $(this).data("key")
-				},
-                success: function () {
-                    window["email-accounts-grid"].$children[0].read();
-                }
-            });
-
-            return false;
-        });
-    });
-</script>

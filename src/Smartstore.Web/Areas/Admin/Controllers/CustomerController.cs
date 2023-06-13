@@ -905,7 +905,7 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                if (!customer.Email.HasValue() || !customer.Email.IsEmail())
+                if (!customer.Email.IsEmail())
                 {
                     throw new InvalidOperationException(T("Admin.Customers.Customers.SendEmail.EmailNotValid"));
                 }

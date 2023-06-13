@@ -90,22 +90,6 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = success, Count = numDeleted });
         }
 
-        [HttpPost]
-        [Permission(Permissions.Configuration.EmailAccount.Update)]
-        public async Task<IActionResult> SetDefaultEmailAccount(int id)
-        {
-            var emailAccount = await _db.EmailAccounts.FindByIdAsync(id, false);
-            if (emailAccount == null)
-            {
-                return NotFound();
-            }
-
-            _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
-            await Services.SettingFactory.SaveSettingsAsync(_emailAccountSettings);
-
-            return Json(new { Success = true });
-        }
-
         [Permission(Permissions.Configuration.EmailAccount.Create)]
         public IActionResult Create()
         {
@@ -126,12 +110,6 @@ namespace Smartstore.Admin.Controllers
                 var emailAccount = await MapperFactory.MapAsync<EmailAccountModel, EmailAccount>(model);
                 _db.EmailAccounts.Add(emailAccount);
                 await _db.SaveChangesAsync();
-
-                if (model.IsDefaultEmailAccount)
-                {
-                    _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
-                    await Services.SettingFactory.SaveSettingsAsync(_emailAccountSettings);
-                }
 
                 NotifySuccess(T("Admin.Configuration.EmailAccounts.Added"));
 
@@ -173,12 +151,6 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model, emailAccount);
-
-                if (model.IsDefaultEmailAccount && _emailAccountSettings.DefaultEmailAccountId != emailAccount.Id)
-                {
-                    _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
-                    await Services.Settings.ApplySettingAsync(_emailAccountSettings, x => x.DefaultEmailAccountId);
-                }
 
                 await _db.SaveChangesAsync();
 

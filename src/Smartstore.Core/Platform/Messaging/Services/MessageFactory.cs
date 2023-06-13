@@ -412,12 +412,7 @@ namespace Smartstore.Core.Messaging
         {
             // Note that the email account to be used can be specified separately for each language, that's why we use GetLocalized here.
             var accountId = messageTemplate.GetLocalized(x => x.EmailAccountId, languageId);
-            var account = _db.EmailAccounts.AsNoTracking().FirstOrDefault(x => x.Id == accountId);
-
-            if (account == null)
-            {
-                account = _emailAccountService.GetDefaultEmailAccount();
-            }
+            var account = _db.EmailAccounts.FindById(accountId, false) ?? _emailAccountService.GetDefaultEmailAccount();
 
             if (account == null)
             {

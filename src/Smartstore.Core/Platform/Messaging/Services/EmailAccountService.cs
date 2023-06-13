@@ -24,7 +24,9 @@ namespace Smartstore.Core.Messaging
 
         protected override async Task<HookResult> OnDeletingAsync(EmailAccount entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entity.Id == _emailAccountSettings.DefaultEmailAccountId)
+            var settingName = nameof(EmailAccountSettings) + '.' + nameof(EmailAccountSettings.DefaultEmailAccountId);
+
+            if (await _db.Settings.AnyAsync(x => x.Name == settingName && x.Value == entity.Id.ToString(), cancelToken))
             {
                 entry.ResetState();
                 _hookErrorMessage = T("Admin.Configuration.EmailAccounts.CannotDeleteDefaultAccount", entity.Email.NaIfEmpty());
@@ -75,17 +77,8 @@ namespace Smartstore.Core.Messaging
 
         public virtual EmailAccount GetDefaultEmailAccount()
         {
-            var defaultEmailAccount = _db.EmailAccounts
-                .FindById(_emailAccountSettings.DefaultEmailAccountId);
-
-            if (defaultEmailAccount == null)
-            {
-                defaultEmailAccount = _db.EmailAccounts
-                    .AsNoTracking()
-                    .FirstOrDefault();
-            }
-
-            return defaultEmailAccount;
+            return _db.EmailAccounts.FindById(_emailAccountSettings.DefaultEmailAccountId, false)
+                ?? _db.EmailAccounts.AsNoTracking().OrderBy(x => x.Id).FirstOrDefault();
         }
     }
 }

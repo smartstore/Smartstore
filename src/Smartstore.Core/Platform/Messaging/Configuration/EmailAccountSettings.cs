@@ -5,7 +5,7 @@ namespace Smartstore.Core.Messaging
     public class EmailAccountSettings : ISettings
     {
         /// <summary>
-        /// Gets or sets a store default email account identifier.
+        /// Gets or sets the identifier of the default email account.
         /// </summary>
         public int DefaultEmailAccountId { get; set; }
 

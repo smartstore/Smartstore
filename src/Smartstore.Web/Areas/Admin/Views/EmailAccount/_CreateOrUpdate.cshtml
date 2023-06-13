@@ -79,17 +79,21 @@
             <span asp-validation-for="UseDefaultCredentials"></span>
         </div>
     </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="IsDefaultEmailAccount" />
-        </div>
-        <div class="adminData">
-            <input asp-for="IsDefaultEmailAccount" />
-            <span asp-validation-for="IsDefaultEmailAccount"></span>
-        </div>
-    </div>
     @if (Model.Id > 0)
     {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IsDefaultEmailAccount" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    <span>@(Model.IsDefaultEmailAccount ? T("Common.Yes") : T("Common.No"))</span>
+                    <a asp-action="GeneralCommon" asp-controller="Setting" class="btn btn-secondary btn-sm ml-2">
+                        <span>@T("Admin.Common.Change")</span>
+                    </a>
+                </div>
+            </div>
+        </div>
         <div class="adminRow">
             <div class="admin-config-group">
                 <div class="title">@T("Admin.Configuration.EmailAccounts.SendTestEmail")</div>

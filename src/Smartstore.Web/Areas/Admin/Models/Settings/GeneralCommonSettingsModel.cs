@@ -11,6 +11,7 @@ namespace Smartstore.Admin.Models
     {
         public StoreInformationSettingsModel StoreInformationSettings { get; set; } = new();
         public DateTimeSettingsModel DateTimeSettings { get; set; } = new();
+        public EmailAccountSettingsModel EmailAccountSettings { get; set; } = new();
 
         [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultTitle")]
         [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaDescription")]
@@ -33,6 +34,7 @@ namespace Smartstore.Admin.Models
         public SocialSettingsModel SocialSettings { get; set; } = new();
 
         #region Nested classes
+
         public partial class HomepageSettingsModel : ISeoModel
         {
             public string MetaTitle { get; set; }
@@ -62,6 +64,13 @@ namespace Smartstore.Admin.Models
 
             [LocalizedDisplay("*DefaultStoreTimeZone")]
             public string DefaultStoreTimeZoneId { get; set; }
+        }
+
+        [LocalizedDisplay("Admin.Configuration.Settings.EmailAccount.")]
+        public partial class EmailAccountSettingsModel
+        {
+            [LocalizedDisplay("*DefaultEmailAccountId")]
+            public int DefaultEmailAccountId { get; set; }
         }
 
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]

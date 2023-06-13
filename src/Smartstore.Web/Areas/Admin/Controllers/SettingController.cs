@@ -24,12 +24,14 @@ using Smartstore.Core.Content.Menus;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
@@ -235,7 +237,8 @@ namespace Smartstore.Admin.Controllers
             ContactDataSettings contactDataSettings,
             BankConnectionSettings bankConnectionSettings,
             SocialSettings socialSettings,
-            HomePageSettings homePageSettings)
+            HomePageSettings homePageSettings,
+            EmailAccountSettings emailAccountSettings)
         {
             var model = new GeneralCommonSettingsModel();
 
@@ -252,6 +255,7 @@ namespace Smartstore.Admin.Controllers
             MiniMapper.Map(bankConnectionSettings, model.BankConnectionSettings);
             MiniMapper.Map(socialSettings, model.SocialSettings);
             MiniMapper.Map(homePageSettings, model.HomepageSettings);
+            MiniMapper.Map(emailAccountSettings, model.EmailAccountSettings);
 
             #region SEO custom mapping
 
@@ -283,7 +287,7 @@ namespace Smartstore.Admin.Controllers
 
             #endregion
 
-            await PrepareGeneralCommonConfigurationModelAsync();
+            await PrepareGeneralCommonConfigurationModelAsync(emailAccountSettings);
 
             return View(model);
         }
@@ -304,7 +308,8 @@ namespace Smartstore.Admin.Controllers
             ContactDataSettings contactDataSettings,
             BankConnectionSettings bankConnectionSettings,
             SocialSettings socialSettings,
-            HomePageSettings homePageSeoSettings)
+            HomePageSettings homePageSeoSettings,
+            EmailAccountSettings emailAccountSettings)
         {
             if (!ModelState.IsValid)
             {
@@ -320,7 +325,8 @@ namespace Smartstore.Admin.Controllers
                     contactDataSettings,
                     bankConnectionSettings,
                     socialSettings,
-                    homePageSeoSettings);
+                    homePageSeoSettings,
+                    emailAccountSettings);
             }
 
             ModelState.Clear();
@@ -341,13 +347,14 @@ namespace Smartstore.Admin.Controllers
             MiniMapper.Map(model.BankConnectionSettings, bankConnectionSettings);
             MiniMapper.Map(model.SocialSettings, socialSettings);
             MiniMapper.Map(model.HomepageSettings, homePageSeoSettings);
+            MiniMapper.Map(model.EmailAccountSettings, emailAccountSettings);
 
             #region POST mapping
 
             // Set CountryId explicitly else it can't be resetted.
             companySettings.CountryId = model.CompanyInformationSettings.CountryId ?? 0;
 
-            //// (Un)track PDF logo id
+            // (Un)track PDF logo id
             await _mediaTracker.Value.TrackAsync(pdfSettings, prevPdfLogoId, x => x.LogoPictureId);
 
             seoSettings.MetaTitle = model.SeoSettings.MetaTitle;
@@ -1385,10 +1392,20 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(actionMethod);
         }
 
-        private Task PrepareGeneralCommonConfigurationModelAsync()
+        private async Task PrepareGeneralCommonConfigurationModelAsync(EmailAccountSettings emailAccountSettings)
         {
             ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
                 .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);
+
+            var emailAccounts = await _db.EmailAccounts
+                .AsNoTracking()
+                .AsNoCaching()
+                .OrderBy(x => x.Id)
+                .ToListAsync();
+
+            ViewBag.EmailAccounts = emailAccounts
+                .Select(x => new SelectListItem { Text = x.FriendlyName, Value = x.Id.ToString(), Selected = x.Id == emailAccountSettings.DefaultEmailAccountId })
+                .ToList();
 
             #region CompanyInfo custom mapping
 
@@ -1414,17 +1431,15 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.AvailableMetaContentValues = new List<SelectListItem>
             {
-                new SelectListItem { Text = "index", Value = "index" },
-                new SelectListItem { Text = "noindex", Value = "noindex" },
-                new SelectListItem { Text = "index, follow", Value = "index, follow" },
-                new SelectListItem { Text = "index, nofollow", Value = "index, nofollow" },
-                new SelectListItem { Text = "noindex, follow", Value = "noindex, follow" },
-                new SelectListItem { Text = "noindex, nofollow", Value = "noindex, nofollow" }
+                new() { Text = "index", Value = "index" },
+                new() { Text = "noindex", Value = "noindex" },
+                new() { Text = "index, follow", Value = "index, follow" },
+                new() { Text = "index, nofollow", Value = "index, nofollow" },
+                new() { Text = "noindex, follow", Value = "noindex, follow" },
+                new() { Text = "noindex, nofollow", Value = "noindex, nofollow" }
             };
 
             #endregion
-
-            return Task.CompletedTask;
         }
 
         private async Task PrepareCatalogConfigurationModelAsync(CatalogSettingsModel model)
