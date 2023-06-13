@@ -11,7 +11,7 @@
     gridViewData["Parent"] = Model;
 }
 
-<form id="order-form" asp-action="Edit" method="post">
+<form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
     <div class="section-header">
         <div class="title">
@@ -45,27 +45,30 @@
             <zone name="admin_button_toolbar_after" />
         </div>
     </div>
-
-    <div asp-validation-summary="All"></div>
-
-    <tabstrip id="order-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="orderEditTab_onAjaxSuccess">
-        <tab sm-title="@T("Admin.Common.General")" sm-selected="true" sm-icon="bi:pencil">
-            <partial name="_Edit.Info" />
-        </tab>
-        <tab sm-title="@T("Admin.Orders.BillingAndShipment")" sm-icon="bi:receipt">
-            <partial name="_Edit.BillingAndShipment" />
-        </tab>
-        <tab sm-title="@T("Admin.Orders.Products")" sm-icon="bi:box">
-            <partial name="_Edit.Products" />
-        </tab>
-        <tab sm-title="@T("Admin.Orders.OrderNotes")" sm-icon="bi:stickies" sm-adaptive-height="true">
-            <partial name="Grids/_Grid.OrderNotes" model="null" view-data="gridViewData" />
-        </tab>
-        <tab sm-title="@T("Admin.Common.GenericAttributes")" sm-icon="bi:card-checklist" sm-adaptive-height="true">
-            <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel { EntityName = "Order", AttributeEntityId = Model.Id }' />
-        </tab>
-    </tabstrip>
 </form>
+
+<div asp-validation-summary="All"></div>
+
+<tabstrip id="order-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="orderEditTab_onAjaxSuccess">
+    <tab sm-title="@T("Admin.Common.General")" sm-selected="true" sm-icon="bi:pencil">
+        <form id="order-form" asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <partial name="_Edit.Info" />
+        </form>
+    </tab>
+    <tab sm-title="@T("Admin.Orders.BillingAndShipment")" sm-icon="bi:receipt">
+        <partial name="_Edit.BillingAndShipment" />
+    </tab>
+    <tab sm-title="@T("Admin.Orders.Products")" sm-icon="bi:box">
+        <partial name="_Edit.Products" />
+    </tab>
+    <tab sm-title="@T("Admin.Orders.OrderNotes")" sm-icon="bi:stickies" sm-adaptive-height="true">
+        <partial name="Grids/_Grid.OrderNotes" model="null" view-data="gridViewData" />
+    </tab>
+    <tab sm-title="@T("Admin.Common.GenericAttributes")" sm-icon="bi:card-checklist" sm-adaptive-height="true">
+        <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel { EntityName = "Order", AttributeEntityId = Model.Id }' />
+    </tab>
+</tabstrip>
 
 <partial name="_UpdateOrderItemDialog" model="Model.UpdateOrderItem" />
 
