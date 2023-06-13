@@ -38,12 +38,12 @@ namespace Smartstore.Core.Catalog.Products
             _localizationSettings = localizationSettings;
         }
 
-        public virtual async Task<(Product Product, ProductVariantAttributeCombination VariantCombination)> GetProductByIdentificationNumberAsync(
-            string identificationNumber,
+        public virtual async Task<(Product Product, ProductVariantAttributeCombination VariantCombination)> GetProductByCodeAsync(
+            string code,
             bool includeHidden = false,
             bool tracked = false)
         {
-            if (string.IsNullOrWhiteSpace(identificationNumber))
+            if (string.IsNullOrWhiteSpace(code))
             {
                 return (null, null);
             }
@@ -58,7 +58,7 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             var product = await pq
-                .ApplyIdentificationNumberFilter(identificationNumber)
+                .ApplyProductCodeFilter(code)
                 .FirstOrDefaultAsync();
 
             if (product != null)
@@ -70,7 +70,7 @@ namespace Smartstore.Core.Catalog.Products
                 .Include(x => x.Product)
                 .ApplyTracking(tracked)
                 .ApplyStandardFilter(includeHidden)
-                .ApplyIdentificationNumberFilter(identificationNumber);
+                .ApplyProductCodeFilter(code);
 
             if (!includeHidden)
             {

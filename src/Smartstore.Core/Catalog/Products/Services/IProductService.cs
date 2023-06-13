@@ -14,12 +14,12 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets a product by SKU, GTIN or MPN.
         /// </summary>
-        /// <param name="identificationNumber">SKU, GTIN or MPN.</param>
+        /// <param name="code">SKU, GTIN or MPN.</param>
         /// <param name="includeHidden">A value indicating whether to include hidden products.</param>
         /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
         /// <returns>Found product or variant combination.</returns>
-        Task<(Product Product, ProductVariantAttributeCombination VariantCombination)> GetProductByIdentificationNumberAsync(
-            string identificationNumber,
+        Task<(Product Product, ProductVariantAttributeCombination VariantCombination)> GetProductByCodeAsync(
+            string code,
             bool includeHidden = false,
             bool tracked = false);
 

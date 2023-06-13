@@ -120,7 +120,7 @@ namespace Smartstore.Web.Controllers
             {
                 if (_searchSettings.SearchProductByIdentificationNumber)
                 {
-                    var (product, attributeCombination) = await _productService.Value.GetProductByIdentificationNumberAsync(term);
+                    var (product, attributeCombination) = await _productService.Value.GetProductByCodeAsync(term);
                     if (product != null)
                     {
                         if (attributeCombination != null)

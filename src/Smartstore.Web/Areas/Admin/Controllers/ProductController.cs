@@ -470,13 +470,13 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> GoToProduct(ProductListModel model)
         {
-            var number = model.IdentificationNumber;
+            var productCode = model.ProductCode;
 
-            if (number.HasValue())
+            if (productCode.HasValue())
             {
                 var products = await _db.Products
                     .IgnoreQueryFilters()
-                    .ApplyIdentificationNumberFilter(number)
+                    .ApplyProductCodeFilter(productCode)
                     .Select(x => new { x.Id, x.Deleted })
                     .ToListAsync();
 
@@ -495,7 +495,7 @@ namespace Smartstore.Admin.Controllers
                 else
                 {
                     var query =
-                        from ac in _db.ProductVariantAttributeCombinations.ApplyIdentificationNumberFilter(number)
+                        from ac in _db.ProductVariantAttributeCombinations.ApplyProductCodeFilter(productCode)
                         join p in _db.Products.AsNoTracking().IgnoreQueryFilters() on ac.ProductId equals p.Id into acp
                         from p in acp.DefaultIfEmpty()
                         select new { Combination = ac, Product = p };

@@ -91,15 +91,16 @@
         /// Applies a filter to find a <see cref="ProductVariantAttributeCombination"/> by its SKU, MPN or GTIN.
         /// </summary>
         /// <param name="query">Product attribute combinations query.</param>
-        /// <param name="identificationNumber">A product identification number like SKU, MPN or GTIN.</param>
+        /// <param name="code">A product code like SKU, MPN or GTIN.</param>
         /// <returns>Product attribute combinations query.</returns>
-        public static IQueryable<ProductVariantAttributeCombination> ApplyIdentificationNumberFilter(this IQueryable<ProductVariantAttributeCombination> query, string identificationNumber)
+        public static IQueryable<ProductVariantAttributeCombination> ApplyProductCodeFilter(this IQueryable<ProductVariantAttributeCombination> query, string code)
         {
             Guard.NotNull(query);
+            Guard.NotEmpty(code);
 
-            identificationNumber = identificationNumber.TrimSafe();
+            code = code.Trim();
 
-            query = query.Where(x => x.Sku == identificationNumber || x.ManufacturerPartNumber == identificationNumber || x.Gtin == identificationNumber);
+            query = query.Where(x => x.Sku == code || x.ManufacturerPartNumber == code || x.Gtin == code);
 
             return query;
         }

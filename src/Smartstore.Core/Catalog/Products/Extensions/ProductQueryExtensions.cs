@@ -101,18 +101,20 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Applies a filter to find a product by its SKU, MPN or GTIN and sorts by <see cref="Product.DisplayOrder"/>, then by <see cref="BaseEntity.Id"/>.
+        /// Applies a filter to find a product by its SKU, MPN or GTIN and sorts 
+        /// by <see cref="Product.DisplayOrder"/>, then by <see cref="BaseEntity.Id"/>.
         /// </summary>
         /// <param name="query">Product query.</param>
-        /// <param name="identificationNumber">A product identification number like SKU, MPN or GTIN.</param>
+        /// <param name="code">A product code like SKU, MPN or GTIN.</param>
         /// <returns>Ordered product query.</returns>
-        public static IOrderedQueryable<Product> ApplyIdentificationNumberFilter(this IQueryable<Product> query, string identificationNumber)
+        public static IOrderedQueryable<Product> ApplyProductCodeFilter(this IQueryable<Product> query, string code)
         {
             Guard.NotNull(query);
+            Guard.NotEmpty(code);
 
-            identificationNumber = identificationNumber.TrimSafe();
+            code = code.Trim();
 
-            query = query.Where(x => x.Sku == identificationNumber || x.ManufacturerPartNumber == identificationNumber || x.Gtin == identificationNumber);
+            query = query.Where(x => x.Sku == code || x.ManufacturerPartNumber == code || x.Gtin == code);
 
             return query
                 .OrderBy(x => x.DisplayOrder)
