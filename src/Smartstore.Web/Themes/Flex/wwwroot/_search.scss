@@ -8,12 +8,23 @@ $facet-selection-color:             darken($success, 15%);
 
 .instasearch-form {
     position: relative;
+    --search-addon-size: 26px;
+    --search-padding-start: 1.25rem;
+    --search-padding-end: 74px;
+    --search-addon-pos: 48px;
+
+    @if ($searchbox-pill == true) {
+        --search-border-radius: 50rem;
+    }
+    @else {
+        --search-border-radius: #{$btn-border-radius};
+    }
 }
 
 .instasearch-term {
     position: relative;
-    padding-left: 1rem;
-    padding-right: 60px;
+    padding-left: var(--search-padding-start);
+    padding-right: var(--search-padding-end);
     background-color: $searchbox-bg-1;
     border-color: $searchbox-border-color;
     box-shadow: none;
@@ -33,41 +44,52 @@ $facet-selection-color:             darken($success, 15%);
         border-color: $searchbox-border-active-color;
     }
 
-    @include media-breakpoint-up(lg) {
+    /*@include media-breakpoint-up(lg) {
         background-color: $searchbox-bg-3;
-    }
+    }*/
 }
 
 .instasearch-addon {
-    position: absolute !important;
+    position: absolute;
     z-index: 2;
-    width: 20px;
-    height: 20px;
+    width: var(--search-addon-size);
+    height: var(--search-addon-size);
+    margin-top: calc(var(--search-addon-size) / 2 * -1);
     top: 50%;
-    margin-top: -12px;
-    right: 52px;
+    right: var(--search-addon-pos);
+
+    > * {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        line-height: var(--search-addon-size);
+    }
 }
 
 .instasearch-clear {
-    width: 26px !important;
-    height: 26px !important;
-    line-height: 26px !important;
-    margin-top: -13px !important;
-    right: 48px;
-    color: $gray-700;
-    display: none !important;
+    border-radius: 50%;
+    border-width: 0;
+    color: $gray-600;
+    display: none;
 
-    .search-focused .instasearch-term:not(:placeholder-shown) ~ & {
+    .instasearch-term.active:not(.busy, :placeholder-shown) + .instasearch-addon > & {
         display: block !important;
     }
+}
+
+.instasearch-progress > svg {
+    vertical-align: sub;
 }
 
 .instasearch-button {
     position: absolute !important;
     z-index: 1;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    border-color: $searchbox-bg-1;
     border-left-width: 0;
     height: initial !important;
     font-size: 1rem;
@@ -82,16 +104,14 @@ $facet-selection-color:             darken($success, 15%);
     font-size: 1rem;
 }
 
-@if ($searchbox-pill == true) {
-    .instasearch-form:not(.open) {
-        .instasearch-term {
-            border-radius: 50rem;
-        }
+.instasearch-form:not(.open) {
+    .instasearch-term {
+        border-radius: var(--search-border-radius);
+    }
 
-        .instasearch-button {
-            border-top-right-radius: 50rem;
-            border-bottom-right-radius: 50rem;
-        }
+    .instasearch-button {
+        border-top-right-radius: var(--search-border-radius);
+        border-bottom-right-radius: var(--search-border-radius);
     }
 }
 

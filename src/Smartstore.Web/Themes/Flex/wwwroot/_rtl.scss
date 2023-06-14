@@ -208,26 +208,33 @@
 			margin-right: 12px;
 		}
 	}
+
 	// Search
 	// ------
 
-	#instasearch-progress {
-		left: 56px;
-		right: auto;
+	.instasearch-term {
+        padding-right: var(--search-padding-start);
+        padding-left: var(--search-padding-end);
 	}
 
-	.instasearch-term {
-		padding-right: 60px;
-		padding-left: 1rem;
-	}
+    .instasearch-addon {
+        left: var(--search-addon-pos);
+        right: auto;
+    }
 
 	.instasearch-button {
-		left: auto;
-		right: 0;
+		left: 1px;
+		right: auto;
 		border-right-width: 0;
 		border-left-width: $btn-border-width;
 		border-radius: $btn-border-radius 0 0 $btn-border-radius;
 	}
+
+    .instasearch-form:not(.open) {
+        .instasearch-button {
+            border-radius: var(--search-border-radius) 0 0 var(--search-border-radius);
+        }
+    }
 
 	.instasearch-drop {
 		right: 0;

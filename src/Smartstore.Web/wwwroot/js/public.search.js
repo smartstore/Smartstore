@@ -6,15 +6,16 @@
 
     $(function () {
         $('form.instasearch-form').each(function () {
-            var form = $(this),
+            let form = $(this),
                 box = form.find('.instasearch-term'),
+                addon = form.find('.instasearch-addon'),
                 spinner = form.find('.instasearch-progress'),
                 clearer = form.find('.instasearch-clear');
 
             if (box.length == 0 || box.data('instasearch') === false)
                 return;
 
-            var drop = form.find('.instasearch-drop'),
+            let drop = form.find('.instasearch-drop'),
                 logo = $('.shop-logo'),
                 dropBody = drop.find('.instasearch-drop-body'),
                 minLength = box.data("minlength"),
@@ -77,11 +78,14 @@
 
                 if (spinner.length === 0) {
                     spinner = createCircularSpinner(20)
-                        .addClass('instasearch-addon instasearch-progress')
-                        .appendTo(box.parent());
+                        .addClass('instasearch-progress')
+                        .prependTo(addon);
                 }
                 // Don't show spinner when result is coming fast (< 100 ms.)
-                var spinnerTimeout = setTimeout(function () { spinner.addClass('active'); }, 100)
+                var spinnerTimeout = setTimeout(function () {
+                    spinner.addClass('active');
+                    box.addClass('busy');
+                }, 100)
 
                 // save last entered term in a global variable
                 lastTerm = term;
@@ -117,11 +121,13 @@
                     complete: function () {
                         clearTimeout(spinnerTimeout); 
                         spinner.removeClass('active');
+                        box.removeClass('busy');
                     }
                 });
             }
 
             function expandBox() {
+                box.addClass('active');
                 if (box.data('origin') === 'Search/Search') {
                     var logoWidth = logo.width();
                     $('body').addClass('search-focused');
@@ -136,6 +142,7 @@
             }
 
             function shrinkBox() {
+                box.removeClass('active');
                 if (box.data('origin') === 'Search/Search') {
                     $('body').removeClass('search-focused');
                     logo.css('margin-left', '');
