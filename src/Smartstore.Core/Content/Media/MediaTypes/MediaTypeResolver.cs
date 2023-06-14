@@ -14,7 +14,7 @@ namespace Smartstore.Core.Content.Media
         private readonly ICacheManager _cache;
         private readonly MediaSettings _mediaSettings;
 
-        private static HashSet<string> _mapInvalidatorSettingKeys = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _mapInvalidatorSettingKeys = new(StringComparer.OrdinalIgnoreCase)
         {
             TypeHelper.NameOf<MediaSettings>(x => x.ImageTypes, true),
             TypeHelper.NameOf<MediaSettings>(x => x.VideoTypes, true),

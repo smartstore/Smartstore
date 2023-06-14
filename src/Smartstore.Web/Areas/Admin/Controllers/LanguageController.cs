@@ -279,7 +279,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            ViewBag.AllLanguages = (await _languageService.GetAllLanguagesAsync(true)).ToSelectListItems(new[] { languageId });
+            ViewBag.AllLanguages = (await _languageService.GetAllLanguagesAsync(true)).ToSelectListItems(languageId);
 
             var model = new LanguageResourceListModel
             {

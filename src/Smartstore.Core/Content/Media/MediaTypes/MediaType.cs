@@ -23,7 +23,7 @@
 
         protected MediaType(string name, params string[] defaultExtensions)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             Name = name;
             DefaultExtensions = defaultExtensions.OrderBy(x => x).ToArray();

@@ -49,8 +49,8 @@ namespace Smartstore.Web.Components
 
                         neutralCulture ??= culture?.Parent ?? culture;
 
-                        var localizedName = x.GetLocalized(x => x.Name, workingLanguage, workingLanguage.Id == masterLanguageId).Value.NullEmpty();
-                        var defaultLocalizedName = x.GetLocalized(x => x.Name, workingLanguage, true).Value;
+                        var localizedName = x.GetLocalized(x => x.Name, workingLanguage, returnDefaultValue: workingLanguage.Id == masterLanguageId).Value.NullEmpty();
+                        var defaultLocalizedName = x.GetLocalized(x => x.Name, workingLanguage, returnDefaultValue: true).Value;
 
                         var nativeName = localizedName ?? culture?.NativeName ?? defaultLocalizedName;
                         var shortNativeName = localizedName ?? neutralCulture?.NativeName ?? defaultLocalizedName;
