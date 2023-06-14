@@ -111,22 +111,33 @@ body {
 #scroll-top {
     z-index: 9999;
     position: fixed;
-    bottom: 80px;
-    right: 0;
-    width: 36px;
-    height: 36px;
-    border-radius: $border-radius 0 0 $border-radius;
-    border: 1px solid rgba(#000, 0.1);
-    border-right-width: 0;
-    background: rgba(#fff, 0.9);
+    bottom: 1rem;
+    right: 1rem;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #fff;
     color: $body-color !important;
     text-decoration: none;
-    transform: translate3d(100%, 0, 0);
-    transition: all .5s ease;
     opacity: 0;
+    transform: scale(0.7);
+    transition-property: transform, opacity;
+    transition-duration: .2s;
+    transition-timing-function: ease-in;
+    pointer-events: none;
+    --shadow-intensity: 1.25;
+
+    &:active {
+        --shadow-intensity: 2;
+    }
 
     &.in {
-        transform: translate3d(0, 0, 0) !important;
-        opacity: 1;
+        transform: scale(1);
+        pointer-events: initial;
+        opacity: 0.7;
+
+        @include media-breakpoint-up(md) {
+            opacity: 1;
+        }
     }
 }

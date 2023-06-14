@@ -9,9 +9,9 @@ $facet-selection-color:             darken($success, 15%);
 .instasearch-form {
     position: relative;
     --search-addon-size: 26px;
+    --search-addon-pos: 48px;
     --search-padding-start: 1.25rem;
     --search-padding-end: 74px;
-    --search-addon-pos: 48px;
 
     @if ($searchbox-pill == true) {
         --search-border-radius: 50rem;
@@ -30,7 +30,7 @@ $facet-selection-color:             darken($success, 15%);
     box-shadow: none;
     transition-property: background-color, color, box-shadow, border;
     transition-duration: 0.2s;
-    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition-timing-function: cubic-bezier(.4, 0, .2, 1);
 
     &:hover:not(:focus):not(:active) {
         background-color: $searchbox-bg-2;
