@@ -40,6 +40,7 @@
 - #658 Limit number of product clones to generate either via UI or code (or both)
 - #736 Backend > Product grid: Search By SKU should also search for GTIN & MPN
 - #682 Allow to set the default email account per shop.
+- Google Analytics: Added option to enable admin to prohibit the script from being loaded without explicit consent by the visitor
 
 ### Bugfixes
 
