@@ -6,6 +6,9 @@
         [LocalizedDisplay("*GoogleId")]
         public string GoogleId { get; set; }
 
+        [LocalizedDisplay("*RenderWithUserConsentOnly")]
+        public bool RenderWithUserConsentOnly { get; set; }
+
         [LocalizedDisplay("*TrackingScript")]
         [UIHint("TextArea"), AdditionalMetadata("rows", 12)]
         public string TrackingScript { get; set; }

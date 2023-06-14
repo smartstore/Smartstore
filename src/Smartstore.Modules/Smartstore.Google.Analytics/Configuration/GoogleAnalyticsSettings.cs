@@ -5,6 +5,7 @@ namespace Smartstore.Google.Analytics.Settings
     public class GoogleAnalyticsSettings : ISettings
     {
         public string GoogleId { get; set; } = "UA-0000000-0";
+        public bool RenderWithUserConsentOnly { get; set; } = false;
         public string TrackingScript { get; set; }
         public string EcommerceScript { get; set; }
         public string EcommerceDetailScript { get; set; }

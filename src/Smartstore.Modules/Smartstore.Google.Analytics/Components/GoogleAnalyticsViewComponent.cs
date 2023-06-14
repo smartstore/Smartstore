@@ -40,6 +40,12 @@ namespace Smartstore.Google.Analytics.Components
                 return Empty();
             }
 
+            // If user has not accepted the cookie consent don't render anything.
+            if (_settings.RenderWithUserConsentOnly && !_cookieConsentManager.IsCookieAllowed(CookieType.Analytics))
+            {
+                return Empty();
+            }
+
             var rootScript = string.Empty;
             var specificScript = string.Empty;
 

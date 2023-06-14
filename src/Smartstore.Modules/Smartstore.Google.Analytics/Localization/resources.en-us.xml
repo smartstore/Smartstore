@@ -15,10 +15,17 @@
                     <li>Copy the Google Analytics ID into the ID field below.</li>
                     <li>Activate the Google Analytics widget under <b>CMS > Widgets</b> to integrate Google Analytics into your store.</li>
                 </ul>
-		            <p>
-			            To include the opt-out cookie in your privacy policy, use the following code:
-		            </p>
-		            <pre>&lt;a href=&quot;javascript:gaOptout()&quot;&gt;Deactivate Google Analytics&lt;/a&gt;</pre>
+                <p>
+                    Google Analytics  can analyze data from your customers even without the use of cookies.  
+                    An anonymous client ID is used for this purpose. Only when a customer agrees to the use of analytical cookies in the cookie manager, 
+                    cookies are also used by the Analytics script. 
+                    If you also want the tag manager to become active only after the customer has agreed to the analytical cookies, 
+                    please activate the <i>Load only with consent</i> option below.
+                </p>
+		        <p>
+			        To include the opt-out cookie in your privacy policy, use the following code:
+		        </p>
+		        <pre>&lt;a href=&quot;javascript:gaOptout()&quot;&gt;Deactivate Google Analytics&lt;/a&gt;</pre>
               ]]>
         </Value>
     </LocaleResource>
@@ -34,6 +41,12 @@
     </LocaleResource>
     <LocaleResource Name="GoogleId.Hint">
         <Value>Enter Google Analytics ID.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderWithUserConsentOnly">
+        <Value>Load only with consent</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderWithUserConsentOnly.Hint">
+        <Value>Specifies whether the Analytics script is loaded only after the customer consents to analytic cookies.</Value>
     </LocaleResource>
     <LocaleResource Name="TrackingScript">
         <Value>Tracking code with {ECOMMERCE} line</Value>
