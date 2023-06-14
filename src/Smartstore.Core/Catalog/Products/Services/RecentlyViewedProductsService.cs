@@ -25,9 +25,9 @@ namespace Smartstore.Core.Catalog.Products
             _catalogSettings = catalogSettings;
         }
 
-        public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(int number)
+        public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(int number, int[] excludedProductIds = null)
         {
-            var productIds = GetRecentlyViewedProductsIds(number);
+            var productIds = GetRecentlyViewedProductsIds(number, excludedProductIds);
 
             if (!productIds.Any())
             {
@@ -67,6 +67,10 @@ namespace Smartstore.Core.Catalog.Products
                 maxProducts = 8;
             }
 
+            // INFO: save one more product than needed, so that also on the product detail page
+            // (where the current product is excluded) up to "RecentlyViewedProductsNumber" products are displayed.
+            ++maxProducts;
+
             var cookies = _httpContextAccessor.HttpContext.Response.Cookies;
             var cookieName = CookieNames.RecentlyViewedProducts;
 
@@ -80,11 +84,11 @@ namespace Smartstore.Core.Catalog.Products
             cookies.Delete(cookieName, options);
 
             cookies.Append(cookieName,
-                string.Join(",", newProductIds.Take(maxProducts)),
+                string.Join(',', newProductIds.Take(maxProducts)),
                 options);
         }
 
-        protected virtual IEnumerable<int> GetRecentlyViewedProductsIds(int number)
+        protected virtual IEnumerable<int> GetRecentlyViewedProductsIds(int number, int[] excludedProductIds = null)
         {
             var request = _httpContextAccessor?.HttpContext?.Request;
 
@@ -100,6 +104,11 @@ namespace Smartstore.Core.Catalog.Products
                         .Select(x => x.Split('=').Skip(1).FirstOrDefault().ToInt())
                         .Where(x => x != 0)
                         .ToArray();
+                }
+
+                if (!excludedProductIds.IsNullOrEmpty())
+                {
+                    ids = ids.Where(x => !excludedProductIds.Contains(x)).ToArray();
                 }
 
                 return ids.Distinct().Take(number);

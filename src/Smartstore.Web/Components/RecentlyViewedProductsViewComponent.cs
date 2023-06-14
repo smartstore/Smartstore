@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog;
+﻿using Microsoft.AspNetCore.Routing;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Web.Models.Catalog;
 
@@ -27,7 +28,14 @@ namespace Smartstore.Web.Components
                 return Empty();
             }
 
-            var products = await _recentlyViewedProductsService.GetRecentlyViewedProductsAsync(_catalogSettings.RecentlyViewedProductsNumber);
+            var routeData = HttpContext.GetRouteData();
+            var routeId = routeData.Values.GenerateRouteIdentifier();
+
+            var excludedProductIds = routeId == "Product.ProductDetails"
+                ? new[] { routeData.Values.Get("productId").Convert<int>() }
+                : null;
+
+            var products = await _recentlyViewedProductsService.GetRecentlyViewedProductsAsync(_catalogSettings.RecentlyViewedProductsNumber, excludedProductIds);
             if (products.Count == 0)
             {
                 return Empty();

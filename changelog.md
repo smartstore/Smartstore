@@ -42,6 +42,7 @@
 - #736 Backend > Product grid: Search By SKU should also search for GTIN & MPN
 - #682 Allow to set the default email account per shop.
 - Google Analytics: Added option to enable admin to prohibit the script from being loaded without explicit consent by the visitor
+- #406 Exclude current product from recently viewed products block on product detail page.
 
 ### Bugfixes
 

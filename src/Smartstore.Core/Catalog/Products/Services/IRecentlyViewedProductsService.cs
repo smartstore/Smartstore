@@ -9,8 +9,9 @@
         /// Gets a list of recently viewed products.
         /// </summary>
         /// <param name="number">Number of products to return.</param>
+        /// <param name="excludedProductIds">Array of product identifiers to be excluded.</param>
         /// <returns>List of recently viewed products.</returns>
-        Task<IList<Product>> GetRecentlyViewedProductsAsync(int number);
+        Task<IList<Product>> GetRecentlyViewedProductsAsync(int number, int[] excludedProductIds = null);
 
         /// <summary>
         /// Adds a product identifier to the recently viewed products list.
