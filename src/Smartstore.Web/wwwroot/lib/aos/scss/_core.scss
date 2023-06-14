@@ -13,6 +13,7 @@ body {
     --aos-duration: 1000ms;
     --aos-delay: 0ms;
     --aos-distance: 100px;
+    --aos-easing: ease;
 }
 
 [data-aos] {
@@ -23,12 +24,5 @@ body {
     &.aos-animate {
         pointer-events: auto;
         transition-delay: var(--aos-delay);
-    }
-}
-
-// Backward compat with ContentSlider & other stuff
-@for $i from 1 through 30 {
-    [data-aos-delay='#{$i * 100}'] {
-        --aos-delay: #{$i * 100}ms;
     }
 }
