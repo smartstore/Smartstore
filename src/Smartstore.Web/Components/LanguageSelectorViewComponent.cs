@@ -26,15 +26,20 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync(string templateName = "Default")
         {
-            var key = ModelCacheInvalidator.AVAILABLE_LANGUAGES_MODEL_KEY.FormatInvariant(Services.StoreContext.CurrentStore.Id);
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var workingLanguage = Services.WorkContext.WorkingLanguage;
+            var key = ModelCacheInvalidator.AVAILABLE_LANGUAGES_MODEL_KEY.FormatInvariant(workingLanguage.Id, storeId);
+
             var availableLanguages = await Services.Cache.GetAsync(key, async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(24));
 
                 var languages = await _db.Languages
                     .AsNoTracking()
-                    .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
+                    .ApplyStandardFilter(false, storeId)
                     .ToListAsync();
+
+                var masterLanguageId = await _languageService.Value.GetMasterLanguageIdAsync(storeId);
 
                 var result = languages
                     .Select(x =>
@@ -44,8 +49,11 @@ namespace Smartstore.Web.Components
 
                         neutralCulture ??= culture?.Parent ?? culture;
 
-                        var nativeName = culture?.NativeName ?? x.Name;
-                        var shortNativeName = neutralCulture?.NativeName ?? x.Name;
+                        var localizedName = x.GetLocalized(x => x.Name, workingLanguage, workingLanguage.Id == masterLanguageId).Value.NullEmpty();
+                        var defaultLocalizedName = x.GetLocalized(x => x.Name, workingLanguage, true).Value;
+
+                        var nativeName = localizedName ?? culture?.NativeName ?? defaultLocalizedName;
+                        var shortNativeName = localizedName ?? neutralCulture?.NativeName ?? defaultLocalizedName;
 
                         var model = new LanguageModel
                         {
@@ -58,8 +66,8 @@ namespace Smartstore.Web.Components
                             CultureCode = x.UniqueSeoCode,
 
                             FlagImageFileName = x.FlagImageFileName,
-                            Name = CultureHelper.NormalizeLanguageDisplayName(x.Name, stripRegion: false, culture: culture),
-                            ShortName = CultureHelper.NormalizeLanguageDisplayName(x.Name, stripRegion: true, culture: culture),
+                            Name = CultureHelper.NormalizeLanguageDisplayName(defaultLocalizedName, stripRegion: false, culture: culture),
+                            ShortName = CultureHelper.NormalizeLanguageDisplayName(defaultLocalizedName, stripRegion: true, culture: culture),
                             NativeName = CultureHelper.NormalizeLanguageDisplayName(nativeName, stripRegion: false, culture: culture),
                             ShortNativeName = CultureHelper.NormalizeLanguageDisplayName(shortNativeName, stripRegion: true, culture: culture)
                         };
@@ -78,8 +86,7 @@ namespace Smartstore.Web.Components
 
             ViewBag.AvailableLanguages = availableLanguages;
 
-            var workingLanguage = Services.WorkContext.WorkingLanguage;
-            string defaultSeoCode = await _languageService.Value.GetMasterLanguageSeoCodeAsync();
+            var defaultSeoCode = await _languageService.Value.GetMasterLanguageSeoCodeAsync();
             var returnUrls = new Dictionary<string, string>();
 
             foreach (var lang in availableLanguages)

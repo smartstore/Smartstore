@@ -6,7 +6,7 @@ using Smartstore.Core.Localization;
 namespace Smartstore.Admin.Models.Localization
 {
     [LocalizedDisplay("Admin.Configuration.Languages.Fields.")]
-    public class LanguageModel : EntityModelBase
+    public class LanguageModel : EntityModelBase, ILocalizedModel<LanguageLocalizedModel>
     {
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
@@ -47,6 +47,17 @@ namespace Smartstore.Admin.Models.Localization
 
         [LocalizedDisplay("*LastResourcesImportOn")]
         public string LastResourcesImportOnString { get; set; }
+
+        public List<LanguageLocalizedModel> Locales { get; set; } = new();
+    }
+
+    [LocalizedDisplay("Admin.Configuration.Languages.Fields.")]
+    public class LanguageLocalizedModel : ILocalizedLocaleModel
+    {
+        public int LanguageId { get; set; }
+
+        [LocalizedDisplay("*Name")]
+        public string Name { get; set; }
     }
 
     public partial class LanguageValidator : AbstractValidator<LanguageModel>

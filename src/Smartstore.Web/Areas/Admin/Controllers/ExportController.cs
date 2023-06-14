@@ -45,6 +45,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IExportProfileService _exportProfileService;
         private readonly ICategoryService _categoryService;
         private readonly ICurrencyService _currencyService;
+        private readonly ILanguageService _languageService;
         private readonly IDataExporter _dataExporter;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IProviderManager _providerManager;
@@ -58,6 +59,7 @@ namespace Smartstore.Admin.Controllers
             IExportProfileService exportProfileService,
             ICategoryService categoryService,
             ICurrencyService currencyService,
+            ILanguageService languageService,
             IDataExporter dataExporter,
             ITaskScheduler taskScheduler,
             IProviderManager providerManager,
@@ -70,6 +72,7 @@ namespace Smartstore.Admin.Controllers
             _exportProfileService = exportProfileService;
             _categoryService = categoryService;
             _currencyService = currencyService;
+            _languageService = languageService;
             _dataExporter = dataExporter;
             _taskScheduler = taskScheduler;
             _providerManager = providerManager;
@@ -869,11 +872,7 @@ namespace Smartstore.Admin.Controllers
             var store = Services.StoreContext.CurrentStore;
             var stores = Services.StoreContext.GetAllStores();
             var emailAccounts = await _db.EmailAccounts.AsNoTracking().ToListAsync();
-
-            var languages = await _db.Languages
-                .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder)
-                .ToListAsync();
+            var languages = await _languageService.GetAllLanguagesAsync(true);
 
             var currencies = await _db.Currencies
                 .AsNoTracking()
@@ -898,13 +897,10 @@ namespace Smartstore.Admin.Controllers
             ViewBag.CompletedEmailAddresses = new MultiSelectList(profile.CompletedEmailAddresses.SplitSafe(','));
 
             ViewBag.Stores = stores.ToSelectListItems();
-
-            ViewBag.Languages = languages
-                .Select(y => new SelectListItem { Text = y.Name, Value = y.Id.ToString() })
-                .ToList();
+            ViewBag.Languages = languages.ToSelectListItems();
 
             ViewBag.Currencies = currencies
-                .Select(y => new SelectListItem { Text = y.Name, Value = y.Id.ToString() })
+                .Select(y => new SelectListItem { Text = y.GetLocalized(x => x.Name), Value = y.Id.ToString() })
                 .ToList();
 
             ViewBag.DeploymentTypeIconClasses = DeploymentTypeIconClasses;

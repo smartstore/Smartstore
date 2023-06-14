@@ -5,6 +5,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -30,7 +31,7 @@ namespace Smartstore.Admin.Controllers
                 EntityId = entityId
             };
 
-            PrepareAvailableLanguages();
+            await PrepareAvailableLanguages();
 
             var languageId = Services.WorkContext.WorkingLanguage.Id;
             var entityNames = await _db.UrlRecords
@@ -108,7 +109,7 @@ namespace Smartstore.Admin.Controllers
 
             var model = new UrlRecordModel();
             PrepareUrlRecordModel(model, urlRecord);
-            PrepareAvailableLanguages();
+            await PrepareAvailableLanguages();
 
             return View(model);
         }
@@ -152,7 +153,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             PrepareUrlRecordModel(model, null);
-            PrepareAvailableLanguages();
+            await PrepareAvailableLanguages();
 
             return View(model);
         }
@@ -206,15 +207,9 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, Count = numDeleted });
         }
 
-        private void PrepareAvailableLanguages()
+        private async Task PrepareAvailableLanguages()
         {
-            var allLanguages = _languageService.GetAllLanguages(true);
-
-            ViewBag.AvailableLanguages = _languageService
-                .GetAllLanguages()
-                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
-                .ToList();
-
+            ViewBag.AvailableLanguages = (await _languageService.GetAllLanguagesAsync(true)).ToSelectListItems();
             ViewBag.AvailableLanguages.Insert(0, new SelectListItem { Text = T("Admin.System.SeNames.Language.Standard"), Value = "0" });
         }
 
@@ -248,7 +243,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 else if (allLanguages.TryGetValue(urlRecord.LanguageId, out var language))
                 {
-                    model.Language = language?.Name?.NaIfEmpty();
+                    model.Language = language?.GetLocalized(x => x.Name) ?? StringExtensions.NotAvailable;
                     model.FlagImageUrl = Url.Content("~/images/flags/" + language.FlagImageFileName);
                 }
                 else

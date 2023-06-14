@@ -1,4 +1,6 @@
-﻿@model Smartstore.Admin.Models.Localization.LanguageModel
+﻿@using Localization = Smartstore.Admin.Models.Localization;
+
+@model Localization.LanguageModel
 
 @{
     var countryFlags = ViewBag.CountryFlags as List<SelectListItem>;
@@ -9,16 +11,35 @@
 
 <tabstrip id="language-edit" sm-nav-style="Material">
     <tab sm-title="@T("Admin.Common.Info")" sm-selected="true">
-        <div class="adminContent">
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="Name" />
-                </div>
-                <div class="adminData">
-                    <input asp-for="Name" />
-                    <span asp-validation-for="Name"></span>
+        @(Html.LocalizedEditor<Localization.LanguageModel, Localization.LanguageLocalizedModel>("language-info-localized",
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Name" />
+                    </div>
+                    <div class="adminData">
+                        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" type="hidden" />
+                        <input asp-for="Locales[item].Name" />
+                        <span asp-validation-for="Locales[item].Name"></span>
+                    </div>
                 </div>
             </div>
+            ,
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Name" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+            </div>
+        ))
+
+        <div class="adminContent">
             <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="LanguageCulture" />

@@ -513,11 +513,11 @@ namespace Smartstore.Web.Rendering
             if (locales.Count > 1)
             {
                 var services = helper.ViewContext.HttpContext.RequestServices;
-                var db = services.GetRequiredService<SmartDbContext>();
                 var languageService = services.GetRequiredService<ILanguageService>();
                 var localizationService = services.GetRequiredService<ILocalizationService>();
                 var tabs = new List<TabItem>(locales.Count + 1);
                 var languages = new List<Language>(locales.Count + 1);
+                var allLanguages = languageService.GetAllLanguages(true).ToDictionary(x => x.Id);
 
                 // Create the parent tabstrip
                 var strip = new TabStripTagHelper
@@ -531,7 +531,7 @@ namespace Smartstore.Web.Rendering
 
                 if (hasMasterTemplate)
                 {
-                    var masterLanguage = db.Languages.FindById(languageService.GetMasterLanguageId(), false);
+                    var masterLanguage = allLanguages.Get(languageService.GetMasterLanguageId());
                     languages.Add(masterLanguage);
 
                     // Add the first default tab for the master template
@@ -547,13 +547,13 @@ namespace Smartstore.Web.Rendering
                 for (var i = 0; i < locales.Count; i++)
                 {
                     var locale = locales[i];
-                    var language = db.Languages.FindById(locale.LanguageId, false);
+                    var language = allLanguages.Get(locale.LanguageId);
                     languages.Add(language);
 
                     tabs.Add(new TabItem
                     {
                         Selected = !hasMasterTemplate && i == 0,
-                        Text = language.Name,
+                        Text = language.GetLocalized(x => x.Name),
                         ImageUrl = "~/images/flags/" + language.FlagImageFileName,
                         Content = localizedTemplate(i).ToHtmlString()
                     });
@@ -584,7 +584,7 @@ namespace Smartstore.Web.Rendering
                         {
                             builder.Item = tabs[i];
                             builder
-                                .HtmlAttributes("title", language.Name, !isMaster)
+                                .HtmlAttributes("title", language.GetLocalized(x => x.Name), !isMaster)
                                 .ContentHtmlAttributes(new
                                 {
                                     @class = "locale-editor-content",

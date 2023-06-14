@@ -79,8 +79,8 @@ namespace Smartstore.Web.Rendering
             ModuleManager moduleManager,
             params string[] selectedMethods)
         {
-            Guard.NotNull(paymentProviders, nameof(paymentProviders));
-            Guard.NotNull(moduleManager, nameof(moduleManager));
+            Guard.NotNull(paymentProviders);
+            Guard.NotNull(moduleManager);
 
             var list = new List<ExtendedSelectListItem>();
 
@@ -172,6 +172,25 @@ namespace Smartstore.Web.Rendering
 
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Gets a select list of languages.
+        /// </summary>
+        /// <param name="languages">Languages.</param>
+        /// <param name="selectedLanguageIds">Identifiers of languages to be selected.</param>
+        /// <returns>Select list of languages.</returns>
+        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Language> languages, params int[] selectedLanguageIds)
+        {
+            Guard.NotNull(languages);
+
+            return languages.Select(x => new SelectListItem
+            {
+                Text = x.GetLocalized(x => x.Name),
+                Value = x.Id.ToStringInvariant(),
+                Selected = selectedLanguageIds?.Contains(x.Id) ?? false
+            })
+            .ToList();
         }
 
         /// <summary>

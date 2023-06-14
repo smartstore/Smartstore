@@ -28,6 +28,7 @@
 - Increased performance: category tree path to filter products by categories.
 - Better PayPal implementaion: added providers for every single payment option.
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
+- #416 Make the language name localizable.
 - Specify custom database collation during installation.
 - Added a search filter for country grid.
 - Add X-Frame-Options `SAMEORIGIN` to response headers

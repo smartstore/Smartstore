@@ -25,12 +25,14 @@ namespace Smartstore.Core.Localization
     [DebuggerDisplay("{LanguageCulture}")]
     [Index(nameof(DisplayOrder), Name = "IX_Language_DisplayOrder")]
     [CacheableEntity]
-    public partial class Language : EntityWithAttributes, ILanguage, IStoreRestricted
+    [LocalizedEntity("Published")]
+    public partial class Language : EntityWithAttributes, ILanguage, IStoreRestricted, ILocalizedEntity
     {
         /// <summary>
         /// Gets or sets the name
         /// </summary>
         [Required, StringLength(100)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>

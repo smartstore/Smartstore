@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
@@ -35,7 +34,7 @@ namespace Smartstore.Core.Localization.Rules
                 result.AddOptions(context, languages.Select(x => new RuleValueSelectListOption
                 {
                     Value = x.Id.ToString(),
-                    Text = GetCultureDisplayName(x) ?? x.Name
+                    Text = x.GetLocalized(x => x.Name)
                 }));
             }
             else
@@ -44,20 +43,6 @@ namespace Smartstore.Core.Localization.Rules
             }
 
             return result;
-        }
-
-        private static string GetCultureDisplayName(Language language)
-        {
-            if (language?.LanguageCulture?.HasValue() ?? false)
-            {
-                try
-                {
-                    return new CultureInfo(language.LanguageCulture).DisplayName;
-                }
-                catch { }
-            }
-
-            return null;
         }
     }
 }

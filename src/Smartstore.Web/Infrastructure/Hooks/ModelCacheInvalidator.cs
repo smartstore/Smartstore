@@ -158,9 +158,10 @@ namespace Smartstore.Web.Infrastructure.Hooks
         /// Key for available languages
         /// </summary>
         /// <remarks>
-        /// {0} : current store ID
+        /// {0} : language ID
+        /// {1} : current store ID
         /// </remarks>
-        public const string AVAILABLE_LANGUAGES_MODEL_KEY = "pres:languages:all-{0}";
+        public const string AVAILABLE_LANGUAGES_MODEL_KEY = "pres:languages:all-{0}-{1}";
         public const string AVAILABLE_LANGUAGES_PATTERN_KEY = "pres:languages:*";
 
         /// <summary>

@@ -21,6 +21,7 @@ using Smartstore.Data.Hooks;
 using Smartstore.Engine.Modularity;
 using Smartstore.Threading;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -28,6 +29,7 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ILanguageService _languageService;
+        private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IModuleCatalog _moduleCatalog;
         private readonly IXmlResourceManager _xmlResourceManager;
@@ -38,6 +40,7 @@ namespace Smartstore.Admin.Controllers
         public LanguageController(
             SmartDbContext db,
             ILanguageService languageService,
+            ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IModuleCatalog moduleCatalog,
             IXmlResourceManager xmlResourceManager,
@@ -47,6 +50,7 @@ namespace Smartstore.Admin.Controllers
         {
             _db = db;
             _languageService = languageService;
+            _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _moduleCatalog = moduleCatalog;
             _xmlResourceManager = xmlResourceManager;
@@ -71,7 +75,7 @@ namespace Smartstore.Admin.Controllers
             var models = await languages.SelectAwait(async x =>
             {
                 var m = await mapper.MapAsync(x);
-                m.Name = GetCultureDisplayName(x.LanguageCulture) ?? x.Name;
+                m.Name = GetCultureDisplayName(x.LanguageCulture) ?? x.GetLocalized(x => x.Name);
 
                 if (lastImportInfos.TryGetValue(x.Id, out LastResourcesImportInfo info))
                 {
@@ -138,6 +142,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             var model = new LanguageModel();
+            AddLocales(model.Locales);
             await PrepareLanguageModel(model, null, false);
 
             return View(model);
@@ -150,11 +155,12 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var language = await MapperFactory.MapAsync<LanguageModel, Language>(model);
-
                 _db.Languages.Add(language);
                 await _db.SaveChangesAsync();
 
-                await SaveStoreMappingsAsync(language, model.SelectedStoreIds);
+                await UpdateLocalesAsync(language, model);
+                await _storeMappingService.ApplyStoreMappingsAsync(language, model.SelectedStoreIds);
+                await _db.SaveChangesAsync();
 
                 var filterLanguages = new List<Language> { language };
                 var modules = _moduleCatalog.GetInstalledModules();
@@ -187,6 +193,11 @@ namespace Smartstore.Admin.Controllers
 
             var model = await MapperFactory.MapAsync<Language, LanguageModel>(language);
 
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.Name = language.GetLocalized(x => x.Name, languageId, false, false);
+            });
+
             await PrepareLanguageModel(model, language, false);
 
             return View(model);
@@ -214,6 +225,7 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 await MapperFactory.MapAsync(model, language);
+                await UpdateLocalesAsync(language, model);
                 await _storeMappingService.ApplyStoreMappingsAsync(language, model.SelectedStoreIds);
                 await _db.SaveChangesAsync();
 
@@ -267,18 +279,12 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            ViewBag.AllLanguages = _languageService.GetAllLanguages(true)
-                .Select(x => new SelectListItem
-                {
-                    Selected = x.Id.Equals(languageId),
-                    Text = x.Name,
-                    Value = x.Id.ToString()
-                }).ToList();
+            ViewBag.AllLanguages = (await _languageService.GetAllLanguagesAsync(true)).ToSelectListItems(new[] { languageId });
 
             var model = new LanguageResourceListModel
             {
                 LanguageId = language.Id,
-                LanguageName = language.Name
+                LanguageName = language.GetLocalized(x => x.Name)
             };
 
             return View(model);
@@ -314,13 +320,15 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            string languageName = language.GetLocalized(x => x.Name);
+
             var rows = resources
                 .AsQueryable()
                 .Select(x => new LanguageResourceModel
                 {
                     Id = x.Id,
                     LanguageId = language.Id,
-                    LanguageName = language.Name,
+                    LanguageName = languageName,
                     ResourceName = x.ResourceName,
                     ResourceValue = x.ResourceValue.EmptyNull(),
                 })
@@ -668,6 +676,14 @@ namespace Smartstore.Admin.Controllers
         }
 
         #endregion
+
+        private async Task UpdateLocalesAsync(Language language, LanguageModel model)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(language, x => x.Name, localized.Name, localized.LanguageId);
+            }
+        }
 
         private async Task<CheckAvailableResourcesResult> CheckAvailableResources(bool enforce = false)
         {
