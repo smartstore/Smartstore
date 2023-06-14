@@ -47,6 +47,7 @@
 - Link from Admin area to a named area-less frontend route did not properly prepend culture code
 - Identity: fixed *checkout loop* after logout
 - Fixed display of orders in MyAccount area when `OrderSettings.DisplayOrdersOfAllStores` was set to `true`
+- Fixed RTL theme Sass parsing error
 - When an order was placed, the stock quantity of attribute combinations were not updated if the stock is managed by attributes.
 - Fixed "also purchased products" should not display unpublished products.
 - #651 Fixed product can be added to cart even if the availability limit was reached.
