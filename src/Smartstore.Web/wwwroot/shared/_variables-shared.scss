@@ -12,6 +12,43 @@ $site-bg:                   #fff !default;
 
 
 //
+// Easings
+// -------------------------------------------------
+
+$ease-in-sine:          cubic-bezier(.47, 0, .745, .715) !default;
+$ease-out-sine:         cubic-bezier(.39, .575, .565, 1) !default;
+$ease-in-out-sine:      cubic-bezier(.445, .05, .55, .95) !default;
+
+$ease-in-quad:          cubic-bezier(.55, .085, .68, .53) !default;
+$ease-out-quad:         cubic-bezier(.25, .46, .45, .94) !default;
+$ease-in-out-quad:      cubic-bezier(.455, .03, .515, .955) !default;
+
+$ease-in-cubic:         cubic-bezier(.55, .055, .675, .19) !default;
+$ease-out-cubic:        cubic-bezier(.215, .61, .355, 1) !default;
+$ease-in-out-cubic:     cubic-bezier(.645, .045, .355, 1) !default;
+
+$ease-in-quart:         cubic-bezier(.895, .03, .685, .22) !default;
+$ease-out-quart:        cubic-bezier(.165, .84, .44, 1) !default;
+$ease-in-out-quart:     cubic-bezier(.77, 0, .175, 1) !default;
+
+$ease-in-quint:         cubic-bezier(.755, .05, .855, .06) !default;
+$ease-out-quint:        cubic-bezier(.23, 1, .32, 1) !default;
+$ease-in-out-quint:     cubic-bezier(.86, 0, .07, 1) !default;
+
+$ease-in-expo:          cubic-bezier(.95, .05, .795, .035) !default;
+$ease-out-expo:         cubic-bezier(.19, 1, 0.22, 1) !default;
+$ease-in-out-expo:      cubic-bezier(1, 0, 0, 1) !default;
+
+$ease-in-circ:          cubic-bezier(.6, .04, .98, .335) !default;
+$ease-out-circ:         cubic-bezier(.075, .82, .165, 1) !default;
+$ease-in-out-circ:      cubic-bezier(.785, .135, .15, .86) !default;
+
+$ease-in-back:          cubic-bezier(.6, -.28, .735, .045) !default;
+$ease-out-back:         cubic-bezier(.175, .885, .32, 1.275) !default;
+$ease-in-out-back:      cubic-bezier(.68, -.55, .265, 1.55) !default;
+
+
+//
 // Typo
 // --------------------------------------------------
 
@@ -87,7 +124,6 @@ $box-shadow-xl-var:             0 17px 70px -7px rgba(var(--shadow-colorbase-rgb
 // --------------------------------------------------
 
 $box-transition-duration: 0.6s; // 0.8s;
-//$card-transition-timing:    cubic-bezier(.2, 1, .22, 1);
 $box-transition-timing: cubic-bezier(0.25, 1, 0.2, 1);
 $box-scale-factor: 1.12;
 
@@ -309,6 +345,7 @@ $clr-brand-vimeo:               #19b7ea !default;
 $clr-brand-tumblr:              #35465C !default;
 $clr-brand-ello:                #000000 !default;
 $clr-brand-behance:             #0067ff !default;
+
 
 //
 // CSS vars

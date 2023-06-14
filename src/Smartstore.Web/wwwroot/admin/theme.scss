@@ -13,6 +13,13 @@
 
 
 //
+// Shared variables
+// --------------------------------------------------
+
+@import '/shared/_variables-shared.scss'; 
+
+
+//
 // Vendors
 // --------------------------------------------------
 
@@ -74,7 +81,6 @@
 // Global / Shared
 // --------------------------------------------------
 
-@import '../shared/_variables-shared.scss';
 @import '../shared/_mixins.scss';
 @import '../shared/_fa.scss';
 @import '../shared/_bootstrap-icons.scss';

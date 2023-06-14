@@ -40,6 +40,14 @@
 
 
 //
+// Shared variables
+// --------------------------------------------------
+
+/*@import 'shared/_colors.scss';*/ // <-- uncomment this for convenient prototyping
+@import '/shared/_variables-shared.scss'; 
+
+
+//
 // Vendor components (neutral)
 // --------------------------------------------------
 
@@ -63,8 +71,6 @@
 // Global / Shared
 // --------------------------------------------------
 
-/*@import 'shared/_colors.scss';*/ // <-- uncomment this for convenient prototyping
-@import '/shared/_variables-shared.scss'; 
 @import '/shared/_mixins.scss';
 @import '/shared/_spacing.scss';
 @import '/shared/_typo.scss';

@@ -629,7 +629,7 @@ legend {
         height: 100%;
         left: 50%;
         text-align: center;
-        animation: loading 1.5s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+        animation: loading 1.5s $ease-in-out-quad infinite;
     }
 
     > .bar:nth-child(1) {

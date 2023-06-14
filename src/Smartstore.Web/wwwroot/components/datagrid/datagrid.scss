@@ -57,7 +57,7 @@ input.form-control-plaintext {
     transform: scale(1.0124, 1.0124);
     transition-property: transform, opacity;
     transition-duration: 0.4s;
-    transition-timing-function: cubic-bezier(0, 0.55, 0.45, 1); // easeOutCirc
+    transition-timing-function: $ease-out-circ;
 
     &.datagrid-ready {
         opacity: 1 !important;

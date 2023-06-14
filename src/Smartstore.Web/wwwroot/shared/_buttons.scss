@@ -574,7 +574,7 @@ $btn-size-sm: $input-height-sm;
 
 .btn-3d {
     transition-property: transform, box-shadow, color, background-color, border-color, opacity;
-    transition-timing-function: cubic-bezier(0.25, 1, 0.33, 1);
+    transition-timing-function: $ease-out-quint;
     transition-duration: .35s;
     --shadow-color-rgb: 0,0,0;
     --shadow-intensity: 1;

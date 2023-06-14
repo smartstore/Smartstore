@@ -51,7 +51,7 @@
         background-color: $gray-200;
         border: 1px solid rgba(#000, 0.15);
         cursor: pointer;
-        transition: background-color 0.2s cubic-bezier(.54,1.85,.5,1), box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        transition: background-color 0.2s $ease-out-back, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
 
         &:before {
             // The circle (off)
@@ -64,7 +64,7 @@
             border-radius: 50%;
             background-color: #fff;
             box-shadow: 0 0 3px rgba(#000, 0.2);
-            transition: left 0.2s cubic-bezier(.54,1.85,.5,1);
+            transition: left 0.2s $ease-out-back;
         }
     }
 
