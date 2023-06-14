@@ -38,6 +38,15 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="RenderWithUserConsentOnly" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="RenderWithUserConsentOnly" />
+                <span asp-validation-for="RenderWithUserConsentOnly"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="RenderCatalogScripts" />
             </div>
             <div class="adminData">

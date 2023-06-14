@@ -15,10 +15,17 @@
                     <li>Kopieren Sie die Google-Analytics-ID in das entspechende Feld in folgendem Formular.</li>
                     <li>Aktivieren Sie das Google Analytics Widget unter <b>CMS > Widgets</b> und Google Analytics wird in Ihre Webseite integriert.</li>
                 </ul>
-		            <p>
-			            Um das Opt-Out-Cookie in Ihrer Datenschutzerklärung einzubinden verwenden Sie folgenden Code:
-		            </p>
-		            <pre>&lt;a href=&quot;javascript:gaOptout()&quot;&gt;Google Analytics deaktivieren&lt;/a&gt;</pre>
+                <p>
+                    Google Analytics kann auch ohne die Verwendung von Cookies Daten Ihrer Kunden analysieren. 
+                    Dazu wird eine anonyme Client-ID genutzt. Erst wenn ein Kunde der Nutzung von analytischen Cookies im Cookie-Manager zustimmt,
+                    werden vom Analytics-Script auch Cookies verwendet. 
+                    Wenn auch der Tag-Manager erst aktiv werden soll, wenn der Kunde den analytischen Cookies zugestimmt hat, 
+                    aktvieren Sie bitte weiter unten die Option <i>Nur mit Zustimmung laden</i>.
+                </p>
+		        <p>
+			        Um das Opt-Out-Cookie in Ihrer Datenschutzerklärung einzubinden verwenden Sie folgenden Code:
+		        </p>
+		        <pre>&lt;a href=&quot;javascript:gaOptout()&quot;&gt;Google Analytics deaktivieren&lt;/a&gt;</pre>
               ]]>
         </Value>
     </LocaleResource>
@@ -35,6 +42,12 @@
     </LocaleResource>
     <LocaleResource Name="GoogleId.Hint">
         <Value>Geben Sie hier Ihre "Google Analytics"-ID an.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderWithUserConsentOnly">
+        <Value>Nur mit Zustimmung laden</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderWithUserConsentOnly.Hint">
+        <Value>Bestimmt, ob das Analytics-Script nur nach Einwilligung des Kunden zu analytischen Cookies geladen wird.</Value>
     </LocaleResource>
     <LocaleResource Name="TrackingScript">
         <Value>Tracking-Code mit {ECOMMERCE}-Zeile</Value>
