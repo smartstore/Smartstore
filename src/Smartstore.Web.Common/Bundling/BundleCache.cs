@@ -59,7 +59,7 @@ namespace Smartstore.Web.Bundling
         public async Task<BundleResponse> GetResponseAsync(BundleCacheKey cacheKey, Bundle bundle)
         {
             Guard.NotNull(cacheKey.Key, nameof(cacheKey.Key));
-            Guard.NotNull(bundle, nameof(bundle));
+            Guard.NotNull(bundle);
 
             // Memory cache
             var memCacheKey = BuildScopedCacheKey(cacheKey);

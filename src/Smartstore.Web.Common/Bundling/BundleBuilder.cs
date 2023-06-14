@@ -57,8 +57,8 @@ namespace Smartstore.Web.Bundling
             options ??= _bundlingOptions.CurrentValue;
             httpContext ??= _httpContextAccessor.HttpContext;
 
-            Guard.NotNull(bundle, nameof(bundle));
-            Guard.NotNull(httpContext, nameof(httpContext));
+            Guard.NotNull(bundle);
+            Guard.NotNull(httpContext);
 
             Logger.Debug("Building bundle '{0}'.", bundle.Route);
 

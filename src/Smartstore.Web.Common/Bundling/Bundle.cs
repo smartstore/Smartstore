@@ -243,7 +243,7 @@ namespace Smartstore.Web.Bundling
         /// </summary>
         public virtual BundleCacheKey GetCacheKey(HttpContext httpContext)
         {
-            Guard.NotNull(httpContext, nameof(httpContext));
+            Guard.NotNull(httpContext);
 
             var fragments = new Dictionary<string, string>();
 
@@ -271,8 +271,8 @@ namespace Smartstore.Web.Bundling
 
         public virtual IEnumerable<BundleFile> EnumerateFiles(HttpContext httpContext, BundlingOptions options)
         {
-            Guard.NotNull(httpContext, nameof(httpContext));
-            Guard.NotNull(options, nameof(options));
+            Guard.NotNull(httpContext);
+            Guard.NotNull(options);
 
             var fileProvider =
                 FileProvider ??

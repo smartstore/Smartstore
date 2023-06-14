@@ -28,7 +28,7 @@ namespace Smartstore.Web.Bundling
         public DynamicBundleMatch(DynamicBundleContext context)
             : base(context.Path, context.Bundle.ContentType, context.Bundle.FileProvider, context.Bundle.Processors.ToArray())
         {
-            DynamicBundleContext = Guard.NotNull(context, nameof(context));
+            DynamicBundleContext = Guard.NotNull(context);
         }
 
         public DynamicBundleContext DynamicBundleContext { get; }
@@ -101,13 +101,13 @@ namespace Smartstore.Web.Bundling
 
         public DynamicBundle Include(Func<DynamicBundleContext, IEnumerable<string>> fileResolver)
         {
-            _resolvers.Add(Guard.NotNull(fileResolver, nameof(fileResolver)));
+            _resolvers.Add(Guard.NotNull(fileResolver));
             return this;
         }
 
         public DynamicBundle WithConstraint(Func<DynamicBundleContext, bool> constraint)
         {
-            _constraints.Add(Guard.NotNull(constraint, nameof(constraint)));
+            _constraints.Add(Guard.NotNull(constraint));
             return this;
         }
 
@@ -140,17 +140,17 @@ namespace Smartstore.Web.Bundling
                 return _resolvers.SelectMany(resolver => resolver(context));
             }
 
-            var cacheKey = BuildSourceFilesCacheKey(context.RouteValues);
+            var cacheKey = BuildSourceFilesCacheKey(context);
             return _sourceFilesCache.GetOrAdd(cacheKey, key
                 => _resolvers.SelectMany(resolver => resolver(context)).ToArray());
         }
 
-        private static string BuildSourceFilesCacheKey(RouteValueDictionary values)
+        private static string BuildSourceFilesCacheKey(DynamicBundleContext context)
         {
-            var key = string.Empty;
-            foreach (var kvp in values)
+            var key = context.Path.Value + '_';
+            foreach (var kvp in context.RouteValues)
             {
-                key += kvp.Key + ':' + kvp.Value.ToString() + '_';
+                key += $"{kvp.Key}:{kvp.Value}_";
             }
 
             return key;
