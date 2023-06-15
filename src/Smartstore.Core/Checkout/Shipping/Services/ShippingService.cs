@@ -22,6 +22,7 @@ namespace Smartstore.Core.Checkout.Shipping
         private readonly ShippingSettings _shippingSettings;
         private readonly IProviderManager _providerManager;
         private readonly ISettingFactory _settingFactory;
+        private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
         private readonly SmartDbContext _db;
 
@@ -32,6 +33,7 @@ namespace Smartstore.Core.Checkout.Shipping
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
             ISettingFactory settingFactory,
+            IStoreContext storeContext,
             IWorkContext workContext,
             SmartDbContext db)
         {
@@ -41,6 +43,7 @@ namespace Smartstore.Core.Checkout.Shipping
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
             _settingFactory = settingFactory;
+            _storeContext = storeContext;
             _workContext = workContext;
             _db = db;
         }
@@ -96,8 +99,16 @@ namespace Smartstore.Core.Checkout.Shipping
 
             if (matchRules)
             {
+                var contextAction = (CartRuleContext context) =>
+                {
+                    if (storeId > 0 && storeId != context.Store.Id)
+                    {
+                        context.Store = _storeContext.GetStoreById(storeId);
+                    }
+                };
+
                 return await shippingMethods
-                    .WhereAwait(async x => await _cartRuleProvider.RuleMatchesAsync(x))
+                    .WhereAwait(async x => await _cartRuleProvider.RuleMatchesAsync(x, contextAction: contextAction))
                     .AsyncToList();
             }
 
@@ -106,7 +117,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
         public virtual async Task<decimal> GetCartItemWeightAsync(OrganizedShoppingCartItem cartItem, bool multiplyByQuantity = true)
         {
-            Guard.NotNull(cartItem, nameof(cartItem));
+            Guard.NotNull(cartItem);
 
             var weight = await GetCartWeight(new[] { cartItem }, multiplyByQuantity, true);
             return weight;
@@ -114,7 +125,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
         public virtual async Task<decimal> GetCartTotalWeightAsync(ShoppingCart cart, bool includeFreeShippingProducts = true)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             var cartWeight = await GetCartWeight(cart.Items, true, includeFreeShippingProducts);
 
@@ -151,7 +162,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
         public virtual async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request, string allowedShippingRateComputationMethodSystemName = null)
         {
-            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(request);
 
             var computationMethods = LoadActiveShippingRateComputationMethods(request.StoreId)
                 .Where(x => allowedShippingRateComputationMethodSystemName.IsEmpty() || allowedShippingRateComputationMethodSystemName.EqualsNoCase(x.Metadata.SystemName))

@@ -198,7 +198,7 @@ namespace Smartstore.Core.Catalog.Discounts
             Store store = null,
             DiscountValidationFlags flags = DiscountValidationFlags.All)
         {
-            Guard.NotNull(discount, nameof(discount));
+            Guard.NotNull(discount);
 
             store ??= _storeContext.CurrentStore;
 
@@ -225,11 +225,14 @@ namespace Smartstore.Core.Catalog.Discounts
                 return Cached(false);
             }
 
+            ShoppingCart cart = null;
+
             // Do not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
-            if (flags.HasFlag(DiscountValidationFlags.GiftCards)
-                && (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal))
+            if (
+                flags.HasFlag(DiscountValidationFlags.GiftCards) && 
+                (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal))
             {
-                var cart = await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+                cart = await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
                 if (cart.Items.Any(x => x.Item?.Product != null && x.Item.Product.IsGiftCard))
                 {
                     return Cached(false);
@@ -240,6 +243,13 @@ namespace Smartstore.Core.Catalog.Discounts
             if (flags.HasFlag(DiscountValidationFlags.CartRules))
             {
                 await _db.LoadCollectionAsync(discount, x => x.RuleSets);
+
+                var contextAction = (CartRuleContext context) =>
+                {
+                    context.Customer = customer;
+                    context.Store = store;
+                    context.ShoppingCart = cart;
+                };
 
                 if (!await _cartRuleProvider.RuleMatchesAsync(discount))
                 {
@@ -296,7 +306,7 @@ namespace Smartstore.Core.Catalog.Discounts
 
         protected virtual async Task<bool> CheckDiscountLimitationsAsync(Discount discount, Customer customer)
         {
-            Guard.NotNull(discount, nameof(discount));
+            Guard.NotNull(discount);
 
             switch (discount.DiscountLimitation)
             {

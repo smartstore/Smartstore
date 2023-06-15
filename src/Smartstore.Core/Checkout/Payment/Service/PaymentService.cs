@@ -21,6 +21,7 @@ namespace Smartstore.Core.Checkout.Payment
         private static IList<Type> _paymentMethodFilterTypes = null;
 
         private readonly SmartDbContext _db;
+        private readonly IStoreContext _storeContext;
         private readonly IStoreMappingService _storeMappingService;
         private readonly PaymentSettings _paymentSettings;
         private readonly ICartRuleProvider _cartRuleProvider;
@@ -30,6 +31,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public PaymentService(
             SmartDbContext db,
+            IStoreContext storeContext,
             IStoreMappingService storeMappingService,
             PaymentSettings paymentSettings,
             ICartRuleProvider cartRuleProvider,
@@ -38,6 +40,7 @@ namespace Smartstore.Core.Checkout.Payment
             ITypeScanner typeScanner)
         {
             _db = db;
+            _storeContext = storeContext;
             _storeMappingService = storeMappingService;
             _paymentSettings = paymentSettings;
             _cartRuleProvider = cartRuleProvider;
@@ -70,7 +73,7 @@ namespace Smartstore.Core.Checkout.Payment
 
             var activePaymentMethods = await LoadActivePaymentMethodsAsync(cart, storeId, null, false);
             var method = activePaymentMethods.FirstOrDefault(x => x.Metadata.SystemName == systemName);
-
+            
             return method != null;
         }
 
@@ -93,6 +96,15 @@ namespace Smartstore.Core.Checkout.Payment
 
             var paymentMethods = await GetAllPaymentMethodsAsync(storeId);
 
+            var contextAction = (CartRuleContext context) =>
+            {
+                context.ShoppingCart = cart;
+                if (storeId > 0 && storeId != context.Store.Id)
+                {
+                    context.Store = _storeContext.GetStoreById(storeId);
+                }
+            };
+
             var activeProviders = await allProviders
                 .WhereAwait(async p =>
                 {
@@ -109,7 +121,7 @@ namespace Smartstore.Core.Checkout.Payment
                         {
                             await _db.LoadCollectionAsync(pm, x => x.RuleSets);
 
-                            if (!await _cartRuleProvider.RuleMatchesAsync(pm))
+                            if (!await _cartRuleProvider.RuleMatchesAsync(pm, contextAction: contextAction))
                             {
                                 return false;
                             }
@@ -204,9 +216,9 @@ namespace Smartstore.Core.Checkout.Payment
         {
             return _requestCache.GetAsync(PAYMENT_METHODS_ALL_KEY.FormatInvariant(storeId), async () =>
             {
-                // INFO: load tracked because otherwise "RuleSets" may not be up-to-date (e.g. if a rule assignment was added\removed).
+                // INFO: Load tracked because otherwise "RuleSets" may not be up-to-date (e.g. if a rule assignment was added\removed).
                 return await _db.PaymentMethods
-                    .AsNoTracking()
+                    //.AsNoTracking()
                     .AsSplitQuery()
                     .Include(x => x.RuleSets)
                     .ThenInclude(x => x.Rules)

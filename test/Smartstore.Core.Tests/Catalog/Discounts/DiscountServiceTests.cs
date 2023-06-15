@@ -68,8 +68,8 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
             var cartRuleProviderMock = new Mock<ICartRuleProvider>();
             _cartRuleProvider = cartRuleProviderMock.Object;
 
-            cartRuleProviderMock.Setup(x => x.RuleMatchesAsync(discount1, LogicalRuleOperator.Or)).ReturnsAsync(true);
-            cartRuleProviderMock.Setup(x => x.RuleMatchesAsync(discount2, LogicalRuleOperator.Or)).ReturnsAsync(true);
+            cartRuleProviderMock.Setup(x => x.RuleMatchesAsync(discount1, LogicalRuleOperator.Or, null)).ReturnsAsync(true);
+            cartRuleProviderMock.Setup(x => x.RuleMatchesAsync(discount2, LogicalRuleOperator.Or, null)).ReturnsAsync(true);
 
             _discountService = new DiscountService(
                 DbContext,

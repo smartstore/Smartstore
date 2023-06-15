@@ -123,6 +123,11 @@ namespace Smartstore.Core.Checkout.Rules
         {
             Guard.NotNull(entity);
 
+            if (entity.RuleSets.IsNullOrEmpty())
+            {
+                return true;
+            }
+
             var ruleSets = entity.RuleSets.Where(x => x.Scope == RuleScope.Cart).ToArray();
             if (!ruleSets.Any())
             {
@@ -170,7 +175,13 @@ namespace Smartstore.Core.Checkout.Rules
                 ShoppingCartService = _shoppingCartService
             };
 
-            contextAction?.Invoke(context);
+            if (contextAction != null)
+            {
+                contextAction.Invoke(context);
+                // These cannot be null
+                context.Customer ??= _workContext.CurrentCustomer;
+                context.Store ??= _storeContext.CurrentStore;
+            }
 
             var processor = GetProcessor(group);
             var result = await processor.MatchAsync(context, group);

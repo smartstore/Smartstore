@@ -10,8 +10,8 @@ namespace Smartstore.Core.Checkout.Payment
     public partial interface IPaymentService
     {
         /// <summary>
-        /// Checks whether a payment method is active, not filtered out and match applied rule sets.
-        /// A payment method that meets these requirements appears in the checkout.
+        /// Checks that a payment method is active, not filtered out, and matches the applied rule sets.
+        /// A payment method that meets these requirements will appear in the checkout.
         /// </summary>
         /// <param name="systemName">System name of the payment provider.</param>
         /// <param name="cart">Shopping cart.</param>
@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Payment
         Task<bool> IsPaymentMethodActiveAsync(string systemName, ShoppingCart cart = null, int storeId = 0);
 
         /// <summary>
-        /// Loads payment methods that are active, not filtered out and match applied rule sets.
+        /// Loads payment methods that are active, not filtered out, and match the applied rule sets.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>

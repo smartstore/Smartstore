@@ -12,8 +12,8 @@ namespace Smartstore.Core.Checkout.Cart
     {
         public ShoppingCart(Customer customer, int storeId, IEnumerable<OrganizedShoppingCartItem> items)
         {
-            Guard.NotNull(customer, nameof(customer));
-            Guard.NotNull(items, nameof(items));
+            Guard.NotNull(customer);
+            Guard.NotNull(items);
 
             Customer = customer;
             StoreId = storeId;

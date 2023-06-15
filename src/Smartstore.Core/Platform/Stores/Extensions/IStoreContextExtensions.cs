@@ -19,7 +19,9 @@
         public static Store GetStoreById(this IStoreContext context, int storeId)
         {
             if (storeId == 0)
+            {
                 return null;
+            }     
 
             return context.GetCachedStores().GetStoreById(storeId);
         }
