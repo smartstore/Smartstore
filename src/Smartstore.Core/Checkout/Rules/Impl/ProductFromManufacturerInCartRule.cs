@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
@@ -7,18 +6,16 @@ namespace Smartstore.Core.Checkout.Rules.Impl
     internal class ProductFromManufacturerInCartRule : IRule
     {
         private readonly SmartDbContext _db;
-        private readonly IShoppingCartService _shoppingCartService;
 
-        public ProductFromManufacturerInCartRule(SmartDbContext db, IShoppingCartService shoppingCartService)
+        public ProductFromManufacturerInCartRule(SmartDbContext db)
         {
             _db = db;
-            _shoppingCartService = shoppingCartService;
         }
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
             var manufacturerIds = Enumerable.Empty<int>();
-            var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+            var cart = context.ShoppingCart;
             var productIds = cart.Items.Select(x => x.Item.ProductId).ToArray();
 
             if (productIds.Any())

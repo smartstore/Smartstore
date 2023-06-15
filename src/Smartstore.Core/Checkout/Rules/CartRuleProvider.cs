@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Autofac;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules.Impl;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
@@ -16,13 +17,15 @@ namespace Smartstore.Core.Checkout.Rules
         private readonly ICurrencyService _currencyService;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
+        private readonly IShoppingCartService _shoppingCartService;
 
         public CartRuleProvider(
             IComponentContext componentContext,
             IRuleService ruleService,
             ICurrencyService currencyService,
             IWorkContext workContext,
-            IStoreContext storeContext)
+            IStoreContext storeContext,
+            IShoppingCartService shoppingCartService)
             : base(RuleScope.Cart)
         {
             _componentContext = componentContext;
@@ -30,6 +33,7 @@ namespace Smartstore.Core.Checkout.Rules
             _currencyService = currencyService;
             _workContext = workContext;
             _storeContext = storeContext;
+            _shoppingCartService = shoppingCartService;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -153,7 +157,8 @@ namespace Smartstore.Core.Checkout.Rules
             {
                 Customer = _workContext.CurrentCustomer,
                 Store = _storeContext.CurrentStore,
-                WorkContext = _workContext
+                WorkContext = _workContext,
+                ShoppingCartService = _shoppingCartService
             };
 
             var processor = GetProcessor(group);

@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.Orders;
+﻿using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Rules;
 using Smartstore.Threading;
 
@@ -7,12 +6,10 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 {
     internal class CartSubtotalRule : IRule
     {
-        private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderCalculationService _orderCalculationService;
 
-        public CartSubtotalRule(IShoppingCartService shoppingCartService, IOrderCalculationService orderCalculationService)
+        public CartSubtotalRule(IOrderCalculationService orderCalculationService)
         {
-            _shoppingCartService = shoppingCartService;
             _orderCalculationService = orderCalculationService;
         }
 
@@ -30,7 +27,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             // We must prevent the rule from indirectly calling itself. It would cause a stack overflow on cart page.
             using (await AsyncLock.KeyedAsync(lockKey))
             {
-                var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+                var cart = context.ShoppingCart;
                 var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
 
                 // Subtotal is always calculated for working currency. No new money struct required here.

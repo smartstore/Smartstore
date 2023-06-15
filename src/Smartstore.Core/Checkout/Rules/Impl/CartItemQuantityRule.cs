@@ -1,21 +1,13 @@
 ﻿using Newtonsoft.Json.Linq;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
     internal class CartItemQuantityRule : IRule
     {
-        private readonly IShoppingCartService _shoppingCartService;
-
-        public CartItemQuantityRule(IShoppingCartService shoppingCartService)
-        {
-            _shoppingCartService = shoppingCartService;
-        }
-
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+        public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
             int productId = 0;
             int? minQuantity = null;
@@ -50,7 +42,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
             if (productId != 0)
             {
-                var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+                var cart = context.ShoppingCart;
                 var items = cart.Items.Where(x => x.Item.ProductId == productId);
                 if (items.Any())
                 {
@@ -61,26 +53,26 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                         {
                             if (minQuantity == maxQuantity)
                             {
-                                return quantity == minQuantity;
+                                return Task.FromResult(quantity == minQuantity);
                             }
                             else
                             {
-                                return quantity >= minQuantity && quantity <= maxQuantity;
+                                return Task.FromResult(quantity >= minQuantity && quantity <= maxQuantity);
                             }
                         }
                         else if (minQuantity.HasValue)
                         {
-                            return quantity >= minQuantity;
+                            return Task.FromResult(quantity >= minQuantity);
                         }
                         else if (maxQuantity.HasValue)
                         {
-                            return quantity <= maxQuantity;
+                            return Task.FromResult(quantity <= maxQuantity);
                         }
                     }
                 }
             }
 
-            return false;
+            return Task.FromResult(false);
         }
     }
 }

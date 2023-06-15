@@ -16,7 +16,7 @@ namespace Smartstore.Core.Rules
         public virtual async Task<bool> ApplyRuleSetMappingsAsync<T>(T entity, int[] selectedRuleSetIds)
             where T : BaseEntity, IRulesContainer
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             selectedRuleSetIds ??= Array.Empty<int>();
 

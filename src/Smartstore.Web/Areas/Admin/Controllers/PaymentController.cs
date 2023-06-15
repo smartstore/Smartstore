@@ -171,7 +171,7 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            // Add\remove assigned rule sets.
+            // Add/remove assigned rule sets.
             await _ruleService.ApplyRuleSetMappingsAsync(paymentMethod, model.SelectedRuleSetIds);
 
             await _storeMappingService.ApplyStoreMappingsAsync(paymentMethod, model.SelectedStoreIds);

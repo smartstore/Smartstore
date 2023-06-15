@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 
@@ -8,12 +7,10 @@ namespace Smartstore.Core.Checkout.Rules.Impl
     internal class CartItemFromCategoryQuantityRule : IRule
     {
         private readonly SmartDbContext _db;
-        private readonly IShoppingCartService _shoppingCartService;
 
-        public CartItemFromCategoryQuantityRule(SmartDbContext db, IShoppingCartService shoppingCartService)
+        public CartItemFromCategoryQuantityRule(SmartDbContext db)
         {
             _db = db;
-            _shoppingCartService = shoppingCartService;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -60,7 +57,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
                 if (productsIds.Length > 0)
                 {
-                    var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+                    var cart = context.ShoppingCart;
                     var items = cart.Items.Where(x => productsIds.Contains(x.Item.ProductId));
                     if (items.Any())
                     {

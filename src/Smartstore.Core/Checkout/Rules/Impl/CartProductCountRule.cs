@@ -5,19 +5,11 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 {
     internal class CartProductCountRule : IRule
     {
-        private readonly IShoppingCartService _shoppingCartService;
-
-        public CartProductCountRule(IShoppingCartService shoppingCartService)
+        public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
-            _shoppingCartService = shoppingCartService;
-        }
+            var productCount = context.ShoppingCart.GetTotalQuantity();
 
-        public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
-        {
-            var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
-            var productCount = cart.GetTotalQuantity();
-
-            return expression.Operator.Match(productCount, expression.Value);
+            return Task.FromResult(expression.Operator.Match(productCount, expression.Value));
         }
     }
 }
