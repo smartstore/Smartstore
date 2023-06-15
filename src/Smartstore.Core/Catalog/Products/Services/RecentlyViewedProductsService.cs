@@ -25,9 +25,9 @@ namespace Smartstore.Core.Catalog.Products
             _catalogSettings = catalogSettings;
         }
 
-        public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(int number, int[] excludedProductIds = null)
+        public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(int count, params int[] excludedProductIds)
         {
-            var productIds = GetRecentlyViewedProductsIds(number, excludedProductIds);
+            var productIds = GetRecentlyViewedProductsIds(count, excludedProductIds);
 
             if (!productIds.Any())
             {
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Catalog.Products
                 options);
         }
 
-        protected virtual IEnumerable<int> GetRecentlyViewedProductsIds(int number, int[] excludedProductIds = null)
+        protected virtual IEnumerable<int> GetRecentlyViewedProductsIds(int count, int[] excludedProductIds = null)
         {
             var request = _httpContextAccessor?.HttpContext?.Request;
 
@@ -111,7 +111,7 @@ namespace Smartstore.Core.Catalog.Products
                     ids = ids.Where(x => !excludedProductIds.Contains(x)).ToArray();
                 }
 
-                return ids.Distinct().Take(number);
+                return ids.Distinct().Take(count);
             }
 
             return Enumerable.Empty<int>();
