@@ -90,6 +90,7 @@
 - DevTools: Some widget zones weren't displayed due to incorrect RegEx
 - NumberInput: Min Max should be handled by validation framework or in frontend by native HTML elements.
 - Fixed RuntimeBinderException in SettingController when no search fields are saved.
+- Fixed rule assigned to payment method only applied after clearing the cache.
 
 ## Smartstore 5.0.4
 
