@@ -38,10 +38,10 @@ namespace Smartstore.Engine.Modularity
         ApplySettingResult ApplyUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor);
 
         /// <summary>
-        /// Checks whether a given <paramref name="module"/> is activated for a particular <paramref name="storeId"/>.
+        /// Checks whether a given <paramref name="module"/> is enabled for a particular <paramref name="storeId"/>.
         /// </summary>
         /// <param name="module">Module to check</param>
         /// <param name="storeId">Store ID to check.</param>
-        bool IsActiveForStore(IModuleDescriptor module, int storeId);
+        bool IsEnabledForStore(IModuleDescriptor module, int storeId);
     }
 }

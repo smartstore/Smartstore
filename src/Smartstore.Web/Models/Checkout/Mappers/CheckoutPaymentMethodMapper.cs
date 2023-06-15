@@ -71,7 +71,7 @@ namespace Smartstore.Web.Models.Checkout
                 PaymentMethodType.StandardAndButton
             };
 
-            var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(from, from.StoreId, paymentTypes);
+            var boundPaymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(from, from.StoreId, paymentTypes);
             var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync(from.StoreId);
 
             foreach (var pm in boundPaymentMethods)

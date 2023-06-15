@@ -123,9 +123,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Read)]
         public async Task<IActionResult> List()
         {
-            var allPaymentMethods = await _paymentService.LoadAllPaymentMethodsAsync();
+            var allPaymentProviders = await _paymentService.LoadAllPaymentProvidersAsync();
 
-            var paymentMethods = allPaymentMethods
+            var paymentProviders = allPaymentProviders
                 .Select(x => new SelectListItem
                 {
                     Text = (_moduleManager.GetLocalizedFriendlyName(x.Metadata).NullEmpty() ?? x.Metadata.FriendlyName.NullEmpty() ?? x.Metadata.SystemName).EmptyNull(),
@@ -133,17 +133,17 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            var paymentMethodsCounts = paymentMethods
+            var paymentProvidersCounts = paymentProviders
                 .GroupBy(x => x.Text)
                 .Select(x => new { Name = x.Key.EmptyNull(), Count = x.Count() })
                 .ToDictionarySafe(x => x.Name, x => x.Count);
 
             // Append system name if there are payment methods with the same friendly name.
-            paymentMethods = paymentMethods
+            paymentProviders = paymentProviders
                 .OrderBy(x => x.Text)
                 .Select(x =>
                 {
-                    if (paymentMethodsCounts.TryGetValue(x.Text, out var count) && count > 1)
+                    if (paymentProvidersCounts.TryGetValue(x.Text, out var count) && count > 1)
                     {
                         x.Text = $"{x.Text} ({x.Value})";
                     }
@@ -152,7 +152,7 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            ViewBag.PaymentMethods = paymentMethods;
+            ViewBag.PaymentMethods = paymentProviders;
             ViewBag.Stores = Services.StoreContext.GetAllStores().ToSelectListItems();
             ViewBag.HideProfitReport = false;
 
@@ -237,7 +237,7 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => x.PaymentMethodSystemName.HasValue())
                 .Select(x => x.PaymentMethodSystemName)
                 .Distinct()
-                .SelectAwait(async x => await _paymentService.LoadPaymentMethodBySystemNameAsync(x))
+                .SelectAwait(async x => await _paymentService.LoadPaymentProviderBySystemNameAsync(x))
                 .AsyncToList();
 
             var paymentMethodsDic = paymentMethods
@@ -1898,7 +1898,7 @@ namespace Smartstore.Admin.Controllers
                 model.DirectDebitIban = _encryptor.DecryptText(order.DirectDebitIban);
             }
 
-            var pm = await _paymentService.LoadPaymentMethodBySystemNameAsync(order.PaymentMethodSystemName);
+            var pm = await _paymentService.LoadPaymentProviderBySystemNameAsync(order.PaymentMethodSystemName);
             if (pm != null)
             {
                 model.DisplayCompletePaymentNote = order.PaymentStatus == PaymentStatus.Pending && await pm.Value.CanRePostProcessPaymentAsync(order);

@@ -718,7 +718,7 @@ namespace Smartstore.Admin.Controllers
                 var paymentMethods = entity.PaymentMethods;
                 if (paymentMethods.Any())
                 {
-                    var paymentProviders = (await _paymentService.Value.LoadAllPaymentMethodsAsync()).ToDictionarySafe(x => x.Metadata.SystemName);
+                    var paymentProviders = (await _paymentService.Value.LoadAllPaymentProvidersAsync()).ToDictionarySafe(x => x.Metadata.SystemName);
 
                     ViewBag.AssignedToPaymentMethods = paymentMethods
                         .Select(x =>

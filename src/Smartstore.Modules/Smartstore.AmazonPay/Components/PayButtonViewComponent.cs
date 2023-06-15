@@ -54,7 +54,7 @@ namespace Smartstore.AmazonPay.Components
             var store = Services.StoreContext.CurrentStore;
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
-            if (!cart.HasItems || !await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, cart, store.Id))
+            if (!cart.HasItems || !await _paymentService.IsPaymentProviderActiveAsync(AmazonPayProvider.SystemName, cart, store.Id))
             {
                 return Empty();
             }

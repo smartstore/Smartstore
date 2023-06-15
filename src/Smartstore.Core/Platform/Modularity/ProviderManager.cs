@@ -46,7 +46,7 @@ namespace Smartstore.Engine.Modularity
 
         public Provider<IProvider> GetProvider(string systemName, int storeId = 0)
         {
-            Guard.NotEmpty(systemName, nameof(systemName));
+            Guard.NotEmpty(systemName);
 
             var provider = _ctx.ResolveOptionalNamed<Lazy<IProvider, ProviderMetadata>>(systemName);
 
@@ -123,15 +123,15 @@ namespace Smartstore.Engine.Modularity
             }
         }
 
-        public bool IsActiveForStore(IModuleDescriptor module, int storeId)
+        public bool IsEnabledForStore(IModuleDescriptor module, int storeId)
         {
             return _moduleConstraint.Matches(module, storeId);
         }
 
         public T GetUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor)
         {
-            Guard.NotNull(metadata, nameof(metadata));
-            Guard.NotNull(propertyAccessor, nameof(propertyAccessor));
+            Guard.NotNull(metadata);
+            Guard.NotNull(propertyAccessor);
 
             var settingKey = metadata.SettingKeyPattern.FormatInvariant(metadata.SystemName, propertyAccessor.ExtractPropertyInfo().Name);
             return _settingService.GetSettingByKey<T>(settingKey);
@@ -139,8 +139,8 @@ namespace Smartstore.Engine.Modularity
 
         public ApplySettingResult ApplyUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor)
         {
-            Guard.NotNull(metadata, nameof(metadata));
-            Guard.NotNull(propertyAccessor, nameof(propertyAccessor));
+            Guard.NotNull(metadata);
+            Guard.NotNull(propertyAccessor);
 
             var settingKey = metadata.SettingKeyPattern.FormatInvariant(metadata.SystemName, propertyAccessor.ExtractPropertyInfo().Name);
             var value = propertyAccessor.Compile().Invoke(metadata);

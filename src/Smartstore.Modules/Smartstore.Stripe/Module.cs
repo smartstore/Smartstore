@@ -33,7 +33,7 @@ namespace Smartstore.StripeElements
         {
             var store = Services.StoreContext.CurrentStore;
 
-            var isActiveStripe = await _paymentService.IsPaymentMethodActiveAsync("Smartstore.StripeElements", null, store.Id);
+            var isActiveStripe = await _paymentService.IsPaymentProviderActiveAsync("Smartstore.StripeElements", null, store.Id);
 
             if (isActiveStripe)
             {

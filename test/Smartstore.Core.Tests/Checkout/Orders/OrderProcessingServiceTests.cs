@@ -187,12 +187,12 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         {
             var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_supports_capture", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_capture", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod1);
 
             var testMethod2 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod2");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_capture", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_capture", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod2);
 
             var order = new Order
@@ -270,12 +270,12 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         {
             var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_supports_refund", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_refund", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod1);
 
             var testMethod2 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod2");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_refund", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_refund", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod2);
 
             var order = new Order();
@@ -326,7 +326,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         {
             var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_supports_refund", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_refund", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod1);
 
             var order = new Order();
@@ -402,12 +402,12 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         {
             var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_supports_void", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_void", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod1);
 
             var testMethod2 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod2");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_void", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_void", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod2);
 
             var order = new Order();
@@ -458,7 +458,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         {
             var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_supports_void", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_void", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod1);
 
             var order = new Order();
@@ -537,12 +537,12 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         {
             var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_supports_partialrefund", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_partialrefund", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod1);
 
             var testMethod2 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod2");
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_partialrefund", It.IsAny<bool>(), It.IsAny<int>()))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_partialrefund", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod2);
 
             var order = new Order();
@@ -594,7 +594,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             var testMethod1 = ProviderManager.GetProvider<IPaymentMethod>("Payments.TestMethod1");
 
             _paymentServiceMock
-                .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_supports_partialrefund", true, 0))
+                .Setup(x => x.LoadPaymentProviderBySystemNameAsync("paymentMethodSystemName_that_supports_partialrefund", true, 0))
                 .ReturnsAsync(testMethod1);
 
             var order = new Order()

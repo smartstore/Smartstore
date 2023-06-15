@@ -18,15 +18,12 @@ namespace Smartstore.Engine.Modularity
         {
             Guard.NotNull(descriptor);
 
-            if (storeId == null)
-            {
-                storeId = _storeContext.CurrentStore.Id;
-            }
-
             if (storeId == 0)
             {
                 return true;
             }
+
+            storeId ??= _storeContext.CurrentStore.Id;
 
             var limitedToStoresSetting = _settingService.GetSettingByKey<string>(descriptor.GetSettingKey("LimitedToStores"));
             if (limitedToStoresSetting.IsEmpty())

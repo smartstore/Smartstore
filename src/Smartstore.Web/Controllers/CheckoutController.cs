@@ -510,7 +510,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(PaymentMethod));
             }
 
-            var paymentMethodProvider = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethod, true, storeId);
+            var paymentMethodProvider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, storeId);
             if (paymentMethodProvider == null)
             {
                 return RedirectToAction(nameof(PaymentMethod));
@@ -549,7 +549,7 @@ namespace Smartstore.Web.Controllers
                 return new NotFoundResult();
             }
 
-            var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
+            var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
             {
                 return new NotFoundResult();

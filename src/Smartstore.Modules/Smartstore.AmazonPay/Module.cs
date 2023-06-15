@@ -37,7 +37,7 @@ namespace Smartstore.AmazonPay
         public async Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
         {
             var store = Services.StoreContext.CurrentStore;
-            var cookieInfoRequired = await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, store.Id);
+            var cookieInfoRequired = await _paymentService.IsPaymentProviderActiveAsync(AmazonPayProvider.SystemName, null, store.Id);
 
             if (!cookieInfoRequired)
             {

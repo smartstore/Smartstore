@@ -57,7 +57,7 @@ namespace Smartstore.PayPal.Providers
 
             try
             {
-                var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(request.PaymentMethodSystemName);
+                var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(request.PaymentMethodSystemName);
 
                 if (_settings.Intent == PayPalTransactionType.Authorize && paymentMethod.Value.SupportCapture)
                 {

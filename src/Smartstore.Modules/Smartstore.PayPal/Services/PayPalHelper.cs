@@ -18,31 +18,31 @@ namespace Smartstore.PayPal.Services
         }
 
         public Task<bool> IsPayPalStandardActiveAsync()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalStandard", null, _storeContext.CurrentStore.Id);
+            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalStandard", null, _storeContext.CurrentStore.Id);
 
         public Task<bool> IsPayUponInvoiceActiveAsync()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalPayUponInvoice", null, _storeContext.CurrentStore.Id);
+            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalPayUponInvoice", null, _storeContext.CurrentStore.Id);
 
         public Task<bool> IsCreditCardActiveAsync()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalCreditCard", null, _storeContext.CurrentStore.Id);
+            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalCreditCard", null, _storeContext.CurrentStore.Id);
 
         public Task<bool> IsPayLaterActiveAsync()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalPayLater", null, _storeContext.CurrentStore.Id);
+            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalPayLater", null, _storeContext.CurrentStore.Id);
 
         public Task<bool> IsSepaActiveAsync()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalSepa", null, _storeContext.CurrentStore.Id);
+            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalSepa", null, _storeContext.CurrentStore.Id);
 
         public Task<bool> IsGiropayActiveAsync()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalGiropay", null, _storeContext.CurrentStore.Id);
+            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalGiropay", null, _storeContext.CurrentStore.Id);
 
         public Task<bool> IsSofortActiveAsync()
-            => _paymentService.IsPaymentMethodActiveAsync("Payments.PayPalSofort", null, _storeContext.CurrentStore.Id);
+            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalSofort", null, _storeContext.CurrentStore.Id);
 
         public async Task<bool> IsAnyMethodActiveAsync(params string[] providerSystemNames)
         {
             Guard.NotEmpty(providerSystemNames);
 
-            var activePaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(null, _storeContext.CurrentStore.Id);
+            var activePaymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(null, _storeContext.CurrentStore.Id);
             return activePaymentMethods.Any(x => providerSystemNames.Contains(x.Metadata.SystemName));
         }
 

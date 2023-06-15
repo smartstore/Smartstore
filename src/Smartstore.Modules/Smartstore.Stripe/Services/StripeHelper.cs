@@ -130,6 +130,6 @@ namespace Smartstore.StripeElements.Services
         }
 
         public Task<bool> IsStripeElementsActive()
-            => _paymentService.IsPaymentMethodActiveAsync(StripeElementsProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
+            => _paymentService.IsPaymentProviderActiveAsync(StripeElementsProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
     }
 }

@@ -12,19 +12,19 @@ namespace Smartstore.Core.Checkout.Shipping
     public partial interface IShippingService
     {
         /// <summary>
-        /// Gets active shipping rate computation methods.
+        /// Gets enabled shipping rate computation providers.
         /// </summary>
-        /// <param name="systemName">Filters methods by provider system name. <c>null</c> to load all methods.</param>
-		/// <param name="storeId">Filters methods by store identifier. 0 to load all methods.</param>
+        /// <param name="systemName">Filters providers by system name. <c>null</c> to load all methods.</param>
+		/// <param name="storeId">Filters providers by store identifier. 0 to load all methods.</param>
         /// <remarks>
-        /// Tries to get any fallback computation method when no active method was found.
-        /// Throws an exception when no computation method was found at all.
+        /// Tries to get any fallback computation provider when no enabled provider was found.
+        /// Throws an exception when no computation provider was found at all.
         /// </remarks>
-        /// <returns>Shipping rate computation methods.</returns>
-        IEnumerable<Provider<IShippingRateComputationMethod>> LoadActiveShippingRateComputationMethods(int storeId = 0, string systemName = null);
+        /// <returns>Shipping rate computation providers.</returns>
+        IEnumerable<Provider<IShippingRateComputationMethod>> LoadEnabledShippingProviders(int storeId = 0, string systemName = null);
 
         /// <summary>
-        /// Gets all shipping methods.
+        /// Reads all configured shipping methods from the database.
         /// </summary>
         /// <param name="storeId">Filters methods by store identifier. 0 to load all methods.</param>
         /// <param name="matchRules">A value indicating whether shipping methods must match cart rules.</param>
@@ -62,14 +62,14 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Gets shipping options for a shipping option request.
         /// </summary>
         /// <param name="request">Shipping option request.</param>
-        /// <param name="allowedShippingRateComputationMethodSystemName">
-        /// Filter by shipping rate computation method system name.
-        /// <c>null</c> to load shipping options of all shipping rate computation methods.
+        /// <param name="allowedShippingProviderSystemName">
+        /// Filter by shipping rate computation provider system name.
+        /// <c>null</c> to load shipping options of all shipping rate computation providers.
         /// </param>
         /// <remarks>
         /// Always returns <see cref="ShippingOption"/> if there are any, even when there are warnings.
         /// </remarks>
         /// <returns>Get shipping option resopnse</returns>
-        Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request, string allowedShippingRateComputationMethodSystemName = null);
+        Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request, string allowedShippingProviderSystemName = null);
     }
 }

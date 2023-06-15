@@ -616,7 +616,7 @@ namespace Smartstore.Admin.Controllers
             int numActiveShippingMethods = 0;
             try
             {
-                numActiveShippingMethods = _shippingService.Value.LoadActiveShippingRateComputationMethods()
+                numActiveShippingMethods = _shippingService.Value.LoadEnabledShippingProviders()
                     .Where(x => x.Value.ShippingRateComputationMethodType == ShippingRateComputationMethodType.Offline)
                     .Count();
             }
@@ -631,16 +631,16 @@ namespace Smartstore.Admin.Controllers
 
             // Payment methods
             // ====================================
-            int numActivePaymentMethods = 0;
+            int numActivePaymentProviders = 0;
             try
             {
-                numActivePaymentMethods = (await _paymentService.Value.LoadActivePaymentMethodsAsync()).Count();
+                numActivePaymentProviders = (await _paymentService.Value.LoadActivePaymentProvidersAsync()).Count();
             }
             catch
             {
             }
 
-            if (numActivePaymentMethods > 0)
+            if (numActivePaymentProviders > 0)
             {
                 AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.PaymentMethods.OK"));
             }

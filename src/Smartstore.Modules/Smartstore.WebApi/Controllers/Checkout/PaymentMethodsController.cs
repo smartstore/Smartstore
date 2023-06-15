@@ -64,7 +64,7 @@ namespace Smartstore.Web.Api.Controllers
         #region Actions and functions
 
         /// <summary>
-        /// Gets the system name of all payment methods.
+        /// Gets the system name of all payment providers.
         /// </summary>
         /// <param name="active" example="true">A value indicating whether to only include active payment methods. False to load all payment method names.</param>
         /// <param name="storeId">Filter payment methods by store identifier. 0 to load all.</param>
@@ -77,10 +77,7 @@ namespace Smartstore.Web.Api.Controllers
         {
             try
             {
-                var providers = active
-                    ? await _paymentService.Value.LoadActivePaymentMethodsAsync(storeId: storeId)
-                    : await _paymentService.Value.LoadAllPaymentMethodsAsync(storeId);
-
+                var providers = await _paymentService.Value.LoadAllPaymentProvidersAsync(active, storeId);
                 var systemNames = providers.Select(x => x.Metadata.SystemName).ToArray();
 
                 return Ok(systemNames);

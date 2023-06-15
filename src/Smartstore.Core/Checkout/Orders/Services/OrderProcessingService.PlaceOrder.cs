@@ -290,7 +290,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Payment.
             if (!warnings.Any() && !skipPaymentWorkflow)
             {
-                var isPaymentMethodActive = await _paymentService.IsPaymentMethodActiveAsync(paymentMethodSystemName, cart, paymentRequest.StoreId);
+                var isPaymentMethodActive = await _paymentService.IsPaymentProviderActiveAsync(paymentMethodSystemName, cart, paymentRequest.StoreId);
                 if (!isPaymentMethodActive)
                 {
                     warnings.Add(T("Payment.MethodNotAvailable"));
@@ -563,7 +563,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             var skipPaymentWorkflow = ctx.CartTotal.Total.Value == decimal.Zero;
             var paymentMethod = !skipPaymentWorkflow
-                ? await _paymentService.LoadPaymentMethodBySystemNameAsync(pr.PaymentMethodSystemName)
+                ? await _paymentService.LoadPaymentProviderBySystemNameAsync(pr.PaymentMethodSystemName)
                 : null;
 
             if (skipPaymentWorkflow)

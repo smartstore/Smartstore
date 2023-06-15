@@ -346,7 +346,7 @@ namespace Smartstore.Web.Controllers
             model.VatNumber = order.VatNumber;
 
             // Payment method.
-            var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(order.PaymentMethodSystemName);
+            var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(order.PaymentMethodSystemName);
             model.PaymentMethodSystemName = order.PaymentMethodSystemName;
             model.PaymentMethod = paymentMethod != null ? _moduleManager.Value.GetLocalizedFriendlyName(paymentMethod.Metadata) : order.PaymentMethodSystemName;
             model.CanRePostProcessPayment = await _paymentService.CanRePostProcessPaymentAsync(order);

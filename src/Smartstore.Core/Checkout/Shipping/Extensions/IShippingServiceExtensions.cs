@@ -10,9 +10,9 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="shippingAddress">Shipping Address.</param>
-        /// <param name="allowedShippingRateComputationMethodSystemName">
-        /// Filter by shipping rate computation method system name.
-        /// <c>null</c> to load shipping options of all shipping rate computation methods.
+        /// <param name="allowedShippingProviderSystemName">
+        /// Filter by shipping rate computation provider system name.
+        /// <c>null</c> to load shipping options of all shipping rate computation providers.
         /// </param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>Shipping option response.</returns>
@@ -20,15 +20,15 @@ namespace Smartstore.Core.Checkout.Shipping
             this IShippingService shippingService,
             ShoppingCart cart,
             Address shippingAddress,
-            string allowedShippingRateComputationMethodSystemName = null,
+            string allowedShippingProviderSystemName = null,
             int storeId = 0)
         {
-            Guard.NotNull(shippingService, nameof(shippingService));
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(shippingService);
+            Guard.NotNull(cart);
 
             var request = shippingService.CreateShippingOptionRequest(cart, shippingAddress, storeId);
 
-            return shippingService.GetShippingOptionsAsync(request, allowedShippingRateComputationMethodSystemName);
+            return shippingService.GetShippingOptionsAsync(request, allowedShippingProviderSystemName);
         }
     }
 }

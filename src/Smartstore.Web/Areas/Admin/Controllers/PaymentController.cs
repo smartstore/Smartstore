@@ -57,7 +57,7 @@ namespace Smartstore.Admin.Controllers
                 var model = _moduleManager.ToProviderModel<IPaymentMethod, PaymentMethodModel>(provider);
                 var instance = provider.Value;
 
-                model.IsActive = provider.IsPaymentMethodActive(_paymentSettings);
+                model.IsActive = provider.IsPaymentProviderEnabled(_paymentSettings);
                 model.SupportCapture = instance.SupportCapture;
                 model.SupportPartiallyRefund = instance.SupportPartiallyRefund;
                 model.SupportRefund = instance.SupportRefund;

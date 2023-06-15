@@ -45,14 +45,14 @@ namespace Smartstore.Core.Tests.Checkout.Payment
         [Test]
         public async Task Can_load_paymentMethod_by_systemKeyword()
         {
-            var srcm = await _paymentService.LoadPaymentMethodBySystemNameAsync("Payments.TestMethod1");
+            var srcm = await _paymentService.LoadPaymentProviderBySystemNameAsync("Payments.TestMethod1");
             srcm.ShouldNotBeNull();
         }
 
         [Test]
         public async Task Can_load_active_paymentMethods()
         {
-            var srcm = await _paymentService.LoadActivePaymentMethodsAsync();
+            var srcm = await _paymentService.LoadActivePaymentProvidersAsync();
             srcm.ShouldNotBeNull();
             srcm.Any().ShouldBeTrue();
         }

@@ -493,7 +493,7 @@ namespace Smartstore.Web.Models.Cart
                 }
 
                 var selectedPaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
-                var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(selectedPaymentMethodSystemName);
+                var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(selectedPaymentMethodSystemName);
 
                 to.OrderReviewData.PaymentMethod = paymentMethod != null ? _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata) : string.Empty;
                 to.OrderReviewData.PaymentSummary = checkoutState.PaymentSummary;
@@ -502,7 +502,7 @@ namespace Smartstore.Web.Models.Cart
 
             #endregion
 
-            var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(
+            var boundPaymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(
                 from,
                 store.Id,
                 new[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton },

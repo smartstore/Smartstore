@@ -100,6 +100,6 @@ namespace Smartstore.AmazonPay.Filters
             => _services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName);
 
         private Task<bool> IsAmazonPayActive()
-            => _paymentService.Value.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
+            => _paymentService.Value.IsPaymentProviderActiveAsync(AmazonPayProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
     }
 }

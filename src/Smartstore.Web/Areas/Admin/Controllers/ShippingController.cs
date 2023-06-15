@@ -81,7 +81,7 @@ namespace Smartstore.Admin.Controllers
             foreach (var provider in providers)
             {
                 var model = _moduleManager.ToProviderModel<IShippingRateComputationMethod, ShippingRateComputationMethodModel>(provider);
-                model.IsActive = provider.IsShippingRateComputationMethodActive(_shippingSettings);
+                model.IsActive = provider.IsShippingProviderEnabled(_shippingSettings);
 
                 shippingProviderModels.Add(model);
             }

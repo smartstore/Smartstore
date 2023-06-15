@@ -285,7 +285,7 @@ namespace Smartstore.Web.Controllers
 
             var srcm = _providerManager.GetProvider<IShippingRateComputationMethod>(order.ShippingRateComputationMethodSystemName, store.Id);
 
-            if (srcm != null && srcm.IsShippingRateComputationMethodActive(shippingSettings))
+            if (srcm != null && srcm.IsShippingProviderEnabled(shippingSettings))
             {
                 var shipmentTracker = srcm.Value.ShipmentTracker;
                 if (shipmentTracker != null)

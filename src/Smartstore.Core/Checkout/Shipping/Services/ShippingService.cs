@@ -51,27 +51,27 @@ namespace Smartstore.Core.Checkout.Shipping
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public virtual IEnumerable<Provider<IShippingRateComputationMethod>> LoadActiveShippingRateComputationMethods(int storeId = 0, string systemName = null)
+        public virtual IEnumerable<Provider<IShippingRateComputationMethod>> LoadEnabledShippingProviders(int storeId = 0, string systemName = null)
         {
-            var allMethods = _providerManager.GetAllProviders<IShippingRateComputationMethod>(storeId);
+            var allProviders = _providerManager.GetAllProviders<IShippingRateComputationMethod>(storeId);
 
             // Get active shipping rate computation methods.
-            var activeMethods = allMethods
+            var enabledProviders = allProviders
                 .Where(p => p.Value.IsActive && _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Contains(p.Metadata.SystemName, StringComparer.InvariantCultureIgnoreCase));
 
-            if (!activeMethods.Any())
+            if (!enabledProviders.Any())
             {
                 // Try get a fallback shipping rate computation method.
-                var fallbackMethod = allMethods.FirstOrDefault(x => x.IsShippingRateComputationMethodActive(_shippingSettings)) ?? allMethods.FirstOrDefault();
+                var fallbackProvider = allProviders.FirstOrDefault(x => x.IsShippingProviderEnabled(_shippingSettings)) ?? allProviders.FirstOrDefault();
 
-                if (fallbackMethod != null)
+                if (fallbackProvider != null)
                 {
                     _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Clear();
-                    _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Add(fallbackMethod.Metadata.SystemName);
+                    _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Add(fallbackProvider.Metadata.SystemName);
 
                     _settingFactory.SaveSettingsAsync(_shippingSettings).GetAwaiter().GetResult();
 
-                    return new Provider<IShippingRateComputationMethod>[] { fallbackMethod };
+                    return new Provider<IShippingRateComputationMethod>[] { fallbackProvider };
                 }
 
                 if (DataSettings.DatabaseIsInstalled())
@@ -80,7 +80,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 }
             }
 
-            return activeMethods;
+            return enabledProviders;
         }
 
         public virtual async Task<List<ShippingMethod>> GetAllShippingMethodsAsync(int storeId = 0, bool matchRules = false)
@@ -164,7 +164,7 @@ namespace Smartstore.Core.Checkout.Shipping
         {
             Guard.NotNull(request);
 
-            var computationMethods = LoadActiveShippingRateComputationMethods(request.StoreId)
+            var computationMethods = LoadEnabledShippingProviders(request.StoreId)
                 .Where(x => allowedShippingRateComputationMethodSystemName.IsEmpty() || allowedShippingRateComputationMethodSystemName.EqualsNoCase(x.Metadata.SystemName))
                 .ToList();
 

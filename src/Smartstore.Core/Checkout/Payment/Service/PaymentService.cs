@@ -67,17 +67,17 @@ namespace Smartstore.Core.Checkout.Payment
 
         #endregion
 
-        public virtual async Task<bool> IsPaymentMethodActiveAsync(string systemName, ShoppingCart cart = null, int storeId = 0)
+        public virtual async Task<bool> IsPaymentProviderActiveAsync(string systemName, ShoppingCart cart = null, int storeId = 0)
         {
             Guard.NotEmpty(systemName);
 
-            var activePaymentMethods = await LoadActivePaymentMethodsAsync(cart, storeId, null, false);
+            var activePaymentMethods = await LoadActivePaymentProvidersAsync(cart, storeId, null, false);
             var method = activePaymentMethods.FirstOrDefault(x => x.Metadata.SystemName == systemName);
             
             return method != null;
         }
 
-        public virtual async Task<IEnumerable<Provider<IPaymentMethod>>> LoadActivePaymentMethodsAsync(
+        public virtual async Task<IEnumerable<Provider<IPaymentMethod>>> LoadActivePaymentProvidersAsync(
             ShoppingCart cart = null,
             int storeId = 0,
             PaymentMethodType[] types = null,
@@ -91,8 +91,8 @@ namespace Smartstore.Core.Checkout.Payment
 
             var allFilters = GetAllPaymentMethodFilters();
             var allProviders = !types.IsNullOrEmpty()
-                ? (await LoadAllPaymentMethodsAsync(storeId)).Where(x => types.Contains(x.Value.PaymentMethodType))
-                : await LoadAllPaymentMethodsAsync(storeId);
+                ? (await LoadAllPaymentProvidersAsync(true, storeId)).Where(x => types.Contains(x.Value.PaymentMethodType))
+                : await LoadAllPaymentProvidersAsync(true, storeId);
 
             var paymentMethods = await GetAllPaymentMethodsAsync(storeId);
 
@@ -110,12 +110,6 @@ namespace Smartstore.Core.Checkout.Payment
                 {
                     try
                     {
-                        // Only active payment methods.
-                        if (!p.Value.IsActive || !_paymentSettings.ActivePaymentMethodSystemNames.Contains(p.Metadata.SystemName, StringComparer.InvariantCultureIgnoreCase))
-                        {
-                            return false;
-                        }
-
                         // Rule sets.
                         if (paymentMethods.TryGetValue(p.Metadata.SystemName, out var pm))
                         {
@@ -146,7 +140,7 @@ namespace Smartstore.Core.Checkout.Payment
 
             if (!activeProviders.Any() && provideFallbackMethod)
             {
-                var fallbackMethod = allProviders.FirstOrDefault(x => x.IsPaymentMethodActive(_paymentSettings))
+                var fallbackMethod = allProviders.FirstOrDefault(x => x.IsPaymentProviderEnabled(_paymentSettings))
                     ?? allProviders.FirstOrDefault(x => x.Metadata?.ModuleDescriptor?.SystemName?.EqualsNoCase("Smartstore.OfflinePayment") ?? false)
                     ?? allProviders.FirstOrDefault();
 
@@ -164,10 +158,10 @@ namespace Smartstore.Core.Checkout.Payment
             return activeProviders;
         }
 
-        public virtual async Task<Provider<IPaymentMethod>> LoadPaymentMethodBySystemNameAsync(string systemName, bool onlyWhenActive = false, int storeId = 0)
+        public virtual async Task<Provider<IPaymentMethod>> LoadPaymentProviderBySystemNameAsync(string systemName, bool onlyWhenEnabled = false, int storeId = 0)
         {
             var provider = _providerManager.GetProvider<IPaymentMethod>(systemName, storeId);
-            if (provider == null || onlyWhenActive && !provider.IsPaymentMethodActive(_paymentSettings))
+            if (provider == null || onlyWhenEnabled && !provider.IsPaymentProviderEnabled(_paymentSettings))
             {
                 return null;
             }
@@ -187,26 +181,35 @@ namespace Smartstore.Core.Checkout.Payment
 
         private async Task<Provider<IPaymentMethod>> LoadMethodOrThrowAsync(string systemName)
         {
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(systemName);
+            var paymentMethod = await LoadPaymentProviderBySystemNameAsync(systemName);
             return paymentMethod ?? throw new InvalidOperationException(T("Payment.CouldNotLoadMethod"));
         }
 
-        public virtual async Task<IEnumerable<Provider<IPaymentMethod>>> LoadAllPaymentMethodsAsync(int storeId = 0)
+        public virtual async Task<IEnumerable<Provider<IPaymentMethod>>> LoadAllPaymentProvidersAsync(bool onlyEnabled = false, int storeId = 0)
         {
             var providers = _providerManager.GetAllProviders<IPaymentMethod>(storeId);
-            if (providers.Any() && !QuerySettings.IgnoreMultiStore && storeId > 0)
+
+            if (providers.Any())
             {
-                var unauthorizedMethods = await _db.PaymentMethods
-                    .AsNoTracking()
-                    .Where(x => x.LimitedToStores)
-                    .ToListAsync();
+                if (onlyEnabled)
+                {
+                    providers = providers.Where(x => x.IsPaymentProviderEnabled(_paymentSettings));
+                }
 
-                var unauthorizedMethodNames = await unauthorizedMethods
-                    .WhereAwait(async x => !await _storeMappingService.AuthorizeAsync(x, storeId))
-                    .Select(x => x.PaymentMethodSystemName)
-                    .ToListAsync();
+                if (!QuerySettings.IgnoreMultiStore && storeId > 0)
+                {
+                    var storeRestrictedMethods = await _db.PaymentMethods
+                        .AsNoTracking()
+                        .Where(x => x.LimitedToStores)
+                        .ToListAsync();
 
-                return providers.Where(x => !unauthorizedMethodNames.Contains(x.Metadata.SystemName));
+                    var unauthorizedMethodNames = await storeRestrictedMethods
+                        .WhereAwait(async x => !await _storeMappingService.AuthorizeAsync(x, storeId))
+                        .Select(x => x.PaymentMethodSystemName)
+                        .ToListAsync();
+
+                    providers = providers.Where(x => !unauthorizedMethodNames.Contains(x.Metadata.SystemName));
+                }
             }
 
             return providers;
@@ -270,13 +273,14 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<bool> CanRePostProcessPaymentAsync(Order order)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            Guard.NotNull(order);
 
             if (!_paymentSettings.AllowRePostingPayments)
+            {
                 return false;
+            }    
 
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(order.PaymentMethodSystemName);
+            var paymentMethod = await LoadPaymentProviderBySystemNameAsync(order.PaymentMethodSystemName);
             if (paymentMethod == null)
             {
                 // Payment method couldn't be loaded (for example, was uninstalled).

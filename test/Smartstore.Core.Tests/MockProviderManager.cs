@@ -58,7 +58,7 @@ namespace Smartstore.Core.Tests
             return ApplySettingResult.Unchanged;
         }
 
-        public bool IsActiveForStore(IModuleDescriptor module, int storeId)
+        public bool IsEnabledForStore(IModuleDescriptor module, int storeId)
         {
             return true;
         }

@@ -441,10 +441,10 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareCurrencyModelAsync(CurrencyModel model, Currency currency, bool excludeProperties)
         {
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(model);
 
             var paymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
-            var paymentProviders = await _paymentService.LoadAllPaymentMethodsAsync();
+            var paymentProviders = await _paymentService.LoadAllPaymentProvidersAsync();
 
             foreach (var provider in paymentProviders)
             {

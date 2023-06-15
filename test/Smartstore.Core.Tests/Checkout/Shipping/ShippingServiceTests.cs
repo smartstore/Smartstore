@@ -80,14 +80,14 @@ namespace Smartstore.Core.Tests.Shipping
         [Test]
         public void Can_load_shippingRateComputationMethod_by_systemKeyword()
         {
-            var srcm = _shippingService.LoadActiveShippingRateComputationMethods(systemName: "FixedRateTestShippingRateComputationMethod").FirstOrDefault();
+            var srcm = _shippingService.LoadEnabledShippingProviders(systemName: "FixedRateTestShippingRateComputationMethod").FirstOrDefault();
             srcm.Value.ShouldNotBeNull();
         }
 
         [Test]
         public void Can_load_active_shippingRateComputationMethods()
         {
-            var srcm = _shippingService.LoadActiveShippingRateComputationMethods();
+            var srcm = _shippingService.LoadEnabledShippingProviders();
             srcm.ShouldNotBeNull();
             srcm.Any().ShouldBeTrue();
         }

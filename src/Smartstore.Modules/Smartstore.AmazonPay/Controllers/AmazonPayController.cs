@@ -594,7 +594,7 @@ namespace Smartstore.AmazonPay.Controllers
                 return;
             }
 
-            if (!await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, order.StoreId))
+            if (!await _paymentService.IsPaymentProviderActiveAsync(AmazonPayProvider.SystemName, null, order.StoreId))
             {
                 return;
             }

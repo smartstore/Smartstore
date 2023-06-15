@@ -7,13 +7,13 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets a value indicating whether void is supported by payment method.
         /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
+        /// <param name="systemName">Payment provider system name.</param>
         /// <returns>A value indicating whether void is supported.</returns>
-        public static async Task<bool> SupportVoidAsync(this IPaymentService paymentService, string paymentMethodSystemName)
+        public static async Task<bool> SupportVoidAsync(this IPaymentService paymentService, string systemName)
         {
-            Guard.NotNull(paymentService, nameof(paymentService));
+            Guard.NotNull(paymentService);
 
-            var paymentMethod = await paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
+            var paymentMethod = await paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
 
             return paymentMethod?.Value?.SupportVoid ?? false;
         }
@@ -21,13 +21,13 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets a value indicating whether refund is supported by payment method.
         /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
+        /// <param name="systemName">Payment provider system name.</param>
         /// <returns>A value indicating whether refund is supported.</returns>
-        public static async Task<bool> SupportRefundAsync(this IPaymentService paymentService, string paymentMethodSystemName)
+        public static async Task<bool> SupportRefundAsync(this IPaymentService paymentService, string systemName)
         {
-            Guard.NotNull(paymentService, nameof(paymentService));
+            Guard.NotNull(paymentService);
 
-            var paymentMethod = await paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
+            var paymentMethod = await paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
 
             return paymentMethod?.Value?.SupportRefund ?? false;
         }
@@ -35,13 +35,13 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets a value indicating whether partial refund is supported by payment method.
         /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
+        /// <param name="systemName">Payment provider system name.</param>
         /// <returns>A value indicating whether partial refund is supported.</returns>
-        public static async Task<bool> SupportPartiallyRefundAsync(this IPaymentService paymentService, string paymentMethodSystemName)
+        public static async Task<bool> SupportPartiallyRefundAsync(this IPaymentService paymentService, string systemName)
         {
-            Guard.NotNull(paymentService, nameof(paymentService));
+            Guard.NotNull(paymentService);
 
-            var paymentMethod = await paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
+            var paymentMethod = await paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
 
             return paymentMethod?.Value?.SupportPartiallyRefund ?? false;
         }
@@ -49,42 +49,42 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets a value indicating whether the payment method supports capture.
         /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
+        /// <param name="systemName">Payment provider system name.</param>
         /// <returns>A value indicating whether capture is supported.</returns>
-        public static async Task<bool> SupportCaptureAsync(this IPaymentService paymentService, string paymentMethodSystemName)
+        public static async Task<bool> SupportCaptureAsync(this IPaymentService paymentService, string systemName)
         {
-            Guard.NotNull(paymentService, nameof(paymentService));
+            Guard.NotNull(paymentService);
 
-            var paymentMethod = await paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
+            var paymentMethod = await paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
 
             return paymentMethod?.Value?.SupportCapture ?? false;
         }
 
         /// <summary>
-        /// Checks whether a payment method is active for a shop.
-        /// Note, this method does not check whether the payment type is filtered out or match applied rule sets.
+        /// Checks whether a payment provider is enabled for a shop.
+        /// Note that this method does not check whether the payment provider is filtered out or matches applied rule sets.
         /// </summary>
         /// <param name="systemName">System name of the payment provider.</param>
         /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
-        /// <returns><c>True</c> payment method is active, otherwise <c>false</c>.</returns>
+        /// <returns><c>True</c> payment provider is active, otherwise <c>false</c>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static async Task<bool> IsPaymentMethodActiveAsync(this IPaymentService paymentService, string systemName, int storeId = 0)
+        public static async Task<bool> IsPaymentProviderEnabledAsync(this IPaymentService paymentService, string systemName, int storeId = 0)
         {
-            Guard.NotNull(paymentService, nameof(paymentService));
+            Guard.NotNull(paymentService);
 
-            return await paymentService.LoadPaymentMethodBySystemNameAsync(systemName, true, storeId) != null;
+            return await paymentService.LoadPaymentProviderBySystemNameAsync(systemName, true, storeId) != null;
         }
 
         /// <summary>
         /// Gets a payment method type.
         /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
+        /// <param name="systemName">Payment provider system name.</param>
         /// <returns>A payment method type.</returns>
-        public static async Task<PaymentMethodType> GetPaymentMethodTypeAsync(this IPaymentService paymentService, string paymentMethodSystemName)
+        public static async Task<PaymentMethodType> GetPaymentProviderTypeAsync(this IPaymentService paymentService, string systemName)
         {
-            Guard.NotNull(paymentService, nameof(paymentService));
+            Guard.NotNull(paymentService);
 
-            var paymentMethod = await paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
+            var paymentMethod = await paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
 
             return paymentMethod?.Value?.PaymentMethodType ?? PaymentMethodType.Unknown;
         }
@@ -92,13 +92,13 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets a recurring payment type of payment method.
         /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
+        /// <param name="systemName">Payment provider system name.</param>
         /// <returns>A recurring payment type of payment method.</returns>
-        public static async Task<RecurringPaymentType> GetRecurringPaymentTypeAsync(this IPaymentService paymentService, string paymentMethodSystemName)
+        public static async Task<RecurringPaymentType> GetRecurringPaymentTypeAsync(this IPaymentService paymentService, string systemName)
         {
-            Guard.NotNull(paymentService, nameof(paymentService));
+            Guard.NotNull(paymentService);
 
-            var paymentMethod = await paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
+            var paymentMethod = await paymentService.LoadPaymentProviderBySystemNameAsync(systemName);
 
             return paymentMethod?.Value?.RecurringPaymentType ?? RecurringPaymentType.NotSupported;
         }

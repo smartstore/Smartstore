@@ -926,7 +926,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 // Use fixed rate (if possible).
                 var shippingAddress = cart.Customer?.ShippingAddress ?? null;
-                var shippingRateComputationMethods = _shippingService.LoadActiveShippingRateComputationMethods(cart.StoreId);
+                var shippingRateComputationMethods = _shippingService.LoadEnabledShippingProviders(cart.StoreId);
 
                 if (!shippingRateComputationMethods.Any())
                 {

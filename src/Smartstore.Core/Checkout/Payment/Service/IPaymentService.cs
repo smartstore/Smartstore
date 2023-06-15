@@ -10,24 +10,25 @@ namespace Smartstore.Core.Checkout.Payment
     public partial interface IPaymentService
     {
         /// <summary>
-        /// Checks that a payment method is active, not filtered out, and matches the applied rule sets.
+        /// Checks that a payment provider is active, not filtered out, and matches the applied rule sets.
         /// A payment method that meets these requirements will appear in the checkout.
         /// </summary>
         /// <param name="systemName">System name of the payment provider.</param>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
         /// <returns><c>True</c> payment method is active, otherwise <c>false</c>.</returns>
-        Task<bool> IsPaymentMethodActiveAsync(string systemName, ShoppingCart cart = null, int storeId = 0);
+        Task<bool> IsPaymentProviderActiveAsync(string systemName, ShoppingCart cart = null, int storeId = 0);
 
         /// <summary>
         /// Loads payment methods that are active, not filtered out, and match the applied rule sets.
+        /// Payment methods that meet these requirements will appear in the checkout.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
         /// <param name="types">Filter payment methods by payment method types.</param>
         /// <param name="provideFallbackMethod">Provide a fallback payment method if there is no match.</param>
         /// <returns>Filtered payment methods.</returns>
-        Task<IEnumerable<Provider<IPaymentMethod>>> LoadActivePaymentMethodsAsync(
+        Task<IEnumerable<Provider<IPaymentMethod>>> LoadActivePaymentProvidersAsync(
             ShoppingCart cart = null,
             int storeId = 0,
             PaymentMethodType[] types = null,
@@ -36,23 +37,24 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Loads all payment providers.
         /// </summary>
+        /// <param name="onlyEnabled"><c>true</c> to only load enabled provider.</param>
         /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
         /// <returns>Payment provider.</returns>
-        Task<IEnumerable<Provider<IPaymentMethod>>> LoadAllPaymentMethodsAsync(int storeId = 0);
+        Task<IEnumerable<Provider<IPaymentMethod>>> LoadAllPaymentProvidersAsync(bool onlyEnabled = false, int storeId = 0);
 
         /// <summary>
         /// Loads a payment provider by system name.
         /// </summary>
         /// <param name="systemName">System name of the payment provider.</param>
-        /// <param name="onlyWhenActive"><c>true</c> to only load an active provider.</param>
+        /// <param name="onlyWhenEnabled"><c>true</c> to only load an enabled provider.</param>
         /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
         /// <returns>Payment provider.</returns>
-        Task<Provider<IPaymentMethod>> LoadPaymentMethodBySystemNameAsync(string systemName, bool onlyWhenActive = false, int storeId = 0);
+        Task<Provider<IPaymentMethod>> LoadPaymentProviderBySystemNameAsync(string systemName, bool onlyWhenEnabled = false, int storeId = 0);
 
         /// <summary>
-        /// Gets all payment methods.
+        /// Reads all configured payment methods from the database.
         /// </summary>
-        /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
+        /// <param name="storeId">Filter payment method by store identifier. 0 to load all.</param>
         /// <returns>All payment methods.</returns>
         Task<Dictionary<string, PaymentMethod>> GetAllPaymentMethodsAsync(int storeId = 0);
 
