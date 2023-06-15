@@ -204,8 +204,8 @@ namespace Smartstore.Core.Checkout.Payment
         {
             return _requestCache.GetAsync(PAYMENT_METHODS_ALL_KEY.FormatInvariant(storeId), async () =>
             {
+                // INFO: load tracked because otherwise "RuleSets" may not be up-to-date (e.g. if a rule assignment was added\removed).
                 return await _db.PaymentMethods
-                    .AsNoTracking()
                     .AsSplitQuery()
                     .Include(x => x.RuleSets)
                     .ThenInclude(x => x.Rules)
