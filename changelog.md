@@ -22,6 +22,7 @@
 - SEO: trailing slash options for internal links (*Append trailing slash to links*, *Trailing slash mismatch rule*)
 - #480 Product export: add a filter for categories and an option to include all sub-categories.
 - #437 Rule builder: add cart rule for delivery time.
+- #559 Forum: add setting to prevent registered customers from posting forum topics and posts.
 
 ### Improvements
 
