@@ -84,6 +84,7 @@ fieldset.content-group {
 		line-height: $input-height;
 		text-align: center;
 		vertical-align: middle;
+        pointer-events: none;
 
         :before {
             position: absolute;

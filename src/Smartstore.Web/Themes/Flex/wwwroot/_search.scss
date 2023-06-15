@@ -8,10 +8,10 @@ $facet-selection-color:             darken($success, 15%);
 
 .instasearch-form {
     position: relative;
-    --search-addon-size: 26px;
-    --search-addon-pos: 48px;
+    --search-addon-size: 24px;
+    --search-addon-pos: 10px;
     --search-padding-start: 1.25rem;
-    --search-padding-end: 74px;
+    --search-padding-end: 40px;
 
     @if ($searchbox-pill == true) {
         --search-border-radius: 50rem;
@@ -57,6 +57,7 @@ $facet-selection-color:             darken($success, 15%);
     margin-top: calc(var(--search-addon-size) / 2 * -1);
     top: 50%;
     right: var(--search-addon-pos);
+    pointer-events: none;
 
     > * {
         position: relative;
@@ -76,6 +77,7 @@ $facet-selection-color:             darken($success, 15%);
 
     .instasearch-term.active:not(.busy, :placeholder-shown) + .instasearch-addon > & {
         display: block !important;
+        pointer-events: auto;
     }
 }
 
@@ -86,6 +88,7 @@ $facet-selection-color:             darken($success, 15%);
 .instasearch-button {
     position: absolute !important;
     z-index: 1;
+    height: auto;
     right: 1px;
     top: 1px;
     bottom: 1px;
@@ -100,7 +103,7 @@ $facet-selection-color:             darken($success, 15%);
 }
 
 .instasearch-icon {
-    position: relative;
+    opacity: 0.5;
     font-size: 1rem;
 }
 
