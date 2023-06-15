@@ -86,8 +86,8 @@
             $input.on("paste.ni input.ni change.ni focusout.ni", function (e) {
                 var newValue = parseValue($input[0].value);
                 var focusOut = e.type === "focusout";
-                setValue(newValue, focusOut);
-                updateDisplay(newValue, invariant);
+                var updatedValue = setValue(newValue, focusOut);
+                updateDisplay(updatedValue, invariant);
             });
 
             if (props.autoSelect) {
@@ -185,6 +185,7 @@
                 if (isNaN(newValue) || newValue === "") {
                     if (updateInput) $input[0].value = "";
                     value = NaN;
+                    newValue = "";
                 }
                 else {
                     newValue = parseFloat(newValue);
@@ -195,6 +196,8 @@
                     if (updateInput) $input[0].value = newValue;
                     value = newValue;
                 }
+
+                return newValue;
             }
 
             function updateDisplay(newValue, invariant) {
