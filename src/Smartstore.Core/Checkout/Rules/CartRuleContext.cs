@@ -15,10 +15,11 @@ namespace Smartstore.Core.Checkout.Rules
             _sessionKeyBuilder = sessionKeyBuilder;
         }
 
-        public Customer Customer { get; init; }
-        public Store Store { get; init; }
         public IWorkContext WorkContext { get; init; }
         public IShoppingCartService ShoppingCartService { get; init; }
+
+        public Customer Customer { get; set; }
+        public Store Store { get; set; }
 
         public ShoppingCart ShoppingCart
         {

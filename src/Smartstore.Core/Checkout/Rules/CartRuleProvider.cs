@@ -95,7 +95,10 @@ namespace Smartstore.Core.Checkout.Rules
             return group;
         }
 
-        public async Task<bool> RuleMatchesAsync(int[] ruleSetIds, LogicalRuleOperator logicalOperator)
+        public async Task<bool> RuleMatchesAsync(
+            int[] ruleSetIds, 
+            LogicalRuleOperator logicalOperator,
+            Action<CartRuleContext> contextAction = null)
         {
             Guard.NotNull(ruleSetIds);
 
@@ -110,10 +113,13 @@ namespace Smartstore.Core.Checkout.Rules
                 .Cast<RuleExpression>()
                 .ToArrayAsync();
 
-            return await RuleMatchesAsync(expressions, logicalOperator);
+            return await RuleMatchesAsync(expressions, logicalOperator, contextAction);
         }
 
-        public async Task<bool> RuleMatchesAsync(IRulesContainer entity, LogicalRuleOperator logicalOperator = LogicalRuleOperator.Or)
+        public async Task<bool> RuleMatchesAsync(
+            IRulesContainer entity, 
+            LogicalRuleOperator logicalOperator = LogicalRuleOperator.Or,
+            Action<CartRuleContext> contextAction = null)
         {
             Guard.NotNull(entity);
 
@@ -129,10 +135,13 @@ namespace Smartstore.Core.Checkout.Rules
                 .Cast<RuleExpression>()
                 .ToArrayAsync();
 
-            return await RuleMatchesAsync(expressions, logicalOperator);
+            return await RuleMatchesAsync(expressions, logicalOperator, contextAction);
         }
 
-        public async Task<bool> RuleMatchesAsync(RuleExpression[] expressions, LogicalRuleOperator logicalOperator)
+        public async Task<bool> RuleMatchesAsync(
+            RuleExpression[] expressions, 
+            LogicalRuleOperator logicalOperator,
+            Action<CartRuleContext> contextAction = null)
         {
             Guard.NotNull(expressions);
 
@@ -160,6 +169,8 @@ namespace Smartstore.Core.Checkout.Rules
                 WorkContext = _workContext,
                 ShoppingCartService = _shoppingCartService
             };
+
+            contextAction?.Invoke(context);
 
             var processor = GetProcessor(group);
             var result = await processor.MatchAsync(context, group);

@@ -57,7 +57,9 @@ namespace Smartstore.Core.Rules
         public async Task<IRuleExpressionGroup> CreateExpressionGroupAsync(int ruleSetId, IRuleVisitor visitor, bool includeHidden = false)
         {
             if (ruleSetId <= 0)
+            {
                 return null;
+            } 
 
             // TODO: prevent stack overflow > check if nested groups reference each other.
 
