@@ -38,7 +38,7 @@ namespace Smartstore.PayPal.Services
         public Task<bool> IsSofortActiveAsync()
             => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalSofort", null, _storeContext.CurrentStore.Id);
 
-        public async Task<bool> IsAnyMethodActiveAsync(params string[] providerSystemNames)
+        public async Task<bool> IsAnyProviderActiveAsync(params string[] providerSystemNames)
         {
             Guard.NotEmpty(providerSystemNames);
 
@@ -52,7 +52,7 @@ namespace Smartstore.PayPal.Services
         {
             // INFO: APMs don't need cookies as everything on page is handled via API requests.
             // The pages to which the customer is redirected when using APMs must handle cookie consent themsleves.
-            if (await IsAnyMethodActiveAsync(
+            if (await IsAnyProviderActiveAsync(
                 "Payments.PayPalStandard",
                 "Payments.PayPalPayUponInvoice",
                 "Payments.PayPalCreditCard",

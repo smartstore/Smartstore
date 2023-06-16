@@ -58,7 +58,7 @@ namespace Smartstore.PayPal.Filters
                 return;
             }
 
-            if (await _payPalHelper.IsAnyMethodActiveAsync(
+            if (await _payPalHelper.IsAnyProviderActiveAsync(
                 "Payments.PayPalStandard",
                 "Payments.PayPalCreditCard",
                 "Payments.PayPalPayLater",

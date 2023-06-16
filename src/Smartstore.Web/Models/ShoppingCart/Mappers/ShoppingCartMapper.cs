@@ -138,8 +138,8 @@ namespace Smartstore.Web.Models.Cart
 
         public override async Task MapAsync(ShoppingCart from, ShoppingCartModel to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             if (!from.Items.Any())
             {
