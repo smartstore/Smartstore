@@ -13,8 +13,7 @@ namespace Smartstore.Core.Tests.Shipping
         /// <returns>Represents a response of getting shipping rate options</returns>
         Task<ShippingOptionResponse> IShippingRateComputationMethod.GetShippingOptionsAsync(ShippingOptionRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException("getShippingOptionRequest");
+            Guard.NotNull(request);
 
             var response = new ShippingOptionResponse();
             response.ShippingOptions.Add(new ShippingOption
@@ -57,7 +56,5 @@ namespace Smartstore.Core.Tests.Shipping
         /// Gets a shipment tracker
         /// </summary>
         public IShipmentTracker ShipmentTracker => null;
-
-        public bool IsActive => true;
     }
 }

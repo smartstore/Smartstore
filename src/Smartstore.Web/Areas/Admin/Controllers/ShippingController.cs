@@ -94,26 +94,18 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ActivateProvider(string systemName, bool activate)
         {
             var provider = _providerManager.GetProvider<IShippingRateComputationMethod>(systemName);
-            var isActive = provider.Value.IsActive;
 
-            if (!isActive && activate)
+            if (!activate)
             {
-                NotifyWarning(T("Admin.Configuration.Payment.CannotActivateShippingRateComputationMethod"));
+                _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Remove(x => x.EqualsNoCase(provider.Metadata.SystemName));
             }
             else
             {
-                if (!activate)
-                {
-                    _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Remove(x => x.EqualsNoCase(provider.Metadata.SystemName));
-                }
-                else
-                {
-                    _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Add(provider.Metadata.SystemName);
-                }
-
-                await Services.SettingFactory.SaveSettingsAsync(_shippingSettings);
-                await _widgetService.ActivateWidgetAsync(provider.Metadata.SystemName, activate);
+                _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Add(provider.Metadata.SystemName);
             }
+
+            await Services.SettingFactory.SaveSettingsAsync(_shippingSettings);
+            await _widgetService.ActivateWidgetAsync(provider.Metadata.SystemName, activate);
 
             return RedirectToAction(nameof(Providers));
         }

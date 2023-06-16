@@ -57,7 +57,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
             // Get active shipping rate computation methods.
             var enabledProviders = allProviders
-                .Where(p => p.Value.IsActive && _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Contains(p.Metadata.SystemName, StringComparer.InvariantCultureIgnoreCase));
+                .Where(p => _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Contains(p.Metadata.SystemName, StringComparer.InvariantCultureIgnoreCase));
 
             if (!enabledProviders.Any())
             {

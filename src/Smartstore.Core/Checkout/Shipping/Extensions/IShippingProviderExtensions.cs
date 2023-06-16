@@ -13,7 +13,7 @@ namespace Smartstore.Core.Checkout.Shipping
             Guard.NotNull(provider);
             Guard.NotNull(settings);
 
-            if (settings.ActiveShippingRateComputationMethodSystemNames.IsNullOrEmpty() || !provider.Value.IsActive)
+            if (settings.ActiveShippingRateComputationMethodSystemNames.IsNullOrEmpty())
             {
                 return false;
             }

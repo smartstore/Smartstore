@@ -414,7 +414,7 @@ namespace Smartstore.Core.Messaging
                     .LoadEnabledShippingProviders(systemName: part.Order.ShippingRateComputationMethodSystemName)
                     .FirstOrDefault();
 
-                if (srcm != null && srcm.Value.IsActive)
+                if (srcm != null)
                 {
                     var tracker = srcm.Value.ShipmentTracker;
                     if (tracker != null)
