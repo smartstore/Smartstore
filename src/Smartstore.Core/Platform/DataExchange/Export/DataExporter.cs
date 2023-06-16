@@ -335,8 +335,12 @@ namespace Smartstore.Core.DataExchange.Export
             var provider = ctx.Request.Provider.Value;
 
             ctx.ContextCurrency = (await _db.Currencies.FindByIdAsync(ctx.Projection.CurrencyId ?? 0, false, ct)) ?? _services.WorkContext.WorkingCurrency;
-            ctx.ContextCustomer = (await _db.Customers.FindByIdAsync(ctx.Projection.CustomerId ?? 0, false, ct)) ?? _services.WorkContext.CurrentCustomer;
             ctx.ContextLanguage = (await _db.Languages.FindByIdAsync(ctx.Projection.LanguageId ?? 0, false, ct)) ?? _services.WorkContext.WorkingLanguage;
+
+            ctx.ContextCustomer = await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(ctx.Projection.CustomerId ?? 0, true, ct);
+            ctx.ContextCustomer ??= _services.WorkContext.CurrentCustomer;
 
             ctx.Stores = _services.StoreContext.GetAllStores().ToDictionarySafe(x => x.Id, x => x);
             ctx.Languages = await _db.Languages.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, ct);
