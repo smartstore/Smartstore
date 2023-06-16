@@ -14,12 +14,6 @@ namespace Smartstore.Core.Checkout.Payment
         #region Properties
 
         /// <summary>
-        /// Gets a value indicating whether the payment method is active and should be offered to customers.
-        /// </summary>
-        /// <remarks>Typically used for license checks. See <see cref="IPaymentMethodFilter"/> for payment method filtering.</remarks>
-        bool IsActive { get; }
-
-        /// <summary>
         /// Gets a value indicating whether the payment method requires user input in checkout
         /// before proceeding, e.g. credit card or direct debit payment.
         /// </summary>

@@ -15,7 +15,7 @@ namespace Smartstore.Core.Checkout.Payment
             Guard.NotNull(provider);
             Guard.NotNull(paymentSettings);
 
-            if (paymentSettings.ActivePaymentMethodSystemNames == null || !provider.Value.IsActive)
+            if (paymentSettings.ActivePaymentMethodSystemNames.IsNullOrEmpty())
             {
                 return false;
             }

@@ -16,10 +16,6 @@ namespace Smartstore.Core.Checkout.Payment
         #region Properties
 
         /// <inheritdoc/>
-        public virtual bool IsActive
-            => true;
-
-        /// <inheritdoc/>
         public virtual bool RequiresInteraction
             => false;
 
