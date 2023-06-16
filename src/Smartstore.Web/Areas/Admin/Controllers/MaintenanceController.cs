@@ -629,18 +629,18 @@ namespace Smartstore.Admin.Controllers
                 AddEntry(SystemWarningLevel.Warning, T("Admin.System.Warnings.Shipping.OnlyOneOffline"));
             }
 
-            // Payment methods
+            // Payment providers
             // ====================================
-            int numActivePaymentProviders = 0;
+            int numEnabledPaymentProviders = 0;
             try
             {
-                numActivePaymentProviders = (await _paymentService.Value.LoadActivePaymentProvidersAsync()).Count();
+                numEnabledPaymentProviders = (await _paymentService.Value.LoadAllPaymentProvidersAsync(onlyEnabled: true)).Count();
             }
             catch
             {
             }
 
-            if (numActivePaymentProviders > 0)
+            if (numEnabledPaymentProviders > 0)
             {
                 AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.PaymentMethods.OK"));
             }
