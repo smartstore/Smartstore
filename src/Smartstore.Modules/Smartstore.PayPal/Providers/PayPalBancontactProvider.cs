@@ -6,7 +6,7 @@ using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalBancontact")]
+    [SystemName(PayPalConstants.Bancontact)]
     [FriendlyName("PayPal Bancontact")]
     [Order(1)]
     public class PayPalBancontactProvider : PayPalApmProviderBase

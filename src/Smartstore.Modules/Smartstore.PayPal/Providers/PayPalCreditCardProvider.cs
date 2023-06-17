@@ -10,7 +10,7 @@ using Smartstore.PayPal.Components;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalCreditCard")]
+    [SystemName(PayPalConstants.CreditCard)]
     [FriendlyName("PayPal Credit Card")]
     [Order(1)]
     public class PayPalCreditCardProvider : PayPalProviderBase

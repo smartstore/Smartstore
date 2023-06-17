@@ -17,33 +17,22 @@ namespace Smartstore.PayPal.Services
             T = localizer;
         }
 
-        public Task<bool> IsPayPalStandardActiveAsync()
-            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalStandard", null, _storeContext.CurrentStore.Id);
+        public Task<bool> IsProviderEnabledAsync(string systemName)
+            => _paymentService.IsPaymentProviderEnabledAsync(systemName, _storeContext.CurrentStore.Id);
 
-        public Task<bool> IsPayUponInvoiceActiveAsync()
-            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalPayUponInvoice", null, _storeContext.CurrentStore.Id);
+        public Task<bool> IsProviderActiveAsync(string systemName)
+            => _paymentService.IsPaymentProviderActiveAsync(systemName, null, _storeContext.CurrentStore.Id);
 
-        public Task<bool> IsCreditCardActiveAsync()
-            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalCreditCard", null, _storeContext.CurrentStore.Id);
-
-        public Task<bool> IsPayLaterActiveAsync()
-            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalPayLater", null, _storeContext.CurrentStore.Id);
-
-        public Task<bool> IsSepaActiveAsync()
-            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalSepa", null, _storeContext.CurrentStore.Id);
-
-        public Task<bool> IsGiropayActiveAsync()
-            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalGiropay", null, _storeContext.CurrentStore.Id);
-
-        public Task<bool> IsSofortActiveAsync()
-            => _paymentService.IsPaymentProviderActiveAsync("Payments.PayPalSofort", null, _storeContext.CurrentStore.Id);
-
-        public async Task<bool> IsAnyProviderActiveAsync(params string[] providerSystemNames)
+        public Task<bool> IsAnyProviderEnabledAsync(params string[] systemNames)
         {
-            Guard.NotEmpty(providerSystemNames);
+            Guard.NotNull(systemNames);
+            return systemNames.AnyAsync(x => _paymentService.IsPaymentProviderEnabledAsync(x, _storeContext.CurrentStore.Id));
+        }
 
-            var activePaymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(null, _storeContext.CurrentStore.Id);
-            return activePaymentMethods.Any(x => providerSystemNames.Contains(x.Metadata.SystemName));
+        public Task<bool> IsAnyProviderActiveAsync(params string[] systemNames)
+        {
+            Guard.NotNull(systemNames);
+            return systemNames.AnyAsync(x => _paymentService.IsPaymentProviderActiveAsync(x, null, _storeContext.CurrentStore.Id));
         }
 
         // TODO: (mh) (core) Add the others Bancontact, Blik, Eps,  Ideal, MercadoPago, P24, Venmo
@@ -52,12 +41,12 @@ namespace Smartstore.PayPal.Services
         {
             // INFO: APMs don't need cookies as everything on page is handled via API requests.
             // The pages to which the customer is redirected when using APMs must handle cookie consent themsleves.
-            if (await IsAnyProviderActiveAsync(
-                "Payments.PayPalStandard",
-                "Payments.PayPalPayUponInvoice",
-                "Payments.PayPalCreditCard",
-                "Payments.PayPalPayLater",
-                "Payments.PayPalSepa"))
+            if (await IsAnyProviderEnabledAsync(
+                PayPalConstants.Standard,
+                PayPalConstants.PayUponInvoice,
+                PayPalConstants.CreditCard,
+                PayPalConstants.PayLater,
+                PayPalConstants.Sepa))
             {
                 var cookieInfo = new CookieInfo
                 {

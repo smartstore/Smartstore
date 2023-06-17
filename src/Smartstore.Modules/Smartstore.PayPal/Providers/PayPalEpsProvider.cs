@@ -6,7 +6,7 @@ using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalEps")]
+    [SystemName(PayPalConstants.Eps)]
     [FriendlyName("PayPal eps-Überweisung")]
     [Order(1)]
     public class PayPalEpsProvider : PayPalApmProviderBase

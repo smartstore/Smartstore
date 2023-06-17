@@ -42,7 +42,7 @@ namespace Smartstore.PayPal.Controllers
             model.WebhookUrl = Url.Action(nameof(PayPalController.WebhookHandler), "PayPal", new { area = string.Empty }, "https");
 
             ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
-            ViewBag.Provider = _providerManager.GetProvider("Payments.PayPalStandard").Metadata;
+            ViewBag.Provider = _providerManager.GetProvider(PayPalConstants.Standard).Metadata;
 
             if (settings.ClientId.HasValue() && settings.Secret.HasValue())
             {

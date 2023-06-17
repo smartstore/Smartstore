@@ -6,7 +6,7 @@ using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalGiropay")]
+    [SystemName(PayPalConstants.Giropay)]
     [FriendlyName("PayPal Giropay")]
     [Order(1)]
     public class PayPalGiropayProvider : PayPalApmProviderBase

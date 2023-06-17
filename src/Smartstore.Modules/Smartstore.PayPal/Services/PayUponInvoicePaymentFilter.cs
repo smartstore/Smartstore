@@ -23,7 +23,7 @@ namespace Smartstore.PayPal.Services
 
         public async Task<bool> IsExcludedAsync(PaymentFilterRequest request)
         {
-            if (request.PaymentProvider.Metadata.SystemName.EqualsNoCase("Payments.PayPalPayUponInvoice"))
+            if (request.PaymentProvider.Metadata.SystemName.EqualsNoCase(PayPalConstants.PayUponInvoice))
             {
                 var settings = await _settingFactory.Value.LoadSettingsAsync<PayPalSettings>(request.StoreId);
 

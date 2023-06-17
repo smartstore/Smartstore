@@ -17,14 +17,14 @@ namespace Smartstore.PayPal.Filters
     {
         private static readonly string[] _apms =
         {
-            "Payments.PayPalGiropay",
-            "Payments.PayPalSofort",
-            "Payments.PayPalBancontact",
-            "Payments.PayPalBlik",
-            "Payments.PayPalEps",
-            "Payments.PayPalIdeal",
-            "Payments.PayPalMyBank",
-            "Payments.PayPalPrzelewy24"
+            PayPalConstants.Giropay,
+            PayPalConstants.Sofort,
+            PayPalConstants.Bancontact,
+            PayPalConstants.Blik,
+            PayPalConstants.Eps,
+            PayPalConstants.Ideal,
+            PayPalConstants.MyBank,
+            PayPalConstants.Przelewy24
         };
 
         private readonly SmartDbContext _db;
@@ -56,9 +56,9 @@ namespace Smartstore.PayPal.Filters
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
             if (!await _payPalHelper.IsAnyProviderActiveAsync(
-                "Payments.PayPalStandard",
-                "Payments.PayPalPayLater",
-                "Payments.PayPalSepa"))
+                PayPalConstants.Standard,
+                PayPalConstants.PayLater,
+                PayPalConstants.Sepa))
             {
                 await next();
                 return;
@@ -92,16 +92,16 @@ namespace Smartstore.PayPal.Filters
                     if (firstPaymentMethod != null)
                     {
                         isSelected = 
-                            (firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalStandard" 
-                            || firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalSepa"
-                            || firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalPayLater"
+                            (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Standard
+                            || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa
+                            || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.PayLater
                             ) && firstPaymentMethod.Selected;
 
-                        if (firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalSepa")
+                        if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa)
                         {
                             funding = "sepa";
                         }
-                        else if (firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalPayLater")
+                        else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.PayLater)
                         {
                             funding = "paylater";
                         }
@@ -124,7 +124,7 @@ namespace Smartstore.PayPal.Filters
                 // Should only run on a full view rendering result or HTML ContentResult.
                 if ((filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult()) && skipPaymentPage)
                 {
-                    customer.GenericAttributes.SelectedPaymentMethod = "Payments.PayPalStandard";
+                    customer.GenericAttributes.SelectedPaymentMethod = PayPalConstants.Standard;
                     await _db.SaveChangesAsync();
 
                     var session = _httpContextAccessor.HttpContext.Session;
@@ -137,7 +137,7 @@ namespace Smartstore.PayPal.Filters
                     processPaymentRequest.PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId");
                     processPaymentRequest.StoreId = _services.StoreContext.CurrentStore.Id;
                     processPaymentRequest.CustomerId = customer.Id;
-                    processPaymentRequest.PaymentMethodSystemName = "Payments.PayPalStandard";
+                    processPaymentRequest.PaymentMethodSystemName = PayPalConstants.Standard;
 
                     session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
 

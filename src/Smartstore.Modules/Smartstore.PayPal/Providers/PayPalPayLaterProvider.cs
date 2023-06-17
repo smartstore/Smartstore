@@ -8,7 +8,7 @@ using Smartstore.PayPal.Components;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalPayLater")]
+    [SystemName(PayPalConstants.PayLater)]
     [FriendlyName("PayPal Pay Later")]
     [Order(1)]
     public class PayPalPayLaterProvider : PayPalProviderBase

@@ -61,10 +61,10 @@ namespace Smartstore.PayPal.Filters
             }
 
             if (await _payPalHelper.IsAnyProviderActiveAsync(
-                "Payments.PayPalStandard",
-                "Payments.PayPalCreditCard",
-                "Payments.PayPalPayLater",
-                "Payments.PayPalSepa"))
+                PayPalConstants.Standard,
+                PayPalConstants.CreditCard,
+                PayPalConstants.PayLater,
+                PayPalConstants.Sepa))
             {
                 // If client id or secret haven't been configured yet, don't show button.
                 if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -101,7 +101,7 @@ namespace Smartstore.PayPal.Filters
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
-                var clientToken = await _payPalHelper.IsCreditCardActiveAsync() 
+                var clientToken = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.CreditCard)
                     ? await GetClientToken(context.HttpContext) 
                     : string.Empty;
 
@@ -109,7 +109,7 @@ namespace Smartstore.PayPal.Filters
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='/Modules/Smartstore.PayPal/js/paypal.utils.js'></script>"));
             }
 
-            if (!await _payPalHelper.IsPayUponInvoiceActiveAsync())
+            if (!await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.PayUponInvoice))
             {
                 await next();
                 return;

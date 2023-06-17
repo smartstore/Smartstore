@@ -6,7 +6,7 @@ using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalSofort")]
+    [SystemName(PayPalConstants.Sofort)]
     [FriendlyName("PayPal Sofort")]
     [Order(1)]
     public class PayPalSofortProvider : PayPalApmProviderBase

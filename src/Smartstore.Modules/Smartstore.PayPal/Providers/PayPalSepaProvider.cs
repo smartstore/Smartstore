@@ -8,7 +8,7 @@ using Smartstore.PayPal.Components;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalSepa")]
+    [SystemName(PayPalConstants.Sepa)]
     [FriendlyName("PayPal Sepa")]
     [Order(1)]
     public class PayPalSepaProvider : PayPalProviderBase

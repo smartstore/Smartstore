@@ -6,7 +6,7 @@ using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalPrzelewy24")]
+    [SystemName(PayPalConstants.Przelewy24)]
     [FriendlyName("PayPal Przelewy24")]
     [Order(1)]
     public class PayPalPrzelewy24Provider : PayPalApmProviderBase

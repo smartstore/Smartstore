@@ -6,7 +6,7 @@ using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalBlik")]
+    [SystemName(PayPalConstants.Blik)]
     [FriendlyName("PayPal BLIK")]
     [Order(1)]
     public class PayPalBlikProvider : PayPalApmProviderBase

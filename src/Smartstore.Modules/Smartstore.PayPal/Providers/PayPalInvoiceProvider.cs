@@ -12,7 +12,7 @@ using Smartstore.PayPal.Components;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalPayUponInvoice")]
+    [SystemName(PayPalConstants.PayUponInvoice)]
     [FriendlyName("PayPal Pay Upon Invoice")]
     [Order(1)]
     public class PayPalInvoiceProvider : PaymentMethodBase, IConfigurable

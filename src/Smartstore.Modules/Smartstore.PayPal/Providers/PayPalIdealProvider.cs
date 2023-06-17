@@ -6,7 +6,7 @@ using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalIdeal")]
+    [SystemName(PayPalConstants.Ideal)]
     [FriendlyName("PayPal iDEAL")]
     [Order(1)]
     public class PayPalIdealProvider : PayPalApmProviderBase

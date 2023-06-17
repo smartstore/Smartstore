@@ -214,28 +214,28 @@ namespace Smartstore.PayPal.Controllers
 
             switch (checkoutState.ApmProviderSystemName)
             {
-                case "Payments.PayPalGiropay":
+                case PayPalConstants.Giropay:
                     paymentSource.PaymentSourceGiroPay = apmPaymentSource;
                     break;
-                case "Payments.PayPalSofort":
+                case PayPalConstants.Sofort:
                     paymentSource.PaymentSourceSofort = apmPaymentSource;
                     break;
-                case "Payments.PayPalBancontact":
+                case PayPalConstants.Bancontact:
                     paymentSource.PaymentSourceBancontact = apmPaymentSource;
                     break;
-                case "Payments.PayPalBlik":
+                case PayPalConstants.Blik:
                     paymentSource.PaymentSourceBlik = apmPaymentSource;
                     break;
-                case "Payments.PayPalEps":
+                case PayPalConstants.Eps:
                     paymentSource.PaymentSourceEps = apmPaymentSource;
                     break;
-                case "Payments.PayPalIdeal":
+                case PayPalConstants.Ideal:
                     paymentSource.PaymentSourceIdeal = apmPaymentSource;
                     break;
-                case "Payments.PayPalMyBank":
+                case PayPalConstants.MyBank:
                     paymentSource.PaymentSourceMyBank = apmPaymentSource;
                     break;
-                case "Payments.PayPalPrzelewy24":
+                case PayPalConstants.Przelewy24:
                     paymentSource.PaymentSourceP24 = apmPaymentSource;
                     apmPaymentSource.Email = checkoutState.ApmEmail;
                     break;
