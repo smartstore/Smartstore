@@ -141,9 +141,9 @@ namespace Smartstore.Core.DataExchange.Export
 
         public virtual async Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancelToken = default)
         {
-            Guard.NotNull(request, nameof(request));
-            Guard.NotNull(request.Profile, nameof(request.Profile));
-            Guard.NotNull(request.Provider?.Value, nameof(request.Provider));
+            Guard.NotNull(request);
+            Guard.NotNull(request.Profile);
+            Guard.NotNull(request.Provider?.Value);
 
             var ctx = CreateExporterContext(request, false, cancelToken);
             var profile = request.Profile;
@@ -272,10 +272,10 @@ namespace Smartstore.Core.DataExchange.Export
 
         public virtual async Task<DataExportPreviewResult> PreviewAsync(DataExportRequest request, int pageIndex, int pageSize)
         {
-            Guard.NotNull(request, nameof(request));
-            Guard.NotNull(request.Profile, nameof(request.Profile));
-            Guard.NotNegative(pageIndex, nameof(pageIndex));
-            Guard.NotNegative(pageSize, nameof(pageSize));
+            Guard.NotNull(request);
+            Guard.NotNull(request.Profile);
+            Guard.NotNegative(pageIndex);
+            Guard.NotNegative(pageSize);
 
             var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(5.0));
             var ctx = CreateExporterContext(request, true, cancellation.Token);
@@ -1111,6 +1111,7 @@ namespace Smartstore.Core.DataExchange.Export
                     // Load data behind navigation properties for current entities batch in one go.
                     ctx.ProductBatchContext = _productService.CreateProductBatchContext(entities, ctx.Store, ctx.ContextCustomer);
                     ctx.PriceCalculationOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
+                    ctx.AttributeCombinationPriceCalcOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx, true);
                     ctx.AssociatedProductBatchContext = null;
 
                     var context = ctx.ProductBatchContext;
@@ -1559,17 +1560,26 @@ namespace Smartstore.Core.DataExchange.Export
             }
         }
 
-        private PriceCalculationOptions CreatePriceCalculationOptions(ProductBatchContext batchContext, DataExporterContext ctx)
+        private PriceCalculationOptions CreatePriceCalculationOptions(ProductBatchContext batchContext, DataExporterContext ctx, bool forAttributeCombinations = false)
         {
-            Guard.NotNull(batchContext, nameof(batchContext));
+            Guard.NotNull(batchContext);
 
             var priceDisplay = ctx.Projection.PriceType ?? _priceSettings.PriceDisplayType;
             var options = _priceCalculationService.CreateDefaultOptions(false, ctx.ContextCustomer, ctx.ContextCurrency, batchContext);
 
             options.DiscountValidationFlags = DiscountValidationFlags.All;
-            options.DetermineLowestPrice = priceDisplay == PriceDisplayType.LowestPrice;
-            options.DeterminePreselectedPrice = priceDisplay == PriceDisplayType.PreSelectedPrice;
             options.ApplyPreselectedAttributes = priceDisplay == PriceDisplayType.PreSelectedPrice;
+
+            if (forAttributeCombinations)
+            {
+                options.DetermineLowestPrice = false;
+                options.DeterminePreselectedPrice = false;
+            }
+            else
+            {
+                options.DetermineLowestPrice = priceDisplay == PriceDisplayType.LowestPrice;
+                options.DeterminePreselectedPrice = priceDisplay == PriceDisplayType.PreSelectedPrice;
+            }
 
             if (ctx.Projection.ConvertNetToGrossPrices)
             {
