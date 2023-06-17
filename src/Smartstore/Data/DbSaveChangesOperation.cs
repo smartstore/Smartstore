@@ -157,15 +157,18 @@ namespace Smartstore.Data
                     .Select(x => new HookedEntity(x))
                     .ToArray();
 
-                // Regardless of validation (possible fixing validation errors too)
-                result = await _hookProcessor.SavingChangesAsync(entries, _minHookImportance, cancelToken);
-
-                if (result.ProcessedHooks.Any() && entries.Any(x => x.State == EntityState.Modified))
+                if (entries.Length > 0)
                 {
-                    // Because at least one pre action hook has been processed,
-                    // we must assume that entity properties has been changed.
-                    // We need to call DetectChanges() again.
-                    _ctx.ChangeTracker.DetectChanges();
+                    // Regardless of validation (possible fixing validation errors too)
+                    result = await _hookProcessor.SavingChangesAsync(entries, _minHookImportance, cancelToken);
+
+                    if (result.ProcessedHooks.Any() && entries.Any(x => x.State == EntityState.Modified))
+                    {
+                        // Because at least one pre action hook has been processed,
+                        // we must assume that entity properties has been changed.
+                        // We need to call DetectChanges() again.
+                        _ctx.ChangeTracker.DetectChanges();
+                    }
                 }
             }
 
