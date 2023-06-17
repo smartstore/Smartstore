@@ -51,6 +51,9 @@
 - PdfConverter failed after cron job cleaned up temporary files in App_Data directory
 - Link from Admin area to a named area-less frontend route did not properly prepend culture code
 - Identity: fixed *checkout loop* after logout
+- Export:
+  - Fixed wrong exported price when attribute combinations exported as products and price display type is set to lowest price.
+  - When creating a profile, the public folder name of another profile should not be copied, but a unique, new folder name should be used.
 - Fixed display of orders in MyAccount area when `OrderSettings.DisplayOrdersOfAllStores` was set to `true`
 - Fixed RTL theme Sass parsing error
 - When an order was placed, the stock quantity of attribute combinations were not updated if the stock is managed by attributes.
