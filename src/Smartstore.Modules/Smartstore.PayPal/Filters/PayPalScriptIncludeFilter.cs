@@ -14,8 +14,10 @@ using Smartstore.PayPal.Services;
 namespace Smartstore.PayPal.Filters
 {
     /// <summary>
-    /// Renders a script to detect buyer fraud early by collecting the buyer's browser information during checkout and passing it to PayPal (must be active for pay per invoice). 
-    /// Also renders the PayPal JS SDK standard script & PayPal helper script which contains function to initialize Buttons, Hosted Fields and APMs (alternative payment methods).
+    /// Renders a script to detect buyer fraud early by collecting the buyer's browser information 
+    /// during checkout and passing it to PayPal (must be active for pay per invoice). 
+    /// Also renders the PayPal JS SDK standard script & PayPal helper script which contains 
+    /// function to initialize Buttons, Hosted Fields and APMs (alternative payment methods).
     /// </summary>
     public class PayPalScriptIncludeFilter : IAsyncActionFilter
     {

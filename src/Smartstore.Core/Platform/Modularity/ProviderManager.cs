@@ -111,7 +111,9 @@ namespace Smartstore.Engine.Modularity
         protected virtual void SetUserData(ProviderMetadata metadata)
         {
             if (!metadata.IsEditable)
+            {
                 return;
+            }
 
             metadata.FriendlyName = GetUserSetting(metadata, x => x.FriendlyName);
             metadata.Description = GetUserSetting(metadata, x => x.Description);

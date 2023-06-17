@@ -7,6 +7,7 @@ using Smartstore.Caching;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Checkout.Payment
@@ -39,7 +40,16 @@ namespace Smartstore.Core.Tests.Checkout.Payment
             var requestCacheMock = new Mock<IRequestCache>();
             _requestCache = requestCacheMock.Object;
 
-            _paymentService = new PaymentService(null, _storeContext, null, _paymentSettings, null, ProviderManager, _requestCache, _typeScanner);
+            _paymentService = new PaymentService(
+                DbContext, 
+                _storeContext, 
+                null, 
+                _paymentSettings, 
+                null, 
+                ProviderManager, 
+                _requestCache, 
+                _typeScanner, 
+                new NullModuleContraint());
         }
 
         [Test]

@@ -19,9 +19,9 @@ namespace Smartstore.Core.Checkout.Payment
     public partial class PaymentFilterRequest
     {
         /// <summary>
-        /// The payment method to be checked.
+        /// The payment provider to be checked.
         /// </summary>
-        public Provider<IPaymentMethod> PaymentMethod { get; set; }
+        public Provider<IPaymentMethod> PaymentProvider { get; set; }
 
         /// <summary>
         /// The context shopping cart. Can be <c>null</c>.

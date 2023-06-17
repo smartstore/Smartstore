@@ -103,15 +103,18 @@ namespace Smartstore.Core.Stores
 
         public virtual async Task<bool> AuthorizeAsync(string entityName, int entityId, int storeId)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotEmpty(entityName);
 
             if (entityId <= 0)
+            {
                 return false;
+            }
 
             if (storeId <= 0 || QuerySettings.IgnoreMultiStore)
+            {
                 // return true if no store specified/found
                 return true;
-
+            }
 
             // Permission granted only when the id list contains the passed storeId
             return (await GetAuthorizedStoreIdsAsync(entityName, entityId)).Any(x => x == storeId);
@@ -119,10 +122,12 @@ namespace Smartstore.Core.Stores
 
         public virtual async Task<int[]> GetAuthorizedStoreIdsAsync(string entityName, int entityId)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotEmpty(entityName);
 
             if (entityId <= 0)
+            {
                 return Array.Empty<int>();
+            }
 
             var cacheSegment = await GetCacheSegmentAsync(entityName, entityId);
 
@@ -150,7 +155,7 @@ namespace Smartstore.Core.Stores
 
         public virtual async Task<StoreMappingCollection> GetStoreMappingCollectionAsync(string entityName, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotEmpty(entityName);
 
             var query = _db.StoreMappings
                 .ApplyTracking(tracked)

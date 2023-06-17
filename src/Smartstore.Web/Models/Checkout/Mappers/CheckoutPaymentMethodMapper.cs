@@ -71,33 +71,33 @@ namespace Smartstore.Web.Models.Checkout
                 PaymentMethodType.StandardAndButton
             };
 
-            var boundPaymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(from, from.StoreId, paymentTypes);
-            var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync(from.StoreId);
+            var boundPaymentProviders = await _paymentService.LoadActivePaymentProvidersAsync(from, from.StoreId, paymentTypes);
+            var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
 
-            foreach (var pm in boundPaymentMethods)
+            foreach (var pp in boundPaymentProviders)
             {
-                if (from.ContainsRecurringItem() && pm.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
+                if (from.ContainsRecurringItem() && pp.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
                     continue;
 
                 var pmModel = new CheckoutPaymentMethodModel.PaymentMethodModel
                 {
-                    Name = _moduleManager.GetLocalizedFriendlyName(pm.Metadata),
-                    Description = _moduleManager.GetLocalizedDescription(pm.Metadata),
-                    PaymentMethodSystemName = pm.Metadata.SystemName,
-                    InfoWidget = pm.Value.GetPaymentInfoWidget(),
-                    RequiresInteraction = pm.Value.RequiresInteraction
+                    Name = _moduleManager.GetLocalizedFriendlyName(pp.Metadata),
+                    Description = _moduleManager.GetLocalizedDescription(pp.Metadata),
+                    PaymentMethodSystemName = pp.Metadata.SystemName,
+                    InfoWidget = pp.Value.GetPaymentInfoWidget(),
+                    RequiresInteraction = pp.Value.RequiresInteraction
                 };
 
-                if (allPaymentMethods.TryGetValue(pm.Metadata.SystemName, out var paymentMethod))
+                if (allPaymentMethods.TryGetValue(pp.Metadata.SystemName, out var paymentMethod))
                 {
                     pmModel.FullDescription = paymentMethod.GetLocalized(x => x.FullDescription, _services.WorkContext.WorkingLanguage);
                 }
 
-                pmModel.BrandUrl = _moduleManager.GetBrandImageUrl(pm.Metadata);
+                pmModel.BrandUrl = _moduleManager.GetBrandImageUrl(pp.Metadata);
 
                 // Payment method additional fee.
                 var paymentTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
-                var paymentMethodAdditionalFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(from, pm.Metadata.SystemName);
+                var paymentMethodAdditionalFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(from, pp.Metadata.SystemName);
                 var rateBase = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentMethodAdditionalFee.Amount);
                 var rate = _services.CurrencyService.ConvertFromPrimaryCurrency(rateBase.Price, _services.WorkContext.WorkingCurrency);
 
