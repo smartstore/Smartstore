@@ -39,6 +39,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public ExportExecuteContext ExecuteContext { get; set; }
         public DataExportResult Result { get; set; } = new();
         public PriceCalculationOptions PriceCalculationOptions { get; set; }
+        public PriceCalculationOptions AttributeCombinationPriceCalcOptions { get; set; }
 
         /// <summary>
         /// All entity identifiers per export.

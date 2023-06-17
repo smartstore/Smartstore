@@ -201,7 +201,8 @@ namespace Smartstore.Core.DataExchange.Export
             var variantAttributeValues = combination?.AttributeSelection?.MaterializeProductVariantAttributeValues(productAttributes);
 
             // Price calculation.
-            var calculationContext = new PriceCalculationContext(product, ctx.PriceCalculationOptions);
+            var calculationOptions = combination != null ? ctx.AttributeCombinationPriceCalcOptions : ctx.PriceCalculationOptions;
+            var calculationContext = new PriceCalculationContext(product, calculationOptions);
             calculationContext.AddSelectedAttributes(combination?.AttributeSelection, product.Id);
             var price = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
