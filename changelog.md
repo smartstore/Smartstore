@@ -61,7 +61,7 @@
 - When an order was placed, the stock quantity of attribute combinations were not updated if the stock is managed by attributes.
 - Fixed "also purchased products" should not display unpublished products.
 - #651 Fixed product can be added to cart even if the availability limit was reached.
-- #748 The section "Recently viewed products" showing items within stores it was not assigned to.
+- #748 The "Recently viewed products" section displays items in stores to which it has not been assigned.
 - Logout was not possible after new customer registrations.
 - Fixed unpublished products should be assignable as "promoted" to a product.
 - `SequentialDataReader`: fixed a problem where occasionally nullable string fields were not read

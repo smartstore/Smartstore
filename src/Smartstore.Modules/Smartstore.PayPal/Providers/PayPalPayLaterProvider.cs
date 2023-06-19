@@ -13,7 +13,12 @@ namespace Smartstore.PayPal.Providers
     [Order(1)]
     public class PayPalPayLaterProvider : PayPalProviderBase
     {
-        public PayPalPayLaterProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings, IPaymentService paymentService, ICheckoutStateAccessor checkoutStateAccessor)
+        public PayPalPayLaterProvider(
+            SmartDbContext db, 
+            PayPalHttpClient client, 
+            PayPalSettings settings, 
+            IPaymentService paymentService, 
+            ICheckoutStateAccessor checkoutStateAccessor)
             : base(db, client, settings, paymentService, checkoutStateAccessor)
         {
         }

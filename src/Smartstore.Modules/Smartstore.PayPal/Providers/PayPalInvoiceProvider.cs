@@ -22,7 +22,11 @@ namespace Smartstore.PayPal.Providers
         private readonly PayPalHttpClient _client;
         private readonly IValidator<PublicInvoiceModel> _validator;
         
-        public PayPalInvoiceProvider(SmartDbContext db, ICheckoutStateAccessor checkoutStateAccessor, PayPalHttpClient client, IValidator<PublicInvoiceModel> validator)
+        public PayPalInvoiceProvider(
+            SmartDbContext db, 
+            ICheckoutStateAccessor checkoutStateAccessor, 
+            PayPalHttpClient client, 
+            IValidator<PublicInvoiceModel> validator)
         {
             _db = db;
             _client = client;

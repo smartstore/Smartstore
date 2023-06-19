@@ -12,7 +12,7 @@ namespace Smartstore.Core.Stores
         public static IQueryable<T> ApplyStoreFilter<T>(this IQueryable<T> query, int storeId)
             where T : BaseEntity, IStoreRestricted, new()
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (storeId == 0)
             {
