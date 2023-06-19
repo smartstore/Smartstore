@@ -22,8 +22,9 @@ namespace Smartstore.PayPal.Providers
             PayPalHttpClient client, 
             PayPalSettings settings,
             IPaymentService paymentService,
+            ICheckoutStateAccessor checkoutStateAccessor,
             IValidator<PublicCreditCardModel> validator)
-            : base(db, client, settings, paymentService)
+            : base(db, client, settings, paymentService, checkoutStateAccessor)
         {
             _validator = validator;
         }

@@ -13,8 +13,8 @@ namespace Smartstore.PayPal.Providers
     [Order(1)]
     public class PayPalSepaProvider : PayPalProviderBase
     {
-        public PayPalSepaProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings, IPaymentService paymentService)
-            : base(db, client, settings, paymentService)
+        public PayPalSepaProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings, IPaymentService paymentService, ICheckoutStateAccessor checkoutStateAccessor)
+            : base(db, client, settings, paymentService, checkoutStateAccessor)
         {
         }
 
