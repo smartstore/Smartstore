@@ -35,7 +35,7 @@ namespace Smartstore.Web.Components
                 ? new[] { routeData.Values.Get("productId").Convert<int>() }
                 : null;
 
-            var products = await _recentlyViewedProductsService.GetRecentlyViewedProductsAsync(_catalogSettings.RecentlyViewedProductsNumber, excludedProductIds);
+            var products = await _recentlyViewedProductsService.GetRecentlyViewedProductsAsync(_catalogSettings.RecentlyViewedProductsNumber, null, excludedProductIds);
             if (products.Count == 0)
             {
                 return Empty();

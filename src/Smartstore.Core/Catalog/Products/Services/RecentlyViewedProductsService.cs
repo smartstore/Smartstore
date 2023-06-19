@@ -9,26 +9,33 @@ namespace Smartstore.Core.Catalog.Products
     public partial class RecentlyViewedProductsService : IRecentlyViewedProductsService
     {
         private readonly SmartDbContext _db;
+        private readonly IStoreContext _storeContext;
+        private readonly IWorkContext _workContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IAclService _aclService;
         private readonly CatalogSettings _catalogSettings;
         
         public RecentlyViewedProductsService(
             SmartDbContext db,
+            IStoreContext storeContext,
+            IWorkContext workContext,
             IHttpContextAccessor httpContextAccessor,
-            IAclService aclService,
             CatalogSettings catalogSettings)
         {
             _db = db;
+            _storeContext = storeContext;
+            _workContext = workContext;
             _httpContextAccessor = httpContextAccessor;
-            _aclService = aclService;
             _catalogSettings = catalogSettings;
         }
 
-        public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(int count, params int[] excludedProductIds)
+        public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(
+            int count, 
+            int? storeId = null, 
+            params int[] excludedProductIds)
         {
-            var productIds = GetRecentlyViewedProductsIds(count, excludedProductIds);
+            storeId ??= _storeContext.CurrentStore.Id;
 
+            var productIds = GetRecentlyViewedProductsIds(count * 2, excludedProductIds);
             if (!productIds.Any())
             {
                 return new List<Product>();
@@ -38,14 +45,13 @@ namespace Smartstore.Core.Catalog.Products
                 .AsNoTracking()
                 .Where(x => productIds.Contains(x.Id))
                 .ApplyStandardFilter()
+                .ApplyStoreFilter(storeId.Value)
+                .ApplyAclFilter(_workContext.CurrentCustomer)
                 .SelectSummary()
+                .Take(count)
                 .ToListAsync();
 
-            var authorizedProducts = await _aclService
-                .SelectAuthorizedAsync(recentlyViewedProducts)
-                .AsyncToList();
-
-            return authorizedProducts.OrderBySequence(productIds).ToList();
+            return recentlyViewedProducts.OrderBySequence(productIds).ToList();
         }
 
         public virtual void AddProductToRecentlyViewedList(int productId)
@@ -61,18 +67,8 @@ namespace Smartstore.Core.Catalog.Products
             newProductIds.Remove(productId);
             newProductIds.Insert(0, productId);
 
-            var maxProducts = _catalogSettings.RecentlyViewedProductsNumber;
-            if (maxProducts <= 0)
-            {
-                maxProducts = 8;
-            }
-
-            // INFO: save one more product than needed, so that also on the product detail page
-            // (where the current product is excluded) up to "RecentlyViewedProductsNumber" products are displayed.
-            ++maxProducts;
-
+            var maxProducts = GetRecentlyViewedProductsNumber();
             var cookies = _httpContextAccessor.HttpContext.Response.Cookies;
-            var cookieName = CookieNames.RecentlyViewedProducts;
 
             var options = new CookieOptions
             {
@@ -81,9 +77,9 @@ namespace Smartstore.Core.Catalog.Products
                 IsEssential = true
             };
 
-            cookies.Delete(cookieName, options);
+            cookies.Delete(CookieNames.RecentlyViewedProducts, options);
 
-            cookies.Append(cookieName,
+            cookies.Append(CookieNames.RecentlyViewedProducts,
                 string.Join(',', newProductIds.Take(maxProducts)),
                 options);
         }
@@ -115,6 +111,19 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             return Enumerable.Empty<int>();
+        }
+
+        protected virtual int GetRecentlyViewedProductsNumber()
+        {
+            var maxProducts = _catalogSettings.RecentlyViewedProductsNumber;
+            if (maxProducts <= 0)
+            {
+                maxProducts = 8;
+            }
+
+            // INFO: save one more product than needed, so that also on the product detail page
+            // (where the current product is excluded) up to "RecentlyViewedProductsNumber" products are displayed.
+            return (maxProducts + 1) * _storeContext.GetAllStores().Count;
         }
     }
 }
