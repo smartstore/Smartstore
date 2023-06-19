@@ -59,6 +59,7 @@
 - When an order was placed, the stock quantity of attribute combinations were not updated if the stock is managed by attributes.
 - Fixed "also purchased products" should not display unpublished products.
 - #651 Fixed product can be added to cart even if the availability limit was reached.
+- #748 The section "Recently viewed products" showing items within stores it was not assigned to.
 - Logout was not possible after new customer registrations.
 - Fixed unpublished products should be assignable as "promoted" to a product.
 - `SequentialDataReader`: fixed a problem where occasionally nullable string fields were not read
@@ -69,7 +70,7 @@
 - Added missing properties in customer grid.
 - Fixed popular product tags were not loaded based on the frequency of their product assignments on homepage.
 - Fixed after a login the user was not redirected to the previous page.
-- Fixed problem where bundles couldn't be added to the basket if bundleitems had  attributes.
+- Fixed problem where bundles couldn't be added to the basket if bundleitems had attributes.
 - GMC: when there was no Google category defined in a product, copying the product threw `NullReferenceException`.
 - Fixed attribute filters of bundle items were not loaded in bundle item dialog.
 - GoogleAnalytics:
