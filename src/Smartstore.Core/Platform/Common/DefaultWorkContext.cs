@@ -153,11 +153,11 @@ namespace Smartstore.Core
         {
             Guard.NotNull(customer);
 
-            var key = (_customer.Id, storeId);
+            var key = (customer.Id, storeId);
 
             if (!_taxDisplayTypes.TryGetValue(key, out var result))
             {
-                result = await _source.ResolveTaxDisplayTypeAsync(_customer, storeId);
+                result = await _source.ResolveTaxDisplayTypeAsync(customer, storeId);
                 _taxDisplayTypes[key] = result;
             }
 

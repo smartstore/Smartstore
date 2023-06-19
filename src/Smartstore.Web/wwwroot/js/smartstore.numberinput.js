@@ -184,8 +184,8 @@
             function setValue(newValue, updateInput) {
                 if (isNaN(newValue) || newValue === "") {
                     if (updateInput) $input[0].value = "";
-                    value = NaN;
-                    newValue = "";
+                    //value = NaN;
+                    //newValue = "";
                 }
                 else {
                     newValue = parseFloat(newValue);
@@ -194,7 +194,7 @@
                     //newValue = Math.round(newValue * Math.pow(10, decimals)) / Math.pow(10, decimals);
                     newValue = newValue.toFixed(decimals);
                     if (updateInput) $input[0].value = newValue;
-                    value = newValue;
+                    //value = newValue;
                 }
 
                 return newValue;
