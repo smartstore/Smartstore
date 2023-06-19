@@ -35,8 +35,6 @@ namespace Smartstore.PayPal.Services
             return systemNames.AnyAsync(x => _paymentService.IsPaymentProviderActiveAsync(x, null, _storeContext.CurrentStore.Id));
         }
 
-        // TODO: (mh) (core) Add the others Bancontact, Blik, Eps,  Ideal, MercadoPago, P24, Venmo
-
         public async Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
         {
             // INFO: APMs don't need cookies as everything on page is handled via API requests.
