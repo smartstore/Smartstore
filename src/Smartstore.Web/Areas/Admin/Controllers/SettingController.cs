@@ -855,8 +855,6 @@ namespace Smartstore.Admin.Controllers
 
             await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form);
 
-            await Services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
-
             // Facet settings (CommonFacetSettingsModel).
             if (storeScope != 0)
             {

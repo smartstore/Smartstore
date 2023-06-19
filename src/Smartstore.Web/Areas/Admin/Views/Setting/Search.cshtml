@@ -54,7 +54,9 @@
                         <smart-label asp-for="SearchFields" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="SearchFields" asp-items='new MultiSelectList(ViewBag.AvailableSearchFields, "Value", "Text")' multiple="multiple"></select>
+                        <setting-editor asp-for="SearchFields">
+                            <select asp-for="SearchFields" asp-items='new MultiSelectList(ViewBag.AvailableSearchFields, "Value", "Text")' multiple="multiple"></select>
+                        </setting-editor>
                         <span asp-validation-for="SearchFields"></span>
                     </div>
                 </div>
