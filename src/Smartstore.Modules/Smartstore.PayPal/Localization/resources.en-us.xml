@@ -468,6 +468,9 @@
             <LocaleResource Name="Error.PrimaryEmailConfirmed">
                 <Value>The email address of this account has not been confirmed yet. Please contact PayPal or check your email inbox.</Value>
             </LocaleResource>
+            <LocaleResource Name="Error.Refund.NoTransactionId">
+                <Value>No transaction ID was stored for this order. Please check the connection of your webhook.</Value>
+            </LocaleResource>
             <LocaleResource Name="HasCredentials.True">
                 <Value>Credentials have been stored.</Value>
             </LocaleResource>

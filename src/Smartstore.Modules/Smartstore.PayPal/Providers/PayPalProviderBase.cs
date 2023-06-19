@@ -131,6 +131,11 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
+            if (!request.Order.CaptureTransactionId.HasValue())
+            {
+                throw new PayPalException(T("Plugins.Smartstore.PayPal.Refund.NoTransactionId"));
+            }
+
             var response = await _client.RefundPaymentAsync(request, result);
             var refund = response.Body<RefundMessage>();
 

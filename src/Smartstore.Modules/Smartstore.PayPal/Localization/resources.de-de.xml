@@ -452,6 +452,9 @@
             <LocaleResource Name="Error.PrimaryEmailConfirmed">
                 <Value>Die E-Mail-Adresse für dieses PayPal-Konto wurde noch nicht bestätigt. Bitte kontaktieren Sie PayPal oder überprüfen Sie Ihren Posteingang.</Value>
             </LocaleResource>
+            <LocaleResource Name="Error.Refund.NoTransactionId">
+                <Value>Für diese Bestellung wurde keine Transaktions-ID hinterlegt. Bitte prüfen Sie die Anbindung Ihres Webhooks.</Value>
+            </LocaleResource>
             <LocaleResource Name="HasCredentials.True">
                 <Value>Die Zugangsdaten wurden hinterlegt.</Value>
             </LocaleResource>
