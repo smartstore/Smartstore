@@ -5,7 +5,10 @@ namespace Smartstore.PayPal.Models
     [Serializable]
     public class PayPalCheckoutState : ObservableObject
     {
-        public string OrderId
+        /// <summary>
+        /// Holds the order id returned by PayPal when creating an order at PayPal.
+        /// </summary>
+        public string PayPalOrderId
         {
             get => GetProperty<string>();
             set => SetProperty(value);
@@ -93,7 +96,7 @@ namespace Smartstore.PayPal.Models
 
         public override string ToString()
         {
-            return $"TransactionId:{OrderId}, IsConfirmed:{IsConfirmed}, SubmitForm:{SubmitForm}";
+            return $"TransactionId:{PayPalOrderId}, IsConfirmed:{IsConfirmed}, SubmitForm:{SubmitForm}";
         }
     }
 }

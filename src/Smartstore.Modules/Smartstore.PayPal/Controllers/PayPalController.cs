@@ -148,7 +148,10 @@ namespace Smartstore.PayPal.Controllers
                         state.IsConfirmed = true;
                         state.FormData = formData.EmptyNull();
 
-                        paymentRequest.PayPalOrderId = state.OrderId;
+                        paymentRequest.PayPalOrderId = state.PayPalOrderId;
+
+                        HttpContext.Session.TrySetObject("OrderPaymentInfo", paymentRequest);
+
                         redirectUrl = state.ApmRedirectActionUrl;
                     }
                     else
@@ -191,7 +194,7 @@ namespace Smartstore.PayPal.Controllers
 
             // Save redirect url in CheckoutState.
             var status = (string)jResponse.status;
-            checkoutState.OrderId = (string)jResponse.id;
+            checkoutState.PayPalOrderId = (string)jResponse.id;
             if (status == "PAYER_ACTION_REQUIRED")
             {
                 var link = ((JObject)jResponse).SelectToken("links")
@@ -249,14 +252,14 @@ namespace Smartstore.PayPal.Controllers
         public IActionResult RedirectionSuccess()
         {
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
-            if (state.OrderId != null)
+            if (state.PayPalOrderId != null)
             {
                 state.SubmitForm = true;
             }
             else
             {
                 _checkoutStateAccessor.CheckoutState.RemoveCustomState<PayPalCheckoutState>();
-                NotifyWarning(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(state.OrderId)));
+                NotifyWarning(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(state.PayPalOrderId)));
 
                 return RedirectToAction(nameof(CheckoutController.PaymentMethod), "Checkout");
             }

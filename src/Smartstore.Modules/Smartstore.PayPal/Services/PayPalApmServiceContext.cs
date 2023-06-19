@@ -36,6 +36,6 @@ namespace Smartstore.PayPal.Services
         public PayPalSettings Settings => _settings;
         public ICheckoutStateAccessor CheckoutStateAccessor => _checkoutStateAccessor;
         public IValidator<PublicApmModel> Validator => _validator;
-        public IPaymentService paymentService => _paymentService;
+        public IPaymentService PaymentService => _paymentService;
     }
 }

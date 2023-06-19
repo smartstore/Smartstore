@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
@@ -15,13 +16,20 @@ namespace Smartstore.PayPal.Providers
         private readonly PayPalHttpClient _client;
         private readonly PayPalSettings _settings;
         private readonly IPaymentService _paymentService;
-        
-        public PayPalProviderBase(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings, IPaymentService paymentService)
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+
+        public PayPalProviderBase(
+            SmartDbContext db, 
+            PayPalHttpClient client, 
+            PayPalSettings settings, 
+            IPaymentService paymentService,
+            ICheckoutStateAccessor checkoutStateAccessor)
         {
             _db = db;
             _client = client;
             _settings = settings;
             _paymentService = paymentService;
+            _checkoutStateAccessor = checkoutStateAccessor;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -45,7 +53,16 @@ namespace Smartstore.PayPal.Providers
         {
             if (!request.PayPalOrderId.HasValue())
             {
-                throw new PayPalException(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(request.PayPalOrderId)));
+                // INFO: In some cases the PayPalOrderId is lost in the ProcessPaymentRequest. Lets check the checkout state and log some infos.
+                var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
+                var orderId = checkoutState.PayPalOrderId;
+                if (!orderId.HasValue())
+                {
+                    throw new PayPalException(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(request.PayPalOrderId)));
+                }
+
+                request.PayPalOrderId = orderId;
+                Logger.LogInformation("ProcessPaymentRequest lost PayPalOrderId.");
             }
 
             var result = new ProcessPaymentResult

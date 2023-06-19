@@ -17,7 +17,7 @@ namespace Smartstore.PayPal.Providers
         private readonly IValidator<PublicApmModel> _validator;
 
         public PayPalApmProviderBase(PayPalApmServiceContext context)
-            : base(context.Db, context.Client, context.Settings, context.paymentService)
+            : base(context.Db, context.Client, context.Settings, context.PaymentService, context.CheckoutStateAccessor)
         {
             _db = context.Db;
             _checkoutStateAccessor = context.CheckoutStateAccessor;
@@ -37,7 +37,7 @@ namespace Smartstore.PayPal.Providers
         {
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
 
-            if (!state.OrderId.HasValue())
+            if (!state.PayPalOrderId.HasValue())
             {
                 throw new PayPalException(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(request.PayPalOrderId)));
             }
