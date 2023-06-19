@@ -70,8 +70,14 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = PaymentStatus.Pending,
             };
 
-            _ = await _client.UpdateOrderAsync(request, result);
-
+            // INFO: Only update order when express button was used.
+            // Shipping fee or discounts may have changed the total value of the order.
+            var updateOrder = (bool)_checkoutStateAccessor.CheckoutState.CustomProperties.Get("PayPalButtonUsed");
+            if (updateOrder)
+            {
+                _ = await _client.UpdateOrderAsync(request, result);
+            }
+            
             try
             {
                 var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(request.PaymentMethodSystemName);
