@@ -271,11 +271,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*DeliveryTimeIdForEmptyStock")]
         public int? DeliveryTimeIdForEmptyStock { get; set; }
 
-        [LocalizedDisplay("*EnableDynamicPriceUpdate")]
-        public bool EnableDynamicPriceUpdate { get; set; }
-
-
-
         [LocalizedDisplay("*ShowLinkedAttributeValueQuantity")]
         public bool ShowLinkedAttributeValueQuantity { get; set; }
 

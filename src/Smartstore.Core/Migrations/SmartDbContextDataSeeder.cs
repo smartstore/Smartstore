@@ -180,6 +180,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Standard E-Mail-Konto",
                 "Specifies the default email account.",
                 "Legt das Standard E-Mail-Konto fest.");
+
+            builder.Delete(
+                "Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate",
+                "Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate.Hint");
         }
     }
 }

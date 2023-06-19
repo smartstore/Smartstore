@@ -39,18 +39,12 @@ namespace Smartstore.AmazonPay.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (!await IsAmazonPayActive())
-            {
-                await next();
-                return;
-            }
-
             var action = context.RouteData.Values.GetActionName();
 
             if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
             {
                 var responseStatus = context.HttpContext.Session.GetString("AmazonPayResponseStatus");
-                if (responseStatus.HasValue())
+                if (responseStatus.HasValue() && await IsAmazonPayActive())
                 {
                     // 202 (Accepted): authorization is pending.
                     var completedNote = responseStatus == "202"
@@ -74,7 +68,7 @@ namespace Smartstore.AmazonPay.Filters
 
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
 
-            if (state.SessionId.HasValue() && IsAmazonPaySelected())
+            if (state.SessionId.HasValue() && IsAmazonPaySelected() && await IsAmazonPayActive())
             {
                 if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
                 {
