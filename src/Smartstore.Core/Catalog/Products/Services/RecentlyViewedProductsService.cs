@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -29,9 +31,9 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(
-            int count, 
-            int? storeId = null, 
-            params int[] excludedProductIds)
+            int count,
+            int[]? excludedProductIds = null,
+            int? storeId = null)
         {
             storeId ??= _storeContext.CurrentStore.Id;
 
@@ -84,7 +86,7 @@ namespace Smartstore.Core.Catalog.Products
                 options);
         }
 
-        protected virtual IEnumerable<int> GetRecentlyViewedProductsIds(int count, int[] excludedProductIds = null)
+        protected virtual IEnumerable<int> GetRecentlyViewedProductsIds(int count, int[]? excludedProductIds = null)
         {
             var request = _httpContextAccessor?.HttpContext?.Request;
 
@@ -104,7 +106,7 @@ namespace Smartstore.Core.Catalog.Products
 
                 if (!excludedProductIds.IsNullOrEmpty())
                 {
-                    ids = ids.Where(x => !excludedProductIds.Contains(x)).ToArray();
+                    ids = ids.Where(x => !excludedProductIds!.Contains(x)).ToArray();
                 }
 
                 return ids.Distinct().Take(count);
