@@ -22,12 +22,6 @@ namespace Smartstore.StripeElements.Filters
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
-            if (!await _stripeHelper.IsStripeElementsActive())
-            {
-                await next();
-                return;
-            }
-
             // If api key hasn't been configured yet, don't show button.
             if (!_settings.PublicApiKey.HasValue() || !_settings.SecrectApiKey.HasValue())
             {
@@ -36,6 +30,12 @@ namespace Smartstore.StripeElements.Filters
             }
 
             if (!_settings.ShowButtonInMiniShoppingCart)
+            {
+                await next();
+                return;
+            }
+
+            if (!await _stripeHelper.IsStripeElementsActive())
             {
                 await next();
                 return;

@@ -33,19 +33,19 @@ namespace Smartstore.StripeElements.Filters
                 return;
             }
 
-            if (!await _stripeHelper.IsStripeElementsActive())
-            {
-                await next();
-                return;
-            }
-
             // If api key hasn't been configured yet, don't do anything.
             if (!_settings.SecrectApiKey.HasValue() || !_settings.PublicApiKey.HasValue())
             {
                 await next();
                 return;
             }
-            
+
+            if (!await _stripeHelper.IsStripeElementsEnabled())
+            {
+                await next();
+                return;
+            }
+
             _widgetProvider.RegisterHtml("scripts", new HtmlString("<script id=\"stripe-js\" src=\"/Modules/Smartstore.Stripe/smartstore.stripe.js\"></script>"));
             _widgetProvider.RegisterHtml("head", new HtmlString("<script id=\"stripe-js\" src=\"https://js.stripe.com/v3/\" async></script>"));
             
