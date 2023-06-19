@@ -50,6 +50,7 @@ namespace Smartstore.Core.Catalog.Products
                 .ApplyStoreFilter(storeId.Value)
                 .ApplyAclFilter(_workContext.CurrentCustomer)
                 .SelectSummary()
+                .OrderBy(x => x.Id)
                 .Take(count)
                 .ToListAsync();
 
