@@ -13,13 +13,6 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         private readonly ICacheManager _cache;
 
-        private static readonly HashSet<Type> _combinationsInvalidationTypes = new(new[]
-        {
-            typeof(Setting),
-            typeof(Product),
-            typeof(ProductVariantAttributeCombination)
-        });
-
         public UnavailableAttributeCombinationsHook(ICacheManager cache)
         {
             _cache = cache;
@@ -27,11 +20,6 @@ namespace Smartstore.Core.Catalog.Attributes
 
         public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (!_combinationsInvalidationTypes.Contains(entry.EntityType))
-            {
-                return HookResult.Void;
-            }
-
             var entity = entry.Entity;
             var productId = 0;
 
@@ -49,6 +37,10 @@ namespace Smartstore.Core.Catalog.Attributes
             else if (entity is ProductVariantAttributeCombination combination)
             {
                 productId = combination.ProductId;
+            }
+            else
+            {
+                return HookResult.Void;
             }
 
             if (productId != 0)

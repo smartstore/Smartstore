@@ -11,7 +11,9 @@
         public static Task<int[]> GetAuthorizedStoreIdsAsync<T>(this IStoreMappingService svc, T entity) where T : BaseEntity, IStoreRestricted
         {
             if (entity == null)
+            {
                 return Task.FromResult(Array.Empty<int>());
+            }
 
             return svc.GetAuthorizedStoreIdsAsync(entity.GetEntityName(), entity.Id);
         }
@@ -24,10 +26,14 @@
         public static Task<bool> AuthorizeAsync<T>(this IStoreMappingService svc, T entity) where T : BaseEntity, IStoreRestricted
         {
             if (entity == null)
+            {
                 return Task.FromResult(false);
+            }   
 
             if (!entity.LimitedToStores)
+            {
                 return Task.FromResult(true);
+            }              
 
             return svc.AuthorizeAsync(entity.GetEntityName(), entity.Id);
         }
@@ -43,10 +49,14 @@
         public static Task<bool> AuthorizeAsync<T>(this IStoreMappingService svc, T entity, int storeId) where T : BaseEntity, IStoreRestricted
         {
             if (entity == null)
+            {
                 return Task.FromResult(false);
+            }      
 
             if (!entity.LimitedToStores)
+            {
                 return Task.FromResult(true);
+            }    
 
             return svc.AuthorizeAsync(entity.GetEntityName(), entity.Id, storeId);
         }
@@ -62,7 +72,7 @@
         public static IAsyncEnumerable<T> SelectAuthorizedAsync<T>(this IStoreMappingService service, IEnumerable<T> entities, int storeId)
             where T : BaseEntity, IStoreRestricted
         {
-            Guard.NotNull(entities, nameof(entities));
+            Guard.NotNull(entities);
 
             return entities.WhereAwait(async x => await service.AuthorizeAsync(x, storeId));
         }

@@ -46,7 +46,8 @@ namespace Smartstore.Core.Tests.Checkout.Payment
                 null, 
                 _paymentSettings, 
                 null, 
-                ProviderManager, 
+                ProviderManager,
+                NullCache.Instance,
                 _requestCache, 
                 _typeScanner, 
                 new NullModuleContraint());

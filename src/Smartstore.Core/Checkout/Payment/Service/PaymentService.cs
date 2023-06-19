@@ -3,21 +3,28 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Rules;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine.Modularity;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Checkout.Payment
 {
-    public partial class PaymentService : AsyncDbSaveHook<PaymentMethod>, IPaymentService
+    public partial class PaymentService : AsyncDbSaveHook<BaseEntity>, IPaymentService
     {
         // 0 = withRules
-        private const string PAYMENT_METHODS_ALL_KEY = "paymentmethod.all-{0}";
-        private const string PAYMENT_METHODS_PATTERN_KEY = "paymentmethod.*";
-        private const string PAYMENT_METHOD_FILTERS_ALL_KEY = "paymentmethodfilters.all";
+        private const string PAYMENT_METHODS_ALL_KEY = "payment:method:all:{0}";
+        private const string PAYMENT_METHODS_PATTERN_KEY = "payment:method:*";
+        private const string PAYMENT_METHOD_FILTERS_ALL_KEY = "payment:methodfilters:all";
+
+        // 0 = SystemName, 1 = StoreId
+        private const string PAYMENT_PROVIDER_ENABLED_KEY = "payment:provider:enabled:{0}-{1}";
+        private const string PAYMENT_PROVIDER_ENABLED_PATTERN_KEY = "payment:provider:enabled:*";
 
         private readonly static object _lock = new();
         private static IList<Type> _paymentMethodFilterTypes = null;
@@ -28,15 +35,13 @@ namespace Smartstore.Core.Checkout.Payment
         private readonly PaymentSettings _paymentSettings;
         private readonly ICartRuleProvider _cartRuleProvider;
         private readonly IProviderManager _providerManager;
+        private readonly ICacheManager _cache;
         private readonly IRequestCache _requestCache;
         private readonly ITypeScanner _typeScanner;
         private readonly IModuleConstraint _moduleConstraint;
 
         // All providers request cache. Dictionary key = SystemName.
         private readonly Lazy<Dictionary<string, Provider<IPaymentMethod>>> _providersCache;
-
-        // Provider enabled states request cache. Key: (SystemName, StoreId)
-        private readonly Dictionary<object, bool> _enabledStates = new();
 
         // Provider active states request cache. Key: (SystemName, StoreId, ShoppingCart)
         private readonly Dictionary<object, bool> _activeStates = new();
@@ -48,6 +53,7 @@ namespace Smartstore.Core.Checkout.Payment
             PaymentSettings paymentSettings,
             ICartRuleProvider cartRuleProvider,
             IProviderManager providerManager,
+            ICacheManager cache,
             IRequestCache requestCache,
             ITypeScanner typeScanner,
             IModuleConstraint moduleConstraint)
@@ -58,6 +64,7 @@ namespace Smartstore.Core.Checkout.Payment
             _paymentSettings = paymentSettings;
             _cartRuleProvider = cartRuleProvider;
             _providerManager = providerManager;
+            _cache = cache;
             _requestCache = requestCache;
             _typeScanner = typeScanner;
             _moduleConstraint = moduleConstraint;
@@ -75,8 +82,38 @@ namespace Smartstore.Core.Checkout.Payment
 
         #region Hook
 
-        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
+        public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            var entity = entry.Entity;
+            if (entity is Setting setting)
+            {
+                var invalidate = 
+                    (setting.Name.StartsWithNoCase("PluginSetting.") && setting.Name.EndsWithNoCase(".LimitedToStores")) ||
+                    setting.Name.EqualsNoCase(TypeHelper.NameOf<PaymentSettings>(x => x.ActivePaymentMethodSystemNames, true));
+                if (invalidate)
+                {
+                    await _cache.RemoveByPatternAsync(PAYMENT_PROVIDER_ENABLED_PATTERN_KEY);
+                }
+            }
+            else if (entity is PaymentMethod)
+            {
+                await _cache.RemoveByPatternAsync(PAYMENT_PROVIDER_ENABLED_PATTERN_KEY);
+                _requestCache.RemoveByPattern(PAYMENT_METHODS_PATTERN_KEY);
+            }
+            else if (entity is StoreMapping storeMapping)
+            {
+                if (NamedEntity.GetEntityName<PaymentMethod>() == storeMapping.EntityName)
+                {
+                    await _cache.RemoveByPatternAsync(PAYMENT_PROVIDER_ENABLED_PATTERN_KEY);
+                }
+            }
+            else
+            {
+                return HookResult.Void;
+            }
+
+            return HookResult.Ok;
+        }
 
         public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
@@ -117,40 +154,32 @@ namespace Smartstore.Core.Checkout.Payment
                 await GetActiveStateAsync(provider, storeId, cart, null);
         }
 
-        private async Task<bool> GetEnabledStateAsync(Provider<IPaymentMethod> provider, int storeId)
+        private Task<bool> GetEnabledStateAsync(Provider<IPaymentMethod> provider, int storeId)
         {
             var sysName = provider.Metadata.SystemName;
-            if (!_enabledStates.TryGetValue((sysName, storeId), out var enabled))
+            var cacheKey = PAYMENT_PROVIDER_ENABLED_KEY.FormatInvariant(sysName, storeId);
+
+            return _cache.GetAsync(cacheKey, async () => 
             {
-                if (storeId == 0)
+                var enabled = provider.IsPaymentProviderEnabled(_paymentSettings);
+
+                if (storeId > 0 && enabled)
                 {
-                    enabled = provider.IsPaymentProviderEnabled(_paymentSettings);
-                    _enabledStates[(sysName, 0)] = enabled;
-                }
-                else
-                {
-                    // If store-less entry is disabled, the store-specific entry is also disabled.
-                    enabled = await GetEnabledStateAsync(provider, 0);
-                    if (enabled)
+                    // If store-less entry is enabled, the store-specific entry must still be checked.
+                    // First check if container module is enabled.
+                    enabled = _moduleConstraint.Matches(provider.Metadata.ModuleDescriptor, storeId);
+
+                    if (enabled && !QuerySettings.IgnoreMultiStore)
                     {
-                        // If store-less entry is enabled, the store-specific entry must still be checked.
-                        // First check if container module is enabled.
-                        enabled = _moduleConstraint.Matches(provider.Metadata.ModuleDescriptor, storeId);
-
-                        if (enabled && !QuerySettings.IgnoreMultiStore)
-                        {
-                            // Then check if payment method entity (if any) is limited to this store.
-                            var allMethods = await GetAllPaymentMethodsAsync(false);
-                            var method = allMethods.Get(sysName);
-                            enabled = method == null || await _storeMappingService.AuthorizeAsync(method, storeId);
-                        }
+                        // Then check if payment method entity (if any) is limited to this store.
+                        var allMethods = await GetAllPaymentMethodsAsync(false);
+                        var method = allMethods.Get(sysName);
+                        enabled = method == null || await _storeMappingService.AuthorizeAsync(method, storeId);
                     }
-
-                    _enabledStates[(sysName, storeId)] = enabled;
                 }
-            }
 
-            return enabled;
+                return enabled;
+            });
         }
 
         private async Task<bool> GetActiveStateAsync(
