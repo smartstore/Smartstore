@@ -27,7 +27,7 @@ namespace Smartstore.Http
         private static Lazy<int> _resolvedHttpsPort = new(TryResolveHttpsPort);
 
         private static readonly AsyncLock _asyncLock = new();
-        private static readonly Regex _htmlPathPattern = new(@"(?<=(?:href|src)=(?:""|'))(?!https?://)(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex _htmlPathPattern = new(@"(?<=(?:href|src)=(?:""|'))(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly Regex _cssPathPattern = new(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly ConcurrentDictionary<int, string> _safeLocalHostNames = new();
 
@@ -204,7 +204,11 @@ namespace Smartstore.Http
             {
                 var url = match.Groups["url"].Value;
 
-                if (url.StartsWith("//"))
+                if (url.StartsWith("http") || url.StartsWith("mailto:") || url.StartsWith("javascript:"))
+                {
+                    return url;
+                }
+                else if (url.StartsWith("//"))
                 {
                     return scheme + ':' + url;
                 }
