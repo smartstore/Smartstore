@@ -7,7 +7,6 @@ using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.DataExchange.Export.Events;
 using Smartstore.Core.DataExchange.Export.Internal;
 using Smartstore.Core.Seo;
-using Smartstore.Core.Stores;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
@@ -28,7 +27,7 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 SeName = seName,
                 Combinations = await ctx.ProductBatchContext.AttributeCombinations.GetOrLoadAsync(product.Id),
-                AbsoluteProductUrl = await _productUrlHelper.GetAbsoluteProductUrlAsync(product.Id, seName, null, ctx.Store, ctx.ContextLanguage)
+                AbsoluteProductUrl = await _productUrlHelper.GetAbsoluteProductUrlAsync(product.Id, seName, null, ctx.Store)
             };
 
             if (ctx.Projection.AttributeCombinationAsProduct && productContext.Combinations.Where(x => x.IsActive).Any())
@@ -140,13 +139,13 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     if (price == null)
                     {
-                        var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.ContextCustomer, ctx.ContextCurrency, ctx.ProductBatchContext);
+                        var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, null, null, ctx.ProductBatchContext);
                         var productPrice = await _priceCalculationService.CalculatePriceAsync(new PriceCalculationContext(product, calculationOptions));
 
                         price = productPrice.FinalPrice;
                     }
 
-                    result._BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, price.Value, ctx.ContextCurrency, ctx.ContextLanguage, false, false);
+                    result._BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, price.Value, null, null, false, false);
                 }
                 else
                 {

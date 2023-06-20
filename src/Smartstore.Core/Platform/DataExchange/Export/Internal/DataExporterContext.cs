@@ -3,7 +3,6 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -57,11 +56,8 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public Dictionary<int, ShopMetadata> ShopMetadata { get; set; } = new();
 
         public ExportFilter Filter { get; init; }
-        public ExportProjection Projection { get; init; }
         public Store Store { get; set; }
-        public Currency ContextCurrency { get; set; }
-        public Customer ContextCustomer { get; set; }
-        public Language ContextLanguage { get; set; }
+        public ExportProjection Projection { get; init; }
         public int LanguageId => Projection.LanguageId ?? 0;
 
         public bool IsFileBasedExport
