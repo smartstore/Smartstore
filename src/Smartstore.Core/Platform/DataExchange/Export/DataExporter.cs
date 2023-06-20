@@ -44,6 +44,7 @@ namespace Smartstore.Core.DataExchange.Export
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
+        private readonly IWorkContext _workContext;
         private readonly IExportProfileService _exportProfileService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductService _productService;
@@ -73,6 +74,7 @@ namespace Smartstore.Core.DataExchange.Export
         public DataExporter(
             SmartDbContext db,
             ICommonServices services,
+            IWorkContext workContext,
             IExportProfileService exportProfileService,
             IPriceCalculationService priceCalculationService,
             IProductService productService,
@@ -100,6 +102,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             _db = db;
             _services = services;
+            _workContext = workContext;
             _exportProfileService = exportProfileService;
             _priceCalculationService = priceCalculationService;
             _productService = productService;
@@ -193,9 +196,9 @@ namespace Smartstore.Core.DataExchange.Export
                         var stores = await Init(ctx);
 
                         ctx.ExecuteContext.Profile = CreateDynamic(profile);
-                        ctx.ExecuteContext.Language = CreateDynamic(ctx.ContextLanguage);
-                        ctx.ExecuteContext.Customer = ToDynamic(ctx.ContextCustomer);
-                        ctx.ExecuteContext.Currency = ToDynamic(ctx.ContextCurrency, ctx);
+                        ctx.ExecuteContext.Language = CreateDynamic(_workContext.WorkingLanguage);
+                        ctx.ExecuteContext.Customer = ToDynamic(_workContext.CurrentCustomer);
+                        ctx.ExecuteContext.Currency = ToDynamic(_workContext.WorkingCurrency, ctx);
 
                         foreach (var store in stores)
                         {
@@ -333,14 +336,24 @@ namespace Smartstore.Core.DataExchange.Export
             List<Store> result = null;
             var ct = ctx.CancelToken;
             var provider = ctx.Request.Provider.Value;
-
-            ctx.ContextCurrency = (await _db.Currencies.FindByIdAsync(ctx.Projection.CurrencyId ?? 0, false, ct)) ?? _services.WorkContext.WorkingCurrency;
-            ctx.ContextLanguage = (await _db.Languages.FindByIdAsync(ctx.Projection.LanguageId ?? 0, false, ct)) ?? _services.WorkContext.WorkingLanguage;
-
-            ctx.ContextCustomer = await _db.Customers
+            var currency = await _db.Currencies.FindByIdAsync(ctx.Projection.CurrencyId ?? 0, false, ct);
+            var language = await _db.Languages.FindByIdAsync(ctx.Projection.LanguageId ?? 0, false, ct);
+            var customer = await _db.Customers
                 .IncludeCustomerRoles()
                 .FindByIdAsync(ctx.Projection.CustomerId ?? 0, true, ct);
-            ctx.ContextCustomer ??= _services.WorkContext.CurrentCustomer;
+
+            if (currency != null)
+            {
+                _workContext.WorkingCurrency = currency;
+            }
+            if (language != null)
+            {
+                _workContext.WorkingLanguage = language;
+            }
+            if (customer != null)
+            {
+                _workContext.CurrentCustomer = customer;
+            }
 
             ctx.Stores = _services.StoreContext.GetAllStores().ToDictionarySafe(x => x.Id, x => x);
             ctx.Languages = await _db.Languages.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, ct);
@@ -700,8 +713,8 @@ namespace Smartstore.Core.DataExchange.Export
                     return ctx.Request.ProductQuery;
 
                 var searchQuery = new CatalogSearchQuery()
-                    .WithCurrency(ctx.ContextCurrency)
-                    .WithLanguage(ctx.ContextLanguage)
+                    .WithCurrency(_workContext.WorkingCurrency)
+                    .WithLanguage(_workContext.WorkingLanguage)
                     .HasStoreId(storeId)
                     .PriceBetween(f.PriceMinimum, f.PriceMaximum)
                     .WithStockQuantity(f.AvailabilityMinimum, f.AvailabilityMaximum)
@@ -1109,7 +1122,7 @@ namespace Smartstore.Core.DataExchange.Export
                 async Task dataLoaded(ICollection<Product> entities)
                 {
                     // Load data behind navigation properties for current entities batch in one go.
-                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(entities, ctx.Store, ctx.ContextCustomer);
+                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(entities, ctx.Store);
                     ctx.PriceCalculationOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
                     ctx.AttributeCombinationPriceCalcOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx, true);
                     ctx.AssociatedProductBatchContext = null;
@@ -1119,7 +1132,7 @@ namespace Smartstore.Core.DataExchange.Export
                     {
                         await context.AssociatedProducts.LoadAllAsync();
                         var associatedProducts = context.AssociatedProducts.SelectMany(x => x.Value);
-                        ctx.AssociatedProductBatchContext = _productService.CreateProductBatchContext(associatedProducts, ctx.Store, ctx.ContextCustomer);
+                        ctx.AssociatedProductBatchContext = _productService.CreateProductBatchContext(associatedProducts, ctx.Store);
 
                         var allProductEntities = entities.Where(x => x.ProductType != ProductType.GroupedProduct).Concat(associatedProducts);
                         ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), allProductEntities);
@@ -1171,7 +1184,7 @@ namespace Smartstore.Core.DataExchange.Export
                     var orderItems = ctx.OrderBatchContext.OrderItems.SelectMany(x => x.Value);
                     var products = orderItems.Select(x => x.Product);
 
-                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store, ctx.ContextCustomer);
+                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store);
                     ctx.PriceCalculationOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
 
                     ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), products);
@@ -1250,7 +1263,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     var products = entities.Select(x => x.Product);
 
-                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store, ctx.ContextCustomer);
+                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store);
                     ctx.PriceCalculationOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
 
                     ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), products);
@@ -1565,7 +1578,7 @@ namespace Smartstore.Core.DataExchange.Export
             Guard.NotNull(batchContext);
 
             var priceDisplay = ctx.Projection.PriceType ?? _priceSettings.PriceDisplayType;
-            var options = _priceCalculationService.CreateDefaultOptions(false, ctx.ContextCustomer, ctx.ContextCurrency, batchContext);
+            var options = _priceCalculationService.CreateDefaultOptions(false, null, null, batchContext);
 
             options.DiscountValidationFlags = DiscountValidationFlags.All;
             options.ApplyPreselectedAttributes = priceDisplay == PriceDisplayType.PreSelectedPrice;
@@ -1649,7 +1662,7 @@ namespace Smartstore.Core.DataExchange.Export
 
         private string CreateLogHeader(DataExporterContext ctx)
         {
-            var executingCustomer = _services.WorkContext.CurrentCustomer;
+            var customer = _workContext.CurrentCustomer;
             var profile = ctx.Request.Profile;
             var provider = ctx.Request.Provider;
             var module = provider.Metadata.ModuleDescriptor;
@@ -1687,7 +1700,7 @@ namespace Smartstore.Core.DataExchange.Export
             {
             }
 
-            sb.Append("Executed by: " + (executingCustomer.Email.HasValue() ? executingCustomer.Email : executingCustomer.SystemName));
+            sb.Append("Executed by: " + (customer.Email.HasValue() ? customer.Email : customer.SystemName));
 
             return sb.ToString();
         }
@@ -1699,7 +1712,7 @@ namespace Smartstore.Core.DataExchange.Export
                 return true;
             }
 
-            var customer = _services.WorkContext.CurrentCustomer;
+            var customer = _workContext.CurrentCustomer;
 
             if (customer.IsBackgroundTaskAccount())
             {
