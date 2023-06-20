@@ -1123,8 +1123,8 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     // Load data behind navigation properties for current entities batch in one go.
                     ctx.ProductBatchContext = _productService.CreateProductBatchContext(entities, ctx.Store);
-                    ctx.PriceCalculationOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
-                    ctx.AttributeCombinationPriceCalcOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx, true);
+                    ctx.PriceCalculationOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
+                    ctx.AttributeCombinationPriceCalcOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx, true);
                     ctx.AssociatedProductBatchContext = null;
 
                     var context = ctx.ProductBatchContext;
@@ -1185,7 +1185,7 @@ namespace Smartstore.Core.DataExchange.Export
                     var products = orderItems.Select(x => x.Product);
 
                     ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store);
-                    ctx.PriceCalculationOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
+                    ctx.PriceCalculationOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
 
                     ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), products);
                     ctx.UrlRecordsPerPage[nameof(Product)] = await CreateUrlRecordCollection(nameof(Product), products);
@@ -1264,7 +1264,7 @@ namespace Smartstore.Core.DataExchange.Export
                     var products = entities.Select(x => x.Product);
 
                     ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store);
-                    ctx.PriceCalculationOptions = CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
+                    ctx.PriceCalculationOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
 
                     ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), products);
                     ctx.UrlRecordsPerPage[nameof(Product)] = await CreateUrlRecordCollection(nameof(Product), products);
@@ -1573,7 +1573,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
         }
 
-        private PriceCalculationOptions CreatePriceCalculationOptions(ProductBatchContext batchContext, DataExporterContext ctx, bool forAttributeCombinations = false)
+        private async Task<PriceCalculationOptions> CreatePriceCalculationOptions(ProductBatchContext batchContext, DataExporterContext ctx, bool forAttributeCombinations = false)
         {
             Guard.NotNull(batchContext);
 
@@ -1597,6 +1597,12 @@ namespace Smartstore.Core.DataExchange.Export
             if (ctx.Projection.ConvertNetToGrossPrices)
             {
                 options.TaxInclusive = true;
+            }
+
+            if (ctx.Projection.StoreId.HasValue)
+            {
+                var taxSettings = await _services.SettingFactory.LoadSettingsAsync<TaxSettings>(ctx.Projection.StoreId.Value);
+                options.IsGrossPrice = taxSettings.PricesIncludeTax;
             }
 
             return options;
