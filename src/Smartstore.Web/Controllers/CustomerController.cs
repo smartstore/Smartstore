@@ -655,7 +655,7 @@ namespace Smartstore.Web.Controllers
                         {
                             DownloadId = x.Id,
                             FileVersion = x.FileVersion,
-                            FileName = x.MediaFile.Name,
+                            FileName = x.UseDownloadUrl ? x.DownloadUrl : x.MediaFile.Name,
                             DownloadGuid = x.DownloadGuid,
                             Changelog = x.Changelog
                         })
