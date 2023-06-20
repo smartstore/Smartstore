@@ -60,7 +60,7 @@ namespace Smartstore.PayPal.Filters
                 return;
             }
 
-            if (await _payPalHelper.IsAnyProviderActiveAsync(
+            if (await _payPalHelper.IsAnyProviderEnabledAsync(
                 PayPalConstants.Standard,
                 PayPalConstants.CreditCard,
                 PayPalConstants.PayLater,
