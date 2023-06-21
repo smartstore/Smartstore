@@ -89,6 +89,7 @@
 - Fixed the category number in category navigation was not displayed when the catalog setting `ShowCategoryProductNumberIncludingSubcategories` was changed.
 - #681 For a message template, the assignment to the e-mail account is not removed when the e-mail account is deleted.
 - #704 Cart page displays outdated discount information when applying or removing a discount coupon code.
+- #751 Summernote: Inserting a table places it at the top of the HTML editor
 - Fixed rare bug where shipping rates wouldn't be applied due to rounding issues
 - ShippingByWeight: fixed missing `SmallQuantityThreshold` in initial migration.
 - #619 Shipping by weight and by total should use 4 instead of 2 decimal places for currency values.
