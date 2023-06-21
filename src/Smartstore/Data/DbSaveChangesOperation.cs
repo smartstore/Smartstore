@@ -1,6 +1,9 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
@@ -15,6 +18,7 @@ namespace Smartstore.Data
         PostSave
     }
 
+    [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
     internal class DbSaveChangesOperation : IDisposable
     {
         private readonly static ConcurrentDictionary<Type, bool> _hookableEntities = new();
@@ -107,7 +111,7 @@ namespace Smartstore.Data
                 _ctx.ChangeTracker.DetectChanges();
 
                 // Now get changed entries
-                _changedEntries = GetChangedEntries();
+                _changedEntries = GetChangedEntries().ToArray();
 
                 // pre
                 var preResult = await PreExecuteAsync(cancelToken);
@@ -201,7 +205,89 @@ namespace Smartstore.Data
 
         private IEnumerable<EntityEntry> GetChangedEntries()
         {
-            return _ctx.ChangeTracker.Entries().Where(x => x.State > EfState.Unchanged);
+            var entries = _ctx.ChangeTracker.Entries();
+            var manyToManyMappings = (List<EntityEntry>)null;
+
+            foreach (var entry in entries)
+            {
+                if (entry.State > EfState.Unchanged)
+                {
+                    if (entry.Entity is IDictionary<string, object>)
+                    {
+                        manyToManyMappings ??= new List<EntityEntry>();
+                        manyToManyMappings.Add(entry);
+                    }
+                    else
+                    {
+                        yield return entry;
+                    }
+                }
+            }
+
+            if (manyToManyMappings != null)
+            {
+                var principals = new HashSet<(string, object)>();
+                foreach (var mapping in manyToManyMappings)
+                {
+                    var principalEntry = FindPrincipalEntry(mapping, principals);
+                    if (principalEntry != null)
+                    {
+                        yield return principalEntry;
+                    }
+                }
+            }
+        }
+
+        private EntityEntry FindPrincipalEntry(EntityEntry entry, HashSet<(string, object)> principals)
+        {
+            if (entry.Metadata is IEntityType entityType)
+            {
+                // e.g. "PaymentMethod_Id" and "RuleSetEntity_Id"
+                if (entityType.GetForeignKeys().Count() != 2)
+                {
+                    return null;
+                }
+
+                var entity = entry.Entity as IDictionary<string, object>;
+                var kvp = entity.FirstOrDefault();
+                if (kvp.Key == null || kvp.Value == null)
+                {
+                    return null;
+                }
+
+                // Find the foreign key for the first dict entry (which is our principal, e.g. "PaymentMethod_Id")
+                //var foreignKey = entityType.GetForeignKeys().FirstOrDefault();
+                var foreignKey = entityType.GetForeignKeys()
+                    .FirstOrDefault(fk => fk.Properties.Any(p => p.Name == kvp.Key));
+
+                if (foreignKey == null)
+                {
+                    return null;
+                }
+
+                if (principals.Contains((kvp.Key, kvp.Value)))
+                {
+                    // Entry already fetched before
+                    return null;
+                }
+
+                var stateManager = _ctx.GetDependencies().StateManager;
+                var principalEntry = stateManager
+                    .TryGetEntry(foreignKey.PrincipalKey, new object[] { kvp.Value })?
+                    .ToEntityEntry();
+
+                if (principalEntry != null)
+                {
+                    principals.Add((kvp.Key, kvp.Value));
+                    if (principalEntry.State == EfState.Unchanged)
+                    {
+                        // Changed entries are already in the result set.
+                        return principalEntry;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private static void IgnoreMergedData(IMergedData[] entries, bool ignore)
