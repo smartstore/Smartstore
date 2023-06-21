@@ -36,8 +36,7 @@
     {
         public LanguageDownloadContext(int setId)
         {
-            Guard.NotZero(setId, nameof(setId));
-
+            Guard.NotZero(setId);
             SetId = setId;
         }
 

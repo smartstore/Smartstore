@@ -738,7 +738,7 @@ namespace Smartstore.Admin.Controllers
             string storeUrl,
             CancellationToken cancelToken = default)
         {
-            Guard.NotEmpty(downloadUrl, nameof(downloadUrl));
+            Guard.NotEmpty(downloadUrl);
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Text.Xml));

@@ -146,12 +146,19 @@ namespace Smartstore.Core.Stores
 
         public int? GetRequestStore()
         {
-            return _actionContextAccessor.ActionContext?.HttpContext?.GetItem<int?>(OverriddenStoreIdKey, forceCreation: false);
+            try
+            {
+                return _httpContextAccessor.HttpContext?.GetItem<int?>(OverriddenStoreIdKey, forceCreation: false);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public void SetRequestStore(int? storeId)
         {
-            var items = _actionContextAccessor.ActionContext?.HttpContext?.Items;
+            var items = _httpContextAccessor.HttpContext?.Items;
 
             if (items != null)
             {
@@ -170,10 +177,16 @@ namespace Smartstore.Core.Stores
 
         public int? GetPreviewStore()
         {
-            var previewCookie = _httpContextAccessor.HttpContext?.RequestServices?.GetService<IPreviewModeCookie>();
-            if (previewCookie != null)
+            try
             {
-                return previewCookie.GetOverride(OverriddenStoreIdKey)?.ToString()?.Convert<int?>();
+                var previewCookie = _httpContextAccessor.HttpContext?.RequestServices?.GetService<IPreviewModeCookie>();
+                if (previewCookie != null)
+                {
+                    return previewCookie.GetOverride(OverriddenStoreIdKey)?.ToString()?.Convert<int?>();
+                }
+            }
+            catch
+            {
             }
 
             return null;

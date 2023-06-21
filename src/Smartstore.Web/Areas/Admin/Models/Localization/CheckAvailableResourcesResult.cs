@@ -3,15 +3,10 @@
     [Serializable]
     public class CheckAvailableResourcesResult
     {
-        public CheckAvailableResourcesResult()
-        {
-            Resources = new List<AvailableResourcesModel>();
-        }
-
         public string Version { get; set; }
         public int ResourceCount { get; set; }
 
-        public List<AvailableResourcesModel> Resources { get; set; }
+        public List<AvailableResourcesModel> Resources { get; set; } = new();
     }
 
     [Serializable]

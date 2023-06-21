@@ -53,7 +53,7 @@ namespace Smartstore
 
         public static T GetItem<T>(this HttpContext httpContext, string key, Func<T> factory = null, bool forceCreation = true)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             var items = httpContext?.Items;
             if (items == null)
