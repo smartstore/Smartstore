@@ -4,9 +4,7 @@
 @model Smartstore.Admin.Models.Common.CurrencyModel
 
 @{
-    var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
-        .Select(x => new SelectListItem { Value = x.IetfLanguageTag, Text = $"{x.DisplayName} [{x.IetfLanguageTag}]" })
-        .ToList();
+    var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures).ToSelectListItems();
 
     var roundOrderTotalDenominators = new List<SelectListItem>
     {

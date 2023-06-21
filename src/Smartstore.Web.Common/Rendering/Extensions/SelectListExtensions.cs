@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
@@ -144,7 +145,7 @@ namespace Smartstore.Web.Rendering
         /// <param name="countries">Countries.</param>
         /// <param name="selectedCountryCodes">2-letter ISO codes of countries to be selected.</param>
         /// <returns>Select list of countries.</returns>
-        public static IList<CountrySelectListItem> ToSelectListItems(this IEnumerable<Country> countries, string?[] selectedCountryCodes)
+        public static IList<CountrySelectListItem> ToSelectListItems(this IEnumerable<Country> countries, string[]? selectedCountryCodes)
         {
             Guard.NotNull(countries);
             Guard.NotNull(selectedCountryCodes);
@@ -191,6 +192,23 @@ namespace Smartstore.Web.Rendering
                 Selected = selectedLanguageIds?.Contains(x.Id) ?? false
             })
             .ToList();
+        }
+
+        /// <summary>
+        /// Gets a select list of culture codes.
+        /// </summary>
+        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<CultureInfo> cultureInfos, string[]? selectedCultureCodes = null)
+        {
+            Guard.NotNull(cultureInfos);
+
+            return cultureInfos
+                .Select(ci => new SelectListItem
+                {
+                    Text = $"{ci.DisplayName} [{ci.Name}]",
+                    Value = ci.Name,
+                    Selected = selectedCultureCodes?.Contains(ci.Name) ?? false
+                })
+                .ToList();
         }
 
         /// <summary>

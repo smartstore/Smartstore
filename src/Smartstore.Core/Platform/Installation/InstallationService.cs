@@ -505,7 +505,7 @@ namespace Smartstore.Core.Installation
         {
             var curCulture = Thread.CurrentThread.CurrentUICulture;
 
-            if (language.Code.EqualsNoCase(curCulture.IetfLanguageTag))
+            if (language.Code.EqualsNoCase(curCulture.Name))
             {
                 return true;
             } 
@@ -513,7 +513,7 @@ namespace Smartstore.Core.Installation
             curCulture = curCulture.Parent;
             if (curCulture != null)
             {
-                return language.Code.EqualsNoCase(curCulture.IetfLanguageTag);
+                return language.Code.EqualsNoCase(curCulture.Name);
             }
 
             return false;

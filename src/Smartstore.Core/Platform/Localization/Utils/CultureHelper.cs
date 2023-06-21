@@ -8,19 +8,42 @@ namespace Smartstore.Core.Localization
     {
         private readonly static HashSet<string> _cultureCodes = new(
                 CultureInfo.GetCultures(CultureTypes.NeutralCultures | CultureTypes.SpecificCultures | CultureTypes.UserCustomCulture)
-                .Select(x => x.IetfLanguageTag)
+                .Select(x => x.Name)
                 .Where(x => !string.IsNullOrWhiteSpace(x)), StringComparer.OrdinalIgnoreCase);
+
+        // See https://github.com/dotnet/docs/issues/11363
+        private readonly static Dictionary<string, string> _cultureAliasMappings = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "zh-CN", "zh-Hans-CN" },
+            { "zh-SG", "zh-Hans-SG" },
+            { "zh-HK", "zh-Hant-HK" },
+            { "zh-MO", "zh-Hant-MO" },
+            { "zh-TW", "zh-Hant-TW" }
+        };
 
         /// <summary>
         /// Checks whether the given <paramref name="locale"/> is a
         /// culture code which is supported by the .NET framework.
         /// </summary>
-        /// <param name="locale"></param>
-        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsValidCultureCode(string locale)
         {
             return locale.HasValue() && _cultureCodes.Contains(locale);
+        }
+
+        /// <summary>
+        /// Gets a valid culture code for <paramref name="locale"/> if it is not valid.
+        /// Otherwise <paramref name="locale"/> is returned.
+        /// </summary>
+        /// <example>Returns "zh-Hans-CN" for "zh-CN".</example>
+        public static string GetValidCultureCode(string locale)
+        {
+            if (!IsValidCultureCode(locale) && locale != null && _cultureAliasMappings.TryGetValue(locale, out var mapping))
+            {
+                return mapping;
+            }
+
+            return locale;
         }
 
         /// <summary>

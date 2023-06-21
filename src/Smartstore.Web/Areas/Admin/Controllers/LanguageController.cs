@@ -77,7 +77,7 @@ namespace Smartstore.Admin.Controllers
                 var m = await mapper.MapAsync(x);
                 m.Name = GetCultureDisplayName(x.LanguageCulture) ?? x.GetLocalized(x => x.Name);
 
-                if (lastImportInfos.TryGetValue(x.Id, out LastResourcesImportInfo info))
+                if (lastImportInfos.TryGetValue(x.Id, out var info))
                 {
                     m.LastResourcesImportOn = Services.DateTimeHelper.ConvertToUserTime(info.ImportedOn, DateTimeKind.Utc);
                     m.LastResourcesImportOnString = m.LastResourcesImportOn.Humanize(false);
@@ -541,7 +541,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     AvailableResources = resources,
                     StoreUrl = Services.StoreContext.CurrentStore.GetBaseUrl(),
-                    StringResouces = new()
+                    StringResources = new()
                     {
                         { "Admin.Configuration.Languages.ImportResources", T("Admin.Configuration.Languages.ImportResources") },
                         { "Admin.Configuration.Languages.DownloadingResources", T("Admin.Configuration.Languages.DownloadingResources") }
@@ -568,7 +568,7 @@ namespace Smartstore.Admin.Controllers
                 var state = new LanguageDownloadState
                 {
                     Id = context.SetId,
-                    ProgressMessage = context.StringResouces["Admin.Configuration.Languages.DownloadingResources"]
+                    ProgressMessage = context.StringResources["Admin.Configuration.Languages.DownloadingResources"]
                 };
 
                 await asyncState.CreateAsync(state, null, false, CancellationTokenSource.CreateLinkedTokenSource(cancelToken));
@@ -580,11 +580,13 @@ namespace Smartstore.Admin.Controllers
                 if (!cancelToken.IsCancellationRequested)
                 {
                     using var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential);
-                    await asyncState.UpdateAsync<LanguageDownloadState>(state => state.ProgressMessage = context.StringResouces["Admin.Configuration.Languages.ImportResources"]);
+                    await asyncState.UpdateAsync<LanguageDownloadState>(state => state.ProgressMessage = context.StringResources["Admin.Configuration.Languages.ImportResources"]);
+
+                    var cultureCode = resources.Language.Culture;
 
                     // 2. Create language entity (if required).
                     var language = await db.Languages
-                        .Where(x => x.LanguageCulture == resources.Language.Culture)
+                        .Where(x => x.LanguageCulture == cultureCode)
                         .FirstOrDefaultAsync(cancelToken);
 
                     if (language == null)
@@ -595,10 +597,10 @@ namespace Smartstore.Admin.Controllers
 
                         language = new Language
                         {
-                            LanguageCulture = resources.Language.Culture,
+                            LanguageCulture = cultureCode,
                             UniqueSeoCode = resources.Language.TwoLetterIsoCode,
-                            Name = GetCultureDisplayName(resources.Language.Culture) ?? resources.Name,
-                            FlagImageFileName = GetFlagFileName(resources.Language.Culture, appContext),
+                            Name = GetCultureDisplayName(cultureCode) ?? resources.Name,
+                            FlagImageFileName = GetFlagFileName(cultureCode, appContext),
                             Rtl = resources.Language.Rtl,
                             Published = false,
                             DisplayOrder = maxDisplayOrder.HasValue ? maxDisplayOrder.Value + 1 : 0
@@ -727,9 +729,13 @@ namespace Smartstore.Admin.Controllers
             if (jsonString.HasValue())
             {
                 result = JsonConvert.DeserializeObject<CheckAvailableResourcesResult>(jsonString);
+
+                result.Resources
+                    .Where(x => x.Language != null)
+                    .Each(x => x.Language.Culture = CultureHelper.GetValidCultureCode(x.Language.Culture));
             }
 
-            return result ?? new CheckAvailableResourcesResult();
+            return result ?? new();
         }
 
         private static async Task<XmlDocument> DownloadAvailableResources(
@@ -782,9 +788,7 @@ namespace Smartstore.Admin.Controllers
                 .OrderBy(x => x.DisplayName)
                 .ToList();
 
-            ViewBag.Cultures = allCultures
-                .Select(x => new SelectListItem { Text = $"{x.DisplayName} [{x.IetfLanguageTag}]", Value = x.IetfLanguageTag })
-                .ToList();
+            ViewBag.Cultures = allCultures.ToSelectListItems();
 
             // Get two-letter language codes.
             foreach (var culture in allCultures)
@@ -805,7 +809,7 @@ namespace Smartstore.Admin.Controllers
 
                     if (culture.TwoLetterISOLanguageName.Length == 2)
                     {
-                        twoLetterLanguageCodes.Add(new SelectListItem { Text = displayName, Value = culture.TwoLetterISOLanguageName });
+                        twoLetterLanguageCodes.Add(new() { Text = displayName, Value = culture.TwoLetterISOLanguageName });
                     }
                 }
             }
@@ -833,9 +837,9 @@ namespace Smartstore.Admin.Controllers
                 var name = flag.NameWithoutExtension.EmptyNull().ToLower();
                 string countryDescription = null;
 
-                if (allCountryNames.ContainsKey(name))
+                if (allCountryNames.TryGetValue(name, out var countryName))
                 {
-                    countryDescription = $"{allCountryNames[name]} [{name}]";
+                    countryDescription = $"{countryName} [{name}]";
                 }
 
                 if (countryDescription.IsEmpty() && allCulturesMap.TryGetValue(name, out var ci))
@@ -843,7 +847,7 @@ namespace Smartstore.Admin.Controllers
                     countryDescription = $"{ci.DisplayName} [{name}]";
                 }
 
-                countryFlags.Add(new SelectListItem { Text = countryDescription.NullEmpty() ?? name, Value = flag.Name });
+                countryFlags.Add(new() { Text = countryDescription.NullEmpty() ?? name, Value = flag.Name });
             }
 
             ViewBag.CountryFlags = countryFlags.OrderBy(x => x.Text).ToList();
@@ -855,7 +859,7 @@ namespace Smartstore.Admin.Controllers
                     model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(language);
                 }
 
-                if (lastImportInfos.TryGetValue(language.Id, out LastResourcesImportInfo info))
+                if (lastImportInfos.TryGetValue(language.Id, out var info))
                 {
                     model.LastResourcesImportOn = Services.DateTimeHelper.ConvertToUserTime(info.ImportedOn, DateTimeKind.Utc);
                     model.LastResourcesImportOnString = model.LastResourcesImportOn.Humanize(false);
@@ -971,11 +975,10 @@ namespace Smartstore.Admin.Controllers
 
         private static string GetFlagFileName(string culture, IApplicationContext applicationContext)
         {
-            culture = culture.EmptyNull().ToLower();
-
-            if (culture.HasValue() && culture.SplitToPair(out _, out string cultureRight, "-"))
+            var cultureParts = culture.SplitSafe('-').ToArray();
+            if (cultureParts.Length > 0)
             {
-                var fileName = cultureRight + ".png";
+                var fileName = cultureParts[^1].EmptyNull().ToLower() + ".png";
 
                 if (applicationContext.WebRoot.FileExists("images/flags/" + fileName))
                 {
