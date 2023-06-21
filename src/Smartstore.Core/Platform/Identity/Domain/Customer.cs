@@ -313,7 +313,6 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets shopping cart items
         /// </summary>
-        [IgnoreDataMember]
         public ICollection<ShoppingCartItem> ShoppingCartItems
         {
             get => _shoppingCartItems ?? LazyLoader.Load(this, ref _shoppingCartItems) ?? (_shoppingCartItems ??= new HashSet<ShoppingCartItem>());

@@ -537,7 +537,9 @@ namespace Smartstore.Web.Controllers
         {
             // Adds a product to cart. This method is used on product details page.
             var form = HttpContext.Request.Form;
-            var product = await _db.Products.FindByIdAsync(productId);
+            var product = await _db.Products
+                .Include(x => x.ProductVariantAttributes)
+                .FindByIdAsync(productId);
             if (product == null)
             {
                 return Json(new

@@ -7,6 +7,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -96,6 +97,7 @@ namespace Smartstore.Web.Api
             BuildPaymentMethods(builder);
             BuildProducts(builder);
             BuildShipments(builder);
+            BuildShoppingCartItems(builder);
         }
 
         public override Stream GetXmlCommentsStream(IApplicationContext appContext)
@@ -470,6 +472,52 @@ namespace Smartstore.Web.Api
                 .ReturnsFromEntitySet(set)
                 .Parameter<bool>("notifyCustomer")
                 .HasDefaultValue(bool.TrueString)
+                .Optional();
+        }
+
+        private static void BuildShoppingCartItems(ODataModelBuilder builder)
+        {
+            var set = builder.EntitySet<ShoppingCartItem>("ShoppingCartItems");
+            var config = set.EntityType.Collection;
+
+            var addToCart = config
+                .Action(nameof(ShoppingCartItemsController.AddToCart));
+            addToCart.Parameter<int>("customerId")
+                .Required();
+            addToCart.Parameter<int>("productId")
+                .Required();
+            addToCart.Parameter<int>("storeId")
+                .HasDefaultValue("0")
+                .Optional();
+            addToCart.Parameter<int>("quantity")
+                .HasDefaultValue("1")
+                .Optional();
+            addToCart.Parameter<ShoppingCartType>("shoppingCartType")
+                .Optional();
+            addToCart.Parameter<decimal>("customerEnteredPrice")
+                .HasDefaultValue("0")
+                .Optional();
+            addToCart.Parameter<string>("currencyCode")
+                .Optional();
+
+            var deleteItem = set.EntityType
+                .Action(nameof(ShoppingCartItemsController.DeleteItem));
+            deleteItem.Parameter<bool>("resetCheckoutData")
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
+            deleteItem.Parameter<bool>("removeInvalidCheckoutAttributes")
+                .HasDefaultValue(bool.FalseString)
+                .Optional();
+
+            var deleteCart = config
+                .Action(nameof(ShoppingCartItemsController.DeleteCart))
+                .Returns<int>();
+            deleteCart.Parameter<int>("customerId")
+                .Required();
+            deleteCart.Parameter<ShoppingCartType>("shoppingCartType")
+                .Required();
+            deleteCart.Parameter<int>("storeId")
+                .HasDefaultValue("0")
                 .Optional();
         }
     }

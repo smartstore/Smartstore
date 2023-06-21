@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.OData;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
 
@@ -71,6 +72,13 @@ namespace Smartstore.Web.Api.Controllers
         public IQueryable<CustomerRoleMapping> GetCustomerRoleMappings(int key)
         {
             return GetRelatedQuery(key, x => x.CustomerRoleMappings);
+        }
+
+        [HttpGet("Customers({key})/ShoppingCartItems"), ApiQueryable]
+        [Permission(Permissions.Cart.Read)]
+        public IQueryable<ShoppingCartItem> GetShoppingCartItems(int key)
+        {
+            return GetRelatedQuery(key, x => x.ShoppingCartItems);
         }
 
         [HttpGet("Customers({key})/RewardPointsHistory"), ApiQueryable]
