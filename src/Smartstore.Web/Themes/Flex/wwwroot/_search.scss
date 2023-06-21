@@ -26,27 +26,34 @@ $facet-selection-color:             darken($success, 15%);
     padding-left: var(--search-padding-start);
     padding-right: var(--search-padding-end);
     background-color: $searchbox-bg-1;
-    border-color: $searchbox-border-color;
+    border-color: $searchbox-border-1;
+    color: $searchbox-color-1;
     box-shadow: none;
     transition-property: background-color, color, box-shadow, border;
     transition-duration: 0.2s;
     transition-timing-function: cubic-bezier(.4, 0, .2, 1);
 
-    &:hover:not(:focus):not(:active) {
-        background-color: $searchbox-bg-2;
-        border-color: $searchbox-border-hover-color;
-    }
-    &:hover, &:focus, &:active {
-        box-shadow: $box-shadow-sm-var;
+    @if ($searchbox-shadow == true) {
+        &:hover, &:focus, &:active {
+            box-shadow: $box-shadow-sm-var;
+        }
     }
      &:focus, &:active {
-        background-color: $searchbox-bg-3;
-        border-color: $searchbox-border-active-color;
+        background-color: $searchbox-bg-2;
+        border-color: $searchbox-border-2;
+        color: $searchbox-color-2;
     }
 
-    /*@include media-breakpoint-up(lg) {
-        background-color: $searchbox-bg-3;
-    }*/
+     &::placeholder {
+         color: $searchbox-color-1;
+         opacity: 0.6;
+     }
+     &:focus::placeholder {
+         color: $searchbox-color-2;
+     }
+     &:active::placeholder {
+         color: $searchbox-color-2;
+     }
 }
 
 .instasearch-addon {
@@ -85,26 +92,14 @@ $facet-selection-color:             darken($success, 15%);
     vertical-align: sub;
 }
 
-.instasearch-button {
-    position: absolute !important;
-    z-index: 1;
-    height: auto;
-    right: 1px;
-    top: 1px;
-    bottom: 1px;
-    border-color: $searchbox-bg-1;
-    border-left-width: 0;
-    height: initial !important;
-    font-size: 1rem;
-    padding: 0 0.25rem !important;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    box-shadow: none;
-}
-
 .instasearch-icon {
     opacity: 0.5;
     font-size: 1rem;
+    color: $searchbox-color-1;
+
+    .instasearch-term.active ~ & {
+        color: $searchbox-color-2;
+    }
 }
 
 .instasearch-form:not(.open) {
@@ -122,7 +117,7 @@ $facet-selection-color:             darken($success, 15%);
     > .instasearch-term {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
-        background-color: $searchbox-bg-3 !important;
+        background-color: $searchbox-bg-2 !important;
     }
 
     > .instasearch-button {
@@ -140,7 +135,7 @@ $facet-selection-color:             darken($success, 15%);
     min-width: calc(100% - 2px);
     max-width: calc(100% - 2px);
     min-height: 50px;
-    border: 1px solid $searchbox-border-active-color;
+    border: 1px solid $searchbox-border-2;
     box-shadow: $dropdown-box-shadow;
     background-color: $dropdown-bg;
     z-index: $zindex-dropdown + 100;

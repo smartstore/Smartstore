@@ -3,41 +3,30 @@
 @model SearchBoxModel
 
 @{
-    var labelStyle = Display.GetThemeVariable<string>("search-button-style", "primary");
-    if (Display.GetThemeVariable<bool>("search-button-flat"))
-    {
-        labelStyle += " btn-flat";
-    }
 }
 
-<form action="@Model.SearchUrl" class="instasearch-form" method="get">
-    <div class="instasearch-box has-icon">
-        <input type="text"
-               class="instasearch-term form-control"
-               name="q"
-               value="@Model.CurrentQuery"
-               placeholder="@Model.InputPlaceholder"
-               data-instasearch="@(Model.InstantSearchEnabled ? "true" : "false")"
-               data-minlength="@(Model.SearchTermMinimumLength.ToString())"
-               data-showthumbs="@(Model.ShowThumbsInInstantSearch.ToString().ToLower())"
-               data-url="@Model.InstantSearchUrl"
-               data-origin="@Model.Origin"
-               attr-autocomplete='(Model.InstantSearchEnabled, "off")' />
+<form action="@Model.SearchUrl" class="instasearch-form has-icon" method="get">
+    <input type="text"
+            class="instasearch-term form-control"
+            name="q"
+            value="@Model.CurrentQuery"
+            placeholder="@Model.InputPlaceholder"
+            data-instasearch="@(Model.InstantSearchEnabled ? "true" : "false")"
+            data-minlength="@(Model.SearchTermMinimumLength.ToString())"
+            data-showthumbs="@(Model.ShowThumbsInInstantSearch.ToString().ToLower())"
+            data-url="@Model.InstantSearchUrl"
+            data-origin="@Model.Origin"
+            attr-autocomplete='(Model.InstantSearchEnabled, "off")' />
 
-        <div class="instasearch-addon d-flex align-items-center justify-content-center">
-            <button type="button" class="btn btn-light instasearch-clear">
-                <i class="fa fa-xmark" style="font-size: 14px"></i>
-            </button>
-        </div>
-
-        <span class="input-group-icon" style="left: 5px">
-            <i class="fa fa-magnifying-glass instasearch-icon"></i>
-        </span>
+    <div class="instasearch-addon d-flex align-items-center justify-content-center">
+        <button type="button" class="btn btn-light instasearch-clear">
+            <i class="fa fa-xmark" style="font-size: 14px"></i>
+        </button>
     </div>
 
-    @*<button type="submit" class="btn btn-@labelStyle btn-icon instasearch-button" title="@T("Search")">
-        <i class="icm icm-magnifier instasearch-icon"></i>
-    </button>*@
+    <span class="instasearch-icon input-group-icon" style="left: 5px">
+        <i class="fa fa-magnifying-glass"></i>
+    </span>
 
     <div class="instasearch-drop">
         <div class="instasearch-drop-body clearfix"></div>
