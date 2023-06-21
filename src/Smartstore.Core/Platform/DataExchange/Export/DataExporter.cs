@@ -712,8 +712,8 @@ namespace Smartstore.Core.DataExchange.Export
                 if (ctx.Request.ProductQuery != null)
                     return ctx.Request.ProductQuery;
 
-                var priceFrom = f.PriceMinimum.HasValue ? new Money(f.PriceMinimum.Value, ctx.ContextCurrency) : (Money?)null;
-                var priceTo = f.PriceMaximum.HasValue ? new Money(f.PriceMaximum.Value, ctx.ContextCurrency) : (Money?)null;
+                var priceFrom = f.PriceMinimum.HasValue ? new Money(f.PriceMinimum.Value, _workContext.WorkingCurrency) : (Money?)null;
+                var priceTo = f.PriceMaximum.HasValue ? new Money(f.PriceMaximum.Value, _workContext.WorkingCurrency) : (Money?)null;
 
                 var searchQuery = new CatalogSearchQuery()
                     .WithCurrency(_workContext.WorkingCurrency)
