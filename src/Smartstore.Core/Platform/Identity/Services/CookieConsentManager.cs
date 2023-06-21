@@ -1,9 +1,9 @@
-﻿using Autofac;
+﻿using System.Net;
+using Autofac;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
-using Smartstore.Engine.Modularity;
 using Smartstore.Net;
 
 namespace Smartstore.Core.Identity
@@ -19,6 +19,8 @@ namespace Smartstore.Core.Identity
         private readonly PrivacySettings _privacySettings;
         private readonly IComponentContext _componentContext;
 
+        private bool? _isCookieConsentRequired;
+
         public CookieConsentManager(
             IHttpContextAccessor httpContextAccessor,
             IWebHelper webHelper,
@@ -31,6 +33,17 @@ namespace Smartstore.Core.Identity
             _typeScanner = typeScanner;
             _privacySettings = privacySettings;
             _componentContext = componentContext;
+        }
+
+        public async Task<bool> IsCookieConsentRequiredAsync()
+        {
+            return _isCookieConsentRequired ??= await IsCookieConsentRequiredCoreAsync(_webHelper.GetClientIpAddress());
+        }
+
+        protected virtual Task<bool> IsCookieConsentRequiredCoreAsync(IPAddress ipAddress)
+        {
+            // TODO: implement
+            return Task.FromResult(true);
         }
 
         public virtual async Task<IList<CookieInfo>> GetCookieInfosAsync(bool withUserCookies = false)
@@ -82,7 +95,7 @@ namespace Smartstore.Core.Identity
 
         public virtual bool IsCookieAllowed(CookieType cookieType)
         {
-            Guard.NotNull(cookieType, nameof(cookieType));
+            Guard.NotNull(cookieType);
 
             var request = _httpContextAccessor?.HttpContext?.Request;
             if (request != null && request.Cookies.TryGetValue(CookieNames.CookieConsent, out var value) && value.HasValue())
