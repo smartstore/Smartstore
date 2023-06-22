@@ -480,8 +480,32 @@ namespace Smartstore.Web.Api
             var set = builder.EntitySet<ShoppingCartItem>("ShoppingCartItems");
             var config = set.EntityType.Collection;
 
+            var addToCartTest = config
+                .Action(nameof(ShoppingCartItemsController.AddToCartTest))
+                .ReturnsFromEntitySet(set);
+            addToCartTest.Parameter<int>("customerId")
+                .Required();
+            addToCartTest.Parameter<int>("productId")
+                .Required();
+            addToCartTest.Parameter<int>("storeId")
+                .HasDefaultValue("0")
+                .Optional();
+            addToCartTest.Parameter<int>("quantity")
+                .HasDefaultValue("1")
+                .Optional();
+            addToCartTest.Parameter<ShoppingCartType>("shoppingCartType")
+                .Optional();
+            addToCartTest.Parameter<decimal>("customerEnteredPrice")
+                .HasDefaultValue("0")
+                .Optional();
+            addToCartTest.Parameter<string>("currencyCode")
+                .Optional();
+            addToCartTest.Parameter<AddToCartAttributes>("attributes")
+                .Optional();
+
             var addToCart = config
-                .Action(nameof(ShoppingCartItemsController.AddToCart));
+                .Action(nameof(ShoppingCartItemsController.AddToCart))
+                .ReturnsFromEntitySet(set);
             addToCart.Parameter<int>("customerId")
                 .Required();
             addToCart.Parameter<int>("productId")
@@ -499,6 +523,12 @@ namespace Smartstore.Web.Api
                 .Optional();
             addToCart.Parameter<string>("currencyCode")
                 .Optional();
+
+            set.EntityType
+                .Action(nameof(ShoppingCartItemsController.UpdateItem))
+                .ReturnsFromEntitySet(set)
+                .Parameter<int>("quantity")
+                .Required();
 
             var deleteItem = set.EntityType
                 .Action(nameof(ShoppingCartItemsController.DeleteItem));

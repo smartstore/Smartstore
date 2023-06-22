@@ -1,7 +1,14 @@
-﻿namespace Smartstore.Core.Catalog.Attributes
+﻿using System.Runtime.Serialization;
+
+namespace Smartstore.Core.Catalog.Attributes
 {
+    [DataContract]
     public class ProductVariantQueryItem
     {
+        public ProductVariantQueryItem()
+        {
+        }
+
         public ProductVariantQueryItem(string value)
         {
             Value = value ?? string.Empty;
@@ -20,17 +27,34 @@
             return $"pvari{productId}-{bundleItemId}-{attributeId}-{variantAttributeId}";
         }
 
-        public string Value { get; init; }
+        [DataMember(Name = "value")]
+        public string Value { get; set; } = string.Empty;
 
+        [DataMember(Name = "productId")]
         public int ProductId { get; set; }
+
+        [DataMember(Name = "bundleItemId")]
         public int BundleItemId { get; set; }
+
+        [DataMember(Name = "attributeId")]
         public int AttributeId { get; set; }
+
+        [DataMember(Name = "variantAttributeId")]
         public int VariantAttributeId { get; set; }
+
+        [DataMember(Name = "date")]
         public DateTime? Date { get; set; }
+
+        [DataMember(Name = "isFile")]
         public bool IsFile { get; set; }
+
+        [DataMember(Name = "isText")]
         public bool IsText { get; set; }
 
+        [DataMember(Name = "alias")]
         public string Alias { get; set; }
+        
+        [DataMember(Name = "valueAlias")]
         public string ValueAlias { get; set; }
 
         public override string ToString()

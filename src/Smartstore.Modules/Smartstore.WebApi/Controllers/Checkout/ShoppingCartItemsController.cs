@@ -1,28 +1,40 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿#nullable enable
+
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.OData.Formatter;
-using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Web.Api.Models.Catalog;
+using Smartstore.Web.Api.Models.Checkout;
 
 namespace Smartstore.Web.Api.Controllers
 {
     /// <summary>
-    /// The endpoint for operations on ShoppingCartItem entity.
+    /// The endpoint for operations on ShoppingCartItem entity and managing shopping carts.
     /// </summary>
+    [ProducesResponseType(Status403Forbidden)]
+    [ProducesResponseType(Status404NotFound)]
+    [ProducesResponseType(Status422UnprocessableEntity)]
     public class ShoppingCartItemsController : WebApiController<ShoppingCartItem>
     {
+        private readonly Lazy<IWorkContext> _workContext;
         private readonly Lazy<IShoppingCartService> _shoppingCartService;
         private readonly Lazy<ICurrencyService> _currencyService;
+        private readonly Lazy<IPermissionService> _permissionService;
 
         public ShoppingCartItemsController(
+            Lazy<IWorkContext> workContext,
             Lazy<IShoppingCartService> shoppingCartService,
-            Lazy<ICurrencyService> currencyService)
+            Lazy<ICurrencyService> currencyService,
+            Lazy<IPermissionService> permissionService)
         {
+            _workContext = workContext;
             _shoppingCartService = shoppingCartService;
             _currencyService = currencyService;
+            _permissionService = permissionService;
         }
 
         [HttpGet("ShoppingCartItems"), ApiQueryable]
@@ -69,13 +81,13 @@ namespace Smartstore.Web.Api.Controllers
         [HttpPut, ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Put()
         {
-            return Forbidden();
+            return Forbidden($"Use endpoint \"{nameof(UpdateItem)}\" instead.");
         }
 
         [HttpPatch, ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Patch()
         {
-            return Forbidden();
+            return Forbidden($"Use endpoint \"{nameof(UpdateItem)}\" instead.");
         }
 
         [HttpDelete, ApiExplorerSettings(IgnoreApi = true)]
@@ -88,34 +100,43 @@ namespace Smartstore.Web.Api.Controllers
 
         #region Actions and functions
 
-        // TODO: (mg) allow to specify variants for AddToCart somehow. ProductVariantQuery is unsuitable and too difficult for clients here. RawAttributes?
+        // TODO: (mg) allow to specify Variants, GiftCards and CheckoutAttributes for AddToCart somehow. See ProductVariantQuery.
 
         /// <summary>
         /// Adds a product to cart or wishlist.
         /// </summary>
-        /// <param name="customerId" example="1234">Identifier of the customer who owns the cart.</param>
-        /// <param name="storeId" example="0">Identifier of the store the cart item belongs to. If empty, the current store is used.</param>
+        /// <remarks>
+        /// Returns the cart or the wishlist items of the customer depending on the **shoppingCartType** value.
+        /// </remarks>
+        /// <param name="customerId" example="5678">Identifier of the customer who owns the cart.</param>
+        /// <param name="productId" example="1234">Identifier of the product to add.</param>
+        /// <param name="storeId" example="0">Identifier of the store the cart item belongs to. If 0, then the current store is used.</param>
         /// <param name="quantity" example="1">The quantity to add.</param>
         /// <param name="shoppingCartType" example="1">A value indicating whether to add the product to the shopping cart or wishlist.</param>
-        /// <param name="customerEnteredPrice" example="false">An optional price entered by customer. Only applicable if the product supports it.</param>
+        /// <param name="customerEnteredPrice" example="0">An optional price entered by customer. Only applicable if the product supports it.</param>
         /// <param name="currencyCode">Currency code for **customerEnteredPrice**. If empty, then **customerEnteredPrice** must be in the primary currency of the store.</param>
-        [HttpPost("ShoppingCartItems/AddToCart")]
+        [HttpPost("ShoppingCartItems/AddToCartTest")]
+        [Permission(Permissions.Cart.Read)]
         [Consumes(Json), Produces(Json)]
-        [ProducesResponseType(Status200OK)]
-        [ProducesResponseType(Status404NotFound)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> AddToCart(
-            //[FromQuery] ProductVariantQuery query,
+        [ProducesResponseType(typeof(IQueryable<ShoppingCartItem>), Status200OK)]
+        public async Task<IActionResult> AddToCartTest(
             [FromODataBody, Required] int customerId,
             [FromODataBody, Required] int productId,
             [FromODataBody] int storeId = 0,
             [FromODataBody] int quantity = 1,
             [FromODataBody] ShoppingCartType shoppingCartType = ShoppingCartType.ShoppingCart,
             [FromODataBody] decimal customerEnteredPrice = decimal.Zero,
-            [FromODataBody] string currencyCode = null)
+            [FromODataBody] string? currencyCode = null,
+            [FromODataBody] AddToCartAttributes? attributes = null)
         {
             try
             {
+                var message = await CheckAccess(shoppingCartType);
+                if (message.HasValue())
+                {
+                    return Forbidden(message);
+                }
+
                 var customer = await Db.Customers
                     .AsSplitQuery()
                     .IncludeCustomerRoles()
@@ -169,12 +190,159 @@ namespace Smartstore.Web.Api.Controllers
                     AutomaticallyAddBundleProducts = true
                 };
 
-                if (await _shoppingCartService.Value.AddToCartAsync(addToCartContext))
+                if (!await _shoppingCartService.Value.AddToCartAsync(addToCartContext))
                 {
-                    return Ok();
+                    return ErrorResult(null, string.Join(". ", addToCartContext.Warnings));
                 }
 
-                return ErrorResult(null, string.Join(". ", addToCartContext.Warnings));
+                return Ok(customer.ShoppingCartItems.Where(x => x.ShoppingCartType == shoppingCartType).AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Adds a product to cart or wishlist.
+        /// </summary>
+        /// <remarks>
+        /// Returns the cart or the wishlist items of the customer depending on the **shoppingCartType** value.
+        /// </remarks>
+        /// <param name="customerId" example="5678">Identifier of the customer who owns the cart.</param>
+        /// <param name="productId" example="1234">Identifier of the product to add.</param>
+        /// <param name="storeId" example="0">Identifier of the store the cart item belongs to. If 0, then the current store is used.</param>
+        /// <param name="quantity" example="1">The quantity to add.</param>
+        /// <param name="shoppingCartType" example="1">A value indicating whether to add the product to the shopping cart or wishlist.</param>
+        /// <param name="customerEnteredPrice" example="0">An optional price entered by customer. Only applicable if the product supports it.</param>
+        /// <param name="currencyCode">Currency code for **customerEnteredPrice**. If empty, then **customerEnteredPrice** must be in the primary currency of the store.</param>
+        [HttpPost("ShoppingCartItems/AddToCart")]
+        [Permission(Permissions.Cart.Read)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(IQueryable<ShoppingCartItem>), Status200OK)]
+        public async Task<IActionResult> AddToCart(
+            //[FromQuery] ProductVariantQuery query,
+            [FromODataBody, Required] int customerId,
+            [FromODataBody, Required] int productId,
+            [FromODataBody] int storeId = 0,
+            [FromODataBody] int quantity = 1,
+            [FromODataBody] ShoppingCartType shoppingCartType = ShoppingCartType.ShoppingCart,
+            [FromODataBody] decimal customerEnteredPrice = decimal.Zero,
+            [FromODataBody] string? currencyCode = null)
+        {
+            try
+            {
+                var message = await CheckAccess(shoppingCartType);
+                if (message.HasValue())
+                {
+                    return Forbidden(message);
+                }
+
+                var customer = await Db.Customers
+                    .AsSplitQuery()
+                    .IncludeCustomerRoles()
+                    .Include(x => x.ShoppingCartItems)
+                    .FindByIdAsync(customerId);
+                if (customer == null)
+                {
+                    return NotFound(customerId, nameof(Customer));
+                }
+
+                var product = await Db.Products
+                    .Include(x => x.ProductVariantAttributes)
+                    .FindByIdAsync(productId);
+                if (product == null)
+                {
+                    return NotFound(productId, nameof(Product));
+                }
+
+                // Price entered by customer (optional).
+                var customerPrice = new Money();
+                if (product.CustomerEntersPrice && customerEnteredPrice > 0)
+                {
+                    if (currencyCode.HasValue())
+                    {
+                        var currency = await Db.Currencies
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(x => x.CurrencyCode == currencyCode);
+                        if (currency == null)
+                        {
+                            return NotFound($"Cannot find currency with code {currencyCode}.");
+                        }
+
+                        customerPrice = _currencyService.Value.ConvertToPrimaryCurrency(new Money(customerEnteredPrice, currency));
+                    }
+                    else
+                    {
+                        customerPrice = new(customerEnteredPrice, _currencyService.Value.PrimaryCurrency);
+                    }
+                }
+
+                var addToCartContext = new AddToCartContext
+                {
+                    Customer = customer,
+                    Product = product,
+                    StoreId = storeId > 0 ? storeId : null,
+                    //VariantQuery = query,
+                    CartType = shoppingCartType,
+                    CustomerEnteredPrice = customerPrice,
+                    Quantity = quantity,
+                    AutomaticallyAddRequiredProducts = product.RequireOtherProducts && product.AutomaticallyAddRequiredProducts,
+                    AutomaticallyAddBundleProducts = true
+                };
+
+                if (!await _shoppingCartService.Value.AddToCartAsync(addToCartContext))
+                {
+                    return ErrorResult(null, string.Join(". ", addToCartContext.Warnings));
+                }
+
+                return Ok(customer.ShoppingCartItems.Where(x => x.ShoppingCartType == shoppingCartType).AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates a shopping cart item.
+        /// </summary>
+        /// <param name="quantity" example="1">The quantity to set.</param>
+        [HttpPost("ShoppingCartItems({key})/UpdateItem")]
+        [Permission(Permissions.Cart.Read)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(ShoppingCartItem), Status200OK)]
+        public async Task<IActionResult> UpdateItem(int key,
+            [FromODataBody, Required] int quantity)
+        {
+            try
+            {
+                var entity = await Entities
+                    .AsSplitQuery()
+                    .Include(x => x.Customer)
+                    .ThenInclude(x => x.ShoppingCartItems)
+                    .ThenInclude(x => x.Product)
+                    .ThenInclude(x => x.ProductVariantAttributes)
+                    .FindByIdAsync(key);
+                if (entity == null)
+                {
+                    return NotFound(key);
+                }
+
+                var message = await CheckAccess(entity.ShoppingCartType);
+                if (message.HasValue())
+                {
+                    return Forbidden(message);
+                }
+
+                var warnings = await _shoppingCartService.Value.UpdateCartItemAsync(entity.Customer, key, quantity, false);
+                if (warnings.Count > 0)
+                {
+                    return ErrorResult(null, string.Join(". ", warnings));
+                }
+
+                return Ok(entity);
             }
             catch (Exception ex)
             {
@@ -193,10 +361,8 @@ namespace Smartstore.Web.Api.Controllers
         /// A value indicating whether to remove checkout attributes that require shipping, if the cart does not require shipping at all.
         /// </param>
         [HttpPost("ShoppingCartItems({key})/DeleteItem")]
-        [Permission(Permissions.Cart.Read)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(Status204NoContent)]
-        [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> DeleteItem(int key,
             [FromODataBody] bool resetCheckoutData = false,
             [FromODataBody] bool removeInvalidCheckoutAttributes = false)
@@ -209,6 +375,12 @@ namespace Smartstore.Web.Api.Controllers
                 if (entity == null)
                 {
                     return NotFound(key);
+                }
+
+                var message = await CheckAccess(entity.ShoppingCartType);
+                if (message.HasValue())
+                {
+                    return Forbidden(message);
                 }
 
                 await _shoppingCartService.Value.DeleteCartItemAsync(entity, resetCheckoutData, removeInvalidCheckoutAttributes);
@@ -224,15 +396,13 @@ namespace Smartstore.Web.Api.Controllers
         /// <summary>
         /// Deletes the shopping cart of a Customer. Returns the number of deleted shopping cart items.
         /// </summary>
-        /// <param name="customerId" example="1234">Identifier of the customer who owns the cart.</param>
+        /// <param name="customerId" example="5678">Identifier of the customer who owns the cart.</param>
         /// <param name="shoppingCartType" example="1">A value indicating whether to delete the shopping cart or the wishlist.</param>
         /// <param name="storeId" example="0">Identifier to filter cart items by store. 0 to delete all items.</param>
         /// <response code="200">Number of deleted shopping cart items.</response>
         [HttpPost("ShoppingCartItems/DeleteCart")]
-        [Permission(Permissions.Cart.Read)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(int), Status200OK)]
-        [ProducesResponseType(Status404NotFound)]
         public async Task<IActionResult> DeleteCart(
             [FromODataBody, Required] int customerId,
             [FromODataBody, Required] ShoppingCartType shoppingCartType = ShoppingCartType.ShoppingCart,
@@ -240,6 +410,12 @@ namespace Smartstore.Web.Api.Controllers
         {
             try
             {
+                var message = await CheckAccess(shoppingCartType);
+                if (message.HasValue())
+                {
+                    return Forbidden(message);
+                }
+
                 var customer = await Db.Customers
                     .AsSplitQuery()
                     .Include(x => x.ShoppingCartItems)
@@ -260,6 +436,17 @@ namespace Smartstore.Web.Api.Controllers
             {
                 return ErrorResult(ex);
             }
+        }
+
+        private async Task<string?> CheckAccess(ShoppingCartType cartType)
+        {
+            var permission = cartType == ShoppingCartType.Wishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart;
+            if (!await _permissionService.Value.AuthorizeAsync(permission, _workContext.Value.CurrentCustomer))
+            {
+                return await _permissionService.Value.GetUnauthorizedMessageAsync(permission);
+            }
+
+            return null;
         }
 
         #endregion

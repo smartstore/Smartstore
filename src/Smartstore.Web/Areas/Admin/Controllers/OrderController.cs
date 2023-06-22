@@ -344,7 +344,7 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction(nameof(Edit), new { id = orderId });
             }
 
-            NotifyWarning(T("Admin.Order.NotFound"));
+            NotifyWarning(T("Order.NotFound", orderId));
 
             return RedirectToAction(nameof(List));
         }

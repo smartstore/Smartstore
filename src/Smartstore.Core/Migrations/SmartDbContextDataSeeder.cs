@@ -183,7 +183,8 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.Delete(
                 "Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate",
-                "Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate.Hint");
+                "Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate.Hint",
+                "Admin.Order.NotFound");
         }
     }
 }
