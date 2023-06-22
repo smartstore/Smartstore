@@ -47,10 +47,12 @@ $searchbox-pill:                true !default;
 $searchbox-shadow:              true !default;
 $searchbox-bg-1:                #fff !default;
 $searchbox-bg-2:                #fff !default;
+$searchbox-bg-mobile:           $light !default;
 $searchbox-color-1:             inherit !default;
 $searchbox-color-2:             inherit !default;
 $searchbox-border-1:            rgba(0,0,0, 0.12) !default;
 $searchbox-border-2:            rgba(0,0,0, 0.12) !default;
+$searchbox-border-mobile:       $light !default;
 $searchbox-hit-tag-color:       darken($warning, 10%) !default;
 
 $footer-bg:                     $gray-100 !default;
