@@ -8,10 +8,10 @@
     <LocaleResource Name="AdminInstruction">
         <Value>
             <![CDATA[
-        <p>To receive an SMS notification when an order is placed from your store, you need to follow the following steps:</p>
+        <p>To receive an SMS notification when an order is placed from your store, you need to follow these steps:</p>
         <ul>
-            <li><a href="https://www.clickatell.com/" target='_blank'>Register for a Clickatell account here</a>.</li>
-            <li>Create a new integration through <b>SMS integretation</b>.</li>
+            <li><a href="https://www.clickatell.com/" target='_blank'>Register for a Clickatell account</a>.</li>
+            <li>Create a new integration using <b>SMS integretation</b>.</li>
             <li>Fill in the form below with the created API Key, including the number you want the notification messages to be sent to.</li>
             <li>Click <b>Save</b>.</li>
             <li>Now when you receive a new order, an SMS text message will be sent to the phone number you entered below.</li>
