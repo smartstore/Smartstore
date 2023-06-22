@@ -9,6 +9,8 @@
 
 ### New Features
 
+- **PersonalPromo** plugin (commercial)
+- **Wallet** plugin (commercial)
 - #251 MegaSearch: New option, when enabled, search hits must contain all search terms (logical AND operation). The more terms you enter, the fewer hits will be returned.
 - Reverse proxy configuration using `ForwardedHeadersMiddleware`
 - SqliteDataProvider: 
