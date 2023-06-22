@@ -45,8 +45,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 {
                     var productAttribute = value.ProductVariantAttribute;
 
-                    query.AddVariant(new ProductVariantQueryItem(value.Id.ToString())
+                    query.AddVariant(new()
                     {
+                        Value = value.Id.ToString(),
                         ProductId = product.Id,
                         BundleItemId = bundleItemId,
                         AttributeId = productAttribute.ProductAttributeId,

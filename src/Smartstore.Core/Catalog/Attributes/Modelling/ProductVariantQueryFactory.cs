@@ -171,9 +171,10 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
             if (isDate || isFile || isText)
             {
-                var value = isText ? string.Join(",", values) : values.First();
-                var variant = new ProductVariantQueryItem(value)
+                var value = isText ? string.Join(',', values) : values.First().EmptyNull();
+                var variant = new ProductVariantQueryItem
                 {
+                    Value = value,
                     ProductId = ids[0].ToInt(),
                     BundleItemId = ids[1].ToInt(),
                     AttributeId = ids[2].ToInt(),
@@ -193,15 +194,14 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             {
                 foreach (var value in values)
                 {
-                    var variant = new ProductVariantQueryItem(value)
+                    query.AddVariant(new()
                     {
+                        Value = value ?? string.Empty,
                         ProductId = ids[0].ToInt(),
                         BundleItemId = ids[1].ToInt(),
                         AttributeId = ids[2].ToInt(),
                         VariantAttributeId = ids[3].ToInt()
-                    };
-
-                    query.AddVariant(variant);
+                    });
                 }
             }
         }
@@ -243,9 +243,10 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
             if (isDate || isFile || isText)
             {
-                var value = isText ? string.Join(",", values) : values.First();
-                var variant = new ProductVariantQueryItem(value)
+                var value = isText ? string.Join(',', values) : values.First().EmptyNull();
+                var variant = new ProductVariantQueryItem
                 {
+                    Value = value,
                     ProductId = productId,
                     BundleItemId = bundleItemId,
                     AttributeId = attributeId,
@@ -275,24 +276,19 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                     if (valueIds.Length >= 2)
                     {
                         optionId = valueIds.ElementAtOrDefault(valueIds.Length - 1).ToInt();
-                        valueAlias = string.Join("-", valueIds.Take(valueIds.Length - 1));
+                        valueAlias = string.Join('-', valueIds.Take(valueIds.Length - 1));
                     }
 
-                    var variant = new ProductVariantQueryItem(optionId == 0 ? value : optionId.ToString())
+                    query.AddVariant(new()
                     {
+                        Value = optionId == 0 ? value.EmptyNull() : optionId.ToString(),
                         ProductId = productId,
                         BundleItemId = bundleItemId,
                         AttributeId = attributeId,
                         VariantAttributeId = variantAttributeId,
-                        Alias = alias
-                    };
-
-                    if (optionId != 0)
-                    {
-                        variant.ValueAlias = valueAlias;
-                    }
-
-                    query.AddVariant(variant);
+                        Alias = alias,
+                        ValueAlias = optionId != 0 ? valueAlias : null
+                    });
                 }
             }
         }

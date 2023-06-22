@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Collections;
@@ -131,7 +130,7 @@ namespace Smartstore.Core.Catalog.Products
             int bundleItemId = 0,
             ICollection<ProductVariantAttribute> attributes = null)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (productId == 0 || !(source?.AttributesMap?.Any() ?? false))
             {
@@ -164,11 +163,12 @@ namespace Smartstore.Core.Catalog.Products
                                 continue;
                             }
 
-                            value = string.Join("-", date.Value.Year, date.Value.Month, date.Value.Day);
+                            value = string.Join('-', date.Value.Year, date.Value.Month, date.Value.Day);
                         }
 
-                        var queryItem = new ProductVariantQueryItem(value)
+                        var queryItem = new ProductVariantQueryItem
                         {
+                            Value = value ?? string.Empty,
                             ProductId = productId,
                             BundleItemId = bundleItemId,
                             AttributeId = attribute.ProductAttributeId,

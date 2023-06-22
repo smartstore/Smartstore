@@ -1,19 +1,15 @@
 ﻿using System.Runtime.Serialization;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
+    /// <summary>
+    /// Represents a product variant query item.
+    /// Some properties like <see cref="ProductId"/> are only required to create a unique name for the corresponding form element.
+    /// </summary>
     [DataContract]
     public class ProductVariantQueryItem
     {
-        public ProductVariantQueryItem()
-        {
-        }
-
-        public ProductVariantQueryItem(string value)
-        {
-            Value = value ?? string.Empty;
-        }
-
         /// <summary>
         /// Creates a key used for form names.
         /// </summary>
@@ -27,12 +23,23 @@ namespace Smartstore.Core.Catalog.Attributes
             return $"pvari{productId}-{bundleItemId}-{attributeId}-{variantAttributeId}";
         }
 
+        /// <summary>
+        /// Gets or sets the variant value.
+        /// For list type attributes like a dropdown list, this is the <see cref="ProductVariantAttributeValue"/> identifier.
+        /// </summary>
+        /// <example>1234</example>
         [DataMember(Name = "value")]
         public string Value { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the <see cref="Product"/> identifier.
+        /// </summary>
         [DataMember(Name = "productId")]
         public int ProductId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see cref="ProductBundleItem"/> identifier.
+        /// </summary>
         [DataMember(Name = "bundleItemId")]
         public int BundleItemId { get; set; }
 

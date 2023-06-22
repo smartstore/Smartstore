@@ -480,29 +480,6 @@ namespace Smartstore.Web.Api
             var set = builder.EntitySet<ShoppingCartItem>("ShoppingCartItems");
             var config = set.EntityType.Collection;
 
-            var addToCartTest = config
-                .Action(nameof(ShoppingCartItemsController.AddToCartTest))
-                .ReturnsFromEntitySet(set);
-            addToCartTest.Parameter<int>("customerId")
-                .Required();
-            addToCartTest.Parameter<int>("productId")
-                .Required();
-            addToCartTest.Parameter<int>("storeId")
-                .HasDefaultValue("0")
-                .Optional();
-            addToCartTest.Parameter<int>("quantity")
-                .HasDefaultValue("1")
-                .Optional();
-            addToCartTest.Parameter<ShoppingCartType>("shoppingCartType")
-                .Optional();
-            addToCartTest.Parameter<decimal>("customerEnteredPrice")
-                .HasDefaultValue("0")
-                .Optional();
-            addToCartTest.Parameter<string>("currencyCode")
-                .Optional();
-            addToCartTest.Parameter<AddToCartAttributes>("attributes")
-                .Optional();
-
             var addToCart = config
                 .Action(nameof(ShoppingCartItemsController.AddToCart))
                 .ReturnsFromEntitySet(set);
@@ -522,6 +499,8 @@ namespace Smartstore.Web.Api
                 .HasDefaultValue("0")
                 .Optional();
             addToCart.Parameter<string>("currencyCode")
+                .Optional();
+            addToCart.CollectionParameter<ProductVariantQueryItem>("variants")
                 .Optional();
 
             set.EntityType

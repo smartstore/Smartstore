@@ -27,8 +27,8 @@ namespace Smartstore.Core.Catalog.Products
             int bundleItemId,
             params ProductVariantAttributeValue[] variantValues)
         {
-            Guard.NotNull(helper, nameof(helper));
-            Guard.NotZero(productId, nameof(productId));
+            Guard.NotNull(helper);
+            Guard.NotZero(productId);
 
             var query = new ProductVariantQuery();
 
@@ -36,8 +36,9 @@ namespace Smartstore.Core.Catalog.Products
             {
                 var attribute = value.ProductVariantAttribute;
 
-                query.AddVariant(new ProductVariantQueryItem(value.Id.ToString())
+                query.AddVariant(new()
                 {
+                    Value = value.Id.ToString(),
                     ProductId = productId,
                     BundleItemId = bundleItemId,
                     AttributeId = attribute.ProductAttributeId,
@@ -60,8 +61,8 @@ namespace Smartstore.Core.Catalog.Products
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async Task<string> GetProductUrlAsync(this ProductUrlHelper helper, Product product, params ProductVariantAttributeValue[] variantValues)
         {
-            Guard.NotNull(helper, nameof(helper));
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(helper);
+            Guard.NotNull(product);
 
             return helper.GetProductUrl(product.Id, await product.GetActiveSlugAsync(), 0, variantValues);
         }
@@ -75,8 +76,8 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>Product URL.</returns>
         public static async Task<string> GetProductUrlAsync(this ProductUrlHelper helper, string productSlug, OrganizedShoppingCartItem cartItem)
         {
-            Guard.NotNull(helper, nameof(helper));
-            Guard.NotNull(cartItem, nameof(cartItem));
+            Guard.NotNull(helper);
+            Guard.NotNull(cartItem);
 
             var query = new ProductVariantQuery();
             var product = cartItem.Item.Product;
@@ -105,8 +106,8 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>Product URL.</returns>
         public static async Task<string> GetProductUrlAsync(this ProductUrlHelper helper, string productSlug, OrderItem orderItem)
         {
-            Guard.NotNull(helper, nameof(helper));
-            Guard.NotNull(orderItem, nameof(orderItem));
+            Guard.NotNull(helper);
+            Guard.NotNull(orderItem);
 
             var query = new ProductVariantQuery();
 
@@ -126,6 +127,5 @@ namespace Smartstore.Core.Catalog.Products
 
             return helper.GetProductPath(productSlug, query);
         }
-
     }
 }

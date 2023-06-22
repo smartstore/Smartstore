@@ -627,8 +627,9 @@ namespace Smartstore.Web.Controllers
                         if (defaultValue != null)
                         {
                             defaultValue.IsPreSelected = true;
-                            query.AddVariant(new ProductVariantQueryItem(defaultValue.Id.ToString())
+                            query.AddVariant(new()
                             {
+                                Value = defaultValue.Id.ToString(),
                                 ProductId = product.Id,
                                 BundleItemId = bundleItemId,
                                 AttributeId = attribute.ProductAttributeId,
@@ -644,8 +645,9 @@ namespace Smartstore.Web.Controllers
                         // Apply attributes preselected by merchant.
                         foreach (var value in attributeModel.Values.Where(x => x.IsPreSelected))
                         {
-                            query.AddVariant(new ProductVariantQueryItem(value.Id.ToString())
+                            query.AddVariant(new()
                             {
+                                Value = value.Id.ToString(),
                                 ProductId = product.Id,
                                 BundleItemId = bundleItemId,
                                 AttributeId = attribute.ProductAttributeId,

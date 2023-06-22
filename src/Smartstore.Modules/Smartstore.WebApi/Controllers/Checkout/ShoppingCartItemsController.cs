@@ -3,12 +3,11 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.OData.Formatter;
 using Smartstore.Core;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
-using Smartstore.Web.Api.Models.Catalog;
-using Smartstore.Web.Api.Models.Checkout;
 
 namespace Smartstore.Web.Api.Controllers
 {
@@ -115,11 +114,12 @@ namespace Smartstore.Web.Api.Controllers
         /// <param name="shoppingCartType" example="1">A value indicating whether to add the product to the shopping cart or wishlist.</param>
         /// <param name="customerEnteredPrice" example="0">An optional price entered by customer. Only applicable if the product supports it.</param>
         /// <param name="currencyCode">Currency code for **customerEnteredPrice**. If empty, then **customerEnteredPrice** must be in the primary currency of the store.</param>
-        [HttpPost("ShoppingCartItems/AddToCartTest")]
+        /// <param name="variants">List of product variants.</param>
+        [HttpPost("ShoppingCartItems/AddToCart")]
         [Permission(Permissions.Cart.Read)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(IQueryable<ShoppingCartItem>), Status200OK)]
-        public async Task<IActionResult> AddToCartTest(
+        public async Task<IActionResult> AddToCart(
             [FromODataBody, Required] int customerId,
             [FromODataBody, Required] int productId,
             [FromODataBody] int storeId = 0,
@@ -127,7 +127,7 @@ namespace Smartstore.Web.Api.Controllers
             [FromODataBody] ShoppingCartType shoppingCartType = ShoppingCartType.ShoppingCart,
             [FromODataBody] decimal customerEnteredPrice = decimal.Zero,
             [FromODataBody] string? currencyCode = null,
-            [FromODataBody] AddToCartAttributes? attributes = null)
+            [FromODataBody] IEnumerable<ProductVariantQueryItem>? variants = null)
         {
             try
             {
@@ -177,106 +177,11 @@ namespace Smartstore.Web.Api.Controllers
                     }
                 }
 
-                var addToCartContext = new AddToCartContext
+                // Variants
+                var query = new ProductVariantQuery();
+                if (!variants.IsNullOrEmpty())
                 {
-                    Customer = customer,
-                    Product = product,
-                    StoreId = storeId > 0 ? storeId : null,
-                    //VariantQuery = query,
-                    CartType = shoppingCartType,
-                    CustomerEnteredPrice = customerPrice,
-                    Quantity = quantity,
-                    AutomaticallyAddRequiredProducts = product.RequireOtherProducts && product.AutomaticallyAddRequiredProducts,
-                    AutomaticallyAddBundleProducts = true
-                };
-
-                if (!await _shoppingCartService.Value.AddToCartAsync(addToCartContext))
-                {
-                    return ErrorResult(null, string.Join(". ", addToCartContext.Warnings));
-                }
-
-                return Ok(customer.ShoppingCartItems.Where(x => x.ShoppingCartType == shoppingCartType).AsQueryable());
-            }
-            catch (Exception ex)
-            {
-                return ErrorResult(ex);
-            }
-        }
-
-
-        /// <summary>
-        /// Adds a product to cart or wishlist.
-        /// </summary>
-        /// <remarks>
-        /// Returns the cart or the wishlist items of the customer depending on the **shoppingCartType** value.
-        /// </remarks>
-        /// <param name="customerId" example="5678">Identifier of the customer who owns the cart.</param>
-        /// <param name="productId" example="1234">Identifier of the product to add.</param>
-        /// <param name="storeId" example="0">Identifier of the store the cart item belongs to. If 0, then the current store is used.</param>
-        /// <param name="quantity" example="1">The quantity to add.</param>
-        /// <param name="shoppingCartType" example="1">A value indicating whether to add the product to the shopping cart or wishlist.</param>
-        /// <param name="customerEnteredPrice" example="0">An optional price entered by customer. Only applicable if the product supports it.</param>
-        /// <param name="currencyCode">Currency code for **customerEnteredPrice**. If empty, then **customerEnteredPrice** must be in the primary currency of the store.</param>
-        [HttpPost("ShoppingCartItems/AddToCart")]
-        [Permission(Permissions.Cart.Read)]
-        [Consumes(Json), Produces(Json)]
-        [ProducesResponseType(typeof(IQueryable<ShoppingCartItem>), Status200OK)]
-        public async Task<IActionResult> AddToCart(
-            //[FromQuery] ProductVariantQuery query,
-            [FromODataBody, Required] int customerId,
-            [FromODataBody, Required] int productId,
-            [FromODataBody] int storeId = 0,
-            [FromODataBody] int quantity = 1,
-            [FromODataBody] ShoppingCartType shoppingCartType = ShoppingCartType.ShoppingCart,
-            [FromODataBody] decimal customerEnteredPrice = decimal.Zero,
-            [FromODataBody] string? currencyCode = null)
-        {
-            try
-            {
-                var message = await CheckAccess(shoppingCartType);
-                if (message.HasValue())
-                {
-                    return Forbidden(message);
-                }
-
-                var customer = await Db.Customers
-                    .AsSplitQuery()
-                    .IncludeCustomerRoles()
-                    .Include(x => x.ShoppingCartItems)
-                    .FindByIdAsync(customerId);
-                if (customer == null)
-                {
-                    return NotFound(customerId, nameof(Customer));
-                }
-
-                var product = await Db.Products
-                    .Include(x => x.ProductVariantAttributes)
-                    .FindByIdAsync(productId);
-                if (product == null)
-                {
-                    return NotFound(productId, nameof(Product));
-                }
-
-                // Price entered by customer (optional).
-                var customerPrice = new Money();
-                if (product.CustomerEntersPrice && customerEnteredPrice > 0)
-                {
-                    if (currencyCode.HasValue())
-                    {
-                        var currency = await Db.Currencies
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync(x => x.CurrencyCode == currencyCode);
-                        if (currency == null)
-                        {
-                            return NotFound($"Cannot find currency with code {currencyCode}.");
-                        }
-
-                        customerPrice = _currencyService.Value.ConvertToPrimaryCurrency(new Money(customerEnteredPrice, currency));
-                    }
-                    else
-                    {
-                        customerPrice = new(customerEnteredPrice, _currencyService.Value.PrimaryCurrency);
-                    }
+                    variants.Each(query.AddVariant);
                 }
 
                 var addToCartContext = new AddToCartContext
@@ -284,7 +189,7 @@ namespace Smartstore.Web.Api.Controllers
                     Customer = customer,
                     Product = product,
                     StoreId = storeId > 0 ? storeId : null,
-                    //VariantQuery = query,
+                    VariantQuery = query,
                     CartType = shoppingCartType,
                     CustomerEnteredPrice = customerPrice,
                     Quantity = quantity,
