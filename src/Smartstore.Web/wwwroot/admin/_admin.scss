@@ -881,6 +881,13 @@ legend {
         border-top-left-radius: $border-radius;
         border-top-right-radius: $border-radius;
 
+
+        .nav-item:not(:last-child) {
+            height: 0;
+            overflow: hidden;
+            display: none;
+        }
+
         .nav-link {
             color: #777;
             font-weight: 600;
@@ -889,17 +896,6 @@ legend {
 
             > img {
                 opacity: 0.8;
-            }
-        }
-
-        .nav-item:nth-child(n+8) > .nav-link {
-            > img, > i {
-                margin-left: 0 !important;
-                margin-right: 0 !important;
-            }
-
-            > span {
-                display: none;
             }
         }
 

@@ -49,6 +49,17 @@
                 Smartstore.Admin.checkOverriddenStoreValue(el);
             });
         },
+        // .locale-editor
+        function (ctx) {
+            ctx.find('.locale-editor').each(function (i, el) {
+                EventBroker.subscribe("page.resized", function (msg, viewport) {
+                    hideOverflowingLanguages(el);
+                });
+
+                hideOverflowingLanguages(el);
+            });
+        },
+
         //// Lazy summernote
         //function (ctx) {
         //    ctx.find(".html-editor-root").each(function (i, el) {
@@ -74,6 +85,105 @@
         $.each(_commonPluginFactories, function (i, val) {
             val.call(this, $(context));
         });
+    };
+
+    window.hideOverflowingLanguages = function (context) {
+        // Keeps the language tabs in the locale editor on one line.
+        // All languages that don't fit are moved to the summary dropdown.
+
+        let languageNavHeader = $(context).find('.nav.nav-tabs').last();
+        let languageNodes = languageNavHeader.children('.nav-item');
+        let summaryNode = languageNodes.last();
+
+        // Check if the page has been resized.
+        let hasResized = summaryNode.hasClass('dropdown');
+
+        if (hasResized) {
+            // Detach the trailing nodes from the dropdown menu.
+            let detachedNodes = summaryNode.find('.dropdown-menu')
+                .children().detach();
+
+            // Set the styling of the detached nodes to navigation items.
+            detachedNodes.addClass('nav-item')
+                .find('.dropdown-item').removeClass('dropdown-item').addClass('nav-link');
+
+            // Attach the dropdown nodes and place the summary node at the end.
+            languageNodes.parent()
+                .append(detachedNodes)
+                .append(summaryNode.detach());
+
+            // Refresh the language nodes.
+            languageNodes = languageNavHeader.children('.nav-item');
+        } else {
+            // Style the summary node.
+            summaryNode.find('a').first().addClass('btn btn-outline-secondary').removeClass('nav-link');
+        }
+
+        // Show the summary node for calculation.
+        summaryNode.removeClass('d-none');
+
+        // Calculate the available width.
+        let availableWidth = languageNavHeader.width() - summaryNode.width() - 10;
+        let usedWidth = 0;
+
+        let overflowAt = -1;
+
+        // Loop through the language nodes until an overflow is detected.
+        languageNodes.each(function (index, node) {
+            if (overflowAt == -1) {
+                usedWidth += $(node).width();
+
+                if (usedWidth > availableWidth) {
+                    overflowAt = index;
+                } else if (!hasResized) {
+                    // Reset the height of the language node.
+                    $(node).css('height', 'auto');
+                }
+            }
+        });
+
+        // If languages overflowed and it wasn't the summary node...
+        if (overflowAt > -1 && overflowAt != languageNodes.length - 1) {
+            // ... cut the trailing nodes, but keep the summary node.
+            let overflowIndex = -1 * (languageNodes.length - overflowAt);
+            let detachedNodes = languageNodes.slice(overflowIndex, -1).detach();
+
+            // Set the styling of the detached nodes to dropdown menu items.
+            detachedNodes.removeClass('nav-item');
+            detachedNodes.find('.nav-link').removeClass('nav-link').addClass('dropdown-item');
+
+            // Set the styling of the summary node to a dropdown menu.
+            summaryNode.addClass('dropdown')
+                .find('a').first().addClass('dropdown-toggle').attr('data-toggle', 'dropdown');
+
+            // Get or create the dropdown menu.
+            let dropdownMenu = undefined;
+            if (hasResized) {
+                dropdownMenu = summaryNode.find('.dropdown-menu');
+            } else {
+                dropdownMenu = $(document.createElement("ul"));
+
+                // Style the dropdown menu.
+                dropdownMenu.addClass('dropdown-menu dropdown-menu-right');
+            }
+
+            // Add the detached nodes.
+            dropdownMenu.append(detachedNodes);
+
+            // Add the dropdown menu.
+            summaryNode.append(dropdownMenu);
+
+            if (!hasResized) {
+                // Reset the height of the detached nodes.
+                detachedNodes.css('height', 'auto');
+            }
+        } else {
+            // Otherwise, hide the summary node.
+            summaryNode.addClass('d-none');
+        }
+
+        // Show the language nodes.
+        languageNodes.show();
     };
 
     window.providerListInit = function (context) {
@@ -244,6 +354,7 @@
             addEventListener('mouseup', onMouseUp);
         });
 
+
         // Popup toggle
         $(document).on('click', '.popup-toggle', function (e) {
             e.preventDefault();
@@ -263,8 +374,10 @@
         $(window).on('load', function () {
             // swap classes onload and domready
             html.removeClass("loading").addClass("loaded");
-        });
 
+            // Catch ajax
+            hideOverflowingLanguages($.find('.locale-editor'));
+        });
     });
 
 

@@ -309,6 +309,15 @@ namespace Smartstore.Web.TagHelpers.Shared
                 }
             }
 
+            var summaryTab = new TabTagHelper()
+            {
+                Name = "Summary",
+                Visible = false,
+                Attributes = new TagHelperAttributeList(),
+                Title = "..."
+            };
+            content.AppendHtml(BuildTabItem(summaryTab, isStacked, hasIcons));
+
             content.AppendHtml(ul.RenderEndTag());
 
             if (isStacked)
@@ -392,7 +401,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 // Create nav-toggler header
                 var collapsePaneId = $"collapse-{paneId}";
-                
+
                 TagBuilder collapseHeader = new("h5");
                 collapseHeader.Attributes.Add("class", "nav-toggler");
                 collapseHeader.Attributes.Add("data-toggle", "collapse");
@@ -463,7 +472,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 var itemId = "#" + tab.Id;
                 a.AppendCssClass("nav-link" + (tab.Selected ? " active" : ""));
 
-                if (!tab.TabInnerContent.IsEmptyOrWhiteSpace)
+                if (tab.TabInnerContent != null && !tab.TabInnerContent.IsEmptyOrWhiteSpace)
                 {
                     a.MergeAttribute("href", itemId);
                     a.MergeAttribute("data-toggle", "tab");
