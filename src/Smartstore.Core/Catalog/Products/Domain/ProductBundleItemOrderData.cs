@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -38,7 +39,7 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        [NotMapped]
+        [NotMapped, IgnoreDataMember]
         public ProductVariantAttributeSelection AttributeSelection
             => _attributeSelection ??= new(RawAttributes);
     }

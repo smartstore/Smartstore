@@ -487,20 +487,15 @@ namespace Smartstore.Web.Api
                 .Required();
             addToCart.Parameter<int>("productId")
                 .Required();
+            addToCart.Parameter<int>("quantity")
+                .HasDefaultValue("1")
+                .Required();
+            addToCart.Parameter<ShoppingCartType>("shoppingCartType")
+                .Optional();
             addToCart.Parameter<int>("storeId")
                 .HasDefaultValue("0")
                 .Optional();
-            addToCart.Parameter<int>("quantity")
-                .HasDefaultValue("1")
-                .Optional();
-            addToCart.Parameter<ShoppingCartType>("shoppingCartType")
-                .Optional();
-            addToCart.Parameter<decimal>("customerEnteredPrice")
-                .HasDefaultValue("0")
-                .Optional();
-            addToCart.Parameter<string>("currencyCode")
-                .Optional();
-            addToCart.CollectionParameter<ProductVariantQueryItem>("variants")
+            addToCart.Parameter<AddToCartExtraData>("extraData")
                 .Optional();
 
             set.EntityType

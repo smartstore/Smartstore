@@ -162,7 +162,7 @@ namespace Smartstore.Core.Catalog.Attributes
             }
         }
 
-        [NotMapped]
+        [NotMapped, IgnoreDataMember]
         public ProductVariantAttributeSelection AttributeSelection
             => _attributeSelection ??= new(RawAttributes);
 
