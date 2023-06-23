@@ -48,6 +48,7 @@
 - #682 Allow to set the default email account per shop.
 - Google Analytics: Added option to enable admin to prohibit the script from being loaded without explicit consent by the visitor
 - #406 Exclude current product from recently viewed products block on product detail page.
+- Added setting to automatically display CookieManager if the shop visitor is from the EU.
 
 ### Bugfixes
 
