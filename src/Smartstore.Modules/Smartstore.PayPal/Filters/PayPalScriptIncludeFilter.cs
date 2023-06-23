@@ -54,7 +54,7 @@ namespace Smartstore.PayPal.Filters
             // It's a little bit problematic though for the case where a user accepts the cookies for the first time and directly adds a product to cart.
             // In this case the PayPal buttons won't be rendered in OffCanvasCart (because ConsentManager and OffCanvasCart don't require a new pageload).
             // But if the user then goes to the checkout page, the buttons will be rendered because its a new pageload.
-            if (!_cookieConsentManager.IsCookieAllowed(CookieType.Required))
+            if (!await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Required))
             {
                 await next();
                 return;

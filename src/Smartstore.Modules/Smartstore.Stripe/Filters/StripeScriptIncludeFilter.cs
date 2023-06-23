@@ -27,7 +27,7 @@ namespace Smartstore.StripeElements.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (!_cookieConsentManager.IsCookieAllowed(CookieType.Required))
+            if (!await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Required))
             {
                 await next();
                 return;

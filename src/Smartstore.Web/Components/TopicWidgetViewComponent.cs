@@ -12,10 +12,10 @@ namespace Smartstore.Web.Components
             _cookieManager = cookieManager;
         }
 
-        public IViewComponentResult Invoke(TopicWidget model)
+        public async Task<IViewComponentResult> InvokeAsync(TopicWidget model)
         {
             // Check for Cookie Consent
-            if (model.CookieType != null && !_cookieManager.IsCookieAllowed(model.CookieType.Value))
+            if (model.CookieType != null && !await _cookieManager.IsCookieAllowedAsync(model.CookieType.Value))
             {
                 return Empty();
             }

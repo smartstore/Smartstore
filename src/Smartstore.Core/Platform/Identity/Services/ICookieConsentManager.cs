@@ -3,6 +3,12 @@
     public partial interface ICookieConsentManager
     {
         /// <summary>
+        /// Gets A value indicating whether cookie consent is required for current user.
+        /// </summary>
+        /// <returns>A value indicating whether cookie consent is required for current user.</returns>
+        Task<bool> IsCookieConsentRequiredAsync();
+
+        /// <summary>
         /// Gets cookie infos from all modules that are publishing cookies to be displayed in the cookie manager dialog.
         /// </summary>
         /// <param name="withUserCookies"><c>true</c> to append user-defined cookie infos from <see cref="GetUserCookieInfos(bool)"/> call to the result list.</param>
@@ -21,7 +27,7 @@
         /// </summary>
         /// <param name="cookieType">Type of the cookie.</param>
         /// <returns>A value indicating whether it is allowed to set a cookie of a certain type.</returns>
-        bool IsCookieAllowed(CookieType cookieType);
+        Task<bool> IsCookieAllowedAsync(CookieType cookieType);
 
         /// <summary>
         /// Gets cookie consent data.

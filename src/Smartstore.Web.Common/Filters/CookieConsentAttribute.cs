@@ -38,7 +38,7 @@ namespace Smartstore.Core.Identity
 
             private bool IsProcessableRequest(ActionExecutingContext context)
             {
-                if (!_privacySettings.EnableCookieConsent)
+                if (_privacySettings.CookieManagerDisplayType == CookieManagerDisplayType.Disabled)
                     return false;
 
                 var request = context.HttpContext?.Request;

@@ -694,11 +694,11 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="PrivacySettings.EnableCookieConsent" />
+                        <smart-label asp-for="PrivacySettings.CookieManagerDisplayType" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="PrivacySettings.EnableCookieConsent" data-toggler-for="#pnlModalCookieConsent"></setting-editor>
-                        <span asp-validation-for="PrivacySettings.EnableCookieConsent"></span>
+                        <setting-editor asp-for="PrivacySettings.CookieManagerDisplayType"></setting-editor>
+                        <span asp-validation-for="PrivacySettings.CookieManagerDisplayType"></span>
                     </div>
                 </div>
                 <div class="adminRow" id="pnlModalCookieConsent">

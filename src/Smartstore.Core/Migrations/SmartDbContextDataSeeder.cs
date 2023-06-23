@@ -1,4 +1,6 @@
-﻿using Smartstore.Data.Migrations;
+﻿using Smartstore.Core.Configuration;
+using Smartstore.Core.Identity;
+using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -9,13 +11,30 @@ namespace Smartstore.Core.Data.Migrations
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
-            //await MigrateSettingsAsync(context, cancelToken);
+            await MigrateSettingsAsync(context, cancelToken);
         }
 
-        //public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
-        //{
-        //    await context.SaveChangesAsync(cancelToken);
-        //}
+        public async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
+        {
+            var enableCookieConsentSettings = await db.Settings
+                .Where(x => x.Name == "PrivacySettings.EnableCookieConsent")
+                .ToListAsync(cancelToken);
+
+            if (enableCookieConsentSettings.Count != 0)
+            {
+                foreach (var setting in enableCookieConsentSettings)
+                {
+                    db.Settings.Add(new Setting
+                    {
+                        Name = "PrivacySettings.CookieManagerDisplayType",
+                        Value = setting.Value == "True" ? CookieManagerDisplayType.CountryConfigured.ToString() : CookieManagerDisplayType.Disabled.ToString(),
+                        StoreId = setting.StoreId
+                    });
+                }
+            }
+
+            await db.SaveChangesAsync(cancelToken);
+        }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
@@ -185,6 +204,18 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate",
                 "Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate.Hint",
                 "Admin.Order.NotFound");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Privacy.CookieManagerDisplayType",
+                "Cookie Manager display type",
+                "Cookie-Manager Anzeige",
+                "Specifies the way the Cookie Manager is displayed. If the 'Enabled for EU' option is selected, the cookie manager will be displayed in each EU country regardless of current country configuration.",
+                "Bestimmt die Art der Anzeige des Cookie-Managers. Wird die Option 'Aktiviert für EU' gewählt, wird der Cookie-Manager in jedem EU-Land unabhängig von aktuellen Länderkonfiguration.");
+
+            builder.AddOrUpdate("Enums.CookieManagerDisplayType.Disabled", "Disabled", "Deaktiviert");
+            builder.AddOrUpdate("Enums.CookieManagerDisplayType.CountryConfigured", "According to Country configuration", "Entsprechend der Länderkonfiguration");
+            builder.AddOrUpdate("Enums.CookieManagerDisplayType.EnabledForEU", "Enabled for EU", "Aktiviert für EU");
+
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent");
         }
     }
 }

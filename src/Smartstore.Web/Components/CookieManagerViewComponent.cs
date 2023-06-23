@@ -29,13 +29,8 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            if (!_privacySettings.EnableCookieConsent)
-            {
-                return Empty();
-            }
-
-            // If current country doesn't need cookie consent, don't display cookie manager.
-            if (!await DisplayForCountryAsync())
+            // If cookie consent isn't required, don't display cookie manager.
+            if (!await _cookieConsentManager.IsCookieConsentRequiredAsync())
             {
                 return Empty();
             }

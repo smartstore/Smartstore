@@ -2,6 +2,8 @@
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Smartstore.Core.Common.Services;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
 using Smartstore.Net;
@@ -13,26 +15,32 @@ namespace Smartstore.Core.Identity
         private readonly static object _lock = new();
         private static IList<Type> _cookiePublisherTypes = null;
 
+        private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWebHelper _webHelper;
         private readonly ITypeScanner _typeScanner;
         private readonly PrivacySettings _privacySettings;
         private readonly IComponentContext _componentContext;
+        private readonly IGeoCountryLookup _countryLookup;
 
         private bool? _isCookieConsentRequired;
 
         public CookieConsentManager(
+            SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,
             IWebHelper webHelper,
             ITypeScanner typeScanner,
             PrivacySettings privacySettings,
-            IComponentContext componentContext)
+            IComponentContext componentContext,
+            IGeoCountryLookup countryLookup)
         {
+            _db = db;
             _httpContextAccessor = httpContextAccessor;
             _webHelper = webHelper;
             _typeScanner = typeScanner;
             _privacySettings = privacySettings;
             _componentContext = componentContext;
+            _countryLookup = countryLookup;
         }
 
         public async Task<bool> IsCookieConsentRequiredAsync()
@@ -40,10 +48,37 @@ namespace Smartstore.Core.Identity
             return _isCookieConsentRequired ??= await IsCookieConsentRequiredCoreAsync(_webHelper.GetClientIpAddress());
         }
 
-        protected virtual Task<bool> IsCookieConsentRequiredCoreAsync(IPAddress ipAddress)
+        protected virtual async Task<bool> IsCookieConsentRequiredCoreAsync(IPAddress ipAddress)
         {
-            // TODO: implement
-            return Task.FromResult(true);
+            if (_privacySettings.CookieManagerDisplayType == CookieManagerDisplayType.Disabled)
+            {
+                return false;
+            }
+            else 
+            {
+                var lookedUpCountry = _countryLookup.LookupCountry(ipAddress);
+                if (lookedUpCountry != null)
+                {
+                    if (_privacySettings.CookieManagerDisplayType == CookieManagerDisplayType.CountryConfigured)
+                    {           
+                        var country = await _db.Countries
+                            .AsNoTracking()
+                            .ApplyIsoCodeFilter(lookedUpCountry.IsoCode)
+                            .FirstOrDefaultAsync();
+
+                        if (country != null && !country.DisplayCookieManager)
+                        {
+                            return true;
+                        }
+                    }
+                    else if (_privacySettings.CookieManagerDisplayType == CookieManagerDisplayType.EnabledForEU)
+                    {
+                        return lookedUpCountry.IsInEu; 
+                    }
+                }
+            }
+            
+            return true;
         }
 
         public virtual async Task<IList<CookieInfo>> GetCookieInfosAsync(bool withUserCookies = false)
@@ -93,9 +128,14 @@ namespace Smartstore.Core.Identity
             return new List<CookieInfo>();
         }
 
-        public virtual bool IsCookieAllowed(CookieType cookieType)
+        public virtual async Task<bool> IsCookieAllowedAsync(CookieType cookieType)
         {
             Guard.NotNull(cookieType);
+
+            if (!await IsCookieConsentRequiredAsync())
+            {
+                return true;
+            }
 
             var request = _httpContextAccessor?.HttpContext?.Request;
             if (request != null && request.Cookies.TryGetValue(CookieNames.CookieConsent, out var value) && value.HasValue())

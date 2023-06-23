@@ -6,9 +6,9 @@ namespace Smartstore.Core.Identity
     public class PrivacySettings : ISettings
     {
         /// <summary>
-        /// Gets or sets a value indicating whether cookie hint and consent will be displayed to customers in the frontent.
+        /// Gets or sets the CookieManager display type.
         /// </summary>
-        public bool EnableCookieConsent { get; set; } = true;
+        public CookieManagerDisplayType CookieManagerDisplayType { get; set; } = CookieManagerDisplayType.CountryConfigured;
 
         /// <summary>
         /// Gets or sets a value indicating whether the cookie dialog will be display in a modal dialog.
