@@ -50,20 +50,20 @@ namespace Smartstore.Core.Identity
 
         protected virtual async Task<bool> IsCookieConsentRequiredCoreAsync(IPAddress ipAddress)
         {
-            if (_privacySettings.CookieManagerDisplayType == CookieManagerDisplayType.Disabled)
+            if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.NeverRequired)
             {
                 return false;
             }
             else 
             {
-                var lookedUpCountry = _countryLookup.LookupCountry(ipAddress);
-                if (lookedUpCountry != null)
+                var geoCountry = _countryLookup.LookupCountry(ipAddress);
+                if (geoCountry != null)
                 {
-                    if (_privacySettings.CookieManagerDisplayType == CookieManagerDisplayType.CountryConfigured)
+                    if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.DependsOnCountry)
                     {           
                         var country = await _db.Countries
                             .AsNoTracking()
-                            .ApplyIsoCodeFilter(lookedUpCountry.IsoCode)
+                            .ApplyIsoCodeFilter(geoCountry.IsoCode)
                             .FirstOrDefaultAsync();
 
                         if (country != null && !country.DisplayCookieManager)
@@ -71,9 +71,9 @@ namespace Smartstore.Core.Identity
                             return true;
                         }
                     }
-                    else if (_privacySettings.CookieManagerDisplayType == CookieManagerDisplayType.EnabledForEU)
+                    else if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.RequiredInEUCountriesOnly)
                     {
-                        return lookedUpCountry.IsInEu; 
+                        return geoCountry.IsInEu; 
                     }
                 }
             }

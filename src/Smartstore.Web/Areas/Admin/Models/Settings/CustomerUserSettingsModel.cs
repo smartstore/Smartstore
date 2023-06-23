@@ -232,8 +232,8 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("Admin.Configuration.Settings.CustomerUser.")]
         public partial class PrivacySettingsModel
         {
-            [LocalizedDisplay("*Privacy.CookieManagerDisplayType")]
-            public CookieManagerDisplayType CookieManagerDisplayType { get; set; }
+            [LocalizedDisplay("*Privacy.CookieConsentRequirement")]
+            public CookieConsentRequirement CookieConsentRequirement { get; set; }
 
             [LocalizedDisplay("*Privacy.ModalCookieConsent")]
             public bool ModalCookieConsent { get; set; } = true;

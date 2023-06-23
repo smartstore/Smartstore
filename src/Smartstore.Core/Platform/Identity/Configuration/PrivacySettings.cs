@@ -1,14 +1,38 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 
 namespace Smartstore.Core.Identity
 {
+    /// <summary>
+    /// Represents the cookie consent requirements.
+    /// </summary>
+    public enum CookieConsentRequirement
+    {
+        /// <summary>
+        /// Cookie consent is never required.
+        /// </summary>
+        NeverRequired,
+
+        /// <summary>
+        /// Cookie consent is required if the visitor's resolved GEO location points to an EU country.
+        /// For all other countries, cookie consent is disabled.
+        /// </summary>
+        RequiredInEUCountriesOnly,
+
+        /// <summary>
+        /// Cookie consent is required if the visitor's resolved country 
+        /// is configured to require consent (see <see cref="Country.DisplayCookieManager"/>).
+        /// </summary>
+        DependsOnCountry
+    }
+
     public class PrivacySettings : ISettings
     {
         /// <summary>
-        /// Gets or sets the CookieManager display type.
+        /// Gets or sets the cookie consent requirement.
         /// </summary>
-        public CookieManagerDisplayType CookieManagerDisplayType { get; set; } = CookieManagerDisplayType.CountryConfigured;
+        public CookieConsentRequirement CookieConsentRequirement { get; set; } = CookieConsentRequirement.RequiredInEUCountriesOnly;
 
         /// <summary>
         /// Gets or sets a value indicating whether the cookie dialog will be display in a modal dialog.

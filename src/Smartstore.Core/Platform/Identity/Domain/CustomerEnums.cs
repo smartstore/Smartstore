@@ -172,25 +172,4 @@ namespace Smartstore.Core.Identity
         /// </summary>
         Debit
     }
-
-    /// <summary>
-    /// Represents the CookieManager display type.
-    /// </summary>
-    public enum CookieManagerDisplayType
-    {
-        /// <summary>
-        /// CookieManager is disabled
-        /// </summary>
-        Disabled,
-
-        /// <summary>
-        /// CookieManager will be displayed according to <see cref="Country.DisplayCookieManager"/>
-        /// </summary>
-        CountryConfigured,
-
-        /// <summary>
-        /// CookieManager will be displayed only for EU countries regardless of <see cref="Country.DisplayCookieManager"/>
-        /// </summary>
-        EnabledForEU
-    }
 }

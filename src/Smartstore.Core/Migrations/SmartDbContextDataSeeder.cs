@@ -20,14 +20,14 @@ namespace Smartstore.Core.Data.Migrations
                 .Where(x => x.Name == "PrivacySettings.EnableCookieConsent")
                 .ToListAsync(cancelToken);
 
-            if (enableCookieConsentSettings.Count != 0)
+            if (enableCookieConsentSettings.Count > 0)
             {
                 foreach (var setting in enableCookieConsentSettings)
                 {
                     db.Settings.Add(new Setting
                     {
-                        Name = "PrivacySettings.CookieManagerDisplayType",
-                        Value = setting.Value == "True" ? CookieManagerDisplayType.CountryConfigured.ToString() : CookieManagerDisplayType.Disabled.ToString(),
+                        Name = "PrivacySettings.CookieConsentRequirement",
+                        Value = setting.Value.ToBool() ? CookieConsentRequirement.RequiredInEUCountriesOnly.ToString() : CookieConsentRequirement.NeverRequired.ToString(),
                         StoreId = setting.StoreId
                     });
                 }
@@ -205,19 +205,19 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate.Hint",
                 "Admin.Order.NotFound");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Privacy.CookieManagerDisplayType",
-                "Cookie Manager display type",
-                "Cookie-Manager Anzeige",
-                "Specifies the way the Cookie Manager is displayed. If the 'Enabled for EU' option is selected, the cookie manager will be displayed in each EU country regardless of current country configuration.",
-                "Bestimmt die Art der Anzeige des Cookie-Managers. Wird die Option 'Aktiviert für EU' gewählt, wird der Cookie-Manager in jedem EU-Land unabhängig von aktuellen Länderkonfiguration.");
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Privacy.CookieConsentRequirement",
+                "Cookie consent requirement",
+                "Cookie-Zustimmung erforderlich",
+                "Determines whether and in which regions the cookie manager dialog should be displayed.",
+                "Bestimmt, ob und in welchen Regionen der Cookie-Manager-Dialog angezeigt werden soll.");
 
-            builder.AddOrUpdate("Enums.CookieManagerDisplayType.Disabled", "Disabled", "Deaktiviert");
-            builder.AddOrUpdate("Enums.CookieManagerDisplayType.CountryConfigured", "According to Country configuration", "Entsprechend der Länderkonfiguration");
-            builder.AddOrUpdate("Enums.CookieManagerDisplayType.EnabledForEU", "Enabled for EU", "Aktiviert für EU");
+            builder.AddOrUpdate("Enums.CookieConsentRequirement.Disabled", "Never required", "Nie erforderlich");
+            builder.AddOrUpdate("Enums.CookieConsentRequirement.RequiredInEUCountriesOnly", "Required in EU countries only (recommended)", "Nur in EU-Ländern erforderlich (empfohlen)");
+            builder.AddOrUpdate("Enums.CookieConsentRequirement.DependsOnCountry", "Depends on country configuration", "Abhängig von der Länderkonfiguration");
 
             builder.Delete("Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent");
 
-            // INFO: Common.Edit wasn't used on purpose in case someone want's to alter this Resource only form forum
+            // INFO: Common.Edit wasn't used on purpose in case someone want's to alter this Resource only for forum
             builder.AddOrUpdate("Forum.EditPost", "Edit", "Bearbeiten");
         }
     }
