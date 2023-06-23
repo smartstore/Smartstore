@@ -216,6 +216,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Enums.CookieManagerDisplayType.EnabledForEU", "Enabled for EU", "Aktiviert für EU");
 
             builder.Delete("Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent");
+
+            // INFO: Common.Edit wasn't used on purpose in case someone want's to alter this Resource only form forum
+            builder.AddOrUpdate("Forum.EditPost", "Edit", "Bearbeiten");
         }
     }
 }
