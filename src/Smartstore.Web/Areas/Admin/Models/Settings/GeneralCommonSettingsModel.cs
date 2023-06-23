@@ -447,15 +447,4 @@ namespace Smartstore.Admin.Models
                 .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabledNoKeys"));
         }
     }
-
-    public partial class SocialSettingsValidator : SettingModelValidator<GeneralCommonSettingsModel.SocialSettingsModel, SocialSettings>
-    {
-        public SocialSettingsValidator(Localizer T)
-        {
-            RuleFor(x => x.TwitterSite)
-                .Must(x => x.StartsWith("@"))
-                .Unless(x => !x.TwitterSite.HasValue())
-                .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite.Error"));
-        }
-    }
 }
