@@ -75,7 +75,7 @@ namespace Smartstore.Admin.Controllers
             var models = await languages.SelectAwait(async x =>
             {
                 var m = await mapper.MapAsync(x);
-                m.Name = GetCultureDisplayName(x.LanguageCulture) ?? x.GetLocalized(x => x.Name);
+                m.Name = x.GetLocalized(x => x.Name);
 
                 if (lastImportInfos.TryGetValue(x.Id, out var info))
                 {
@@ -963,7 +963,8 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    return new CultureInfo(culture).DisplayName;
+                    var ci = new CultureInfo(culture);
+                    return ci.Parent?.DisplayName ?? ci.DisplayName;
                 }
                 catch
                 {
