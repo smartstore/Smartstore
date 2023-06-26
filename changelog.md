@@ -55,7 +55,9 @@
 - App restart/recycle could occasionally leak or fail
 - PdfConverter failed after cron job cleaned up temporary files in App_Data directory
 - Link from Admin area to a named area-less frontend route did not properly prepend culture code
-- Identity: fixed *checkout loop* after logout
+- Identity:
+  - Fixed *checkout loop* after logout.
+  - #753 During registration a new customer is created although the password is invalid.
 - Export:
   - `IWorkContext` CurrentCustomer, WorkingLanguage and WorkingCurrency must be set according to projection.
   - Price calculation must respect `TaxSettings` of projected store.
