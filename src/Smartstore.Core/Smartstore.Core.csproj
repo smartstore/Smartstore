@@ -21,19 +21,19 @@
         <PackageReference Include="LumenWorksCsvReader" Version="4.0.0" />
         <PackageReference Include="MaxMind.Db" Version="4.0.0" />
         <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.8" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Parlot" Version="0.0.24" />
-        <PackageReference Include="Polly" Version="7.2.3" />
+        <PackageReference Include="Polly" Version="7.2.4" />
         <PackageReference Include="PreMailer.Net" Version="2.4.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
         <PackageReference Include="Serilog.Expressions" Version="3.4.1" />
         <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
         <PackageReference Include="Serilog.Sinks.Map" Version="1.0.2" />
         <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="3.1.0" />
-        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.2" />
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.3" />
         <PackageReference Include="System.Memory.Data" Version="7.0.0" />
         <PackageReference Include="System.ServiceModel.Http" Version="6.0.0" />
         <PackageReference Include="System.Threading.RateLimiting" Version="7.0.0" />

@@ -9,8 +9,8 @@
         <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.5" GeneratePathProperty="true" />
         <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.5" GeneratePathProperty="true" />
         <PackageReference Include="SQLitePCLRaw.core" Version="2.1.5" GeneratePathProperty="true" />
-        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.5" GeneratePathProperty="true" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="7.0.5" GeneratePathProperty="true" />
+        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.8" GeneratePathProperty="true" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="7.0.8" GeneratePathProperty="true" />
 
         <!--<None Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="runtimes">
             <Visible>true</Visible>
