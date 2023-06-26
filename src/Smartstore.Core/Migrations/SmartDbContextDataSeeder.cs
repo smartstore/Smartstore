@@ -219,6 +219,11 @@ namespace Smartstore.Core.Data.Migrations
 
             // INFO: Common.Edit wasn't used on purpose in case someone want's to alter this Resource only for forum
             builder.AddOrUpdate("Forum.EditPost", "Edit", "Bearbeiten");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnEmailProductToFriendPage")
+                .Value("de", "Auf der \"Produkt Weitersagen\"-Seite anzeigen");
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnEmailProductToFriendPage.Hint")
+                .Value("de", "Legt fest, ob ein CAPTCHA auf der \"Produkt Weitersagen\"-Seite angezeigt werden soll.");
         }
     }
 }
