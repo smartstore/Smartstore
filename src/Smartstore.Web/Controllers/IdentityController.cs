@@ -259,10 +259,23 @@ namespace Smartstore.Web.Controllers
                 ModelState.AddModelError(string.Empty, captchaError);
             }
 
+            foreach (var validator in _userManager.PasswordValidators)
+            {
+                AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.Password));
+            }
+
             ViewData["ReturnUrl"] = returnUrl;
 
             if (ModelState.IsValid)
             {
+                var succeeded = false;
+                var oldUserName = customer.Username;
+                var oldEmail = customer.Email;
+                var oldPasswordFormat = customer.PasswordFormat;
+                var oldActive = customer.Active;
+                var oldCreatedOn = customer.CreatedOnUtc;
+                var oldLastActivityDate = customer.LastActivityDateUtc;
+
                 customer.Username = model.Username != null ? model.Username.Trim() : model.Email.Trim();
                 customer.Email = model.Email.Trim();
                 customer.PasswordFormat = _customerSettings.DefaultPasswordFormat;
@@ -270,26 +283,40 @@ namespace Smartstore.Web.Controllers
                 customer.CreatedOnUtc = DateTime.UtcNow;
                 customer.LastActivityDateUtc = DateTime.UtcNow;
 
-                var identityResult = await _userManager.UpdateAsync(customer);
-                if (identityResult.Succeeded)
+                try
                 {
-                    var passwordResult = await _userManager.AddPasswordAsync(customer, model.Password);
-                    if (passwordResult.Succeeded)
+                    var identityResult = await _userManager.UpdateAsync(customer);
+                    if (identityResult.Succeeded)
                     {
-                        // Update customer properties.
-                        await MapRegisterModelToCustomerAsync(customer, model);
-
-                        return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
+                        var passwordResult = await _userManager.AddPasswordAsync(customer, model.Password);
+                        succeeded = passwordResult.Succeeded;
+                        AddModelStateErrors(passwordResult);
                     }
-                    else
+
+                    AddModelStateErrors(identityResult);
+                }
+                finally
+                {
+                    if (!succeeded)
                     {
-                        passwordResult.Errors.Select(x => x.Description).Distinct()
-                            .Each(x => ModelState.AddModelError(string.Empty, x));
+                        customer.Username = oldUserName;
+                        customer.Email = oldEmail;
+                        customer.PasswordFormat = oldPasswordFormat;
+                        customer.Active = oldActive;
+                        customer.CreatedOnUtc = oldCreatedOn;
+                        customer.LastActivityDateUtc = oldLastActivityDate;
+
+                        await _db.SaveChangesAsync();
                     }
                 }
 
-                identityResult.Errors.Select(x => x.Description).Distinct()
-                    .Each(x => ModelState.AddModelError(string.Empty, x));
+                if (succeeded)
+                {
+                    // Update customer properties.
+                    await MapRegisterModelToCustomerAsync(customer, model);
+
+                    return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
+                }
             }
 
             // If we got this far something failed. Redisplay form.
@@ -458,11 +485,8 @@ namespace Smartstore.Web.Controllers
                 {
                     model.Result = T("Account.ChangePassword.Success");
                 }
-                else
-                {
-                    passwordResult.Errors.Select(x => x.Description).Distinct()
-                        .Each(x => ModelState.AddModelError(string.Empty, x));
-                }
+
+                AddModelStateErrors(passwordResult);
             }
 
             return View(model);
@@ -793,7 +817,7 @@ namespace Smartstore.Web.Controllers
                 customer.Company = model.Company;
             }
 
-            if (_customerSettings.DateOfBirthEnabled)
+            if (_customerSettings.DateOfBirthEnabled && model.DateOfBirthYear.HasValue)
             {
                 try
                 {
@@ -932,6 +956,15 @@ namespace Smartstore.Web.Controllers
         private IActionResult RedirectToLocal(string returnUrl)
         {
             return RedirectToReferrer(returnUrl, () => RedirectToRoute("Login"));
+        }
+
+        private void AddModelStateErrors(IdentityResult result)
+        {
+            if (!result.Succeeded)
+            {
+                result.Errors.Select(x => x.Description).Distinct()
+                    .Each(x => ModelState.AddModelError(string.Empty, x));
+            }
         }
 
         #endregion
