@@ -197,13 +197,13 @@ namespace Smartstore.Web.Controllers
                 #region Brands
 
                 // Brands
-                if (_catalogSettings.ShowManufacturerPicturesInProductDetail)
+                if (_catalogSettings.ShowManufacturerInProductDetail)
                 {
                     var brands = _db.IsCollectionLoaded(product, x => x.ProductManufacturers)
                         ? product.ProductManufacturers
                         : await batchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
 
-                    model.Brands = await PrepareBrandOverviewModelAsync(brands, null, true);
+                    model.Brands = await PrepareBrandOverviewModelAsync(brands, null, _catalogSettings.ShowManufacturerPicturesInProductDetail);
                 }
 
                 #endregion
