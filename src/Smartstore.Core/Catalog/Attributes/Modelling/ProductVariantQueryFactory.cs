@@ -129,7 +129,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             else if (key.EndsWith("-year"))
             {
                 // Convert from three form controls.
-                var dateKey = key.Replace("-year", "");
+                var dateKey = key.Replace("-year", string.Empty);
                 year = value.ToInt();
 
                 if (QueryItems.ContainsKey(dateKey + "-month"))
@@ -151,7 +151,9 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                 {
                     return new DateTime(year, month, day);
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             return null;
@@ -225,7 +227,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                 len = ids.Length;
             }
 
-            var alias = string.Join("-", ids.Take(len - 3));
+            var alias = string.Join('-', ids.Take(len - 3));
             var attributeId = _catalogSearchQueryAliasMapper.GetVariantIdByAlias(alias, languageId);
             if (attributeId == 0)
             {
@@ -295,7 +297,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
         protected virtual void ConvertGiftCard(ProductVariantQuery query, string key, string value)
         {
-            var elements = key.Replace("giftcard", "").SplitSafe('-').ToArray();
+            var elements = key.Replace("giftcard", string.Empty).SplitSafe('-').ToArray();
             if (elements.Length > 2)
             {
                 var giftCard = new GiftCardQueryItem(elements[2], value)
@@ -323,9 +325,11 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
             if (isDate || isFile || isText)
             {
-                var value = isText ? string.Join(",", values) : values.First();
-                var attribute = new CheckoutAttributeQueryItem(attributeId, value)
+                var value = isText ? string.Join(',', values) : values.First().EmptyNull();
+                var attribute = new CheckoutAttributeQueryItem
                 {
+                    Value = value,
+                    AttributeId = attributeId,
                     IsFile = isFile,
                     IsText = isText
                 };
@@ -341,7 +345,11 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             {
                 foreach (var value in values)
                 {
-                    query.AddCheckoutAttribute(new CheckoutAttributeQueryItem(attributeId, value));
+                    query.AddCheckoutAttribute(new CheckoutAttributeQueryItem
+                    {
+                        Value = value.EmptyNull(),
+                        AttributeId = attributeId
+                    });
                 }
             }
         }

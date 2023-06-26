@@ -11,7 +11,7 @@ namespace Smartstore.Core.Catalog.Attributes
     /// <remarks>This class can parse strings of XML or JSON format.</remarks>
     public class ProductVariantAttributeSelection : AttributeSelection
     {
-        private const string GIFTCARD_ATTRIBUTE_NAME = "GiftCardInfo";
+        const string GiftCardAttributeName = "GiftCardInfo";
 
         /// <summary>
         /// Creates product variant attribute selection from string. 
@@ -29,7 +29,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public GiftCardInfo GetGiftCardInfo()
         {
-            var value = GetCustomAttributeValues(GIFTCARD_ATTRIBUTE_NAME)?.FirstOrDefault();
+            var value = GetCustomAttributeValues(GiftCardAttributeName)?.FirstOrDefault();
 
             return value != null && value is GiftCardInfo info
                 ? info
@@ -42,12 +42,12 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="giftCard">Gift card information.</param>
         public void AddGiftCardInfo(GiftCardInfo giftCard)
         {
-            AddCustomAttributeValue(GIFTCARD_ATTRIBUTE_NAME, giftCard);
+            AddCustomAttributeValue(GiftCardAttributeName, giftCard);
         }
 
         protected override object ToCustomAttributeValue(string attributeName, object value)
         {
-            if (value != null && attributeName.EqualsNoCase(GIFTCARD_ATTRIBUTE_NAME))
+            if (value != null && attributeName.EqualsNoCase(GiftCardAttributeName))
             {
                 if (value is XElement xElement)
                 {
@@ -85,11 +85,11 @@ namespace Smartstore.Core.Catalog.Attributes
 
                     return new GiftCardInfo
                     {
-                        RecipientEmail = o.RecipientEmail,
-                        RecipientName = o.RecipientName,
-                        SenderName = o.SenderName,
-                        SenderEmail = o.SenderEmail,
-                        Message = o.Message
+                        RecipientEmail = o.recipientEmail,
+                        RecipientName = o.recipientName,
+                        SenderName = o.senderName,
+                        SenderEmail = o.senderEmail,
+                        Message = o.message
                     };
                 }
             }
@@ -101,7 +101,7 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             if (value is GiftCardInfo giftCardInfo)
             {
-                var el = new XElement(GIFTCARD_ATTRIBUTE_NAME);
+                var el = new XElement(GiftCardAttributeName);
 
                 el.Add(new XElement(nameof(giftCardInfo.RecipientName), giftCardInfo.RecipientName));
                 el.Add(new XElement(nameof(giftCardInfo.RecipientEmail), giftCardInfo.RecipientEmail));

@@ -58,33 +58,23 @@ namespace Smartstore.Core.Checkout.GiftCards
         [StringLength(100)]
         public string GiftCardCouponCode { get; set; }
 
-        /// <summary>
-        /// Gets or sets a recipient name
-        /// </summary>
+        /// <inheritdoc/>
         [StringLength(450)]
         public string RecipientName { get; set; }
 
-        /// <summary>
-        /// Gets or sets a recipient email
-        /// </summary>
+        /// <inheritdoc/>
         [StringLength(255)]
         public string RecipientEmail { get; set; }
 
-        /// <summary>
-        /// Gets or sets a sender name
-        /// </summary>
+        /// <inheritdoc/>
         [StringLength(450)]
         public string SenderName { get; set; }
 
-        /// <summary>
-        /// Gets or sets a sender email
-        /// </summary>
+        /// <inheritdoc/>
         [StringLength(255)]
         public string SenderEmail { get; set; }
 
-        /// <summary>
-        /// Gets or sets a message
-        /// </summary>
+        /// <inheritdoc/>
         [StringLength(4000)]
         public string Message { get; set; }
 

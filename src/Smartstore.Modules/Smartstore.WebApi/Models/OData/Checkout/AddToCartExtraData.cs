@@ -1,5 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Checkout.GiftCards;
 
 namespace Smartstore.Web.Api.Models.Checkout
 {
@@ -9,12 +11,6 @@ namespace Smartstore.Web.Api.Models.Checkout
     [DataContract]
     public partial class AddToCartExtraData
     {
-        /// <summary>
-        /// A price entered by customer. Only applicable if the product supports it.
-        /// </summary>
-        [DataMember(Name = "customerEnteredPrice")]
-        public AddToCartPrice CustomerEnteredPrice { get; set; }
-
         /// <summary>
         /// Product attributes to apply. Requires product variant identifiers to specify.
         /// Alternatively, if you do not know the identifiers, then you can use **searchAttributes**.
@@ -34,6 +30,37 @@ namespace Smartstore.Web.Api.Models.Checkout
         /// </summary>
         [DataMember(Name = "searchAttributes")]
         public List<SearchAttribute> SearchAttributes { get; set; }
+
+        /// <summary>
+        /// Checkout attributes to apply. Requires checkout attribute identifiers to specify.
+        /// Alternatively, if you do not know the identifiers, then you can use **searchCheckoutAttributes**.
+        /// 
+        /// Use **checkoutAttributes** or **searchCheckoutAttributes**, but not both together.
+        /// Both do the same thing (applying checkout attributes), just in different ways.
+        /// </summary>
+        [DataMember(Name = "checkoutAttributes")]
+        public List<CheckoutAttributeQueryItem> CheckoutAttributes { get; set; }
+
+        /// <summary>
+        /// Searches for checkout attributes and applies them.
+        /// 
+        /// Use **checkoutAttributes** or **searchCheckoutAttributes**, but not both together.
+        /// Both do the same thing (applying checkout attributes), just in different ways.
+        /// </summary>
+        [DataMember(Name = "searchCheckoutAttributes")]
+        public List<SearchAttribute> SearchCheckoutAttributes { get; set; }
+
+        /// <summary>
+        /// Gift card properties to apply. Only applicable if the product is a gift card.
+        /// </summary>
+        [DataMember(Name = "giftCard")]
+        public GiftCardInfo GiftCard { get; set; }
+
+        /// <summary>
+        /// A price entered by customer. Only applicable if the product supports it.
+        /// </summary>
+        [DataMember(Name = "customerEnteredPrice")]
+        public AddToCartPrice CustomerEnteredPrice { get; set; }
 
         /// <summary>
         /// Represents a price entered by customer.
@@ -58,7 +85,7 @@ namespace Smartstore.Web.Api.Models.Checkout
         }
 
         /// <summary>
-        /// Represents a product attribute to search for.
+        /// Represents a product or checkout attribute to search for.
         /// </summary>
         [DataContract]
         public class SearchAttribute

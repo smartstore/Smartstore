@@ -1,15 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.OData.Formatter;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 using Smartstore.Web.Api.Models.Checkout;
-using static Azure.Core.HttpHeader;
 
 namespace Smartstore.Web.Api.Controllers
 {
@@ -21,21 +20,30 @@ namespace Smartstore.Web.Api.Controllers
     [ProducesResponseType(Status422UnprocessableEntity)]
     public class ShoppingCartItemsController : WebApiController<ShoppingCartItem>
     {
+        private readonly Lazy<IStoreContext> _storeContext;
         private readonly Lazy<IWorkContext> _workContext;
         private readonly Lazy<IShoppingCartService> _shoppingCartService;
         private readonly Lazy<ICurrencyService> _currencyService;
         private readonly Lazy<IPermissionService> _permissionService;
+        private readonly Lazy<IProductAttributeMaterializer> _productAttributeMaterializer;
+        private readonly Lazy<ICheckoutAttributeMaterializer> _checkoutAttributeMaterializer;
 
         public ShoppingCartItemsController(
+            Lazy<IStoreContext> storeContext,
             Lazy<IWorkContext> workContext,
             Lazy<IShoppingCartService> shoppingCartService,
             Lazy<ICurrencyService> currencyService,
-            Lazy<IPermissionService> permissionService)
+            Lazy<IPermissionService> permissionService,
+            Lazy<IProductAttributeMaterializer> productAttributeMaterializer,
+            Lazy<ICheckoutAttributeMaterializer> checkoutAttributeMaterializer)
         {
+            _storeContext = storeContext;
             _workContext = workContext;
             _shoppingCartService = shoppingCartService;
             _currencyService = currencyService;
             _permissionService = permissionService;
+            _productAttributeMaterializer = productAttributeMaterializer;
+            _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
         }
 
         [HttpGet("ShoppingCartItems"), ApiQueryable]
@@ -101,7 +109,7 @@ namespace Smartstore.Web.Api.Controllers
 
         #region Actions and functions
 
-        // TODO: (mg) allow to specify Variants, GiftCards and CheckoutAttributes for AddToCart somehow. See ProductVariantQuery.
+        // TODO: (mg) add CheckoutAttribute and CheckoutAttributeValue to API.
 
         /// <summary>
         /// Adds a product to cart or wishlist.
@@ -158,7 +166,7 @@ namespace Smartstore.Web.Api.Controllers
                 {
                     Customer = customer,
                     Product = product,
-                    StoreId = storeId > 0 ? storeId : null,
+                    StoreId = storeId > 0 ? storeId : _storeContext.Value.CurrentStore.Id,
                     CartType = shoppingCartType,
                     Quantity = quantity,
                     AutomaticallyAddRequiredProducts = product.RequireOtherProducts && product.AutomaticallyAddRequiredProducts,
@@ -176,7 +184,12 @@ namespace Smartstore.Web.Api.Controllers
 
                 if (!await _shoppingCartService.Value.AddToCartAsync(context))
                 {
-                    return ErrorResult(null, string.Join(". ", context.Warnings));
+                    return ErrorResult(null, string.Join(" ", context.Warnings.Select(x => x.EnsureEndsWith('.'))));
+                }
+
+                if (extraData != null)
+                {
+                    await SaveCheckoutAttributes(extraData, customer, context);
                 }
 
                 return Ok(customer.ShoppingCartItems.Where(x => x.ShoppingCartType == shoppingCartType).AsQueryable());
@@ -189,14 +202,23 @@ namespace Smartstore.Web.Api.Controllers
 
         private async Task<IActionResult> ApplyExtraData(AddToCartExtraData extraData, Product product, AddToCartContext context)
         {
+            var selection = new ProductVariantAttributeSelection(null);
+
+            // Variant attributes.
             if (!extraData.Attributes.IsNullOrEmpty())
             {
-                context.VariantQuery = new();
-                extraData.Attributes.Each(context.VariantQuery.AddVariant);
+                var query = new ProductVariantQuery();
+                extraData.Attributes.Each(query.AddVariant);
+
+                (selection, _) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(
+                    query,
+                    product.ProductVariantAttributes,
+                    product.Id,
+                    context.BundleItemId,
+                    false);
             }
             else if (!extraData.SearchAttributes.IsNullOrEmpty())
             {
-                var selection = new ProductVariantAttributeSelection(null);
                 var existingMappings = product.ProductVariantAttributes
                     .ToDictionarySafe(x => x.ProductAttribute.Name, x => x, StringComparer.OrdinalIgnoreCase);
 
@@ -211,12 +233,15 @@ namespace Smartstore.Web.Api.Controllers
                         }
                     }
                 }
-
-                if (selection.AttributesMap.Any())
-                {
-                    context.RawAttributes = selection.AsJson();
-                }
             }
+
+            // Gift card.
+            if (extraData.GiftCard != null && product.IsGiftCard)
+            {
+                selection.AddGiftCardInfo(extraData.GiftCard);
+            }
+
+            context.RawAttributes = selection.AsJson();
 
             // Price entered by customer.
             var enteredPrice = extraData.CustomerEnteredPrice;
@@ -241,6 +266,45 @@ namespace Smartstore.Web.Api.Controllers
             }
 
             return null;
+        }
+
+        private async Task SaveCheckoutAttributes(AddToCartExtraData extraData, Customer customer, AddToCartContext context)
+        {
+            // Checkout attributes.
+            if (!extraData.CheckoutAttributes.IsNullOrEmpty())
+            {
+                var query = new ProductVariantQuery();
+                extraData.CheckoutAttributes.Each(query.AddCheckoutAttribute);
+
+                var cart = await _shoppingCartService.Value.GetCartAsync(customer, context.CartType, context.StoreId.Value);
+                cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.Value.CreateCheckoutAttributeSelectionAsync(query, cart);
+                await Db.SaveChangesAsync();
+            }
+            else if (!extraData.SearchCheckoutAttributes.IsNullOrEmpty())
+            {
+                var selection = new CheckoutAttributeSelection(null);
+                var existingCheckoutAttributes = (await Db.CheckoutAttributes
+                    .Include(x => x.CheckoutAttributeValues)
+                    .AsNoTracking()
+                    .ApplyStandardFilter(false, context.StoreId.Value)
+                    .ToListAsync())
+                    .ToDictionarySafe(x => x.Name, x => x);
+
+                foreach (var attribute in extraData.SearchCheckoutAttributes)
+                {
+                    if (existingCheckoutAttributes.TryGetValue(attribute.Name, out var ca))
+                    {
+                        var cav = ca.CheckoutAttributeValues.FirstOrDefault(x => x.Name.EqualsNoCase(attribute.Value));
+                        if (cav != null)
+                        {
+                            selection.AddAttributeValue(ca.Id, cav.Id);
+                        }
+                    }
+                }
+
+                customer.GenericAttributes.CheckoutAttributes = selection;
+                await Db.SaveChangesAsync();
+            }
         }
 
         /// <summary>

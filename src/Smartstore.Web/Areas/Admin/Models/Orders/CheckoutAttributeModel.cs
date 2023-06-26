@@ -48,6 +48,7 @@ namespace Smartstore.Admin.Models.Orders
         public string EditUrl { get; set; }
     }
 
+    [LocalizedDisplay("Admin.Catalog.Attributes.CheckoutAttributes.Fields.")]
     public class CheckoutAttributeLocalizedModel : ILocalizedLocaleModel
     {
         public int LanguageId { get; set; }
