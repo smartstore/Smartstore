@@ -169,7 +169,7 @@ namespace Smartstore.Admin.Controllers
             var moduleDescriptor = _moduleCatalog.GetModuleByName(systemName);
 
             var success = false;
-            var message = "";
+            var message = string.Empty;
             if (moduleDescriptor == null)
             {
                 message = T("Admin.Configuration.Plugins.Resources.UpdateFailure").Value;
