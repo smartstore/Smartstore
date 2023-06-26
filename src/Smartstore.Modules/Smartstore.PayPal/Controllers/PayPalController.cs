@@ -84,12 +84,28 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder()
+        public async Task<IActionResult> CreateOrder(string paymentSource)
         {
             var orderMessage = await _client.GetOrderForStandardProviderAsync(true);
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
+
+            var selectedPaymentMethod = string.Empty;
+            switch (paymentSource)
+            {
+                case "paypal-button-container":
+                    selectedPaymentMethod = PayPalConstants.Standard;
+                    break;
+                case "paypal-sepa-button-container":
+                    selectedPaymentMethod = PayPalConstants.Sepa;
+                    break;
+                case "paypal-paylater-button-container":
+                    selectedPaymentMethod = PayPalConstants.PayLater;
+                    break;
+            }
+
+            Services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod = selectedPaymentMethod;
 
             return Json(jResponse);
         }

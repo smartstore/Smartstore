@@ -124,9 +124,6 @@ namespace Smartstore.PayPal.Filters
                 // Should only run on a full view rendering result or HTML ContentResult.
                 if ((filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult()) && skipPaymentPage)
                 {
-                    customer.GenericAttributes.SelectedPaymentMethod = PayPalConstants.Standard;
-                    await _db.SaveChangesAsync();
-
                     var session = _httpContextAccessor.HttpContext.Session;
 
                     if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)

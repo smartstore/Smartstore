@@ -43,7 +43,7 @@
                 },
                 // Create order
                 createOrder: function (data, actions) {
-                    return createOrder(self.buttonContainer.data("create-order-url"));
+                    return createOrder(self.buttonContainer.data("create-order-url"), self.buttonContainer.attr("id"));
                 },
                 // Save obtained order id in checkout state.
                 onApprove: function (data, actions) {
@@ -202,12 +202,13 @@
         return PayPalHostedFieldsMethod;
     })();
 
-    function createOrder(createOrderUrl) {
+    function createOrder(createOrderUrl, paymentSource) {
         var orderId;
 
         $.ajax({
             async: false,   // IMPORTANT INFO: we must wait to get the order id.
             type: 'POST',
+            data: { paymentSource: paymentSource },
             url: createOrderUrl,
             cache: false,
             success: function (resp) {
