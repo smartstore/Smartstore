@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Content.Media;
@@ -84,7 +83,6 @@ namespace Smartstore.Core.Checkout.Attributes
         /// <summary>
         /// Gets or sets the checkout attribute
         /// </summary>
-        [IgnoreDataMember]
         public CheckoutAttribute CheckoutAttribute
         {
             get => _checkoutAttribute ?? LazyLoader.Load(this, ref _checkoutAttribute);

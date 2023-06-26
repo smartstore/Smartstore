@@ -109,8 +109,6 @@ namespace Smartstore.Web.Api.Controllers
 
         #region Actions and functions
 
-        // TODO: (mg) add CheckoutAttribute and CheckoutAttributeValue to API.
-
         /// <summary>
         /// Adds a product to cart or wishlist.
         /// </summary>

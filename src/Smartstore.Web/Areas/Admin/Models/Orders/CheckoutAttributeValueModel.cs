@@ -38,6 +38,7 @@ namespace Smartstore.Admin.Models.Orders
         public List<CheckoutAttributeValueLocalizedModel> Locales { get; set; } = new();
     }
 
+    [LocalizedDisplay("Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.")]
     public class CheckoutAttributeValueLocalizedModel : ILocalizedLocaleModel
     {
         public int LanguageId { get; set; }
