@@ -15,7 +15,7 @@
 		<PackageReference Include="AutoprefixerHost" Version="3.0.28" />
 		<PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-		<PackageReference Include="JavaScriptEngineSwitcher.V8" Version="3.21.1" />
+		<PackageReference Include="JavaScriptEngineSwitcher.V8" Version="3.21.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.0" />
