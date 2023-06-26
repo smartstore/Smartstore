@@ -144,7 +144,15 @@ namespace Smartstore.PayPal.Filters
                     // Delete property for backward navigation.
                     checkoutState.CustomProperties.Remove("PayPalButtonUsed");
 
+                    // Set property to indicate PayPal order must be updated.
+                    checkoutState.CustomProperties["UpdatePayPalOrder"] = true;
+
                     filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = "" });
+                }
+                else
+                {
+                    // Set property to indicate PayPal order must be updated.
+                    checkoutState.CustomProperties["UpdatePayPalOrder"] = false;
                 }
             }
             else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))

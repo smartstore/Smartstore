@@ -72,7 +72,7 @@ namespace Smartstore.PayPal.Providers
 
             // INFO: Only update order when express button was used.
             // Shipping fee or discounts may have changed the total value of the order.
-            var updateOrder = (bool)_checkoutStateAccessor.CheckoutState.CustomProperties.Get("PayPalButtonUsed");
+            var updateOrder = (bool)_checkoutStateAccessor.CheckoutState.CustomProperties.Get("UpdatePayPalOrder");
             if (updateOrder)
             {
                 _ = await _client.UpdateOrderAsync(request, result);
