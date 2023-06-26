@@ -22,7 +22,9 @@ namespace Smartstore.Engine.Modularity
         public Provider<TProvider> GetProvider<TProvider>(string systemName, int storeId = 0) where TProvider : IProvider
         {
             if (systemName.IsEmpty())
+            {
                 return null;
+            }   
 
             var provider = _ctx.ResolveOptionalNamed<Lazy<TProvider, ProviderMetadata>>(systemName);
 

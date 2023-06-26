@@ -97,7 +97,7 @@ namespace Smartstore.Core.Widgets
 
         public virtual async Task ActivateWidgetAsync(string systemName, bool activate)
         {
-            Guard.NotNull(systemName, nameof(systemName));
+            Guard.NotNull(systemName);
 
             var widget = _providerManager.GetProvider<IActivatableWidget>(systemName);
             if (widget != null)
