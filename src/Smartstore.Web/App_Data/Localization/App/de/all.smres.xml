@@ -13868,7 +13868,7 @@
 		<Value>Kaufen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Checkout.ConfirmHint">
-		<Value>Bitte prüfen Sie die Gesamtsumme und die Rechnungsadresse. Bei abweichender Lieferanschrift prüfen Sie bitte auch diese. Änderungen können Sie jederzeit mit einem Klick auf &lt;strong&gt;zurück&lt;/strong&gt; vornehmen. Sind alle Daten richtig, bestätigen Sie bitte mit einem Klick auf &lt;strong&gt;kaufen&lt;/strong&gt; Ihre Bestellung.</Value>
+		<Value>Bitte prüfen Sie die Gesamtsumme und die Rechnungsadresse. Bei abweichender Lieferanschrift prüfen Sie bitte auch diese. Änderungen können Sie jederzeit mit einem Klick auf &lt;strong&gt;Zurück&lt;/strong&gt; vornehmen. Sind alle Daten richtig, bestätigen Sie bitte mit einem Klick auf &lt;strong&gt;Kaufen&lt;/strong&gt; Ihre Bestellung.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Checkout.ConfirmOrder">
 		<Value>Auftrag bestätigen</Value>
