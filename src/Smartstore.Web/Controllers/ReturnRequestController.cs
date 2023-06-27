@@ -173,13 +173,11 @@ namespace Smartstore.Web.Controllers
                 switch (order.CustomerTaxDisplayType)
                 {
                     case TaxDisplayType.ExcludingTax:
-                        var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency, true);
-                        orderItemModel.UnitPrice = new(orderItem.UnitPriceExclTax, customerCurrency);
+                        orderItemModel.UnitPrice = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency, true);
                         break;
 
                     case TaxDisplayType.IncludingTax:
-                        var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency, true);
-                        orderItemModel.UnitPrice = new(orderItem.UnitPriceInclTax, customerCurrency);
+                        orderItemModel.UnitPrice = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency, true);
                         break;
                 }
 
