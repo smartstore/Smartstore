@@ -193,7 +193,7 @@ namespace Smartstore.Core.Common.Services
 
             if (newLineToBr)
             {
-                result = HtmlUtility.ConvertPlainTextToHtml(result);
+                result = HtmlUtility.SanitizeHtml(HtmlUtility.ConvertPlainTextToHtml( result), true);
             }
 
             return result;
