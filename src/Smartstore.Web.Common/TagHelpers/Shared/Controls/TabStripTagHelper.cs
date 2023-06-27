@@ -309,15 +309,6 @@ namespace Smartstore.Web.TagHelpers.Shared
                 }
             }
 
-            var summaryTab = new TabTagHelper()
-            {
-                Name = "Summary",
-                Visible = false,
-                Attributes = new TagHelperAttributeList(),
-                Title = "..."
-            };
-            content.AppendHtml(BuildTabItem(summaryTab, isStacked, hasIcons));
-
             content.AppendHtml(ul.RenderEndTag());
 
             if (isStacked)
@@ -472,7 +463,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 var itemId = "#" + tab.Id;
                 a.AppendCssClass("nav-link" + (tab.Selected ? " active" : ""));
 
-                if (tab.TabInnerContent != null && !tab.TabInnerContent.IsEmptyOrWhiteSpace)
+                if (!tab.TabInnerContent.IsEmptyOrWhiteSpace)
                 {
                     a.MergeAttribute("href", itemId);
                     a.MergeAttribute("data-toggle", "tab");

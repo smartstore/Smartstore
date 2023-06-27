@@ -91,99 +91,102 @@
         // Keeps the language tabs in the locale editor on one line.
         // All languages that don't fit are moved to the summary dropdown.
 
-        let languageNavHeader = $(context).find('.nav.nav-tabs').last();
+        let languageNavHeader = $(context).find('.nav.nav-tabs');
         let languageNodes = languageNavHeader.children('.nav-item');
-        let summaryNode = languageNodes.last();
 
-        // Check if the page has been resized.
-        let hasResized = summaryNode.hasClass('dropdown');
+        let summaryNode = languageNavHeader.find('.summary-node');
+        let dropdownMenu = summaryNode.find('.dropdown-menu');
+        let hasResized = summaryNode.length > 0;
 
         if (hasResized) {
-            // Detach the trailing nodes from the dropdown menu.
-            let detachedNodes = summaryNode.find('.dropdown-menu')
-                .children().detach();
+            summaryNode.removeClass('d-none wide');
 
-            // Set the styling of the detached nodes to navigation items.
+            let detachedNodes = dropdownMenu.children().detach();
+
             detachedNodes.addClass('nav-item')
                 .find('.dropdown-item').removeClass('dropdown-item').addClass('nav-link');
 
-            // Attach the dropdown nodes and place the summary node at the end.
             languageNodes.parent()
                 .append(detachedNodes)
                 .append(summaryNode.detach());
 
-            // Refresh the language nodes.
             languageNodes = languageNavHeader.children('.nav-item');
         } else {
-            // Style the summary node.
-            summaryNode.find('a').first().addClass('btn btn-outline-secondary').removeClass('nav-link');
+            summaryNode = $(document.createElement('li'));
+            summaryNode.addClass('summary-node');
+
+            let dropdownMenuToggle = $('<a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"></a>');
+            summaryNode.append(dropdownMenuToggle);
+
+            dropdownMenu = $('<ul class="dropdown-menu"></ul>');
+            let isRTL = $('html').attr('dir') == 'rtl';
+            dropdownMenu.addClass('dropdown-menu-' + (isRTL ? 'left' : 'right'));
+            summaryNode.append(dropdownMenu);
+
+            languageNavHeader.append(summaryNode);
         }
 
-        // Show the summary node for calculation.
-        summaryNode.removeClass('d-none');
+        let availableWidth = languageNavHeader.width() - summaryNode.width();
 
-        // Calculate the available width.
-        let availableWidth = languageNavHeader.width() - summaryNode.width() - 10;
-        let usedWidth = 0;
+        if (availableWidth <= 0) { return; }
 
-        let overflowAt = -1;
-
-        // Loop through the language nodes until an overflow is detected.
+        let usedWidth = 0, overflowAt = -1;
         languageNodes.each(function (index, node) {
-            if (overflowAt == -1) {
-                usedWidth += $(node).width();
+            if (overflowAt > -1) { return; }
 
-                if (usedWidth > availableWidth) {
-                    overflowAt = index;
-                } else if (!hasResized) {
-                    // Reset the height of the language node.
-                    $(node).css('height', 'auto');
-                }
+            usedWidth += $(node).width();
+
+            if (usedWidth > availableWidth) {
+                overflowAt = index;
             }
         });
 
-        // If languages overflowed and it wasn't the summary node...
-        if (overflowAt > -1 && overflowAt != languageNodes.length - 1) {
-            // ... cut the trailing nodes, but keep the summary node.
-            let overflowIndex = -1 * (languageNodes.length - overflowAt);
-            let detachedNodes = languageNodes.slice(overflowIndex, -1).detach();
+        if (overflowAt > 0 && overflowAt != languageNodes.length - 1) {
+            let detachedNodes = languageNodes.slice(-1 * (languageNodes.length - overflowAt)).detach();
 
-            // Set the styling of the detached nodes to dropdown menu items.
             detachedNodes.removeClass('nav-item');
-            detachedNodes.find('.nav-link').removeClass('nav-link').addClass('dropdown-item');
+            detachedNodes.find('.nav-link').removeClass('nav-link active').addClass('dropdown-item');
 
-            // Set the styling of the summary node to a dropdown menu.
-            summaryNode.addClass('dropdown')
-                .find('a').first().addClass('dropdown-toggle').attr('data-toggle', 'dropdown');
-
-            // Get or create the dropdown menu.
-            let dropdownMenu = undefined;
-            if (hasResized) {
-                dropdownMenu = summaryNode.find('.dropdown-menu');
-            } else {
-                dropdownMenu = $(document.createElement("ul"));
-
-                // Style the dropdown menu.
-                dropdownMenu.addClass('dropdown-menu dropdown-menu-right');
-            }
-
-            // Add the detached nodes.
             dropdownMenu.append(detachedNodes);
-
-            // Add the dropdown menu.
             summaryNode.append(dropdownMenu);
 
-            if (!hasResized) {
-                // Reset the height of the detached nodes.
-                detachedNodes.css('height', 'auto');
-            }
+            summaryNode.addClass('wide');
         } else {
-            // Otherwise, hide the summary node.
             summaryNode.addClass('d-none');
         }
 
-        // Show the language nodes.
-        languageNodes.show();
+        languageNavHeader.css('overflow', 'initial');
+
+        let dropdownItems = $(context).find('.summary-node .dropdown-item');
+
+        if (!dropdownMenu.hasClass('listening')) {
+            dropdownItems.on('click', localeEditorSummarySelect);
+            dropdownMenu.addClass('listening');
+        }
+
+        function localeEditorSummarySelect(e) {
+            let selectedNode = $(e.target).closest('li');
+
+            if (selectedNode.hasClass('nav-link')) { return; }
+
+            let languageNavHeader = $(context).find('.nav.nav-tabs');
+            let languageNodes = languageNavHeader.children('.nav-item');
+
+            let summaryNode = languageNodes.find('.summary-node').detach();
+
+            languageNodes.find('nav-link.active').removeClass('active');
+            summaryNode.find('.dropdown-item.active').removeClass('active');
+
+            selectedNode.detach();
+            selectedNode.addClass('nav-item')
+                .find('.dropdown-item').removeClass('dropdown-item').addClass('nav-link');
+
+            let lastLanguageNode = languageNodes.last().detach();
+
+            languageNavHeader.append(selectedNode).append(lastLanguageNode).append(summaryNode);
+
+            hideOverflowingLanguages(context);
+        }
     };
 
     window.providerListInit = function (context) {

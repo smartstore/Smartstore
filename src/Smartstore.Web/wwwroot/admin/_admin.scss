@@ -880,12 +880,13 @@ legend {
         background-color: $card-cap-bg;
         border-top-left-radius: $border-radius;
         border-top-right-radius: $border-radius;
+        flex-wrap: nowrap;
+        overflow: hidden;
 
-
-        .nav-item:not(:last-child) {
-            height: 0;
-            overflow: hidden;
-            display: none;
+        .summary-node.wide {
+            display: flex;
+            justify-content: end;
+            width: 100%;
         }
 
         .nav-link {
@@ -896,6 +897,10 @@ legend {
 
             > img {
                 opacity: 0.8;
+            }
+
+            > .tab-caption {
+                white-space: nowrap;
             }
         }
 
