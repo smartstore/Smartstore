@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using Autofac;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -280,18 +279,18 @@ namespace Smartstore.Core.Installation
         {
             var entities = new List<Currency>()
             {
-                CreateCurrency("en-US", published: true, rate: 1M, order: 0),
-                CreateCurrency("en-GB", published: true, rate: 0.61M, order: 5),
-                CreateCurrency("en-AU", published: false, rate: 0.94M, order: 10),
-                CreateCurrency("en-CA", published: false, rate: 0.98M, order: 15),
-                CreateCurrency("de-DE", published: true, rate: 0.79M, order: 20/*, formatting: string.Format("0.00 {0}", "\u20ac")*/),
-                CreateCurrency("de-CH", published: true, rate: 0.93M, order: 25, formatting: "CHF #,##0.00"),
-                CreateCurrency("zh-CN", published: false, rate: 6.48M, order: 30),
-                CreateCurrency("zh-HK", rate: 7.75M, order: 35),
-                CreateCurrency("ja-JP", rate: 80.07M, order: 40),
-                CreateCurrency("ru-RU", rate: 27.7M, order: 45),
-                CreateCurrency("tr-TR", rate: 1.78M, order: 50),
-                CreateCurrency("sv-SE", rate: 6.19M, order: 55)
+                CreateCurrency("en-US", 1M, true, 0),
+                CreateCurrency("en-GB", 0.787M, true, 5),
+                CreateCurrency("en-AU", 1.497M, false, 10),
+                CreateCurrency("en-CA", 1.315M, false, 15),
+                CreateCurrency("de-DE", 0.916M, true, 20),
+                CreateCurrency("de-CH", 0.892M, true, 25, "CHF #,##0.00"),
+                CreateCurrency("zh-CN", 7.233M, false, 30),
+                CreateCurrency("zh-HK", 7.829M, false, 35),
+                CreateCurrency("ja-JP", 143.259M, false, 40),
+                CreateCurrency("ru-RU", 85.33M, false, 45),
+                CreateCurrency("tr-TR", 25.903M, false, 50),
+                CreateCurrency("sv-SE", 10.7M, false, 55)
             };
 
             Alter(entities);
@@ -1407,21 +1406,25 @@ namespace Smartstore.Core.Installation
         protected string BuildSlug(string name)
             => SlugUtility.Slugify(name, _slugifyOptions);
 
-        protected static Currency CreateCurrency(string locale, decimal rate = 1M, string formatting = "", bool published = false, int order = 1)
+        protected static Currency CreateCurrency(
+            string locale, 
+            decimal rate = 1M, 
+            bool published = false, 
+            int order = 1,
+            string formatting = null)
         {
-            Currency currency = null;
             try
             {
                 var info = new RegionInfo(locale);
                 if (info != null)
                 {
-                    currency = new Currency
+                    return new()
                     {
                         DisplayLocale = locale,
-                        Name = info.CurrencyNativeName,
+                        Name = info.CurrencyEnglishName,
                         CurrencyCode = info.ISOCurrencySymbol,
                         Rate = rate,
-                        CustomFormatting = formatting,
+                        CustomFormatting = formatting.EmptyNull(),
                         Published = published,
                         DisplayOrder = order
                     };
@@ -1429,10 +1432,9 @@ namespace Smartstore.Core.Installation
             }
             catch
             {
-                return null;
             }
 
-            return currency;
+            return null;
         }
 
         protected static string FormatAttributeJson(List<(int Attribute, object Value)> Attributes)

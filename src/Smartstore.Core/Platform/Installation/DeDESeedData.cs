@@ -155,30 +155,73 @@ namespace Smartstore.Core.Installation
         {
             base.Alter(entities);
 
-            // unpublish all currencies
+            // Unpublish all currencies.
             entities.Each(x => x.Published = false);
 
             entities.WithKey(x => x.DisplayLocale)
                .Alter("de-DE", x =>
                {
+                   x.Name = "Euro";
                    x.Published = true;
                    x.Rate = 1M;
                    x.DisplayOrder = -10;
                })
                .Alter("de-CH", x =>
                {
-                   x.Rate = 1.20M;
+                   x.Name = "Schweizer Franken";
+                   x.Rate = 0.9789M;
                    x.DisplayOrder = -5;
                })
-               .Alter("en-US", x => x.Rate = 1.29M)
-               .Alter("en-AU", x => x.Rate = 1.24M)
-               .Alter("en-CA", x => x.Rate = 1.28M)
-               .Alter("tr-TR", x => x.Rate = 2.31M)
-               .Alter("zh-CN", x => x.Rate = 8.02M)
-               .Alter("zh-HK", x => x.Rate = 9.98M)
-               .Alter("ja-JP", x => x.Rate = 106.21M)
-               .Alter("ru-RU", x => x.Rate = 40.16M)
-               .Alter("sv-SE", x => x.Rate = 8.60M);
+               .Alter("en-US", x =>
+               {
+                   x.Name = "US Dollar";
+                   x.Rate = 1.0951M;
+               })
+               .Alter("en-GB", x =>
+               {
+                   x.Name = "Britisches Pfund";
+                   x.Rate = 0.8599M;
+               })
+               .Alter("en-AU", x =>
+               {
+                   x.Name = "Australischer Dollar";
+                   x.Rate = 1.6369M;
+               })
+               .Alter("en-CA", x =>
+               {
+                   x.Name = "Kanadischer Dollar";
+                   x.Rate = 1.4408M;
+               })
+               .Alter("tr-TR", x =>
+               {
+                   x.Name = "Türkische Lira";
+                   x.Rate = 28.5192M;
+               })
+               .Alter("zh-CN", x =>
+               {
+                   x.Name = "Chinesischer Yuan";
+                   x.Rate = 7.8976M;
+               })
+               .Alter("zh-HK", x =>
+               {
+                   x.Name = "Hongkong Dollar";
+                   x.Rate = 8.5782M;
+               })
+               .Alter("ja-JP", x =>
+               {
+                   x.Name = "Japanischer Yen";
+                   x.Rate = 157.14M;
+               })
+               .Alter("ru-RU", x =>
+               {
+                   x.Name = "Russischer Rubel";
+                   x.Rate = 93.52M;
+               })
+               .Alter("sv-SE", x =>
+               {
+                   x.Name = "Schwedische Krone";
+                   x.Rate = 11.7405M;
+               });
         }
 
         protected override void Alter(IList<CustomerRole> entities)
