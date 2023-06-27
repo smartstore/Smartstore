@@ -40,6 +40,11 @@ namespace Smartstore.Core.Bootstrapping
 
         protected override void AttachToComponentRegistration(IComponentRegistryBuilder componentRegistry, IComponentRegistration registration)
         {
+            if (!DataSettings.DatabaseIsInstalled())
+            {
+                return;
+            }
+
             var userProperty = FindUserProperty(registration.Activator.LimitType);
 
             if (userProperty == null)

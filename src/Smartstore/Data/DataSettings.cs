@@ -94,6 +94,7 @@ namespace Smartstore.Data
         internal static void SetTestMode(bool isTestMode)
         {
             _testMode = isTestMode;
+            _installed = null;
         }
 
         public static void Reload()

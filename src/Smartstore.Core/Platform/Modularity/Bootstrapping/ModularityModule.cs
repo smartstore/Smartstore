@@ -11,6 +11,7 @@ using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Identity;
 using Smartstore.Core.OutputCache;
 using Smartstore.Core.Widgets;
+using Smartstore.Data;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Bootstrapping
@@ -43,6 +44,11 @@ namespace Smartstore.Core.Bootstrapping
                     .As(descriptor.Module.ModuleType)
                     .OnActivated(x =>
                     {
+                        if (!DataSettings.DatabaseIsInstalled())
+                        {
+                            x.Context.InjectProperties(x.Instance);
+                        }
+                        
                         if (x.Instance is ModuleBase moduleBase)
                         {
                             moduleBase.Services = x.Context.Resolve<ICommonServices>();

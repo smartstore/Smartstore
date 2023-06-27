@@ -19,21 +19,20 @@ namespace Smartstore.AmazonPay
         private readonly IPaymentService _paymentService;
         private readonly IProviderManager _providerManager;
         private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
-        private readonly Localizer T;
 
         public Module(
             ITaskStore taskStore,
             IPaymentService paymentService,
             IProviderManager providerManager,
-            ExternalAuthenticationSettings externalAuthenticationSettings,
-            Localizer localizer)
+            ExternalAuthenticationSettings externalAuthenticationSettings)
         {
             _taskStore = taskStore;
             _paymentService = paymentService;
             _providerManager = providerManager;
             _externalAuthenticationSettings = externalAuthenticationSettings;
-            T = localizer;
         }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public async Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
         {
