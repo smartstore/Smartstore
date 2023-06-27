@@ -1441,7 +1441,7 @@ Vue.component("sm-datagrid", {
                             return _.isBoolean(defaultValue) ? o != defaultValue : o === true;
                         }
 
-                        return o !== defaultValue && key.lastIndexOf('__') !== 0;
+                        return o !== defaultValue && !el.is(":hidden");
                     })
                     .length;
 
