@@ -10,7 +10,7 @@
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="Edit" asp-route-id="@Model.MenuId" title="@T("Common.Back")"></a>
-            <span>@T("Admin.ContentManagement.EditMenuItem") - @Model.Title</span>
+            <span>@T("Admin.ContentManagement.EditMenuItem") - @(Model.Title.NullEmpty() ?? Model.TitlePlaceholder)</span>
         </div>
         <div class="options">
             <button type="submit" name="save-item" value="save-item" class="btn btn-warning">

@@ -165,6 +165,7 @@ namespace Smartstore.Admin.Controllers
 
             var messageTemplates = await query
                 .ApplyStoreFilter(model.SearchStoreId)
+                .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();

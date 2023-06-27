@@ -22,7 +22,6 @@ namespace Smartstore.Admin.Models.Messages
         public string ReplyTo { get; set; }
 
         [LocalizedDisplay("*AllowedTokens")]
-
         [IgnoreDataMember]
         public string LastModelTree { get; set; }
 
