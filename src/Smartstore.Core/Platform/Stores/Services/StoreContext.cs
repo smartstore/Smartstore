@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Smartstore.Caching;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
@@ -18,37 +17,33 @@ namespace Smartstore.Core.Stores
         const string CacheKey = "stores:all";
 
         private readonly IComponentContext _scope;
-        private readonly IActionContextAccessor _actionContextAccessor;
         private readonly ICacheFactory _cacheFactory;
         private readonly IDbContextFactory<SmartDbContext> _dbContextFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private Store _currentStore;
+        private string _hookErrorMessage;
 
         public StoreContext(
             IHttpContextAccessor httpContextAccessor,
             ICacheFactory cacheFactory,
-            IDbContextFactory<SmartDbContext> dbContextFactory,
-            IActionContextAccessor actionContextAccessor)
+            IDbContextFactory<SmartDbContext> dbContextFactory)
         {
             _cacheFactory = cacheFactory;
             _dbContextFactory = dbContextFactory;
             _httpContextAccessor = httpContextAccessor;
-            _actionContextAccessor = actionContextAccessor;
         }
 
         internal StoreContext(
             IComponentContext scope,
             IHttpContextAccessor httpContextAccessor,
             ICacheFactory cacheFactory,
-            IDbContextFactory<SmartDbContext> dbContextFactory,
-            IActionContextAccessor actionContextAccessor)
+            IDbContextFactory<SmartDbContext> dbContextFactory)
         {
             _scope = scope;
             _cacheFactory = cacheFactory;
             _dbContextFactory = dbContextFactory;
             _httpContextAccessor = httpContextAccessor;
-            _actionContextAccessor = actionContextAccessor;
         }
 
         #region Hook
@@ -59,8 +54,9 @@ namespace Smartstore.Core.Stores
             {
                 if (GetCachedStores().Stores.Count == 1)
                 {
-                    entry.State = Smartstore.Data.EntityState.Unchanged;
-                    throw new InvalidOperationException("Cannot delete the only configured store.");
+                    // INFO: localizer instantiation problematic here.
+                    _hookErrorMessage = "The only remaining store cannot be deleted.";
+                    entry.ResetState();
                 }
 
                 return HookResult.Ok;
@@ -68,6 +64,17 @@ namespace Smartstore.Core.Stores
             else
             {
                 return HookResult.Void;
+            }
+        }
+
+        protected override void OnBeforeSaveCompleted(IEnumerable<IHookedEntity> entries)
+        {
+            if (_hookErrorMessage.HasValue())
+            {
+                var message = new string(_hookErrorMessage);
+                _hookErrorMessage = null;
+
+                throw new HookException(message);
             }
         }
 
