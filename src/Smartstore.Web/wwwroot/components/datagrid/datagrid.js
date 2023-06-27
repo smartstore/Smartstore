@@ -1433,6 +1433,7 @@ Vue.component("sm-datagrid", {
                         if (defaultValue === undefined) {
                             defaultValue = "";
                         }
+
                         if (_.isArray(o)) {
                             return o.length > 0 || (o.length === 1 && o[0]);
                         }
@@ -1440,8 +1441,7 @@ Vue.component("sm-datagrid", {
                             return _.isBoolean(defaultValue) ? o != defaultValue : o === true;
                         }
 
-                        return o !== defaultValue;
-
+                        return o !== defaultValue && key.lastIndexOf('__') !== 0;
                     })
                     .length;
 
