@@ -49,16 +49,6 @@
                 Smartstore.Admin.checkOverriddenStoreValue(el);
             });
         },
-        // .locale-editor
-        function (ctx) {
-            ctx.find('.locale-editor').each(function (i, el) {
-                EventBroker.subscribe("page.resized", function (msg, viewport) {
-                    hideOverflowingLanguages(el);
-                });
-
-                hideOverflowingLanguages(el);
-            });
-        },
 
         //// Lazy summernote
         //function (ctx) {
@@ -85,112 +75,6 @@
         $.each(_commonPluginFactories, function (i, val) {
             val.call(this, $(context));
         });
-    };
-
-    window.hideOverflowingLanguages = function (context) {
-        // Keeps the language tabs in the locale editor on one line.
-        // All languages that don't fit are moved to the summary dropdown.
-
-        return;
-
-        let languageNavHeader = $(context).find('.nav.nav-tabs');
-        let languageNodes = languageNavHeader.children('.nav-item');
-
-        let summaryNode = languageNavHeader.find('.summary-node');
-        let dropdownMenu = summaryNode.find('.dropdown-menu');
-        let hasResized = summaryNode.length > 0;
-
-        if (hasResized) {
-            summaryNode.removeClass('d-none wide');
-
-            let detachedNodes = dropdownMenu.children().detach();
-
-            detachedNodes.addClass('nav-item')
-                .find('.dropdown-item').removeClass('dropdown-item').addClass('nav-link');
-
-            languageNodes.parent()
-                .append(detachedNodes)
-                .append(summaryNode.detach());
-
-            languageNodes = languageNavHeader.children('.nav-item');
-        }
-        else {
-            summaryNode = $(document.createElement('li'));
-            summaryNode.addClass('summary-node');
-
-            let dropdownMenuToggle = $('<a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"></a>');
-            summaryNode.append(dropdownMenuToggle);
-
-            dropdownMenu = $('<ul class="dropdown-menu"></ul>');
-            let isRTL = $('html').attr('dir') == 'rtl';
-            dropdownMenu.addClass('dropdown-menu-' + (isRTL ? 'left' : 'right'));
-            summaryNode.append(dropdownMenu);
-
-            languageNavHeader.append(summaryNode);
-        }
-
-        let availableWidth = languageNavHeader.width() - summaryNode.width();
-
-        if (availableWidth <= 0) { return; }
-
-        let usedWidth = 0, overflowAt = -1;
-        languageNodes.each(function (index, node) {
-            if (overflowAt > -1) { return; }
-
-            usedWidth += $(node).width();
-
-            if (usedWidth > availableWidth) {
-                overflowAt = index;
-            }
-        });
-
-        if (overflowAt > 0 && overflowAt != languageNodes.length - 1) {
-            let detachedNodes = languageNodes.slice(-1 * (languageNodes.length - overflowAt)).detach();
-
-            detachedNodes.removeClass('nav-item');
-            detachedNodes.find('.nav-link').removeClass('nav-link active').addClass('dropdown-item');
-
-            dropdownMenu.append(detachedNodes);
-            summaryNode.append(dropdownMenu);
-
-            summaryNode.addClass('wide');
-        }
-        else {
-            summaryNode.addClass('d-none');
-        }
-
-        languageNavHeader.css('overflow', 'initial');
-
-        let dropdownItems = $(context).find('.summary-node .dropdown-item');
-
-        if (!dropdownMenu.hasClass('listening')) {
-            dropdownItems.on('click', localeEditorSummarySelect);
-            dropdownMenu.addClass('listening');
-        }
-
-        function localeEditorSummarySelect(e) {
-            let selectedNode = $(e.target).closest('li');
-
-            if (selectedNode.hasClass('nav-link')) { return; }
-
-            let languageNavHeader = $(context).find('.nav.nav-tabs');
-            let languageNodes = languageNavHeader.children('.nav-item');
-
-            let summaryNode = languageNodes.find('.summary-node').detach();
-
-            languageNodes.find('nav-link.active').removeClass('active');
-            summaryNode.find('.dropdown-item.active').removeClass('active');
-
-            selectedNode.detach();
-            selectedNode.addClass('nav-item')
-                .find('.dropdown-item').removeClass('dropdown-item').addClass('nav-link');
-
-            let lastLanguageNode = languageNodes.last().detach();
-
-            languageNavHeader.append(selectedNode).append(lastLanguageNode).append(summaryNode);
-
-            hideOverflowingLanguages(context);
-        }
     };
 
     window.providerListInit = function (context) {
@@ -381,9 +265,6 @@
         $(window).on('load', function () {
             // swap classes onload and domready
             html.removeClass("loading").addClass("loaded");
-
-            // Catch ajax
-            hideOverflowingLanguages($.find('.locale-editor'));
         });
     });
 
