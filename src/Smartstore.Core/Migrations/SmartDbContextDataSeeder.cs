@@ -224,6 +224,10 @@ namespace Smartstore.Core.Data.Migrations
                 .Value("de", "Auf der \"Produkt Weitersagen\"-Seite anzeigen");
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnEmailProductToFriendPage.Hint")
                 .Value("de", "Legt fest, ob ein CAPTCHA auf der \"Produkt Weitersagen\"-Seite angezeigt werden soll.");
+
+            builder.AddOrUpdate("Admin.Promotions.Campaigns.Warning",
+                "Save the campaign and use the preview button to test it before sending it to many customers.",
+                "Speichern Sie die Kampagne und benutzen Sie den Vorschau-Button, um sie zu testen, bevor Sie sie an viele Kunden versenden.");
         }
     }
 }
