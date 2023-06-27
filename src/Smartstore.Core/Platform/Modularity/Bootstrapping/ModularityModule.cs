@@ -58,12 +58,8 @@ namespace Smartstore.Core.Bootstrapping
                 var catalog = cc.Resolve<IModuleCatalog>();
                 return (systemName) =>
                 {
-                    Guard.NotEmpty(systemName, nameof(systemName));
-                    var descriptor = catalog.GetModuleByName(systemName);
-                    if (descriptor == null)
-                    {
-                        throw new InvalidOperationException($"Cannot resolve module instance for '{systemName}' because it does not exist.");
-                    }
+                    Guard.NotEmpty(systemName);
+                    var descriptor = catalog.GetModuleByName(systemName) ?? throw new InvalidOperationException($"Cannot resolve module instance for '{systemName}' because it does not exist.");
                     return cc.Resolve<Func<IModuleDescriptor, IModule>>().Invoke(descriptor);
                 };
             });
@@ -74,7 +70,7 @@ namespace Smartstore.Core.Bootstrapping
                 var cc = c.Resolve<IComponentContext>();
                 return (descriptor) =>
                 {
-                    Guard.NotNull(descriptor, nameof(descriptor));
+                    Guard.NotNull(descriptor);
                     if (!descriptor.IsInstalled())
                     {
                         throw new InvalidOperationException($"Cannot resolve module instance for '{descriptor.SystemName}' because it is not installed.");
