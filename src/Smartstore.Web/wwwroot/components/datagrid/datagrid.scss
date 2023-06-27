@@ -40,13 +40,17 @@ input.form-control-plaintext {
     --dg-cell-padding: 13px 16px;
     --dg-cell-align: center;
     --dg-cell-justify: flex-start;
-    --dg-search-width: 350px;
+    --dg-search-width: 270px;
     position: relative;
     overflow: hidden;
     border: 1px solid var(--dg-border-color);
     box-shadow: 0 0 5px rgba(#000, 0.08);
     flex-grow: 1;
     width: 100%;
+
+    @include media-breakpoint-up(md) {
+        --dg-search-width: 350px;
+    }
 }
 
 .datagrid {
@@ -575,6 +579,7 @@ input.form-control-plaintext {
 
 .dg-page {
     padding: 8px 6px;
+    margin: 0 1px;
     color: inherit;
 }
 

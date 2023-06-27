@@ -17,11 +17,6 @@ namespace Smartstore.Web.TagHelpers.Admin
             }
         }
 
-        /// <summary>
-        /// Search panel width. Any CSS width specification is valid. Default: 350px;
-        /// </summary>
-        public string Width { get; set; } = "350px";
-
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             var content = await output.GetChildContentAsync();

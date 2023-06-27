@@ -385,7 +385,6 @@ namespace Smartstore.Web.TagHelpers.Admin
                     stickyFooter = StickyFooter,
                     maxHeight = MaxHeight,
                     showSearch = false,
-                    searchPanelWidth = SearchPanel?.Width,
                     stateKey = Id,
                     preserveState = PreserveGridState,
                     version = Version,

@@ -21,7 +21,7 @@ Vue.component("pass", {
 Vue.component("sm-datagrid", {
     template: `
         <div class="datagrid" 
-            :style="{ maxHeight: options.maxHeight, '--dg-search-width': options.searchPanelWidth }" 
+            :style="{ maxHeight: options.maxHeight }" 
             :class="{ 'datagrid-has-search': hasSearchPanel, 'datagrid-ready': ready }" 
             ref="grid">
 
