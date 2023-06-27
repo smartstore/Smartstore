@@ -15,13 +15,13 @@ namespace Smartstore.StripeElements
     internal class Module : ModuleBase, IConfigurable, ICookiePublisher
     {
         private readonly IPaymentService _paymentService;
+        private readonly Localizer T;
 
-        public Module(IPaymentService paymentService)
+        public Module(IPaymentService paymentService, Localizer localizer)
         {
             _paymentService = paymentService;
+            T = localizer;
         }
-
-        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         // INFO: Update API Version when updating Stripe.net dll
         public static string ApiVersion => "2022-08-01";

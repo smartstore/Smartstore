@@ -166,8 +166,6 @@ namespace Smartstore.Admin.Controllers
                     await MapperFactory.MapAsync(model, priceLabel);
                     await UpdateLocalesAsync(priceLabel, model);
                     await _db.SaveChangesAsync();
-
-                    NotifySuccess(T("Admin.Configuration.PriceLabels.Updated"));
                 }
                 catch (Exception ex)
                 {

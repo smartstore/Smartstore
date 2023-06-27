@@ -23,15 +23,19 @@ namespace Smartstore.Google.Analytics
     {
         private readonly IProviderManager _providerManager;
         private readonly WidgetSettings _widgetSettings;
+        private readonly Localizer T;
 
-        public Module(IProviderManager providerManager, WidgetSettings widgetSettings)
+        public Module(
+            IProviderManager providerManager, 
+            WidgetSettings widgetSettings,
+            Localizer localizer)
         {
             _providerManager = providerManager;
             _widgetSettings = widgetSettings;
+            T = localizer;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
-        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "GoogleAnalytics", new { area = "Admin" });
