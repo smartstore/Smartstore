@@ -875,18 +875,18 @@ legend {
     border-radius: $border-radius;
 
     .nav-locales > .nav {
+        flex-wrap: nowrap;
         padding: 0.25rem 0.25rem 0 0.25rem;
         border-bottom-color: $border-color;
         background-color: $card-cap-bg;
         border-top-left-radius: $border-radius;
         border-top-right-radius: $border-radius;
-        flex-wrap: nowrap;
-        overflow: hidden;
 
-        .summary-node.wide {
-            display: flex;
-            justify-content: end;
-            width: 100%;
+        .nav-item:not(:first-child) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-width: 100px;
         }
 
         .nav-link {
@@ -900,6 +900,8 @@ legend {
             }
 
             > .tab-caption {
+                overflow: hidden;
+                text-overflow: ellipsis;
                 white-space: nowrap;
             }
         }
