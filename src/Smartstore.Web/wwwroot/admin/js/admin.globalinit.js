@@ -91,6 +91,8 @@
         // Keeps the language tabs in the locale editor on one line.
         // All languages that don't fit are moved to the summary dropdown.
 
+        return;
+
         let languageNavHeader = $(context).find('.nav.nav-tabs');
         let languageNodes = languageNavHeader.children('.nav-item');
 
@@ -111,7 +113,8 @@
                 .append(summaryNode.detach());
 
             languageNodes = languageNavHeader.children('.nav-item');
-        } else {
+        }
+        else {
             summaryNode = $(document.createElement('li'));
             summaryNode.addClass('summary-node');
 
@@ -151,7 +154,8 @@
             summaryNode.append(dropdownMenu);
 
             summaryNode.addClass('wide');
-        } else {
+        }
+        else {
             summaryNode.addClass('d-none');
         }
 
