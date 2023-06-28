@@ -232,6 +232,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.DataGrid.XPerPage",
                 "<span class='fwm'>{0}</span><span class='d-none d-sm-inline'> per page</span>",
                 "<span class='fwm'>{0}</span><span class='d-none d-sm-inline'> pro Seite</span>");
+
+            builder.AddOrUpdate("Admin.Configuration.Stores.CannotDeleteLastStore",
+                "The store cannot be deleted. At least one store is required.",
+                "Der Shop kann nicht gelöscht werden. Es ist mindestens ein Shop erforderlich.");
+
+            builder.AddOrUpdate("Admin.Configuration.Stores.CannotDeleteStoreWithWalletPostings",
+                "The store cannot be deleted. Postings to a credit account are assigned to it.",
+                "Der Shop kann nicht gelöscht werden. Ihm sind Buchungen auf ein Guthabenkonto zugeordnet.");
         }
     }
 }

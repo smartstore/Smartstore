@@ -22,7 +22,6 @@ namespace Smartstore.Core.Stores
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private Store _currentStore;
-        private string _hookErrorMessage;
 
         public StoreContext(
             IHttpContextAccessor httpContextAccessor,
@@ -47,36 +46,6 @@ namespace Smartstore.Core.Stores
         }
 
         #region Hook
-
-        protected override HookResult OnDeleting(BaseEntity entity, IHookedEntity entry)
-        {
-            if (entry.Entity is Store)
-            {
-                if (GetCachedStores().Stores.Count == 1)
-                {
-                    // INFO: localizer instantiation problematic here.
-                    _hookErrorMessage = "The only remaining store cannot be deleted.";
-                    entry.ResetState();
-                }
-
-                return HookResult.Ok;
-            }
-            else
-            {
-                return HookResult.Void;
-            }
-        }
-
-        protected override void OnBeforeSaveCompleted(IEnumerable<IHookedEntity> entries)
-        {
-            if (_hookErrorMessage.HasValue())
-            {
-                var message = new string(_hookErrorMessage);
-                _hookErrorMessage = null;
-
-                throw new HookException(message);
-            }
-        }
 
         public override HookResult OnAfterSave(IHookedEntity entry)
         {
