@@ -440,26 +440,70 @@ input.form-control-plaintext {
 // Pinned columns
 // -----------------------------------------
 
-.dg-col-pinned {
-    position: sticky !important;
-    overflow-x: visible !important;
-    z-index: 5;
+@include media-breakpoint-up(sm) {
+    .dg-col-pinned {
+        position: sticky !important;
+        overflow-x: visible !important;
+        z-index: 5;
 
-    &.dg-th {
-        z-index: 10;
+        &.dg-th {
+            z-index: 10;
+        }
+
+        &.alpha {
+            left: 0;
+        }
+
+        &.alpha + .alpha {
+            // Detail view toggler beneath selector
+            left: 48px;
+        }
+
+        &.omega {
+            right: 0;
+        }
     }
 
-    &.alpha {
-        left: 0;
+    .dg-scrollable .dg-col-pinned {
+        &.alpha {
+            box-shadow: inset -1px 0 0 var(--dg-border-color);
+            border-right: 1px solid var(--dg-border-color);
+        }
+
+        &.omega {
+            box-shadow: inset 1px 0 0 var(--dg-border-color);
+            border-left: 1px solid var(--dg-border-color);
+        }
+
+        &:before {
+            position: absolute;
+            display: block;
+            content: "";
+            pointer-events: none;
+            width: 10px;
+            right: -10px;
+            top: 0;
+            bottom: 0;
+            background: linear-gradient(270deg, transparent, rgba(#000, .05));
+        }
+
+        &.omega:before {
+            right: initial;
+            left: -10px;
+            background: linear-gradient(90deg, transparent, rgba(#000, .05));
+        }
     }
 
-    &.alpha + .alpha {
-        // Detail view toggler beneath selector
-        left: 48px;
-    }
+    [dir=rtl] {
+        .dg-col-pinned.alpha {
+            left: initial;
+            right: 0;
+        }
 
-    &.omega {
-        right: 0;
+        .dg-col-pinned.omega {
+            left: 0;
+            right: initial;
+        }
     }
 }
 
@@ -615,40 +659,6 @@ a.dg-page {
 }
 
 
-// Scrolling
-// -----------------------------------------
-
-.dg-scrollable .dg-col-pinned {
-    &.alpha {
-        box-shadow: inset -1px 0 0 var(--dg-border-color);
-        border-right: 1px solid var(--dg-border-color);
-    }
-
-    &.omega {
-        box-shadow: inset 1px 0 0 var(--dg-border-color);
-        border-left: 1px solid var(--dg-border-color);
-    }
-
-    &:before {
-        position: absolute;
-        display: block;
-        content: "";
-        pointer-events: none;
-        width: 10px;
-        right: -10px;
-        top: 0;
-        bottom: 0;
-        background: linear-gradient(270deg, transparent, rgba(#000, .05));
-    }
-
-    &.omega:before {
-        right: initial;
-        left: -10px;
-        background: linear-gradient(90deg, transparent, rgba(#000, .05));
-    }
-}
-
-
 .dg-page-number,
 .dg-page-size-chooser,
 span.dg-page {
@@ -719,16 +729,6 @@ span.dg-page {
     .dg-page-refresh {
         border-left: 1px solid $dg-border;
         border-right: none;
-    }
-
-    .dg-col-pinned.alpha {
-        left: initial;
-        right: 0;
-    }
-
-    .dg-col-pinned.omega {
-        left: 0;
-        right: initial;
     }
 
     .dg-icon + * {

@@ -228,6 +228,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Promotions.Campaigns.Warning",
                 "Save the campaign and use the preview button to test it before sending it to many customers.",
                 "Speichern Sie die Kampagne und benutzen Sie den Vorschau-Button, um sie zu testen, bevor Sie sie an viele Kunden versenden.");
+
+            builder.AddOrUpdate("Admin.DataGrid.XPerPage",
+                "<span class='fwm'>{0}</span><span class='d-none d-sm-inline'> per page</span>",
+                "<span class='fwm'>{0}</span><span class='d-none d-sm-inline'> pro Seite</span>");
         }
     }
 }
