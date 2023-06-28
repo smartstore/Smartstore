@@ -181,10 +181,12 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> CurrencySelected(int customerCurrency, string returnUrl = null)
         {
             var currency = await _db.Currencies.FindByIdAsync(customerCurrency);
-            if (currency != null)
+            if (currency == null || !currency.Published)
             {
-                Services.WorkContext.WorkingCurrency = currency;
+                return NotFound();
             }
+
+            Services.WorkContext.WorkingCurrency = currency;
 
             return RedirectToReferrer(returnUrl);
         }
@@ -194,27 +196,26 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> SetLanguage(int langid, string returnUrl = "")
         {
             var language = await _db.Languages.FindByIdAsync(langid, false);
-            if (language != null)
+            if (language == null || !language.Published)
             {
-                if (language.Published)
-                {
-                    Services.WorkContext.WorkingLanguage = language;
-                }
-
-                var helper = new LocalizedUrlHelper(Request.PathBase, returnUrl ?? string.Empty);
-                var urlPolicy = HttpContext.GetUrlPolicy();
-
-                if (urlPolicy != null && urlPolicy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
-                {
-                    // Don't prepend culture code if it is master language and master is prefixless by configuration.
-                    if (language.UniqueSeoCode != urlPolicy.DefaultCultureCode || urlPolicy.LocalizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect)
-                    {
-                        helper.PrependCultureCode(Services.WorkContext.WorkingLanguage.UniqueSeoCode, true);
-                    }
-                }
-
-                returnUrl = helper.FullPath;
+                return NotFound();
             }
+
+            Services.WorkContext.WorkingLanguage = language;
+
+            var helper = new LocalizedUrlHelper(Request.PathBase, returnUrl ?? string.Empty);
+            var urlPolicy = HttpContext.GetUrlPolicy();
+
+            if (urlPolicy != null && urlPolicy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
+            {
+                // Don't prepend culture code if it is master language and master is prefixless by configuration.
+                if (language.UniqueSeoCode != urlPolicy.DefaultCultureCode || urlPolicy.LocalizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect)
+                {
+                    helper.PrependCultureCode(Services.WorkContext.WorkingLanguage.UniqueSeoCode, true);
+                }
+            }
+
+            returnUrl = helper.FullPath;
 
             return RedirectToReferrer(returnUrl);
         }
