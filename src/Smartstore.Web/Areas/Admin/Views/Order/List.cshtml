@@ -18,7 +18,7 @@
         <div class="options d-flex">
             <zone name="admin_button_toolbar_before" />
 
-            <div class="input-group d-inline-flex" style="width: 400px">
+            <div class="input-group d-inline-flex" style="width: clamp(200px, 30vw, 400px)">
                 <input asp-for="GoDirectlyToNumber" class="form-control" placeholder="@T("Admin.Orders.List.GoDirectlyToNumber")" />
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-secondary" 

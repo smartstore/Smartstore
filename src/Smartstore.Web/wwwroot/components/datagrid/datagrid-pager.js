@@ -28,7 +28,7 @@
                     <div v-if="paging.enabled && paging.showSizeChooser && paging.availableSizes?.length" class="dropdown d-flex align-items-center border-left pl-1 ml-2">
                         <a href="#" v-html="T.xPerPage.format(command.pageSize)" class="dg-page dg-page-size-chooser btn btn-light btn-sm dropdown-toggle text-truncate px-2" data-toggle="dropdown">
                         </a>
-                        <div class="dropdown-menu">
+                        <div class="dropdown-menu" style="min-width: 6rem">
                             <a v-for="size in paging.availableSizes" href="#" class="dropdown-item" @click.prevent="setPageSize(size)">{{ size }}</a>
                         </div>
                     </div>

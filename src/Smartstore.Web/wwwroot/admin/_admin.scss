@@ -147,7 +147,7 @@ body {
     padding-left: var(--content-padding-x);
     padding-right: var(--content-padding-x);
     padding-top: $section-header-height;
-    padding-bottom: var(--content-padding-x);
+    padding-bottom: #{"max(calc(10px + env(safe-area-inset-bottom, 0px)), var(--content-padding-x))"};
     box-shadow: $box-shadow-sm-var;
     border-radius: $border-radius-lg $border-radius-lg 0 0;
     background-color: #fff;

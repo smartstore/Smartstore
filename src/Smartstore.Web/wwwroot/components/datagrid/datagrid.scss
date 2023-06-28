@@ -4,13 +4,6 @@ $dg-border: #dee2e6;
 $dg-even: mix($light, #fff, 60%);
 $dg-hover: darken(#f2f7fb, 0.5%);
 
-.spa-layout {
-    #content {
-        // TODO: (core) Move this selector enhancement with $content-padding-x (instead of 30px) to ported scss file
-        padding-bottom: 30px;
-    }
-}
-
 
 // TODO: (core) Move to applicable place later
 // -----------------------------------------
@@ -275,6 +268,12 @@ input.form-control-plaintext {
     position: relative;
     padding-left: 0.6rem;
     padding-right: 0.6rem;
+
+    @include media-breakpoint-down(sm) {
+        > i + span {
+            display: none;
+        }
+    }
 }
 
 .dg-toolbar-group {

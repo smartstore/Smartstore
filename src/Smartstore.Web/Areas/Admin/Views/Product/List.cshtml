@@ -7,16 +7,23 @@
     Assets.BodyAttributes.AppendCssClass("spa-layout");
 }
 
+@*<style>
+    #content {
+        padding-bottom: max(calc(10px + env(safe-area-inset-bottom, 0px)), var(--content-padding-x));
+    }
+</style>*@
+
 <form method="post" asp-action="List">
     <div class="section-header">
         <div class="title">
             <i class="fa fa-cube"></i>
             @T("Admin.Catalog.Products.Manage")
+            @*<a href="javascript:window.location.reload(true)" class="btn btn-primary ml-2">Reload</a>*@
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />
 
-            <div class="input-group d-inline-flex" style="width: 350px">
+            <div class="input-group d-inline-flex" style="width: clamp(200px, 30vw, 350px)">
                 <input asp-for="ProductCode" placeholder="@T("Admin.Catalog.Products.List.GoDirectlyToSku")" />
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-secondary" id="go-to-product" name="go-to-product" value="go-to-product" title="@T("Admin.Catalog.Products.List.GoDirectlyToSku.Hint")">
