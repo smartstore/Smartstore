@@ -331,6 +331,7 @@ namespace Smartstore.Admin.Controllers
         {
             var stateProvinces = await _db.StateProvinces
                 .Where(x => x.CountryId == countryId)
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();

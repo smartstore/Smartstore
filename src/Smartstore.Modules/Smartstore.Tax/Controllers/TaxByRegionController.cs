@@ -71,6 +71,10 @@ namespace Smartstore.Tax.Controllers
         public async Task<IActionResult> TaxRateList(GridCommand command)
         {
             var taxRates = await _db.TaxRates()
+                .OrderBy(x => x.CountryId)
+                .ThenBy(x => x.StateProvinceId)
+                .ThenBy(x => x.Zip)
+                .ThenBy(x => x.TaxCategoryId)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();

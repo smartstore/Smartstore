@@ -88,6 +88,10 @@ namespace Smartstore.ShippingByWeight.Controllers
         {
             var shippingRates = await _db.ShippingRatesByWeight()
                 .AsNoTracking()
+                .OrderBy(x => x.StoreId)
+                .ThenBy(x => x.CountryId)
+                .ThenBy(x => x.ShippingMethodId)
+                .ThenBy(x => x.From)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();

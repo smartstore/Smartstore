@@ -72,13 +72,14 @@ namespace Smartstore.Admin.Controllers
                 .ApplyLoggerFilter(model.Logger)
                 .ApplyMessageFilter(model.Message)
                 .ApplyLevelFilter(logLevel)
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command, false);
 
             var logItems = await query.ToPagedList(command).LoadAsync();
 
             var gridModel = new GridModel<LogModel>
             {
-                Rows = logItems.Select(x => PrepareLogModel(x)),
+                Rows = logItems.Select(PrepareLogModel),
                 Total = logItems.TotalCount
             };
 
