@@ -9,6 +9,7 @@ $dg-hover: darken(#f2f7fb, 0.5%);
 // -----------------------------------------
 input.form-control-plaintext {
     outline: 0;
+    -moz-appearance: textfield;
 }
 // END TODO
 // -----------------------------------------
