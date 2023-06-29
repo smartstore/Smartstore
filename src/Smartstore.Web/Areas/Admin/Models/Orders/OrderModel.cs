@@ -54,6 +54,7 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*RedeemedRewardPoints")]
         public string RedeemedRewardPointsAmountString { get; set; }
 
+        [LocalizedDisplay("*CreditBalance")]
         public string CreditBalanceString { get; set; }
 
         [LocalizedDisplay("*OrderTotalRounding")]
