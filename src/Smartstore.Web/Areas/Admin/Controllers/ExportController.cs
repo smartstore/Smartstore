@@ -606,7 +606,8 @@ namespace Smartstore.Admin.Controllers
                         Name = x.Name,
                         Published = x.Published,
                         DisplayOrder = x.DisplayOrder,
-                        LimitedToStores = x.LimitedToStores
+                        LimitedToStores = x.LimitedToStores,
+                        SubjectToAcl = x.SubjectToAcl,
                     })
                     .ToList();
 

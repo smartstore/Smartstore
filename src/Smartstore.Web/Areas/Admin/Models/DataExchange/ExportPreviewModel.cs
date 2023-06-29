@@ -107,6 +107,9 @@ namespace Smartstore.Admin.Models.Export
 
         [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
         public bool LimitedToStores { get; set; }
+
+        [LocalizedDisplay("Admin.Common.CustomerRole.LimitedTo")]
+        public bool SubjectToAcl { get; set; }
     }
 
     [LocalizedDisplay("Admin.Customers.Customers.Fields.")]
