@@ -52,11 +52,14 @@ namespace Smartstore.Web.TagHelpers.Admin
             var content = await output.GetChildContentAsync();
             if (content.IsEmptyOrWhiteSpace)
             {
-                var additionalViewData = new RouteValueDictionary() { ["postfix"] = Postfix };
-                if (output.Attributes.TryGetAttribute("data-toggler-for", out var attr))
+                var additionalViewData = new RouteValueDictionary { ["postfix"] = Postfix };
+
+                if (output.Attributes.TryGetAttribute("data-toggler-for", out var togglerFor))
                 {
                     // TODO: (mh) (core) Find a better solution to pass custom attributes to auto-generated editors.
-                    additionalViewData["htmlAttributes"] = new { data_toggler_for = attr.ValueAsString() };
+                    additionalViewData["htmlAttributes"] = output.Attributes.TryGetAttribute("data-toggler-reverse", out var reverse)
+                        ? new { data_toggler_for = togglerFor.ValueAsString(), data_toggler_reverse = reverse.ValueAsString() }
+                        : new { data_toggler_for = togglerFor.ValueAsString() };
                 }
 
                 output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));

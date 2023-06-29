@@ -80,10 +80,7 @@
             <smart-label asp-for="PriceSettings.IgnoreDiscounts" />
         </div>
         <div class="adminData">
-            <setting-editor asp-for="PriceSettings.IgnoreDiscounts">
-                @*INFO: toggler does not work on initial page load if applied on setting-editor tag.*@
-                <input asp-for="PriceSettings.IgnoreDiscounts" data-toggler-for=".pricing-discounts" data-toggler-reverse="true" />
-            </setting-editor>
+            <setting-editor asp-for="PriceSettings.IgnoreDiscounts" data-toggler-for=".pricing-discounts" data-toggler-reverse="true"></setting-editor>
             <span asp-validation-for="PriceSettings.IgnoreDiscounts"></span>
         </div>
     </div>
