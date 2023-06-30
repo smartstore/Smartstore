@@ -20,8 +20,8 @@ namespace Smartstore.Templating.Liquid
 
         public Task<string> RenderAsync(object model, IFormatProvider formatProvider)
         {
-            Guard.NotNull(model, nameof(model));
-            Guard.NotNull(formatProvider, nameof(formatProvider));
+            Guard.NotNull(model);
+            Guard.NotNull(formatProvider);
 
             var p = CreateParameters(model, formatProvider);
             return Task.FromResult(Template.Render(p));

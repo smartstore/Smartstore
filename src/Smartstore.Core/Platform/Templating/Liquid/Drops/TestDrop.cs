@@ -47,20 +47,17 @@ namespace Smartstore.Templating.Liquid
                     }
                     else if (pi.PropertyType.IsBasicOrNullableType())
                     {
-                        value = "{{ " + modelPrefix + " }}";
+                        value = pi.GetValue(_entity) ?? "{{ " + modelPrefix + " }}";
                     }
-                    else if (pi.PropertyType.IsSequenceType(out var seqType))
+                    else if (pi.PropertyType.IsSequenceType(out var elementType))
                     {
-                        if (typeof(BaseEntity).IsAssignableFrom(seqType))
+                        if (typeof(BaseEntity).IsAssignableFrom(elementType))
                         {
-                            var testObj1 = new TestDrop((BaseEntity)Activator.CreateInstance(seqType), "it");
-                            var testObj2 = new TestDrop((BaseEntity)Activator.CreateInstance(seqType), "it");
-                            var list = new List<TestDrop>
+                            value = new List<TestDrop>
                             {
-                                testObj1,
-                                testObj2
+                                new TestDrop((BaseEntity)Activator.CreateInstance(elementType), "it"),
+                                new TestDrop((BaseEntity)Activator.CreateInstance(elementType), "it")
                             };
-                            value = list;
                         }
                     }
                     else if (typeof(BaseEntity).IsAssignableFrom(pi.PropertyType))

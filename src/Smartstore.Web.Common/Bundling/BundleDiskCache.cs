@@ -42,7 +42,7 @@ namespace Smartstore.Web.Bundling
             }
 
             Guard.NotNull(cacheKey.Key, nameof(cacheKey.Key));
-            Guard.NotNull(bundle, nameof(bundle));
+            Guard.NotNull(bundle);
 
             var dir = GetCacheDirectory(cacheKey);
 
@@ -172,7 +172,7 @@ namespace Smartstore.Web.Bundling
                 {
                     // First check if pcodes match, this one is faster than file hash check.
                     var enableMinification = _options.CurrentValue.EnableMinification == true;
-                    var enableAutoprefixer = bundle.ContentType == "text/css" ? _options.CurrentValue.EnableAutoprefixer == true : false;
+                    var enableAutoprefixer = bundle.ContentType == "text/css" && _options.CurrentValue.EnableAutoprefixer == true;
                     var isMinified = pcodes.Contains(BundleProcessorCodes.Minify);
                     var isAutoprefixed = pcodes.Contains(BundleProcessorCodes.Autoprefix);
 
@@ -208,7 +208,8 @@ namespace Smartstore.Web.Bundling
                 var fileInfo = fileProvider.GetFileInfo(file);
                 if (fileInfo is IFileHashProvider hashProvider)
                 {
-                    combiner.Add(await hashProvider.GetFileHashAsync());
+                    var hash = await hashProvider.GetFileHashAsync();
+                    combiner.Add(hash);
                 }
                 else
                 {

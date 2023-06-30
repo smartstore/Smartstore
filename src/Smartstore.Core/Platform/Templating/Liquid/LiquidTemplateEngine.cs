@@ -62,22 +62,22 @@ namespace Smartstore.Templating.Liquid
 
         public ITemplate Compile(string source)
         {
-            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(source);
 
             return new LiquidTemplate(Template.Parse(source), source);
         }
 
         public Task<string> RenderAsync(string source, object model, IFormatProvider formatProvider = null)
         {
-            Guard.NotNull(source, nameof(source));
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(source);
+            Guard.NotNull(model);
 
             return Compile(source).RenderAsync(model, formatProvider ?? CultureInfo.CurrentCulture);
         }
 
         public ITestModel CreateTestModelFor(BaseEntity entity, string modelPrefix)
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             return new TestDrop(entity, modelPrefix);
         }

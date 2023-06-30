@@ -347,8 +347,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(OrderNote part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var m = new Dictionary<string, object>
             {

@@ -6,7 +6,7 @@ namespace Smartstore.Core.Messaging
     {
         public T GetFromBag<T>(string key)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             if (TryGetValue("Bag", out var obj) && obj is IDictionary<string, object> bag)
             {
@@ -27,7 +27,7 @@ namespace Smartstore.Core.Messaging
         /// <returns>The found result object or <c>null</c></returns>
         public object Evaluate(string expression)
         {
-            Guard.NotEmpty(expression, nameof(expression));
+            Guard.NotEmpty(expression);
 
             if (!expression.Contains('.'))
             {

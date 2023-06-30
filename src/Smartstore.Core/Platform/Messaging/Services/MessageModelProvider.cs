@@ -27,6 +27,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.Templating;
+using Smartstore.Templating.Liquid;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
@@ -82,7 +83,7 @@ namespace Smartstore.Core.Messaging
 
         public virtual async Task AddGlobalModelPartsAsync(MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
+            Guard.NotNull(messageContext);
 
             var model = messageContext.Model;
 
@@ -189,8 +190,8 @@ namespace Smartstore.Core.Messaging
 
         public virtual async Task AddModelPartAsync(object part, MessageContext messageContext, string name = null)
         {
-            Guard.NotNull(part, nameof(part));
-            Guard.NotNull(messageContext, nameof(messageContext));
+            Guard.NotNull(part);
+            Guard.NotNull(messageContext);
 
             var model = messageContext.Model;
 
@@ -312,7 +313,7 @@ namespace Smartstore.Core.Messaging
 
         public string ResolveModelName(object model)
         {
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(model);
 
             string name = null;
             var type = model.GetType();
@@ -442,8 +443,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(Store part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var host = messageContext.BaseUri.ToString();
             var logoFile = await _services.MediaService.GetFileByIdAsync(messageContext.Store.LogoMediaFileId, MediaLoadFlags.AsNoTracking);
@@ -480,8 +481,8 @@ namespace Smartstore.Core.Messaging
             Size? clientMaxSize = null,
             string alt = null)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotEmpty(href, nameof(href));
+            Guard.NotNull(messageContext);
+            Guard.NotEmpty(href);
 
             if (part == null)
             {
@@ -515,8 +516,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(Product part, MessageContext messageContext, ProductVariantAttributeSelection attrSelection = null)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var storeId = messageContext.StoreId ?? 0;
             var mediaSettings = await _services.SettingFactory.LoadSettingsAsync<MediaSettings>(storeId);
@@ -576,8 +577,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(Customer part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var email = part.FindEmail();
             var pwdRecoveryToken = part.GenericAttributes.PasswordRecoveryToken;
@@ -632,8 +633,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(GiftCard part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var m = new Dictionary<string, object>
             {
@@ -671,8 +672,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(NewsletterSubscription part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var gid = part.NewsletterSubscriptionGuid;
 
@@ -698,8 +699,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(Campaign part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var protocol = messageContext.BaseUri.Scheme;
             var host = messageContext.BaseUri.Authority + messageContext.BaseUri.AbsolutePath;
@@ -723,8 +724,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(ProductReview part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var m = new Dictionary<string, object>
             {
@@ -740,8 +741,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(ProductReviewHelpfulness part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var m = new Dictionary<string, object>
             {
@@ -759,8 +760,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(Address part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var settings = await _services.SettingFactory.LoadSettingsAsync<AddressSettings>();
             var languageId = messageContext.Language?.Id ?? messageContext.LanguageId;
@@ -814,8 +815,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(RewardPointsHistory part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var m = new Dictionary<string, object>
             {
@@ -834,8 +835,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(IEnumerable<GenericAttribute> part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var m = new Dictionary<string, object>();
 
@@ -851,8 +852,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(BackInStockSubscription part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var m = new Dictionary<string, object>
             {
@@ -891,7 +892,7 @@ namespace Smartstore.Core.Messaging
 
         public TreeNode<ModelTreeMember> GetLastModelTree(MessageTemplate template)
         {
-            Guard.NotNull(template, nameof(template));
+            Guard.NotNull(template);
 
             if (template.LastModelTree.IsEmpty())
             {
@@ -903,7 +904,7 @@ namespace Smartstore.Core.Messaging
 
         public TreeNode<ModelTreeMember> BuildModelTree(TemplateModel model)
         {
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(model);
 
             var root = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = "Model", Kind = ModelTreeMemberKind.Root });
 
@@ -957,9 +958,13 @@ namespace Smartstore.Core.Messaging
 
         private IEnumerable<TreeNode<ModelTreeMember>> BuildModelTreePartForClass(object instance, HashSet<object> instanceLookup = null)
         {
-            var type = instance?.GetType();
+            if (instance is null)
+            {
+                yield break;
+            }
 
-            if (type == null)
+            var type = instance?.GetType();
+            if (type == null || instance is TestDrop)
             {
                 yield break;
             }

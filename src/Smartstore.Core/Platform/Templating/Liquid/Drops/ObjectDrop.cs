@@ -10,7 +10,7 @@ namespace Smartstore.Templating.Liquid
 
         public ObjectDrop(object data)
         {
-            Guard.NotNull(data, nameof(data));
+            Guard.NotNull(data);
 
             _data = data;
             _type = data.GetType();
