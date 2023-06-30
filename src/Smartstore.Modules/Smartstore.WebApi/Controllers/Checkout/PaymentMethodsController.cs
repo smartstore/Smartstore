@@ -66,7 +66,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <summary>
         /// Gets the system name of all payment providers.
         /// </summary>
-        /// <param name="active" example="true">A value indicating whether to only include active payment methods. False to load all payment method names.</param>
+        /// <param name="active" example="true">A value indicating whether to only include active payment methods. **False** to load all payment method names.</param>
         /// <param name="storeId">Filter payment methods by store identifier. 0 to load all.</param>
         [HttpGet("PaymentMethods/GetAllPaymentMethods(active={active},storeId={storeId})")]
         [Permission(Permissions.Configuration.PaymentMethod.Read)]
