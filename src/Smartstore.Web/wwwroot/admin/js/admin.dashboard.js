@@ -89,12 +89,13 @@ Smartstore.Admin.Charts = {
                 chevronEl.classList.remove('d-none');
                 percentEl.classList.add('text-success');
                 percentEl.classList.remove('text-danger');
-                delta = '+' + Math.abs(datasets.PercentageDelta) + '%';;
+                delta = '+' + Math.abs(datasets.PercentageDelta) + '%';
             }
             else {
                 chevronEl.classList.add('d-none');
             }
             percentEl.innerText = delta;
+            percentEl.title = datasets.PercentageDescription;
             sumEl.innerText = datasets.TotalAmountFormatted;
         }
 

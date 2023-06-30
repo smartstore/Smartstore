@@ -15,6 +15,7 @@
         public string TotalAmountFormatted { get; set; }
         public decimal TotalAmount { get; set; }
         public int PercentageDelta { get; set; }
+        public string PercentageDescription { get; set; } = string.Empty;
         public string[] Labels { get; set; }
 
         public ChartDataPointReport[] DataSets { get; set; }

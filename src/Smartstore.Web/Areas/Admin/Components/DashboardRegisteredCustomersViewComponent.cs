@@ -26,6 +26,7 @@ namespace Smartstore.Admin.Components
             // Get customers of at least last 28 days (if year is younger)
             var utcNow = DateTime.UtcNow;
             var beginningOfYear = new DateTime(utcNow.Year, 1, 1);
+            var userTime = _dateTimeHelper.ConvertToUserTime(utcNow, DateTimeKind.Utc).Date;
             var startDate = (utcNow.Date - beginningOfYear).Days < 28 ? utcNow.AddDays(-27).Date : beginningOfYear;
 
             var registeredRole = await _db.CustomerRoles
@@ -39,7 +40,7 @@ namespace Smartstore.Admin.Components
                 .Select(x => x.CreatedOnUtc)
                 .ToList();
 
-            var model = new List<DashboardChartReportModel>()
+            var model = new List<DashboardChartReportModel>
             {
                 // Today = index 0
                 new DashboardChartReportModel(1, 24),
@@ -59,7 +60,6 @@ namespace Smartstore.Admin.Components
                 SetCustomerReportData(model, _dateTimeHelper.ConvertToUserTime(dataPoint, DateTimeKind.Utc));
             }
 
-            var userTime = _dateTimeHelper.ConvertToUserTime(utcNow, DateTimeKind.Utc).Date;
             // Format and sum values, create labels for all dataPoints
             for (int i = 0; i < model.Count; i++)
             {
@@ -103,43 +103,65 @@ namespace Smartstore.Admin.Components
                 }
             }
 
-            // Get registrations for corresponding period to calculate change in percentage; TODO: only apply to similar time of day?
-            var registeredCountMonthBefore = await _db.Customers
-                .ApplyRegistrationFilter(beginningOfYear.AddDays(-56), utcNow.Date.AddDays(-28))
-                .ApplyRolesFilter(new[] { registeredRole.Id })
-                .CountAsync();
-
-            var registeredCountYearBefore = await _db.Customers
-                .ApplyRegistrationFilter(beginningOfYear.AddYears(-1), utcNow.AddYears(-1))
-                .ApplyRolesFilter(new[] { registeredRole.Id })
-                .CountAsync();
-
-            var sumBefore = new decimal[]
+            // Get registrations for corresponding period to calculate change in percentage.
+            // TODO: only apply to similar time of day?
+            for (var i = 0; i < model.Count; i++)
             {
-                // Get registration count for day before
-                model[1].TotalAmount,
+                var m = model[i];
+                decimal registrationsBefore = 0;
+                DateTime from = DateTime.MinValue;
+                DateTime to = DateTime.MinValue;
 
-                // Get registration count for day before yesterday
-                customerDates.Where( x =>
-                    x >= utcNow.Date.AddDays(-2) && x < utcNow.Date.AddDays(-1)
-                ).Count(),
+                switch (i)
+                {
+                    // Yesterday.
+                    case 0:
+                        registrationsBefore = model[1].TotalAmount;
+                        break;
+                    // Registrations for day before yesterday.
+                    case 1:
+                        from = utcNow.Date.AddDays(-2);
+                        to = utcNow.Date.AddDays(-1);
+                        registrationsBefore = customerDates.Where(x => x >= from && x < to).Count();
+                        break;
+                    // Registrations for week before.
+                    case 2:
+                        from = utcNow.Date.AddDays(-14);
+                        to = utcNow.Date.AddDays(-7);
+                        registrationsBefore = customerDates.Where(x => x >= from && x < to).Count();
+                        break;
+                    // Registrations for month before.
+                    case 3:
+                        from = utcNow.Date.AddDays(-56);
+                        to = utcNow.Date.AddDays(-28);
+                        registrationsBefore = await _db.Customers
+                            .ApplyRegistrationFilter(from, to)
+                            .ApplyRolesFilter(new[] { registeredRole.Id })
+                            .CountAsync();
+                        break;
+                    // Registrations for year before.
+                    case 4:
+                        from = beginningOfYear.AddYears(-1);
+                        to = utcNow.AddYears(-1);
+                        registrationsBefore = await _db.Customers
+                            .ApplyRegistrationFilter(from, to)
+                            .ApplyRolesFilter(new[] { registeredRole.Id })
+                            .CountAsync();
+                        break;
+                };
 
-                // Get registration count for week before
-                customerDates.Where( x =>
-                    x >= utcNow.Date.AddDays(-14) && x < utcNow.Date.AddDays(-7)
-                ).Count(),
-
-                // Get registration count for month & year before
-                registeredCountMonthBefore,
-                registeredCountYearBefore
-            };
-
-            // Format percentage value
-            for (int i = 0; i < model.Count; i++)
-            {
-                model[i].PercentageDelta = model[i].TotalAmount != 0 && sumBefore[i] != 0
-                    ? (int)Math.Round(model[i].TotalAmount / sumBefore[i] * 100 - 100)
+                m.PercentageDelta = m.TotalAmount != 0 && registrationsBefore != 0
+                    ? (int)Math.Round(m.TotalAmount / registrationsBefore * 100 - 100)
                     : 0;
+
+                if (from != DateTime.MinValue && m.PercentageDelta != 0)
+                {
+                    var percentageStr = (m.PercentageDelta > 0 ? '+' : '-') + Math.Abs(m.PercentageDelta).ToString() + '%';
+                    var fromStr = _dateTimeHelper.ConvertToUserTime(from, DateTimeKind.Utc).ToShortDateString();
+                    var toStr = _dateTimeHelper.ConvertToUserTime(to, DateTimeKind.Utc).ToShortDateString();
+
+                    m.PercentageDescription = T("Admin.Report.ChangeComparedTo", percentageStr, fromStr, toStr);
+                }
             }
 
             return View(model);

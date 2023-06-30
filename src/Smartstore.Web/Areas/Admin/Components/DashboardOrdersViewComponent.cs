@@ -5,6 +5,8 @@ using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components
 {
+    // TODO: (mg) DRY. See similar code in DashboardRegisteredCustomersViewComponent.
+
     public class DashboardOrdersViewComponent : SmartViewComponent
     {
         private readonly SmartDbContext _db;
@@ -25,10 +27,10 @@ namespace Smartstore.Admin.Components
 
             // Get orders of at least last 28 days (if year is younger)
             var utcNow = DateTime.UtcNow;
-            var userTime = _dateTimeHelper.ConvertToUserTime(utcNow, DateTimeKind.Utc).Date;
-            var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
             var beginningOfYear = new DateTime(utcNow.Year, 1, 1);
+            var userTime = _dateTimeHelper.ConvertToUserTime(utcNow, DateTimeKind.Utc).Date;
             var startDate = (utcNow.Date - beginningOfYear).Days < 28 ? utcNow.AddDays(-27).Date : beginningOfYear;
+            var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
 
             var orderDataPoints = await _db.Orders
                 .AsNoTracking()
@@ -108,33 +110,57 @@ namespace Smartstore.Admin.Components
             }
 
             // Get sum of orders for corresponding periods to calculate change in percentage.
-            var sumBefore = new decimal[]
+            for (var i = 0; i < model.Count; i++)
             {
-                model[1].TotalAmount,
-                
-                // Orders total for day before yesterday.
-                orderDataPoints.Where( x =>
-                    x.CreatedOn >= utcNow.Date.AddDays(-2) && x.CreatedOn < utcNow.Date.AddDays(-1)
-                ).Sum(x => x.OrderTotal),
-                
-                // Orders total for week before.
-                orderDataPoints.Where( x =>
-                    x.CreatedOn >= utcNow.Date.AddDays(-14) && x.CreatedOn < utcNow.Date.AddDays(-7)
-                ).Sum(x => x.OrderTotal),
+                var m = model[i];
+                decimal totalBefore = 0;
+                DateTime from = DateTime.MinValue;
+                DateTime to = DateTime.MinValue;
 
-                // Orders total for month before.
-                await _db.Orders.ApplyAuditDateFilter(utcNow.Date.AddDays(-56), utcNow.Date.AddDays(-28)).GetOrdersTotalAsync(),
+                switch (i)
+                {
+                    // Yesterday.
+                    case 0:
+                        totalBefore = model[1].TotalAmount;
+                        break;
+                    // Order total for day before yesterday.
+                    case 1:
+                        from = utcNow.Date.AddDays(-2);
+                        to = utcNow.Date.AddDays(-1);
+                        totalBefore = orderDataPoints.Where(x => x.CreatedOn >= from && x.CreatedOn < to).Sum(x => x.OrderTotal);
+                        break;
+                    // Order total for week before.
+                    case 2:
+                        from = utcNow.Date.AddDays(-14);
+                        to = utcNow.Date.AddDays(-7);
+                        totalBefore = orderDataPoints.Where(x => x.CreatedOn >= from && x.CreatedOn < to).Sum(x => x.OrderTotal);
+                        break;
+                    // Order total for month before.
+                    case 3:
+                        from = utcNow.Date.AddDays(-56);
+                        to = utcNow.Date.AddDays(-28);
+                        totalBefore = await _db.Orders.ApplyAuditDateFilter(from, to).GetOrdersTotalAsync();
+                        break;
+                    // Order total for year before.
+                    case 4:
+                        from = beginningOfYear.AddYears(-1);
+                        to = utcNow.AddYears(-1);
+                        totalBefore = await _db.Orders.ApplyAuditDateFilter(from, to).GetOrdersTotalAsync();
+                        break;
+                };
 
-                // Orders total for year before.
-                await _db.Orders.ApplyAuditDateFilter(beginningOfYear.AddYears(-1), utcNow.AddYears(-1)).GetOrdersTotalAsync()
-            };
-
-            // Format percentage value.
-            for (int i = 0; i < model.Count; i++)
-            {
-                model[i].PercentageDelta = model[i].TotalAmount != 0 && sumBefore[i] != 0
-                    ? (int)Math.Round(model[i].TotalAmount / sumBefore[i] * 100 - 100)
+                m.PercentageDelta = m.TotalAmount != 0 && totalBefore != 0
+                    ? (int)Math.Round(m.TotalAmount / totalBefore * 100 - 100)
                     : 0;
+
+                if (from != DateTime.MinValue && m.PercentageDelta != 0)
+                {
+                    var percentageStr = (m.PercentageDelta > 0 ? '+' : '-') + Math.Abs(m.PercentageDelta).ToString() + '%';
+                    var fromStr = _dateTimeHelper.ConvertToUserTime(from, DateTimeKind.Utc).ToShortDateString();
+                    var toStr = _dateTimeHelper.ConvertToUserTime(to, DateTimeKind.Utc).ToShortDateString();
+                    
+                    m.PercentageDescription = T("Admin.Report.ChangeComparedTo", percentageStr, fromStr, toStr);
+                }
             }
 
             return View(model);

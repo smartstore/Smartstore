@@ -240,6 +240,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Stores.CannotDeleteStoreWithWalletPostings",
                 "The store cannot be deleted. Postings to a credit account are assigned to it.",
                 "Der Shop kann nicht gelöscht werden. Ihm sind Buchungen auf ein Guthabenkonto zugeordnet.");
+
+            builder.AddOrUpdate("Admin.Report.ChangeComparedTo",
+                "A change of {0} compared to the period {1} to {2}.",
+                "Eine Veränderung um {0} im Vergleich zum Zeitraum {1} bis {2}.");
         }
     }
 }
