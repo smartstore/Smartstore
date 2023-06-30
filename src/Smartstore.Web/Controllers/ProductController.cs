@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DotLiquid.FileSystems;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
@@ -16,6 +18,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
@@ -42,11 +45,14 @@ namespace Smartstore.Web.Controllers
         private readonly CaptchaSettings _captchaSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly PrivacySettings _privacySettings;
+        private readonly PaymentSettings _paymentSettings;
         private readonly Lazy<IMessageFactory> _messageFactory;
         private readonly Lazy<ProductUrlHelper> _productUrlHelper;
         private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
         private readonly Lazy<IProductAttributeMaterializer> _productAttributeMaterializer;
         private readonly Lazy<IStockSubscriptionService> _stockSubscriptionService;
+        private readonly Lazy<IProviderManager> _providerManager;
+        private readonly Lazy<ModuleManager> _moduleManager;
 
         public ProductController(
             SmartDbContext db,
@@ -67,11 +73,14 @@ namespace Smartstore.Web.Controllers
             CaptchaSettings captchaSettings,
             LocalizationSettings localizationSettings,
             PrivacySettings privacySettings,
+            PaymentSettings paymentSettings,
             Lazy<IMessageFactory> messageFactory,
             Lazy<ProductUrlHelper> productUrlHelper,
             Lazy<IProductAttributeFormatter> productAttributeFormatter,
             Lazy<IProductAttributeMaterializer> productAttributeMaterializer,
-            Lazy<IStockSubscriptionService> stockSubscriptionService)
+            Lazy<IStockSubscriptionService> stockSubscriptionService,
+            Lazy<IProviderManager> providerManager,
+            Lazy<ModuleManager> moduleManager)
         {
             _db = db;
             _webHelper = webHelper;
@@ -91,11 +100,14 @@ namespace Smartstore.Web.Controllers
             _captchaSettings = captchaSettings;
             _localizationSettings = localizationSettings;
             _privacySettings = privacySettings;
+            _paymentSettings = paymentSettings;
             _messageFactory = messageFactory;
             _productUrlHelper = productUrlHelper;
             _productAttributeFormatter = productAttributeFormatter;
             _productAttributeMaterializer = productAttributeMaterializer;
             _stockSubscriptionService = stockSubscriptionService;
+            _providerManager = providerManager;
+            _moduleManager = moduleManager;
         }
 
         #region Products
@@ -192,7 +204,114 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
+            await PrepareAvailablePaymentMethodsAsync();
+
             return View(model.ProductTemplateViewPath, model);
+        }
+
+        /// <summary>
+        /// Prepares icons of payment methods for display on product detail pages configured in <see cref="PaymentSettings.ProductDetailPaymentMethodSystemNames"/>.
+        /// </summary>
+        private async Task PrepareAvailablePaymentMethodsAsync()
+        {
+            // Get available payment methods
+            if (!_paymentSettings.ProductDetailPaymentMethodSystemNames.HasValue())
+                return;
+
+            // Store obtained data in memory cache
+            var cacheKey = PaymentService.PRODUCT_DETAIL_PAYMENT_ICONS.FormatInvariant(Services.StoreContext.CurrentStore.Id, Services.WorkContext.WorkingLanguage.Id);
+            ViewBag.AvailablePaymentMethods = await Services.Cache.GetAsync(cacheKey, async () =>
+            {
+                // INFO: No Dictonary<string, string> here because key are not unique in the case a provider has multiple icons.
+                var paymentMethods = new List<(string FriendlyName, string Url)>();
+                    
+                // Get all providers.
+                var providers = _providerManager.Value.GetAllProviders<IPaymentMethod>();
+                var productDetailMethods = _paymentSettings.ProductDetailPaymentMethodSystemNames.Split(",");
+
+                foreach (var methodSystemName in productDetailMethods)
+                {
+                    var provider = providers.Where(x => x.Metadata.SystemName == methodSystemName).FirstOrDefault();
+
+                    // Check if provider is enables.
+                    var isActive = provider.IsPaymentProviderEnabled(_paymentSettings);
+                    if (!isActive)
+                    {
+                        continue;
+                    }
+
+                    var friendlyName = _moduleManager.Value.GetLocalizedFriendlyName(provider.Metadata);
+                    var brandUrls = await GetPaymentBrandIconUrlAsync(provider.Metadata);
+
+                    foreach(var brandUrl in brandUrls)
+                    {
+                        paymentMethods.Add((friendlyName, brandUrl));
+                    }
+                }
+
+                return paymentMethods;
+            });
+        }
+
+        /// <summary>
+        /// Get brand urls for product details pages.
+        /// </summary>
+        /// <param name="metadata">Metadata of an active provider.</param>
+        /// <returns>List of available brand icons.</returns>
+        private async Task<List<string>> GetPaymentBrandIconUrlAsync(ProviderMetadata metadata)
+        {
+            var brandUrls = new List<string>();
+            var methodSystemName = metadata.SystemName.ToLower();
+            var modulePath = metadata.ModuleDescriptor.Path;
+            var fs = Services.ApplicationContext.ContentRoot;
+            var fileExtensions = new[] { "png", "gif", "jpg", "jpeg" };
+
+            async Task<bool> AddBrandUrl(string filePath)
+            {
+                // Respect file extensions.
+                foreach(var ext in fileExtensions)
+                {
+                    var physicalBrandUrl = $"{modulePath}wwwroot/{filePath}.{ext}";
+
+                    if (await fs.FileExistsAsync(physicalBrandUrl))
+                    {
+                        brandUrls.Add($"{modulePath}{filePath}.{ext}");
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            // Payment methods like credit card can have multiple brands like Master Card, Visa, etc.
+            // 5 Icons per provider should be enough.
+            for ( var i = 1; i < 6; i++)
+            {
+                await AddBrandUrl($"brands/{methodSystemName}-" + i);
+            }
+
+            // If we already have collected brand urls here, there's no need to look any further.
+            if (brandUrls.Count > 0)
+            {
+                return brandUrls;
+            }
+
+            // If no files exist take the specific provider icon.
+            if (await AddBrandUrl($"brands/{methodSystemName}"))
+            {
+                return brandUrls;
+            }
+            // If icons with 'pd-' prefix can't be found make a fallback to {methodSystemName}.png or pd.png
+            else if (await AddBrandUrl("brands/default"))
+            {
+                return brandUrls;
+            }
+            else
+            {
+                brandUrls.Add("/images/default-payment-icon.png");
+            }
+            
+            return brandUrls;
         }
 
         /// <summary>

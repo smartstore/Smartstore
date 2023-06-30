@@ -1,9 +1,12 @@
-﻿using FluentValidation;
+﻿using System.Threading.Tasks.Dataflow;
+using CoreFtp.Infrastructure.Caching;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models;
+using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
@@ -57,6 +60,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IOptions<IdentityOptions> _identityOptions;
         private readonly PrivacySettings _privacySettings;
         private readonly Lazy<ModuleManager> _moduleManager;
+        private readonly ICacheManager _cache;
 
         public SettingController(
             SmartDbContext db,
@@ -74,7 +78,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IConfigureOptions<IdentityOptions>> identityOptionsConfigurer,
             IOptions<IdentityOptions> identityOptions,
             PrivacySettings privacySettings,
-            Lazy<ModuleManager> moduleManager)
+            Lazy<ModuleManager> moduleManager,
+            ICacheManager cache)
         {
             _db = db;
             _currencyService = currencyService;
@@ -92,6 +97,7 @@ namespace Smartstore.Admin.Controllers
             _identityOptions = identityOptions;
             _privacySettings = privacySettings;
             _moduleManager = moduleManager;
+            _cache = cache;
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -982,15 +988,26 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new PaymentSettingsModel
             {
-                CapturePaymentReason = settings.CapturePaymentReason
+                CapturePaymentReason = settings.CapturePaymentReason,
+                ProductDetailPaymentMethodSystemNames = settings.ProductDetailPaymentMethodSystemNames.SplitSafe(",").ToArray(),
+                DisplayPaymentMethodIcons = settings.DisplayPaymentMethodIcons
             };
+
+            var providers = _providerManager.GetAllProviders<IPaymentMethod>();
+
+            var selectListItems = providers
+                .Where(x => x.IsPaymentProviderEnabled(settings))
+                .Select(x => new SelectListItem { Text = _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
+                .ToList();
+
+            ViewBag.ActivePaymentMethods = new MultiSelectList(selectListItems, "Value", "Text", model.ProductDetailPaymentMethodSystemNames);
 
             return View(model);
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public IActionResult Payment(PaymentSettings settings, PaymentSettingsModel model)
+        public async Task<IActionResult> Payment(PaymentSettings settings, PaymentSettingsModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -1000,6 +1017,10 @@ namespace Smartstore.Admin.Controllers
             ModelState.Clear();
 
             settings.CapturePaymentReason = model.CapturePaymentReason;
+            settings.ProductDetailPaymentMethodSystemNames = string.Join(",", model.ProductDetailPaymentMethodSystemNames);
+            settings.DisplayPaymentMethodIcons = model.DisplayPaymentMethodIcons;
+
+            await _cache.RemoveByPatternAsync(PaymentService.PRODUCT_DETAIL_PAYMENT_ICONS_PATTERN_KEY);
 
             return NotifyAndRedirect("Payment");
         }

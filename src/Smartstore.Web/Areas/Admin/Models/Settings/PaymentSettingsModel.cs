@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Core.Checkout.Payment;
+﻿using Smartstore.Core.Checkout.Payment;
 
 namespace Smartstore.Admin.Models
 {
+    [LocalizedDisplay("Admin.Configuration.Settings.Payment.")]
     public class PaymentSettingsModel : ModelBase
     {
-        [LocalizedDisplay("Admin.Configuration.Settings.Payment.CapturePaymentReason")]
+        [LocalizedDisplay("*CapturePaymentReason")]
         public CapturePaymentReason? CapturePaymentReason { get; set; }
-        public IList<SelectListItem> AvailableCapturePaymentReasons { get; set; }
+
+        [LocalizedDisplay("*ProductDetailPaymentMethodSystemNames")]
+        public string[] ProductDetailPaymentMethodSystemNames { get; set; }
+
+        [LocalizedDisplay("*DisplayPaymentMethodIcons")]
+        public bool DisplayPaymentMethodIcons { get; set; }
     }
 }

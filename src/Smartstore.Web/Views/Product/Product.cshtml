@@ -72,6 +72,9 @@
                             <partial name="Product.Offer.Actions.Misc" model="Model" />
                         }
 
+                        <!-- Available payment methods -->
+                        <partial name="Product.AvailablePaymentMethods" />
+
                         <!-- social share -->
                         <div sm-if="Model.ProductShareCode.HasValue()" class="pd-share d-flex justify-content-@(Model.ProductType == ProductType.GroupedProduct ? "start mt-4" : "center mt-3")">
                             @Html.Raw(Model.ProductShareCode)

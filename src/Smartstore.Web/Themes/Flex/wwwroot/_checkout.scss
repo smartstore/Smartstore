@@ -227,11 +227,68 @@
     }
 }
 
-
-.order-summary-page #content-body {
-	margin-top: 0;
+/* Adaptions for payment method page
+================================================ */
+.payment-brand {
+    // 4:3 aspect ratio.
+    width: 64px;
+    height: 48px;
+    margin-right: ($grid-gutter-width / 2);
+    overflow: hidden;
+    display: flex;
+    align-items: center !important;
+    justify-content: center;
+    background: linear-gradient(to bottom right, var(--gray-100), #fff);
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    border-radius: 5px;
 }
 
+.payment-method-page .small-icons {
+    .payment-selection {
+        display: none;
+    }
+
+    .opt-name,
+    .opt-info,
+    .opt-info-item {
+        margin-left: ($grid-gutter-width / 2) !important;
+    }
+
+    .payment-method-item {
+        &:hover {
+            cursor: pointer;
+        }
+
+        &.active {
+            background: #f8f9fa;
+
+            .payment-brand {
+                background: #fff;
+            }
+        }
+    }
+    /* Bigbrand */
+    .media-object,
+    .opt-name > img {
+        display: none;
+    }
+
+    .checkout-data {
+        .opt-info,
+        .opt-info-item {
+            margin-top: 0.25rem;
+            margin-left: 0;
+        }
+
+        .opt-name {
+            margin-left: 0;
+        }
+    }
+}
+
+.order-summary-page #content-body {
+    margin-top: 0;
+}
 
 /* Order Summary
 ================================================ */

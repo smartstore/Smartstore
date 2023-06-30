@@ -26,7 +26,7 @@
 
             @if (Model.PaymentMethods.Any())
             {
-                <ul class="list-group opt-list payment-methods">
+                <ul class="list-group opt-list payment-methods" attr-class='(Model.DisplayPaymentMethodIcons, "small-icons")'>
                     @for (int i = 0; i < Model.PaymentMethods.Count; i++)
                     {
                         var paymentMethod = Model.PaymentMethods[i];
@@ -36,19 +36,22 @@
                         var defaultPluginDesc = LocalizationService.GetResource(defaultPluginDescKey, logIfNotFound: false, returnEmptyIfNotFound: true);
                         var description = paymentMethod.FullDescription?.Value ?? defaultPluginDesc;
 
-                        <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>
+                        async Task RenderPaymentMethod()
+                        {
                             <div class="opt-data">
-                                <div class="form-check opt-control option-name radio">
+                                <div class="opt-control option-name radio" attr-class='(!Model.DisplayPaymentMethodIcons, "form-check")'>
 
                                     <input id="paymentmethod_@(i)" type="radio" name="paymentmethod"
                                            attr-checked='(paymentMethod.Selected, "checked")'
                                            data-has-info='@(widgetInvoker != null ? "true" : "false")'
                                            data-lazy-info='@(paymentMethod.RequiresInteraction ? "true" : "false")'
-                                           class="opt-radio form-check-input"
+                                           class="opt-radio form-check-input payment-selection"
                                            value="@(paymentMethod.PaymentMethodSystemName)" />
 
                                     <label class="form-check-label" for="paymentmethod_@(i)">
-                                        <span class="opt-name">@paymentMethod.Name</span>
+                                        <span class="opt-name">
+                                            @paymentMethod.Name
+                                        </span>
                                     </label>
                                 </div>
 
@@ -77,6 +80,26 @@
                                         @await paymentMethod.InfoWidget.InvokeAsync(ViewContext);
                                     }
                                 </div>
+                            }
+                        }
+
+                        <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>
+                            @if(Model.DisplayPaymentMethodIcons)
+                            {
+                                <div class="row no-gutters">
+                                    <div sm-if="paymentMethod.BrandUrl.HasValue()" class="col-auto payment-brand">
+                                        <img class="img-fluid" src="@paymentMethod.BrandUrl" />
+                                    </div>
+                                    <div class="col">
+                                        @{
+                                            await RenderPaymentMethod();
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                await RenderPaymentMethod();
                             }
                         </li>
                     }
@@ -116,6 +139,28 @@
             $.scrollTo(validationSummary, 600, { offset: -100 });
         }
 
+        @if (Model.DisplayPaymentMethodIcons)
+        {
+            <text>
+                $(".payment-method-item").on('click', function (e) {
+                    var item = $(this);
+                    var label = item.find("label");
+
+                    // Prevent recursive calls.
+                    if (!label.hasClass('clicked')) {
+                        label.addClass('clicked');
+                        label.trigger('click');
+                    }
+                });
+
+                $(".payment-method-item .form-check-label").on('click', function (e) {
+                    e.stopPropagation();
+                    var label = $(this);
+                    label.removeClass('clicked');
+                });
+            </text>    
+        }
+
         $('.checkout-data .opt-radio').on('change', function (e) {
             var radio = $(this);
             var systemName = radio.val();
@@ -129,7 +174,7 @@
                 });
             }
 
-            function disableNextStepButton (disable) {
+            function disableNextStepButton(disable) {
                 var btn = $('button.payment-method-next-step-button');
                 btn.prop('disabled', disable);
                 btn.find('.fa')

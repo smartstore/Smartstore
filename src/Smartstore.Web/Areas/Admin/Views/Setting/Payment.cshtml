@@ -32,9 +32,29 @@
             </div>
             <div class="adminData">
                 <setting-editor asp-for="CapturePaymentReason">
-                    <select asp-for="CapturePaymentReason" asp-items="@Html.GetLocalizedEnumSelectList(typeof(CapturePaymentReason))" asp-placeholder="@T("Common.Unspecified")"></select>
+                    <select asp-for="CapturePaymentReason" asp-items="Html.GetLocalizedEnumSelectList(typeof(CapturePaymentReason))" asp-placeholder="@T("Common.Unspecified")"></select>
                 </setting-editor>
                 <span asp-validation-for="CapturePaymentReason"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ProductDetailPaymentMethodSystemNames" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ProductDetailPaymentMethodSystemNames">
+                    <select asp-for="ProductDetailPaymentMethodSystemNames" asp-items="ViewBag.ActivePaymentMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+                </setting-editor>
+                <span asp-validation-for="ProductDetailPaymentMethodSystemNames"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DisplayPaymentMethodIcons" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DisplayPaymentMethodIcons"></setting-editor>
+                <span asp-validation-for="DisplayPaymentMethodIcons"></span>
             </div>
         </div>
     </div>

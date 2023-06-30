@@ -244,6 +244,24 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Report.ChangeComparedTo",
                 "A change of {0} compared to the period {1} to {2}.",
                 "Eine Veränderung um {0} im Vergleich zum Zeitraum {1} bis {2}.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Payment.ProductDetailPaymentMethodSystemNames",
+                "Payment method icons on the product detail page",
+                "Zahlungsart-Icons auf der Produktdetailseite",
+                "Specifies for which payment methods icons informing about the accepted payment methods are displayed on product detail pages.",
+                "Bestimmt, für welche Zahlarten Icons zur Information über die akzeptierten Zahlungsarten auf Produktdetailseiten angezeigt werden.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Payment.DisplayPaymentMethodIcons",
+                "Show icons on the payment method selection page",
+                "Icons auf der Zahlartauswahlseite anzeigen");
+
+            builder.AddOrUpdate("Products.PaymentOptions.Heading", 
+                "Payment options", 
+                "Zahlungsmöglichkeiten");
+
+            builder.AddOrUpdate("Products.PaymentOptions.Intro", 
+                "We accept payments from the following providers", 
+                "Wir aktzeptieren Zahlungen von den folgenden Anbietern");
         }
     }
 }

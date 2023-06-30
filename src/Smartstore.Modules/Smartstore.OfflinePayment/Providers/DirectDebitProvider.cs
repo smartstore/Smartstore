@@ -31,6 +31,7 @@ namespace Smartstore.OfflinePayment
         {
             return nameof(DirectDebitProvider);
         }
+
         public RouteInfo GetConfigurationRoute()
             => new("DirectDebitConfigure", "OfflinePayment", new { area = "Admin" });
 

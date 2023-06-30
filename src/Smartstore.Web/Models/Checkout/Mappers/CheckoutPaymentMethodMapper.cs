@@ -26,7 +26,8 @@ namespace Smartstore.Web.Models.Checkout
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ITaxCalculator _taxCalculator;
         private readonly ShippingSettings _shippingSettings;
-
+        private readonly PaymentSettings _paymentSettings;
+        
         public CheckoutPaymentMethodMapper(
             ICommonServices services,
             ModuleManager moduleManager,
@@ -35,7 +36,8 @@ namespace Smartstore.Web.Models.Checkout
             IShippingService shippingService,
             IOrderCalculationService orderCalculationService,
             ITaxCalculator taxCalculator,
-            ShippingSettings shippingSettings)
+            ShippingSettings shippingSettings,
+            PaymentSettings paymentSettings)
         {
             _services = services;
             _moduleManager = moduleManager;
@@ -45,6 +47,7 @@ namespace Smartstore.Web.Models.Checkout
             _orderCalculationService = orderCalculationService;
             _taxCalculator = taxCalculator;
             _shippingSettings = shippingSettings;
+            _paymentSettings = paymentSettings;
         }
 
         protected override void Map(ShoppingCart from, CheckoutPaymentMethodModel to, dynamic parameters = null)
@@ -54,6 +57,8 @@ namespace Smartstore.Web.Models.Checkout
         {
             Guard.NotNull(from);
             Guard.NotNull(to);
+
+            to.DisplayPaymentMethodIcons = _paymentSettings.DisplayPaymentMethodIcons;
 
             // Was shipping skipped?
             var shippingOptions = (await _shippingService.GetShippingOptionsAsync(from, from.Customer.ShippingAddress, string.Empty, from.StoreId)).ShippingOptions;
@@ -93,7 +98,7 @@ namespace Smartstore.Web.Models.Checkout
                     pmModel.FullDescription = paymentMethod.GetLocalized(x => x.FullDescription, _services.WorkContext.WorkingLanguage);
                 }
 
-                pmModel.BrandUrl = _moduleManager.GetBrandImageUrl(pp.Metadata);
+                pmModel.BrandUrl = _moduleManager.GetBrandImageUrl(pp.Metadata, _paymentSettings.DisplayPaymentMethodIcons);
 
                 // Payment method additional fee.
                 var paymentTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.PaymentFee);

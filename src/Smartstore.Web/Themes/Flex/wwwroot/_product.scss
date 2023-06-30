@@ -576,3 +576,22 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         }
     }
 }
+
+// Available payment methods
+// =====================================================
+
+.pd-payment-icons-heading {
+    border-bottom: 1px solid $gray-400;
+}
+
+.pd-available-payment-methods {
+    display: inline-flex;
+    flex-wrap: wrap !important;
+
+    .payment-brand {
+        width: 48px;
+        height: 36px;
+        border-radius: 3px;
+        margin: 0 10px 10px 0;
+    }
+}

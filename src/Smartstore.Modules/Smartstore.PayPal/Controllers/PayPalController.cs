@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Net;
-using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

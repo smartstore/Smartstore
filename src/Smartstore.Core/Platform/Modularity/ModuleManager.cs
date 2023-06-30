@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
@@ -235,30 +236,70 @@ namespace Smartstore.Engine.Modularity
             }
         }
 
-        public string GetBrandImageUrl(ProviderMetadata metadata)
+        public string GetBrandImageUrl(ProviderMetadata metadata, bool smallIcons = false)
         {
             var descriptor = metadata.ModuleDescriptor;
 
             if (descriptor != null)
             {
-                var filesToCheck = (new string[] { "branding.{0}.png", "branding.{0}.gif", "branding.{0}.jpg", "branding.{0}.jpeg" }).Select(x => x.FormatInvariant(metadata.SystemName));
-                foreach (var file in filesToCheck)
+                if (smallIcons)
                 {
-                    var fileInfo = descriptor.WebRoot.GetFileInfo(file);
-                    if (fileInfo.Exists)
-                    {
-                        return "~{0}/{1}".FormatInvariant(descriptor.Path, file);
-                    }
+                    return GetPaymentMethodIcons(metadata);
                 }
-
-                var fallback = descriptor.BrandImageFileName;
-                if (fallback.HasValue())
+                else
                 {
-                    return "~{0}/{1}".FormatInvariant(descriptor.Path, fallback);
+                    var filesToCheck = (new string[] { "branding.{0}.png", "branding.{0}.gif", "branding.{0}.jpg", "branding.{0}.jpeg" }).Select(x => x.FormatInvariant(metadata.SystemName));
+                    foreach (var file in filesToCheck)
+                    {
+                        var fileInfo = descriptor.WebRoot.GetFileInfo(file);
+                        if (fileInfo.Exists)
+                        {
+                            return "~{0}{1}".FormatInvariant(descriptor.Path, file);
+                        }
+                    }
+
+                    var fallback = descriptor.BrandImageFileName;
+                    if (fallback.HasValue())
+                    {
+                        return "~{0}{1}".FormatInvariant(descriptor.Path, fallback);
+                    }
                 }
             }
 
             return null;
+        }
+
+        private string GetPaymentMethodIcons(ProviderMetadata metadata)
+        {
+            var descriptor = metadata.ModuleDescriptor;
+            var methodSystemName = metadata.SystemName.ToLower();
+
+            // Check provider specific icons.
+            var filesToCheck = new List<string> { "{0}.png", "{0}.gif", "{0}.jpg", "{0}.jpeg" }.Select(x => x.FormatInvariant(methodSystemName)).ToList();
+
+            // Check generic icons which are meant to be displayed for all providers of a module.
+            var genericFilesToCheck = new List<string> { "default.png", "default.gif", "default.jpg", "default.jpeg" };
+
+            filesToCheck.AddRange(genericFilesToCheck);
+
+            foreach (var file in filesToCheck)
+            {
+                var fileInfo = descriptor.WebRoot.GetFileInfo("brands/" + file);
+                if (fileInfo.Exists)
+                {
+                    return "{0}brands/{1}".FormatInvariant(descriptor.Path, file);
+                }
+            }
+
+            // Try to find fallback icon branding.png.
+            var fallback = descriptor.BrandImageFileName;
+            if (fallback.HasValue())
+            {
+                return "{0}{1}".FormatInvariant(descriptor.Path, fallback);
+            }
+
+            // If nothing can be found return default image.
+            return "/images/default-payment-icon.png";
         }
 
         public string GetIconUrl(ProviderMetadata metadata)

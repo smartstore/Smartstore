@@ -8,6 +8,8 @@ namespace Smartstore.Web.Models.Checkout
 
         public bool SkippedSelectShipping { get; set; }
 
+        public bool DisplayPaymentMethodIcons { get; set; }
+
         public partial class PaymentMethodModel : ModelBase
         {
             public string PaymentMethodSystemName { get; set; }
@@ -15,6 +17,7 @@ namespace Smartstore.Web.Models.Checkout
             public string Description { get; set; }
             public LocalizedValue<string> FullDescription { get; set; }
             public string BrandUrl { get; set; }
+            public string IconUrl { get; set; }
             public Money Fee { get; set; }
             public bool Selected { get; set; }
             public Widget InfoWidget { get; set; }

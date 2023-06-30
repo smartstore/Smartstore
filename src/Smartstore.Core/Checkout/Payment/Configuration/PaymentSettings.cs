@@ -23,5 +23,15 @@ namespace Smartstore.Core.Checkout.Payment
         /// Gets or sets the reason for automatic payment capturing
         /// </summary>
         public CapturePaymentReason? CapturePaymentReason { get; set; }
+
+        /// <summary>
+        /// Gets or sets the system names of payment methods that should be displayed on product detail pages.
+        /// </summary>
+        public string ProductDetailPaymentMethodSystemNames { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether small payment icons should be used on payment selection page.
+        /// </summary>
+        public bool DisplayPaymentMethodIcons { get; set; } = true;
     }
 }
