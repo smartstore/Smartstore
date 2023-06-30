@@ -25,8 +25,11 @@ namespace Smartstore.Admin.Components
 
             // Get orders of at least last 28 days (if year is younger)
             var utcNow = DateTime.UtcNow;
+            var userTime = _dateTimeHelper.ConvertToUserTime(utcNow, DateTimeKind.Utc).Date;
+            var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
             var beginningOfYear = new DateTime(utcNow.Year, 1, 1);
             var startDate = (utcNow.Date - beginningOfYear).Days < 28 ? utcNow.AddDays(-27).Date : beginningOfYear;
+
             var orderDataPoints = await _db.Orders
                 .AsNoTracking()
                 .ApplyAuditDateFilter(startDate, null)
@@ -38,7 +41,7 @@ namespace Smartstore.Admin.Components
                 })
                 .ToListAsync();
 
-            var model = new List<DashboardChartReportModel>()
+            var model = new List<DashboardChartReportModel>
             {
                 // Today = index 0
                 new DashboardChartReportModel(4, 24),
@@ -58,7 +61,6 @@ namespace Smartstore.Admin.Components
                 SetOrderReportData(model, dataPoint);
             }
 
-            var userTime = _dateTimeHelper.ConvertToUserTime(utcNow, DateTimeKind.Utc).Date;
             // Format and sum values
             for (int i = 0; i < model.Count; i++)
             {
@@ -66,16 +68,16 @@ namespace Smartstore.Admin.Components
                 {
                     for (int j = 0; j < data.Amount.Length; j++)
                     {
-                        data.AmountFormatted[j] = Services.CurrencyService.PrimaryCurrency.AsMoney(data.Amount[j]).ToString();
+                        data.AmountFormatted[j] = primaryCurrency.AsMoney(data.Amount[j]).ToString();
                         data.QuantityFormatted[j] = data.Quantity[j].ToString("N0");
                     }
 
                     data.TotalAmount = data.Amount.Sum();
-                    data.TotalAmountFormatted = Services.CurrencyService.PrimaryCurrency.AsMoney(data.TotalAmount).ToString();
+                    data.TotalAmountFormatted = primaryCurrency.AsMoney(data.TotalAmount).ToString();
                 }
 
                 model[i].TotalAmount = model[i].DataSets.Sum(x => x.TotalAmount);
-                model[i].TotalAmountFormatted = Services.CurrencyService.PrimaryCurrency.AsMoney(model[i].TotalAmount).ToString();
+                model[i].TotalAmountFormatted = primaryCurrency.AsMoney(model[i].TotalAmount).ToString();
 
                 // Create labels for all dataPoints
                 for (int j = 0; j < model[i].Labels.Length; j++)
@@ -110,24 +112,24 @@ namespace Smartstore.Admin.Components
             {
                 model[1].TotalAmount,
                 
-                // Get orders count for day before yesterday.
+                // Orders total for day before yesterday.
                 orderDataPoints.Where( x =>
                     x.CreatedOn >= utcNow.Date.AddDays(-2) && x.CreatedOn < utcNow.Date.AddDays(-1)
                 ).Sum(x => x.OrderTotal),
                 
-                // Get orders count for week before.
+                // Orders total for week before.
                 orderDataPoints.Where( x =>
                     x.CreatedOn >= utcNow.Date.AddDays(-14) && x.CreatedOn < utcNow.Date.AddDays(-7)
                 ).Sum(x => x.OrderTotal),
 
-                // Get orders count for month.
-                await _db.Orders.ApplyAuditDateFilter(beginningOfYear.AddDays(-56), utcNow.Date.AddDays(-28)).GetOrdersTotalAsync(),
+                // Orders total for month before.
+                await _db.Orders.ApplyAuditDateFilter(utcNow.Date.AddDays(-56), utcNow.Date.AddDays(-28)).GetOrdersTotalAsync(),
 
-                // Get orders count for year.
+                // Orders total for year before.
                 await _db.Orders.ApplyAuditDateFilter(beginningOfYear.AddYears(-1), utcNow.AddYears(-1)).GetOrdersTotalAsync()
             };
 
-            // Format percentage value
+            // Format percentage value.
             for (int i = 0; i < model.Count; i++)
             {
                 model[i].PercentageDelta = model[i].TotalAmount != 0 && sumBefore[i] != 0
