@@ -21,8 +21,8 @@ namespace Smartstore.Core.Widgets
 
         public override async Task<IHtmlContent> InvokeAsync(WidgetContext context, PartialViewWidget widget)
         {
-            Guard.NotNull(context, nameof(context));
-            Guard.NotNull(widget, nameof(widget));
+            Guard.NotNull(context);
+            Guard.NotNull(widget);
 
             // We have to bring forward writer and view context stuff because we need
             // a properly prepared RouteData for view resolution.
