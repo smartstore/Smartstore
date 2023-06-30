@@ -29,6 +29,7 @@
 
 ### Improvements
 
+- Better usability of the backend on small mobile devices (especially DataGrid)
 - Increased performance: category tree path to filter products by categories.
 - Better PayPal implementaion: added providers for every single payment option.
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)

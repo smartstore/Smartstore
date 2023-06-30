@@ -262,6 +262,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Products.PaymentOptions.Intro", 
                 "We accept payments from the following providers", 
                 "Wir aktzeptieren Zahlungen von den folgenden Anbietern");
+
+            builder.AddOrUpdate("Admin.DataGrid.FitColumns", "Fit columns", "Spalten anpassen");
         }
     }
 }

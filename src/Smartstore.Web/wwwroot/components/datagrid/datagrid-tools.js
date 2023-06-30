@@ -42,9 +42,19 @@
                             <option value="both">{{ T.pagerBoth }}</option>
                         </select>
                     </label>
-                    <button type="button" class="btn btn-sm btn-block btn-secondary mt-2" @click="$parent.$parent.resetState()">
-                        {{ T.resetState }}
-                    </button>
+                    <div class="row xs-gutters">
+                        <div class="col">
+                            <button type="button" class="btn btn-sm btn-block btn-secondary mt-2" @click="$parent.$parent.resetState()">
+                                <span>{{ T.resetState }}</span>
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-sm btn-block btn-secondary mt-2" @click="$parent.$parent.autoSizeAllColumns()">
+                                <i class="fa fa-arrows-left-right"></i>
+                                <span>{{ T.fitColumns }}</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="dropdown-divider"></div>
                 <div class="dg-tools-group dg-tools-columns px-3 pb-1">

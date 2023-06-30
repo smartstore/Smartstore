@@ -322,6 +322,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 ["saveChanges"] = T("Admin.Common.SaveChanges"),
                 ["cancel"] = T("Common.Cancel"),
                 ["resetState"] = T(resRoot + "ResetState"),
+                ["fitColumns"] = T(resRoot + "FitColumns"),
                 ["noData"] = T(resRoot + "NoData"),
                 ["vborders"] = T(resRoot + "VBorders"),
                 ["hborders"] = T(resRoot + "HBorders"),

@@ -1157,12 +1157,15 @@ Vue.component("sm-datagrid", {
                 this.updateRememberedColumnWidth(column);
             }
             else {
-                this.columns.filter(c => c.resizable).forEach(c =>
-                {
-                    c.width = 'max-content';
-                    this.updateRememberedColumnWidth(c);
-                });
+                this.autoSizeAllColumns();
             }
+        },
+
+        autoSizeAllColumns() {
+            this.columns.filter(c => c.resizable).forEach(c => {
+                c.width = 'max-content';
+                this.updateRememberedColumnWidth(c);
+            });
         },
 
         // #endregion

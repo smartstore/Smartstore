@@ -120,11 +120,13 @@ body {
     --sticky-header-left: var(--content-padding-x);
     --sticky-header-right: var(--content-padding-x);
     --header-height: 72px;
-    --content-height: calc(72px + var(--header-height));
+    --content-top: calc(72px + var(--header-height));
+    --content-height: calc(100% - var(--content-top) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    --content-row: minmax(var(--content-height), auto);
     position: relative;
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: 72px var(--header-height) minmax(calc(100vh - var(--content-height)), auto);
+    grid-template-rows: 72px var(--header-height) var(--content-row);
 }
 
 #header {
@@ -143,18 +145,24 @@ body {
 
 #content {
     position: relative;
-    margin: 0 var(--content-padding-x);
+    margin: 0;
     padding-left: var(--content-padding-x);
     padding-right: var(--content-padding-x);
     padding-top: $section-header-height;
     padding-bottom: #{"max(calc(10px + env(safe-area-inset-bottom, 0px)), var(--content-padding-x))"};
     box-shadow: $box-shadow-sm-var;
-    border-radius: $border-radius-lg $border-radius-lg 0 0;
+    border-radius: 0;
     background-color: #fff;
     grid-column: 1 / -1;
     grid-row: 2 / -1;
     z-index: 9;
     //overflow-x: hidden; // observe and maybe uncomment later
+
+    @include media-breakpoint-up(sm) {
+        margin: 0 var(--content-padding-x);
+        border-radius: $border-radius-lg $border-radius-lg 0 0;
+    }
+
     .popup & {
         margin: 0;
         border: 0;
@@ -323,7 +331,7 @@ body {
     .page-main {
         height: 100%;
         grid-template-columns: 1fr minmax(380px, 20%);
-        grid-template-rows: 72px var(--header-height) calc(100vh - var(--content-height));
+        --content-row: var(--content-height);
     }
 
     &.has-left-sidebar .page-main {
@@ -364,7 +372,7 @@ body {
 // --------------------------------------------------------------
 
 #navbar {
-    padding: 0 30px;
+    padding: 0 var(--content-padding-x);
 
     .dropdown-toggle:after {
         display: none;
@@ -424,6 +432,10 @@ body {
             font-size: 20px;
             height: 22px;
             line-height: 22px;
+
+            @include media-breakpoint-only(xs) {
+                font-size: 16px;
+            }
         }
 
         .navbar-label {
