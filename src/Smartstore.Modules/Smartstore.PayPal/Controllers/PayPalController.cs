@@ -310,9 +310,17 @@ namespace Smartstore.PayPal.Controllers
                     var response = await VerifyWebhookRequest(Request, webhookEvent);
                     var resource = webhookEvent.Resource;
 
-                    var customId = resource?.CustomId ?? resource?.PurchaseUnits?[0]?.CustomId;
-                    
                     var webhookResourceType = webhookEvent.ResourceType?.ToLowerInvariant();
+                    
+                    // We only handle authorization, capture and refund webhooks.
+                    if (webhookResourceType != "authorization"
+                        || webhookResourceType != "capture"
+                        || webhookResourceType != "refund")
+                    {
+                        return Ok();
+                    }
+
+                    var customId = resource?.CustomId ?? resource?.PurchaseUnits?[0]?.CustomId;
 
                     if (!Guid.TryParse(customId, out var orderGuid))
                     {
