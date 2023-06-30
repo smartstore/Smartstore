@@ -269,11 +269,16 @@ input.form-control-plaintext {
     position: relative;
     padding-left: 0.6rem;
     padding-right: 0.6rem;
+}
 
-    @include media-breakpoint-down(sm) {
-        > i + span {
-            display: none;
-        }
+@include media-breakpoint-down(sm) {
+    .touchevents .dg-toolbar {
+        overflow-x: auto;
+        min-height: 54px;
+    }
+
+    .dg-toolbar .btn > i + span {
+        display: none;
     }
 }
 
