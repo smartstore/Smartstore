@@ -139,6 +139,7 @@
 .checkout-data {
 	.opt-list { 
 		margin-bottom: 1.5rem;
+        --opt-offset: 0;
 	}
 
     .opt-list-item {
@@ -148,7 +149,6 @@
     .opt-data {
         display: flex;
         width: 100%;
-        justify-content: space-between;
         align-items: center;
     }
 
@@ -159,10 +159,6 @@
 		    cursor: pointer;
 		    margin-bottom: 0;
 	    }
-
-        .form-check-input {
-            margin-top: 0.2rem;
-        }
     }
 
 	.opt-name { 
@@ -178,19 +174,21 @@
     }
 
 	.opt-info,
-	.opt-info-item { 
-		margin-top: 0.75rem;
+	.opt-info-item {
+        margin-left: var(--opt-offset);
+		margin-top: 0.25rem;
+	}
+
+    .opt-form,
+    .opt-info-embedded { 
+		margin-top: 1.5rem;
+
+        &:last-child > *:last-child {
+            margin-bottom: 0;
+        }
 	}
 
     .opt-info {
-	    .opt-form { 
-		    margin-top: 1.5rem;
-
-            .col-form-label {
-                font-weight: normal;
-            }
-	    }
-
 	    .media-object { 
 		    max-width: 25%;
             margin-top: 0.25rem;
@@ -221,29 +219,31 @@
 	    }
 
 	    .opt-info,
-	    .opt-info-item { 
-		    margin-left: 32px;
+	    .opt-info-item {
+            --opt-offset: 32px;
 	    }
     }
 }
 
 /* Adaptions for payment method page
 ================================================ */
+
 .payment-brand {
     // 4:3 aspect ratio.
     width: 64px;
     height: 48px;
-    margin-right: ($grid-gutter-width / 2);
+    margin-right: 0.75rem;
     overflow: hidden;
     display: flex;
     align-items: center !important;
     justify-content: center;
     background: linear-gradient(to bottom right, var(--gray-100), #fff);
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    box-shadow: rgba(#000, 0.12) 0px 1px 3px, rgba(#000, 0.24) 0px 1px 2px;
+    box-shadow: rgba(#000, 0.5) 0px 0px 1px, rgba(#000, 0.06) 0px 2px 4px 1px;
     border-radius: 5px;
 }
 
-.payment-method-page .small-icons {
+.payment-method-page .opt-list-icons {
     .payment-selection {
         display: none;
     }
@@ -260,13 +260,18 @@
         }
 
         &.active {
-            background: #f8f9fa;
+            background: $gray-100;
 
             .payment-brand {
                 background: #fff;
             }
         }
     }
+
+    .opt-info-embedded {
+        margin-left: 0 !important;
+    }
+
     /* Bigbrand */
     .media-object,
     .opt-name > img {
@@ -292,6 +297,7 @@
 
 /* Order Summary
 ================================================ */
+
 .order-summary-content {
     .productpicture {
         width: 100px;

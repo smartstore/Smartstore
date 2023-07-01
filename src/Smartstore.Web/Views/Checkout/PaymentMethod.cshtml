@@ -26,7 +26,7 @@
 
             @if (Model.PaymentMethods.Any())
             {
-                <ul class="list-group opt-list payment-methods" attr-class='(Model.DisplayPaymentMethodIcons, "small-icons")'>
+                <ul class="list-group opt-list payment-methods" attr-class='(Model.DisplayPaymentMethodIcons, "opt-list-icons")'>
                     @for (int i = 0; i < Model.PaymentMethods.Count; i++)
                     {
                         var paymentMethod = Model.PaymentMethods[i];
@@ -55,12 +55,12 @@
                                     </label>
                                 </div>
 
-                                <small sm-if="paymentMethod.Fee != decimal.Zero" class="opt-fee payment-fee text-danger">@paymentMethod.Fee</small>
+                                <small sm-if="paymentMethod.Fee != decimal.Zero" class="badge badge-danger ml-2 opt-fee payment-fee">@paymentMethod.Fee</small>
                             </div>
 
                             @if (description.HasValue())
                             {
-                                <div class="opt-info-item payment-method-description" sm-language-attributes-for="paymentMethod.FullDescription">
+                                <div class="opt-info-item payment-method-description text-muted" sm-language-attributes-for="paymentMethod.FullDescription">
                                     @Html.Raw(description)
                                 </div>
                             }
@@ -207,7 +207,7 @@
                     var panel = item.find('.opt-info');
 
                     if (panel.length == 0) {
-                        panel = $('<div class="opt-info payment-method-info"></div>')
+                        panel = $('<div class="opt-info opt-info-embedded payment-method-info"></div>')
                             .appendTo(item)
                             .data('system-name', systemName)
                             .data('lazy-info', true);

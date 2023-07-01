@@ -1015,8 +1015,8 @@ namespace Smartstore.Admin.Controllers
             ModelState.Clear();
 
             settings.CapturePaymentReason = model.CapturePaymentReason;
-            settings.ProductDetailPaymentMethodSystemNames = string.Join(",", model.ProductDetailPaymentMethodSystemNames);
             settings.DisplayPaymentMethodIcons = model.DisplayPaymentMethodIcons;
+            settings.ProductDetailPaymentMethodSystemNames = model.ProductDetailPaymentMethodSystemNames.Convert<string>();
 
             await _cache.RemoveByPatternAsync(PaymentService.PRODUCT_DETAIL_PAYMENT_ICONS_PATTERN_KEY);
 

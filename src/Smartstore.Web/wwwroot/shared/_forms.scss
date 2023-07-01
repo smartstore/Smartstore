@@ -162,10 +162,11 @@ fieldset.content-group {
 		.form-check-input {
 			margin-left: -1.5rem;
 		}
-	
-		.form-check-label {
-			padding-top: 0.2rem;
-		}
+	    
+        // Seems not necessary anymore
+        //.form-check-label {
+		//	padding-top: 0.2rem;
+		//}
 	}
 }
 
