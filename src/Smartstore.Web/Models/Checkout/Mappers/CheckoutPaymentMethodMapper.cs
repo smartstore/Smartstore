@@ -98,7 +98,7 @@ namespace Smartstore.Web.Models.Checkout
                     pmModel.FullDescription = paymentMethod.GetLocalized(x => x.FullDescription, _services.WorkContext.WorkingLanguage);
                 }
 
-                pmModel.BrandUrl = _moduleManager.GetBrandImageUrl(pp.Metadata, _paymentSettings.DisplayPaymentMethodIcons);
+                pmModel.BrandUrl = _moduleManager.GetDefaultBrandImageUrl(pp.Metadata);
 
                 // Payment method additional fee.
                 var paymentTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.PaymentFee);

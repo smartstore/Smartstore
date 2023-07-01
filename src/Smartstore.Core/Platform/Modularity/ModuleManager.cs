@@ -1,8 +1,10 @@
-﻿using Smartstore.Core.Checkout.Payment;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
+using Smartstore.Http;
+using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -14,6 +16,7 @@ namespace Smartstore.Engine.Modularity
     {
         private readonly IApplicationContext _appContext;
         private readonly SmartDbContext _db;
+        private readonly ICacheManager _cache;
         private readonly ILocalizationService _locService;
         private readonly ISettingService _settingService;
         private readonly IWidgetService _widgetService;
@@ -23,6 +26,7 @@ namespace Smartstore.Engine.Modularity
         public ModuleManager(
             IApplicationContext appContext,
             SmartDbContext db,
+            ICacheManager cache,
             ILocalizationService locService,
             ISettingService settingService,
             IWidgetService widgetService,
@@ -31,6 +35,7 @@ namespace Smartstore.Engine.Modularity
         {
             _appContext = appContext;
             _db = db;
+            _cache = cache;
             _locService = locService;
             _settingService = settingService;
             _widgetService = widgetService;
@@ -71,8 +76,8 @@ namespace Smartstore.Engine.Modularity
             int languageId = 0,
             bool returnDefaultValue = true)
         {
-            Guard.NotNull(descriptor, nameof(descriptor));
-            Guard.NotNull(keySelector, nameof(keySelector));
+            Guard.NotNull(descriptor);
+            Guard.NotNull(keySelector);
 
             var invoker = keySelector.GetPropertyInvoker();
             var resourceName = string.Format("Plugins.{0}.{1}", invoker.Property.Name, descriptor.SystemName);
@@ -90,7 +95,7 @@ namespace Smartstore.Engine.Modularity
         /// Returns the absolute path of a module/provider icon
         /// </summary>
         /// <param name="descriptor">The plugin descriptor. Used to resolve the physical path</param>
-        /// <param name="providerSystemName">Optional system name of provider. If passed, an icon with this name gets being tried to resolve first.</param>
+        /// <param name="providerSystemName">Optional system name of provider. If passed, an icon with this name is being tried to resolve first.</param>
         /// <returns>The icon's absolute path</returns>
         public string GetIconUrl(IModuleDescriptor descriptor, string providerSystemName = null)
         {
@@ -148,8 +153,8 @@ namespace Smartstore.Engine.Modularity
             bool returnDefaultValue = true)
             where TMetadata : IProviderMetadata
         {
-            Guard.NotNull(metadata, nameof(metadata));
-            Guard.NotNull(keySelector, nameof(keySelector));
+            Guard.NotNull(metadata);
+            Guard.NotNull(keySelector);
 
             var invoker = keySelector.GetPropertyInvoker();
             var resourceName = metadata.ResourceKeyPattern.FormatInvariant(metadata.SystemName, invoker.Property.Name);
@@ -165,9 +170,9 @@ namespace Smartstore.Engine.Modularity
 
         public async Task ApplyLocalizedValueAsync(IProviderMetadata metadata, int languageId, string propertyName, string value)
         {
-            Guard.NotNull(metadata, nameof(metadata));
-            Guard.IsPositive(languageId, nameof(languageId));
-            Guard.NotEmpty(propertyName, nameof(propertyName));
+            Guard.NotNull(metadata);
+            Guard.IsPositive(languageId);
+            Guard.NotEmpty(propertyName);
 
             var resourceName = metadata.ResourceKeyPattern.FormatInvariant(metadata.SystemName, propertyName);
             var resource = await _locService.GetLocaleStringResourceByNameAsync(resourceName, languageId, false);
@@ -213,7 +218,7 @@ namespace Smartstore.Engine.Modularity
 
         public Task SetUserDisplayOrderAsync(ProviderMetadata metadata, int displayOrder)
         {
-            Guard.NotNull(metadata, nameof(metadata));
+            Guard.NotNull(metadata);
 
             metadata.DisplayOrder = displayOrder;
             return ApplySettingAsync(metadata, nameof(metadata.DisplayOrder), displayOrder);
@@ -221,8 +226,8 @@ namespace Smartstore.Engine.Modularity
 
         public async Task ApplySettingAsync<T>(ProviderMetadata metadata, string propertyName, T value)
         {
-            Guard.NotNull(metadata, nameof(metadata));
-            Guard.NotEmpty(propertyName, nameof(propertyName));
+            Guard.NotNull(metadata);
+            Guard.NotEmpty(propertyName);
 
             var settingKey = metadata.SettingKeyPattern.FormatInvariant(metadata.SystemName, propertyName);
 
@@ -236,70 +241,64 @@ namespace Smartstore.Engine.Modularity
             }
         }
 
-        public string GetBrandImageUrl(ProviderMetadata metadata, bool smallIcons = false)
+        /// <summary>
+        /// Gets the fully qualified app relative path to a provider's default
+        /// brand image which is located in the module's <c>wwwroot/brands</c> directory.
+        /// The search pattern is:
+        /// "{SysName}.png", "{SysName}.gif", "{SysName}.jpg", "default.png", "default.gif", "default.jpg".
+        /// If no file is found, then the parent descriptor's 
+        /// <see cref="IModuleDescriptor.BrandImageFileName"/> will be returned instead.
+        /// </summary>
+        /// <remarks>
+        /// The resolution result is cached.
+        /// </remarks>
+        public string GetDefaultBrandImageUrl(ProviderMetadata metadata)
         {
             var descriptor = metadata.ModuleDescriptor;
-
+            
             if (descriptor != null)
             {
-                if (smallIcons)
+                var systemName = metadata.SystemName.ToLower();
+                var cacheKey = $"DefaultBrandImageUrl.{systemName}";
+
+                return _cache.Get(cacheKey, () => 
                 {
-                    return GetPaymentMethodIcons(metadata);
-                }
-                else
-                {
-                    var filesToCheck = (new string[] { "branding.{0}.png", "branding.{0}.gif", "branding.{0}.jpg", "branding.{0}.jpeg" }).Select(x => x.FormatInvariant(metadata.SystemName));
+                    // Check provider specific icons.
+                    var filesToCheck = new List<string> { "{0}.png", "{0}.gif", "{0}.jpg", "default.png", "default.gif", "default.jpg" }
+                        .Select(x => x.FormatInvariant(systemName))
+                        .ToList();
+
+                    var fs = descriptor.WebRoot as IFileSystem;
                     foreach (var file in filesToCheck)
                     {
-                        var fileInfo = descriptor.WebRoot.GetFileInfo(file);
-                        if (fileInfo.Exists)
+                        if (fs.FileExists("brands/" + file))
                         {
-                            return "~{0}{1}".FormatInvariant(descriptor.Path, file);
+                            return WebHelper.ToAppRelativePath(PathUtility.Combine(descriptor.Path, "brands", file));
                         }
                     }
 
-                    var fallback = descriptor.BrandImageFileName;
-                    if (fallback.HasValue())
+                    if (metadata.GroupName == "Payment")
                     {
-                        return "~{0}{1}".FormatInvariant(descriptor.Path, fallback);
+                        return WebHelper.ToAppRelativePath("images/default-payment-icon.png");
                     }
-                }
+
+                    // Try to find fallback icon branding.png.
+                    if (descriptor.BrandImageFileName.HasValue())
+                    {
+                        return WebHelper.ToAppRelativePath(PathUtility.Combine(descriptor.Path, descriptor.BrandImageFileName));
+                    }
+
+                    return string.Empty;
+                });
             }
 
-            return null;
+            return string.Empty;
         }
 
-        private string GetPaymentMethodIcons(ProviderMetadata metadata)
+        public string[] GetBrandImageUrls(ProviderMetadata metadata)
         {
-            var descriptor = metadata.ModuleDescriptor;
-            var methodSystemName = metadata.SystemName.ToLower();
-
-            // Check provider specific icons.
-            var filesToCheck = new List<string> { "{0}.png", "{0}.gif", "{0}.jpg", "{0}.jpeg" }.Select(x => x.FormatInvariant(methodSystemName)).ToList();
-
-            // Check generic icons which are meant to be displayed for all providers of a module.
-            var genericFilesToCheck = new List<string> { "default.png", "default.gif", "default.jpg", "default.jpeg" };
-
-            filesToCheck.AddRange(genericFilesToCheck);
-
-            foreach (var file in filesToCheck)
-            {
-                var fileInfo = descriptor.WebRoot.GetFileInfo("brands/" + file);
-                if (fileInfo.Exists)
-                {
-                    return "{0}brands/{1}".FormatInvariant(descriptor.Path, file);
-                }
-            }
-
-            // Try to find fallback icon branding.png.
-            var fallback = descriptor.BrandImageFileName;
-            if (fallback.HasValue())
-            {
-                return "{0}{1}".FormatInvariant(descriptor.Path, fallback);
-            }
-
-            // If nothing can be found return default image.
-            return "/images/default-payment-icon.png";
+            // TODO: continue...
+            return null;
         }
 
         public string GetIconUrl(ProviderMetadata metadata)
@@ -312,7 +311,7 @@ namespace Smartstore.Engine.Modularity
 
         public async Task ActivateDependentWidgetsAsync(ProviderMetadata parent, bool activate)
         {
-            Guard.NotNull(parent, nameof(parent));
+            Guard.NotNull(parent);
 
             if (parent.DependentWidgets == null || parent.DependentWidgets.Length == 0)
             {

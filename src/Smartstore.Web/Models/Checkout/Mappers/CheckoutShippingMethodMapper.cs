@@ -84,7 +84,7 @@ namespace Smartstore.Web.Models.Checkout
 
                     if (srcmProvider != null)
                     {
-                        soModel.BrandUrl = _moduleManager.GetBrandImageUrl(srcmProvider.Metadata);
+                        soModel.BrandUrl = _moduleManager.GetDefaultBrandImageUrl(srcmProvider.Metadata);
                     }
 
                     // Adjust rate.

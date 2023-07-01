@@ -88,12 +88,10 @@
                             {
                                 <div class="row no-gutters">
                                     <div sm-if="paymentMethod.BrandUrl.HasValue()" class="col-auto payment-brand">
-                                        <img class="img-fluid" src="@paymentMethod.BrandUrl" />
+                                        <img class="img-fluid" src="@Url.Content(paymentMethod.BrandUrl)" />
                                     </div>
                                     <div class="col">
-                                        @{
-                                            await RenderPaymentMethod();
-                                        }
+                                        @{ await RenderPaymentMethod(); }
                                     </div>
                                 </div>
                             }
