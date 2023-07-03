@@ -120,8 +120,10 @@ body {
     --sticky-header-left: var(--content-padding-x);
     --sticky-header-right: var(--content-padding-x);
     --header-height: 72px;
+    --device-height: 100vh; // for clients that do not support dvh
+    --device-height: 100dvh;
     --content-top: calc(72px + var(--header-height));
-    --content-height: calc(100% - var(--content-top) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    --content-height: calc(var(--device-height) - var(--content-top) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     --content-row: minmax(var(--content-height), auto);
     position: relative;
     display: grid;
@@ -149,7 +151,7 @@ body {
     padding-left: var(--content-padding-x);
     padding-right: var(--content-padding-x);
     padding-top: $section-header-height;
-    padding-bottom: #{"max(calc(10px + env(safe-area-inset-bottom, 0px)), var(--content-padding-x))"};
+    padding-bottom: var(--content-padding-x);
     box-shadow: $box-shadow-sm-var;
     border-radius: 0;
     background-color: #fff;
