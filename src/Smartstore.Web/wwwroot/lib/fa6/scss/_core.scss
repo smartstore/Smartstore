@@ -7,18 +7,14 @@
 }
 
 .#{$fa-css-prefix},
+.#{$fa-css-prefix}-classic,
+.#{$fa-css-prefix}-sharp,
 .fas,
-.fa-solid,
+.#{$fa-css-prefix}-solid,
 .far,
-.fa-regular,
-.fal,
-.fa-light,
-.fat,
-.fa-thin,
-.fad,
-.fa-duotone,
+.#{$fa-css-prefix}-regular,
 .fab,
-.fa-brands {
+.#{$fa-css-prefix}-brands {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   display: var(--#{$fa-css-prefix}-display, #{$fa-display});
@@ -27,6 +23,20 @@
   line-height: 1;
   text-rendering: auto;
 }
+
+.fas,
+.#{$fa-css-prefix}-classic,
+.#{$fa-css-prefix}-solid,
+.far,
+.#{$fa-css-prefix}-regular {
+  font-family: 'Font Awesome 6 Free';
+}
+
+.fab,
+.#{$fa-css-prefix}-brands {
+  font-family: 'Font Awesome 6 Brands';
+}
+
 
 %fa-icon {
   @include fa-icon;

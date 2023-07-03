@@ -45,6 +45,7 @@
 - Search
   - Search box UI improvements
   - #441 Enable multistore configuration for SearchSettings.SearchFields.
+- Updated FontAwesome 6 library to version 6.4.0
 - #658 Limit number of product clones to generate either via UI or code (or both)
 - #736 Backend > Product grid: Search By SKU should also search for GTIN & MPN
 - #682 Allow to set the default email account per shop.

@@ -134,9 +134,9 @@ $box-scale-factor: 1.12;
 
 $fa-use-pro:                    false !default;
 
-$fa-font-family-free:           'Font Awesome 5 Free' !default;
-$fa-font-family-pro:            'Font Awesome 5 Pro' !default;
-$fa-font-family-brands:         'Font Awesome 5 Brands' !default;
+$fa-font-family-free:           'Font Awesome 6 Free' !default;
+$fa-font-family-pro:            'Font Awesome 6 Pro' !default;
+$fa-font-family-brands:         'Font Awesome 6 Brands' !default;
 
 //$icon-font-size-base:           16px !default; // for pixel perfection
 $icon-font-size-base:           inherit !default;
@@ -382,6 +382,6 @@ $clr-brand-behance:             #0067ff !default;
     }
 
     @if ($fa-use-pro == true) {
-        --fa-font-family: 'Font Awesome 5 Pro';
+        --fa-font-family: 'Font Awesome 6 Pro';
     }
 }
