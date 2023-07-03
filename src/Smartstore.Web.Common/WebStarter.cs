@@ -83,6 +83,7 @@ namespace Smartstore.Web
             // Add session feature
             services.AddSession(o =>
             {
+                o.IdleTimeout = TimeSpan.FromMinutes(30);
                 o.Cookie.Name = CookieNames.Session;
                 o.Cookie.IsEssential = true;
             });
