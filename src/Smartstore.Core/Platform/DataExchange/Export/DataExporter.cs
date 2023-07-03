@@ -309,7 +309,7 @@ namespace Smartstore.Core.DataExchange.Export
                     await data.Cast<Product>().EachAsync(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Order:
-                    await data.Cast<Order>().EachAsync(async x => result.Data.Add(await ToDynamic(x, ctx)));
+                    data.Cast<Order>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Manufacturer:
                     data.Cast<Manufacturer>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
@@ -321,7 +321,7 @@ namespace Smartstore.Core.DataExchange.Export
                     data.Cast<Customer>().Each(x => result.Data.Add(ToDynamic(x)));
                     break;
                 case ExportEntityType.NewsletterSubscription:
-                    data.Cast<NewsletterSubscription>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
+                    data.Cast<NewsletterSubscription>().Each(x => result.Data.Add(DataExporter.ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.ShoppingCartItem:
                     await data.Cast<ShoppingCartItem>().EachAsync(async x => result.Data.Add(await ToDynamic(x, ctx)));

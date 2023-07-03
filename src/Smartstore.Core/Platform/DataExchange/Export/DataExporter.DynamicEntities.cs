@@ -229,7 +229,7 @@ namespace Smartstore.Core.DataExchange.Export
         private async Task<IEnumerable<dynamic>> Convert(NewsletterSubscription subscription, DataExporterContext ctx)
         {
             var result = new List<dynamic>();
-            dynamic dynObject = ToDynamic(subscription, ctx);
+            dynamic dynObject = DataExporter.ToDynamic(subscription, ctx);
             result.Add(dynObject);
 
             await _services.EventPublisher.PublishAsync(new RowExportingEvent
@@ -691,7 +691,7 @@ namespace Smartstore.Core.DataExchange.Export
             return result;
         }
 
-        private dynamic ToDynamic(NewsletterSubscription subscription, DataExporterContext ctx)
+        private static dynamic ToDynamic(NewsletterSubscription subscription, DataExporterContext ctx)
         {
             if (subscription == null)
             {
