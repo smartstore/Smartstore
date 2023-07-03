@@ -106,7 +106,7 @@ namespace Smartstore.PayPal.Filters
                     : string.Empty;
 
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>"));
-                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='/Modules/Smartstore.PayPal/js/paypal.utils.js'></script>"));
+                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='/Modules/Smartstore.PayPal/js/paypal.utils.js?version=5.0.5.0'></script>"));
             }
 
             if (!await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.PayUponInvoice))
