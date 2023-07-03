@@ -1577,6 +1577,7 @@ a.editable {
     color: $text-muted;
     text-decoration: none;
     transition: color 0.12s ease;
+    pointer-events: auto;
 
     &:hover {
         color: $body-color;
