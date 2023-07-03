@@ -122,15 +122,17 @@
                             <div sm-if="item.IsDownload">
                                 <div>
                                     @T("Admin.Orders.Products.Download.DownloadCount", item.DownloadCount)
-                                    <input type="submit" id="btnResetDownloadCount@(item.Id)" name="btnResetDownloadCount@(item.Id)"
-                                           class="btn btn-block btn-sm btn-secondary btn-to-danger mt-1"
-                                           value="@T("Admin.Orders.Products.Download.ResetDownloadCount")"
-                                           title="@T("Admin.Orders.Products.Download.ResetDownloadCount.Title")" />
+                                    <a href="@Url.Action("ResetDownloadCount", "Order", new { orderId = Model.Id, orderItemId = item.Id})"        
+                                       class="btn btn-block btn-sm btn-secondary btn-to-danger mt-1"
+                                       title="@T("Admin.Orders.Products.Download.ResetDownloadCount.Title")">
+                                       @T("Admin.Orders.Products.Download.ResetDownloadCount")
+                                    </a>
                                 </div>
                                 <div sm-if="item.DownloadActivationType == DownloadActivationType.Manually">
-                                    <input type="submit" id="btnPvActivateDownload@(item.Id)" name="btnPvActivateDownload@(item.Id)"
-                                           class="btn btn-block btn-sm btn-success mt-2"
-                                           value='@T(item.IsDownloadActivated ? "Admin.Orders.Products.Download.Deactivate" : "Admin.Orders.Products.Download.Activate")' />
+                                    <a href="@Url.Action("ActivateDownloadOrderItem", "Order", new { orderId = Model.Id, orderItemId = item.Id})"        
+                                       class="btn btn-block btn-sm btn-success mt-2">
+                                       @T(item.IsDownloadActivated ? "Admin.Orders.Products.Download.Deactivate" : "Admin.Orders.Products.Download.Activate")
+                                     </a>
                                 </div>
                                 <div class="mt-1">
                                     <b class="fwm">@T("Admin.Orders.Products.License")</b>
@@ -272,9 +274,9 @@
                             </div>
                         </td>
                         <td class="omega text-truncate align-top">
-                            <input sm-if="item.IsReturnRequestPossible" type="submit" id="btnAddReturnRequest@(item.Id)" name="btnAddReturnRequest@(item.Id)"
-                                   value="@T("Admin.Orders.Products.ReturnRequest.Create")"
-                                   class="btn btn-sm btn-secondary confirm" />
+                            <a sm-if="item.IsReturnRequestPossible" 
+                                   href="@Url.Action("AddReturnRequest", "Order", new { orderId = Model.Id, orderItemId = item.Id})"        
+                                   class="btn btn-sm btn-secondary confirm btn-add-return-request">@T("Admin.Orders.Products.ReturnRequest.Create")</a>
 
                             <input type="submit" id="btnEditOrderItem@(item.Id)" name="btnEditOrderItem@(item.Id)"
                                    value="@T("Admin.Common.Edit")"
@@ -341,7 +343,7 @@
 
         orderItemTable.on('click', '.btn-edit-orderitem', function (e) {
             e.preventDefault();
-            toggleOrderItemEdit($(this).data('id'), true)
+            toggleOrderItemEdit($(this).data('id'), true);
             return false;
         });
 

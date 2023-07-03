@@ -1045,24 +1045,25 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(Edit), new { id = orderId });
         }
 
-        [HttpPost, ActionName("Edit")]
-        [FormValueRequired(FormValueRequirementOperator.StartsWith, "btnAddReturnRequest")]
         [Permission(Permissions.Order.ReturnRequest.Create)]
-        public async Task<IActionResult> AddReturnRequest(int id, IFormCollection form)
+        public async Task<IActionResult> AddReturnRequest(int orderId, int orderItemId)
         {
             var order = await _db.Orders
                 .AsSplitQuery()
                 .Include(x => x.OrderItems)
                 .Include(x => x.Customer)
                 .ThenInclude(x => x.ReturnRequests)
-                .FindByIdAsync(id);
+                .FindByIdAsync(orderId);
 
             if (order == null)
             {
                 return NotFound();
             }
 
-            var orderItem = GetOrderItemByFormValue(order, "btnAddReturnRequest", form);
+            var orderItem = order.OrderItems
+                .Where(x => x.Id == orderItemId)
+                .FirstOrDefault();
+
             if (orderItem == null)
             {
                 return NotFound();
@@ -1091,21 +1092,22 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(Edit), new { id = order.Id });
         }
 
-        [HttpPost, ActionName("Edit")]
-        [FormValueRequired(FormValueRequirementOperator.StartsWith, "btnResetDownloadCount")]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> ResetDownloadCount(int id, IFormCollection form)
+        public async Task<IActionResult> ResetDownloadCount(int orderId, int orderItemId)
         {
             var order = await _db.Orders
                 .Include(x => x.OrderItems)
-                .FindByIdAsync(id);
+                .FindByIdAsync(orderId);
 
             if (order == null)
             {
                 return NotFound();
             }
 
-            var orderItem = GetOrderItemByFormValue(order, "btnResetDownloadCount", form);
+            var orderItem = order.OrderItems
+                .Where(x => x.Id == orderItemId)
+                .FirstOrDefault();
+
             if (orderItem == null)
             {
                 return NotFound();
@@ -1119,21 +1121,22 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(Edit), new { id = order.Id });
         }
 
-        [HttpPost, ActionName("Edit")]
-        [FormValueRequired(FormValueRequirementOperator.StartsWith, "btnPvActivateDownload")]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> ActivateDownloadOrderItem(int id, IFormCollection form)
+        public async Task<IActionResult> ActivateDownloadOrderItem(int orderId, int orderItemId)
         {
             var order = await _db.Orders
                 .Include(x => x.OrderItems)
-                .FindByIdAsync(id);
+                .FindByIdAsync(orderId);
 
             if (order == null)
             {
                 return NotFound();
             }
 
-            var orderItem = GetOrderItemByFormValue(order, "btnPvActivateDownload", form);
+            var orderItem = order.OrderItems
+                .Where(x => x.Id == orderItemId)
+                .FirstOrDefault();
+
             if (orderItem == null)
             {
                 return NotFound();
@@ -2178,23 +2181,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return result;
-        }
-
-        private OrderItem GetOrderItemByFormValue(Order order, string prefix, IFormCollection form)
-        {
-            var prefixLength = prefix.Length;
-
-            foreach (var value in form.Keys)
-            {
-                if (value.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var orderItemId = value[prefixLength..].ToInt();
-
-                    return order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
-                }
-            }
-
-            return null;
         }
 
         private string Format(decimal value, bool priceIncludesTax, bool? displayTaxSuffix = null, PricingTarget target = PricingTarget.Product)
