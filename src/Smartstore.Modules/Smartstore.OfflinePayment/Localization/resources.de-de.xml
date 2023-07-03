@@ -214,6 +214,11 @@
                     <![CDATA[ ]]>
                 </Value>
             </LocaleResource>
+            <LocaleResource Name="PaymentInfoDescription">
+                <Value>
+                    <![CDATA[ ]]>
+                </Value>
+            </LocaleResource>
             <LocaleResource Name="PurchaseOrderNumber">
                 <Value>Bestellnummer</Value>
             </LocaleResource>

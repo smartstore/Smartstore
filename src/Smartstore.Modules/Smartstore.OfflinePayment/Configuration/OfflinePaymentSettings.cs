@@ -43,7 +43,7 @@ namespace Smartstore.OfflinePayment.Settings
     {
         public DirectDebitPaymentSettings()
         {
-            DescriptionText = "@Plugins.Payment.DirectDebit.PaymentInfoDescription";
+            DescriptionText = "@Plugins.Payments.DirectDebit.PaymentInfoDescription";
         }
     }
 
@@ -59,7 +59,7 @@ namespace Smartstore.OfflinePayment.Settings
     {
         public ManualPaymentSettings()
         {
-            DescriptionText = "@Plugins.Payment.Manual.PaymentInfoDescription";
+            DescriptionText = "@Plugins.Payments.Manual.PaymentInfoDescription";
         }
 
         public TransactMode TransactMode { get; set; }
@@ -70,7 +70,7 @@ namespace Smartstore.OfflinePayment.Settings
     {
         public PurchaseOrderNumberPaymentSettings()
         {
-            DescriptionText = "@Plugins.Payment.PurchaseOrderNumber.PaymentInfoDescription";
+            DescriptionText = "@Plugins.Payments.PurchaseOrder.PaymentInfoDescription";
         }
 
         public TransactMode TransactMode { get; set; }
