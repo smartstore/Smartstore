@@ -187,7 +187,7 @@ namespace Smartstore.Web.Controllers
                 model.ProductTemplateViewPath = await _services.Cache.GetAsync(templateCacheKey, async () =>
                 {
                     var template = await _db.ProductTemplates.FindByIdAsync(product.ProductTemplateId, false)
-                        ?? await _db.ProductTemplates.AsNoTracking().OrderBy(x => x.Id).FirstOrDefaultAsync();
+                        ?? await _db.ProductTemplates.AsNoTracking().OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
 
                     return template.ViewPath;
                 });
