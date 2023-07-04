@@ -55,8 +55,8 @@ namespace Smartstore.Core.DataExchange.Import
 
         public async Task ImportAsync(DataImportRequest request, CancellationToken cancelToken = default)
         {
-            Guard.NotNull(request, nameof(request));
-            Guard.NotNull(cancelToken, nameof(cancelToken));
+            Guard.NotNull(request);
+            Guard.NotNull(cancelToken);
 
             var profile = await _services.DbContext.ImportProfiles.FindByIdAsync(request.ProfileId, false, cancelToken);
             if (!(profile?.Enabled ?? false))
@@ -68,10 +68,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             try
             {
-                if (!request.HasPermission && !await HasPermission())
-                {
-                    throw new SecurityException("You do not have permission to perform the selected import.");
-                }
+                await CheckPermission(ctx);
 
                 var context = ctx.ExecuteContext;
                 var files = await _importProfileService.GetImportFilesAsync(profile, profile.ImportRelatedData);
@@ -414,16 +411,24 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
-        private async Task<bool> HasPermission()
+        private async Task CheckPermission(DataImporterContext ctx)
         {
+            if (ctx.Request.HasPermission)
+            {
+                return;
+            }
+
             var customer = _services.WorkContext.CurrentCustomer;
 
             if (customer.IsBackgroundTaskAccount())
             {
-                return true;
+                return;
             }
 
-            return await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Import.Execute, customer);
+            if (!await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Import.Execute, customer))
+            {
+                throw new SecurityException(await _services.Permissions.GetUnauthorizedMessageAsync(Permissions.Configuration.Import.Execute));
+            }
         }
 
         #endregion

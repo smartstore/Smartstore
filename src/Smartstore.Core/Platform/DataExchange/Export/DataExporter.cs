@@ -186,14 +186,10 @@ namespace Smartstore.Core.DataExchange.Export
                         ctx.Result.ExportDirectory = dir;
                     }
 
-                    if (!await HasPermission(ctx))
-                    {
-                        throw new SecurityException("You do not have permission to perform the selected export.");
-                    }
-
                     using (var scope = new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true))
                     {
                         var stores = await Init(ctx);
+                        await CheckPermission(ctx);
 
                         ctx.ExecuteContext.Profile = CreateDynamic(profile);
                         ctx.ExecuteContext.Language = CreateDynamic(_workContext.WorkingLanguage);
@@ -288,11 +284,7 @@ namespace Smartstore.Core.DataExchange.Export
             var skip = Math.Max(ctx.Request.Profile.Offset, 0) + (pageIndex * take);
 
             var _ = await Init(ctx);
-
-            if (!await HasPermission(ctx))
-            {
-                throw new SecurityException(T("Admin.AccessDenied"));
-            }
+            await CheckPermission(ctx);
 
             var result = new DataExportPreviewResult
             {
@@ -352,6 +344,9 @@ namespace Smartstore.Core.DataExchange.Export
             }
             if (customer != null)
             {
+                // Do not check the permissions of projected customers. This complicates the configuration for the admin,
+                // e.g. if prices are to be exported as they are seen by guests.
+                ctx.Request.HasPermission = true;
                 _workContext.CurrentCustomer = customer;
             }
 
@@ -1711,21 +1706,24 @@ namespace Smartstore.Core.DataExchange.Export
             return sb.ToString();
         }
 
-        private async Task<bool> HasPermission(DataExporterContext ctx)
+        private async Task CheckPermission(DataExporterContext ctx)
         {
             if (ctx.Request.HasPermission)
             {
-                return true;
+                return;
             }
 
             var customer = _workContext.CurrentCustomer;
 
             if (customer.IsBackgroundTaskAccount())
             {
-                return true;
+                return;
             }
 
-            return await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Export.Execute, customer);
+            if (!await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Export.Execute, customer))
+            {
+                throw new SecurityException(await _services.Permissions.GetUnauthorizedMessageAsync(Permissions.Configuration.Export.Execute));
+            }
         }
 
         private static async Task SetProgress(string message, DataExporterContext ctx)
