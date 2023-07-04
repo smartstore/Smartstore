@@ -674,12 +674,14 @@ namespace Smartstore.Web.Controllers
         [ActionName("ClearCompareList")]
         public IActionResult ClearCompareListAjax()
         {
-            _productCompareService.ClearCompareList();
+            if (_catalogSettings.CompareProductsEnabled)
+            {
+                _productCompareService.ClearCompareList();
+            }
 
             return Json(new
             {
-                success = true,
-                message = T("CompareList.ListWasCleared")
+                success = true
             });
         }
 
