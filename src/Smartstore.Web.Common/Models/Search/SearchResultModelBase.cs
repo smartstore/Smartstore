@@ -16,7 +16,7 @@ namespace Smartstore.Web.Models.Search
         /// <param name="hitUrl">Function to get the hit URL for a suggestion.</param>
         public void AddSpellCheckerSuggestions(string[] suggestions, Localizer T, Func<string, string> hitUrl)
         {
-            if (suggestions.Length == 0)
+            if (suggestions.IsNullOrEmpty())
             {
                 return;
             }
