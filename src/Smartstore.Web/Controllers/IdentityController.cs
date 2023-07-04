@@ -142,11 +142,11 @@ namespace Smartstore.Web.Controllers
 
                     if (result.Succeeded)
                     {
+                        await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = customer });
+
                         await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
 
                         Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
-
-                        await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = customer });
 
                         if (returnUrl.IsEmpty()
                             || returnUrl.Contains("/login?", StringComparison.OrdinalIgnoreCase)
