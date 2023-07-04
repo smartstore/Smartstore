@@ -240,7 +240,7 @@
     background: linear-gradient(to bottom right, var(--gray-100), #fff);
     box-shadow: rgba(#000, 0.12) 0px 1px 3px, rgba(#000, 0.24) 0px 1px 2px;
     box-shadow: rgba(#000, 0.5) 0px 0px 1px, rgba(#000, 0.06) 0px 2px 4px 1px;
-    border-radius: 5px;
+    border-radius: $border-radius-lg;
 }
 
 .payment-method-page .opt-list-icons {
