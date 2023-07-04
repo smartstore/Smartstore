@@ -585,13 +585,16 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-available-payment-methods {
-    display: inline-flex;
-    flex-wrap: wrap !important;
+    display: grid;
+    justify-content: space-between;
+    grid-gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(48px, max-content));
+    grid-auto-rows: minmax(36px, max-content);
 
     .payment-brand {
-        width: 48px;
-        height: 36px;
+        width: 100%;
+        height: 100%;
         border-radius: 3px;
-        margin: 0 10px 10px 0;
+        margin: 0;
     }
 }
