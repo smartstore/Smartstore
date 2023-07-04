@@ -119,7 +119,9 @@
                 },
                 // Create order
                 createOrder: function (data, actions) {
-                    return createOrder(self.hostedFieldsContainer.data("create-order-url"));
+                    var orderId = createOrder(self.hostedFieldsContainer.data("create-order-url"), self.hostedFieldsContainer.attr("id"));
+                    initTransaction({ orderID: orderId }, self.hostedFieldsContainer);
+                    return orderId;
                 },
                 // Save obtained order id in checkout state.
                 onApprove: function (data, actions) {
@@ -149,6 +151,10 @@
                     }
 
                     var form = $("form[data-form-type='payment']");
+                    if (form.length == 0) {
+                        form = $(".checkout-data > form");
+                    }
+
                     var validator = form.data('validator');
                     if (validator) {
                         validator.settings.ignore = "";
@@ -253,5 +259,4 @@
 
         return countryCode;
     }
-
 })(jQuery, this, document);

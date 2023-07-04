@@ -25,7 +25,8 @@ namespace Smartstore.PayPal
                     context => context.ControllerIs<ShoppingCartController>(x => x.OffCanvasShoppingCart()));
                 o.Filters.AddConditional<CheckoutFilter>(
                     context => context.ControllerIs<CheckoutController>(x => x.PaymentMethod()) && !context.HttpContext.Request.IsAjax() 
-                    || context.ControllerIs<CheckoutController>(x => x.Confirm()) && !context.HttpContext.Request.IsAjax(), 200);
+                    || context.ControllerIs<CheckoutController>(x => x.Confirm()) && !context.HttpContext.Request.IsAjax()
+                    || context.ControllerIs<CheckoutController>(x => x.BillingAddress()) && !context.HttpContext.Request.IsAjax(), 200);
 
                 o.Filters.AddConditional<PayPalScriptIncludeFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjax());

@@ -72,6 +72,20 @@ namespace Smartstore.PayPal.Controllers
                 // Store order id temporarily in checkout state.
                 checkoutState.CustomProperties["PayPalOrderId"] = orderId;
 
+                var session = HttpContext.Session;
+
+                if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
+                {
+                    processPaymentRequest = new ProcessPaymentRequest();
+                }
+
+                processPaymentRequest.PayPalOrderId = orderId;
+                processPaymentRequest.StoreId = Services.StoreContext.CurrentStore.Id;
+                processPaymentRequest.CustomerId = customer.Id;
+                processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
+
+                session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+
                 success = true;
             }
             else
@@ -93,14 +107,18 @@ namespace Smartstore.PayPal.Controllers
             var selectedPaymentMethod = string.Empty;
             switch (paymentSource)
             {
-                case "paypal-button-container":
-                    selectedPaymentMethod = PayPalConstants.Standard;
+                case "paypal-creditcard-hosted-fields-container":
+                    selectedPaymentMethod = "Payments.PayPalCreditCard";
                     break;
                 case "paypal-sepa-button-container":
-                    selectedPaymentMethod = PayPalConstants.Sepa;
+                    selectedPaymentMethod = "Payments.PayPalSepa";
                     break;
                 case "paypal-paylater-button-container":
-                    selectedPaymentMethod = PayPalConstants.PayLater;
+                    selectedPaymentMethod = "Payments.PayPalPayLater";
+                    break;
+                case "paypal-button-container":
+                default:
+                    selectedPaymentMethod = "Payments.PayPalStandard";
                     break;
             }
 

@@ -543,7 +543,9 @@
             <LocaleResource Name="Error.CreditCardData">
                 <Value>Please verify your credit card information.</Value>
             </LocaleResource>
-            
+            <LocaleResource Name="CartHasChanged">
+                <Value>Your shopping cart has changed after login. Please confirm your current shopping cart with PayPal.</Value>
+            </LocaleResource>
             <LocaleResource Name="SupportTools">
                 <Value>Support Tools</Value>
             </LocaleResource>
