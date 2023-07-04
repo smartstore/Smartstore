@@ -26,8 +26,8 @@ namespace Smartstore.Core.Checkout.Payment
         private const string PAYMENT_PROVIDER_ENABLED_KEY = "payment:provider:enabled:{0}-{1}";
         private const string PAYMENT_PROVIDER_ENABLED_PATTERN_KEY = "payment:provider:enabled:*";
 
-        // 0 = StoreId, 1 = Language
-        public const string PRODUCT_DETAIL_PAYMENT_ICONS = "productdetail:paymenticons:{0}-{1}";
+        // 0 = StoreId
+        public const string PRODUCT_DETAIL_PAYMENT_ICONS = "productdetail:paymenticons:{0}";
         public const string PRODUCT_DETAIL_PAYMENT_ICONS_PATTERN_KEY = "productdetail:paymenticons:*";
 
         private readonly static object _lock = new();

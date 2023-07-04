@@ -8,6 +8,21 @@ using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
+    public class ProviderBrandImage
+    {
+        /// <summary>
+        /// Gets the fully qualified app relative path to the provider's default
+        /// brand image which is located in the module's <c>wwwroot/brands</c> directory.
+        /// The search pattern is:
+        /// "{SysName}.png", "{SysName}.gif", "{SysName}.jpg", "default.png", "default.gif", "default.jpg".
+        /// If no file is found, then the parent descriptor's 
+        /// <see cref="IModuleDescriptor.BrandImageFileName"/> will be returned instead.
+        /// </summary>
+        public string DefaultImageUrl { get; set; }
+
+        public string[] NumberedImageUrls { get; set; }
+    }
+
     /// <summary>
     /// A mediator between modules/providers and core application services: 
     /// provides localization, setting access, module instantiation etc.
@@ -252,52 +267,91 @@ namespace Smartstore.Engine.Modularity
         /// <remarks>
         /// The resolution result is cached.
         /// </remarks>
-        public string GetDefaultBrandImageUrl(ProviderMetadata metadata)
+        public ProviderBrandImage GetBrandImage(ProviderMetadata metadata)
         {
             var descriptor = metadata.ModuleDescriptor;
             
             if (descriptor != null)
             {
                 var systemName = metadata.SystemName.ToLower();
-                var cacheKey = $"DefaultBrandImageUrl.{systemName}";
+                var cacheKey = $"ProviderBrandImage.{systemName}";
 
-                return _cache.Get(cacheKey, () => 
+                return _cache.Get(cacheKey, o => 
                 {
-                    // Check provider specific icons.
-                    var filesToCheck = new List<string> { "{0}.png", "{0}.gif", "{0}.jpg", "default.png", "default.gif", "default.jpg" }
-                        .Select(x => x.FormatInvariant(systemName))
-                        .ToList();
-
+                    o.ExpiresIn(TimeSpan.FromDays(1));
+                    
+                    var result = new ProviderBrandImage();
+                    var extensions = new[] { "png", "gif", "jpg" };
                     var fs = descriptor.WebRoot as IFileSystem;
-                    foreach (var file in filesToCheck)
+
+                    // Find [systemName].[ext]
+                    if (TryFindFile(systemName, out var defaultImageUrl))
                     {
-                        if (fs.FileExists("brands/" + file))
+                        result.DefaultImageUrl = defaultImageUrl;
+                    }
+                    // Find default.[ext]
+                    else if (TryFindFile("default", out defaultImageUrl))
+                    {
+                        result.DefaultImageUrl = defaultImageUrl;
+                    }
+
+                    if (defaultImageUrl == null)
+                    {
+                        // No default image found, take fallback.
+                        if (metadata.GroupName == "Payment")
                         {
-                            return WebHelper.ToAppRelativePath(PathUtility.Combine(descriptor.Path, "brands", file));
+                            result.DefaultImageUrl = WebHelper.ToAppRelativePath("images/default-payment-icon.png");
+                        }
+                        else if (descriptor.BrandImageFileName.HasValue())
+                        {
+                            result.DefaultImageUrl = WebHelper.ToAppRelativePath(PathUtility.Combine(descriptor.Path, descriptor.BrandImageFileName));
                         }
                     }
 
-                    if (metadata.GroupName == "Payment")
+                    // Payment methods like credit card can have multiple brands like
+                    // Master Card, Visa, etc. 5 Icons per provider should be enough.
+                    var numberedImages = new List<string>(5);
+                    for (var i = 1; i <= 5; i++)
                     {
-                        return WebHelper.ToAppRelativePath("images/default-payment-icon.png");
+                        // Find [systemName]-[i].[ext]
+                        if (!TryFindFile($"{systemName}-{i}", out var numberedImageUrl))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            numberedImages.Add(numberedImageUrl);
+                        }
                     }
 
-                    // Try to find fallback icon branding.png.
-                    if (descriptor.BrandImageFileName.HasValue())
+                    if (result.DefaultImageUrl == null && numberedImages.Count > 0)
                     {
-                        return WebHelper.ToAppRelativePath(PathUtility.Combine(descriptor.Path, descriptor.BrandImageFileName));
+                        result.DefaultImageUrl = numberedImages[0];
                     }
 
-                    return string.Empty;
+                    result.NumberedImageUrls = numberedImages.ToArray();
+
+                    return result;
+
+                    bool TryFindFile(string name, out string url)
+                    {
+                        url = null;
+
+                        foreach (var ext in extensions)
+                        {
+                            var subpath = PathUtility.Combine("brands", $"{name}.{ext}");
+                            if (fs.FileExists(subpath))
+                            {
+                                url = WebHelper.ToAppRelativePath(PathUtility.Combine(descriptor.Path, subpath));
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    }
                 });
             }
 
-            return string.Empty;
-        }
-
-        public string[] GetBrandImageUrls(ProviderMetadata metadata)
-        {
-            // TODO: continue...
             return null;
         }
 

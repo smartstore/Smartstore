@@ -77,14 +77,14 @@ namespace Smartstore.Web.Models.Checkout
                         ShippingMethodId = shippingOption.ShippingMethodId,
                         Name = shippingOption.Name,
                         Description = shippingOption.Description,
-                        ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName,
+                        ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName
                     };
 
                     var srcmProvider = _providerManager.GetProvider<IShippingRateComputationMethod>(shippingOption.ShippingRateComputationMethodSystemName);
 
                     if (srcmProvider != null)
                     {
-                        soModel.BrandUrl = _moduleManager.GetDefaultBrandImageUrl(srcmProvider.Metadata);
+                        soModel.BrandUrl = _moduleManager.GetBrandImage(srcmProvider.Metadata)?.DefaultImageUrl;
                     }
 
                     // Adjust rate.

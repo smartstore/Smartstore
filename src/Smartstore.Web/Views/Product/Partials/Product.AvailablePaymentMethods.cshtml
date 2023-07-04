@@ -14,7 +14,7 @@
     @foreach (var brand in ViewBag.AvailablePaymentMethods)
     {
         <div class="payment-brand">
-            <img class="img-fluid" src="@brand.Item2" title="@brand.Item1" />
+            <img class="img-fluid" src="@Url.Content(brand.Item2)" title="@brand.Item1" />
         </div>
     }
 </div>

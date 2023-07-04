@@ -210,24 +210,27 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
-        /// Prepares icons of payment methods for display on product detail pages configured in <see cref="PaymentSettings.ProductDetailPaymentMethodSystemNames"/>.
+        /// Prepares icons of payment methods for display on product detail pages 
+        /// configured in <see cref="PaymentSettings.ProductDetailPaymentMethodSystemNames"/>.
         /// </summary>
         private async Task PrepareAvailablePaymentMethodsAsync()
         {
             // Get available payment methods
             if (!_paymentSettings.ProductDetailPaymentMethodSystemNames.HasValue())
+            {
                 return;
+            } 
 
             // Store obtained data in memory cache
-            var cacheKey = PaymentService.PRODUCT_DETAIL_PAYMENT_ICONS.FormatInvariant(Services.StoreContext.CurrentStore.Id, Services.WorkContext.WorkingLanguage.Id);
-            ViewBag.AvailablePaymentMethods = await Services.Cache.GetAsync(cacheKey, async () =>
+            var cacheKey = PaymentService.PRODUCT_DETAIL_PAYMENT_ICONS.FormatInvariant(Services.StoreContext.CurrentStore.Id);
+            ViewBag.AvailablePaymentMethods = await Services.Cache.GetAsync(cacheKey, () =>
             {
                 // INFO: No Dictonary<string, string> here because key are not unique in the case a provider has multiple icons.
                 var paymentMethods = new List<(string FriendlyName, string Url)>();
                     
                 // Get all providers.
                 var providers = _providerManager.Value.GetAllProviders<IPaymentMethod>();
-                var productDetailMethods = _paymentSettings.ProductDetailPaymentMethodSystemNames.Split(",");
+                var productDetailMethods = _paymentSettings.ProductDetailPaymentMethodSystemNames.Convert<string[]>();
 
                 foreach (var methodSystemName in productDetailMethods)
                 {
@@ -241,77 +244,26 @@ namespace Smartstore.Web.Controllers
                     }
 
                     var friendlyName = _moduleManager.Value.GetLocalizedFriendlyName(provider.Metadata);
-                    var brandUrls = await GetPaymentBrandIconUrlAsync(provider.Metadata);
+                    var brandImage = _moduleManager.Value.GetBrandImage(provider.Metadata);
 
-                    foreach(var brandUrl in brandUrls)
+                    if (brandImage != null)
                     {
-                        paymentMethods.Add((friendlyName, brandUrl));
+                        if (!brandImage.NumberedImageUrls.IsNullOrEmpty())
+                        {
+                            foreach (var url in brandImage.NumberedImageUrls)
+                            {
+                                paymentMethods.Add((friendlyName, url));
+                            }
+                        }
+                        else if (brandImage.DefaultImageUrl != null)
+                        {
+                            paymentMethods.Add((friendlyName, brandImage.DefaultImageUrl));
+                        }
                     }
                 }
 
                 return paymentMethods;
             });
-        }
-
-        /// <summary>
-        /// Get brand urls for product details pages.
-        /// </summary>
-        /// <param name="metadata">Metadata of an active provider.</param>
-        /// <returns>List of available brand icons.</returns>
-        private async Task<List<string>> GetPaymentBrandIconUrlAsync(ProviderMetadata metadata)
-        {
-            var brandUrls = new List<string>();
-            var methodSystemName = metadata.SystemName.ToLower();
-            var modulePath = metadata.ModuleDescriptor.Path;
-            var fs = Services.ApplicationContext.ContentRoot;
-            var fileExtensions = new[] { "png", "gif", "jpg", "jpeg" };
-
-            async Task<bool> AddBrandUrl(string filePath)
-            {
-                // Respect file extensions.
-                foreach(var ext in fileExtensions)
-                {
-                    var physicalBrandUrl = $"{modulePath}wwwroot/{filePath}.{ext}";
-
-                    if (await fs.FileExistsAsync(physicalBrandUrl))
-                    {
-                        brandUrls.Add($"{modulePath}{filePath}.{ext}");
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            // Payment methods like credit card can have multiple brands like Master Card, Visa, etc.
-            // 5 Icons per provider should be enough.
-            for ( var i = 1; i < 6; i++)
-            {
-                await AddBrandUrl($"brands/{methodSystemName}-" + i);
-            }
-
-            // If we already have collected brand urls here, there's no need to look any further.
-            if (brandUrls.Count > 0)
-            {
-                return brandUrls;
-            }
-
-            // If no files exist take the specific provider icon.
-            if (await AddBrandUrl($"brands/{methodSystemName}"))
-            {
-                return brandUrls;
-            }
-            // If icons with 'pd-' prefix can't be found make a fallback to {methodSystemName}.png or pd.png
-            else if (await AddBrandUrl("brands/default"))
-            {
-                return brandUrls;
-            }
-            else
-            {
-                brandUrls.Add("/images/default-payment-icon.png");
-            }
-            
-            return brandUrls;
         }
 
         /// <summary>
