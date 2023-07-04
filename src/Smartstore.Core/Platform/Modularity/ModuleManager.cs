@@ -8,18 +8,25 @@ using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
+    /// <summary>
+    /// Cached provider brand image URLs.
+    /// Brand images are located in the "wwwroot/brands" module subfolder.
+    /// </summary>
     public class ProviderBrandImage
     {
         /// <summary>
         /// Gets the fully qualified app relative path to the provider's default
-        /// brand image which is located in the module's <c>wwwroot/brands</c> directory.
-        /// The search pattern is:
+        /// brand image. The search pattern is:
         /// "{SysName}.png", "{SysName}.gif", "{SysName}.jpg", "default.png", "default.gif", "default.jpg".
         /// If no file is found, then the parent descriptor's 
         /// <see cref="IModuleDescriptor.BrandImageFileName"/> will be returned instead.
         /// </summary>
         public string DefaultImageUrl { get; set; }
 
+        /// <summary>
+        /// Gets the fully qualified app relative paths to the provider's numbered brand images,
+        /// e.g. "provider-1.png", "provider-2.png" etc. Up to 5 images are allowed.
+        /// </summary>
         public string[] NumberedImageUrls { get; set; }
     }
 
@@ -257,16 +264,10 @@ namespace Smartstore.Engine.Modularity
         }
 
         /// <summary>
-        /// Gets the fully qualified app relative path to a provider's default
-        /// brand image which is located in the module's <c>wwwroot/brands</c> directory.
-        /// The search pattern is:
-        /// "{SysName}.png", "{SysName}.gif", "{SysName}.jpg", "default.png", "default.gif", "default.jpg".
-        /// If no file is found, then the parent descriptor's 
-        /// <see cref="IModuleDescriptor.BrandImageFileName"/> will be returned instead.
+        /// Gets a cached instance of the <see cref="ProviderBrandImage"/> class
+        /// containing URLs to the resolved provider brand images 
+        /// in the "wwwroot/brands" directory.
         /// </summary>
-        /// <remarks>
-        /// The resolution result is cached.
-        /// </remarks>
         public ProviderBrandImage GetBrandImage(ProviderMetadata metadata)
         {
             var descriptor = metadata.ModuleDescriptor;

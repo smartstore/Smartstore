@@ -232,13 +232,12 @@ namespace Smartstore.Web.Controllers
                 var providers = _providerManager.Value.GetAllProviders<IPaymentMethod>();
                 var productDetailMethods = _paymentSettings.ProductDetailPaymentMethodSystemNames.Convert<string[]>();
 
-                foreach (var methodSystemName in productDetailMethods)
+                foreach (var systemName in productDetailMethods)
                 {
-                    var provider = providers.Where(x => x.Metadata.SystemName == methodSystemName).FirstOrDefault();
+                    var provider = providers.Where(x => x.Metadata.SystemName == systemName).FirstOrDefault();
 
-                    // Check if provider is enables.
-                    var isActive = provider.IsPaymentProviderEnabled(_paymentSettings);
-                    if (!isActive)
+                    // Check if provider is enabled.
+                    if (!provider.IsPaymentProviderEnabled(_paymentSettings))
                     {
                         continue;
                     }

@@ -21,6 +21,7 @@
   - #709 added an endpoint that returns order data prepared for an invoice (including variant SKU).
   - #717 added `GiftCard`, `GiftCardUsageHistory`, `DiscountUsageHistory`, `CheckoutAttribute` and `CheckoutAttributeValue`.
   - #723 store the SKU of the ordered product variant at the `OrderItem` entity.
+- Payment method brand icons can be displayed on product detail pages
 - Added settings for more social links (Flickr, LinkedIn, Xing, TikTok, Snapchat, Vimeo, Tumblr, Ello, Behance) to be displayed in the footer.
 - SEO: trailing slash options for internal links (*Append trailing slash to links*, *Trailing slash mismatch rule*)
 - #480 Product export: add a filter for categories and an option to include all sub-categories.
@@ -29,7 +30,10 @@
 
 ### Improvements
 
-- Better usability of the backend on small mobile devices (especially DataGrid)
+- Theming
+  - Better usability of the backend on small mobile devices (especially DataGrid)
+  - Updated FontAwesome library from version 6.0.0 to version 6.4.0
+  - Checkout / Payment page can display payment method brand icons
 - Increased performance: category tree path to filter products by categories.
 - Better PayPal implementaion: added providers for every single payment option.
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
@@ -45,7 +49,6 @@
 - Search
   - Search box UI improvements
   - #441 Enable multistore configuration for SearchSettings.SearchFields.
-- Updated FontAwesome 6 library to version 6.4.0
 - #658 Limit number of product clones to generate either via UI or code (or both)
 - #736 Backend > Product grid: Search By SKU should also search for GTIN & MPN
 - #682 Allow to set the default email account per shop.
