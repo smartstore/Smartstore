@@ -265,6 +265,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Wir akzeptieren folgende Zahlungsarten");
 
             builder.AddOrUpdate("Admin.DataGrid.FitColumns", "Fit columns", "Spalten anpassen");
+
+            builder.AddOrUpdate("Common.ReCaptchaCheckFailed",
+                "A reCAPTCHA check failed with the error {0}.",
+                "Eine reCAPTCHA-Prüfung ist fehlgeschlagen. Grund: {0}.");
         }
     }
 }

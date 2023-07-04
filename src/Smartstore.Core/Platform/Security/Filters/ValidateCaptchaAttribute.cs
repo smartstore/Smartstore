@@ -96,7 +96,15 @@ namespace Smartstore.Core.Security
                             // Do not log 'missing input'. Could be a regular case.
                             foreach (var error in result.ErrorCodes.Where(x => x.HasValue() && x != "missing-input-response"))
                             {
-                                Logger.Error("Error while getting Google Recaptcha response: " + error);
+                                var msg = T("Common.ReCaptchaCheckFailed", error);
+                                if (error == "invalid-input-response")
+                                {
+                                    Logger.Warn(msg);
+                                }
+                                else
+                                {
+                                    Logger.Error(msg);
+                                }
                             }
                         }
                     }
