@@ -24,7 +24,7 @@
                     // PayPal Scripts weren't loaded. This can occur e.g. when a third party consent tool or other JS blocking browser extensions are used.
                     $(function () {
                         // Only execute this and display warnings on payment selection page.
-                        if ($(".payment-methods").length == 0) {
+                        if (!$(".payment-methods").length) {
                             return;
                         }
 
@@ -34,12 +34,12 @@
                         // Enable next buttons, that may have been hidden by PayPalPaymentSelection ViewComponent.
                         var btnNext = $(".payment-method-next-step-button");
                         var btnContainer = $("#paypal-button-container");
-                        btnNext[0].style.display = 'block';
-                        btnContainer[0].style.display = 'none';
+                        btnNext.css('display', 'block');
+                        btnContainer.css('display', 'none');
 
                         // Intercept click handler of checkout next button to prevent checkout with PayPal JS SDK methods.
                         var form = $("form[data-form-type='payment']");
-                        if (form.length == 0) {
+                        if (!form.length) {
                             form = $(".checkout-data > form");
                         }
 
