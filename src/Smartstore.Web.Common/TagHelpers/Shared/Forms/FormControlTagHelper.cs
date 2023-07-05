@@ -154,8 +154,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
             else
             {
-                // INFO: SmartHtmlGenerator applies .form-control now globally
-                //output.AppendCssClass("form-control");
+                // INFO: SmartHtmlGenerator applies .form-control now globally, but still we
+                // have tons of select tags that do not trigger the generator.
+                output.AppendCssClass("form-control");
 
                 // Render "Optional/Unspecified" placeholder
                 if (IsRequired == false && output.TagName != "select" && !output.Attributes.ContainsName("placeholder"))

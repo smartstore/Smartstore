@@ -525,7 +525,7 @@ namespace Smartstore.Web.Rendering
                     ViewContext = helper.ViewContext,
                     Id = name,
                     SmartTabSelection = false,
-                    Style = TabsStyle.Tabs,
+                    Style = TabsStyle.Pills,
                     PublishEvent = false
                 };
 
@@ -550,13 +550,17 @@ namespace Smartstore.Web.Rendering
                     var language = allLanguages.Get(locale.LanguageId);
                     languages.Add(language);
 
-                    tabs.Add(new TabItem
+                    var tabItem = new TabItem
                     {
                         Selected = !hasMasterTemplate && i == 0,
                         Text = language.GetLocalized(x => x.Name),
                         ImageUrl = "~/images/flags/" + language.FlagImageFileName,
                         Content = localizedTemplate(i).ToHtmlString()
-                    });
+                    };
+
+                    tabItem.HtmlAttributes.Merge("class", "nav-item-locale");
+
+                    tabs.Add(tabItem);
                 }
 
                 // Create TagHelperContext for tabstrip.

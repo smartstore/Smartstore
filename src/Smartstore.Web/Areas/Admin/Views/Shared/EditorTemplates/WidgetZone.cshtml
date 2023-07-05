@@ -75,7 +75,7 @@
     // get selected items
     var selectedValues = zones.Where(x => x.Selected == true).Select(x => x.Value.ToString()).ToArray();
 
-    var cssClass = "x-select2-hidden-accessible";
+    var cssClass = "form-control";
     var size = GetMetadata<string>("size");
     if (size.HasValue())
     {
@@ -90,7 +90,7 @@
         name="@name"
         id="@id"
         class="@cssClass"
-        size="1"
+        size="5"
         multiple
         data-tags="true"
         value="@Value"></select>

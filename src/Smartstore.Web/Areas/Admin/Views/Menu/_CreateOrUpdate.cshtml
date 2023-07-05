@@ -34,7 +34,7 @@
                 <div class="adminData">
                     @if (!Model.IsSystemMenu)
                     {
-                        <select id="@Html.IdFor(x => x.Template)" name="@Html.NameFor(x => x.Template)" data-tags="true">
+                        <select class="form-control" id="@Html.IdFor(x => x.Template)" name="@Html.NameFor(x => x.Template)" data-tags="true">
                             @if (Model.IsCustomTemplate)
                             {
                                 <option value="@Model.Template" selected="selected">@Model.Template</option>

@@ -320,6 +320,10 @@ body {
         margin-right: 0;
         border-top-right-radius: 0;
     }
+
+    .locale-editor {
+        max-width: calc(100dvw - var(--sticky-header-left) - (var(--content-padding-x) * 2));
+    }
 }
 
 .spa-layout {
@@ -889,25 +893,50 @@ legend {
     border-radius: $border-radius;
 
     .nav-locales > .nav {
-        flex-wrap: nowrap;
-        padding: 0.25rem 0.25rem 0 0.25rem;
-        border-bottom-color: $border-color;
-        background-color: $card-cap-bg;
+        gap: 4px 0;
+        padding: 0.4rem;
+        border-bottom: 1px solid $border-color;
+        background-color: $gray-100;
         border-top-left-radius: $border-radius;
         border-top-right-radius: $border-radius;
 
-        .nav-item:not(:first-child) {
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-item:first-child {
+            padding-right: 8px;
+
+            > .nav-link {
+                font-weight: $font-weight-medium;
+                
+                &:after {
+                    position: absolute;
+                    content: "";
+                    display: block;
+                    width: 1px;
+                    height: 100%;
+                    right: 4px;
+                    background-color: $border-color;
+                }
+            }
+        }
+
+        .nav-item-locale {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            min-width: 100px;
+            max-width: 170px;
         }
 
         .nav-link {
-            color: #777;
-            font-weight: 600;
-            padding-top: 0.75rem;
-            padding-bottom: 0.75rem;
+            color: lighten($gray-700, 8%);
+            border: 1px solid transparent;
+            padding: 0.4rem 0.75rem;
+
+            &.active {
+                color: inherit;
+            }
 
             > img {
                 opacity: 0.8;
@@ -931,9 +960,9 @@ legend {
         }
 
         .nav-link.active {
-            background-color: #fff;
-            border-color: $border-color;
-            border-bottom-color: #fff;
+            border-color: rgba(#000, .14);
+            background-color: $secondary;
+            box-shadow: inset 0 1px 4px -1px rgba(0, 0, 0, 0.05);
         }
     }
 }

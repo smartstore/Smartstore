@@ -109,7 +109,7 @@
 
                 if (!hiddenElements.length) {
                     callback(self);
-                    return true; //continue the loop
+                    return true; // continue the loop
                 }
 
                 hiddenElements.each(function () {
