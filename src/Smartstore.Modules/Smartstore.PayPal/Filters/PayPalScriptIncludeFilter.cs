@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
-using Serilog.Core;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
@@ -214,7 +213,7 @@ namespace Smartstore.PayPal.Filters
             var session = httpContext.Session;
             
             var clientToken = session.GetString("PayPalClientToken");
-            if (clientToken.HasValue())
+            if (clientToken != null)
             {
                 return clientToken;
             }
@@ -223,8 +222,7 @@ namespace Smartstore.PayPal.Filters
             {
                 // Get client token from PayPal REST API.
                 var response = await _client.ExecuteRequestAsync(new GenerateClientTokenRequest());
-                var rawResponse = response.Body<object>().ToString();
-                dynamic jResponse = JObject.Parse(rawResponse);
+                dynamic jResponse = JObject.Parse(response.Body<object>().ToString());
 
                 clientToken = (string)jResponse.client_token;
 
@@ -232,6 +230,7 @@ namespace Smartstore.PayPal.Filters
             }
             catch (Exception ex)
             {
+                session.SetString("PayPalClientToken", string.Empty);
                 Logger.Error(ex);
             }
 
