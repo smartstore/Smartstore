@@ -325,7 +325,7 @@ namespace Smartstore.StripeElements.Controllers
                     }
                     else
                     {
-                        Logger.Warn(T("Plugins.Payments.Stripe.OrderNotFound", paymentIntent.Id));
+                        Logger.Warn(T("Plugins.Smartstore.Stripe.OrderNotFound", paymentIntent.Id));
                         return Ok();
                     }
                 }
@@ -349,7 +349,7 @@ namespace Smartstore.StripeElements.Controllers
                     }
                     else
                     {
-                        Logger.Warn(T("Plugins.Payments.Stripe.OrderNotFound", paymentIntent.Id));
+                        Logger.Warn(T("Plugins.Smartstore.Stripe.OrderNotFound", paymentIntent.Id));
                         return Ok();
                     }
                 }
@@ -393,7 +393,7 @@ namespace Smartstore.StripeElements.Controllers
                     }
                     else
                     {
-                        Logger.Warn(T("Plugins.Payments.Stripe.OrderNotFound", charge.PaymentIntentId));
+                        Logger.Warn(T("Plugins.Smartstore.Stripe.OrderNotFound", charge.PaymentIntentId));
                         return Ok();
                     }
                 }
