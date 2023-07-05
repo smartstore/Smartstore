@@ -80,8 +80,8 @@ namespace Smartstore.Web.Models.Cart
 
         public override async Task MapAsync(ShoppingCart from, MiniShoppingCartModel to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             var customer = _services.WorkContext.CurrentCustomer;
             var store = _services.StoreContext.CurrentStore;
@@ -193,7 +193,7 @@ namespace Smartstore.Web.Models.Cart
                 // Unit prices.
                 if (product.CallForPrice)
                 {
-                    cartItemModel.UnitPrice = cartItemModel.UnitPrice.WithPostFormat(T("Products.CallForPrice"));
+                    cartItemModel.UnitPrice = new(0, currency, false, T("Products.CallForPrice"));
                 }
                 else if (lineItems.TryGetValue(item.Id, out var lineItem))
                 {
