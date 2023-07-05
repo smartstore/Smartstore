@@ -546,6 +546,9 @@
             <LocaleResource Name="CartHasChanged">
                 <Value>Your shopping cart has changed after login. Please confirm your current shopping cart with PayPal.</Value>
             </LocaleResource>
+            <LocaleResource Name="NoScriptsLoaded">
+                <Value>For payments with PayPal the necessary scripts were not loaded.</Value>
+            </LocaleResource>
             <LocaleResource Name="SupportTools">
                 <Value>Support Tools</Value>
             </LocaleResource>

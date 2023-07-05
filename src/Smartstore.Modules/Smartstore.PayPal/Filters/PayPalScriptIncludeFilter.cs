@@ -2,7 +2,10 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
+using Serilog.Core;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
@@ -47,24 +50,35 @@ namespace Smartstore.PayPal.Filters
             _cookieConsentManager = cookieConsentManager;
         }
 
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            var isJsSDKMethodEnabled = await _payPalHelper.IsAnyProviderEnabledAsync(
+                PayPalConstants.Standard,
+                PayPalConstants.CreditCard,
+                PayPalConstants.PayLater,
+                PayPalConstants.Sepa);
+
+            if (isJsSDKMethodEnabled)
+            {
+                // INFO: Lets load the utility js regardsless of user consent. It doesn't set any cookies.
+                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='/Modules/Smartstore.PayPal/js/paypal.utils.js?v=5.0.5.0'></script>"));
+            }
+
             // TODO: (mh) Find a better (or safer) way to render this script.
             // The following prevents any PayPal script from being rendered if RequiredCookies weren't accepted yet.
             // It's a little bit problematic though for the case where a user accepts the cookies for the first time and directly adds a product to cart.
             // In this case the PayPal buttons won't be rendered in OffCanvasCart (because ConsentManager and OffCanvasCart don't require a new pageload).
             // But if the user then goes to the checkout page, the buttons will be rendered because its a new pageload.
+            // See https://github.com/smartstore/Smartstore/issues/762
             if (!await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Required))
             {
                 await next();
                 return;
             }
 
-            if (await _payPalHelper.IsAnyProviderEnabledAsync(
-                PayPalConstants.Standard,
-                PayPalConstants.CreditCard,
-                PayPalConstants.PayLater,
-                PayPalConstants.Sepa))
+            if (isJsSDKMethodEnabled)
             {
                 // If client id or secret haven't been configured yet, don't show button.
                 if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -106,7 +120,6 @@ namespace Smartstore.PayPal.Filters
                     : string.Empty;
 
                 _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>"));
-                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='/Modules/Smartstore.PayPal/js/paypal.utils.js?v=5.0.5.0'></script>"));
             }
 
             if (!await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.PayUponInvoice))
@@ -206,14 +219,21 @@ namespace Smartstore.PayPal.Filters
                 return clientToken;
             }
 
-            // Get client token from PayPal REST API.
-            var response = await _client.ExecuteRequestAsync(new GenerateClientTokenRequest());
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);
+            try
+            {
+                // Get client token from PayPal REST API.
+                var response = await _client.ExecuteRequestAsync(new GenerateClientTokenRequest());
+                var rawResponse = response.Body<object>().ToString();
+                dynamic jResponse = JObject.Parse(rawResponse);
 
-            clientToken = (string)jResponse.client_token;
+                clientToken = (string)jResponse.client_token;
 
-            session.SetString("PayPalClientToken", clientToken);
+                session.SetString("PayPalClientToken", clientToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
 
             return clientToken;
         }

@@ -14,9 +14,47 @@
                 self.initPayPalButton(funding, false);
             } else {
                 var script = document.getElementById("paypal-js");
-                script.onload = function () {
-                    self.initPayPalButton(funding, false);
-                };
+
+                if (script != null) {
+                    script.onload = function () {
+                        self.initPayPalButton(funding, false);
+                    };
+                }
+                else {
+                    // PayPal Scripts weren't loaded. This can occur e.g. when a third party consent tool or other JS blocking browser extensions are used.
+                    $(function () {
+                        // Only execute this and display warnings on payment selection page.
+                        if ($(".payment-methods").length == 0) {
+                            return;
+                        }
+
+                        // Display warning message informing the user that PayPal scripts weren't loaded.
+                        displayNotification(window.Res.PayPal["NoScriptsLoaded"], 'error');
+
+                        // Enable next buttons, that may have been hidden by PayPalPaymentSelection ViewComponent.
+                        var btnNext = $(".payment-method-next-step-button");
+                        var btnContainer = $("#paypal-button-container");
+                        btnNext[0].style.display = 'block';
+                        btnContainer[0].style.display = 'none';
+
+                        // Intercept click handler of checkout next button to prevent checkout with PayPal JS SDK methods.
+                        var form = $("form[data-form-type='payment']");
+                        if (form.length == 0) {
+                            form = $(".checkout-data > form");
+                        }
+
+                        $(form).on("submit", function (e) {
+                            var selectedPaymentSystemName = $("input[name='paymentmethod']:checked").val();
+                            if (selectedPaymentSystemName == "Payments.PayPalStandard"
+                                || selectedPaymentSystemName == "Payments.PayPalSepa"
+                                || selectedPaymentSystemName == "Payments.PayPalPayLater") {
+
+                                displayNotification(window.Res.PayPal["NoScriptsLoaded"], 'error');
+                                return false;
+                            }
+                        });
+                    });
+                }
             }
         };
 
@@ -70,8 +108,6 @@
         }
 
         PayPalHostedFieldsMethod.prototype.initPayPalScript = function () {
-            // TODO: (mh) (core) DRY
-
             var self = this;
 
             if (typeof paypal !== 'undefined') {

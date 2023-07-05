@@ -12,6 +12,11 @@
 
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-payment-selection">
+
+    window.Res.PayPal = {
+        "NoScriptsLoaded": "@T("Plugins.Smartstore.PayPal.NoScriptsLoaded")"
+    };
+
     $(function () {
         var ppButton = new PayPalButton("#paypal-button-container", "@Model.Funding");
         var btnNext = $(".payment-method-next-step-button");
