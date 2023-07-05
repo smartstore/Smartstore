@@ -69,6 +69,7 @@
   - Price calculation must respect `TaxSettings` of projected store.
   - Fixed wrong exported price when attribute combinations exported as products and price display type is set to lowest price.
   - When creating a profile, the public folder name of another profile should not be copied, but a unique, new folder name should be used.
+- Fixed picture and color control were not displayed when editing a product attribute option.
 - Fixed display of orders in MyAccount area when `OrderSettings.DisplayOrdersOfAllStores` was set to `true`
 - Fixed RTL theme Sass parsing error
 - When an order was placed, the stock quantity of attribute combinations were not updated if the stock is managed by attributes.
