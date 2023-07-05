@@ -443,7 +443,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
             li.Attributes.TryRemove("id", out _);
             li.Attributes.TryRemove("href", out _);
-
+            
             li.AppendCssClass("nav-item");
 
             if (!tab.Selected && !tab.Visible)
@@ -462,6 +462,11 @@ namespace Smartstore.Web.TagHelpers.Shared
                 // Link/Target
                 var itemId = "#" + tab.Id;
                 a.AppendCssClass("nav-link" + (tab.Selected ? " active" : ""));
+
+                if (tab.LinkClass.HasValue())
+                {
+                    a.AppendCssClass(tab.LinkClass);
+                }
 
                 if (!tab.TabInnerContent.IsEmptyOrWhiteSpace)
                 {

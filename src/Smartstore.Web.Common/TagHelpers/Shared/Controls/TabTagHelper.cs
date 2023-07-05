@@ -14,6 +14,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string VisibleAttributeName = "sm-visible";
         const string HideIfEmptyAttributeName = "sm-hide-if-empty";
         const string AjaxAttributeName = "sm-ajax";
+        const string LinkClassAttributeName = "sm-link-class";
         const string IconAttributeName = "sm-icon";
         const string IconClassAttributeName = "sm-icon-class";
         const string BadgeTextAttributeName = "sm-badge-text";
@@ -96,6 +97,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         [HtmlAttributeName(AjaxAttributeName)]
         public bool Ajax { get; set; }
+
+        /// <summary>
+        /// Extra CSS classes for the link (.nav-link).
+        /// </summary>
+        [HtmlAttributeName(LinkClassAttributeName)]
+        public string LinkClass { get; set; }
 
         /// <summary>
         /// Icon (class) name (e.g. "fa fa-user", or "bi:user" for Bootstrap icons)
