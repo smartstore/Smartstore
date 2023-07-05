@@ -421,10 +421,7 @@ namespace Smartstore.StripeElements.Controllers
         {
             if (charge != null)
             {
-                order.OrderNotes.Add(new OrderNote { 
-                    DisplayToCustomer = true, 
-                    Note = $"Reason for Charge-ID {charge.Id}: {charge.Refunds.FirstOrDefault().Reason} - {charge.Description}" }
-                );
+                order.AddOrderNote($"Reason for Charge-ID {charge.Id}: {charge.Refunds.FirstOrDefault().Reason} - {charge.Description}", true);
             }
         }
     }
