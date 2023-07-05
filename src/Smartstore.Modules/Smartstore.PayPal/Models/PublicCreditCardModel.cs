@@ -32,6 +32,11 @@ namespace Smartstore.PayPal.Models
 
         [LocalizedDisplay("Address.Fields.StateProvince")]
         public string StateProvince { get; set; }
+
+        /// <summary>
+        /// A value indicating whether the client token was retrieved from the PayPal API.
+        /// </summary>
+        public bool HasClientToken { get; set; }
     }
 
     public partial class PayPalCreditCardValidator : SmartValidator<PublicCreditCardModel>

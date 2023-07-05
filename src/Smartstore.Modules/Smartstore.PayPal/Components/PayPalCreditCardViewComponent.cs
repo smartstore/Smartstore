@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Smartstore.PayPal.Components
 {
@@ -9,7 +10,11 @@ namespace Smartstore.PayPal.Components
     {
         protected override IViewComponentResult InvokeCore()
         {
-            var model = new PublicCreditCardModel();
+            var model = new PublicCreditCardModel
+            {
+                HasClientToken = HttpContext.Session.GetString("PayPalClientToken") != string.Empty
+            };
+
             return View(model);
         }
     }

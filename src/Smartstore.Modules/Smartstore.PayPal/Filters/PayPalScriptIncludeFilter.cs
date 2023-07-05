@@ -215,7 +215,23 @@ namespace Smartstore.PayPal.Filters
             var clientToken = session.GetString("PayPalClientToken");
             if (clientToken != null)
             {
-                return clientToken;
+                // If clientToken is empty, it means that the last attempt to get a client token failed.
+                if (clientToken == string.Empty)
+                {
+                    // Only try to retrive a new token when we've waited 5 minutes for the API to recover.
+                    var tokenFailedDate = session.GetString("PayPalTokenFailedDate");
+                    if (tokenFailedDate != null && DateTime.TryParse(tokenFailedDate, out var failedDate))
+                    {
+                        if ((DateTime.UtcNow - failedDate).TotalMinutes < 5)
+                        {
+                            return string.Empty;
+                        }
+                    }
+                }
+                else
+                {
+                    return clientToken;
+                }
             }
 
             try
@@ -227,10 +243,14 @@ namespace Smartstore.PayPal.Filters
                 clientToken = (string)jResponse.client_token;
 
                 session.SetString("PayPalClientToken", clientToken);
+                session.Remove("PayPalTokenFailedDate");
             }
             catch (Exception ex)
             {
+                //In case of failure (maybe because the PayPal API is not responding)
+                //we set the client token to string.empty and remember the date when the token retrieval failed.
                 session.SetString("PayPalClientToken", string.Empty);
+                session.SetString("PayPalTokenFailedDate", DateTime.UtcNow.ToStringInvariant());
                 Logger.Error(ex);
             }
 

@@ -533,6 +533,9 @@
             <LocaleResource Name="NoScriptsLoaded">
                 <Value>Für Zahlungen mit PayPal wurden die notwendigen Skripte nicht geladen.</Value>
             </LocaleResource>
+            <LocaleResource Name="NoClientToken">
+                <Value>Die Zahlungsart Kreditkarte über PayPal ist derzeit nicht verfügbar. Bitte versuchen Sie es später noch einmal.</Value>
+            </LocaleResource>
             <LocaleResource Name="SupportTools">
                 <Value>Support-Tools</Value>
             </LocaleResource>

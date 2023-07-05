@@ -549,6 +549,9 @@
             <LocaleResource Name="NoScriptsLoaded">
                 <Value>For payments with PayPal the necessary scripts were not loaded.</Value>
             </LocaleResource>
+            <LocaleResource Name="NoClientToken">
+                <Value>The credit card payment method via PayPal is currently not available. Please try again later.</Value>
+            </LocaleResource>
             <LocaleResource Name="SupportTools">
                 <Value>Support Tools</Value>
             </LocaleResource>

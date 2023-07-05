@@ -1,5 +1,14 @@
 ﻿@model PublicCreditCardModel
 
+@if (!Model.HasClientToken)
+{
+    <p class="alert alert-danger">
+        @T("Plugins.Smartstore.PayPal.NoClientToken")
+    </p>
+
+    return;
+}
+
 <!-- Set up a container element for the paypal button -->
 <div id="paypal-creditcard-hosted-fields-container" 
      data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
