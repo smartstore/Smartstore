@@ -273,6 +273,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Order.CannotCapture",
                 "The payment of the order could not be captured.",
                 "Die Zahlung der Bestellung konnte nicht gebucht werden.");
+
+            builder.AddOrUpdate("Order.CannotVoid",
+                "The payment of the order could not be voided.",
+                "Die Zahlung der Bestellung konnte nicht storniert werden.");
         }
     }
 }
