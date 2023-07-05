@@ -147,7 +147,7 @@ namespace Smartstore.Web.Models.Cart
 
             if (product.CallForPrice)
             {
-                to.UnitPrice = to.UnitPrice.WithPostFormat(T("Products.CallForPrice"));
+                to.UnitPrice = new(0, currency, false, T("Products.CallForPrice"));
                 to.SubTotal = to.UnitPrice;
             }
             else if (item.BundleItem == null)
