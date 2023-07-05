@@ -269,6 +269,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.ReCaptchaCheckFailed",
                 "A reCAPTCHA check failed with the error {0}.",
                 "Eine reCAPTCHA-Prüfung ist fehlgeschlagen. Grund: {0}.");
+
+            builder.AddOrUpdate("Order.CannotCapture",
+                "The payment of the order could not be captured.",
+                "Die Zahlung der Bestellung konnte nicht gebucht werden.");
         }
     }
 }
