@@ -180,12 +180,17 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var product = await _db.Products.FindByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
             _db.Products.Remove(product);
             await _db.SaveChangesAsync();
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteProduct, T("ActivityLog.DeleteProduct"), product.Name);
-
             NotifySuccess(T("Admin.Catalog.Products.Deleted"));
+
             return RedirectToAction(nameof(List));
         }
 
