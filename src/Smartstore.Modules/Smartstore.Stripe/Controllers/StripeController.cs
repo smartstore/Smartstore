@@ -399,7 +399,7 @@ namespace Smartstore.StripeElements.Controllers
                 }
                 else
                 {
-                    Logger.Warn(T("Unhandled event type: {0}", stripeEvent.Type));
+                    Logger.Warn("Unhandled Stripe event type: {0}", stripeEvent.Type);
                 }
 
                 return Ok();
