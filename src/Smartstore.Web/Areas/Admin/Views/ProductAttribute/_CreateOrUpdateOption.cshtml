@@ -4,7 +4,6 @@
 <input type="hidden" asp-for="Id" />
 <input type="hidden" asp-for="ProductVariantAttributeId" />
 <input type="hidden" asp-for="ProductAttributeOptionsSetId" />
-<input type="hidden" asp-for="IsListTypeAttribute" />
 
 <div class="adminContent mb-3">
     <div class="adminRow">
@@ -106,27 +105,24 @@
 ))
 
 <div class="adminContent">
-    @if (Model.IsListTypeAttribute)
-    {
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="PictureId" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="PictureId" />
-                <span asp-validation-for="PictureId"></span>
-            </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PictureId" />
         </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Color" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="Color" />
-                <span asp-validation-for="Color"></span>
-            </div>
+        <div class="adminData">
+            <editor asp-for="PictureId" />
+            <span asp-validation-for="PictureId"></span>
         </div>
-    }
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Color" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Color" />
+            <span asp-validation-for="Color"></span>
+        </div>
+    </div>
     <div class="adminRow" id="group-price-adjustment">
         <div class="adminTitle">
             <smart-label asp-for="PriceAdjustment" />
