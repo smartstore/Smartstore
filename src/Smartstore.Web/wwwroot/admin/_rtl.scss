@@ -116,8 +116,26 @@
     }
 
     //
-    // Locale Editor
+    // Navs
     // -------------
+
+    .nav .nav-link > img + span, 
+    .nav .nav-link > i + span, 
+    .nav .nav-link > .bi + span {
+        padding-left: 0 !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .locale-editor .nav-locales > .nav .nav-item-master {
+        padding-right: 0;
+        padding-left: 6px;
+
+        > .nav-link:after {
+            right: auto;
+            left: 2px;
+        }
+    }
+
     .locale-editor-content[data-rtl="false"] {
         input,
         textarea,

@@ -230,6 +230,11 @@
 		border-radius: 0 $nav-tabs-border-radius $nav-tabs-border-radius 0;
 	}
 
+    .nav-tabs-line.nav-tabs-line-dense:not(.nav-stacked) > .nav-item:first-child > .nav-link {
+        margin-right: 0;
+        margin-left: 0.75rem;
+    }
+
 	@include media-breakpoint-up(lg) {
 		.tabs-left > .nav-aside > .nav-tabs-line {
 			border-left: 1px solid $nav-tabs-border-color;
@@ -263,12 +268,6 @@
 	}
 
 	.nav {
-		.nav-link > img,
-		.nav-link > i {
-			margin-left: 0.5rem;
-			margin-right: initial;
-		}
-
 		.nav-link > .chevron {
 			margin-right: 3px;
 			margin-left: initial;
