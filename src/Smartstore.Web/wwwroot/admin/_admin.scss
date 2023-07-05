@@ -892,45 +892,33 @@ legend {
     margin-bottom: 1rem;
     border-radius: $border-radius;
 
-    --tab-caption-display-xs: none;
-    --tab-caption-display-sm: var(--tab-caption-display-xs);
-    --tab-caption-display-md: var(--tab-caption-display-sm);
-    --tab-caption-display-lg: var(--tab-caption-display-md);
-    --tab-caption-display-xl: var(--tab-caption-display-lg);
-
     .nav-locales > .nav {
-        gap: 4px 2px;
+        gap: 4px 0;
         padding: 0.4rem;
         border-bottom: 1px solid $border-color;
         background-color: $gray-100;
         border-top-left-radius: $border-radius;
         border-top-right-radius: $border-radius;
-        flex-wrap: nowrap;
-        overflow-x: auto;
 
         .nav-item {
             position: relative;
         }
 
-        .nav-icon {
-            font-size: 1rem;
-        }
+        .nav-item:first-child {
+            padding-right: 8px;
 
-        .nav-link {
-            padding: 0.4rem 0.75rem;
-        }
-
-        .nav-item-master {
-            padding-right: 6px;
-
-            > .nav-link:after {
-                position: absolute;
-                content: "";
-                display: block;
-                width: 1px;
-                height: 100%;
-                right: 2px;
-                background-color: $border-color;
+            > .nav-link {
+                font-weight: $font-weight-medium;
+                
+                &:after {
+                    position: absolute;
+                    content: "";
+                    display: block;
+                    width: 1px;
+                    height: 100%;
+                    right: 4px;
+                    background-color: $border-color;
+                }
             }
         }
 
@@ -938,45 +926,43 @@ legend {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            flex-shrink: 1;
-            min-width: 38px;
             max-width: 170px;
+        }
 
-            .tab-caption {
-                display: var(--tab-caption-display-xs);
+        .nav-link {
+            color: lighten($gray-700, 8%);
+            border: 1px solid transparent;
+            padding: 0.4rem 0.75rem;
+
+            &.active {
+                color: inherit;
+            }
+
+            > img {
+                opacity: 0.8;
+            }
+
+            > .tab-caption {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-
-                @include media-breakpoint-up(sm) {
-                    display: var(--tab-caption-display-sm);
-                }
-
-                @include media-breakpoint-up(md) {
-                    display: var(--tab-caption-display-md);
-                }
-
-                @include media-breakpoint-up(lg) {
-                    display: var(--tab-caption-display-lg);
-                }
-
-                @include media-breakpoint-up(xl) {
-                    display: var(--tab-caption-display-xl);
-                }
             }
+        }
 
-            .nav-link {
-                font-weight: $font-weight-normal;
-                color: lighten($gray-700, 8%);
+        .nav-link:hover,
+        .nav-link.active {
+            color: inherit;
+            border-color: transparent;
 
-                > img { opacity: 0.8; }
-
-                &:hover,
-                &.active {
-                    color: inherit;
-                    > img { opacity: 1; }
-                }
+            > img {
+                opacity: 1;
             }
+        }
+
+        .nav-link.active {
+            border-color: rgba(#000, .14);
+            background-color: $secondary;
+            box-shadow: inset 0 1px 4px -1px rgba(0, 0, 0, 0.05);
         }
     }
 }

@@ -507,7 +507,7 @@ namespace Smartstore.Web.Rendering
             // INFO: We cannot rely on HelperResult's deferred rendering strategy here, because then client validation rules
             // are missing in the output. Instead we immediately render the content to an HtmlString instance.
 
-            var locales = helper.ViewData.Model.Locales.Take(8).ToList();
+            var locales = helper.ViewData.Model.Locales;
             var hasMasterTemplate = masterTemplate != null;
 
             if (locales.Count > 1)
@@ -518,17 +518,6 @@ namespace Smartstore.Web.Rendering
                 var tabs = new List<TabItem>(locales.Count + 1);
                 var languages = new List<Language>(locales.Count + 1);
                 var allLanguages = languageService.GetAllLanguages(true).ToDictionary(x => x.Id);
-
-                var num = locales.Count;
-                var size = num <= 3 
-                    ? "xs" 
-                    : (num <= 5 
-                        ? "sm" 
-                        : (num <= 8 
-                            ? "md" 
-                            : (num <= 16
-                                ? "lg" 
-                                : "xl")));
 
                 // Create the parent tabstrip
                 var strip = new TabStripTagHelper
@@ -546,18 +535,12 @@ namespace Smartstore.Web.Rendering
                     languages.Add(masterLanguage);
 
                     // Add the first default tab for the master template
-                    var tabItem = new TabItem
+                    tabs.Add(new TabItem
                     {
                         Selected = true,
                         Text = localizationService.GetResource("Admin.Common.Standard"),
-                        Content = masterTemplate(helper.ViewData.Model).ToHtmlString(),
-                        Icon = "fa fa-globe"
-                    };
-
-                    tabItem.HtmlAttributes.Merge("class", "nav-item-master");
-                    tabItem.LinkHtmlAttributes.Merge("class", "btn btn-light btn-sm");
-
-                    tabs.Add(tabItem);
+                        Content = masterTemplate(helper.ViewData.Model).ToHtmlString()
+                    });
                 }
 
                 // Add all language specific tabs
@@ -576,7 +559,6 @@ namespace Smartstore.Web.Rendering
                     };
 
                     tabItem.HtmlAttributes.Merge("class", "nav-item-locale");
-                    tabItem.LinkHtmlAttributes.Merge("class", "btn btn-light btn-sm");
 
                     tabs.Add(tabItem);
                 }
@@ -625,7 +607,6 @@ namespace Smartstore.Web.Rendering
 
                 var wrapper = new TagBuilder("div");
                 wrapper.Attributes.Add("class", "locale-editor");
-                wrapper.Attributes.Add("style", $"--tab-caption-display-{size}: inline");
 
                 return stripOutput.WrapElementWith(wrapper);
             }

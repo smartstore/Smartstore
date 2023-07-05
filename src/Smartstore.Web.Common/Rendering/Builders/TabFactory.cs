@@ -11,8 +11,8 @@ namespace Smartstore.Web.Rendering.Builders
     {
         public TabFactory(TabStripTagHelper tabStrip, TagHelperContext context)
         {
-            Guard.NotNull(tabStrip);
-            Guard.NotNull(context);
+            Guard.NotNull(tabStrip, nameof(tabStrip));
+            Guard.NotNull(context, nameof(context));
 
             TabStrip = tabStrip;
             Context = context;
@@ -61,7 +61,7 @@ namespace Smartstore.Web.Rendering.Builders
         /// <param name="buildAction">Build action.</param>
         public Task InsertAfterAsync(string tabName, Action<TabItemBuilder> buildAction)
         {
-            Guard.NotEmpty(tabName);
+            Guard.NotEmpty(tabName, nameof(tabName));
             return InsertAfterAnyAsync(new[] { tabName }, buildAction);
         }
 
@@ -74,7 +74,7 @@ namespace Smartstore.Web.Rendering.Builders
         /// <param name="buildAction">Build action.</param>
         public Task InsertAfterAnyAsync(string[] tabNames, Action<TabItemBuilder> buildAction)
         {
-            Guard.NotEmpty(tabNames);
+            Guard.NotEmpty(tabNames, nameof(tabNames));
 
             int? position = -1;
             for (var i = 0; i < TabStrip.Tabs.Count; i++)
@@ -103,7 +103,7 @@ namespace Smartstore.Web.Rendering.Builders
         /// <param name="buildAction">Build action.</param>
         public Task InsertBeforeAsync(string tabName, Action<TabItemBuilder> buildAction)
         {
-            Guard.NotEmpty(tabName);
+            Guard.NotEmpty(tabName, nameof(tabName));
             return InsertBeforeAnyAsync(new[] { tabName }, buildAction);
         }
 
@@ -116,7 +116,7 @@ namespace Smartstore.Web.Rendering.Builders
         /// <param name="buildAction">Build action.</param>
         public Task InsertBeforeAnyAsync(string[] tabNames, Action<TabItemBuilder> buildAction)
         {
-            Guard.NotEmpty(tabNames);
+            Guard.NotEmpty(tabNames, nameof(tabNames));
 
             int position = -1;
             for (var i = 0; i < TabStrip.Tabs.Count; i++)
@@ -133,7 +133,7 @@ namespace Smartstore.Web.Rendering.Builders
 
         private Task<TabTagHelper> CreateTagHelper(Action<TabItemBuilder> buildAction, int? position)
         {
-            Guard.NotNull(buildAction);
+            Guard.NotNull(buildAction, nameof(buildAction));
 
             var builder = new TabItemBuilder(new TabItem(), TabStrip.HtmlHelper);
             buildAction(builder);
@@ -154,7 +154,6 @@ namespace Smartstore.Web.Rendering.Builders
                 BadgeStyle = (BadgeStyle)item.BadgeStyle,
                 BadgeText = item.BadgeText,
                 Icon = item.Icon,
-                IconClass = item.IconClass,
                 ImageUrl = item.ImageUrl,
                 Position = position
             };
@@ -173,13 +172,6 @@ namespace Smartstore.Web.Rendering.Builders
             var outputAttrList = new TagHelperAttributeList();
 
             item.HtmlAttributes.CopyTo(outputAttrList);
-
-            if (item.LinkHtmlAttributes.TryGetValue("class", out var linkClass))
-            {
-                tagHelper.LinkClass = linkClass;
-                item.LinkHtmlAttributes.Remove("class");
-            }
-
             item.LinkHtmlAttributes.CopyTo(outputAttrList);
 
             if (!item.HasContent && item.HasRoute)
