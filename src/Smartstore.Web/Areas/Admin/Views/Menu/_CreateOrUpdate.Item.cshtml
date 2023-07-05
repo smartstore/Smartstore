@@ -21,6 +21,26 @@
     iconColors.Add(new SelectListItem { Text = "gray-900", Value = "gray-900" });
 }
 
+@*
+    TODO: (mc), TODO: (mh) This is only temporary!! 
+    It was done because the MegaMenu AdmitTab was injected via AJAX and contains Media & HTML editor templates,
+    which can not be rendered into the corresponding zones.
+*@
+@* BEGIN *@
+<script src="~/bundle/js/fileuploader.js" sm-target-zone="scripts" sm-key="fileuploader"></script>
+<script src="~/bundle/js/codemirror.js" sm-key="codemirror" sm-target-zone="scripts"></script>
+
+<widget key="summernote" target-zone="scripts">
+    <script src="~/bundle/js/summernote.js"></script>
+    @* Find summernote localization file *@
+    <script src="~/lib/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+    <script src="~/lib/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+</widget>
+
+<link rel="stylesheet" href="~/lib/editors/summernote/summernote-bs4.css" sm-key="summernote" sm-target-zone="stylesheets" />
+<link rel="stylesheet" href="~/bundle/css/codemirror.css" sm-key="codemirror" sm-target-zone="stylesheets" />
+@* END *@
+
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
 <input asp-for="MenuId" type="hidden" />
