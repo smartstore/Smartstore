@@ -524,7 +524,14 @@ namespace Smartstore.Web.Controllers
             var state = _checkoutStateAccessor.CheckoutState;
             foreach (var kvp in form)
             {
-                state.PaymentData[kvp.Key] = kvp.Value.ToString();
+                if (kvp.Value.Count == 2 && kvp.Value[0] == "true")
+                {
+                    state.PaymentData[kvp.Key] = "true";
+                }
+                else
+                {
+                    state.PaymentData[kvp.Key] = kvp.Value.ToString();
+                }
             }
 
             // Validate info
