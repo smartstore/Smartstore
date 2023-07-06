@@ -244,10 +244,13 @@
 		<Value>I would like to subscribe to the newsletter. I agree to the &lt;a href="{0}" Privacy policy&lt;/a&gt;. Unsubscription is possible at any time.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.Fields.Password">
-		<Value>Password security</Value>
+		<Value>Password</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.Fields.Password.LengthValidation">
 		<Value>The password should have at least {0} characters.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Account.Fields.PasswordSecurity">
+		<Value>Password security</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.Fields.Phone">
 		<Value>Phone</Value>
@@ -446,6 +449,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Account.Register.Result.AdminApproval">
 		<Value>Your account will be activated after approving by administrator.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Account.Register.Result.AlreadyRegistered">
+		<Value>You are already registered.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.Register.Result.Continue">
 		<Value>Continue</Value>
@@ -749,9 +755,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin">
 		<Value>Admin</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.AccessDenied">
-		<Value>You do not have permission to perform the selected operation.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.AccessDenied.Description">
 		<Value>You do not have permission to perform the selected operation.</Value>
@@ -2351,7 +2354,7 @@
 		<Value>Low stock activity</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.LowStockActivity.Hint">
-		<Value>Action to be taken when your current stock quantity falls below the "Minimum stock quantity".</Value>
+		<Value>Action to be taken when the stock quantity reaches or falls below the minimum stock quantity.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.ManageInventoryMethod">
 		<Value>Manage inventory method</Value>
@@ -2360,10 +2363,10 @@
 		<Value>Select manage inventory method. When enabled, stock quantities are automatically adjusted when a customer makes a purchase. You can also set low stock activity actions and receive notifications.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.ManufacturerPartNumber">
-		<Value>Manufacturer part number</Value>
+		<Value>Manufacturer part number (MPN)</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.ManufacturerPartNumber.Hint">
-		<Value>The manufacturer's part number for this product variant.</Value>
+		<Value>Specifies the manufacturer's part number (MPN).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.MaximumCustomerEnteredPrice">
 		<Value>Maximum amount</Value>
@@ -2387,7 +2390,7 @@
 		<Value>Minimum stock quantity</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.MinStockQuantity.Hint">
-		<Value>If you have enabled "Manage Stock" you can perform a number of different actions when the current stock quantity falls below your minimum stock quantity.</Value>
+		<Value>Specifies the minimum stock quantity. If the inventory is tracked and the stock reaches or falls below this value, various actions can be performed (e.g. notification or deactivation of the product).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.Name">
 		<Value>Product name</Value>
@@ -2627,10 +2630,10 @@
 		<Value>Download catalog as PDF</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.GoDirectlyToSku">
-		<Value>Find by SKU</Value>
+		<Value>Find by SKU, GTIN or MPN</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.GoDirectlyToSku.Hint">
-		<Value>Enter product SKU and click Go.</Value>
+		<Value>Opens directly the edit page of the product with the specified SKU, EAN or MPN (manufacturer part number).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchCategory">
 		<Value>Category</Value>
@@ -3189,6 +3192,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.ChooseToken">
 		<Value>Choose token</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Common.Cleanup">
+		<Value>Cleanup</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.Clear">
 		<Value>Clear</Value>
@@ -4948,12 +4954,6 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.EmailAFriendEnabled.Hint">
 		<Value>Check the box to allow customers to use the 'Email a friend' option in your store</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate">
-		<Value>Enable dynamic price update</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.EnableDynamicPriceUpdate.Hint">
-		<Value>Check the box if you want to enable dynamic price update on product details page in case a product has product attributes with price adjustments.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.EnableHtmlTextCollapser">
 		<Value>Truncate long texts</Value>
 	</LocaleResource>
@@ -5645,6 +5645,12 @@
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy">
 		<Value>Privacy</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.CookieConsentRequirement">
+		<Value>Cookie consent requirement</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.CookieConsentRequirement.Hint">
+		<Value>Determines whether and in which regions the cookie manager dialog should be displayed.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.CookieInfo.CookieType">
 		<Value>Cookie type</Value>
 	</LocaleResource>
@@ -5693,9 +5699,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.DisplayGdprConsentOnForms.Hint">
 		<Value>Specifies whether a checkbox is displayed in forms that prompts the user to agree to the processing of his data.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent">
-		<Value>Enable Cookie Manager</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent.Hint">
 		<Value>Specifies whether the Cookie Manager will be displayed in the frontend.</Value>
@@ -5800,7 +5803,7 @@
 		<Value>'Street address addition' required</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.StreetAddress2Required.Hint">
-		<Value>Defines whether the input of 'street address addition' is required.</Value>
+		<Value>Defines whether 'street address addition' is required.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.StreetAddressEnabled">
 		<Value>'Street address' enabled</Value>
@@ -5867,6 +5870,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.DataExchange.MaxFileNameLength.Hint">
 		<Value>Specifies the maximum length of file and folder names created during an import or export.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.EmailAccount.DefaultEmailAccountId">
+		<Value>Default email account</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.EmailAccount.DefaultEmailAccountId.Hint">
+		<Value>Specifies the default email account.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Forums">
 		<Value>Forum settings</Value>
@@ -6022,7 +6031,7 @@
 		<Value>A CAPTCHA is a program that can tell whether its user is a human or a computer. You've probably seen them — colorful images with distorted text at the bottom of Web registration forms. CAPTCHAs are used by many websites to prevent abuse from "bots," or automated programs usually written to generate spam. No computer program can read distorted text as well as humans can, so bots cannot navigate sites protected by CAPTCHAs. SmartStore.NET uses reCAPTCHA.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon">
-		<Value>General and miscellaneous settings</Value>
+		<Value>General settings</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.AdminAreaAllowedIpAddresses">
 		<Value>Admin area allowed IP</Value>
@@ -6035,6 +6044,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.AllowUnicodeCharsInUrls.Hint">
 		<Value>Check whether SEO names can contain letters that are classified as unicode characters.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.AppendTrailingSlashToUrls">
+		<Value>Append trailing slash to links</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.AppendTrailingSlashToUrls.Hint">
+		<Value>Forces all internal links to end with a trailing slash.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.AttachOrderPdfToOrderCompletedEmail">
 		<Value>Attach order PDF to 'Order Completed' email</Value>
@@ -6469,7 +6484,7 @@
 		<Value>When enabled, all language resources will be loaded on application startup. The application start will be slower, but pages could be opened much faster.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.LocalizationSettings">
-		<Value>Localization settings</Value>
+		<Value>Localization</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.MetaRobotsContent">
 		<Value>Meta robots</Value>
@@ -6508,7 +6523,7 @@
 		<Value>Image file that will be displayed in PDF order invoices. A small image is recommended.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.PdfSettings">
-		<Value>Pdf settings</Value>
+		<Value>PDF</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.reCaptchaPrivateKey">
 		<Value>reCAPTCHA private key</Value>
@@ -6526,7 +6541,7 @@
 		<Value>When changing the reCAPTCHA type, the public and private key must also be changed.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SecuritySettings">
-		<Value>Security settings</Value>
+		<Value>Security</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SeoFriendlyUrlsForLanguagesEnabled">
 		<Value>SEO friendly URLs with multiple languages enabled</Value>
@@ -6541,10 +6556,22 @@
 		<Value>Allows an individual conversion of characters for SEO name creation. Enter the old and the new character separated by a semicolon, e.g. ä;ae. Each entry has to be entered in a new line.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SEOSettings">
-		<Value>SEO settings</Value>
+		<Value>SEO</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SEOSettings.RestartInfo">
+		<Value>Changing link options will take effect only after restarting the application. Also, the XML sitemap should be regenerated to reflect the changes.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SEOSettings.Routing">
+		<Value>Internal links</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings">
 		<Value>Social networks</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.BehanceLink">
+		<Value>Behance Link</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.ElloLink">
+		<Value>Ello Link</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.FacebookAppId">
 		<Value>Facebook App ID</Value>
@@ -6555,29 +6582,35 @@
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.FacebookLink">
 		<Value>Facebook link</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.FacebookLink.Hint">
-		<Value>Leave this field blank if facebook should not be displayed.</Value>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.FlickrLink">
+		<Value>Flickr Link</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.InstagramLink">
 		<Value>Instagram Link</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.InstagramLink.Hint">
-		<Value>Leave this field empty if the Instagram link should not be shown</Value>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.LeaveEmpty">
+		<Value>Leave empty to hide the link.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.LinkedInLink">
+		<Value>LinkedIn Link</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.PinterestLink">
 		<Value>Pinterest link</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.PinterestLink.Hint">
-		<Value>Leave this field blank if pinterest should not be displayed.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.ShowSocialLinksInFooter">
 		<Value>Show social links in footer</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.SnapchatLink">
+		<Value>Snapchat Link</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.TikTokLink">
+		<Value>TikTok Link</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.TumblrLink">
+		<Value>Tumblr Link</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterLink">
 		<Value>Twitter link</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterLink.Hint">
-		<Value>Leave this field blank if twitter should not be displayed.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite">
 		<Value>Twitter Username</Value>
@@ -6585,11 +6618,14 @@
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite.Hint">
 		<Value>Twitter Username that gets displayed on Twitter cards when a product, category and manufacturer page is shared on Twitter. Starts with a '@'.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.VimeoLink">
+		<Value>Vimeo Link</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.XingLink">
+		<Value>Xing Link</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.YoutubeLink">
 		<Value>Youtube Link</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.YoutubeLink.Hint">
-		<Value>Leave this field empty if the youtube link should not be shown</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.StoreClosed">
 		<Value>Store closed</Value>
@@ -6611,6 +6647,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.TestSeoNameCreation.Hint">
 		<Value>Enter any string to check the SEO name creation. Changed settings must be saved before.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.TrailingSlashRule">
+		<Value>Trailing slash mismatch rule</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.TrailingSlashRule.Hint">
+		<Value>Rule to apply when an incoming URL does not match the 'Append trailing slash to links' setting.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.UseImagesForLanguageSelection">
 		<Value>Use images for language selection</Value>
@@ -6992,6 +7034,15 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Payment.CapturePaymentReason.Hint">
 		<Value>Specifies the event when the payment amount is automatically captured. The selected payment method must support capturing for this.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Payment.DisplayPaymentMethodIcons">
+		<Value>Show icons on the payment method selection page</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Payment.ProductDetailPaymentMethodSystemNames">
+		<Value>Payment method icons on the product detail page</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Payment.ProductDetailPaymentMethodSystemNames.Hint">
+		<Value>Specifies for which payment methods icons informing about the accepted payment methods are displayed on product detail pages.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Price">
 		<Value>Prices</Value>
@@ -7842,6 +7893,12 @@
 	<LocaleResource Name="Admin.Configuration.Stores.AddNew">
 		<Value>Add a new store</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Stores.CannotDeleteLastStore">
+		<Value>The store cannot be deleted. At least one store is required.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Stores.CannotDeleteStoreWithWalletPostings">
+		<Value>The store cannot be deleted. Postings to a credit account are assigned to it.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Deleted">
 		<Value>The store has been deleted successfully.</Value>
 	</LocaleResource>
@@ -7874,12 +7931,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Fields.FavIconMediaFileId.Hint">
 		<Value>Defines the favicon for the store. This icon should contain graphics in the dimensions 16×16, 32×32 and 48×48.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Stores.Fields.ForceSslForAllPages">
-		<Value>Always use SSL</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Stores.Fields.ForceSslForAllPages.Hint">
-		<Value>Specifies whether to SSL secure all request.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Fields.Hosts">
 		<Value>HOST values</Value>
@@ -7927,10 +7978,16 @@
 		<Value>The secure URL of your store e.g. https://www.yourstore.com/ or http://sharedssl.yourstore.com/. Leave it empty if you want secure URL to be detected automatically.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Fields.SslEnabled">
-		<Value>SSL</Value>
+		<Value>Require HTTPS</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Fields.SslEnabled.Hint">
-		<Value>Specifies whether the store should be SSL secured.</Value>
+		<Value>Turn this on to enable automatic HTTP to HTTPS redirection, but only if you have a valid SSL certificate installed on your server.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Stores.Fields.SslPort">
+		<Value>HTTPS port</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Stores.Fields.SslPort.Hint">
+		<Value>Specifies the HTTPS port to append to the host defined in 'Shop URL' for HTTP to HTTPS redirects (but only if 'Shop URL' does not already start with https://).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Fields.StoreLogo">
 		<Value>Store logo</Value>
@@ -7939,10 +7996,10 @@
 		<Value>Upload your store logo</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Fields.Url">
-		<Value>Store URL</Value>
+		<Value>Shop URL</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Fields.Url.Hint">
-		<Value>The URL of your store e.g. http://www.yourstore.com/</Value>
+		<Value>The root URL of your store, including the base path (if any), e.g. https://mystore.com/</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Stores.Updated">
 		<Value>The store has been updated successfully.</Value>
@@ -8411,6 +8468,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.Menus.Item.InvalidRouteValues">
 		<Value>Please check the link data. No link can be created on the basis of your input.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.ContentManagement.Menus.Item.InvalidTargetLink">
+		<Value>Unknown or invalid target "{0}" at menu link "{1}".</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.Menus.Item.LinkTarget">
 		<Value>Target</Value>
@@ -9931,7 +9991,7 @@
 		<Value>Categories</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.DataExchange.Export.Filter.CategoryIds.Hint">
-		<Value>Filter by categtories.</Value>
+		<Value>Filter by categories.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.DataExchange.Export.Filter.CreatedFrom">
 		<Value>Created from</Value>
@@ -9980,6 +10040,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.DataExchange.Export.Filter.IdMinimum.Hint">
 		<Value>Filter by product identifier.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.DataExchange.Export.Filter.IncludeSubCategories">
+		<Value>Include subcategories</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.DataExchange.Export.Filter.IncludeSubCategories.Hint">
+		<Value>Specifies whether products from subcategories should also be filtered.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.DataExchange.Export.Filter.IsActiveCustomer">
 		<Value>Only active customers</Value>
@@ -10428,6 +10494,9 @@
 	<LocaleResource Name="Admin.DataGrid.DisplayingItemsShort">
 		<Value>{0}-{1} of {2}</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.DataGrid.FitColumns">
+		<Value>Fit columns</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.DataGrid.HBorders">
 		<Value>Column lines</Value>
 	</LocaleResource>
@@ -10459,7 +10528,7 @@
 		<Value>Row lines</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.DataGrid.XPerPage">
-		<Value>&lt;span class='fwm'&gt;{0}&lt;/span&gt; per page</Value>
+		<Value>&lt;span class='fwm'&gt;{0}&lt;/span&gt;&lt;span class='d-none d-sm-inline'&gt; per page&lt;/span&gt;</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Download">
 		<Value>Download uploaded file</Value>
@@ -10793,9 +10862,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Order.FromStore">
 		<Value>from {0}</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Order.NotFound">
-		<Value>An order with this number was not found.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Order.ViaShippingMethod">
 		<Value>via {0}</Value>
@@ -12073,7 +12139,7 @@
 		<Value>The campaign has been updated successfully.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Promotions.Campaigns.Warning">
-		<Value>Make sure you've tested the campaign before sending it out to multiple customers. Save your campaign first by clicking "Save" button.</Value>
+		<Value>Save the campaign and use the preview button to test it before sending it to many customers.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Promotions.Discounts">
 		<Value>Discounts</Value>
@@ -12417,6 +12483,9 @@
 	<LocaleResource Name="Admin.RecurringPayments.Updated">
 		<Value>The payment has been updated successfully.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Report.ChangeComparedTo">
+		<Value>A change of {0} compared to the period {1} to {2}.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Report.CustomerRegistrations">
 		<Value>Customer registrations</Value>
 	</LocaleResource>
@@ -12728,6 +12797,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.ProductReviewCount">
 		<Value>Number of product reviews</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.FilterDescriptor.ProductWithDeliveryTimeInCart">
+		<Value>Product with delivery time in cart</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.PurchasedFromManufacturer">
 		<Value>Purchased from manufacturer</Value>
@@ -13369,7 +13441,7 @@
 		<Value>Could not download e-mail attachment: no data.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.QueuedEmails.DeleteAll.Confirm">
-		<Value>Are you sure that all emails should be deleted?</Value>
+		<Value>Are you sure you want to delete all sent or undeliverable emails?</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.QueuedEmails.Deleted">
 		<Value>The queued email has been deleted successfully.</Value>
@@ -15067,6 +15139,9 @@
 	<LocaleResource Name="Common.Read">
 		<Value>Read</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.ReCaptchaCheckFailed">
+		<Value>A reCAPTCHA check failed with the error {0}.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Recommended">
 		<Value>Recommended</Value>
 	</LocaleResource>
@@ -15510,6 +15585,15 @@
 	</LocaleResource>
 	<LocaleResource Name="Enums.CheckoutThirdPartyEmailHandOver.None">
 		<Value>Do not show</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.CookieConsentRequirement.DependsOnCountry">
+		<Value>Depends on country configuration</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.CookieConsentRequirement.Disabled">
+		<Value>Never required</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.CookieConsentRequirement.RequiredInEUCountriesOnly">
+		<Value>Required in EU countries only (recommended)</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.CurrencyRoundingRule.AlwaysRoundDown">
 		<Value>Always round down (e.g. 0.05 rounding: 9.24 will round to 9.20)</Value>
@@ -16081,6 +16165,18 @@
 	<LocaleResource Name="Enums.TaxDisplayType.IncludingTax">
 		<Value>Including tax</Value>
 	</LocaleResource>
+	<LocaleResource Name="Enums.TrailingSlashRule.Allow">
+		<Value>Allow</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.TrailingSlashRule.Disallow">
+		<Value>Disallow (HTTP 404)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.TrailingSlashRule.Redirect">
+		<Value>Redirect (recommended)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.TrailingSlashRule.RedirectToHome">
+		<Value>Redirect to home</Value>
+	</LocaleResource>
 	<LocaleResource Name="Enums.UserRegistrationType.AdminApproval">
 		<Value>A customer should be approved by administrator</Value>
 	</LocaleResource>
@@ -16342,7 +16438,7 @@
 		<Value>Delete Topic</Value>
 	</LocaleResource>
 	<LocaleResource Name="Forum.EditPost">
-		<Value>Edit Post</Value>
+		<Value>Edit</Value>
 	</LocaleResource>
 	<LocaleResource Name="Forum.EditTopic">
 		<Value>Edit Topic</Value>
@@ -16516,7 +16612,7 @@
 		<Value>Topic Title</Value>
 	</LocaleResource>
 	<LocaleResource Name="Forum.TotalPosts">
-		<Value>Total Posts</Value>
+		<Value>Posts</Value>
 	</LocaleResource>
 	<LocaleResource Name="Forum.UnwatchForum">
 		<Value>Unwatch Forum</Value>
@@ -16936,7 +17032,7 @@
 		<Value>Cannot cancel order.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.CannotCapture">
-		<Value>Cannot capture order.</Value>
+		<Value>The payment of the order could not be captured.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.CannotMarkCompleted">
 		<Value>Cannot mark order as completed.</Value>
@@ -16951,7 +17047,7 @@
 		<Value>Cannot do refund for order.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.CannotVoid">
-		<Value>Cannot do void for order.</Value>
+		<Value>The payment of the order could not be voided.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.CompletePayment">
 		<Value>Complete payment</Value>
@@ -18002,6 +18098,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Products.NotFound">
 		<Value>The product with ID {0} was not found.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Products.PaymentOptions.Heading">
+		<Value>Payment options</Value>
+	</LocaleResource>
+	<LocaleResource Name="Products.PaymentOptions.Intro">
+		<Value>We accept the following payment methods</Value>
 	</LocaleResource>
 	<LocaleResource Name="Products.PlusOption">
 		<Value>Further option</Value>
