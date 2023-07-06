@@ -463,6 +463,11 @@ namespace Smartstore.Web.TagHelpers.Shared
                 var itemId = "#" + tab.Id;
                 a.AppendCssClass("nav-link" + (tab.Selected ? " active" : ""));
 
+                if (tab.LinkClass.HasValue())
+                {
+                    a.AppendCssClass(tab.LinkClass);
+                }
+
                 if (!tab.TabInnerContent.IsEmptyOrWhiteSpace)
                 {
                     a.MergeAttribute("href", itemId);
