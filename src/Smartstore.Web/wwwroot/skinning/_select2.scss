@@ -173,14 +173,14 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         --select2-option-padding-x-start: #{$s2bs-padding-base-horizontal};
         --select2-option-padding-x-end: #{$s2bs-padding-base-horizontal};
         --select2-option-padding-y: #{$input-btn-padding-y};
-        padding-left: calc(var(--select2-option-padding-x-start) * var(--select2-option-indent));
-        padding-right: var(--select2-option-padding-x-end);
-        padding-top: var(--select2-option-padding-y);
-        padding-bottom: var(--select2-option-padding-y);
+        padding-inline-start: calc(var(--select2-option-padding-x-start) * var(--select2-option-indent));
+        padding-inline-end: var(--select2-option-padding-x-end);
+        padding-block-start: var(--select2-option-padding-y);
+        padding-block-end: var(--select2-option-padding-y);
 
         &[role=group] {
             padding: 0 !important;
-            padding-top: 0.75em !important;
+            padding-block-start: 0.75em !important;
         }
 
         &[aria-disabled=true] {
@@ -206,7 +206,8 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     .select2-results__group {
         color: inherit;
         display: block;
-        padding: $s2bs-dropdown-header-padding-vertical $s2bs-padding-base-horizontal;
+        padding-inline: $s2bs-padding-base-horizontal;
+        padding-block: $s2bs-dropdown-header-padding-vertical;
         white-space: nowrap;
         font-weight: 600;
 
@@ -251,7 +252,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     .select2-selection__clear {
         color: $s2bs-clear-selection-color;
         cursor: pointer;
-        float: right;
+        float: inline-end;
         font-weight: bold;
         //margin-right: 10px;
         &:hover {
@@ -291,13 +292,13 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         clip-path: inset(0 -200px -200px -200px); // cut off top shadow
         border-color: $s2bs-input-border-focus;
         overflow-x: hidden;
-        margin-top: -1px;
+        margin-block-start: -1px;
         z-index: $zindex-popover;
 
         &--above {
             //--shadow-yoffset: -0.5;
             clip-path: inset(-200px -200px 0 -200px); // cut off bottom shadow
-            margin-top: 1px;
+            margin-block-start: 1px;
         }
     }
 
@@ -314,30 +315,32 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         border-radius: var(--border-radius);
         height: var(--select2-height);
         line-height: var(--select2-line-height);
-        padding: var(--select2-padding-y) var(--select2-padding-x);
-        padding-right: calc(var(--select2-caret-width) + calc(var(--select2-padding-x) / 2));
+        padding-block: var(--select2-padding-y);
+        padding-inline: var(--select2-padding-x) calc(var(--select2-caret-width) + calc(var(--select2-padding-x) / 2));
         font-size: var(--select2-font-size);
         line-height: var(--select2-line-height);
         height: var(--select2-height);
 
         // Adjust the single Select2's dropdown arrow button appearance.
         .select2-selection__clear {
-            margin-top: -2px;
-            margin-right: 4px;
+            margin-block-start: -2px;
+            margin-inline-end: 4px;
         }
 
         .select2-selection__arrow {
             position: absolute;
-            top: 1px;
-            bottom: 1px;
-            right: 1px;
+            inset-block-start: 1px;
+            inset-block-end: 1px;
+            inset-inline-end: 1px;
             border: 0 solid $input-border-color;
-            border-left-width: 1px;
+            border-inline-start-width: 1px;
             width: var(--select2-caret-width);
             border-radius: var(--border-radius);
             background-color: $s2sm-shade-bg;
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
+            //border-top-left-radius: 0;
+            border-start-start-radius: 0;
+            //border-bottom-left-radius: 0;
+            border-end-start-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -393,8 +396,8 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
         .select2-selection__placeholder {
             color: $s2bs-input-color-placeholder;
-            float: left;
-            margin-top: 5px;
+            float: inline-start;
+            margin-block-start: 5px;
         }
 
         // Make Multi Select2's choices match Bootstrap's default button styles.
@@ -444,7 +447,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             line-height: 1rem;
             border-radius: 50em;
             text-align: center;
-            right: 4px;
+            inset-inline-end: 4px;
             transform: translateX(5px);
             opacity: 0;
             transition-property: opacity, transform;
@@ -460,10 +463,10 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         .select2-selection__clear {
             position: absolute;
             float: none;
-            right: 0;
-            top: 0;
-            margin-top: $input-btn-padding-y / 2;
-            margin-right: $input-btn-padding-x-sm / 1.5;
+            inset-inline-end: 0;
+            inset-block-start: 0;
+            margin-block-start: $input-btn-padding-y / 2;
+            margin-inline-end: $input-btn-padding-x-sm / 1.5;
         }
     }
 
@@ -492,16 +495,16 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         > .select2-item-description {
             display: block;
             font-size: $s2sm-option-font-size;
-            padding-right: 10px;
+            padding-inline-end: 10px;
         }
 
         > .select2-option {
             &:after {
                 position: absolute;
-                right: 8px;
+                inset-inline-end: 14px;
                 @include fontawesome("\f00c");
                 color: $success;
-                text-align: right;
+                text-align: end;
                 width: 18px;
                 line-height: $line-height-base;
                 visibility: hidden;
@@ -518,8 +521,8 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
         .select2-item-btn {
             position: relative;
-            top: -3px;
-            right: 6px;
+            inset-block-start: -3px;
+            inset-inline-end: 6px;
             opacity: 0.0;
             transition: opacity 0.05s linear;
 
@@ -550,24 +553,25 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     }
 
     .select2-dropdown--above .select2-results {
-        border-bottom: 1px solid $gray-200;
+        border-block-end: 1px solid $gray-200;
     }
 
     .select2-search--dropdown {
-        padding: 0 $input-btn-padding-x 0.5rem $input-btn-padding-x;
+        padding-inline: $input-btn-padding-x;
+        padding-block: 0 0.5rem;
         background-color: $dropdown-bg;
     }
 
     .select2-dropdown--above .select2-search--dropdown {
-        padding-bottom: 0.5rem;
-        padding-top: 0.5rem;
+        padding-block-end: 0.5rem;
+        padding-block-start: 0.5rem;
     }
 
     .select2-selection--single.select-customtemplate,
     .drop-customtemplate .select2-results__option {
-        padding-left: 0.5rem;
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
+        padding-inline-start: 0.5rem;
+        padding-block-start: 0.25rem;
+        padding-block-end: 0.25rem;
     }
 
     .select2-selection--single.select-customtemplate {
@@ -578,80 +582,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             width: 100%;
 
             > .select2-selection__clear {
-                margin-top: 5px;
-            }
-        }
-    }
-
-    /*------------------------------------*\
-    #RTL SUPPORT
-    \*------------------------------------*/
-    &[dir="rtl"] {
-        .select2-selection--single {
-            padding-right: $s2bs-padding-base-horizontal;
-            padding-left: calc(#{$s2sm-caret-width} + #{$s2bs-padding-base-horizontal / 2});
-
-            .select2-selection__rendered {
-                padding-right: 0;
-                padding-left: 0;
-                text-align: right;
-            }
-
-            .select2-selection__clear {
-                float: left;
-                margin-left: 4px;
-                margin-right: initial;
-            }
-
-            .select2-selection__arrow {
-                left: 1px;
-                right: auto;
-                border-left-width: 0;
-                border-right-width: 1px;
-                border-top-right-radius: 0;
-                border-bottom-right-radius: 0;
-                border-top-left-radius: var(--border-radius);
-                border-bottom-left-radius: var(--border-radius);
-            }
-        }
-
-        .select2-selection--multiple {
-            .select2-search--inline {
-                float: right;
-            }
-
-            .select2-selection__choice,
-            .select2-selection__placeholder {
-                float: right;
-            }
-
-            .select2-selection__choice {
-                margin-left: 0;
-                margin-right: $s2bs-padding-base-horizontal/2;
-            }
-
-            .select2-selection__choice__remove {
-                margin-left: 2px;
-                margin-right: auto;
-            }
-        }
-    }
-
-    // RTL for dropdown
-    > [dir="rtl"] {
-        .select2-results__option {
-            padding-right: calc(var(--select2-option-padding-x-start) * var(--select2-option-indent));
-            padding-left: var(--select2-option-padding-x-end);
-        }
-        
-        .select2-results__option > .select2-option {
-            padding-left: 10px;
-            padding-right: initial;
-
-            &:after {
-                left: 8px;
-                right: auto;
-                text-align: left;
+                margin-block-start: 5px;
             }
         }
     }

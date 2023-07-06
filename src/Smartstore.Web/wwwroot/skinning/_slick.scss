@@ -47,14 +47,13 @@ img.slick-loading {
     transform: translateY(-50%);
     z-index: 100;
 
-    &.slick-prev { left: 0; right: auto; }
-    &.slick-next { left: auto; right: 0; }
+    &.slick-prev { inset-inline-start: 0; inset-inline-end: auto; }
+    &.slick-next { inset-inline-start: auto; inset-inline-end: 0; }
 }
 
 .artlist-carousel {
     .no-touchevents .slick-slider.slick-dotted {
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding-inline: 1rem;
     }
 
     .slick-arrow {
@@ -79,40 +78,35 @@ img.slick-loading {
 		border-color: $gray-400;
     }
 
+    .slick-prev,
+    .slick-next {
+        border-radius: $btn-border-radius-lg;
+    }
+
     .slick-prev { 
-        left: 0; 
-        right: auto; 
-        border-radius: 0 $btn-border-radius-lg $btn-border-radius-lg 0;
-        border-left-width: 0;
-		border-right-width: $btn-border-width;
+        inset-inline: 0 auto; 
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+        border-inline-start-width: 0;
+		border-inline-end-width: $btn-border-width;
         box-shadow: 1px 1px 3px rgba(0,0,0, 0.12);
     }
 
     .slick-next { 
-        right: 0; 
-        left: auto; 
-        border-radius: $btn-border-radius-lg 0 0 $btn-border-radius-lg;
-        border-right-width: 0;
-		border-left-width: $btn-border-width;
+        inset-inline: auto 0; 
+        border-start-end-radius: 0;
+        border-end-end-radius: 0;
+        border-inline-end-width: 0;
+		border-inline-start-width: $btn-border-width;
         box-shadow: -1px 1px 3px rgba(0,0,0, 0.12);
     }
 
 	[dir=rtl] & {
 		.slick-prev { 
-			left: auto; 
-			right: 0; 
-			border-radius: $btn-border-radius-lg 0 0 $btn-border-radius-lg;
-			border-right-width: 0;
-			border-left-width: $btn-border-width;
 			box-shadow: -1px 1px 3px rgba(0,0,0, 0.12);
 		}
 
 		.slick-next { 
-			left: 0;
-			right: auto; 
-			border-radius: 0 $btn-border-radius-lg $btn-border-radius-lg 0;
-			border-left-width: 0;
-			border-right-width: $btn-border-width;
 			box-shadow: 1px 1px 3px rgba(0,0,0, 0.12);
 		}
 	}
@@ -133,12 +127,12 @@ img.slick-loading {
 // ------------------------------------------------------
 
 .slick-dotted.slick-slider {
-    margin-bottom: 30px !important;
+    margin-block-end: 30px !important;
 }
 
 .slick-dots {
     position: absolute;
-    bottom: -30px;
+    inset-block-end: -30px;
     display: block;
     width: 100%;
     padding: 10px 0;
