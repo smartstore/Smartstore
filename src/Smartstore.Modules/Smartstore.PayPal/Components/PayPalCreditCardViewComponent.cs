@@ -12,7 +12,7 @@ namespace Smartstore.PayPal.Components
         {
             var model = new PublicCreditCardModel
             {
-                HasClientToken = HttpContext.Session.GetString("PayPalClientToken") != string.Empty
+                HasClientToken = HttpContext.Session.GetString("PayPalClientToken").HasValue()
             };
 
             return View(model);
