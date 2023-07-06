@@ -32,7 +32,7 @@ namespace Smartstore.Web.Models.DataGrid
 
         public Task SaveStateAsync(GridCommand command)
         {
-            Guard.NotNull(command, nameof(command));
+            Guard.NotNull(command);
 
             if (_httpContextAccessor.HttpContext?.Session != null && command.GridId.HasValue())
             {

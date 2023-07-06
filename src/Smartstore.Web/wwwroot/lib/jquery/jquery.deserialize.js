@@ -224,7 +224,7 @@
       }
 
       $.each( fields, function( index, field ) {
-        if ( field.value == value ) {
+        if (field.value == value || (_.isBoolean(value) && field.value == value.toString()) ) {
           field[ property ] = true;
           callback.call( field, value );
         }

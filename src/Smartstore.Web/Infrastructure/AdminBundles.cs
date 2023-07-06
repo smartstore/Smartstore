@@ -98,6 +98,7 @@ namespace Smartstore.Web.Infrastructure
             /* DataGrid --> /bundle/js/datagrid.js
             -----------------------------------------------------*/
             bundles.Add(new ScriptBundle("/bundle/js/datagrid.js").Include(
+                lib + "jquery/jquery.deserialize.js",
                 components + "datagrid/datagrid.js",
                 components + "datagrid/datagrid-pager.js",
                 components + "datagrid/datagrid-tools.js"));

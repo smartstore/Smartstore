@@ -20,7 +20,7 @@
         },
 
         resolveBreakpoints: function () {
-            $(document).ready(function () {
+            $(function () { 
                 $.each(internal.breakpoints, function (alias) {
                     internal.breakpoints[alias] = parseFloat($('html').css('--breakpoint-' + alias));
                 });

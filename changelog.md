@@ -35,6 +35,7 @@
   - Updated FontAwesome library from version 6.0.0 to version 6.4.0
   - Checkout / Payment page can display payment method brand icons
 - Increased performance: category tree path to filter products by categories.
+- DataGrid now remembers the search filter state across requests
 - Better PayPal implementaion: added providers for every single payment option.
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
 - #416 Make the language name localizable.

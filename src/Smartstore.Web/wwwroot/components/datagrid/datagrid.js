@@ -425,13 +425,20 @@ Vue.component("sm-datagrid", {
         });
         resizeObserver.observe(this.$refs.tableWrapper);
 
-        // Bind search control events
+        // Bind search control data and events
         if (this.hasSearchPanel) {
             var readWhenNotBusy = function () {
                 if (!self.isBusy)
                     self.read();
             };
-            var search = $(this.$el).find(".dg-search-body");
+
+            let search = $(this.$el).find(".dg-search-body");
+
+            // Restore search filter state
+            if (this.options.preserveState) {
+                this._restoreSearchFilterState(search);
+            }
+
             search.on("change", "select", readWhenNotBusy);
             search.on("change", "input[type='checkbox'], input[type='radio']", readWhenNotBusy);
             search.on("keydown focusout", "textarea, input", e => {
@@ -1426,11 +1433,14 @@ Vue.component("sm-datagrid", {
             this.numSearchFilters = 0;
             if (this.hasSearchPanel) {
                 const form = $(this.$el).find(".dg-search-body");
-                const obj = form.serializeToJSON();
+                const state = _.omit(form.serializeToJSON(), (value, key) => {
+                    // Omit empty props
+                    return _.isEmpty(value);
+                });
 
-                this.numSearchFilters = Object.keys(obj)
+                this.numSearchFilters = Object.keys(state)
                     .filter(key => {
-                        const o = obj[key];
+                        const o = state[key];
                         const el = form.find("[name='" + key + "']");
                         let defaultValue = el.data("default");
                         if (defaultValue === undefined) {
@@ -1448,7 +1458,39 @@ Vue.component("sm-datagrid", {
                     })
                     .length;
 
-                $.extend(true, command, obj);
+                $.extend(true, command, state);
+
+                // Remember filter state for next request
+                if (this.options.preserveState) {
+                    this._rememberSearchFilterState(state);
+                }
+            }
+        },
+
+        _rememberSearchFilterState(state) {
+            var key = 'sm:grid:filters:' + this.options.stateKey;
+            if (_.isEmpty(state)) {
+                localStorage.removeItem(key);
+            }
+            else {
+                state.version = this.options.version;
+                localStorage.setItem(key, JSON.stringify(state));
+            }
+        },
+
+        _restoreSearchFilterState(form) {
+            const state = JSON.parse(localStorage.getItem('sm:grid:filters:' + this.options.stateKey));
+            if (state?.version === this.options.version) {
+                try {
+                    form.deserialize(state);
+                    if (Object.keys(state).length > 1 && ResponsiveBootstrapToolkit.is(">=xl")) {
+                        this.options.showSearch = true;
+                    }
+                }
+                catch
+                {
+                    this._rememberSearchFilterState(null);
+                }
             }
         },
 
@@ -1458,6 +1500,9 @@ Vue.component("sm-datagrid", {
 
             // Set isBusy = true to prevent read() from accessing the database every time an element is updated.
             this.isBusy = true;
+
+            // Remove stored filter state
+            this._rememberSearchFilterState(null);
 
             Object.keys(obj)
                 .forEach(key => {
