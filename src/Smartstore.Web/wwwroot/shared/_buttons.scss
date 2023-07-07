@@ -296,9 +296,9 @@ $btn-size-sm: $input-height-sm;
 // --------------------------------------------------
 
 .btn.btn-labeled {
-    $w-md: $input-height-inner * 0.85;
-    $w-sm: $input-height-inner-sm * 0.85;
-    $w-lg: $input-height-inner-lg * 0.85;
+    $w-md: multiply($input-height, 0.85);
+    $w-sm: multiply($input-height-sm, 0.85);
+    $w-lg: multiply($input-height-lg, 0.85);
     position: relative;
     padding-left: $w-md + $input-btn-padding-x;
 

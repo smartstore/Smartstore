@@ -252,9 +252,9 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     .select2-selection__clear {
         color: $s2bs-clear-selection-color;
         cursor: pointer;
-        float: inline-end;
         font-weight: bold;
-        //margin-right: 10px;
+        order: 2;
+        margin-inline-start: auto;
         &:hover {
             color: $s2bs-clear-selection-hover-color;
         }
@@ -360,6 +360,8 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         .select2-selection__rendered {
             color: $s2bs-input-color;
             padding: 0;
+            display: flex;
+            align-items: center;
         }
 
         .select2-selection__placeholder {

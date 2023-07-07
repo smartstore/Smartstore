@@ -5,7 +5,7 @@
 .numberinput-group {
     overflow: hidden;
     flex-wrap: nowrap;
-    --ni-height: #{$input-height-inner};
+    --ni-height: #{$input-height};
     --ni-font-size: #{$font-size-base};
     --ni-line-height: #{$input-line-height};
     --ni-padding-x: #{$input-btn-padding-x};
@@ -14,7 +14,7 @@
     --ni-addon-width: var(--ni-height);
 
     &.input-group-lg {
-        --ni-height: #{$input-height-inner-lg};
+        --ni-height: #{$input-height-lg};
         --ni-font-size: #{$font-size-lg};
         --ni-line-height: #{$input-line-height-lg};
         --ni-padding-x: #{$input-btn-padding-x-lg};
@@ -23,7 +23,7 @@
     }
 
     &.input-group-sm {
-        --ni-height: #{$input-height-inner-sm};
+        --ni-height: #{$input-height-sm};
         --ni-font-size: #{$font-size-sm};
         --ni-line-height: #{$input-line-height-sm};
         --ni-padding-x: #{$input-btn-padding-x-sm};
@@ -40,6 +40,7 @@
 
 .numberinput-initialized > .numberinput {
     color: transparent;
+    padding-inline-end: calc(var(--ni-height) + 0.4em);
 
     &:focus,
     &:active {
@@ -163,7 +164,10 @@
         width: calc(var(--ni-addon-width) - 1px);
         height: calc(50% - 1px);
         color: inherit;
-        font-size: 10px;
+
+        > i {
+            font-size: 10px;
+        }
 
         &.numberinput-up {
             top: 1px;

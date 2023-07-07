@@ -52,7 +52,7 @@
 
 @each $color, $value in ("light": $light, "secondary": $secondary) {
     .btn-#{$color} {
-        @include button-variant($value, $value, darken($value, 4%), rgba(#000, 0.12), darken($value, 7.5%), rgba(#000, 0.175));
+        @include button-variant($value, $value, darken($value, 4%), rgba(0,0,0, 0.12), darken($value, 7.5%), rgba(0,0,0, 0.175));
     }
 }
 
