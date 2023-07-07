@@ -26,7 +26,7 @@ namespace Smartstore.Admin
             where TModel : ProviderModel, new()
             where TProvider : IProvider
         {
-            Guard.NotNull(provider, nameof(provider));
+            Guard.NotNull(provider);
 
             var metadata = provider.Metadata;
             var model = ToProviderModel<TModel>(manager, metadata, forEdit);
@@ -68,7 +68,7 @@ namespace Smartstore.Admin
         public static TModel ToProviderModel<TModel>(this ModuleManager manager, ProviderMetadata metadata, bool forEdit = false)
             where TModel : ProviderModel, new()
         {
-            Guard.NotNull(metadata, nameof(metadata));
+            Guard.NotNull(metadata);
 
             var model = new TModel
             {

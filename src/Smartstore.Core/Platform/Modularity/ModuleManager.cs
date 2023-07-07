@@ -103,7 +103,7 @@ namespace Smartstore.Engine.Modularity
 
             var invoker = keySelector.GetPropertyInvoker();
             var resourceName = string.Format("Plugins.{0}.{1}", invoker.Property.Name, descriptor.SystemName);
-            var result = _locService.GetResource(resourceName, languageId, false, string.Empty, true);
+            var result = _locService.GetResource(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
 
             if (returnDefaultValue && result.IsEmpty())
             {
@@ -169,7 +169,8 @@ namespace Smartstore.Engine.Modularity
             return GetLocalizedValue(metadata, x => x.Description, languageId, returnDefaultValue);
         }
 
-        public string GetLocalizedValue<TMetadata>(TMetadata metadata,
+        public string GetLocalizedValue<TMetadata>(
+            TMetadata metadata,
             Expression<Func<TMetadata, string>> keySelector,
             int languageId = 0,
             bool returnDefaultValue = true)
@@ -180,9 +181,12 @@ namespace Smartstore.Engine.Modularity
 
             var invoker = keySelector.GetPropertyInvoker();
             var resourceName = metadata.ResourceKeyPattern.FormatInvariant(metadata.SystemName, invoker.Property.Name);
-            var result = _locService.GetResource(resourceName, languageId, false, string.Empty, true);
+            // INFO: " " instead of "" --> hackish approach to overcome the limitation
+            // that we don't have a fallbackToMaster parameter. I don't want to change interface
+            // signatures right now.
+            var result = _locService.GetResource(resourceName, languageId, false, " ", true).Trim();
 
-            if (returnDefaultValue && result.IsEmpty())
+            if (returnDefaultValue && string.IsNullOrEmpty(result))
             {
                 result = invoker.Invoke(metadata);
             }
