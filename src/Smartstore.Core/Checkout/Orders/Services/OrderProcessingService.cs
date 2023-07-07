@@ -806,8 +806,9 @@ namespace Smartstore.Core.Checkout.Orders
                 return;
             }
 
-            var customerLanguage = await _db.Languages.FindByIdAsync(order.CustomerLanguageId, false) 
-                ?? await _db.Languages.AsNoTracking().OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
+            var customerLanguage = 
+                await _db.Languages.FindByIdAsync(order.CustomerLanguageId, false) ?? 
+                await _db.Languages.AsNoTracking().OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
 
             foreach (var gc in giftCards)
             {
