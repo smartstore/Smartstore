@@ -808,7 +808,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             var customerLanguage = 
                 await _db.Languages.FindByIdAsync(order.CustomerLanguageId, false) ?? 
-                await _db.Languages.AsNoTracking().OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
+                await _db.Languages.AsNoTracking().Where(x => x.Published).OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
 
             foreach (var gc in giftCards)
             {
