@@ -30,7 +30,7 @@
 .choice-item-color {
     display: inline-block;
     text-decoration: none !important;
-    margin-right: 0.4rem;
+    margin-inline-end: 0.4rem;
     overflow: hidden;
 }
 
@@ -60,7 +60,7 @@
 }
 
 .choice-box-group {
-    $choice-box-padding:        3px;
+    $choice-box-gap:            6px;
     $choice-box-size:           2.8rem;
     $choice-box-size-lg:        4rem;
     $choice-box-size-sm:        2.3rem;
@@ -70,15 +70,15 @@
 	padding: 0;
 	list-style-type: none;
     position: relative;
-    margin: 0 ($choice-box-padding * -1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: $choice-box-gap;
 
     @include clearfix();
 
 	.choice-box {
         position: relative;
-        float: left;
         display: block;
-        padding: $choice-box-padding;
 	}
 
     .choice-box-label {
@@ -94,7 +94,7 @@
             box-sizing: content-box;
             position: absolute;
             display: block;
-            right: -6px;
+            inset-inline-end: -6px;
             top: -6px;
             background-color: $warning;
             border-radius: 50%;
@@ -134,7 +134,7 @@
         background-repeat: no-repeat;
         background-position: 50% 50%;
 
-        &:hover { border-color: rgba(0,0,0, 0.5); }
+        &:hover { border-color: rgba(#000, 0.5); }
 
         .choice-box-text {
             padding: 0 0.4rem;
@@ -143,26 +143,11 @@
 
     .choice-box-image-unavailable {
         opacity: .5;
-        border: 1px dashed rgba(0,0,0, .3);
+        border: 1px dashed rgba(#000, .3);
     }
 
     .choice-box-color-unavailable {
-        border: 1px dashed rgba(0,0,0, .7);
-
-/*        &:after {
-            display: block;
-            position: absolute;
-            content: "";
-            background: rgba(0,0,0, 0.3);
-            transform: rotate(-56deg);
-            width: 50px;    //62px;
-            height: 1px;
-            left: -20px;
-            right: -20px;
-            top: 0;
-            bottom: 0;
-            margin: auto;
-        }*/
+        border: 1px dashed rgba(#000, .7);
     }
 
     .choice-box-disabled {
