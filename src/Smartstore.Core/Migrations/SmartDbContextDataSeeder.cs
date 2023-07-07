@@ -38,7 +38,11 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            
+            builder.AddOrUpdate("Admin.Configuration.Settings.Order.GiftCards_Activated")
+                .Value("de", "Geschenkgutschein ist aktiviert, wenn Auftragsstatus...");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Order.GiftCards_Activated.Hint")
+                .Value("de", "Legt den Auftragsstatus einer Bestellung fest, bei dem in der Bestellung enthaltene Geschenkgutscheine automatisch aktiviert werden.");
         }
     }
 }

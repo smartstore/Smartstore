@@ -787,8 +787,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         protected virtual async Task ActivateGiftCardsAsync(Order order)
         {
-            var activateGiftCards = _orderSettings.GiftCards_Activated_OrderStatusId > 0 && _orderSettings.GiftCards_Activated_OrderStatusId == (int)order.OrderStatus;
-            var deactivateGiftCards = _orderSettings.GiftCards_Deactivated_OrderStatusId > 0 && _orderSettings.GiftCards_Deactivated_OrderStatusId == (int)order.OrderStatus;
+            var activateGiftCards = _orderSettings.GiftCards_Activated_OrderStatusId > 0 && _orderSettings.GiftCards_Activated_OrderStatusId == order.OrderStatusId;
+            var deactivateGiftCards = _orderSettings.GiftCards_Deactivated_OrderStatusId > 0 && _orderSettings.GiftCards_Deactivated_OrderStatusId == order.OrderStatusId;
 
             if (!activateGiftCards && !deactivateGiftCards)
             {
@@ -801,12 +801,13 @@ namespace Smartstore.Core.Checkout.Orders
                 .ApplyOrderFilter(new[] { order.Id })
                 .ToListAsync();
 
-            if (!giftCards.Any())
+            if (giftCards.Count == 0)
             {
                 return;
             }
 
-            var allLanguages = await _db.Languages.AsNoTracking().ToDictionaryAsync(x => x.Id);
+            var customerLanguage = await _db.Languages.FindByIdAsync(order.CustomerLanguageId, false) 
+                ?? await _db.Languages.AsNoTracking().OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
 
             foreach (var gc in giftCards)
             {
@@ -819,12 +820,7 @@ namespace Smartstore.Core.Checkout.Orders
                         // Send email for virtual gift card.
                         if (gc.RecipientEmail.HasValue() && gc.SenderEmail.HasValue())
                         {
-                            if (!allLanguages.TryGetValue(order.CustomerLanguageId, out var customerLang))
-                            {
-                                customerLang = allLanguages.Values.FirstOrDefault();
-                            }
-
-                            var msgResult = await _messageFactory.SendGiftCardNotificationAsync(gc, customerLang.Id);
+                            var msgResult = await _messageFactory.SendGiftCardNotificationAsync(gc, customerLanguage.Id);
                             isRecipientNotified = msgResult?.Email.Id != null;
                         }
                     }
