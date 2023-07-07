@@ -13,12 +13,6 @@
     <LocaleResource Name="DescriptionText.Hint">
         <Value>Geben Sie hier die Beschreibung an, die dem Kunden im Bestellprozess angezeigt wird.</Value>
     </LocaleResource>
-    <LocaleResource Name="PaymentMethodLogo">
-        <Value>Logo</Value>
-    </LocaleResource>
-    <LocaleResource Name="PaymentMethodLogo.Hint">
-        <Value>Laden Sie hier eine Grafik hoch, welche auf der Zahlartauswahlseite als Thumbnail der Zahlart angezeigt wird.</Value>
-    </LocaleResource>
 
     <!-- CashOnDelivery -->
     <LocaleResource Name="Plugins.FriendlyName.Payments.CashOnDelivery" AppendRootKey="false">

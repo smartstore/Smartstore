@@ -6,7 +6,6 @@ namespace Smartstore.OfflinePayment.Models
     public abstract class ConfigurationModelBase : ModelBase
     {
         public string PostActionName { get; set; }
-
         public string PrimaryStoreCurrencyCode { get; set; }
 
         [UIHint("TextArea")]
@@ -19,10 +18,6 @@ namespace Smartstore.OfflinePayment.Models
 
         [LocalizedDisplay("Admin.Configuration.Payment.Methods.AdditionalFeePercentage")]
         public bool AdditionalFeePercentage { get; set; }
-
-        [LocalizedDisplay("Plugins.SmartStore.OfflinePayment.PaymentMethodLogo")]
-        [UIHint("Media"), AdditionalMetadata("album", "content"), AdditionalMetadata("transientUpload", true)]
-        public int PaymentMethodLogo { get; set; }
     }
 
     public class CashOnDeliveryConfigurationModel : ConfigurationModelBase

@@ -14,9 +14,9 @@ namespace Smartstore.OfflinePayment.Components
             _checkoutStateAccessor = checkoutStateAccessor;
         }
 
-        public override async Task<IViewComponentResult> InvokeAsync(string providerName)
+        public override IViewComponentResult Invoke(string providerName)
         {
-            var model = await GetPaymentInfoModelAsync<DirectDebitPaymentInfoModel, DirectDebitPaymentSettings>();
+            var model = GetPaymentInfoModel<DirectDebitPaymentInfoModel, DirectDebitPaymentSettings>();
             var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
 
             model.EnterIBAN = ((string)paymentData.Get("EnterIBAN")).NullEmpty() ?? "iban";

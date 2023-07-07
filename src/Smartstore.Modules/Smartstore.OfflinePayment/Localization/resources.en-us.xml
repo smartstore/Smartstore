@@ -13,12 +13,6 @@
     <LocaleResource Name="DescriptionText.Hint">
         <Value>Enter info that will be shown to customers during checkout.</Value>
     </LocaleResource>
-    <LocaleResource Name="PaymentMethodLogo">
-        <Value>Logo</Value>
-    </LocaleResource>
-    <LocaleResource Name="PaymentMethodLogo.Hint">
-        <Value>Upload an image which will be displayed as thumbnail of the payment method on the payment selection page.</Value>
-    </LocaleResource>
 
     <!-- CashOnDelivery -->
     <LocaleResource Name="Plugins.FriendlyName.Payments.CashOnDelivery" AppendRootKey="false">

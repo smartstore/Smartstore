@@ -16,9 +16,9 @@ namespace Smartstore.OfflinePayment.Components
             _checkoutStateAccessor = checkoutStateAccessor;
         }
 
-        public override async Task<IViewComponentResult> InvokeAsync(string providerName)
+        public override IViewComponentResult Invoke(string providerName)
         {
-            var model = await GetPaymentInfoModelAsync<ManualPaymentInfoModel, ManualPaymentSettings>((m, s) =>
+            var model = GetPaymentInfoModel<ManualPaymentInfoModel, ManualPaymentSettings>((m, s) =>
             {
                 var excludedCreditCards = s.ExcludedCreditCards.SplitSafe(',');
 
@@ -35,21 +35,21 @@ namespace Smartstore.OfflinePayment.Components
                 }
             });
 
-            // years
-            for (int i = 0; i < 15; i++)
+            // Years.
+            for (var i = 0; i < 15; i++)
             {
                 string year = Convert.ToString(DateTime.Now.Year + i);
                 model.ExpireYears.Add(new SelectListItem { Text = year, Value = year });
             }
 
-            // months
-            for (int i = 1; i <= 12; i++)
+            // Months.
+            for (var i = 1; i <= 12; i++)
             {
                 string text = (i < 10) ? "0" + i.ToString() : i.ToString();
                 model.ExpireMonths.Add(new SelectListItem { Text = text, Value = i.ToString() });
             }
 
-            // set postback values
+            // Set postback values.
             var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
             model.CardholderName = (string)paymentData.Get("CardholderName");
             model.CardNumber = (string)paymentData.Get("CardNumber");

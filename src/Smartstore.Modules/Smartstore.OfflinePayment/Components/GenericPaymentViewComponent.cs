@@ -6,32 +6,21 @@ namespace Smartstore.OfflinePayment.Components
 {
     public class GenericPaymentViewComponent : OfflinePaymentViewComponentBase
     {
-        public override async Task<IViewComponentResult> InvokeAsync(string providerName)
+        public override IViewComponentResult Invoke(string providerName)
         {
-            PaymentInfoModelBase model = null;
-
             switch (providerName)
             {
                 case "CashOnDeliveryProvider":
-                    model = await GetPaymentInfoModelAsync<CashOnDeliveryPaymentInfoModel, CashOnDeliveryPaymentSettings>();
-                    break;
+                    return View(GetPaymentInfoModel<CashOnDeliveryPaymentInfoModel, CashOnDeliveryPaymentSettings>());
                 case "InvoiceProvider":
-                    model = await GetPaymentInfoModelAsync<InvoicePaymentInfoModel, InvoicePaymentSettings>();
-                    break;
+                    return View(GetPaymentInfoModel<InvoicePaymentInfoModel, InvoicePaymentSettings>());
                 case "PayInStoreProvider":
-                    model = await GetPaymentInfoModelAsync<PayInStorePaymentInfoModel, PayInStorePaymentSettings>();
-                    break;
+                    return View(GetPaymentInfoModel<PayInStorePaymentInfoModel, PayInStorePaymentSettings>());
                 case "PrepaymentProvider":
-                    model = await GetPaymentInfoModelAsync<PrepaymentPaymentInfoModel, PrepaymentPaymentSettings>();
-                    break;
+                    return View(GetPaymentInfoModel<PrepaymentPaymentInfoModel, PrepaymentPaymentSettings>());
+                default:
+                    return Empty();
             }
-
-            if (model != null)
-            {
-                return View(model);
-            }
-
-            return Empty();
         }
     }
 }
