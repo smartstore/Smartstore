@@ -5,90 +5,6 @@
 
 [dir=rtl] {
 
-	// Artlist
-	// -------------
-
-	.art-color-opt {
-		float: right;
-	}
-
-	.artlist-actions--top { 
-		.artlist-action-group--page {
-			padding-right: 0.5rem;
-			padding-left: initial;
-		}
-
-		@include media-breakpoint-up(lg) {
-			.artlist-action-group--page {
-				padding-right: 0;
-			}
-		}
-	}
-
-	.artlist-action--pager {
-		> *:not(:first-child) {
-			margin-right: -1px;
-			margin-left: initial;
-		}
-
-		.btn-pager-prev {
-			border-radius: 0 3px 3px 0;
-		}
-
-		.btn-pager-next {
-			border-radius: 3px 0 0 3px;
-		}
-	}
-
-	@include media-breakpoint-up(lg) {
-		.artlist-actions--top .artlist-action-group--page {
-			margin-right: auto;
-			margin-left: initial;
-		}
-	}
-
-
-	.artlist-lines {
-		.art-data-block {
-			padding-right: $grid-gutter-width / 1.5;
-			padding-left: 0;
-		}
-
-		.art-actions-block {
-			padding-right: $grid-gutter-width / 1.5;
-			padding-left: 0;
-		}
-
-		.floating > .art-brand {
-			padding-left: 90px; // ratings width + 10px
-			padding-right: 0;
-		}
-
-		.floating > .art-rating {
-			left: 0;
-			right: auto;
-		}
-
-		@include media-breakpoint-down(sm) {
-			.art-actions-block {
-				padding-right: 0;
-			}
-		}
-	}
-
-	.art-oldprice {
-		padding-right: 0.25rem;
-		padding-left: initial;
-	}
-
-	.art-attrs {
-		td:first-child { 
-			padding-left: 0.75rem; 
-			padding-right: initial;
-		}
-	}
-
-
 	// Text expander
 	// -------------
 
@@ -107,7 +23,6 @@
 		right: 0;
 
 		.art-badge {
-			border-radius: 0.85rem 0 0 0.85rem;
 			float: right;
 		}
 	}
