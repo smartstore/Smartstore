@@ -40,6 +40,7 @@
 
 .numberinput-initialized > .numberinput {
     color: transparent;
+    padding-inline-end: calc(var(--ni-height) + 0.4em);
 
     &:focus,
     &:active {
@@ -163,7 +164,10 @@
         width: calc(var(--ni-addon-width) - 1px);
         height: calc(50% - 1px);
         color: inherit;
-        font-size: 10px;
+
+        > i {
+            font-size: 10px;
+        }
 
         &.numberinput-up {
             top: 1px;
