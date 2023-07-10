@@ -11,19 +11,13 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.CashOnDelivery" AppendRootKey="false">
         <Value>Nachnahme</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.CashOnDelivery" AppendRootKey="false">
+        <Value>Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.</Value>
+    </LocaleResource>
     <LocaleResource Name="Plugins.Payment.CashOnDelivery" AppendRootKey="false">
         <Children>
             <LocaleResource Name="AdminInstruction">
-                <Value>
-                    <![CDATA[ ]]>
-                </Value>
-            </LocaleResource>
-            <LocaleResource Name="PaymentInfoDescription">
-                <Value>
-                    <![CDATA[
-                        Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.
-                      ]]>
-                </Value>
+                <Value><![CDATA[ ]]></Value>
             </LocaleResource>
         </Children>
     </LocaleResource>
@@ -32,19 +26,13 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.Invoice" AppendRootKey="false">
         <Value>Rechnung</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.Invoice" AppendRootKey="false">
+        <Value>Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.</Value>
+    </LocaleResource>
     <LocaleResource Name="Plugins.Payment.Invoice" AppendRootKey="false">
         <Children>
             <LocaleResource Name="AdminInstruction">
-                <Value>
-                    <![CDATA[ ]]>
-                </Value>
-            </LocaleResource>
-            <LocaleResource Name="PaymentInfoDescription">
-                <Value>
-                    <![CDATA[
-            Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.
-          ]]>
-                </Value>
+                <Value><![CDATA[ ]]></Value>
             </LocaleResource>
         </Children>
     </LocaleResource>
@@ -53,19 +41,13 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayInStore" AppendRootKey="false">
         <Value>Barzahlung</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.PayInStore" AppendRootKey="false">
+        <Value>Reservieren Sie Produkte und zahlen Sie an der Kasse in unserem Ladenlokal.</Value>
+    </LocaleResource>
     <LocaleResource Name="Plugins.Payment.PayInStore" AppendRootKey="false">
         <Children>
             <LocaleResource Name="AdminInstruction">
-                <Value>
-                    <![CDATA[ ]]>
-                </Value>
-            </LocaleResource>
-            <LocaleResource Name="PaymentInfoDescription">
-                <Value>
-                    <![CDATA[
-            Reservieren Sie Produkte und zahlen Sie an der Kasse in unserem Ladenlokal.
-          ]]>
-                </Value>
+                <Value><![CDATA[ ]]></Value>
             </LocaleResource>
         </Children>
     </LocaleResource>
@@ -74,19 +56,13 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.Prepayment" AppendRootKey="false">
         <Value>Vorkasse</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.Prepayment" AppendRootKey="false">
+        <Value>Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.</Value>
+    </LocaleResource>
     <LocaleResource Name="Plugins.Payment.Prepayment" AppendRootKey="false">
         <Children>
             <LocaleResource Name="AdminInstruction">
-                <Value>
-                    <![CDATA[ ]]>
-                </Value>
-            </LocaleResource>
-            <LocaleResource Name="PaymentInfoDescription">
-                <Value>
-                    <![CDATA[
-            Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.
-          ]]>
-                </Value>
+                <Value><![CDATA[ ]]></Value>
             </LocaleResource>
         </Children>
     </LocaleResource>
@@ -95,19 +71,13 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.Manual" AppendRootKey="false">
         <Value>Kreditkarte (manuell)</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.Manual" AppendRootKey="false">
+        <Value>Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.</Value>
+    </LocaleResource>
     <LocaleResource Name="Plugins.Payments.Manual" AppendRootKey="false">
         <Children>
             <LocaleResource Name="AdminInstruction">
-                <Value>
-                    <![CDATA[ ]]>
-                </Value>
-            </LocaleResource>
-            <LocaleResource Name="PaymentInfoDescription">
-                <Value>
-                    <![CDATA[
-				Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.
-			]]>
-                </Value>
+                <Value><![CDATA[ ]]></Value>
             </LocaleResource>
             <LocaleResource Name="Fields.TransactMode">
                 <Value>Zahlungsstatus nach Bestellabschluss</Value>
@@ -131,19 +101,13 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.DirectDebit" AppendRootKey="false">
         <Value>Lastschrifteinzug (ELV)</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.DirectDebit" AppendRootKey="false">
+        <Value>Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.</Value>
+    </LocaleResource>
     <LocaleResource Name="Plugins.Payments.DirectDebit" AppendRootKey="false">
         <Children>
             <LocaleResource Name="AdminInstruction">
-                <Value>
-                    <![CDATA[ ]]>
-                </Value>
-            </LocaleResource>
-            <LocaleResource Name="PaymentInfoDescription">
-                <Value>
-                    <![CDATA[
-                        Sobald Ihre Bestellung abgeschlossen ist, werden Sie persönlich von einem unserer Mitarbeiter kontaktiert, um die Bestellung zu bestätigen.
-                      ]]>
-                </Value>
+                <Value><![CDATA[ ]]></Value>
             </LocaleResource>
             <LocaleResource Name="DirectDebitAccountHolder">
                 <Value>Kontoinhaber</Value>
@@ -200,14 +164,7 @@
     <LocaleResource Name="Plugins.Payments.PurchaseOrder" AppendRootKey="false">
         <Children>
             <LocaleResource Name="AdminInstruction">
-                <Value>
-                    <![CDATA[ ]]>
-                </Value>
-            </LocaleResource>
-            <LocaleResource Name="PaymentInfoDescription">
-                <Value>
-                    <![CDATA[ ]]>
-                </Value>
+                <Value><![CDATA[ ]]></Value>
             </LocaleResource>
             <LocaleResource Name="PurchaseOrderNumber">
                 <Value>Bestellnummer</Value>
