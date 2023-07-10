@@ -65,7 +65,7 @@
                 <div class="input-group">
                     <input asp-for="WebhookUrl" readonly />
                     <div class="input-group-append">
-                        <button id="copy-webhook-url" class="btn btn-outline-secondary" title="@T("Plugins.Smartstore.Stripe.WebhookUrl.Copy")">
+                        <button id="copy-webhook-url" class="btn btn-outline-secondary" title="@T("Common.Copy")">
                             <i class="fa fa-copy"></i>
                         </button>
                     </div>
@@ -129,7 +129,7 @@
 
         $("#copy-webhook-url").find("textarea").remove();
 
-        displayNotification(@T("Plugins.Smartstore.Stripe.WebhookUrl.CopySuccess").JsValue);
+        displayNotification(@T("Common.CopyToClipboard.Succeeded").JsValue);
 
         return false;
     });
