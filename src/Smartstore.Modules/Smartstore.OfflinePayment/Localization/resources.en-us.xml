@@ -7,13 +7,6 @@
         <Value>Provides offline payment methods, e.g. direct debit, credit card, invoice, prepayment, cash on delivery etc.</Value>
     </LocaleResource>
 
-    <LocaleResource Name="DescriptionText">
-        <Value>Description</Value>
-    </LocaleResource>
-    <LocaleResource Name="DescriptionText.Hint">
-        <Value>Enter info that will be shown to customers during checkout.</Value>
-    </LocaleResource>
-
     <!-- CashOnDelivery -->
     <LocaleResource Name="Plugins.FriendlyName.Payments.CashOnDelivery" AppendRootKey="false">
         <Value>Cash on delivery</Value>

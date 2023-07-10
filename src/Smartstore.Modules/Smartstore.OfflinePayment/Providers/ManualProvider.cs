@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Configuration;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.OfflinePayment.Components;
@@ -11,21 +13,22 @@ namespace Smartstore.OfflinePayment
 {
     [SystemName("Payments.Manual")]
     [FriendlyName("Credit Card (manual)")]
-    [Order(1)]
+    [Order(100)]
     public class ManualProvider : OfflinePaymentProviderBase<ManualPaymentSettings>, IConfigurable
     {
         private readonly IValidator<ManualPaymentInfoModel> _validator;
 
-        public ManualProvider(IValidator<ManualPaymentInfoModel> validator)
+        public ManualProvider(
+            IStoreContext storeContext,
+            ISettingFactory settingFactory,
+            IValidator<ManualPaymentInfoModel> validator)
+            : base(storeContext, settingFactory)
         {
             _validator = validator;
         }
 
         protected override Type GetViewComponentType()
             => typeof(ManualPaymentViewComponent);
-
-        protected override string GetProviderName()
-            => nameof(ManualProvider);
 
         public RouteInfo GetConfigurationRoute()
             => new("ManualConfigure", "OfflinePayment", new { area = "Admin" });
@@ -49,7 +52,7 @@ namespace Smartstore.OfflinePayment
         private async Task<ProcessPaymentResult> GetProcessPaymentResultAsync(ProcessPaymentRequest processPaymentRequest)
         {
             var result = new ProcessPaymentResult();
-            var settings = await CommonServices.SettingFactory.LoadSettingsAsync<ManualPaymentSettings>(processPaymentRequest.StoreId);
+            var settings = await _settingFactory.LoadSettingsAsync<ManualPaymentSettings>(processPaymentRequest.StoreId);
 
             result.AllowStoringCreditCardNumber = true;
 

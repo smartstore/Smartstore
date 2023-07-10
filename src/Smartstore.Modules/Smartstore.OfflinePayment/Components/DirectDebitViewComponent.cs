@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.OfflinePayment.Models;
-using Smartstore.OfflinePayment.Settings;
+using Smartstore.Web.Components;
 
 namespace Smartstore.OfflinePayment.Components
 {
-    public class DirectDebitViewComponent : OfflinePaymentViewComponentBase
+    public class DirectDebitViewComponent : SmartViewComponent
     {
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
 
@@ -14,19 +14,21 @@ namespace Smartstore.OfflinePayment.Components
             _checkoutStateAccessor = checkoutStateAccessor;
         }
 
-        public override IViewComponentResult Invoke(string providerName)
+        public IViewComponentResult Invoke()
         {
-            var model = GetPaymentInfoModel<DirectDebitPaymentInfoModel, DirectDebitPaymentSettings>();
             var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
 
-            model.EnterIBAN = ((string)paymentData.Get("EnterIBAN")).NullEmpty() ?? "iban";
-            model.DirectDebitAccountHolder = (string)paymentData.Get("DirectDebitAccountHolder");
-            model.DirectDebitAccountNumber = (string)paymentData.Get("DirectDebitAccountNumber");
-            model.DirectDebitBankCode = (string)paymentData.Get("DirectDebitBankCode");
-            model.DirectDebitBankName = (string)paymentData.Get("DirectDebitBankName");
-            model.DirectDebitBic = (string)paymentData.Get("DirectDebitBic");
-            model.DirectDebitCountry = (string)paymentData.Get("DirectDebitCountry");
-            model.DirectDebitIban = (string)paymentData.Get("DirectDebitIban");
+            var model = new DirectDebitPaymentInfoModel
+            {
+                EnterIBAN = ((string)paymentData.Get("EnterIBAN")).NullEmpty() ?? "iban",
+                DirectDebitAccountHolder = (string)paymentData.Get("DirectDebitAccountHolder"),
+                DirectDebitAccountNumber = (string)paymentData.Get("DirectDebitAccountNumber"),
+                DirectDebitBankCode = (string)paymentData.Get("DirectDebitBankCode"),
+                DirectDebitBankName = (string)paymentData.Get("DirectDebitBankName"),
+                DirectDebitBic = (string)paymentData.Get("DirectDebitBic"),
+                DirectDebitCountry = (string)paymentData.Get("DirectDebitCountry"),
+                DirectDebitIban = (string)paymentData.Get("DirectDebitIban")
+            };
 
             return View(model);
         }

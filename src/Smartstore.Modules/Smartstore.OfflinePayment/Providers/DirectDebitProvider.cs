@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Configuration;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.OfflinePayment.Components;
@@ -11,26 +13,22 @@ namespace Smartstore.OfflinePayment
     // TODO: (mh) (core) a masked payment summary on checkout confirm page is missing for form base offline methods.
     [SystemName("Payments.DirectDebit")]
     [FriendlyName("Direct Debit")]
-    [Order(1)]
+    [Order(100)]
     public class DirectDebitProvider : OfflinePaymentProviderBase<DirectDebitPaymentSettings>, IConfigurable
     {
         private readonly IValidator<DirectDebitPaymentInfoModel> _validator;
-        
-        public DirectDebitProvider(IValidator<DirectDebitPaymentInfoModel> validator)
+
+        public DirectDebitProvider(
+            IStoreContext storeContext,
+            ISettingFactory settingFactory,
+            IValidator<DirectDebitPaymentInfoModel> validator)
+            : base(storeContext, settingFactory)
         {
             _validator = validator;
         }
 
         protected override Type GetViewComponentType()
-        {
-            return typeof(DirectDebitViewComponent);
-        }
-
-        // TODO: (not needed here make optional)
-        protected override string GetProviderName()
-        {
-            return nameof(DirectDebitProvider);
-        }
+            => typeof(DirectDebitViewComponent);
 
         public RouteInfo GetConfigurationRoute()
             => new("DirectDebitConfigure", "OfflinePayment", new { area = "Admin" });

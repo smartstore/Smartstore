@@ -1,23 +1,21 @@
-﻿using Smartstore.Engine.Modularity;
+﻿using Smartstore.Core.Configuration;
+using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 using Smartstore.Http;
-using Smartstore.OfflinePayment.Components;
 using Smartstore.OfflinePayment.Settings;
 
 namespace Smartstore.OfflinePayment
 {
     [SystemName("Payments.PayInStore")]
     [FriendlyName("Pay In Store")]
-    [Order(1)]
+    [Order(100)]
     public class PayInStoreProvider : OfflinePaymentProviderBase<PayInStorePaymentSettings>, IConfigurable
     {
-        protected override Type GetViewComponentType()
+        public PayInStoreProvider(
+            IStoreContext storeContext,
+            ISettingFactory settingFactory)
+            : base(storeContext, settingFactory)
         {
-            return typeof(GenericPaymentViewComponent);
-        }
-
-        protected override string GetProviderName()
-        {
-            return nameof(PayInStoreProvider);
         }
 
         public RouteInfo GetConfigurationRoute()

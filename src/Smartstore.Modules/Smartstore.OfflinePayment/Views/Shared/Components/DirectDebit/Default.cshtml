@@ -2,10 +2,6 @@
 
 <input type="hidden" name="OfflinePaymentMethodType" value="DirectDebit" />
 
-<div sm-if="Model.Description.HasValue()" class="text-muted">
-    @Html.Raw(Model.Description)
-</div>
-
 <div class="opt-form">
     <div class="form-group row">
         <label asp-for="EnterIBAN" class="col-md-3 col-form-label"></label>

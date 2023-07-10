@@ -8,11 +8,6 @@ namespace Smartstore.OfflinePayment.Models
         public string PostActionName { get; set; }
         public string PrimaryStoreCurrencyCode { get; set; }
 
-        [UIHint("TextArea")]
-        [AdditionalMetadata("rows", 6)]
-        [LocalizedDisplay("Plugins.SmartStore.OfflinePayment.DescriptionText")]
-        public string DescriptionText { get; set; }
-
         [LocalizedDisplay("Admin.Configuration.Payment.Methods.AdditionalFee")]
         public decimal AdditionalFee { get; set; }
 

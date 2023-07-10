@@ -35,6 +35,8 @@ namespace Smartstore.Core.Data.Migrations
             }
 
             await db.SaveChangesAsync(cancelToken);
+
+            await MigrateOfflinePaymentDescriptions(db, cancelToken);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
@@ -47,20 +49,10 @@ namespace Smartstore.Core.Data.Migrations
         }
 
         /// <summary>
-        /// Migrates old payment description (xyzSettings.DescriptionText) of offline payment methods.
+        /// Migrates obsolete payment description setting (xyzSettings.DescriptionText) of offline payment methods.
         /// </summary>
         private static async Task MigrateOfflinePaymentDescriptions(SmartDbContext db, CancellationToken cancelToken)
         {
-            var masterLanguageId = await db.Languages
-                .Where(x => x.Published)
-                .OrderBy(x => x.DisplayOrder)
-                .Select(x => x.Id)
-                .FirstOrDefaultAsync(cancelToken);
-            if (masterLanguageId == 0)
-            {
-                return;
-            }
-
             var names = new Dictionary<string, string>
             {
                 { "Payments.CashOnDelivery", "CashOnDeliveryPaymentSettings.DescriptionText" },
@@ -72,19 +64,32 @@ namespace Smartstore.Core.Data.Migrations
                 { "Payments.Prepayment", "PrepaymentPaymentSettings.DescriptionText" }
             };
 
-            var systemNames = names.Keys.ToArray();
-            var settingNames = names.Values.ToArray();
-
-            var paymentMethods = (await db.PaymentMethods
-                .Where(x => systemNames.Contains(x.PaymentMethodSystemName))
-                .ToListAsync(cancelToken))
-                .ToDictionarySafe(x => x.PaymentMethodSystemName, x => x, StringComparer.OrdinalIgnoreCase);
-
+            var settingNames = names.Values.ToList();
             var descriptionSettings = (await db.Settings
                 .AsNoTracking()
                 .Where(x => settingNames.Contains(x.Name) && x.StoreId == 0)
                 .ToListAsync(cancelToken))
                 .ToDictionarySafe(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+            if (descriptionSettings.Count == 0)
+            {
+                return;
+            }
+
+            var masterLanguageId = await db.Languages
+                .Where(x => x.Published)
+                .OrderBy(x => x.DisplayOrder)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync(cancelToken);
+            if (masterLanguageId == 0)
+            {
+                return;
+            }
+
+            var systemNames = names.Keys.ToArray();
+            var paymentMethods = (await db.PaymentMethods
+                .Where(x => systemNames.Contains(x.PaymentMethodSystemName))
+                .ToListAsync(cancelToken))
+                .ToDictionarySafe(x => x.PaymentMethodSystemName, x => x, StringComparer.OrdinalIgnoreCase);
 
             foreach (var pair in names)
             {
@@ -131,7 +136,18 @@ namespace Smartstore.Core.Data.Migrations
 
             await db.SaveChangesAsync(cancelToken);
 
-            // Delete old xyzSettings.DescriptionText.
+            // Delete obsolete offline payment settings.
+            settingNames.AddRange(new[]
+            {
+                "CashOnDeliveryPaymentSettings.ThumbnailPictureId",
+                "DirectDebitPaymentSettings.ThumbnailPictureId",
+                "InvoicePaymentSettings.ThumbnailPictureId",
+                "ManualPaymentSettings.ThumbnailPictureId",
+                "PurchaseOrderNumberPaymentSettings.ThumbnailPictureId",
+                "PayInStorePaymentSettings.ThumbnailPictureId",
+                "PrepaymentPaymentSettings.ThumbnailPictureId"
+            });
+
             await db.Settings
                 .Where(x => settingNames.Contains(x.Name))
                 .ExecuteDeleteAsync(cancelToken);
