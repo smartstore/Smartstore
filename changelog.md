@@ -1,5 +1,16 @@
 # Release Notes
 
+## Smartstore 5.1.0
+
+### New Features
+
+### Improvements
+
+### Bugfixes
+
+- Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
+
+
 ## Smartstore 5.0.5
 
 ### Breaking Changes
