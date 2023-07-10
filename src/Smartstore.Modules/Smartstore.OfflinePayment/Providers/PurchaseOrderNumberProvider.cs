@@ -16,14 +16,17 @@ namespace Smartstore.OfflinePayment
     public class PurchaseOrderNumberProvider : OfflinePaymentProviderBase<PurchaseOrderNumberPaymentSettings>, IConfigurable
     {
         private readonly IValidator<PurchaseOrderNumberPaymentInfoModel> _validator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public PurchaseOrderNumberProvider(
             IStoreContext storeContext,
             ISettingFactory settingFactory,
-            IValidator<PurchaseOrderNumberPaymentInfoModel> validator)
+            IValidator<PurchaseOrderNumberPaymentInfoModel> validator,
+            IHttpContextAccessor httpContextAccessor)
             : base(storeContext, settingFactory)
         {
             _validator = validator;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override Type GetViewComponentType()
@@ -31,6 +34,18 @@ namespace Smartstore.OfflinePayment
 
         public RouteInfo GetConfigurationRoute()
             => new("PurchaseOrderNumberConfigure", "OfflinePayment", new { area = "Admin" });
+
+        public override Task<string> GetPaymentSummaryAsync()
+        {
+            var result = string.Empty;
+
+            if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var pr) && pr != null)
+            {
+                result = pr.PurchaseOrderNumber.EmptyNull();
+            }
+
+            return Task.FromResult(result);
+        }
 
         public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
         {

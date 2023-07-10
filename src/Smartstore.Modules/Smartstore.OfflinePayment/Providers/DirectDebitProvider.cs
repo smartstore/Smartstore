@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
@@ -10,21 +11,26 @@ using Smartstore.OfflinePayment.Settings;
 
 namespace Smartstore.OfflinePayment
 {
-    // TODO: (mh) (core) a masked payment summary on checkout confirm page is missing for form base offline methods.
     [SystemName("Payments.DirectDebit")]
     [FriendlyName("Direct Debit")]
     [Order(100)]
     public class DirectDebitProvider : OfflinePaymentProviderBase<DirectDebitPaymentSettings>, IConfigurable
     {
         private readonly IValidator<DirectDebitPaymentInfoModel> _validator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
 
         public DirectDebitProvider(
             IStoreContext storeContext,
             ISettingFactory settingFactory,
-            IValidator<DirectDebitPaymentInfoModel> validator)
+            IValidator<DirectDebitPaymentInfoModel> validator,
+            IHttpContextAccessor httpContextAccessor,
+            ICheckoutStateAccessor checkoutStateAccessor)
             : base(storeContext, settingFactory)
         {
             _validator = validator;
+            _httpContextAccessor = httpContextAccessor;
+            _checkoutStateAccessor = checkoutStateAccessor;
         }
 
         protected override Type GetViewComponentType()
@@ -32,6 +38,26 @@ namespace Smartstore.OfflinePayment
 
         public RouteInfo GetConfigurationRoute()
             => new("DirectDebitConfigure", "OfflinePayment", new { area = "Admin" });
+
+        public override Task<string> GetPaymentSummaryAsync()
+        {
+            var result = string.Empty;
+
+            if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var pr) && pr != null)
+            {
+                var enterIban = _checkoutStateAccessor.CheckoutState.CustomProperties.Get("Payments.DirectDebit.EnterIban") as string;
+                if (enterIban.EqualsNoCase("iban"))
+                {
+                    result = $"{pr.DirectDebitBic}, {pr.DirectDebitIban.Mask(8)}";
+                }
+                else
+                {
+                    result = $"{pr.DirectDebitBankCode}, {pr.DirectDebitAccountNumber.Mask(4)}";
+                }
+            }
+
+            return Task.FromResult(result);
+        }
 
         public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
         {
@@ -46,6 +72,8 @@ namespace Smartstore.OfflinePayment
                 DirectDebitIban = form["DirectDebitIban"],
                 DirectDebitBic = form["DirectDebitBic"]
             };
+
+            _checkoutStateAccessor.CheckoutState.CustomProperties["Payments.DirectDebit.EnterIban"] = model.EnterIBAN;
 
             var result = await _validator.ValidateAsync(model);
             return new PaymentValidationResult(result);

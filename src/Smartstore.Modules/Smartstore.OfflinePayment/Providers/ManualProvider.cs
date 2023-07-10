@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
@@ -17,15 +16,42 @@ namespace Smartstore.OfflinePayment
     public class ManualProvider : OfflinePaymentProviderBase<ManualPaymentSettings>, IConfigurable
     {
         private readonly IValidator<ManualPaymentInfoModel> _validator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ManualProvider(
             IStoreContext storeContext,
             ISettingFactory settingFactory,
-            IValidator<ManualPaymentInfoModel> validator)
+            IValidator<ManualPaymentInfoModel> validator,
+            IHttpContextAccessor httpContextAccessor)
             : base(storeContext, settingFactory)
         {
             _validator = validator;
+            _httpContextAccessor = httpContextAccessor;
         }
+
+        internal static Dictionary<string, string> GetCreditCardBrands(Localizer T)
+        {
+            var result = new Dictionary<string, string>();
+            var brands = T("Plugins.Payments.Manual.CreditCardBrands").Value.SplitSafe('|');
+
+            foreach (var str in brands)
+            {
+                if (str.SplitToPair(out var key, out var value, ";") && value.HasValue())
+                {
+                    result[key] = value;
+                }
+                else
+                {
+                    result[str] = str;
+                }
+            }
+
+            return result;
+        }
+
+        public override bool RequiresInteraction => true;
+
+        public override RecurringPaymentType RecurringPaymentType => RecurringPaymentType.Manual;
 
         protected override Type GetViewComponentType()
             => typeof(ManualPaymentViewComponent);
@@ -33,46 +59,18 @@ namespace Smartstore.OfflinePayment
         public RouteInfo GetConfigurationRoute()
             => new("ManualConfigure", "OfflinePayment", new { area = "Admin" });
 
-        public static List<SelectListItem> CreditCardTypes
+        public override Task<string> GetPaymentSummaryAsync()
         {
-            get
+            var result = string.Empty;
+
+            if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var pr) && pr != null)
             {
-                var creditCardTypes = new List<SelectListItem>
-                {
-                    new SelectListItem { Text = "Visa", Value = "Visa" },
-                    new SelectListItem { Text = "Master Card", Value = "MasterCard" },
-                    new SelectListItem { Text = "Discover", Value = "Discover" },
-                    new SelectListItem { Text = "Amex", Value = "Amex" }
-                };
+                var brandName = GetCreditCardBrands(T).Get(pr.CreditCardType.EmptyNull());
 
-                return creditCardTypes;
-            }
-        }
-
-        private async Task<ProcessPaymentResult> GetProcessPaymentResultAsync(ProcessPaymentRequest processPaymentRequest)
-        {
-            var result = new ProcessPaymentResult();
-            var settings = await _settingFactory.LoadSettingsAsync<ManualPaymentSettings>(processPaymentRequest.StoreId);
-
-            result.AllowStoringCreditCardNumber = true;
-
-            switch (settings.TransactMode)
-            {
-                case TransactMode.Pending:
-                    result.NewPaymentStatus = PaymentStatus.Pending;
-                    break;
-                case TransactMode.Authorize:
-                    result.NewPaymentStatus = PaymentStatus.Authorized;
-                    break;
-                case TransactMode.Paid:
-                    result.NewPaymentStatus = PaymentStatus.Paid;
-                    break;
-                default:
-                    result.Errors.Add(T("Common.Payment.TranactionTypeNotSupported"));
-                    return result;
+                result = $"{brandName}, {pr.CreditCardNumber.Mask(4)}";
             }
 
-            return result;
+            return Task.FromResult(result);
         }
 
         public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
@@ -118,8 +116,30 @@ namespace Smartstore.OfflinePayment
             return Task.FromResult(new CancelRecurringPaymentResult());
         }
 
-        public override bool RequiresInteraction => true;
+        private async Task<ProcessPaymentResult> GetProcessPaymentResultAsync(ProcessPaymentRequest processPaymentRequest)
+        {
+            var result = new ProcessPaymentResult();
+            var settings = await _settingFactory.LoadSettingsAsync<ManualPaymentSettings>(processPaymentRequest.StoreId);
 
-        public override RecurringPaymentType RecurringPaymentType => RecurringPaymentType.Manual;
+            result.AllowStoringCreditCardNumber = true;
+
+            switch (settings.TransactMode)
+            {
+                case TransactMode.Pending:
+                    result.NewPaymentStatus = PaymentStatus.Pending;
+                    break;
+                case TransactMode.Authorize:
+                    result.NewPaymentStatus = PaymentStatus.Authorized;
+                    break;
+                case TransactMode.Paid:
+                    result.NewPaymentStatus = PaymentStatus.Paid;
+                    break;
+                default:
+                    result.Errors.Add(T("Common.Payment.TranactionTypeNotSupported"));
+                    return result;
+            }
+
+            return result;
+        }
     }
 }

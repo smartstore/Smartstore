@@ -26,14 +26,14 @@ namespace Smartstore.OfflinePayment.Components
             var excludedCreditCards = _manualPaymentSettings.ExcludedCreditCards.SplitSafe(',');
             var model = new ManualPaymentInfoModel();
 
-            foreach (var creditCard in ManualProvider.CreditCardTypes)
+            foreach (var pair in ManualProvider.GetCreditCardBrands(T))
             {
-                if (!excludedCreditCards.Any(x => x.EqualsNoCase(creditCard.Value)))
+                if (!excludedCreditCards.Any(x => x.EqualsNoCase(pair.Key)))
                 {
                     model.CreditCardTypes.Add(new()
                     {
-                        Text = creditCard.Text,
-                        Value = creditCard.Value
+                        Text = pair.Value,
+                        Value = pair.Key
                     });
                 }
             }

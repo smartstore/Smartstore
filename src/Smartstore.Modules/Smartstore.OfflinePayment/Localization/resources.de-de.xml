@@ -115,6 +115,9 @@
             <LocaleResource Name="Fields.TransactMode.Hint">
                 <Value>Legt den Zahlungsstatus nach Bestellabschluss fest.</Value>
             </LocaleResource>
+            <LocaleResource Name="CreditCardBrands">
+                <Value>Visa|MasterCard;Master Card|Discover|Amex;American Express</Value>
+            </LocaleResource>
             <LocaleResource Name="ExcludedCreditCards">
                 <Value>Auszuschließende Kreditkarten</Value>
             </LocaleResource>
