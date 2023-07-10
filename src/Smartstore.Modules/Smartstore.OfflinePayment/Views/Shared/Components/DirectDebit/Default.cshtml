@@ -4,16 +4,18 @@
 
 <div class="opt-form">
     <div class="form-group row">
-        <label asp-for="EnterIBAN" class="col-md-3 col-form-label"></label>
+        <label for="EnterIBAN_2" class="col-md-3 col-form-label">
+            @T("Plugins.Payments.DirectDebit.EnterIBAN")
+        </label>
         <div class="col-md-9">
             <div class="form-inline form-control-plaintext">
                 <div class="form-check form-check-inline">
-                    <input type="radio" id="EnterIBAN_1" name="EnterIBAN" value="no-iban" attr-checked='(Model.EnterIBAN == "no-iban", "checked")' class="form-check-input" />
-                    <label for="EnterIBAN_1" class="form-check-label">@T("Plugins.Payments.DirectDebit.NoEnterIBAN")</label>
-                </div>
-                <div class="form-check form-check-inline">
                     <input type="radio" id="EnterIBAN_2" name="EnterIBAN" value="iban" attr-checked='(Model.EnterIBAN == "iban", "checked")' class="form-check-input" />
                     <label for="EnterIBAN_2" class="form-check-label">@T("Plugins.Payments.DirectDebit.YesEnterIBAN")</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" id="EnterIBAN_1" name="EnterIBAN" value="no-iban" attr-checked='(Model.EnterIBAN == "no-iban", "checked")' class="form-check-input" />
+                    <label for="EnterIBAN_1" class="form-check-label">@T("Plugins.Payments.DirectDebit.NoEnterIBAN")</label>
                 </div>
             </div>
         </div>
@@ -77,15 +79,17 @@
     </div>
 </div>
 
-<script data-origin="DirectDebit">
+<script data-origin="direct-debit">
     $(function () {
         $('input[name=EnterIBAN]').on('change', function () {
-            SwitchEnterIban($(this).filter(':checked').val());
-        }).trigger('change');
-    });
+            var newType = $(this).filter(':checked').val();
+            if (newType !== undefined) {
+                $('.dd-payment-' + newType).slideDown('fast', function () {
+                    $('.dd-payment-' + (newType === 'iban' ? 'no-iban' : 'iban')).hide();
+                });
+            }
+        });
 
-    function SwitchEnterIban(newType) {
-        $('.dd-payment-' + newType).slideDown('fast');
-        $('.dd-payment-' + (newType === 'iban' ? 'no-iban' : 'iban')).slideUp('fast');
-    }
+        $('#EnterIBAN_2').trigger('change');
+    });
 </script>
