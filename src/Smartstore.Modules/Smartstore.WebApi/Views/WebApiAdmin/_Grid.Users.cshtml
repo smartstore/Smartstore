@@ -48,7 +48,7 @@
         <column for="PublicKey" sortable="false" width="2fr">
             <display-template>
                 <div class="dg-cell-value">
-                    <div v-if="!_.isEmpty(item.row.SecretKey)" class="d-table" style="padding: 1px 3px;">
+                    <div v-if="!_.isEmpty(item.row.SecretKey)" class="d-table">
                         <div class="d-table-row">
                             <div class="d-table-cell">@publicKeyStr:&nbsp;</div><div class="d-table-cell">{{ item.row.PublicKey }}</div>
                         </div>
