@@ -4,6 +4,8 @@
 
 ### New Features
 
+- **Botsonic** plugin (commercial)
+
 ### Improvements
 
 ### Bugfixes
