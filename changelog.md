@@ -5,6 +5,7 @@
 ### New Features
 
 - **Botsonic** plugin (commercial)
+- #745 Page Builder: depend story visibility on user roles.
 
 ### Improvements
 
@@ -49,7 +50,7 @@
   - Checkout / Payment page can display payment method brand icons
 - Increased performance: category tree path to filter products by categories.
 - DataGrid now remembers the search filter state across requests
-- Better PayPal implementaion: added providers for every single payment option.
+- Better PayPal implementation: added providers for every single payment option.
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
 - #416 Make the language name localizable.
 - Specify custom database collation during installation.
