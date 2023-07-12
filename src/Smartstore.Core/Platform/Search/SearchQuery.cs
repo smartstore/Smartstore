@@ -89,6 +89,9 @@ namespace Smartstore.Core.Search
             }
             set
             {
+                // Reset. Filters may have changed.
+                _isDefaultTermFilterSet = false;
+
                 var filter = DefaultTermFilter;
                 if (filter != null)
                 {

@@ -66,7 +66,6 @@ namespace Smartstore.Core.Catalog.Search
     [ValidateNever, ModelBinder(typeof(CatalogSearchQueryModelBinder))]
     public partial class CatalogSearchQuery : SearchQuery<CatalogSearchQuery>, ICloneable<CatalogSearchQuery>
     {
-
         public static KnownFilterNames KnownFilters = new();
         public static KnownSortingNames KnownSortings = new();
 
@@ -93,6 +92,12 @@ namespace Smartstore.Core.Catalog.Search
         {
         }
 
+        /// <summary>
+        /// Returns a new <see cref="CatalogSearchQuery"/> instance that is a memberwise copy of this query.
+        /// </summary>
+        /// <remarks>
+        /// This creates a shallow copy of the original query! If you clear the filters of the clone, you also clear the filters of the original query.
+        /// </remarks>
         public CatalogSearchQuery Clone()
             => (CatalogSearchQuery)MemberwiseClone();
 
