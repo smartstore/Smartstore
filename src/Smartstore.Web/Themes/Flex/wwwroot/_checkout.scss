@@ -130,17 +130,15 @@
     }
 }
 
-
-
 //
 // Checkout options (payment & shipping)
 // --------------------------------------------------
 
 .checkout-data {
-	.opt-list { 
-		margin-bottom: 1.5rem;
+    .opt-list {
+        margin-bottom: 1.5rem;
         --opt-offset: 0;
-	}
+    }
 
     .opt-list-item {
         padding: 1.25rem;
@@ -155,48 +153,48 @@
     .opt-control {
         margin-bottom: 0;
 
-	    .form-check-label {
-		    cursor: pointer;
-		    margin-bottom: 0;
-	    }
+        .form-check-label {
+            cursor: pointer;
+            margin-bottom: 0;
+        }
     }
 
-	.opt-name { 
+    .opt-name {
         display: block;
         font-size: $h5-font-size;
-		font-weight: $font-weight-medium;
-		margin-left: 4px;
+        font-weight: $font-weight-medium;
+        margin-inline-start: 4px;
         line-height: 1.3;
-	}
+    }
 
     .opt-fee {
         white-space: nowrap;
     }
 
-	.opt-info,
-	.opt-info-item {
-        margin-left: var(--opt-offset);
-		margin-top: 0.25rem;
-	}
+    .opt-info,
+    .opt-info-item {
+        margin-inline-start: var(--opt-offset);
+        margin-top: 0.25rem;
+    }
 
     .opt-form,
-    .opt-info-embedded { 
-		margin-top: 1.5rem;
+    .opt-info-embedded {
+        margin-top: 1.5rem;
 
         &:last-child > *:last-child {
             margin-bottom: 0;
         }
-	}
+    }
 
     .opt-info {
-	    .media-object { 
-		    max-width: 25%;
+        .media-object {
+            max-width: 25%;
             margin-top: 0.25rem;
-	    }
+        }
 
-	    .media-body { 
-		    color: $text-muted;
-	    }
+        .media-body {
+            color: $text-muted;
+        }
 
         p:empty {
             display: none;
@@ -214,14 +212,14 @@
     }
 
     @include media-breakpoint-up(md) {
-	    .opt-name { 
-		    margin-left: 12px;
-	    }
+        .opt-name {
+            margin-inline-start: 12px;
+        }
 
-	    .opt-info,
-	    .opt-info-item {
+        .opt-info,
+        .opt-info-item {
             --opt-offset: 32px;
-	    }
+        }
     }
 }
 
@@ -232,7 +230,7 @@
     // 4:3 aspect ratio.
     width: 64px;
     height: 48px;
-    margin-right: 0.75rem;
+    margin-inline-end: 0.75rem;
     overflow: hidden;
     display: flex;
     align-items: center !important;
@@ -251,7 +249,11 @@
     .opt-name,
     .opt-info,
     .opt-info-item {
-        margin-left: ($grid-gutter-width / 2) !important;
+        margin-inline-start: 4px !important;
+
+        @include media-breakpoint-up(md) {
+            margin-inline-start: ($grid-gutter-width / 2) !important;
+        }
     }
 
     .payment-method-item {
@@ -269,9 +271,8 @@
     }
 
     .opt-info-embedded {
-        margin-left: 0 !important;
+        margin-inline-start: 0 !important;
     }
-
     /* Bigbrand */
     .media-object,
     .opt-name > img {
@@ -282,11 +283,11 @@
         .opt-info,
         .opt-info-item {
             margin-top: 0.25rem;
-            margin-left: 0;
+            margin-inline-start: 0;
         }
 
         .opt-name {
-            margin-left: 0;
+            margin-inline-start: 0;
         }
     }
 }
