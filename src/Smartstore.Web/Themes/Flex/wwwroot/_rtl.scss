@@ -307,27 +307,6 @@
 		}
 	}
 
-	.checkout-data {
-		.opt-name {
-			margin-right: 4px;
-			margin-left: 0;
-		}
-
-
-		@include media-breakpoint-up(md) {
-			.opt-name {
-				margin-right: 12px;
-				margin-left: 0;
-			}
-
-			.opt-info,
-			.opt-info-item {
-				margin-right: 32px;
-				margin-left: 0;
-			}
-		}
-	}
-
 	// Menu
 	// ----
 
