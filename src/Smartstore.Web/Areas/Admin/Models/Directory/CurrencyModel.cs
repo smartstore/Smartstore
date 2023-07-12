@@ -130,8 +130,6 @@ namespace Smartstore.Admin.Models.Common
     [LocalizedDisplay("Admin.Configuration.Currencies.Fields.")]
     public partial class CurrencyListModel
     {
-        public bool DisplayLiveRates { get; set; }
-
         [LocalizedDisplay("*CurrencyRateAutoUpdateEnabled")]
         public bool AutoUpdateEnabled { get; set; }
 

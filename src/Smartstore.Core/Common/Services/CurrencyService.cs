@@ -1,3 +1,4 @@
+using Smartstore.Caching;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
@@ -11,7 +12,12 @@ namespace Smartstore.Core.Common.Services
     [Important]
     public partial class CurrencyService : AsyncDbSaveHook<Currency>, ICurrencyService
     {
+        // 0 = exchange rate currency code.
+        // 1 = provider system name.
+        const string LiveCurrencyRatesKey = "live.currency.rates:{0}-{1}";
+
         private readonly SmartDbContext _db;
+        private readonly ICacheManager _cache;
         private readonly IProviderManager _providerManager;
         private readonly IWorkContext _workContext;
         private readonly CurrencySettings _currencySettings;
@@ -22,12 +28,14 @@ namespace Smartstore.Core.Common.Services
 
         public CurrencyService(
             SmartDbContext db,
+            ICacheManager cache,
             IProviderManager providerManager,
             IWorkContext workContext,
             CurrencySettings currencySettings,
             ISettingFactory settingFactory)
         {
             _db = db;
+            _cache = cache;
             _providerManager = providerManager;
             _workContext = workContext;
             _currencySettings = currencySettings;
@@ -155,17 +163,36 @@ namespace Smartstore.Core.Common.Services
 
         #region Exchange rate provider
 
-        public virtual Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
+        public virtual async Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(bool force = false)
         {
-            var exchangeRateProvider = LoadActiveExchangeRateProvider();
-            if (exchangeRateProvider != null)
+            var exchangeRateCurrencyCode = PrimaryExchangeCurrency?.CurrencyCode;
+            if (exchangeRateCurrencyCode.IsEmpty())
             {
-                return exchangeRateProvider.Value.GetCurrencyLiveRatesAsync(exchangeRateCurrencyCode);
+                throw new InvalidOperationException(T("Admin.System.Warnings.ExchangeCurrency.NotSet"));
             }
-            else
+
+            var key = LiveCurrencyRatesKey.FormatInvariant(exchangeRateCurrencyCode.ToLowerInvariant(), _currencySettings.ActiveExchangeRateProviderSystemName.EmptyNull());
+
+            if (force)
             {
-                return Task.FromResult<IList<ExchangeRate>>(new List<ExchangeRate>());
+                await _cache.RemoveAsync(key);
             }
+
+            // No need to delete the cache entry by pattern key. Let it expire naturally.
+            var exchangeRates = await _cache.GetAsync(key, async o =>
+            {
+                o.ExpiresIn(TimeSpan.FromHours(24));
+
+                var provider = LoadActiveExchangeRateProvider();
+                if (provider != null)
+                {
+                    return await provider.Value.GetCurrencyLiveRatesAsync(exchangeRateCurrencyCode);
+                }
+
+                return new List<ExchangeRate>();
+            });
+
+            return exchangeRates;
         }
 
         public virtual Provider<IExchangeRateProvider> LoadActiveExchangeRateProvider()

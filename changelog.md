@@ -9,6 +9,8 @@
 
 ### Improvements
 
+- #580 Added caching for live currency exchange rates.
+
 ### Bugfixes
 
 - Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.

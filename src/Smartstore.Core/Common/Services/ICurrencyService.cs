@@ -36,11 +36,13 @@ namespace Smartstore.Core.Common.Services
         Money ConvertToWorkingCurrency(decimal amount);
 
         /// <summary>
-        /// Gets currency live rates
+        /// Gets live exchange rates for the <see cref="PrimaryExchangeCurrency"/>.
         /// </summary>
-        /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
-        /// <returns>Exchange rates</returns>
-        Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode);
+        /// <param name="force">
+        /// <c>true</c> to get the live rates from <see cref="IExchangeRateProvider"/>.
+        /// <c>false</c> to load the currency rates from cache.</param> Cache duration is 24 hours. 
+        /// <returns>Currency exchange rates.</returns>
+        Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(bool force = false);
 
         /// <summary>
         /// Load active exchange rate provider

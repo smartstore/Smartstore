@@ -10,12 +10,12 @@ namespace Smartstore.Core.Common.Configuration
         /// <summary>
         /// Primary currency identifier
         /// </summary>
-        public int PrimaryCurrencyId { get; set; } // TODO: (core) PrimaryCurrencyId. Migrate new setting somehow.
+        public int PrimaryCurrencyId { get; set; }
 
         /// <summary>
         ///  Primary exchange rate currency identifier
         /// </summary>
-        public int PrimaryExchangeCurrencyId { get; set; }  // TODO: (core) PrimaryExchangeRateCurrencyId. Migrate new setting somehow.
+        public int PrimaryExchangeCurrencyId { get; set; }
 
         /// <summary>
         /// Active exchange rate provider system name

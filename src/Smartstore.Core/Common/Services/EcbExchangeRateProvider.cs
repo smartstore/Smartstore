@@ -5,6 +5,9 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services
 {
+    /// <summary>
+    /// Gets live currency exchange rates from ECB web service.
+    /// </summary>
     [SystemName("CurrencyExchange.ECB")]
     [FriendlyName("ECB currency exchange rate provider")]
     [Order(0)]
@@ -17,15 +20,9 @@ namespace Smartstore.Core.Common.Services
             _httpClientFactory = httpClientFactory;
         }
 
-        /// <summary>
-        /// Gets live currency exchange rates from ecb web service
-        /// </summary>
-        /// <param name="exchangeRateCurrencyCode">Exchange rate target currency code</param>
-        /// <returns>Currency exchange rates</returns>
         public virtual async Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
         {
-            if (exchangeRateCurrencyCode.IsEmpty())
-                return new List<ExchangeRate>();
+            Guard.NotEmpty(exchangeRateCurrencyCode);
 
             var result = new Dictionary<string, ExchangeRate>();
             var targetCurrency = exchangeRateCurrencyCode.ToUpper();
@@ -46,18 +43,18 @@ namespace Smartstore.Core.Common.Services
                 var node = document.SelectSingleNode("gesmes:Envelope/ns:Cube/ns:Cube", nsmgr);
                 var ecbDate = DateTime.ParseExact(node.Attributes["time"].Value, "yyyy-MM-dd", null);
 
-                // see https://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html
+                // See https://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html
                 updateDate = new DateTime(ecbDate.Year, ecbDate.Month, ecbDate.Day, 16, 0, 0);
 
                 var provider = new NumberFormatInfo
                 {
                     NumberDecimalSeparator = ".",
-                    NumberGroupSeparator = ""
+                    NumberGroupSeparator = string.Empty
                 };
 
                 foreach (XmlNode childNode in node.ChildNodes)
                 {
-                    // parse ECB rate
+                    // Parse ECB rate.
                     var rate = new ExchangeRate
                     {
                         CurrencyCode = childNode.Attributes["currency"].Value.EmptyNull().ToUpper(),
@@ -65,7 +62,7 @@ namespace Smartstore.Core.Common.Services
                         UpdatedOn = updateDate
                     };
 
-                    // add it to result dictionary
+                    // Add it to result dictionary.
                     if (!result.ContainsKey(rate.CurrencyCode) && rate.Rate != decimal.Zero)
                     {
                         result.Add(rate.CurrencyCode, rate);
@@ -73,17 +70,19 @@ namespace Smartstore.Core.Common.Services
                 }
             }
 
-            // if target currency is EUR then we are ready because ECB always returns EUR rates
+            // If target currency is EUR then we are ready because ECB always returns EUR rates.
             if (targetCurrency != "EUR")
             {
-                // cross calculation not possible if ECB list does not contain target currency
+                // Cross calculation not possible if ECB list does not contain target currency.
                 if (!result.ContainsKey(targetCurrency))
+                {
                     return new List<ExchangeRate>();
+                }
 
-                // get clone of EUR rates
+                // Get clone of EUR rates.
                 var euroRates = result.ToDictionary(x => x.Key, x => x.Value.Rate);
 
-                // cross calculate rates for target currency
+                // Cross calculate rates for target currency.
                 result.Each(x =>
                 {
                     if (x.Value.CurrencyCode == "EUR")
@@ -96,13 +95,13 @@ namespace Smartstore.Core.Common.Services
                     }
                 });
 
-                // remove target currency form result because its rate is always 1.0
+                // Remove target currency form result because its rate is always 1.0.
                 result.Remove(targetCurrency);
 
-                // add EUR rate
+                // Add EUR rate.
                 if (!result.ContainsKey("EUR"))
                 {
-                    result.Add("EUR", new ExchangeRate
+                    result.Add("EUR", new()
                     {
                         CurrencyCode = "EUR",
                         Rate = 1.0M / euroRates[targetCurrency],
