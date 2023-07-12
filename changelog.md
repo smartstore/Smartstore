@@ -11,6 +11,8 @@
 
 - #580 Added caching for live currency exchange rates.
 
+- #767 Handle tier prices in depending prices module 
+
 ### Bugfixes
 
 - Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
