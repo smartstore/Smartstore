@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Search;
 
 namespace Smartstore.Core.Tests.Catalog.Search
 {
@@ -24,6 +26,14 @@ namespace Smartstore.Core.Tests.Catalog.Search
             };
 
             Assert.That(query.DefaultTerm, Is.EqualTo("ateg"));
+
+            var termFilter = query.Filters.OfType<ICombinedSearchFilter>().FirstOrDefault(x => x.FieldName == "searchterm");
+            Assert.NotNull(termFilter);
+
+            var allTermsChanged = termFilter.Filters
+                .Select(x => (IAttributeSearchFilter)x)
+                .All(x => (string)x.Term == "ateg");
+            Assert.IsTrue(allTermsChanged);
         }
     }
 }

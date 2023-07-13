@@ -15,6 +15,7 @@
 
 ### Bugfixes
 
+- Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
 - Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
 
 

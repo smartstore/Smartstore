@@ -41,7 +41,7 @@ namespace Smartstore.Core.Search
     {
         private readonly Dictionary<string, FacetDescriptor> _facetDescriptors = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, object>? _customData;
-        private SearchFilter? _defaultTermFilter = null;
+        private ISearchFilter? _defaultTermFilter = null;
         private bool _isDefaultTermFilterSet;
 
         protected SearchQuery(
@@ -62,17 +62,18 @@ namespace Smartstore.Core.Search
 
                 if (fields!.Length == 1)
                 {
+                    // Single search field.
                     WithFilter(SearchFilter.ByField(fields![0], term, mode, escape).Mandatory());
                 }
                 else
                 {
+                    // Multiple search fields.
                     WithFilter(SearchFilter.Combined("searchterm",
                         fields!.Select(field => SearchFilter.ByField(field, term, mode, escape)).ToArray()));
                 }
             }
         }
 
-        // Language, Currency & Store
         public int? LanguageId { get; protected set; }
         public string? LanguageCulture { get; protected set; }
         public string? CurrencyCode { get; protected set; }
@@ -85,38 +86,44 @@ namespace Smartstore.Core.Search
         {
             get
             {
-                return DefaultTermFilter?.Term as string;
+                if (DefaultTermFilter is ICombinedSearchFilter cf)
+                {
+                    return ((IAttributeSearchFilter)cf.Filters.First()).Term as string;
+                }
+                else if (DefaultTermFilter is IAttributeSearchFilter af)
+                {
+                    return af.Term as string;
+                }
+
+                return null;
             }
             set
             {
-                // Reset. Filters may have changed.
+                // Reset. Filters may have changed in the meantime.
                 _isDefaultTermFilterSet = false;
 
-                var filter = DefaultTermFilter;
-                if (filter != null)
+                if (DefaultTermFilter is ICombinedSearchFilter cf)
                 {
-                    filter.Term = value;
+                    // Multiple search fields.
+                    cf.Filters.Each(af => ((SearchFilter)af).Term = value);
+                }
+                else if (DefaultTermFilter is IAttributeSearchFilter af)
+                {
+                    // Single search field.
+                    ((SearchFilter)af).Term = value;
                 }
             }
         }
 
-        private SearchFilter? DefaultTermFilter
+        private ISearchFilter? DefaultTermFilter
         {
             get
             {
                 if (!_isDefaultTermFilterSet)
                 {
-                    var filter = Filters.OfType<ICombinedSearchFilter>().FirstOrDefault(x => x.FieldName == "searchterm");
-                    if (filter != null)
-                    {
-                        _defaultTermFilter = (IAttributeSearchFilter)filter.Filters.First() as SearchFilter;
-                    }
-                    else
-                    {
-                        _defaultTermFilter = Filters
-                            .OfType<IAttributeSearchFilter>()
-                            .FirstOrDefault(x => x.TypeCode == IndexTypeCode.String && !x.IsNotAnalyzed) as SearchFilter;
-                    }
+                    _defaultTermFilter = (ISearchFilter?)
+                        Filters.OfType<ICombinedSearchFilter>().FirstOrDefault(x => x.FieldName == "searchterm") ??
+                        Filters.OfType<IAttributeSearchFilter>().FirstOrDefault(x => x.TypeCode == IndexTypeCode.String && !x.IsNotAnalyzed);
 
                     _isDefaultTermFilterSet = true;
                 }
