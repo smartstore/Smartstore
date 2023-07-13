@@ -4,8 +4,8 @@
     {
         public ProductClonedEvent(Product source, Product clone)
         {
-            Source = Guard.NotNull(source, nameof(source));
-            Clone = Guard.NotNull(clone, nameof(clone));
+            Source = Guard.NotNull(source);
+            Clone = Guard.NotNull(clone);
         }
 
         public Product Source { get; }
