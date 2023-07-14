@@ -135,8 +135,7 @@ namespace Smartstore.OfflinePayment
                     result.NewPaymentStatus = PaymentStatus.Paid;
                     break;
                 default:
-                    result.Errors.Add(T("Common.Payment.TranactionTypeNotSupported"));
-                    return result;
+                    throw new PaymentException(T("Common.Payment.TranactionTypeNotSupported"));
             }
 
             return result;
