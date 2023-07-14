@@ -369,15 +369,15 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => ids.Contains(x.Id))
                 .ToListAsync();
 
-            if (!orders.Any() || operation.IsEmpty())
+            if (orders.Count == 0 || operation.IsEmpty())
             {
                 return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
             }
 
             const int maxErrors = 3;
-            var success = 0;
-            var skipped = 0;
-            var errors = 0;
+            var numSuccess = 0;
+            var numSkipped = 0;
+            var numErrors = 0;
             var errorMessages = new HashSet<string>();
             var succeededOrderNumbers = new HashSet<string>();
 
@@ -385,116 +385,110 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    var succeeded = false;
-
                     switch (operation)
                     {
                         case "cancel":
                             if (o.CanCancelOrder())
                             {
                                 await _orderProcessingService.CancelOrderAsync(o, true);
-                                succeeded = true;
+                                ++numSuccess;
+                                succeededOrderNumbers.Add(o.GetOrderNumber());
                             }
                             else
                             {
-                                ++skipped;
+                                ++numSkipped;
                             }
                             break;
                         case "complete":
                             if (o.CanCompleteOrder())
                             {
                                 await _orderProcessingService.CompleteOrderAsync(o);
-                                succeeded = true;
+                                ++numSuccess;
+                                succeededOrderNumbers.Add(o.GetOrderNumber());
                             }
                             else
                             {
-                                ++skipped;
+                                ++numSkipped;
                             }
                             break;
                         case "markpaid":
                             if (o.CanMarkOrderAsPaid())
                             {
                                 await _orderProcessingService.MarkOrderAsPaidAsync(o);
-                                succeeded = true;
+                                ++numSuccess;
+                                succeededOrderNumbers.Add(o.GetOrderNumber());
                             }
                             else
                             {
-                                ++skipped;
+                                ++numSkipped;
                             }
                             break;
                         case "capture":
                             if (await _orderProcessingService.CanCaptureAsync(o))
                             {
-                                var captureErrors = await _orderProcessingService.CaptureAsync(o);
-                                errorMessages.AddRange(captureErrors);
-                                if (!captureErrors.Any())
-                                    succeeded = true;
+                                await _orderProcessingService.CaptureAsync(o);
+                                ++numSuccess;
+                                succeededOrderNumbers.Add(o.GetOrderNumber());
                             }
                             else
                             {
-                                ++skipped;
+                                ++numSkipped;
                             }
                             break;
                         case "refundoffline":
                             if (o.CanRefundOffline())
                             {
                                 await _orderProcessingService.RefundOfflineAsync(o);
-                                succeeded = true;
+                                ++numSuccess;
+                                succeededOrderNumbers.Add(o.GetOrderNumber());
                             }
                             else
                             {
-                                ++skipped;
+                                ++numSkipped;
                             }
                             break;
                         case "refund":
                             if (await _orderProcessingService.CanRefundAsync(o))
                             {
-                                var refundErrors = await _orderProcessingService.RefundAsync(o);
-                                errorMessages.AddRange(refundErrors);
-                                if (!refundErrors.Any())
-                                    succeeded = true;
+                                await _orderProcessingService.RefundAsync(o);
+                                ++numSuccess;
+                                succeededOrderNumbers.Add(o.GetOrderNumber());
                             }
                             else
                             {
-                                ++skipped;
+                                ++numSkipped;
                             }
                             break;
                         case "voidoffline":
                             if (o.CanVoidOffline())
                             {
                                 await _orderProcessingService.VoidOfflineAsync(o);
-                                succeeded = true;
+                                ++numSuccess;
+                                succeededOrderNumbers.Add(o.GetOrderNumber());
                             }
                             else
                             {
-                                ++skipped;
+                                ++numSkipped;
                             }
                             break;
                         case "void":
                             if (await _orderProcessingService.CanVoidAsync(o))
                             {
-                                var voidErrors = await _orderProcessingService.VoidAsync(o);
-                                errorMessages.AddRange(voidErrors);
-                                if (!voidErrors.Any())
-                                    succeeded = true;
+                                await _orderProcessingService.VoidAsync(o);
+                                ++numSuccess;
+                                succeededOrderNumbers.Add(o.GetOrderNumber());
                             }
                             else
                             {
-                                ++skipped;
+                                ++numSkipped;
                             }
                             break;
-                    }
-
-                    if (succeeded)
-                    {
-                        ++success;
-                        succeededOrderNumbers.Add(o.GetOrderNumber());
                     }
                 }
                 catch (Exception ex)
                 {
                     errorMessages.Add(ex.Message);
-                    if (++errors <= maxErrors)
+                    if (++numErrors <= maxErrors)
                     {
                         Logger.Error(ex);
                     }
@@ -502,7 +496,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var msg = new StringBuilder((errorMessages.Count * 100) + 100);
-            msg.Append(T("Admin.Orders.ProcessingResult", success, ids.Length, skipped, skipped == 0 ? " class='hide'" : string.Empty));
+            msg.Append(T("Admin.Orders.ProcessingResult", numSuccess, ids.Length, numSkipped, numSkipped == 0 ? " class='hide'" : string.Empty));
             errorMessages.Take(maxErrors).Each(x => msg.Append($"<div class='text-danger mt-2'>{x}</div>"));
 
             NotifyInfo(msg.ToString());
@@ -578,16 +572,9 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                var errors = await _orderProcessingService.CaptureAsync(order);
+                await _orderProcessingService.CaptureAsync(order);
 
-                if (errors.Count > 0)
-                {
-                    errors.Each(x => NotifyError(x));
-                }
-                else
-                {
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
-                }
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
             }
             catch (Exception ex)
             {
@@ -636,16 +623,9 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                var errors = await _orderProcessingService.RefundAsync(order);
+                await _orderProcessingService.RefundAsync(order);
 
-                if (errors.Count > 0)
-                {
-                    errors.Each(x => NotifyError(x));
-                }
-                else
-                {
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
-                }
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
             }
             catch (Exception ex)
             {
@@ -694,16 +674,9 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                var errors = await _orderProcessingService.VoidAsync(order);
+                await _orderProcessingService.VoidAsync(order);
 
-                if (errors.Count > 0)
-                {
-                    errors.Each(x => NotifyError(x));
-                }
-                else
-                {
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
-                }
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
             }
             catch (Exception ex)
             {
@@ -788,15 +761,8 @@ namespace Smartstore.Admin.Controllers
                     }
                     else if (online)
                     {
-                        var errors = await _orderProcessingService.PartiallyRefundAsync(order, amountToRefund);
-                        if (errors.Count == 0)
-                        {
-                            success = true;
-                        }
-                        else
-                        {
-                            errors.Each(x => NotifyError(x, false));
-                        }
+                        await _orderProcessingService.PartiallyRefundAsync(order, amountToRefund);
+                        success = true;
                     }
                     else
                     {

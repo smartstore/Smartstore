@@ -382,11 +382,7 @@ namespace Smartstore.Web.Api.Controllers
                 {
                     if (await _orderProcessingService.Value.CanRefundAsync(entity))
                     {
-                        var errors = await _orderProcessingService.Value.RefundAsync(entity);
-                        if (errors.Any())
-                        {
-                            return ErrorResult(null, string.Join(". ", errors));
-                        }
+                        await _orderProcessingService.Value.RefundAsync(entity);
                     }
                 }
                 else

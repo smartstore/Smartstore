@@ -718,20 +718,6 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         /// <summary>
-        /// Logs errors and adds order notes. The caller is responsible for database commit.
-        /// </summary>
-        /// <param name="order"></param>
-        /// <param name="errors"></param>
-        /// <param name="messageKey"></param>
-        protected virtual void ProcessErrors(Order order, IList<string> errors, string messageKey)
-        {
-            var msg = T(messageKey, order.GetOrderNumber()).ToString() + " " + string.Join(" ", errors);
-
-            order.AddOrderNote(msg);
-            Logger.Error(msg);
-        }
-
-        /// <summary>
         /// Applies reward points. The caller is responsible for database commit.
         /// </summary>
         protected virtual void ApplyRewardPoints(Order order, bool reduce, decimal? amount = null)

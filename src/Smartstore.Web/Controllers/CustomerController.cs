@@ -538,9 +538,17 @@ namespace Smartstore.Web.Controllers
 
             if (await _orderProcessingService.CanCancelRecurringPaymentAsync(recurringPayment, customer))
             {
-                var errors = await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
                 var model = await PrepareCustomerOrderListModelAsync(customer, 0, 0);
-                model.CancelRecurringPaymentErrors = errors.ToList();
+
+                try
+                {
+                    await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                    model.CancelRecurringPaymentErrors.Add(ex.Message);
+                }
 
                 return View(model);
             }
