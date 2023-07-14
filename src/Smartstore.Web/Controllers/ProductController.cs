@@ -222,7 +222,7 @@ namespace Smartstore.Web.Controllers
             } 
 
             // Store obtained data in memory cache
-            var cacheKey = PaymentService.PRODUCT_DETAIL_PAYMENT_ICONS.FormatInvariant(Services.StoreContext.CurrentStore.Id);
+            var cacheKey = PaymentService.ProductDetailPaymentIcons.FormatInvariant(Services.StoreContext.CurrentStore.Id);
             ViewBag.AvailablePaymentMethods = await Services.Cache.GetAsync(cacheKey, () =>
             {
                 // INFO: No Dictonary<string, string> here because key are not unique in the case a provider has multiple icons.

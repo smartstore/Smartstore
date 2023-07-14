@@ -1018,7 +1018,7 @@ namespace Smartstore.Admin.Controllers
             settings.DisplayPaymentMethodIcons = model.DisplayPaymentMethodIcons;
             settings.ProductDetailPaymentMethodSystemNames = model.ProductDetailPaymentMethodSystemNames.Convert<string>();
 
-            await _cache.RemoveByPatternAsync(PaymentService.PRODUCT_DETAIL_PAYMENT_ICONS_PATTERN_KEY);
+            await _cache.RemoveByPatternAsync(PaymentService.ProductDetailPaymentIconsPatternKey);
 
             return NotifyAndRedirect("Payment");
         }

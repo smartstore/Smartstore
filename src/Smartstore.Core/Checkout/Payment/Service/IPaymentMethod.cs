@@ -140,6 +140,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Capture payment request.</param>
         /// <returns>Capture payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest request);
 
         /// <summary>
@@ -147,6 +150,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Refund payment request.</param>
         /// <returns>Refund payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request);
 
         /// <summary>
@@ -154,6 +160,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Void payment request.</param>
         /// <returns>Void payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest request);
 
         /// <summary>
@@ -161,6 +170,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Process payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
@@ -168,6 +180,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Cancel recurring payment request.</param>
         /// <returns>Cancel recurring payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest request);
 
         #endregion
