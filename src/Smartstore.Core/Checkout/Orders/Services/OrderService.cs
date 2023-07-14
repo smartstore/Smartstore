@@ -76,6 +76,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Automatically capture payments.
             if (_toCapture.Any())
             {
+                var numErrors = 0;
                 foreach (var order in _toCapture)
                 {
                     if (await _orderProcessingService.Value.CanCaptureAsync(order))
@@ -86,7 +87,10 @@ namespace Smartstore.Core.Checkout.Orders
                         }
                         catch (Exception ex)
                         {
-                            Logger.Error(ex);
+                            if (++numErrors <= 3)
+                            {
+                                Logger.Error(ex);
+                            }
                         }
                     }
                 }

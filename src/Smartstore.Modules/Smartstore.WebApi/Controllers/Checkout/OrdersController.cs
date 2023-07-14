@@ -359,7 +359,35 @@ namespace Smartstore.Web.Api.Controllers
         }
 
         /// <summary>
-        /// Refunds an order.
+        /// Captures the order amount to be paid.
+        /// </summary>
+        [HttpPost("Orders({key})/PaymentCapture"), ApiQueryable]
+        [Permission(Permissions.Order.Update)]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(Order), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> PaymentCapture(int key)
+        {
+            try
+            {
+                var entity = await GetRequiredById(key);
+
+                if (await _orderProcessingService.Value.CanCaptureAsync(entity))
+                {
+                    await _orderProcessingService.Value.CaptureAsync(entity);
+                }
+
+                return Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Refunds the paid amount.
         /// </summary>
         /// <param name="online" example="false">
         /// A value indicating whether to refund online (refunding via payment provider) 
@@ -376,20 +404,43 @@ namespace Smartstore.Web.Api.Controllers
         {
             try
             {
+                // TODO: (mg) decimal parameter "amountToRefund" (FromODataBody) always 0.
+                decimal amountToRefund = 0;
+
                 var entity = await GetRequiredById(key);
 
                 if (online)
                 {
-                    if (await _orderProcessingService.Value.CanRefundAsync(entity))
+                    if (amountToRefund == 0)
                     {
-                        await _orderProcessingService.Value.RefundAsync(entity);
+                        if (await _orderProcessingService.Value.CanRefundAsync(entity))
+                        {
+                            await _orderProcessingService.Value.RefundAsync(entity);
+                        }
+                    }
+                    else
+                    {
+                        if (await _orderProcessingService.Value.CanPartiallyRefundAsync(entity, amountToRefund))
+                        {
+                            await _orderProcessingService.Value.PartiallyRefundAsync(entity, amountToRefund);
+                        }
                     }
                 }
                 else
                 {
-                    if (entity.CanRefundOffline())
+                    if (amountToRefund == 0)
                     {
-                        await _orderProcessingService.Value.RefundOfflineAsync(entity);
+                        if (entity.CanRefundOffline())
+                        {
+                            await _orderProcessingService.Value.RefundOfflineAsync(entity);
+                        }
+                    }
+                    else
+                    {
+                        if (entity.CanPartiallyRefundOffline(amountToRefund))
+                        {
+                            await _orderProcessingService.Value.PartiallyRefundOfflineAsync(entity, amountToRefund);
+                        }
                     }
                 }
 
