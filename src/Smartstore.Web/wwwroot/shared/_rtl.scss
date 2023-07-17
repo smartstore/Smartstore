@@ -192,15 +192,17 @@
 	// ---
 	@include media-breakpoint-down(sm) {
 		.nav-collapsible {
-			.nav-toggler { 
-				&:after {
-					left: 1rem;
-					right: initial;
-				}
-			}
+            .nav-toggler {
+                &:after {
+                    content: "\f053"; // chevron-left
+                    transform: translateY(-50%) rotate(-90deg);
+                }
+                &.collapsed:after {
+                    transform: translateY(-50%) rotate(0deg);
+                }
+            }
 		}
 	}
-
 
 	// Pagination
 	// -----------

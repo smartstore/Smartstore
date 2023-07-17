@@ -10,17 +10,17 @@
     .nav-collapsible {
         position: relative;
 
-        .nav-toggler { 
+        .nav-toggler {
             position: relative;
             line-height: 1.5;
-            cursor: pointer; 
+            cursor: pointer;
             margin: 0;
             padding: 0.75rem 1rem;
 
             &:after {
                 @include fontawesome("\f054"); // chevron-right
                 position: absolute;
-                right: 1rem;
+                inset-inline-end: 1rem;
                 top: 50%;
                 font-size: 85%;
                 transform: translateY(-50%) rotate(90deg);
