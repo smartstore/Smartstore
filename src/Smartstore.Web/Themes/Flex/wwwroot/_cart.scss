@@ -11,9 +11,8 @@
     line-height: 16px;
     vertical-align: middle;
     padding: 0;
-
     position: absolute;
-    right: -5px;
+    inset-inline-end: -5px;
     top: -9px;
 }
 
@@ -125,7 +124,7 @@
 	}
     .mb-bundle-pictures {
         a, .fa {
-            padding-right: 3px;
+            padding-inline-end: 3px;
         }
         .fa {
             font-size: 0.625rem;
@@ -239,7 +238,7 @@
 }
 
 .cart-col-subtotal {
-    text-align: right;
+    text-align: end;
 }
 
 .cart-item-img {
@@ -336,7 +335,7 @@
     }
 
     .cart-editable {
-        .cart-col-price     { text-align: right; }
+        .cart-col-price     { text-align: end; }
         .cart-col-qty       { text-align: center; min-width: 100px; padding-left: 0.5rem; padding-right: 0.5rem; }
     }
 }
@@ -375,11 +374,11 @@
     }
 
     .cart-summary-label {
-        padding-right: 0.5rem;
+        padding-inline-end: 0.5rem;
     }
 
     .cart-summary-value {
-        text-align: right;
+        text-align: end;
         white-space: nowrap;
     }
 
@@ -414,13 +413,13 @@
 .order-details .checkout-attributes {
 	.attr-caption {
 		font-weight: bold;
-		padding-right: 10px;
+		padding-inline-end: 10px;
 		&:after {
 			content: ': ' 
 		}
 	}
 	.attr-value {
-		text-align: left;
+		text-align: start;
 	}
 }
 
@@ -446,7 +445,7 @@
         &:after {
             @include fontawesome("\f106");
             position: absolute;
-            right: 0;
+            inset-inline-end: 0;
             top: 50%;
             transform: translateY(-50%) rotate(0);
             transition: transform 0.15s linear;
