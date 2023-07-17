@@ -59,7 +59,7 @@
         content: attr(data-content);
         position: absolute;
         z-index: 1;
-        left: 0;
+        inset-inline-start: 0;
         top: 0;
         width: 100%;
         text-align: center;
@@ -109,12 +109,12 @@
 }
 
 .gal-nav-cell {
-	display: table-cell; 
-	vertical-align: top; 
-	padding-right: 1rem; 
-	max-height: 100%; 
-	overflow: hidden;
-	width: 4.5rem;
+    display: table-cell;
+    vertical-align: top;
+    padding-inline-end: 1rem;
+    max-height: 100%;
+    overflow: hidden;
+    width: 4.5rem;
 }
 
 .gal-cell {
