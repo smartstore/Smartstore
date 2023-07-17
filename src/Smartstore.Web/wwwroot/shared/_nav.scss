@@ -176,61 +176,61 @@
 // ==============================================================
 
 @include media-breakpoint-up(lg) {
-	.tabs-stacked {
-		display: grid;
-		grid-gap: 30px;
-		flex-wrap: nowrap;
+    .tabs-stacked {
+        display: grid;
+        grid-gap: 30px;
+        flex-wrap: nowrap;
 
-		&.tabs-left {
-			grid-template-columns: auto minmax(0, 1fr);
-		}
+        &.tabs-left {
+            grid-template-columns: auto minmax(0, 1fr);
+        }
 
-		&.tabs-right {
-			grid-template-columns: minmax(0, 1fr) auto;
-			grid-auto-flow: dense;
+        &.tabs-right {
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-auto-flow: dense;
 
-			> .nav-aside {
-				grid-column: 2;
-			}
+            > .nav-aside {
+                grid-column: 2;
+            }
 
-			> .nav-content {
-				grid-column: 1;
-			}
-		}
-	}
+            > .nav-content {
+                grid-column: 1;
+            }
+        }
+    }
 
-	.nav-stacked {
-		min-height: 100%;
+    .nav-stacked {
+        min-height: 100%;
 
-		&.nav-tabs-line {
-			border-bottom: none;
+        &.nav-tabs-line {
+            border-bottom: none;
 
-			.nav-item {
-				margin: 0;
-			}
+            .nav-item {
+                margin: 0;
+            }
 
-			.nav-link {
-				text-align: left;
-				padding: 0.625rem 1.25rem;
-				font-size: $font-size-sm;
+            .nav-link {
+                text-align: left;
+                padding: 0.625rem 1.25rem;
+                font-size: $font-size-sm;
                 color: $gray-700;
                 background-color: transparent;
                 justify-content: start;
- 
+
                 .tab-caption {
                     transition: all ease 0.15s;
                 }
 
-                &:not(.active) > i, 
+                &:not(.active) > i,
                 &:not(.active) > .bi {
                     color: $dropdown-icon-color;
                     transition: transform ease 0.15s;
                 }
 
-		        &:hover,
+                &:hover,
                 &.active {
-			        color: $mtab-active-color;
-		        }
+                    color: $mtab-active-color;
+                }
 
                 &:hover:not(.active) {
                     border-color: rgba(#000, 0.2) !important;
@@ -239,76 +239,76 @@
                         transform: translateX(2px);
                     }
 
-                    > i, 
+                    > i,
                     > .bi {
                         color: $gray-700;
                         transform: scale(1.2);
                     }
                 }
 
-				&:not(.disabled):before {
-					// disable selection animations
-					display: none;
-				}
-			}
+                &:not(.disabled):before {
+                    // disable selection animations
+                    display: none;
+                }
+            }
 
-			&.nav-left {
-                border-right: 1px solid $nav-tabs-border-color;
+            &.nav-left {
+                border-inline-end: 1px solid $nav-tabs-border-color;
 
-				.nav-item {
-					margin-right: -1px;
-				}
+                .nav-item {
+                    margin-inline-end: -1px;
+                }
 
-				.nav-link {
-					padding-right: 1.25rem;
-                    padding-left: 0;
-                    border-right: 3px solid transparent;
+                .nav-link {
+                    padding-inline-end: 1.25rem;
+                    padding-inline-start: 0;
+                    border-inline-end: 3px solid transparent;
 
-					> img, 
-                    > i, 
-                    > .bi {
-						margin-right: 0.25rem;
-						margin-left: 0.25rem;
-					}
-				}
-
-				.nav-link.active,
-				.nav-link.active:focus,
-				.nav-item.open > .nav-link,
-				.nav-item.open > .nav-link:focus {
-					border-right-color: theme-color("warning");
-				}
-			}
-
-			&.nav-right {
-				border-left: 1px solid $nav-tabs-border-color;
-
-				.nav-item {
-					margin-left: -1px;
-				}
-
-				.nav-link {
-					padding-left: 1.25rem;
-                    padding-right: 1.25rem;
-                    border-left: 3px solid transparent;
-
-					> img, 
+                    > img,
                     > i,
                     > .bi {
-						margin-right: 0.25rem;
-						margin-left: 0.25rem;
-					}
-				}
+                        margin-right: 0.25rem;
+                        margin-left: 0.25rem;
+                    }
+                }
 
-				.nav-link.active,
-				.nav-link.active:focus,
-				.nav-item.open > .nav-link,
-				.nav-item.open > .nav-link:focus {
-					border-color: theme-color("warning");
-				}
-			}
-		}
-	}
+                .nav-link.active,
+                .nav-link.active:focus,
+                .nav-item.open > .nav-link,
+                .nav-item.open > .nav-link:focus {
+                    border-inline-end-color: theme-color("warning");
+                }
+            }
+
+            &.nav-right {
+                border-inline-start: 1px solid $nav-tabs-border-color;
+
+                .nav-item {
+                    margin-inline-start: -1px;
+                }
+
+                .nav-link {
+                    padding-inline-start: 1.25rem;
+                    padding-inline-end: 1.25rem;
+                    border-inline-start: 3px solid transparent;
+
+                    > img,
+                    > i,
+                    > .bi {
+                        margin-right: 0.25rem;
+                        margin-left: 0.25rem;
+                    }
+                }
+
+                .nav-link.active,
+                .nav-link.active:focus,
+                .nav-item.open > .nav-link,
+                .nav-item.open > .nav-link:focus {
+                    border-color: theme-color("warning");
+                }
+            }
+        }
+    }
 }
 
 
@@ -327,7 +327,7 @@
         padding-right: 0 !important;
 
         &:after {
-            right: 0.5rem !important;
+            inset-inline-end: 0.5rem !important;
         }
     }
 
@@ -347,7 +347,7 @@
         }
     }
 
-    @include media-breakpoint-up(md) { 
+    @include media-breakpoint-up(md) {
         .nav-tabs {
             display: flex;
         }

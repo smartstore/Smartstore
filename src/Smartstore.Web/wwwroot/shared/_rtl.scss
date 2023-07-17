@@ -201,57 +201,6 @@
 		}
 	}
 
-	// Nav
-	// ---
-
-	.tabs-left .nav-tabs .nav-link {
-		border-radius: 0 $nav-tabs-border-radius $nav-tabs-border-radius 0;
-	}
-
-    .nav-tabs-line.nav-tabs-line-dense:not(.nav-stacked) > .nav-item:first-child > .nav-link {
-        margin-right: 0;
-        margin-left: 0.75rem;
-    }
-
-	@include media-breakpoint-up(lg) {
-		.tabs-left > .nav-aside > .nav-tabs-line {
-			border-left: 1px solid $nav-tabs-border-color;
-			border-right-width: 0;
-
-			.nav-item {
-				margin-left: -1px;
-				margin-right: 0;
-			}
-
-			.nav-link {
-				text-align: right;
-				border-left-width: 1px;
-				border-right-width: 2px;
-				padding-left: 1.25rem;
-
-				> img, > i {
-					margin-left: 0.75rem;
-					margin-right: -0.5rem;
-				}
-			}
-
-			.nav-link.active,
-			.nav-link.active:focus,
-			.nav-item.open .nav-link,
-			.nav-item.open .nav-link:focus {
-				border-right-color: theme-color("warning");
-				border-left-color: transparent;
-			}
-		}
-	}
-
-	.nav {
-		.nav-link > .chevron {
-			margin-right: 3px;
-			margin-left: initial;
-		}
-	}
-
 
 	// Pagination
 	// -----------
