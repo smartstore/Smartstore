@@ -139,9 +139,11 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-spec-name {
     font-weight: $font-weight-medium;
     width: 20%;
+
+    @include media-breakpoint-down(md) {
+        width: 40%;
+    }
 }
-
-
 
 // Reviews
 // =====================================================
