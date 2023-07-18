@@ -139,7 +139,7 @@
 .btn-admin-edit {
     display: none;
     position: absolute;
-    right: 0;
+    inset-inline-end: 0;
     top: 0;
     background-color: rgba(#fff, 0.5);
     z-index: 1;
