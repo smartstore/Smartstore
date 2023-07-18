@@ -114,7 +114,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         line-height: $pd-line-height;
     }
     td:first-child { 
-        padding-right: 1rem; 
+        padding-inline-end: 1rem; 
         font-weight: $font-weight-medium; 
     }
 }
@@ -275,7 +275,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     font-size: 1.8rem;
     font-weight: $font-weight-medium;
     color: var(--pd-finalprice-color);
-    margin-right: 0.75rem;
+    margin-inline-end: 0.75rem;
 
     .pd-finalprice-offer & {
         color: var(--pd-finalprice-offer-color);
@@ -307,7 +307,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-promoprice-tip {
-    padding-left: 0.5rem;
+    padding-inline-start: 0.5rem;
     color: $gray-600 !important;
 }
 
@@ -316,7 +316,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-saving-badge {
-    margin-left: 6px;
+    margin-inline-start: 6px;
 }
 
 .pd-pangv,
@@ -350,7 +350,9 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     text-decoration: none !important;
     display: inline-flex;
     padding: 0.5rem;
-    margin: 0 0.2rem 0.4rem 0;
+    margin: 0;
+    margin-inline-end: 0.2rem;
+    margin-bottom: 0.4rem;
     font-weight: $font-weight-medium;
     color: $body-color;
     font-size: $font-size-base;
@@ -427,7 +429,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-bundle-summary-item-qty {
     font-weight: bold;
     position: absolute;
-    left: 0;
+    inset-inline-start: 0;
     top: 0;
     font-size: 80%;
 }
@@ -477,9 +479,9 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 // Delivery times
 // ------------------------------------------------------
 
-.deliverytime-group .delivery-time { 
+.deliverytime-group .delivery-time {
     vertical-align: top;
-	padding-left: 0.4rem;
+    padding-inline-start: 0.4rem;
 }
 
 .delivery-time,
@@ -492,8 +494,8 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .delivery-time .delivery-time-status {
     font-size: 0.85em;
-    padding-right: 0.2rem;
-    margin-left: 0.025rem;
+    padding-inline-end: 0.2rem;
+    margin-inline-start: 0.025rem;
 }
 
 .pd-offer .delivery-date-block {
@@ -534,7 +536,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
     .pd-action-item {
         text-align: center;
-        border-right: 1px solid rgba(#000, 0.15);
+        border-inline-end: 1px solid rgba(#000, 0.15);
         padding-top: 6px; // for the transform
         &:last-child { border-color: transparent; }
 
