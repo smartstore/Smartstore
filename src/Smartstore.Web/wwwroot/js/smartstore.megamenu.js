@@ -11,7 +11,7 @@
             };
 
             var rtl = Smartstore.globalization.culture.isRTL,
-                marginX = rtl ? 'margin-right' : 'margin-left';
+                marginX = 'margin-inline-start';
 
             settings = $.extend(defaults, settings);
 
@@ -69,7 +69,6 @@
                 }
 
                 if (Modernizr.touchevents) {
-
                     // Handle opening events for touch devices
                     megamenuContainer.on('clickoutside', function (e) {
                         closeNow($(".nav-item.active .nav-link"));
@@ -87,18 +86,16 @@
                     });
                 }
                 else {
-
                     // Handle opening events for desktop workstations
-
                     $(".dropdown-menu", megamenuContainer).on('mouseenter', function (e) {
                         clearTimeout(closingTimeout);
                     })
-                        .on('mouseleave', function () {
-                            var targetId = $(this).parent().attr("id");
-                            var link = megamenu.find("[data-target='#" + targetId + "']");
+                    .on('mouseleave', function () {
+                        var targetId = $(this).parent().attr("id");
+                        var link = megamenu.find("[data-target='#" + targetId + "']");
 
-                            closeMenuHandler(link);
-                        });
+                        closeMenuHandler(link);
+                    });
 
                     navElems.on("mouseenter", function () {
                         var link = $(this).find(".nav-link");
@@ -125,13 +122,12 @@
                             openTimeout = setTimeout(function () { tryOpen(link); }, 300);
                         }
                     })
-                        .on("mouseleave", function () {
+                    .on("mouseleave", function () {
+                        clearTimeout(openTimeout);
 
-                            clearTimeout(openTimeout);
-
-                            var link = $(this).find(".nav-link");
-                            closeMenuHandler(link);
-                        });
+                        var link = $(this).find(".nav-link");
+                        closeMenuHandler(link);
+                    });
                 }
 
                 function alignDrop(popper, drop, container) {
@@ -144,9 +140,8 @@
                         containerWidth = container.width();
 
                     if (!rtl) {
-
                         if (!Modernizr.touchevents) {
-                            left = Math.ceil(popper.position().left + parseInt(nav.css('margin-left')));
+                            left = Math.ceil(popper.position().left + parseInt(nav.css('margin-inline-start')));
                         }
                         else {
                             left = Math.ceil(popper.position().left + nav.position().left);
@@ -190,6 +185,8 @@
 
                     if (_.isNumber(left)) left = left + "px";
                     if (_.isNumber(right)) right = right + "px";
+
+                    console.log(left, right);
 
                     // jQuery does not accept "!important"
                     drop[0].style.setProperty('left', left, 'important');

@@ -22,37 +22,6 @@
 	// Megamenu
 	// -------
 
-	.megamenu .navbar-nav {
-		margin-right: 0;
-		transition-property: margin-right;
-
-		.nav-item {
-			.badge {
-				left: 3px;
-				right: auto;
-			}
-
-			&.active:before {
-				left: 0;
-				right: auto;
-			}
-
-			&.active:after {
-				left: -2px;
-				right: auto;
-			}
-		}
-
-		.nav-item + .nav-item {
-			margin-right: 0;
-		}
-
-		.dropdown-toggle:after {
-			margin-right: 0.15rem;
-			margin-left: 0;
-		}
-	}
-
 	.megamenu-dropdown-container.simple {
 		.dropdown-menu {
 			&.ar {
@@ -60,7 +29,6 @@
 			}
 		}
 	}
-
 
 	// Rating
 	// -------
