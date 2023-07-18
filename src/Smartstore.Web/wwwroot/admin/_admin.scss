@@ -1168,47 +1168,6 @@ legend {
     }
 }
 
-
-//
-// Dashboard
-// --------------------------------------------------
-
-.stats-today {
-    .stats-today-item {
-        padding: 0 1.5rem;
-        text-align: left;
-        border-right: 1px solid $gray-300;
-
-        &:last-child {
-            padding-right: $grid-gutter-width/2;
-            border-right: none
-        }
-    }
-
-    .stats-today-item-label {
-        font-weight: 400;
-        font-size: $font-size-xs;
-        margin-bottom: 0.75rem;
-        color: $gray-600;
-    }
-
-    .stats-today-item-value {
-        font-size: 2rem;
-        //font-weight: 600;
-        line-height: 2rem;
-        color: $gray-500;
-
-        &.active {
-            color: $gray-700;
-        }
-    }
-
-    .stats-today-title {
-        line-height: 1;
-    }
-}
-
-
 // Modules & Providers
 // --------------------------------------------------------------
 
