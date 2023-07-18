@@ -140,7 +140,7 @@
     position: absolute;
     display: block;
     content: ' ';
-    left: -1px;
+    inset-inline-start: -1px;
     top: -1px;
     bottom: -1px;
     width: $size;

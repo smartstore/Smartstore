@@ -191,43 +191,8 @@
 	#offcanvas-menu {
 		.menubar-link,
 		.ocm-item {
-			.ocm-link {
-				padding: 1rem 2rem 1rem 2.5rem;
-			}
-
 			&.has-children:after {
-				right: auto;
-				left: 1rem;
 				content: "\f104";
-			}
-
-			&.selected:before,
-			&.expanded:before {
-				left: auto;
-				right: -1px;
-			}
-		}
-
-		.ocm-nav .ocm-back {
-			padding-right: 0;
-			padding-left: initial;
-
-			.fa {
-				padding-right: initial;
-				padding-left: .425rem;
-			}
-		}
-
-		.manufacturer-container {
-			.ocm-item {
-				.ocm-link {
-					padding-right: 0.75rem;
-					padding-left: 0;
-				}
-
-				.col-img ~ .col-data > .ocm-link {
-					padding-right: 0;
-				}
 			}
 		}
 
