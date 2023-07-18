@@ -181,6 +181,12 @@
 
 	// Category Menu
 	// -------------
+    .catmenu-path-item.expanded,
+    .catmenu-item.parent {
+        &:after {
+            content: "\f053"; // chevron-left
+        }
+    }
 
 	#offcanvas-menu {
 		.menubar-link,
