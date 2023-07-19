@@ -41,8 +41,8 @@
                     }
                 </span>
 
-                <span class="review-meta-label">@T("Common.Date"):</span>
-                <span class="review-meta-value" itemprop="datePublished" content="@review.WrittenOn.ToString("yyyy-MM-DD")">@review.WrittenOnStr</span>
+                <span class="review-meta-label d-flex align-self-start">@T("Common.Date"):</span>
+                <span class="review-meta-value d-flex align-self-start text-nowrap" itemprop="datePublished" content="@review.WrittenOn.ToString("yyyy-MM-DD")">@review.WrittenOnStr</span>
             </div>
 
             <div sm-if="Model.ShowVerfiedPurchaseBadge" class="review-verify">
