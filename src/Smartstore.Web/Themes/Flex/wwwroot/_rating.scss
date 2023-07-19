@@ -95,11 +95,15 @@
     font-size: $font-size-sm;
     color: $text-muted;
 
-    .review-vote-count { font-weight: $font-weight-medium; }
+    .review-vote-count { 
+        font-weight: $icon-font-weight-default; 
+        font-size: 12px;
+    }
 
     .review-vote-link {
 	    text-decoration: none;
 	    padding: 0 0.3rem;
+        border-radius: $border-radius;
 	    &.review-vote-link-yes { color: $success; }
 	    &.review-vote-link-yes:hover { background: $success; color: #fff }
 	    &.review-vote-link-no { color: $danger; }
