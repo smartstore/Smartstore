@@ -4,6 +4,7 @@
 // --------------------------------------------------
 
 [dir=rtl] {
+    
     // Text expander
     // -------------
 
@@ -17,6 +18,8 @@
         // Don't swap direction in gallery. Doesn't synch with thumbs otherwise.
         float: left;
     }
+
+
     // Megamenu
     // -------
 
@@ -27,6 +30,8 @@
             }
         }
     }
+
+
     // Rating
     // -------
 
@@ -81,8 +86,11 @@
             background-color: $costep-active-border;
         }
     }
+
+
     // Category Menu
     // -------------
+
     .catmenu-path-item.expanded,
     .catmenu-item.parent {
         &:after {
@@ -118,14 +126,9 @@
         transition-duration: 0.05s;
     }
 
-
-    .menubar-group {
-        margin-right: 1rem;
-        margin-left: 0;
-    }
-
     // Product
     // -------
+
 
     #pd-gallery .gal {
         direction: ltr;

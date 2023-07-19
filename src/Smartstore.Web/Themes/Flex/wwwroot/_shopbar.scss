@@ -172,7 +172,6 @@
     }
 }
 
-
 .shopbar-light {
     .shopbar-button { 
         color: $shopbar-color !important; 
@@ -212,9 +211,6 @@
 }
 
 
-
-
-
 //
 // Menu Styles (TODO: move later)
 // --------------------------------------------------
@@ -236,7 +232,7 @@
 
 .menubar-group {
     display: flex;
-    margin-left: 1rem;
+    margin-inline-start: 1rem;
 }
 
 .menubar-link {
@@ -255,7 +251,6 @@
 .menubar-group--special {
     font-weight: $font-weight-medium;
 }
-
 
 .menubar-light {
     &.menubar-section { border-bottom: 1px solid $header-border-color; }
