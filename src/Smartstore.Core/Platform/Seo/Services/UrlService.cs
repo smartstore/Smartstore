@@ -1,6 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
+using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -631,6 +633,32 @@ namespace Smartstore.Core.Seo
                 && (languageId == null || urlRecord.LanguageId == languageId.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task<UrlRecord> GetBySlug(string slug, bool exactMatch = true)
+        {
+            var allActiveSlugs = await _cache.GetAsync<Dictionary<string, string>>(URLRECORD_ALL_ACTIVESLUGS_KEY);
+            if (allActiveSlugs == null || allActiveSlugs.Count == 0)
+            {
+                await GetActiveSlugAsync(0, nameof(Product), 0); // init cache
+                allActiveSlugs = await _cache.GetAsync<Dictionary<string, string>>(URLRECORD_ALL_ACTIVESLUGS_KEY);
+            }
+
+            var key = (exactMatch ? allActiveSlugs.Where(t => t.Value == slug).FirstOrDefault() : allActiveSlugs.Where(t => t.Value.Contains(slug)).FirstOrDefault()).Key;
+
+            if (!string.IsNullOrEmpty(key))
+            {
+                var arr = key.Split(".");
+                return await Task.FromResult(new UrlRecord
+                {
+                    EntityId = arr[0].ToInt(),
+                    EntityName = arr[1],
+                    LanguageId = arr[2].ToInt(),
+                    IsActive = true,
+                    Slug = slug
+                });
+            }
+            return null;
+        }
         #endregion
     }
 }

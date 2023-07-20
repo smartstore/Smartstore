@@ -109,5 +109,13 @@ namespace Smartstore.Core.Seo
         /// </param>
         /// <returns>The batch scope instance.</returns>
         IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null);
+
+        /// <summary>
+        /// Get UrlRecord by slug from cache
+        /// </summary>
+        /// <param name="slug"></param>
+        /// <param name="exactMatch"></param>
+        /// <returns></returns>
+        Task<UrlRecord> GetBySlug(string slug, bool exactMatch = true);
     }
 }

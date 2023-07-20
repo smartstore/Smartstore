@@ -168,10 +168,12 @@ namespace Smartstore.Core.Seo.Routing
                 slug = actualSlug;
             }
 
-            var urlRecord = await _db.UrlRecords
-                .AsNoTracking()
-                .ApplySlugFilter(slug, true)
-                .FirstOrDefaultAsync();
+            //var urlRecord = await _db.UrlRecords
+            //    .AsNoTracking()
+            //    .ApplySlugFilter(slug, true)
+            //    .FirstOrDefaultAsync();
+
+            var urlRecord = await _urlService.GetBySlug(slug, true);
 
             if (urlRecord == null)
             {
