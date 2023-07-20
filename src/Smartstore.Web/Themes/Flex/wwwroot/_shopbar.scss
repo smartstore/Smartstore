@@ -28,10 +28,10 @@
 }
 
 .shop-logo {
-    margin-left: 0;
+    margin-inline-start: 0;
     transform: translateX(0);
     opacity: 1;
-    transition-property: opacity, transform, margin-left;
+    transition-property: opacity, transform, margin-inline-start;
     transition-duration: 0.25s;
     transition-timing-function: ease-in-out;
 
@@ -48,11 +48,19 @@
         text-align: center;
 
         @media (min-width: 480px) {
-            & { max-width: 200px; max-height: 80px; width: auto; }
+            & {
+                max-width: 200px;
+                max-height: 80px;
+                width: auto;
+            }
         }
 
         @include media-breakpoint-up(lg) {
-            & { max-width: 250px; max-height: 100px; width: auto; }
+            & {
+                max-width: 250px;
+                max-height: 100px;
+                width: auto;
+            }
         }
     }
 }
@@ -164,7 +172,6 @@
     }
 }
 
-
 .shopbar-light {
     .shopbar-button { 
         color: $shopbar-color !important; 
@@ -204,9 +211,6 @@
 }
 
 
-
-
-
 //
 // Menu Styles (TODO: move later)
 // --------------------------------------------------
@@ -228,7 +232,7 @@
 
 .menubar-group {
     display: flex;
-    margin-left: 1rem;
+    margin-inline-start: 1rem;
 }
 
 .menubar-link {
@@ -247,7 +251,6 @@
 .menubar-group--special {
     font-weight: $font-weight-medium;
 }
-
 
 .menubar-light {
     &.menubar-section { border-bottom: 1px solid $header-border-color; }
