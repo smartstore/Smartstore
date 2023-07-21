@@ -99,7 +99,7 @@ namespace Smartstore.PayPal.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder(string paymentSource)
         {
-            var orderMessage = await _client.GetOrderForStandardProviderAsync(true);
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(isExpressCheckout: true);
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
@@ -163,7 +163,7 @@ namespace Smartstore.PayPal.Controllers
                     paymentRequest = new ProcessPaymentRequest();
                 }
 
-                await CreateOrderApmAsync();
+                await CreateOrderApmAsync(paymentRequest.OrderGuid.ToString());
 
                 var state = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
 
@@ -206,9 +206,9 @@ namespace Smartstore.PayPal.Controllers
             return Json(new { success, redirectUrl, messages });
         }
 
-        private async Task CreateOrderApmAsync()
+        private async Task CreateOrderApmAsync(string orderGuid)
         {
-            var orderMessage = await _client.GetOrderForStandardProviderAsync(true, true);
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(orderGuid, true, true);
             var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
 
             // Get values from checkout input fields which were saved in CheckoutState.
@@ -328,11 +328,14 @@ namespace Smartstore.PayPal.Controllers
                     var resource = webhookEvent.Resource;
 
                     var webhookResourceType = webhookEvent.ResourceType?.ToLowerInvariant();
-                    
-                    // We only handle authorization, capture and refund webhooks.
+
+                    // We only handle authorization, capture, refund, checkout-order & order webhooks.
+                    // checkout-order & order webhooks are used for APMs.
                     if (webhookResourceType != "authorization"
-                        || webhookResourceType != "capture"
-                        || webhookResourceType != "refund")
+                        && webhookResourceType != "capture"
+                        && webhookResourceType != "refund"
+                        && webhookResourceType != "checkout-order"
+                        && webhookResourceType != "order")
                     {
                         return Ok();
                     }
@@ -365,6 +368,10 @@ namespace Smartstore.PayPal.Controllers
                             break;
                         case "refund":
                             await HandleRefundAsync(order, resource);
+                            break;
+                        case "checkout-order":
+                        case "order":
+                            await HandleCheckoutOrderAsync(order, resource);
                             break;
                         default:
                             throw new PayPalException("Cannot proccess resource type.");
@@ -446,6 +453,29 @@ namespace Smartstore.PayPal.Controllers
                 case "refunded":
                     if (order.CanRefundOffline())
                         await _orderProcessingService.RefundOfflineAsync(order);
+                    break;
+            }
+        }
+
+        private async Task HandleCheckoutOrderAsync(Order order, WebhookResource resource)
+        {
+            var status = resource?.Status.ToLowerInvariant();
+            switch (status)
+            {
+                case "completed":
+                    if (decimal.TryParse(resource.Amount?.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var capturedAmount))
+                    {
+                        if (order.CanMarkOrderAsPaid() && capturedAmount == Math.Round(order.OrderTotal, 2))
+                        {
+                            order.CaptureTransactionId = resource.Id;
+                            order.CaptureTransactionResult = status;
+                            await _orderProcessingService.MarkOrderAsPaidAsync(order);
+                        }
+                    }
+                    break;
+                case "voided":
+                    order.CaptureTransactionResult = status;
+                    await _orderProcessingService.VoidAsync(order);
                     break;
             }
         }
