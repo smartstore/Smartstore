@@ -64,6 +64,7 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*CustomerNameFormat")]
             public CustomerNameFormat CustomerNameFormat { get; set; }
 
+            [AdditionalMetadata("min", 1)]
             [LocalizedDisplay("*CustomerNameFormatMaxLength")]
             public int CustomerNameFormatMaxLength { get; set; }
 
@@ -159,6 +160,7 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*PasswordRequireLowercase")]
             public bool PasswordRequireLowercase { get; set; }
 
+            [AdditionalMetadata("min", 0)]
             [LocalizedDisplay("*PasswordRequiredUniqueChars")]
             public int PasswordRequiredUniqueChars { get; set; }
 

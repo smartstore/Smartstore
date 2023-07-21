@@ -18,6 +18,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*ShortDescription")]
         public string ShortDescription { get; set; }
 
+        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*Quantity")]
         public int Quantity { get; set; }
 

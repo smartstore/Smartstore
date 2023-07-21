@@ -103,9 +103,11 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*UnlimitedDownloads")]
         public bool UnlimitedDownloads { get; set; }
 
+        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*MaxNumberOfDownloads")]
         public int MaxNumberOfDownloads { get; set; }
 
+        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*DownloadExpirationDays")]
         public int? DownloadExpirationDays { get; set; }
 
@@ -134,12 +136,14 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*IsRecurring")]
         public bool IsRecurring { get; set; }
 
+        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*RecurringCycleLength")]
         public int RecurringCycleLength { get; set; }
 
         [LocalizedDisplay("*RecurringCyclePeriod")]
         public int RecurringCyclePeriodId { get; set; }
 
+        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*RecurringTotalCycles")]
         public int RecurringTotalCycles { get; set; }
 
@@ -180,12 +184,16 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*AllowBackInStockSubscriptions")]
         public bool AllowBackInStockSubscriptions { get; set; }
 
+        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*OrderMinimumQuantity")]
         public int OrderMinimumQuantity { get; set; }
+
+        [AdditionalMetadata("min", 1)]
 
         [LocalizedDisplay("*OrderMaximumQuantity")]
         public int OrderMaximumQuantity { get; set; }
 
+        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*QuantityStep")]
         public int QuantityStep { get; set; }
 
@@ -216,9 +224,11 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*CustomerEntersPrice")]
         public bool CustomerEntersPrice { get; set; }
 
+        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*MinimumCustomerEnteredPrice")]
         public decimal? MinimumCustomerEnteredPrice { get; set; }
 
+        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*MaximumCustomerEnteredPrice")]
         public decimal? MaximumCustomerEnteredPrice { get; set; }
 
