@@ -41,8 +41,8 @@
                     }
                 </span>
 
-                <span class="review-meta-label">@T("Common.Date"):</span>
-                <span class="review-meta-value" itemprop="datePublished" content="@review.WrittenOn.ToString("yyyy-MM-DD")">@review.WrittenOnStr</span>
+                <span class="review-meta-label d-flex align-self-start">@T("Common.Date"):</span>
+                <span class="review-meta-value d-flex align-self-start text-nowrap" itemprop="datePublished" content="@review.WrittenOn.ToString("yyyy-MM-DD")">@review.WrittenOnStr</span>
             </div>
 
             <div sm-if="Model.ShowVerfiedPurchaseBadge" class="review-verify">
@@ -59,11 +59,11 @@
                 <span class="review-vote-label pr-2">@T("Reviews.Helpfulness.WasHelpful?")</span>
                 <a class="review-vote-link review-vote-link-yes mr-1" href="#" title="@T("Common.Yes")" data-toggle="tooltip" rel="nofollow">
                     <i class="fa fa-thumbs-up"></i>
-                    <span class="review-vote-count" data-bind-to="TotalYes"><strong style="font-size:12px">@(helpfulness.HelpfulYesTotal)</strong></span>
+                    <span class="review-vote-count" data-bind-to="TotalYes">@(helpfulness.HelpfulYesTotal)</span>
                 </a>
                 <a class="review-vote-link review-vote-link-no mr-1" href="#" title="@T("Common.No")" data-toggle="tooltip" rel="nofollow">
                     <i class="fa fa-thumbs-down"></i>
-                    <span class="review-vote-count" data-bind-to="TotalNo"><strong style="font-size:12px">@(helpfulness.HelpfulNoTotal)</strong></span>
+                    <span class="review-vote-count" data-bind-to="TotalNo">@(helpfulness.HelpfulNoTotal)</span>
                 </a>
             </div>
 
@@ -72,11 +72,8 @@
     }
 </div>
 
-@if (Model.TotalReviewsCount > Model.Items.Count)
-{
-    <div class="text-center">
-        <a class="btn btn-secondary" asp-action="Reviews" asp-route-id="@Model.ProductId" asp-fragment="review-item-11">
-            <span>@T("Reviews.Overview.ReadAll")</span>
-        </a>
-    </div>
-}
+<div sm-if="Model.TotalReviewsCount > Model.Items.Count" class="text-center">
+    <a class="btn btn-secondary" asp-action="Reviews" asp-route-id="@Model.ProductId" asp-fragment="review-item-11">
+        <span>@T("Reviews.Overview.ReadAll")</span>
+    </a>
+</div>

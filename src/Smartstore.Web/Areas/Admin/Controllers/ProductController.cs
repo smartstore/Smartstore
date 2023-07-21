@@ -234,7 +234,7 @@ namespace Smartstore.Admin.Controllers
                 product.AllowCustomerReviews = true;
                 product.Published = true;
                 product.MaximumCustomerEnteredPrice = 1000;
-
+                
                 if (product.ProductType == ProductType.BundledProduct)
                 {
                     product.BundleTitleText = T("Products.Bundle.BundleIncludes");
@@ -1448,6 +1448,59 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// (AJAX) Gets a list of all available product tags.
+        /// </summary>
+        public async Task<IActionResult> AllProductTags(string search, int? page)
+        {
+            const int take = 100;
+
+            page ??= 1;
+
+            var skip = (page.Value - 1) * take;
+            var (productTags, hasMoreItems) = await GetProductTagListAsync(search, skip, take);
+            var items = productTags.Select(x => new { id = x.EncodeJsString(), text = x.EncodeJsString() }).ToList();
+
+            return Json(new
+            {
+                hasMoreItems,
+                results = items
+            });
+        }
+
+        private async Task<(List<string> productTags, bool hasMoreItems)> GetProductTagListAsync(string searchTerm, int skip, int take)
+        {
+            var tagList = new List<string>(take);
+            var hasMoreItems = false;
+
+            try
+            {
+                var query = _db.ProductTags.AsNoTracking();
+
+                if (searchTerm != null)
+                {
+                    query = query.ApplySearchFilterFor(x => x.Name, searchTerm);
+                }
+
+               var allTags = await query
+                    .Take(take)
+                    .Skip(skip)
+                    .OrderBy(x => x.Name)
+                    .Select(x => x.Name)
+                    .ToListAsync();
+
+                tagList.AddRange(allTags);
+
+                hasMoreItems = allTags.Count >= take;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            return (tagList, hasMoreItems);
+        }
+
         #endregion
 
         #region Low stock reports
@@ -1635,6 +1688,7 @@ namespace Smartstore.Admin.Controllers
             // Product tags.
             var allTags = await _db.ProductTags
                 .AsNoTracking()
+                .Take(100)
                 .OrderBy(x => x.Name)
                 .Select(x => x.Name)
                 .ToListAsync();
