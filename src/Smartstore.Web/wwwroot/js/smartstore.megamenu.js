@@ -186,8 +186,6 @@
                     if (_.isNumber(left)) left = left + "px";
                     if (_.isNumber(right)) right = right + "px";
 
-                    console.log(left, right);
-
                     // jQuery does not accept "!important"
                     drop[0].style.setProperty('left', left, 'important');
                     drop[0].style.setProperty('right', right, 'important');
