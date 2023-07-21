@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -34,6 +35,17 @@ namespace Smartstore.Core.Bootstrapping
 
             if (appContext.IsInstalled)
             {
+                services.Configure<ForwardedHeadersOptions>(options => {
+                    options.RequireHeaderSymmetry = false;
+
+                    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+                    // Only loopback proxies are allowed by default. Clear that restriction because forwarders are
+                    // being enabled by explicit configuration.
+                    options.KnownNetworks.Clear();
+                    options.KnownProxies.Clear();
+                });
+
                 services.ConfigureApplicationCookie(options =>
                 {
                     var ctx = appContext.Services.Resolve<IHttpContextAccessor>()?.HttpContext;
@@ -99,6 +111,7 @@ namespace Smartstore.Core.Bootstrapping
                 builder.Configure(StarterOrdering.AfterAuthMiddleware, app =>
                 {
                     app.UseAuthorization();
+                    app.UseForwardedHeaders();
                 });
             }
         }
