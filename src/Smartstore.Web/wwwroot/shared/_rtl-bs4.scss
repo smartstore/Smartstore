@@ -6,6 +6,33 @@
 // RTL overrides for Bootstrap 4
 // ==============================================================
 
+// Borders
+
+.border-left {
+    border-left-width: 0 !important;
+    border-inline-start: $border-width solid $border-color !important; 
+}
+
+.border-right { 
+    border-right-width: 0 !important;
+    border-inline-end: $border-width solid $border-color !important; 
+}
+
+.rounded-left {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-start-start-radius: $border-radius !important;
+    border-end-start-radius: $border-radius !important;
+}
+
+.rounded-right {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-start-end-radius: $border-radius !important;
+    border-end-end-radius: $border-radius !important;
+}
+
+
 [dir=rtl] {
 
 	// Common
@@ -30,7 +57,7 @@
 	}
 
 	.dropdown-menu:not(.colorpicker) {
-		left: initial !important;
+/*		left: initial !important;
 		right: 0;
 		text-align: right;
 
@@ -38,7 +65,7 @@
 		&.dropdown-menu-left {
 			right: auto;
 			left: 0 !important;
-        }
+        }*/
 	}
 
 	.list-unstyled,
@@ -59,13 +86,13 @@
 	// Button Groups
 	// ----------------------------------------------
 
-	.btn + .btn,
+/*	.btn + .btn,
 	.btn + .btn-group,
 	.btn-group + .btn,
 	.btn-group + .btn-group {
 		margin-right: -$btn-border-width;
 		margin-left: initial;
-	}
+	}*/
 
 	.btn-group {
 		> .btn:first-child {
@@ -86,12 +113,12 @@
 	// Custom controls
 	// ----------------------------------------------
 	.custom-control {
-	  padding-right: $custom-control-gutter;
-	  padding-left: 0;
+	    padding-right: $custom-control-gutter;
+	    padding-left: 0;
 	}
 	.custom-control-inline {
-	  margin-left: $custom-control-spacer-x;
-	  margin-right: 0;
+	    margin-left: $custom-control-spacer-x;
+	    margin-right: 0;
 	}
 	.custom-control-label {
         padding-right: $custom-control-indicator-size * 1.5;

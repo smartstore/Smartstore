@@ -47,6 +47,13 @@ input.form-control-plaintext {
     }
 }
 
+[dir=rtl] .datagrid-root {
+    --dg-cell-pinned-alpha-inset: 1px;
+    --dg-cell-pinned-alpha-gradient-dir: 90deg;
+    --dg-cell-pinned-omega-inset: -1px;
+    --dg-cell-pinned-omega-gradient-dir: 270deg;
+}
+
 .datagrid {
     display: flex;
     flex-flow: row;
@@ -85,15 +92,15 @@ input.form-control-plaintext {
     position: relative;
     display: flex;
     flex-flow: column;
-    left: 0;
+    inset-inline-start: 0;
     width: 100%;
-    transition-property: left, width;
+    transition-property: inset-inline-start, width;
     transition-duration: 0.2s;
     transition-timing-function: ease-in-out;
     z-index: 1;
 
     .dg-search.show + & {
-        left: var(--dg-search-width);
+        inset-inline-start: var(--dg-search-width);
         width: calc(100% - var(--dg-search-width));
     }
 }
@@ -219,12 +226,11 @@ input.form-control-plaintext {
 }
 
 .dg-cell-spacer {
-    padding-left: 0;
-    padding-right: 0;
+    padding-inline: 0;
 }
 
 .dg-icon + * {
-    padding-left: 6px;
+    padding-inline-start: 6px;
 }
 
 .dg-cell-value {
@@ -243,16 +249,16 @@ input.form-control-plaintext {
     > thead > tr > .dg-th,
     > tbody > tr > .dg-td,
     > tfoot > tr > .dg-td {
-        border-right: 1px solid var(--dg-border-color);
+        border-inline-end: 1px solid var(--dg-border-color);
 
         &:last-child {
-            border-right-width: 0;
+            border-inline-end-width: 0;
         }
     }
 }
 
 .dg-hborder-0 {
-    border-right-width: 0 !important;
+    border-inline-end-width: 0 !important;
 }
 
 
@@ -269,8 +275,7 @@ input.form-control-plaintext {
 
 .dg-toolbar .btn {
     position: relative;
-    padding-left: 0.6rem;
-    padding-right: 0.6rem;
+    padding-inline: 0.6rem;
 }
 
 @include media-breakpoint-down(sm) {
@@ -290,25 +295,25 @@ input.form-control-plaintext {
     flex-wrap: nowrap;
     align-items: center;
     vertical-align: middle;
-    padding-right: 0.5rem;
-    margin-right: 0.5rem;
-    border-right: 1px solid var(--dg-border-color);
+    padding-inline-end: 0.5rem;
+    margin-inline-end: 0.5rem;
+    border-inline-end: 1px solid var(--dg-border-color);
 
     &.omega,
     &:last-child {
-        border-right-width: 0;
-        padding-right: 0;
-        margin-right: 0;
+        border-inline-end-width: 0;
+        padding-inline-end: 0;
+        margin-inline-end: 0;
     }
 
     &.omega {
-        margin-left: auto;
+        margin-inline-start: auto;
     }
 }
 
 .dg-toolbar-badge {
     position: absolute !important;
-    right: 2px;
+    inset-inline-end: 2px;
     top: 2px !important;
     font-size: 10px;
 }
@@ -328,11 +333,11 @@ input.form-control-plaintext {
 .dg-search {
     position: absolute;
     opacity: 0;
-    left: 0;
+    inset-inline-start: 0;
     top: 0;
     height: 100%;
     width: var(--dg-search-width);
-    border-right: 1px solid var(--dg-border-color);
+    border-inline-end: 1px solid var(--dg-border-color);
     transform: translateX(-30px);
     transition: all 0.2s ease-in-out;
     z-index: 0;
@@ -379,7 +384,7 @@ input.form-control-plaintext {
     position: absolute;
     display: block;
     top: 0;
-    right: -4px;
+    inset-inline-end: -4px;
     bottom: 0;
     width: 10px;
     opacity: 0;
@@ -393,7 +398,7 @@ input.form-control-plaintext {
         width: 3px;
         top: 0;
         bottom: 0;
-        left: 3px;
+        inset-inline-start: 3px;
         background-color: var(--dg-border-color);
     }
 
@@ -423,9 +428,8 @@ input.form-control-plaintext {
         content: '';
         width: 0;
         height: 0;
-        left: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
+        inset-inline-start: 0;
+        border-inline: 5px solid transparent;
     }
 
     &:before {
@@ -458,28 +462,28 @@ input.form-control-plaintext {
         }
 
         &.alpha {
-            left: 0;
+            inset-inline-start: 0;
         }
 
         &.alpha + .alpha {
             // Detail view toggler beneath selector
-            left: 48px;
+            inset-inline-start: 48px;
         }
 
         &.omega {
-            right: 0;
+            inset-inline-end: 0;
         }
     }
 
     .dg-scrollable .dg-col-pinned {
         &.alpha {
-            box-shadow: inset -1px 0 0 var(--dg-border-color);
-            border-right: 1px solid var(--dg-border-color);
+            box-shadow: inset var(--dg-cell-pinned-alpha-inset) 0 0 var(--dg-border-color);
+            border-inline-end: 1px solid var(--dg-border-color);
         }
 
         &.omega {
-            box-shadow: inset 1px 0 0 var(--dg-border-color);
-            border-left: 1px solid var(--dg-border-color);
+            box-shadow: inset var(--dg-cell-pinned-omega-inset) 0 0 var(--dg-border-color);
+            border-inline-start: 1px solid var(--dg-border-color);
         }
 
         &:before {
@@ -488,28 +492,16 @@ input.form-control-plaintext {
             content: "";
             pointer-events: none;
             width: 10px;
-            right: -10px;
+            inset-inline-end: -10px;
             top: 0;
             bottom: 0;
-            background: linear-gradient(270deg, transparent, rgba(#000, .05));
+            background: linear-gradient(var(--dg-cell-pinned-alpha-gradient-dir), transparent, rgba(#000, .05));
         }
 
         &.omega:before {
-            right: initial;
-            left: -10px;
-            background: linear-gradient(90deg, transparent, rgba(#000, .05));
-        }
-    }
-
-    [dir=rtl] {
-        .dg-col-pinned.alpha {
-            left: initial;
-            right: 0;
-        }
-
-        .dg-col-pinned.omega {
-            left: 0;
-            right: initial;
+            inset-inline-end: initial;
+            inset-inline-start: -10px;
+            background: linear-gradient(var(--dg-cell-pinned-omega-gradient-dir), transparent, rgba(#000, .05));
         }
     }
 }
@@ -523,7 +515,7 @@ input.form-control-plaintext {
     justify-content: center;
 
     .dg-cell + .dg-cell {
-        padding-left: 8px;
+        padding-inline-start: 8px;
     }
 }
 
@@ -618,8 +610,8 @@ input.form-control-plaintext {
 .dg-pager {
     padding: 4px;
     background-color: var(--dg-pager-bg);
-    border-bottom-left-radius: $border-radius;
-    border-bottom-right-radius: $border-radius;
+    border-end-start-radius: $border-radius;
+    border-end-end-radius: $border-radius;
 }
 
 .dg-pager-top {
@@ -647,14 +639,13 @@ a.dg-page {
 }
 
 .dg-page-refresh-wrapper {
-    border-right: 1px solid $dg-border;
+    border-inline-end: 1px solid $dg-border;
     text-align: center;
-    margin-right: 6px;
+    margin-inline-end: 6px;
 }
 
 .dg-page-refresh {
-    margin-right: 6px;
-    margin-left: 2px;
+    margin-inline: 2px 6px;
 }
 
 .dg-page-number {
@@ -728,20 +719,4 @@ span.dg-page {
 
 .dg-column-toggle {
     max-width: 150px;
-}
-
-
-// RTL
-// -----------------------------------------
-
-[dir=rtl] {
-    .dg-page-refresh {
-        border-left: 1px solid $dg-border;
-        border-right: none;
-    }
-
-    .dg-icon + * {
-        padding-left: 0;
-        padding-right: 6px;
-    }
 }
