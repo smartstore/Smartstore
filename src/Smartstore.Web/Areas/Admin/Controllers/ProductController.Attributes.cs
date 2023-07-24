@@ -104,8 +104,8 @@ namespace Smartstore.Admin.Controllers
         {
             var psa = await _db.ProductSpecificationAttributes.FindByIdAsync(model.Id);
 
-            psa.AllowFiltering = model.AllowFiltering ?? false;
-            psa.ShowOnProductPage = model.ShowOnProductPage ?? false;
+            psa.AllowFiltering = model.AllowFiltering;
+            psa.ShowOnProductPage = model.ShowOnProductPage;
             psa.DisplayOrder = model.DisplayOrder;
             psa.SpecificationAttributeOptionId = model.SpecificationAttributeOptionId;
 
