@@ -349,17 +349,16 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-tag {
     text-decoration: none !important;
     display: inline-flex;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
     margin: 0;
     margin-inline-end: 0.2rem;
     margin-bottom: 0.4rem;
     font-weight: $font-weight-medium;
     color: $body-color;
-    font-size: $font-size-base;
+    font-size: $font-size-sm;
     line-height: 1;
-    background-color: $gray-100;
-    border: 1px solid rgba(0,0,0, 0.15);
-    border-radius: 2px;
+    background-color: $light;
+    border-radius: 10rem;
 }
 
 .pd-tag-count {
