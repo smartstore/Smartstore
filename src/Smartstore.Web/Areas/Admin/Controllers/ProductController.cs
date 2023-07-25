@@ -1459,6 +1459,7 @@ namespace Smartstore.Admin.Controllers
 
             var skip = (page.Value - 1) * take;
             var (productTags, hasMoreItems) = await GetProductTagListAsync(search, skip, take);
+            // TODO: (mg) Why EncodeJsString? Now the tags are quoted (enclosed in quotation marks).
             var items = productTags.Select(x => new { id = x.EncodeJsString(), text = x.EncodeJsString() }).ToList();
 
             return Json(new
