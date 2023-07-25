@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Smartstore.Core.Checkout.Payment;
+﻿using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
@@ -39,6 +38,7 @@ namespace Smartstore.Core.Data.Migrations
             await db.SaveChangesAsync(cancelToken);
 
             await MigrateOfflinePaymentDescriptions(db, cancelToken);
+            await MigrateImportProfileColumnMappings(db, cancelToken);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
@@ -161,24 +161,41 @@ namespace Smartstore.Core.Data.Migrations
         }
 
         /// <summary>
-        /// Migrates the import profile column mapping of localized properties (if any) from language SEO code to language culture (see issue #531).
+        /// Migrates the import profile column mapping of localized properties (if any) from language SEO code to language culture for most languages (see issue #531).
         /// </summary>
-        private static async Task MigrateImportProfileColumnMapping(SmartDbContext db, CancellationToken cancelToken)
+        private static async Task MigrateImportProfileColumnMappings(SmartDbContext db, CancellationToken cancelToken)
         {
-            var profiles = await db.ImportProfiles
-                .Where(x => x.ColumnMapping.Length > 3)
-                .ToListAsync(cancelToken);
-            if (profiles.Count == 0)
-            {
-                return;
-            }
-
             try
             {
+                var profiles = await db.ImportProfiles
+                    .Where(x => x.ColumnMapping.Length > 3)
+                    .ToListAsync(cancelToken);
+                if (profiles.Count == 0)
+                {
+                    return;
+                }
+
                 var mapConverter = new ColumnMapConverter();
-                var allCultures = CultureInfo.GetCultures(CultureTypes.AllCultures)
-                    .Where(x => !x.Equals(CultureInfo.InvariantCulture) && !x.IsNeutralCulture && x.Name.HasValue())
-                    .ToArray();
+                var allLanguages = await db.Languages.AsNoTracking().OrderBy(x => x.DisplayOrder).ToListAsync(cancelToken);
+                var fallbackCultures = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "aa", "ar-SA" },
+                    { "cs", "cs-CZ" },
+                    { "da", "da-DK" },
+                    { "el", "el-GR" },
+                    { "en", "en-US" },
+                    { "et", "et-EE" },
+                    { "he", "he-IL" },
+                    { "hi", "hi-IN" },
+                    { "ja", "ja-JP" },
+                    { "ko", "ko-KR" },
+                    { "sl", "sl-SI" },
+                    { "sq", "sq-AL" },
+                    { "sv", "sv-SE" },
+                    { "uk", "uk-UA" },
+                    { "vi", "vi-VN" },
+                    { "zh", "zh-CN" },
+                };
 
                 foreach (var profile in profiles)
                 {
@@ -187,30 +204,61 @@ namespace Smartstore.Core.Data.Migrations
                         continue;
 
                     var map = new ColumnMap();
+                    var update = false;
 
                     foreach (var mapping in storedMap.Mappings.Select(x => x.Value))
                     {
-                        var mapped = false;
+                        var mappedName = mapping.MappedName;
 
-                        if (ColumnMap.ParseSourceName(mapping.SourceName, out string name, out string index)
-                            && name.HasValue()
-                            && index.HasValue()
-                            && index.Length == 2)
+                        if (MapColumnName(mappedName, out string name2, out string index2))
                         {
-                            var culture = $"{index.ToLowerInvariant()}-{index.ToUpperInvariant()}";
-                            if (allCultures.Any(x => x.Name == culture))
-                            {
-                                // TODO: migrate "MappedName" too.
-                                map.AddMapping(name, culture, mapping.MappedName, mapping.Default);
-                                mapped = true;
-                            }
+                            mappedName = $"{name2}[{index2}]";
+                            update = true;
                         }
 
-                        if (!mapped)
+                        if (MapColumnName(mapping.SourceName, out string name, out string index))
                         {
-                            //...
+                            update = true;
+                        }
+
+                        map.AddMapping(name, index, mappedName, mapping.Default);
+                    }
+
+                    if (update)
+                    {
+                        profile.ColumnMapping = mapConverter.ConvertTo(map);
+                    }
+                }
+
+                await db.SaveChangesAsync(cancelToken);
+
+                bool MapColumnName(string sourceName, out string name, out string index)
+                {
+                    ColumnMap.ParseSourceName(sourceName, out name, out index);
+
+                    if (name.HasValue() && index.HasValue() && index.Length == 2)
+                    {
+                        var seoCode = index;
+                        var newCulture = $"{seoCode.ToLowerInvariant()}-{seoCode.ToUpperInvariant()}";
+
+                        var language = 
+                            allLanguages.FirstOrDefault(x => x.LanguageCulture.EqualsNoCase(newCulture)) ??
+                            allLanguages.FirstOrDefault(x => x.UniqueSeoCode.EqualsNoCase(seoCode));
+
+                        if (language != null)
+                        {
+                            index = language.LanguageCulture;
+                            return true;
+                        }
+
+                        if (fallbackCultures.TryGetValue(index, out newCulture))
+                        {
+                            index = newCulture;
+                            return true;
                         }
                     }
+
+                    return false;
                 }
             }
             catch
