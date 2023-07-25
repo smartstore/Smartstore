@@ -351,6 +351,9 @@ bots:
   - match: Feedly
     name: Feedly
 
+  - match: GTmetrix
+    name: GTmetrix Analyser
+
   # Other bots
   - match: DuplexWeb-Google
     name: Google DuplexWeb
