@@ -25,7 +25,7 @@ namespace Microsoft.AspNetCore.Builder
         /// </summary>
         public static IEndpointConventionBuilder MapXmlSitemap(this IEndpointRouteBuilder endpoints)
         {
-            Guard.NotNull(endpoints, nameof(endpoints));
+            Guard.NotNull(endpoints);
 
             var pipeline = endpoints.CreateApplicationBuilder()
                .UseMiddleware<XmlSitemapMiddleware>()

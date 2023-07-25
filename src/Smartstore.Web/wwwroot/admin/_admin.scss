@@ -45,6 +45,10 @@ pre {
 // Typo
 // -----------------------------------------------------
 
+b, strong {
+    font-weight: $font-weight-medium;
+}
+
 .text-light {
     color: $gray-400 !important;
 }
