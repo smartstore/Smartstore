@@ -40,7 +40,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         public virtual async Task<IDirectory> GetImportDirectoryAsync(ImportProfile profile, string subpath = null, bool createIfNotExists = false)
         {
-            Guard.NotNull(profile, nameof(profile));
+            Guard.NotNull(profile);
 
             var root = _appContext.TenantRoot;
             var path = PathUtility.Join(_importFileRoot, profile.FolderName, subpath.EmptyNull());
@@ -98,7 +98,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         public virtual async Task<ImportProfile> InsertImportProfileAsync(string fileName, string name, ImportEntityType entityType)
         {
-            Guard.NotEmpty(fileName, nameof(fileName));
+            Guard.NotEmpty(fileName);
 
             if (name.IsEmpty())
             {
@@ -127,16 +127,16 @@ namespace Smartstore.Core.DataExchange.Import
             switch (entityType)
             {
                 case ImportEntityType.Product:
-                    profile.KeyFieldNames = string.Join(",", ProductImporter.DefaultKeyFields);
+                    profile.KeyFieldNames = string.Join(',', ProductImporter.DefaultKeyFields);
                     break;
                 case ImportEntityType.Category:
-                    profile.KeyFieldNames = string.Join(",", CategoryImporter.DefaultKeyFields);
+                    profile.KeyFieldNames = string.Join(',', CategoryImporter.DefaultKeyFields);
                     break;
                 case ImportEntityType.Customer:
-                    profile.KeyFieldNames = string.Join(",", CustomerImporter.DefaultKeyFields);
+                    profile.KeyFieldNames = string.Join(',', CustomerImporter.DefaultKeyFields);
                     break;
                 case ImportEntityType.NewsletterSubscription:
-                    profile.KeyFieldNames = string.Join(",", NewsletterSubscriptionImporter.DefaultKeyFields);
+                    profile.KeyFieldNames = string.Join(',', NewsletterSubscriptionImporter.DefaultKeyFields);
                     break;
             }
 
@@ -226,7 +226,9 @@ namespace Smartstore.Core.DataExchange.Import
                         _entityProperties = new Dictionary<ImportEntityType, Dictionary<string, string>>();
 
                         var allLanguages = _languageService.GetAllLanguages(true);
-                        var allLanguageNames = allLanguages.ToDictionarySafe(x => x.UniqueSeoCode, x => CultureHelper.GetLanguageNativeName(x.LanguageCulture) ?? x.GetLocalized(x => x.Name));
+                        var allLanguageNames = allLanguages.ToDictionarySafe(
+                            x => x.LanguageCulture,
+                            x => CultureHelper.GetLanguageNativeName(x.LanguageCulture) ?? x.GetLocalized(x => x.Name));
 
                         var localizableProperties = new Dictionary<ImportEntityType, string[]>
                         {
@@ -287,8 +289,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 {
                                     foreach (var language in allLanguages)
                                     {
-                                        names[$"{key}[{language.UniqueSeoCode.EmptyNull().ToLower()}]"] =
-                                            $"{localizedValue} {allLanguageNames[language.UniqueSeoCode]}";
+                                        names[$"{key}[{language.LanguageCulture}]"] = $"{localizedValue} {allLanguageNames[language.LanguageCulture]}";
                                     }
                                 }
                             }

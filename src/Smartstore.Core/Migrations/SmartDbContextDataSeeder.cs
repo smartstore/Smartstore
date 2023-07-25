@@ -1,5 +1,7 @@
-﻿using Smartstore.Core.Checkout.Payment;
+﻿using System.Globalization;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
 using Smartstore.Data.Migrations;
 
@@ -156,6 +158,64 @@ namespace Smartstore.Core.Data.Migrations
             await db.Settings
                 .Where(x => settingNames.Contains(x.Name))
                 .ExecuteDeleteAsync(cancelToken);
+        }
+
+        /// <summary>
+        /// Migrates the import profile column mapping of localized properties (if any) from language SEO code to language culture (see issue #531).
+        /// </summary>
+        private static async Task MigrateImportProfileColumnMapping(SmartDbContext db, CancellationToken cancelToken)
+        {
+            var profiles = await db.ImportProfiles
+                .Where(x => x.ColumnMapping.Length > 3)
+                .ToListAsync(cancelToken);
+            if (profiles.Count == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                var mapConverter = new ColumnMapConverter();
+                var allCultures = CultureInfo.GetCultures(CultureTypes.AllCultures)
+                    .Where(x => !x.Equals(CultureInfo.InvariantCulture) && !x.IsNeutralCulture && x.Name.HasValue())
+                    .ToArray();
+
+                foreach (var profile in profiles)
+                {
+                    var storedMap = mapConverter.ConvertFrom<ColumnMap>(profile.ColumnMapping);
+                    if (storedMap == null)
+                        continue;
+
+                    var map = new ColumnMap();
+
+                    foreach (var mapping in storedMap.Mappings.Select(x => x.Value))
+                    {
+                        var mapped = false;
+
+                        if (ColumnMap.ParseSourceName(mapping.SourceName, out string name, out string index)
+                            && name.HasValue()
+                            && index.HasValue()
+                            && index.Length == 2)
+                        {
+                            var culture = $"{index.ToLowerInvariant()}-{index.ToUpperInvariant()}";
+                            if (allCultures.Any(x => x.Name == culture))
+                            {
+                                // TODO: migrate "MappedName" too.
+                                map.AddMapping(name, culture, mapping.MappedName, mapping.Default);
+                                mapped = true;
+                            }
+                        }
+
+                        if (!mapped)
+                        {
+                            //...
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
     }
 }
