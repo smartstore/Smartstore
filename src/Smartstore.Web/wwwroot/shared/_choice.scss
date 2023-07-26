@@ -164,7 +164,7 @@ $choice-box-size-xl:        96px;
     .choice-box.unavailable & {
         border: 1px dashed rgba(#000, .3);
 
-        &.choice-box-image {
+        &:not(.choice-box-color) {
             opacity: .5;
         }
 
