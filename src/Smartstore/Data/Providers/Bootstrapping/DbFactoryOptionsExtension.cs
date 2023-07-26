@@ -28,7 +28,7 @@ namespace Smartstore.Data.Providers
 
         protected DbFactoryOptionsExtension(DbFactoryOptionsExtension copyFrom)
         {
-            Guard.NotNull(copyFrom, nameof(copyFrom));
+            Guard.NotNull(copyFrom);
 
             _options = copyFrom._options;
 
@@ -39,6 +39,8 @@ namespace Smartstore.Data.Providers
             QuerySplittingBehavior = copyFrom.QuerySplittingBehavior;
             ModelAssemblies = copyFrom.ModelAssemblies;
             DataSeederTypes = copyFrom.DataSeederTypes;
+            DefaultSchema = copyFrom.DefaultSchema;
+            Collation = copyFrom.Collation;
         }
 
         public DbContextOptionsExtensionInfo Info
