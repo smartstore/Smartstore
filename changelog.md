@@ -20,6 +20,7 @@
 - Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
 - Fixed missing cache clearing after importing localized properties.
 - Output Cache: missing `Content-Type` header when serving page from cache
+- #531 Error reading import file with localized values of languages with the same UniqueSeoCode.
 
 
 ## Smartstore 5.0.5
