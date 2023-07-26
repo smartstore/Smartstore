@@ -17,6 +17,7 @@
 ### Bugfixes
 
 - Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
+- Web API: fixed 404 file swagger.json not found when opening Swagger documentation in a virtual directory.
 - Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
 - Fixed missing cache clearing after importing localized properties.
 - Output Cache: missing `Content-Type` header when serving page from cache
