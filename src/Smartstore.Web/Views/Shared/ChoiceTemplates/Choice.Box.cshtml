@@ -10,13 +10,25 @@
         @foreach (var item in items)
         {
             string css = null;
+            string boxClass = "choice-box";
             string elClass = "choice-box-element";
             string label = item.GetItemLabel();
+            bool isDark = false;
+
+            if (item.IsPreSelected)
+            {
+                boxClass += " selected";
+            }
 
             var hasColor = item.Color.HasValue() && item.Color != "transparent";
             if (hasColor)
             {
                 css = "background-color: " + item.Color + ";";
+                isDark = ImagingHelper.GetPerceivedBrightness(item.Color) < 200;
+                if (isDark)
+                {
+                    boxClass += " dark";
+                }
             }
 
             var hasImage = item.ImageUrl.HasValue();
@@ -27,17 +39,18 @@
 
             if (item.IsDisabled)
             {
-                elClass += " choice-box-disabled";
+                boxClass += " disabled";
             }
             else if (item.IsUnavailable)
             {
+                boxClass += " unavailable";
                 if (hasImage)
                 {
-                    elClass += " choice-box-image-unavailable";
+                    elClass += " choice-box-image";
                 }
                 else if (hasColor)
                 {
-                    elClass += " choice-box-color-unavailable";
+                    elClass += " choice-box-color";
                 }
             }
 
@@ -46,7 +59,7 @@
                 label += " - " + item.Title;
             }
 
-            <li class="choice-box@(item.IsPreSelected ? " selected" : "")">
+            <li class="@boxClass">
                 <label class="choice-box-label">
                     <input type="radio" class="choice-box-control-native" id="@(controlId)_@(item.Id)" name="@(controlId)" value="@item.Id" 
                            attr-checked='(item.IsPreSelected, "checked")' attr-disabled='(item.IsDisabled, "disabled")' />
