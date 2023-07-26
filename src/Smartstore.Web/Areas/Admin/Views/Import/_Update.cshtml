@@ -471,11 +471,11 @@
 			initSelectBox(row.find('.select-column'), false);
 		}
 
-		function selectPropertyFormatting(item, container) {
+		function selectPropertyFormatting(item) {
 			try {
 				if (item.text.length > 0) {
 					var option = $(item.element);
-					var isLocalized = item.id.indexOf(']', item.id.length - 1) !== -1;
+					var isLocalized = item.id && item.id.indexOf(']', item.id.length - 1) !== -1;
 					var html = '';
 
 					if (option.length === 0) {
@@ -524,14 +524,16 @@
 					return $(html);
 				}
 			}
-			catch (e) { }
+			catch (ex) {
+				console.log(ex);
+			}
 
 			return item.text;
 		}
 
-		function selectColumnFormatting(item, container) {
+		function selectColumnFormatting(item) {
 			try {
-				if (item.id.length > 0) {
+				if (item?.id?.length > 0) {
 					var html = '';
 
 					html += '<div class="mapping-list-item">';
@@ -552,7 +554,9 @@
 					return $(html);
 				}
 			}
-			catch (e) { }
+            catch (ex) {
+                console.log(ex);
+            }
 
 			return item.text;
 		}

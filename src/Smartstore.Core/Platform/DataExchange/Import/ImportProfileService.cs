@@ -226,9 +226,7 @@ namespace Smartstore.Core.DataExchange.Import
                         _entityProperties = new Dictionary<ImportEntityType, Dictionary<string, string>>();
 
                         var allLanguages = _languageService.GetAllLanguages(true);
-                        var allLanguageNames = allLanguages.ToDictionarySafe(
-                            x => x.LanguageCulture,
-                            x => CultureHelper.GetLanguageNativeName(x.LanguageCulture) ?? x.GetLocalized(x => x.Name));
+                        var allLanguageNames = allLanguages.ToDictionarySafe(x => x.LanguageCulture, x => x.GetLocalized(x => x.Name));
 
                         var localizableProperties = new Dictionary<ImportEntityType, string[]>
                         {
