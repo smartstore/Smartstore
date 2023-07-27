@@ -73,7 +73,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ManufacturerItemsToDisplayOnHomepage")]
         public int ManufacturerItemsToDisplayOnHomepage { get; set; }
 
-        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*ManufacturerItemsToDisplayInOffcanvasMenu")]
         public int ManufacturerItemsToDisplayInOffCanvasMenu { get; set; }
 
@@ -178,7 +177,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*HideBuyButtonInLists")]
         public bool HideBuyButtonInLists { get; set; }
 
-        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*LabelAsNewForMaxDays")]
         public int? LabelAsNewForMaxDays { get; set; }
 
@@ -252,11 +250,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ProductsAlsoPurchasedEnabled")]
         public bool ProductsAlsoPurchasedEnabled { get; set; }
 
-        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*ProductsAlsoPurchasedNumber")]
         public int ProductsAlsoPurchasedNumber { get; set; }
 
-        [AdditionalMetadata("min", 1)]
         [LocalizedDisplay("*DisplayAllImagesNumber")]
         public int DisplayAllImagesNumber { get; set; }
 
