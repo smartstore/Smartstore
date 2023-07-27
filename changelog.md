@@ -13,6 +13,7 @@
 - #767 Handle tier prices in depending prices module.
 - #378 Remove the assignments of products to a tax category when the tax category is deleted.
 - #388 Ajaxify product tag selection in backend.
+- #503 Don't round quantity unit amount for PAnGV.
 
 ### Bugfixes
 
