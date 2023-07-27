@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Admin.Models
+﻿using Smartstore.Core.DataExchange;
+
+namespace Smartstore.Admin.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.DataExchange.")]
     public partial class DataExchangeSettingsModel
@@ -11,5 +13,8 @@
 
         [LocalizedDisplay("*ImageDownloadTimeout")]
         public int ImageDownloadTimeout { get; set; }
+
+        [LocalizedDisplay("*ImportCompletionEmail")]
+        public DataExchangeCompletionEmail ImportCompletionEmail { get; set; }
     }
 }

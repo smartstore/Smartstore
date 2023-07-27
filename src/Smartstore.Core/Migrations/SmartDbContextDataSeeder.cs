@@ -53,6 +53,16 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Configuration.Currencies.GetLiveRates",
                 "Common.Error.PreProcessPayment",
                 "Payment.PayingFailed");
+
+            builder.AddOrUpdate("Enums.DataExchangeCompletionEmail.Always", "Always", "Immer");
+            builder.AddOrUpdate("Enums.DataExchangeCompletionEmail.OnError", "If an error occurs", "Bei einem Fehler");
+            builder.AddOrUpdate("Enums.DataExchangeCompletionEmail.Never", "Never", "Nie");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.DataExchange.ImportCompletionEmail",
+                "Import completion email",
+                "E-Mail zum Importabschluss",
+                "Specifies whether an email should be sent when an import has completed.",
+                "Legt fest, ob eine E-Mail bei Abschluss eines Imports verschickt werden soll.");
         }
 
         /// <summary>

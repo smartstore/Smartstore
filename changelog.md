@@ -15,6 +15,7 @@
 - #388 Ajaxify product tag selection in backend.
 - #503 Don't round quantity unit amount for PAnGV.
 - #403 Added preview image link of NewsItem to RSS feed.
+- #390 Import: add a setting whether to send the completion email.
 
 ### Bugfixes
 
