@@ -97,8 +97,8 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual async Task<PriceCalculationContext> CreateCalculationContextAsync(OrganizedShoppingCartItem cartItem, PriceCalculationOptions options)
         {
-            Guard.NotNull(cartItem, nameof(cartItem));
-            Guard.NotNull(options, nameof(options));
+            Guard.NotNull(cartItem);
+            Guard.NotNull(options);
 
             var product = cartItem.Item.Product;
             var context = new PriceCalculationContext(product, cartItem.Item.Quantity, options)
@@ -126,7 +126,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
             {
-                Guard.NotNull(cartItem.ChildItems, nameof(cartItem.ChildItems));
+                Guard.NotNull(cartItem.ChildItems);
 
                 foreach (var bundleItem in cartItem.ChildItems)
                 {
@@ -143,7 +143,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual async Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             // Remember source product.
             var product = context.Product;
@@ -158,7 +158,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual async Task<(CalculatedPrice UnitPrice, CalculatedPrice Subtotal)> CalculateSubtotalAsync(PriceCalculationContext context)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             // Remember source product.
             var product = context.Product;
@@ -193,8 +193,8 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection = null)
         {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(selection, nameof(selection));
+            Guard.NotNull(product);
+            Guard.NotNull(selection);
 
             var productCost = product.ProductCost;
 
@@ -240,7 +240,7 @@ namespace Smartstore.Core.Catalog.Pricing
             bool includePackageContentPerUnit = true,
             bool? displayTaxSuffix = null)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             if (!product.BasePriceHasValue || product.BasePriceAmount == 0)
             {
@@ -256,7 +256,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (includePackageContentPerUnit)
             {
-                var packageContentPerUnit = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
+                var packageContentPerUnit = product.BasePriceAmount.Value.ToString("G29");
 
                 return T("Products.BasePriceInfo").Value.FormatInvariant(
                     packageContentPerUnit,
@@ -277,7 +277,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         private async Task<CalculatorContext> RunCalculators(PriceCalculationContext context)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             // Remember source product.
             var product = context.Product;

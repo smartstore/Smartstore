@@ -367,6 +367,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                             if (BasePriceSupported(entity.BasePriceBaseAmount ?? 0, measureUnit))
                             {
+                                // INFO: GMC does not support more than 2 digits after a decimal.
                                 var basePriceMeasure = $"{(entity.BasePriceAmount ?? decimal.Zero).FormatInvariant()} {measureUnit}";
                                 var basePriceBaseMeasure = $"{entity.BasePriceBaseAmount ?? 1} {measureUnit}";
 
