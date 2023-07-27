@@ -85,13 +85,23 @@ namespace Smartstore.Core.Content.Media
                 {
                     mediaFile.Size = (int)stream.Length;
 
-                    var pixelSize = ImageHeader.GetPixelSize(stream);
-                    if (!pixelSize.IsEmpty)
+                    try
                     {
-                        mediaFile.Width = pixelSize.Width;
-                        mediaFile.Height = pixelSize.Height;
+                        var pixelSize = ImageHeader.GetPixelSize(stream);
+                        if (!pixelSize.IsEmpty)
+                        {
+
+                            mediaFile.Width = pixelSize.Width;
+                            mediaFile.Height = pixelSize.Height;
+                        }
+                    }
+                    catch
+                    {
+                        mediaFile.Width = 0;
+                        mediaFile.Height = 0;
                     }
                 }
+                mediaFile.PixelSize = mediaFile.Width * mediaFile.Height;
 
                 _db.MediaFiles.Add(mediaFile);
                 await _db.SaveChangesAsync();
