@@ -2,9 +2,7 @@
 
 namespace Smartstore.Admin.Models.Shipping
 {
-    public class ShippingRateComputationMethodModel : ProviderModel, IActivatable
+    public class ShippingRateComputationMethodModel : ActivatableProviderModel
     {
-        [LocalizedDisplay("Common.IsActive")]
-        public bool IsActive { get; set; }
     }
 }

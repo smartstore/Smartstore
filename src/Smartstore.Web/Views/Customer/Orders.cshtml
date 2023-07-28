@@ -100,9 +100,9 @@
 <div class="card-deck card-cols-sm-1 order-list">
     @foreach (var order in Model.Orders)
     {
-        <div class="card shadow-sm order-item">
+        <div class="card order-item">
             <div class="card-body">
-                <h4 class="card-title mb-4">@T("Order.Order#"): @order.OrderNumber</h4>
+                <h4 class="card-title h5 mb-4">@T("Order.Order#"): @order.OrderNumber</h4>
                 <dl class="row mb-0">
                     <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderStatus")</dt>
                     <dd class="col-sm-9">@order.OrderStatus</dd>
@@ -113,14 +113,14 @@
                 </dl>
             </div>
 
-            <div class="card-footer d-flex p-0">
-                <a asp-action="Details" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-secondary btn-flat rounded-0" rel="nofollow">
+            <div class="card-footer d-flex p-2">
+                <a asp-action="Details" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-secondary btn-no-border btn-sm btn-flat" rel="nofollow">
                     <i class="far fa-list-alt"></i>
                     <span>@T("Order.OrderDetails")</span>
                 </a>
-                @if (order.IsReturnRequestAllowed)
+                @if (true /*order.IsReturnRequestAllowed*/)
                 {
-                    <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@order.Id" class="btn btn-secondary btn-flat rounded-0" rel="nofollow">
+                    <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@order.Id" class="btn btn-secondary btn-no-border btn-sm btn-flat" rel="nofollow">
                         <i class="fa fa-reply"></i>
                         <span>@T("Account.CustomerOrders.ReturnItems")</span>
                     </a>

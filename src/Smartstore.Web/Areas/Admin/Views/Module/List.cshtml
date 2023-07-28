@@ -20,7 +20,12 @@
             @T("Admin.Configuration.Plugins")
         </div>
         <div class="options form-inline">
-            <input type="text" id="filter-query" class="form-control my-0 mr-1" style="width: 350px" placeholder="@T("Common.Search")" />
+            <div class="has-icon mr-2">
+                <input type="text" id="filter-query" class="form-control my-0" style="width: 350px" placeholder="@T("Common.Search")" />
+                <span class="input-group-icon">
+                    <i class="fa fa-search text-muted"></i>
+                </span>
+            </div>
             <button id="btn-execute-tasks" type="submit" class="btn btn-secondary mr-1" disabled="disabled">
                 <i class="fa fa-cogs"></i>
                 <span>@T("Admin.Configuration.Plugins.ExecuteTasks")</span>
@@ -61,13 +66,13 @@
     </div>
 
     <div class="adminContent" id="local-modules">
-        @foreach (var g in Model.Groups.OrderBy(x => x.Key))
-        {
         <div class="module-list">
-            <h3>@g.Key</h3>
-            @{ await ModuleList(g.Value); }
+            @foreach (var g in Model.Groups.OrderBy(x => x.Key))
+            {
+                <h3 class="module-group-header">@g.Key</h3>
+                await ModuleList(g.Value);
+            }
         </div>
-        }
 
         <input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
     </div>
@@ -173,7 +178,7 @@
                     let storeIds = a.data("value");
                     let label = stores.filter(x => storeIds.indexOf(x.value) > -1).map(x => x.text).join(", ");
                     a.toggleClass("editable-empty", storeIds.length === 0);
-                    a.text(label || @T("Common.No").JsValue);
+                    a.text(label || @T("Common.All").JsValue);
 
                 });
             }
@@ -456,94 +461,107 @@
     {
         foreach (var module in modules)
         {
-            <div class="module-item" attr-class='(!module.Installed, "inactive")' data-module="@module.SystemName" data-friendly-name="@module.FriendlyName">
-                <div class="module-icon">
-                    <img class="icon img-responsive" src="@Url.Content(module.IconUrl)" />
+            <div class="module-item card"
+                attr-class='(!module.Installed, "inactive")' 
+                data-module="@module.SystemName" 
+                data-friendly-name="@module.FriendlyName">
+
+                <!-- Body -->
+                <div class="card-body">
+                    <!-- Icon -->
+                    <div class="module-icon">
+                        <img class="icon img-responsive" src="@Url.Content(module.IconUrl)" />
+                    </div>
+
+                    <!-- Data -->
+                    <div class="module-data">
+                        <div class="module-title">
+                            <div class="module-name">@module.FriendlyName</div>
+                        </div>
+
+                        <div sm-if="module.Description.HasValue()" class="module-description">
+                            @module.Description
+                        </div>
+
+                        <!-- Attributes -->
+                        <div class="module-info mt-auto">
+                            <!-- Version -->
+                            <div class="attr-name">@T("Admin.Configuration.Plugins.Fields.Version")</div>
+                            <div class="attr-value">@module.Version</div>
+
+                            <!-- Author -->
+                            @if (module.Author.HasValue())
+                            {
+                                <div class="attr-name">@T("Admin.Configuration.Plugins.Fields.Author")</div>
+                                <div sm-if="@module.Url.IsEmpty()" class="attr-value">@module.Author</div>
+                                <a sm-if="@module.Url.HasValue()" class="attr" href="@module.Url" target="PluginWebsiteWnd">@module.Author</a>
+                            }
+
+                            <!-- SysName -->
+                            <div class="attr-name">@T("Admin.Common.Entity.Fields.Id")</div>
+                            <div class="attr-value">@module.SystemName</div>
+
+                            <!-- Store restriction -->
+                            @if (Model.AvailableStores.Count > 1)
+                            {
+                                <div class="attr-name">@T("Admin.Common.Store.AvailableFor")</div>
+                                <div>
+                                    <a href="javascript:;" data-module='@module.SystemName'
+                                        data-value='[@string.Join(',', module.SelectedStoreIds)]'
+                                        tabindex="0"
+                                        class="editable editable-click store-limiter">
+                                        <!-- AJAX -->
+                                        @T("Common.All")
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
                 </div>
-                <div class="module-data row">
-                    <!-- General -->
-                    <div class="module-col col-6">
-                        <div class="module-heading">
-                            <div>
-                                <div class="module-title">
-                                    <div class="module-name">@module.FriendlyName</div>
-                                </div>
-                                <div sm-if="module.Description.HasValue()" class="module-description w-100">
-                                    @module.Description
-                                </div>
-                            </div>
 
-                            <div sm-if="module.Installed" class="module-actions dropdown">
-                                <button class="btn btn-outline-secondary btn-icon dropdown-toggle no-chevron" type="button" data-toggle="dropdown">
-                                    <i class="fa fa-ellipsis"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a asp-action="UpdateStringResources" class="dropdown-item module-update-resources" data-module="@module.SystemName">
-                                        <i class="fa fa-fw fa-language"></i>
-                                        <span>@T("Admin.Configuration.Plugins.Resources.Update")</span>
-                                    </a>
-                                    <a sm-if="module.LicenseLabel.LicenseUrl.HasValue()" class="dropdown-item module-licence" href="@module.LicenseLabel.LicenseUrl">
-                                        <i class="fa fa-fw fa-key"></i>
-                                        <span>@T("Admin.Common.License")</span>
-                                    </a>
-                                    <a sm-if="module.ConfigurationUrl.HasValue()" class="dropdown-item module-configure" href="@module.ConfigurationUrl">
-                                        <i class="fa fa-fw fa-cog"></i>
-                                        <span>@T("Admin.Configuration.Plugins.Fields.Configure")</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="module-badges" sm-suppress-if-empty>
-                            <span class="badge badge-warning" sm-if="module.Installed">@T("Admin.Configuration.Plugins.Fields.Installed")</span>
-                            <partial name="LicenseLabel" model="module.LicenseLabel" />
-                        </div>
-                        <div class="module-info">
-                            <span class="attr">
-                                <span class="attr-name">@T("Admin.Configuration.Plugins.Fields.Version"):</span>
-                                <span class="attr-value">@module.Version</span>
-                            </span>
-                            <span sm-if="module.Author.HasValue()" class="attr">
-                                <span class="attr-name">@T("Admin.Configuration.Plugins.Fields.Author"):</span>
-                                <span class="attr-value">@module.Author</span>
-                            </span>
-                            <span sm-if="module.Url.HasValue()" class="attr">
-                                <i class="fa fa-external-link-alt mr-1"></i>
-                                <a href="@module.Url" target="PluginWebsiteWnd">@T("Common.Website")</a>
-                            </span>
-                            <span class="attr">
-                                <span class="attr-name">@T("Admin.Configuration.Plugins.Fields.SystemName"):</span>
-                                <span class="attr-value">@module.SystemName</span>
-                            </span>
-                        </div>
-                        <div sm-if="Model.AvailableStores.Count > 1" class="fs-sm">
-                            <span class="pr-2">@T("Admin.Common.Store.LimitedTo"):</span>
-                            <a href="javascript:;" data-module='@module.SystemName'
-                               data-value='[@string.Join(',', module.SelectedStoreIds)]'
-                               tabindex="0"
-                               class="editable editable-click store-limiter">
-                                <!-- AJAX -->
-                                Nein
-                            </a>
-                        </div>
+                <!-- Footer -->
+                <div class="card-footer">
+                    <!-- Badges -->
+                    <div class="module-icon align-items-center">
+                        <div sm-if="module.Installed" class="module-signal bg-warning" title="@T("Admin.Configuration.Plugins.Fields.Installed")"></div>
                     </div>
 
-                    <!-- Buttons -->
-                    <div class="module-col col-6">
-                        @if (module.Installed)
-                        {
-                            <a class="btn btn-secondary btn-to-danger module-uninstall" data-toggle="button" href="#" style="min-width: 180px">
-                                @T("Admin.Configuration.Plugins.Fields.Uninstall")
-                            </a>
-                        }
-                        else
-                        {
-                            <a class="btn btn-success module-install" data-toggle="button" href="#" style="min-width: 180px">
-                                <i class="far fa-arrow-alt-circle-down"></i>
-                                <span>@T("Admin.Configuration.Plugins.Fields.Install")</span>
-                            </a>
-                        }
-                    </div>
+                    <div class="module-commands">
+                        <!-- Button -->
+                        <a sm-if="module.Installed" class="btn btn-outline-secondary btn-to-danger btn-sm module-uninstall" data-toggle="button" href="#">
+                            @T("Admin.Configuration.Plugins.Fields.Uninstall")
+                        </a>
+                        <a sm-if="!module.Installed" class="btn btn-primary btn-sm module-install" data-toggle="button" href="#">
+                            <bootstrap-icon name="database-add" />
+                            <span>@T("Admin.Configuration.Plugins.Fields.Install")</span>
+                        </a>
 
+                        <!-- License badge -->
+                        <partial name="LicenseLabel" model="module.LicenseLabel" />
+
+                        <!-- Actions dropdown -->
+                        <div sm-if="module.Installed" class="module-actions dropdown">
+                            <button class="btn btn-light btn-flat btn-sm btn-icon dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fa fa-cog"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a asp-action="UpdateStringResources" class="dropdown-item module-update-resources" data-module="@module.SystemName">
+                                    <i class="fa fa-fw fa-language"></i>
+                                    <span>@T("Admin.Configuration.Plugins.Resources.Update")</span>
+                                </a>
+                                <a sm-if="module.LicenseLabel.LicenseUrl.HasValue()" class="dropdown-item module-licence" href="@module.LicenseLabel.LicenseUrl">
+                                    <i class="fa fa-fw fa-key"></i>
+                                    <span>@T("Admin.Common.License")</span>
+                                </a>
+                                <a sm-if="module.ConfigurationUrl.HasValue()" class="dropdown-item module-configure" href="@module.ConfigurationUrl">
+                                    <i class="fa fa-fw fa-cog"></i>
+                                    <span>@T("Admin.Configuration.Plugins.Fields.Configure")</span>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         }

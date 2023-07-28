@@ -1,7 +1,7 @@
 {
   "$schema": "../module.schema.json",
   "Author": "SmartStore AG",
-  "Group": "Api",
+  "Group": "Developer",
   "SystemName": "Smartstore.WebApi",
   "FriendlyName": "Smartstore Web API",
   "Description": "Provides RESTful data exchange with Smartstore based on OData",

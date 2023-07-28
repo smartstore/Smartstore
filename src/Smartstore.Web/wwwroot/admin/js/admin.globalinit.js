@@ -92,23 +92,25 @@
                     "activate": activate
                 },
                 success: function () {
-                    var item = $el.closest(".module-item");
-                    var badge = item.find(".badge");
+                    let item = $el.closest(".module-item");
+                    let signal = item.find(".module-signal");
+                    let btnLabel = $el.find("> span");
 
                     item.toggleClass("inactive", !activate);
 
                     if (activate) {
-                        $el.addClass("btn-secondary btn-to-danger").removeClass("btn-success");
-                        $el.text(T.deactivate);
-                        badge.text(T.active);
-                        badge.addClass("badge-success").removeClass("badge-secondary");
+                        $el.addClass("btn-outline-secondary btn-to-danger").removeClass("btn-success");
+                        btnLabel.text(T.deactivate);
+                        signal.attr('title', T.active);
                     }
                     else {
-                        $el.addClass("btn-success").removeClass("btn-secondary btn-to-danger");
-                        $el.text(T.activate);
-                        badge.text(T.inactive);
-                        badge.addClass("badge-secondary").removeClass("badge-success");
+                        $el.addClass("btn-success").removeClass("btn-outline-secondary btn-to-danger");
+                        btnLabel.text(T.activate);
+                        signal.attr('title', T.inactive);
                     }
+
+                    signal.toggleClass("d-none", !activate);
+                    $el.find("> .bi").toggleClass("d-none", activate);
 
                     $el.attr("data-activate", !activate);
                 }

@@ -1,8 +1,6 @@
 ﻿namespace Smartstore.Admin.Models.Modularity
 {
-    public class AuthenticationMethodModel : ProviderModel, IActivatable
+    public class AuthenticationMethodModel : ActivatableProviderModel
     {
-        [LocalizedDisplay("Common.IsActive")]
-        public bool IsActive { get; set; }
     }
 }

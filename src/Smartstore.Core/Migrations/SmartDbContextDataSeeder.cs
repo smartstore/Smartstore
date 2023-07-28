@@ -63,6 +63,9 @@ namespace Smartstore.Core.Data.Migrations
                 "E-Mail zum Importabschluss",
                 "Specifies whether an email should be sent when an import has completed.",
                 "Legt fest, ob eine E-Mail bei Abschluss eines Imports verschickt werden soll.");
+
+            builder.Update("Admin.Configuration.Payment.Methods.Fields.RecurringPaymentType").Value("de", "Abo Zahlungen");
+            builder.Update("Admin.Plugins.LicensingDemoRemainingDays").Value("de", "Demo: noch {0} Tag(e)");
         }
 
         /// <summary>

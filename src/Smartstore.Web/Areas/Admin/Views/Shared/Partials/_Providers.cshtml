@@ -13,23 +13,12 @@
 }
 
 @{
-    Task ActiveLabel(ProviderModel item)
+    async Task ActiveLabel(ProviderModel item)
     {
-        var activatable = item as IActivatable;
-        if (activatable == null)
+        if (item is IActivatable activatable)
         {
-            return Task.CompletedTask;
+            <span class="module-signal bg-warning" attr-class='(!activatable.IsActive, "d-none")' title="@T("Common.Active")"></span>
         }
-        if (activatable.IsActive)
-        {
-            <span class="badge badge-success">@T("Common.Active")</span>
-        }
-        else
-        {
-            <span class="badge badge-secondary">@T("Common.Inactive")</span>
-        }
-
-        return Task.CompletedTask;
     }
 
     bool IsActive(ProviderModel item)
@@ -41,11 +30,6 @@
         }
 
         return activatable.IsActive;
-    }
-
-    string GetColClass()
-    {
-        return "col-" + (12 / (Model.ExtraColumns.Count + 1));
     }
 
     object RenderTemplate(object template)
@@ -62,76 +46,98 @@
 <div class="module-list" attr-class='(Model.Data.Any(x => x.IsEditable), "sortable-list")'>
     @foreach (var item in Model.Data)
     {
-        <div class="module-item sortable-item" attr-class='(!IsActive(item), "inactive")' data-system-name="@item.SystemName" data-friendly-name="@item.FriendlyName">
-            <div sm-if="item.IsEditable" class="sortable-grip"></div>
-            <div class="module-icon">
-                <img class="icon img-responsive" src="@Url.Content(item.IconUrl)" />
-            </div>
-            <div class="module-data row">
-                <!-- General -->
-                <div class="module-col @GetColClass()">
-                    <div class="module-heading">
-                        <div>
-                            <div class="module-title">
-                                <div class="module-name">@(item.FriendlyName.NullEmpty() ?? item.SystemName)</div>
-                            </div>
-                            <div sm-if="item.Description.HasValue()" class="module-description">
-                                @item.Description
-                            </div>
-                            <div class="module-badges" sm-suppress-if-empty>
-                                @{ await ActiveLabel(item); }
-                            </div>
-                            <div class="module-info">
-                                @{
-                                    string tip = item.ProvidingModuleFriendlyName.HasValue() ? T("Admin.Providers.ProvidingPlugin") + ": " + item.ProvidingModuleFriendlyName : string.Empty;
-                                }
-                                <span class="attr">
-                                    <span class="attr-name">@T("Common.SystemName"):</span>
-                                    <span class="attr-value" attr-title='(tip.HasValue(), tip)'>@item.SystemName</span>
-                                </span>
-                            </div>
-                        </div>
+        <div class="module-item card sortable-item" attr-class='(!IsActive(item), "inactive")' data-system-name="@item.SystemName" data-friendly-name="@item.FriendlyName">
+            <div sm-if="item.IsEditable" class="sortable-grip rounded-left"></div>
+            
+            <!-- Body -->
+            <div class="card-body">
+                <!-- Icon -->
+                <div class="module-icon">
+                    <img class="icon img-responsive" src="@Url.Content(item.IconUrl)" />
+                </div>
 
-                        <div sm-if="item.IsEditable || item.IsConfigurable" class="module-actions dropdown">
-                            <button class="btn btn-outline-secondary btn-icon dropdown-toggle no-chevron" type="button" data-toggle="dropdown">
-                                <i class="fa fa-ellipsis"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                @if (item.IsEditable)
+                <!-- Data -->
+                <div class="module-data">
+                    <div class="module-title">
+                        <div class="module-name">@(item.FriendlyName.NullEmpty() ?? item.SystemName)</div>
+                        <div class="module-id small text-truncate">
+                            <!-- SysName -->
+                            @{
+                                string tip = item.ProvidingModuleFriendlyName.HasValue() ? T("Admin.Providers.ProvidingPlugin") + ": " + item.ProvidingModuleFriendlyName : string.Empty;
+                            }
+                            <span class="fwn">@T("Admin.Common.Entity.Fields.Id"):</span>
+                            <span class="text-muted text-truncate" attr-title='(tip.HasValue(), tip)'>@item.SystemName</span>
+                        </div>
+                    </div>
+
+                    <div sm-if="item.Description.HasValue()" class="module-description">
+                        @item.Description
+                    </div>
+
+                    @if (Model.InfoTemplate != null)
+                    {
+                        @RenderTemplate(Model.InfoTemplate(item))
+                    }
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer">
+                <!-- Badges -->
+                <div class="module-icon align-items-center">
+                    @{
+                        await ActiveLabel(item);
+                    }
+                </div>
+
+                <div class="module-commands">
+                    <!-- Button -->
+                    @if (Model.ButtonTemplate != null)
+                    {
+                        @RenderTemplate(Model.ButtonTemplate(item))
+                    }
+                    else if (item is IActivatable activatable)
+                    {
+                        <a class="activate-provider btn btn-sm btn-@(activatable.IsActive ? "outline-secondary btn-to-danger" : "success")"
+                           data-href='@Url.Action("ActivateProvider")' href="javascript:;" data-systemname="@item.SystemName" data-activate="@(!activatable.IsActive ? "true" : "false")">
+                            <bootstrap-icon name="check-lg" attr-class='(activatable.IsActive, "d-none")' />
+                            <span>@T("Admin.Common.{0}".FormatInvariant(activatable.IsActive ? "Deactivate" : "Activate"))</span>
+                        </a>
+                    }
+
+                    <!-- Actions dropdown -->
+                    <div sm-if="item.IsEditable || item.IsConfigurable" class="module-actions dropdown">
+                        <button class="btn btn-light btn-flat btn-sm btn-icon dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            @if (item.IsEditable)
+                            {
+                                if (item.IsPaymentMethod)
                                 {
-                                    if (item.IsPaymentMethod)
-                                    {
-                                        <a class="dropdown-item" href='@Url.Action("Edit", "Payment", new { systemName = item.SystemName })'>
-                                            <i class="far fa-fw fa-edit"></i>
-                                            <span>@T("Admin.Common.Edit")</span>
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <a class="dropdown-item module-edit" href='@Url.Action("EditProviderPopup", "Module", new { systemName = item.SystemName, btnId = "btnRefresh" })'>
-                                            <i class="far fa-fw fa-edit"></i>
-                                            <span>@T("Admin.Common.Edit")</span>
-                                        </a>
-                                    }
-                                }
-                                @if (item.IsConfigurable)
-                                {
-                                    <a class="dropdown-item module-configure" href="@Url.Action("ConfigureProvider", "Module", new { systemName = item.SystemName })">
-                                        <i class="fa fa-fw fa-cog"></i>
-                                        <span>@T("Admin.Common.Configure")</span>
+                                    <a class="dropdown-item" href='@Url.Action("Edit", "Payment", new { systemName = item.SystemName })'>
+                                        <i class="far fa-fw fa-edit"></i>
+                                        <span>@T("Admin.Common.Edit")</span>
                                     </a>
                                 }
-                            </div>
+                                else
+                                {
+                                    <a class="dropdown-item module-edit" href='@Url.Action("EditProviderPopup", "Module", new { systemName = item.SystemName, btnId = "btnRefresh" })'>
+                                        <i class="far fa-fw fa-edit"></i>
+                                        <span>@T("Admin.Common.Edit")</span>
+                                    </a>
+                                }
+                            }
+                            @if (item.IsConfigurable)
+                            {
+                                <a class="dropdown-item module-configure" href="@Url.Action("ConfigureProvider", "Module", new { systemName = item.SystemName })">
+                                    <i class="fa fa-fw fa-cog"></i>
+                                    <span>@T("Admin.Common.Configure")</span>
+                                </a>
+                            }
                         </div>
-
                     </div>
                 </div>
-                @foreach (var col in Model.ExtraColumns)
-                {
-                    <div class="module-col @GetColClass()">
-                        @RenderTemplate(col(item))
-                    </div>
-                }
             </div>
         </div>
     }
