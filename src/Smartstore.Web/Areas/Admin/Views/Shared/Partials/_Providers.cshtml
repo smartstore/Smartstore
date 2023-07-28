@@ -46,7 +46,7 @@
 <div class="module-list" attr-class='(Model.Data.Any(x => x.IsEditable), "sortable-list")'>
     @foreach (var item in Model.Data)
     {
-        <div class="module-item card sortable-item" attr-class='(!IsActive(item), "inactive")' data-system-name="@item.SystemName" data-friendly-name="@item.FriendlyName">
+        <div class="module-item card shadow-sm sortable-item" attr-class='(!IsActive(item), "inactive")' data-system-name="@item.SystemName" data-friendly-name="@item.FriendlyName">
             <div sm-if="item.IsEditable" class="sortable-grip rounded-left"></div>
             
             <!-- Body -->

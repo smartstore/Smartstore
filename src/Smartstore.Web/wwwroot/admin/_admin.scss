@@ -1193,7 +1193,11 @@ legend {
     gap: 20px;
     margin-bottom: 2rem;
 
-    > h3 {
+    .module-group {
+        display: contents;
+    }
+
+    .module-group-header {
         grid-column: 1 / -1;
         color: $text-muted;
         font-size: $h5-font-size;

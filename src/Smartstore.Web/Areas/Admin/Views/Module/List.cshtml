@@ -69,8 +69,10 @@
         <div class="module-list">
             @foreach (var g in Model.Groups.OrderBy(x => x.Key))
             {
-                <h3 class="module-group-header">@g.Key</h3>
-                await ModuleList(g.Value);
+                <div class="module-group">
+                    <h3 class="module-group-header">@g.Key</h3>
+                    @{ await ModuleList(g.Value); }
+                </div>
             }
         </div>
 
@@ -212,7 +214,7 @@
                 rg = new RegExp(filter, "i");
 
 			// Loop through the module items
-			$('.module-list').each(function () {
+			$('.module-group').each(function () {
 				var group = $(this),
                     count = 0;
 
@@ -461,7 +463,7 @@
     {
         foreach (var module in modules)
         {
-            <div class="module-item card"
+            <div class="module-item card shadow-sm"
                 attr-class='(!module.Installed, "inactive")' 
                 data-module="@module.SystemName" 
                 data-friendly-name="@module.FriendlyName">
