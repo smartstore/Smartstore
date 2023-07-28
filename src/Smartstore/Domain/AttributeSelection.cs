@@ -34,7 +34,7 @@ namespace Smartstore.Domain
         /// <param name="xmlAttributeValueName">Optional attribute value name for XML format. If it is <c>null</c>, XmlAttributeName + "Value" is used.</param>
         protected AttributeSelection(string rawAttributes, string xmlAttributeName, string xmlAttributeValueName = null)
         {
-            Guard.NotEmpty(xmlAttributeName, nameof(xmlAttributeName));
+            Guard.NotEmpty(xmlAttributeName);
 
             _rawAttributes = rawAttributes.TrimSafe();
             _xmlAttributeName = xmlAttributeName;
@@ -84,7 +84,7 @@ namespace Smartstore.Domain
         /// <param name="value">Attribute value.</param>
         public void AddAttributeValue(int attributeId, object value)
         {
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(value);
 
             _attributes.Attributes.Add(attributeId, value);
             _dirty = true;
@@ -121,7 +121,7 @@ namespace Smartstore.Domain
         /// <param name="value">Attribute value</param>
         public void RemoveAttributeValue(int attributeId, object value)
         {
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(value);
 
             _attributes.Attributes.Remove(attributeId, value);
             _dirty = true;
@@ -352,7 +352,7 @@ namespace Smartstore.Domain
         /// but ignored when <see cref="AttributeSelection2"/> is checked for equality.</remarks>
         protected void AddCustomAttributeValue(string attributeName, object value)
         {
-            Guard.NotEmpty(attributeName, nameof(attributeName));
+            Guard.NotEmpty(attributeName);
 
             if (value != null)
             {
@@ -367,7 +367,7 @@ namespace Smartstore.Domain
         /// <param name="attributeName">Custom attribute name (e.g. GiftCardInfo).</param>
         protected void RemoveCustomAttribute(string attributeName)
         {
-            Guard.NotEmpty(attributeName, nameof(attributeName));
+            Guard.NotEmpty(attributeName);
 
             _attributes.CustomAttributes.RemoveAll(attributeName);
             _dirty = true;
@@ -396,6 +396,10 @@ namespace Smartstore.Domain
                 combiner.Add(attribute.GetHashCode());
                 attribute.Value.Each(value => combiner.Add(value.GetHashCode()));
             }
+
+            // INFO: CustomAttributes (like gift card data) always ignored. ProductVariantAttributeCombination never contains CustomAttributes and
+            // FindAttributeCombinationAsync would not return a match if the AttributeSelection being compared contains gift card data.
+            // On the other hand this hash is not valid for Orderitem.AttributesXml because it contains persisted CustomAttributes.
 
             return combiner.CombinedHash;
         }

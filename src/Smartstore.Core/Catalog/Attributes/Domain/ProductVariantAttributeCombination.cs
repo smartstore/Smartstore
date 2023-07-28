@@ -36,10 +36,12 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(Gtin), Name = "IX_Gtin")]
     [Index(nameof(ManufacturerPartNumber), Name = "IX_ManufacturerPartNumber")]
     [Index(nameof(StockQuantity), nameof(AllowOutOfStockOrders), Name = "IX_StockQuantity_AllowOutOfStockOrders")]
+    [Index(nameof(HashCode), Name = "IX_HashCode")]
     public partial class ProductVariantAttributeCombination : BaseEntity, IAttributeAware
     {
         private ProductVariantAttributeSelection _attributeSelection;
         private string _rawAttributes;
+        private int? _hashCode;
 
         /// <summary>
         /// Gets or sets the product identifier.
@@ -175,6 +177,20 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Gets or sets a value indicating whether to allow orders when out of stock.
         /// </summary>
         public bool AllowOutOfStockOrders { get; set; }
+
+        /// <summary>
+        /// Gets or sets the attributes hash code. This is generally equal to <see cref="AttributeSelection.GetHashCode"/>.
+        /// </summary>
+        [Required]
+        public int HashCode
+        {
+            get => GetAttributesHashCode();
+            // Setter for EF.
+            set => _hashCode = value;
+        }
+
+        public int GetAttributesHashCode()
+            => _hashCode ??= AttributeSelection.GetHashCode();
 
         /// <summary>
         /// Gets the assigned media file identifiers.

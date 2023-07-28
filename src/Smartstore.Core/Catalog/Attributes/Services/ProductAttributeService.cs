@@ -325,5 +325,45 @@ namespace Smartstore.Core.Catalog.Attributes
                 }
             }
         }
+
+        public virtual async Task<int> EnsureAttributeCombinationHashCodesAsync(int take = 5000, CancellationToken cancelToken = default)
+        {
+            Guard.IsPositive(take);
+
+            var combinations = await _db.ProductVariantAttributeCombinations
+                .Where(x => x.HashCode == 0)
+                .Select(x => new { x.Id, x.RawAttributes })
+                .OrderBy(x => x.Id)
+                .Take(take)
+                .ToListAsync(cancelToken);
+
+            if (combinations.Count == 0)
+            {
+                return 0;
+            }
+
+            var numSuccess = 0;
+
+            foreach (var combination in combinations)
+            {
+                //var hashCode = new ProductVariantAttributeCombination { RawAttributes = combination.RawAttributes }.GetAttributesHashCode();
+                var hashCode = new ProductVariantAttributeSelection(combination.RawAttributes).GetHashCode();
+                if (hashCode != 0)
+                {
+                    numSuccess += await _db.ProductVariantAttributeCombinations
+                        .Where(x => x.Id == combination.Id)
+                        .ExecuteUpdateAsync(x => x.SetProperty(pvac => pvac.HashCode, pvac => hashCode), cancelToken);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Unexpected failure generating a hash code for ProductVariantAttributeCombination with ID {combination.Id}.",
+                        new Exception(combination.RawAttributes));
+                }
+            }
+
+            // TODO: (mg) check whether any cache clearing is required when ready.
+
+            return numSuccess;
+        }
     }
 }
