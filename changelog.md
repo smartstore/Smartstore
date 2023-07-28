@@ -9,6 +9,7 @@
 
 ### Improvements
 
+- Improved plugin & provider manager UI
 - #580 Added caching for live currency exchange rates.
 - #767 Handle tier prices in depending prices module.
 - #378 Remove the assignments of products to a tax category when the tax category is deleted.
