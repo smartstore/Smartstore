@@ -35,6 +35,11 @@
 // -----------------------------------------------------
 
 @each $color, $value in $theme-colors {
+    //.btn-#{$color} {
+        //border-color: rgba($gray-700, 0.15) !important;
+        //box-shadow: rgba(31, 35, 40, 0.04) 0px 1px 0px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px 0px inset;
+    //}
+
     *:not(.show) > .btn-#{$color},
     *:not(.show) > .btn-outline-#{$color} {
         &:not(:active):not(.active):focus,
