@@ -112,26 +112,6 @@
 
 	// Custom controls
 	// ----------------------------------------------
-	.custom-control {
-	    padding-right: $custom-control-gutter;
-	    padding-left: 0;
-	}
-	.custom-control-inline {
-	    margin-left: $custom-control-spacer-x;
-	    margin-right: 0;
-	}
-	.custom-control-label {
-        padding-right: $custom-control-indicator-size * 1.5;
-		&::before {
-			right: 0;
-			left: initial;
-		}
-
-		&::after {
-			right: 0;
-			left: initial;
-		}
-	}
 
 	.custom-select {
 	  &[multiple],

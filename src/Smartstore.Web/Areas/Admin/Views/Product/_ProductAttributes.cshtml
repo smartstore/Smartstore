@@ -9,9 +9,9 @@
 
         foreach (var pvaValue in attribute.Values)
         {
-            <div class="custom-control custom-@type custom-control-inline">
-                <input type="@type" id="@controlId-@pvaValue.Id" name="@controlId" class="custom-control-input" value="@pvaValue.Id" attr-checked='(pvaValue.IsPreSelected, "checked")' />
-                <label class="custom-control-label" for="@controlId-@pvaValue.Id">@pvaValue.Name</label>
+            <div class="form-check form-check-inline">
+                <input type="@type" id="@controlId-@pvaValue.Id" name="@controlId" class="form-check-input" value="@pvaValue.Id" attr-checked='(pvaValue.IsPreSelected, "checked")' />
+                <label class="form-check-label" for="@controlId-@pvaValue.Id">@pvaValue.Name</label>
             </div>
         }
     }
