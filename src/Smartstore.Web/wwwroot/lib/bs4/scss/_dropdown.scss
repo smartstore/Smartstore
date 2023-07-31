@@ -21,7 +21,7 @@
 .dropdown-menu {
   position: absolute;
   top: 100%;
-  left: 0;
+  inset-inline-start: 0;
   z-index: $zindex-dropdown;
   display: none; // none by default, but block on "open" of the menu
   float: left;
@@ -30,7 +30,7 @@
   margin: $dropdown-spacer 0 0; // override default ul
   @include font-size($dropdown-font-size);
   color: $dropdown-color;
-  text-align: left; // Ensures proper alignment if parent has it changed (e.g., modal footer)
+  text-align: start; // Ensures proper alignment if parent has it changed (e.g., modal footer)
   list-style: none;
   background-color: $dropdown-bg;
   background-clip: padding-box;
@@ -44,13 +44,13 @@
     $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
 
     .dropdown-menu#{$infix}-left {
-      right: auto;
-      left: 0;
+      inset-inline-end: auto;
+      inset-inline-start: 0;
     }
 
     .dropdown-menu#{$infix}-right {
-      right: 0;
-      left: auto;
+      inset-inline-end: 0;
+      inset-inline-start: auto;
     }
   }
 }
@@ -73,10 +73,10 @@
 .dropright {
   .dropdown-menu {
     top: 0;
-    right: auto;
-    left: 100%;
+    inset-inline-end: auto;
+    inset-inline-start: 100%;
     margin-top: 0;
-    margin-left: $dropdown-spacer;
+    margin-inline-start: $dropdown-spacer;
   }
 
   .dropdown-toggle {
@@ -90,10 +90,10 @@
 .dropleft {
   .dropdown-menu {
     top: 0;
-    right: 100%;
-    left: auto;
+    inset-inline-end: 100%;
+    inset-inline-start: auto;
     margin-top: 0;
-    margin-right: $dropdown-spacer;
+    margin-inline-end: $dropdown-spacer;
   }
 
   .dropdown-toggle {
@@ -111,7 +111,7 @@
   &[x-placement^="right"],
   &[x-placement^="bottom"],
   &[x-placement^="left"] {
-    right: auto;
+    inset-inline-end: auto;
     bottom: auto;
   }
 }
@@ -136,6 +136,7 @@
   white-space: nowrap; // prevent links from randomly breaking onto new lines
   background-color: transparent; // For `<button>`s
   border: 0; // For `<button>`s
+  @include border-radius($border-radius);
 
   // Prevent dropdown overflow if there's no padding
   // See https://github.com/twbs/bootstrap/pull/27703

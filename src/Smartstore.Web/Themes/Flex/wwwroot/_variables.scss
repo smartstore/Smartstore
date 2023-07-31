@@ -200,13 +200,16 @@ $dropdown-padding-x:            .5rem !default;
 $dropdown-padding-y:            .5rem !default;
 $dropdown-font-size:            14px;
 $dropdown-font-weight:          $font-weight-normal;
+$dropdown-border-radius:        $border-radius-lg;
 $dropdown-box-shadow:			0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity, 1) * 0.12));
 $dropdown-border-color:			$gray-200;
 $dropdown-link-color:           $gray-700;
+$dropdown-link-hover-color:     darken($dropdown-link-color, 5%);
+$dropdown-link-hover-bg:        $light;
 $dropdown-link-active-color:    $dropdown-link-hover-color;
-$dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 4%);
-$dropdown-item-padding-y:       0.525rem;
-$dropdown-item-padding-x:       1.5rem;
+$dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 3%);
+$dropdown-item-padding-y:       0.5rem;
+$dropdown-item-padding-x:       1rem;
 
 
 // Modal
