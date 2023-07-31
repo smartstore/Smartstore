@@ -86,14 +86,6 @@
 	// Button Groups
 	// ----------------------------------------------
 
-/*	.btn + .btn,
-	.btn + .btn-group,
-	.btn-group + .btn,
-	.btn-group + .btn-group {
-		margin-right: -$btn-border-width;
-		margin-left: initial;
-	}*/
-
 	.btn-group {
 		> .btn:first-child {
 			margin-right: 0;

@@ -196,6 +196,8 @@ $badge-font-weight:             $font-weight-medium !default;
 // Dropdown
 
 $dropdown-min-width:            10rem;
+$dropdown-padding-x:            .5rem !default;
+$dropdown-padding-y:            .5rem !default;
 $dropdown-font-size:            14px;
 $dropdown-font-weight:          $font-weight-normal;
 $dropdown-box-shadow:			0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity, 1) * 0.12));
