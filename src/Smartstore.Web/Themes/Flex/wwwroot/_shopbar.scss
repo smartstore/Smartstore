@@ -223,7 +223,7 @@
 .menubar {
     display: flex;
     flex-direction: row;
-    padding: 0;
+    padding: 0.4rem 0;
 
     .dropdown-menu {
         min-width: 200px;
@@ -233,15 +233,17 @@
 .menubar-group {
     display: flex;
     margin-inline-start: 1rem;
+    gap: 1px;
 }
 
 .menubar-link {
     position: relative;
     display: block;
     font-size: $font-size-xs;
-    padding: 1.25em 0.8em;
+    padding: 0.75em;
     text-decoration: none !important;
     text-transform: uppercase;
+    @include border-radius($border-radius);
 
     > .menubar-icon {
         font-size: $font-size-base;
@@ -253,16 +255,25 @@
 }
 
 .menubar-light {
-    &.menubar-section { border-bottom: 1px solid $header-border-color; }
+    &.menubar-section 
+    { 
+        border-bottom: 1px solid $header-border-color; 
+    }
+
     .menubar-link {
         color: $menubar-color;
     }
-    .menubar-link:hover,
-    .menubar-link:active,
-    .show .menubar-link {
+
+    .menubar-link:hover {
         background-color: $header-hover-bg;
         color:  $menubar-color;
     }
+
+    .menubar-link:active,
+    .show .menubar-link {
+        background-color: opacify($header-hover-bg, .025);
+    }
+
     .menubar-group--special .menubar-link {
         color: darken($menubar-color, 15%) !important;
     }
