@@ -144,7 +144,9 @@ namespace Smartstore.Core.Catalog.Categories
                 else if (modProps.Keys.Any(x => _d.Contains(x)))
                 {
                     // Only data has changed. Don't nuke trees, update corresponding cache entries instead.
+                    var publishEvent = false;
                     var keys = _cache.Keys(CategoryService.CATEGORY_TREE_PATTERN_KEY).ToArray();
+
                     foreach (var key in keys)
                     {
                         var tree = await _cache.GetAsync<TreeNode<ICategoryNode>>(key);
@@ -153,6 +155,8 @@ namespace Smartstore.Core.Catalog.Categories
                             var node = tree.SelectNodeById(entity.Id);
                             if (node != null)
                             {
+                                publishEvent = true;
+
                                 if (node.Value is CategoryNode value)
                                 {
                                     value.Name = category.Name;
@@ -172,6 +176,11 @@ namespace Smartstore.Core.Catalog.Categories
                                 }
                             }
                         }
+                    }
+
+                    if (publishEvent)
+                    {
+                        await PublishEvent(CategoryTreeChangeReason.Data);
                     }
                 }
             }
