@@ -51,8 +51,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Ensures that <see cref="ProductVariantAttributeCombination.HashCode"/> contains a hash code
         /// </summary>
-        /// <param name="take">Number of <see cref="ProductVariantAttributeCombination"/> to process.</param>
         /// <returns>Number of updated <see cref="ProductVariantAttributeCombination"/>.</returns>
-        Task<int> EnsureAttributeCombinationHashCodesAsync(int take = 5000, CancellationToken cancelToken = default);
+        Task<int> EnsureAttributeCombinationHashCodesAsync(CancellationToken cancelToken = default);
     }
 }

@@ -2,11 +2,14 @@
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
+using Smartstore.Admin.Models.Localization;
 using Smartstore.Admin.Models.Maintenance;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Configuration;
@@ -26,6 +29,7 @@ using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.IO;
 using Smartstore.Scheduling;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 
@@ -33,7 +37,7 @@ namespace Smartstore.Admin.Controllers
 {
     public class MaintenanceController : AdminController
     {
-        private const string BACKUP_DIR = "DbBackups";
+        const string BackupDir = "DbBackups";
 
         private readonly SmartDbContext _db;
         private readonly IMemoryCache _memCache;
@@ -53,6 +57,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<UpdateChecker> _updateChecker;
         private readonly MeasureSettings _measureSettings;
         private readonly IHostApplicationLifetime _appLifetime;
+        private readonly AsyncRunner _asyncRunner;
 
         public MaintenanceController(
             SmartDbContext db,
@@ -72,7 +77,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IImportProfileService> importProfileService,
             Lazy<UpdateChecker> updateChecker,
             MeasureSettings measureSettings,
-            IHostApplicationLifetime appLifetime)
+            IHostApplicationLifetime appLifetime,
+            AsyncRunner asyncRunner)
         {
             _db = db;
             _memCache = memCache;
@@ -92,6 +98,7 @@ namespace Smartstore.Admin.Controllers
             _updateChecker = updateChecker;
             _measureSettings = measureSettings;
             _appLifetime = appLifetime;
+            _asyncRunner = asyncRunner;
         }
 
         #region Maintenance
@@ -227,6 +234,30 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Content(message);
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public IActionResult EnsureAttributeCombinationHashCodes()
+        {
+            _ = _asyncRunner.RunTask(EnsureAttributeCombinationHashCodesInternal);
+
+            NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
+
+            return RedirectToAction(nameof(Warnings));
+        }
+
+        private static async Task EnsureAttributeCombinationHashCodesInternal(ILifetimeScope scope, CancellationToken cancelToken)
+        {
+            try
+            {
+                var productAttributeService = scope.Resolve<IProductAttributeService>();
+
+                _ = await productAttributeService.EnsureAttributeCombinationHashCodesAsync(cancelToken);
+            }
+            catch (Exception ex)
+            {
+                scope.Resolve<ILogger>().Error(ex);
+            }
         }
 
         #endregion
@@ -688,6 +719,18 @@ namespace Smartstore.Admin.Controllers
                 AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.FilePermission.OK"));
             }
 
+            // Hash code of product attribute combinations
+            // ====================================
+            var missingHashCodes = await _db.ProductVariantAttributeCombinations.CountAsync(x => x.HashCode == 0);
+            if (missingHashCodes > 0)
+            {
+                AddEntry(SystemWarningLevel.Fail, T("Admin.System.Warnings.AttributeCombinationHashCodes.Missing", missingHashCodes, Url.Action(nameof(EnsureAttributeCombinationHashCodes))));
+            }
+            else
+            {
+                AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.AttributeCombinationHashCodes.OK"));
+            }
+
             return View(model);
 
             void AddEntry(SystemWarningLevel level, string text)
@@ -704,10 +747,10 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> BackupList(GridCommand command)
         {
             var root = Services.ApplicationContext.TenantRoot;
-            await root.TryCreateDirectoryAsync(BACKUP_DIR);
+            await root.TryCreateDirectoryAsync(BackupDir);
 
             var backups = await root
-                .EnumerateFilesAsync(BACKUP_DIR)
+                .EnumerateFilesAsync(BackupDir)
                 .AsyncToList();
 
             var dataProvider = _db.DataProvider;
@@ -752,7 +795,7 @@ namespace Smartstore.Admin.Controllers
             {
                 if (_db.DataProvider.CanBackup)
                 {
-                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
+                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BackupDir);
                     var fs = dir.FileSystem;
 
                     var backupName = _db.DataProvider.CreateBackupFileName();
@@ -791,7 +834,7 @@ namespace Smartstore.Admin.Controllers
                 var validationResult = _db.DataProvider.ValidateBackupFileName(backupName);
                 if (validationResult.IsValid)
                 {
-                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
+                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BackupDir);
                     var fs = dir.FileSystem;
                     var path = PathUtility.Join(dir.SubPath, backupName);
 
@@ -831,7 +874,7 @@ namespace Smartstore.Admin.Controllers
             {
                 if (_db.DataProvider.CanRestore)
                 {
-                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
+                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BackupDir);
                     var fs = dir.FileSystem;
                     var fullPath = fs.MapPath(PathUtility.Join(dir.SubPath, name));
 
@@ -864,7 +907,7 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var fileName in selection.SelectedKeys)
             {
-                var file = root.GetFile(PathUtility.Join(BACKUP_DIR, fileName));
+                var file = root.GetFile(PathUtility.Join(BackupDir, fileName));
                 if (file.Exists)
                 {
                     try
@@ -891,7 +934,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var root = Services.ApplicationContext.TenantRoot;
-            var backup = await root.GetFileAsync(BACKUP_DIR + "\\" + name);
+            var backup = await root.GetFileAsync(BackupDir + "\\" + name);
             var contentType = MimeTypes.MapNameToMimeType(backup.PhysicalPath);
 
             try

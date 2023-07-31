@@ -276,16 +276,14 @@ namespace Smartstore.Core.Catalog.Attributes
                         attributeSelection.AddAttributeValue(mappedAttributes[value.Id].Id, value.Id);
                     }
 
-                    var combination = new ProductVariantAttributeCombination
+                    _db.ProductVariantAttributeCombinations.Add(new()
                     {
                         ProductId = productId,
                         RawAttributes = attributeSelection.AsJson(),
                         StockQuantity = 10000,
                         AllowOutOfStockOrders = true,
                         IsActive = true
-                    };
-
-                    _db.ProductVariantAttributeCombinations.Add(combination);
+                    });
                 }
 
                 addedCombinations = await scope.CommitAsync();
@@ -326,40 +324,43 @@ namespace Smartstore.Core.Catalog.Attributes
             }
         }
 
-        public virtual async Task<int> EnsureAttributeCombinationHashCodesAsync(int take = 5000, CancellationToken cancelToken = default)
+        public virtual async Task<int> EnsureAttributeCombinationHashCodesAsync(CancellationToken cancelToken = default)
         {
-            Guard.IsPositive(take);
-
-            var combinations = await _db.ProductVariantAttributeCombinations
-                .Where(x => x.HashCode == 0)
-                .Select(x => new { x.Id, x.RawAttributes })
-                .OrderBy(x => x.Id)
-                .Take(take)
-                .ToListAsync(cancelToken);
-
-            if (combinations.Count == 0)
-            {
-                return 0;
-            }
-
+            const int take = 5000;
+            var numBatches = 0;
             var numSuccess = 0;
 
-            foreach (var combination in combinations)
+            var query = _db.ProductVariantAttributeCombinations
+                .Where(x => x.HashCode == 0)
+                .Select(x => new { x.Id, x.RawAttributes })
+                .OrderBy(x => x.Id);
+
+            // Avoid an infinite loop here under all circumstances. Process a maximum of 500,000,000 records.
+            do
             {
-                //var hashCode = new ProductVariantAttributeCombination { RawAttributes = combination.RawAttributes }.GetAttributesHashCode();
-                var hashCode = new ProductVariantAttributeSelection(combination.RawAttributes).GetHashCode();
-                if (hashCode != 0)
+                var combinations = await query.Take(take).ToListAsync(cancelToken);
+                if (combinations.Count == 0)
                 {
-                    numSuccess += await _db.ProductVariantAttributeCombinations
-                        .Where(x => x.Id == combination.Id)
-                        .ExecuteUpdateAsync(x => x.SetProperty(pvac => pvac.HashCode, pvac => hashCode), cancelToken);
+                    break;
                 }
-                else
+
+                foreach (var combination in combinations)
                 {
-                    throw new InvalidOperationException($"Unexpected failure generating a hash code for ProductVariantAttributeCombination with ID {combination.Id}.",
-                        new Exception(combination.RawAttributes));
+                    var hashCode = new ProductVariantAttributeSelection(combination.RawAttributes).GetHashCode();
+                    if (hashCode != 0)
+                    {
+                        numSuccess += await _db.ProductVariantAttributeCombinations
+                            .Where(x => x.Id == combination.Id)
+                            .ExecuteUpdateAsync(x => x.SetProperty(pvac => pvac.HashCode, pvac => hashCode), cancelToken);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Unexpected failure generating a hash code for ProductVariantAttributeCombination with ID {combination.Id}.",
+                            new Exception(combination.RawAttributes));
+                    }
                 }
             }
+            while (++numBatches < 100000 && !cancelToken.IsCancellationRequested);
 
             // TODO: (mg) check whether any cache clearing is required when ready.
 

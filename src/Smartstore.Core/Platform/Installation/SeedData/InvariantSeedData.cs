@@ -1437,18 +1437,47 @@ namespace Smartstore.Core.Installation
             return null;
         }
 
-        protected static string FormatAttributeJson(List<(int Attribute, object Value)> Attributes)
+        protected static ProductVariantAttributeCombination CreateAttributeCombination(
+            Product product,
+            string sku,
+            List<ProductAttributeSample> attributes,
+            MediaFile file = null,
+            bool isActive = true,
+            int stockQuantity = 10000,
+            decimal? price = null,
+            string mediaFileIds = null)
         {
             var selection = new ProductVariantAttributeSelection(string.Empty);
-
-            foreach (var attribute in Attributes)
+            foreach (var attribute in attributes)
             {
-                selection.AddAttribute(attribute.Attribute, new List<object> { attribute.Value });
+                selection.AddAttribute(attribute.AttributeId, new List<object> { attribute.Value });
             }
 
-            return selection.AsJson();
+            return new ProductVariantAttributeCombination
+            {
+                Product = product,
+                Sku = sku,
+                RawAttributes = selection.AsJson(),
+                StockQuantity = stockQuantity,
+                AllowOutOfStockOrders = true,
+                IsActive = isActive,
+                Price = price,
+                AssignedMediaFileIds = mediaFileIds ?? file?.Id.ToString()
+            };
         }
 
         #endregion
+
+        public class ProductAttributeSample
+        {
+            public ProductAttributeSample(int attributeId, object value)
+            {
+                AttributeId = attributeId;
+                Value = value;
+            }
+
+            public int AttributeId { get; }
+            public object Value { get; }
+        }
     }
 }

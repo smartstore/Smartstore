@@ -161,6 +161,10 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 _rawAttributes = value;
                 _attributeSelection = null;
+
+                _hashCode = _hashCode.GetValueOrDefault() == 0 && _rawAttributes.HasValue()
+                    ? AttributeSelection.GetHashCode()
+                    : null;
             }
         }
 

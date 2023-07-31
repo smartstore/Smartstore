@@ -393,13 +393,11 @@ namespace Smartstore.Domain
 
             foreach (var attribute in _attributes.Attributes)
             {
-                combiner.Add(attribute.GetHashCode());
-                attribute.Value.Each(value => combiner.Add(value.GetHashCode()));
+                combiner.Add(attribute.Key);
+                attribute.Value.Each(value => combiner.Add(value?.ToString()));
             }
 
-            // INFO: CustomAttributes (like gift card data) always ignored. ProductVariantAttributeCombination never contains CustomAttributes and
-            // FindAttributeCombinationAsync would not return a match if the AttributeSelection being compared contains gift card data.
-            // On the other hand this hash is not valid for Orderitem.AttributesXml because it contains persisted CustomAttributes.
+            // INFO: CustomAttributes (like gift card data) are always ignored. FindAttributeCombinationAsync only includes list type attributes.
 
             return combiner.CombinedHash;
         }

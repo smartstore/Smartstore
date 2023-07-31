@@ -1738,241 +1738,197 @@ namespace Smartstore.Core.Installation
 
             #region blue-gray-classic-black
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_blue-gray-classic-black",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_blue-gray-classic-black",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "blue-gray-classic").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-blue-gray-classic-black-1")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-blue-gray-classic-black-1"))
+            ));
 
             #endregion blue-gray-classic-black
 
             #region gray-course-black
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_gray-course-black",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_gray-course-black",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "gray-course").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-gray-course-black")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-gray-course-black"))
+            ));
 
             #endregion gray-course-black
 
             #region brown-course-havana
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_brown-course-havana",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_brown-course-havana",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "brown-course").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-brown-course-havana")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-brown-course-havana"))
+            ));
 
             #endregion brown-course-havana
 
             #region green-classic-havana-black
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_green-classic-havana-black",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_green-classic-havana-black",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "green-classic").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-green-classic-havana-black")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-green-classic-havana-black"))
+            ));
 
             #endregion green-classic-havana-black
 
             #region blue-gray-classic-havana-black
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_blue-gray-classic-havana-black",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_blue-gray-classic-havana-black",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "blue-gray-classic").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id )
-                }),
-                StockQuantity = 0,
-                AllowOutOfStockOrders = true,
-                IsActive = false,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-blue-gray-classic-black-1")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-blue-gray-classic-black-1")),
+                false,
+                0
+            ));
 
             #endregion green-classic-havana-black
 
             #region blue-gray-classic-havana
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_blue-gray-classic-havana",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_blue-gray-classic-havana",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "blue-gray-classic").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id )
-                }),
-                StockQuantity = 0,
-                AllowOutOfStockOrders = true,
-                IsActive = false,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-blue-gray-classic-black-1")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-blue-gray-classic-black-1")),
+                false,
+                0
+            ));
 
             #endregion green-classic-rayban-black
 
             #region gray-course-havana-black
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_gray-course-havana-black",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_gray-course-havana-black",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "gray-course").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id )
-                }),
-                StockQuantity = 0,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-gray-course-black")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-gray-course-black")),
+                true,
+                0
+            ));
 
             #endregion gray-course-havana-black
 
             #region gray-course-havana
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_gray-course-havana",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_gray-course-havana",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "gray-course").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id )
-                }),
-                StockQuantity = 0,
-                AllowOutOfStockOrders = true,
-                IsActive = false,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-gray-course-black")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-gray-course-black")),
+                false,
+                0
+            ));
 
             #endregion gray-course-rayban-black
 
             #region green-classic-rayban-black
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_green-classic-rayban-black",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_green-classic-rayban-black",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "green-classic").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id )
-                }),
-                StockQuantity = 0,
-                AllowOutOfStockOrders = true,
-                IsActive = false,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-green-classic-havana-black")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-green-classic-havana-black")),
+                false,
+                0
+            ));
 
             #endregion green-classic-rayban-black
 
             #region green-classic-havana
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_green-classic-havana",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_green-classic-havana",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "green-classic").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id )
-                }),
-                StockQuantity = 0,
-                AllowOutOfStockOrders = true,
-                IsActive = false,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-green-classic-havana-black")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-green-classic-havana-black")),
+                false,
+                0
+            ));
 
             #endregion gray-course-rayban-black
 
             #region brown-course-havana-black
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_brown-course-havana-black",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_brown-course-havana-black",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "brown-course").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id )
-                }),
-                StockQuantity = 0,
-                AllowOutOfStockOrders = true,
-                IsActive = false,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-brown-course-havana")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-brown-course-havana")),
+                false,
+                0
+            ));
 
             #endregion brown-course-havana-black
 
             #region brown-course-rayban-black
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productWayfarer,
-                Sku = productWayfarer.Sku + "_brown-course-rayban-black",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productWayfarer,
+                productWayfarer.Sku + "_brown-course-rayban-black",
+                new()
                 {
                     new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "brown-course").Id ),
                     new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id )
-                }),
-                StockQuantity = 0,
-                AllowOutOfStockOrders = true,
-                IsActive = false,
-                //Price = 299M,
-                AssignedMediaFileIds = picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-brown-course-havana")).Id.ToString()
-            });
+                },
+                picturesWayfarer.First(x => x.Name.StartsWith("wayfarer-brown-course-havana")),
+                false,
+                0
+            ));
 
             #endregion brown-course-rayban-black
 
@@ -2001,25 +1957,17 @@ namespace Smartstore.Core.Installation
                     {
                         try
                         {
-                            var rawAttributes = FormatAttributeJson(new List<(int, object)>
-                            {
-                                new(flakLenscolor.Id, lenscolorValue.Id ),
-                                new(flakLenstype.Id, lenstypeValue.Id ),
-                                new(flakFramecolor.Id, framecolorValue.Id )
-                            });
-
-                            var fileId = picturesFlak.FirstOrDefault(x => x.Name.Contains(framecolorValue.Alias + '-' + lenscolorValue.Alias))?.Id.ToString();
-
-                            entities.Add(new ProductVariantAttributeCombination
-                            {
-                                Product = productFlak,
-                                Sku = $"{productFlak.Sku}-{framecolorValue.Alias}-{lenscolorValue.Alias}-{lenstypeValue.Alias}",
-                                RawAttributes = rawAttributes,
-                                StockQuantity = 10000,
-                                AllowOutOfStockOrders = true,
-                                IsActive = true,
-                                AssignedMediaFileIds = fileId
-                            });
+                            entities.Add(CreateAttributeCombination(
+                                productFlak,
+                                $"{productFlak.Sku}-{framecolorValue.Alias}-{lenscolorValue.Alias}-{lenstypeValue.Alias}",
+                                new()
+                                {
+                                    new(flakLenscolor.Id, lenscolorValue.Id ),
+                                    new(flakLenstype.Id, lenstypeValue.Id ),
+                                    new(flakFramecolor.Id, framecolorValue.Id )
+                                },
+                                picturesFlak.FirstOrDefault(x => x.Name.Contains(framecolorValue.Alias + '-' + lenscolorValue.Alias))
+                            ));
                         }
                         catch
                         {
@@ -2040,33 +1988,25 @@ namespace Smartstore.Core.Installation
             var productAttributeColor = _db.ProductVariantAttributes.First(x => x.ProductId == productPs3.Id && x.ProductAttributeId == attrController.Id);
             var attributeColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == productAttributeColor.Id).ToList();
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productPs3,
-                Sku = productPs3.Sku + "-B",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productPs3,
+                productPs3.Sku + "-B",
+                new List<ProductAttributeSample>
                 {
-                    new(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "with_controller").Id ),
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesPs3.First(x => x.Name.Contains("-controller")).Id.ToString()
-            });
+                    new(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "with_controller").Id )
+                },
+                picturesPs3.First(x => x.Name.Contains("-controller"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productPs3,
-                Sku = productPs3.Sku + "-W",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productPs3,
+                productPs3.Sku + "-W",
+                new List<ProductAttributeSample>
                 {
-                    new(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "without_controller").Id ),
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesPs3.First(x => x.Name.Contains("-single")).Id.ToString()
-            });
+                    new(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "without_controller").Id )
+                },
+                picturesPs3.First(x => x.Name.Contains("-single"))
+            ));
 
             #endregion ps3
 
@@ -2079,84 +2019,65 @@ namespace Smartstore.Core.Installation
             var airpodAttributeColor = _db.ProductVariantAttributes.First(x => x.ProductId == productAirpod.Id && x.ProductAttributeId == attrColor.Id);
             var airpodAttributeColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == airpodAttributeColor.Id).ToList();
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productAirpod,
-                Sku = productAirpod.Sku + "-gold",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productAirpod,
+                productAirpod.Sku + "-gold",
+                new()
                 {
                     new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "gold").Id ),
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesAirpod.First(x => x.Name.Contains("-gold")).Id.ToString()
-            });
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productAirpod,
-                Sku = productAirpod.Sku + "-rose",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                },
+                picturesAirpod.First(x => x.Name.Contains("-gold"))
+            ));
+
+            entities.Add(CreateAttributeCombination(
+                productAirpod,
+                productAirpod.Sku + "-rose",
+                new()
                 {
                     new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "rose").Id ),
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesAirpod.First(x => x.Name.Contains("-rose")).Id.ToString()
-            });
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productAirpod,
-                Sku = productAirpod.Sku + "-mint",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                },
+                picturesAirpod.First(x => x.Name.Contains("-rose"))
+            ));
+
+            entities.Add(CreateAttributeCombination(
+                productAirpod,
+                productAirpod.Sku + "-mint",
+                new()
                 {
                     new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "mint").Id ),
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesAirpod.First(x => x.Name.Contains("-mint")).Id.ToString()
-            });
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productAirpod,
-                Sku = productAirpod.Sku + "-lightblue",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                },
+                picturesAirpod.First(x => x.Name.Contains("-mint"))
+            ));
+
+            entities.Add(CreateAttributeCombination(
+                productAirpod,
+                productAirpod.Sku + "-lightblue",
+                new()
                 {
                     new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "lightblue").Id ),
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesAirpod.First(x => x.Name.Contains("-lightblue")).Id.ToString()
-            });
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productAirpod,
-                Sku = productAirpod.Sku + "-turquoise",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                },
+                picturesAirpod.First(x => x.Name.Contains("-lightblue"))
+            ));
+
+            entities.Add(CreateAttributeCombination(
+                productAirpod,
+                productAirpod.Sku + "-turquoise",
+                new()
                 {
                     new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "turquoise").Id ),
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesAirpod.First(x => x.Name.Contains("-turquoise")).Id.ToString()
-            });
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productAirpod,
-                Sku = productAirpod.Sku + "-white",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                },
+                picturesAirpod.First(x => x.Name.Contains("-turquoise"))
+            ));
+
+            entities.Add(CreateAttributeCombination(
+                productAirpod,
+                productAirpod.Sku + "-white",
+                new()
                 {
                     new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "white").Id ),
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesAirpod.First(x => x.Name.Contains("-white")).Id.ToString()
-            });
+                },
+                picturesAirpod.First(x => x.Name.Contains("-white"))
+            ));
 
             #endregion Apple Airpod
 
@@ -2174,296 +2095,205 @@ namespace Smartstore.Core.Installation
             var ipad97Capacity = _db.ProductVariantAttributes.First(x => x.ProductId == productiPad97.Id && x.ProductAttributeId == attrMemoryCapacity.Id);
             var iPad97CapacityValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ipad97Capacity.Id).ToList();
 
-            #region silver
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "-silver-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "-silver-64gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "silver").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                Price = 299M,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-silver")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-silver")),
+                price: 299M
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "silver-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "silver-128gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "silver").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-silver")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-silver"))
+            ));
 
-            #endregion silver
-
-            #region gold
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "-gold-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "-gold-64gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "gold").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                Price = 279M,
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-gold")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-gold")),
+                price: 279M
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "gold-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "gold-128gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "gold").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-gold")).Id.ToString()
-            });
-            #endregion gold
+                },
+                picturesiPad97.First(x => x.Name.Contains("-gold"))
+            ));
 
-            #region spacegray
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "-spacegray-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "-spacegray-64gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "spacegray").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-spacegray")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-spacegray"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "spacegray-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "spacegray-128gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "spacegray").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-spacegray")).Id.ToString()
-            });
-            #endregion spacegray
+                },
+                picturesiPad97.First(x => x.Name.Contains("-spacegray"))
+            ));
 
-            #region rose
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "-rose-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "-rose-64gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "rose").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-rose")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-rose"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "rose-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "rose-128gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "rose").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-rose")).Id.ToString()
-            });
-            #endregion rose
+                },
+                picturesiPad97.First(x => x.Name.Contains("-rose"))
+            ));
 
-            #region mint
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "-mint-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "-mint-64gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "mint").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-mint")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-mint"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "mint-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "mint-128gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "mint").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-mint")).Id.ToString()
-            });
-            #endregion mint
+                },
+                picturesiPad97.First(x => x.Name.Contains("-mint"))
+            ));
 
-            #region purple
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "-purple-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "-purple-64gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "purple").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-purple")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-purple"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "purple-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "purple-128gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "purple").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-purple")).Id.ToString()
-            });
-            #endregion purple
+                },
+                picturesiPad97.First(x => x.Name.Contains("-purple"))
+            ));
 
-            #region lightblue
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "-lightblue-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "-lightblue-64gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "lightblue").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-lightblue")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-lightblue"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "lightblue-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "lightblue-128gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "lightblue").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-lightblue")).Id.ToString()
-            });
-            #endregion lightblue
+                },
+                picturesiPad97.First(x => x.Name.Contains("-lightblue"))
+            ));
 
-            #region yellow
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "-yellow-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "-yellow-64gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "yellow").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-yellow")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-yellow"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "yellow-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "yellow-128gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "yellow").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-yellow")).Id.ToString()
-            });
-            #endregion yellow
+                },
+                picturesiPad97.First(x => x.Name.Contains("-yellow"))
+            ));
 
-            #region turquoise
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "-turquoise-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "-turquoise-64gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "turquoise").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-turquoise")).Id.ToString()
-            });
+                },
+                picturesiPad97.First(x => x.Name.Contains("-turquoise"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productiPad97,
-                Sku = productiPad97.Sku + "turquoise-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productiPad97,
+                productiPad97.Sku + "turquoise-128gb",
+                new()
                 {
                     new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "turquoise").Id ),
                     new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesiPad97.First(x => x.Name.Contains("-turquoise")).Id.ToString()
-            });
-            #endregion turquoise
+                },
+                picturesiPad97.First(x => x.Name.Contains("-turquoise"))
+            ));
 
             #endregion 9,7 Ipad
 
@@ -2481,157 +2311,115 @@ namespace Smartstore.Core.Installation
             var Iphone7PlusCapacity = _db.ProductVariantAttributes.First(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrMemoryCapacity.Id);
             var Iphone7PlusCapacityValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == Iphone7PlusCapacity.Id).ToList();
 
-
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-black-64gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-black-64gb",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "black").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-black")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-black"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-black-128gb",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-black-128gb",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "black").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-black")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-black"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-red-64",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-red-64",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "red").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-red")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-red"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-red-128",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-red-128",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "red").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-red")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-red"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-silver-64",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-silver-64",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "silver").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-silver")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-silver"))
+            ));
 
-
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-silver-128",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-silver-128",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "silver").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-silver")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-silver"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-rose-64",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-rose-64",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "rose").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-rose")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-rose"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-rose-128",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-rose-128",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "rose").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-rose")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-rose"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-gold-64",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-gold-64",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "gold").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-gold")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-gold"))
+            ));
 
-            entities.Add(new ProductVariantAttributeCombination()
-            {
-                Product = productIphone7Plus,
-                Sku = productIphone7Plus.Sku + "-gold-128",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productIphone7Plus,
+                productIphone7Plus.Sku + "-gold-128",
+                new()
                 {
                     new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "gold").Id ),
                     new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                AssignedMediaFileIds = picturesIphone7Plus.First(x => x.Name.Contains("-gold")).Id.ToString()
-            });
+                },
+                picturesIphone7Plus.First(x => x.Name.Contains("-gold"))
+            ));
 
             #endregion Iphone 7 plus
 
@@ -2669,20 +2457,17 @@ namespace Smartstore.Core.Installation
             foreach (var comb in allStarCombinations)
             {
                 var lowerColor = comb.Color.ToLower();
-                entities.Add(new ProductVariantAttributeCombination
-                {
-                    Product = productAllStar,
-                    Sku = productAllStar.Sku + string.Concat("-", lowerColor, "-", comb.Size),
-                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+
+                entities.Add(CreateAttributeCombination(
+                    productAllStar,
+                    productAllStar.Sku + string.Concat("-", lowerColor, "-", comb.Size),
+                    new()
                     {
                         new(allStarColor.Id, allStarColorValues.First(x => x.Alias == lowerColor).Id ),
                         new(allStarSize.Id, allStarSizeValues.First(x => x.Alias == comb.Size).Id )
-                    }),
-                    StockQuantity = 10000,
-                    AllowOutOfStockOrders = true,
-                    IsActive = true,
-                    AssignedMediaFileIds = allStarPictures.First(x => x.Name.Contains(lowerColor)).Id.ToString()
-                });
+                    },
+                    allStarPictures.First(x => x.Name.Contains(lowerColor))
+                ));
             }
 
             #endregion
@@ -2719,20 +2504,16 @@ namespace Smartstore.Core.Installation
                 var lowerSize = comb.Size.ToLower();
                 var pictureIds = shirtMeccanicaPictures.Where(x => x.Name.Contains($"_{lowerColor}_")).Select(x => x.Id);
 
-                entities.Add(new ProductVariantAttributeCombination
-                {
-                    Product = productShirtMeccanica,
-                    Sku = productShirtMeccanica.Sku + string.Concat("-", lowerColor, "-", lowerSize),
-                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+                entities.Add(CreateAttributeCombination(
+                    productShirtMeccanica,
+                    productShirtMeccanica.Sku + string.Concat("-", lowerColor, "-", lowerSize),
+                    new()
                     {
                         new(shirtMeccanicaColor.Id, shirtMeccanicaColorValues.First(x => x.Alias == lowerColor).Id ),
                         new(shirtMeccanicaSize.Id, shirtMeccanicaSizeValues.First(x => x.Alias == lowerSize).Id )
-                    }),
-                    StockQuantity = 10000,
-                    AllowOutOfStockOrders = true,
-                    IsActive = true,
-                    AssignedMediaFileIds = string.Join(",", pictureIds)
-                });
+                    },
+                    mediaFileIds: string.Join(",", pictureIds)
+                ));
             }
 
             #endregion
@@ -2793,20 +2574,16 @@ namespace Smartstore.Core.Installation
                 var lowerColor = comb.Color.ToLower();
                 var lowerSize = comb.Size.ToLower();
 
-                entities.Add(new ProductVariantAttributeCombination
-                {
-                    Product = productLadiesJacket,
-                    Sku = productLadiesJacket.Sku + string.Concat("-", lowerColor, "-", lowerSize),
-                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+                entities.Add(CreateAttributeCombination(
+                    productLadiesJacket,
+                    productLadiesJacket.Sku + string.Concat("-", lowerColor, "-", lowerSize),
+                    new()
                     {
                         new(ladiesJacketColor.Id, ladiesJacketColorValues.First(x => x.Alias == lowerColor).Id ),
                         new(ladiesJacketSize.Id, ladiesJacketSizeValues.First(x => x.Alias == lowerSize).Id )
-                    }),
-                    StockQuantity = 10000,
-                    AllowOutOfStockOrders = true,
-                    IsActive = true,
-                    AssignedMediaFileIds = ladiesJacketPictures.First(x => x.Name.Contains(lowerColor)).Id.ToString()
-                });
+                    },
+                    ladiesJacketPictures.First(x => x.Name.Contains(lowerColor))
+                ));
             }
 
             #endregion
@@ -2821,62 +2598,49 @@ namespace Smartstore.Core.Installation
             var corbusierTablePlateThickness = _db.ProductVariantAttributes.First(x => x.ProductId == productCorbusierTable.Id && x.ProductAttributeId == attrPlateThickness.Id);
             var corbusierTablePlateThicknessValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == corbusierTablePlateThickness.Id).ToList();
 
-            entities.Add(new ProductVariantAttributeCombination
-            {
-                Product = productCorbusierTable,
-                Sku = productCorbusierTable.Sku + "-clear-15",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+            entities.Add(CreateAttributeCombination(
+                productCorbusierTable,
+                productCorbusierTable.Sku + "-clear-15",
+                new()
                 {
                     new(corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "clear-glass").Id ),
                     new(corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "15mm").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                Price = 749.00M
-            });
-            entities.Add(new ProductVariantAttributeCombination
-            {
-                Product = productCorbusierTable,
-                Sku = productCorbusierTable.Sku + "-clear-19",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                },
+                price: 749.00M
+            ));
+
+            entities.Add(CreateAttributeCombination(
+                productCorbusierTable,
+                productCorbusierTable.Sku + "-clear-19",
+                new()
                 {
                     new(corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "clear-glass").Id ),
                     new(corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "19mm").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                Price = 899.00M
-            });
-            entities.Add(new ProductVariantAttributeCombination
-            {
-                Product = productCorbusierTable,
-                Sku = productCorbusierTable.Sku + "-sandblasted-15",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                },
+                price: 899.00M
+            ));
+
+            entities.Add(CreateAttributeCombination(
+                productCorbusierTable,
+                productCorbusierTable.Sku + "-sandblasted-15",
+                new()
                 {
                     new(corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "sandblasted-glass").Id ),
                     new(corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "15mm").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                Price = 849.00M
-            });
-            entities.Add(new ProductVariantAttributeCombination
-            {
-                Product = productCorbusierTable,
-                Sku = productCorbusierTable.Sku + "-sandblasted-19",
-                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                },
+                price: 849.00M
+            ));
+
+            entities.Add(CreateAttributeCombination(
+                productCorbusierTable,
+                productCorbusierTable.Sku + "-sandblasted-19",
+                new()
                 {
                     new(corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "sandblasted-glass").Id ),
                     new(corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "19mm").Id )
-                }),
-                StockQuantity = 10000,
-                AllowOutOfStockOrders = true,
-                IsActive = true,
-                Price = 999.00M
-            });
+                },
+                price: 999.00M
+            ));
 
             #endregion
 
@@ -2929,20 +2693,16 @@ namespace Smartstore.Core.Installation
                 var lowerColor = comb.Color.ToLower();
                 var lowerSize = comb.Size.ToLower();
 
-                entities.Add(new ProductVariantAttributeCombination
-                {
-                    Product = productAdidasTANGOSALABALL,
-                    Sku = productAdidasTANGOSALABALL.Sku + string.Concat("-", lowerColor, "-", lowerSize),
-                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+                entities.Add(CreateAttributeCombination(
+                    productAdidasTANGOSALABALL,
+                    productAdidasTANGOSALABALL.Sku + string.Concat("-", lowerColor, "-", lowerSize),
+                    new()
                     {
                         new(adidasTANGOSALABALLColor.Id, adidasTANGOSALABALLColorValues.First(x => x.Alias == lowerColor).Id ),
                         new(adidasTANGOSALABALLSize.Id, adidasTANGOSALABALLSizeValues.First(x => x.Alias == lowerSize).Id )
-                    }),
-                    StockQuantity = 10000,
-                    AllowOutOfStockOrders = true,
-                    IsActive = true,
-                    AssignedMediaFileIds = adidasTANGOSALABALLJacketPictures.First(x => x.Name.Contains(lowerColor)).Id.ToString()
-                });
+                    },
+                    adidasTANGOSALABALLJacketPictures.First(x => x.Name.Contains(lowerColor))
+                ));
             }
 
             #endregion Soccer Adidas TANGO SALA BALL
@@ -2988,20 +2748,16 @@ namespace Smartstore.Core.Installation
                 var lowerColor = comb.Color.ToLower();
                 var lowerSize = comb.Size.ToLower();
 
-                entities.Add(new ProductVariantAttributeCombination
-                {
-                    Product = productTorfabrikBall,
-                    Sku = productTorfabrikBall.Sku + string.Concat("-", lowerColor, "-", lowerSize),
-                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+                entities.Add(CreateAttributeCombination(
+                    productTorfabrikBall,
+                    productTorfabrikBall.Sku + string.Concat("-", lowerColor, "-", lowerSize),
+                    new()
                     {
                         new(torfabrikBallColor.Id, torfabrikBallColorValues.First(x => x.Alias == lowerColor).Id ),
                         new(torfabrikBallSize.Id, torfabrikBallSizeValues.First(x => x.Alias == lowerSize).Id )
-                    }),
-                    StockQuantity = 10000,
-                    AllowOutOfStockOrders = true,
-                    IsActive = true,
-                    AssignedMediaFileIds = torfabrikBallPictures.First(x => x.Name.Contains(lowerColor)).Id.ToString()
-                });
+                    },
+                    torfabrikBallPictures.First(x => x.Name.Contains(lowerColor))
+                ));
             }
 
             #endregion Soccer Torfabrik official game ball
@@ -3038,22 +2794,18 @@ namespace Smartstore.Core.Installation
 
                     foreach (var leatherColorValue in ballChairLeatherColorValues)
                     {
-                        entities.Add(new ProductVariantAttributeCombination
-                        {
-                            Product = productBallChair,
-                            Sku = productBallChair.Sku + string.Concat("-", colorValue.Alias, "-", materialValue.Alias),
-                            RawAttributes = FormatAttributeJson(new List<(int, object)>
+                        entities.Add(CreateAttributeCombination(
+                            productBallChair,
+                            productBallChair.Sku + string.Concat("-", colorValue.Alias, "-", materialValue.Alias),
+                            new List<ProductAttributeSample>
                             {
                                 new(ballChairMaterial.Id, materialValue.Id ),
                                 new(ballChairColor.Id, colorValue.Id ),
                                 new(ballChairLeatherColor.Id, leatherColorValue.Id )
-                            }),
-                            StockQuantity = 10000,
-                            AllowOutOfStockOrders = true,
-                            IsActive = true,
-                            AssignedMediaFileIds = ballChairPictures.First(x => x.Name.Contains(colorValue.Alias)).Id.ToString(),
-                            Price = ballChairPrice
-                        });
+                            },
+                            ballChairPictures.First(x => x.Name.Contains(colorValue.Alias)),
+                            price: ballChairPrice
+                        ));
                     }
                 }
             }

@@ -310,6 +310,30 @@ namespace Smartstore.Core.Catalog.Attributes
             _requestCache.RemoveByPattern(AttributeValuesPatternKey);
         }
 
+        public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync_New(int productId, ProductVariantAttributeSelection selection)
+        {
+            if (productId == 0 || !(selection?.AttributesMap?.Any() ?? false))
+            {
+                return null;
+            }
+
+            var cacheKey = AttributeCombinationByIdJsonKey.FormatInvariant(productId, selection.AsJson().XxHash());
+
+            var result = await _requestCache.GetAsync(cacheKey, async () =>
+            {
+                selection = await NormalizeSelectionAsync(selection);
+
+                var hashCode = selection.GetHashCode();
+                var combination = await _db.ProductVariantAttributeCombinations
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.ProductId == productId && x.HashCode == hashCode);
+
+                return combination;
+            });
+
+            return result;
+        }
+
         public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)
         {
             if (productId == 0 || !(selection?.AttributesMap?.Any() ?? false))
@@ -617,29 +641,6 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 return selection;
             }
-        }
-
-        private async Task<ProductVariantAttributeCombination> FindCombinationByAttributeSelectionAsync(
-            ProductVariantAttributeSelection selection, 
-            ICollection<ProductVariantAttributeCombination> combinationsLookup)
-        {
-            if (!combinationsLookup.Any())
-            {
-                return null;
-            }
-
-            selection = await NormalizeSelectionAsync(selection);
-
-            // TODO: (core) (important) (future) Save combination hash in table and always lookup by hash instead of iterating thru local data to find a match.
-            foreach (var combination in combinationsLookup)
-            {
-                if (selection.Equals(combination.AttributeSelection))
-                {
-                    return await _db.ProductVariantAttributeCombinations.FindByIdAsync(combination.Id);
-                }
-            }
-
-            return null;
         }
 
         /// <summary>

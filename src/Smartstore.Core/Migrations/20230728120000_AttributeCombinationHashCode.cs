@@ -7,7 +7,7 @@ using Smartstore.Data.Migrations;
 namespace Smartstore.Core.Migrations
 {
     [MigrationVersion("2023-07-28 12:00:00", "Core: attribute combination hash code")]
-    internal class AttributeCombinationHashCode : Migration, IDataSeeder<SmartDbContext>
+    internal class AttributeCombinationHashCode : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
         const string AttributeCombinationTable = nameof(ProductVariantAttributeCombination);
         const string HashCodeColumn = nameof(ProductVariantAttributeCombination.HashCode);
@@ -53,19 +53,22 @@ namespace Smartstore.Core.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            var numBatches = 0;
-            var total = 0;
-            int num;
+            var num = await _productAttributeService.EnsureAttributeCombinationHashCodesAsync(cancelToken);
 
-            // Avoid an infinite loop here under all circumstances. Process a maximum of 500,000,000 records.
-            do
-            {
-                num = await _productAttributeService.EnsureAttributeCombinationHashCodesAsync(5000, cancelToken);
-                total += num;
-            }
-            while (num > 0 && ++numBatches < 100000 && !cancelToken.IsCancellationRequested);
+            _logger.Debug($"Created hash codes for {num} product attribute combinations.");
 
-            _logger.Debug($"Created hash codes for {total} product attribute combinations.");
+            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
+        }
+
+        public void MigrateLocaleResources(LocaleResourcesBuilder builder)
+        {
+            builder.AddOrUpdate("Admin.System.Warnings.AttributeCombinationHashCodes.OK",
+                "All hash codes of attribute combinations have been set.",
+                "Alle Hash-Codes von Attribut-Kombinationen wurden festgelegt.");
+
+            builder.AddOrUpdate("Admin.System.Warnings.AttributeCombinationHashCodes.Missing",
+                "The hash code is missing for {0} attribute combination(s). <a href=\"{1}\">Fix now.</a>",
+                "Bei {0} Attribut-Kombination(en) fehlt der Hash-Code. <a href=\"{1}\">Jetzt beheben.</a>");
         }
     }
 }
