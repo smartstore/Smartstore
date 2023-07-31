@@ -35,7 +35,7 @@ namespace Smartstore.Core.Content.Media
             File = file;
             Directory = directory.EmptyNull();
 
-            var encodedName = Uri.EscapeDataString(Name);
+            var encodedName = Name.IsEmpty() ? Name : Uri.EscapeDataString(Name);
             Path = Directory.Length > 0 ? Directory + '/' + encodedName : encodedName;
 
             if (file.Width != null && file.Height != null)

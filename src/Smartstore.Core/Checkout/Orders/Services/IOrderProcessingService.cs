@@ -193,8 +193,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Captures an order.
         /// </summary>
         /// <param name="order">Order.</param>
-        /// <returns>List of errors if any.</returns>
-        Task<IList<string>> CaptureAsync(Order order);
+        Task CaptureAsync(Order order);
 
         /// <summary>
         /// Gets a value indicating whether an order can be refunded. Also checks if the payment provider supports to refund the payment.
@@ -207,8 +206,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Refunds an order. The payment is refunded at the payment provider if he supports this.
         /// </summary>
         /// <param name="order">Order.</param>
-        /// <returns>List of errors if any.</returns>
-        Task<IList<string>> RefundAsync(Order order);
+        Task RefundAsync(Order order);
 
         /// <summary>
         /// Refunds an order "offline" (without calling any payment provider).
@@ -229,8 +227,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <param name="order">Order.</param>
         /// <param name="amountToRefund">The amount to refund.</param>
-        /// <returns>List of errors if any.</returns>
-        Task<IList<string>> PartiallyRefundAsync(Order order, decimal amountToRefund);
+        Task PartiallyRefundAsync(Order order, decimal amountToRefund);
 
         /// <summary>
         /// Partially refunds an order "offline" (without calling any payment provider).
@@ -249,8 +246,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Voids an order. The payment is voided at the payment provider if he supports this.
         /// </summary>
         /// <param name="order">Order.</param>
-        /// <returns>List of errors if any.</returns>
-        Task<IList<string>> VoidAsync(Order order);
+        Task VoidAsync(Order order);
 
         /// <summary>
         /// Voids an order "offline" (without calling any payment provider).
@@ -270,8 +266,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Cancels a recurring payment.
         /// </summary>
         /// <param name="recurringPayment">Recurring payment.</param>
-        /// <returns>List of errors if any.</returns>
-        Task<IList<string>> CancelRecurringPaymentAsync(RecurringPayment recurringPayment);
+        Task CancelRecurringPaymentAsync(RecurringPayment recurringPayment);
 
         /// <summary>
         /// Processes the next recurring psayment.

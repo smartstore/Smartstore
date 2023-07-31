@@ -22,6 +22,7 @@ namespace Smartstore.Tests.Domain
                 null,
                 null,
                 null,
+                null,
                 new() { PrimaryCurrencyId = 1 },
                 null)
             {

@@ -73,12 +73,6 @@
             <LocaleResource Name="WebhookUrl.Hint">
                 <Value>Store this URL in your Stripe account as the endpoint URL for the webhook.</Value>
             </LocaleResource>
-            <LocaleResource Name="WebhookUrl.Copy">
-                <Value>Copy</Value>
-            </LocaleResource>
-            <LocaleResource Name="WebhookUrl.CopySuccess">
-                <Value>The link was successfully copied to the clipboard.</Value>
-            </LocaleResource>
             <LocaleResource Name="CreateWebhook">
                 <Value>Create webhook</Value>
             </LocaleResource>

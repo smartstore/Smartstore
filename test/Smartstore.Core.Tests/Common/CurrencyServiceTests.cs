@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NUnit.Framework;
+using Smartstore.Caching;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
@@ -62,6 +63,7 @@ namespace Smartstore.Core.Tests.Common
 
             _currencyService = new CurrencyService(
                 DbContext,
+                NullCache.Instance,
                 ProviderManager,
                 null,
                 _currencySettings,

@@ -60,12 +60,12 @@ namespace Smartstore.Core.DataExchange.Import
             IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties)
             where TEntity : BaseEntity, ILocalizedEntity
         {
-            Guard.NotNull(context, nameof(context));
-            Guard.NotNull(batch, nameof(batch));
-            Guard.NotNull(localizableProperties, nameof(localizableProperties));
+            Guard.NotNull(context);
+            Guard.NotNull(batch);
+            Guard.NotNull(localizableProperties);
 
             var entityIds = batch.Select(x => x.Entity.Id).ToArray();
-            if (!entityIds.Any())
+            if (entityIds.Length == 0)
             {
                 return 0;
             }
@@ -76,7 +76,7 @@ namespace Smartstore.Core.DataExchange.Import
             var localizedProps = (from kvp in localizableProperties
                                   where context.DataSegmenter.GetColumnIndexes(kvp.Key).Length > 0
                                   select kvp.Key).ToArray();
-            if (!localizedProps.Any())
+            if (localizedProps.Length == 0)
             {
                 return 0;
             }
@@ -91,7 +91,7 @@ namespace Smartstore.Core.DataExchange.Import
                     var keySelector = localizableProperties[prop];
                     foreach (var language in context.Languages)
                     {
-                        if (row.TryGetDataValue(prop /* ColumnName */, language.UniqueSeoCode, out string value))
+                        if (TryGetLocalizedValue(row, prop /* ColumnName */, language, out string value))
                         {
                             var localizedProperty = collection.Find(language.Id, row.Entity.Id, prop);
 
@@ -113,11 +113,7 @@ namespace Smartstore.Core.DataExchange.Import
                             else if (!string.IsNullOrEmpty(value))
                             {
                                 // Insert.
-                                var propInfo = keySelector.ExtractPropertyInfo();
-                                if (propInfo == null)
-                                {
-                                    throw new ArgumentException($"Expression '{keySelector}' does not refer to a property.");
-                                }
+                                var propInfo = keySelector.ExtractPropertyInfo() ?? throw new ArgumentException($"Expression '{keySelector}' does not refer to a property.");
 
                                 _db.LocalizedProperties.Add(new LocalizedProperty
                                 {
@@ -136,6 +132,8 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (shouldSave)
             {
+                context.ClearCache = true;
+
                 // Commit whole batch at once.
                 return await scope.CommitAsync(context.CancelToken);
             }
@@ -159,7 +157,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var shouldSave = false;
             var entityIds = batch.Select(x => x.Entity.Id).ToArray();
-            if (!entityIds.Any())
+            if (entityIds.Length == 0)
             {
                 return 0;
             }
@@ -249,8 +247,8 @@ namespace Smartstore.Core.DataExchange.Import
                         // Process localized slugs.
                         foreach (var language in context.Languages)
                         {
-                            var hasSeName = row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName);
-                            var hasLocalizedName = row.TryGetDataValue("Name", language.UniqueSeoCode, out string localizedName);
+                            var hasSeName = TryGetLocalizedValue(row, "SeName", language, out seName);
+                            var hasLocalizedName = TryGetLocalizedValue(row, "Name", language, out string localizedName);
 
                             if (hasSeName || hasLocalizedName)
                             {
@@ -271,7 +269,24 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            return await scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
+            if (num != 0)
+            {
+                context.ClearCache = true;
+            }
+
+            return num;
+        }
+
+        private static bool TryGetLocalizedValue<TEntity>(ImportRow<TEntity> row, string columnName, Language language, out string value)
+            where TEntity : BaseEntity
+        {
+            if (row.TryGetDataValue(columnName, language.LanguageCulture, out value) || row.TryGetDataValue(columnName, language.UniqueSeoCode, out value))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

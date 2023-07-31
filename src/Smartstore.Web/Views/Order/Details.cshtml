@@ -75,7 +75,7 @@
                                     @if (Model.ShowProductBundleImages)
                                     {
                                         <div class="mr-3" style="@($"width: {Math.Min(Model.BundleThumbSize, 60)}px;")">
-                                            @if (item.Image.HasImage() && !item.HideThumbnail)
+                                            @if (item.Image != null && item.Image.HasImage() && !item.HideThumbnail)
                                             {
                                                 <img sm-model="item.Image" class="img-fluid" />
                                             }

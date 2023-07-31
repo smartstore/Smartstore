@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.Admin.Models.Modularity;
 using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
@@ -268,6 +269,7 @@ namespace Smartstore.Admin.Controllers
         {
             var modules = await _moduleCatalog.Modules
                 .OrderBy(p => p.Group, ModuleDescriptor.KnownGroupComparer)
+                .ThenByDescending(p => p.IsInstalled())
                 .ThenBy(p => p.Order)
                 .SelectAwait(x => PrepareModuleModelAsync(x))
                 .AsyncToList();

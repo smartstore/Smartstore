@@ -46,7 +46,7 @@ namespace Smartstore.StripeElements.Filters
                 return;
             }
 
-            _widgetProvider.RegisterHtml("scripts", new HtmlString("<script id=\"stripe-js\" src=\"/Modules/Smartstore.Stripe/smartstore.stripe.js\"></script>"));
+            _widgetProvider.RegisterHtml("scripts", new HtmlString("<script src=\"/Modules/Smartstore.Stripe/smartstore.stripe.js\"></script>"));
             _widgetProvider.RegisterHtml("head", new HtmlString("<script id=\"stripe-js\" src=\"https://js.stripe.com/v3/\" async></script>"));
             
             await next();

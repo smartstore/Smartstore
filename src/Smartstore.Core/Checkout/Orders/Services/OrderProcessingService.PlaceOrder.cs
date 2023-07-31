@@ -17,7 +17,7 @@ namespace Smartstore.Core.Checkout.Orders
     {
         public virtual async Task<OrderPlacementResult> PlaceOrderAsync(ProcessPaymentRequest paymentRequest, Dictionary<string, string> extraData)
         {
-            Guard.NotNull(paymentRequest, nameof(paymentRequest));
+            Guard.NotNull(paymentRequest);
 
             extraData ??= new();
 
@@ -65,36 +65,35 @@ namespace Smartstore.Core.Checkout.Orders
             await ApplyCustomerData(context);
             await ApplyPricingData(context);
 
-            if (await ProcessPayment(context))
+            await ProcessPayment(context);
+
+            _db.Orders.Add(context.Order);
+
+            // Save, we need the primary key.
+            // Payment has been made. Order MUST be saved immediately!
+            await _db.SaveChangesAsync();
+
+            context.Result.PlacedOrder = context.Order;
+
+            // Also applies data (like discounts) required for saving associated data.
+            await AddOrderItems(context);
+            await AddAssociatedData(context);
+
+            // Save order items.
+            await _db.SaveChangesAsync();
+
+            // Email messages, order notes etc.
+            await FinalizeOrderPlacement(context);
+
+            // Saves changes to database.
+            await CheckOrderStatusAsync(context.Order);
+
+            // Events.
+            await _eventPublisher.PublishOrderPlacedAsync(context.Order);
+
+            if (context.Order.PaymentStatus == PaymentStatus.Paid)
             {
-                _db.Orders.Add(context.Order);
-
-                // Save, we need the primary key.
-                // Payment has been made. Order MUST be saved immediately!
-                await _db.SaveChangesAsync();
-
-                context.Result.PlacedOrder = context.Order;
-
-                // Also applies data (like discounts) required for saving associated data.
-                await AddOrderItems(context);
-                await AddAssociatedData(context);
-
-                // Save order items.
-                await _db.SaveChangesAsync();
-
-                // Email messages, order notes etc.
-                await FinalizeOrderPlacement(context);
-
-                // Saves changes to database.
-                await CheckOrderStatusAsync(context.Order);
-
-                // Events.
-                await _eventPublisher.PublishOrderPlacedAsync(context.Order);
-
-                if (context.Order.PaymentStatus == PaymentStatus.Paid)
-                {
-                    await _eventPublisher.PublishOrderPaidAsync(context.Order);
-                }
+                await _eventPublisher.PublishOrderPaidAsync(context.Order);
             }
 
             return result;
@@ -105,7 +104,7 @@ namespace Smartstore.Core.Checkout.Orders
             Order initialOrder = null,
             Customer customer = null)
         {
-            Guard.NotNull(paymentRequest, nameof(paymentRequest));
+            Guard.NotNull(paymentRequest);
 
             initialOrder ??= await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
 
@@ -349,8 +348,8 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<bool> IsMinimumOrderPlacementIntervalValidAsync(Customer customer, Store store)
         {
-            Guard.NotNull(customer, nameof(customer));
-            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(customer);
+            Guard.NotNull(store);
 
             // Prevent 2 orders being placed within an X seconds time frame.
             if (_orderSettings.MinimumOrderPlacementInterval == 0)
@@ -533,17 +532,10 @@ namespace Smartstore.Core.Checkout.Orders
             ctx.PaymentRequest.OrderTotal = ctx.CartTotal.Total.Value.Amount;
         }
 
-        private async Task<bool> ProcessPayment(PlaceOrderContext ctx)
+        private async Task ProcessPayment(PlaceOrderContext ctx)
         {
             // Give payment processor the opportunity to fullfill billing address.
-            var preProcessPaymentResult = await _paymentService.PreProcessPaymentAsync(ctx.PaymentRequest);
-
-            if (!preProcessPaymentResult.Success)
-            {
-                ctx.Result.Errors.AddRange(preProcessPaymentResult.Errors);
-                ctx.Result.Errors.Add(T("Common.Error.PreProcessPayment"));
-                return false;
-            }
+            await _paymentService.PreProcessPaymentAsync(ctx.PaymentRequest);
 
             var result = new ProcessPaymentResult();
             var order = ctx.Order;
@@ -562,10 +554,6 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             var skipPaymentWorkflow = ctx.CartTotal.Total.Value == decimal.Zero;
-            var paymentMethod = !skipPaymentWorkflow
-                ? await _paymentService.LoadPaymentProviderBySystemNameAsync(pr.PaymentMethodSystemName)
-                : null;
-
             if (skipPaymentWorkflow)
             {
                 pr.PaymentMethodSystemName = string.Empty;
@@ -606,11 +594,9 @@ namespace Smartstore.Core.Checkout.Orders
                                 result = await _paymentService.ProcessRecurringPaymentAsync(pr);
                                 break;
                             case RecurringPaymentType.NotSupported:
-                                result.Errors.Add(T("Payment.RecurringPaymentNotSupported"));
-                                break;
+                                throw new PaymentException(T("Payment.RecurringPaymentNotSupported"));
                             default:
-                                result.Errors.Add(T("Payment.RecurringPaymentTypeUnknown"));
-                                break;
+                                throw new PaymentException(T("Payment.RecurringPaymentTypeUnknown"));
                         }
                     }
                 }
@@ -634,19 +620,16 @@ namespace Smartstore.Core.Checkout.Orders
                                 break;
                             case RecurringPaymentType.Automatic:
                                 // Payment is processed on payment gateway site.
-                                result = new ProcessPaymentResult();
                                 break;
                             case RecurringPaymentType.NotSupported:
-                                result.Errors.Add(T("Payment.RecurringPaymentNotSupported"));
-                                break;
+                                throw new PaymentException(T("Payment.RecurringPaymentNotSupported"));
                             default:
-                                result.Errors.Add(T("Payment.RecurringPaymentTypeUnknown"));
-                                break;
+                                throw new PaymentException(T("Payment.RecurringPaymentTypeUnknown"));
                         }
                     }
                     else
                     {
-                        result.Errors.Add(T("Order.NoRecurringProducts"));
+                        throw new PaymentException(T("Order.NoRecurringProducts"));
                     }
                 }
             }
@@ -655,46 +638,35 @@ namespace Smartstore.Core.Checkout.Orders
                 result.NewPaymentStatus = PaymentStatus.Paid;
             }
 
-            if (result.Success)
-            {
-                order.StoreId = pr.StoreId;
-                order.OrderGuid = pr.OrderGuid;
-                order.OrderStatus = OrderStatus.Pending;
-                order.AllowStoringCreditCardNumber = result.AllowStoringCreditCardNumber;
-                order.CardType = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardType) : string.Empty;
-                order.CardName = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardName) : string.Empty;
-                order.CardNumber = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardNumber) : string.Empty;
-                order.MaskedCreditCardNumber = _encryptor.EncryptText(_paymentService.GetMaskedCreditCardNumber(pr.CreditCardNumber));
-                order.CardCvv2 = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardCvv2) : string.Empty;
-                order.CardExpirationMonth = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardExpireMonth.ToString()) : string.Empty;
-                order.CardExpirationYear = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardExpireYear.ToString()) : string.Empty;
-                order.AllowStoringDirectDebit = result.AllowStoringDirectDebit;
-                order.DirectDebitAccountHolder = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitAccountHolder) : string.Empty;
-                order.DirectDebitAccountNumber = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitAccountNumber) : string.Empty;
-                order.DirectDebitBankCode = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitBankCode) : string.Empty;
-                order.DirectDebitBankName = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitBankName) : string.Empty;
-                order.DirectDebitBIC = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitBic) : string.Empty;
-                order.DirectDebitCountry = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitCountry) : string.Empty;
-                order.DirectDebitIban = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitIban) : string.Empty;
-                order.PaymentMethodSystemName = pr.PaymentMethodSystemName;
-                order.AuthorizationTransactionId = result.AuthorizationTransactionId;
-                order.AuthorizationTransactionCode = result.AuthorizationTransactionCode;
-                order.AuthorizationTransactionResult = result.AuthorizationTransactionResult;
-                order.CaptureTransactionId = result.CaptureTransactionId;
-                order.CaptureTransactionResult = result.CaptureTransactionResult.Truncate(400);
-                order.SubscriptionTransactionId = result.SubscriptionTransactionId;
-                order.PurchaseOrderNumber = pr.PurchaseOrderNumber;
-                order.PaymentStatus = result.NewPaymentStatus;
-                order.PaidDateUtc = null;
-            }
-            else
-            {
-                // Copy errors.
-                ctx.Result.Errors.Add(T("Payment.PayingFailed"));
-                ctx.Result.Errors.AddRange(result.Errors);
-            }
-
-            return result.Success;
+            order.StoreId = pr.StoreId;
+            order.OrderGuid = pr.OrderGuid;
+            order.OrderStatus = OrderStatus.Pending;
+            order.AllowStoringCreditCardNumber = result.AllowStoringCreditCardNumber;
+            order.CardType = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardType) : string.Empty;
+            order.CardName = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardName) : string.Empty;
+            order.CardNumber = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardNumber) : string.Empty;
+            order.MaskedCreditCardNumber = _encryptor.EncryptText(_paymentService.GetMaskedCreditCardNumber(pr.CreditCardNumber));
+            order.CardCvv2 = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardCvv2) : string.Empty;
+            order.CardExpirationMonth = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardExpireMonth.ToString()) : string.Empty;
+            order.CardExpirationYear = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardExpireYear.ToString()) : string.Empty;
+            order.AllowStoringDirectDebit = result.AllowStoringDirectDebit;
+            order.DirectDebitAccountHolder = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitAccountHolder) : string.Empty;
+            order.DirectDebitAccountNumber = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitAccountNumber) : string.Empty;
+            order.DirectDebitBankCode = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitBankCode) : string.Empty;
+            order.DirectDebitBankName = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitBankName) : string.Empty;
+            order.DirectDebitBIC = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitBic) : string.Empty;
+            order.DirectDebitCountry = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitCountry) : string.Empty;
+            order.DirectDebitIban = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitIban) : string.Empty;
+            order.PaymentMethodSystemName = pr.PaymentMethodSystemName;
+            order.AuthorizationTransactionId = result.AuthorizationTransactionId;
+            order.AuthorizationTransactionCode = result.AuthorizationTransactionCode;
+            order.AuthorizationTransactionResult = result.AuthorizationTransactionResult;
+            order.CaptureTransactionId = result.CaptureTransactionId;
+            order.CaptureTransactionResult = result.CaptureTransactionResult.Truncate(400);
+            order.SubscriptionTransactionId = result.SubscriptionTransactionId;
+            order.PurchaseOrderNumber = pr.PurchaseOrderNumber;
+            order.PaymentStatus = result.NewPaymentStatus;
+            order.PaidDateUtc = null;
         }
 
         private async Task AddOrderItems(PlaceOrderContext ctx)

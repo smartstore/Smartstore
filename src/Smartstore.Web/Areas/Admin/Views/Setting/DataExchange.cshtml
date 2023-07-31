@@ -1,4 +1,6 @@
-﻿@model DataExchangeSettingsModel
+﻿@using Smartstore.Core.DataExchange;
+
+@model DataExchangeSettingsModel
 
 @{
     ViewBag.Title = T("Admin.Common.DataExchange").Value;
@@ -55,6 +57,17 @@
             <div class="adminData">
                 <setting-editor asp-for="ImageDownloadTimeout" sm-postfix="@T("Time.Minutes")"></setting-editor>
                 <span asp-validation-for="ImageDownloadTimeout"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ImportCompletionEmail" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ImportCompletionEmail">
+                    <select asp-for="ImportCompletionEmail" asp-items="Html.GetLocalizedEnumSelectList(typeof(DataExchangeCompletionEmail))"></select>
+                </setting-editor>
+                <span asp-validation-for="ImportCompletionEmail"></span>
             </div>
         </div>
     </div>

@@ -338,6 +338,10 @@ namespace Smartstore.Web.Api
                 .Optional();
 
             set.EntityType
+                .Action(nameof(OrdersController.PaymentCapture))
+                .ReturnsFromEntitySet(set);
+
+            set.EntityType
                 .Action(nameof(OrdersController.PaymentRefund))
                 .ReturnsFromEntitySet(set)
                 .Parameter<bool>("online")

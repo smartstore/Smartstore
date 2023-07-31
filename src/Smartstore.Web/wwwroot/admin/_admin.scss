@@ -45,6 +45,10 @@ pre {
 // Typo
 // -----------------------------------------------------
 
+b, strong {
+    font-weight: $font-weight-medium;
+}
+
 .text-light {
     color: $gray-400 !important;
 }
@@ -117,8 +121,8 @@ body {
 }
 
 .page-main {
-    --sticky-header-left: var(--content-padding-x);
-    --sticky-header-right: var(--content-padding-x);
+    --sticky-header-left: 0;
+    --sticky-header-right: 0;
     --header-height: 72px;
     --device-height: 100vh; // for clients that do not support dvh
     --device-height: 100dvh;
@@ -129,6 +133,11 @@ body {
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: 72px var(--header-height) var(--content-row);
+
+    @include media-breakpoint-up(sm) {
+        --sticky-header-left: var(--content-padding-x);
+        --sticky-header-right: var(--content-padding-x);
+    }
 }
 
 #header {
@@ -264,14 +273,9 @@ body {
         padding-left: 5px;
         padding-right: 0;
 
-        > * {
-            vertical-align: middle;
-            margin-right: 2px;
-
-            &:last-child {
-                margin-right: 0;
-            }
-        }
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
 
         &.btn-toolbar {
             margin: 0;
@@ -1100,7 +1104,7 @@ legend {
         font-size: 0.85rem;
         line-height: 1;
         color: $body-color;
-        right: 0;
+        inset-inline-end: 0;
         top: 50%;
         margin-top: -7px;
         transition: transform 0.25s ease-in-out;
@@ -1168,47 +1172,6 @@ legend {
     }
 }
 
-
-//
-// Dashboard
-// --------------------------------------------------
-
-.stats-today {
-    .stats-today-item {
-        padding: 0 1.5rem;
-        text-align: left;
-        border-right: 1px solid $gray-300;
-
-        &:last-child {
-            padding-right: $grid-gutter-width/2;
-            border-right: none
-        }
-    }
-
-    .stats-today-item-label {
-        font-weight: 400;
-        font-size: $font-size-xs;
-        margin-bottom: 0.75rem;
-        color: $gray-600;
-    }
-
-    .stats-today-item-value {
-        font-size: 2rem;
-        //font-weight: 600;
-        line-height: 2rem;
-        color: $gray-500;
-
-        &.active {
-            color: $gray-700;
-        }
-    }
-
-    .stats-today-title {
-        line-height: 1;
-    }
-}
-
-
 // Modules & Providers
 // --------------------------------------------------------------
 
@@ -1219,65 +1182,84 @@ legend {
 }
 
 .module-list {
-    margin-bottom: 2rem;
-    margin-left: -$content-padding-x;
-    margin-right: -$content-padding-x;
-}
-
-.module-list,
-.module-item {
     position: relative;
-}
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(390px, max-content));
+    gap: 20px;
+    margin-bottom: 2rem;
 
-.module-list > h3 {
-    color: $text-muted;
-    font-size: $h5-font-size;
-    margin-bottom: 1rem;
-    padding: 0 $content-padding-x;
+    .module-group {
+        display: contents;
+    }
+
+    .module-group-header {
+        grid-column: 1 / -1;
+        color: $text-muted;
+        font-size: $h5-font-size;
+        margin-top: 1.5rem;
+        margin-bottom: 0;
+    }
 }
 
 .module-item {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 1rem 0;
-    border-top: 1px solid rgba(#000, 0.1);
-}
+    > .card-body, 
+    > .card-footer {
+        display: flex;
+        gap: 1rem;
+    }
 
-.module-item.inactive {
-    background-color: $gray-100;
-}
+    &.inactive {
+        background-color: $gray-100;
 
-.module-item.inactive .module-icon {
-    opacity: 0.5;
+        .module-icon {
+            opacity: 0.5;
+        }
+    }
+
+    .btn.activate-provider {
+        > .bi {
+            margin-inline-end: 0.2rem;
+        }
+        > span {
+            padding: 0 !important;
+        }
+    }
 }
 
 .module-icon {
-    width: 93px;
-    text-align: center;
+    display: flex;
+    width: 64px;
+    align-items: start;
+    justify-content: center;
     flex: 0 0 auto;
     max-width: none;
-    padding: 15px;
-    padding-left: $content-padding-x;
 
-    .icon, i {
+    > .icon, > i {
         max-width: 48px;
     }
 }
 
+.module-signal {
+    border-radius: 50%;
+    width: 12px; 
+    height: 12px
+}
+
+.module-commands {
+    display: flex;
+    gap: 2px;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .module-data {
+    display: flex;
+    flex-flow: column; 
     flex-basis: 0;
     flex-grow: 1;
-    max-width: 100%;
-    padding: 0 15px;
-}
-
-.module-item:last-child .module-data {
-    border-bottom: none;
-}
-
-.module-heading {
-    display: flex;
-    flex-wrap: nowrap;
+    gap: 0.75rem;
+    overflow: hidden;
 }
 
 .module-name {
@@ -1286,57 +1268,39 @@ legend {
 }
 
 .module-info {
-    margin-top: 2px;
-    font-size: $font-size-sm;
-}
-
-.module-actions {
-    margin-left: auto;
-    transition: opacity 0.1s ease-in-out;
-
-    &:not(.show) {
-        opacity: 0;
+    display: grid; 
+    grid-template-columns: max-content 1fr; 
+    gap: 1px 20px;
+    
+    > .attr-name {
+        font-weight: $font-weight-medium;
     }
 
-    .module-item:hover & {
-        opacity: 1;
+    > .attr-value {
+        display: inline-block;
+        color: $text-muted;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
     }
-}
-
-.module-info .attr:after {
-    display: inline-block;
-    content: '\00b7';
-    padding: 0 5px;
-}
-
-.module-info .attr:last-child:after {
-    display: none;
-}
-
-.module-info .attr-value {
-    display: inline-block;
-    color: $text-muted;
-    padding-left: 0.15rem
 }
 
 .module-description {
-    margin-bottom: 2px;
-    color: $gray-600;
-}
-
-table.payment-method-features td {
-    padding: 2px 4px;
     font-size: $font-size-sm;
+    color: $gray-600;
+    width: 100%;
 }
 
 a.editable {
+    font-weight: $font-weight-medium;
     text-decoration: none;
     border-bottom: 1px dashed $link-color;
 
     &.editable-empty {
-        font-style: italic;
-        color: $gray-600;
-        border-bottom-color: $gray-600;
+        font-style: normal;
+        font-weight: $font-weight-normal;
+        color: $text-muted;
+        border-bottom-color: $text-muted;
     }
 }
 
@@ -1463,6 +1427,10 @@ a.editable {
     @include text-truncate();
     display: flex;
     flex-wrap: nowrap;
+}
+
+.mapping-edit .mapping-list-item {
+    display: contents;
 }
 
 .column-mapping {
@@ -1638,7 +1606,8 @@ a.editable {
         height: $font-size-base;
         vertical-align: bottom;
         display: inline-block;
-        border: 1px solid #646464;
+        border-radius: $border-radius-sm;
+        border: 1px solid rgba(#000, 0.06);
     }
 }
 

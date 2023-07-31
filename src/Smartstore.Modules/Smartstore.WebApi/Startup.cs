@@ -148,7 +148,7 @@ namespace Smartstore.Web.Api
 
                     app.UseSwaggerUI(o =>
                     {
-                        o.SwaggerEndpoint($"/{routePrefix}/webapi1/swagger.json", "Web API");
+                        o.SwaggerEndpoint($"webapi1/swagger.json", "Web API");
                         o.RoutePrefix = routePrefix;
 
                         // Only show schemas dropdown for developers.

@@ -6,7 +6,7 @@
         /* On payment selection page we need some padding & alignment */
         .checkout-page:not(.order-summary-page) & {
             align-self: center;
-            padding-left: 10px;
+            padding-inline-start: 10px;
         }
     }
 }

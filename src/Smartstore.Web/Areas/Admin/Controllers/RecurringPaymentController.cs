@@ -208,6 +208,7 @@ namespace Smartstore.Admin.Controllers
             }
             catch (Exception ex)
             {
+                Logger.Error(ex);
                 NotifyError(ex);
             }
 
@@ -230,16 +231,9 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                var errors = await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
+                await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
 
-                if (errors.Any())
-                {
-                    errors.Each(x => NotifyError(x));
-                }
-                else
-                {
-                    NotifySuccess(T("Admin.RecurringPayments.Cancelled"));
-                }
+                NotifySuccess(T("Admin.RecurringPayments.Cancelled"));
             }
             catch (Exception ex)
             {

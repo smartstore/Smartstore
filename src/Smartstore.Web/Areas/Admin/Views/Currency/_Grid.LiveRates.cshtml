@@ -1,8 +1,8 @@
 ﻿@model Smartstore.Core.Common.ExchangeRate
 
 <datagrid id="live-rates-grid" class="h-100"
-          allow-resize="true" 
-          allow-row-selection="false" 
+          allow-resize="true"
+          allow-row-selection="false"
           allow-column-reordering="true"
           onrowclass="liveRatesGrid_onRowClass">
     <datasource read="@Url.Action("LiveRateList", "Currency")" />
@@ -15,10 +15,10 @@
         <column for="UpdatedOn" title="@T("Admin.Common.Updated")" />
     </columns>
     <row-commands>
-        <a datarow-action="DataRowAction.Custom" 
-           class="grid-apply-rate" 
-           :data-currency="item.row.CurrencyCode" 
-           :data-rate="item.row.Rate" 
+        <a datarow-action="DataRowAction.Custom"
+           class="grid-apply-rate"
+           :data-currency="item.row.CurrencyCode"
+           :data-rate="item.row.Rate"
            v-bind:class="{ disabled: !item.row.IsStoreCurrency }">
             @T("Admin.Configuration.Currencies.ApplyRate")
         </a>

@@ -100,22 +100,32 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Pre-process payment result.</returns>
-        /// <remarks>Can be used, for example, to complete required data such as the billing address.</remarks>
+        /// <remarks>
+        /// Can be used, for example, to complete required data such as the billing address.
+        /// Throw <see cref="PaymentException"/> to abort payment and order placement.
+        /// </remarks>
         Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
-        /// Process a payment.
+        /// The main method to make a payment. Called immediately before placing the order.
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Process payment result.</returns>
-        /// <remarks>Intended for main payment processing like payment authorization.</remarks>
+        /// <remarks>
+        /// Intended for main payment processing like payment authorization.
+        /// Throw <see cref="PaymentException"/> to abort payment and order placement.
+        /// </remarks>
         Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
-		/// Post-process payment. Called after an order has been placed or when customer re-starts the payment (if supported).
+		/// Post-process payment. Called after (!) an order has been placed or when the user starts the payment again and is redirected
+        /// to the payment page of a third-party provider for this purpose (only required for older payment methods).
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
-        /// <remarks>Used, for example, to redirect to a payment page to complete the payment after (!) the order has been placed.</remarks>
+        /// <remarks>
+        /// Used, for example, to redirect to a payment page to complete the payment after the order has been placed.
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task PostProcessPaymentAsync(PostProcessPaymentRequest request);
 
         /// <summary>
@@ -130,6 +140,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Capture payment request.</param>
         /// <returns>Capture payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest request);
 
         /// <summary>
@@ -137,6 +150,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Refund payment request.</param>
         /// <returns>Refund payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request);
 
         /// <summary>
@@ -144,6 +160,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Void payment request.</param>
         /// <returns>Void payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest request);
 
         /// <summary>
@@ -151,6 +170,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Process payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
@@ -158,6 +180,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Cancel recurring payment request.</param>
         /// <returns>Cancel recurring payment result.</returns>
+        /// <remarks>
+        /// Throw <see cref="PaymentException"/> if a payment error occurs.
+        /// </remarks>
         Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest request);
 
         #endregion

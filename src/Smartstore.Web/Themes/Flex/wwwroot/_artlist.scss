@@ -98,9 +98,9 @@
 
 .artlist-action--pager {
     > * { position: relative; }
-    > *:not(:first-child) { margin-left: -1px; }
-    .btn-pager-prev { border-top-left-radius: $border-radius; border-bottom-left-radius: $border-radius }   
-    .btn-pager-next { border-top-right-radius: $border-radius; border-bottom-right-radius: $border-radius }    
+    > *:not(:first-child) { margin-inline-start: -1px; }
+    .btn-pager-prev { border-start-start-radius: $border-radius; border-end-start-radius: $border-radius }   
+    .btn-pager-next { border-start-end-radius: $border-radius; border-end-end-radius: $border-radius }    
 }
 
 @media (max-width: 360px) {
@@ -117,7 +117,7 @@
     .artlist-action-group {
         .btn { 
             font-size: 1rem; 
-            text-align: left; 
+            text-align: start; 
             border-radius: 0;
             > b { background: transparent; } 
         }
@@ -145,7 +145,7 @@
 		flex: 0 0 auto; // grow shrink basis
 		width: auto;
 		max-width: none;
-		padding-left: 0.5rem;
+		padding-inline-start: 0.5rem;
 	}
 
 	.artlist-action--pagesize,
@@ -167,7 +167,7 @@
 		}
 
 		.artlist-action-group--page {
-			padding-left: 0;
+			padding-inline-start: 0;
 		}
 
 		.artlist-action-group {
@@ -175,7 +175,7 @@
 		}
 
 		.artlist-action-group--page {
-			margin-left: auto;
+			margin-inline-start: auto;
 		}
 	}
 }
@@ -208,7 +208,7 @@
     background: transparent;   
 
     margin-top: -1px;
-    margin-left: -1px;
+    margin-inline-start: -1px;
 
     border-collapse: collapse;
     border-radius: var(--art-border-radius);
@@ -232,7 +232,7 @@
         content: attr(data-content);
         position: absolute;
         z-index: 1;
-        left: 0;
+        inset-inline-start: 0;
         top: 0rem;
         width: 100%;
         text-align: center;
@@ -251,8 +251,8 @@
 
 .art-badges {
     position: absolute;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     bottom: 0;
     display: inline-flex;
     flex-wrap: wrap;
@@ -260,7 +260,9 @@
 }
 
 .art-badge {
-    margin: 0 3px 3px 0;
+    margin: 0;
+    margin-block-start: 3px;
+    margin-inline-end: 3px;
 }
 
 .art-data-block,
@@ -317,7 +319,7 @@
     font-weight: $font-weight-medium;
     font-size: var(--art-finalprice-font-size);
     color: var(--art-finalprice-color);
-    margin-right: 0.4rem;
+    margin-inline-end: 0.4rem;
 
     .art-price-call & {
         font-size: var(--art-font-size-sm);
@@ -344,7 +346,7 @@
 }
 
 .art-compareprice-label {
-    margin-right: 3px;
+    margin-inline-end: 3px;
 }
 
 .art-compareprice-value {
@@ -369,8 +371,7 @@
 .art-drop {
     --shadow-yoffset: 1;
     position: absolute;
-    left: -1px;
-    right: -1px;
+    inset-inline: -1px;
     bottom: 0;
     background: var(--art-active-bg-color);
     box-shadow: var(--art-box-shadow);
@@ -416,20 +417,20 @@
 
 .art-color-opts {
     position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
     @include clearfix();
 }
 
 .art-color-opt {
-    float: left;
     display: block;
     width: 1rem;
     height: 1rem;
-    margin-right: 2px;
-    margin-bottom: 2px;
     text-decoration: none;
 
     &:hover {
-        outline: 1px solid rgba(0,0,0, 0.3);
+        outline: 1px solid rgba(#000, 0.3);
     }
 }
 
@@ -447,7 +448,7 @@
 
     td { padding: 1px 0; }
     td:first-child { 
-        padding-right: 0.75rem; 
+        padding-inline-end: 0.75rem; 
         font-weight: $font-weight-medium; 
     }
 }
@@ -490,10 +491,10 @@
 
     .art-data-block {
         @include make-art-row();
-        padding-left: $grid-gutter-width / 1.5;
-        padding-right: 0;
-        margin-left: 0;
-        margin-right: 0;
+        padding-inline-start: $grid-gutter-width / 1.5;
+        padding-inline-end: 0;
+        margin-inline-start: 0;
+        margin-inline-end: 0;
         flex-basis: 0;
         flex-grow: 1;
         max-width: 100%;
@@ -511,7 +512,7 @@
 
     .art-actions-block {
         width: 220px;
-        padding-left: $grid-gutter-width / 1.5;
+        padding-inline-start: $grid-gutter-width / 1.5;
     }
 
     .art-description {
@@ -547,14 +548,14 @@
     }
 
     .floating > .art-brand {
-        padding-right: 90px; // ratings width + 10px
+        padding-inline-end: 90px; // ratings width + 10px
         min-height: 20px; // Height of rating widget
     }
 
     .floating > .art-rating {
         position: absolute;
         top: 0;
-        right: 0;
+        inset-inline-end: 0;
     }
 
     .art-name {
@@ -584,7 +585,7 @@
         .art-actions-block { 
             // Put right hand action block below info block
             display: block;
-            padding-left: 0;
+            padding-inline-start: 0;
             padding-top: 1rem;
             width: 100%;
         }
@@ -616,8 +617,11 @@
 
 .artlist-grid {
     @include make-art-row();
-    margin-left: 0;
-    margin-right: 0;
+    margin-inline: 0 0;
+
+    &.artlist-boxed {
+        gap: $grid-gutter-width / 2;
+    }
 
     &:not(.artlist-boxed).artlist::after {
         // Make continous line after last row
@@ -680,8 +684,7 @@
     }
 
     .art-variant-info {
-        padding-left: var(--art-padding);
-        padding-right: var(--art-padding);
+        padding-inline: var(--art-padding);
     }
 
     @include media-breakpoint-up(xs) {
@@ -743,16 +746,10 @@
         }
     }
 
-    &.artlist-boxed {
-        margin-left: -0.5rem;
-        margin-right: -0.5rem;
-
-        .art {
-            background: var(--art-active-bg-color);
-            border-color: var(--art-border-color);
-            margin: 0 0.5rem 1rem 0.5rem;
-            box-shadow: var(--art-box-shadow);
-        }
+    &.artlist-boxed .art {
+        background: var(--art-active-bg-color);
+        border-color: var(--art-border-color);
+        box-shadow: var(--art-box-shadow);
     }
 }
 

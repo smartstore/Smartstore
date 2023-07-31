@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Search;
 
 namespace Smartstore.Core.Tests.Catalog.Search
 {
@@ -8,7 +10,7 @@ namespace Smartstore.Core.Tests.Catalog.Search
     {
         [TestCase(new[] { "name" }, "ateg")]
         [TestCase(new[] { "name", "shortdescription" }, "organic")]
-        public void LinqSearch_can_get_default_term(string[] fields, string term)
+        public void SearchQuery_can_get_default_term(string[] fields, string term)
         {
             var query = new CatalogSearchQuery(fields, term);
 
@@ -16,7 +18,7 @@ namespace Smartstore.Core.Tests.Catalog.Search
         }
 
         [Test]
-        public void LinqSearch_can_change_default_term()
+        public void SearchQuery_can_change_default_term()
         {
             var query = new CatalogSearchQuery(new[] { "name", "shortdescription" }, "organic")
             {
@@ -24,6 +26,14 @@ namespace Smartstore.Core.Tests.Catalog.Search
             };
 
             Assert.That(query.DefaultTerm, Is.EqualTo("ateg"));
+
+            var termFilter = query.Filters.OfType<ICombinedSearchFilter>().FirstOrDefault(x => x.FieldName == "searchterm");
+            Assert.NotNull(termFilter);
+
+            var allTermsChanged = termFilter.Filters
+                .Select(x => (IAttributeSearchFilter)x)
+                .All(x => (string)x.Term == "ateg");
+            Assert.IsTrue(allTermsChanged);
         }
     }
 }

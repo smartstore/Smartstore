@@ -2,8 +2,6 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Smartstore.Caching;
 using Smartstore.Core;
@@ -17,7 +15,6 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.PayPal.Client.Messages;
@@ -40,15 +37,11 @@ namespace Smartstore.PayPal.Client
         public const string PAYPAL_ACCESS_TOKEN_PATTERN_KEY = "paypal:accesstoken-*";
 
         private readonly HttpClient _client;
-        private readonly SmartDbContext _db;
-        private readonly ILogger _logger;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
-        private readonly ILocalizationService _locService;
         private readonly ICurrencyService _currencyService;
         private readonly IMediaService _mediaService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICacheFactory _cacheFactory;
         private readonly ISettingFactory _settingFactory;
         private readonly IShoppingCartService _shoppingCartService;
@@ -59,15 +52,11 @@ namespace Smartstore.PayPal.Client
 
         public PayPalHttpClient(
             HttpClient client,
-            SmartDbContext db,
-            ILogger logger,
             ICheckoutStateAccessor checkoutStateAccessor,
             IStoreContext storeContext,
             IWorkContext workContext,
-            ILocalizationService locService,
             ICurrencyService currencyService,
             IMediaService mediaService,
-            IHttpContextAccessor httpContextAccessor,
             ICacheFactory cacheFactory,
             ISettingFactory settingFactory,
             IShoppingCartService shoppingCartService,
@@ -77,15 +66,11 @@ namespace Smartstore.PayPal.Client
             IOrderCalculationService orderCalculationService)
         {
             _client = client;
-            _db = db;
-            _logger = logger;
             _checkoutStateAccessor = checkoutStateAccessor;
             _storeContext = storeContext;
             _workContext = workContext;
-            _locService = locService;
             _currencyService = currencyService;
             _mediaService = mediaService;
-            _httpContextAccessor = httpContextAccessor;
             _cacheFactory = cacheFactory;
             _settingFactory = settingFactory;
             _shoppingCartService = shoppingCartService;
@@ -576,11 +561,11 @@ namespace Smartstore.PayPal.Client
             return new List<PurchaseUnit> { purchaseUnit };
         }
 
-        public async Task<OrderMessage> GetOrderForStandardProviderAsync(bool isExpressCheckout = true, bool isApm = false)
+        public async Task<OrderMessage> GetOrderForStandardProviderAsync(string orderGuid = "", bool isExpressCheckout = true, bool isApm = false)
         {
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
             var settings = _settingFactory.LoadSettings<PayPalSettings>(_storeContext.CurrentStore.Id);
-            var purchaseUnits = await GetPurchaseUnitsAsync(cart);
+            var purchaseUnits = await GetPurchaseUnitsAsync(cart, orderGuid: orderGuid);
 
             var orderMessage = new OrderMessage
             {
@@ -773,16 +758,6 @@ namespace Smartstore.PayPal.Client
             else
             {
                 throw new PayPalException($"Unable to deserialize response with Content-Type {contentType} because it is not supported.");
-            }
-        }
-
-        protected virtual void HandleException(Exception exception, PaymentResult result, bool log = false)
-        {
-            if (exception != null)
-            {
-                result.Errors.Add(exception.Message);
-                if (log)
-                    _logger.Error(exception);
             }
         }
 

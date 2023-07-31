@@ -6,6 +6,12 @@
 // Choice Styles (Variants etc.)
 // ------------------------------------------------------
 
+$choice-box-gap:            6px;
+$choice-box-size:           46px;
+$choice-box-size-lg:        64px;
+$choice-box-size-sm:        36px;
+$choice-box-size-xl:        96px;
+
 .choice {
     margin-bottom: 1rem;
 }
@@ -30,7 +36,7 @@
 .choice-item-color {
     display: inline-block;
     text-decoration: none !important;
-    margin-right: 0.4rem;
+    margin-inline-end: 0.4rem;
     overflow: hidden;
 }
 
@@ -60,156 +66,147 @@
 }
 
 .choice-box-group {
-    $choice-box-padding:        3px;
-    $choice-box-size:           2.8rem;
-    $choice-box-size-lg:        4rem;
-    $choice-box-size-sm:        2.3rem;
-    $choice-box-size-xl:        6rem;
-
+    --choice-box-size: #{$choice-box-size};
+    --choice-box-strike-color: rgba(0, 0, 0, 0.75);
 	margin: 0;
 	padding: 0;
 	list-style-type: none;
     position: relative;
-    margin: 0 ($choice-box-padding * -1);
-
+    display: flex;
+    flex-wrap: wrap;
+    gap: $choice-box-gap;
+    
     @include clearfix();
 
-	.choice-box {
-        position: relative;
-        float: left;
+    &.choice-box-group-sm {
+        --choice-box-size: #{$choice-box-size-sm};
+    }
+
+    &.choice-box-group-lg {
+        --choice-box-size: #{$choice-box-size-lg};
+    }
+
+    &.choice-box-group-xl {
+        --choice-box-size: #{$choice-box-size-xl};
+    }
+}
+
+.choice-box {
+    position: relative;
+    display: block;
+
+    &.dark {
+        --choice-box-strike-color: #fff;
+    }
+}
+
+.choice-box-label {
+    margin: 0;
+}
+
+.choice-box-content {
+    position: relative;
+	display: block;
+    cursor: pointer;
+
+    &:after {
+        box-sizing: content-box;
+        position: absolute;
         display: block;
-        padding: $choice-box-padding;
-	}
+        inset-inline-end: -6px;
+        top: -6px;
+        background-color: $warning;
+        border-radius: 50%;
+        border: 1px solid #fff;
 
-    .choice-box-label {
-        margin: 0;
-    }
-
-	.choice-box-content {
-        position: relative;
-		display: block;
-        cursor: pointer;
-
-        &:after {
-            box-sizing: content-box;
-            position: absolute;
-            display: block;
-            right: -6px;
-            top: -6px;
-            background-color: $warning;
-            border-radius: 50%;
-            border: 1px solid #fff;
-
-            width: 16px;
-            height: 16px;
-            line-height: 16px;
-            text-align: center;
-            vertical-align: middle;
-
-            @include fontawesome-font("\f00c", regular); // check
-            color: #fff;
-            font-size: 10px;
-
-            opacity: 0;
-            transform: scale(0);
-            transition: all 0.1s ease-in;
-        }
-	}
-
-	.choice-box-element {
-        display: inline-block;
-        border: 1px solid rgba(0,0,0, .15);
-        border-radius: $border-radius;
-        background-color: #fff;
-
-        height: $choice-box-size;
-        line-height: $choice-box-size;
-        min-width: $choice-box-size;
-        vertical-align: middle;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
         text-align: center;
-        overflow: hidden;
-        font-weight: $font-weight-medium;
+        vertical-align: middle;
 
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: 50% 50%;
+        @include fontawesome-font("\f00c", regular); // check
+        color: #fff;
+        font-size: 10px;
 
-        &:hover { border-color: rgba(0,0,0, 0.5); }
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.1s ease-in;
+    }
+}
 
-        .choice-box-text {
-            padding: 0 0.4rem;
-        }
-	}
+.choice-box-element {
+    position: relative;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0, .2);
+    border-radius: $border-radius;
+    background-color: #fff;
 
-    .choice-box-image-unavailable {
-        opacity: .5;
-        border: 1px dashed rgba(0,0,0, .3);
+    height: var(--choice-box-size);
+    line-height: var(--choice-box-size);
+    min-width: var(--choice-box-size);
+    vertical-align: middle;
+    text-align: center;
+    overflow: hidden;
+    font-weight: $font-weight-medium;
+
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-clip: padding-box;
+
+    //&:hover { border-color: $gray-700; }
+
+    .choice-box-text {
+        padding: 0 0.4rem;
     }
 
-    .choice-box-color-unavailable {
-        border: 1px dashed rgba(0,0,0, .7);
+    .choice-box.unavailable & {
+        border: 1px dashed rgba(#000, .3);
 
-/*        &:after {
-            display: block;
-            position: absolute;
-            content: "";
-            background: rgba(0,0,0, 0.3);
-            transform: rotate(-56deg);
-            width: 50px;    //62px;
-            height: 1px;
-            left: -20px;
-            right: -20px;
-            top: 0;
-            bottom: 0;
-            margin: auto;
-        }*/
-    }
-
-    .choice-box-disabled {
-        opacity: .5;
-    }
-
-    .choice-box-mediafile .choice-box-content {
-        max-width: $choice-box-size-xl !important;
-
-        .file-img {
-            object-fit: contain;
-            max-width: 100%
-        }
-    }
-
-	.choice-box-control-native:checked + .choice-box-content {
-        .choice-box-element {
-            border-color: rgba(#000, 0.4);
-            box-shadow: 0 0 5px #aaa;
+        &:not(.choice-box-color) {
+            opacity: .5;
         }
 
         &:after {
-            opacity: 1;
-            transform: scale(1);
+            position: absolute;
+            content: '';
+            background-color: var(--choice-box-strike-color);
+            height: 1px;
+            left: 0;
+            right: 0;
+            top: calc(50% - 1px);
+            margin-inline: -8px;
+            transform: rotate(-45deg);
         }
-	}
-
-	.choice-box-control-native {
-		display: none !important;
-	}
-
-    // Choice box sizing
-    &.choice-box-group-xl .choice-box-element {
-        height: $choice-box-size-xl;
-        line-height: $choice-box-size-xl;
-        min-width: $choice-box-size-xl;     
     }
 
-    &.choice-box-group-lg .choice-box-element {
-        height: $choice-box-size-lg;
-        line-height: $choice-box-size-lg;
-        min-width: $choice-box-size-lg;       
+    .choice-box.disabled & {
+        opacity: .5;
+    }
+}
+
+.choice-box-mediafile .choice-box-content {
+    max-width: $choice-box-size-xl !important;
+
+    .file-img {
+        object-fit: contain;
+        max-width: 100%
+    }
+}
+
+.choice-box-control-native:checked + .choice-box-content {
+    .choice-box-element {
+        border-color: $gray-700;
+        box-shadow: inset 0 0 0 2px rgba(#fff, 1);
     }
 
-    &.choice-box-group-sm .choice-box-element {
-        height: $choice-box-size-sm;
-        line-height: $choice-box-size-sm;
-        min-width: $choice-box-size-sm;       
+    &:after {
+        opacity: 1;
+        transform: scale(1);
     }
+}
+
+.choice-box-control-native {
+	display: none !important;
 }

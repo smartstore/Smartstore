@@ -15,10 +15,6 @@
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
             </button>
-            <a href="@Url.Action("List", "Currency", new { liveRates = true })" class="btn btn-secondary">
-                <i class="fa fa-sync"></i>
-                <span>@T("Admin.Configuration.Currencies.GetLiveRates")</span>
-            </a>
         </div>
     </div>
 
@@ -26,14 +22,9 @@
         <tab sm-title="@T("Admin.Configuration.Currencies")" sm-selected="true" sm-adaptive-height="true">
             <partial name="_Grid.Currencies" model="null" />
         </tab>
-
-        @if (Model.DisplayLiveRates)
-        {
-            <tab sm-title="@T("Admin.Configuration.Currencies.LiveRates")" sm-adaptive-height="true">
-                <partial name="_Grid.LiveRates" model="null" />
-            </tab>
-        }
-
+        <tab sm-title="@T("Admin.Configuration.Currencies.LiveRates")" sm-adaptive-height="true">
+            <partial name="_Grid.LiveRates" model="null" />
+        </tab>
         <tab sm-title="@T("Common.Options")">
             <div class="adminContent">
                 <div class="adminRow">

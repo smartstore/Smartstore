@@ -7,7 +7,7 @@ using Smartstore.Core.Widgets;
 namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
-    /// Base class for payment methods.
+    /// Base class to implement payment methods.
     /// </summary>
     public abstract class PaymentMethodBase : IPaymentMethod
     {
@@ -83,23 +83,23 @@ namespace Smartstore.Core.Checkout.Payment
 
         /// <inheritdoc/>
         public virtual Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
-            => throw new NotSupportedException();
+            => throw new PaymentException(T("Common.Payment.NoCaptureSupport"));
 
         /// <inheritdoc/>
         public virtual Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
-            => throw new NotSupportedException();
+            => throw new PaymentException(T("Common.Payment.NoRefundSupport"));
 
         /// <inheritdoc/>
         public virtual Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
-            => throw new NotSupportedException();
+            => throw new PaymentException(T("Common.Payment.NoVoidSupport"));
 
         /// <inheritdoc/>
         public virtual Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
-            => throw new NotSupportedException();
+            => throw new PaymentException(T("Common.Payment.NoRecurringPaymentSupport"));
 
         /// <inheritdoc/>
         public virtual Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
-            => throw new NotSupportedException();
+            => throw new PaymentException(T("Common.Payment.NoRecurringPaymentSupport"));
 
         #endregion
     }

@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using Microsoft.AspNetCore.Routing;
 using Smartstore.Http;
 
 namespace Smartstore.Core.Checkout.Payment
@@ -9,7 +8,8 @@ namespace Smartstore.Core.Checkout.Payment
     /// Represents an error that occurs during payment processing.
     /// </summary>
     /// <remarks>
-    /// It is recommended to output a user-friendly message and to put all technical details into an inner exception for logging.
+    /// It is recommended to output a user-friendly message and to put all technical details 
+    /// such as payment request and response data into an inner exception for logging.
     /// </remarks>
     public class PaymentException : Exception
     {

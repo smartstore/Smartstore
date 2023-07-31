@@ -20,4 +20,22 @@
         /// </summary>
         Hard
     }
+
+    public enum DataExchangeCompletionEmail
+    {
+        /// <summary>
+        /// Always send a completion email.
+        /// </summary>
+        Always = 0,
+
+        /// <summary>
+        /// Only send a completion email if an error occurred.
+        /// </summary>
+        OnError,
+
+        /// <summary>
+        /// Never send a completion email.
+        /// </summary>
+        Never
+    }
 }

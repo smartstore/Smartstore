@@ -18,11 +18,5 @@
 </div>
 
 <div class="provider-list">
-    @(await Html.ProviderList(Model,
-        @<div>
-            <a class="activate-provider btn btn-@(item.IsActive ? "secondary btn-to-danger" : "success")" style="min-width: 150px"
-                data-href='@Url.Action("ActivateProvider")' href="javascript:;" data-systemname="@item.SystemName" data-activate="@(!item.IsActive ? "true" : "false")">
-                @T("Admin.Common.{0}".FormatInvariant(item.IsActive ? "Deactivate" : "Activate"))
-            </a>
-        </div>))
+    @(await Html.ProviderList(Model))
 </div>

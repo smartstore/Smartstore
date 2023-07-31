@@ -148,6 +148,7 @@ namespace Smartstore.Core.DataExchange.Import
             catch (Exception ex)
             {
                 logger.ErrorsAll(ex);
+                ctx.ExecuteContext.Result.AddError(ex);
             }
             finally
             {
@@ -234,15 +235,21 @@ namespace Smartstore.Core.DataExchange.Import
         private async Task SendCompletionEmail(ImportProfile profile, DataImporterContext ctx)
         {
             var emailAccount = _emailAccountService.GetDefaultEmailAccount();
-            if (emailAccount.Host.IsEmpty())
+            if (emailAccount == null || emailAccount.Host.IsEmpty())
             {
                 return;
             }
 
             var result = ctx.ExecuteContext.Result;
+
+            if (_dataExchangeSettings.ImportCompletionEmail == DataExchangeCompletionEmail.Never ||
+                (_dataExchangeSettings.ImportCompletionEmail == DataExchangeCompletionEmail.OnError && !result.HasErrors))
+            {
+                return;
+            }
+
             var store = _services.StoreContext.CurrentStore;
             var storeInfo = $"{store.Name} ({store.GetBaseUrl()})";
-
             using var psb = StringBuilderPool.Instance.Get(out var body);
 
             body.Append(T("Admin.DataExchange.Import.CompletedEmail.Body", storeInfo));
@@ -280,12 +287,12 @@ namespace Smartstore.Core.DataExchange.Import
                 message.To.Add(new(_contactDataSettings.WebmasterEmailAddress));
             }
 
-            if (!message.To.Any() && _contactDataSettings.CompanyEmailAddress.HasValue())
+            if (message.To.Count == 0 && _contactDataSettings.CompanyEmailAddress.HasValue())
             {
                 message.To.Add(new(_contactDataSettings.CompanyEmailAddress));
             }
 
-            if (!message.To.Any())
+            if (message.To.Count == 0)
             {
                 message.To.Add(new(emailAccount.Email, emailAccount.DisplayName));
             }

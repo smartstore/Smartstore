@@ -531,6 +531,9 @@
             <LocaleResource Name="FullName.NotEmpty">
                 <Value>Please enter your full name.</Value>
             </LocaleResource>
+            <LocaleResource Name="Address2">
+                <Value>Street number</Value>
+            </LocaleResource>
             <LocaleResource Name="Country.NotEmpty">
                 <Value>Please select a country.</Value>
             </LocaleResource>

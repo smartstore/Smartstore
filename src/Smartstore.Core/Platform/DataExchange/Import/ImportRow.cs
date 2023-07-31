@@ -264,7 +264,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     if (result != null)
                     {
-                        result.AddWarning($"Failed to convert default value '{mapping.Default}'. Please specify a convertable default value. Column: {ex.Message}", RowInfo, mapping.SoureName);
+                        result.AddWarning($"Failed to convert default value '{mapping.Default}'. Please specify a convertable default value. Column: {ex.Message}", RowInfo, mapping.SourceName);
                     }
                 }
             }

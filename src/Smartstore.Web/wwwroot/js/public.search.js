@@ -131,7 +131,7 @@
                 if (box.data('origin') === 'Search/Search') {
                     var logoWidth = logo.width();
                     $('body').addClass('search-focused');
-                    logo.css('margin-left', (logoWidth * -1) + 'px');
+                    logo.css('margin-inline-start', (logoWidth * -1) + 'px');
 
                     if (dropBody.text().length > 0) {
                         logo.one(Prefixer.event.transitionEnd, function () {
@@ -145,7 +145,7 @@
                 box.removeClass('active');
                 if (box.data('origin') === 'Search/Search') {
                     $('body').removeClass('search-focused');
-                    logo.css('margin-left', '');
+                    logo.css('margin-inline-start', '');
                 }
             }
 

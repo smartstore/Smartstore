@@ -31,7 +31,7 @@ namespace Smartstore.Core.Common.Tasks
                 return;
             }
 
-            var exchangeRates = await _currencyService.GetCurrencyLiveRatesAsync(_currencyService.PrimaryExchangeCurrency.CurrencyCode);
+            var exchangeRates = await _currencyService.GetCurrencyLiveRatesAsync();
 
             var currencyCodes = exchangeRates.ToDistinctArray(x => x.CurrencyCode);
             var currencies = await _db.Currencies

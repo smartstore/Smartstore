@@ -9,7 +9,6 @@
 // --------------------------------------------------
 
 [dir=rtl] {
-
     // Layout
     // ------
     .section-header {
@@ -33,7 +32,6 @@
             padding-left: 0;
         }
     }
-
     // Main Menu
     // ---------
     #navbar #navbar-menu .nav-item > .dropdown-menu {
@@ -64,7 +62,6 @@
             right: auto;
         }
     }
-
     // Form Grid
     // ---------
     .adminContent {
@@ -90,7 +87,6 @@
             }
         }
     }
-
     // Themes
     // ------
     #theme-list .theme-broken-badge {
@@ -103,24 +99,12 @@
         margin-left: initial;
     }
 
-    // Dashboard
-    // ---------
-    .stats-today .stats-today-item {
-        text-align: right;
-        border-left: 1px solid $gray-300;
-        border-right-width: 0;
-
-        &:last-child {
-            border-left: none
-        }
-    }
-
     //
     // Navs
     // -------------
 
-    .nav .nav-link > img + span, 
-    .nav .nav-link > i + span, 
+    .nav .nav-link > img + span,
+    .nav .nav-link > i + span,
     .nav .nav-link > .bi + span {
         padding-left: 0 !important;
         padding-right: 0.5rem !important;
@@ -147,7 +131,6 @@
             text-align: left;
         }
     }
-
     // Plugins & Providers
     // -------------------
     .module-icon {
@@ -169,7 +152,6 @@
         padding-right: 2rem;
         padding-left: initial;
     }
-
     // Misc
     // ----
     .color-container {
@@ -177,6 +159,15 @@
         padding-right: initial;
     }
 
+    .admin-config-group[data-toggle=collapse] {
+        &.collapsed:after {
+            transform: rotate(90deg);
+        }
+        // TODO: Remove after Bootstrap update which contains logical CSS
+        .ml-auto {
+            margin-inline-end: 1rem !important;
+        }
+    }
     // HTML editors
     // ------------
     .note-editor .note-toolbar {

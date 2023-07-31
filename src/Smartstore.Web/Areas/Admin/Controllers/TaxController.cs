@@ -89,8 +89,8 @@ namespace Smartstore.Admin.Controllers
         {
             var categories = await _db.TaxCategories
                 .AsNoTracking()
-                // Info: We use OrderBy to circumvent EF caching issue.
-                .OrderBy(x => x.Id)
+                // INFO: we use OrderBy to circumvent EF caching issue.
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();

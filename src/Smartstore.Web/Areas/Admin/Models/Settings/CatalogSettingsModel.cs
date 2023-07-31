@@ -171,8 +171,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*DeliveryTimesInLists")]
         public DeliveryTimesPresentation DeliveryTimesInLists { get; set; }
 
-
-
         [LocalizedDisplay("*ShowColorSquaresInLists")]
         public bool ShowColorSquaresInLists { get; set; }
 
@@ -182,7 +180,7 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*LabelAsNewForMaxDays")]
         public int? LabelAsNewForMaxDays { get; set; }
 
-        #endregion 
+        #endregion
 
         #region Product tags
 

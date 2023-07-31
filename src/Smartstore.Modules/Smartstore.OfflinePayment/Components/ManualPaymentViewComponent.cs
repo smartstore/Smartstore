@@ -4,48 +4,51 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
+using Smartstore.Web.Components;
 
 namespace Smartstore.OfflinePayment.Components
 {
-    public class ManualPaymentViewComponent : OfflinePaymentViewComponentBase
+    public class ManualPaymentViewComponent : SmartViewComponent
     {
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly ManualPaymentSettings _manualPaymentSettings;
 
-        public ManualPaymentViewComponent(ICheckoutStateAccessor checkoutStateAccessor)
+        public ManualPaymentViewComponent(
+            ICheckoutStateAccessor checkoutStateAccessor,
+            ManualPaymentSettings manualPaymentSettings)
         {
             _checkoutStateAccessor = checkoutStateAccessor;
+            _manualPaymentSettings = manualPaymentSettings;
         }
 
-        public override IViewComponentResult Invoke(string providerName)
+        public IViewComponentResult Invoke()
         {
-            var model = GetPaymentInfoModel<ManualPaymentInfoModel, ManualPaymentSettings>((m, s) =>
-            {
-                var excludedCreditCards = s.ExcludedCreditCards.SplitSafe(',');
+            var excludedCreditCards = _manualPaymentSettings.ExcludedCreditCards.SplitSafe(',');
+            var model = new ManualPaymentInfoModel();
 
-                foreach (var creditCard in ManualProvider.CreditCardTypes)
+            foreach (var pair in ManualProvider.GetCreditCardBrands(T))
+            {
+                if (!excludedCreditCards.Any(x => x.EqualsNoCase(pair.Key)))
                 {
-                    if (!excludedCreditCards.Any(x => x.EqualsNoCase(creditCard.Value)))
+                    model.CreditCardTypes.Add(new()
                     {
-                        m.CreditCardTypes.Add(new SelectListItem
-                        {
-                            Text = creditCard.Text,
-                            Value = creditCard.Value
-                        });
-                    }
+                        Text = pair.Value,
+                        Value = pair.Key
+                    });
                 }
-            });
+            }
 
             // Years.
             for (var i = 0; i < 15; i++)
             {
-                string year = Convert.ToString(DateTime.Now.Year + i);
+                var year = Convert.ToString(DateTime.Now.Year + i);
                 model.ExpireYears.Add(new SelectListItem { Text = year, Value = year });
             }
 
             // Months.
             for (var i = 1; i <= 12; i++)
             {
-                string text = (i < 10) ? "0" + i.ToString() : i.ToString();
+                var text = (i < 10) ? "0" + i.ToString() : i.ToString();
                 model.ExpireMonths.Add(new SelectListItem { Text = text, Value = i.ToString() });
             }
 

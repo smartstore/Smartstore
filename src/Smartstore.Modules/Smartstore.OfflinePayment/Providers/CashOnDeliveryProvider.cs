@@ -1,23 +1,21 @@
-﻿using Smartstore.Engine.Modularity;
+﻿using Smartstore.Core.Configuration;
+using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 using Smartstore.Http;
-using Smartstore.OfflinePayment.Components;
 using Smartstore.OfflinePayment.Settings;
 
 namespace Smartstore.OfflinePayment
 {
     [SystemName("Payments.CashOnDelivery")]
     [FriendlyName("Cash On Delivery (COD)")]
-    [Order(1)]
+    [Order(100)]
     public class CashOnDeliveryProvider : OfflinePaymentProviderBase<CashOnDeliveryPaymentSettings>, IConfigurable
     {
-        protected override Type GetViewComponentType()
+        public CashOnDeliveryProvider(
+            IStoreContext storeContext,
+            ISettingFactory settingFactory)
+            : base(storeContext, settingFactory)
         {
-            return typeof(GenericPaymentViewComponent);
-        }
-
-        protected override string GetProviderName()
-        {
-            return nameof(CashOnDeliveryProvider);
         }
 
         public RouteInfo GetConfigurationRoute()

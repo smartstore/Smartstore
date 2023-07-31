@@ -1,7 +1,7 @@
-﻿using Smartstore.Core;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets;
 using Smartstore.OfflinePayment.Settings;
 
@@ -10,22 +10,33 @@ namespace Smartstore.OfflinePayment
     public abstract class OfflinePaymentProviderBase<TSetting> : PaymentMethodBase
         where TSetting : PaymentSettingsBase, ISettings, new()
     {
-        public ICommonServices CommonServices { get; set; }
+        protected readonly IStoreContext _storeContext;
+        protected readonly ISettingFactory _settingFactory;
+
+        protected OfflinePaymentProviderBase(
+            IStoreContext storeContext, 
+            ISettingFactory settingFactory)
+        {
+            _storeContext = storeContext;
+            _settingFactory = settingFactory;
+        }
 
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
-        protected abstract string GetProviderName();
-
-        protected abstract Type GetViewComponentType();
+        protected virtual Type GetViewComponentType()
+            => null;
 
         public override async Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
         {
-            var settings = await CommonServices.SettingFactory.LoadSettingsAsync<TSetting>(CommonServices.StoreContext.CurrentStore.Id);
+            var settings = await _settingFactory.LoadSettingsAsync<TSetting>(_storeContext.CurrentStore.Id);
             return new(settings.AdditionalFee, settings.AdditionalFeePercentage);
         }
 
         public override Widget GetPaymentInfoWidget()
-            => new ComponentWidget(GetViewComponentType(), new { providerName = GetProviderName() });
+        {
+            var type = GetViewComponentType();
+            return type != null ? new ComponentWidget(type) : null;
+        }
 
         public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {

@@ -18,17 +18,17 @@ namespace Smartstore.Core.Checkout.Payment
     public partial class PaymentService : AsyncDbSaveHook<BaseEntity>, IPaymentService
     {
         // 0 = withRules
-        private const string PAYMENT_METHODS_ALL_KEY = "payment:method:all:{0}";
-        private const string PAYMENT_METHODS_PATTERN_KEY = "payment:method:*";
-        private const string PAYMENT_METHOD_FILTERS_ALL_KEY = "payment:methodfilters:all";
+        const string PaymentMethodsAllKey = "payment:method:all:{0}";
+        const string PaymentMethodsPatternKey = "payment:method:*";
+        const string PaymentMethodsFiltersAllKey = "payment:methodfilters:all";
 
         // 0 = SystemName, 1 = StoreId
-        private const string PAYMENT_PROVIDER_ENABLED_KEY = "payment:provider:enabled:{0}-{1}";
-        private const string PAYMENT_PROVIDER_ENABLED_PATTERN_KEY = "payment:provider:enabled:*";
+        const string PaymentProviderEnabledKey = "payment:provider:enabled:{0}-{1}";
+        const string PaymentProviderEnabledPatternKey = "payment:provider:enabled:*";
 
         // 0 = StoreId
-        public const string PRODUCT_DETAIL_PAYMENT_ICONS = "productdetail:paymenticons:{0}";
-        public const string PRODUCT_DETAIL_PAYMENT_ICONS_PATTERN_KEY = "productdetail:paymenticons:*";
+        public const string ProductDetailPaymentIcons = "productdetail:paymenticons:{0}";
+        public const string ProductDetailPaymentIconsPatternKey = "productdetail:paymenticons:*";
 
         private readonly static object _lock = new();
         private static IList<Type> _paymentMethodFilterTypes = null;
@@ -96,19 +96,19 @@ namespace Smartstore.Core.Checkout.Payment
                     setting.Name.EqualsNoCase(TypeHelper.NameOf<PaymentSettings>(x => x.ActivePaymentMethodSystemNames, true));
                 if (invalidate)
                 {
-                    await _cache.RemoveByPatternAsync(PAYMENT_PROVIDER_ENABLED_PATTERN_KEY);
+                    await _cache.RemoveByPatternAsync(PaymentProviderEnabledPatternKey);
                 }
             }
             else if (entity is PaymentMethod)
             {
-                await _cache.RemoveByPatternAsync(PAYMENT_PROVIDER_ENABLED_PATTERN_KEY);
-                _requestCache.RemoveByPattern(PAYMENT_METHODS_PATTERN_KEY);
+                await _cache.RemoveByPatternAsync(PaymentProviderEnabledPatternKey);
+                _requestCache.RemoveByPattern(PaymentMethodsPatternKey);
             }
             else if (entity is StoreMapping storeMapping)
             {
                 if (NamedEntity.GetEntityName<PaymentMethod>() == storeMapping.EntityName)
                 {
-                    await _cache.RemoveByPatternAsync(PAYMENT_PROVIDER_ENABLED_PATTERN_KEY);
+                    await _cache.RemoveByPatternAsync(PaymentProviderEnabledPatternKey);
                 }
             }
             else
@@ -121,7 +121,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            _requestCache.RemoveByPattern(PAYMENT_METHODS_PATTERN_KEY);
+            _requestCache.RemoveByPattern(PaymentMethodsPatternKey);
 
             return Task.CompletedTask;
         }
@@ -161,7 +161,7 @@ namespace Smartstore.Core.Checkout.Payment
         private Task<bool> GetEnabledStateAsync(Provider<IPaymentMethod> provider, int storeId)
         {
             var sysName = provider.Metadata.SystemName;
-            var cacheKey = PAYMENT_PROVIDER_ENABLED_KEY.FormatInvariant(sysName, storeId);
+            var cacheKey = PaymentProviderEnabledKey.FormatInvariant(sysName, storeId);
 
             return _cache.GetAsync(cacheKey, async () => 
             {
@@ -287,7 +287,7 @@ namespace Smartstore.Core.Checkout.Payment
 
                 if (DataSettings.DatabaseIsInstalled())
                 {
-                    throw new InvalidOperationException(T("Payment.OneActiveMethodProviderRequired"));
+                    throw new PaymentException(T("Payment.OneActiveMethodProviderRequired"));
                 }
             }
 
@@ -323,14 +323,14 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<Dictionary<string, PaymentMethod>> GetAllPaymentMethodsAsync(bool withRules = false)
         {
-            var withRulesCacheKey = PAYMENT_METHODS_ALL_KEY.FormatInvariant(true);
+            var withRulesCacheKey = PaymentMethodsAllKey.FormatInvariant(true);
             if (_requestCache.Contains(withRulesCacheKey))
             {
                 // Always return upgraded entities if they are cached.
                 return _requestCache.Get<Dictionary<string, PaymentMethod>>(withRulesCacheKey);
             }
 
-            var noRulescacheKey = PAYMENT_METHODS_ALL_KEY.FormatInvariant(false);
+            var noRulescacheKey = PaymentMethodsAllKey.FormatInvariant(false);
             if (!withRules)
             {
                 if (_requestCache.Contains(noRulescacheKey))
@@ -374,7 +374,7 @@ namespace Smartstore.Core.Checkout.Payment
                 }
             }
 
-            var paymentMethodFilters = _requestCache.Get(PAYMENT_METHOD_FILTERS_ALL_KEY, () =>
+            var paymentMethodFilters = _requestCache.Get(PaymentMethodsFiltersAllKey, () =>
             {
                 return _paymentMethodFilterTypes
                     .Select(x => EngineContext.Current.Scope.ResolveUnregistered(x) as IPaymentMethodFilter)
@@ -395,7 +395,7 @@ namespace Smartstore.Core.Checkout.Payment
                 return new();
             }     
 
-            var provider = await LoadProviderOrThrowAsync(processPaymentRequest.PaymentMethodSystemName);
+            var provider = await LoadProviderOrThrow(processPaymentRequest.PaymentMethodSystemName);
             return await provider.Value.PreProcessPaymentAsync(processPaymentRequest);
         }
 
@@ -412,11 +412,11 @@ namespace Smartstore.Core.Checkout.Payment
             // Remove any white space or dashes from credit card number
             if (processPaymentRequest.CreditCardNumber.HasValue())
             {
-                processPaymentRequest.CreditCardNumber = processPaymentRequest.CreditCardNumber.Replace(" ", "");
-                processPaymentRequest.CreditCardNumber = processPaymentRequest.CreditCardNumber.Replace("-", "");
+                processPaymentRequest.CreditCardNumber = processPaymentRequest.CreditCardNumber.Replace(" ", string.Empty);
+                processPaymentRequest.CreditCardNumber = processPaymentRequest.CreditCardNumber.Replace("-", string.Empty);
             }
 
-            var provider = await LoadProviderOrThrowAsync(processPaymentRequest.PaymentMethodSystemName);
+            var provider = await LoadProviderOrThrow(processPaymentRequest.PaymentMethodSystemName);
             return await provider.Value.ProcessPaymentAsync(processPaymentRequest);
         }
 
@@ -429,7 +429,7 @@ namespace Smartstore.Core.Checkout.Payment
                 return;
             } 
 
-            var paymentMethod = await LoadProviderOrThrowAsync(order.PaymentMethodSystemName);
+            var paymentMethod = await LoadProviderOrThrow(order.PaymentMethodSystemName);
             await paymentMethod.Value.PostProcessPaymentAsync(postProcessPaymentRequest);
         }
 
@@ -466,90 +466,20 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
         {
-            var provider = await LoadProviderOrThrowAsync(capturePaymentRequest.Order.PaymentMethodSystemName);
-
-            try
-            {
-                return await provider.Value.CaptureAsync(capturePaymentRequest);
-            }
-            catch (NotSupportedException)
-            {
-                var result = new CapturePaymentResult();
-                result.Errors.Add(T("Common.Payment.NoCaptureSupport"));
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
+            var provider = await LoadProviderOrThrow(capturePaymentRequest.Order.PaymentMethodSystemName);
+            return await provider.Value.CaptureAsync(capturePaymentRequest);
         }
 
         public virtual async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
         {
-            var provider = await LoadProviderOrThrowAsync(refundPaymentRequest.Order.PaymentMethodSystemName);
-
-            try
-            {
-                return await provider.Value.RefundAsync(refundPaymentRequest);
-            }
-            catch (NotSupportedException)
-            {
-                var result = new RefundPaymentResult();
-                result.Errors.Add(T("Common.Payment.NoRefundSupport"));
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
+            var provider = await LoadProviderOrThrow(refundPaymentRequest.Order.PaymentMethodSystemName);
+            return await provider.Value.RefundAsync(refundPaymentRequest);
         }
 
         public virtual async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
         {
-            var provider = await LoadProviderOrThrowAsync(voidPaymentRequest.Order.PaymentMethodSystemName);
-
-            try
-            {
-                return await provider.Value.VoidAsync(voidPaymentRequest);
-            }
-            catch (NotSupportedException)
-            {
-                var result = new VoidPaymentResult();
-                result.Errors.Add(T("Common.Payment.NoVoidSupport"));
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public virtual async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
-        {
-            if (processPaymentRequest.OrderTotal == decimal.Zero)
-            {
-                return new()
-                {
-                    NewPaymentStatus = PaymentStatus.Paid
-                };
-            }
-
-            var paymentMethod = await LoadProviderOrThrowAsync(processPaymentRequest.PaymentMethodSystemName);
-
-            try
-            {
-                return await paymentMethod.Value.ProcessRecurringPaymentAsync(processPaymentRequest);
-            }
-            catch (NotSupportedException)
-            {
-                var result = new ProcessPaymentResult();
-                result.Errors.Add(T("Common.Payment.NoRecurringPaymentSupport"));
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
+            var provider = await LoadProviderOrThrow(voidPaymentRequest.Order.PaymentMethodSystemName);
+            return await provider.Value.VoidAsync(voidPaymentRequest);
         }
 
         public virtual string GetMaskedCreditCardNumber(string creditCardNumber)
@@ -573,15 +503,29 @@ namespace Smartstore.Core.Checkout.Payment
             return maskedChars + last4;
         }
 
-        private async Task<Provider<IPaymentMethod>> LoadProviderOrThrowAsync(string systemName)
+        private async Task<Provider<IPaymentMethod>> LoadProviderOrThrow(string systemName)
         {
             var provider = await LoadPaymentProviderBySystemNameAsync(systemName);
-            return provider ?? throw new InvalidOperationException(T("Payment.CouldNotLoadMethod"));
+            return provider ?? throw new PaymentException(T("Payment.CouldNotLoadMethod"));
         }
 
         #endregion
 
         #region Recurring payment
+
+        public virtual async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        {
+            if (processPaymentRequest.OrderTotal == decimal.Zero)
+            {
+                return new()
+                {
+                    NewPaymentStatus = PaymentStatus.Paid
+                };
+            }
+
+            var provider = await LoadProviderOrThrow(processPaymentRequest.PaymentMethodSystemName);
+            return await provider.Value.ProcessRecurringPaymentAsync(processPaymentRequest);
+        }
 
         public virtual async Task<DateTime?> GetNextRecurringPaymentDateAsync(RecurringPayment recurringPayment)
         {
@@ -613,7 +557,7 @@ namespace Smartstore.Core.Checkout.Payment
                     RecurringProductCyclePeriod.Weeks => startDate.AddDays((double)(7 * cycleLength) * historyCount),
                     RecurringProductCyclePeriod.Months => startDate.AddMonths(cycleLength * historyCount),
                     RecurringProductCyclePeriod.Years => startDate.AddYears(cycleLength * historyCount),
-                    _ => throw new Exception("Not supported cycle period"),
+                    _ => throw new PaymentException("Not supported cycle period"),
                 };
             }
             else if (recurringPayment.TotalCycles > 0)
@@ -640,22 +584,8 @@ namespace Smartstore.Core.Checkout.Payment
                 return new CancelRecurringPaymentResult();
             }   
 
-            var provider = await LoadProviderOrThrowAsync(cancelPaymentRequest.Order.PaymentMethodSystemName);
-
-            try
-            {
-                return await provider.Value.CancelRecurringPaymentAsync(cancelPaymentRequest);
-            }
-            catch (NotSupportedException)
-            {
-                var result = new CancelRecurringPaymentResult();
-                result.Errors.Add(T("Common.Payment.NoRecurringPaymentSupport"));
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
+            var provider = await LoadProviderOrThrow(cancelPaymentRequest.Order.PaymentMethodSystemName);
+            return await provider.Value.CancelRecurringPaymentAsync(cancelPaymentRequest);
         }
 
         #endregion

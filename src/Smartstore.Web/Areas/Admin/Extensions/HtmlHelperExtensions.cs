@@ -8,12 +8,12 @@ namespace Smartstore.Admin
     {
         public static Task<IHtmlContent> ProviderList<TModel>(this IHtmlHelper<IEnumerable<TModel>> html,
             IEnumerable<TModel> model,
-            params Func<TModel, object>[] extraColumns) where TModel : ProviderModel
+            Func<TModel, object> buttonTemplate = null,
+            Func<TModel, object> infoTemplate = null) where TModel : ProviderModel
         {
-            var list = new ProviderModelCollection<TModel>();
-            list.SetData(model);
-            list.SetColumns(extraColumns);
-
+            var list = new ProviderModelCollection<TModel>(model);
+            list.SetTemplates(buttonTemplate, infoTemplate);
+            
             return html.PartialAsync("_Providers", list);
         }
     }

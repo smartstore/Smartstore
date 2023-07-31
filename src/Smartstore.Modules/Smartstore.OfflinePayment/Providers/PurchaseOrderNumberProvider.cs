@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Configuration;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.OfflinePayment.Components;
@@ -10,29 +12,40 @@ namespace Smartstore.OfflinePayment
 {
     [SystemName("Payments.PurchaseOrderNumber")]
     [FriendlyName("Purchase Order Number")]
-    [Order(1)]
+    [Order(100)]
     public class PurchaseOrderNumberProvider : OfflinePaymentProviderBase<PurchaseOrderNumberPaymentSettings>, IConfigurable
     {
         private readonly IValidator<PurchaseOrderNumberPaymentInfoModel> _validator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PurchaseOrderNumberProvider(IValidator<PurchaseOrderNumberPaymentInfoModel> validator)
+        public PurchaseOrderNumberProvider(
+            IStoreContext storeContext,
+            ISettingFactory settingFactory,
+            IValidator<PurchaseOrderNumberPaymentInfoModel> validator,
+            IHttpContextAccessor httpContextAccessor)
+            : base(storeContext, settingFactory)
         {
             _validator = validator;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override Type GetViewComponentType()
-        {
-            return typeof(PurchaseOrderNumberViewComponent);
-        }
-
-        // TODO: (mh) (core) Not needed here > make optional.
-        protected override string GetProviderName()
-        {
-            return nameof(PurchaseOrderNumberProvider);
-        }
+            => typeof(PurchaseOrderNumberViewComponent);
 
         public RouteInfo GetConfigurationRoute()
             => new("PurchaseOrderNumberConfigure", "OfflinePayment", new { area = "Admin" });
+
+        public override Task<string> GetPaymentSummaryAsync()
+        {
+            var result = string.Empty;
+
+            if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var pr) && pr != null)
+            {
+                result = pr.PurchaseOrderNumber.EmptyNull();
+            }
+
+            return Task.FromResult(result);
+        }
 
         public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
         {
@@ -57,10 +70,11 @@ namespace Smartstore.OfflinePayment
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            var result = new ProcessPaymentResult();
-            var settings = await CommonServices.SettingFactory.LoadSettingsAsync<PurchaseOrderNumberPaymentSettings>(processPaymentRequest.StoreId);
-
-            result.AllowStoringCreditCardNumber = true;
+            var settings = await _settingFactory.LoadSettingsAsync<PurchaseOrderNumberPaymentSettings>(processPaymentRequest.StoreId);
+            var result = new ProcessPaymentResult
+            {
+                AllowStoringCreditCardNumber = true
+            };
 
             switch (settings.TransactMode)
             {
@@ -74,8 +88,7 @@ namespace Smartstore.OfflinePayment
                     result.NewPaymentStatus = PaymentStatus.Paid;
                     break;
                 default:
-                    result.Errors.Add(T("Common.Payment.TranactionTypeNotSupported"));
-                    return result;
+                    throw new PaymentException(T("Common.Payment.TranactionTypeNotSupported"));
             }
 
             return result;

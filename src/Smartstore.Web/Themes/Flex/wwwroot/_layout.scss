@@ -112,7 +112,7 @@ body {
     z-index: 9999;
     position: fixed;
     bottom: 1rem;
-    right: 1rem;
+    inset-inline-end: 1rem;
     width: 42px;
     height: 42px;
     border-radius: 50%;
@@ -140,4 +140,11 @@ body {
             opacity: 1;
         }
     }
+}
+
+// Typo
+// -----------------------------------------------------
+
+b, strong {
+    font-weight: $font-weight-medium;
 }

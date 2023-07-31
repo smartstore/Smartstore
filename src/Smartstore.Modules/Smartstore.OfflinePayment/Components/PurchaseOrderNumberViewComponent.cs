@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.OfflinePayment.Models;
-using Smartstore.OfflinePayment.Settings;
+using Smartstore.Web.Components;
 
 namespace Smartstore.OfflinePayment.Components
 {
-    public class PurchaseOrderNumberViewComponent : OfflinePaymentViewComponentBase
+    public class PurchaseOrderNumberViewComponent : SmartViewComponent
     {
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
 
@@ -14,13 +14,13 @@ namespace Smartstore.OfflinePayment.Components
             _checkoutStateAccessor = checkoutStateAccessor;
         }
 
-        public override IViewComponentResult Invoke(string providerName)
+        public IViewComponentResult Invoke()
         {
-            var model = GetPaymentInfoModel<PurchaseOrderNumberPaymentInfoModel, PurchaseOrderNumberPaymentSettings>();
-
             var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
-
-            model.PurchaseOrderNumber = (string)paymentData.Get("PurchaseOrderNumber");
+            var model = new PurchaseOrderNumberPaymentInfoModel
+            {
+                PurchaseOrderNumber = (string)paymentData.Get("PurchaseOrderNumber")
+            };
 
             return View(model);
         }

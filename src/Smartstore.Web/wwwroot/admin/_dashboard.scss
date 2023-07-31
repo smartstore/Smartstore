@@ -40,21 +40,11 @@
             padding-right: 1rem;
 
             &:first-child {
-                padding-left: 1.5rem !important;
-
-                [dir=rtl] & {
-                    padding-right: 1.5rem !important;
-                    padding-left: initial !important;
-                }
+                padding-inline-start: 1.5rem !important;
             }
 
             &:last-child {
-                padding-right: 1.5rem !important;
-            }
-
-            [dir=rtl] & {
-                padding-left: 1.5rem !important;
-                padding-right: initial !important;
+                padding-inline-end: 1.5rem !important;
             }
         }
 
@@ -225,12 +215,7 @@
         display: flex;
         width: 80%;
         justify-content: center;
-        padding-left: 1rem;
-
-        [dir=rtl] & {
-            padding-left: initial;
-            padding-right: 1rem;
-        }
+        padding-inline-start: 1rem;
     }
 
     .statistics-container-inner {
@@ -283,12 +268,7 @@
             }
 
             &:not(:last-child) {
-                padding-right: 1rem;
-
-                [dir=rtl] & {
-                    padding-right: initial;
-                    padding-left: 1rem;
-                }
+                padding-inline-end: 1rem;
             }
         }
 
@@ -303,12 +283,7 @@
             display: inline-block;
             height: 11px;
             width: 11px;
-            margin-right: .3rem;
-
-            [dir=rtl] & {
-                margin-right: initial;
-                margin-left: .3rem;
-            }
+            margin-inline-end: .3rem;
         }
 
         .hidden > .legend {
@@ -357,7 +332,7 @@
             border-right: 9px solid transparent;
             transform: translateX(-50%);
             transition: left 0.1s ease-in-out;
-            left: 50%;
+            inset-inline-start: 50%;
         }
 
         &.bottom {
@@ -372,7 +347,7 @@
                 transform: translate(-10%, calc(-100% - 15px));
 
                 &:after {
-                    left: 10%;
+                    inset-inline-start: 10%;
                 }
             }
 
@@ -380,7 +355,7 @@
                 transform: translate(-90%, calc(-100% - 15px));
 
                 &:after {
-                    left: 90%;
+                    inset-inline-start: 90%;
                 }
             }
         }
@@ -407,8 +382,8 @@
             transform: translate(15px, -50%);
 
             &:after {
-                border-right: 9px solid rgba($black, 0.8);
-                left: -9px;
+                border-inline-end: 9px solid rgba($black, 0.8);
+                inset-inline-start: -9px;
             }
         }
 
@@ -416,8 +391,8 @@
             transform: translate(calc(-100% - 15px), -50%);
 
             &:after {
-                border-left: 9px solid rgba($black, 0.8);
-                left: 100%;
+                border-inline-start: 9px solid rgba($black, 0.8);
+                inset-inline-start: 100%;
             }
         }
 
@@ -427,12 +402,7 @@
             height: 11px;
             border-radius: 50%;
             margin-bottom: -1px;
-            margin-right: 0.33rem;
-
-            [dir=rtl] & {
-                margin-right: initial;
-                margin-left: 0.33rem;
-            }
+            margin-inline-end: 0.33rem;
         }
 
         .chart-tooltip-title {
@@ -638,7 +608,7 @@
     }
 
     .admin-config-group:after {
-        right: 1rem;
+        inset-inline-end: 1rem;
     }
 }
 

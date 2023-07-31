@@ -214,12 +214,13 @@ namespace Smartstore.OfflinePayment.Controllers
             };
 
             model.ExcludedCreditCards = settings.ExcludedCreditCards.SplitSafe(',').ToArray();
-            model.AvailableCreditCards = ManualProvider.CreditCardTypes
+
+            model.AvailableCreditCards = ManualProvider.GetCreditCardBrands(T)
                 .Select(x => new SelectListItem
                 {
-                    Text = x.Text,
-                    Value = x.Value,
-                    Selected = model.ExcludedCreditCards.Contains(x.Value)
+                    Text = x.Value,
+                    Value = x.Key,
+                    Selected = model.ExcludedCreditCards.Contains(x.Key)
                 })
                 .ToList();
 

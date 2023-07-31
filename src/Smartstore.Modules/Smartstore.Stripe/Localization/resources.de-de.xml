@@ -76,12 +76,6 @@
             <LocaleResource Name="WebhookUrl.Hint">
                 <Value>Hinterlegen Sie diese URL in Ihrem Stripe-Konto als Endpoint-URL für den Webhook.</Value>
             </LocaleResource>
-            <LocaleResource Name="WebhookUrl.Copy">
-                <Value>Kopieren</Value>
-            </LocaleResource>
-            <LocaleResource Name="WebhookUrl.CopySuccess">
-                <Value>Der Link wurde erfolgreich in die Zwischenablage kopiert.</Value>
-            </LocaleResource>
             <LocaleResource Name="AdditionalFee">
 				<Value>Zusätzliche Gebühren</Value>
 			</LocaleResource>

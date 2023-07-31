@@ -1,5 +1,33 @@
 # Release Notes
 
+## Smartstore 5.1.0
+
+### New Features
+
+- **Botsonic** plugin (commercial)
+- #745 Page Builder: depend story visibility on user roles.
+
+### Improvements
+
+- Improved plugin & provider manager UI
+- #580 Added caching for live currency exchange rates.
+- #767 Handle tier prices in depending prices module.
+- #378 Remove the assignments of products to a tax category when the tax category is deleted.
+- #388 Ajaxify product tag selection in backend.
+- #503 Don't round quantity unit amount for PAnGV.
+- #403 Added preview image link of NewsItem to RSS feed.
+- #390 Import: add a setting whether to send the completion email.
+
+### Bugfixes
+
+- Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
+- Web API: fixed 404 file swagger.json not found when opening Swagger documentation in a virtual directory.
+- Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
+- Fixed missing cache clearing after importing localized properties.
+- Output Cache: missing `Content-Type` header when serving page from cache
+- #531 Error reading import file with localized values of languages with the same UniqueSeoCode.
+
+
 ## Smartstore 5.0.5
 
 ### Breaking Changes
@@ -36,7 +64,7 @@
   - Checkout / Payment page can display payment method brand icons
 - Increased performance: category tree path to filter products by categories.
 - DataGrid now remembers the search filter state across requests
-- Better PayPal implementaion: added providers for every single payment option.
+- Better PayPal implementation: added providers for every single payment option.
 - New user agent parser with much better bot, mobile/tablet detection (but less accurate platform and device detection)
 - #416 Make the language name localizable.
 - Specify custom database collation during installation.

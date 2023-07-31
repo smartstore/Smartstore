@@ -27,20 +27,20 @@ $mixed-megamenu-bg:             $megamenu-bg;
     overflow: hidden;
     position: relative;
     width: 100%;
-    
+
     .nav-link {
         font-weight: $font-weight-medium;
         font-size: $megamenu-navlink-font-size;
     }
-    
-	.dropdown-toggle:after {
-		border: none !important;
-		@include fontawesome("\f107", $font-size-base);
-		width: auto;
-		height: auto;
-		vertical-align: middle;
-		margin-left: 0.15rem;
-	}
+
+    .dropdown-toggle:after {
+        border: none !important;
+        @include fontawesome("\f107", $font-size-base);
+        width: auto;
+        height: auto;
+        vertical-align: middle;
+        margin-inline-start: 0.15rem;
+    }
 }
 
 .navbar-light .megamenu .nav-item {
@@ -63,14 +63,14 @@ $mixed-megamenu-bg:             $megamenu-bg;
      }
 } 
 
-// horizontal main navbar 
+// horizontal main navbar
 .megamenu .navbar-nav {
-	position: relative;
-	white-space: nowrap;
-	/* overwrites inline width */
-	width: auto !important;
-	transition: margin-left 0.12s ease-in-out;
-	margin-left: 0;
+    position: relative;
+    white-space: nowrap;
+    /* overwrites inline width */
+    width: auto !important;
+    transition: margin-inline-start 0.12s ease-in-out;
+    margin-inline-start: 0;
     line-height: $megamenu-line-height;
 
     &:after {
@@ -84,18 +84,26 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
         .badge {
             position: absolute;
-            right: 3px;
+            inset-inline-start: 3px;
             top: 4px;
             font-size: $font-size-xs;
         }
-        .badge-important { background: $primary; }
-        .badge-inverse { background: $danger; }
 
-        &:before, &:after { content: ""; }
+        .badge-important {
+            background: $primary;
+        }
+
+        .badge-inverse {
+            background: $danger;
+        }
+
+        &:before, &:after {
+            content: "";
+        }
 
         &.active:before {
             content: "";
-            right: 0;
+            inset-inline-end: 0;
             position: absolute;
             border-bottom: 10px solid $megamenu-dropdown-bg;
             border-right: 12px solid transparent;
@@ -106,7 +114,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
         &.active:after {
             content: "";
-            right: -2px;
+            inset-inline-end: -2px;
             position: absolute;
             border-bottom: 12px solid $dropdown-border-color;
             border-right: 14px solid transparent;
@@ -121,15 +129,15 @@ $mixed-megamenu-bg:             $megamenu-bg;
             display: block;
             position: absolute;
             width: 100%;
-            left: 0;
+            inset-inline-start: 0;
             bottom: 1px;
             height: 3px;
             background: $header-selected-color;
         }
     }
 
-    .nav-item + .nav-item { 
-        margin-left: 0; 
+    .nav-item + .nav-item {
+        margin-inline-start: 0;
     }
 }
 
@@ -160,6 +168,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     z-index: $megamenu-zindex-base;
     display: none;
 
+    // INFO: No logical CSS here, else directions change.
     &.alpha {
         left: 0;
         a { padding-right: 10px; }
@@ -228,18 +237,18 @@ $mixed-megamenu-bg:             $megamenu-bg;
 .megamenu-container {
     position: relative;
 
-	.mega-menu-dropdown,
-	.dropdown-menu {
+    .mega-menu-dropdown,
+    .dropdown-menu {
         @include sliding-dropdown-menu();
-	}
+    }
 
-	.show .mega-menu-dropdown,
-	.show .dropdown-menu {
+    .show .mega-menu-dropdown,
+    .show .dropdown-menu {
         display: block;
         visibility: visible;
         opacity: 1;
         transform: translateY(0);
-	}
+    }
 
     .nav-link {
         padding: 1em .6em;
@@ -260,18 +269,18 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
         .picture-container {
             position: absolute;
-            right: 0;
+            inset-inline-end: 0;
             bottom: 0;
             pointer-events: none;
-            
+
             > a {
                 pointer-events: initial;
                 display: inline-block;
                 position: absolute;
                 top: 0;
                 bottom: 0;
-                right: 0;
-                left: 0;
+                inset-inline-end: 0;
+                inset-inline-start: 0;
             }
         }
 
@@ -294,15 +303,19 @@ $mixed-megamenu-bg:             $megamenu-bg;
         background-repeat: no-repeat;
         background-position: bottom right;
         padding: 0;
-     
-        label { 
+
+        label {
             vertical-align: top;
             margin-bottom: 0;
         }
+
         .col-md-3 {
             overflow: hidden;
         }
-        .row > div:empty { height: 0; }
+
+        .row > div:empty {
+            height: 0;
+        }
     }
 
     .mega-menu-dropdown-row {
@@ -312,7 +325,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     .mega-menu-dropdown-heading {
         position: relative;
         font-size: 1rem;
-        font-weight: $font-weight-medium; 
+        font-weight: $font-weight-medium;
         line-height: 1.4rem;
         text-decoration: none;
         display: block;
@@ -320,12 +333,15 @@ $mixed-megamenu-bg:             $megamenu-bg;
         padding-bottom: 0.4rem;
         transition: transform 0.2s ease-in-out;
 
-        &:not(:first-child) { padding-top: 1rem; }
+        &:not(:first-child) {
+            padding-top: 1rem;
+        }
 
         &:hover {
             transform: translateX(5px);
         }
     }
+
     .mega-menu-dropdown-heading + .mega-menu-dropdown-heading {
         padding-top: .5rem;
     }
@@ -336,7 +352,10 @@ $mixed-megamenu-bg:             $megamenu-bg;
         display: block;
         color: $megamenu-subitem-color;
 
-        &:hover { color: #222; } 
+        &:hover {
+            color: #222;
+        }
+
         &.more-link {
             font-weight: bold;
             color: #464646;
@@ -351,14 +370,16 @@ $mixed-megamenu-bg:             $megamenu-bg;
             font-size: $font-size-sm;
             line-height: .875rem;
 
-            &:hover { text-decoration: underline; }
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
-    
+
     .mega-menu-subitem-wrap {
         white-space: nowrap;
     }
-    
+
     .comma-separated {
         .mega-menu-subitem {
             display: inline;
@@ -367,7 +388,8 @@ $mixed-megamenu-bg:             $megamenu-bg;
             &.more-link {
                 display: block;
             }
-            &:focus, 
+
+            &:focus,
             &:hover {
                 background-color: transparent;
                 color: #888;
@@ -446,12 +468,12 @@ $mixed-megamenu-bg:             $megamenu-bg;
     }
 
     .nav-item.active:before {
-        right: initial;
-        left: 12px;
+        inset-inline-end: initial;
+        inset-inline-start: 12px;
     }
     .nav-item.active:after {
-        right: initial;
-        left: 10px;
+        inset-inline-end: initial;
+        inset-inline-start: 10px;
     }
 }
 .megamenu.simple .navbar-nav .nav-item {
@@ -464,6 +486,6 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
 @media screen {
     .boxed .megamenu-dropdown-container.simple .dropdown-menu {
-        margin-left: 20px;
+        margin-inline-start: 20px;
     }
 }

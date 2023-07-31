@@ -9,6 +9,8 @@ namespace Smartstore.Core.DataExchange
         /// </summary>
         public int MaxFileNameLength { get; set; } = 50;
 
+        #region Import
+
         /// <summary>
         /// Relative path to a folder with images to be imported.
         /// </summary>
@@ -18,5 +20,12 @@ namespace Smartstore.Core.DataExchange
         /// The timeout for image download per entity in minutes.
         /// </summary>
         public int ImageDownloadTimeout { get; set; } = 10;
+
+        /// <summary>
+        /// Specifies whether to send an email when an import has completed.
+        /// </summary>
+        public DataExchangeCompletionEmail ImportCompletionEmail { get; set; } = DataExchangeCompletionEmail.Always;
+
+        #endregion
     }
 }

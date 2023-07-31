@@ -49,7 +49,7 @@
     async Task EntitySearchFormAsync()
     {
         <div class="control-group mr-2">
-            <div class="form-inline">
+            <div class="hstack gap-2">
                 @if (Model.EntityType.EqualsNoCase("customer"))
                 {
                     var availableSearchTypes = (IEnumerable<SelectListItem>)ViewBag.AvailableCustomerSearchTypes;
@@ -69,7 +69,7 @@
                     </span>
                 </div>
 
-                <button sm-if='Model.EntityType.EqualsNoCase("product")' type="button" class="btn btn-secondary ml-2" name="FilterEntities" data-toggle="button">
+                <button sm-if='Model.EntityType.EqualsNoCase("product")' type="button" class="btn btn-secondary" name="FilterEntities" data-toggle="button">
                     <i class="fa fa-filter"></i>
                 </button>
             </div>

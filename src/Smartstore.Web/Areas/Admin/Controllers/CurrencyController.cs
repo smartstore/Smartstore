@@ -43,25 +43,21 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Currency.Read)]
-        public IActionResult List(bool liveRates = false)
+        public IActionResult List()
         {
             var model = new CurrencyListModel
             {
-                DisplayLiveRates = liveRates,
                 AutoUpdateEnabled = _currencySettings.AutoUpdateEnabled
             };
 
-            ViewBag.ExchangeRateProviders = new List<SelectListItem>();
-
-            foreach (var erp in Services.CurrencyService.LoadAllExchangeRateProviders())
-            {
-                ViewBag.ExchangeRateProviders.Add(new SelectListItem
+            ViewBag.ExchangeRateProviders = Services.CurrencyService.LoadAllExchangeRateProviders()
+                .Select(x => new SelectListItem
                 {
-                    Text = _moduleManager.GetLocalizedFriendlyName(erp.Metadata),
-                    Value = erp.Metadata.SystemName,
-                    Selected = erp.Metadata.SystemName.Equals(_currencySettings.ActiveExchangeRateProviderSystemName, StringComparison.InvariantCultureIgnoreCase)
-                });
-            }
+                    Text = _moduleManager.GetLocalizedFriendlyName(x.Metadata),
+                    Value = x.Metadata.SystemName,
+                    Selected = x.Metadata.SystemName.Equals(_currencySettings.ActiveExchangeRateProviderSystemName, StringComparison.InvariantCultureIgnoreCase)
+                })
+                .ToList();
 
             return View(model);
         }
@@ -73,11 +69,9 @@ namespace Smartstore.Admin.Controllers
             _currencySettings.ActiveExchangeRateProviderSystemName = model.ExchangeRateProvider;
             _currencySettings.AutoUpdateEnabled = model.AutoUpdateEnabled;
 
-            await Services.Settings.ApplySettingAsync(_currencySettings, x => x.ActiveExchangeRateProviderSystemName);
-            await Services.Settings.ApplySettingAsync(_currencySettings, x => x.AutoUpdateEnabled);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction(nameof(List), "Currency");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]
@@ -159,61 +153,65 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Currency.Read)]
-        public async Task<IActionResult> LiveRateList()
+        public async Task<IActionResult> LiveRateList(GridCommand command)
         {
             var language = Services.WorkContext.WorkingLanguage;
-            var rates = new List<ExchangeRate>();
-            var ratesCount = 0;
-            var allCurrenciesByIsoCode = (await _db.Currencies
-                .AsNoTracking()
-                .ToListAsync())
-                .ToDictionarySafe(x => x.CurrencyCode.EmptyNull().ToUpper(), x => x);
+            List<ExchangeRate> rates = null;
 
             try
             {
-                var primaryExchangeCurrency = Services.CurrencyService.PrimaryExchangeCurrency;
-                if (primaryExchangeCurrency == null)
-                {
-                    throw new InvalidOperationException(T("Admin.System.Warnings.ExchangeCurrency.NotSet"));
-                }
-
-                rates = (await Services.CurrencyService.GetCurrencyLiveRatesAsync(primaryExchangeCurrency.CurrencyCode)).ToList();
+                rates = (await Services.CurrencyService.GetCurrencyLiveRatesAsync(!command.InitialRequest)).ToList();
 
                 // Get localized name of currencies.
-                var currencyNames = allCurrenciesByIsoCode.ToDictionarySafe(
+                var allCurrencies = (await _db.Currencies
+                    .AsNoTracking()
+                    .ToListAsync())
+                    .ToDictionarySafe(x => x.CurrencyCode.EmptyNull(), x => x, StringComparer.OrdinalIgnoreCase);
+
+                var currencyNames = allCurrencies.ToDictionarySafe(
                     x => x.Key,
-                    x => x.Value.GetLocalized(y => y.Name, language, true, false).Value
+                    x => x.Value.GetLocalized(y => y.Name, language, true, false).Value,
+                    StringComparer.OrdinalIgnoreCase
                 );
 
                 // Fallback to english name where no localized currency name exists.
-                foreach (var info in CultureInfo.GetCultures(CultureTypes.AllCultures).Where(x => !x.IsNeutralCulture))
+                if (rates.Any(x => x.Name.IsEmpty()))
                 {
-                    try
-                    {
-                        var region = new RegionInfo(info.LCID);
-
-                        if (!currencyNames.ContainsKey(region.ISOCurrencySymbol))
+                    CultureInfo.GetCultures(CultureTypes.AllCultures)
+                        .Where(x => !x.Equals(CultureInfo.InvariantCulture))
+                        .Where(x => !x.IsNeutralCulture)
+                        .Each(x =>
                         {
-                            currencyNames.Add(region.ISOCurrencySymbol, region.CurrencyEnglishName);
-                        }
-                    }
-                    catch
-                    {
-                    }
+                            try
+                            {
+                                // INFO: avoid RegionInfo(int) constructor. It is brutally slow and throws many exceptions.
+                                var region = new RegionInfo(x.Name);
+                                if (!currencyNames.ContainsKey(region.ISOCurrencySymbol))
+                                {
+                                    currencyNames.Add(region.ISOCurrencySymbol, region.CurrencyEnglishName);
+                                }
+                            }
+                            catch
+                            {
+                            }
+                        });
                 }
 
                 // Provide rate with currency name and whether it is available in store.
-                rates.Each(x =>
+                foreach (var rate in rates)
                 {
-                    x.IsStoreCurrency = allCurrenciesByIsoCode.ContainsKey(x.CurrencyCode);
+                    rate.IsStoreCurrency = allCurrencies.ContainsKey(rate.CurrencyCode);
 
-                    if (x.Name.IsEmpty() && currencyNames.ContainsKey(x.CurrencyCode))
+                    if (rate.Name.IsEmpty())
                     {
-                        x.Name = currencyNames[x.CurrencyCode];
+                        rate.Name = currencyNames.Get(rate.CurrencyCode);
                     }
-                });
+                }
 
-                rates = rates.OrderBy(x => !x.IsStoreCurrency).ThenBy(x => x.Name).ToList();
+                rates = rates
+                    .OrderBy(x => !x.IsStoreCurrency)
+                    .ThenBy(x => x.Name)
+                    .ToList();
             }
             catch (Exception ex)
             {
@@ -222,8 +220,8 @@ namespace Smartstore.Admin.Controllers
 
             var gridModel = new GridModel<ExchangeRate>
             {
-                Rows = rates,
-                Total = ratesCount
+                Rows = rates ?? new(),
+                Total = rates.Count
             };
 
             return Json(gridModel);

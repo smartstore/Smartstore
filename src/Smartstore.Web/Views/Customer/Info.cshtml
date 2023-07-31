@@ -21,7 +21,7 @@
 
         <div sm-if="Model.GenderEnabled" class="form-group row">
             <label class="col-lg-3 col-form-label">@T("Account.Fields.Gender")</label>
-            <div class="col-lg-9 form-inline">
+            <div class="col-lg-9">
                 <div class="form-check form-check-inline">
                     <input type="radio" asp-for="Gender" sm-ignore-label="true" class="form-check-input" id="gender-male" value="M" attr-checked='(Model.Gender == "M", "checked")' />
                     <label class="form-check-label" for="gender-male">@T("Account.Fields.Gender.Male")</label>

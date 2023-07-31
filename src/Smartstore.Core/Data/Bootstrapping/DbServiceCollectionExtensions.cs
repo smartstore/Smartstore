@@ -24,6 +24,7 @@ namespace Smartstore.Core.Bootstrapping
                 .AddFluentMigratorCore()
                 .AddScoped<IConnectionStringReader, DataSettingsConnectionStringReader>()
                 .AddScoped<IProcessorAccessor, MigrationProcessorAccessor>()
+                .AddScoped<IConventionSetAccessor, SmartConventionSetAccessor>()
                 .AddTransient<IDatabaseInitializer, DatabaseInitializer>()
                 .AddTransient(typeof(IMigrationTable<>), typeof(MigrationTable<>))
                 .AddTransient(typeof(DbMigrator<>))

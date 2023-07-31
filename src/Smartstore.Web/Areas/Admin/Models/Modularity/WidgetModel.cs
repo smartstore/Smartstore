@@ -1,9 +1,6 @@
 ﻿namespace Smartstore.Admin.Models.Modularity
 {
-    public class WidgetModel : ProviderModel, IActivatable
+    public class WidgetModel : ActivatableProviderModel
     {
-        [LocalizedDisplay("Common.IsActive")]
-        public bool IsActive { get; set; }
-
     }
 }
