@@ -56,18 +56,6 @@
 		}
 	}
 
-	.dropdown-menu:not(.colorpicker) {
-/*		left: initial !important;
-		right: 0;
-		text-align: right;
-
-        &.dropdown-menu-right,
-		&.dropdown-menu-left {
-			right: auto;
-			left: 0 !important;
-        }*/
-	}
-
 	.list-unstyled,
 	.list-inline {
 		padding-right: 0;
@@ -204,11 +192,6 @@
 			margin-left: .25rem;
 			margin-right: initial;
 		}
-	}
-
-	.dropdown-toggle:after {
-		margin-right: $caret-width * .85;
-		margin-left: 0;
 	}
 
 	.form-check {

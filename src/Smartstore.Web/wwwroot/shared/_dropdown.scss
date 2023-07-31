@@ -18,12 +18,12 @@
 
 	> .dropdown-item {
 		position: relative;
-		padding-right: 2rem;
+		padding-inline-end: 2rem;
 
 		&:before {
 			// make caret
 			position: absolute;
-			right: $dropdown-item-padding-x / 2;
+			inset-inline-end: $dropdown-item-padding-x / 2;
 			top: 50%;
 			transform: translateY(-40%);
             color: $gray-500;
@@ -40,7 +40,7 @@
 		position: absolute;
 		margin-top: 0 !important;
 		top: $dropdown-padding-y * -1;
-		left: 100% !important;
+		inset-inline-start: 100% !important;
 		bottom: auto;
 		transform: translateX(-2px);
 	}
@@ -120,8 +120,8 @@
 	> em {
 		font-style: normal;
 		text-align: right;
-		padding-left: 2rem;
-		margin-left: auto;
+		padding-inline-start: 2rem;
+		margin-inline-start: auto;
 		font-size: 90%;
 		opacity: 0.8;
 	}
