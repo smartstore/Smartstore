@@ -2,7 +2,7 @@
 /// <reference path="../../../wwwroot/shared/_mixins.scss" />
 /// <reference path="_variables.scss" />
 /// <reference path="../../../wwwroot/lib/bs4/scss/bootstrap.scss" />
-/// <reference path="../../../wwwroot/lib/rfs/_rfs.scss" />
+/// <reference path="../../../wwwroot/lib/bs4/scss/vendor/_rfs.scss" />
 
 /* Theme: FLEX 
 ======================================== */
@@ -51,7 +51,7 @@
 // Vendor components (neutral)
 // --------------------------------------------------
 
-@import "/lib/rfs/_rfs.scss";
+@import "/lib/bs4/scss/vendor/_rfs.scss";
 @import "/lib/photoswipe/photoswipe.scss";
 @import "/lib/slick/slick.scss";
 @import "/lib/select2/scss/core.scss";

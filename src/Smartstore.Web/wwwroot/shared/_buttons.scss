@@ -36,8 +36,8 @@ $btn-size-sm: $input-height-sm;
 // -----------------------------------------------------
 
 @if $enable-lightbtn-tweak {
-    .btn-outline-secondary,
-    .btn-outline-light {
+    .xbtn-outline-secondary,
+    .xbtn-outline-light {
         color: $yiq-text-dark;
         border-color: $input-border-color;
 
@@ -77,7 +77,7 @@ $btn-size-sm: $input-height-sm;
 .input-group > .input-group-append > .btn-light,
 .input-group > .input-group-prepend > .btn-secondary,
 .input-group > .input-group-prepend > .btn-light { 
-    border-color: $input-border-color;
+    xborder-color: $input-border-color;
 }
 
 

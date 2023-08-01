@@ -9,56 +9,104 @@
 //
 
 .btn {
+  --btn-padding-x: #{$btn-padding-x};
+  --btn-padding-y: #{$btn-padding-y};
+  --btn-font-family: #{$btn-font-family};
+  --btn-font-weight: #{$btn-font-weight};
+  --btn-line-height: #{$btn-line-height};
+  --btn-color: #{$body-color};
+  --btn-bg: transparent;
+  --btn-border-width: #{$btn-border-width};
+  --btn-border-color: transparent;
+  --btn-border-radius: #{$btn-border-radius};
+  --btn-disabled-opacity: #{$btn-disabled-opacity};
+  --btn-box-shadow: #{$btn-box-shadow};
+  //--btn-focus-box-shadow: #{$btn-focus-box-shadow};
+  --btn-active-box-shadow: #{$btn-active-box-shadow};
+  --btn-focus-box-shadow: inset 0 0 0 #{$btn-focus-width} #fff;
+
   display: inline-block;
-  font-family: $btn-font-family;
-  font-weight: $btn-font-weight;
-  color: $body-color;
+  padding: var(--btn-padding-y) var(--btn-padding-x);
+  font-family: var(--btn-font-family);
+  @include font-size(var(--btn-font-size));
+  font-weight: var(--btn-font-weight);
+  line-height: var(--btn-line-height);
+  color: var(--btn-color);
   text-align: center;
   text-decoration: if($link-decoration == none, null, none);
   white-space: $btn-white-space;
   vertical-align: middle;
+  cursor: if($enable-pointer-cursor-for-buttons, pointer, null);
   user-select: none;
-  background-color: transparent;
-  border: $btn-border-width solid transparent;
-  @include button-size($btn-padding-y, $btn-padding-x, $btn-font-size, $btn-line-height, $btn-border-radius);
+  background-color: var(--btn-bg);
+  border: var(--btn-border-width) solid var(--btn-border-color);
+  @include border-radius(var(--btn-border-radius));
+  @include gradient-bg(var(--btn-bg));
+  @include box-shadow(var(--btn-box-shadow));
   @include transition($btn-transition);
 
-  @include hover() {
-    color: $body-color;
-    text-decoration: none;
+  &:hover {
+    color: var(--btn-hover-color);
+    text-decoration: if($link-hover-decoration == underline, none, null);
+    background-color: var(--btn-hover-bg);
+    border-color: var(--btn-hover-border-color);
   }
 
-  &:focus,
-  &.focus {
-    outline: 0;
-    box-shadow: $btn-focus-box-shadow;
+  &:focus-visible {
+    $ow: $btn-focus-width - 1px;
+    outline: #{$ow} solid $input-focus-border-color;
+    outline-offset: calc(#{$ow} * -1);
+    // Avoid using mixin so we can pass custom focus shadow properly
+    @if $enable-shadows {
+      box-shadow: var(--btn-box-shadow), var(--btn-focus-box-shadow);
+    } @else {
+      box-shadow: var(--btn-focus-box-shadow);
+    }
   }
 
-  // Disabled comes first so active can properly restyle
   &.disabled,
-  &:disabled {
-    opacity: $btn-disabled-opacity;
+  &:disabled,
+  fieldset:disabled & {
+    color: var(--btn-disabled-color);
+    pointer-events: none;
+    background-color: var(--btn-disabled-bg);
+    background-image: if($enable-gradients, none, null);
+    border-color: var(--btn-disabled-border-color);
+    opacity: var(--btn-disabled-opacity);
     @include box-shadow(none);
   }
 
-  &:not(:disabled):not(.disabled) {
-    cursor: if($enable-pointer-cursor-for-buttons, pointer, null);
+  &:active,
+  &.active,
+  .show > &.dropdown-toggle {
+    color: var(--btn-active-color);
+    background-color: var(--btn-active-bg);
+    // Remove CSS gradients if they're enabled
+    background-image: if($enable-gradients, none, null);
+    border-color: var(--btn-active-border-color);
+    @include box-shadow(var(--btn-active-shadow));
 
-    &:active,
-    &.active {
-      @include box-shadow($btn-active-box-shadow);
-
-      &:focus {
-        @include box-shadow($btn-focus-box-shadow, $btn-active-box-shadow);
+    &:focus-visible {
+      // Avoid using mixin so we can pass custom focus shadow properly
+      @if $enable-shadows {
+        box-shadow: var(--btn-active-shadow), var(--btn-focus-box-shadow);
+      } @else {
+        box-shadow: var(--btn-focus-box-shadow);
       }
     }
   }
-}
 
-// Future-proof disabling of clicks on `<a>` elements
-a.btn.disabled,
-fieldset:disabled a.btn {
-  pointer-events: none;
+  &.disabled,
+  &:disabled,
+  fieldset:disabled & {
+    color: var(--btn-disabled-color) !important;
+    pointer-events: none !important;
+    background-color: var(--btn-disabled-bg) !important;
+    background-image: if($enable-gradients, none, null);
+    border-color: var(--btn-disabled-border-color) !important;
+    opacity: var(--btn-disabled-opacity);
+    @include box-shadow(none);
+  }
 }
 
 
@@ -68,7 +116,24 @@ fieldset:disabled a.btn {
 
 @each $color, $value in $theme-colors {
   .btn-#{$color} {
-    @include button-variant($value, $value);
+    @if $color == "light" or $color == "secondary" {
+      @include button-variant(
+        $value,
+        rgba($gray-700, 0.15),
+        $hover-background: darken($value, 3%),
+        $hover-border: rgba($gray-700, 0.15),
+        $active-background: darken($value, 6%),
+        $active-border: rgba($gray-700, 0.2));
+    }
+    @else {
+      @include button-variant(
+        $value,
+        rgba($gray-700, 0.15),
+        $hover-background: darken($value, 7.5%),
+        $hover-border: rgba($gray-700, 0.15),
+        $active-background: darken($value, 10%),
+        $active-border: rgba($gray-700, 0.2));
+    }
   }
 }
 
