@@ -15,15 +15,15 @@ namespace Smartstore.Core.Catalog.Attributes
     public partial class ProductAttributeMaterializer : IProductAttributeMaterializer
     {
         // 0 = Attribute IDs
-        private const string AttributesByIdsKey = "materialized-attributes:{0}";
-        private const string AttributesPatternKey = "materialized-attributes:*";
+        const string AttributesByIdsKey = "materialized-attributes:{0}";
+        const string AttributesPatternKey = "materialized-attributes:*";
 
         // 0 = Attribute JSON
-        private const string AttributeValuesByJsonKey = "materialized-attributevalues:byjson-{0}";
-        private const string AttributeValuesPatternKey = "materialized-attributevalues:*";
+        const string AttributeValuesByJsonKey = "materialized-attributevalues:byjson-{0}";
+        const string AttributeValuesPatternKey = "materialized-attributevalues:*";
 
         // 0 = ProductId, 1 = Attribute JSON
-        private const string AttributeCombinationByIdJsonKey = "attributecombination:byjson-{0}-{1}";
+        const string AttributeCombinationByIdJsonKey = "attributecombination:byjson-{0}-{1}";
         internal const string AttributeCombinationPatternKey = "attributecombination:*";
 
         // 0 = ProductId
@@ -321,12 +321,12 @@ namespace Smartstore.Core.Catalog.Attributes
 
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
-                selection = await NormalizeSelectionAsync(selection);
+                selection = await NormalizeSelection(selection);
 
                 var hashCode = selection.GetHashCode();
                 var combination = await _db.ProductVariantAttributeCombinations
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.ProductId == productId && x.HashCode == hashCode);
+                    .ApplyHashCodeFilter(productId, hashCode);
 
                 return combination;
             });
@@ -347,7 +347,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 using var step = _chronometer.Step("FindAttributeCombination");
 
-                selection = await NormalizeSelectionAsync(selection);
+                selection = await NormalizeSelection(selection);
 
                 var query = _db.ProductVariantAttributeCombinations
                     .AsNoTracking()
@@ -580,7 +580,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             static void Append(StringBuilder sb, int pvaId, IEnumerable<int> pvavIds)
             {
-                var idsStr = string.Join(",", pvavIds.OrderBy(x => x));
+                var idsStr = string.Join(',', pvavIds.OrderBy(x => x));
 
                 if (sb.Length > 0)
                 {
@@ -601,26 +601,21 @@ namespace Smartstore.Core.Catalog.Attributes
             // That is why it is important to also filter by list types because only list types (e.g. dropdown list)
             // can have assigned ProductVariantAttributeValue entities.
 
-            return await GetListTypeAttributesQuery(attributeIds, valueIds)
+            return await _db.ProductVariantAttributeValues
                 .Include(x => x.ProductVariantAttribute)
                 .ThenInclude(x => x.ProductAttribute)
                 .AsSplitQuery()
                 .AsNoTracking()
-                .ToListAsync();
-        }
-
-        private IQueryable<ProductVariantAttributeValue> GetListTypeAttributesQuery(int[] attributeIds, int[] valueIds)
-        {
-            return _db.ProductVariantAttributeValues
                 .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && valueIds.Contains(x.Id))
-                .ApplyListTypeFilter();
+                .ApplyListTypeFilter()
+                .ToListAsync();
         }
 
         /// <summary>
         /// Excludes all non-list type attributes from given selection.
         /// </summary>
         /// <returns>The normalized selection</returns>
-        private async Task<ProductVariantAttributeSelection> NormalizeSelectionAsync(ProductVariantAttributeSelection selection)
+        private async Task<ProductVariantAttributeSelection> NormalizeSelection(ProductVariantAttributeSelection selection)
         {
             var listTypeValues = await MaterializeProductVariantAttributeValuesAsync(selection);
             var listTypeAttributesIds = listTypeValues.Select(x => x.ProductVariantAttributeId).ToArray();

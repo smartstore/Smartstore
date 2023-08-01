@@ -53,11 +53,11 @@ namespace Smartstore.Core.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
+            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
+
             var num = await _productAttributeService.EnsureAttributeCombinationHashCodesAsync(cancelToken);
 
             _logger.Debug($"Created hash codes for {num} product attribute combinations.");
-
-            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)

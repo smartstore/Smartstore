@@ -387,17 +387,28 @@ namespace Smartstore.Domain
             return !Equals(left, right);
         }
 
+        /// <summary>
+        /// Creates a unqiue hash code for attributes contained in this selection.
+        /// </summary>
+        /// <remarks>
+        /// For the hash code to work when stored in the database, the attribute selection must contain list types only!
+        /// That means no plain text or date values.
+        /// <see cref="AllAttributes.CustomAttributes"/> (like gift card data) are always ignored when creating the hash code.
+        /// See also IProductAttributeMaterializer.FindAttributeCombinationAsync (it only includes list type attributes).
+        /// </remarks>
         public override int GetHashCode()
         {
             var combiner = HashCodeCombiner.Start();
 
-            foreach (var attribute in _attributes.Attributes)
+            foreach (var attribute in _attributes.Attributes.OrderBy(x => x.Key))
             {
                 combiner.Add(attribute.Key);
-                attribute.Value.Each(value => combiner.Add(value?.ToString()));
-            }
 
-            // INFO: CustomAttributes (like gift card data) are always ignored. FindAttributeCombinationAsync only includes list type attributes.
+                attribute.Value
+                    .Select(x => x.ToString())
+                    .OrderBy(x => x)
+                    .Each(x => combiner.Add(x));
+            }
 
             return combiner.CombinedHash;
         }
