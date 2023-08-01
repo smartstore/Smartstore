@@ -1,4 +1,5 @@
-﻿using Smartstore.Collections;
+﻿using Smartstore.Caching;
+using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -11,13 +12,19 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         private readonly SmartDbContext _db;
         private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly IRequestCache _requestCache;
+        private readonly ILogger _logger;
 
         public ProductAttributeService(
             SmartDbContext db,
-            ILocalizedEntityService localizedEntityService)
+            ILocalizedEntityService localizedEntityService,
+            IRequestCache requestCache,
+            ILogger logger)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
+            _requestCache = requestCache;
+            _logger = logger;
         }
 
         public virtual async Task<Multimap<string, int>> GetExportFieldMappingsAsync(string fieldPrefix)
@@ -329,6 +336,7 @@ namespace Smartstore.Core.Catalog.Attributes
             const int take = 5000;
             var numBatches = 0;
             var numSuccess = 0;
+            var now = DateTime.UtcNow;
 
             var query = _db.ProductVariantAttributeCombinations
                 .Where(x => x.HashCode == 0)
@@ -362,7 +370,12 @@ namespace Smartstore.Core.Catalog.Attributes
             }
             while (++numBatches < 100000 && !cancelToken.IsCancellationRequested);
 
-            // TODO: (mg) check whether any cache clearing is required when ready.
+            if (numSuccess > 0)
+            {
+                _requestCache.RemoveByPattern(ProductAttributeMaterializer.AttributeCombinationPatternKey);
+
+                _logger.Debug($"Added {numSuccess} attribute hash codes. Elapsed: {(DateTime.UtcNow - now).TotalSeconds} sec.");
+            }
 
             return numSuccess;
         }

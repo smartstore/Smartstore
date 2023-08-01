@@ -7,7 +7,6 @@ using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Diagnostics;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
@@ -34,7 +33,7 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRequestCache _requestCache;
         private readonly ICacheManager _cache;
-        private readonly IChronometer _chronometer;
+        //private readonly IChronometer _chronometer;
         private readonly Lazy<IDownloadService> _downloadService;
         private readonly Lazy<CatalogSettings> _catalogSettings;
         private readonly PerformanceSettings _performanceSettings;
@@ -44,7 +43,7 @@ namespace Smartstore.Core.Catalog.Attributes
             IHttpContextAccessor httpContextAccessor,
             IRequestCache requestCache,
             ICacheManager cache,
-            IChronometer chronometer,
+            //IChronometer chronometer,
             Lazy<IDownloadService> downloadService,
             Lazy<CatalogSettings> catalogSettings,
             PerformanceSettings performanceSettings)
@@ -53,7 +52,7 @@ namespace Smartstore.Core.Catalog.Attributes
             _httpContextAccessor = httpContextAccessor;
             _requestCache = requestCache;
             _cache = cache;
-            _chronometer = chronometer;
+            //_chronometer = chronometer;
             _downloadService = downloadService;
             _catalogSettings = catalogSettings;
             _performanceSettings = performanceSettings;
@@ -85,7 +84,7 @@ namespace Smartstore.Core.Catalog.Attributes
             var alreadyCollectedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var infos = new List<AttributeSelectionInfo>();
 
-            foreach (var selection in selections.Where(x => x.AttributesMap.Any()))
+            foreach (var selection in selections.Where(x => x.HasAttributes))
             {
                 var key = AttributeValuesByJsonKey.FormatInvariant(selection.AsJson());
 
@@ -310,9 +309,9 @@ namespace Smartstore.Core.Catalog.Attributes
             _requestCache.RemoveByPattern(AttributeValuesPatternKey);
         }
 
-        public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync_New(int productId, ProductVariantAttributeSelection selection)
+        public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)
         {
-            if (productId == 0 || !(selection?.AttributesMap?.Any() ?? false))
+            if (productId == 0 || selection.IsNullOrEmpty())
             {
                 return null;
             }
@@ -334,77 +333,77 @@ namespace Smartstore.Core.Catalog.Attributes
             return result;
         }
 
-        public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)
-        {
-            if (productId == 0 || !(selection?.AttributesMap?.Any() ?? false))
-            {
-                return null;
-            }
+        //public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)
+        //{
+        //    if (productId == 0 || !(selection?.AttributesMap?.Any() ?? false))
+        //    {
+        //        return null;
+        //    }
 
-            var cacheKey = AttributeCombinationByIdJsonKey.FormatInvariant(productId, selection.AsJson().XxHash());
+        //    var cacheKey = AttributeCombinationByIdJsonKey.FormatInvariant(productId, selection.AsJson().XxHash());
 
-            var combination = await _requestCache.GetAsync(cacheKey, async () =>
-            {
-                using var step = _chronometer.Step("FindAttributeCombination");
+        //    var combination = await _requestCache.GetAsync(cacheKey, async () =>
+        //    {
+        //        using var step = _chronometer.Step("FindAttributeCombination");
 
-                selection = await NormalizeSelection(selection);
+        //        selection = await NormalizeSelection(selection);
 
-                var query = _db.ProductVariantAttributeCombinations
-                    .AsNoTracking()
-                    .Where(x => x.ProductId == productId);
+        //        var query = _db.ProductVariantAttributeCombinations
+        //            .AsNoTracking()
+        //            .Where(x => x.ProductId == productId);
 
-                // Try to determine whether it is more beneficial to scan from end to start
-                var reverseScanKey = "CombinationLookupReverse:" + cacheKey;
-                var reverseScan = _cache.Get<bool?>(reverseScanKey);
-                if (reverseScan == true)
-                {
-                    query = query.OrderByDescending(x => x.Id);
-                }
+        //        // Try to determine whether it is more beneficial to scan from end to start
+        //        var reverseScanKey = "CombinationLookupReverse:" + cacheKey;
+        //        var reverseScan = _cache.Get<bool?>(reverseScanKey);
+        //        if (reverseScan == true)
+        //        {
+        //            query = query.OrderByDescending(x => x.Id);
+        //        }
 
-                // Actually this is an anti-pattern, because we never enumerate the resultset.
-                // But unless we implement the hashing stuff for attribute combinations this
-                // is way faster than materializing all combinations just to scan for the selection.
-                // Anyway, MARS is enabled now, so who cares.
-                var combinations = query.AsAsyncEnumerable();
+        //        // Actually this is an anti-pattern, because we never enumerate the resultset.
+        //        // But unless we implement the hashing stuff for attribute combinations this
+        //        // is way faster than materializing all combinations just to scan for the selection.
+        //        // Anyway, MARS is enabled now, so who cares.
+        //        var combinations = query.AsAsyncEnumerable();
 
-                ProductVariantAttributeCombination result = null;
+        //        ProductVariantAttributeCombination result = null;
 
-                int index = 0;
-                await foreach (var combination in combinations)
-                {
-                    index++;
+        //        int index = 0;
+        //        await foreach (var combination in combinations)
+        //        {
+        //            index++;
 
-                    if (selection.Equals(combination.AttributeSelection))
-                    {
-                        result = combination;
-                        break;
-                    }
-                }
+        //            if (selection.Equals(combination.AttributeSelection))
+        //            {
+        //                result = combination;
+        //                break;
+        //            }
+        //        }
 
-                if (result != null && reverseScan == null)
-                {
-                    try
-                    {
-                        // Remember scan direction for the next time
-                        var totalCount = await query.CountAsync();
-                        reverseScan = index > (totalCount / 2);
+        //        if (result != null && reverseScan == null)
+        //        {
+        //            try
+        //            {
+        //                // Remember scan direction for the next time
+        //                var totalCount = await query.CountAsync();
+        //                reverseScan = index > (totalCount / 2);
 
-                        var cacheEntryOptions = new CacheEntryOptions()
-                            .ExpiresIn(TimeSpan.FromHours(1))
-                            .SetSlidingExpiration(TimeSpan.FromHours(1));
+        //                var cacheEntryOptions = new CacheEntryOptions()
+        //                    .ExpiresIn(TimeSpan.FromHours(1))
+        //                    .SetSlidingExpiration(TimeSpan.FromHours(1));
 
-                        _cache.Put(reverseScanKey, reverseScan.Value, cacheEntryOptions);
-                    }
-                    catch
-                    {
-                    }
-                }
+        //                _cache.Put(reverseScanKey, reverseScan.Value, cacheEntryOptions);
+        //            }
+        //            catch
+        //            {
+        //            }
+        //        }
 
-                return result;
-            });
+        //        return result;
+        //    });
 
-            return combination;
-        }
+        //    return combination;
+        //}
 
         public virtual async Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(
             Product product,
@@ -435,7 +434,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             foreach (var cartItem in cartItems)
             {
-                if (cartItem.AttributeSelection.AttributesMap.Any())
+                if (cartItem.AttributeSelection.HasAttributes)
                 {
                     await MergeWithCombinationAsync(cartItem.Product, cartItem.AttributeSelection, null);
                     ++num;
@@ -488,7 +487,7 @@ namespace Smartstore.Core.Catalog.Attributes
                     {
                         foreach (var combination in combinations)
                         {
-                            if (combination.AttributeSelection.AttributesMap.Any())
+                            if (combination.AttributeSelection.HasAttributes)
                             {
                                 // <ProductVariantAttribute.Id>:<ProductVariantAttributeValue.Id>[,...]
                                 var valuesKeys = combination.AttributeSelection.AttributesMap

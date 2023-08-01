@@ -1,4 +1,6 @@
-﻿using System.Xml;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -51,6 +53,12 @@ namespace Smartstore.Domain
         /// </summary>
         public IEnumerable<KeyValuePair<int, ICollection<object>>> AttributesMap
             => _attributes.Attributes;
+        
+        /// <summary>
+        /// Gets a value indicating whether the selection contains any attributes.
+        /// </summary>
+        public bool HasAttributes
+            => _attributes.Attributes.Count > 0;
 
         /// <summary>
         /// Gets deserialized attribute values by attribute id.
@@ -492,6 +500,19 @@ namespace Smartstore.Domain
             // Deserialized to an empty map if missing in raw JSON string.
             public bool ShouldSerializeCustomAttributes()
                 => CustomAttributes?.Count > 0;
+        }
+    }
+
+    public static class AttributeSelectionExtensions
+    {
+        /// <summary>
+        /// Checks whether given <paramref name="selection"/> collection is either <c>null</c> or empty.
+        /// </summary>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNullOrEmpty(this AttributeSelection selection)
+        {
+            return selection == null || !selection.HasAttributes;
         }
     }
 }
