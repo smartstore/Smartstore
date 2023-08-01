@@ -159,12 +159,16 @@ namespace Smartstore.Core.Catalog.Attributes
             get => _rawAttributes;
             set
             {
+                var updateHash = !_rawAttributes.EqualsNoCase(value);
+
                 _rawAttributes = value;
                 _attributeSelection = null;
 
-                _hashCode = _hashCode.GetValueOrDefault() == 0 && _rawAttributes.HasValue()
-                    ? AttributeSelection.GetHashCode()
-                    : null;
+                // Avoids the caller having to call GetAttributesHashCode itself on instantiation.
+                if (updateHash)
+                {
+                    _hashCode = AttributeSelection.GetHashCode();
+                }
             }
         }
 
