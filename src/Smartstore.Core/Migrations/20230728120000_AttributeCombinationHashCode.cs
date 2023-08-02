@@ -55,9 +55,15 @@ namespace Smartstore.Core.Migrations
         {
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
 
-            var num = await _productAttributeService.EnsureAttributeCombinationHashCodesAsync(cancelToken);
-
-            _logger.Debug($"Created hash codes for {num} product attribute combinations.");
+            try
+            {
+                _ = await _productAttributeService.EnsureAttributeCombinationHashCodesAsync(cancelToken);
+            }
+            catch (Exception ex)
+            {
+                // Do not break any other data seeding. Hash code creation can be restarted on maintenance page.
+                _logger.Error(ex);
+            }
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)

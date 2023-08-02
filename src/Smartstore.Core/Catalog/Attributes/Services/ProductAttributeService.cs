@@ -335,6 +335,7 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             const int take = 5000;
             var numBatches = 0;
+            var numWarnings = 0;
             var numSuccess = 0;
             var now = DateTime.UtcNow;
 
@@ -354,27 +355,26 @@ namespace Smartstore.Core.Catalog.Attributes
 
                 foreach (var combination in combinations)
                 {
+                    // INFO: by accidents the selection can be empty. In that case the hash code has the value 5381, not 0.
                     var hashCode = new ProductVariantAttributeSelection(combination.RawAttributes).GetHashCode();
-                    if (hashCode != 0)
+                    if (hashCode == 0 && ++numWarnings < 10)
                     {
-                        numSuccess += await _db.ProductVariantAttributeCombinations
-                            .Where(x => x.Id == combination.Id)
-                            .ExecuteUpdateAsync(x => x.SetProperty(pvac => pvac.HashCode, pvac => hashCode), cancelToken);
+                        _logger.Warn($"The generated hash code for attribute combination {combination.Id} is 0.");
                     }
-                    else
-                    {
-                        throw new InvalidOperationException($"Unexpected failure generating a hash code for ProductVariantAttributeCombination with ID {combination.Id}.",
-                            new Exception(combination.RawAttributes));
-                    }
+
+                    numSuccess += await _db.ProductVariantAttributeCombinations
+                        .Where(x => x.Id == combination.Id)
+                        .ExecuteUpdateAsync(x => x.SetProperty(pvac => pvac.HashCode, pvac => hashCode), cancelToken);
                 }
             }
             while (++numBatches < 100000 && !cancelToken.IsCancellationRequested);
 
             if (numSuccess > 0)
             {
-                _requestCache.RemoveByPattern(ProductAttributeMaterializer.AttributeCombinationPatternKey);
+                var elapsed = Math.Floor((DateTime.UtcNow - now).TotalSeconds);
+                _logger.Info($"Added {numSuccess:N0} hash codes for attribute combinations. Elapsed: {elapsed} sec.");
 
-                _logger.Debug($"Added {numSuccess} attribute hash codes. Elapsed: {(DateTime.UtcNow - now).TotalSeconds} sec.");
+                _requestCache.RemoveByPattern(ProductAttributeMaterializer.AttributeCombinationPatternKey);
             }
 
             return numSuccess;
