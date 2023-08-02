@@ -10,10 +10,10 @@
     ViewBag.PageTitle = T("Account.CustomerReturnRequests").Value;
 }
 
-<div class="card-deck card-cols-sm-1 return-request-grid">
+<div class="return-request-grid">
     @foreach (var item in Model.Items)
     {
-        <div class="card shadow-sm return-request-item">
+        <div class="card shadow-sm return-request-item mb-3">
             <div class="card-body">
                 <h4 class="card-title mb-4">@T("Account.CustomerReturnRequests.Title", item.Id, item.ReturnRequestStatus)</h4>
                 <dl class="row mb-0">

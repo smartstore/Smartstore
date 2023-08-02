@@ -8,9 +8,9 @@
     gridViewData["Parent"] = Model;
 }
 
-<div class="row">
-    <div class="card-deck card-cols-sm-1 card-cols-lg-3 col-md-12">
-        <div class="card">
+<div class="row sm-gutters row-gap-3 row-cols-1 row-cols-lg-3">
+    <div class="col">
+        <div class="card h-100">
             <div class="card-body">
                 <h6 class="card-title">@T("Order.BillingAddress")</h6>
                 <div class="mb-2">
@@ -26,14 +26,17 @@
                     @T("Order.Fax"): @billTo.FaxNumber
                 </div>
             </div>
-            <div class="card-footer p-0">
-                <a asp-action="AddressEdit" asp-route-addressId="@billTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-lg btn-flat rounded-0">
+            <div class="card-footer py-2">
+                <a asp-action="AddressEdit" asp-route-addressId="@billTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-flat">
                     <i class="far fa-edit"></i>
                     <span>@T("Admin.Common.Edit")</span>
                 </a>
             </div>
         </div>
-        <div class="card">
+    </div>
+
+    <div class="col">
+        <div class="card h-100">
             @if (Model.IsShippable && shipTo != null)
             {
                 <div class="card-body">
@@ -51,12 +54,12 @@
                         @T("Order.Fax"): @shipTo.FaxNumber
                     </div>
                 </div>
-                <div class="card-footer p-0">
-                    <a asp-action="AddressEdit" asp-route-addressId="@shipTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-lg btn-flat rounded-0">
+                <div class="card-footer py-2">
+                    <a asp-action="AddressEdit" asp-route-addressId="@shipTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-flat">
                         <i class="far fa-edit"></i>
                         <span>@T("Admin.Common.Edit")</span>
                     </a>
-                    <a href="@Html.Raw(Model.ShippingAddressGoogleMapsUrl)" class="btn btn-warning btn-lg btn-flat rounded-0" target="_blank">
+                    <a href="@Html.Raw(Model.ShippingAddressGoogleMapsUrl)" class="btn btn-warning btn-flat" target="_blank">
                         <i class="fab fa-google"></i>
                         <span>@T("Admin.Orders.Fields.ShippingAddress.ViewOnGoogleMaps")</span>
                     </a>
@@ -69,7 +72,10 @@
                 </div>
             }
         </div>
-        <div class="card border-0">
+    </div>
+
+    <div class="col">
+        <div class="card h-100 border-0">
             @if (Model.IsShippable)
             {
                 <h6>@T("Admin.Orders.Fields.ShippingMethod")</h6>
