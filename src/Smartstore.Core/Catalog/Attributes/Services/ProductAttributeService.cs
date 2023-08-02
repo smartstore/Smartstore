@@ -333,7 +333,9 @@ namespace Smartstore.Core.Catalog.Attributes
 
         public virtual async Task<int> EnsureAttributeCombinationHashCodesAsync(CancellationToken cancelToken = default)
         {
-            const int take = 5000;
+            const int take = 4000;
+            // Avoid an infinite loop here under all circumstances. Process a maximum of 500,000,000 records.
+            const int maxBatches = 500000000 / take;
             var numBatches = 0;
             var numWarnings = 0;
             var numSuccess = 0;
@@ -341,38 +343,48 @@ namespace Smartstore.Core.Catalog.Attributes
 
             var query = _db.ProductVariantAttributeCombinations
                 .Where(x => x.HashCode == 0)
-                .Select(x => new { x.Id, x.RawAttributes })
                 .OrderBy(x => x.Id);
 
-            // Avoid an infinite loop here under all circumstances. Process a maximum of 500,000,000 records.
-            do
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, deferCommit: true, minHookImportance: HookImportance.Important))
             {
-                var combinations = await query.Take(take).ToListAsync(cancelToken);
-                if (combinations.Count == 0)
+                do
                 {
-                    break;
-                }
-
-                foreach (var combination in combinations)
-                {
-                    // INFO: by accidents the selection can be empty. In that case the hash code has the value 5381, not 0.
-                    var hashCode = new ProductVariantAttributeSelection(combination.RawAttributes).GetHashCode();
-                    if (hashCode == 0 && ++numWarnings < 10)
+                    var combinations = await query.Take(take).ToListAsync(cancelToken);
+                    if (combinations.Count == 0)
                     {
-                        _logger.Warn($"The generated hash code for attribute combination {combination.Id} is 0.");
+                        break;
                     }
 
-                    numSuccess += await _db.ProductVariantAttributeCombinations
-                        .Where(x => x.Id == combination.Id)
-                        .ExecuteUpdateAsync(x => x.SetProperty(pvac => pvac.HashCode, pvac => hashCode), cancelToken);
+                    foreach (var combination in combinations)
+                    {
+                        // INFO: by accidents the selection can be empty. In that case the hash code has the value 5381, not 0.
+                        var hashCode = new ProductVariantAttributeSelection(combination.RawAttributes).GetHashCode();
+                        if (hashCode == 0 && ++numWarnings < 10)
+                        {
+                            _logger.Warn($"The generated hash code for attribute combination {combination.Id} is 0.");
+                        }
+
+                        combination.HashCode = hashCode;
+                    }
+
+                    await scope.CommitAsync(cancelToken);
+                    numSuccess += combinations.Count;
+
+                    try
+                    {
+                        scope.DbContext.DetachEntities<ProductVariantAttributeCombination>();
+                    }
+                    catch
+                    {
+                    }
                 }
+                while (++numBatches < maxBatches && !cancelToken.IsCancellationRequested);
             }
-            while (++numBatches < 100000 && !cancelToken.IsCancellationRequested);
 
             if (numSuccess > 0)
             {
                 var elapsed = Math.Floor((DateTime.UtcNow - now).TotalSeconds);
-                _logger.Info($"Added {numSuccess:N0} hash codes for attribute combinations. Elapsed: {elapsed} sec.");
+                _logger.Info($"Added {numSuccess:N0} hash codes for attribute combinations. Elapsed: {elapsed:N0} sec.");
 
                 _requestCache.RemoveByPattern(ProductAttributeMaterializer.AttributeCombinationPatternKey);
             }

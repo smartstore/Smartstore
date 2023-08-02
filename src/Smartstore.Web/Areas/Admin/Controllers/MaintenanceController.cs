@@ -724,7 +724,8 @@ namespace Smartstore.Admin.Controllers
             var missingHashCodes = await _db.ProductVariantAttributeCombinations.CountAsync(x => x.HashCode == 0);
             if (missingHashCodes > 0)
             {
-                AddEntry(SystemWarningLevel.Fail, T("Admin.System.Warnings.AttributeCombinationHashCodes.Missing", missingHashCodes, Url.Action(nameof(EnsureAttributeCombinationHashCodes))));
+                var msg = T("Admin.System.Warnings.AttributeCombinationHashCodes.Missing", missingHashCodes.ToString("N0"), Url.Action(nameof(EnsureAttributeCombinationHashCodes)));
+                AddEntry(SystemWarningLevel.Fail, msg);
             }
             else
             {
