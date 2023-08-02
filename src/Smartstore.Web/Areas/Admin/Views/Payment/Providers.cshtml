@@ -1,20 +1,24 @@
 ﻿@using Smartstore.Admin.Models.Payments
+@using Smartstore.Core.Checkout.Payment
 
 @model IEnumerable<PaymentMethodModel>
 
 @{
     ViewBag.Title = T("Admin.Configuration.Payment.Methods").Value;
 
-    async Task YesNoLabel(bool value)
+    async Task FeatureLabel(bool active, string label)
     {
-        if (value)
-        {
-            <span class="badge badge-success">@T("Common.Yes")</span>
-        }
-        else
-        {
-            <span class="badge badge-dark">@T("Common.No")</span>
-        }
+        <div attr-class='(!active, "text-muted")'>
+            @if (active)
+            {
+                <i class="fa fa-fw fa-check text-success"></i>
+            }
+            else
+            {
+                <i class="fa fa-fw fa-minus"></i>
+            }
+            <span class="pl-2">@Html.Raw(label)</span>
+        </div>
     }
 }
 
@@ -31,19 +35,27 @@
 
 <div class="provider-list">
     @(await Html.ProviderList(Model,
-        @<div>
-		    <table class="payment-method-features">
-			    <tr><td>@T("Admin.Configuration.Payment.Methods.Fields.RecurringPaymentType"):</td><td>@item.RecurringPaymentType</td></tr>
-			    <tr><td>@Html.DisplayNameFor(model => model.SupportCapture):</td><td>@{await YesNoLabel(item.SupportCapture);}</td></tr>
-			    <tr><td>@Html.DisplayNameFor(model => model.SupportRefund):</td><td>@{await YesNoLabel(item.SupportRefund);}</td></tr>
-			    <tr><td>@Html.DisplayNameFor(model => model.SupportPartiallyRefund):</td><td>@{await YesNoLabel(item.SupportPartiallyRefund);}</td></tr>
-			    <tr><td>@Html.DisplayNameFor(model => model.SupportVoid):</td><td>@{await YesNoLabel(item.SupportVoid);}</td></tr>
-            </table>
-        </div>,
-        @<div>
-            <a class="activate-provider btn btn-@(item.IsActive ? "secondary btn-to-danger" : "success")" style="min-width: 150px"
-                data-href='@Url.Action("ActivateProvider")' href="javascript:;" data-systemname="@item.SystemName" data-activate="@(!item.IsActive ? "true" : "false")">
-                @T("Admin.Common.{0}".FormatInvariant(item.IsActive ? "Deactivate" : "Activate"))
-            </a>
+        infoTemplate: @<div class="d-flex flex-column mt-auto small" style="gap: 2px">
+           @{
+                var active = item.RecurringPaymentTypeEnum != RecurringPaymentType.NotSupported;
+                var label = T("Admin.Configuration.Payment.Methods.Fields.RecurringPaymentType").Value;
+                if (active)
+                {
+                    label += $" ({item.RecurringPaymentType})";
+                }
+                await FeatureLabel(active, label);
+            }
+            @{
+                await FeatureLabel(item.SupportCapture, Html.DisplayNameFor(model => model.SupportCapture));
+            }
+            @{
+                await FeatureLabel(item.SupportRefund, Html.DisplayNameFor(model => model.SupportRefund));
+            }
+            @{
+                await FeatureLabel(item.SupportPartiallyRefund, Html.DisplayNameFor(model => model.SupportPartiallyRefund));
+            }
+            @{
+                await FeatureLabel(item.SupportVoid, Html.DisplayNameFor(model => model.SupportVoid));
+            }
         </div>))
 </div>

@@ -4,23 +4,16 @@
 // =================================
 
 .label-cart-amount {
-    font-weight: 400;
-    font-size: 9px;
+    font-size: 10px;
     width: 18px;
     height: 18px;
-    line-height: 16px;
-    vertical-align: middle;
-    padding: 0;
     position: absolute;
     inset-inline-end: -5px;
     top: -9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
-
-// INFO: (mc) does never look good in my tests, therefore I disabled it.
-//.touchevents .label-cart-amount {
-    //// fix 'too high' label placement on some mobile devices
-    //line-height: 18px;
-//}
 
 
 // OffCanvas Cart

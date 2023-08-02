@@ -181,6 +181,30 @@ $scrim-gradient-coords: (
     100: 0
 );
 
+// Characters which are escaped by the escape-svg function
+$escaped-characters: (
+    ("<", "%3c"),
+    (">", "%3e"),
+    ("#", "%23"),
+    ("(", "%28"),
+    (")", "%29"),
+) !default;
+
+@function escape-svg($string) {
+    @if str-index($string, "data:image/svg+xml") {
+        @each $char, $encoded in $escaped-characters {
+            // Do not escape the url brackets
+            @if str-index($string, "url(") == 1 {
+                $string: url("#{str-replace(str-slice($string, 6, -3), $char, $encoded)}");
+            } @else {
+                $string: str-replace($string, $char, $encoded);
+            }
+        }
+    }
+
+    @return $string;
+}
+
 @function scrim-gradient($start-color: #000, $direction: 'to bottom', $radial: false) {
     $hue: hue($start-color);
     $saturation: saturation($start-color);
@@ -229,4 +253,12 @@ $scrim-gradient-coords: (
 	@else {
 		@return $text-light;
 	}
+}
+
+@function cssmin($expr1, $expr2) {
+    @return #{unquote("min(#{$expr1}, #{$expr2})")};
+}
+
+@function cssmax($expr1, $expr2) {
+    @return #{unquote("max(#{$expr1}, #{$expr2})")};
 }

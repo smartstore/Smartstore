@@ -561,11 +561,11 @@ namespace Smartstore.PayPal.Client
             return new List<PurchaseUnit> { purchaseUnit };
         }
 
-        public async Task<OrderMessage> GetOrderForStandardProviderAsync(bool isExpressCheckout = true, bool isApm = false)
+        public async Task<OrderMessage> GetOrderForStandardProviderAsync(string orderGuid = "", bool isExpressCheckout = true, bool isApm = false)
         {
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
             var settings = _settingFactory.LoadSettings<PayPalSettings>(_storeContext.CurrentStore.Id);
-            var purchaseUnits = await GetPurchaseUnitsAsync(cart);
+            var purchaseUnits = await GetPurchaseUnitsAsync(cart, orderGuid: orderGuid);
 
             var orderMessage = new OrderMessage
             {

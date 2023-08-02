@@ -45,14 +45,14 @@ namespace Smartstore.Core.DataExchange.Import
 
         public void AddMapping(string sourceName, string index, string mappedName, string defaultValue = null)
         {
-            Guard.NotEmpty(sourceName, nameof(sourceName));
-            Guard.NotEmpty(mappedName, nameof(mappedName));
+            Guard.NotEmpty(sourceName);
+            Guard.NotEmpty(mappedName);
 
             var key = CreateSourceName(sourceName, index);
 
             _map[key] = new ColumnMappingItem
             {
-                SoureName = key,
+                SourceName = key,
                 MappedName = mappedName,
                 Default = defaultValue
             };
@@ -80,7 +80,7 @@ namespace Smartstore.Core.DataExchange.Import
                 return result;
             }
 
-            return new ColumnMappingItem { SoureName = sourceName, MappedName = sourceName };
+            return new ColumnMappingItem { SourceName = sourceName, MappedName = sourceName };
         }
 
         private static bool IsIndexed(string name)
@@ -99,7 +99,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// The source name.
         /// </summary>
         [IgnoreDataMember]
-        public string SoureName { get; set; }
+        public string SourceName { get; set; }
 
         /// <summary>
         /// The mapped name.

@@ -75,7 +75,7 @@ namespace Smartstore.Core.Security
         public virtual async Task ApplyAclMappingsAsync<T>(T entity, int[] selectedCustomerRoleIds)
             where T : BaseEntity, IAclRestricted
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             selectedCustomerRoleIds ??= Array.Empty<int>();
 
@@ -116,7 +116,7 @@ namespace Smartstore.Core.Security
 
         public virtual async Task<int[]> GetAuthorizedCustomerRoleIdsAsync(string entityName, int entityId)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotEmpty(entityName);
 
             if (entityId <= 0)
             {
@@ -141,7 +141,7 @@ namespace Smartstore.Core.Security
 
         public virtual async Task<bool> AuthorizeAsync(string entityName, int entityId, IEnumerable<CustomerRole> roles)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotEmpty(entityName);
 
             if (entityId <= 0)
             {
@@ -178,7 +178,7 @@ namespace Smartstore.Core.Security
 
         protected virtual Task<Dictionary<int, int[]>> GetCacheSegmentAsync(string entityName, int entityId)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotEmpty(entityName);
 
             var segmentKey = GetSegmentKeyPart(entityName, entityId, out var minEntityId, out var maxEntityId);
             var cacheKey = BuildCacheSegmentKey(segmentKey);

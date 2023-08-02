@@ -10,7 +10,7 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public partial class ImportProfileService : IImportProfileService
     {
-        private const string _importFileRoot = "ImportProfiles";
+        const string ImportFileRoot = "ImportProfiles";
 
         private static readonly object _lock = new();
         private static Dictionary<ImportEntityType, Dictionary<string, string>> _entityProperties = null;
@@ -40,10 +40,10 @@ namespace Smartstore.Core.DataExchange.Import
 
         public virtual async Task<IDirectory> GetImportDirectoryAsync(ImportProfile profile, string subpath = null, bool createIfNotExists = false)
         {
-            Guard.NotNull(profile, nameof(profile));
+            Guard.NotNull(profile);
 
             var root = _appContext.TenantRoot;
-            var path = PathUtility.Join(_importFileRoot, profile.FolderName, subpath.EmptyNull());
+            var path = PathUtility.Join(ImportFileRoot, profile.FolderName, subpath.EmptyNull());
             var dir = await root.GetDirectoryAsync(path);
 
             if (createIfNotExists)
@@ -98,7 +98,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         public virtual async Task<ImportProfile> InsertImportProfileAsync(string fileName, string name, ImportEntityType entityType)
         {
-            Guard.NotEmpty(fileName, nameof(fileName));
+            Guard.NotEmpty(fileName);
 
             if (name.IsEmpty())
             {
@@ -127,23 +127,23 @@ namespace Smartstore.Core.DataExchange.Import
             switch (entityType)
             {
                 case ImportEntityType.Product:
-                    profile.KeyFieldNames = string.Join(",", ProductImporter.DefaultKeyFields);
+                    profile.KeyFieldNames = string.Join(',', ProductImporter.DefaultKeyFields);
                     break;
                 case ImportEntityType.Category:
-                    profile.KeyFieldNames = string.Join(",", CategoryImporter.DefaultKeyFields);
+                    profile.KeyFieldNames = string.Join(',', CategoryImporter.DefaultKeyFields);
                     break;
                 case ImportEntityType.Customer:
-                    profile.KeyFieldNames = string.Join(",", CustomerImporter.DefaultKeyFields);
+                    profile.KeyFieldNames = string.Join(',', CustomerImporter.DefaultKeyFields);
                     break;
                 case ImportEntityType.NewsletterSubscription:
-                    profile.KeyFieldNames = string.Join(",", NewsletterSubscriptionImporter.DefaultKeyFields);
+                    profile.KeyFieldNames = string.Join(',', NewsletterSubscriptionImporter.DefaultKeyFields);
                     break;
             }
 
             var folderName = SlugUtility.Slugify(name, true, false, false)
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
-            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(_importFileRoot, folderName);
+            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(ImportFileRoot, folderName);
 
             _db.ImportProfiles.Add(profile);
 
@@ -197,7 +197,7 @@ namespace Smartstore.Core.DataExchange.Import
                 .Select(x => x.FolderName)
                 .ToListAsync();
 
-            var dir = await tenantRoot.GetDirectoryAsync(_importFileRoot);
+            var dir = await tenantRoot.GetDirectoryAsync(ImportFileRoot);
             if (dir.Exists)
             {
                 foreach (var subdir in dir.EnumerateDirectories())
@@ -226,7 +226,7 @@ namespace Smartstore.Core.DataExchange.Import
                         _entityProperties = new Dictionary<ImportEntityType, Dictionary<string, string>>();
 
                         var allLanguages = _languageService.GetAllLanguages(true);
-                        var allLanguageNames = allLanguages.ToDictionarySafe(x => x.UniqueSeoCode, x => CultureHelper.GetLanguageNativeName(x.LanguageCulture) ?? x.GetLocalized(x => x.Name));
+                        var allLanguageNames = allLanguages.ToDictionarySafe(x => x.LanguageCulture, x => x.GetLocalized(x => x.Name));
 
                         var localizableProperties = new Dictionary<ImportEntityType, string[]>
                         {
@@ -260,13 +260,12 @@ namespace Smartstore.Core.DataExchange.Import
                             switch (importType)
                             {
                                 case ImportEntityType.Product:
-                                    if (!names.ContainsKey("SeName"))
-                                        names["SeName"] = string.Empty;
-                                    names["Specification"] = string.Empty;
+                                    names["SeName"] = string.Empty;
+                                    names["Specification"] = "Specification";
                                     break;
                                 case ImportEntityType.Category:
-                                    if (!names.ContainsKey("SeName"))
-                                        names["SeName"] = string.Empty;
+                                    names["SeName"] = string.Empty;
+                                    names["TreePath"] = "Category tree path";
                                     break;
                                 case ImportEntityType.Customer:
                                     foreach (var property in addressProperties)
@@ -278,7 +277,8 @@ namespace Smartstore.Core.DataExchange.Import
                             }
 
                             // Add localized property names.
-                            foreach (var key in names.Keys.ToList())
+                            var keys = names.Where(x => x.Value.IsEmpty()).Select(x => x.Key).ToArray();
+                            foreach (var key in keys)
                             {
                                 var localizedValue = GetLocalizedPropertyLabel(importType, key).NaIfEmpty();
                                 names[key] = localizedValue;
@@ -287,8 +287,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 {
                                     foreach (var language in allLanguages)
                                     {
-                                        names[$"{key}[{language.UniqueSeoCode.EmptyNull().ToLower()}]"] =
-                                            $"{localizedValue} {allLanguageNames[language.UniqueSeoCode]}";
+                                        names[$"{key}[{language.LanguageCulture}]"] = $"{localizedValue} {allLanguageNames[language.LanguageCulture]}";
                                     }
                                 }
                             }
@@ -304,9 +303,9 @@ namespace Smartstore.Core.DataExchange.Import
 
         private string GetLocalizedPropertyLabel(ImportEntityType entityType, string property)
         {
-            if (property.IsEmpty())
+            if (property.IsEmpty() || _ignoreResourceKeys.Contains(property))
             {
-                return string.Empty;
+                return property.SplitPascalCase();
             }
 
             string key = null;
@@ -344,22 +343,22 @@ namespace Smartstore.Core.DataExchange.Import
                 return string.Empty;
             }
 
-            var result = _localizationService.GetResource(key, 0, false, string.Empty, true);
+            var result = GetResource(key);
 
             if (result.IsEmpty() && _otherResourceKeys.TryGetValue(property, out var otherKey))
             {
-                result = _localizationService.GetResource(otherKey, 0, false, string.Empty, true);
+                result = GetResource(otherKey);
             }
 
             if (result.IsEmpty())
             {
                 if (key.EndsWith("Id"))
                 {
-                    result = _localizationService.GetResource(key.Substring(0, key.Length - 2), 0, false, string.Empty, true);
+                    result = GetResource(key.Substring(0, key.Length - 2));
                 }
                 else if (key.EndsWith("Utc"))
                 {
-                    result = _localizationService.GetResource(key.Substring(0, key.Length - 3), 0, false, string.Empty, true);
+                    result = GetResource(key.Substring(0, key.Length - 3));
                 }
             }
 
@@ -371,12 +370,26 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (prefixKey.HasValue())
             {
-                result = _localizationService.GetResource(prefixKey, 0, false, string.Empty, true) + " - " + result;
+                result = GetResource(prefixKey) + " - " + result;
             }
 
             return result;
+
+            string GetResource(string resourceKey)
+                => _localizationService.GetResource(resourceKey, 0, false, string.Empty, true);
         }
 
+        /// <summary>
+        /// Names of properties for which no localization exists.
+        /// </summary>
+        private static readonly HashSet<string> _ignoreResourceKeys = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "IsSystemProduct", "SystemName", "LastForumVisit", "LastUserAgent", "LastUserDeviceType"
+        };
+
+        /// <summary>
+        /// Mapping of property name to string ressource key.
+        /// </summary>
         private static readonly Dictionary<string, string> _otherResourceKeys = new(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "Admin.Common.Entity.Fields.Id" },
@@ -405,7 +418,11 @@ namespace Smartstore.Core.DataExchange.Import
             { "MetaKeywords", "Admin.Configuration.Seo.MetaKeywords" },
             { "MetaTitle", "Admin.Configuration.Seo.MetaTitle" },
             { "SeName", "Admin.Configuration.Seo.SeName" },
-            { "TaxDisplayTypeId", "Admin.Customers.CustomerRoles.Fields.TaxDisplayType" }
+            { "TaxDisplayTypeId", "Admin.Customers.CustomerRoles.Fields.TaxDisplayType" },
+            { "MainPictureId", "FileUploader.MultiFiles.MainMediaFile" },
+            { "MediaFileId", "Common.Image" },
+            { "BillingAddressId", "Admin.Orders.Fields.BillingAddress" },
+            { "ShippingAddressId", "Admin.Orders.Fields.ShippingAddress" }
         };
 
         #endregion

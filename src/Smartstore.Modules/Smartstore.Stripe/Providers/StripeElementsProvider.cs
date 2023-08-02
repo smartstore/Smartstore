@@ -18,7 +18,7 @@ using Smartstore.StripeElements.Settings;
 
 namespace Smartstore.StripeElements.Providers
 {
-    [SystemName("Smartstore.StripeElements")]
+    [SystemName("Payments.StripeElements")]
     [FriendlyName("Stripe Elements")]
     [Order(1)]
     public class StripeElementsProvider : PaymentMethodBase, IConfigurable

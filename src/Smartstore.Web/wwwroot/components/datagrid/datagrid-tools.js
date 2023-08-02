@@ -36,7 +36,7 @@
                     </label>
                     <label v-if="paging.enabled" class="d-flex align-items-center justify-content-between m-0">
                         <span>{{ T.pagerPos }}</span>
-                        <select class="form-control form-control-sm noskin w-auto px-1" v-model="paging.position">
+                        <select class="form-control form-control-sm noskin w-auto" v-model="paging.position">
                             <option value="top">{{ T.pagerTop }}</option>
                             <option value="bottom">{{ T.pagerBottom }}</option>
                             <option value="both">{{ T.pagerBoth }}</option>

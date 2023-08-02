@@ -62,6 +62,7 @@ namespace Smartstore.Admin.Controllers
                 model.SupportPartiallyRefund = instance.SupportPartiallyRefund;
                 model.SupportRefund = instance.SupportRefund;
                 model.SupportVoid = instance.SupportVoid;
+                model.RecurringPaymentTypeEnum = instance.RecurringPaymentType;
                 model.RecurringPaymentType = instance.RecurringPaymentType.GetLocalizedEnum();
 
                 paymentMethodsModel.Add(model);

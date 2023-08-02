@@ -273,50 +273,10 @@
             <smart-label asp-for="ProductTagNames" />
         </div>
         <div class="adminData">
-            <select asp-for="ProductTagNames"
-                    asp-items="ViewBag.AvailableProductTags"
-                    data-select-url="@Url.Action("AllProductTags")">
-            </select>
+            <select asp-for="ProductTagNames" asp-items="ViewBag.AvailableProductTags" multiple="multiple" data-tags="true"></select>
             <span asp-validation-for="ProductTagNames"></span>
         </div>
     </div>
-
-    <script>
-        $(function () {
-            var el = $("#@Html.IdFor(x => x.ProductTagNames)");
-            el.select2({
-                dropdownAutoWidth: true,
-                allowClear: false,
-                theme: 'bootstrap',
-                closeOnSelect: true,
-                ajax: {
-                    delay: 300,
-                    cache: true,
-                    dataType: 'json',
-                    type: 'GET',
-                    url: el.data("select-url"),
-                    data: function (params) {
-                        var query = {
-                            search: params.term || "",
-                            page: params.page || 1
-                        }
-                        return query;
-                    },
-                    processResults: function (data, params) {
-                        params.page = params.page || 1;
-
-                        return {
-                            results: data.results,
-                            pagination: {
-                                more: data.hasMoreItems
-                            }
-                        };
-                    }
-                }
-            });
-        });
-    </script>
-
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="AvailableStartDateTimeUtc" />

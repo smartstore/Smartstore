@@ -103,7 +103,6 @@ namespace Smartstore.Core.Data.Migrations
                 "Last device family",
                 "Zuletzt genutzte Endgerätefamilie");
 
-            // TODO: (mg) (core) unclear how this could be translated in an understandable way.
             builder.AddOrUpdate("Admin.Rules.RuleOperator.LikeOperator", "Like", "Like");
             builder.AddOrUpdate("Admin.Rules.RuleOperator.NotLikeOperator", "Not like", "Not like");
 

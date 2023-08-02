@@ -1,12 +1,11 @@
 ﻿using Smartstore.Admin.Models.Modularity;
+using Smartstore.Core.Checkout.Payment;
 
 namespace Smartstore.Admin.Models.Payments
 {
     [LocalizedDisplay("Admin.Configuration.Payment.Methods.Fields.")]
-    public class PaymentMethodModel : ProviderModel, IActivatable
+    public class PaymentMethodModel : ActivatableProviderModel
     {
-        public bool IsActive { get; set; }
-
         [LocalizedDisplay("*SupportCapture")]
         public bool SupportCapture { get; set; }
 
@@ -21,5 +20,6 @@ namespace Smartstore.Admin.Models.Payments
 
         [LocalizedDisplay("*RecurringPaymentType")]
         public string RecurringPaymentType { get; set; }
+        public RecurringPaymentType RecurringPaymentTypeEnum { get; set; }
     }
 }

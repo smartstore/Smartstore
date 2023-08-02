@@ -4,6 +4,12 @@ using Smartstore.Http;
 
 namespace Smartstore.Admin.Models.Modularity
 {
+    public class ActivatableProviderModel : ProviderModel, IActivatable
+    {
+        [LocalizedDisplay("Common.IsActive")]
+        public virtual bool IsActive { get; set; }
+    }
+    
     public class ProviderModel : ModelBase, ILocalizedModel<ProviderLocalizedModel>
     {
         private List<ProviderLocalizedModel> _locales;

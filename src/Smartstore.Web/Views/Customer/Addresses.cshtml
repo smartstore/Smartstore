@@ -27,9 +27,9 @@
     {
         var address = Model[i];
 
-        <div class="card shadow-sm address-list-item">
+        <div class="card address-list-item">
             <div class="card-body">
-                <h4 class="card-title">@address.GetFormattedName()</h4>
+                <h4 class="card-title h5">@address.GetFormattedName()</h4>
                 <div class="mb-2">
                     <div class="email">
                         <label asp-for="@Model[i].Email" class="m-0"></label>:
@@ -50,11 +50,12 @@
                 </div>
             </div>
 
-            <div class="card-footer d-flex p-0">
-                <a class="btn btn-secondary btn-lg btn-flat rounded-0 edit-address-button" asp-action="AddressEdit" asp-route-id="@address.Id">
+            <div class="card-footer d-flex p-2">
+                <a class="btn btn-secondary btn-no-border btn-sm btn-flat edit-address-button" asp-action="AddressEdit" asp-route-id="@address.Id">
                     <span>@T("Common.Edit")</span>
                 </a>
-                <a class="btn btn-danger btn-lg btn-flat rounded-0 delete-address-button" asp-action="AddressDelete" asp-route-id="@address.Id" onclick='return confirm(@T("Common.AreYouSure").JsValue);'>
+                <a class="btn btn-light btn-to-danger btn-flat btn-sm delete-address-button ml-auto" asp-action="AddressDelete" asp-route-id="@address.Id" onclick='return confirm(@T("Common.AreYouSure").JsValue);'>
+                    <i class="far fa-trash-alt"></i>
                     <span>@T("Common.Delete")</span>
                 </a>
             </div>
