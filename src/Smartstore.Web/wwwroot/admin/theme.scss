@@ -46,10 +46,10 @@
         &:not(:active):not(.active).focus {
             // Show focus ring in focus state only, not in active state.
             @if $color == "secondary" or $color == "light" {
-                xbox-shadow: 0 0 0 rgba(#000, 0) inset, 0 0 0 0.2em rgba($primary, .15);
+                //box-shadow: 0 0 0 rgba(#000, 0) inset, 0 0 0 0.2em rgba($primary, .15);
             }
             @else {
-                xbox-shadow: 0 0 0 rgba(#000, 0) inset, 0 0 0 0.2em rgba($value, .4);
+                //box-shadow: 0 0 0 rgba(#000, 0) inset, 0 0 0 0.2em rgba($value, .4);
             }
         }
     }
@@ -66,17 +66,17 @@
 .btn-light {
     // Light buttons with default focus ring look *lost* without a button border.
     &:focus {
-        xborder-color: rgba(#000, 0.175) !important;
+        //border-color: rgba(#000, 0.175) !important;
     }
 
     // Light button icons lighter (looks nice).
     > i, > .bi {
-        xtransition: opacity .05s ease-in-out;
+        //transition: opacity .05s ease-in-out;
     }
 
     &:not(:hover):not(:active):not(.active):not(:focus):not([disabled]):not(.disabled) {
         > i, > .bi {
-            xcolor: lighten($body-color, 16%);
+            //color: lighten($body-color, 16%);
         }
     }
 }

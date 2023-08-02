@@ -7,6 +7,8 @@
 
 <div class="page home-page">
     <div class="page-body">
+        <partial name="_Cheatsheet.Buttons" />
+
         <zone name="home_page_top" />
 
         @await Component.InvokeAsync("TopicBlock", new { systemName = "HomePageText", isLead = true })

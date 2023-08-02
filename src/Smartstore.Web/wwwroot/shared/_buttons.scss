@@ -10,15 +10,21 @@ $btn-size: $input-height;
 $btn-size-lg: $input-height-lg;
 $btn-size-sm: $input-height-sm;
 
-@mixin btn-padding($p) {
-    padding-left: $p;
-    padding-right: $p;
-}
-
 @mixin btn-square($size) {
     width: $size;
     height: $size;
-    line-height: $size;
+    --btn-line-height: #{$size};
+}
+
+@mixin btn-flat() {
+    --btn-color: #{$yiq-text-dark};
+    --btn-bg: transparent;
+    --btn-border-color: transparent;
+    --btn-box-shadow: none;
+    --btn-disabled-color: var(--btn-color);
+    --btn-disabled-bg: var(--btn-bg);
+    --btn-disabled-border-color: var(--btn-border-color);
+    background-image: none;
 }
 
 
@@ -36,35 +42,19 @@ $btn-size-sm: $input-height-sm;
 // -----------------------------------------------------
 
 @if $enable-lightbtn-tweak {
-    .xbtn-outline-secondary,
-    .xbtn-outline-light {
-        color: $yiq-text-dark;
-        border-color: $input-border-color;
-
-        &:not([disabled]):not(.disabled):hover {
-            border-color: darken($input-border-color, 8%);
-        }
-
-        &.disabled,
-        &[disabled] {
-            color: $yiq-text-dark;
-            border-color: $input-border-color;
-        }
-
-        &:not([disabled]):not(.disabled):active,
-        &:not([disabled]):not(.disabled).active,
-        .show > &.dropdown-toggle {
-            background-color: darken($secondary, 5%);
-            border-color: darken($input-border-color, 5%);
-        }
-    }
-
-    .btn-outline-secondary {
-        color: $yiq-text-dark;
+    .btn-outline-secondary,
+    .btn-outline-light {
+        --btn-color: #{$yiq-text-dark};
+        --btn-border-color: #{$input-border-color};
+        --btn-hover-border-color: #{darken($input-border-color, 8%)};
+        --btn-active-bg: #{darken($secondary, 5%)};
+        --btn-active-border-color: #{darken($input-border-color, 5%)};
+        --btn-disabled-color: #{$yiq-text-dark};
+        --btn-disabled-border-color: #{$input-border-color};
     }
 
     .btn-outline-light {
-        color: $gray-600;
+        --btn-color: #{$gray-600};
     }
 }
 
@@ -73,19 +63,21 @@ $btn-size-sm: $input-height-sm;
 // Light addon buttons without border looking shitty
 // -----------------------------------------------------
 
-.input-group > .input-group-append > .btn-secondary,
-.input-group > .input-group-append > .btn-light,
-.input-group > .input-group-prepend > .btn-secondary,
-.input-group > .input-group-prepend > .btn-light { 
-    xborder-color: $input-border-color;
+.input-group-append > .btn-secondary,
+.input-group-append > .btn-light,
+.input-group-prepend > .btn-secondary,
+.input-group-prepend > .btn-light { 
+    --btn-border-color: #{rgba($gray-700, 0.15)};
+    --btn-hover-border-color: var(--btn-border-color);
+    --btn-active-border-color: #{rgba($gray-700, 0.2)};
 }
 
 
 // btn-icon, btn-circle
 // --------------------------------------------------
 
-.btn.btn-icon,
-.btn.btn-circle {
+.btn-icon,
+.btn-circle {
     position: relative;
     padding: 0;
     display: inline-flex;
@@ -108,8 +100,8 @@ $btn-size-sm: $input-height-sm;
     }
 }
 
-.btn.btn-circle {
-    border-radius: 50%;
+.btn-circle {
+    --btn-border-radius: 50%;
 }
 
 
@@ -182,45 +174,9 @@ $btn-size-sm: $input-height-sm;
     .btn-brand-behance {
         @include button-variant($clr-brand-behance, $clr-brand-behance);
     }
-}
 
-
-// btn-flat
-// --------------------------------------------------
-
-.btn-flat {
-    color: $yiq-text-dark;
-    background-image: none;
-    background-color: transparent;
-    border-color: transparent;
-    box-shadow: none;
-
-    &.disabled,
-    &[disabled] {
-        color: $yiq-text-dark;
-        background-image: none;
-        background-color: transparent;
-        border-color: transparent;
-    }
-}
-
-.btn-flat-light {
-    color: rgba(#fff, 0.8);
-
-    &.disabled,
-    &[disabled] {
-        color: rgba(#fff, 0.8);
-    }
-
-    &:not([disabled]):not(.disabled):hover,
-    &:active,
-    &.active,
-    .show > &.dropdown-toggle {
-        border-color: rgba(#fff, 1);
-    }
-
-    &:focus {
-        box-shadow: 0 0 0 2px rgba(#fff, .25);
+    .btn-brand-github {
+        @include button-variant($clr-brand-github, $clr-brand-github);
     }
 }
 
@@ -228,66 +184,49 @@ $btn-size-sm: $input-height-sm;
 // btn-clear
 // --------------------------------------------------
 
-.btn.btn-clear {
-    color: $yiq-text-light;
-    background: rgba(#fff, 0);
-    border-color: rgba(#fff, 0.6);
-    box-shadow: none;
+.btn-clear {
+    --btn-color: #{$yiq-text-light};
+    --btn-bg: #{rgba(#fff, 0)};
+    --btn-border-color: #{rgba(#fff, 0.6)};
+    --btn-box-shadow: none;
+    --btn-hover-shadow: none;
+    --btn-disabled-color: var(--btn-color);
+    --btn-disabled-bg: var(--btn-bg);
+    --btn-disabled-border-color: var(--btn-border-color);
+    --btn-hover-color: var(--btn-color);
+    --btn-hover-bg: #{rgba(#fff, 0.15)};
+    --btn-hover-border-color: var(--btn-border-color);
+    --btn-hover-shadow: none;
+    --btn-active-color: var(--btn-hover-color);
+    --btn-active-bg: #{rgba(#fff, 0.12)};
+    --btn-active-border-color: #{rgba(#fff, 0.4)};
+    --btn-active-shadow: #{$btn-active-box-shadow};
 
-    &:hover {
-        color: $yiq-text-light;
-        background: rgba(#fff, 0.15);
-    }
-
-    &:focus {
-        border-color: #fff;
-        box-shadow: 0 0 0 2px rgba(#fff, .25);
-    }
-
-    &.disabled,
-    &[disabled] {
-        background: rgba(#fff, 0);
-        border-color: rgba(#fff, 0.6);
-    }
-
-    &:not([disabled]):not(.disabled):active,
-    &:not([disabled]):not(.disabled).active,
-    .show > &.dropdown-toggle {
-        color: $yiq-text-light;
-        border-color: #fff;
-        box-shadow: none;
+    &:focus:not(:active):not(.active):not(:focus-visible) {
+        box-shadow: 0 0 4px rgba(#fff, 0.7);
     }
 }
 
-.btn.btn-clear-dark {
-    color: $yiq-text-dark;
-    background: transparent;
-    border-color: rgba(#000, 0.15);
-    box-shadow: none;
+.btn-clear-dark {
+    --btn-color: #{$yiq-text-dark};
+    --btn-bg: #{rgba(#000, 0)};
+    --btn-border-color: #{rgba(#000, 0.15)};
+    --btn-box-shadow: none;
+    --btn-hover-shadow: none;
+    --btn-disabled-color: var(--btn-color);
+    --btn-disabled-bg: var(--btn-bg);
+    --btn-disabled-border-color: var(--btn-border-color);
+    --btn-hover-color: #{darken($yiq-text-dark, 8%)};
+    --btn-hover-bg: #{rgba(#000, 0.06)};
+    --btn-hover-border-color: #{rgba(#000, 0.2)};
+    --btn-hover-shadow: none;
+    --btn-active-color: var(--btn-hover-color);
+    --btn-active-bg: #{rgba(#000, 0.08)};
+    --btn-active-border-color: var(--btn-hover-border-color);
+    --btn-active-shadow: #{$btn-active-box-shadow};
 
-    &:hover {
-        color: darken($yiq-text-dark, 8%);
-        background: rgba(#000, 0.06);
-        border-color: rgba(#000, 0.2);
-    }
-
-    &:focus {
-        border-color: rgba(#000, 0.2);
-        box-shadow: 0 0 0 3px rgba(#000, .05);
-    }
-
-    &.disabled,
-    &[disabled] {
-        background: transparent;
-        border-color: rgba(#000, 0.15);
-        box-shadow: none;
-    }
-
-    &:not([disabled]):not(.disabled):active,
-    &:not([disabled]):not(.disabled).active,
-    .show > &.dropdown-toggle {
-        color: darken($yiq-text-dark, 8%);
-        box-shadow: inset 0 3px 5px rgba(#000, 0.125) !important;
+    &:focus:not(:active):not(.active):not(:focus-visible) {
+        box-shadow: 0 0 4px rgba(#000, 0.125);
     }
 }
 
@@ -295,61 +234,41 @@ $btn-size-sm: $input-height-sm;
 // btn-labeled
 // --------------------------------------------------
 
-.btn.btn-labeled {
-    $w-md: multiply($input-height, 0.85);
-    $w-sm: multiply($input-height-sm, 0.85);
-    $w-lg: multiply($input-height-lg, 0.85);
+.btn-labeled {
+    --btn-label-size: calc(#{$input-height} * 0.85);
+
     position: relative;
-    padding-left: $w-md + $input-btn-padding-x;
 
     > b {
         position: absolute;
-        display: block;
-        width: $w-md;
-        left: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--btn-label-size);
         top: 0;
         bottom: 0;
-        background-color: rgba(0,0,0, .12);
-
-        > i, > .bi {
-            position: relative;
-            vertical-align: middle;
-            //transform: translate(0, 50%);
-            line-height: $btn-size;
-        }
+        background-color: rgba(#000, .12);
     }
 
     &.btn-lg {
-        padding-left: $w-lg + $input-btn-padding-x-lg;
-
-        > b {
-            width: $w-lg;
-
-            > i {
-                line-height: $btn-size-lg;
-            }
-        }
+        --btn-label-size: calc(#{$input-height-lg} * 0.85);
     }
 
     &.btn-sm {
-        padding-left: $w-sm + $input-btn-padding-x-sm;
+        --btn-label-size: calc(#{$input-height-sm} * 0.85);
+    }
 
+    &:not(.icon-right) {
+        padding-inline-start: calc(var(--btn-label-size) + var(--btn-padding-x));
         > b {
-            width: $w-sm;
-
-            > i {
-                line-height: $btn-size-sm;
-            }
+            inset-inline-start: 0;
         }
     }
 
     &.icon-right {
-        padding-left: $input-btn-padding-x;
-        padding-right: $w-md + $input-btn-padding-x;
-
+        padding-inline-end: calc(var(--btn-label-size) + var(--btn-padding-x));
         > b {
-            left: auto;
-            right: 0;
+            inset-inline-end: 0;
         }
     }
 }
@@ -358,11 +277,20 @@ $btn-size-sm: $input-height-sm;
 // btn-animate
 // --------------------------------------------------
 
-.btn.btn-animate {
+.btn-animate {
+    --btn-animate-padding-x: calc(var(--btn-padding-x) * 1.5);
+    --btn-animate-icon-start-pos: 0;
+    --btn-animate-icon-end-pos: auto;
+    --btn-animate-icon-text-align: start;
+    --btn-animate-icon-offset-x: -100%;
+    --btn-animate-icon-offset-y: 0;
+    --btn-animate-icon-width: 1.8em;
+    --btn-animate-icon-font-size: inherit;
+    --btn-animate-offset: 10px;
+
     position: relative;
     overflow: hidden;
-    padding-left: $input-btn-padding-x * 1.5;
-    padding-right: $input-btn-padding-x * 1.5;
+    padding-inline: var(--btn-animate-padding-x);
     transition: all 0.2s ease-out;
 
     > span {
@@ -370,24 +298,27 @@ $btn-size-sm: $input-height-sm;
         width: 100%;
         height: 100%;
         transition: transform 0.2s ease-out;
-        transform: translateX(0);
+        transform: translate(0, 0);
 
-        > i {
+        > i, > .bi {
             position: absolute;
             display: inline-block;
-            left: 0;
+            vertical-align: middle;
+            inset-inline-start: var(--btn-animate-icon-start-pos);
+            inset-inline-end: var(--btn-animate-icon-end-pos);
             top: 0;
             bottom: 0;
-            width: 1.8em;
-            text-align: left;
+            width: var(--btn-animate-icon-width);
+            text-align: var(--btn-animate-icon-text-align);
             opacity: 0;
-            line-height: inherit;
+            font-size: var(--btn-animate-icon-font-size);
+            line-height: 1;
             transition: opacity 0.2s ease-out;
-            transform: translateX(-100%);
+            transform: translate(var(--btn-animate-icon-offset-x), var(--btn-animate-icon-offset-y));
 
             &:before {
                 position: absolute;
-                left: 50%;
+                inset-inline-start: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
             }
@@ -395,101 +326,130 @@ $btn-size-sm: $input-height-sm;
     }
 
     &:hover > span {
-        transform: translateX(10px);
-
+        transform: translateX(var(--btn-animate-offset));
         > i, > .bi {
             opacity: 1;
         }
     }
-
-    &.btn-lg {
-        padding-left: $input-btn-padding-x-lg * 1.5;
-        padding-right: $input-btn-padding-x-lg * 1.5;
-    }
-
-    &.btn-sm {
-        padding-left: $input-btn-padding-x-sm * 1.5;
-        padding-right: $input-btn-padding-x-sm * 1.5;
-    }
 }
 
 .btn-animate.btn-animate-right {
-    > span > i {
-        left: auto;
-        right: 0;
-        text-align: right;
-        transform: translateX(100%);
-    }
-
-    &:hover > span {
-        transform: translateX(-10px);
-    }
+    --btn-animate-icon-start-pos: auto;
+    --btn-animate-icon-end-pos: 0;
+    --btn-animate-icon-text-align: end;
+    --btn-animate-icon-offset-x: 100%;
+    --btn-animate-offset: -10px;
 }
 
 .btn-animate.btn-animate-down {
-    > span {
-        text-align: center;
-    }
-
-    > span > i {
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 100%;
-        text-align: center;
-        vertical-align: middle;
-        transform: translateY(-150%);
-    }
+    --btn-animate-icon-start-pos: 0;
+    --btn-animate-icon-end-pos: 0;
+    --btn-animate-icon-text-align: center;
+    --btn-animate-icon-offset-x: 0;
+    --btn-animate-icon-offset-y: -150%;
+    --btn-animate-icon-width: 100%;
+    --btn-animate-offset: 10px;
 
     &:hover > span {
-        transform: translateY(150%);
+        transform: translateY(calc(var(--btn-animate-icon-offset-y) * -1));
     }
 }
 
 .btn-animate.btn-animate-down.btn-lg {
-    > span > i {
-        font-size: 1.5rem;
-        line-height: 1.5rem;
-    }
+    --btn-animate-icon-font-size: 1.5rem;
 }
 
 
 // btn-to-[danger|primary]
 // --------------------------------------------------
 
-@mixin button-hybrid-variant($background, $border, $hover-background: darken($background, 7.5%), $hover-border: darken($border, 10%), $active-background: darken($background, 10%), $active-border: darken($border, 12.5%)) {
-    // The mixin parameters were copied over from Bootstrap's original button-variant() mixin
-    transition: box-shadow .15s ease-in-out;
+.btn-to-danger > i,
+.btn-to-danger > .bi,
+.btn-to-primary > i,
+.btn-to-primary > .bi {
+    opacity: 1;
+}
 
-    &:not([disabled]):not(.disabled):hover {
-        color: color-yiq($hover-background);
-        @include gradient-bg($hover-background);
-        border-color: $hover-border;
+.btn-to-danger {
+    @include button-active-variant($danger, rgba($gray-700, 0.15));
+}
 
-        > i {
-            opacity: 1;
+.btn-to-primary {
+    @include button-active-variant($primary, rgba($gray-700, 0.15));
+}
+
+
+// 3d Buttons (colorized drop shadows)
+// -----------------------------------------------------
+
+.btn-3d {
+    --shadow-color-rgb: 0,0,0;
+    --shadow-intensity: 1;
+    --btn-box-shadow: #{$box-shadow-xs-var};
+    --btn-hover-shadow: #{$box-shadow-var};
+    --btn-active-shadow: var(--btn-box-shadow);
+
+    transition-property: transform, box-shadow, color, background-color, border-color, opacity !important;
+    transition-timing-function: $ease-out-quint !important;
+    transition-duration: .35s !important;
+
+    &:hover {
+        transform: translateY(-3px);
+    }
+
+    // PRESSED
+    &:active, 
+    &:active,
+    .show > &.dropdown-toggle {
+        transform: translateY(1px);
+    }
+}
+
+@each $color, $value in $theme-colors {
+    .btn-3d.btn-#{$color},
+    .btn-3d.btn-outline-#{$color} {
+        @if $color != "secondary" and $color != "light" {
+            $c: mix($value, #000, 50%);
+            --shadow-color-rgb: #{to-rgb($c)};
+            --shadow-intensity: 1.8;
+        }
+
+        @if $color == 'secondary' {
+            --btn-hover-bg: #fff;
+            --btn-border-color: #{rgba(#000, 0.1)};
+            --btn-hover-border-color: var(--btn-border-color);
+            --btn-active-bg: #{$gray-200};
+            --btn-active-border-color: var(--btn-border-color);
         }
     }
-
-    &:hover:focus {
-        box-shadow: $btn-box-shadow, 0 0 0 $btn-focus-width rgba($border, .5) !important;
-    }
 }
 
-.btn.btn-to-danger {
-    @include button-hybrid-variant($danger, $danger);
+
+// btn-flat
+// --------------------------------------------------
+
+.btn-toolbar .btn,
+.btn-flat {
+    @include btn-flat();
 }
 
-.btn.btn-to-primary {
-    @include button-hybrid-variant($primary, $primary);
+.btn-flat-light {
+    --btn-color: #{rgba(#fff, 0.8)};
+    --btn-hover-border-color: #{rgba(#fff, 0.5)};
+    --btn-active-border-color: var(--btn-hover-border-color);
+    --btn-hover-shadow: none;
 }
+
 
 // btn-no-border
 // --------------------------------------------------
 
 .btn-no-border {
-    border-color: transparent !important;
+    --btn-border-color: transparent;
+    --btn-hover-border-color: transparent;
+    --btn-box-shadow: none;
+    --btn-hover-shadow: none;
+    --btn-disabled-border-color: transparent;
 }
 
 
@@ -520,15 +480,15 @@ $btn-size-sm: $input-height-sm;
     }
 
     .btn.has-caret {
-        text-align: left;
-        padding-right: $input-btn-padding-x * 2;
+        text-align: start;
+        padding-inline-end: $input-btn-padding-x * 2;
 
         &.btn-sm {
-            padding-right: $input-btn-padding-x-sm * 2;
+            padding-inline-end: $input-btn-padding-x-sm * 2;
         }
 
         &.btn-lg {
-            padding-right: $input-btn-padding-x-lg * 2;
+            padding-inline-end: $input-btn-padding-x-lg * 2;
         }
 
         > em,
@@ -543,94 +503,27 @@ $btn-size-sm: $input-height-sm;
         @include fontawesome("\f0d7");
         position: absolute;
         display: block;
-        right: $input-btn-padding-x;
+        inset-inline-end: $input-btn-padding-x;
         line-height: 1;
         top: 50%;
         transform: translate3d(50%, -50%, 0);
     }
 
     .btn-sm.has-caret:after {
-        right: $input-btn-padding-x-sm;
+        inset-inline-end: $input-btn-padding-x-sm;
     }
 
     .btn-lg.has-caret:after {
-        right: $input-btn-padding-x-lg;
+        inset-inline-end: $input-btn-padding-x-lg;
     }
 
     select {
         position: absolute;
         opacity: 0;
-        left: 0;
+        inset-inline-start: 0;
         width: 100%;
         top: 0;
         bottom: 0;
         cursor: pointer;
-    }
-}
-
-
-// 3d Buttons (colorized drop shadows)
-// -----------------------------------------------------
-
-.btn-3d {
-    transition-property: transform, box-shadow, color, background-color, border-color, opacity;
-    transition-timing-function: $ease-out-quint;
-    transition-duration: .35s;
-    --shadow-color-rgb: 0,0,0;
-    --shadow-intensity: 1;
-    --box-shadow: 0 1px 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.07)), 
-                  0 2px 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.1)), 
-                  0 4px 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.08));
-    --box-shadow: #{$box-shadow-xs-var};
-    // NORMAL
-    box-shadow: var(--box-shadow) !important;
-    // ACTIVE
-    &:hover,
-    &:focus {
-        transform: translateY(-3px);
-        --box-shadow: #{$box-shadow-var};
-    }
-    // DISABLED
-    &:disabled,
-    &.disabled {
-        box-shadow: none !important;
-    }
-    // PRESSED
-    &:active, &:active:focus,
-    &.active, &.active:focus,
-    .show > &.dropdown-toggle,
-    .show > &.dropdown-toggle:focus {
-        transform: translateY(1px);
-        --box-shadow: #{$box-shadow-xs-var};
-    }
-}
-
-@each $color, $value in $theme-colors {
-    .btn-3d.btn-#{$color},
-    .btn-3d.btn-outline-#{$color} {
-        @if $color != "secondary" and $color != "light" {
-            $c: mix($value, #000, 50%);
-            --shadow-color-rgb: #{red($c)}, #{green($c)}, #{blue($c)};
-            --shadow-intensity: 1.8;
-        }
-        @else {
-            border-color: $value !important;
-        }
-
-        @if $color == 'secondary' {
-            // ACTIVE
-            &:hover,
-            &:focus {
-                background-color: #fff;
-            }
-            // PRESSED
-            &:active, &:active:focus,
-            &.active, &.active:focus,
-            .show > &.dropdown-toggle,
-            .show > &.dropdown-toggle:focus {
-                background-color: $gray-100;
-                border-color: $gray-100;
-            }
-        }
     }
 }

@@ -34,7 +34,7 @@
         <input asp-for="EnteredQuantity" 
                type="number" 
                attrs="@attributes"
-               sm-control-size='@(large ? ControlSize.Large : ControlSize.Small)'
+               sm-control-size='@(large ? ControlSize.Large : ControlSize.Medium)'
                sm-postfix="@Model.QuantityUnitName"
                sm-numberinput-style="Centered"
                data-step-interval="150"

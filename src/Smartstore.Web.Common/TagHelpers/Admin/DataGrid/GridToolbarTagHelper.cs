@@ -59,7 +59,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.Attributes.Add("v-slot:toolbar", "grid");
 
             var div = new TagBuilder("div");
-            div.Attributes.Add("class", "dg-toolbar d-flex flex-nowrap");
+            div.Attributes.Add("class", "dg-toolbar btn-toolbar d-flex flex-nowrap");
 
             output.WrapContentWith(div);
         }

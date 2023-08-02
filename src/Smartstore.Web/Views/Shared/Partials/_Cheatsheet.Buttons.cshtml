@@ -1,0 +1,374 @@
+﻿@{
+    Layout = "";
+}
+
+<style>
+    .btn-examples {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+</style>
+
+<!-- Default -->
+<h3 class="mb-2">Default buttons</h3>
+<div class="btn-examples">
+    <button type="button" class="btn btn-primary">Primary</button>
+    <button type="button" class="btn btn-secondary">Secondary</button>
+    <button type="button" class="btn btn-warning">Warning</button>
+    <button type="button" class="btn btn-success">Success</button>
+    <button type="button" class="btn btn-info">Info</button>
+    <button type="button" class="btn btn-danger">Danger</button>
+    <button type="button" class="btn btn-gray">Gray</button>
+    <button type="button" class="btn btn-light">Light</button>
+    <button type="button" class="btn btn-dark">Dark</button>
+    <button type="button" class="btn btn-link">Link</button>
+    <div class="btn-group">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Aktion</button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Separated link</a>
+        </div>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-secondary">Aktion</button>
+        <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Separated link</a>
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary disabled">Primary</button>
+    <button type="button" class="btn btn-secondary disabled">Secondary</button>
+    <button type="button" class="btn btn-warning disabled">Warning</button>
+    <button type="button" class="btn btn-success disabled">Success</button>
+    <button type="button" class="btn btn-info disabled">Info</button>
+    <button type="button" class="btn btn-danger disabled">Danger</button>
+    <button type="button" class="btn btn-gray disabled">Gray</button>
+    <button type="button" class="btn btn-light disabled">Light</button>
+    <button type="button" class="btn btn-dark disabled">Dark</button>
+    <button type="button" class="btn btn-link disabled">Link</button>
+</div>
+
+<!-- Icons -->
+<h3 class="mb-2">Buttons with icons</h3>
+<p>
+    For proper spacing from the icon, the text must be enclosed in a span.
+</p>
+<p class="btn-examples">
+    <button type="button" class="btn btn-primary"><i class="fa fa-cog"></i><span>Icon left</span></button>
+    <button type="button" class="btn btn-primary"><span>Icon right</span><i class="fa fa-sign-out-alt icon-right"></i></button>
+</p>
+
+<!-- Outline -->
+<h3 class="mb-2">Outline buttons</h3>
+<p>
+    Better not to use with secondary and light.
+</p>
+<p class="btn-examples">
+    <button type="button" class="btn btn-outline-primary">Primary</button>
+    <button type="button" class="btn btn-outline-secondary">Secondary</button>
+    <button type="button" class="btn btn-outline-warning">Warning</button>
+    <button type="button" class="btn btn-outline-success">Success</button>
+    <button type="button" class="btn btn-outline-info">Info</button>
+    <button type="button" class="btn btn-outline-danger">Danger</button>
+    <button type="button" class="btn btn-outline-gray">Gray</button>
+    <button type="button" class="btn btn-outline-light">Light</button>
+    <button type="button" class="btn btn-outline-dark">Dark</button>
+</p>
+
+<!-- 3D -->
+<h3 class="mb-2">3D buttons</h3>
+<p>
+    Material style 3D buttons with <code>.btn-3d</code>. Best combined with <code>.btn-*</code>, <code>.btn-outline-*</code> and
+    <code>.btn-labeled</code>. Not recommended with animated, flat and link buttons.
+</p>
+<div class="btn-examples">
+    <button type="button" class="btn btn-primary btn-3d">Primary</button>
+    <button type="button" class="btn btn-secondary btn-3d">Secondary</button>
+    <button type="button" class="btn btn-warning btn-3d">Warning</button>
+    <button type="button" class="btn btn-success btn-3d">Success</button>
+    <button type="button" class="btn btn-info btn-3d">Info</button>
+    <button type="button" class="btn btn-danger btn-3d">Danger</button>
+    <button type="button" class="btn btn-gray btn-3d">Gray</button>
+    <button type="button" class="btn btn-light btn-3d">Light</button>
+    <button type="button" class="btn btn-dark btn-3d">Dark</button>
+    <button type="button" class="btn btn-secondary btn-3d disabled">Secondary</button>
+    <button type="button" class="btn btn-primary btn-3d disabled">Primary</button>
+    <button type="button" class="btn btn-warning btn-3d disabled">Warning</button>
+</div>
+
+<!-- Flat -->
+<h3 class="mb-2">Flat buttons</h3>
+<p>
+    Not combinable with <code>.btn-labeled</code>
+</p>
+<div class="btn-examples bg-light rounded p-2">
+    <a href="javascript:void(0)" class="btn btn-primary btn-flat">Primary</a>
+    <a href="javascript:void(0)" class="btn btn-secondary btn-flat">Secondary</a>
+    <a href="javascript:void(0)" class="btn btn-warning btn-flat"><i class="fa fa-exclamation-triangle"></i><span>Warning</span></a>
+    <a href="javascript:void(0)" class="btn btn-success btn-flat"><i class="fa fa-check"></i><span>Success</span></a>
+    <a href="javascript:void(0)" class="btn btn-info btn-flat">Info</a>
+    <a href="javascript:void(0)" class="btn btn-danger btn-flat"><i class="fa fa-exclamation-circle"></i><span>Danger</span></a>
+    <a href="javascript:void(0)" class="btn btn-danger btn-flat disabled"><i class="fa fa-exclamation-circle"></i><span>Disabled</span></a>
+    <a href="javascript:void(0)" class="btn btn-dark btn-flat"><i class="fa fa-check"></i><span>Dark</span></a>
+    <a href="javascript:void(0)" class="btn btn-light btn-flat"><i class="fa fa-check"></i><span>Light</span></a>
+    <div class="btn-group d-inline-block">
+        <a href="javascript:void(0)" class="btn btn-success btn-flat dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Aktion</a>
+        <div class="dropdown-menu">
+        </div>
+    </div>
+</div>
+<p>
+    On darker backgrounds you should give the button an additional <code>.btn-flat-light</code>.
+</p>
+<div class="btn-examples bg-primary rounded p-2">
+    <a href="javascript:void(0)" class="btn btn-primary btn-flat btn-flat-light">Primary</a>
+    <a href="javascript:void(0)" class="btn btn-secondary btn-flat btn-flat-light">Secondary</a>
+    <a href="javascript:void(0)" class="btn btn-warning btn-flat btn-flat-light"><i class="fa fa-exclamation-triangle"></i><span>Warning</span></a>
+    <a href="javascript:void(0)" class="btn btn-success btn-flat btn-flat-light"><i class="fa fa-check"></i><span>Success</span></a>
+    <a href="javascript:void(0)" class="btn btn-info btn-flat btn-flat-light">Info</a>
+    <a href="javascript:void(0)" class="btn btn-danger btn-flat btn-flat-light"><i class="fa fa-exclamation-circle"></i><span>Danger</span></a>
+    <a href="javascript:void(0)" class="btn btn-danger btn-flat btn-flat-light disabled"><i class="fa fa-exclamation-circle"></i><span>Disabled</span></a>
+    <a href="javascript:void(0)" class="btn btn-dark btn-flat btn-flat-light"><i class="fa fa-check"></i><span>Dark</span></a>
+    <a href="javascript:void(0)" class="btn btn-light btn-flat btn-flat-light"><i class="fa fa-check"></i><span>Light</span></a>
+</div>
+
+<!-- Borderless -->
+<h3 class="mb-2">Borderless buttons</h3>
+<p>
+    <code>.btn-no-border</code> is perfectly combinable with <code>.btn-outline-*</code>. The difference to flat buttons is that the text color goes along here.
+</p>
+<p class="btn-examples">
+    <button type="button" class="btn btn-primary btn-no-border">Primary</button>
+    <button type="button" class="btn btn-secondary btn-no-border">Secondary</button>
+    <button type="button" class="btn btn-warning btn-no-border">Warning</button>
+    <button type="button" class="btn btn-success btn-no-border">Success</button>
+    <button type="button" class="btn btn-info btn-no-border">Info</button>
+    <button type="button" class="btn btn-danger btn-no-border">Danger</button>
+    <button type="button" class="btn btn-danger btn-no-border disabled">Disabled</button>
+    <button type="button" class="btn btn-light btn-no-border">Light</button>
+    <button type="button" class="btn btn-dark btn-no-border">Dark</button>
+    <button type="button" class="btn btn-outline-primary btn-no-border">Primary</button>
+    <button type="button" class="btn btn-outline-secondary btn-no-border">Secondary</button>
+    <button type="button" class="btn btn-outline-warning btn-no-border">Warning</button>
+    <button type="button" class="btn btn-outline-success btn-no-border">Success</button>
+    <button type="button" class="btn btn-outline-info btn-no-border">Info</button>
+    <button type="button" class="btn btn-outline-danger btn-no-border">Danger</button>
+    <button type="button" class="btn btn-outline-danger btn-no-border disabled">Disabled</button>
+    <button type="button" class="btn btn-outline-light btn-no-border">Light</button>
+    <button type="button" class="btn btn-outline-dark btn-no-border">Dark</button>
+</p>
+
+<!-- Icon buttons -->
+<h3 class="mb-2">Icon buttons</h3>
+<p>
+    Just append <code>.btn-icon</code>. Makes icon slightly larger and eliminates all margins. Not recommended with text.
+</p>
+<p class="btn-examples">
+    <button type="button" class="btn btn-primary btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-secondary btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-warning btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-success btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-info btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-danger btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-outline-primary btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-outline-secondary btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-outline-warning btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-outline-success btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-outline-info btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-outline-danger btn-icon"><i class="fa fa-power-off"></i></button>
+</p>
+
+<!-- Circle buttons -->
+<h3 class="mb-2">Circle buttons</h3>
+<p>
+    Just append <code>.btn-circle</code>. It is recommended to add <code>.btn-icon</code> as well, because circle buttons basically have only one icon.
+</p>
+<p class="btn-examples">
+    <button type="button" class="btn btn-primary btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-secondary btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-warning btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-success btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-info btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-danger btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-outline-primary btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-outline-secondary btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-outline-warning btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-outline-success btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-outline-info btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+    <button type="button" class="btn btn-outline-danger btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+</p>
+
+<!-- Labeled -->
+<h3 class="mb-2">Labeled buttons</h3>
+<p>
+    With <code>.btn-labeled</code> you can create more beautiful icon buttons. The icon must be enclosed in a <code>b</code> tag.
+    If it is to be right-justified, the button must be given an <code>.icon-right</code> class.
+    A combination with outline buttons is NOT recommended: it looks like crap! 
+    Also: <code>.btn-sm</code> and <code>.btn-lg</code> not recommended with <code>.icon-right</code>.
+</p>
+<p class="btn-examples">
+    <button type="button" class="btn btn-primary btn-labeled"><b><i class="fa fa-power-off"></i></b>Primary</button>
+    <button type="button" class="btn btn-secondary btn-labeled"><b><i class="fa fa-power-off"></i></b>Secondary</button>
+    <button type="button" class="btn btn-warning btn-labeled"><b><i class="fa fa-power-off"></i></b>Warning</button>
+    <button type="button" class="btn btn-success btn-labeled"><b><i class="fa fa-power-off"></i></b>Success</button>
+    <button type="button" class="btn btn-info btn-labeled"><b><i class="fa fa-power-off"></i></b>Info</button>
+    <button type="button" class="btn btn-danger btn-labeled"><b><i class="fa fa-power-off"></i></b>Danger</button>
+    <button type="button" class="btn btn-light btn-labeled"><b><i class="fa fa-power-off"></i></b>Light</button>
+    <button type="button" class="btn btn-dark btn-labeled"><b><i class="fa fa-power-off"></i></b>Dark</button>
+    <br /><br />
+    <button type="button" class="btn btn-primary btn-labeled icon-right">Primary<b><i class="fa fa-power-off"></i></b></button>
+    <button type="button" class="btn btn-secondary btn-labeled icon-right">Secondary<b><i class="fa fa-power-off"></i></b></button>
+    <button type="button" class="btn btn-warning btn-labeled icon-right">Warning<b><i class="fa fa-power-off"></i></b></button>
+    <button type="button" class="btn btn-success btn-labeled icon-right">Success<b><i class="fa fa-power-off"></i></b></button>
+    <button type="button" class="btn btn-info btn-labeled icon-right">Info<b><i class="fa fa-power-off"></i></b></button>
+    <button type="button" class="btn btn-danger btn-labeled icon-right">Danger<b><i class="fa fa-power-off"></i></b></button>
+    <button type="button" class="btn btn-light btn-labeled icon-right">Light<b><i class="fa fa-power-off"></i></b></button>
+    <button type="button" class="btn btn-dark btn-labeled icon-right">Dark<b><i class="fa fa-power-off"></i></b></button>
+</p>
+
+<!-- Animated -->
+<h3 class="mb-2">Animated buttons</h3>
+<p>
+    Buttons can be animated with <code>.btn-animate</code>. For animation to the right, <code>.btn-animate-right</code> must be added, and to the bottom,
+    <code>.btn-animate-down</code> must be added. In addition, the button content including the icon must be enclosed in a <code>span</code> tag.
+</p>
+<p class="btn-examples">
+    <button type="button" class="btn btn-success btn-animate"><span><i class="fa fa-download"></i>From left</span></button>
+    <button type="button" class="btn btn-success btn-animate btn-animate-right"><span><i class="fa fa-download"></i>To right</span></button>
+    <button type="button" class="btn btn-success btn-animate btn-animate-down"><span><i class="fa fa-download"></i>To bottom</span></button>
+    <br /><br />
+    <button type="button" class="btn btn-danger btn-animate btn-lg"><span><i class="fa fa-download"></i>From left</span></button>
+    <button type="button" class="btn btn-danger btn-animate btn-animate-right btn-lg"><span><i class="fa fa-download"></i>To right</span></button>
+    <button type="button" class="btn btn-danger btn-animate btn-animate-down btn-lg"><span><i class="fa fa-download"></i>To bottom</span></button>
+    <br /><br />
+    <button type="button" class="btn btn-primary btn-animate btn-sm"><span><i class="fa fa-download"></i>From left</span></button>
+    <button type="button" class="btn btn-primary btn-animate btn-animate-right btn-sm"><span><i class="fa fa-download"></i>To right</span></button>
+    <button type="button" class="btn btn-primary btn-animate btn-animate-down btn-sm"><span><i class="fa fa-download"></i>To bottom</span></button>
+</p>
+
+<!-- Clear -->
+<h3 class="mb-2">Clear buttons</h3>
+<p>
+    On dark backgrounds you can work perfectly with <code>.btn-clear</code>.
+</p>
+<p class="btn-examples p-2 bg-primary rounded mb-2">
+    <a href="javascript:void(0)" class="btn btn-clear">Normal</a>
+    <a href="javascript:void(0)" class="btn btn-clear"><span>With icon</span><i class="fa fa-arrow-right"></i></a>
+    <a href="javascript:void(0)" class="btn btn-clear disabled"><span>Disabled</span><i class="fa fa-arrow-right"></i></a>
+    <a href="javascript:void(0)" class="btn btn-clear btn-no-border">Without border</a>
+    <a href="javascript:void(0)" class="btn btn-clear btn-no-border"><i class="fa fa-check"></i><span>With icons</span></a>
+    <a href="javascript:void(0)" class="btn btn-clear btn-animate"><span><i class="fa fa-download"></i>Animated</span></a>
+    <a href="javascript:void(0)" class="btn btn-clear btn-animate btn-animate-right btn-no-border"><span><i class="fa fa-chevron-right"></i>Animated</span></a>
+</p>
+<p class="btn-examples p-2 bg-light rounded">
+    <a href="javascript:void(0)" class="btn btn-clear-dark">Normal</a>
+    <a href="javascript:void(0)" class="btn btn-clear-dark"><span>With icon</span><i class="fa fa-arrow-right"></i></a>
+    <a href="javascript:void(0)" class="btn btn-clear-dark disabled"><span>Disabled</span><i class="fa fa-arrow-right"></i></a>
+    <a href="javascript:void(0)" class="btn btn-clear-dark btn-no-border">Without border</a>
+    <a href="javascript:void(0)" class="btn btn-clear-dark btn-no-border"><i class="fa fa-check"></i><span>With icon</span></a>
+    <a href="javascript:void(0)" class="btn btn-clear-dark btn-animate"><span><i class="fa fa-download"></i>Animated</span></a>
+    <a href="javascript:void(0)" class="btn btn-clear-dark btn-animate btn-animate-right btn-no-border"><span><i class="fa fa-chevron-right"></i>Animated</span></a>
+</p>
+
+<!-- To* -->
+<h3 class="mb-2">"To Danger/Primary" buttons</h3>
+<p>
+    With <code>.btn-to-danger</code> you can create semi-danger buttons. Danger styles are only 
+    applied to <code>:hover</code>, <code>:active</code> and <code>:focus</code>.
+    Recommended when a solid red button draws too much attention or the whole thing becomes too colorful.
+</p>
+<p class="btn-examples">
+    <a href="javascript:void(0)" class="btn btn-secondary btn-to-danger">Caution</a>
+    <a href="javascript:void(0)" class="btn btn-secondary btn-to-danger btn-labeled"><b><i class="fa fa-power-off"></i></b>Caution</a>
+    <a href="javascript:void(0)" class="btn btn-secondary btn-to-primary">Primary</a>
+    <a href="javascript:void(0)" class="btn btn-success btn-to-primary">Success</a>
+    <a href="javascript:void(0)" class="btn btn-secondary btn-to-danger disabled">Disabled</a>
+    <a href="javascript:void(0)" class="btn btn-secondary btn-to-danger btn-circle btn-icon"><i class="fa fa-edit"></i></a>
+</p>
+
+<!-- Sizing -->
+<h3 class="mb-2">Button sizing</h3>
+<p>
+    Button sizes are defined with <code>.btn-sm</code> or <code>.btn-lg</code>. These classes can be combined with any button style.
+</p>
+<div class="btn-examples mb-2">
+    <button type="button" class="btn btn-warning btn-sm">Small</button>
+    <button type="button" class="btn btn-secondary btn-sm"><i class="fa fa-cog"></i><span>Small</span></button>
+    <button type="button" class="btn btn-danger btn-labeled btn-sm"><b><i class="fa fa-power-off"></i></b>Small</button>
+    <button type="button" class="btn btn-outline-primary btn-sm"><span>Small</span></button>
+    <button type="button" class="btn btn-info btn-icon btn-sm"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-success btn-circle btn-icon btn-sm"><i class="fa fa-edit"></i></button>
+</div>
+<div class="btn-examples mb-2">
+    <button type="button" class="btn btn-warning">Normal</button>
+    <button type="button" class="btn btn-secondary"><i class="fa fa-cog"></i><span>Normal</span></button>
+    <button type="button" class="btn btn-danger btn-labeled"><b><i class="fa fa-power-off"></i></b>Normal</button>
+    <button type="button" class="btn btn-outline-primary"><span>Normal</span></button>
+    <button type="button" class="btn btn-info btn-icon"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-success btn-circle btn-icon"><i class="fa fa-edit"></i></button>
+</div>
+<div class="btn-examples">
+    <button type="button" class="btn btn-warning btn-lg"><span>Large</span></button>
+    <button type="button" class="btn btn-secondary btn-lg"><span>Large</span><i class="fa fa-cog icon-right"></i></button>
+    <button type="button" class="btn btn-danger btn-labeled btn-lg"><b><i class="fa fa-power-off"></i></b>Large</button>
+    <button type="button" class="btn btn-outline-primary btn-lg"><span>Large</span></button>
+    <button type="button" class="btn btn-info btn-icon btn-lg"><i class="fa fa-power-off"></i></button>
+    <button type="button" class="btn btn-success btn-circle btn-icon btn-lg"><i class="fa fa-edit"></i></button>
+</div>
+
+<!-- Social buttons -->
+<h3 class="mb-2">Social buttons</h3>
+<div class="btn-examples">
+    <button type="button" class="btn btn-brand-facebook"><i class="fab fa-facebook"></i><span>Facebook</span></button>
+    <button type="button" class="btn btn-brand-google"><i class="fab fa-google"></i><span>Google</span></button>
+    <button type="button" class="btn btn-brand-microsoft"><i class="fab fa-microsoft"></i><span>Microsoft</span></button>
+    <button type="button" class="btn btn-brand-twitter"><i class="fab fa-twitter"></i><span>Twitter</span></button>
+    <button type="button" class="btn btn-brand-github"><i class="fab fa-github"></i><span>GitHub</span></button>
+    <button type="button" class="btn btn-brand-youtube"><i class="fab fa-youtube"></i><span>Youtube</span></button>
+</div>
+
+<!-- Input groups -->
+<h3 class="mb-4">Input groups</h3>
+<div class="mb-5" style="max-width: 600px">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <button class="btn btn-secondary" type="button" id="button-addon1">Button</button>
+        </div>
+        <input type="text" class="form-control" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+    </div>
+
+    <div class="input-group input-group-lg mb-3">
+        <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
+        <div class="input-group-append">
+            <button class="btn btn-light" type="button" id="button-addon2">Button</button>
+        </div>
+    </div>
+
+    <div class="input-group input-group-sm mb-3">
+        <div class="input-group-prepend" id="button-addon3">
+            <button class="btn btn-outline-secondary" type="button">Button</button>
+            <button class="btn btn-outline-secondary" type="button">Button</button>
+        </div>
+        <input type="text" class="form-control" placeholder="" aria-label="Example text with two button addons" aria-describedby="button-addon3">
+    </div>
+
+    <div class="input-group">
+        <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username with two button addons" aria-describedby="button-addon4">
+        <div class="input-group-append" id="button-addon4">
+            <button class="btn btn-outline-light" type="button">Button</button>
+            <button class="btn btn-outline-light" type="button">Button</button>
+        </div>
+    </div>
+</div>

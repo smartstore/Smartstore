@@ -129,7 +129,7 @@ $badge-font-size:               85%;
 $badge-font-weight:             $font-weight-medium;
 
 
-$border-radius:                 5px;
+$border-radius:                 6px;
 $border-radius-sm:              4px;
 $border-radius-lg:              8px;
 
@@ -184,7 +184,7 @@ $btn-focus-width:               $input-btn-focus-width;
 $btn-box-shadow:                0 1px 0 rgba($gray-900, 0.04), inset 0 1px 0 rgba(#fff, 0.25);
 $btn-focus-box-shadow:          $input-btn-focus-box-shadow;
 //$btn-active-box-shadow:         inset 0 2px 3px rgba(#000, .125);
-$btn-transition:                background-color .05s ease-in-out, border-color .05s ease-in-out, box-shadow .05s ease-in-out;
+$btn-transition:                color .1s ease-in-out, background-color .1s ease-in-out, border-color .1s ease-in-out, box-shadow .1s ease-in-out;
 $btn-border-radius:             $input-border-radius;
 $btn-border-radius-lg:          $input-border-radius-lg;
 $btn-border-radius-sm:          $input-border-radius-sm;

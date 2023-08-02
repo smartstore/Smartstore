@@ -12,8 +12,28 @@
   $border,
   $hover-background: darken($background, 7.5%),
   $hover-border: darken($border, 10%),
-  $active-background: darken($background, 10%),
+  $active-background: darken($background, 12%),
   $active-border: darken($border, 12.5%),
+  $disabled-background: $background,
+  $disabled-border: $border
+) {
+  @include button-inactive-variant(
+    $background,
+    $border,
+    $disabled-background,
+    $disabled-border);
+  @include button-active-variant(
+    $background,
+    $border,
+    $hover-background,
+    $hover-border,
+    $active-background,
+    $active-border);
+}
+
+@mixin button-inactive-variant(
+  $background,
+  $border,
   $disabled-background: $background,
   $disabled-border: $border
 ) {
@@ -21,17 +41,29 @@
   --btn-color: #{$color};
   --btn-bg: #{$background};
   --btn-border-color: #{$border};
+  --btn-disabled-color: #{color-yiq($disabled-background)};
+  --btn-disabled-bg: #{$disabled-background};
+  --btn-disabled-border-color: #{$disabled-border};
+}
+
+@mixin button-active-variant(
+  $background,
+  $border,
+  $hover-background: darken($background, 7.5%),
+  $hover-border: darken($border, 10%),
+  $active-background: darken($background, 10%),
+  $active-border: darken($border, 12.5%)
+) {
+  $color: color-yiq($background);
   --btn-hover-color: #{color-yiq($hover-background)};
   --btn-hover-bg: #{$hover-background};
   --btn-hover-border-color: #{$hover-border};
+  --btn-hover-shadow: #{$btn-box-shadow};
   --btn-focus-shadow-rgb: #{to-rgb(mix($color, $border, 15%))};
   --btn-active-color: #{color-yiq($active-background)};
   --btn-active-bg: #{$active-background};
   --btn-active-border-color: #{$active-border};
   --btn-active-shadow: #{$btn-active-box-shadow};
-  --btn-disabled-color: #{color-yiq($disabled-background)};
-  --btn-disabled-bg: #{$disabled-background};
-  --btn-disabled-border-color: #{$disabled-border};
 }
 
 @mixin button-outline-variant(
@@ -42,9 +74,11 @@
   $active-color: color-yiq($active-background)) {
   --btn-color: #{$color};
   --btn-border-color: #{$color};
+  --btn-box-shadow: none;
   --btn-hover-color: #{$color-hover};
   --btn-hover-bg: #{$active-background};
   --btn-hover-border-color: #{$active-border};
+  --btn-hover-shadow: #{$btn-box-shadow};
   --btn-focus-shadow-rgb: #{to-rgb($color)};
   --btn-active-color: #{$active-color};
   --btn-active-bg: #{$active-background};
@@ -54,6 +88,7 @@
   --btn-disabled-bg: transparent;
   --btn-disabled-border-color: #{$color};
   --gradient: none;
+  //@include button-active-variant($color, $color);
 }
 
 // Button sizes
