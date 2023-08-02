@@ -97,6 +97,7 @@ $theme-color-interval:          8%;
 
 // The yiq lightness value that determines when the lightness of color changes from "dark" to "light". Acceptable values are between 0 and 255.
 $yiq-contrasted-threshold:      179;
+$min-contrast-ratio:            2.2 !default;
 
 // Customize the light and dark text colors for use in our YIQ color contrast function.
 $yiq-text-dark:                 $gray-800;
@@ -189,6 +190,15 @@ $btn-border-radius:             $input-border-radius;
 $btn-border-radius-lg:          $input-border-radius-lg;
 $btn-border-radius-sm:          $input-border-radius-sm;
 $btn-disabled-opacity:          0.5;
+
+$btn-hover-bg-shade-amount:     15% !default;
+$btn-hover-bg-tint-amount:      15% !default;
+$btn-hover-border-shade-amount: 20% !default; //
+$btn-hover-border-tint-amount:  10% !default; //
+$btn-active-bg-shade-amount:    25% !default;
+$btn-active-bg-tint-amount:     25% !default;
+$btn-active-border-shade-amount:25% !default; //
+$btn-active-border-tint-amount: 10% !default; //
 
 $dropdown-min-width:            10rem;
 $dropdown-padding-x:            .5rem !default;

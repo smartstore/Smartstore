@@ -10,38 +10,49 @@
 @mixin button-variant(
   $background,
   $border,
-  $hover-background: darken($background, 7.5%),
-  $hover-border: darken($border, 10%),
-  $active-background: darken($background, 12%),
-  $active-border: darken($border, 12.5%),
+  $color: color-contrast($background),
+  $hover-background: shade-color($background, $btn-hover-bg-shade-amount),
+  $hover-border: shade-color($border, $btn-hover-border-shade-amount),
+  $hover-color: color-contrast($hover-background),
+  $active-background: shade-color($background, $btn-active-bg-shade-amount),
+  $active-border: shade-color($border, $btn-active-border-shade-amount),
+  $active-color: color-contrast($active-background),
   $disabled-background: $background,
-  $disabled-border: $border
+  $disabled-border: $border,
+  $disabled-color: color-contrast($disabled-background)
 ) {
   @include button-inactive-variant(
     $background,
     $border,
-    $disabled-background,
-    $disabled-border);
+    $color: $color,
+    $disabled-background: $disabled-background,
+    $disabled-border: $disabled-border,
+    $disabled-color: $disabled-color);
   @include button-active-variant(
     $background,
     $border,
-    $hover-background,
-    $hover-border,
-    $active-background,
-    $active-border);
+    $color: $color,
+    $hover-background: $hover-background,
+    $hover-border: $hover-border,
+    $hover-color: $hover-color,
+    $active-background: $active-background,
+    $active-border: $active-border,
+    $active-color: $active-color);
 }
 
 @mixin button-inactive-variant(
   $background,
   $border,
+  $color: color-contrast($background),
   $disabled-background: $background,
-  $disabled-border: $border
+  $disabled-border: $border,
+  $disabled-color: color-contrast($disabled-background)
 ) {
-  $color: color-yiq($background);
   --btn-color: #{$color};
   --btn-bg: #{$background};
-  --btn-border-color: #{$border};
-  --btn-disabled-color: #{color-yiq($disabled-background)};
+  // INFO: translucent color set on .btn level
+  //--btn-border-color: #{$border};
+  --btn-disabled-color: #{$disabled-color};
   --btn-disabled-bg: #{$disabled-background};
   --btn-disabled-border-color: #{$disabled-border};
 }
@@ -49,21 +60,35 @@
 @mixin button-active-variant(
   $background,
   $border,
-  $hover-background: darken($background, 7.5%),
-  $hover-border: darken($border, 10%),
-  $active-background: darken($background, 10%),
-  $active-border: darken($border, 12.5%)
+  $color: color-contrast($background),
+  $hover-background: shade-color($background, $btn-hover-bg-shade-amount),
+  $hover-border: shade-color($border, $btn-hover-border-shade-amount),
+  $hover-color: color-contrast($hover-background),
+  $active-background: shade-color($background, $btn-active-bg-shade-amount),
+  $active-border: shade-color($border, $btn-active-border-shade-amount),
+  $active-color: color-contrast($active-background)
 ) {
-  $color: color-yiq($background);
-  --btn-hover-color: #{color-yiq($hover-background)};
+  --btn-hover-color: #{$hover-color};
   --btn-hover-bg: #{$hover-background};
-  --btn-hover-border-color: #{$hover-border};
+  // INFO: translucent color set on .btn level
+  //--btn-hover-border-color: #{$hover-border};
   --btn-hover-shadow: #{$btn-box-shadow};
   --btn-focus-shadow-rgb: #{to-rgb(mix($color, $border, 15%))};
-  --btn-active-color: #{color-yiq($active-background)};
+  --btn-active-color: #{$active-color};
   --btn-active-bg: #{$active-background};
-  --btn-active-border-color: #{$active-border};
+  // INFO: translucent color set on .btn level
+  //--btn-active-border-color: #{$active-border};
   --btn-active-shadow: #{$btn-active-box-shadow};
+}
+
+@mixin button-inactive-outline-variant($color) {
+  --btn-color: #{$color};
+  --btn-border-color: #{$color};
+  --btn-box-shadow: none;
+  --btn-disabled-color: #{$color};
+  --btn-disabled-bg: transparent;
+  --btn-disabled-border-color: #{$color};
+  --gradient: none;
 }
 
 @mixin button-outline-variant(
@@ -88,7 +113,6 @@
   --btn-disabled-bg: transparent;
   --btn-disabled-border-color: #{$color};
   --gradient: none;
-  //@include button-active-variant($color, $color);
 }
 
 // Button sizes

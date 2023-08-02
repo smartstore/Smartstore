@@ -130,8 +130,8 @@
                 lazyLoad: "ondemand",
                 dots: true,
                 arrows: false,
-                //prevArrow: '<button type="button" class="btn btn-secondary btn-flat btn-circle slick-prev"><i class="fa fa-angle-left"></i></button>',
-                //nextArrow: '<button type="button" class="btn btn-secondary btn-flat btn-circle slick-next"><i class="fa fa-angle-right"></i></button>',
+                //prevArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-prev"><i class="fa fa-angle-left"></i></button>',
+                //nextArrow: '<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle slick-next"><i class="fa fa-angle-right"></i></button>',
                 cssEase: 'ease-in-out',
                 speed: isTouch ? 250 : 0,
                 useCSS: true,
@@ -197,8 +197,8 @@
 
             if (items.length > self.options.thumbsToShow) {
                 if (!isInitialized) {
-                    self.navPrevArrow = $('<button type="button" class="btn btn-secondary btn-flat btn-circle btn-sm gal-arrow gal-prev gal-disabled"><i class="fa fa-chevron-up" style="vertical-align: top"></i></button>').prependTo(nav);
-                    self.navNextArrow = $('<button type="button" class="btn btn-secondary btn-flat btn-circle btn-sm gal-arrow gal-next gal-disabled"><i class="fa fa-chevron-down"></i></button>').appendTo(nav);
+                    self.navPrevArrow = $('<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle btn-sm gal-arrow gal-prev gal-disabled"><i class="fa fa-chevron-up" style="vertical-align: top"></i></button>').prependTo(nav);
+                    self.navNextArrow = $('<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle btn-sm gal-arrow gal-next gal-disabled"><i class="fa fa-chevron-down"></i></button>').appendTo(nav);
                 }
 
                 list.height(itemHeight * self.options.thumbsToShow);

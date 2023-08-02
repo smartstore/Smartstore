@@ -16,8 +16,10 @@
   --btn-color: #{$body-color};
   --btn-bg: transparent;
   --btn-border-width: #{$btn-border-width};
-  --btn-border-color: transparent;
   --btn-border-radius: #{$btn-border-radius};
+  --btn-border-color: #{$btn-border-color-default};
+  --btn-hover-border-color: #{$btn-border-color-default};
+  --btn-active-border-color: #{$btn-active-border-color-default};
   --btn-disabled-opacity: #{$btn-disabled-opacity};
   --btn-box-shadow: #{$btn-box-shadow};
   --btn-focus-box-shadow: inset 0 0 0 #{$btn-focus-width} #fff;
@@ -63,6 +65,19 @@
     box-shadow: var(--btn-focus-box-shadow);
   }
 
+  &.disabled,
+  &:disabled,
+  fieldset:disabled & {
+    color: var(--btn-disabled-color);
+    pointer-events: none !important;
+    background-color: var(--btn-disabled-bg);
+    background-image: if($enable-gradients, none, null);
+    border-color: var(--btn-disabled-border-color);
+    opacity: var(--btn-disabled-opacity) !important;
+    outline: 0 !important;
+    @include box-shadow(none);
+  }
+
   &:active,
   &.active,
   .show > &.dropdown-toggle {
@@ -83,19 +98,6 @@
       }
     }
   }
-
-  &.disabled,
-  &:disabled,
-  fieldset:disabled & {
-    color: var(--btn-disabled-color) !important;
-    pointer-events: none !important;
-    background-color: var(--btn-disabled-bg) !important;
-    background-image: if($enable-gradients, none, null);
-    border-color: var(--btn-disabled-border-color) !important;
-    opacity: var(--btn-disabled-opacity);
-    outline: 0;
-    @include box-shadow(none);
-  }
 }
 
 
@@ -104,40 +106,44 @@
 //
 
 @each $color, $value in $theme-colors {
+  $border: rgba($gray-700, 0.15);
+  $border-dark: rgba($gray-700, 0.3);
+
   .btn-#{$color} {
+      @include button-inactive-variant($value, $border);
+  }
+
+  .btn-outline-#{$color} {
+      @include button-inactive-outline-variant($value);
+  }
+
+  .btn-#{$color},
+  .btn-outline-#{$color} {
     @if $color == "light" or $color == "secondary" {
-      @include button-variant(
+      @include button-active-variant(
         $value,
-        rgba($gray-700, 0.15),
-        $hover-background: darken($value, 3%),
-        $hover-border: rgba($gray-700, 0.15),
-        $active-background: darken($value, 8%),
-        $active-border: rgba($gray-700, 0.25));
+        $border,
+        $hover-background: shade-color($value, $btn-hover-bg-shade-amount / 3.5),
+        $hover-border: $border,
+        $active-background: shade-color($value, $btn-active-bg-shade-amount / 3),
+        $active-border: $border-dark);
     }
     @else if $color == "dark" {
-      @include button-variant(
+      @include button-active-variant(
         $value,
-        rgba($gray-700, 0.15),
-        $hover-background: lighten($value, 7.5%),
-        $hover-border: rgba($gray-700, 0.15),
-        $active-background: lighten($value, 12%),
-        $active-border: rgba($gray-700, 0.3));
+        $border,
+        $hover-background: tint-color($value, $btn-hover-bg-tint-amount),
+        $hover-border: $border,
+        $active-background: tint-color($value, $btn-active-bg-tint-amount),
+        $active-border: $border-dark);
     }
     @else {
-      @include button-variant(
+      @include button-active-variant(
         $value,
-        rgba($gray-700, 0.15),
-        $hover-background: darken($value, 7.5%),
-        $hover-border: rgba($gray-700, 0.15),
-        $active-background: darken($value, 12%),
-        $active-border: rgba($gray-700, 0.3));
+        $border,
+        $hover-border: $border,
+        $active-border: $border-dark);
     }
-  }
-}
-
-@each $color, $value in $theme-colors {
-  .btn-outline-#{$color} {
-    @include button-outline-variant($value);
   }
 }
 

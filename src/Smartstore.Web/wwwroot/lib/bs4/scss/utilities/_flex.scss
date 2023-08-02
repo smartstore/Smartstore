@@ -49,3 +49,17 @@
     .align-self#{$infix}-stretch  { align-self: stretch !important; }
   }
 }
+
+.hstack {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-self: stretch;
+}
+
+.vstack {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-self: stretch;
+}

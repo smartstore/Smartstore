@@ -10,23 +10,6 @@ $btn-size: $input-height;
 $btn-size-lg: $input-height-lg;
 $btn-size-sm: $input-height-sm;
 
-@mixin btn-square($size) {
-    width: $size;
-    height: $size;
-    --btn-line-height: #{$size};
-}
-
-@mixin btn-flat() {
-    --btn-color: #{$yiq-text-dark};
-    --btn-bg: transparent;
-    --btn-border-color: transparent;
-    --btn-box-shadow: none;
-    --btn-disabled-color: var(--btn-color);
-    --btn-disabled-bg: var(--btn-bg);
-    --btn-disabled-border-color: var(--btn-border-color);
-    background-image: none;
-}
-
 
 // Make icon font-size 14px in small buttons
 // (looks ugly otherwise)
@@ -46,9 +29,7 @@ $btn-size-sm: $input-height-sm;
     .btn-outline-light {
         --btn-color: #{$yiq-text-dark};
         --btn-border-color: #{$input-border-color};
-        --btn-hover-border-color: #{darken($input-border-color, 8%)};
         --btn-active-bg: #{darken($secondary, 5%)};
-        --btn-active-border-color: #{darken($input-border-color, 5%)};
         --btn-disabled-color: #{$yiq-text-dark};
         --btn-disabled-border-color: #{$input-border-color};
     }
@@ -73,35 +54,35 @@ $btn-size-sm: $input-height-sm;
 }
 
 
-// btn-icon, btn-circle
+// btn-icon
 // --------------------------------------------------
 
-.btn-icon,
-.btn-circle {
-    position: relative;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    @include btn-square($btn-size);
+.btn-icon {
+    --btn-icon-size: #{$input-height};
+
+    padding-inline: 0;
+    overflow: hidden;
+    width: var(--btn-icon-size);
+    max-height: var(--btn-icon-size);
+
+    > span {
+        display: none;
+    }
 
     &.btn-lg {
-        @include btn-square($btn-size-lg);
+        --btn-icon-size: #{$input-height-lg};
     }
 
     &.btn-sm {
-        @include btn-square($btn-size-sm);
+        --btn-icon-size: #{$input-height-sm};
     }
+
     // Move caret to bottom right corner
     &.dropdown-toggle:after {
         position: absolute;
         right: 3px;
         bottom: 0.5em;
     }
-}
-
-.btn-circle {
-    --btn-border-radius: 50%;
 }
 
 
@@ -236,8 +217,13 @@ $btn-size-sm: $input-height-sm;
 
 .btn-labeled {
     --btn-label-size: calc(#{$input-height} * 0.85);
+    --btn-label-bg: #{rgba(#000, .12)};
 
     position: relative;
+
+    &.btn-dark {
+        --btn-label-bg: #{rgba(#fff, .12)};
+    }
 
     > b {
         position: absolute;
@@ -247,7 +233,7 @@ $btn-size-sm: $input-height-sm;
         width: var(--btn-label-size);
         top: 0;
         bottom: 0;
-        background-color: rgba(#000, .12);
+        background-color: var(--btn-label-bg);
     }
 
     &.btn-lg {
@@ -430,7 +416,7 @@ $btn-size-sm: $input-height-sm;
 
 .btn-toolbar .btn,
 .btn-flat {
-    @include btn-flat();
+    @include button-flat();
 }
 
 .btn-flat-light {

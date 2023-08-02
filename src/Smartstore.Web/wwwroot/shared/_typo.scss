@@ -259,8 +259,9 @@ a.pretty-link {
 }
 
 code {
-    background-color: rgba(0,0,0, 0.03);
-    border-radius: 2px; 
+    padding-inline: 0.25rem;
+    background-color: rgba(0,0,0, 0.035);
+    border-radius: $border-radius-sm; 
 }
 
 .html-editor-content {
