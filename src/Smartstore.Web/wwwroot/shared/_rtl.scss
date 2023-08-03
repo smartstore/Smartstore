@@ -104,36 +104,6 @@
 	}
 
 
-	// Dropdown
-	// --------
-
-	.dropdown-group {
-		> .dropdown-item {
-			padding-left: 2rem;
-			padding-right: $dropdown-item-padding-x;
-
-			&:before {
-				left: $dropdown-item-padding-x / 2;
-				right: auto;
-				content: "\f104";
-			}
-		}
-
-		.dropdown-menu {
-			right: 100% !important;
-			left: auto !important;
-		}
-	}
-
-	.dropdown-item {
-		> i,
-		> img {
-			margin-right: -0.5rem;
-			margin-left: 0.5rem;
-		}
-	}
-
-
 	// Forms
 	// ------------------------------
 

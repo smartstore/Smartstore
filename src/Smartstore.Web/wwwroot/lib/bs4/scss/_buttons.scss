@@ -1,3 +1,7 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 // stylelint-disable selector-no-qualifying-type
 
 //
@@ -5,53 +9,94 @@
 //
 
 .btn {
+  --btn-padding-x: #{$btn-padding-x};
+  --btn-padding-y: #{$btn-padding-y};
+  --btn-font-weight: #{$btn-font-weight};
+  --btn-line-height: #{$btn-line-height};
+  --btn-color: #{$body-color};
+  --btn-bg: transparent;
+  --btn-border-width: #{$btn-border-width};
+  --btn-border-radius: #{$btn-border-radius};
+  --btn-border-color: #{$btn-border-color-default};
+  --btn-hover-border-color: #{$btn-border-color-default};
+  --btn-active-border-color: #{$btn-active-border-color-default};
+  --btn-disabled-opacity: #{$btn-disabled-opacity};
+  --btn-box-shadow: #{$btn-box-shadow};
+  --btn-focus-box-shadow: #{$btn-focus-box-shadow};
+  --btn-transition: #{$btn-transition};
+  --btn-active-transition: #{$btn-transition};
+    @if $btn-font-family != null {
+      --btn-font-family: #{$btn-font-family};
+    }
+
   display: inline-block;
-  font-weight: $btn-font-weight;
+  padding: var(--btn-padding-y) var(--btn-padding-x);
+  font-family: var(--btn-font-family, inherit);
+  @include font-size(var(--btn-font-size));
+  font-weight: var(--btn-font-weight);
+  line-height: var(--btn-line-height);
+  color: var(--btn-color);
   text-align: center;
-  white-space: nowrap;
+  text-decoration: if($link-decoration == none, null, none);
+  white-space: $btn-white-space;
   vertical-align: middle;
+  cursor: if($enable-pointer-cursor-for-buttons, pointer, null);
   user-select: none;
-  border: $btn-border-width solid transparent;
-  @include button-size($btn-padding-y, $btn-padding-x, $font-size-base, $btn-line-height, $btn-border-radius);
-  @include transition($btn-transition);
+  background-color: var(--btn-bg);
+  border: var(--btn-border-width) solid var(--btn-border-color);
+  @include border-radius(var(--btn-border-radius));
+  @include gradient-bg(var(--btn-bg));
+  @include box-shadow(var(--btn-box-shadow));
+  @include transition(var(--btn-transition));
 
-  // Share hover and focus styles
-  @include hover-focus {
-    text-decoration: none;
+  &:hover {
+    color: var(--btn-hover-color);
+    text-decoration: if($link-hover-decoration == underline, none, null);
+    background-color: var(--btn-hover-bg);
+    border-color: var(--btn-hover-border-color);
+    @include box-shadow(var(--btn-hover-shadow));
   }
 
-  &:focus,
-  &.focus {
-    outline: 0;
-    box-shadow: $btn-focus-box-shadow;
+  &:focus-visible {
+    $ow: max(0px, $btn-focus-width - 1px);
+    outline: #{$ow} solid $input-focus-border-color;
+    outline-offset: calc(#{$ow} * -1);
+    box-shadow: var(--btn-focus-box-shadow);
   }
 
-  // Disabled comes first so active can properly restyle
   &.disabled,
-  &:disabled {
-    opacity: $btn-disabled-opacity;
+  &:disabled,
+  fieldset:disabled & {
+    color: var(--btn-disabled-color);
+    pointer-events: none !important;
+    background-color: var(--btn-disabled-bg);
+    background-image: if($enable-gradients, none, null);
+    border-color: var(--btn-disabled-border-color);
+    opacity: var(--btn-disabled-opacity) !important;
+    outline: 0 !important;
     @include box-shadow(none);
   }
 
-  // Opinionated: add "hand" cursor to non-disabled .btn elements
-  &:not(:disabled):not(.disabled) {
-    cursor: pointer;
-  }
+  &:active,
+  &.active,
+  .show > &.dropdown-toggle {
+    color: var(--btn-active-color);
+    background-color: var(--btn-active-bg);
+    // Remove CSS gradients if they're enabled
+    background-image: if($enable-gradients, none, null);
+    border-color: var(--btn-active-border-color);
+    @include box-shadow(var(--btn-active-shadow));
+    @include transition(var(--btn-active-transition));
 
-  &:not(:disabled):not(.disabled):active,
-  &:not(:disabled):not(.disabled).active {
-    @include box-shadow($btn-active-box-shadow);
-
-    &:focus {
-      @include box-shadow($btn-focus-box-shadow, $btn-active-box-shadow);
+    &:focus-visible {
+      // Avoid using mixin so we can pass custom focus shadow properly
+      @if $enable-shadows {
+        box-shadow: var(--btn-active-shadow), var(--btn-focus-box-shadow);
+      } @else {
+        box-shadow: var(--btn-focus-box-shadow);
+      }
     }
   }
-}
-
-// Future-proof disabling of clicks on `<a>` elements
-a.btn.disabled,
-fieldset:disabled a.btn {
-  pointer-events: none;
 }
 
 
@@ -60,14 +105,44 @@ fieldset:disabled a.btn {
 //
 
 @each $color, $value in $theme-colors {
-  .btn-#{$color} {
-    @include button-variant($value, $value);
-  }
-}
+  $border: rgba($gray-700, 0.15);
+  $border-dark: rgba($gray-700, 0.3);
 
-@each $color, $value in $theme-colors {
+  .btn-#{$color} {
+      @include button-inactive-variant($value, $border);
+  }
+
   .btn-outline-#{$color} {
-    @include button-outline-variant($value);
+      @include button-inactive-outline-variant($value);
+  }
+
+  .btn-#{$color},
+  .btn-outline-#{$color} {
+    @if $color == "light" or $color == "secondary" {
+      @include button-active-variant(
+        $value,
+        $border,
+        $hover-background: shade-color($value, $btn-hover-bg-shade-amount / 3.5),
+        $hover-border: $border,
+        $active-background: shade-color($value, $btn-active-bg-shade-amount / 3),
+        $active-border: $border-dark);
+    }
+    @else if $color == "dark" {
+      @include button-active-variant(
+        $value,
+        $border,
+        $hover-background: tint-color($value, $btn-hover-bg-tint-amount),
+        $hover-border: $border,
+        $active-background: tint-color($value, $btn-active-bg-tint-amount),
+        $active-border: $border-dark);
+    }
+    @else {
+      @include button-active-variant(
+        $value,
+        $border,
+        $hover-border: $border,
+        $active-border: $border-dark);
+    }
   }
 }
 
@@ -78,28 +153,34 @@ fieldset:disabled a.btn {
 
 // Make a button look and behave like a link
 .btn-link {
-  font-weight: $font-weight-normal;
-  color: $link-color;
-  background-color: transparent;
+  --btn-font-weight: #{$font-weight-normal};
+  --btn-color: #{$link-color};
+  --btn-bg: transparent;
+  --btn-border-color: transparent;
+  --btn-hover-color: #{$link-hover-color};
+  --btn-hover-border-color: transparent;
+  --btn-active-color: #{$link-hover-color};
+  --btn-active-border-color: transparent;
+  --btn-disabled-color: #{$btn-link-disabled-color};
+  --btn-disabled-border-color: transparent;
+  --btn-box-shadow: 0 0 0 #000; // Can't use `none` as keyword negates all values when used with multiple shadows
 
-  @include hover {
-    color: $link-hover-color;
-    text-decoration: $link-hover-decoration;
-    background-color: transparent;
-    border-color: transparent;
+  text-decoration: $link-decoration;
+  @if $enable-gradients {
+    background-image: none;
   }
 
-  &:focus,
-  &.focus {
+  &:hover,
+  &:focus-visible {
     text-decoration: $link-hover-decoration;
-    border-color: transparent;
-    box-shadow: none;
   }
 
-  &:disabled,
-  &.disabled {
-    color: $btn-link-disabled-color;
-    pointer-events: none;
+  &:focus-visible {
+    color: var(--btn-color);
+  }
+
+  &:hover {
+    color: var(--btn-hover-color);
   }
 
   // No need for an active state here
@@ -111,11 +192,11 @@ fieldset:disabled a.btn {
 //
 
 .btn-lg {
-  @include button-size($btn-padding-y-lg, $btn-padding-x-lg, $font-size-lg, $btn-line-height-lg, $btn-border-radius-lg);
+  @include button-size($btn-padding-y-lg, $btn-padding-x-lg, $btn-font-size-lg, $btn-line-height-lg, $btn-border-radius-lg);
 }
 
 .btn-sm {
-  @include button-size($btn-padding-y-sm, $btn-padding-x-sm, $font-size-sm, $btn-line-height-sm, $btn-border-radius-sm);
+  @include button-size($btn-padding-y-sm, $btn-padding-x-sm, $btn-font-size-sm, $btn-line-height-sm, $btn-border-radius-sm);
 }
 
 

@@ -1,5 +1,7 @@
-/// <reference path="../bs4/scss/bootstrap.scss" />
-/// <reference path="../../Content/bs4/scss/_variables.scss" />
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+$file-thumbnail-min-size:           150px;
+$file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
 
 /* File Upload
 ------------------------------------*/

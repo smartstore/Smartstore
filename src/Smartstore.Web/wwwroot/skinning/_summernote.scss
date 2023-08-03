@@ -55,28 +55,26 @@
 
 		> .note-btn-group {
 			border: 0 solid rgba(#000, 0.12);
-			border-right-width: 1px;
-			padding-right: 5px;
+			border-inline-end-width: 1px;
+			padding-inline-end: 5px;
 		}
 
 		> .note-btn-group:last-of-type {
-			border-right-width: 0;
-			padding-right: 0;
-			//margin-left: auto !important;
+			border-inline-end-width: 0;
+			padding-inline-end: 0;
 		}
 
         .btn.note-btn {
-            // overwrite any theme-specific button skinning
-            
+            @include button-flat();
         }
 
 		.dropdown-toggle:after {
-			margin-left: 0.5em;
+			margin-inline-start: 0.5em;
 			opacity: 0.6;
 		}
 
 		.dropdown-toggle:empty:after {
-			margin-left: 0;
+			margin-inline-start: 0;
 		}
 
 		.note-para > .btn-group:last-child .dropdown-menu.show {
@@ -91,8 +89,7 @@
 
 		.note-color + .btn-group > .btn {
 			// Fix: the fontsize button width should not change (toolbar flickers)
-			padding-left: 0.5rem;
-			padding-right: 0.5rem;
+			padding-inline: 0.5rem;
 			min-width: 50px;
 		}
 
@@ -119,7 +116,7 @@
 					&:before {
 						position: absolute;
 						content: '';
-						left: 0;
+						inset-inline-start: 0;
 						top: 0;
 						bottom: 0;
 						width: 3px;

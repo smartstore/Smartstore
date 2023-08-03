@@ -13,7 +13,7 @@ $btn-secondary-border:			$gray-400 !default;
 $header-bg:                     transparent !default;
 $header-color:                  $body-color !default;
 $header-color-muted:            $text-muted !default;
-$header-hover-bg:               rgba(#000, 0.03) !default;
+$header-hover-bg:               rgba(#000, 0.04) !default;
 $header-border-color:           #ddd !default; 
 $header-inverse-color:          #fff !default;
 $header-inverse-color-muted:    rgba(#fff, 0.5) !default;
@@ -104,6 +104,7 @@ $enable-grid-classes:           true;
 
 $theme-color-interval:		    8%;
 $yiq-contrasted-threshold:	    164;
+$min-contrast-ratio:            2.2 !default;
 $yiq-text-dark:				    $gray-900;
 $yiq-text-light:			    #fff;
 
@@ -160,15 +161,15 @@ $input-border-radius-lg:        $btn-border-radius-lg;
 $input-border-radius-sm:        $btn-border-radius-sm;
 
 // Equalize input vertical paddings with button paddings
-$input-btn-focus-width:			.25rem;
+$input-btn-focus-width:			3px;
 $input-btn-focus-color:			rgba($primary, .25);
 $input-btn-focus-box-shadow:	0 0 0 $input-btn-focus-width $input-btn-focus-color;
-$input-btn-padding-x:			1rem;
-$input-btn-padding-y:			0.5625rem;
-$input-btn-padding-x-sm:		0.75rem;
-$input-btn-padding-y-sm:		0.375rem;
-$input-btn-padding-x-lg:		1.5rem;
-$input-btn-padding-y-lg:		0.75rem;
+$input-btn-padding-x:           1rem;
+$input-btn-padding-y:           0.5625rem;
+$input-btn-padding-x-sm:        0.75rem;
+$input-btn-padding-y-sm:        0.375rem;
+$input-btn-padding-x-lg:        1.5rem;
+$input-btn-padding-y-lg:        0.75rem;
 $input-btn-line-height:			1.5;
 $input-box-shadow:				none;
 $input-focus-box-shadow:		none;
@@ -179,12 +180,21 @@ $input-border-color:            $gray-300;
 $input-disabled-bg:             $gray-100;
 
 $btn-font-weight:				$font-weight-medium;
-$btn-focus-width:				0;
-$btn-box-shadow:				inset 0 0 0 rgba(#fff, 0.15), 0 0 0 rgba(#000, 0.075);
-$btn-focus-box-shadow:			$input-btn-focus-box-shadow;
+$btn-focus-width:				3px;
+$btn-box-shadow:				0 1px 0 rgba($gray-900, 0.04), inset 0 1px 0 rgba(#fff, 0.25);
+$btn-focus-box-shadow:          inset 0 0 0 $btn-focus-width #fff;
 $btn-active-box-shadow:			inset 0 3px 5px rgba(#000, .125);
-$btn-transition:				background-color .05s ease-in-out, border-color .05s ease-in-out, box-shadow .05s ease-in-out;
+$btn-transition:				color .1s ease-in-out, background-color .1s ease-in-out, border-color .1s ease-in-out, box-shadow .1s ease-in-out;
 $btn-disabled-opacity:			0.5;
+
+$btn-hover-bg-shade-amount:     15% !default;
+$btn-hover-bg-tint-amount:      15% !default;
+$btn-hover-border-shade-amount: 20% !default; //
+$btn-hover-border-tint-amount:  10% !default; //
+$btn-active-bg-shade-amount:    25% !default;
+$btn-active-bg-tint-amount:     25% !default;
+$btn-active-border-shade-amount:25% !default; //
+$btn-active-border-tint-amount: 10% !default; //
 
 
 // Badge
@@ -196,15 +206,20 @@ $badge-font-weight:             $font-weight-medium !default;
 // Dropdown
 
 $dropdown-min-width:            10rem;
+$dropdown-padding-x:            .5rem !default;
+$dropdown-padding-y:            .5rem !default;
 $dropdown-font-size:            14px;
 $dropdown-font-weight:          $font-weight-normal;
+$dropdown-border-radius:        $border-radius-lg;
 $dropdown-box-shadow:			0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity, 1) * 0.12));
 $dropdown-border-color:			$gray-200;
 $dropdown-link-color:           $gray-700;
+$dropdown-link-hover-color:     darken($dropdown-link-color, 5%);
+$dropdown-link-hover-bg:        $light;
 $dropdown-link-active-color:    $dropdown-link-hover-color;
-$dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 4%);
-$dropdown-item-padding-y:       0.525rem;
-$dropdown-item-padding-x:       1.5rem;
+$dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 3%);
+$dropdown-item-padding-y:       0.5rem;
+$dropdown-item-padding-x:       1rem;
 
 
 // Modal
@@ -281,7 +296,12 @@ $list-group-action-active-bg:       $gray-200;
 
 // Nav
 
-$nav-tabs-link-active-color:		$gray-900;
+//$nav-link-font-weight:          $font-weight-medium;    
+$nav-tabs-border-color:         $gray-300;
+$nav-tabs-link-active-color:    $gray-900;
+
+$nav-pills-link-active-color:   #fff;
+$nav-pills-link-active-bg:      $primary;
 
 
 // Embeds (TODO: Use from v4.3 onwards)

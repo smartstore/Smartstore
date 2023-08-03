@@ -84,7 +84,7 @@
                     </div>
                 </template>
                 <template v-slot:toolbar="grid">
-                    <div class="dg-toolbar d-flex flex-nowrap">
+                    <div class="dg-toolbar btn-toolbar d-flex flex-nowrap">
                         <div class="dg-toolbar-group">
                             <button type="button" class="btn btn-primary btn-sm btn-flat no-anims mr-auto insert-attribute-option" 
                                 :data-setid="item.row.Id" v-if="!grid.editing.active" v-on:click.prevent="grid.insertRow">

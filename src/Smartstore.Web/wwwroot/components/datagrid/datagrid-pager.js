@@ -1,6 +1,6 @@
 ﻿Vue.component("sm-datagrid-pager", {
     template: `
-        <div class="dg-pager d-flex flex-nowrap align-items-center">
+        <div class="dg-pager btn-toolbar d-flex flex-nowrap align-items-center">
             <div class="dg-page-refresh-wrapper">
                 <a href="#" class="dg-page dg-page-refresh btn btn-light btn-sm" @click.prevent="refresh">
                     <i class="fa fa-sync-alt" :class="{ 'fa-spin text-success': $parent.isBusy }"></i>

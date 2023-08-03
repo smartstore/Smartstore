@@ -22,42 +22,44 @@
     return;
 }
 
-<div class="card-deck card-cols-sm-1 card-cols-lg-2 address-list">
+<div class="row sm-gutters row-gap-3 row-cols-1 row-cols-lg-2 address-list">
     @for (int i = 0; i < Model.Count; i++)
     {
         var address = Model[i];
 
-        <div class="card address-list-item">
-            <div class="card-body">
-                <h4 class="card-title h5">@address.GetFormattedName()</h4>
-                <div class="mb-2">
-                    <div class="email">
-                        <label asp-for="@Model[i].Email" class="m-0"></label>:
-                        @address.Email
+        <div class="col">
+            <div class="card h-100 address-list-item">
+                <div class="card-body">
+                    <h4 class="card-title h5">@address.GetFormattedName()</h4>
+                    <div class="mb-2">
+                        <div class="email">
+                            <label asp-for="@Model[i].Email" class="m-0"></label>:
+                            @address.Email
+                        </div>
+                        <div sm-if="address.PhoneEnabled" class="phone">
+                            <label asp-for="@Model[i].PhoneNumber" class="m-0"></label>:
+                            @address.PhoneNumber
+                        </div>
+                        <div sm-if="address.FaxEnabled && address.FaxNumber.HasValue()" class="fax">
+                            <label asp-for="@Model[i].FaxNumber" class="m-0"></label>:
+                            @address.FaxNumber
+                        </div>
                     </div>
-                    <div sm-if="address.PhoneEnabled" class="phone">
-                        <label asp-for="@Model[i].PhoneNumber" class="m-0"></label>:
-                        @address.PhoneNumber
-                    </div>
-                    <div sm-if="address.FaxEnabled && address.FaxNumber.HasValue()" class="fax">
-                        <label asp-for="@Model[i].FaxNumber" class="m-0"></label>:
-                        @address.FaxNumber
+
+                    <div>
+                        @Html.Raw(address.FormattedAddress)
                     </div>
                 </div>
 
-                <div>
-                    @Html.Raw(address.FormattedAddress)
+                <div class="card-footer d-flex p-2">
+                    <a class="btn btn-secondary btn-no-border btn-sm btn-flat edit-address-button" asp-action="AddressEdit" asp-route-id="@address.Id">
+                        <span>@T("Common.Edit")</span>
+                    </a>
+                    <a class="btn btn-light btn-to-danger btn-flat btn-sm delete-address-button ml-auto" asp-action="AddressDelete" asp-route-id="@address.Id" onclick='return confirm(@T("Common.AreYouSure").JsValue);'>
+                        <i class="far fa-trash-alt"></i>
+                        <span>@T("Common.Delete")</span>
+                    </a>
                 </div>
-            </div>
-
-            <div class="card-footer d-flex p-2">
-                <a class="btn btn-secondary btn-no-border btn-sm btn-flat edit-address-button" asp-action="AddressEdit" asp-route-id="@address.Id">
-                    <span>@T("Common.Edit")</span>
-                </a>
-                <a class="btn btn-light btn-to-danger btn-flat btn-sm delete-address-button ml-auto" asp-action="AddressDelete" asp-route-id="@address.Id" onclick='return confirm(@T("Common.AreYouSure").JsValue);'>
-                    <i class="far fa-trash-alt"></i>
-                    <span>@T("Common.Delete")</span>
-                </a>
             </div>
         </div>
     }

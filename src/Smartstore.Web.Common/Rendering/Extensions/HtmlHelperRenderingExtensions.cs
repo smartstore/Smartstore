@@ -536,7 +536,7 @@ namespace Smartstore.Web.Rendering
                     ViewContext = helper.ViewContext,
                     Id = name,
                     SmartTabSelection = false,
-                    Style = TabsStyle.Pills,
+                    Style = TabsStyle.Tabs,
                     PublishEvent = false
                 };
 

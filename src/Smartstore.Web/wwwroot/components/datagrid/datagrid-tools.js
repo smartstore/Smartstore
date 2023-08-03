@@ -49,7 +49,7 @@
                             </button>
                         </div>
                         <div class="col">
-                            <button type="button" class="btn btn-sm btn-block btn-secondary mt-2" @click="$parent.$parent.autoSizeAllColumns()">
+                            <button type="button" class="btn btn-sm btn-block btn-secondary text-truncate mt-2" @click="$parent.$parent.autoSizeAllColumns()">
                                 <i class="fa fa-arrows-left-right-to-line"></i>
                                 <span>{{ T.fitColumns }}</span>
                             </button>
