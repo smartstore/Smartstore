@@ -6,10 +6,6 @@ $btn-wide-padding-x: 1.8rem;
 $btn-wide-padding-x-lg: 2.5rem;
 $btn-wide-padding-x-sm: 1.2rem;
 
-$btn-size: $input-height;
-$btn-size-lg: $input-height-lg;
-$btn-size-sm: $input-height-sm;
-
 
 // Make icon font-size 14px in small buttons
 // (looks ugly otherwise)
@@ -20,8 +16,46 @@ $btn-size-sm: $input-height-sm;
 }
 
 
-// btn-(outline-)(secondary|light)
-// looks really shitty in BS4, style it decently.
+// Icon colors
+// -----------------------------------------------------
+
+.btn {
+    --btn-icon-color: currentcolor;
+    --btn-icon-hover-color: var(--btn-icon-color);
+    --btn-icon-active-color: var(--btn-icon-hover-color);
+    --btn-icon-transition: opacity .15s ease-in-out;
+
+    > i, > .bi {
+        color: var(--btn-icon-color);
+        transition: var(--btn-icon-transition);
+    }
+
+    &:hover {
+        > i, > .bi {
+            color: var(--btn-icon-hover-color);
+        }
+    }
+
+    &.disabled,
+    &:disabled,
+    fieldset:disabled & {
+        > i, > .bi {
+            color: var(--btn-icon-color);
+        }
+    }
+
+    &:active,
+    &.active,
+    .show > &.dropdown-toggle {
+        > i, > .bi {
+            color: var(--btn-icon-active-color);
+        }
+    }
+}
+
+
+// btn-outline-(secondary|light)
+// looks really shitty in BS, style it decently.
 // -----------------------------------------------------
 
 @if $enable-lightbtn-tweak {
@@ -417,6 +451,11 @@ $btn-size-sm: $input-height-sm;
 .btn-toolbar .btn,
 .btn-flat {
     @include button-flat();
+
+    // Transition from flat to colorful button is not really nice
+    &:not(.btn-secondary, .btn-light, .btn-flat-light) {
+        --btn-transition: none;
+    }
 }
 
 .btn-flat-light {

@@ -59,6 +59,18 @@ b, strong {
 
 
 //
+// Buttons
+// -----------------------------------------------------
+
+// Light button icons lighter (looks nice).
+.btn-secondary:not(.btn-flat-light),
+.btn-light:not(.btn-flat-light) {
+    --btn-icon-color: #{lighten($body-color, 16%)};
+    --btn-icon-hover-color: inherit;
+}
+
+
+//
 // Layout
 // -----------------------------------------------------
 

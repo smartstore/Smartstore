@@ -105,8 +105,8 @@
 //
 
 @each $color, $value in $theme-colors {
-  $border: rgba($gray-700, 0.15);
-  $border-dark: rgba($gray-700, 0.3);
+  $border: $btn-border-color-default;
+  $border-dark: $btn-active-border-color-default;
 
   .btn-#{$color} {
       @include button-inactive-variant($value, $border);

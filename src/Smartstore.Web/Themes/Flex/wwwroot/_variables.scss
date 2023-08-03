@@ -8,7 +8,7 @@ $boxed:                         false !default;
 $site-bg:                       $gray-100 !default;
 
 $btn-secondary-bg:				#fff !default;
-$btn-secondary-border:			$gray-400 !default;
+$btn-secondary-border:			$btn-border-color-default !default; //$gray-400 !default;
 
 $header-bg:                     transparent !default;
 $header-color:                  $body-color !default;
