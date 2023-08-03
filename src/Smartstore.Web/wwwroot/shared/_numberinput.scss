@@ -142,6 +142,7 @@
         width: var(--ni-addon-width);
         border-top-right-radius: var(--ni-border-radius);
         border-bottom-right-radius: var(--ni-border-radius);
+        box-shadow: if($enable-shadows, $btn-box-shadow, null);
     }
 
     > .numberinput-formatted {

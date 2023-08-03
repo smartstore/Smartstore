@@ -875,6 +875,9 @@ legend {
     --tab-caption-display-xl: var(--tab-caption-display-lg);
 
     .nav-locales > .nav {
+        --nav-link-font-weight: #{$font-weight-normal};
+        --nav-link-color: #{tint-color($gray-700, 8%)};
+
         gap: 4px 2px;
         padding: 0.4rem;
         border-bottom: 1px solid $border-color;
@@ -893,12 +896,26 @@ legend {
         }
 
         .nav-link {
+            --nav-link-hover-color: var(--btn-hover-color);
+            --nav-tabs-link-hover-border-color: var(--btn-hover-border-color);
+            --nav-tabs-link-active-color: var(--btn-active-color);
+            --nav-tabs-link-active-bg: var(--btn-active-bg);
+            --nav-tabs-link-active-border-color: var(--btn-active-border-color);
+            --btn-box-shadow: none;
+
+            margin-bottom: 0;
             padding: 0.4rem 0.75rem;
+            height: auto;
+
+            &:active {
+                border-color: var(--nav-tabs-link-active-border-color);
+            } 
         }
 
         .nav-item-master {
             padding-right: 6px;
 
+            // The separator
             > .nav-link:after {
                 position: absolute;
                 content: "";
@@ -943,9 +960,6 @@ legend {
         }
 
         .nav-link {
-            font-weight: $font-weight-normal;
-            color: lighten($gray-700, 8%);
-
             > img { opacity: 0.8; }
 
             &:hover,
