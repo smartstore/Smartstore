@@ -16,27 +16,27 @@
 
 
 // 
-// Add icon support to nav tabs and pills (BS4)
+// Add icon support to nav tabs and pills (BS)
 // ==============================================================
 
 .nav {
-    padding-inline-start: 0;
+    --nav-link-icon-color: #{$gray-700};
 
     .nav-link {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 100%;
+        height: calc(100% + 1px);
     }
 
 	.nav-link > img,
 	.nav-link > i,
     .nav-link > .bi {
 		font-size: inherit;
-		color: $gray-700;
+		color: var(--nav-link-icon-color);
 
 		+ span {
-			padding-left: 0.5rem !important;
+			padding-inline-start: 0.5rem !important;
 		}
 	}
 
@@ -48,7 +48,7 @@
 	}
 
 	.nav-link > .chevron {
-		margin-left: 3px;
+		margin-inline-start: 3px;
 	}
 }
 
@@ -57,6 +57,23 @@
 // ==============================================================
 
 .nav-tabs-line {
+    --nav-link-padding-x: 1rem;
+    --nav-link-padding-y: 0.825rem;
+    --nav-link-color: #{$mtab-color};
+    --nav-link-font-weight: #{$mtab-font-weight};
+    --nav-link-transition: color 0.05s ease-in-out, background-color 0.05s ease-in-out;
+    --nav-link-hover-color: #{$mtab-active-color};
+    @include rfs($mtab-font-size, --nav-link-font-size);
+
+    --nav-tabs-border-radius: 0;
+    --nav-tabs-border-width: 0;
+    --nav-tabs-link-active-color: var(--nav-link-hover-color);
+    --nav-tabs-link-active-bg: transparent;
+
+    --nav-underline-width: 2px;
+    --nav-underline-color: #{rgba(#000, 0.2)};
+    --nav-underline-active-color: #{theme-color("warning")};
+
 	position: relative;
 
 	.nav-item {
@@ -64,24 +81,9 @@
 	}
 
 	.nav-link {
-		color: $mtab-color;
 		text-transform: $mtab-text-transform;
-		font-weight: $mtab-font-weight;
-		font-size: $mtab-font-size;
 		text-align: center;
 		position: relative;
-		background-color: transparent;
-		padding: 0.825rem 1rem;
-        border-radius: 0;
-		transition: color 0.05s ease-in-out, background-color 0.05s ease-in-out;
-
-		&:hover {
-			color: $mtab-active-color;
-		}
-
-		&.active {
-			color: $mtab-active-color;
-		}
 
 		&.disabled {
 			opacity: 0.4;
@@ -107,41 +109,34 @@
 	}
 
     &.nav-tabs-line-dense {
-        border-top-width: 0;
-        border-bottom-width: 0;
-
         &:not(.nav-stacked) {
-            .nav-link {
-                padding: 0.825rem 0;
-                margin: 0 0.75rem;
-            }
+            --nav-link-padding-x: 0;
+            --nav-link-padding-y: 0.825rem;
 
-            > .nav-item:first-child > .nav-link {
-                margin-left: 0;
+            margin-inline-start: -0.75rem;
+
+            .nav-link {
+                margin: 0 0.75rem;
             }
         }
     }
 
-    &.nav-inverse .nav-link {
-        color: rgba($yiq-text-light, 0.4);
+    &.nav-inverse {
+        --nav-link-color: #{rgba($yiq-text-light, 0.4)};
+        --nav-link-hover-color: #{$nav-link-hover-color};
+        --nav-tabs-link-active-color: #{$yiq-text-light};
+        --nav-tabs-link-active-bg: transparent;
+        --nav-underline-color: #{rgba(#fff, 0.4)};
 
-		&:hover {
-			color: rgba($yiq-text-light, 0.75);
-		}
+        .nav-link {
+		    &:hover {
+			    color: rgba($yiq-text-light, 0.75);
+		    }
 
-		&:hover:not(.active) {
-			background-color: rgba(#fff, 0.08);
-		}
-
-		&:active:not(.active) {
-            color: $yiq-text-light;
-			background-color: rgba(#fff, 0.16);
-		}
-
-		&.active {
-            background-color: transparent;
-			color: $yiq-text-light;
-		}
+		    &:active:not(.active) {
+                color: $yiq-text-light;
+		    }
+        }
     }
 
 	.nav-link:not(.disabled):before {
@@ -150,8 +145,8 @@
 		bottom: 0;
 		left: 50%;
 		right: 50%;
-		height: 2px;
-		background: rgba(#000, 0.2);
+		height: var(--nav-underline-width);
+		background-color: var(--nav-underline-color);
 		transition: all 0.12s ease-out;
 	}
 
@@ -166,7 +161,7 @@
 	.nav-item.open .nav-link:focus:before {
 		left: 0;
 		right: 0;
-		background: theme-color("warning");
+		background-color: var(--nav-underline-active-color);
 	}
 }
 
@@ -199,6 +194,11 @@
     }
 
     .nav-stacked {
+        --nav-link-padding-x: 1.25rem;
+        --nav-link-padding-y: 0.625rem;
+        --nav-link-color: #{$gray-700};
+        @include rfs($font-size-sm, --nav-link-font-size);
+
         min-height: 100%;
 
         &.nav-tabs-line {
@@ -209,10 +209,7 @@
             }
 
             .nav-link {
-                text-align: left;
-                padding: 0.625rem 1.25rem;
-                font-size: $font-size-sm;
-                color: $gray-700;
+                text-align: start;
                 background-color: transparent;
                 justify-content: start;
 
@@ -228,11 +225,11 @@
 
                 &:hover,
                 &.active {
-                    color: $mtab-active-color;
+                    color: var(--nav-link-hover-color);
                 }
 
                 &:hover:not(.active) {
-                    border-color: rgba(#000, 0.2) !important;
+                    border-color: var(--nav-underline-color) !important;
 
                     .tab-caption {
                         transform: translateX(2px);
@@ -252,7 +249,7 @@
             }
 
             &.nav-left {
-                border-inline-end: 1px solid $nav-tabs-border-color;
+                border-inline-end: 1px solid var(--nav-tabs-border-color);
 
                 .nav-item {
                     margin-inline-end: -1px;
@@ -266,8 +263,7 @@
                     > img,
                     > i,
                     > .bi {
-                        margin-right: 0.25rem;
-                        margin-left: 0.25rem;
+                        margin-inline: 0.25rem;
                     }
                 }
 
@@ -275,7 +271,7 @@
                 .nav-link.active:focus,
                 .nav-item.open > .nav-link,
                 .nav-item.open > .nav-link:focus {
-                    border-inline-end-color: theme-color("warning");
+                    border-inline-end-color: var(--nav-underline-active-color);
                 }
             }
 
@@ -303,7 +299,7 @@
                 .nav-link.active:focus,
                 .nav-item.open > .nav-link,
                 .nav-item.open > .nav-link:focus {
-                    border-color: theme-color("warning");
+                    border-color: var(--nav-underline-active-color);
                 }
             }
         }

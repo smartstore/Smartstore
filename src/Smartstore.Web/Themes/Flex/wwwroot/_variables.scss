@@ -182,7 +182,7 @@ $input-disabled-bg:             $gray-100;
 $btn-font-weight:				$font-weight-medium;
 $btn-focus-width:				3px;
 $btn-box-shadow:				0 1px 0 rgba($gray-900, 0.04), inset 0 1px 0 rgba(#fff, 0.25);
-$btn-focus-box-shadow:			$input-btn-focus-box-shadow;
+$btn-focus-box-shadow:          inset 0 0 0 $btn-focus-width #fff;
 $btn-active-box-shadow:			inset 0 3px 5px rgba(#000, .125);
 $btn-transition:				color .1s ease-in-out, background-color .1s ease-in-out, border-color .1s ease-in-out, box-shadow .1s ease-in-out;
 $btn-disabled-opacity:			0.5;
@@ -296,7 +296,12 @@ $list-group-action-active-bg:       $gray-200;
 
 // Nav
 
-$nav-tabs-link-active-color:		$gray-900;
+//$nav-link-font-weight:          $font-weight-medium;    
+$nav-tabs-border-color:         $gray-300;
+$nav-tabs-link-active-color:    $gray-900;
+
+$nav-pills-link-active-color:   #fff;
+$nav-pills-link-active-bg:      $primary;
 
 
 // Embeds (TODO: Use from v4.3 onwards)

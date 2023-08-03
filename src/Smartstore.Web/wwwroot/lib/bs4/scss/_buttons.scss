@@ -22,8 +22,7 @@
   --btn-active-border-color: #{$btn-active-border-color-default};
   --btn-disabled-opacity: #{$btn-disabled-opacity};
   --btn-box-shadow: #{$btn-box-shadow};
-  --btn-focus-box-shadow: inset 0 0 0 #{$btn-focus-width} #fff;
-//--btn-focus-box-shadow: #{$btn-focus-box-shadow};
+  --btn-focus-box-shadow: #{$btn-focus-box-shadow};
   --btn-transition: #{$btn-transition};
   --btn-active-transition: #{$btn-transition};
     @if $btn-font-family != null {

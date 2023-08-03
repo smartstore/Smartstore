@@ -258,6 +258,12 @@ $box-shadow-lg:               0 1rem 3rem rgba($black, .175) !default;
 $component-active-color:      $white !default;
 $component-active-bg:         theme-color("primary") !default;
 
+$focus-ring-width:            .25rem !default;
+$focus-ring-opacity:          .25 !default;
+$focus-ring-color:            rgba($primary, $focus-ring-opacity) !default;
+$focus-ring-blur:             0 !default;
+$focus-ring-box-shadow:       0 0 $focus-ring-blur $focus-ring-width $focus-ring-color !default;
+
 $caret-width:                 .3em !default;
 $caret-vertical-align:        $caret-width * .85 !default;
 $caret-spacing:               $caret-width * .85 !default;
@@ -715,7 +721,13 @@ $zindex-tooltip:                    1070 !default;
 
 $nav-link-padding-y:                .5rem !default;
 $nav-link-padding-x:                1rem !default;
+$nav-link-font-size:                null !default;
+$nav-link-font-weight:              $font-weight-base !default;
+$nav-link-color:                    $link-color !default;
+$nav-link-hover-color:              $link-hover-color !default;
+$nav-link-transition:               color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out !default;
 $nav-link-disabled-color:           $gray-600 !default;
+$nav-link-focus-box-shadow:         $focus-ring-box-shadow !default;
 
 $nav-tabs-border-color:             $gray-300 !default;
 $nav-tabs-border-width:             $border-width !default;

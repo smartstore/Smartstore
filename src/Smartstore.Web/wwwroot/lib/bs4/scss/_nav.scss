@@ -1,28 +1,55 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 // Base class
 //
 // Kickstart any navigation component with a set of style resets. Works with
 // `<nav>`s, `<ul>`s or `<ol>`s.
 
 .nav {
+  --nav-link-padding-x: #{$nav-link-padding-x};
+  --nav-link-padding-y: #{$nav-link-padding-y};
+  @include rfs($nav-link-font-size, --nav-link-font-size);
+  --nav-link-font-weight: #{$nav-link-font-weight};
+  --nav-link-color: #{$nav-link-color};
+  --nav-link-hover-color: #{$nav-link-hover-color};
+  --nav-link-disabled-color: #{$nav-link-disabled-color};
+  --nav-link-transition: #{$nav-link-transition};
+
   display: flex;
   flex-wrap: wrap;
-  padding-left: 0;
+  padding-inline-start: 0;
   margin-bottom: 0;
   list-style: none;
 }
 
 .nav-link {
   display: block;
-  padding: $nav-link-padding-y $nav-link-padding-x;
+  padding: var(--nav-link-padding-y) var(--nav-link-padding-x);
+  @include font-size(var(--nav-link-font-size));
+  font-weight: var(--nav-link-font-weight);
+  color: var(--nav-link-color);
+  background: none;
+  border: 0;
   text-decoration: if($link-decoration == none, null, none);
+  transition: var(--nav-link-transition);
 
-  @include hover-focus() {
-    text-decoration: none;
+  &:hover,
+  &:focus {
+    color: var(--nav-link-hover-color);
+    text-decoration: if($link-hover-decoration == underline, none, null);
+  }
+
+  &:focus-visible {
+    outline: 0;
+    box-shadow: $nav-link-focus-box-shadow;
   }
 
   // Disabled state lightens text
-  &.disabled {
-    color: $nav-link-disabled-color;
+  &.disabled,
+  &:disabled {
+    color: var(--nav-link-disabled-color);
     pointer-events: none;
     cursor: default;
   }
@@ -33,37 +60,39 @@
 //
 
 .nav-tabs {
-  border-bottom: $nav-tabs-border-width solid $nav-tabs-border-color;
+  --nav-tabs-border-width: #{$nav-tabs-border-width};
+  --nav-tabs-border-color: #{$nav-tabs-border-color};
+  --nav-tabs-border-radius: #{$nav-tabs-border-radius};
+  --nav-tabs-link-hover-border-color: #{$nav-tabs-link-hover-border-color};
+  --nav-tabs-link-active-color: #{$nav-tabs-link-active-color};
+  --nav-tabs-link-active-bg: #{$nav-tabs-link-active-bg};
+  --nav-tabs-link-active-border-color: #{$nav-tabs-link-active-border-color};
+
+  border-bottom: var(--nav-tabs-border-width) solid var(--nav-tabs-border-color);
 
   .nav-link {
-    margin-bottom: -$nav-tabs-border-width;
-    background-color: transparent;
-    border: $nav-tabs-border-width solid transparent;
-    @include border-top-radius($nav-tabs-border-radius);
+    margin-bottom: calc(-1 * var(--nav-tabs-border-width));
+    border: var(--nav-tabs-border-width) solid transparent;
+    @include border-top-radius(var(--nav-tabs-border-radius));
 
-    @include hover-focus() {
+    &:hover,
+    &:focus {
       // Prevents active .nav-link tab overlapping focus outline of previous/next .nav-link
       isolation: isolate;
-      border-color: $nav-tabs-link-hover-border-color;
-    }
-
-    &.disabled {
-      color: $nav-link-disabled-color;
-      background-color: transparent;
-      border-color: transparent;
+      border-color: var(--nav-tabs-link-hover-border-color);
     }
   }
 
   .nav-link.active,
   .nav-item.show .nav-link {
-    color: $nav-tabs-link-active-color;
-    background-color: $nav-tabs-link-active-bg;
-    border-color: $nav-tabs-link-active-border-color;
+    color: var(--nav-tabs-link-active-color);
+    background-color: var(--nav-tabs-link-active-bg);
+    border-color: var(--nav-tabs-link-active-border-color);
   }
 
   .dropdown-menu {
     // Make dropdown border overlap tab border
-    margin-top: -$nav-tabs-border-width;
+    margin-top: calc(-1 * var(--nav-tabs-border-width));
     // Remove the top rounded corners here since there is a hard edge above the menu
     @include border-top-radius(0);
   }
@@ -75,16 +104,18 @@
 //
 
 .nav-pills {
+  --nav-pills-border-radius: #{$nav-pills-border-radius};
+  --nav-pills-link-active-color: #{$nav-pills-link-active-color};
+  --nav-pills-link-active-bg: #{$nav-pills-link-active-bg};
+
   .nav-link {
-    background: none;
-    border: 0;
-    @include border-radius($nav-pills-border-radius);
+    @include border-radius(var(--nav-pills-border-radius));
   }
 
   .nav-link.active,
   .show > .nav-link {
-    color: $nav-pills-link-active-color;
-    background-color: $nav-pills-link-active-bg;
+    color: var(--nav-pills-link-active-color);
+    @include gradient-bg(var(--nav-pills-link-active-bg));
   }
 }
 
