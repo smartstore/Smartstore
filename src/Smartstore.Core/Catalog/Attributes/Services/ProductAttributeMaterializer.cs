@@ -33,7 +33,6 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRequestCache _requestCache;
         private readonly ICacheManager _cache;
-        //private readonly IChronometer _chronometer;
         private readonly Lazy<IDownloadService> _downloadService;
         private readonly Lazy<CatalogSettings> _catalogSettings;
         private readonly PerformanceSettings _performanceSettings;
@@ -43,7 +42,6 @@ namespace Smartstore.Core.Catalog.Attributes
             IHttpContextAccessor httpContextAccessor,
             IRequestCache requestCache,
             ICacheManager cache,
-            //IChronometer chronometer,
             Lazy<IDownloadService> downloadService,
             Lazy<CatalogSettings> catalogSettings,
             PerformanceSettings performanceSettings)
@@ -52,7 +50,6 @@ namespace Smartstore.Core.Catalog.Attributes
             _httpContextAccessor = httpContextAccessor;
             _requestCache = requestCache;
             _cache = cache;
-            //_chronometer = chronometer;
             _downloadService = downloadService;
             _catalogSettings = catalogSettings;
             _performanceSettings = performanceSettings;
@@ -307,6 +304,7 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             _requestCache.RemoveByPattern(AttributesPatternKey);
             _requestCache.RemoveByPattern(AttributeValuesPatternKey);
+            _requestCache.RemoveByPattern(AttributeCombinationPatternKey);
         }
 
         public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)

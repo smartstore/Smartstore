@@ -47,11 +47,5 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="productId">Product identifier.</param>
         /// <returns>Number of added attribute combinations.</returns>
         Task<int> CreateAllAttributeCombinationsAsync(int productId);
-
-        /// <summary>
-        /// Ensures that <see cref="ProductVariantAttributeCombination.HashCode"/> contains a hash code
-        /// </summary>
-        /// <returns>Number of updated <see cref="ProductVariantAttributeCombination"/>.</returns>
-        Task<int> EnsureAttributeCombinationHashCodesAsync(CancellationToken cancelToken = default);
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
-using Smartstore.Admin.Models.Localization;
 using Smartstore.Admin.Models.Maintenance;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Payment;
@@ -16,6 +15,7 @@ using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
@@ -248,15 +248,21 @@ namespace Smartstore.Admin.Controllers
 
         private static async Task EnsureAttributeCombinationHashCodesInternal(ILifetimeScope scope, CancellationToken cancelToken)
         {
+            var db = scope.Resolve<SmartDbContext>();
+            var logger = scope.Resolve<ILogger>();
+
             try
             {
-                var productAttributeService = scope.Resolve<IProductAttributeService>();
-
-                _ = await productAttributeService.EnsureAttributeCombinationHashCodesAsync(cancelToken);
+                var migrator = new AttributesMigrator(db, logger);
+                _ = await migrator.MigrateAttributeCombinationHashCodesAsync(cancelToken);
             }
             catch (Exception ex)
             {
-                scope.Resolve<ILogger>().Error(ex);
+                logger.Error(ex);
+            }
+            finally
+            {
+                scope.Resolve<IProductAttributeMaterializer>().ClearCachedAttributes();
             }
         }
 

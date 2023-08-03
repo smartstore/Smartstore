@@ -13,12 +13,12 @@ namespace Smartstore.Core.Migrations
         const string HashCodeColumn = nameof(ProductVariantAttributeCombination.HashCode);
         const string HashCodeIndex = "IX_HashCode";
 
-        private readonly IProductAttributeService _productAttributeService;
+        private readonly SmartDbContext _db;
         private readonly ILogger _logger;
 
-        public AttributeCombinationHashCode(IProductAttributeService productAttributeService, ILogger logger)
+        public AttributeCombinationHashCode(SmartDbContext db, ILogger logger)
         {
-            _productAttributeService = productAttributeService;
+            _db = db;
             _logger = logger;
         }
 
@@ -57,7 +57,8 @@ namespace Smartstore.Core.Migrations
 
             try
             {
-                _ = await _productAttributeService.EnsureAttributeCombinationHashCodesAsync(cancelToken);
+                var migrator = new AttributesMigrator(_db, _logger);
+                _ = await migrator.MigrateAttributeCombinationHashCodesAsync(cancelToken);
             }
             catch (Exception ex)
             {

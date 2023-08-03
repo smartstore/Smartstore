@@ -1,5 +1,4 @@
-﻿using Smartstore.Caching;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -12,19 +11,11 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         private readonly SmartDbContext _db;
         private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly IRequestCache _requestCache;
-        private readonly ILogger _logger;
 
-        public ProductAttributeService(
-            SmartDbContext db,
-            ILocalizedEntityService localizedEntityService,
-            IRequestCache requestCache,
-            ILogger logger)
+        public ProductAttributeService(SmartDbContext db, ILocalizedEntityService localizedEntityService)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
-            _requestCache = requestCache;
-            _logger = logger;
         }
 
         public virtual async Task<Multimap<string, int>> GetExportFieldMappingsAsync(string fieldPrefix)
@@ -329,67 +320,6 @@ namespace Smartstore.Core.Catalog.Attributes
                     }
                 }
             }
-        }
-
-        public virtual async Task<int> EnsureAttributeCombinationHashCodesAsync(CancellationToken cancelToken = default)
-        {
-            const int take = 4000;
-            // Avoid an infinite loop here under all circumstances. Process a maximum of 500,000,000 records.
-            const int maxBatches = 500000000 / take;
-            var numBatches = 0;
-            var numWarnings = 0;
-            var numSuccess = 0;
-            var now = DateTime.UtcNow;
-
-            var query = _db.ProductVariantAttributeCombinations
-                .Where(x => x.HashCode == 0)
-                .OrderBy(x => x.Id);
-
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, deferCommit: true, minHookImportance: HookImportance.Important))
-            {
-                do
-                {
-                    var combinations = await query.Take(take).ToListAsync(cancelToken);
-                    if (combinations.Count == 0)
-                    {
-                        break;
-                    }
-
-                    foreach (var combination in combinations)
-                    {
-                        // INFO: by accidents the selection can be empty. In that case the hash code has the value 5381, not 0.
-                        var hashCode = new ProductVariantAttributeSelection(combination.RawAttributes).GetHashCode();
-                        if (hashCode == 0 && ++numWarnings < 10)
-                        {
-                            _logger.Warn($"The generated hash code for attribute combination {combination.Id} is 0.");
-                        }
-
-                        combination.HashCode = hashCode;
-                    }
-
-                    await scope.CommitAsync(cancelToken);
-                    numSuccess += combinations.Count;
-
-                    try
-                    {
-                        scope.DbContext.DetachEntities<ProductVariantAttributeCombination>();
-                    }
-                    catch
-                    {
-                    }
-                }
-                while (++numBatches < maxBatches && !cancelToken.IsCancellationRequested);
-            }
-
-            if (numSuccess > 0)
-            {
-                var elapsed = Math.Floor((DateTime.UtcNow - now).TotalSeconds);
-                _logger.Info($"Added {numSuccess:N0} hash codes for attribute combinations. Elapsed: {elapsed:N0} sec.");
-
-                _requestCache.RemoveByPattern(ProductAttributeMaterializer.AttributeCombinationPatternKey);
-            }
-
-            return numSuccess;
         }
     }
 }
