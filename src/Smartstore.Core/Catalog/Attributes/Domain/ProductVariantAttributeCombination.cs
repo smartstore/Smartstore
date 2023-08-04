@@ -187,7 +187,7 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             get => GetAttributesHashCode();
             // Setter for EF.
-            set => _hashCode = value;
+            set => _hashCode = value != 0 ? value : null;
         }
 
         public int GetAttributesHashCode()

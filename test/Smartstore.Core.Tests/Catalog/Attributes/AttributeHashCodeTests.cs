@@ -72,10 +72,10 @@ namespace Smartstore.Core.Tests.Catalog
             Assert.AreEqual(pvac.HashCode, TestAttributeCombination.HashCode);
 
             var sku = SkuTemplate.FormatInvariant(TestNumber);
-            var storedHashCode = DbContext.ProductVariantAttributeCombinations
+            var combi = DbContext.ProductVariantAttributeCombinations
                 .Where(x => x.Sku == sku)
-                .Select(x => x.HashCode)
                 .FirstOrDefault();
+            var storedHashCode = combi.HashCode;
 
             Assert.IsTrue(storedHashCode != 0);
             Assert.AreEqual(pvac.HashCode, storedHashCode);
