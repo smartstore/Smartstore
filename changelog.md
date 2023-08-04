@@ -9,6 +9,7 @@
 
 ### Improvements
 
+- Increased performance: added hash codes to attribute combinations. With a large number of attribute combinations, variants are found much faster now.
 - Improved plugin & provider manager UI
 - #580 Added caching for live currency exchange rates.
 - #767 Handle tier prices in depending prices module.
