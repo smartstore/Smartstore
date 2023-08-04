@@ -81,6 +81,9 @@ select.form-control:not([multiple], [size]:not([size="1"])) {
 // ------------------------------------------------------
 
 .has-icon {
+    --inline-icon-size: #{$input-height};
+    --inline-icon-font-size: inherit;
+
 	position: relative;
 	display: flex;
 
@@ -91,68 +94,45 @@ select.form-control:not([multiple], [size]:not([size="1"])) {
 
 	.input-group-icon {
 		position: absolute;
-		left: 0;
+		inset-inline-start: 0;
 		z-index: 10;
-		width: $input-height;
-		height: 100%;
-		line-height: $input-height;
+        height: 100%;
+		width: var(--inline-icon-size);
+        line-height: var(--inline-icon-size);
+        font-size: var(--inline-icon-font-size);
 		text-align: center;
 		vertical-align: middle;
         pointer-events: none;
 
         :before {
             position: absolute;
-            left: 50%;
+            inset-inline-start: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
         }
 	}
 
 	&.has-icon-right .input-group-icon {
-		left: auto;
-		right: 0;
+		inset-inline-start: auto;
+		inset-inline-end: 0;
 	}
 
-	&.input-group-lg .input-group-icon {
-		width: $input-height-lg;
-		height: $input-height-lg;
-		line-height: $input-height-lg;
-		font-size: $font-size-lg;
+	&.input-group-lg {
+        --inline-icon-size: #{$input-height-lg};
+        --inline-icon-font-size: #{$font-size-lg};
 	}
 
-	&.input-group-sm .input-group-icon {
-		width: $input-height-sm;
-		height: $input-height-sm;
-		line-height: $input-height-sm;
-		font-size: $font-size-sm;
+	&.input-group-sm {
+        --inline-icon-size: #{$input-height-sm};
+        --inline-icon-font-size: #{$font-size-sm};
 	}
 
-	&:not(.has-icon-right) {
-		.form-control {
-			padding-left: $input-height;
-		}
-
-		&.input-group-lg .form-control {
-			padding-left: $input-height-lg;
-		}
-
-		&.input-group-sm .form-control {
-			padding-left: $input-height-sm;
-		}
+	&:not(.has-icon-right) .form-control {
+	    padding-inline-start: var(--inline-icon-size);
 	}
 
-	&.has-icon-right {
-		.form-control {
-			padding-right: $input-height;
-		}
-
-		&.input-group-lg .form-control {
-			padding-right: $input-height-lg;
-		}
-
-		&.input-group-sm .form-control {
-			padding-right: $input-height-sm;
-		}
+	&.has-icon-right .form-control {
+	    padding-inline-end: var(--inline-icon-size);
 	}
 }
 
@@ -256,35 +236,6 @@ select.form-control:not([multiple], [size]:not([size="1"])) {
     }
 }
 
-.form-check-label {
-}
-
-
-
-.radio input[type="radio"], 
-.radio-inline input[type="radio"], 
-.checkbox input[type="checkbox"], 
-.checkbox-inline input[type="checkbox"] {
-    //margin-right: 0.25rem;
-}
-
-.wkit.touchevents .form-check {
-	@if $font-size-base < 1 rem {
-        // Fix Chrome mobile check/radio alignment and padding issues:
-        // increase spacing from 1.25rem to 1.5rem
-		//padding-left: 1.5rem;
-	
-		.form-check-input {
-			//margin-left: -1.5rem;
-		}
-	    
-        // Seems not necessary anymore
-        //.form-check-label {
-		//	padding-top: 0.2rem;
-		//}
-	}
-}
-
 
 // Custom range
 // ------------------------------------------------------
@@ -305,10 +256,6 @@ select.form-control:not([multiple], [size]:not([size="1"])) {
 .validation-summary-valid,
 .validation-summary-errors {
     @extend .alert;
-
-    > *:last-child {
-        margin-bottom: 0;
-    }
 }
 
 .validation-summary-valid {

@@ -1,3 +1,7 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 // stylelint-disable declaration-no-important, selector-no-qualifying-type, property-no-vendor-prefix
 
 // Reboot
@@ -146,7 +150,7 @@ dt {
 
 dd {
   margin-bottom: .5rem;
-  margin-left: 0; // Undo browser default
+  margin-inline-start: 0; // Undo browser default
 }
 
 blockquote {

@@ -353,7 +353,7 @@
     padding: 1rem;
 
     .alert {
-        border: 1px solid rgba(#000, 0.08);
+        --alert-border-color: #{rgba(#000, 0.08)};
     }
 }
 

@@ -16,7 +16,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 }
 
 
-// Icon colors
+// Icon colors, nowrap etc.
 // -----------------------------------------------------
 
 .btn {
@@ -24,6 +24,8 @@ $btn-wide-padding-x-sm: 1.2rem;
     --btn-icon-hover-color: var(--btn-icon-color);
     --btn-icon-active-color: var(--btn-icon-hover-color);
     --btn-icon-transition: opacity .15s ease-in-out;
+
+    white-space: nowrap;
 
     > i, > .bi {
         color: var(--btn-icon-color);
@@ -451,11 +453,6 @@ $btn-wide-padding-x-sm: 1.2rem;
 .btn-toolbar .btn,
 .btn-flat {
     @include button-flat();
-
-    // Transition from flat to colorful button is not really nice
-    &:not(.btn-secondary, .btn-light, .btn-flat-light) {
-        --btn-transition: none;
-    }
 }
 
 .btn-flat-light {
@@ -487,7 +484,6 @@ $btn-wide-padding-x-sm: 1.2rem;
 
     .btn {
         position: relative;
-        white-space: nowrap;
     }
 
     .btn > em {

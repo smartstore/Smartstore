@@ -6,20 +6,20 @@
 
 @mixin bg-color-vars($color: #fff) {
     --bg-color: #{$color};
-    --bg-color-rgb: #{red($color)},#{green($color)},#{blue($color)};
+    --bg-color-rgb: #{to-rgb($color)};
 }
 
 @mixin center($xy: xy) {
     @if $xy == xy {
-        left: 50%;
+        inset-inline-start: 50%;
         top: 50%;
         bottom: auto;
-        right: auto;
+        inset-inline-end: auto;
         transform: translateX(-50%) translateY(-50%);
     }
     @else if $xy == x {
-        left: 50%;
-        right: auto;
+        inset-inline-start: 50%;
+        inset-inline-end: auto;
         transform: translateX(-50%);
     }
     @else if $xy == y {
@@ -29,25 +29,35 @@
     }
 }
 
-@mixin bubble($direction: "left", $alignment: "near", $size: 10, $backgroundColor: #fff, $borderColor: $card-border-color, $offset: 24px) {
+@mixin bubble($direction: "left", $alignment: "near", $size: 10, $background: #fff, $border: $card-border-color, $offset: 24px) {
     // defaults for direction = left
-    $elemAlignment: "right";
-    $firstBorder: "top";
-    $secondBorder: "bottom";
+    $inset: "inline-start";
+    $elemAlignment: "inline-end";
+    $firstBorder: "block-start";
+    $secondBorder: "block-end";
 
     @if $direction == "right" {
-        $elemAlignment: "left";
+        $inset: "inline-end";
+        $elemAlignment: "inline-start";
     } 
     @else if $direction == "top" {
-        $elemAlignment: "bottom";
-        $firstBorder: "left";
-        $secondBorder: "right";
+        $inset: "block-start";
+        $elemAlignment: "block-end";
+        $firstBorder: "inline-start";
+        $secondBorder: "inline-end";
     } 
     @else if $direction == "bottom" {
-        $elemAlignment: "top";
-        $firstBorder: "left";
-        $secondBorder: "right";
+        $inset: "block-end";
+        $elemAlignment: "block-start";
+        $firstBorder: "inline-start";
+        $secondBorder: "inline-end";
     }
+
+    --bubble-size: #{$size}px;
+    --bubble-width: var(--bubble-size);
+    --bubble-offset: #{$offset};
+    --bubble-bg: #{$background};
+    --bubble-border-color: #{$border};
 
     &:before, &:after {
         content: '' !important;
@@ -56,37 +66,38 @@
     }
 
     &:before {
-        border-#{$firstBorder}: #{$size}px solid transparent;
-        border-#{$secondBorder}: #{$size}px solid transparent;
-        border-#{$elemAlignment}: #{$size}px solid $borderColor;
+        border-#{$firstBorder}: var(--bubble-width) solid transparent;
+        border-#{$secondBorder}: var(--bubble-width) solid transparent;
+        border-#{$elemAlignment}: var(--bubble-width) solid var(--bubble-border-color);
         //border-#{$elemAlignment}-color: rgba(0, 0, 0, 0.2);
-        #{$direction}: -#{$size}px;
+        inset-#{$inset}: calc(var(--bubble-width) * -1);
 
         @if $alignment == "near" {
-            #{$firstBorder}: $offset;
+            inset-#{$firstBorder}: var(--bubble-offset);
         } 
         @else if $alignment == "center" {
-            #{$firstBorder}: 50%;
-            margin-#{$firstBorder}: -#{$size + 1}px;
+            inset-#{$firstBorder}: 50%;
+            margin-#{$firstBorder}: calc((var(--bubble-width) + 1px) * -1);
         } 
         @else if $alignment == "far" {
-            #{$secondBorder}: $offset;
+            inset-#{$secondBorder}: var(--bubble-offset);
         }
     }
 
     &:after {
-        border-#{$firstBorder}: #{$size - 1}px solid transparent;
-        border-#{$secondBorder}: #{$size - 1}px solid transparent;
-        border-#{$elemAlignment}: #{$size - 1}px solid $backgroundColor;
-        #{$direction}: -#{$size - 1}px;
+        --bubble-width: calc(var(--bubble-size) - 1px);
+        border-#{$firstBorder}: var(--bubble-width) solid transparent;
+        border-#{$secondBorder}: var(--bubble-width) solid transparent;
+        border-#{$elemAlignment}: var(--bubble-width) solid var(--bubble-bg);
+        inset-#{$inset}: calc(var(--bubble-width) * -1);
 
         @if $alignment == "near" {
-            #{$firstBorder}: $offset+1px;
+            inset-#{$firstBorder}: calc(var(--bubble-offset) + 1px);
         } @else if $alignment == "center" {
-            #{$firstBorder}: 50%;
-            margin-#{$firstBorder}: -#{$size}px;
+            inset-#{$firstBorder}: 50%;
+            margin-#{$firstBorder}: calc(var(--bubble-size) * -1);
         } @else if $alignment == "far" {
-            #{$secondBorder}: $offset+1px;
+            inset-#{$secondBorder}: calc(var(--bubble-offset) + 1px);
         }
     }
 }

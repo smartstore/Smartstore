@@ -11,22 +11,8 @@
 	// Common
 	// ----------------------------------------------
 
-	dd {
-		margin-right: 0;
-	}
-
 	th {
 		text-align: right;
-	}
-
-	.alert-dismissible {
-		padding-right: $alert-padding-x;
-		padding-left: ($close-font-size + $alert-padding-x * 2) !important;
-
-		.close {
-			right: auto;
-			left: 0;
-		}
 	}
 
 	.list-unstyled,
@@ -41,26 +27,6 @@
 
 	.navbar-nav {
 		padding-right: 0;
-	}
-
-
-	// Button Groups
-	// ----------------------------------------------
-
-	.btn-group {
-		> .btn:first-child {
-			margin-right: 0;
-		}
-		// Reset rounded corners
-		> .btn:not(:last-child):not(.dropdown-toggle),
-		> .btn-group:not(:last-child) > .btn {
-			border-radius: 0 $btn-border-radius $btn-border-radius 0;
-		}
-
-		> .btn:not(:first-child),
-		> .btn-group:not(:first-child) > .btn {
-			border-radius: $btn-border-radius 0 0 $btn-border-radius;
-		}
 	}
 
 	// Custom controls
@@ -84,68 +50,6 @@
 	  }
 	}
 
-
-	// Input Groups
-	// ----------------------------------------------
-
-	.input-group {
-		+ .form-control,
-		+ .custom-select,
-		+ .custom-file {
-			margin-right: -$input-border-width;
-			margin-left: initial;
-		}
-
-		> .form-control,
-		> .custom-select {
-			&:not(:last-child) {
-				border-radius: 0 $input-border-radius $input-border-radius 0;
-			}
-
-			&:not(:first-child) {
-				border-radius: 0 $input-border-radius $input-border-radius 0;
-			}
-		}
-	}
-
-	.input-group-prepend,
-	.input-group-append {
-		.btn + .btn,
-		.btn + .input-group-text,
-		.input-group-text + .input-group-text,
-		.input-group-text + .btn {
-			margin-right: -$input-border-width;
-			margin-left: initial;
-		}
-	}
-
-	.input-group-prepend {
-		margin-left: -$input-border-width;
-		margin-right: initial;
-	}
-
-	.input-group-append {
-		margin-right: -$input-border-width;
-		margin-left: initial;
-	}
-
-	.input-group > .input-group-prepend > .btn,
-	.input-group > .input-group-prepend > .input-group-text,
-	.input-group > .input-group-append:not(:last-child) > .btn,
-	.input-group > .input-group-append:not(:last-child) > .input-group-text,
-	.input-group > .input-group-append:last-child > .btn:not(:last-child):not(.dropdown-toggle),
-	.input-group > .input-group-append:last-child > .input-group-text:not(:last-child) {
-		border-radius: 0 $input-border-radius $input-border-radius 0;
-	}
-
-	.input-group > .input-group-append > .btn,
-	.input-group > .input-group-append > .input-group-text,
-	.input-group > .input-group-prepend:not(:first-child) > .btn,
-	.input-group > .input-group-prepend:not(:first-child) > .input-group-text,
-	.input-group > .input-group-prepend:first-child > .btn:not(:first-child),
-	.input-group > .input-group-prepend:first-child > .input-group-text:not(:first-child) {
-		border-radius: $input-border-radius 0 0 $input-border-radius;
-	}
 
 	.list-group {
 		padding-right: 0;

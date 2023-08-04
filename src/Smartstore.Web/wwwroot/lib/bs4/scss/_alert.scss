@@ -1,13 +1,31 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 //
 // Base styles
 //
 
 .alert {
+  // scss-docs-start alert-css-vars
+  --alert-bg: transparent;
+  --alert-padding-x: #{$alert-padding-x};
+  --alert-padding-y: #{$alert-padding-y};
+  --alert-margin-bottom: #{$alert-margin-bottom};
+  --alert-color: inherit;
+  --alert-border-color: transparent;
+  --alert-border: #{$alert-border-width} solid var(--alert-border-color);
+  --alert-border-radius: #{$alert-border-radius};
+  --alert-link-color: inherit;
+  // scss-docs-end alert-css-vars
+
   position: relative;
-  padding: $alert-padding-y $alert-padding-x;
-  margin-bottom: $alert-margin-bottom;
-  border: $alert-border-width solid transparent;
-  @include border-radius($alert-border-radius);
+  padding: var(--alert-padding-y) var(--alert-padding-x);
+  margin-bottom: var(--alert-margin-bottom);
+  color: var(--alert-color);
+  background-color: var(--alert-bg);
+  border: var(--alert-border);
+  @include border-radius(var(--alert-border-radius));
 }
 
 // Headings for larger alerts
@@ -19,6 +37,7 @@
 // Provide class for links that match alerts
 .alert-link {
   font-weight: $alert-link-font-weight;
+  color: var(--alert-link-color);
 }
 
 
@@ -27,15 +46,15 @@
 // Expand the right padding and account for the close button's positioning.
 
 .alert-dismissible {
-  padding-right: $close-font-size + $alert-padding-x * 2;
+  padding-inline-end: $close-font-size + $alert-padding-x * 2;
 
   // Adjust close link position
   .close {
     position: absolute;
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     z-index: 2;
-    padding: $alert-padding-y $alert-padding-x;
+    padding: $alert-padding-y * 1.25 $alert-padding-x;
     color: inherit;
   }
 }
@@ -47,6 +66,10 @@
 
 @each $color, $value in $theme-colors {
   .alert-#{$color} {
-    @include alert-variant(theme-color-level($color, $alert-bg-level), theme-color-level($color, $alert-border-level), theme-color-level($color, $alert-color-level));
+    $c: theme-color-level($color, $alert-color-level);
+    --alert-color: #{$c};
+    --alert-bg: #{theme-color-level($color, $alert-bg-level)};
+    --alert-border-color: #{theme-color-level($color, $alert-border-level)};
+    --alert-link-color: #{darken($value, 10%)};
   }
 }

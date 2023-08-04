@@ -567,7 +567,7 @@ html:not(.edge) .parallax[data-parallax-type=content] {
 .no-anims,
 .no-anims * {
     transition-property: none !important;
-    transition-duration: 0 !important;
+    transition-duration: 0ms !important;
     animation: none !important;
 }
 

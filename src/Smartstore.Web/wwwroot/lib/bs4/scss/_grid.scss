@@ -2,12 +2,6 @@
 /// <reference path="_functions.scss" />
 /// <reference path="_mixins.scss" />
 
-:root {
-  @each $name, $value in $grid-breakpoints {
-    --breakpoint-#{$name}: #{$value};
-  }
-}
-
 // Container widths
 //
 // Set the container width, and override it for fixed navbars in media queries.

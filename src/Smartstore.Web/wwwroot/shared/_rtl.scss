@@ -30,77 +30,12 @@
 
 	td[align="right"],
 	th[align="right"] {
-		text-align: left;
+		text-align: start;
 	}
 
 	td[align="left"],
 	th[align="left"] {
-		text-align: right;
-	}
-
-	// Alert
-	// ------------------------------
-
-	.alert-info,
-	.alert-danger,
-	.alert-success,
-	.alert-warning,
-	.validation-summary-valid,
-	.validation-summary-errors {
-		padding-right: 4rem;
-		padding-left: $alert-padding-x;
-
-		&:before {
-			right: 0;
-			left: auto;
-		}
-
-		&:after {
-			right: 0;
-			left: auto;
-		}
-	}
-
-	.alert > ul {
-		padding-right: 1.2rem;
-		padding-left: initial;
-	}
-
-
-	// Buttons
-	// ------------------------------
-
-	.mf-dropdown {
-		.btn.has-caret {
-			text-align: right;
-			padding-left: $input-btn-padding-x * 2;
-			padding-right: $btn-padding-x;
-
-			&.btn-sm {
-				padding-left: $input-btn-padding-x-sm * 2;
-				padding-right: $btn-padding-x-sm;
-			}
-
-			&.btn-lg {
-				padding-left: $input-btn-padding-x-lg * 2;
-				padding-right: $btn-padding-x-lg;
-			}
-		}
-
-		.btn.has-caret:after {
-			left: $input-btn-padding-x * 0.75;
-			right: auto;
-		}
-
-		.btn-sm.has-caret:after {
-			left: $input-btn-padding-x-sm * 0.75;
-			right: auto;
-		}
-
-		.btn-lg.has-caret:after {
-			left: $input-btn-padding-x-lg * 0.75;
-			right: auto;
-		}
+		text-align: end;
 	}
 
 
@@ -110,52 +45,6 @@
 	fieldset.content-group > legend > span {
 		padding-right: initial;
 		padding-left: 1rem;
-	}
-
-	.has-icon {
-		.input-group-icon {
-			right: 0;
-			left: auto;
-		}
-
-		&.has-icon-right .input-group-icon {
-			right: auto;
-			left: 0;
-		}
-
-		&:not(.has-icon-right) {
-			.form-control {
-				padding-right: $input-height;
-				padding-left: $input-padding-x;
-			}
-
-			&.input-group-lg .form-control {
-				padding-right: $input-height-lg;
-				padding-left: $input-padding-x-lg;
-			}
-
-			&.input-group-sm .form-control {
-				padding-right: $input-height-sm;
-				padding-left: $input-padding-x-sm;
-			}
-		}
-
-		&.has-icon-right {
-			.form-control {
-				padding-left: $input-height;
-				padding-right: $input-padding-x;
-			}
-
-			&.input-group-lg .form-control {
-				padding-left: $input-height-lg;
-				padding-right: $input-padding-x-lg;
-			}
-
-			&.input-group-sm .form-control {
-				padding-left: $input-height-sm;
-				padding-right: $input-padding-x-sm;
-			}
-		}
 	}
 
 	// Nav collapsible

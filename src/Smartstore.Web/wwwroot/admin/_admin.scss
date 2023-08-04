@@ -842,7 +842,7 @@ legend {
 
 .admin-table tbody {
     .omega {
-        text-align: right;
+        text-align: end;
     }
 
     tr {
@@ -1361,8 +1361,8 @@ a.editable {
 
     .attr-caption {
         font-weight: $font-weight-medium;
-        text-align: right;
-        padding-right: 10px;
+        text-align: end;
+        padding-inline-end: 10px;
 
         &:after {
             content: ': '

@@ -1,3 +1,7 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 // stylelint-disable selector-list-comma-newline-after
 
 //
@@ -53,10 +57,15 @@ h6, .h6 { @include font-size($h6-font-size); }
 //
 
 hr {
-  margin-top: $hr-margin-y;
-  margin-bottom: $hr-margin-y;
+  margin: $hr-margin-y 0;
+  color: inherit;
+  background-color: currentColor;
   border: 0;
-  border-top: $hr-border-width solid $hr-border-color;
+  opacity: .25;
+}
+
+hr:not([size]) {
+  height: $hr-border-width;
 }
 
 

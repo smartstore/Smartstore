@@ -6,18 +6,16 @@
 ------------------------------------*/
 
 .alert.ui-pnotify-container {
-    padding-left: 70px !important;
+    padding-inline-start: 70px !important;
+    padding-inline-end: 1.5rem;
     box-shadow: 0 6px 12px rgba(#000, 0.175) !important;
     border-width: 1px;
     min-height: 75px !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border-radius: $border-radius-lg;
+    border-color: rgba(#fff, 0.12) !important;
     overflow: hidden;
-    padding-right: 1.5rem;
-
-    &.alert { border-color: rgba(0,0,0, 0.12) !important }
 
     &:after {
         visibility: initial;
@@ -28,7 +26,7 @@
 
 .ui-pnotify-icon {
     position: absolute;
-    left: 0;
+    inset-inline-start: 0;
     top: 0;
     bottom: 0;
     width: 3rem;
@@ -37,21 +35,12 @@
 	float: none;
 	margin: 0;
 
-	@if $alert-info-is-primary {
-		// info should have primary color
-		.alert-info &	{ @include bubble('right', 'center', 8, $primary, $primary); }
-    }
-	@else {
-		.alert-info &	{ @include bubble('right', 'center', 8, $info, $info); }
-	}
-    .alert-success &    { @include bubble('right', 'center', 8, $success, $success); }
-    .alert-warning &    { @include bubble('right', 'center', 8, $warning, $warning); }
-    .alert-danger &     { @include bubble('right', 'center', 8, $danger, $danger); }
+    @include bubble('right', 'center', 8, var(--alert-icon-bg), var(--alert-icon-bg));
 
     > span {
         display: none;
         position: absolute;
-        left: 0;
+        inset-inline-start: 0;
         width: 100%;
         text-align: center;
         font-size: 1.25em;
@@ -89,7 +78,7 @@
     width: 20px;
     text-align: center;
 	top: 5px;
-	right: 3px;
+	inset-inline-end: 3px;
     outline: 0;
     font-size: 12px;
     vertical-align: middle;
@@ -108,8 +97,8 @@
 @media (min-width: 481px) {
     .ui-pnotify.stack-topcenter,
     .ui-pnotify.stack-bottomcenter {
-	    left: 50%;
-	    margin-left: -225px;
+	    inset-inline-start: 50%;
+	    margin-inline-start: -225px;
     }
 
     .ui-pnotify.stack-bottomcenter {
@@ -137,6 +126,13 @@
     .ui-pnotify-mobile-able ~ .ui-pnotify-mobile-able ~ .ui-pnotify-mobile-able ~ .ui-pnotify-mobile-able ~ .ui-pnotify-mobile-able {
         margin-top: -100px;
     }
+}
+
+[dir=rtl] {
+	.ui-pnotify-closer, 
+	.ui-pnotify-sticker {
+		float: left;
+	}
 }
 
 

@@ -49,7 +49,8 @@
   @include box-shadow(var(--btn-box-shadow));
   @include transition(var(--btn-transition));
 
-  &:hover {
+  &:hover,
+  &.hover {
     color: var(--btn-hover-color);
     text-decoration: if($link-hover-decoration == underline, none, null);
     background-color: var(--btn-hover-bg);

@@ -2,15 +2,23 @@
 /// <reference path="_mixins.scss" />
 /// <reference path="../lib/bs4/scss/bootstrap.scss" />
 
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+
 .alert-info,
 .alert-danger,
 .alert-success,
 .alert-warning {
-	position: relative;
-	padding-left: 4rem;
+    --alert-icon-bg: transparent;
+    --alert-icon-color: var(--alert-bg);
+    --alert-icon-content: "\f129"; // info
+
+	padding-inline-start: 4rem;
 	line-height: 1.5;
 	border-width: 0;
 
+    // Left icon box
 	&:before {
 		display: block;
 		position: absolute;
@@ -20,16 +28,17 @@
 		bottom: 0;
 		width: 3rem;
 		z-index: 1;
-		border-top-left-radius: var(--border-radius, #{$alert-border-radius});
-		border-bottom-left-radius: var(--border-radius, #{$alert-border-radius});
+        background-color: var(--alert-icon-bg);
+        @include border-left-radius(var(--alert-border-radius));
 	}
 
+    // Icon
 	&:after {
 		display: block;
 		position: absolute;
-		color: var(--bg-color, #fff);
-        @include fontawesome-font('', regular);
-		left: 0;
+		color: var(--alert-icon-color);
+        @include fontawesome-font(var(--alert-icon-content), regular);
+		inset-inline-start: 0;
 		top: 50%;
 		font-size: 24px;
 		width: 3rem;
@@ -39,70 +48,41 @@
 	}
 }
 
-@each $color, $value in $theme-colors {
-    .alert-#{$color} {
-        @if ($color == 'info' and $alert-info-is-primary) {
-            @include bg-color-vars(theme-color-level(primary, $alert-bg-level));
-        }
-        @else {
-            @include bg-color-vars(theme-color-level($color, $alert-bg-level));
-        }
+.alert-info {
+    --alert-icon-content: "\f129"; // info
+
+    @if $alert-info-is-primary {
+		// info should have primary color
+        $c: theme-color-level(primary, $alert-color-level);
+        --alert-color: #{$c};
+        --alert-bg: #{theme-color-level(primary, $alert-bg-level)};
+        --alert-border-color: #{theme-color-level(primary, $alert-border-level)};
+        --alert-link-color: #{darken($primary, 10%)};
+        --alert-icon-bg: #{$primary};
+    }
+    @else {
+        --alert-icon-bg: #{$info};
     }
 }
 
 .alert-danger {
-	&:before {
-		background-color: $danger;
-	}
-
-	&:after {
-		content: "\f071"; // exclamation-triangle
-	}
-}
-
-.alert-info {
-    @if $alert-info-is-primary {
-		// info should have primary color
-		@include alert-variant(var(--bg-color), theme-color-level(primary, $alert-border-level), theme-color-level(primary, $alert-color-level));
-    }
-
-	&:before {
-		@if $alert-info-is-primary {
-			background-color: $primary;
-		}
-		@else {
-			background-color: $info;
-		}
-	}
-
-	&:after {
-		content: "\f129"; // info
-	}
+    --alert-icon-bg: #{$danger};
+    --alert-icon-content: "\f071"; // exclamation-triangle
 }
 
 .alert-success {
-	&:before {
-		background-color: $success;
-	}
-
-	&:after {
-		content: "\f00c"; // check
-	}
+    --alert-icon-bg: #{$success};
+    --alert-icon-content: "\f00c"; // check
 }
 
 .alert-warning {
-	&:before {
-		background-color: $warning;
-	}
-
-	&:after {
-		content: "\f12a"; // exclamation
-	}
+    --alert-icon-bg: #{$warning};
+    --alert-icon-content: "\f12a"; // exclamation
 }
 
 
 .alert > ul {
-	padding-left: 1.2rem;
+	padding-inline-start: 1.2rem;
 }
 
 .alert > *:first-child {

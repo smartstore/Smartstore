@@ -9,6 +9,6 @@
     @include button-active-variant(
         $bg, 
         $btn-secondary-border,
-        $hover-background: shade-color($bg, 7%),
-        $active-background: shade-color($bg, 12%));
+        $hover-background: shade-color($bg, 3%),
+        $active-background: shade-color($bg, 8%));
 }
