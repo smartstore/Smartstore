@@ -6,39 +6,41 @@
     var error = Model.Metadata.TryGetValue("Error", out var errorObj) ? errorObj.ToString() : string.Empty;
 }
 
-<div class="rule row xs-gutters" data-rule-id="@Model.Id" data-has-error="@error.HasValue().ToString().ToLower()">
-    <div class="col-4 col-md-3 col-xl-2">
-        <partial name="_Rule.Descriptor" model="Model" />
-    </div>
-    <div class="col-4 col-md-3 col-xl-2">
-        <partial name="_Rule.Operator" model="Model" />
-    </div>
-    <div class="col-4 col-md-6 col-xl-8">
-        <div class="input-group flex-nowrap">
-            @{
-                try
-                {
-                    <partial name="@templateInfo.TemplateName" model="Model" />
-                }
-                catch (Exception ex)
-                {
-                    <div class="d-flex flex-grow-1 w-75">
-                        <div class="alert alert-danger text-truncate w-100 mb-0" title="@ex.Message" style="padding-top: 0.6rem; padding-bottom: 0.6rem;">
-                            @T("Common.CannotDisplayView", templateInfo.TemplateName.NaIfEmpty())
-                            @(ex.Message.Truncate(300, "…"))
-                        </div>
-                    </div>
-                }
+<div class="rule-row">
+    <div class="rule row gx-1 gx-md-2 gx-lg-3" data-rule-id="@Model.Id" data-has-error="@error.HasValue().ToString().ToLower()">
+        <div class="col-2">
+            <partial name="_Rule.Descriptor" model="Model" />
+        </div>
+        <div class="col-2">
+            <partial name="_Rule.Operator" model="Model" />
+        </div>
+        <div class="col-8">
+            <div class="row flex-nowrap g-2">
+                <div class="col">
+                    @{
+                        try
+                        {
+                            <partial name="@templateInfo.TemplateName" model="Model" />
+                        }
+                        catch (Exception ex)
+                        {
+                            <div class="alert alert-danger mb-0 py-2" title="@ex.Message">
+                                @T("Common.CannotDisplayView", templateInfo.TemplateName.NaIfEmpty())
+                                @(ex.Message.Truncate(300, "…"))
+                            </div>
+                        }
+                    }
+                </div>
 
-                <div class="input-group-append">
+                <div class="col-auto">
                     <button class="btn btn-light btn-to-danger r-delete-rule" type="button" tabindex="-1">
                         <i class="fa fa-trash-alt"></i>
                     </button>
                 </div>
-            }
+            </div>
         </div>
-    </div>
-    <div class="r-rule-error" attr-class='(error.HasValue(), "hide")'>
-        <span class="field-validation-error">@error</span>
+        <div class="r-rule-error" attr-class='(error.HasValue(), "hide")'>
+            <span class="field-validation-error">@error</span>
+        </div>
     </div>
 </div>

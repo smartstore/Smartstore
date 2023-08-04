@@ -385,11 +385,13 @@ $btn-wide-padding-x-sm: 1.2rem;
 // btn-to-[danger|primary]
 // --------------------------------------------------
 
-.btn-to-danger > i,
-.btn-to-danger > .bi,
-.btn-to-primary > i,
-.btn-to-primary > .bi {
-    opacity: 1;
+.btn-to-danger,
+.btn-to-primary {
+    --btn-transition: none;
+
+    > i, > .bi {
+        opacity: 1;
+    }
 }
 
 .btn-to-danger {
