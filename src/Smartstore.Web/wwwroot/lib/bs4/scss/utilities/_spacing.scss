@@ -1,6 +1,19 @@
+/// <reference path="../_variables.scss" />
+/// <reference path="../_functions.scss" />
+/// <reference path="../_mixins.scss" />
+
 // stylelint-disable declaration-no-important
 
 // Margin and Padding
+
+@mixin spacing-prop($prop, $size, $length, $breakpoint) {
+    @if ($size > 3 AND $breakpoint == "xs") {
+        @include rfs($length !important, #{$prop});
+    }
+    @else {
+        #{$prop}: $length !important;
+    }    
+}
 
 @each $breakpoint in map-keys($grid-breakpoints) {
   @include media-breakpoint-up($breakpoint) {
@@ -8,22 +21,24 @@
 
     @each $prop, $abbrev in (margin: m, padding: p) {
       @each $size, $length in $spacers {
-        .#{$abbrev}#{$infix}-#{$size} { #{$prop}: $length !important; }
+        .#{$abbrev}#{$infix}-#{$size} {
+            @include spacing-prop(#{$prop}, $size, $length, $breakpoint);
+        }
         .#{$abbrev}t#{$infix}-#{$size},
         .#{$abbrev}y#{$infix}-#{$size} {
-          #{$prop}-top: $length !important;
+          @include spacing-prop(#{$prop}-top, $size, $length, $breakpoint);
         }
         .#{$abbrev}r#{$infix}-#{$size},
         .#{$abbrev}x#{$infix}-#{$size} {
-          #{$prop}-right: $length !important;
+          @include spacing-prop(#{$prop}-inline-end, $size, $length, $breakpoint);
         }
         .#{$abbrev}b#{$infix}-#{$size},
         .#{$abbrev}y#{$infix}-#{$size} {
-          #{$prop}-bottom: $length !important;
+          @include spacing-prop(#{$prop}-bottom, $size, $length, $breakpoint);
         }
         .#{$abbrev}l#{$infix}-#{$size},
         .#{$abbrev}x#{$infix}-#{$size} {
-          #{$prop}-left: $length !important;
+          @include spacing-prop(#{$prop}-inline-start, $size, $length, $breakpoint);
         }
       }
     }
@@ -31,22 +46,25 @@
     // Negative margins (e.g., where `.mb-n1` is negative version of `.mb-1`)
     @each $size, $length in $spacers {
       @if "#{$size}" != "0" {
-        .m#{$infix}-n#{$size} { margin: -$length !important; }
+        .m#{$infix}-n#{$size}
+        {
+            @include spacing-prop(margin, $size, -$length, $breakpoint);
+        }
         .mt#{$infix}-n#{$size},
         .my#{$infix}-n#{$size} {
-          margin-top: -$length !important;
+          @include spacing-prop(margin-top, $size, -$length, $breakpoint);
         }
         .mr#{$infix}-n#{$size},
         .mx#{$infix}-n#{$size} {
-          margin-right: -$length !important;
+          @include spacing-prop(margin-inline-end, $size, -$length, $breakpoint);
         }
         .mb#{$infix}-n#{$size},
         .my#{$infix}-n#{$size} {
-          margin-bottom: -$length !important;
+          @include spacing-prop(margin-bottom, $size, -$length, $breakpoint);
         }
         .ml#{$infix}-n#{$size},
         .mx#{$infix}-n#{$size} {
-          margin-left: -$length !important;
+          @include spacing-prop(margin-inline-start, $size, -$length, $breakpoint);
         }
       }
     }
@@ -59,7 +77,7 @@
     }
     .mr#{$infix}-auto,
     .mx#{$infix}-auto {
-      margin-right: auto !important;
+      margin-inline-end: auto !important;
     }
     .mb#{$infix}-auto,
     .my#{$infix}-auto {
@@ -67,7 +85,7 @@
     }
     .ml#{$infix}-auto,
     .mx#{$infix}-auto {
-      margin-left: auto !important;
+      margin-inline-start: auto !important;
     }
   }
 }
