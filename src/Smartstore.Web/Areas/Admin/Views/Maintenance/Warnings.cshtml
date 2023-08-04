@@ -23,19 +23,19 @@
                     case SystemWarningLevel.Pass:
                         {
                             <i class="fa-li fa fa-check text-success"></i>
-                            <span>@warning.Text</span>
+                            <span>@Html.Raw(warning.Text)</span>
                         }
                         break;
                     case SystemWarningLevel.Warning:
                         {
                             <i class="fa-li fa fa-question-circle text-success"></i>
-                            <span class="fwm">@warning.Text</span>
+                            <span class="fwm">@Html.Raw(warning.Text)</span>
                         }
                         break;
                     case SystemWarningLevel.Fail:
                         {
                             <i class="fa-li fa fa-exclamation-triangle text-danger"></i>
-                            <span class="fwm text-danger">@warning.Text</span>
+                            <span class="fwm text-danger">@Html.Raw(warning.Text)</span>
                         }
                         break;
                 }

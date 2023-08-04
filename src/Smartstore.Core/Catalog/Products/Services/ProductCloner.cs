@@ -50,8 +50,8 @@ namespace Smartstore.Core.Catalog.Products
             bool isPublished,
             bool copyAssociatedProducts = true)
         {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotEmpty(cloneName, nameof(cloneName));
+            Guard.NotNull(product);
+            Guard.NotEmpty(cloneName);
 
             var localizedKeySelectors = new List<Expression<Func<Product, string>>>
             {
@@ -130,10 +130,8 @@ namespace Smartstore.Core.Catalog.Products
                     MediaFileId = x.MediaFileId,
                     DisplayOrder = x.DisplayOrder
                 }));
-                if (clone.MainPictureId == null)
-                {
-                    clone.MainPictureId = product.ProductMediaFiles.FirstOrDefault()?.MediaFileId;
-                }
+
+                clone.MainPictureId ??= product.ProductMediaFiles.FirstOrDefault()?.MediaFileId;
 
                 // Product specification attributes.
                 clone.ProductSpecificationAttributes.AddRange(product.ProductSpecificationAttributes.Select(x => new ProductSpecificationAttribute
@@ -285,8 +283,7 @@ namespace Smartstore.Core.Catalog.Products
                 };
             }
 
-            // Reverse tracking order to have the clones in the same order in the database as the originals.
-            _db.ProductVariantAttributes.AddRange(attributeMap.Select(x => x.Value).Reverse());
+            _db.ProductVariantAttributes.AddRange(attributeMap.Select(x => x.Value));
 
             // >>>>>> Commit attributes.
             await scope.CommitAsync();
@@ -299,7 +296,7 @@ namespace Smartstore.Core.Catalog.Products
                 foreach (var value in attribute.ProductVariantAttributeValues)
                 {
                     // Save associated value (used for combinations copying).
-                    valueMap.Add(value.Id, new ProductVariantAttributeValue
+                    valueMap.Add(value.Id, new()
                     {
                         ProductVariantAttributeId = attributeClone.Id,
                         Name = value.Name,
@@ -316,16 +313,14 @@ namespace Smartstore.Core.Catalog.Products
                 }
             }
 
-            // Reverse tracking order to have the clones in the same order in the database as the originals.
-            _db.ProductVariantAttributeValues.AddRange(valueMap.Select(x => x.Value).Reverse());
+            _db.ProductVariantAttributeValues.AddRange(valueMap.Select(x => x.Value));
 
             // >>>>>> Commit attribute values.
             await scope.CommitAsync();
 
             // Attribute value localization.
             var allValues = product.ProductVariantAttributes
-                .Reverse()
-                .SelectMany(x => x.ProductVariantAttributeValues.Reverse())
+                .SelectMany(x => x.ProductVariantAttributeValues)
                 .ToArray();
 
             foreach (var value in allValues)
@@ -348,31 +343,25 @@ namespace Smartstore.Core.Catalog.Products
 
                 foreach (var oldAttribute in oldAttributes)
                 {
-                    if (attributeMap.TryGetValue(oldAttribute.Id, out var newAttribute))
+                    // Only include and store list type attributes!
+                    if (attributeMap.TryGetValue(oldAttribute.Id, out var newAttribute) && newAttribute.IsListTypeAttribute())
                     {
                         var item = oldAttributesMap.FirstOrDefault(x => x.Key == oldAttribute.Id);
                         if (item.Key != 0)
                         {
                             foreach (var value in item.Value)
                             {
-                                if (newAttribute.IsListTypeAttribute())
+                                var oldValueId = value.ToString().EmptyNull().ToInt();
+                                if (valueMap.TryGetValue(oldValueId, out var newValue))
                                 {
-                                    var oldValueId = value.ToString().EmptyNull().ToInt();
-                                    if (valueMap.TryGetValue(oldValueId, out var newValue))
-                                    {
-                                        newSelection.AddAttributeValue(newAttribute.Id, newValue.Id);
-                                    }
-                                }
-                                else
-                                {
-                                    newSelection.AddAttributeValue(newAttribute.Id, value);
+                                    newSelection.AddAttributeValue(newAttribute.Id, newValue.Id);
                                 }
                             }
                         }
                     }
                 }
 
-                newCombinations.Add(new ProductVariantAttributeCombination
+                newCombinations.Add(new()
                 {
                     ProductId = clone.Id,
                     RawAttributes = newSelection.AsJson(),
@@ -391,12 +380,10 @@ namespace Smartstore.Core.Catalog.Products
                     DeliveryTimeId = combination.DeliveryTimeId,
                     QuantityUnitId = combination.QuantityUnitId,
                     IsActive = combination.IsActive
-                    //IsDefaultCombination = combination.IsDefaultCombination
                 });
             }
 
-            // Reverse tracking order to have the clones in the same order in the database as the originals.
-            _db.ProductVariantAttributeCombinations.AddRange(newCombinations.AsEnumerable().Reverse());
+            _db.ProductVariantAttributeCombinations.AddRange(newCombinations);
 
             // >>>>>> Commit combinations.
             await scope.CommitAsync();
@@ -430,7 +417,7 @@ namespace Smartstore.Core.Catalog.Products
                 itemMap[bundledItem.Id] = newBundleItem;
             }
 
-            _db.ProductBundleItem.AddRange(itemMap.Select(x => x.Value).Reverse());
+            _db.ProductBundleItem.AddRange(itemMap.Select(x => x.Value));
             await scope.CommitAsync();
 
             foreach (var bundledItem in bundledItems)

@@ -1,4 +1,6 @@
-﻿using System.Xml;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -34,7 +36,7 @@ namespace Smartstore.Domain
         /// <param name="xmlAttributeValueName">Optional attribute value name for XML format. If it is <c>null</c>, XmlAttributeName + "Value" is used.</param>
         protected AttributeSelection(string rawAttributes, string xmlAttributeName, string xmlAttributeValueName = null)
         {
-            Guard.NotEmpty(xmlAttributeName, nameof(xmlAttributeName));
+            Guard.NotEmpty(xmlAttributeName);
 
             _rawAttributes = rawAttributes.TrimSafe();
             _xmlAttributeName = xmlAttributeName;
@@ -51,6 +53,12 @@ namespace Smartstore.Domain
         /// </summary>
         public IEnumerable<KeyValuePair<int, ICollection<object>>> AttributesMap
             => _attributes.Attributes;
+        
+        /// <summary>
+        /// Gets a value indicating whether the selection contains any attributes.
+        /// </summary>
+        public bool HasAttributes
+            => _attributes.Attributes.Count > 0;
 
         /// <summary>
         /// Gets deserialized attribute values by attribute id.
@@ -84,7 +92,7 @@ namespace Smartstore.Domain
         /// <param name="value">Attribute value.</param>
         public void AddAttributeValue(int attributeId, object value)
         {
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(value);
 
             _attributes.Attributes.Add(attributeId, value);
             _dirty = true;
@@ -121,7 +129,7 @@ namespace Smartstore.Domain
         /// <param name="value">Attribute value</param>
         public void RemoveAttributeValue(int attributeId, object value)
         {
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(value);
 
             _attributes.Attributes.Remove(attributeId, value);
             _dirty = true;
@@ -352,7 +360,7 @@ namespace Smartstore.Domain
         /// but ignored when <see cref="AttributeSelection2"/> is checked for equality.</remarks>
         protected void AddCustomAttributeValue(string attributeName, object value)
         {
-            Guard.NotEmpty(attributeName, nameof(attributeName));
+            Guard.NotEmpty(attributeName);
 
             if (value != null)
             {
@@ -367,7 +375,7 @@ namespace Smartstore.Domain
         /// <param name="attributeName">Custom attribute name (e.g. GiftCardInfo).</param>
         protected void RemoveCustomAttribute(string attributeName)
         {
-            Guard.NotEmpty(attributeName, nameof(attributeName));
+            Guard.NotEmpty(attributeName);
 
             _attributes.CustomAttributes.RemoveAll(attributeName);
             _dirty = true;
@@ -387,14 +395,27 @@ namespace Smartstore.Domain
             return !Equals(left, right);
         }
 
+        /// <summary>
+        /// Creates a unqiue hash code for attributes contained in this selection.
+        /// </summary>
+        /// <remarks>
+        /// For the hash code to work when stored in the database, the attribute selection must contain list types only!
+        /// That means no plain text or date values.
+        /// <see cref="AllAttributes.CustomAttributes"/> (like gift card data) are always ignored when creating the hash code.
+        /// See also IProductAttributeMaterializer.FindAttributeCombinationAsync (it only includes list type attributes).
+        /// </remarks>
         public override int GetHashCode()
         {
             var combiner = HashCodeCombiner.Start();
 
-            foreach (var attribute in _attributes.Attributes)
+            foreach (var attribute in _attributes.Attributes.OrderBy(x => x.Key))
             {
-                combiner.Add(attribute.GetHashCode());
-                attribute.Value.Each(value => combiner.Add(value.GetHashCode()));
+                combiner.Add(attribute.Key);
+
+                attribute.Value
+                    .Select(x => x.ToString())
+                    .OrderBy(x => x)
+                    .Each(x => combiner.Add(x));
             }
 
             return combiner.CombinedHash;
@@ -479,6 +500,19 @@ namespace Smartstore.Domain
             // Deserialized to an empty map if missing in raw JSON string.
             public bool ShouldSerializeCustomAttributes()
                 => CustomAttributes?.Count > 0;
+        }
+    }
+
+    public static class AttributeSelectionExtensions
+    {
+        /// <summary>
+        /// Checks whether given <paramref name="selection"/> collection is either <c>null</c> or empty.
+        /// </summary>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNullOrEmpty(this AttributeSelection selection)
+        {
+            return selection == null || !selection.HasAttributes;
         }
     }
 }

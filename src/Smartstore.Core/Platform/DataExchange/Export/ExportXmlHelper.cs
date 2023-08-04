@@ -996,6 +996,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     _writer.WriteElementString(nameof(ProductVariantAttributeCombination.BasePriceBaseAmount), entityPvac.BasePriceBaseAmount?.ToString() ?? string.Empty);
                     _writer.WriteElementString(nameof(ProductVariantAttributeCombination.AssignedMediaFileIds), entityPvac.AssignedMediaFileIds);
                     _writer.WriteElementString(nameof(ProductVariantAttributeCombination.IsActive), entityPvac.IsActive.ToString());
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.HashCode), entityPvac.HashCode.ToString());
 
                     WriteDeliveryTime(combination.DeliveryTime, nameof(ProductVariantAttributeCombination.DeliveryTime));
                     WriteQuantityUnit(combination.QuantityUnit, nameof(ProductVariantAttributeCombination.QuantityUnit));

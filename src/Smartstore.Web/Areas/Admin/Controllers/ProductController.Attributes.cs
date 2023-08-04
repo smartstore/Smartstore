@@ -827,20 +827,13 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var productVariantAttributes = product.ProductVariantAttributes
-                .AsQueryable()
-                .ApplyListTypeFilter();
-
-            var (selection, warnings) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, productVariantAttributes, product.Id, 0);
-
-            await _shoppingCartValidator.Value.ValidateProductAttributesAsync(
-                product,
-                selection,
-                Services.StoreContext.CurrentStore.Id,
-                warnings);
+            // INFO: IShoppingCartValidator.ValidateProductAttributesAsync is not suitable here because only list type attributes are processed.
+            // The admin would not be able to add required non-list types otherwise.
+            var warnings = new List<string>();
+            var listTypeAttributes = product.ProductVariantAttributes.AsQueryable().ApplyListTypeFilter();
+            var (selection, _) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, listTypeAttributes, product.Id, 0);
 
             var foundCombination = await _productAttributeMaterializer.Value.FindAttributeCombinationAsync(product.Id, selection);
-
             if (foundCombination != null)
             {
                 warnings.Add(T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"));
@@ -969,26 +962,9 @@ namespace Smartstore.Admin.Controllers
                 return new JsonResult(new { Message = T("Products.NotFound", productId), HasWarning = true });
             }
 
-            var productVariantAttributes = product.ProductVariantAttributes
-                .AsQueryable()
-                .ApplyListTypeFilter();
-
-            var (selection, warnings) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, productVariantAttributes, product.Id, 0);
+            var listTypeAttributes = product.ProductVariantAttributes.AsQueryable().ApplyListTypeFilter();
+            var (selection, _) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, listTypeAttributes, product.Id, 0);
             var foundCombination = await _productAttributeMaterializer.Value.FindAttributeCombinationAsync(product.Id, selection);
-
-            if (foundCombination == null)
-            {
-                await _shoppingCartValidator.Value.ValidateProductAttributesAsync(
-                    product,
-                    selection,
-                    Services.StoreContext.CurrentStore.Id,
-                    warnings);
-            }
-
-            if (warnings.Any())
-            {
-                return new JsonResult(new { Message = warnings[0], HasWarning = true });
-            }
 
             string message = T(foundCombination != null
                 ? "Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"

@@ -1,3 +1,13 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
+:root {
+  @each $name, $value in $grid-breakpoints {
+    --breakpoint-#{$name}: #{$value};
+  }
+}
+
 // Container widths
 //
 // Set the container width, and override it for fixed navbars in media queries.
@@ -48,18 +58,9 @@
 @if $enable-grid-classes {
   .row {
     @include make-row();
-  }
 
-  // Remove the negative margin from default .row, then the horizontal padding
-  // from all immediate children columns (to prevent runaway style inheritance).
-  .no-gutters {
-    margin-right: 0;
-    margin-left: 0;
-
-    > .col,
-    > [class*="col-"] {
-      padding-right: 0;
-      padding-left: 0;
+    > * {
+      @include make-col-ready();
     }
   }
 }

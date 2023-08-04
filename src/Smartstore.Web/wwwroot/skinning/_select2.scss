@@ -344,6 +344,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: if($enable-shadows, $btn-box-shadow, null);
 
             b {
                 width: 10px;
@@ -483,6 +484,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
         .select2-selection__arrow {
             border-color: transparent;
+            box-shadow: none;
         }
     }
 

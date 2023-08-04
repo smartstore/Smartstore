@@ -57,7 +57,6 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IProductAttributeMaterializer> _productAttributeMaterializer;
         private readonly Lazy<IStockSubscriptionService> _stockSubscriptionService;
         private readonly Lazy<IShoppingCartService> _shoppingCartService;
-        private readonly Lazy<IShoppingCartValidator> _shoppingCartValidator;
         private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
         private readonly Lazy<IDownloadService> _downloadService;
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
@@ -91,7 +90,6 @@ namespace Smartstore.Admin.Controllers
             Lazy<IProductAttributeMaterializer> productAttributeMaterializer,
             Lazy<IStockSubscriptionService> stockSubscriptionService,
             Lazy<IShoppingCartService> shoppingCartService,
-            Lazy<IShoppingCartValidator> shoppingCartValidator,
             Lazy<IProductAttributeFormatter> productAttributeFormatter,
             Lazy<IDownloadService> downloadService,
             Lazy<ICatalogSearchService> catalogSearchService,
@@ -124,7 +122,6 @@ namespace Smartstore.Admin.Controllers
             _productAttributeMaterializer = productAttributeMaterializer;
             _stockSubscriptionService = stockSubscriptionService;
             _shoppingCartService = shoppingCartService;
-            _shoppingCartValidator = shoppingCartValidator;
             _productAttributeFormatter = productAttributeFormatter;
             _downloadService = downloadService;
             _catalogSearchService = catalogSearchService;

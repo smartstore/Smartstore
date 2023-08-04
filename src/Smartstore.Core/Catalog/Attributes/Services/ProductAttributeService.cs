@@ -12,9 +12,7 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly SmartDbContext _db;
         private readonly ILocalizedEntityService _localizedEntityService;
 
-        public ProductAttributeService(
-            SmartDbContext db,
-            ILocalizedEntityService localizedEntityService)
+        public ProductAttributeService(SmartDbContext db, ILocalizedEntityService localizedEntityService)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
@@ -276,16 +274,14 @@ namespace Smartstore.Core.Catalog.Attributes
                         attributeSelection.AddAttributeValue(mappedAttributes[value.Id].Id, value.Id);
                     }
 
-                    var combination = new ProductVariantAttributeCombination
+                    _db.ProductVariantAttributeCombinations.Add(new()
                     {
                         ProductId = productId,
                         RawAttributes = attributeSelection.AsJson(),
                         StockQuantity = 10000,
                         AllowOutOfStockOrders = true,
                         IsActive = true
-                    };
-
-                    _db.ProductVariantAttributeCombinations.Add(combination);
+                    });
                 }
 
                 addedCombinations = await scope.CommitAsync();

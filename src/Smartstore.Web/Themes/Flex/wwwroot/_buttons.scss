@@ -1,18 +1,14 @@
 /// <reference path="theme.scss" />
 
-// Button tweaks:
-// Must come BEFORE custom button import because of
-// CSS specificity.
-// -----------------------------------------------------
-
+// Make secondary button white
 .btn-secondary {
     $bg: $btn-secondary-bg;
     $border: $btn-secondary-border;
-	@include button-variant(
+    
+    @include button-inactive-variant($bg, $border);
+    @include button-active-variant(
         $bg, 
-        $border, 
-        $hover-background: darken($bg, 7%), 
-        $hover-border: darken($border, 10%), 
-        $active-background: darken($bg, 12%), 
-        $active-border: darken($border, 12%));
+        $btn-secondary-border,
+        $hover-background: shade-color($bg, 7%),
+        $active-background: shade-color($bg, 12%));
 }

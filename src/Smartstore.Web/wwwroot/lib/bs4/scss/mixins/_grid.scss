@@ -1,3 +1,7 @@
+/// <reference path="../_variables.scss" />
+/// <reference path="../_functions.scss" />
+/// <reference path="../_mixins.scss" />
+
 /// Grid system
 //
 // Generate semantic grid columns with these mixins.
@@ -11,10 +15,14 @@
 }
 
 @mixin make-row($gutter: $grid-gutter-width) {
+  --gutter-x: #{$gutter};
+  --gutter-y: 0;
   display: flex;
   flex-wrap: wrap;
-  margin-right: -$gutter * .5;
-  margin-left: -$gutter * .5;
+  // TODO: Revisit calc order after https://github.com/react-bootstrap/react-bootstrap/issues/6039 is fixed
+  margin-top: calc(-1 * var(--gutter-y));
+  margin-right: calc(-.5 * var(--gutter-x));
+  margin-left: calc(-.5 * var(--gutter-x));
 }
 
 // For each breakpoint, define the maximum width of the container in a media query
@@ -27,33 +35,39 @@
   @include deprecate("The `make-container-max-widths` mixin", "v4.5.2", "v5");
 }
 
-@mixin make-col-ready($gutter: $grid-gutter-width) {
-  position: relative;
+@mixin make-col-ready() {
+  // Add box sizing
+  box-sizing: border-box;
   // Prevent columns from becoming too narrow when at smaller grid tiers by
-  // always setting `width: 100%;`. This works because we use `flex` values
+  // always setting `width: 100%;`. This works because we set the width
   // later on to override this initial width.
+  flex-shrink: 0;
   width: 100%;
-  padding-right: $gutter * .5;
-  padding-left: $gutter * .5;
+  max-width: 100%; // Prevent `.col-auto`, `.col` (& responsive variants) from breaking out the grid
+  padding-right: calc(var(--gutter-x) * .5);
+  padding-left: calc(var(--gutter-x) * .5);
+  margin-top: var(--gutter-y);
 }
 
 @mixin make-col($size, $columns: $grid-columns) {
-  flex: 0 0 percentage(divide($size, $columns));
-  // Add a `max-width` to ensure content within each column does not blow out
-  // the width of the column. Applies to IE10+ and Firefox. Chrome and Safari
-  // do not appear to require this.
-  max-width: percentage(divide($size, $columns));
+  @if $size {
+    flex: 0 0 auto;
+    width: percentage(divide($size, $columns));
+
+  } @else {
+    flex: 1 1 0;
+    max-width: 100%;
+  }
 }
 
 @mixin make-col-auto() {
   flex: 0 0 auto;
   width: auto;
-  max-width: 100%; // Reset earlier grid tiers
 }
 
 @mixin make-col-offset($size, $columns: $grid-columns) {
   $num: divide($size, $columns);
-  margin-left: if($num == 0, 0, percentage($num));
+  margin-inline-start: if($num == 0, 0, percentage($num));
 }
 
 // Row columns
@@ -63,7 +77,7 @@
 // style grid.
 @mixin row-cols($count) {
   > * {
-    flex: 0 0 divide(100%, $count);
-    max-width: divide(100%, $count);
+    flex: 0 0 auto;
+    width: divide(100%, $count);
   }
 }

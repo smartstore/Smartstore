@@ -21,7 +21,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             var result = new List<ProductVariantAttributeValue>();
 
-            if (selection?.AttributesMap?.Any() ?? false)
+            if (!selection.IsNullOrEmpty())
             {
                 var listTypeAttributeIds = attributes
                     .Where(x => x.IsListTypeAttribute())

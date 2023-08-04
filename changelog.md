@@ -9,6 +9,7 @@
 
 ### Improvements
 
+- Increased performance: added hash codes to attribute combinations. With a large number of attribute combinations, variants are found much faster now.
 - Improved plugin & provider manager UI
 - #580 Added caching for live currency exchange rates.
 - #767 Handle tier prices in depending prices module.
@@ -21,6 +22,7 @@
 ### Bugfixes
 
 - Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
+- Fixed not yet awarded reward points were reduced when an order was deleted.
 - Web API: fixed 404 file swagger.json not found when opening Swagger documentation in a virtual directory.
 - Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
 - Fixed missing cache clearing after importing localized properties.

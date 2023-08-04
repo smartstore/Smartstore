@@ -724,8 +724,8 @@ namespace Smartstore.Core.Checkout.Orders
         {
             if (!_rewardPointsSettings.Enabled ||
                 _rewardPointsSettings.PointsForPurchases_Amount <= decimal.Zero ||
-                // Ensure that reward points were not added before. We should not add reward points if they were already earned for this order.
-                order.RewardPointsWereAdded ||
+                (!reduce && order.RewardPointsWereAdded) || 
+                (reduce && !order.RewardPointsWereAdded) ||
                 order.Customer == null ||
                 order.Customer.IsGuest())
             {

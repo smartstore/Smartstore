@@ -118,7 +118,7 @@
                     <i class="far fa-list-alt"></i>
                     <span>@T("Order.OrderDetails")</span>
                 </a>
-                @if (true /*order.IsReturnRequestAllowed*/)
+                @if (order.IsReturnRequestAllowed)
                 {
                     <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@order.Id" class="btn btn-secondary btn-no-border btn-sm btn-flat" rel="nofollow">
                         <i class="fa fa-reply"></i>

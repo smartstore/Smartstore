@@ -43,7 +43,6 @@ namespace Smartstore.Core.Tests.Shipping
                 null,
                 NullRequestCache.Instance,
                 null,
-                null,
                 new Lazy<IDownloadService>(() => downloadService.Object),
                 new Lazy<CatalogSettings>(),
                 null);
