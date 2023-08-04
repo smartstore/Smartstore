@@ -314,6 +314,15 @@ $h4-font-size:                $font-size-base * 1.5 !default;
 $h5-font-size:                $font-size-base * 1.25 !default;
 $h6-font-size:                $font-size-base !default;
 
+$font-sizes: (
+  1: $h1-font-size,
+  2: $h2-font-size,
+  3: $h3-font-size,
+  4: $h4-font-size,
+  5: $h5-font-size,
+  6: $h6-font-size
+) !default;
+
 $headings-margin-bottom:      $spacer * .5 !default;
 $headings-font-family:        null !default;
 $headings-font-weight:        500 !default;
@@ -324,6 +333,13 @@ $display1-size:               6rem !default;
 $display2-size:               5.5rem !default;
 $display3-size:               4.5rem !default;
 $display4-size:               3.5rem !default;
+
+$display-font-sizes: (
+  1: $display1-size,
+  2: $display2-size,
+  3: $display3-size,
+  4: $display4-size
+) !default;
 
 $display1-weight:             300 !default;
 $display2-weight:             300 !default;
