@@ -408,6 +408,10 @@ namespace Smartstore.Domain
         {
             var combiner = HashCodeCombiner.Start();
 
+            // TODO: (mg) Are you sure that just ordering by Key is reliable?
+            // TODO: (mg) Hot path function (at least during migration). Do micro perf optimizations:
+            //          - for (var i = 0; ...; ...) instead of foreach or .Each()
+            //          - Make array from LINQ-Enumerable
             foreach (var attribute in _attributes.Attributes.OrderBy(x => x.Key))
             {
                 combiner.Add(attribute.Key);

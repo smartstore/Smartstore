@@ -33,6 +33,8 @@ namespace Smartstore.Core.Data.Migrations
                 .Where(x => x.HashCode == 0)
                 .OrderBy(x => x.Id);
 
+            // TODO: (mg) FastPager will definitely increase perf for large datasets.
+            // TODO: (mg) HookImportance.Essential could slightly increase write performance. Check if possible.
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, deferCommit: true, minHookImportance: HookImportance.Important))
             {
                 do
