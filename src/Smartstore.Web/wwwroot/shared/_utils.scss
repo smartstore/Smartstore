@@ -58,7 +58,7 @@
 	position: relative;
 	display: inline-block;
 	opacity: 0.6;
-	padding-left: 0.2rem;
+	padding-inline-start: 0.2rem;
 	font-weight: 400;
 }
 
@@ -72,12 +72,12 @@
 .menubar-link {
 	> i + span:not(:empty), > .bi + span:not(:empty),
 	> i + em:not(:empty), > .bi + em:not(:empty) {
-		padding-left: 0.5em;
+		padding-inline-start: 0.5em;
 	}
 
 	> span:not(:empty) + i, > span:not(:empty) + .bi,
 	> em:not(:empty) + i, > em:not(:empty) + .bi {
-		margin-left: 0.5em;
+		margin-inline-start: 0.5em;
 	}
 }
 
@@ -206,6 +206,7 @@ img[src*="/images/flags/"] {
 
 table th {
 	font-weight: $font-weight-medium;
+    text-align: start;
 }
 
 
@@ -242,7 +243,7 @@ table th {
 		}
 
 		.list-group-item-icon {
-			margin-right: 0.75rem;
+			margin-inline-end: 0.75rem;
 		}
 	}
 }

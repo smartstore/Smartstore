@@ -1,3 +1,7 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 // .modal-open      - body class for killing the scroll
 // .modal           - container to scroll within
 // .modal-dialog    - positioning shell for the actual modal
@@ -18,7 +22,7 @@
 .modal {
   position: fixed;
   top: 0;
-  left: 0;
+  inset-inline-start: 0;
   z-index: $zindex-modal;
   display: none;
   width: 100%;
@@ -125,7 +129,7 @@
 .modal-backdrop {
   position: fixed;
   top: 0;
-  left: 0;
+  inset-inline-start: 0;
   z-index: $zindex-modal-backdrop;
   width: 100vw;
   height: 100vh;
@@ -149,7 +153,8 @@
   .close {
     padding: $modal-header-padding;
     // auto on the left force icon to the right even when there is no .modal-title
-    margin: (-$modal-header-padding-y) (-$modal-header-padding-x) (-$modal-header-padding-y) auto;
+    margin-block: (-$modal-header-padding-y);
+    margin-inline: auto (-$modal-header-padding-x);
   }
 }
 

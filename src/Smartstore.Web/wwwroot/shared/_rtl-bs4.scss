@@ -8,27 +8,6 @@
 
 [dir=rtl] {
 
-	// Common
-	// ----------------------------------------------
-
-	th {
-		text-align: right;
-	}
-
-	.list-unstyled,
-	.list-inline {
-		padding-right: 0;
-	}
-
-	.list-inline &:not(:last-child) {
-		margin-left: $list-inline-padding;
-		margin-right: initial;
-	}
-
-	.navbar-nav {
-		padding-right: 0;
-	}
-
 	// Custom controls
 	// ----------------------------------------------
 
@@ -48,47 +27,5 @@
 		border-right: $custom-file-border-width solid $custom-file-border-color;
 		border-left: none;
 	  }
-	}
-
-
-	.list-group {
-		padding-right: 0;
-	}
-
-	.modal-header .close {
-		margin-left: (-$modal-header-padding);
-		margin-right: auto;
-	}
-
-	.modal-footer {
-		> :not(:first-child) {
-			margin-right: .25rem;
-			margin-left: initial;
-		}
-		> :not(:last-child) {
-			margin-left: .25rem;
-			margin-right: initial;
-		}
-	}
-
-	.form-check {
-		padding-right: $form-check-input-gutter;
-		padding-left: initial;
-
-		.form-check-input {
-			margin-right: -$form-check-input-gutter;
-			margin-left: initial;
-		}
-
-		&.form-check-inline {
-			padding-right: 0;
-			margin-left: $form-check-inline-margin-x;
-			margin-right: initial;
-
-			.form-check-input {
-				margin-left: $form-check-inline-input-margin-x;
-				margin-right: 0;
-			}
-		}
 	}
 }

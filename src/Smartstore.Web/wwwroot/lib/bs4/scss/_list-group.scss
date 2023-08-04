@@ -1,3 +1,7 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 // Base class
 //
 // Easily usable on <ul>, <ol>, or <div>.
@@ -7,7 +11,7 @@
   flex-direction: column;
 
   // No need to set list-style: none; since .list-group-item is block level
-  padding-left: 0; // reset padding because ul and ol
+  padding-inline-start: 0; // reset padding because ul and ol
   margin-bottom: 0;
   @include border-radius($list-group-border-radius);
 }
@@ -113,11 +117,11 @@
 
         + .list-group-item {
           border-top-width: $list-group-border-width;
-          border-left-width: 0;
+          border-inline-start-width: 0;
 
           &.active {
-            margin-left: -$list-group-border-width;
-            border-left-width: $list-group-border-width;
+            margin-inline-start: -$list-group-border-width;
+            border-inline-start-width: $list-group-border-width;
           }
         }
       }
