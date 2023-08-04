@@ -48,6 +48,7 @@ namespace Smartstore.Core.Data.Migrations
                     foreach (var combination in combinations)
                     {
                         // INFO: by accidents the selection can be empty. In that case the hash code has the value 5381, not 0.
+                        // TODO: (mg) Fault tolerance: don't exit the whole process if RawAttributes for a single entity is invalid and throws.
                         var hashCode = new ProductVariantAttributeSelection(combination.RawAttributes).GetHashCode();
                         if (hashCode == 0 && ++numWarnings < 10)
                         {
