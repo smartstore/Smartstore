@@ -25,7 +25,7 @@
         <fieldset sm-if="Model.ExistingAddresses.Any()" class="content-group mb-3">
             <legend><span>@T("Checkout.SelectShippingAddress")</span></legend>
 
-            <div class="row sm-gutters row-gap-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list">
+            <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list">
                 @foreach (var item in Model.ExistingAddresses)
                 {
                     <div class="col">

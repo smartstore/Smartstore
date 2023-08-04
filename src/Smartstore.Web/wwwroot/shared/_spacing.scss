@@ -2,29 +2,3 @@
 /// <reference path="../lib/bs4/scss/bootstrap.scss" />
 /// <reference path="../lib/bs4/scss/vendor/_rfs.scss" />
 
-
-//
-// .gap utilities, non-responsive (remove after bs6 update)
-// ----------------------------------------------------------
-
-.column-gap-05,
-.gap-05 {
-    column-gap: 2px !important;
-}
-
-.row-gap-05,
-.gap-05 {
-    row-gap: 2px !important;
-}
-
-@each $size, $length in $spacers {
-    .column-gap-#{$size},
-    .gap-#{$size} {
-        column-gap: $length !important;
-    }
-
-    .row-gap-#{$size},
-    .gap-#{$size} {
-        row-gap: $length !important;
-    }
-}
