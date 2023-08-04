@@ -58,7 +58,7 @@ namespace Smartstore.Core.Migrations
             try
             {
                 var migrator = new AttributesMigrator(_db, _logger);
-                _ = await migrator.MigrateAttributeCombinationHashCodesAsync(cancelToken);
+                _ = await migrator.CreateAttributeCombinationHashCodesAsync(cancelToken);
             }
             catch (Exception ex)
             {

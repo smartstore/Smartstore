@@ -237,16 +237,16 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        public IActionResult EnsureAttributeCombinationHashCodes()
+        public IActionResult CreateAttributeCombinationHashCodes()
         {
-            _ = _asyncRunner.RunTask(EnsureAttributeCombinationHashCodesInternal);
+            _ = _asyncRunner.RunTask(CreateAttributeCombinationHashCodesInternal);
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
 
             return RedirectToAction(nameof(Warnings));
         }
 
-        private static async Task EnsureAttributeCombinationHashCodesInternal(ILifetimeScope scope, CancellationToken cancelToken)
+        private static async Task CreateAttributeCombinationHashCodesInternal(ILifetimeScope scope, CancellationToken cancelToken)
         {
             var db = scope.Resolve<SmartDbContext>();
             var logger = scope.Resolve<ILogger>();
@@ -254,7 +254,7 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 var migrator = new AttributesMigrator(db, logger);
-                _ = await migrator.MigrateAttributeCombinationHashCodesAsync(cancelToken);
+                _ = await migrator.CreateAttributeCombinationHashCodesAsync(cancelToken);
             }
             catch (Exception ex)
             {
@@ -730,7 +730,7 @@ namespace Smartstore.Admin.Controllers
             var missingHashCodes = await _db.ProductVariantAttributeCombinations.CountAsync(x => x.HashCode == 0);
             if (missingHashCodes > 0)
             {
-                var msg = T("Admin.System.Warnings.AttributeCombinationHashCodes.Missing", missingHashCodes.ToString("N0"), Url.Action(nameof(EnsureAttributeCombinationHashCodes)));
+                var msg = T("Admin.System.Warnings.AttributeCombinationHashCodes.Missing", missingHashCodes.ToString("N0"), Url.Action(nameof(CreateAttributeCombinationHashCodes)));
                 AddEntry(SystemWarningLevel.Fail, msg);
             }
             else

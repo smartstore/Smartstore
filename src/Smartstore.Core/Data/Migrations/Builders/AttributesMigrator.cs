@@ -19,7 +19,7 @@ namespace Smartstore.Core.Data.Migrations
         /// Sets <see cref="ProductVariantAttributeCombination.HashCode"/> if it is 0.
         /// </summary>
         /// <returns>Number of updated <see cref="ProductVariantAttributeCombination"/>.</returns>
-        public async Task<int> MigrateAttributeCombinationHashCodesAsync(CancellationToken cancelToken = default)
+        public async Task<int> CreateAttributeCombinationHashCodesAsync(CancellationToken cancelToken = default)
         {
             const int take = 4000;
             // Avoid an infinite loop here under all circumstances. Process a maximum of 500,000,000 records.
