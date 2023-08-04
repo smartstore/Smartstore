@@ -487,6 +487,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 
     .btn {
         position: relative;
+        white-space: nowrap;
     }
 
     .btn > em {
