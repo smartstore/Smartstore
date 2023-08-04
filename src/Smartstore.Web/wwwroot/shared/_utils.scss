@@ -25,31 +25,22 @@
 
 
 //
-// Grid stuff
+// Grid shims
 // --------------------------------------------------
 
-.sm-gutters {
-	$gw: 0.5rem;
-	margin-right: $gw * -1;
-	margin-left: $gw * -1;
+.no-gutters {
+    --gutter-x: 0;
+    --gutter-y: 0;
+}
 
-	> .col, 
-	> [class*="col-"] {
-		padding-right: $gw;
-		padding-left: $gw;
-	}
+.sm-gutters {
+    --gutter-x: 0.5rem;
+    --gutter-y: 0.5rem;
 }
 
 .xs-gutters {
-	$gw: 0.25rem;
-	margin-right: $gw * -1;
-	margin-left: $gw * -1;
-
-	> .col, 
-	> [class*="col-"] {
-		padding-right: $gw;
-		padding-left: $gw;
-	}
+    --gutter-x: 0.25rem;
+    --gutter-y: 0.25rem;
 }
 
 .container-fluid {
