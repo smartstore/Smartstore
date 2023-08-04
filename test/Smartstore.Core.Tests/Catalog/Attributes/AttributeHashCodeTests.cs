@@ -81,12 +81,36 @@ namespace Smartstore.Core.Tests.Catalog
             Assert.AreEqual(pvac.HashCode, storedHashCode);
         }
 
+        [Test]
+        public void Can_update_attribute_combination_hashcode()
+        {
+            var pvac1 = CreateAttributeCombination(TestNumber);
+            var pvac2 = CreateAttributeCombination();
+            Assert.IsTrue(pvac1.HashCode != pvac2.HashCode);
+
+            pvac1.RawAttributes = pvac2.RawAttributes;
+            Assert.IsTrue(pvac1.HashCode == pvac2.HashCode);
+        }
+
+        [Test]
+        public void Can_create_format_independent_attribute_combination_hashcode()
+        {
+            var pvacXml = CreateAttributeCombination(TestNumber, asJson: false);
+            var pvacJson = CreateAttributeCombination(TestNumber, asJson: true);
+
+            Assert.IsTrue(pvacXml.RawAttributes != pvacJson.RawAttributes);
+            Assert.IsTrue(pvacXml.HashCode == pvacJson.HashCode);
+
+            pvacXml.RawAttributes = pvacJson.RawAttributes;
+            Assert.IsTrue(pvacXml.HashCode == pvacJson.HashCode);
+        }
+
         [TestCase()]
         [TestCase(true)]
         [TestCase(false, true)]
         [TestCase(false, false, true)]
         [TestCase(false, true, true)]
-        public async Task Can_find_attribute_by_hashcode(
+        public async Task Can_find_attribute_combination_by_hashcode(
             bool includeGiftCard = false,
             bool reverseAttributeOrder = false,
             bool reverseValueOrder = false)
@@ -156,7 +180,8 @@ namespace Smartstore.Core.Tests.Catalog
             int? anyNumber = null, 
             bool includeGiftCard = false,
             bool reverseAttributeOrder = false,
-            bool reverseValueOrder = false)
+            bool reverseValueOrder = false,
+            bool asJson = true)
         {
             var num = anyNumber ?? CommonHelper.GenerateRandomInteger(RandomNumberOffset, int.MaxValue - 100);
             var selection = CreateAttributeSelection(num, includeGiftCard, reverseAttributeOrder, reverseValueOrder);
@@ -164,7 +189,7 @@ namespace Smartstore.Core.Tests.Catalog
             return new()
             {
                 Sku = SkuTemplate.FormatInvariant(num),
-                RawAttributes = selection.AsJson(),
+                RawAttributes = asJson ? selection.AsJson() : selection.AsXml(),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
