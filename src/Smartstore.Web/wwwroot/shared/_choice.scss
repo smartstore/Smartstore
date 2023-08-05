@@ -16,10 +16,11 @@ $choice-box-size-xl:        96px;
     margin-bottom: 1rem;
 }
 
+label.required,
 .col-form-label.required,
 .choice-label.required {
-	color: inherit;
-	font-weight: bold;
+	//color: inherit;
+	font-weight: $font-weight-medium;
 	&:after { content: ' *' }
 }
 

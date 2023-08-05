@@ -8,14 +8,12 @@
     var privacyInfoUrl = await Url.TopicAsync("PrivacyInfo");
 }
 
-<div class="form-group row gdpr-consent @(Model.SmallDisplay ? "small" : "")">
-    <div class="col form-control-plaintext">
-        <div class="form-check">
-            <input asp-for="GdprConsent" id="@id" class="gdpr-consent-check form-check-input" sm-ignore-label="true" sm-switch="false" />
-            <label class="form-check-label" for="@id">
-                @Html.Raw(T("Gdpr.Consent.DetailText" + (Model.SmallDisplay ? ".Small" : ""), privacyInfoUrl))
-            </label>
-        </div>
-        <span asp-validation-for="GdprConsent"></span>
+<div class="form-group gdpr-consent @(Model.SmallDisplay ? "small" : "")">
+    <div class="form-check">
+        <input asp-for="GdprConsent" id="@id" class="gdpr-consent-check form-check-input" sm-ignore-label="true" sm-switch="false" />
+        <label class="form-check-label" for="@id">
+            @Html.Raw(T("Gdpr.Consent.DetailText" + (Model.SmallDisplay ? ".Small" : ""), privacyInfoUrl))
+        </label>
     </div>
+    <span asp-validation-for="GdprConsent"></span>
 </div>

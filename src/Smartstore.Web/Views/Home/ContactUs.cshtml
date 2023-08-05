@@ -29,51 +29,38 @@
 
                 <honeypot />
 
-                <div class="form-group row">
-                    <label asp-for="FullName" class="col-sm-3 col-form-label" attr-class='(Model.FullNameRequired, "required")'></label>
-                    <div class="col-sm-9">
-                        <input asp-for="FullName" sm-required="Model.FullNameRequired" class="remember" />
-                        <span asp-validation-for="FullName"></span>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label asp-for="Email" class="col-sm-3 col-form-label required"></label>
-                    <div class="col-sm-9">
-                        <input asp-for="Email" sm-required="true" class="remember" />
-                        <span asp-validation-for="Email"></span>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label asp-for="Enquiry" class="col-sm-3 col-form-label required"></label>
-                    <div class="col-sm-9">
-                        <textarea asp-for="Enquiry" placeholder="@T("ContactUs.Enquiry.Hint")" class="personal-message remember" rows="6"></textarea>
-                        <span asp-validation-for="Enquiry"></span>
-                    </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="FullName" sm-required="Model.FullNameRequired" class="remember remember-disallow-empty" placeholder="@Html.DisplayNameFor(x => x.FullName)" />
+                    <label asp-for="FullName" attr-class='(Model.FullNameRequired, "required")'></label>
+                    <span asp-validation-for="FullName"></span>
                 </div>
 
-                <div class="form-group row">
-                    <div class="col col-sm-auto offset-sm-3 text-muted">
-                        @T("Common.FormFields.Required.Hint")
-                    </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" sm-required="true" class="remember remember-disallow-empty" placeholder="@Html.DisplayNameFor(x => x.Email)" />
+                    <label asp-for="Email" class="required"></label>
+                    <span asp-validation-for="Email"></span>
                 </div>
 
-                <div class="row justify-content-end">
-                    <div class="col-sm-9">
-                        <zone name="gdpr_consent" />
-                    </div>
+                <div class="form-floating mb-2">
+                    <textarea asp-for="Enquiry" placeholder="@T("ContactUs.Enquiry.Hint")" class="personal-message remember remember-disallow-empty" style="height: 150px"></textarea>
+                    <label asp-for="Enquiry" class="required">@T("ContactUs.Enquiry.Hint")</label>
+                    <span asp-validation-for="Enquiry"></span>
                 </div>
 
-                <div class="form-group row">
-                    <captcha sm-enabled="Model.DisplayCaptcha" class="col col-sm-auto offset-sm-3" />
+                <div class="text-muted mb-3">
+                    @T("Common.FormFields.Required.Hint")
                 </div>
 
-                <div class="form-group row">
-                    <div class="col col-sm-auto offset-sm-3">
-                        <button type="submit" name="send-email" class="btn btn-primary btn-lg btn-block">
-                            @T("ContactUs.Button")
-                        </button>
-                    </div>
+                <zone name="gdpr_consent" />
+
+                <div class="mb-3">
+                    <captcha sm-enabled="Model.DisplayCaptcha" />
                 </div>
+
+                <button type="submit" name="send-email" class="btn btn-primary btn-lg">
+                    @T("ContactUs.Button")
+                </button>
+
             </form>
         }
 

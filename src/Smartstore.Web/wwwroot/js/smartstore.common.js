@@ -322,10 +322,16 @@
                     if (!el)
                         continue;
 
-                    if (el.classList.contains('form-check-input'))
+                    if (el.classList.contains('form-check-input')) {
                         el.checked = val;
-                    else
+                    }
+                    else {
+                        if (val === '' && el.matches('.remember-disallow-empty')) {
+                            continue;
+                        }
+
                         el.value = val;
+                    }   
 
                     el.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
                 }
