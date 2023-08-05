@@ -8,9 +8,9 @@
     gridViewData["Parent"] = Model;
 }
 
-<div class="row g-3 row-cols-1 row-cols-lg-3">
+<div class="row card-grid g-3 row-cols-1 row-cols-lg-3">
     <div class="col">
-        <div class="card h-100">
+        <div class="card">
             <div class="card-body">
                 <h6 class="card-title">@T("Order.BillingAddress")</h6>
                 <div class="mb-2">
@@ -36,7 +36,7 @@
     </div>
 
     <div class="col">
-        <div class="card h-100">
+        <div class="card">
             @if (Model.IsShippable && shipTo != null)
             {
                 <div class="card-body">
@@ -75,7 +75,7 @@
     </div>
 
     <div class="col">
-        <div class="card h-100 border-0">
+        <div class="card border-0">
             @if (Model.IsShippable)
             {
                 <h6>@T("Admin.Orders.Fields.ShippingMethod")</h6>

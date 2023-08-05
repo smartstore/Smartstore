@@ -6,6 +6,12 @@
 // Cards
 // ==============================================================
 
+.card-grid {
+    .card {
+        height: 100%;
+    }
+}
+
 .card-deck {
     .card {
         margin-bottom: $card-deck-margin * 2;
