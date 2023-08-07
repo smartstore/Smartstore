@@ -106,7 +106,7 @@
                     <smart-label asp-for="StartDateUtc" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="StartDateUtc" />
+                    <editor asp-for="StartDateUtc" placeholder="@T("Common.From")" />
                     <span asp-validation-for="StartDateUtc"></span>
                 </div>
             </div>
@@ -115,7 +115,7 @@
                     <smart-label asp-for="EndDateUtc" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="EndDateUtc" />
+                    <editor asp-for="EndDateUtc" placeholder="@T("Common.To")" />
                     <span asp-validation-for="EndDateUtc"></span>
                 </div>
             </div>
