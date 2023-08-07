@@ -409,17 +409,25 @@ namespace Smartstore.Domain
             var combiner = HashCodeCombiner.Start();
 
             // TODO: (mg) Are you sure that just ordering by Key is reliable?
-            // TODO: (mg) Hot path function (at least during migration). Do micro perf optimizations:
-            //          - for (var i = 0; ...; ...) instead of foreach or .Each()
-            //          - Make array from LINQ-Enumerable
-            foreach (var attribute in _attributes.Attributes.OrderBy(x => x.Key))
+            // RE: the attribute values are also ordered. There is also a unit test for this (Can_create_attribute_selection_hashcode with reverseValueOrder = true).
+
+            var attributes = _attributes.Attributes.OrderBy(x => x.Key).ToArray();
+
+            for (var i = 0; i < attributes.Length; ++i)
             {
+                var attribute = attributes[i];
+                
                 combiner.Add(attribute.Key);
 
-                attribute.Value
+                var values = attribute.Value
                     .Select(x => x.ToString())
                     .OrderBy(x => x)
-                    .Each(x => combiner.Add(x));
+                    .ToArray();
+
+                for (var j = 0; j < values.Length; ++j)
+                {
+                    combiner.Add(values[j]);
+                }
             }
 
             return combiner.CombinedHash;
