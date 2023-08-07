@@ -18,6 +18,7 @@
 - #503 Don't round quantity unit amount for PAnGV.
 - #403 Added preview image link of NewsItem to RSS feed.
 - #390 Import: add a setting whether to send the completion email.
+- #276 Enable to set the time of day for start and end date of discounts.
 
 ### Bugfixes
 

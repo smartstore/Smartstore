@@ -37,12 +37,14 @@ namespace Smartstore.Admin.Models.Discounts
         public string FormattedDiscountAmount { get; set; }
 
         [LocalizedDisplay("*StartDate")]
+        [AdditionalMetadata("pickTime", true)]
         public DateTime? StartDateUtc { get; set; }
 
         [LocalizedDisplay("*StartDate")]
         public string StartDate { get; set; }
 
         [LocalizedDisplay("*EndDate")]
+        [AdditionalMetadata("pickTime", true)]
         public DateTime? EndDateUtc { get; set; }
 
         [LocalizedDisplay("*EndDate")]
@@ -115,8 +117,8 @@ namespace Smartstore.Admin.Models.Discounts
 
         public Task MapAsync(Discount from, DiscountModel to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             MiniMapper.Map(from, to);
 
@@ -142,8 +144,8 @@ namespace Smartstore.Admin.Models.Discounts
 
         public Task MapAsync(DiscountModel from, Discount to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             MiniMapper.Map(from, to);
 
