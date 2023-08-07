@@ -82,7 +82,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var shouldSave = false;
-            var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
+            var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds, tracked: true);
 
             foreach (var row in batch)
             {
@@ -243,22 +243,22 @@ namespace Smartstore.Core.DataExchange.Import
                             Source = row.Entity,
                             Slug = SlugUtility.Slugify(seName.NullEmpty() ?? row.EntityDisplayName, _seoSettings)
                         });
+                    }
 
-                        // Process localized slugs.
-                        foreach (var language in context.Languages)
+                    // Process localized slugs.
+                    foreach (var language in context.Languages)
+                    {
+                        var hasSeName = TryGetLocalizedValue(row, "SeName", language, out seName);
+                        var hasLocalizedName = TryGetLocalizedValue(row, "Name", language, out string localizedName);
+
+                        if (hasSeName || hasLocalizedName)
                         {
-                            var hasSeName = TryGetLocalizedValue(row, "SeName", language, out seName);
-                            var hasLocalizedName = TryGetLocalizedValue(row, "Name", language, out string localizedName);
-
-                            if (hasSeName || hasLocalizedName)
+                            scope.ApplySlugs(new ValidateSlugResult
                             {
-                                scope.ApplySlugs(new ValidateSlugResult
-                                {
-                                    Source = row.Entity,
-                                    Slug = SlugUtility.Slugify(seName.NullEmpty() ?? localizedName, _seoSettings),
-                                    LanguageId = language.Id
-                                });
-                            }
+                                Source = row.Entity,
+                                Slug = SlugUtility.Slugify(seName.NullEmpty() ?? localizedName, _seoSettings),
+                                LanguageId = language.Id
+                            });
                         }
                     }
                 }
