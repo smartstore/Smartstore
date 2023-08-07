@@ -43,7 +43,7 @@ namespace Smartstore.Core.Data.Migrations
                     foreach (var combination in combinations)
                     {
                         // INFO: by accidents the selection can be empty. In that case the hash code has the value 5381, not 0.
-                        combination.HashCode = GetAttributesHashCodeSafe(combination);
+                        combination.HashCode = CommonHelper.TryAction(() => new ProductVariantAttributeSelection(combination.RawAttributes).GetHashCode());
 
                         if (combination.HashCode == 0 && ++numWarnings < 10)
                         {
@@ -54,13 +54,7 @@ namespace Smartstore.Core.Data.Migrations
                     await scope.CommitAsync(cancelToken);
                     numSuccess += combinations.Count;
 
-                    try
-                    {
-                        scope.DbContext.DetachEntities<ProductVariantAttributeCombination>();
-                    }
-                    catch
-                    {
-                    }
+                    CommonHelper.TryAction(() => scope.DbContext.DetachEntities<ProductVariantAttributeCombination>());
                 }
             }
 
@@ -70,18 +64,6 @@ namespace Smartstore.Core.Data.Migrations
             }
 
             return numSuccess;
-
-            static int GetAttributesHashCodeSafe(ProductVariantAttributeCombination entity)
-            {
-                try
-                {
-                    return new ProductVariantAttributeSelection(entity.RawAttributes).GetHashCode();
-                }
-                catch
-                {
-                    return 0;
-                }
-            }
         }
     }
 }
