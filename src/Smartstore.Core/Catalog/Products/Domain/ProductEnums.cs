@@ -99,9 +99,9 @@
         AllowQtyBelow0 = 1,
 
         /// <summary>
-        /// Allow quantity below 0 and notify customer.
+        /// Allow quantity below 0, product is on backorder.
         /// </summary>
-        AllowQtyBelow0AndNotifyCustomer = 2
+        AllowQtyBelow0OnBackorder = 2
     }
 
     /// <summary>

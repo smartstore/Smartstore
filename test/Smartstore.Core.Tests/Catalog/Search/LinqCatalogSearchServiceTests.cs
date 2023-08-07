@@ -642,7 +642,7 @@ namespace Smartstore.Core.Tests.Catalog.Search
                 {
                     StockQuantity = 0,
                     ManageInventoryMethod = ManageInventoryMethod.ManageStock,
-                    BackorderMode = BackorderMode.AllowQtyBelow0AndNotifyCustomer
+                    BackorderMode = BackorderMode.AllowQtyBelow0OnBackorder
                 }
             };
 

@@ -250,7 +250,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             {
                                 availability = "out of stock";
                             }
-                            else if (entity.BackorderMode == BackorderMode.AllowQtyBelow0 || entity.BackorderMode == BackorderMode.AllowQtyBelow0AndNotifyCustomer)
+                            else if (entity.BackorderMode == BackorderMode.AllowQtyBelow0 || entity.BackorderMode == BackorderMode.AllowQtyBelow0OnBackorder)
                             {
                                 availability = entity.AvailableForPreOrder ? "preorder" : "out of stock";
                             }

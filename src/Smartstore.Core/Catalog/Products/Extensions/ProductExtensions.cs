@@ -114,7 +114,7 @@ namespace Smartstore.Core.Catalog.Products
                     {
                         stockMessage = localizationService.GetResource("Products.Availability.OutOfStock");
                     }
-                    else if (product.BackorderMode == BackorderMode.AllowQtyBelow0AndNotifyCustomer)
+                    else if (product.BackorderMode == BackorderMode.AllowQtyBelow0OnBackorder)
                     {
                         stockMessage = localizationService.GetResource("Products.Availability.Backordering");
                     }

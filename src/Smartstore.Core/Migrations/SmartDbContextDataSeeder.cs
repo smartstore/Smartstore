@@ -52,7 +52,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete(
                 "Admin.Configuration.Currencies.GetLiveRates",
                 "Common.Error.PreProcessPayment",
-                "Payment.PayingFailed");
+                "Payment.PayingFailed",
+                "Enums.BackorderMode.AllowQtyBelow0AndNotifyCustomer");
 
             builder.AddOrUpdate("Enums.DataExchangeCompletionEmail.Always", "Always", "Immer");
             builder.AddOrUpdate("Enums.DataExchangeCompletionEmail.OnError", "If an error occurs", "Bei einem Fehler");
@@ -70,6 +71,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.ContentManagement.MessageTemplates.Fields.BccEmailAddresses.Hint",
                 "BCC address. The BCC (blind carbon copy) field contains one or more semicolon-separated email addresses to which a copy of the email is sent without being visible to the other specified recipients.",
                 "BCC-Adresse. Das BCC-Feld enthält eine oder mehrere durch Semikolon getrennte E-Mail-Adressen, an die eine Kopie der E-Mail gesendet wird, ohne dass das für die anderen angegebenen Empfänger sichtbar sein soll („Blindkopie“).");
+
+            builder.AddOrUpdate("Enums.BackorderMode.AllowQtyBelow0OnBackorder",
+                "Allow quantity below 0. Delivered as soon as in stock.",
+                "Menge kleiner als 0 zulassen. Wird nachgeliefert, sobald auf Lager.");
+
+            builder.Update("Enums.BackorderMode.AllowQtyBelow0").Value("en", "Allow quantity below 0");
         }
 
         /// <summary>
