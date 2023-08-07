@@ -28,6 +28,9 @@
 - Fixed missing cache clearing after importing localized properties.
 - Output Cache: missing `Content-Type` header when serving page from cache
 - #531 Error reading import file with localized values of languages with the same UniqueSeoCode.
+- Import:
+  - Fixed localized properties were not updated during import.
+  - Localized SeName was only updated when import file also contained a non-localized SeName column.
 
 
 ## Smartstore 5.0.5
