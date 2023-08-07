@@ -7,62 +7,66 @@
 }
 
 <div class="page contact-page">
-    <div class="page-title">
-        <h1 class="h2">@T("PageTitle.ContactUs")</h1>
-    </div>
-    
-    @await Component.InvokeAsync("TopicBlock", new { systemName = "ContactUs", isLead = true, bodyOnly = true }) 
-
     <div class="page-body">
         <zone name="contactus_top"></zone>
 
-        @if (Model.SuccessfullySent)
-        {
-            <div class="alert alert-success">
-                @Model.Result
-            </div>        
-		}
-		else
-		{
-            <form asp-route="ContactUs" method="post" id="contact-form" class="contact-form">
-                <div asp-validation-summary="ModelOnly"></div>
-
-                <honeypot />
-
-                <div class="form-floating mb-3">
-                    <input asp-for="FullName" sm-required="Model.FullNameRequired" class="remember remember-disallow-empty" placeholder="@Html.DisplayNameFor(x => x.FullName)" />
-                    <label asp-for="FullName" attr-class='(Model.FullNameRequired, "required")'></label>
-                    <span asp-validation-for="FullName"></span>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="page-title">
+                    <h1 class="h2">@T("PageTitle.ContactUs")</h1>
                 </div>
+                @await Component.InvokeAsync("TopicBlock", new { systemName = "ContactUs", isLead = true, bodyOnly = true })
+            </div>
+            <div class="col-md-6">
+                @if (Model.SuccessfullySent)
+                {
+                    <div class="alert alert-success">
+                        @Model.Result
+                    </div>
+                }
+                else
+                {
+                    <form asp-route="ContactUs" method="post" id="contact-form" class="contact-form">
+                        <div asp-validation-summary="ModelOnly"></div>
 
-                <div class="form-floating mb-3">
-                    <input asp-for="Email" sm-required="true" class="remember remember-disallow-empty" placeholder="@Html.DisplayNameFor(x => x.Email)" />
-                    <label asp-for="Email" class="required"></label>
-                    <span asp-validation-for="Email"></span>
-                </div>
+                        <honeypot />
 
-                <div class="form-floating mb-2">
-                    <textarea asp-for="Enquiry" placeholder="@T("ContactUs.Enquiry.Hint")" class="personal-message remember remember-disallow-empty" style="height: 150px"></textarea>
-                    <label asp-for="Enquiry" class="required">@T("ContactUs.Enquiry.Hint")</label>
-                    <span asp-validation-for="Enquiry"></span>
-                </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="FullName" sm-required="Model.FullNameRequired" class="remember remember-disallow-empty" placeholder="@Html.DisplayNameFor(x => x.FullName)" />
+                            <label asp-for="FullName" attr-class='(Model.FullNameRequired, "required")'></label>
+                            <span asp-validation-for="FullName"></span>
+                        </div>
 
-                <div class="text-muted mb-3">
-                    @T("Common.FormFields.Required.Hint")
-                </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" sm-required="true" class="remember remember-disallow-empty" placeholder="@Html.DisplayNameFor(x => x.Email)" />
+                            <label asp-for="Email" class="required"></label>
+                            <span asp-validation-for="Email"></span>
+                        </div>
 
-                <zone name="gdpr_consent" />
+                        <div class="form-floating mb-2">
+                            <textarea asp-for="Enquiry" placeholder="@T("ContactUs.Enquiry.Hint")" class="personal-message remember remember-disallow-empty" style="height: 150px"></textarea>
+                            <label asp-for="Enquiry" class="required">@T("ContactUs.Enquiry.Hint")</label>
+                            <span asp-validation-for="Enquiry"></span>
+                        </div>
 
-                <div class="mb-3">
-                    <captcha sm-enabled="Model.DisplayCaptcha" />
-                </div>
+                        <div class="text-muted mb-3">
+                            @T("Common.FormFields.Required.Hint")
+                        </div>
 
-                <button type="submit" name="send-email" class="btn btn-primary btn-lg">
-                    @T("ContactUs.Button")
-                </button>
+                        <zone name="gdpr_consent" />
 
-            </form>
-        }
+                        <div class="mb-3">
+                            <captcha sm-enabled="Model.DisplayCaptcha" />
+                        </div>
+
+                        <button type="submit" name="send-email" class="btn btn-primary btn-lg">
+                            @T("ContactUs.Button")
+                        </button>
+
+                    </form>
+                }
+            </div>
+        </div>
 
         <zone name="contactus_bottom"></zone>
     </div>
