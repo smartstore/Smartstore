@@ -140,12 +140,17 @@ namespace Smartstore.Core.Localization
             return false;
         }
 
-        public virtual async Task PrefetchLocalizedPropertiesAsync(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false)
+        public virtual async Task PrefetchLocalizedPropertiesAsync(
+            string localeKeyGroup, 
+            int languageId, int[] entityIds,
+            bool isRange = false, 
+            bool isSorted = false,
+            bool tracked = false)
         {
             if (languageId == 0)
                 return;
 
-            var collection = await GetLocalizedPropertyCollectionInternal(localeKeyGroup, languageId, entityIds, isRange, isSorted);
+            var collection = await GetLocalizedPropertyCollectionInternal(localeKeyGroup, languageId, entityIds, isRange, isSorted, tracked);
 
             if (_prefetchedCollections.TryGetValue(localeKeyGroup, out var existing))
             {
@@ -157,9 +162,14 @@ namespace Smartstore.Core.Localization
             }
         }
 
-        public virtual Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(string localeKeyGroup, int[] entityIds, bool isRange = false, bool isSorted = false)
+        public virtual Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(
+            string localeKeyGroup, 
+            int[] entityIds, 
+            bool isRange = false, 
+            bool isSorted = false,
+            bool tracked = false)
         {
-            return GetLocalizedPropertyCollectionInternal(localeKeyGroup, 0, entityIds, isRange, isSorted);
+            return GetLocalizedPropertyCollectionInternal(localeKeyGroup, 0, entityIds, isRange, isSorted, tracked);
         }
 
         protected virtual async Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionInternal(
@@ -167,13 +177,14 @@ namespace Smartstore.Core.Localization
             int languageId,
             int[] entityIds,
             bool isRange = false,
-            bool isSorted = false)
+            bool isSorted = false,
+            bool tracked = false)
         {
             Guard.NotEmpty(localeKeyGroup);
 
             using (new DbContextScope(_db, lazyLoading: false))
             {
-                var query = from x in _db.LocalizedProperties.AsNoTracking()
+                var query = from x in _db.LocalizedProperties.ApplyTracking(tracked)
                             where x.LocaleKeyGroup == localeKeyGroup
                             select x;
 
