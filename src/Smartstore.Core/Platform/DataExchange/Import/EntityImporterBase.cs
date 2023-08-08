@@ -82,7 +82,8 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var shouldSave = false;
-            var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
+            var lpQuery = _db.LocalizedProperties.Where(x => x.LocaleKeyGroup == keyGroup && entityIds.Contains(x.EntityId));
+            var collection = new LocalizedPropertyCollection(keyGroup, entityIds, await lpQuery.ToListAsync());
 
             foreach (var row in batch)
             {
@@ -113,11 +114,7 @@ namespace Smartstore.Core.DataExchange.Import
                             else if (!string.IsNullOrEmpty(value))
                             {
                                 // Insert.
-                                var propInfo = keySelector.ExtractPropertyInfo();
-                                if (propInfo == null)
-                                {
-                                    throw new ArgumentException($"Expression '{keySelector}' does not refer to a property.");
-                                }
+                                var propInfo = keySelector.ExtractPropertyInfo() ?? throw new ArgumentException($"Expression '{keySelector}' does not refer to a property.");
 
                                 _db.LocalizedProperties.Add(new LocalizedProperty
                                 {
@@ -136,6 +133,8 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (shouldSave)
             {
+                context.ClearCache = true;
+
                 // Commit whole batch at once.
                 return await scope.CommitAsync(context.CancelToken);
             }
@@ -245,22 +244,22 @@ namespace Smartstore.Core.DataExchange.Import
                             Source = row.Entity,
                             Slug = SlugUtility.Slugify(seName.NullEmpty() ?? row.EntityDisplayName, _seoSettings)
                         });
+                    }
 
-                        // Process localized slugs.
-                        foreach (var language in context.Languages)
+                    // Process localized slugs.
+                    foreach (var language in context.Languages)
+                    {
+                        var hasSeName = row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName);
+                        var hasLocalizedName = row.TryGetDataValue("Name", language.UniqueSeoCode, out string localizedName);
+
+                        if (hasSeName || hasLocalizedName)
                         {
-                            var hasSeName = row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName);
-                            var hasLocalizedName = row.TryGetDataValue("Name", language.UniqueSeoCode, out string localizedName);
-
-                            if (hasSeName || hasLocalizedName)
+                            scope.ApplySlugs(new ValidateSlugResult
                             {
-                                scope.ApplySlugs(new ValidateSlugResult
-                                {
-                                    Source = row.Entity,
-                                    Slug = SlugUtility.Slugify(seName.NullEmpty() ?? localizedName, _seoSettings),
-                                    LanguageId = language.Id
-                                });
-                            }
+                                Source = row.Entity,
+                                Slug = SlugUtility.Slugify(seName.NullEmpty() ?? localizedName, _seoSettings),
+                                LanguageId = language.Id
+                            });
                         }
                     }
                 }
