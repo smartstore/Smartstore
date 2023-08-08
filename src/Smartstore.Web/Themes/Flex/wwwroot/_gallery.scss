@@ -94,10 +94,11 @@
 	}
 }
 .gal-nav .gal-item-viewport {
-	border: 1px solid rgba(0,0,0, 0.12);
+	border: 1px solid rgba(#000, 0.12);
+    border-radius: $border-radius;
 }
 .gal-nav .gal-item-viewport:hover {
-	border-color: rgba(0,0,0, 0.35);
+	border-color: rgba(#000, 0.35);
 }
 .gal-nav .gal-current .gal-item-viewport {
 	border-color: rgba(#000, 0.4);
