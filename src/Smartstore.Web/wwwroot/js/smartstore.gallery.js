@@ -197,8 +197,8 @@
 
             if (items.length > self.options.thumbsToShow) {
                 if (!isInitialized) {
-                    self.navPrevArrow = $('<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle btn-sm gal-arrow gal-prev gal-disabled"><i class="fa fa-chevron-up" style="vertical-align: top"></i></button>').prependTo(nav);
-                    self.navNextArrow = $('<button type="button" class="btn btn-secondary btn-flat btn-icon rounded-circle btn-sm gal-arrow gal-next gal-disabled"><i class="fa fa-chevron-down"></i></button>').appendTo(nav);
+                    self.navPrevArrow = $('<button type="button" class="btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow gal-prev gal-disabled"><i class="fa fa-chevron-up" style="vertical-align: top"></i></button>').prependTo(nav);
+                    self.navNextArrow = $('<button type="button" class="btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow gal-next gal-disabled"><i class="fa fa-chevron-down"></i></button>').appendTo(nav);
                 }
 
                 list.height(itemHeight * self.options.thumbsToShow);

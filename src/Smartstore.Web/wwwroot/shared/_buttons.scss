@@ -104,10 +104,14 @@ $btn-wide-padding-x-sm: 1.2rem;
 .btn-icon {
     --btn-icon-size: #{$input-height};
 
-    padding-inline: 0;
-    overflow: hidden;
+    position: relative;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: var(--btn-icon-size);
-    max-height: var(--btn-icon-size);
+    height: var(--btn-icon-size);
+    line-height: var(--btn-icon-size);
 
     > span {
         //display: none;
@@ -124,7 +128,7 @@ $btn-wide-padding-x-sm: 1.2rem;
     // Move caret to bottom right corner
     &.dropdown-toggle:after {
         position: absolute;
-        right: 3px;
+        inset-inline-end: 3px;
         bottom: 0.5em;
     }
 }
