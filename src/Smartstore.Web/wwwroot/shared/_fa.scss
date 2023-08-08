@@ -24,7 +24,7 @@
         font-weight: 900;
     }
 
-    // ...and revert the font-weight of all free regular icons (151 in v5.6.1) to 400.
+    // ...and revert the font-weight of all free regular icons (163 in v6) to 400.
     // This way we can still use .fal or .far in our markup without determining the
     // license. Our CSS will render solid icons when the light or regular variant does not exist.
     @each $content, $name in $fa-free-regular-icons {

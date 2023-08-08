@@ -3,6 +3,8 @@
 
 @model FooterModel
 
+@inject Smartstore.Core.Content.Media.Icons.IIconExplorer Explorer
+
 @{
     var invserseFooter = Display.GetThemeVariable<bool>("inverse-footer");
 }
@@ -79,7 +81,7 @@
                                     <div class="input-group has-icon mb-2">
                                         <input asp-for="NewsletterEmail" id="newsletter-email" placeholder="@T("Newsletter.Email")" />
                                         <span class="input-group-icon text-muted">
-                                            <i class="fa fa-envelope"></i>
+                                            <i class="far fa-envelope"></i>
                                         </span>
                                         <div class="input-group-append">
                                             <button id="newsletter-subscribe-button" class="btn btn-primary btn-icon" title="@T("Newsletter.Button")">
