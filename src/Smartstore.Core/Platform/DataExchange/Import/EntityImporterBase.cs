@@ -82,7 +82,8 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var shouldSave = false;
-            var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds, tracked: true);
+            var lpQuery = _db.LocalizedProperties.Where(x => x.LocaleKeyGroup == keyGroup && entityIds.Contains(x.EntityId));
+            var collection = new LocalizedPropertyCollection(keyGroup, entityIds, await lpQuery.ToListAsync());
 
             foreach (var row in batch)
             {

@@ -142,15 +142,15 @@ namespace Smartstore.Core.Localization
 
         public virtual async Task PrefetchLocalizedPropertiesAsync(
             string localeKeyGroup, 
-            int languageId, int[] entityIds,
+            int languageId,
+            int[] entityIds,
             bool isRange = false, 
-            bool isSorted = false,
-            bool tracked = false)
+            bool isSorted = false)
         {
             if (languageId == 0)
                 return;
 
-            var collection = await GetLocalizedPropertyCollectionInternal(localeKeyGroup, languageId, entityIds, isRange, isSorted, tracked);
+            var collection = await GetLocalizedPropertyCollectionInternal(localeKeyGroup, languageId, entityIds, isRange, isSorted);
 
             if (_prefetchedCollections.TryGetValue(localeKeyGroup, out var existing))
             {
@@ -166,10 +166,9 @@ namespace Smartstore.Core.Localization
             string localeKeyGroup, 
             int[] entityIds, 
             bool isRange = false, 
-            bool isSorted = false,
-            bool tracked = false)
+            bool isSorted = false)
         {
-            return GetLocalizedPropertyCollectionInternal(localeKeyGroup, 0, entityIds, isRange, isSorted, tracked);
+            return GetLocalizedPropertyCollectionInternal(localeKeyGroup, 0, entityIds, isRange, isSorted);
         }
 
         protected virtual async Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionInternal(
@@ -177,14 +176,13 @@ namespace Smartstore.Core.Localization
             int languageId,
             int[] entityIds,
             bool isRange = false,
-            bool isSorted = false,
-            bool tracked = false)
+            bool isSorted = false)
         {
             Guard.NotEmpty(localeKeyGroup);
 
             using (new DbContextScope(_db, lazyLoading: false))
             {
-                var query = from x in _db.LocalizedProperties.ApplyTracking(tracked)
+                var query = from x in _db.LocalizedProperties.AsNoTracking()
                             where x.LocaleKeyGroup == localeKeyGroup
                             select x;
 

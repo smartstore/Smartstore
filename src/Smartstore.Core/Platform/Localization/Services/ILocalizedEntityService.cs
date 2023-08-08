@@ -38,11 +38,10 @@ namespace Smartstore.Core.Localization
         /// </param>
         /// <param name="isRange">Whether <paramref name="entityIds"/> represents a range of ids (perf).</param>
         /// <param name="isSorted">Whether <paramref name="entityIds"/> is already sorted (perf).</param>
-        /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
         /// <remarks>
         /// Be careful not to load large amounts of data at once (e.g. for "Product" scope with large range).
         /// </remarks>
-        Task PrefetchLocalizedPropertiesAsync(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
+        Task PrefetchLocalizedPropertiesAsync(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false);
 
         /// <summary>
         /// Gets a collection of localized properties for a range of entities in one go.
@@ -54,12 +53,11 @@ namespace Smartstore.Core.Localization
         /// </param>
         /// <param name="isRange">Whether <paramref name="entityIds"/> represents a range of ids (perf).</param>
         /// <param name="isSorted">Whether <paramref name="entityIds"/> is already sorted (perf).</param>
-        /// <param name="tracked">A value indicating whether to put entities to EF change tracker.</param>
         /// <returns>Localized property collection</returns>
         /// <remarks>
         /// Be careful not to load large amounts of data at once (e.g. for "Product" scope with large range).
         /// </remarks>
-        Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(string localeKeyGroup, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
+        Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(string localeKeyGroup, int[] entityIds, bool isRange = false, bool isSorted = false);
 
         /// <summary>
         /// Applies a localized property value. The caller is responsible for database commit.
