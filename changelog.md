@@ -14,7 +14,9 @@
 - #580 Added caching for live currency exchange rates.
 - #767 Handle tier prices in depending prices module.
 - #378 Remove the assignments of products to a tax category when the tax category is deleted.
-- #388 Ajaxify product tag selection in backend.
+- Product tags:
+  - #388 Ajaxify product tag selection in backend.
+  - Added search panel to product tags grid.
 - #503 Don't round quantity unit amount for PAnGV.
 - #403 Added preview image link of NewsItem to RSS feed.
 - #390 Import: add a setting whether to send the completion email.

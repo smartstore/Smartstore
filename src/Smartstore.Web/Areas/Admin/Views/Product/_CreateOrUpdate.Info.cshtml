@@ -12,7 +12,32 @@
 		$("#reset-required-productids").on("click", function (e) {
 			e.preventDefault();
 			$("#@Html.IdFor(model => model.RequiredProductIds)").val("");
-		});
+        });
+
+        $('#@Html.IdFor(model => model.ProductTagNames)').selectWrapper({
+            ajax: {
+                url: '@ViewBag.ProductTagsUrl',
+                delay: 300,
+                cache: true,
+                dataType: 'json',
+                global: false,
+                data: function (params) {
+                    var query = {
+                        term: params.term || "",
+                        page: params.page || 1
+                    }
+                    return query;
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.results,
+                        pagination: data.pagination
+                    };
+                }
+            }
+        });
 	});
 
     function toggleProductType() {
@@ -273,7 +298,7 @@
             <smart-label asp-for="ProductTagNames" />
         </div>
         <div class="adminData">
-            <select asp-for="ProductTagNames" asp-items="ViewBag.AvailableProductTags" multiple="multiple" data-tags="true"></select>
+            <select asp-for="ProductTagNames" asp-items="ViewBag.SelectedProductTags" class="noskin" multiple="multiple" data-tags="true"></select>
             <span asp-validation-for="ProductTagNames"></span>
         </div>
     </div>

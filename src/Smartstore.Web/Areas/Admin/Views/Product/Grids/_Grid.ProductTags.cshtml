@@ -1,18 +1,27 @@
 ﻿@model ProductTagModel
 
+@{
+    var parentModel = ViewData["Parent"] as ProductTagListModel;
+}
+
 <datagrid id="product-tags-grid"
           allow-resize="true"
           allow-row-selection="true"
           allow-edit="true"
           onrowclass="productTags_onRowClass">
-    <datasource read="@Url.Action("ProductTagsList")" 
+    <datasource read="@Url.Action("ProductTagsList")"
                 delete="@Url.Action("ProductTagsDelete")"
-                update="@Url.Action("ProductTagsUpdate")"/>
+                update="@Url.Action("ProductTagsUpdate")" />
     <paging position="Bottom" />
     <sorting enabled="true">
         <sort by="Name"></sort>
     </sorting>
     <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
@@ -23,6 +32,9 @@
             </button>
         </toolbar-group>
     </toolbar>
+    <search-panel>
+        <partial name="Grids/_Grid.ProductTags.Search" model="parentModel" />
+    </search-panel>
     <columns>
         <column for="Name" hideable="false" readonly>
             <display-template>

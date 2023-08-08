@@ -23,6 +23,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -1311,18 +1312,65 @@ namespace Smartstore.Admin.Controllers
 
         #region Product tags
 
+        /// <summary>
+        /// (AJAX) Gets a paged list of product tags.
+        /// </summary>
+        /// <param name="selectedNames">Names of selected tags.</param>
+        public async Task<IActionResult> AllProductTags(string term, string selectedNames, int page = 1)
+        {
+            const int pageSize = 500;
+            var skip = page * pageSize;
+
+            var query = _db.ProductTags.AsNoTracking();
+
+            if (term.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Name, term);
+            }
+
+            var tags = await query
+                .OrderBy(x => x.Name)
+                .Select(x => x.Name)
+                .ToPagedList(page - 1, pageSize)
+                .LoadAsync();
+
+            var results = tags.Select(x => new ChoiceListItem
+                {
+                    Id = x,
+                    Text = x,
+                    Selected = selectedNames?.Contains(x) ?? false
+                })
+                .ToList();
+
+            return new JsonResult(new
+            {
+                results,
+                pagination = new { more = tags.HasNextPage }
+            });
+        }
+
         [Permission(Permissions.Catalog.Product.Read)]
         public IActionResult ProductTags()
         {
-            return View();
+            return View(new ProductTagListModel());
         }
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> ProductTagsList(GridCommand command)
+        public async Task<IActionResult> ProductTagsList(GridCommand command, ProductTagListModel model)
         {
-            var tags = await _db.ProductTags
-                .AsNoTracking()
+            var query = _db.ProductTags.AsNoTracking();
+
+            if (model.SearchName.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Name, model.SearchName);
+            }
+            if (model.SearchPublished.HasValue)
+            {
+                query = query.Where(x => x.Published == model.SearchPublished.Value);
+            }
+
+            var tags = await query
                 .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
@@ -1507,7 +1555,7 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareProductModelAsync(ProductModel model, Product product, bool setPredefinedValues, bool excludeProperties)
         {
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(model);
 
             if (product != null)
             {
@@ -1524,7 +1572,6 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(product);
                 model.OriginalStockQuantity = product.StockQuantity;
                 model.HasOrders = await _db.OrderItems.AnyAsync(x => x.ProductId == product.Id);
-                model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
 
                 if (product.LimitedToStores)
                 {
@@ -1594,6 +1641,19 @@ namespace Smartstore.Admin.Controllers
 
                 await PrepareProductFileModelAsync(model);
                 model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
+
+                model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
+
+                ViewBag.SelectedProductTags = model.ProductTagNames
+                    .Select(x => new SelectListItem { Value = x, Text = x, Selected = true })
+                    .ToList();
+
+                ViewBag.ProductTagsUrl = Url.Action(nameof(AllProductTags), new { selectedNames = string.Join(',', model.ProductTagNames.Select(x => x)) });
+            }
+            else
+            {
+                ViewBag.SelectedProductTags = new List<SelectListItem>();
+                ViewBag.ProductTagsUrl = Url.Action(nameof(AllProductTags));
             }
 
             var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
@@ -1628,15 +1688,6 @@ namespace Smartstore.Admin.Controllers
                     Value = x.Id.ToString()
                 })
                 .ToList();
-
-            // Product tags.
-            var allTags = await _db.ProductTags
-                .AsNoTracking()
-                .OrderBy(x => x.Name)
-                .Select(x => x.Name)
-                .ToListAsync();
-
-            ViewBag.AvailableProductTags = new MultiSelectList(allTags, model.ProductTagNames);
 
             // Tax categories.
             var taxCategories = await _db.TaxCategories
@@ -1766,7 +1817,7 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareProductFileModelAsync(ProductModel model)
         {
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(model);
 
             var productFiles = await _db.ProductMediaFiles
                 .AsNoTracking()
