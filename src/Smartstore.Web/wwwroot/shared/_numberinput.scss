@@ -5,7 +5,7 @@
 .numberinput-group {
     overflow: hidden;
     flex-wrap: nowrap;
-    --ni-height: #{$input-height};
+    --ni-height: #{$input-height-inner};
     --ni-font-size: #{$font-size-base};
     --ni-line-height: #{$input-line-height};
     --ni-padding-x: #{$input-btn-padding-x};

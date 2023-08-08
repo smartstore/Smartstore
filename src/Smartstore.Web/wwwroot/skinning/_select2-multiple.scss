@@ -1,0 +1,99 @@
+/// <reference path="../shared/_mixins.scss" />
+/// <reference path="../bs4/scss/bootstrap.scss" />
+
+.select2-selection--multiple {
+    min-height: var(--select2-height);
+    display: flex;
+    padding: var(--select2-multiple-padding);
+    padding-right: var(--select2-height);
+
+    .select2-selection__rendered {
+        box-sizing: border-box;
+        display: flex;
+        flex-wrap: wrap;
+        line-height: var(--select2-line-height);
+        list-style: none;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        padding: 0;
+        align-items: center;
+        justify-content: flex-start;
+        overflow: initial;
+    }
+
+    .select2-selection__clear {
+        --input-clear-offset: calc((var(--select2-caret-width) - var(--input-clear-size)) / 2);
+
+        position: absolute;
+        top: calc(var(--input-clear-offset) - var(--select2-multiple-padding));
+        //inset-inline-end: calc((var(--select2-caret-width) * -1));
+        //margin-inline-end: calc((var(--input-clear-size) / 2) - 2px);
+
+        // Move to start of chevron area
+        inset-inline-end: calc((var(--input-clear-size) * -1));
+
+        // Offset to center of chevron area
+        margin-inline-end: calc(var(--input-clear-offset) * -1);
+    }
+
+    .select2-selection__placeholder {
+        color: var(--select2-placeholder-color);
+        float: inline-start;
+        margin-block-start: 5px;
+    }
+
+    // Make Multi Select2's choices match Bootstrap's default button styles.
+    .select2-selection__choice {
+        position: relative;
+        font-size: var(--select2-font-size);
+        color: inherit;
+        background: var(--gray-200);
+        border: 1px solid rgba(#000, .1);
+        --border-radius: #{$border-radius};
+        border-radius: calc(var(--border-radius) - 1px);
+        cursor: default;
+        padding: var(--select2-choice-padding-y) var(--select2-choice-padding-x);
+        display: flex;
+        align-items: center;
+        margin: 0.2em;
+        line-height: var(--select2-choice-line-height);
+        max-width: 300px;
+        white-space: nowrap;
+        overflow: hidden;
+
+        > .select2-option {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .select2-search--inline > .select2-search__field {
+        background: transparent;
+        font-size: var(--select2-font-size);
+        padding: 0 calc(var(--select2-choice-padding-x) / 2);
+        line-height: var(--select2-choice-line-height);
+        margin-top: 0;
+        width: 100% !important;
+        min-width: 5em;
+        float: none;
+    }
+
+    .select2-search--inline:first-child > .select2-search__field {
+        padding: 0 var(--select2-padding-x);
+    }
+
+    .select2-selection__choice__remove {
+        @include input-clear(1rem);
+
+        font-weight: 400;
+        margin-inline: 3px -2px;
+        border-radius: $border-radius-sm;
+        order: 2;
+    }
+    // Clear the selection.
+    .select2-selection__clear {
+        float: none;
+    }
+}

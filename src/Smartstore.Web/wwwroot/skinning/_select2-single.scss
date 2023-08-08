@@ -1,0 +1,66 @@
+/// <reference path="../shared/_mixins.scss" />
+/// <reference path="../bs4/scss/bootstrap.scss" />
+
+.select2-selection--single {
+    --select2-padding-end: calc(var(--select2-caret-width) + calc(var(--select2-padding-x) / 2));
+
+    border-radius: var(--border-radius);
+    height: var(--select2-height);
+    line-height: var(--select2-line-height);
+    padding-block: var(--select2-padding-y);
+    padding-inline: var(--select2-padding-x) var(--select2-padding-end);
+    font-size: var(--select2-font-size);
+    line-height: var(--select2-line-height);
+    height: var(--select2-height);
+
+    .select2-selection__arrow {
+        position: absolute;
+        inset-block-start: 1px;
+        inset-block-end: 1px;
+        inset-inline-end: 1px;
+        border: 0 solid $input-border-color;
+        border-inline-start-width: 1px;
+        width: var(--select2-caret-width);
+        border-radius: var(--border-radius);
+        background-color: var(--gray-100);
+        //border-top-left-radius: 0;
+        border-start-start-radius: 0;
+        //border-bottom-left-radius: 0;
+        border-end-start-radius: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: if($enable-shadows, $btn-box-shadow, null);
+
+        b {
+            width: 10px;
+            height: 10px;
+            color: inherit;
+
+            &:after {
+                position: absolute;
+                @include fontawesome('\f078', 10px);
+            }
+        }
+    }
+
+    .select2-selection__rendered {
+        color: $input-color;
+        position: relative;
+        padding: 0;
+        display: flex;
+        align-items: center;
+
+        .select2-option {
+            padding-inline-end: 0.5em;
+        }
+
+        .select2-selection__clear {
+            margin-inline-end: 0.25em;
+        }
+    }
+
+    .select2-selection__placeholder {
+        color: var(--select2-placeholder-color);
+    }
+}

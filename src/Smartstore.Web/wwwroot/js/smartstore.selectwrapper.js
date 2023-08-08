@@ -436,6 +436,9 @@
 
             sel.select2(opts);
 
+            // Cancel event bubbling for unselect button in multiselect control.
+            sel.on("select2:unselect", stopPropagation);
+
             if (sel.hasClass("autowidth")) {
                 // move special "autowidth" class to plugin container,
                 // so we are able to omit min-width per css
@@ -449,6 +452,13 @@
                     sel.data("select-placeholder");
             }
 
+            function stopPropagation(e) {
+                if (!e.params.originalEvent) {
+                    return;
+                }
+
+                e.params.originalEvent.stopPropagation();
+            }
         });
 
     };
