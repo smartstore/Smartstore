@@ -407,10 +407,6 @@ namespace Smartstore.Domain
         public override int GetHashCode()
         {
             var combiner = HashCodeCombiner.Start();
-
-            // TODO: (mg) Are you sure that just ordering by Key is reliable?
-            // RE: the attribute values are also ordered. There is also a unit test for this (Can_create_attribute_selection_hashcode with reverseValueOrder = true).
-
             var attributes = _attributes.Attributes.OrderBy(x => x.Key).ToArray();
 
             for (var i = 0; i < attributes.Length; ++i)
