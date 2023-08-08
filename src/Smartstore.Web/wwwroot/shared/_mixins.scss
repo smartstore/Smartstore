@@ -189,6 +189,37 @@
     background-image: none;
 }
 
+@mixin input-clear($size: 1.25rem) {
+    --input-clear-size: #{$size};
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--gray-200);
+    color: inherit;
+    cursor: pointer;
+    font-weight: $font-weight-medium;
+    width: var(--input-clear-size);
+    height: var(--input-clear-size);
+    line-height: 1;
+    border-radius: 50%;
+    border: 0;
+    transition: $btn-transition;
+
+    &:hover, 
+    &:active {
+        color: #fff;
+    }
+
+    &:hover {
+        background-color: var(--gray-600);
+    }
+
+    &:active {
+        background-color: var(--gray-700);
+    }
+}
+
 
 // Functions
 // ===============================================

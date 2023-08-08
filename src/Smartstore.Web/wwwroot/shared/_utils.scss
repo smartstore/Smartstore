@@ -72,12 +72,12 @@
 .menubar-link {
 	> i + span:not(:empty), > .bi + span:not(:empty),
 	> i + em:not(:empty), > .bi + em:not(:empty) {
-		padding-inline-start: 0.5em;
+		padding-inline-start: 0.25em;
 	}
 
 	> span:not(:empty) + i, > span:not(:empty) + .bi,
 	> em:not(:empty) + i, > em:not(:empty) + .bi {
-		margin-inline-start: 0.5em;
+		margin-inline-start: 0.25em;
 	}
 }
 

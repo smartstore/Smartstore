@@ -16,6 +16,14 @@ $btn-wide-padding-x-sm: 1.2rem;
 }
 
 
+// Generic input clear button
+// -----------------------------------------------------
+
+.input-clear {
+    @include input-clear();
+}
+
+
 // Icon colors, nowrap etc.
 // -----------------------------------------------------
 

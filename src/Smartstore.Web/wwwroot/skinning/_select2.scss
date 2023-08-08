@@ -6,11 +6,11 @@
 // Variables directly translating Bootstrap variables
 // -------------------------
 $s2bs-cursor-disabled: not-allowed !default;
-$s2bs-dropdown-link-active-bg: $gray-100 !default;
-$s2bs-dropdown-link-active-color: $yiq-text-dark !default;
+$s2bs-dropdown-link-active-bg: mix($gray-100, $gray-200) !default;
+$s2bs-dropdown-link-active-color: $dropdown-link-active-color !default;
 $s2bs-dropdown-link-disabled-color: $dropdown-link-disabled-color !default;
-$s2bs-dropdown-link-hover-bg: $gray-100 !default;
-$s2bs-dropdown-link-hover-color: $yiq-text-dark !default;
+$s2bs-dropdown-link-hover-bg: $dropdown-link-hover-bg !default;
+$s2bs-dropdown-link-hover-color: $dropdown-link-hover-color !default;
 $s2bs-padding-base-horizontal: $input-btn-padding-x !default;
 $s2bs-input-bg: $input-bg !default;
 $s2bs-input-bg-disabled: $input-disabled-bg !default;
@@ -250,14 +250,11 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     }
 
     .select2-selection__clear {
-        color: $s2bs-clear-selection-color;
-        cursor: pointer;
-        font-weight: bold;
+        @include input-clear();
+        position: relative;
         order: 2;
         margin-inline-start: auto;
-        &:hover {
-            color: $s2bs-clear-selection-hover-color;
-        }
+        font-size: 14px;
     }
 
     &.select2-container--disabled {
@@ -312,20 +309,16 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
       #SINGLE SELECT2
     \*------------------------------------*/
     .select2-selection--single {
+        --select2-padding-end: calc(var(--select2-caret-width) + calc(var(--select2-padding-x) / 2));
+
         border-radius: var(--border-radius);
         height: var(--select2-height);
         line-height: var(--select2-line-height);
         padding-block: var(--select2-padding-y);
-        padding-inline: var(--select2-padding-x) calc(var(--select2-caret-width) + calc(var(--select2-padding-x) / 2));
+        padding-inline: var(--select2-padding-x) var(--select2-padding-end);
         font-size: var(--select2-font-size);
         line-height: var(--select2-line-height);
         height: var(--select2-height);
-
-        // Adjust the single Select2's dropdown arrow button appearance.
-        .select2-selection__clear {
-            margin-block-start: -2px;
-            margin-inline-end: 4px;
-        }
 
         .select2-selection__arrow {
             position: absolute;
@@ -360,6 +353,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
         .select2-selection__rendered {
             color: $s2bs-input-color;
+            position: relative;
             padding: 0;
             display: flex;
             align-items: center;
@@ -377,24 +371,31 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         min-height: var(--select2-height);
         display: flex;
         padding: var(--select2-multiple-padding);
+        padding-right: var(--select2-height);
 
         .select2-selection__rendered {
             box-sizing: border-box;
-            display: block;
+            display: flex;
+            flex-wrap: wrap;
             line-height: var(--select2-line-height);
             list-style: none;
-            overflow: hidden;
             width: 100%;
-            text-overflow: ellipsis;
-            white-space: nowrap;
             margin: 0;
             padding: 0;
             position: relative;
-            display: flex;
-            flex-wrap: wrap;
             padding: 0;
             align-items: center;
             justify-content: flex-start;
+            overflow: initial;
+        }
+
+        .select2-selection__clear {
+            --input-clear-offset: calc((var(--select2-caret-width) - var(--input-clear-size)) / 2);
+
+            position: absolute;
+            top: calc(var(--input-clear-offset) - var(--select2-multiple-padding));
+            inset-inline-end: calc((var(--select2-caret-width) * -1));
+            margin-inline-end: calc((var(--input-clear-size) / 2) - 2px);
         }
 
         .select2-selection__placeholder {
@@ -408,9 +409,9 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             position: relative;
             font-size: var(--select2-font-size);
             color: inherit;
-            background: $gray-200;
+            background: var(--gray-200);
             border: 1px solid rgba(#000, .1);
-            --border-radius: 50em;
+            --border-radius: #{$border-radius};
             border-radius: calc(var(--border-radius) - 1px);
             cursor: default;
             padding: var(--select2-choice-padding-y) var(--select2-choice-padding-x);
@@ -418,10 +419,13 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             align-items: center;
             margin: 0.2rem;
             line-height: var(--select2-choice-line-height);
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
 
-            &:hover > .select2-selection__choice__remove {
-                transform: translateX(0);
-                opacity: 1;
+            > .select2-option {
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
 
@@ -441,35 +445,16 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         }
 
         .select2-selection__choice__remove {
-            background-color: $gray-700;
-            color: #fff;
-            cursor: pointer;
-            position: absolute;
-            width: 1rem;
-            height: 1rem;
-            line-height: 1rem;
-            border-radius: 50em;
-            text-align: center;
-            inset-inline-end: 4px;
-            transform: translateX(5px);
-            opacity: 0;
-            transition-property: opacity, transform;
-            transition-duration: 0.15s;
-            transition-delay: 0.175s;
-            transition-timing-function: ease-in-out;
+            @include input-clear(1rem);
 
-            &:hover {
-                background-color: $danger;
-            }
+            font-weight: 400;
+            margin-inline: 3px -2px;
+            border-radius: $border-radius-sm;
+            order: 2;
         }
         // Clear the selection.
         .select2-selection__clear {
-            position: absolute;
             float: none;
-            inset-inline-end: 0;
-            inset-block-start: 0;
-            margin-block-start: $input-btn-padding-y / 2;
-            margin-inline-end: $input-btn-padding-x-sm / 1.5;
         }
     }
 
@@ -497,18 +482,21 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
         > .select2-option,
         > .select2-item-description {
+            position: relative;
             display: block;
             font-size: $s2sm-option-font-size;
-            padding-inline-end: 10px;
+            // padding for checkmark
+            padding-inline-start: 20px;
         }
 
         > .select2-option {
             &:after {
                 position: absolute;
-                inset-inline-end: 14px;
+                inset-inline-start: 0;
+                top: 1px;
                 @include fontawesome("\f00c");
                 color: $success;
-                text-align: end;
+                text-align: start;
                 width: 18px;
                 line-height: $line-height-base;
                 visibility: hidden;

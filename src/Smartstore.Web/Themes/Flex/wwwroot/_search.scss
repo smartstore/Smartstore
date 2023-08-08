@@ -82,9 +82,7 @@ $facet-selection-color:             darken($success, 15%);
 }
 
 .instasearch-clear {
-    border-radius: 50%;
-    border-width: 0;
-    color: $gray-600;
+    color: var(--gray-600);
     display: none;
     font-size: 14px;
 
