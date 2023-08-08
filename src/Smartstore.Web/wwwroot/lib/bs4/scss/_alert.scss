@@ -68,6 +68,7 @@
   .alert-#{$color} {
     $c: theme-color-level($color, $alert-color-level);
     --alert-color: #{$c};
+    --alert-color-rgb: #{to-rgb($c)};
     --alert-bg: #{theme-color-level($color, $alert-bg-level)};
     --alert-border-color: #{theme-color-level($color, $alert-border-level)};
     --alert-link-color: #{darken($value, 10%)};

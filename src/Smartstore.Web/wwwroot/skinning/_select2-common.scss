@@ -146,7 +146,7 @@
 }
 
 .select2-selection__clear {
-    @include input-clear();
+    @include trailing-action();
     position: relative;
     order: 2;
     margin-inline-start: auto;

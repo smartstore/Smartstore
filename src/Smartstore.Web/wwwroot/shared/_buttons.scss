@@ -20,7 +20,8 @@ $btn-wide-padding-x-sm: 1.2rem;
 // -----------------------------------------------------
 
 .input-clear {
-    @include input-clear();
+    @include trailing-action();
+    --input-clear-size: var(--trailing-action-size);
 }
 
 

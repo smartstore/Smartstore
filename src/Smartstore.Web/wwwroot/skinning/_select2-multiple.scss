@@ -24,18 +24,16 @@
     }
 
     .select2-selection__clear {
-        --input-clear-offset: calc((var(--select2-caret-width) - var(--input-clear-size)) / 2);
+        --input-clear-offset: calc((var(--select2-caret-width) - var(--trailing-action-size)) / 2);
 
         position: absolute;
         top: calc(var(--input-clear-offset) - var(--select2-multiple-padding));
-        //inset-inline-end: calc((var(--select2-caret-width) * -1));
-        //margin-inline-end: calc((var(--input-clear-size) / 2) - 2px);
 
         // Move to start of chevron area
-        inset-inline-end: calc((var(--input-clear-size) * -1));
+        inset-inline-end: calc((var(--trailing-action-size) * -1));
 
         // Offset to center of chevron area
-        margin-inline-end: calc(var(--input-clear-offset) * -1);
+        margin-inline-end: calc(var(--input-clear-offset) * -1.2);
     }
 
     .select2-selection__placeholder {
@@ -85,7 +83,7 @@
     }
 
     .select2-selection__choice__remove {
-        @include input-clear(1rem);
+        @include trailing-action(1rem);
 
         font-weight: 400;
         margin-inline: 3px -2px;

@@ -72,26 +72,18 @@
 
 .ui-pnotify-closer, 
 .ui-pnotify-sticker {
-    opacity: .35;
+    --action-offset: 5px;
+    @include trailing-action($bg: transparent, $color: rgba(var(--alert-color-rgb), 0.4), $hover-bg: rgba(var(--alert-icon-bg-rgb), 0.75), $active-bg: rgba(var(--alert-icon-bg-rgb), 1));
+
 	margin: 0;
 	position: absolute;
-    width: 20px;
-    text-align: center;
-	top: 5px;
-	inset-inline-end: 3px;
-    outline: 0;
-    font-size: 12px;
-    vertical-align: middle;
+	top: var(--action-offset);
+	inset-inline-end: var(--action-offset);
 }
 
 .ui-pnotify-sticker {
     font-size: 10px;
-    top: 24px;
-}
-
-.ui-pnotify-closer:hover, 
-.ui-pnotify-sticker:hover {
-    opacity: .75;
+    top: calc(var(--trailing-action-size) + var(--action-offset));
 }
 
 @media (min-width: 481px) {

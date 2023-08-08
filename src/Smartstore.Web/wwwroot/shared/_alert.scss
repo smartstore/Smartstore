@@ -11,6 +11,7 @@
 .alert-success,
 .alert-warning {
     --alert-icon-bg: transparent;
+    --alert-icon-bg-rgb: 0,0,0;
     --alert-icon-color: var(--alert-bg);
     --alert-icon-content: "\f129"; // info
 
@@ -54,29 +55,35 @@
     @if $alert-info-is-primary {
 		// info should have primary color
         $c: theme-color-level(primary, $alert-color-level);
+        $bg: theme-color-level(primary, $alert-bg-level);
         --alert-color: #{$c};
-        --alert-bg: #{theme-color-level(primary, $alert-bg-level)};
+        --alert-bg: #{$bg};
         --alert-border-color: #{theme-color-level(primary, $alert-border-level)};
         --alert-link-color: #{darken($primary, 10%)};
         --alert-icon-bg: #{$primary};
+        --alert-icon-bg-rgb: #{to-rgb($primary)};
     }
     @else {
         --alert-icon-bg: #{$info};
+        --alert-icon-bg-rgb: #{to-rgb($info)};
     }
 }
 
 .alert-danger {
     --alert-icon-bg: #{$danger};
+    --alert-icon-bg-rgb: #{to-rgb($danger)};
     --alert-icon-content: "\f071"; // exclamation-triangle
 }
 
 .alert-success {
     --alert-icon-bg: #{$success};
+    --alert-icon-bg-rgb: #{to-rgb($success)};
     --alert-icon-content: "\f00c"; // check
 }
 
 .alert-warning {
     --alert-icon-bg: #{$warning};
+    --alert-icon-bg-rgb: #{to-rgb($warning)};
     --alert-icon-content: "\f12a"; // exclamation
 }
 

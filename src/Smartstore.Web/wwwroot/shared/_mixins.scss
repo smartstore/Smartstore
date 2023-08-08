@@ -189,35 +189,46 @@
     background-image: none;
 }
 
-@mixin input-clear($size: 1.25rem) {
-    --input-clear-size: #{$size};
+@mixin trailing-action(
+    $size: 1.25rem, 
+    $bg: var(--gray-200), 
+    $color: inherit,
+    $hover-bg: var(--gray-600), 
+    $hover-color: #fff,
+    $active-bg: var(--gray-700), 
+    $active-color: $hover-color,
+    $border-radius: 50%
+) {
+    --trailing-action-size: #{$size};
 
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--gray-200);
-    color: inherit;
+    width: var(--trailing-action-size);
+    height: var(--trailing-action-size);
+    background-color: $bg;
+    color: $color;
     cursor: pointer;
     font-weight: $font-weight-medium;
-    width: var(--input-clear-size);
-    height: var(--input-clear-size);
     line-height: 1;
-    border-radius: 50%;
+    border-radius: $border-radius;
     border: 0;
     transition: $btn-transition;
 
-    &:hover, 
-    &:active {
-        color: #fff;
-    }
-
     &:hover {
-        background-color: var(--gray-600);
+        color: $hover-color;
+        background-color: $hover-bg;
     }
 
     &:active {
-        background-color: var(--gray-700);
+        color: $active-color;
+        background-color: $active-bg;
     }
+}
+
+@mixin input-clear($size: 1.25rem) {
+    @include trailing-action($size);
+    --input-clear-size: #{$size};
 }
 
 
