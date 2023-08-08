@@ -250,12 +250,19 @@ namespace Smartstore.Core.DataExchange.Import
                     // Process localized slugs.
                     foreach (var language in context.Languages)
                     {
-                        var hasSeName = row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName);
-                        var hasLocalizedName = row.TryGetDataValue("Name", language.UniqueSeoCode, out string localizedName);
+                        var hasSeName = TryGetLocalizedValue(row, "SeName", language, out seName);
+                        var hasLocalizedName = TryGetLocalizedValue(row, "Name", language, out string localizedName);
 
                         if (hasSeName || hasLocalizedName)
                         {
+<<<<<<< HEAD
+                            var hasSeName = row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName);
+                            var hasLocalizedName = row.TryGetDataValue("Name", language.UniqueSeoCode, out string localizedName);
+
+                            if (hasSeName || hasLocalizedName)
+=======
                             scope.ApplySlugs(new ValidateSlugResult
+>>>>>>> 0961bfd8f (Fixed localized properties were not updated during import)
                             {
                                 Source = row.Entity,
                                 Slug = SlugUtility.Slugify(seName.NullEmpty() ?? localizedName, _seoSettings),
