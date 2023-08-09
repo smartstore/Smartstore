@@ -67,7 +67,7 @@
                                         </button>
                                         <div class="dropdown-menu @(WorkContext.WorkingLanguage.Rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
                                             <a asp-action="Details" asp-controller="Order" asp-route-id="@item.InitialOrderId" class="dropdown-item" rel="nofollow">
-                                                <i class="far fa-list-alt"></i>
+                                                <i class="far fa-rectangle-list"></i>
                                                 <span>@T("Account.CustomerOrders.RecurringOrders.ViewInitialOrder", item.InitialOrderId)</span>
                                             </a>
                                             <button sm-if="item.CanCancel" type="submit" name="cancelRecurringPayment@(item.Id)" value="cancelRecurringPayment@(item.Id)" class="dropdown-item btn btn-link">
@@ -115,7 +115,7 @@
 
             <div class="card-footer d-flex p-2">
                 <a asp-action="Details" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-secondary btn-no-border btn-sm btn-flat" rel="nofollow">
-                    <i class="far fa-list-alt"></i>
+                    <i class="far fa-rectangle-list"></i>
                     <span>@T("Order.OrderDetails")</span>
                 </a>
                 @if (order.IsReturnRequestAllowed)
