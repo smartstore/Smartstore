@@ -147,9 +147,12 @@
 
             gal.slick(options);
 
-            gal.height(gal.width());
+            // INFO: Not setting height anymore since the browser seems to handle it correctly and
+            // the slick dots were not aligned correctly before. If there is a layout problem, 
+            // maybe uncomment again.
+            //gal.height(gal.width());
             EventBroker.subscribe("page.resized", function (msg, viewport) {
-                gal.height(gal.width());
+                //gal.height(gal.width());
                 self.initNav();
             });
 

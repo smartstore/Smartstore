@@ -791,6 +791,11 @@
 }
 
 .slick-slider {
+    &.artlist.slick-dotted .slick-dots {
+        // Move slightly up in boxes
+        transform: translateY(-25%);
+    }
+
     &.artlist-grid {
         display: block !important;
     }
