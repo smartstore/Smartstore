@@ -1978,7 +1978,7 @@ namespace Smartstore.Admin.Controllers
                         UpdateProductGeneralInfo(product, model);
                         break;
                     case "inventory":
-                        await UpdateProductInventoryAsync(product, model);
+                        UpdateProductInventory(product, model);
                         break;
                     case "bundleitems":
                         await UpdateProductBundleItemsAsync(product, model);
@@ -2084,7 +2084,7 @@ namespace Smartstore.Admin.Controllers
             p.SampleDownloadId = m.SampleDownloadId == 0 ? null : m.SampleDownloadId;
         }
 
-        private async Task UpdateProductInventoryAsync(Product product, ProductModel model)
+        private void UpdateProductInventory(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -2123,26 +2123,6 @@ namespace Smartstore.Admin.Controllers
             p.OrderMaximumQuantity = m.OrderMaximumQuantity;
             p.QuantityStep = m.QuantityStep;
             p.HideQuantityControl = m.HideQuantityControl;
-
-            if (p.ManageInventoryMethod == ManageInventoryMethod.ManageStock && updateStockQuantity)
-            {
-                // Back in stock notifications.
-                if (p.BackorderMode == BackorderMode.NoBackorders &&
-                    p.AllowBackInStockSubscriptions &&
-                    p.StockQuantity > 0 &&
-                    stockQuantityInDatabase <= 0 &&
-                    p.Published &&
-                    !p.Deleted &&
-                    !p.IsSystemProduct)
-                {
-                    await _stockSubscriptionService.Value.SendNotificationsToSubscribersAsync(p);
-                }
-
-                if (p.StockQuantity != stockQuantityInDatabase)
-                {
-                    await _productService.AdjustInventoryAsync(p, new ProductVariantAttributeSelection(null), true, 0);
-                }
-            }
         }
 
         private async Task UpdateProductBundleItemsAsync(Product product, ProductModel model)

@@ -1,7 +1,6 @@
 ﻿using System.Linq.Dynamic.Core;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
-using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Rules.Filters;
@@ -164,25 +163,6 @@ namespace Smartstore.Admin.Controllers
                 product.AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc;
 
                 await _db.SaveChangesAsync();
-
-                // Back in stock notifications.
-                if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock &&
-                    product.BackorderMode == BackorderMode.NoBackorders &&
-                    product.AllowBackInStockSubscriptions &&
-                    product.StockQuantity > 0 &&
-                    stockQuantityInDatabase <= 0 &&
-                    product.Published &&
-                    !product.Deleted &&
-                    !product.IsSystemProduct)
-                {
-                    await _stockSubscriptionService.Value.SendNotificationsToSubscribersAsync(product);
-                }
-
-                if (product.StockQuantity != stockQuantityInDatabase && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
-                {
-                    await _productService.AdjustInventoryAsync(product, new ProductVariantAttributeSelection(null), true, 0);
-                    await _db.SaveChangesAsync();
-                }
 
                 return Json(new { success = true });
             }

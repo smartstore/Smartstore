@@ -21,6 +21,7 @@
 - #403 Added preview image link of NewsItem to RSS feed.
 - #390 Import: add a setting whether to send the completion email.
 - #276 Enable to set the time of day for start and end date of discounts.
+- #142 Web API do not take back in stock notifications into account.
 
 ### Bugfixes
 

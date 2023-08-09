@@ -234,7 +234,6 @@ namespace Smartstore.Core.Catalog.Products
         public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, ProductVariantAttributeSelection selection, bool decrease, int quantity)
         {
             Guard.NotNull(product);
-            Guard.NotNull(selection);
 
             var result = new AdjustInventoryResult();
 
@@ -301,23 +300,26 @@ namespace Smartstore.Core.Catalog.Products
                     break;
             }
 
-            var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
-
-            var productLinkageValues = attributeValues
-                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
-                .ToList();
-
-            foreach (var chunk in productLinkageValues.Chunk(100))
+            if (selection != null)
             {
-                var linkedProductIds = chunk.Select(x => x.LinkedProductId).Distinct().ToArray();
-                var linkedProducts = await _db.Products.GetManyAsync(linkedProductIds, true);
-                var linkedProductsDic = linkedProducts.ToDictionarySafe(x => x.Id);
+                var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
 
-                foreach (var value in chunk)
+                var productLinkageValues = attributeValues
+                    .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                    .ToList();
+
+                foreach (var chunk in productLinkageValues.Chunk(100))
                 {
-                    if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProduct))
+                    var linkedProductIds = chunk.Select(x => x.LinkedProductId).Distinct().ToArray();
+                    var linkedProducts = await _db.Products.GetManyAsync(linkedProductIds, true);
+                    var linkedProductsDic = linkedProducts.ToDictionarySafe(x => x.Id);
+
+                    foreach (var value in chunk)
                     {
-                        await AdjustInventoryAsync(linkedProduct, new ProductVariantAttributeSelection(null), decrease, quantity * value.Quantity);
+                        if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProduct))
+                        {
+                            await AdjustInventoryAsync(linkedProduct, null, decrease, quantity * value.Quantity);
+                        }
                     }
                 }
             }
