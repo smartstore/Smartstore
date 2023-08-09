@@ -1,11 +1,9 @@
-﻿
-using Smartstore.Core.Checkout.Tax;
+﻿using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -26,7 +24,6 @@ namespace Smartstore.Core.DataExchange.Import
 
         public CustomerImporter(
             ICommonServices services,
-            ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IMediaImporter mediaImporter,
@@ -35,7 +32,7 @@ namespace Smartstore.Core.DataExchange.Import
             TaxSettings taxSettings,
             PrivacySettings privacySettings,
             DateTimeSettings dateTimeSettings)
-            : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
+            : base(services, storeMappingService, urlService, seoSettings)
         {
             _mediaImporter = mediaImporter;
             _customerSettings = customerSettings;

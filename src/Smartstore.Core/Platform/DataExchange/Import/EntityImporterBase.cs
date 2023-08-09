@@ -11,21 +11,18 @@ namespace Smartstore.Core.DataExchange.Import
     {
         protected SmartDbContext _db;
         protected ICommonServices _services;
-        protected ILocalizedEntityService _localizedEntityService;
         protected IStoreMappingService _storeMappingService;
         protected IUrlService _urlService;
         protected SeoSettings _seoSettings;
 
         protected EntityImporterBase(
             ICommonServices services,
-            ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             SeoSettings seoSettings)
         {
             _db = services.DbContext;
             _services = services;
-            _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _urlService = urlService;
             _seoSettings = seoSettings;

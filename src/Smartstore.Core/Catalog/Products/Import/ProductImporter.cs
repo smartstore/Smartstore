@@ -1,5 +1,4 @@
-﻿
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
@@ -45,12 +44,11 @@ namespace Smartstore.Core.DataExchange.Import
 
         public ProductImporter(
             ICommonServices services,
-            ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IMediaImporter mediaImporter,
             SeoSettings seoSettings)
-            : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
+            : base(services, storeMappingService, urlService, seoSettings)
         {
             _mediaImporter = mediaImporter;
         }

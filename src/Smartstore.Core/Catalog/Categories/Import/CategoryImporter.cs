@@ -1,7 +1,6 @@
 ﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
@@ -30,12 +29,11 @@ namespace Smartstore.Core.DataExchange.Import
 
         public CategoryImporter(
             ICommonServices services,
-            ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IMediaImporter mediaImporter,
             SeoSettings seoSettings)
-            : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
+            : base(services, storeMappingService, urlService, seoSettings)
         {
             _mediaImporter = mediaImporter;
         }
