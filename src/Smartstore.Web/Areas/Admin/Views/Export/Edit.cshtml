@@ -47,7 +47,7 @@
             @if (Model.LogFileExists)
             {
                 <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
-                    <i class="far fa-file-alt"></i>
+                    <i class="far fa-file-lines"></i>
                     <span>@T("Admin.Configuration.ActivityLog")</span>
                 </a>
             }

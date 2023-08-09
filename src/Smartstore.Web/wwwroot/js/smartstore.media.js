@@ -33,8 +33,8 @@ Smartstore.media = (function () {
         "image": img,
         "video": video,
         "audio": { name: "far fa-file-audio", color: "#009688", mediaType: 'audio' },
-        "document": { name: "fas fa-file-alt", color: "#2b579a", mediaType: 'document' },
-        "text": { name: "far fa-file-alt", color: "#607d8B", mediaType: 'text' },
+        "document": { name: "fas fa-file-lines", color: "#2b579a", mediaType: 'document' },
+        "text": { name: "far fa-file-lines", color: "#607d8B", mediaType: 'text' },
         "bin": { name: "far fa-file", color: "#bbb", mediaType: 'bin' },
         // Rescue
         "misc": { name: "far fa-file", color: "#bbb", mediaType: 'bin', isFallback: true }

@@ -33,7 +33,7 @@ namespace Smartstore.Core.Content.Menus
                 new LinkBuilderMetadata { Schema = SchemaProduct, Icon = "fa fa-cube", ResKey = "Common.Entity.Product" },
                 new LinkBuilderMetadata { Schema = SchemaCategory, Icon = "fa fa-sitemap", ResKey = "Common.Entity.Category" },
                 new LinkBuilderMetadata { Schema = SchemaManufacturer, Icon = "far fa-building", ResKey = "Common.Entity.Manufacturer" },
-                new LinkBuilderMetadata { Schema = SchemaTopic, Icon = "far fa-file-alt", ResKey = "Common.Entity.Topic" },
+                new LinkBuilderMetadata { Schema = SchemaTopic, Icon = "far fa-file-lines", ResKey = "Common.Entity.Topic" },
             };
         }
 
