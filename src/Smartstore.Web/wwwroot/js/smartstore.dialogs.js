@@ -38,7 +38,7 @@
         danger: { name: 'fa fa-exclamation-triangle', color: 'danger' },
         info: { name: 'fa fa-info', color: 'info' },
         warning: { name: 'fa fa-exclamation-circle', color: 'warning' },
-        delete: { name: 'fa fa-trash-alt', color: 'danger' }
+        delete: { name: 'fa fa-trash-can', color: 'danger' }
     };
 
     function createBoxModal(type, opts) {

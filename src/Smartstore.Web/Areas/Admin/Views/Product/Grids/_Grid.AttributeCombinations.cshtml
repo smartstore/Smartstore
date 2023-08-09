@@ -35,11 +35,11 @@
             <button type="button" id="btnDeleteAllCombinations" class="btn btn-light btn-flat mr-auto" v-if="grid.rows.length > 0"
                     data-url='@Url.Action("DeleteAllAttributeCombinations", new { productId = parentModel.Id })'
                     data-ask="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToDeleteAll")">
-                <i class="far fa-trash-alt"></i>
+                <i class="far fa-trash-can"></i>
                 <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.DeleteAllCombinations")</span>
             </button>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <i class="far fa-trash-alt"></i>
+                <i class="far fa-trash-can"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>

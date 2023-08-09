@@ -184,7 +184,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             return confirmType switch
             {
                 ConfirmActionType.Action => "fa fa-exclamation-circle",
-                _ => "fa fa-trash-alt",
+                _ => "fa fa-trash-can",
             };
         }
 
