@@ -101,12 +101,13 @@ namespace Smartstore.Web.Controllers
             var orderQuery = _db.Orders
                 .IncludeBillingAddress()
                 .IncludeShippingAddress()
-                .AsNoTracking();
+                .IncludeOrderItems();
 
             if (ids != null)
             {
                 orders = await orderQuery
                     .Where(x => ids.ToIntArray().Contains(x.Id))
+                    .OrderByDescending(x => x.CreatedOnUtc)
                     .ToListAsync();
 
                 totalCount = orders.Count;
@@ -151,9 +152,7 @@ namespace Smartstore.Web.Controllers
                 return File(content, MediaTypeNames.Application.Pdf, fileName);
             }
 
-            var model = await orders
-                .SelectAwait(_orderHelper.PrepareOrderDetailsModelAsync)
-                .AsyncToList();
+            var model = await _orderHelper.PrepareOrderDetailsModelsAsync(orders);
 
             return View("Details.Print", model);
         }
@@ -252,19 +251,10 @@ namespace Smartstore.Web.Controllers
         {
             Guard.NotNull(shipment);
 
-            var order = shipment.Order;
-            if (order == null)
-            {
-                throw new Exception(T("Order.NotFound", shipment.OrderId));
-            }
-
-            var currentStore = Services.StoreContext.CurrentStore;
-            var store = currentStore.Id != order.StoreId
-                ? (await _db.Stores.FindByIdAsync(order.StoreId, false) ?? currentStore)
-                : currentStore;
-            var settingFactory = Services.SettingFactory;
-            var catalogSettings = await settingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
-            var shippingSettings = await settingFactory.LoadSettingsAsync<ShippingSettings>(store.Id);
+            var order = shipment.Order ?? throw new Exception(T("Order.NotFound", shipment.OrderId));
+            var store = Services.StoreContext.GetCachedStores().GetStoreById(order.StoreId) ?? Services.StoreContext.CurrentStore;
+            var catalogSettings = await Services.SettingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
+            var shippingSettings = await Services.SettingFactory.LoadSettingsAsync<ShippingSettings>(store.Id);
 
             var model = new ShipmentDetailsModel
             {

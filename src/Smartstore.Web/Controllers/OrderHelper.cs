@@ -15,7 +15,6 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -33,12 +32,10 @@ namespace Smartstore.Web.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IMediaService _mediaService;
         private readonly IOrderService _orderService;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IPaymentService _paymentService;
-        private readonly ICurrencyService _currencyService;
         private readonly ITaxService _taxService;
         private readonly IGiftCardService _giftCardService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
@@ -52,12 +49,10 @@ namespace Smartstore.Web.Controllers
         public OrderHelper(
             SmartDbContext db,
             ICommonServices services,
-            IDateTimeHelper dateTimeHelper,
             IMediaService mediaService,
             IOrderService orderService,
             IOrderProcessingService orderProcessingService,
             IPaymentService paymentService,
-            ICurrencyService currencyService,
             ITaxService taxService,
             IGiftCardService giftCardService,
             IProductAttributeMaterializer productAttributeMaterializer,
@@ -70,12 +65,10 @@ namespace Smartstore.Web.Controllers
         {
             _db = db;
             _services = services;
-            _dateTimeHelper = dateTimeHelper;
             _mediaService = mediaService;
             _orderService = orderService;
             _orderProcessingService = orderProcessingService;
             _paymentService = paymentService;
-            _currencyService = currencyService;
             _taxService = taxService;
             _giftCardService = giftCardService;
             _productAttributeMaterializer = productAttributeMaterializer;
@@ -98,7 +91,7 @@ namespace Smartstore.Web.Controllers
             ProductVariantAttributeSelection attributeSelection,
             CatalogSettings catalogSettings)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             var file = (MediaFileInfo?)null;
             var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, attributeSelection);
@@ -158,8 +151,6 @@ namespace Smartstore.Web.Controllers
             MediaSettings mediaSettings,
             Currency? customerCurrency)
         {
-            var language = _services.WorkContext.WorkingLanguage;
-
             var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(orderItem.ProductId, orderItem.AttributeSelection);
             if (attributeCombination != null)
             {
@@ -217,7 +208,7 @@ namespace Smartstore.Web.Controllers
 
                     if (model.BundlePerItemShoppingCart)
                     {
-                        bundleItemModel.PriceWithDiscount = _currencyService.ConvertToExchangeRate(bid.PriceWithDiscount, order.CurrencyRate, customerCurrency);
+                        bundleItemModel.PriceWithDiscount = ConvertToExchangeRate(bid.PriceWithDiscount);
                     }
 
                     // Bundle item picture.
@@ -242,17 +233,15 @@ namespace Smartstore.Web.Controllers
             {
                 case TaxDisplayType.ExcludingTax:
                 {
-                    var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency);
-                    model.UnitPrice = unitPriceExclTaxInCustomerCurrency;
-                    model.SubTotal = _currencyService.ConvertToExchangeRate(orderItem.PriceExclTax, order.CurrencyRate, customerCurrency);
+                    model.UnitPrice = ConvertToExchangeRate(orderItem.UnitPriceExclTax);
+                    model.SubTotal = ConvertToExchangeRate(orderItem.PriceExclTax);
                 }
                 break;
 
                 case TaxDisplayType.IncludingTax:
                 {
-                    var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency);
-                    model.UnitPrice = unitPriceInclTaxInCustomerCurrency;
-                    model.SubTotal = _currencyService.ConvertToExchangeRate(orderItem.PriceInclTax, order.CurrencyRate, customerCurrency);
+                    model.UnitPrice = ConvertToExchangeRate(orderItem.UnitPriceInclTax);
+                    model.SubTotal = ConvertToExchangeRate(orderItem.PriceInclTax);
                 }
                 break;
             }
@@ -270,15 +259,36 @@ namespace Smartstore.Web.Controllers
             }
 
             return model;
+
+            Money ConvertToExchangeRate(decimal amount)
+            {
+                return _services.CurrencyService.ConvertToExchangeRate(amount, order.CurrencyRate, customerCurrency);
+            }
         }
 
-        public async Task<OrderDetailsModel> PrepareOrderDetailsModelAsync(Order order)
+        public Task<OrderDetailsModel> PrepareOrderDetailsModelAsync(Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            return PrepareOrderDetailsModelInternal(order);
+        }
 
+        public async Task<List<OrderDetailsModel>> PrepareOrderDetailsModelsAsync(IEnumerable<Order> orders)
+        {
+            var context = await CreateOrderHelperContext();
+
+            var models = await orders
+                .SelectAwait(o => PrepareOrderDetailsModelInternal(o, context))
+                .AsyncToList();
+
+            return models;
+        }
+
+        private async Task<OrderDetailsModel> PrepareOrderDetailsModelInternal(Order o, OrderHelperContext? context = null)
+        {
+            Guard.NotNull(o);
+
+            var dtHelper = _services.DateTimeHelper;
             var settingFactory = _services.SettingFactory;
-            var store = await _db.Stores.FindByIdAsync(order.StoreId, false) ?? _services.StoreContext.CurrentStore;
-            var language = _services.WorkContext.WorkingLanguage;
+            var store = _services.StoreContext.GetCachedStores().GetStoreById(o.StoreId) ?? _services.StoreContext.CurrentStore;
 
             var orderSettings = await settingFactory.LoadSettingsAsync<OrderSettings>(store.Id);
             var catalogSettings = await settingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
@@ -288,121 +298,117 @@ namespace Smartstore.Web.Controllers
             var shoppingCartSettings = await settingFactory.LoadSettingsAsync<ShoppingCartSettings>(store.Id);
             var mediaSettings = await settingFactory.LoadSettingsAsync<MediaSettings>(store.Id);
 
+            var countryName = context?.CountryNames?.Get(companyInfoSettings.CountryId) ??
+                (await _db.Countries.FindByIdAsync(companyInfoSettings.CountryId, false))?.GetLocalized(x => x.Name)!;
+
+            var customerCurrency = context?.Currencies?.Get(o.CustomerCurrencyCode) ??
+                await _db.Currencies.AsNoTracking().FirstOrDefaultAsync(x => x.CurrencyCode == o.CustomerCurrencyCode);
+
             var model = new OrderDetailsModel
             {
-                Order = order,
-                Id = order.Id,
-                StoreId = order.StoreId,
-                CustomerLanguageId = order.CustomerLanguageId,
-                CustomerComment = order.CustomerOrderComment,
-                OrderNumber = order.GetOrderNumber(),
-                CreatedOn = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc),
-                OrderStatus = _services.Localization.GetLocalizedEnum(order.OrderStatus),
+                Order = o,
+                Id = o.Id,
+                StoreId = o.StoreId,
+                CustomerLanguageId = o.CustomerLanguageId,
+                CustomerComment = o.CustomerOrderComment,
+                OrderNumber = o.GetOrderNumber(),
+                CreatedOn = dtHelper.ConvertToUserTime(o.CreatedOnUtc, DateTimeKind.Utc),
+                OrderStatus = _services.Localization.GetLocalizedEnum(o.OrderStatus),
                 IsReOrderAllowed = orderSettings.IsReOrderAllowed,
-                IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(order),
+                IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(o),
                 DisplayPdfInvoice = pdfSettings.Enabled,
                 RenderOrderNotes = pdfSettings.RenderOrderNotes,
-                // Shipping info.
-                ShippingStatus = _services.Localization.GetLocalizedEnum(order.ShippingStatus)
+                ShippingStatus = _services.Localization.GetLocalizedEnum(o.ShippingStatus),
+                MerchantCompanyInfo = companyInfoSettings,
+                MerchantCompanyCountryName = countryName
             };
 
-            // TODO: refactor modelling for multi-order processing.
-            var companyCountry = await _db.Countries.FindByIdAsync(companyInfoSettings.CountryId, false);
-            model.MerchantCompanyInfo = companyInfoSettings;
-            model.MerchantCompanyCountryName = companyCountry?.GetLocalized(x => x.Name)!;
-
-            if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
+            if (o.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {
                 model.IsShippable = true;
-                await MapperFactory.MapAsync(order.ShippingAddress, model.ShippingAddress);
-                model.ShippingMethod = order.ShippingMethod;
+                await MapperFactory.MapAsync(o.ShippingAddress, model.ShippingAddress);
+                model.ShippingMethod = o.ShippingMethod;
 
                 // Shipments (only already shipped).
-                await _db.LoadCollectionAsync(order, x => x.Shipments);
+                await _db.LoadCollectionAsync(o, x => x.Shipments);
 
-                var shipments = order.Shipments.Where(x => x.ShippedDateUtc.HasValue).OrderBy(x => x.CreatedOnUtc).ToList();
+                var shipments = o.Shipments
+                    .Where(x => x.ShippedDateUtc.HasValue)
+                    .OrderBy(x => x.CreatedOnUtc)
+                    .ToList();
+
                 foreach (var shipment in shipments)
                 {
-                    var shipmentModel = new OrderDetailsModel.ShipmentBriefModel
+                    model.Shipments.Add(new OrderDetailsModel.ShipmentBriefModel
                     {
                         Id = shipment.Id,
                         TrackingNumber = shipment.TrackingNumber,
-                    };
-
-                    if (shipment.ShippedDateUtc.HasValue)
-                    {
-                        shipmentModel.ShippedDate = _dateTimeHelper.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc);
-                    }
-                    if (shipment.DeliveryDateUtc.HasValue)
-                    {
-                        shipmentModel.DeliveryDate = _dateTimeHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc);
-                    }
-
-                    model.Shipments.Add(shipmentModel);
+                        ShippedDate = shipment.ShippedDateUtc.HasValue
+                            ? dtHelper.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc)
+                            : null,
+                        DeliveryDate = shipment.DeliveryDateUtc.HasValue
+                            ? dtHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc)
+                            : null
+                    });
                 }
             }
 
-            await MapperFactory.MapAsync(order.BillingAddress, model.BillingAddress);
-            model.VatNumber = order.VatNumber;
+            await MapperFactory.MapAsync(o.BillingAddress, model.BillingAddress);
+            model.VatNumber = o.VatNumber;
 
             // Payment method.
-            var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(order.PaymentMethodSystemName);
-            model.PaymentMethodSystemName = order.PaymentMethodSystemName;
-            model.PaymentMethod = paymentMethod != null ? _moduleManager.Value.GetLocalizedFriendlyName(paymentMethod.Metadata) : order.PaymentMethodSystemName;
-            model.CanRePostProcessPayment = await _paymentService.CanRePostProcessPaymentAsync(order);
+            var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(o.PaymentMethodSystemName);
+            model.PaymentMethod = paymentMethod != null ? _moduleManager.Value.GetLocalizedFriendlyName(paymentMethod.Metadata) : o.PaymentMethodSystemName;
+            model.PaymentMethodSystemName = o.PaymentMethodSystemName;
+            model.CanRePostProcessPayment = await _paymentService.CanRePostProcessPaymentAsync(o);
 
             // Purchase order number (we have to find a better to inject this information because it's related to a certain plugin).
-            if (paymentMethod != null && paymentMethod.Metadata.SystemName.Equals("Smartstore.PurchaseOrderNumber", StringComparison.InvariantCultureIgnoreCase))
+            if (o.PaymentMethodSystemName.EqualsNoCase("Smartstore.PurchaseOrderNumber"))
             {
                 model.DisplayPurchaseOrderNumber = true;
-                model.PurchaseOrderNumber = order.PurchaseOrderNumber;
+                model.PurchaseOrderNumber = o.PurchaseOrderNumber;
             }
 
-            if (order.AllowStoringCreditCardNumber)
+            if (o.AllowStoringCreditCardNumber)
             {
-                model.CardNumber = _encryptor.DecryptText(order.CardNumber);
-                model.MaskedCreditCardNumber = _encryptor.DecryptText(order.MaskedCreditCardNumber);
-                model.CardCvv2 = _encryptor.DecryptText(order.CardCvv2);
-                model.CardExpirationMonth = _encryptor.DecryptText(order.CardExpirationMonth);
-                model.CardExpirationYear = _encryptor.DecryptText(order.CardExpirationYear);
+                model.CardNumber = _encryptor.DecryptText(o.CardNumber);
+                model.MaskedCreditCardNumber = _encryptor.DecryptText(o.MaskedCreditCardNumber);
+                model.CardCvv2 = _encryptor.DecryptText(o.CardCvv2);
+                model.CardExpirationMonth = _encryptor.DecryptText(o.CardExpirationMonth);
+                model.CardExpirationYear = _encryptor.DecryptText(o.CardExpirationYear);
             }
 
-            if (order.AllowStoringDirectDebit)
+            if (o.AllowStoringDirectDebit)
             {
-                model.DirectDebitAccountHolder = _encryptor.DecryptText(order.DirectDebitAccountHolder);
-                model.DirectDebitAccountNumber = _encryptor.DecryptText(order.DirectDebitAccountNumber);
-                model.DirectDebitBankCode = _encryptor.DecryptText(order.DirectDebitBankCode);
-                model.DirectDebitBankName = _encryptor.DecryptText(order.DirectDebitBankName);
-                model.DirectDebitBIC = _encryptor.DecryptText(order.DirectDebitBIC);
-                model.DirectDebitCountry = _encryptor.DecryptText(order.DirectDebitCountry);
-                model.DirectDebitIban = _encryptor.DecryptText(order.DirectDebitIban);
+                model.DirectDebitAccountHolder = _encryptor.DecryptText(o.DirectDebitAccountHolder);
+                model.DirectDebitAccountNumber = _encryptor.DecryptText(o.DirectDebitAccountNumber);
+                model.DirectDebitBankCode = _encryptor.DecryptText(o.DirectDebitBankCode);
+                model.DirectDebitBankName = _encryptor.DecryptText(o.DirectDebitBankName);
+                model.DirectDebitBIC = _encryptor.DecryptText(o.DirectDebitBIC);
+                model.DirectDebitCountry = _encryptor.DecryptText(o.DirectDebitCountry);
+                model.DirectDebitIban = _encryptor.DecryptText(o.DirectDebitIban);
             }
 
             // Totals.
-            Currency? customerCurrency = await _db.Currencies
-                .AsNoTracking()
-                .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
-                .FirstOrDefaultAsync();
-
-            switch (order.CustomerTaxDisplayType)
+            switch (o.CustomerTaxDisplayType)
             {
                 case TaxDisplayType.ExcludingTax:
                 {
                     // Order subtotal.
-                    model.OrderSubtotal = _currencyService.ConvertToExchangeRate(order.OrderSubtotalExclTax, order.CurrencyRate, customerCurrency);
+                    model.OrderSubtotal = ConvertToExchangeRate(o.OrderSubtotalExclTax);
 
                     // Discount (applied to order subtotal).
-                    var orderSubTotalDiscountExclTax = _currencyService.ConvertToExchangeRate(order.OrderSubTotalDiscountExclTax, order.CurrencyRate, customerCurrency);
+                    var orderSubTotalDiscountExclTax = ConvertToExchangeRate(o.OrderSubTotalDiscountExclTax);
                     if (orderSubTotalDiscountExclTax > 0)
                     {
                         model.OrderSubTotalDiscount = orderSubTotalDiscountExclTax * -1;
                     }
 
                     // Order shipping.
-                    model.OrderShipping = _currencyService.ConvertToExchangeRate(order.OrderShippingExclTax, order.CurrencyRate, customerCurrency);
+                    model.OrderShipping = ConvertToExchangeRate(o.OrderShippingExclTax);
 
                     // Payment method additional fee.
-                    var paymentMethodAdditionalFeeExclTax = _currencyService.ConvertToExchangeRate(order.PaymentMethodAdditionalFeeExclTax, order.CurrencyRate, customerCurrency);
+                    var paymentMethodAdditionalFeeExclTax = ConvertToExchangeRate(o.PaymentMethodAdditionalFeeExclTax);
                     if (paymentMethodAdditionalFeeExclTax != 0)
                     {
                         model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeExclTax;
@@ -413,20 +419,20 @@ namespace Smartstore.Web.Controllers
                 case TaxDisplayType.IncludingTax:
                 {
                     // Order subtotal.
-                    model.OrderSubtotal = _currencyService.ConvertToExchangeRate(order.OrderSubtotalInclTax, order.CurrencyRate, customerCurrency);
+                    model.OrderSubtotal = ConvertToExchangeRate(o.OrderSubtotalInclTax);
 
                     // Discount (applied to order subtotal).
-                    var orderSubTotalDiscountInclTax = _currencyService.ConvertToExchangeRate(order.OrderSubTotalDiscountInclTax, order.CurrencyRate, customerCurrency);
+                    var orderSubTotalDiscountInclTax = ConvertToExchangeRate(o.OrderSubTotalDiscountInclTax);
                     if (orderSubTotalDiscountInclTax > 0)
                     {
                         model.OrderSubTotalDiscount = orderSubTotalDiscountInclTax * -1;
                     }
 
                     // Order shipping.
-                    model.OrderShipping = _currencyService.ConvertToExchangeRate(order.OrderShippingInclTax, order.CurrencyRate, customerCurrency);
+                    model.OrderShipping = ConvertToExchangeRate(o.OrderShippingInclTax);
 
                     // Payment method additional fee.
-                    var paymentMethodAdditionalFeeInclTax = _currencyService.ConvertToExchangeRate(order.PaymentMethodAdditionalFeeInclTax, order.CurrencyRate, customerCurrency);
+                    var paymentMethodAdditionalFeeInclTax = ConvertToExchangeRate(o.PaymentMethodAdditionalFeeInclTax);
                     if (paymentMethodAdditionalFeeInclTax != 0)
                     {
                         model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeInclTax;
@@ -439,26 +445,26 @@ namespace Smartstore.Web.Controllers
             var displayTax = true;
             var displayTaxRates = true;
 
-            if (taxSettings.HideTaxInOrderSummary && order.CustomerTaxDisplayType == TaxDisplayType.IncludingTax)
+            if (taxSettings.HideTaxInOrderSummary && o.CustomerTaxDisplayType == TaxDisplayType.IncludingTax)
             {
                 displayTax = false;
                 displayTaxRates = false;
             }
             else
             {
-                if (order.OrderTax == 0 && taxSettings.HideZeroTax)
+                if (o.OrderTax == 0 && taxSettings.HideZeroTax)
                 {
                     displayTax = false;
                     displayTaxRates = false;
                 }
                 else
                 {
-                    displayTaxRates = taxSettings.DisplayTaxRates && order.TaxRatesDictionary.Count > 0;
+                    displayTaxRates = taxSettings.DisplayTaxRates && o.TaxRatesDictionary.Count > 0;
                     displayTax = !displayTaxRates;
 
-                    model.Tax = _currencyService.ConvertToExchangeRate(order.OrderTax, order.CurrencyRate, customerCurrency);
+                    model.Tax = ConvertToExchangeRate(o.OrderTax);
 
-                    foreach (var tr in order.TaxRatesDictionary)
+                    foreach (var tr in o.TaxRatesDictionary)
                     {
                         var rate = _taxService.FormatTaxRate(tr.Key);
                         var labelKey = _services.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax ? "ShoppingCart.Totals.TaxRateLineIncl" : "ShoppingCart.Totals.TaxRateLineExcl";
@@ -467,7 +473,7 @@ namespace Smartstore.Web.Controllers
                         {
                             Rate = rate,
                             Label = T(labelKey, rate),
-                            Value = _currencyService.ConvertToExchangeRate(tr.Value, order.CurrencyRate, customerCurrency).ToString()
+                            Value = ConvertToExchangeRate(tr.Value).ToString()
                         });
                     }
                 }
@@ -477,51 +483,46 @@ namespace Smartstore.Web.Controllers
             model.DisplayTax = displayTax;
 
             // Discount (applied to order total).
-            var orderDiscountInCustomerCurrency = _currencyService.ConvertToExchangeRate(order.OrderDiscount, order.CurrencyRate, customerCurrency);
+            var orderDiscountInCustomerCurrency = ConvertToExchangeRate(o.OrderDiscount);
             if (orderDiscountInCustomerCurrency > 0)
             {
                 model.OrderTotalDiscount = orderDiscountInCustomerCurrency * -1;
             }
 
             // Gift cards.
-            await _db.LoadCollectionAsync(order, x => x.GiftCardUsageHistory, false, q => q.Include(x => x.GiftCard));
+            await _db.LoadCollectionAsync(o, x => x.GiftCardUsageHistory, false, q => q.Include(x => x.GiftCard));
 
-            foreach (var gcuh in order.GiftCardUsageHistory)
+            foreach (var gcuh in o.GiftCardUsageHistory)
             {
                 var remainingAmountBase = await _giftCardService.GetRemainingAmountAsync(gcuh.GiftCard);
-                var remainingAmount = _currencyService.ConvertToExchangeRate(remainingAmountBase.Amount, order.CurrencyRate, customerCurrency);
-                var usedAmount = _currencyService.ConvertToExchangeRate(gcuh.UsedValue, order.CurrencyRate, customerCurrency);
 
                 var gcModel = new OrderDetailsModel.GiftCard
                 {
                     CouponCode = gcuh.GiftCard.GiftCardCouponCode,
-                    Amount = (usedAmount * -1).ToString(),
-                    Remaining = remainingAmount.ToString()
+                    Amount = (ConvertToExchangeRate(gcuh.UsedValue) * -1).ToString(),
+                    Remaining = ConvertToExchangeRate(remainingAmountBase.Amount).ToString()
                 };
 
                 model.GiftCards.Add(gcModel);
             }
 
             // Reward points.
-            await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
+            await _db.LoadReferenceAsync(o, x => x.RedeemedRewardPointsEntry);
 
-            if (order.RedeemedRewardPointsEntry != null)
+            if (o.RedeemedRewardPointsEntry != null)
             {
-                var usedAmount = _currencyService.ConvertToExchangeRate(order.RedeemedRewardPointsEntry.UsedAmount, order.CurrencyRate, customerCurrency);
-
-                model.RedeemedRewardPoints = -order.RedeemedRewardPointsEntry.Points;
-                model.RedeemedRewardPointsAmount = usedAmount * -1;
+                model.RedeemedRewardPoints = -o.RedeemedRewardPointsEntry.Points;
+                model.RedeemedRewardPointsAmount = ConvertToExchangeRate(o.RedeemedRewardPointsEntry.UsedAmount) * -1;
             }
 
             // Credit balance.
-            if (order.CreditBalance > 0)
+            if (o.CreditBalance > 0)
             {
-                var convertedCreditBalance = _currencyService.ConvertToExchangeRate(order.CreditBalance, order.CurrencyRate, customerCurrency);
-                model.CreditBalance = convertedCreditBalance * -1;
+                model.CreditBalance = ConvertToExchangeRate(o.CreditBalance) * -1;
             }
 
             // Total.
-            (var orderTotal, var roundingAmount) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(order, customerCurrency);
+            (var orderTotal, var roundingAmount) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(o, customerCurrency);
             model.OrderTotal = orderTotal;
 
             if (roundingAmount != 0)
@@ -530,19 +531,19 @@ namespace Smartstore.Web.Controllers
             }
 
             // Checkout attributes.
-            model.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(order.CheckoutAttributeDescription));
+            model.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(o.CheckoutAttributeDescription));
 
             // Order notes.
-            await _db.LoadCollectionAsync(order, x => x.OrderNotes);
+            await _db.LoadCollectionAsync(o, x => x.OrderNotes);
 
-            var orderNotes = order.OrderNotes
+            var orderNotes = o.OrderNotes
                 .Where(x => x.DisplayToCustomer)
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .ToList();
 
             foreach (var orderNote in orderNotes)
             {
-                var createdOn = _dateTimeHelper.ConvertToUserTime(orderNote.CreatedOnUtc, DateTimeKind.Utc);
+                var createdOn = dtHelper.ConvertToUserTime(orderNote.CreatedOnUtc, DateTimeKind.Utc);
 
                 model.OrderNotes.Add(new OrderDetailsModel.OrderNote
                 {
@@ -558,24 +559,27 @@ namespace Smartstore.Web.Controllers
             model.ShowProductBundleImages = shoppingCartSettings.ShowProductBundleImagesOnShoppingCart;
             model.BundleThumbSize = mediaSettings.CartThumbBundleItemPictureSize;
 
-            await _db.LoadCollectionAsync(order, x => x.OrderItems, false, q => q.Include(x => x.Product));
+            await _db.LoadCollectionAsync(o, x => x.OrderItems, false, q => q.Include(x => x.Product));
 
-            foreach (var orderItem in order.OrderItems)
+            foreach (var orderItem in o.OrderItems)
             {
-                var orderItemModel = await PrepareOrderItemModelAsync(order, orderItem, catalogSettings, shoppingCartSettings, mediaSettings, customerCurrency);
+                var orderItemModel = await PrepareOrderItemModelAsync(o, orderItem, catalogSettings, shoppingCartSettings, mediaSettings, customerCurrency);
                 model.Items.Add(orderItemModel);
             }
 
             return model;
+
+            Money ConvertToExchangeRate(decimal amount)
+            {
+                return _services.CurrencyService.ConvertToExchangeRate(amount, o.CurrencyRate, customerCurrency);
+            }
         }
 
         public async Task<(Stream Content, string FileName)> GeneratePdfAsync(IEnumerable<Order> orders)
         {
             Guard.NotNull(orders);
 
-            var model = await orders
-                .SelectAwait(PrepareOrderDetailsModelAsync)
-                .AsyncToList();
+            var model = await PrepareOrderDetailsModelsAsync(orders);
 
             // TODO: (mc) this is bad for multi-document processing, where orders can originate from different stores.
             var storeId = model?[0].StoreId ?? _services.StoreContext.CurrentStore.Id;
@@ -611,5 +615,38 @@ namespace Smartstore.Web.Controllers
 
             return (content, fileName!);
         }
+
+        #region Utilities
+
+        private async Task<OrderHelperContext> CreateOrderHelperContext()
+        {
+            var countries = await _db.Countries.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x);
+            var currencies = await _db.Currencies.AsNoTracking().ToListAsync();
+
+            var countryNames = countries.Select(x => new
+            { 
+                x.Value.Id,
+                Name = x.Value.GetLocalized(y => y.Name).Value }
+            );
+
+            var context = new OrderHelperContext
+            {
+                CountryNames = countryNames.ToDictionary(x => x.Id, x => x.Name),
+                Currencies = currencies.ToDictionarySafe(x => x.CurrencyCode, x => x, StringComparer.OrdinalIgnoreCase)
+            };
+
+            return context;
+        }
+
+        class OrderHelperContext
+        {
+            // Country.Id -> localized Country.Name.
+            public Dictionary<int, string?> CountryNames { get; set; } = default!;
+
+            // Currency code -> Currency.
+            public Dictionary<string, Currency> Currencies { get; set; } = default!;
+        }
+
+        #endregion
     }
 }
