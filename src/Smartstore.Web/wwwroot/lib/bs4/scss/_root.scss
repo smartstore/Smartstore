@@ -6,6 +6,7 @@
 
   @each $color, $value in $theme-colors {
     --#{$color}: #{$value};
+    --#{$color}-rgb: #{to-rgb($value)};
   }
 
   @each $bp, $value in $grid-breakpoints {
