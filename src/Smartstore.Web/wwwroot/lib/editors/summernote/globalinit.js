@@ -136,7 +136,7 @@ var summernote_image_upload_url;
 			//'colRemove': 'note-icon-col-remove',
 			'indent': 'fa fa-indent',
 			'outdent': 'fa fa-outdent',
-			'arrowsAlt': 'fa fa-arrows-alt',
+            'arrowsAlt': 'fa fa-up-down-left-right',
 			'bold': 'fa fa-bold',
 			'caret': 'fa fa-caret-down',
 			'circle': 'far fa-circle',

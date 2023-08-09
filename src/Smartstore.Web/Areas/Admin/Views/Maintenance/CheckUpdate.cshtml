@@ -9,7 +9,7 @@
 <div class="section-header">
     <div class="title">
         <a sm-backto asp-action="SystemInfo"></a>
-        <i class="fa fa-level-up-alt"></i>
+        <i class="fa fa-turn-up"></i>
         @ViewBag.Title
     </div>
 </div>
@@ -42,7 +42,7 @@
             @Html.Raw(T("Admin.CheckUpdate.AutoUpdatePossibleInfo"))
             <p class="mt-4">
                 <a id="install-update" class="btn btn-primary confirm" href="#" data-url='@Url.Action("InstallUpdate")'>
-                    <i class="fa fa-level-up-alt"></i>
+                    <i class="fa fa-turn-up"></i>
                     <span>@T("Admin.CheckUpdate.UpdateNow")</span>
                 </a>
             </p>

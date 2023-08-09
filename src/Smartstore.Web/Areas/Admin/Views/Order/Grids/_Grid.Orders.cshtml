@@ -81,7 +81,7 @@
                     <span class="order-process-title">@T("Admin.Orders.Fields.RefundOffline")</span>
                 </a>
                 <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refund" })" title="@T("Admin.Orders.Fields.Refund.Hint")">
-                    <i class="fas fa-fw fa-undo-alt"></i>
+                    <i class="fas fa-fw fa-rotate-left"></i>
                     <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
                 </a>
                 <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "voidoffline" })" title="@T("Admin.Orders.Fields.VoidOffline.Hint")">
@@ -208,7 +208,7 @@
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refund" })"
            title="@T("Admin.Orders.Fields.Refund.Hint")">
-            <i class="fas fa-fw fa-undo-alt"></i>
+            <i class="fas fa-fw fa-rotate-left"></i>
             <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
         </a>
         <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "voidoffline" })"
