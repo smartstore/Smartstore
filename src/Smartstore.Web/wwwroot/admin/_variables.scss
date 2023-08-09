@@ -206,15 +206,15 @@ $dropdown-padding-y:            .5rem !default;
 //$dropdown-border-color:			rgba(#000, 0.05);
 $dropdown-bg:                   #fff;
 $dropdown-border-radius:        $border-radius-lg;
-$dropdown-box-shadow:           $box-shadow-lg-var;
+$dropdown-box-shadow:           $box-shadow-var;
 $dropdown-border-color:         $gray-200;
 $dropdown-link-color:           $gray-700;
 $dropdown-link-hover-color:     darken($dropdown-link-color, 5%);
 $dropdown-link-hover-bg:        lighten($gray-200, 4%);
 $dropdown-link-active-color:    $dropdown-link-hover-color;
 $dropdown-link-active-bg:       $gray-200;
-$dropdown-item-padding-y:       0.5rem;
-$dropdown-item-padding-x:       1rem;
+$dropdown-item-padding-y:       0.375rem;
+$dropdown-item-padding-x:       0.5rem;
 $dropdown-header-color:         $text-muted;
 $dropdown-link-disabled-color:  $gray-500;
 

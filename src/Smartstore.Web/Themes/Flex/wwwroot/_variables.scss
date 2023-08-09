@@ -205,18 +205,28 @@ $badge-font-weight:             $font-weight-medium !default;
 // Dropdown
 
 $dropdown-min-width:            10rem;
-$dropdown-padding-x:            .5rem !default;
-$dropdown-padding-y:            .5rem !default;
+$dropdown-padding-x:            .5rem;
+$dropdown-padding-y:            .5rem;
+$dropdown-spacer:               .125rem;
 $dropdown-font-size:            14px;
 $dropdown-font-weight:          $font-weight-normal;
+$dropdown-color:                $body-color;
+$dropdown-bg:                   #fff;
+$dropdown-border-color:         rgba(#000, .15);
 $dropdown-border-radius:        $border-radius-lg;
-$dropdown-box-shadow:			0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity, 1) * 0.12));
+$dropdown-border-width:         1px;
 $dropdown-border-color:			$gray-200;
+$dropdown-divider-bg:           $gray-200;
+//$dropdown-divider-margin-y:     $nav-divider-margin-y;
+$dropdown-box-shadow:			0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity, 1) * 0.12));
+
 $dropdown-link-color:           $gray-700;
 $dropdown-link-hover-color:     darken($dropdown-link-color, 5%);
 $dropdown-link-hover-bg:        $light;
+
 $dropdown-link-active-color:    $dropdown-link-hover-color;
 $dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 3%);
+
 $dropdown-item-padding-y:       0.5rem;
 $dropdown-item-padding-x:       1rem;
 

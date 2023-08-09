@@ -148,3 +148,11 @@ body {
 b, strong {
     font-weight: $font-weight-medium;
 }
+
+
+// Components
+// -----------------------------------------------------
+
+.dropdown-menu {
+	--shadow-intensity: 0.75;
+}

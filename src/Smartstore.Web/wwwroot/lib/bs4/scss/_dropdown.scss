@@ -19,6 +19,14 @@
 
 // The dropdown menu
 .dropdown-menu {
+  --dropdown-padding-x: #{$dropdown-padding-x};
+  --dropdown-padding-y: #{$dropdown-padding-y};
+  --dropdown-item-padding-x: #{$dropdown-item-padding-x};
+  --dropdown-item-padding-y: #{$dropdown-item-padding-y};
+  --dropdown-border-radius: #{$dropdown-border-radius};
+  --dropdown-header-padding: #{$dropdown-header-padding};
+  --dropdown-divider-margin-y: #{$dropdown-divider-margin-y};
+
   position: absolute;
   top: 100%;
   inset-inline-start: 0;
@@ -26,7 +34,7 @@
   display: none; // none by default, but block on "open" of the menu
   float: left;
   min-width: $dropdown-min-width;
-  padding: $dropdown-padding-y $dropdown-padding-x;
+  padding: var(--dropdown-padding-y) var(--dropdown-padding-x);
   margin: $dropdown-spacer 0 0; // override default ul
   @include font-size($dropdown-font-size);
   color: $dropdown-color;
@@ -35,7 +43,7 @@
   background-color: $dropdown-bg;
   background-clip: padding-box;
   border: $dropdown-border-width solid $dropdown-border-color;
-  @include border-radius($dropdown-border-radius);
+  @include border-radius(var(--dropdown-border-radius));
   @include box-shadow($dropdown-box-shadow);
 }
 
@@ -127,7 +135,7 @@
 .dropdown-item {
   display: block;
   width: 100%; // For `<button>`s
-  padding: $dropdown-item-padding-y $dropdown-item-padding-x;
+  padding: var(--dropdown-item-padding-y) var(--dropdown-item-padding-x);
   clear: both;
   font-weight: $font-weight-normal;
   color: $dropdown-link-color;
