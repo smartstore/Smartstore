@@ -100,7 +100,7 @@
     }
 
     /// <summary>
-    /// The reason for the automatic recording of the payment amount.
+    /// The reason for the automatic capturing of the payment amount.
     /// </summary>
     public enum CapturePaymentReason
     {
@@ -112,6 +112,11 @@
         /// <summary>
         /// Capture payment because the order has been marked as delivered.
         /// </summary>
-        OrderDelivered
+        OrderDelivered,
+
+        /// <summary>
+        /// Capture payment because the order has been marked as completed.
+        /// </summary>
+        OrderCompleted
     }
 }

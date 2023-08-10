@@ -41,6 +41,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         LocalizationSettings _localizationSettings;
         ShoppingCartSettings _shoppingCartSettings;
         CatalogSettings _catalogSettings;
+        PaymentSettings _paymentSettings;
 
         Mock<IPaymentService> _paymentServiceMock;
 
@@ -95,6 +96,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _localizationSettings = new LocalizationSettings();
             _shoppingCartSettings = new ShoppingCartSettings();
             _catalogSettings = new CatalogSettings();
+            _paymentSettings = new PaymentSettings();
 
             // INFO: no mocking here to use real implementation.
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _taxService, _taxSettings);
@@ -127,7 +129,8 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _orderSettings,
                 _shoppingCartSettings,
                 _localizationSettings,
-                _taxSettings);
+                _taxSettings,
+                _paymentSettings);
         }
 
         [Test]

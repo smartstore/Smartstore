@@ -80,6 +80,10 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Common.Pageviews", "Page views", "Seitenaufrufe");
             builder.AddOrUpdate("Common.PageviewsCount", "{0} page views", "{0} Seitenaufrufe");
+
+            builder.AddOrUpdate("Enums.CapturePaymentReason.OrderCompleted",
+                "The order has been marked as completed",
+                "Der Auftrag wurde als abgeschlossen markiert");
         }
 
         /// <summary>
