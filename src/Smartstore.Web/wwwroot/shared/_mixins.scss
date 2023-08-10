@@ -300,11 +300,3 @@ $scrim-gradient-coords: (
 		@return $text-light;
 	}
 }
-
-@function cssmin($expr1, $expr2) {
-    @return #{unquote("min(#{$expr1}, #{$expr2})")};
-}
-
-@function cssmax($expr1, $expr2) {
-    @return #{unquote("max(#{$expr1}, #{$expr2})")};
-}

@@ -1,0 +1,36 @@
+/// <reference path="_variables-shared.scss" />
+/// <reference path="_mixins.scss" />
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+
+//
+// Label: subtle badge variant with a shadow ring
+// -----------------------------------------------------
+
+.label {
+    @extend .badge;
+    --label-ring-color: #{rgba($gray-700, 0.1)};
+    box-shadow: inset var(--label-ring-color) 0px 0px 0px 1px;
+}
+
+@each $color, $value in $theme-colors {
+    .label-#{$color} {
+        @if $color == "secondary" {
+            --badge-bg: var(--gray-300);
+            --badge-color: #{$body-color};
+            --badge-color-rgb: #{to-rgb($body-color)};
+        }
+        @else {
+            $c: theme-color-level($color, $label-color-level);
+            --badge-bg: #{theme-color-level($color, $label-bg-level)};
+            --badge-color: #{$c};
+            --badge-color-rgb: #{to-rgb($c)};
+        }
+
+    }
+}
+
+.label-outline {
+    --label-ring-color: rgba(var(--badge-color-rgb), .25);
+    --badge-bg: transparent;
+}

@@ -36,11 +36,6 @@ pre {
     }
 }
 
-.badge-secondary {
-    background-color: $gray-600;
-    color: $yiq-text-light;
-}
-
 
 // Typo
 // -----------------------------------------------------
@@ -55,6 +50,15 @@ b, strong {
 
 .text-primary-darkest {
     color: $sm-violet !important;
+}
+
+
+// Badges (lighter with shadow ring)
+// -----------------------------------------------------
+
+.badge-secondary {
+    --badge-bg: var(--gray-600);
+    --badge-color: var(--body-color);
 }
 
 

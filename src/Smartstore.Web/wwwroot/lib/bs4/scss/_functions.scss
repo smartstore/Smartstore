@@ -279,3 +279,11 @@ $_luminance-list: .0008 .001 .0011 .0013 .0015 .0017 .002 .0022 .0025 .0027 .003
   }
   @return $result;
 }
+
+@function cssmin($expr1, $expr2) {
+  @return #{unquote("min(#{$expr1}, #{$expr2})")};
+}
+
+@function cssmax($expr1, $expr2) {
+  @return #{unquote("max(#{$expr1}, #{$expr2})")};
+}

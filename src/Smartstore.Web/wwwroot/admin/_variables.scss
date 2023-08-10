@@ -125,13 +125,15 @@ $h6-font-size:                  1rem;
 $small-font-size:               90%;
 $headings-font-weight:          $font-weight-medium;
 
-$badge-font-size:               85%;
-$badge-font-weight:             $font-weight-medium;
-
-
 $border-radius:                 6px;
 $border-radius-sm:              4px;
 $border-radius-lg:              8px;
+
+$badge-font-size:               .85em;
+$badge-font-weight:             $font-weight-medium;
+$badge-padding-y:               .35em;
+$badge-padding-x:               .65em;
+$badge-border-radius:           $border-radius-sm;
 
 
 // Shadows

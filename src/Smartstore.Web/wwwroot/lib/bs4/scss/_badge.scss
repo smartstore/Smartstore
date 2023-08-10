@@ -8,22 +8,39 @@
 // `background-color`.
 
 .badge {
-  display: inline-block;
-  padding: $badge-padding-y $badge-padding-x;
-  @include font-size($badge-font-size);
-  font-weight: $badge-font-weight;
+  // scss-docs-start badge-css-vars
+  --badge-padding-x: #{$badge-padding-x};
+  --badge-padding-y: #{$badge-padding-y};
+  --badge-font-size: #{$badge-font-size};
+  --badge-font-weight: #{$badge-font-weight};
+  --badge-bg: transparent;
+  --badge-color: inherit;
+  --badge-border-radius: #{$badge-border-radius};
+  --badge-transition: #{$badge-transition};
+  // scss-docs-end badge-css-vars
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--badge-padding-y) var(--badge-padding-x);
+  font-size: var(--badge-font-size);
+  font-size: cssmax(12px, var(--badge-font-size));
+  font-weight: var(--badge-font-weight);
   line-height: 1;
+  line-height: cssmax(14px, 1em);
+  color: var(--badge-color);
+  background-color: var(--badge-bg);
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
-  @include border-radius($badge-border-radius);
-  @include transition($badge-transition);
+  text-decoration: none;
+  @include border-radius(var(--badge-border-radius));
+  @include transition(var(--badge-transition));
 
-  @at-root a#{&} {
-    @include hover-focus() {
-      text-decoration: none;
-    }
-  }
+/*  display: inline-block;
+  padding: .25em .4em;
+  @include font-size(85%);
+  line-height: 1;*/
 
   // Empty badges collapse automatically
   &:empty {
@@ -31,20 +48,26 @@
   }
 }
 
-// Quick fix for badges in buttons
-.btn .badge {
-  position: relative;
-  top: -1px;
-}
-
 // Pill badges
 //
 // Make them extra rounded with a modifier to replace v3's badges.
 
 .badge-pill {
-  padding-right: $badge-pill-padding-x;
-  padding-left: $badge-pill-padding-x;
-  @include border-radius($badge-pill-border-radius);
+  --badge-padding-x: #{$badge-pill-padding-x};
+  --badge-border-radius: #{$badge-pill-border-radius};
+}
+
+// Quick fix for badges in buttons
+.btn .badge {
+  --badge-padding-y: .25em;
+  position: relative;
+  top: -1px;
+  line-height: 1;
+  padding-inline: var(--badge-padding-x) !important;
+
+  &:not(.badge-pill) {
+    --badge-padding-x: .5em;
+  }
 }
 
 // Colors
@@ -53,6 +76,8 @@
 
 @each $color, $value in $theme-colors {
   .badge-#{$color} {
-    @include badge-variant($value);
+    --badge-bg: #{$value};
+    --badge-color: #{color-yiq($value)};
+    //@include badge-variant($value);
   }
 }

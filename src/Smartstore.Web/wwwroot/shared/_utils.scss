@@ -200,10 +200,6 @@ img[src*="/images/flags/"] {
 	font-size: $font-size-sm;
 }
 
-.badge:not(.badge-pill) {
-	border-radius: $border-radius-sm;
-}
-
 table th {
 	font-weight: $font-weight-medium;
     text-align: start;

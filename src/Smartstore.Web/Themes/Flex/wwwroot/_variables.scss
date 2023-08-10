@@ -198,8 +198,11 @@ $btn-active-border-tint-amount: 10% !default; //
 
 // Badge
 
-$badge-font-size:               85% !default;
-$badge-font-weight:             $font-weight-medium !default;
+$badge-font-size:               .85em !default;
+$badge-font-weight:             $font-weight-medium;
+$badge-padding-y:               .35em;
+$badge-padding-x:               .65em;
+$badge-border-radius:           $border-radius-sm;
 
 
 // Dropdown
