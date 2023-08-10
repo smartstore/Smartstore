@@ -111,6 +111,7 @@ $btn-wide-padding-x-sm: 1.2rem;
     align-items: center;
     justify-content: center;
     width: var(--btn-icon-size);
+    min-width: var(--btn-icon-size);
     height: var(--btn-icon-size);
     line-height: var(--btn-icon-size);
 
