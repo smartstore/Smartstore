@@ -83,7 +83,7 @@ html {
 }
 
 body {
-    background-color: mix($gray-100, $gray-200);
+    background-color: $gray-150;
 
     &.popup {
         background-color: #fff;

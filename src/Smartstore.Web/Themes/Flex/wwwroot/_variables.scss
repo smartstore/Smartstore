@@ -41,7 +41,7 @@ $megamenu-dropdown-bg:          #fff !default;
 $megamenu-text-color:           $body-color !default;
 $megamenu-heading-color:        #222 !default;
 $megamenu-subitem-color:        #999 !default;
-$megamenu-rotator-bg:           rgba(255, 255, 255, 0.92) !default;
+$megamenu-rotator-bg:           rgba(#fff, 0.92) !default;
 
 $searchbox-pill:                true !default;
 $searchbox-shadow:              true !default;
@@ -70,6 +70,8 @@ $enable-rfs:                    true; // declared in _rfs.scss
 $font-size-root-md:             16px !default;
 $font-size-root-sm:             16px !default;
 
+$gray-150:                      mix($gray-100, $gray-200) !default;
+$gray-650:                      mix($gray-600, $gray-700) !default;
 
 //
 // Checkout Steps
@@ -225,10 +227,10 @@ $dropdown-box-shadow:			0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(-
 
 $dropdown-link-color:           $gray-700;
 $dropdown-link-hover-color:     darken($dropdown-link-color, 5%);
-$dropdown-link-hover-bg:        $light;
+$dropdown-link-hover-bg:        $gray-150;
 
 $dropdown-link-active-color:    $dropdown-link-hover-color;
-$dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 3%);
+$dropdown-link-active-bg:       $gray-200;
 
 $dropdown-item-padding-y:       0.5rem;
 $dropdown-item-padding-x:       1rem;
