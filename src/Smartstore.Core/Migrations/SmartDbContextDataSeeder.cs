@@ -77,6 +77,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Menge kleiner als 0 zulassen. Wird nachgeliefert, sobald auf Lager.");
 
             builder.Update("Enums.BackorderMode.AllowQtyBelow0").Value("en", "Allow quantity below 0");
+
+            builder.AddOrUpdate("Common.Pageviews", "Page views", "Seitenaufrufe");
+            builder.AddOrUpdate("Common.PageviewsCount", "{0} page views", "{0} Seitenaufrufe");
         }
 
         /// <summary>
