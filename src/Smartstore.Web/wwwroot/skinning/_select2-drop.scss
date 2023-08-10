@@ -16,6 +16,11 @@
         //--shadow-yoffset: -0.5;
         clip-path: inset(-200px -200px 0 -200px); // cut off bottom shadow
         margin-block-start: 1px;
+        @include border-bottom-radius(0);
+    }
+
+    &--below {
+        @include border-top-radius(0);
     }
 }
 
