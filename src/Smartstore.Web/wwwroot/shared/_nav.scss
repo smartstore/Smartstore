@@ -25,31 +25,41 @@
     .nav-link {
         display: flex;
         align-items: center;
-        justify-content: center;
         height: calc(100% + 1px);
+        // Spacer for icons
+        column-gap: 0.5em;
     }
 
 	.nav-link > img,
 	.nav-link > i,
-    .nav-link > .bi {
+    .nav-link > svg {
+        position: relative;
 		font-size: inherit;
 		color: var(--nav-link-icon-color);
-
-		+ span {
-			padding-inline-start: 0.5rem !important;
-		}
 	}
 
 	.nav-link:hover > i,
-    .nav-link:hover > .bi,
+    .nav-link:hover > svg,
 	.nav-link.active > i,
-    .nav-link.active > .bi {
+    .nav-link.active > svg {
 		color: inherit;
 	}
 
 	.nav-link > .chevron {
 		margin-inline-start: 3px;
 	}
+}
+
+.touchevents .nav {
+    // Don't wrap horizontal tabs on touch devices
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    .nav-link {
+        flex-wrap: nowrap;
+        white-space: nowrap;
+    }
 }
 
 
@@ -90,7 +100,7 @@
 		}
 
 		> i,
-        > .bi,
+        > svg,
         > img {
 			display: none;
 		}
@@ -101,7 +111,7 @@
 
 		@include media-breakpoint-up(lg) {
 			> i,
-            > .bi,
+            > svg,
             > img {
 				display: inline-block;
 			}
@@ -170,6 +180,7 @@
 // ==============================================================
 
 @include media-breakpoint-up(lg) {
+    // The main layout grid: Nav + Content
     .tabs-stacked {
         display: grid;
         grid-gap: 30px;
@@ -199,11 +210,51 @@
         --nav-link-color: #{$gray-700};
         @include rfs($font-size-sm, --nav-link-font-size);
 
+        max-width: 250px;
         min-height: 100%;
 
-        &.nav-tabs-line {
-            border-bottom: none;
+	    .nav-link > img,
+	    .nav-link > i,
+        .nav-link > svg {
+            // Move icon slightly away from label if tabs are placed on left or right
+            inset-inline-start: -0.25em;
+	    }
 
+        &.nav-tabs {
+            border-bottom-width: 0;
+
+            .nav-link {
+                margin-bottom: 0;
+            }
+
+            &.nav-left {
+                --nav-tabs-link-hover-border-color: #{$gray-200 $nav-tabs-border-color $gray-200 $gray-200};
+                --nav-tabs-link-active-border-color: #{$gray-200 $nav-tabs-link-active-bg $gray-300 $gray-300};
+                border-inline-end: 1px solid var(--nav-tabs-border-color);
+            }
+            
+            &.nav-right {
+                --nav-tabs-link-hover-border-color: #{$gray-200 $gray-200 $gray-200 $nav-tabs-border-color};
+                --nav-tabs-link-active-border-color: #{$gray-200 $gray-300 $gray-300 $nav-tabs-link-active-bg};
+                border-inline-start: 1px solid var(--nav-tabs-border-color);
+            }
+
+            &:not(.nav-tabs-line) {
+                &.nav-left .nav-link {
+                    margin-inline-end: calc(-1 * var(--nav-tabs-border-width));
+                    @include border-left-radius(var(--nav-tabs-border-radius));
+                    @include border-right-radius(0);
+                }
+
+                &.nav-right .nav-link {
+                    margin-inline-start: calc(-1 * var(--nav-tabs-border-width));
+                    @include border-right-radius(var(--nav-tabs-border-radius));
+                    @include border-left-radius(0);
+                }
+            }
+        }
+
+        &.nav-tabs-line {
             .nav-item {
                 margin: 0;
             }
@@ -212,13 +263,14 @@
                 text-align: start;
                 background-color: transparent;
                 justify-content: start;
+                column-gap: 0.75em;
 
                 .tab-caption {
                     transition: all ease 0.15s;
                 }
 
                 &:not(.active) > i,
-                &:not(.active) > .bi {
+                &:not(.active) > svg {
                     color: $dropdown-icon-color;
                     transition: transform ease 0.15s;
                 }
@@ -236,7 +288,7 @@
                     }
 
                     > i,
-                    > .bi {
+                    > svg {
                         color: $gray-700;
                         transform: scale(1.2);
                     }
@@ -249,8 +301,6 @@
             }
 
             &.nav-left {
-                border-inline-end: 1px solid var(--nav-tabs-border-color);
-
                 .nav-item {
                     margin-inline-end: -1px;
                 }
@@ -259,12 +309,6 @@
                     padding-inline-end: 1.25rem;
                     padding-inline-start: 0;
                     border-inline-end: 3px solid transparent;
-
-                    > img,
-                    > i,
-                    > .bi {
-                        margin-inline: 0.25rem;
-                    }
                 }
 
                 .nav-link.active,
@@ -276,8 +320,6 @@
             }
 
             &.nav-right {
-                border-inline-start: 1px solid $nav-tabs-border-color;
-
                 .nav-item {
                     margin-inline-start: -1px;
                 }
@@ -286,13 +328,6 @@
                     padding-inline-start: 1.25rem;
                     padding-inline-end: 1.25rem;
                     border-inline-start: 3px solid transparent;
-
-                    > img,
-                    > i,
-                    > .bi {
-                        margin-right: 0.25rem;
-                        margin-left: 0.25rem;
-                    }
                 }
 
                 .nav-link.active,

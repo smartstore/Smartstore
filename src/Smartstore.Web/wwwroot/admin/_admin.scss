@@ -398,7 +398,7 @@ body {
         font-weight: $font-weight-medium;
 
         > i,
-        > .bi,
+        > svg,
         > img {
             margin-inline-start: -0.375rem;
             margin-inline-end: 0.75rem;
@@ -1229,7 +1229,7 @@ legend {
     }
 
     .btn.activate-provider {
-        > .bi {
+        > svg {
             margin-inline-end: 0.2rem;
         }
         > span {

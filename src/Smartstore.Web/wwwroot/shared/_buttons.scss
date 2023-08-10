@@ -16,6 +16,17 @@ $btn-wide-padding-x-sm: 1.2rem;
 }
 
 
+//
+// Icon margins
+// ------------------------------------------------------
+
+.btn {
+    display: inline-flex;
+    align-items: baseline;
+    column-gap: 0.5em;
+}
+
+
 // Generic input clear button
 // -----------------------------------------------------
 
@@ -36,13 +47,13 @@ $btn-wide-padding-x-sm: 1.2rem;
 
     white-space: nowrap;
 
-    > i, > .bi {
+    > i, > svg {
         color: var(--btn-icon-color);
         transition: var(--btn-icon-transition);
     }
 
     &:hover {
-        > i, > .bi {
+        > i, > svg {
             color: var(--btn-icon-hover-color);
         }
     }
@@ -50,7 +61,7 @@ $btn-wide-padding-x-sm: 1.2rem;
     &.disabled,
     &:disabled,
     fieldset:disabled & {
-        > i, > .bi {
+        > i, > svg {
             color: var(--btn-icon-color);
         }
     }
@@ -58,7 +69,7 @@ $btn-wide-padding-x-sm: 1.2rem;
     &:active,
     &.active,
     .show > &.dropdown-toggle {
-        > i, > .bi {
+        > i, > svg {
             color: var(--btn-icon-active-color);
         }
     }
@@ -336,7 +347,7 @@ $btn-wide-padding-x-sm: 1.2rem;
         transition: transform 0.2s ease-out;
         transform: translate(0, 0);
 
-        > i, > .bi {
+        > i, > svg {
             position: absolute;
             display: inline-block;
             vertical-align: middle;
@@ -363,7 +374,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 
     &:hover > span {
         transform: translateX(var(--btn-animate-offset));
-        > i, > .bi {
+        > i, > svg {
             opacity: 1;
         }
     }
@@ -403,7 +414,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 .btn-to-primary {
     --btn-transition: none;
 
-    > i, > .bi {
+    > i, > svg {
         opacity: 1;
     }
 }

@@ -110,22 +110,6 @@
 		padding-right: 0.2rem;
 	}
 
-	.btn,
-	.nav-link,
-	.menubar-link {
-		> i + span:not(:empty),
-		> i + em:not(:empty) {
-			padding-right: 0.25em;
-			padding-left: initial;
-		}
-
-		> span:not(:empty) + i,
-		> em:not(:empty) + i {
-			margin-right: 0.25em;
-			margin-left: initial;
-		}
-	}
-
 	.list-group {
 		.list-group-item.active {
 			&:before {

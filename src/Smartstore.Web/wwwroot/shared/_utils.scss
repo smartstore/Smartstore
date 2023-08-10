@@ -63,25 +63,6 @@
 }
 
 
-//
-// Icon margins
-// ------------------------------------------------------
-
-.btn,
-.nav-link,
-.menubar-link {
-	> i + span:not(:empty), > .bi + span:not(:empty),
-	> i + em:not(:empty), > .bi + em:not(:empty) {
-		padding-inline-start: 0.25em;
-	}
-
-	> span:not(:empty) + i, > span:not(:empty) + .bi,
-	> em:not(:empty) + i, > em:not(:empty) + .bi {
-		margin-inline-start: 0.25em;
-	}
-}
-
-
 // Data binding 3d rotate
 // ------------------------------------------------------
 

@@ -238,7 +238,9 @@
 
 .menubar-link {
     position: relative;
-    display: block;
+    display: flex;
+    align-items: baseline;
+    column-gap: 0.5em;
     font-size: $font-size-xs;
     padding: 0.75em;
     text-decoration: none !important;
