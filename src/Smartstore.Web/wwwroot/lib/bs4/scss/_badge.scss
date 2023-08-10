@@ -24,10 +24,9 @@
   justify-content: center;
   padding: var(--badge-padding-y) var(--badge-padding-x);
   font-size: var(--badge-font-size);
-  font-size: cssmax(12px, var(--badge-font-size));
   font-weight: var(--badge-font-weight);
   line-height: 1;
-  line-height: cssmax(14px, 1em);
+  line-height: cssmax(1rem, 1em);
   color: var(--badge-color);
   background-color: var(--badge-bg);
   text-align: center;
@@ -37,10 +36,15 @@
   @include border-radius(var(--badge-border-radius));
   @include transition(var(--badge-transition));
 
-/*  display: inline-block;
-  padding: .25em .4em;
-  @include font-size(85%);
-  line-height: 1;*/
+  @at-root a#{&} {
+    &:hover,
+    &:focus,
+    &:active {
+        text-decoration: none;
+        color: var(--badge-color);
+        background-color: var(--badge-hover-bg);
+    }
+  }
 
   // Empty badges collapse automatically
   &:empty {
@@ -78,6 +82,10 @@
   .badge-#{$color} {
     --badge-bg: #{$value};
     --badge-color: #{color-yiq($value)};
-    //@include badge-variant($value);
+
+    @at-root a#{&} {
+      //--badge-hover-bg: #{shade-color($value, $btn-hover-bg-shade-amount)};
+      --badge-hover-bg: #{darken($value, 10%)};
+    }
   }
 }

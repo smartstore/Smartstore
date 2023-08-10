@@ -58,7 +58,7 @@ b, strong {
 
 .badge-secondary {
     --badge-bg: var(--gray-600);
-    --badge-color: var(--body-color);
+    --badge-color: #{$yiq-text-light};
 }
 
 

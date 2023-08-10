@@ -134,8 +134,8 @@ $border-radius-lg:              8px;
 
 $badge-font-size:               .85em;
 $badge-font-weight:             $font-weight-medium;
-$badge-padding-y:               .35em;
-$badge-padding-x:               .65em;
+$badge-padding-y:               (1 / 3) * 1em;
+$badge-padding-x:               (2 / 3) * 1em;
 $badge-border-radius:           $border-radius-sm;
 
 
