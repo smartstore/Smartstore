@@ -54,7 +54,8 @@
     top: 0;
     inset-inline-end: 0;
     z-index: 2;
-    padding: $alert-padding-y * 1.25 $alert-padding-x;
+    padding-block: calc(var(--alert-padding-y) * 1);
+    padding-inline: var(--alert-padding-x);
     color: inherit;
   }
 }

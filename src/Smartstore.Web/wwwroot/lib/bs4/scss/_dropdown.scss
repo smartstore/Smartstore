@@ -23,6 +23,7 @@
   --dropdown-padding-y: #{$dropdown-padding-y};
   --dropdown-item-padding-x: #{$dropdown-item-padding-x};
   --dropdown-item-padding-y: #{$dropdown-item-padding-y};
+  --dropdown-item-border-radius: #{$border-radius};
   --dropdown-border-radius: #{$dropdown-border-radius};
   --dropdown-header-padding: #{$dropdown-header-padding};
   --dropdown-divider-margin-y: #{$dropdown-divider-margin-y};
@@ -144,7 +145,7 @@
   white-space: nowrap; // prevent links from randomly breaking onto new lines
   background-color: transparent; // For `<button>`s
   border: 0; // For `<button>`s
-  @include border-radius($border-radius);
+  @include border-radius(var(--dropdown-item-border-radius));
 
   // Prevent dropdown overflow if there's no padding
   // See https://github.com/twbs/bootstrap/pull/27703

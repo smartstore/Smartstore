@@ -206,11 +206,11 @@
     align-items: center;
     width: var(--trailing-action-size);
     height: var(--trailing-action-size);
+    line-height: var(--trailing-action-size);
     background-color: $bg;
     color: $color;
     cursor: pointer;
     font-weight: $font-weight-medium;
-    line-height: 1;
     border-radius: $border-radius;
     border: 0;
     transition: $btn-transition;

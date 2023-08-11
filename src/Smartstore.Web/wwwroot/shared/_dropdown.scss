@@ -76,13 +76,16 @@
 		cursor: default;
 	}
 
-	> i, > svg, > img {
+	> i, 
+    > svg, 
+    > img {
 		//margin-inline-start: calc(var(--dropdown-item-padding-x) / 2 * -1);
         margin-inline-end: cssmax(8px, calc(var(--dropdown-item-padding-x) / 2));
 	}
 
 	&:not(.disabled) {
-		> i, > svg {
+		> i, 
+        > svg {
 			color: lighten($dropdown-link-color, 15%);
 		}
 
@@ -100,6 +103,19 @@
 			color: $dropdown-link-active-color;
 		}
 	}
+}
+
+
+// Dropdown Classic
+// ==============================================================
+
+.dropdown-menu-classic {
+    // A dropdown menu with no x-padding and larger item x-padding,
+    // also no item radius.
+    --dropdown-item-border-radius: 0;
+    --dropdown-padding-x: 0;
+    --dropdown-padding-y: var(--dropdown-border-radius);
+    --dropdown-item-padding-x: 1rem;
 }
 
 

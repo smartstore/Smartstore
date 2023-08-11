@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="card-footer d-flex p-2">
-                    <a class="btn btn-secondary btn-no-border btn-sm btn-flat edit-address-button" asp-action="AddressEdit" asp-route-id="@address.Id">
+                    <a class="btn btn-light btn-sm btn-flat edit-address-button" asp-action="AddressEdit" asp-route-id="@address.Id">
                         <span>@T("Common.Edit")</span>
                     </a>
                     <a class="btn btn-light btn-to-danger btn-flat btn-sm delete-address-button ml-auto" asp-action="AddressDelete" asp-route-id="@address.Id" onclick='return confirm(@T("Common.AreYouSure").JsValue);'>

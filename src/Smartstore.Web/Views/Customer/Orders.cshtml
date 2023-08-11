@@ -114,13 +114,13 @@
             </div>
 
             <div class="card-footer d-flex p-2">
-                <a asp-action="Details" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-secondary btn-no-border btn-sm btn-flat" rel="nofollow">
+                <a asp-action="Details" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
                     <i class="far fa-rectangle-list"></i>
                     <span>@T("Order.OrderDetails")</span>
                 </a>
                 @if (order.IsReturnRequestAllowed)
                 {
-                    <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@order.Id" class="btn btn-secondary btn-no-border btn-sm btn-flat" rel="nofollow">
+                    <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
                         <i class="fa fa-reply"></i>
                         <span>@T("Account.CustomerOrders.ReturnItems")</span>
                     </a>

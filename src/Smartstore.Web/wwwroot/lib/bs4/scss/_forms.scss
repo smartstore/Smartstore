@@ -245,10 +245,11 @@ textarea.form-control {
 
 .form-check-input {
   --form-check-bg: #{$form-check-input-bg};
+  --form-check-size: #{cssmax(1rem, $form-check-input-width)};
 
-  width: cssmax(1rem, $form-check-input-width);
-  height: cssmax(1rem, $form-check-input-width);
-  margin-top: ($line-height-base - $form-check-input-width) * .5; // line-height minus check height
+  width: var(--form-check-size);
+  height: var(--form-check-size);
+  margin-top: #{calc((#{$line-height-base} * 1em - var(--form-check-size)) * 0.4)}; // ($line-height-base - $form-check-input-width) * .5; // line-height minus check height
   vertical-align: top;
   appearance: none;
   background-color: var(--form-check-bg);

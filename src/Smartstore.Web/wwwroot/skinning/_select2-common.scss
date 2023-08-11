@@ -21,7 +21,7 @@
         --select2-padding-x: #{$input-btn-padding-x-sm};
         --select2-padding-y: #{$input-btn-padding-y-sm};
         --select2-height: #{$input-height-sm};
-        --select2-line-height: #{$line-height-sm};
+        --select2-line-height: #{$input-btn-line-height-sm};
         --select2-font-size: #{$font-size-sm};
         --select2-multiple-padding: 0.125rem;
         --select2-choice-padding-x: #{$input-btn-padding-x-sm / 2};
@@ -34,7 +34,7 @@
         --select2-padding-x: #{$input-btn-padding-x-lg};
         --select2-padding-y: #{$input-btn-padding-y-lg};
         --select2-height: #{$input-height-lg};
-        --select2-line-height: #{$line-height-lg};
+        --select2-line-height: #{$input-btn-line-height-lg};
         --select2-font-size: #{$font-size-lg};
         --select2-choice-padding-x: #{$input-btn-padding-x-lg / 2};
     }
