@@ -1,3 +1,7 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 // stylelint-disable selector-no-qualifying-type
 
 //
@@ -217,38 +221,109 @@ textarea.form-control {
 .form-check {
   position: relative;
   display: block;
-  padding-left: $form-check-input-gutter;
+  min-height: $form-check-min-height;
+  padding-inline-start: $form-check-padding-start;
+  margin-bottom: $form-check-margin-bottom;
+
+  .form-check-input {
+      float: left;
+      margin-inline-start: $form-check-padding-start * -1;
+  }
+}
+
+.form-check-reverse {
+  padding-inline-end: $form-check-padding-start;
+  padding-inline-start: 0;
+  text-align: end;
+
+  .form-check-input {
+    float: right;
+    margin-inline-end: $form-check-padding-start * -1;
+    margin-inline-start: 0;
+  }
 }
 
 .form-check-input {
-  position: absolute;
-  margin-top: $form-check-input-margin-y;
-  margin-left: -$form-check-input-gutter;
+  --form-check-bg: #{$form-check-input-bg};
 
-  // Use [disabled] and :disabled for workaround https://github.com/twbs/bootstrap/issues/28247
-  &[disabled] ~ .form-check-label,
-  &:disabled ~ .form-check-label {
-    color: $text-muted;
+  width: cssmax(1rem, $form-check-input-width);
+  height: cssmax(1rem, $form-check-input-width);
+  margin-top: ($line-height-base - $form-check-input-width) * .5; // line-height minus check height
+  vertical-align: top;
+  appearance: none;
+  background-color: var(--form-check-bg);
+  background-image: var(--form-check-bg-image);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: $form-check-input-border;
+  print-color-adjust: exact; // Keep themed appearance for print
+  @include transition($form-check-transition);
+
+  &[type="checkbox"] {
+    @include border-radius($form-check-input-border-radius);
+  }
+
+  &[type="radio"] {
+    // stylelint-disable-next-line property-disallowed-list
+    border-radius: $form-check-radio-border-radius;
+  }
+
+  &:active {
+    filter: $form-check-input-active-filter;
+  }
+
+  &:focus {
+    border-color: $form-check-input-focus-border;
+    outline: 0;
+    box-shadow: $form-check-input-focus-box-shadow;
+  }
+
+  &:checked {
+    background-color: $form-check-input-checked-bg-color;
+    border-color: $form-check-input-checked-border-color;
+
+    &[type="checkbox"] {
+      --form-check-bg-image: #{escape-svg($form-check-input-checked-bg-image)};
+    }
+
+    &[type="radio"] {
+      --form-check-bg-image: #{escape-svg($form-check-radio-checked-bg-image)};
+    }
+  }
+
+  &[type="checkbox"]:indeterminate {
+    background-color: $form-check-input-indeterminate-bg-color;
+    border-color: $form-check-input-indeterminate-border-color;
+    --form-check-bg-image: #{escape-svg($form-check-input-indeterminate-bg-image)};
+  }
+
+  &:disabled {
+    pointer-events: none;
+    filter: none;
+    opacity: $form-check-input-disabled-opacity;
+  }
+
+  // Use disabled attribute in addition of :disabled pseudo-class
+  // See: https://github.com/twbs/bootstrap/issues/28247
+  &[disabled],
+  &:disabled {
+    ~ .form-check-label {
+      cursor: default;
+      opacity: $form-check-label-disabled-opacity;
+    }
   }
 }
 
 .form-check-label {
+  color: $form-check-label-color;
+  cursor: $form-check-label-cursor;
   margin-bottom: 0; // Override default `<label>` bottom margin
 }
 
 .form-check-inline {
-  display: inline-flex;
-  align-items: center;
-  padding-left: 0; // Override base .form-check
-  margin-right: $form-check-inline-margin-x;
-
-  // Undo .form-check-input defaults and add some `margin-right`.
-  .form-check-input {
-    position: static;
-    margin-top: 0;
-    margin-right: $form-check-inline-input-margin-x;
-    margin-left: 0;
-  }
+  display: inline-block;
+  margin-right: $form-check-inline-margin-end;
 }
 
 
@@ -332,7 +407,7 @@ textarea.form-control {
       position: relative;
       flex-shrink: 0;
       margin-top: 0;
-      margin-right: $form-check-input-margin-x;
+      //margin-right: $form-check-input-margin-x;
       margin-left: 0;
     }
 

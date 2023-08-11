@@ -1,8 +1,8 @@
 ﻿Vue.component("sm-datagrid-pager", {
     template: `
-        <div class="dg-pager btn-toolbar d-flex flex-nowrap align-items-center">
+        <div class="dg-pager btn-toolbar hstack">
             <div class="dg-page-refresh-wrapper">
-                <a href="#" class="dg-page dg-page-refresh btn btn-light btn-sm" @click.prevent="refresh">
+                <a href="#" class="dg-page dg-page-refresh btn btn-light btn-icon btn-sm" @click.prevent="refresh">
                     <i class="fa fa-rotate" :class="{ 'fa-spin text-success': $parent.isBusy }"></i>
                 </a>
             </div>
@@ -21,7 +21,7 @@
 
             <div class="ml-auto d-flex">
                 <div class="d-flex align-items-center">
-                    <span v-if="paging.enabled && paging.showInfo" class="dg-page text-muted text-truncate d-none d-md-inline pl-2">
+                    <span v-if="paging.enabled && paging.showInfo" class="dg-page text-muted text-truncate d-none d-md-inline px-2">
                         <span class="d-none d-xl-inline">{{ T.displayingItems.format(firstItemIndex.toLocaleString(), lastItemIndex.toLocaleString(), total.toLocaleString()) }}</span>
                         <span class="d-inline d-xl-none">{{ T.displayingItemsShort.format(firstItemIndex.toLocaleString(), lastItemIndex.toLocaleString(), total.toLocaleString()) }}</span>
                     </span>

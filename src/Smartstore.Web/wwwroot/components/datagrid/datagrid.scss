@@ -627,14 +627,17 @@ input.form-control-plaintext {
 }
 
 .dg-page {
-    padding: 8px 6px;
+    //padding: 8px 6px;
     margin: 0 1px;
     color: inherit;
 }
 
 a.dg-page {
-    padding: 5px 10px;
+    --btn-padding-x: 8px;
+    --btn-padding-y: 5px;
+    //display: inline-block;
     font-weight: normal;
+    min-width: 28px;
 
     &.disabled {
         pointer-events: none;
@@ -690,7 +693,7 @@ span.dg-page {
 
     select {
         height: 28px;
-        padding: 0 4px;
+        padding-block: 0;
     }
 }
 

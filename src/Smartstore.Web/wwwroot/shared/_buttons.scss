@@ -18,13 +18,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 
 //
 // Icon margins
-// ------------------------------------------------------
-
-.btn {
-    display: inline-flex;
-    align-items: baseline;
-    column-gap: 0.5em;
-}
+// -----------------------------------------------------
 
 
 // Generic input clear button
@@ -36,7 +30,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 }
 
 
-// Icon colors, nowrap etc.
+// Icon margins, colors, nowrap etc.
 // -----------------------------------------------------
 
 .btn {
@@ -44,16 +38,32 @@ $btn-wide-padding-x-sm: 1.2rem;
     --btn-icon-hover-color: var(--btn-icon-color);
     --btn-icon-active-color: var(--btn-icon-hover-color);
     --btn-icon-transition: opacity .15s ease-in-out;
+    --btn-height: calc((var(--btn-line-height) * 1em) + (var(--btn-padding-y) * 2) + (var(--btn-border-width) * 2));
 
-    white-space: nowrap;
+    // Icon spacing
+    > i, > img, > svg {
+        + span:not(:empty), 
+        + em:not(:empty) {
+            padding-inline-start: 0.25em;
+        }
+    }
 
-    > i, > svg {
+    > span:not(:empty), 
+    > em:not(:empty) {
+        + i, + img, + svg {
+            margin-inline-start: 0.25em;
+        }
+    }
+
+    > i, 
+    > svg {
         color: var(--btn-icon-color);
         transition: var(--btn-icon-transition);
     }
 
     &:hover {
-        > i, > svg {
+        > i, 
+        > svg {
             color: var(--btn-icon-hover-color);
         }
     }
@@ -61,7 +71,8 @@ $btn-wide-padding-x-sm: 1.2rem;
     &.disabled,
     &:disabled,
     fieldset:disabled & {
-        > i, > svg {
+        > i, 
+        > svg {
             color: var(--btn-icon-color);
         }
     }
@@ -69,7 +80,8 @@ $btn-wide-padding-x-sm: 1.2rem;
     &:active,
     &.active,
     .show > &.dropdown-toggle {
-        > i, > svg {
+        > i, 
+        > svg {
             color: var(--btn-icon-active-color);
         }
     }
