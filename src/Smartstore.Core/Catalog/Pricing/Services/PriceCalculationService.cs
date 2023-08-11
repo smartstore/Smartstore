@@ -167,28 +167,52 @@ namespace Smartstore.Core.Catalog.Pricing
                 ? new CalculatorContext(context, context.CartItem.Item.CustomerEnteredPrice)
                 : await RunCalculators(context);
 
-            var unitPrice = await CreateCalculatedPrice(calculatorContext, product);
+            var price = await CreateCalculatedPrice(calculatorContext, product);
 
             if (context.Quantity > 1)
             {
-                var options = context.Options;
-                var subtotal = await CreateCalculatedPrice(calculatorContext, product, context.Quantity);
+                //var options = context.Options;
+                //var subtotal = await CreateCalculatedPrice(calculatorContext, product, context.Quantity);
 
-                // Avoid rounding differences between unit price and line subtotal when calculating with net prices.
+                // TODO: (mg) avoid rounding differences between unit price and line subtotal when calculating with net prices.
                 // ... but this produces a rounding difference between subtotal and line subtotals which can only be solved by a hack.
-                var priceAmount = options.RoundingCurrency.RoundIfEnabledFor(unitPrice.FinalPrice.Amount) * context.Quantity;
-                subtotal.FinalPrice = new(priceAmount, unitPrice.FinalPrice.Currency);
+                //var priceAmount = options.RoundingCurrency.RoundIfEnabledFor(price.FinalPrice.Amount) * context.Quantity;
+                //subtotal.FinalPrice = new(priceAmount, price.FinalPrice.Currency);
 
-                return (unitPrice, subtotal);
+                // INFO: The subtotal must always equal the sum of all line totals.
+                // A rounding difference can and may only occur between the unit price and the line total,
+                // and only if net prices are entered and RoundOrderItemsEnabled is disabled.
+
+                var qty = context.Quantity;
+                var cy = context.Options.RoundingCurrency;
+                CalculatedPrice subtotal;
+
+                // TODO: (mg) clone unit price. Implement ICloneable for CalculatedPrice.
+                // Memberwise cloning should be fine here (see "return (price, price)" if qty == 1).
+                subtotal = await CreateCalculatedPrice(calculatorContext, product);
+                subtotal.FinalPrice = new(cy.RoundIfEnabledFor(price.FinalPrice.Amount) * qty, price.FinalPrice.Currency);
+                subtotal.DiscountAmount = new(cy.RoundIfEnabledFor(price.DiscountAmount.Amount) * qty, price.DiscountAmount.Currency);
+
+                if (price.Tax.HasValue)
+                {
+                    var t = price.Tax.Value;
+
+                    subtotal.Tax = new(
+                        t.Rate,
+                        t.Amount * qty,
+                        cy.RoundIfEnabledFor(t.Price) * qty,
+                        cy.RoundIfEnabledFor(t.PriceNet) * qty,
+                        cy.RoundIfEnabledFor(t.PriceGross) * qty,
+                        t.IsGrossPrice,
+                        t.Inclusive);
+                }
+
+                //$"- finalPrice:{subtotal.FinalPrice.Amount} taxGross:{subtotal.Tax.Value.PriceGross}".Dump();
+
+                return (price, subtotal);
             }
 
-            return (unitPrice, unitPrice);
-
-            //var subtotal = context.Quantity > 1
-            //    ? await CreateCalculatedPrice(calculatorContext, product, context.Quantity)
-            //    : unitPrice;
-
-            //return (unitPrice, subtotal);
+            return (price, price);
         }
 
         public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection = null)
