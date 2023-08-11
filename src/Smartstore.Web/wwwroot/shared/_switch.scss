@@ -21,7 +21,7 @@
     --switcher-w: #{$w};
     --switcher-h: #{$h};
     --switch-size: calc(var(--switcher-h) - 4px);
-    --switch-bg-rgb: #{red($orange)}, #{green($orange)}, #{blue($orange)};
+    --switch-bg-rgb: #{to-rgb($orange)};
     position: relative;
     display: inline-block;
     vertical-align: bottom;
@@ -33,7 +33,7 @@
     height: var(--switcher-h);
 
     &.switch-blue {
-        --switch-bg-rgb: #{red($blue)}, #{green($blue)}, #{blue($blue)};
+        --switch-bg-rgb: #{to-rgb($blue)};
     }
 
     .switcher-sm > & {

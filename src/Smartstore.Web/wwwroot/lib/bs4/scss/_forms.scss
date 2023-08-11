@@ -327,6 +327,45 @@ textarea.form-control {
 }
 
 
+//
+// Switch
+//
+
+.form-switch {
+  padding-left: $form-switch-padding-start;
+
+  .form-check-input {
+    --form-switch-bg: #{escape-svg($form-switch-bg-image)};
+
+    width: $form-switch-width;
+    margin-left: $form-switch-padding-start * -1;
+    background-image: var(--form-switch-bg);
+    background-position: left center;
+    @include border-radius($form-switch-border-radius);
+    @include transition($form-switch-transition);
+
+    &:focus {
+      --form-switch-bg: #{escape-svg($form-switch-focus-bg-image)};
+    }
+
+    &:checked {
+      background-position: $form-switch-checked-bg-position;
+      --form-switch-bg: #{escape-svg($form-switch-checked-bg-image)};
+    }
+  }
+
+  &.form-check-reverse {
+    padding-right: $form-switch-padding-start;
+    padding-left: 0;
+
+    .form-check-input {
+      margin-right: $form-switch-padding-start * -1;
+      margin-left: 0;
+    }
+  }
+}
+
+
 // Form validation
 //
 // Provide feedback to users when form field values are valid or invalid. Works
