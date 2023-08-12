@@ -22,11 +22,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.375em;
   padding: var(--badge-padding-y) var(--badge-padding-x);
   font-size: var(--badge-font-size);
   font-weight: var(--badge-font-weight);
-  line-height: 1;
-  line-height: cssmax(1rem, 1em);
+  line-height: 1em;
   color: var(--badge-color);
   background-color: var(--badge-bg);
   text-align: center;
@@ -57,8 +57,8 @@
 // Make them extra rounded with a modifier to replace v3's badges.
 
 .badge-pill {
-  --badge-padding-x: #{$badge-pill-padding-x};
-  --badge-border-radius: #{$badge-pill-border-radius};
+  --badge-padding-x: #{$badge-pill-padding-x} !important;
+  --badge-border-radius: #{$badge-pill-border-radius} !important;
 }
 
 // Quick fix for badges in buttons
@@ -84,8 +84,7 @@
     --badge-color: #{color-yiq($value)};
 
     @at-root a#{&} {
-      //--badge-hover-bg: #{shade-color($value, $btn-hover-bg-shade-amount)};
-      --badge-hover-bg: #{darken($value, 10%)};
+      --badge-hover-bg: #{darken($value, 7%)};
     }
   }
 }

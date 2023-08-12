@@ -14,7 +14,7 @@
 
 <div sm-if="Model.AllowSorting" class="artlist-action artlist-action--sort">
     <div class="mf-dropdown">
-        <button class="btn btn-secondary btn-artlist-action d-none d-lg-block rounded" title="@T("Products.SortByX", Model.CurrentSortOrderName)">
+        <button class="btn btn-secondary btn-artlist-action d-none d-lg-inline-flex rounded" title="@T("Products.SortByX", Model.CurrentSortOrderName)">
             <i class="fa fa-sort d-xl-none"></i>
             <span class="d-xl-none">@Model.CurrentSortOrderName</span>
             <em class="d-none d-xl-inline">@Html.Raw(T("Products.SortByX", $"<span>{Model.CurrentSortOrderName}</span>"))</em>

@@ -343,30 +343,6 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 
-// Tags
-// =====================================================
-
-.pd-tag {
-    text-decoration: none !important;
-    display: inline-flex;
-    padding: 0.5rem 0.75rem;
-    margin: 0;
-    margin-inline-end: 0.2rem;
-    margin-bottom: 0.4rem;
-    font-weight: $font-weight-medium;
-    color: $body-color;
-    font-size: $font-size-sm;
-    line-height: 1;
-    background-color: $light;
-    border-radius: 10rem;
-}
-
-.pd-tag-count {
-    color: $text-muted;
-    font-weight: 400;
-}
-
-
 // Bundles
 // =====================================================
 

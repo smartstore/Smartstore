@@ -457,36 +457,23 @@ $facet-selection-color:             darken($success, 15%);
 
 .active-filters {
     position: relative;
-    margin: -0.25rem;
-}
-
-.active-filter-item {
-    display: block;
-    padding: 0.25rem;
-    float: left;
 }
 
 .active-filter-link {
     position: relative;
-    font-weight: 400;
-    padding: 0.2rem 0.6rem;
+    font-weight: $font-weight-normal;
     max-width: 12rem;
-    padding-inline-end: 1.5rem;
-    border-width: 0;
+    line-height: 1.2; // to prevent cutoff
 
     &:after {
-        position: absolute;
+        position: relative;
         display: block;
         content: '\00d7';
-        inset-inline-end: 0.375rem;
-        top: 2px;
-        font-size: 1.25rem;
-        line-height: 1;
+        inset-inline-start: 4px;
     }
 }
 
 .active-filter-label {
-    display: block;
     @include text-truncate();
 }
 

@@ -932,6 +932,7 @@ legend {
             margin-bottom: 0;
             padding: 0.4rem 0.75rem;
             height: auto;
+            border-radius: calc(var(--nav-tabs-border-radius) - 1px);
 
             &:active {
                 border-color: var(--nav-tabs-link-active-border-color);

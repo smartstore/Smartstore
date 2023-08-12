@@ -4,6 +4,32 @@
 
 
 //
+// Badge icons
+// -----------------------------------------------------
+
+.badge > i,
+.label > i {
+    font-size: cssmax(14px, var(--badge-font-size));
+}
+
+
+//
+// Badge closer
+// -----------------------------------------------------
+
+.badge .closer,
+.label .closer {
+    color: inherit !important;
+    opacity: 0.7;
+    text-decoration: none !important;
+    transition: opacity 0.1s;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+//
 // Label: subtle badge variant with a shadow ring
 // -----------------------------------------------------
 
@@ -15,22 +41,42 @@
 
 @each $color, $value in $theme-colors {
     .label-#{$color} {
-        @if $color == "secondary" {
-            --badge-bg: var(--gray-300);
-            --badge-color: #{$body-color};
-            --badge-color-rgb: #{to-rgb($body-color)};
-        }
-        @else {
-            $c: theme-color-level($color, $label-color-level);
-            --badge-bg: #{theme-color-level($color, $label-bg-level)};
-            --badge-color: #{$c};
-            --badge-color-rgb: #{to-rgb($c)};
+        $bg: $gray-300;
+        $fg: $body-color;
+
+        @if $color != "secondary" {
+            $bg: theme-color-level($color, $label-bg-level);
+            $fg: theme-color-level($color, $label-color-level);
         }
 
+        --badge-bg: #{$bg};
+        --badge-color: #{$fg};
+        --badge-color-rgb: #{to-rgb($fg)};
+
+        @at-root a#{&} {
+            --badge-hover-bg: #{darken($bg, 5%)};
+        }
     }
 }
 
 .label-outline {
     --label-ring-color: rgba(var(--badge-color-rgb), .12);
     --badge-bg: transparent;
+}
+
+
+//
+// Slightly larger Badge/Label
+// -----------------------------------------------------
+
+.badge-lg,
+.label-lg {
+    --badge-padding-x: #{$input-btn-padding-x};
+    --badge-padding-y: #{$input-btn-padding-y};
+    --badge-font-size: inherit;
+    --badge-border-radius: #{$border-radius};
+
+    &.badge-pill {
+        --badge-padding-x: 1em !important;
+    }
 }
