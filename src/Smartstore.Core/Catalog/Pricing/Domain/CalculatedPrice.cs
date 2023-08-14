@@ -12,7 +12,7 @@ namespace Smartstore.Core.Catalog.Pricing
     /// Represents the result of a price calculation process for a single product. All monetary amounts
     /// are in the target currency and have been exchanged and converted according to input options.
     /// </summary>
-    public class CalculatedPrice
+    public class CalculatedPrice : ICloneable<CalculatedPrice>
     {
         public CalculatedPrice(CalculatorContext context)
         {
@@ -130,5 +130,13 @@ namespace Smartstore.Core.Catalog.Pricing
         /// The saving results from the applied discounts, if any, otherwise from the difference to the <see cref="Product.ComparePrice"/>.
         /// </summary>
         public PriceSaving Saving { get; set; }
+
+        /// <inheritdoc/>
+        public CalculatedPrice Clone()
+            => (CalculatedPrice)MemberwiseClone();
+
+        /// <inheritdoc/>
+        object ICloneable.Clone()
+            => MemberwiseClone();
     }
 }
