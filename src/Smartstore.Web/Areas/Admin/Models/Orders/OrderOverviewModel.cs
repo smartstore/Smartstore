@@ -103,7 +103,7 @@ namespace Smartstore.Admin.Models.Orders
                     ShippingStatus.PartiallyShipped => "fa fa-fw fa-truck fa-flip-horizontal text-warning",
                     ShippingStatus.Shipped => "fa fa-fw fa-truck fa-flip-horizontal text-success",
                     ShippingStatus.Delivered => "fa fa-fw fa-check text-success",
-                    _ => String.Empty,
+                    _ => string.Empty,
                 };
             }
         }
