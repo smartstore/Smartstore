@@ -99,7 +99,7 @@ namespace Smartstore.Admin.Controllers
             model.CheckoutAttributeId = attribute?.Id ?? 0;
             model.IsListTypeAttribute = attribute?.IsListTypeAttribute ?? false;
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-            model.BaseWeightIn = baseWeight != null ? baseWeight.GetLocalized(x => x.Name) : string.Empty;
+            model.BaseWeight = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
         }
 
         #endregion

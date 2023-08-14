@@ -24,6 +24,7 @@
 - #276 Enable to set the time of day for start and end date of discounts.
 - #142 Web API do not take back in stock notifications into account.
 - #486 Add setting to capture payment when order status changes to *complete*.
+- #782 Make the total weight of a shipment editable.
 
 ### Bugfixes
 

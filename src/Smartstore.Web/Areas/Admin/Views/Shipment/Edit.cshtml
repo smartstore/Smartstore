@@ -85,7 +85,7 @@
                 <smart-label asp-for="TotalWeight" />
             </div>
             <div class="adminData">
-                <input asp-for="TotalWeightString" sm-plaintext="true" readonly />
+                <editor asp-for="TotalWeight" sm-postfix="@Model.BaseWeight" />
             </div>
         </div>
         <div class="adminRow">
