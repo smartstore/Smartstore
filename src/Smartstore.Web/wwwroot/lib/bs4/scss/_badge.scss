@@ -13,10 +13,13 @@
   --badge-padding-y: #{$badge-padding-y};
   --badge-font-size: #{$badge-font-size};
   --badge-font-weight: #{$badge-font-weight};
+  --badge-line-height: 1.25;
   --badge-bg: transparent;
+  --badge-bg-rgb: 255, 255, 255;
   --badge-color: inherit;
   --badge-border-radius: #{$badge-border-radius};
   --badge-transition: #{$badge-transition};
+  --badge-height: #{calc((var(--badge-line-height) * 1em) + calc(var(--badge-padding-y) * 2) + 1px)};
   // scss-docs-end badge-css-vars
 
   display: inline-flex;
@@ -24,11 +27,11 @@
   justify-content: center;
   gap: 0.375em;
   padding: var(--badge-padding-y) var(--badge-padding-x);
-  font-size: var(--badge-font-size);
+  font-size: #{cssmax(12px, var(--badge-font-size))};
   font-weight: var(--badge-font-weight);
-  line-height: 1em;
+  line-height: cssmax(16px, calc(var(--badge-line-height) * 1em));
   color: var(--badge-color);
-  background-color: var(--badge-bg);
+  background-color: unquote("rgba(var(--badge-bg-rgb), var(--badge-bg-opacity, 1))");
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
@@ -41,8 +44,8 @@
     &:focus,
     &:active {
         text-decoration: none;
-        color: var(--badge-color);
-        background-color: var(--badge-hover-bg);
+        color: var(--badge-hover-color, var(--badge-color));
+        background-color: unquote("rgba(var(--badge-hover-bg-rgb, var(--badge-bg-rgb)), var(--badge-hover-bg-opacity, var(--badge-bg-opacity, 1)))");
     }
   }
 
@@ -81,10 +84,13 @@
 @each $color, $value in $theme-colors {
   .badge-#{$color} {
     --badge-bg: #{$value};
+    --badge-bg-rgb: #{to-rgb($value)};
     --badge-color: #{color-yiq($value)};
 
     @at-root a#{&} {
-      --badge-hover-bg: #{darken($value, 7%)};
+      $hoverbg: darken($value, 7%);
+      --badge-hover-bg: #{$hoverbg};
+      --badge-hover-bg-rgb: #{to-rgb($hoverbg)};
     }
   }
 }

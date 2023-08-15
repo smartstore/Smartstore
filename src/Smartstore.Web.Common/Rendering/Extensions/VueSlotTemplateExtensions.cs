@@ -66,7 +66,7 @@ namespace Smartstore.Web.Rendering
 
                 var label = new TagBuilder("span");
                 label.Attributes.Add("v-if", hasNewPaymentNotificationExpression);
-                label.Attributes.Add("class", "label label-warning mr-1");
+                label.Attributes.Add("class", "badge badge-subtle badge-ring badge-warning mr-1");
                 label.Attributes.Add("title", localizationService.GetResource("Admin.Orders.Payments.NewIpn.Hint"));
                 label.InnerHtml.Append(localizationService.GetResource("Admin.Orders.Payments.NewIpn"));
 
@@ -117,7 +117,7 @@ namespace Smartstore.Web.Rendering
             {
                 var label = new TagBuilder("span");
                 label.Attributes.Add("v-if", isPrimaryCurrencyExpression);
-                label.Attributes.Add("class", "label label-warning mr-1");
+                label.Attributes.Add("class", "badge badge-subtle badge-ring badge-warning mr-1");
                 label.InnerHtml.Append(localizationService.GetResource("Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"));
 
                 builder.AppendHtml(label);
@@ -127,7 +127,7 @@ namespace Smartstore.Web.Rendering
             {
                 var label = new TagBuilder("span");
                 label.Attributes.Add("v-if", isPrimaryExchangeCurrencyExpression);
-                label.Attributes.Add("class", "label label-info mr-1");
+                label.Attributes.Add("class", "badge badge-subtle badge-ring badge-info mr-1");
                 label.InnerHtml.Append(localizationService.GetResource("Admin.Configuration.Currencies.Fields.IsPrimaryExchangeRateCurrency"));
 
                 builder.AppendHtml(label);

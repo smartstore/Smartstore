@@ -253,9 +253,9 @@ $btn-active-border-tint-amount: 10% !default; //
 
 $badge-font-size:               (12 / 15) * 1em !default;
 $badge-font-weight:             $font-weight-medium;
-$badge-padding-y:               (1 / 3) * 1em;
-$badge-padding-x:               (2 / 3) * 1em;
-$badge-pill-padding-x:          1em;
+$badge-padding-y:               (1 / 6) * 1em;
+$badge-padding-x:               0.5em;
+$badge-pill-padding-x:          0.85em;
 $badge-border-radius:           $border-radius-sm;
 
 

@@ -57,8 +57,14 @@ b, strong {
 // -----------------------------------------------------
 
 .badge-secondary {
-    --badge-bg: var(--gray-600);
+    --badge-bg: #{$gray-600};
+    --badge-bg-rgb: #{to-rgb($gray-600)};
     --badge-color: #{$yiq-text-light};
+
+    @at-root a#{&} {
+        --badge-hover-bg: #{$gray-700};
+        --badge-hover-bg-rgb: #{to-rgb($gray-700)};
+    }
 }
 
 

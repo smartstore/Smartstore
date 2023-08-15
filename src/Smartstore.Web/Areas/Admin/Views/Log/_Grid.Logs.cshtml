@@ -36,7 +36,7 @@
         </column>
         <column for="ShortMessage" hideable="false">
             <display-template>
-                <span :class="'mr-1 level-badge label label-' + item.row.LogLevelHint">{{ item.row.LogLevel }}</span>
+                <span :class="'mr-1 level-badge badge badge-subtle badge-ring badge-' + item.row.LogLevelHint">{{ item.row.LogLevel }}</span>
                 <a :href="item.row.ViewUrl" class="text-truncate">
                     {{ item.value }}
                 </a>

@@ -822,7 +822,7 @@ namespace Smartstore.Web.Rendering
             }
 
             var builder = new SmartHtmlContentBuilder();
-            builder.AppendHtml($"<span class='label label-{typeLabelHint} mr-1'>{typeName}</span>{namePart}");
+            builder.AppendHtml($"<span class='badge badge-subtle badge-ring badge-{typeLabelHint} mr-1'>{typeName}</span>{namePart}");
             return builder;
         }
 

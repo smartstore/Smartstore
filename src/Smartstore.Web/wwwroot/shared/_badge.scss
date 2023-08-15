@@ -4,12 +4,25 @@
 
 
 //
+// Badge common
+// -----------------------------------------------------
+
+.badge {
+    --badge-ring-opacity: 0;
+    --badge-ring-color-rgb: 255,255,255;
+    box-shadow: inset rgba(var(--badge-ring-color-rgb), var(--badge-ring-opacity)) 0px 0px 0px 1px;
+}
+
+//
 // Badge icons
 // -----------------------------------------------------
 
-.badge > i,
-.label > i {
-    font-size: cssmax(14px, var(--badge-font-size));
+.badge > i {
+    //font-size: cssmax(14px, var(--badge-font-size));
+    position: relative;
+    top: 1px;
+    opacity: 0.6;
+    line-height: inherit;
 }
 
 
@@ -17,51 +30,76 @@
 // Badge closer
 // -----------------------------------------------------
 
-.badge .closer,
-.label .closer {
+.badge > .close {
+    position: relative;
+    //top: -1px;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    float: none;
+    text-shadow: none;
     color: inherit !important;
     opacity: 0.7;
     text-decoration: none !important;
     transition: opacity 0.1s;
 
     &:hover {
-        opacity: 1;
+        opacity: 1 !important;
     }
 }
 
 //
-// Label: subtle badge variant with a shadow ring
+// Subtle & Outline badge variants
 // -----------------------------------------------------
 
-.label {
-    @extend .badge;
-    --label-ring-color: #{rgba($gray-700, 0.1)};
-    box-shadow: inset var(--label-ring-color) 0px 0px 0px 1px;
+.badge-subtle {
+    --badge-bg-opacity: 0.15;
+    --badge-hover-bg-opacity: 0.25;
+}
+
+.badge-outline {
+    --badge-bg-opacity: 0;
+    --badge-hover-bg-opacity: 1;
+    --badge-ring-opacity: 0.5;
+    --badge-ring-color-rgb: var(--badge-bg-rgb);
 }
 
 @each $color, $value in $theme-colors {
-    .label-#{$color} {
-        $bg: $gray-300;
+    .badge-subtle.badge-#{$color},
+    .badge-outline.badge-#{$color} {
         $fg: $body-color;
 
         @if $color != "secondary" {
-            $bg: theme-color-level($color, $label-bg-level);
-            $fg: theme-color-level($color, $label-color-level);
+            $fg: theme-color-level($color, $badge-color-level);
         }
 
-        --badge-bg: #{$bg};
         --badge-color: #{$fg};
         --badge-color-rgb: #{to-rgb($fg)};
+    }
 
-        @at-root a#{&} {
-            --badge-hover-bg: #{darken($bg, 5%)};
-        }
+    .badge-outline.badge-#{$color} {
+        --badge-hover-color: #{color-yiq($value)};
     }
 }
 
-.label-outline {
-    --label-ring-color: rgba(var(--badge-color-rgb), .12);
-    --badge-bg: transparent;
+
+//
+// Badge with subtle ring shadow
+// -----------------------------------------------------
+
+.badge-ring {
+    --badge-ring-opacity: 0.1;
+    --badge-ring-color-rgb: #{to-rgb($gray-700)};
+}
+
+
+//
+// Indicator badge
+// -----------------------------------------------------
+
+.badge-indicator {
+    --badge-padding-x: 4px !important;
+    min-width: var(--badge-height);
 }
 
 
@@ -69,8 +107,7 @@
 // Slightly larger Badge/Label
 // -----------------------------------------------------
 
-.badge-lg,
-.label-lg {
+.badge-lg {
     --badge-padding-x: #{$input-btn-padding-x};
     --badge-padding-y: #{$input-btn-padding-y};
     --badge-font-size: inherit;
