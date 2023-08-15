@@ -1,4 +1,6 @@
 ﻿using Smartstore.Admin.Models.Catalog;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
 
@@ -30,6 +32,8 @@ namespace Smartstore.Admin.Controllers
 
             var products = await query.ToPagedList(command).LoadAsync();
             var rows = await products.MapAsync(Services.MediaService);
+
+            rows.Each(x => x.EditUrl = "javascript:;");
 
             return Json(new GridModel<ProductOverviewModel>
             {
@@ -70,6 +74,28 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { Success = true, Count = numRestored });
+        }
+
+        [Permission(Permissions.Catalog.Product.Read)]
+        public async Task<IActionResult> DeletedProductDetails(int id)
+        {
+            var product = await _db.Products
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            var model = await MapperFactory.MapAsync<Product, ProductModel>(product);
+
+            model.ProductTypeName = product.GetProductTypeLabel(Services.Localization);
+            model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(product.UpdatedOnUtc, DateTimeKind.Utc);
+            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(product.CreatedOnUtc, DateTimeKind.Utc);
+
+
+            return View(model);
         }
     }
 }

@@ -1,0 +1,91 @@
+﻿@model ProductModel
+
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = T("Admin.Catalog.Products.EditProductDetails").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        <span>@ViewBag.Title - <span title="@Model.Name">@Model.Name.Truncate(45, "…")</span></span>
+    </div>
+</div>
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Id" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Id" sm-plaintext readonly />
+            <span asp-validation-for="Id"></span>
+        </div>
+    </div>
+    <div sm-if="Model.Sku.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Sku" sm-ignore-hint="true" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Sku" sm-plaintext readonly />
+        </div>
+    </div>
+    <div sm-if="Model.CreatedOn.HasValue" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CreatedOn" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @Model.CreatedOn?.ToString("g")
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.UpdatedOn.HasValue" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="UpdatedOn" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @Model.UpdatedOn?.ToString("g")
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.ProductTypeName.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ProductTypeName" sm-ignore-hint="true" />
+        </div>
+        <div class="adminData">
+            <input asp-for="ProductTypeName" sm-plaintext readonly />
+        </div>
+    </div>
+    @*<div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Published" sm-ignore-hint="true" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @(Model.Published ? T("Common.Yes") : T("Common.No"))
+            </div>
+        </div>
+    </div>*@
+    <div sm-if="Model.ShortDescription.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ShortDescription" sm-ignore-hint="true" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                <textarea asp-for="ShortDescription" readonly="readonly" rows="4"></textarea>
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.AdminComment.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AdminComment" sm-ignore-hint="true" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                <textarea asp-for="AdminComment" readonly="readonly" rows="2"></textarea>
+            </div>
+        </div>
+    </div>
+
+</div>
