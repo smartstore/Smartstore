@@ -15,88 +15,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductList(GridCommand command, ProductListModel model)
         {
-            var fields = new List<string> { "name" };
-            if (_searchSettings.SearchFields.Contains("sku"))
-            {
-                fields.Add("sku");
-            }
-
-            if (_searchSettings.SearchFields.Contains("shortdescription"))
-            {
-                fields.Add("shortdescription");
-            }
-
-            var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName)
-                .HasStoreId(model.SearchStoreId)
-                .WithCurrency(_workContext.WorkingCurrency)
-                .WithLanguage(_workContext.WorkingLanguage);
-
-            if (model.SearchIsPublished.HasValue)
-            {
-                searchQuery = searchQuery.PublishedOnly(model.SearchIsPublished.Value);
-            }
-
-            if (model.SearchHomePageProducts.HasValue)
-            {
-                searchQuery = searchQuery.HomePageProductsOnly(model.SearchHomePageProducts.Value);
-            }
-
-            if (model.SearchProductTypeId > 0)
-            {
-                searchQuery = searchQuery.IsProductType((ProductType)model.SearchProductTypeId);
-            }
-
-            if (model.SearchWithoutManufacturers.HasValue)
-            {
-                searchQuery = searchQuery.HasAnyManufacturer(!model.SearchWithoutManufacturers.Value);
-            }
-            else if (model.SearchManufacturerId != 0)
-            {
-                searchQuery = searchQuery.WithManufacturerIds(null, model.SearchManufacturerId);
-            }
-
-            if (model.SearchWithoutCategories.HasValue)
-            {
-                searchQuery = searchQuery.HasAnyCategory(!model.SearchWithoutCategories.Value);
-            }
-            else if (model.SearchCategoryId != 0)
-            {
-                searchQuery = searchQuery.WithCategoryIds(null, model.SearchCategoryId);
-            }
-
-            if (model.SearchDeliveryTimeIds?.Any() ?? false)
-            {
-                searchQuery = searchQuery.WithDeliveryTimeIds(model.SearchDeliveryTimeIds);
-            }
-
+            var searchQuery = CreateSearchQuery(command, model, _searchSettings.UseCatalogSearchInBackend);
             IPagedList<Product> products;
 
             if (_searchSettings.UseCatalogSearchInBackend)
             {
-                searchQuery = searchQuery.Slice((command.Page - 1) * command.PageSize, command.PageSize);
-
-                var sort = command.Sorting?.FirstOrDefault();
-                if (sort != null)
-                {
-                    switch (sort.Member)
-                    {
-                        case nameof(ProductModel.Name):
-                            searchQuery = searchQuery.SortBy(sort.Descending ? ProductSortingEnum.NameDesc : ProductSortingEnum.NameAsc);
-                            break;
-                        case nameof(ProductModel.Price):
-                            searchQuery = searchQuery.SortBy(sort.Descending ? ProductSortingEnum.PriceDesc : ProductSortingEnum.PriceAsc);
-                            break;
-                        case nameof(ProductModel.CreatedOn):
-                            searchQuery = searchQuery.SortBy(sort.Descending ? ProductSortingEnum.CreatedOn : ProductSortingEnum.CreatedOnAsc);
-                            break;
-                    }
-                }
-
-                if (!searchQuery.Sorting.Any())
-                {
-                    searchQuery = searchQuery.SortBy(ProductSortingEnum.NameAsc);
-                }
-
                 var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
                 products = await searchResult.GetHitsAsync();
             }
@@ -116,6 +39,92 @@ namespace Smartstore.Admin.Controllers
                 Rows = rows,
                 Total = products.TotalCount
             });
+        }
+
+        private CatalogSearchQuery CreateSearchQuery(GridCommand command, ProductListModel model, bool useCatalogSearch)
+        {
+            var fields = new List<string> { "name" };
+            if (_searchSettings.SearchFields.Contains("sku"))
+            {
+                fields.Add("sku");
+            }
+
+            if (_searchSettings.SearchFields.Contains("shortdescription"))
+            {
+                fields.Add("shortdescription");
+            }
+
+            var query = new CatalogSearchQuery(fields.ToArray(), model.SearchProductName)
+                .HasStoreId(model.SearchStoreId)
+                .WithCurrency(_workContext.WorkingCurrency)
+                .WithLanguage(_workContext.WorkingLanguage);
+
+            if (model.SearchIsPublished.HasValue)
+            {
+                query = query.PublishedOnly(model.SearchIsPublished.Value);
+            }
+
+            if (model.SearchHomePageProducts.HasValue)
+            {
+                query = query.HomePageProductsOnly(model.SearchHomePageProducts.Value);
+            }
+
+            if (model.SearchProductTypeId > 0)
+            {
+                query = query.IsProductType((ProductType)model.SearchProductTypeId);
+            }
+
+            if (model.SearchWithoutManufacturers.HasValue)
+            {
+                query = query.HasAnyManufacturer(!model.SearchWithoutManufacturers.Value);
+            }
+            else if (model.SearchManufacturerId != 0)
+            {
+                query = query.WithManufacturerIds(null, model.SearchManufacturerId);
+            }
+
+            if (model.SearchWithoutCategories.HasValue)
+            {
+                query = query.HasAnyCategory(!model.SearchWithoutCategories.Value);
+            }
+            else if (model.SearchCategoryId != 0)
+            {
+                query = query.WithCategoryIds(null, model.SearchCategoryId);
+            }
+
+            if (model.SearchDeliveryTimeIds?.Any() ?? false)
+            {
+                query = query.WithDeliveryTimeIds(model.SearchDeliveryTimeIds);
+            }
+
+            if (useCatalogSearch)
+            {
+                query = query.Slice((command.Page - 1) * command.PageSize, command.PageSize);
+
+                var sort = command.Sorting?.FirstOrDefault();
+                if (sort != null)
+                {
+                    switch (sort.Member)
+                    {
+                        case nameof(ProductModel.Name):
+                            query = query.SortBy(sort.Descending ? ProductSortingEnum.NameDesc : ProductSortingEnum.NameAsc);
+                            break;
+                        case nameof(ProductModel.Price):
+                            query = query.SortBy(sort.Descending ? ProductSortingEnum.PriceDesc : ProductSortingEnum.PriceAsc);
+                            break;
+                        case nameof(ProductModel.CreatedOn):
+                            query = query.SortBy(sort.Descending ? ProductSortingEnum.CreatedOn : ProductSortingEnum.CreatedOnAsc);
+                            break;
+                    }
+                }
+
+                if (query.Sorting.Count == 0)
+                {
+                    query = query.SortBy(ProductSortingEnum.NameAsc);
+                }
+            }
+
+            return query;
         }
 
         [HttpPost]

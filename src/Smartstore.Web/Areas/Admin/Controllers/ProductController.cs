@@ -146,29 +146,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> List(ProductListModel model)
         {
-            model.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
-            model.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
-
-            foreach (var c in (await _categoryService.Value.GetCategoryTreeAsync(includeHidden: true)).FlattenNodes(false))
-            {
-                model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
-            }
-
-            foreach (var m in await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(true).Select(x => new { x.Name, x.Id }).ToListAsync())
-            {
-                model.AvailableManufacturers.Add(new SelectListItem { Text = m.Name, Value = m.Id.ToString() });
-            }
-
-            model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
-
-            var deliveryTimes = await _db.DeliveryTimes
-                .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder)
-                .ToListAsync();
-
-            ViewBag.DeliveryTimes = deliveryTimes
-                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
-                .ToList();
+            await PrepareProductListModelAsync(model);
 
             return View(model);
         }
@@ -343,6 +321,17 @@ namespace Smartstore.Admin.Controllers
             await PrepareProductModelAsync(model, product, false, true);
 
             return View(model);
+        }
+
+        /// <summary>
+        /// (AJAX) Gets the number of deleted products.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IActionResult> DeletedProductsCount()
+        {
+            var count = await _db.Products.CountDeletedAsync();
+
+            return new JsonResult(new { count });
         }
 
         #endregion
@@ -1552,6 +1541,33 @@ namespace Smartstore.Admin.Controllers
         #endregion
 
         #region Utilities
+
+        private async Task PrepareProductListModelAsync(ProductListModel model)
+        {
+            model.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
+            model.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+
+            foreach (var c in (await _categoryService.Value.GetCategoryTreeAsync(includeHidden: true)).FlattenNodes(false))
+            {
+                model.AvailableCategories.Add(new() { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
+            }
+
+            foreach (var m in await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(true).Select(x => new { x.Name, x.Id }).ToListAsync())
+            {
+                model.AvailableManufacturers.Add(new() { Text = m.Name, Value = m.Id.ToString() });
+            }
+
+            model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
+
+            var deliveryTimes = await _db.DeliveryTimes
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            ViewBag.DeliveryTimes = deliveryTimes
+                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
+                .ToList();
+        }
 
         private async Task PrepareProductModelAsync(ProductModel model, Product product, bool setPredefinedValues, bool excludeProperties)
         {

@@ -84,6 +84,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Enums.CapturePaymentReason.OrderCompleted",
                 "The order has been marked as completed",
                 "Der Auftrag wurde als abgeschlossen markiert");
+
+            builder.Update("Admin.Common.Delete.Selected").Value("en", "Delete selected");
+
+            builder.AddOrUpdate("Common.RecycleBin", "Recycle bin", "Papierkorb");
+            builder.AddOrUpdate("Common.Restore", "Restore", "Wiederherstellen");
+            builder.AddOrUpdate("Admin.Common.Restore.Selected", "Restore selected", "Ausgewählte wiederherstellen");
         }
 
         /// <summary>

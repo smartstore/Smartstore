@@ -4,16 +4,13 @@
     var parentModel = ViewData["Parent"] as ProductListModel;
 }
 
-@*TODO: (mg) product deleting shows unsuitable message text "Soll der Datensatz wirklich unwiderruflich gelöscht werden?" *@
-
-<datagrid id="products-grid"
+<datagrid id="deleted-products-grid"
           allow-resize="true"
           allow-row-selection="true"
-          allow-edit="true"
+          allow-edit="false"
           preserve-grid-state="true" preserve-command-state="true"
-          allow-column-reordering="true"
-          ondatabound="productGrid_onDataBound">
-    <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" />
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("DeletedProductsList")" delete="@Url.Action("DeletedProductsDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
@@ -22,31 +19,18 @@
                 <i class="fa fa-fw fa-filter"></i>
             </button>
         </toolbar-group>
-        <toolbar-group>
-            <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">
-                <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")...</span>
-            </a>
-            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-                <i class="fa fa-check"></i>
-                <span>@T("Admin.Common.SaveChanges")</span>
-            </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
-                <span>@T("Common.Cancel")</span>
-            </button>
-        </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" id="grid-restore-selected" class="btn btn-primary btn-flat">
+                <i class="fa fa-repeat"></i>
+                <span>@T("Admin.Common.Restore.Selected")</span>
+            </button>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <i class="far fa-trash-can"></i>
+                <i class="fa fa-times"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
-            <a asp-action="RecycleBin" class="btn btn-primary btn-flat no-anims" title="@T("Common.RecycleBin")">
-                <i class="far fa-fw fa-trash-can"></i>
-                <span id="deleted-products-count" class="badge badge-pill badge-success dg-toolbar-badge"></span>
-            </a>
         </toolbar-group>
     </toolbar>
     <search-panel>
@@ -60,7 +44,6 @@
                     width="48px"
                     sortable="false"
                     visible="true"
-                    readonly="true"
                     resizable="false"
                     reorderable="false">
                 <display-template>
@@ -70,6 +53,7 @@
                 </display-template>
             </column>
         }
+        <column for="Id" visible="false" />
         <column for="Name" width="3fr" hideable="false">
             <display-template>
                 @Html.LabeledProductName()
@@ -80,36 +64,51 @@
         <column for="ManufacturerPartNumber" visible="false" />
         <column for="Price" halign="flex-end" />
         <column for="ComparePrice" halign="flex-end" visible="false" />
-        <column for="StockQuantity" halign="center" />
-        <column for="MinStockQuantity" halign="center" visible="false" />
-        <column for="LimitedToStores" visible="!parentModel.IsSingleStoreMode" readonly="true" halign="center" />
-        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" visible="false" />
-        <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="true" />
-        <column for="Published" halign="center" />
+        <column for="SpecialPrice" halign="flex-end" visible="false" />
+        <column for="StockQuantity" halign="center" visible="false" />
+        <column for="LimitedToStores" visible="!parentModel.IsSingleStoreMode" halign="center" />
+        <column for="SubjectToAcl" visible="false" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" />
+        <column for="Published" halign="center" visible="false" />
         <column for="AvailableStartDateTimeUtc" visible="false" />
         <column for="AvailableEndDateTimeUtc" visible="false" />
     </columns>
     <row-commands>
-        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Custom"
-           class="copy-product-command"
-           href="#copyproduct-window"
-           data-toggle="modal"
-           :data-copy-product-id="item.row.Id"
-           :data-copy-product-name="item.row.CopyProductModel.Name">
-            @T("Common.Copy")
-        </a>
+        @*TODO: (mg) dialog with readonly details like categories, manufacturer etc.*@
+        <a datarow-action="DataRowAction.Custom" class="grid-restore" :data-key="item.row.Id">@T("Common.Restore")</a>
         <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
 
-<partial name="_CopyProductDialog" model="null" />
+<script sm-target-zone="scripts" data-origin="deleted-products-grid">
+    $(function () {
+        $(document).on('click', '#grid-restore-selected', function (e) {
+            e.preventDefault();
+            const grid = $('#deleted-products-grid').parent().data('datagrid');
+            restoreProducts(grid.selectedRowKeys);
+            return false;
+        });
 
-<script sm-target-zone="scripts" data-origin="product-grid">
-    function productGrid_onDataBound() {
-        $.get('@Url.Action("DeletedProductsCount")', function (response) {
-			$('#deleted-products-count').text(response.count.toLocaleString());
-		});
-    }
+        $(document).on('click', '.grid-restore', function (e) {
+            e.preventDefault();
+            restoreProducts($(this).data('key'));
+            return false;
+        });
+
+        function restoreProducts(selectedKeys) {
+            $({}).ajax({
+                cache: false,
+                type: 'POST',
+                data: { selectedKeys },
+                url: '@Url.Action("DeletedProductsRestore")',
+                ask: @T("Admin.Common.AskToProceed").JsValue,
+                success: function () {
+                    const grid = $('#deleted-products-grid').parent().data('datagrid');
+                    grid.read();
+                }
+            });
+        }
+    });
 </script>

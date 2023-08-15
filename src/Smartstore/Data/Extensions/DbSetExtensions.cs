@@ -155,7 +155,7 @@ namespace Smartstore
 
         public static void Remove<TEntity>(this DbSet<TEntity> dbSet, int id) where TEntity : BaseEntity, new()
         {
-            Guard.NotZero(id, nameof(id));
+            Guard.NotZero(id);
 
             var entity = dbSet.GetDbContext().FindTracked<TEntity>(id);
             if (entity == null && dbSet.Any(x => x.Id == id))
@@ -171,7 +171,7 @@ namespace Smartstore
 
         public static void RemoveRange<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids) where TEntity : BaseEntity, new()
         {
-            Guard.NotNull(ids, nameof(ids));
+            Guard.NotNull(ids);
 
             var distinctIds = ids.Where(id => id > 0).Distinct();
             if (!distinctIds.Any())
@@ -280,6 +280,18 @@ namespace Smartstore
             }
 
             return numDeleted;
+        }
+
+        /// <summary>
+        /// Gets the number of soft-deleted entities.
+        /// </summary>
+        /// <returns>Number of soft-deleted entities.</returns>
+        public static Task<int> CountDeletedAsync<TEntity>(this DbSet<TEntity> dbSet, CancellationToken cancelToken = default)
+            where TEntity : BaseEntity, ISoftDeletable
+        {
+            Guard.NotNull(dbSet);
+
+            return dbSet.IgnoreQueryFilters().CountAsync(x => x.Deleted, cancelToken);
         }
 
         #endregion

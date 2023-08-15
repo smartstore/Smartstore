@@ -1,0 +1,27 @@
+﻿@model ProductListModel
+
+@{
+    ViewBag.Title = T("Common.RecycleBin").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <a sm-backto asp-action="List"></a>
+        <i class="far fa-trash-can"></i>
+        <span>@T("Admin.Catalog.Products.Manage") - @ViewBag.Title</span>
+    </div>
+    <div class="options">
+        <zone name="admin_button_toolbar_before" />
+        <zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<div class="alert alert-info">
+    @Html.Raw("TODO: admin info recycle bin...")
+</div>
+
+<partial name="Grids/_Grid.DeletedProducts" model="null" view-data="gridViewData" />
