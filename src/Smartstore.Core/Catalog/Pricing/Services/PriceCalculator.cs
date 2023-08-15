@@ -45,11 +45,14 @@ namespace Smartstore.Core.Catalog.Pricing
                 throw new InvalidOperationException("The product of a nested calculation pipeline cannot be the same as that of the root pipeline. It would result in a deadlock.");
             }
 
-            var childCalculatorContext = new CalculatorContext(context, childProduct.Price) { Product = childProduct };
+            var childCalculatorContext = new CalculatorContext(context, childProduct.Price)
+            {
+                Product = childProduct,
+                Options = context.Options.Clone()
+            };
 
             childContextConfigurer?.Invoke(childCalculatorContext);
 
-            // INFO: we know that options have been cloned.
             if (context.Options.ChildProductsBatchContext != null)
             {
                 childCalculatorContext.Options.BatchContext = context.Options.ChildProductsBatchContext;
