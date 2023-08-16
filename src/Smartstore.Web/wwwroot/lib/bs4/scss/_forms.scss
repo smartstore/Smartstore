@@ -333,13 +333,13 @@ textarea.form-control {
 //
 
 .form-switch {
-  padding-left: $form-switch-padding-start;
+  padding-inline-start: $form-switch-padding-start;
 
   .form-check-input {
     --form-switch-bg: #{escape-svg($form-switch-bg-image)};
 
     width: $form-switch-width;
-    margin-left: $form-switch-padding-start * -1;
+    margin-inline-start: $form-switch-padding-start * -1;
     background-image: var(--form-switch-bg);
     background-position: left center;
     @include border-radius($form-switch-border-radius);
@@ -356,12 +356,12 @@ textarea.form-control {
   }
 
   &.form-check-reverse {
-    padding-right: $form-switch-padding-start;
-    padding-left: 0;
+    padding-inline-end: $form-switch-padding-start;
+    padding-inline-start: 0;
 
     .form-check-input {
-      margin-right: $form-switch-padding-start * -1;
-      margin-left: 0;
+      margin-inline-end: $form-switch-padding-start * -1;
+      margin-inline-start: 0;
     }
   }
 }

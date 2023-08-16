@@ -277,21 +277,24 @@ $modal-transition:              all 0.2s ease-out;
 // Embeds (TODO: Use from v4.3 onwards)
 $embed-responsive-aspect-ratios: ( (21 9), (16 9), (16 10), (4 3), (1 1) );
 
+// Form check
+
+$form-check-input-border:               1px solid rgba(#000, .15);
 
 // Form switch
 
-//$form-switch-color:                     #fff;
-//$form-switch-width:                     2em; // $font-size-base * 1.5 * 2;
-//$form-switch-padding-start:             $form-switch-width + .5em !default;
-//$form-switch-bg-image:                  url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$form-switch-color}'/></svg>") !default;
+$form-switch-color:                     #fff;
+$form-switch-width:                     2em;
+$form-switch-padding-start:             $form-switch-width + 0.75em;
+$form-switch-bg-image:                  url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><defs><filter id='shadow'><feDropShadow dx='0' dy='0' stdDeviation='0.6' flood-opacity='0.3' /></filter></defs><circle r='3' fill='#{$form-switch-color}' style='filter:url(#shadow)'/></svg>");
 //$form-switch-border-radius:             $form-switch-width !default;
-//$form-switch-transition:                background-color 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out, background-position .2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+$form-switch-transition:                background-color 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out, background-position .2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-//$form-switch-focus-color:               #fff;
-//$form-switch-focus-bg-image:            url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$form-switch-focus-color}'/></svg>") !default;
+$form-switch-focus-color:               #fff;
+$form-switch-focus-bg-image:            $form-switch-bg-image;
 
-//$form-switch-checked-color:             #fff;
-//$form-switch-checked-bg-image:          url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$form-switch-checked-color}'/></svg>") !default;
+$form-switch-checked-color:             #fff;
+$form-switch-checked-bg-image:          $form-switch-bg-image;
 //$form-switch-checked-bg-position:       right center !default;
 
 // Custom Range

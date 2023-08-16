@@ -63,6 +63,32 @@ fieldset.content-group {
 }
 
 
+// .form-switch
+// ------------------------------------------------------
+
+.form-switch {
+    .form-check-input {
+        --form-check-bg: var(--gray-200);
+
+        width: cssmax(2rem, #{$form-switch-width});
+
+        &:active {
+            //filter: none;
+        }
+
+        &:focus {
+            //border: $form-check-input-border;
+        }
+    }
+
+    &.form-switch-lg {
+        .form-check-input {
+            //--form-check-size: 2.750125rem;
+        }
+    }
+}
+
+
 // Native select styling
 // ------------------------------------------------------
 
