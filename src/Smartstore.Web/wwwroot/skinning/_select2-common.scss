@@ -169,8 +169,15 @@
         background-color: $input-disabled-bg;
     }
 
+    .select2-selection--multiple .select2-selection__choice {
+        pointer-events: none;
+    }
+
     .select2-selection__clear,
-    .select2-selection--multiple .select2-selection__choice__remove {
-        display: none;
+    .select2-selection--multiple .select2-selection__choice__remove,
+    .select2-selection--multiple .select2-selection__clear {
+        pointer-events: none;
+        opacity: 0.5;
+        background-color: transparent;
     }
 }
