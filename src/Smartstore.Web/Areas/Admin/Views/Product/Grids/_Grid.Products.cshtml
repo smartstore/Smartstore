@@ -43,9 +43,10 @@
                 <i class="far fa-trash-can"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
+            @* TODO: (mg) This button doesn't belong here. Move it to page toolbar. *@
             <a asp-action="RecycleBin" class="btn btn-primary btn-flat no-anims" title="@T("Common.RecycleBin")">
                 <i class="far fa-fw fa-trash-can"></i>
-                <span id="deleted-products-count" class="badge badge-pill badge-success dg-toolbar-badge"></span>
+                <span id="deleted-products-count" class="badge badge-pill badge-success badge-counter edge-top-end edge-inset dg-toolbar-badge"></span>
             </a>
         </toolbar-group>
     </toolbar>
