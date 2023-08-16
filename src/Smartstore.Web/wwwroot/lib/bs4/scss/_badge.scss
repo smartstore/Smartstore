@@ -19,7 +19,6 @@
   --badge-color: inherit;
   --badge-border-radius: #{$badge-border-radius};
   --badge-transition: #{$badge-transition};
-  --badge-height: #{calc((var(--badge-line-height) * 1em) + calc(var(--badge-padding-y) * 2) + 1px)};
   // scss-docs-end badge-css-vars
 
   display: inline-flex;
@@ -62,19 +61,6 @@
 .badge-pill {
   --badge-padding-x: #{$badge-pill-padding-x} !important;
   --badge-border-radius: #{$badge-pill-border-radius} !important;
-}
-
-// Quick fix for badges in buttons
-.btn .badge {
-  --badge-padding-y: .25em;
-  position: relative;
-  top: -1px;
-  line-height: 1;
-  padding-inline: var(--badge-padding-x) !important;
-
-  &:not(.badge-pill) {
-    --badge-padding-x: .5em;
-  }
 }
 
 // Colors

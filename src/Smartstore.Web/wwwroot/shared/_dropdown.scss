@@ -79,7 +79,7 @@
 	> i, 
     > svg, 
     > img {
-		//margin-inline-start: calc(var(--dropdown-item-padding-x) / 2 * -1);
+		margin-inline-start: calc(var(--dropdown-item-padding-x) / 4 * -1);
         margin-inline-end: cssmax(8px, calc(var(--dropdown-item-padding-x) / 2));
 	}
 

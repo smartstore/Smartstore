@@ -40,7 +40,7 @@
            data-autohide="true" data-placement="@(isRtl ? "left" : "right")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
             <span class="shopbar-button-icon">
                 <i class="icm icm-repeat"></i>
-                <span class='badge badge-pill label-cart-amount badge-@labelStyle' attr-style='(Model.CompareItemsCount == 0, "display: none")' data-bind-to="CompareItemsCount">
+                <span class='badge badge-pill badge-counter badge-counter-ring label-cart-amount badge-@labelStyle' attr-style='(Model.CompareItemsCount == 0, "display: none")' data-bind-to="CompareItemsCount">
                     @Model.CompareItemsCount
                 </span>
             </span>
@@ -59,7 +59,7 @@
            data-autohide="true" data-placement="@(isRtl ? "left" : "right")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
             <span class="shopbar-button-icon">
                 <i class="icm icm-heart"></i>
-                <span class='badge badge-pill label-cart-amount badge-@labelStyle' attr-style='(Model.WishlistItemsCount == 0, "display: none")' data-bind-to="WishlistItemsCount">
+                <span class='badge badge-pill badge-counter badge-counter-ring label-cart-amount badge-@labelStyle' attr-style='(Model.WishlistItemsCount == 0, "display: none")' data-bind-to="WishlistItemsCount">
                     @Model.WishlistItemsCount
                 </span>
             </span>
@@ -78,7 +78,7 @@
            data-autohide="true" data-placement="@(isRtl ? "left" : "right")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
             <span class="shopbar-button-icon">
                 <i class="icm icm-bag"></i>
-                <span class='badge badge-pill label-cart-amount badge-@(labelStyle)' attr-style='(Model.CartItemsCount == 0, "display: none")' data-bind-to="CartItemsCount">
+                <span class='badge badge-pill badge-counter badge-counter-ring label-cart-amount badge-@(labelStyle)' attr-style='(Model.CartItemsCount == 0, "display: none")' data-bind-to="CartItemsCount">
                     @Model.CartItemsCount
                 </span>
             </span>

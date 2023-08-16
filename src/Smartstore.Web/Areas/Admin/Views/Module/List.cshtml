@@ -110,6 +110,7 @@
                 placement: "auto",
                 boundary: "window",
                 html: true,
+                sanitize: false,
                 trigger: "manual",
                 customClass: "popover-store-limiter",
                 title: @T("Admin.Common.Store.AvailableFor").JsValue,
@@ -126,12 +127,12 @@
                             </div>`;
                     });
                     return `
-                        <form class="row editableform">
+                        <form class="row g-3 flex-nowrap editableform">
                             <div class="col-auto editable-input">
                                 ${checkboxes.join("")}
                             </div>
                             <div class="col-auto editable-buttons">
-                                <button type="button" class="btn btn-warning btn-icon btn-sm editable-submit mr-1" data-module="${systemName}"><i class="fa fa-check"></i></button>
+                                <button type="button" class="btn btn-warning btn-icon btn-sm editable-submit" data-module="${systemName}"><i class="fa fa-check"></i></button>
                                 <button type="button" class="btn btn-secondary btn-icon btn-sm editable-cancel"><i class="fa fa-times"></i></button>
                             </div>
                         </div>`;

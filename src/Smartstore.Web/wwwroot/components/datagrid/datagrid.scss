@@ -275,7 +275,7 @@ input.form-control-plaintext {
 
 .dg-toolbar .btn {
     position: relative;
-    padding-inline: 0.6rem;
+    --btn-padding-x: 0.6rem;
 }
 
 @include media-breakpoint-down(sm) {
@@ -313,13 +313,7 @@ input.form-control-plaintext {
 
 .dg-toolbar-badge {
     position: absolute !important;
-    inset-inline-end: 2px;
-    top: 2px !important;
-    font-size: 10px;
-
-    // "Force" to middle
-    padding-top: calc(var(--badge-padding-y) - 1px);
-    padding-bottom: calc(var(--badge-padding-y) + 1px);
+    --badge-font-size: 10px;
 }
 
 .dg-commands-toggle {

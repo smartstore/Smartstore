@@ -10,6 +10,8 @@
 .badge {
     --badge-ring-opacity: 0;
     --badge-ring-color-rgb: 255,255,255;
+    --badge-height: #{calc((var(--badge-line-height) * 1em) + calc(var(--badge-padding-y) * 2))};
+
     box-shadow: inset rgba(var(--badge-ring-color-rgb), var(--badge-ring-opacity)) 0px 0px 0px 1px;
 }
 
@@ -94,12 +96,25 @@
 
 
 //
-// Indicator badge
+// Counter badge
 // -----------------------------------------------------
 
-.badge-indicator {
-    --badge-padding-x: 4px !important;
+.badge-counter {
+    --badge-padding-x: 0.125rem !important;
+    --badge-padding-y: 0.125rem !important;
+    --badge-font-size: 0.6875rem;
+    font-size: var(--badge-font-size);
+    line-height: var(--badge-line-height);
     min-width: var(--badge-height);
+
+    &.badge-pill {
+        --badge-padding-x: 0.25rem !important;
+    }
+
+    &.badge-counter-ring {
+        outline: 2px solid #fff;
+        outline-offset: -1px;
+    }
 }
 
 
@@ -116,4 +131,70 @@
     &.badge-pill {
         --badge-padding-x: 1em !important;
     }
+}
+
+
+//
+// Edge positioning (generic)
+// -----------------------------------------------------
+
+.edge-top-start,
+.edge-top-end,
+.edge-bottom-start,
+.edge-bottom-end {
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.edge-top-start,
+.edge-top-end {
+    inset-block-start: 0;
+}
+
+.edge-bottom-start,
+.edge-bottom-end {
+    inset-block-start: 100%;
+}
+
+.edge-top-start,
+.edge-bottom-start {
+    inset-inline-start: 0;
+}
+
+.edge-top-end,
+.edge-bottom-end {
+    inset-inline-start: 100%;
+}
+
+.edge-inset {
+    --edge-offset-x: 2px;
+    --edge-offset-y: 2px;
+
+    &.edge-top-start {
+        transform: translate(var(--edge-offset-x), var(--edge-offset-y));
+    }
+
+    &.edge-bottom-start {
+        transform: translate(var(--edge-offset-x), calc(-100% - 2px));
+    }
+
+    &.edge-top-end {
+        transform: translate(calc(-100% - var(--edge-offset-x)), var(--edge-offset-y));
+    }
+
+    &.edge-bottom-end {
+        transform: translate(calc(-100% - var(--edge-offset-x)), calc(-100% - var(--edge-offset-y)));
+    }
+    
+
+/*    &.edge-top-end,
+    &.edge-bottom-end {
+        inset-inline-start: auto;
+        inset-inline-end: 3px;
+    }
+
+    &.edge-top-start,
+    &.edge-bottom-start {
+        inset-inline-start: 3px;
+    }*/
 }

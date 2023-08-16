@@ -221,8 +221,8 @@ $btn-active-border-shade-amount:25% !default; //
 $btn-active-border-tint-amount: 10% !default; //
 
 $dropdown-min-width:            10rem;
-$dropdown-padding-x:            .5rem !default;
-$dropdown-padding-y:            .5rem !default;
+$dropdown-padding-x:            .375rem;
+$dropdown-padding-y:            .375rem;
 //$dropdown-box-shadow:			$box-shadow-var; // 0 3px 12px rgba(27,31,35, 0.15); //0 2px 6px rgba(#000, .15);
 //$dropdown-border-color:			rgba(#000, 0.05);
 $dropdown-bg:                   #fff;
@@ -230,6 +230,7 @@ $dropdown-border-radius:        $border-radius;
 $dropdown-border-color:         $gray-200;
 $dropdown-header-color:         $text-muted;
 $dropdown-link-disabled-color:  $gray-500;
+$dropdown-divider-margin-y:     $dropdown-padding-y;
 $dropdown-box-shadow:           $box-shadow-var;
 
 $dropdown-link-color:           $gray-700;
@@ -240,7 +241,7 @@ $dropdown-link-active-color:    $dropdown-link-hover-color;
 $dropdown-link-active-bg:       $gray-200;
 
 $dropdown-item-padding-y:       0.375rem;
-$dropdown-item-padding-x:       0.5rem;
+$dropdown-item-padding-x:       0.75rem;
 
 $popover-font-size:             $font-size-base;
 $popover-box-shadow:            $dropdown-box-shadow;

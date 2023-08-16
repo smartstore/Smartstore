@@ -382,6 +382,8 @@ body {
     }
 
     .dropdown-menu {
+      --dropdown-padding-x: 0.5rem;
+      --dropdown-padding-y: 0.5rem;
       --dropdown-item-padding-x: 1rem;
       --dropdown-item-padding-y: 0.5rem;
       --dropdown-divider-margin-y: 0.5rem;

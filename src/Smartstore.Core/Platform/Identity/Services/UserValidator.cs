@@ -74,6 +74,8 @@ namespace Smartstore.Core.Identity
 
             if (_customerSettings.CustomerLoginType != CustomerLoginType.Email)
             {
+                //var normalizedUserName = userName.RemoveDiacritics();
+                
                 if (userName.IsEmpty())
                 {
                     return Failed(Describer.InvalidUserName(userName));
