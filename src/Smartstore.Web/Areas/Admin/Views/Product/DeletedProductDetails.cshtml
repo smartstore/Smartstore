@@ -6,10 +6,10 @@
 
     var numberOfOrders = (int)ViewBag.NumberOfOrders;
     var price = (Money)ViewBag.Price;
-    var manufacturers = ViewBag.Manufacturers as string[];
-    var categories = ViewBag.Categories as string[];
-    var productAttributes = ViewBag.ProductAttributes as string[];
-    var specificationAttributes = ViewBag.SpecificationAttributes as string[];
+    var manufacturers = ViewBag.Manufacturers as string;
+    var categories = ViewBag.Categories as string;
+    var productAttributes = ViewBag.ProductAttributes as string;
+    var specificationAttributes = ViewBag.SpecificationAttributes as string;
 }
 
 <div class="section-header">
@@ -125,23 +125,23 @@
             </div>
         </div>
     </div>
-    <div sm-if="manufacturers.Length > 0" class="adminRow">
+    <div sm-if="manufacturers.HasValue()" class="adminRow">
         <div class="adminTitle">
             @Html.SmartLabel(string.Empty, T("Admin.Catalog.Products.Manufacturers"))
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @string.Join(", ", manufacturers)
+                @manufacturers
             </div>
         </div>
     </div>
-    <div sm-if="categories.Length > 0" class="adminRow">
+    <div sm-if="categories.HasValue()" class="adminRow">
         <div class="adminTitle">
             @Html.SmartLabel(string.Empty, T("Admin.Catalog.Products.Categories"))
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @string.Join(", ", categories)
+                @categories
             </div>
         </div>
     </div>
@@ -155,23 +155,23 @@
             </div>
         </div>
     </div>
-    <div sm-if="productAttributes.Length > 0" class="adminRow">
+    <div sm-if="productAttributes.HasValue()" class="adminRow">
         <div class="adminTitle">
             @Html.SmartLabel(string.Empty, T("Admin.Catalog.Products.ProductVariantAttributes.Attributes"))
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @string.Join(", ", productAttributes)
+                @productAttributes
             </div>
         </div>
     </div>
-    <div sm-if="specificationAttributes.Length > 0" class="adminRow">
+    <div sm-if="specificationAttributes.HasValue()" class="adminRow">
         <div class="adminTitle">
             @Html.SmartLabel(string.Empty, T("Admin.Catalog.Products.SpecificationAttributes"))
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @string.Join(", ", specificationAttributes)
+                @specificationAttributes
             </div>
         </div>
     </div>

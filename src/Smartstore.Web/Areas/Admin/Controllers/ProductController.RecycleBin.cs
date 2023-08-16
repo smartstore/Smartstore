@@ -46,7 +46,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Delete)]
-        public async Task<IActionResult> DeletedProductsDelete(GridSelection selection)
+        public async Task<IActionResult> FinallyDeleteProducts(GridSelection selection)
         {
             var ids = selection.GetEntityIds();
             var numDeleted = 0;
@@ -63,7 +63,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Create)]
-        public async Task<IActionResult> DeletedProductsRestore(GridSelection selection)
+        public async Task<IActionResult> RestoreProducts(GridSelection selection)
         {
             var ids = selection.GetEntityIds();
             var numRestored = 0;
@@ -81,6 +81,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> DeletedProductDetails(int id)
         {
+            const int maxNames = 21;
+
             var product = await _db.Products
                 .IgnoreQueryFilters()
                 .AsNoTracking()
@@ -96,7 +98,7 @@ namespace Smartstore.Admin.Controllers
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(product.UpdatedOnUtc, DateTimeKind.Utc);
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(product.CreatedOnUtc, DateTimeKind.Utc);
             model.ProductTypeName = product.GetProductTypeLabel(Services.Localization);
-            model.ProductTagNames = product.ProductTags.Select(x => x.GetLocalized(y => y.Name).Value).ToArray();
+            model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
             model.PictureThumbnailUrl = _mediaService.GetUrl(await _mediaService.GetFileByIdAsync(product.MainPictureId ?? 0), _mediaSettings.CartThumbPictureSize);
 
             ViewBag.Price = new Money(product.Price, Services.CurrencyService.PrimaryCurrency);
@@ -108,62 +110,54 @@ namespace Smartstore.Admin.Controllers
                 .CountAsync();
 
             var manufacturers = await _db.ProductManufacturers
-                .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Include(x => x.Manufacturer)
                 .Where(x => x.ProductId == id)
-                .OrderBy(x => x.DisplayOrder)
-                .Select(x => x.Manufacturer)
-                .ToListAsync();
-
-            ViewBag.Manufacturers = manufacturers
-                .Select(x => x.GetLocalized(y => y.Name).Value)
-                .Where(x => x.HasValue())
-                .ToDistinctArray(x => x);
+                .Select(x => x.Manufacturer.Name)
+                .Distinct()
+                .OrderBy(x => x)
+                .Take(maxNames)
+                .ToArrayAsync();
 
             var categories = await _db.ProductCategories
-                .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Include(x => x.Category)
                 .Where(x => x.ProductId == id)
-                .OrderBy(x => x.DisplayOrder)
-                .Select(x => x.Category)
-                .ToListAsync();
-
-            ViewBag.Categories = categories
-                .Select(x => x.GetLocalized(y => y.Name).Value)
-                .Where(x => x.HasValue())
-                .ToDistinctArray(x => x);
+                .Select(x => x.Category.Name)
+                .Distinct()
+                .OrderBy(x => x)
+                .Take(maxNames)
+                .ToArrayAsync();
 
             var productAttributes = await _db.ProductVariantAttributes
-                .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Include(x => x.ProductAttribute)
                 .Where(x => x.ProductId == id)
-                .OrderBy(x => x.DisplayOrder)
-                .Select(x => x.ProductAttribute)
-                .ToListAsync();
-
-            ViewBag.ProductAttributes = productAttributes
-                .Select(x => x.GetLocalized(y => y.Name).Value)
-                .Where(x => x.HasValue())
-                .ToDistinctArray(x => x);
+                .Select(x => x.ProductAttribute.Name)
+                .Distinct()
+                .OrderBy(x => x)
+                .Take(maxNames)
+                .ToArrayAsync();
 
             var specificationAttributes = await _db.ProductSpecificationAttributes
-                .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Include(x => x.SpecificationAttributeOption.SpecificationAttribute)
                 .Where(x => x.ProductId == id)
-                .OrderBy(x => x.DisplayOrder)
-                .Select(x => x.SpecificationAttributeOption.SpecificationAttribute)
-            .ToListAsync();
+                .Select(x => x.SpecificationAttributeOption.SpecificationAttribute.Name)
+                .Distinct()
+                .OrderBy(x => x)
+                .Take(maxNames)
+                .ToArrayAsync();
 
-            ViewBag.SpecificationAttributes = specificationAttributes
-                .Select(x => x.GetLocalized(y => y.Name).Value)
-                .Where(x => x.HasValue())
-                .ToDistinctArray(x => x);
+            ViewBag.Manufacturers = JoinNames(manufacturers);
+            ViewBag.Categories = JoinNames(categories);
+            ViewBag.ProductAttributes = JoinNames(productAttributes);
+            ViewBag.SpecificationAttributes = JoinNames(specificationAttributes);
 
             return View(model);
+
+            static string JoinNames(string[] names)
+            {
+                return names.Length == maxNames
+                    ? string.Join(", ", names.Take(maxNames - 1)) + "…"
+                    : string.Join(", ", names);
+            }
         }
     }
 }

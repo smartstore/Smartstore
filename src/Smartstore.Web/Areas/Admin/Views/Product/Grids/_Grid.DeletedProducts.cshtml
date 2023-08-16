@@ -10,7 +10,7 @@
           allow-edit="false"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("DeletedProductsList")" delete="@Url.Action("DeletedProductsDelete")" />
+    <datasource read="@Url.Action("DeletedProductsList")" delete="@Url.Action("FinallyDeleteProducts")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
@@ -53,7 +53,7 @@
                 </display-template>
             </column>
         }
-        <column for="Id" />
+        <column for="Id" type="string" />
         <column for="Name" width="3fr" hideable="false">
             <display-template>
                 <div class="deleted-product-name" :data-key="item.row.Id">
@@ -112,7 +112,7 @@
                 cache: false,
                 type: 'POST',
                 data: { selectedKeys },
-                url: '@Url.Action("DeletedProductsRestore")',
+                url: '@Url.Action("RestoreProducts")',
                 ask: @T("Admin.Common.AskToProceed").JsValue,
                 success: function () {
                     const grid = $('#deleted-products-grid').parent().data('datagrid');

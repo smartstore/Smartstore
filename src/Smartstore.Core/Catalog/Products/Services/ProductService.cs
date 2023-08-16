@@ -448,6 +448,75 @@ namespace Smartstore.Core.Catalog.Products
             return await _db.SaveChangesAsync();
         }
 
+        public virtual async Task<bool> RestoreProductAsync(int productId)
+        {
+            var product = await _db.Products
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(x => x.Id == productId);
+            
+            if (product == null || !product.Deleted)
+            {
+                return false;
+            }
+
+            var deletedManufacturerIds = await _db.ProductManufacturers
+                .IgnoreQueryFilters()
+                .Where(x => x.ProductId == productId && x.Manufacturer.Deleted)
+                .Select(x => x.ManufacturerId)
+                .ToArrayAsync();
+
+            var categoryIds = new HashSet<int>();
+
+            var allCategoryParents = await _db.Categories
+                .IgnoreQueryFilters()
+                .Select(x => new { x.Id, x.ParentId })
+                .ToDictionaryAsync(x => x.Id, x => x.ParentId);
+
+            var assignedCategoryIds = await _db.ProductCategories
+                .IgnoreQueryFilters()
+                .Where(x => x.ProductId == productId)
+                .Select(x => x.CategoryId)
+                .ToArrayAsync();
+
+            assignedCategoryIds.Each(GetCategoryIds);
+            allCategoryParents.Clear();
+
+            // First restore the product. Then restore all other entities.
+            product.Deleted = false;
+
+            // TODO: (mg) check all other related data.
+
+            await _db.SaveChangesAsync();
+
+            if (deletedManufacturerIds.Length > 0)
+            {
+                await _db.Manufacturers
+                    .IgnoreQueryFilters()
+                    .Where(x => deletedManufacturerIds.Contains(x.Id))
+                    .ExecuteUpdateAsync(x => x.SetProperty(m => m.Deleted, m => false));
+            }
+
+            if (categoryIds.Count > 0)
+            {
+                await _db.Categories
+                    .IgnoreQueryFilters()
+                    .Where(x => categoryIds.Contains(x.Id) && x.Deleted)
+                    .ExecuteUpdateAsync(x => x.SetProperty(c => c.Deleted, c => false));
+            }
+
+            return true;
+
+            void GetCategoryIds(int categoryId)
+            {
+                categoryIds.Add(categoryId);
+
+                if (allCategoryParents.TryGetValue(categoryId, out var parentId) && parentId.HasValue)
+                {
+                    GetCategoryIds(parentId.Value);
+                }
+            }
+        }
+
         public virtual ProductBatchContext CreateProductBatchContext(
             IEnumerable<Product> products = null,
             Store store = null,
