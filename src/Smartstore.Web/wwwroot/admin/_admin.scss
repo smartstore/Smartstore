@@ -744,6 +744,7 @@ legend {
 
     .adminTitle,
     .adminData {
+        position: relative;
         @include make-col-ready();
         padding-right: 0;
         padding-left: 0;

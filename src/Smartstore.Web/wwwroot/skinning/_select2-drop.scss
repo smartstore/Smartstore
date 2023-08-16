@@ -53,7 +53,8 @@
     > .select2-option,
     > .select2-item-description {
         position: relative;
-        display: block;
+        display: flex;
+        align-items: center;
         font-size: $font-size-sm;
         // padding for checkmark
         padding-inline-start: 20px;

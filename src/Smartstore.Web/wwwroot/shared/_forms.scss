@@ -235,12 +235,7 @@ select.form-control:not([multiple], [size]:not([size="1"])) {
 
 .link-control > .form-control,
 .link-control > .select2 {
-	border-radius: 0 !important;
 	border-color: $input-border-color !important;
-
-	.select2-selection {
-		border-radius: 0 !important;
-	}
 }
 
 .link-control > .form-control:focus {

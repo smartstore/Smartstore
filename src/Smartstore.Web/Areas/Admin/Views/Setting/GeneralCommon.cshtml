@@ -350,9 +350,11 @@
                     <div class="adminData">
                         <div class="input-group">
                             <editor asp-for="SecuritySettings.EncryptionKey" />
-                            <button type="submit" name="changeencryptionkey" id="changeencryptionkey" value="changeencryptionkey" class="btn btn-outline-secondary input-group-append rounded-0 confirm">
-                                <span>@T("Admin.Common.Change")</span>
-                            </button>
+                            <span class="input-group-append">
+                                <button type="submit" name="changeencryptionkey" id="changeencryptionkey" value="changeencryptionkey" class="btn btn-secondary confirm">
+                                    <span>@T("Admin.Common.Change")</span>
+                                </button>
+                            </span>
                         </div>
                         <span asp-validation-for="SecuritySettings.EncryptionKey"></span>
                     </div>
