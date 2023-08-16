@@ -237,7 +237,7 @@ namespace Smartstore.Web.Controllers
                     var provider = providers.Where(x => x.Metadata.SystemName == systemName).FirstOrDefault();
 
                     // Check if provider is enabled.
-                    if (!provider.IsPaymentProviderEnabled(_paymentSettings))
+                    if (provider == null || !provider.IsPaymentProviderEnabled(_paymentSettings))
                     {
                         continue;
                     }
