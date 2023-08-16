@@ -282,16 +282,32 @@ namespace Smartstore
             return numDeleted;
         }
 
+        #endregion
+
+        #region Aggregates
+
         /// <summary>
         /// Gets the number of soft-deleted entities.
         /// </summary>
         /// <returns>Number of soft-deleted entities.</returns>
-        public static Task<int> CountDeletedAsync<TEntity>(this DbSet<TEntity> dbSet, CancellationToken cancelToken = default)
+        public static int CountSoftDeleted<TEntity>(this DbSet<TEntity> dbSet)
             where TEntity : BaseEntity, ISoftDeletable
         {
-            Guard.NotNull(dbSet);
+            return Guard.NotNull(dbSet)
+                .IgnoreQueryFilters()
+                .Count(x => x.Deleted);
+        }
 
-            return dbSet.IgnoreQueryFilters().CountAsync(x => x.Deleted, cancelToken);
+        /// <summary>
+        /// Gets the number of soft-deleted entities.
+        /// </summary>
+        /// <returns>Number of soft-deleted entities.</returns>
+        public static Task<int> CountSoftDeletedAsync<TEntity>(this DbSet<TEntity> dbSet, CancellationToken cancelToken = default)
+            where TEntity : BaseEntity, ISoftDeletable
+        {
+            return Guard.NotNull(dbSet)
+                .IgnoreQueryFilters()
+                .CountAsync(x => x.Deleted, cancelToken);
         }
 
         #endregion

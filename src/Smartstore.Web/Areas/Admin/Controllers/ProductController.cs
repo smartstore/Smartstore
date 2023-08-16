@@ -329,7 +329,7 @@ namespace Smartstore.Admin.Controllers
         /// <returns></returns>
         public async Task<IActionResult> DeletedProductsCount()
         {
-            var count = await _db.Products.CountDeletedAsync();
+            var count = await _db.Products.CountSoftDeletedAsync();
 
             return new JsonResult(new { count });
         }
