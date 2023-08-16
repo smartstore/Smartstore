@@ -3,11 +3,22 @@
 @{
     Layout = "_AdminPopupLayout";
     ViewBag.Title = T("Admin.Catalog.Products.EditProductDetails").Value;
+
+    var numberOfOrders = (int)ViewBag.NumberOfOrders;
+    var price = (Money)ViewBag.Price;
+    var manufacturers = ViewBag.Manufacturers as string[];
+    var categories = ViewBag.Categories as string[];
+    var productAttributes = ViewBag.ProductAttributes as string[];
+    var specificationAttributes = ViewBag.SpecificationAttributes as string[];
 }
 
 <div class="section-header">
-    <div class="title">
-        <span>@ViewBag.Title - <span title="@Model.Name">@Model.Name.Truncate(45, "…")</span></span>
+    <div class="title text-truncate" title="@Model.Name">
+        @if (Model.PictureThumbnailUrl.HasValue())
+        {
+            <img src="@Url.Content(Model.PictureThumbnailUrl)" />
+        }
+        <span class="ml-1">@Model.Name</span>
     </div>
 </div>
 
@@ -27,6 +38,22 @@
         </div>
         <div class="adminData">
             <input asp-for="Sku" sm-plaintext readonly />
+        </div>
+    </div>
+    <div sm-if="Model.ManufacturerPartNumber.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ManufacturerPartNumber" sm-ignore-hint="true" />
+        </div>
+        <div class="adminData">
+            <input asp-for="ManufacturerPartNumber" sm-plaintext readonly />
+        </div>
+    </div>
+    <div sm-if="Model.Gtin.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Gtin" sm-ignore-hint="true" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Gtin" sm-plaintext readonly />
         </div>
     </div>
     <div sm-if="Model.CreatedOn.HasValue" class="adminRow">
@@ -57,23 +84,34 @@
             <input asp-for="ProductTypeName" sm-plaintext readonly />
         </div>
     </div>
-    @*<div class="adminRow">
+    <div sm-if="numberOfOrders > 0" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Published" sm-ignore-hint="true" />
+            @Html.SmartLabel(string.Empty, T("Common.NumberOfOrders"))
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @(Model.Published ? T("Common.Yes") : T("Common.No"))
+                @numberOfOrders.ToString("N0")
             </div>
         </div>
-    </div>*@
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Price" sm-ignore-hint="true" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @price.ToString()
+            </div>
+            <span asp-validation-for="Price"></span>
+        </div>
+    </div>
     <div sm-if="Model.ShortDescription.HasValue()" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="ShortDescription" sm-ignore-hint="true" />
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                <textarea asp-for="ShortDescription" readonly="readonly" rows="4"></textarea>
+                <textarea asp-for="ShortDescription" readonly="readonly" rows="3"></textarea>
             </div>
         </div>
     </div>
@@ -83,9 +121,58 @@
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                <textarea asp-for="AdminComment" readonly="readonly" rows="2"></textarea>
+                <textarea asp-for="AdminComment" readonly="readonly" rows="3"></textarea>
             </div>
         </div>
     </div>
-
+    <div sm-if="manufacturers.Length > 0" class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel(string.Empty, T("Admin.Catalog.Products.Manufacturers"))
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @string.Join(", ", manufacturers)
+            </div>
+        </div>
+    </div>
+    <div sm-if="categories.Length > 0" class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel(string.Empty, T("Admin.Catalog.Products.Categories"))
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @string.Join(", ", categories)
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.ProductTagNames.Length > 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ProductTagNames" sm-ignore-hint="true" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @string.Join(", ", Model.ProductTagNames)
+            </div>
+        </div>
+    </div>
+    <div sm-if="productAttributes.Length > 0" class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel(string.Empty, T("Admin.Catalog.Products.ProductVariantAttributes.Attributes"))
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @string.Join(", ", productAttributes)
+            </div>
+        </div>
+    </div>
+    <div sm-if="specificationAttributes.Length > 0" class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel(string.Empty, T("Admin.Catalog.Products.SpecificationAttributes"))
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @string.Join(", ", specificationAttributes)
+            </div>
+        </div>
+    </div>
 </div>

@@ -90,6 +90,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.RecycleBin", "Recycle bin", "Papierkorb");
             builder.AddOrUpdate("Common.Restore", "Restore", "Wiederherstellen");
             builder.AddOrUpdate("Admin.Common.Restore.Selected", "Restore selected", "Ausgewählte wiederherstellen");
+            builder.AddOrUpdate("Common.NumberOfOrders", "Number of orders", "Auftragsanzahl");
         }
 
         /// <summary>

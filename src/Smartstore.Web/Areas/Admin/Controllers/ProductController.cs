@@ -1587,7 +1587,12 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(product);
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(product);
                 model.OriginalStockQuantity = product.StockQuantity;
-                model.HasOrders = await _db.OrderItems.AnyAsync(x => x.ProductId == product.Id);
+
+                model.HasOrders = await _db.Orders
+                    .Where(x => x.OrderItems.Any(oi => oi.ProductId == product.Id))
+                    .Select(x => x.Id)
+                    .Distinct()
+                    .AnyAsync();
 
                 if (product.LimitedToStores)
                 {
