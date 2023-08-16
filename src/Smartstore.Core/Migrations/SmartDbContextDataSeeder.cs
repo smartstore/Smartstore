@@ -90,6 +90,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.RecycleBin", "Recycle bin", "Papierkorb");
             builder.AddOrUpdate("Common.Restore", "Restore", "Wiederherstellen");
             builder.AddOrUpdate("Admin.Common.Restore.Selected", "Restore selected", "Ausgewählte wiederherstellen");
+
+            builder.AddOrUpdate("Admin.Packaging.InstallSuccess",
+                "Package '{0}' was uploaded and unzipped successfully. Please click Edit / Reload list of plugins.",
+                "Paket '{0}' wurde hochgeladen und erfolgreich entpackt. Bitte klicken Sie auf Bearbeiten / Plugin-Liste erneut laden.");
         }
 
         /// <summary>
