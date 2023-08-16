@@ -246,10 +246,11 @@ textarea.form-control {
 .form-check-input {
   --form-check-bg: #{$form-check-input-bg};
   --form-check-size: #{cssmax(1rem, $form-check-input-width)};
+  --form-check-checked-bg-rgb: #{to-rgb($form-check-input-checked-bg-color)};
 
   width: var(--form-check-size);
   height: var(--form-check-size);
-  margin-top: #{calc((#{$line-height-base} * 1em - var(--form-check-size)) * 0.4)}; // ($line-height-base - $form-check-input-width) * .5; // line-height minus check height
+  margin-top: #{calc((#{$line-height-base} * 1em - var(--form-check-size)) * 0.5)}; // ($line-height-base - $form-check-input-width) * .5; // line-height minus check height
   vertical-align: top;
   appearance: none;
   background-color: var(--form-check-bg);
@@ -281,8 +282,8 @@ textarea.form-control {
   }
 
   &:checked {
-    background-color: $form-check-input-checked-bg-color;
-    border-color: $form-check-input-checked-border-color;
+    background-color: rgba(var(--form-check-checked-bg-rgb), 1);
+    border-color: rgba(var(--form-check-checked-bg-rgb), 1);
 
     &[type="checkbox"] {
       --form-check-bg-image: #{escape-svg($form-check-input-checked-bg-image)};
@@ -333,13 +334,18 @@ textarea.form-control {
 //
 
 .form-switch {
-  padding-inline-start: $form-switch-padding-start;
+  --form-switch-width: #{cssmax(2rem, $form-switch-width)};
+  --form-switch-offset: calc(var(--form-switch-width) + 0.75em);
+
+  padding-inline-start: var(--form-switch-offset);
 
   .form-check-input {
+    --form-check-size: calc(var(--form-switch-width) / 2);
     --form-switch-bg: #{escape-svg($form-switch-bg-image)};
 
-    width: $form-switch-width;
-    margin-inline-start: $form-switch-padding-start * -1;
+    width: var(--form-switch-width);
+    height: calc(var(--form-switch-width) / 2);
+    margin-inline-start: calc(var(--form-switch-offset) * -1);
     background-image: var(--form-switch-bg);
     background-position: left center;
     @include border-radius($form-switch-border-radius);
@@ -356,11 +362,11 @@ textarea.form-control {
   }
 
   &.form-check-reverse {
-    padding-inline-end: $form-switch-padding-start;
+    padding-inline-end: var(--form-switch-offset);
     padding-inline-start: 0;
 
     .form-check-input {
-      margin-inline-end: $form-switch-padding-start * -1;
+      margin-inline-end: calc(var(--form-switch-offset) * -1);
       margin-inline-start: 0;
     }
   }

@@ -63,28 +63,28 @@ fieldset.content-group {
 }
 
 
+// .form-check color variants
+// ------------------------------------------------------
+
+@each $color, $value in $theme-colors {
+    @if $color != 'secondary' and $color != 'light' {
+        .form-check-#{$color} > .form-check-input {
+            --form-check-checked-bg-rgb: #{to-rgb($value)};
+        }
+    }
+}
+
+
 // .form-switch
 // ------------------------------------------------------
 
 .form-switch {
     .form-check-input {
         --form-check-bg: var(--gray-200);
-
-        width: cssmax(2rem, #{$form-switch-width});
-
-        &:active {
-            //filter: none;
-        }
-
-        &:focus {
-            //border: $form-check-input-border;
-        }
     }
 
     &.form-switch-lg {
-        .form-check-input {
-            //--form-check-size: 2.750125rem;
-        }
+        --form-switch-width: #{$font-size-base * $line-height-base * 2};
     }
 }
 
