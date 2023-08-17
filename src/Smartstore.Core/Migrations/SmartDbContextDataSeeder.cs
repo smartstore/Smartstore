@@ -107,6 +107,27 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Account.Fields.Newsletter",
                 "I would like to subscribe to the newsletter. I agree to the <a href=\"{0}\">Privacy policy</a>. Unsubscription is possible at any time.",
                 "Ich möchte den Newsletter abonnieren. Mit den Bestimmungen zum <a href=\"{0}\">Datenschutz</a> bin ich einverstanden. Eine Abmeldung ist jederzeit möglich.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Login",
+                "Login & Registration",
+                "Login & Registrierung");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Visibility",
+                "Visibility",
+                "Sichtbarkeit");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Misc",
+                "Miscellaneous",
+                "Sonstiges");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CheckUsernameAvailabilityEnabled",
+                "Enable username availability check",
+                "Verfügbarkeitsprüfung des Benutzernamens");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.HideDownloadableProductsTab",
+                "Hide downloads in the \"My account\" area",
+                "Downloads im Bereich \"Mein Konto\" ausblenden");
+            
         }
 
         /// <summary>
