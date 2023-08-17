@@ -95,6 +95,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Packaging.InstallSuccess",
                 "Package '{0}' was uploaded and unzipped successfully. Please click Edit / Reload list of plugins.",
                 "Paket '{0}' wurde hochgeladen und erfolgreich entpackt. Bitte klicken Sie auf Bearbeiten / Plugin-Liste erneut laden.");
+
+            builder.AddOrUpdate("Account.Fields.Newsletter",
+                "I would like to subscribe to the newsletter. I agree to the <a href=\"{0}\">Privacy policy</a>. Unsubscription is possible at any time.",
+                "Ich möchte den Newsletter abonnieren. Mit den Bestimmungen zum <a href=\"{0}\">Datenschutz</a> bin ich einverstanden. Eine Abmeldung ist jederzeit möglich.");
         }
 
         /// <summary>
