@@ -101,11 +101,3 @@
 </datagrid>
 
 <partial name="_CopyProductDialog" model="null" />
-
-<script sm-target-zone="scripts" data-origin="product-grid">
-    function productGrid_onDataBound() {
-        $.get('@Url.Action("DeletedProductsCount")', function (response) {
-			$('#deleted-products-count').text(response.count.toLocaleString());
-		});
-    }
-</script>

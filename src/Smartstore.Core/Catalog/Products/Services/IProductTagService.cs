@@ -27,5 +27,10 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="storeId">Store identifier. 0 to ignore store mappings.</param>
         /// <returns>Map with key = <c>ProductTag.Id</c> and value = number of assigned products.</returns>
         Task<IDictionary<int, int>> GetProductCountsMapAsync(Customer customer = null, int storeId = 0, bool includeHidden = false);
+
+        /// <summary>
+        /// Clears cached number of products associated with product tags.
+        /// </summary>
+        Task ClearCacheAsync();
     }
 }

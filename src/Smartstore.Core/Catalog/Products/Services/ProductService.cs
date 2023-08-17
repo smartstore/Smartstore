@@ -7,6 +7,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
+using static Smartstore.Core.Security.Permissions.Catalog;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -16,6 +17,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ICommonServices _services;
+        private readonly Lazy<IProductTagService> _productTagService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IMessageFactory _messageFactory;
         private readonly LocalizationSettings _localizationSettings;
@@ -25,6 +27,7 @@ namespace Smartstore.Core.Catalog.Products
             IWorkContext workContext,
             IStoreContext storeContext,
             ICommonServices services,
+            Lazy<IProductTagService> productTagService,
             IProductAttributeMaterializer productAttributeMaterializer,
             IMessageFactory messageFactory,
             LocalizationSettings localizationSettings)
@@ -33,10 +36,13 @@ namespace Smartstore.Core.Catalog.Products
             _workContext = workContext;
             _storeContext = storeContext;
             _services = services;
+            _productTagService = productTagService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _messageFactory = messageFactory;
             _localizationSettings = localizationSettings;
         }
+
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public virtual async Task<(Product Product, ProductVariantAttributeCombination VariantCombination)> GetProductByCodeAsync(
             string code,
@@ -448,25 +454,108 @@ namespace Smartstore.Core.Catalog.Products
             return await _db.SaveChangesAsync();
         }
 
-        public virtual async Task<bool> RestoreProductAsync(int productId)
+        public virtual ProductBatchContext CreateProductBatchContext(
+            IEnumerable<Product> products = null,
+            Store store = null,
+            Customer customer = null,
+            bool includeHidden = true,
+            bool loadMainMediaOnly = false)
         {
-            var product = await _db.Products
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(x => x.Id == productId);
-            
-            if (product == null || !product.Deleted)
+            return new ProductBatchContext(
+                products,
+                _services,
+                store ?? _storeContext.CurrentStore,
+                customer ?? _workContext.CurrentCustomer,
+                includeHidden,
+                loadMainMediaOnly);
+        }
+
+        #region Recycle bin
+
+        public virtual async Task<int> RestoreProductsAsync(int[] productIds)
+        {
+            if (productIds.IsNullOrEmpty())
             {
-                return false;
+                return 0;
             }
 
+            var success = 0;
+            var products = await GetSoftDeletedProducts(productIds);
+
+            foreach (var product in products)
+            {
+                try
+                {
+                    await RestoreProductInternal(product);
+                    success++;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
+            }
+
+            if (success > 0)
+            {
+                await _productTagService.Value.ClearCacheAsync();
+            }
+
+            return success;
+        }
+
+        public virtual async Task<int> DeleteProductsPermanentAsync(int[] productIds)
+        {
+            if (productIds.IsNullOrEmpty())
+            {
+                return 0;
+            }
+
+            var excludeProductIds = await _db.OrderItems
+                .Where(x => productIds.Contains(x.ProductId))
+                .Select(x => x.ProductId)
+                .Distinct()
+                .ToArrayAsync();
+
+            if (excludeProductIds.Length > 0)
+            {
+                productIds = productIds.Except(excludeProductIds).ToArray();
+            }
+
+            var success = 0;
+            var products = await GetSoftDeletedProducts(productIds);
+
+            foreach (var product in products)
+            {
+                try
+                {
+                    await DeleteProductInternal(product);
+                    success++;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
+            }
+
+            return success;
+        }
+
+        private async Task RestoreProductInternal(Product product)
+        {
+            Guard.NotNull(product);
+            Guard.IsTrue(product.Deleted);
+
+            var categoryIds = new HashSet<int>();
+            var productIds = new HashSet<int>();
+
+            // Get IDs of manufacturers to restore.
             var deletedManufacturerIds = await _db.ProductManufacturers
                 .IgnoreQueryFilters()
-                .Where(x => x.ProductId == productId && x.Manufacturer.Deleted)
+                .Where(x => x.ProductId == product.Id && x.Manufacturer.Deleted)
                 .Select(x => x.ManufacturerId)
                 .ToArrayAsync();
 
-            var categoryIds = new HashSet<int>();
-
+            // Get IDs of categories to restore.
             var allCategoryParents = await _db.Categories
                 .IgnoreQueryFilters()
                 .Select(x => new { x.Id, x.ParentId })
@@ -474,17 +563,27 @@ namespace Smartstore.Core.Catalog.Products
 
             var assignedCategoryIds = await _db.ProductCategories
                 .IgnoreQueryFilters()
-                .Where(x => x.ProductId == productId)
+                .Where(x => x.ProductId == product.Id)
                 .Select(x => x.CategoryId)
                 .ToArrayAsync();
 
             assignedCategoryIds.Each(GetCategoryIds);
             allCategoryParents.Clear();
 
+            // Get IDs of products to restore.
+            productIds.AddRange(product.ParseRequiredProductIds());
+
+            if (product.ProductType == ProductType.BundledProduct)
+            {
+                productIds.AddRange(await _db.ProductBundleItem
+                    .IgnoreQueryFilters()
+                    .Where(x => x.BundleProductId == product.Id && x.Product.Deleted)
+                    .Select(x => x.ProductId)
+                    .ToArrayAsync());
+            }
+
             // First restore the product. Then restore all other entities.
             product.Deleted = false;
-
-            // TODO: (mg) check all other related data.
 
             await _db.SaveChangesAsync();
 
@@ -504,7 +603,15 @@ namespace Smartstore.Core.Catalog.Products
                     .ExecuteUpdateAsync(x => x.SetProperty(c => c.Deleted, c => false));
             }
 
-            return true;
+            if (productIds.Count > 0)
+            {
+                var otherProducts = await GetSoftDeletedProducts(productIds);
+
+                foreach (var otherProduct in otherProducts)
+                {
+                    await RestoreProductInternal(otherProduct);
+                }
+            }
 
             void GetCategoryIds(int categoryId)
             {
@@ -517,20 +624,44 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        public virtual ProductBatchContext CreateProductBatchContext(
-            IEnumerable<Product> products = null,
-            Store store = null,
-            Customer customer = null,
-            bool includeHidden = true,
-            bool loadMainMediaOnly = false)
+        private async Task DeleteProductInternal(Product product)
         {
-            return new ProductBatchContext(
-                products,
-                _services,
-                store ?? _storeContext.CurrentStore,
-                customer ?? _workContext.CurrentCustomer,
-                includeHidden,
-                loadMainMediaOnly);
+            Guard.NotNull(product);
+            Guard.IsTrue(product.Deleted);
+
+            // Be sure that the product can really be deleted.
+            product.DeliveryTimeId = null;
+            product.QuantityUnitId = null;
+            product.SampleDownloadId = null;
+            product.CountryOfOriginId = null;
+            product.ComparePriceLabelId = null;
+            product.MainPictureId = null;
+
+            await _db.SaveChangesAsync();
+
+            if (product.ProductType == ProductType.GroupedProduct)
+            {
+                await _db.Products
+                    .Where(x => x.ParentGroupedProductId == product.Id)
+                    .ExecuteUpdateAsync(x => x.SetProperty(p => p.ParentGroupedProductId, p => 0));
+            }
+            else if (product.ProductType == ProductType.BundledProduct)
+            {
+            }
+
+            // TODO...
+
         }
+
+        private Task<List<Product>> GetSoftDeletedProducts(IEnumerable<int> productIds)
+        {
+            return _db.Products
+                .IgnoreQueryFilters()
+                .Include(x => x.ProductTags)
+                .Where(x => productIds.Contains(x.Id) && x.Deleted)
+                .ToListAsync();
+        }
+
+        #endregion
     }
 }

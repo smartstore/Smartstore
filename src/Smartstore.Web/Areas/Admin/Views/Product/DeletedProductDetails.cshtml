@@ -4,7 +4,6 @@
     Layout = "_AdminPopupLayout";
     ViewBag.Title = T("Admin.Catalog.Products.EditProductDetails").Value;
 
-    var numberOfOrders = (int)ViewBag.NumberOfOrders;
     var price = (Money)ViewBag.Price;
     var manufacturers = ViewBag.Manufacturers as string;
     var categories = ViewBag.Categories as string;
@@ -20,6 +19,10 @@
         }
         <span class="ml-1">@Model.Name</span>
     </div>
+</div>
+
+<div sm-if="Model.NumberOfOrders > 0" class="alert alert-warning">
+    @T("Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning")
 </div>
 
 <div class="adminContent">
@@ -84,13 +87,13 @@
             <input asp-for="ProductTypeName" sm-plaintext readonly />
         </div>
     </div>
-    <div sm-if="numberOfOrders > 0" class="adminRow">
+    <div sm-if="Model.NumberOfOrders > 0" class="adminRow">
         <div class="adminTitle">
-            @Html.SmartLabel(string.Empty, T("Common.NumberOfOrders"))
+            <smart-label asp-for="NumberOfOrders" sm-ignore-hint="true" />
         </div>
         <div class="adminData">
             <div class="form-control-plaintext">
-                @numberOfOrders.ToString("N0")
+                @Model.NumberOfOrders.ToString("N0")
             </div>
         </div>
     </div>

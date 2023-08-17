@@ -497,7 +497,6 @@ namespace Smartstore.Core.Checkout.Orders
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
                 var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
-                // There may occur rounding differences between the subtotal and the sum of the line subtotals if RoundOrderItemsEnabled is 'false'.
                 var tax = subtotal.Tax.Value;
                 var itemExclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceNet);
                 var itemInclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceGross);

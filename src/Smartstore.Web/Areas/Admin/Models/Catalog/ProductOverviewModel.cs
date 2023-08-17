@@ -109,6 +109,11 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Common.CustomerRole.LimitedTo")]
         public bool SubjectToAcl { get; set; }
 
+        [LocalizedDisplay("Common.NumberOfOrders")]
+        public int NumberOfOrders { get; set; }
+        public bool HasOrders
+            => NumberOfOrders > 0;
+
         public CopyProductModel CopyProductModel { get; set; } = new();
     }
 

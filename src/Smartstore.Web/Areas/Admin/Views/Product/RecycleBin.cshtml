@@ -10,9 +10,8 @@
 
 <div class="section-header">
     <div class="title">
-        <a sm-backto asp-action="List"></a>
         <i class="far fa-trash-can"></i>
-        <span>@T("Admin.Catalog.Products.Manage") - @ViewBag.Title</span>
+        <span>@ViewBag.Title</span>
     </div>
     <div class="options">
         <zone name="admin_button_toolbar_before" />
@@ -21,7 +20,7 @@
 </div>
 
 <div class="alert alert-info">
-    @Html.Raw("TODO: admin info recycle bin...")
+    @Html.Raw(T("Admin.Catalog.Products.RecycleBin.AdminNote"))
 </div>
 
 <partial name="Grids/_Grid.DeletedProducts" model="null" view-data="gridViewData" />

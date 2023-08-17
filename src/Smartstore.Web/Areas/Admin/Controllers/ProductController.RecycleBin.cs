@@ -2,7 +2,6 @@
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
 
@@ -46,17 +45,10 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Delete)]
-        public async Task<IActionResult> FinallyDeleteProducts(GridSelection selection)
+        public async Task<IActionResult> DeleteProductsPermanent(GridSelection selection)
         {
-            var ids = selection.GetEntityIds();
-            var numDeleted = 0;
-
-            if (ids.Any())
-            {
-                $"- delete {string.Join(",", ids)}".Dump();
-                await Task.Delay(10);
-                // TODO: (mg)...
-            }
+            var ids = selection.GetEntityIds().ToArray();
+            var numDeleted = await _productService.DeleteProductsPermanentAsync(ids);
 
             return Json(new { Success = true, Count = numDeleted });
         }
@@ -65,15 +57,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Create)]
         public async Task<IActionResult> RestoreProducts(GridSelection selection)
         {
-            var ids = selection.GetEntityIds();
-            var numRestored = 0;
-
-            if (ids.Any())
-            {
-                $"- restore {string.Join(",", ids)}".Dump();
-                await Task.Delay(10);
-                // TODO: (mg)...
-            }
+            var ids = selection.GetEntityIds().ToArray();
+            var numRestored = await _productService.RestoreProductsAsync(ids);
 
             return Json(new { Success = true, Count = numRestored });
         }
@@ -101,13 +86,13 @@ namespace Smartstore.Admin.Controllers
             model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
             model.PictureThumbnailUrl = _mediaService.GetUrl(await _mediaService.GetFileByIdAsync(product.MainPictureId ?? 0), _mediaSettings.CartThumbPictureSize);
 
-            ViewBag.Price = new Money(product.Price, Services.CurrencyService.PrimaryCurrency);
-
-            ViewBag.NumberOfOrders = await _db.Orders
+            model.NumberOfOrders = await _db.Orders
                 .Where(x => x.OrderItems.Any(oi => oi.ProductId == id))
                 .Select(x => x.Id)
                 .Distinct()
                 .CountAsync();
+
+            ViewBag.Price = new Money(product.Price, Services.CurrencyService.PrimaryCurrency);
 
             var manufacturers = await _db.ProductManufacturers
                 .IgnoreQueryFilters()

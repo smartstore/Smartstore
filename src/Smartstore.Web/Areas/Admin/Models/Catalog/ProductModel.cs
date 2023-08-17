@@ -263,14 +263,12 @@ namespace Smartstore.Admin.Models.Catalog
         public int NumberOfAvailableCategories { get; set; }
         public int NumberOfAvailableManufacturers { get; set; }
         public int NumberOfAvailableProductAttributes { get; set; }
-        public bool HasOrders { get; set; }
 
         //Pictures.
         [LocalizedDisplay("*HasPreviewPicture")]
         public bool HasPreviewPicture { get; set; }
         public ProductPictureModel AddPictureModel { get; set; } = new();
         public List<ProductMediaFile> ProductMediaFiles { get; set; } = new();
-
 
         [UIHint("Discounts")]
         [AdditionalMetadata("multiple", true)]

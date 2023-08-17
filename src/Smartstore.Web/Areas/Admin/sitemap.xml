@@ -127,6 +127,7 @@
             <siteMapNode id="queued-emails" icon="bi:inboxes" title="Queued emails" resKey="Admin.System.QueuedEmails" permissionNames="system.message" controller="QueuedEmail" action="List" area="Admin" />
             <siteMapNode id="scheduled tasks" icon="bi:clock" title="Schedule tasks" resKey="Admin.System.ScheduleTasks" permissionNames="system.scheduletask" controller="Scheduling" action="List" area="Admin" />
             <siteMapNode id="seo-names" icon="bi:search" title="Search engine friendly names" resKey="Admin.System.SeNames" permissionNames="system.urlrecord" controller="UrlRecord" action="List" area="Admin" />
+            <siteMapNode id="recycle-bin" icon="bi:trash" title="Recycle bin" resKey="Common.RecycleBin" permissionNames="catalog.product" controller="Product" action="RecycleBin" area="Admin" />
 
 			<siteMapNode id="system-sep-1" isGroupHeader="true" title="[SKIP]" />
 			<siteMapNode id="maintenance" icon="bi:tools" title="Maintenance" resKey="Admin.System.Maintenance" permissionNames="system.maintenance" controller="Maintenance" action="Index" area="Admin" />

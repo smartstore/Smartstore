@@ -80,6 +80,20 @@ namespace Smartstore.Core.Catalog.Products
         Task<int> EnsureMutuallyCrossSellProductsAsync(int productId1);
 
         /// <summary>
+        /// Restores soft-deleted products.
+        /// </summary>
+        /// <param name="productIds">Identifiers of products to restore.</param>
+        /// <returns>Number of successfully restored products.</returns>
+        Task<int> RestoreProductsAsync(int[] productIds);
+
+        /// <summary>
+        /// Permanently deletes soft-deleted products.
+        /// </summary>
+        /// <param name="productIds">Identifiers of products to delete.</param>
+        /// <returns>Number of successfully deleted products.</returns>
+        Task<int> DeleteProductsPermanentAsync(int[] productIds);
+
+        /// <summary>
         /// Creates a product batch context for fast retrieval (eager loading) of product navigation properties.
         /// </summary>
         /// <param name="products">Products. <c>null</c> to lazy load data if required.</param>

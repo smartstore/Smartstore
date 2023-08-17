@@ -323,17 +323,6 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        /// <summary>
-        /// (AJAX) Gets the number of deleted products.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<IActionResult> DeletedProductsCount()
-        {
-            var count = await _db.Products.CountSoftDeletedAsync();
-
-            return new JsonResult(new { count });
-        }
-
         #endregion
 
         #region Misc 
@@ -1588,11 +1577,11 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(product);
                 model.OriginalStockQuantity = product.StockQuantity;
 
-                model.HasOrders = await _db.Orders
+                model.NumberOfOrders = await _db.Orders
                     .Where(x => x.OrderItems.Any(oi => oi.ProductId == product.Id))
                     .Select(x => x.Id)
                     .Distinct()
-                    .AnyAsync();
+                    .CountAsync();
 
                 if (product.LimitedToStores)
                 {

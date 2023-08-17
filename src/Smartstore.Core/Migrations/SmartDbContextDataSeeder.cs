@@ -92,6 +92,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Common.Restore.Selected", "Restore selected", "Ausgewählte wiederherstellen");
             builder.AddOrUpdate("Common.NumberOfOrders", "Number of orders", "Auftragsanzahl");
 
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.AdminNote",
+                "A recovery of deleted products is intended for emergencies. Some data cannot be restored in the process. These include assignments to delivery times and quantity units, country of origin and the compare price label (e.g. RRP).",
+                "Eine Wiederherstellung von gelöschten Produkten ist für Notfälle gedacht. Einige Daten können dabei nicht wiederhergestellt werden. Dazu zählen Zuordnungen zu Lieferzeiten und Verpackungseinheiten, Herkunftsland und der Vergleichspreiszusatz (z.B. UVP).");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning",
+                "Orders are assigned to the product. It cannot be permanently deleted.",
+                "Dem Produkt sind Aufträge zugeordnet. Es kann nicht permanent gelöscht werden.");
+
             builder.AddOrUpdate("Admin.Packaging.InstallSuccess",
                 "Package '{0}' was uploaded and unzipped successfully. Please click Edit / Reload list of plugins.",
                 "Paket '{0}' wurde hochgeladen und erfolgreich entpackt. Bitte klicken Sie auf Bearbeiten / Plugin-Liste erneut laden.");

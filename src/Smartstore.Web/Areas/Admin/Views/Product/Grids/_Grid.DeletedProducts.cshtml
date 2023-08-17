@@ -10,7 +10,7 @@
           allow-edit="false"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("DeletedProductsList")" delete="@Url.Action("FinallyDeleteProducts")" />
+    <datasource read="@Url.Action("DeletedProductsList")" delete="@Url.Action("DeleteProductsPermanent")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
@@ -64,6 +64,7 @@
         <column for="Sku" />
         <column for="Gtin" visible="false" />
         <column for="ManufacturerPartNumber" visible="false" />
+        <column for="NumberOfOrders" halign="center" sortable="false" />
         <column for="Price" halign="flex-end" />
         <column for="ComparePrice" halign="flex-end" visible="false" />
         <column for="SpecialPrice" halign="flex-end" visible="false" />
@@ -77,10 +78,8 @@
         <column for="AvailableEndDateTimeUtc" visible="false" />
     </columns>
     <row-commands>
-        @*TODO: (mg) dialog with readonly details like categories, manufacturer etc.*@
         <a datarow-action="DataRowAction.Custom" class="grid-restore" :data-key="item.row.Id">@T("Common.Restore")</a>
-        <div class="dropdown-divider"></div>
-        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+        <a datarow-action="DataRowAction.Delete" v-bind:class="{ disabled: item.row.HasOrders }">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
 
