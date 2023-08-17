@@ -20,24 +20,9 @@
 		{
 			<text>window.parent.closePopup();</text>
 
-            @if (Display.HasMessages())
+            @foreach (var message in Display.GetMessages())
             {
-                @foreach (var message in Display.GetMessages(NotifyType.Error))
-                {
-                    <text>window.parent.displayNotification("@message", "error");</text>
-                }
-                @foreach (var message in Display.GetMessages(NotifyType.Success))
-                {
-                    <text>window.parent.displayNotification("@message", "success");</text>
-                }
-                @foreach (var message in Display.GetMessages(NotifyType.Info))
-                {
-                    <text>window.parent.displayNotification("@message", "info");</text>
-                }
-                @foreach (var message in Display.GetMessages(NotifyType.Warning))
-                {
-                    <text>window.parent.displayNotification("@message", "warning");</text>
-                }
+                <text>window.parent.displayNotification("@message.Message", "@message.Type.ToString().ToLower()");</text>
             }
 		}
     </script>
