@@ -222,7 +222,8 @@
 	    .nav-link > i,
         .nav-link > svg {
             // Move icon slightly away from label if tabs are placed on left or right
-            inset-inline-start: -0.25em;
+            //inset-inline-start: -0.25em;
+            margin-inline: 0.25em;
 	    }
 
         &.nav-tabs {

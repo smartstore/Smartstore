@@ -8,6 +8,16 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    [HtmlTargetElement("div", Attributes = "[class ^= 'form-check']")]
+    public class FormCheckTagHelper : TagHelper
+    {
+        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        {
+            context.Items["FormCheckOutput"] = output;
+            await output.GetChildContentAsync();
+        }
+    }
+
     [HtmlTargetElement("select", Attributes = "asp-for, asp-placeholder")]
     [HtmlTargetElement("select", Attributes = "asp-items, asp-placeholder")]
     public class SelectPlaceholderTagHelper : TagHelper
@@ -88,11 +98,11 @@ namespace Smartstore.Web.TagHelpers.Shared
                     {
                         if (typeAttr.Value.Equals("checkbox") && AsSwitch)
                         {
-                            ProcessSwitch(output);
+                            ProcessSwitch(context, output);
                         }
                         else if (typeAttr.Value is ("checkbox" or "radio"))
                         {
-                            ProcessCheckRadio(output);
+                            ProcessCheckRadio(context, output);
                         }
                         else if (typeAttr.Value is not ("file" or "hidden"))
                         {
@@ -103,7 +113,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
         }
 
-        private void ProcessCheckRadio(TagHelperOutput output)
+        private void ProcessCheckRadio(TagHelperContext context, TagHelperOutput output)
         {
             if (IgnoreLabel)
             {
@@ -120,18 +130,32 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.PostElement.AppendHtml($"<label class=\"form-check-label\" for=\"{id}\">{label}</label>");
             }
 
-            output.PreElement.AppendHtml("<div class=\"form-check\">");
-            output.PostElement.AppendHtml("</div>");
+            if (!context.Items.ContainsKey("FormCheckOutput"))
+            {
+                output.PreElement.AppendHtml("<div class=\"form-check\">");
+                output.PostElement.AppendHtml("</div>");
+            }
 
             ProcessHint(output);
         }
 
-        private void ProcessSwitch(TagHelperOutput output)
+        private void ProcessSwitch(TagHelperContext context, TagHelperOutput output)
         {
             output.PreElement.AppendHtml("<label class=\"switch\">");
             output.PostElement.AppendHtml("<span class=\"switch-toggle\"></span></label>");
 
             ProcessHint(output);
+
+            if (context.Items.TryGetValue("FormCheckOutput", out var value) && value is TagHelperOutput formCheckOutput)
+            {
+                //formCheckOutput.AppendCssClass("form-check-solo form-check-warning form-switch form-switch-lg");
+            }
+            else
+            {
+                //output.PreElement.AppendHtml("<div class=\"form-check form-check-solo form-check-warning form-switch form-switch-lg\">");
+                //output.AppendCssClass("form-check-input");
+                //output.PostElement.AppendHtml("</div>");
+            } 
         }
 
         private void ProcessFormControl(TagHelperContext context, TagHelperOutput output)

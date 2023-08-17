@@ -103,11 +103,13 @@ namespace Smartstore.Web.TagHelpers.Admin
             var overrideForStore = data.OverriddenKeys.Contains(settingKey);
             var fieldId = settingKey.EnsureEndsWith("_OverrideForStore");
 
-            var switchLabel = new TagBuilder("label");
-            switchLabel.AppendCssClass("switch switch-blue multi-store-override-switch");
+            var switchContainer = new TagBuilder("label");
+            switchContainer.AppendCssClass("switch switch-blue multi-store-override-switch");
+            //switchContainer.AppendCssClass("form-check form-check-solo form-switch form-switch-lg multi-store-override-switch");
 
             var overrideInput = new TagBuilder("input");
             overrideInput.Attributes["class"] = "multi-store-override-option";
+            //overrideInput.Attributes["class"] = "form-check-input multi-store-override-option";
             overrideInput.Attributes["type"] = "checkbox";
             overrideInput.Attributes["id"] = fieldId.SanitizeHtmlId();
             overrideInput.Attributes["name"] = fieldId;
@@ -124,10 +126,10 @@ namespace Smartstore.Web.TagHelpers.Admin
             toggleSpan.Attributes.Add("data-on", T("Common.On").Value.Truncate(3));
             toggleSpan.Attributes.Add("data-off", T("Common.Off").Value.Truncate(3));
 
-            switchLabel.InnerHtml.AppendHtml(overrideInput);
-            switchLabel.InnerHtml.AppendHtml(toggleSpan);
+            switchContainer.InnerHtml.AppendHtml(overrideInput);
+            switchContainer.InnerHtml.AppendHtml(toggleSpan);
 
-            return switchLabel;
+            return switchContainer;
         }
     }
 }
