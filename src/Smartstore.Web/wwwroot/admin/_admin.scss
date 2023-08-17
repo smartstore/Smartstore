@@ -789,11 +789,6 @@ legend {
                 max-width: 66.666667%;
                 padding-left: 0 !important;
 
-                .form-switch-lg {
-                    // Align with .col-form-label's padding-y
-                    margin-block: calc(0.5rem + 1px);
-                }
-
                 &:not(.wide) {
                     padding-right: 0 !important;
                 }

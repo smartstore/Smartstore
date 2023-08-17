@@ -76,15 +76,19 @@ fieldset.content-group {
 
 
 // .form-check solo
+// Solo check input without label,
+// placed like a regular form-control
 // ------------------------------------------------------
 
 .form-check-solo {
     display: inline-flex;
     padding-inline: 0;
+    padding-block: add($input-padding-y-sm, $input-border-width);
     margin-block: 0;
 
     .form-check-input {
         margin-inline: 0;
+        margin-top: 0;
     }
 }
 
@@ -97,23 +101,19 @@ fieldset.content-group {
         --form-check-bg: var(--gray-200);
     }
 
-    &.form-switch-lg {
-        --form-switch-width: #{$font-size-base * $line-height-base * 2};
+    &.form-check-solo {
+        // Align to common input sm sizing
+        --form-switch-width: #{$input-font-size-sm * $input-line-height-sm * 2};
     }
-}
 
+    &.form-switch-lg {
+        // Align to common input medium sizing
+        --form-switch-width: #{$input-font-size * $input-line-height * 2};
 
-// Native select styling
-// ------------------------------------------------------
-
-select.form-control:not([multiple], [size]:not([size="1"])) {
-    // Remove this stuff after upgrading to Bootstrap 5
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 16px 12px;
-    padding-right: 2.25rem;
+        &.form-check-solo {
+            padding-block: add($input-padding-y, $input-border-width);
+        }
+    }
 }
 
 

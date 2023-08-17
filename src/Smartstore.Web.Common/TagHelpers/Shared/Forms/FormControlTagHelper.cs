@@ -141,20 +141,27 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         private void ProcessSwitch(TagHelperContext context, TagHelperOutput output)
         {
-            output.PreElement.AppendHtml("<label class=\"switch\">");
-            output.PostElement.AppendHtml("<span class=\"switch-toggle\"></span></label>");
-
-            ProcessHint(output);
-
             if (context.Items.TryGetValue("FormCheckOutput", out var value) && value is TagHelperOutput formCheckOutput)
             {
-                //formCheckOutput.AppendCssClass("form-check-solo form-check-warning form-switch form-switch-lg");
+                if (!formCheckOutput.Attributes["class"].ValueAsString().Contains("form-switch"))
+                {
+                    // Add the switch class only if it is not present
+                    // on parent check already. In this case, we assume that the UI dev
+                    // has an "idea" already.
+                    formCheckOutput.AppendCssClass("form-switch");
+                }
+
+                output.AppendCssClass("form-check-input");
+
+                ProcessHint(formCheckOutput);
             }
             else
             {
-                //output.PreElement.AppendHtml("<div class=\"form-check form-check-solo form-check-warning form-switch form-switch-lg\">");
-                //output.AppendCssClass("form-check-input");
-                //output.PostElement.AppendHtml("</div>");
+                output.PreElement.AppendHtml("<div class=\"form-check form-check-solo form-check-warning form-switch form-switch-lg\">");
+                output.AppendCssClass("form-check-input");
+                output.PostElement.AppendHtml("</div>");
+
+                ProcessHint(output);
             } 
         }
 

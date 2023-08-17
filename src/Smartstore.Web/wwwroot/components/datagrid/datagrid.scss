@@ -678,11 +678,8 @@ span.dg-page {
     overflow-y: auto;
     font-size: 13px;
 
-    .switch {
-        padding-top: 5px;
-        padding-bottom: 5px;
-        --switcher-w: 2rem;
-        --switcher-h: 1rem;
+    .form-switch {
+        padding-block: 5px;
     }
 
     select {

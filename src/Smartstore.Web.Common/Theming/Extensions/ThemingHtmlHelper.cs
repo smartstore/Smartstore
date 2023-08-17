@@ -74,10 +74,9 @@ namespace Smartstore.Web.Theming
             }
             else if (info.Type == ThemeVariableType.Boolean)
             {
-                var label = new TagBuilder("label");
-                label.Attributes.Add("class", "switch");
-                label.InnerHtml.AppendHtml(helper.CheckBox(expression, strValue.ToBool()));
-                label.InnerHtml.AppendHtml("<span class='switch-toggle'></span>");
+                var label = new TagBuilder("div");
+                label.Attributes.Add("class", "form-check form-check-solo form-check-warning form-switch form-switch-lg");
+                label.InnerHtml.AppendHtml(helper.CheckBox(expression, strValue.ToBool(), new { @class = "form-check-input" }));
 
                 control = label;
             }

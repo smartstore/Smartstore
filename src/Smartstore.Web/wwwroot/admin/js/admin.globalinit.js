@@ -25,10 +25,10 @@
         },
         // switch
         function (ctx) {
-            ctx.find(".adminData > input[type=checkbox], .multi-store-setting-control > input[type=checkbox], .switcher > input[type=checkbox]").each(function (i, el) {
+            ctx.find(".adminData > input[type=checkbox], .multi-store-setting-control > input[type=checkbox]").each(function (i, el) {
                 $(el)
-                    .wrap('<label class="switch"></label>')
-                    .after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>');
+                    .addClass('form-check-input')
+                    .wrap('<div class="form-check form-check-solo form-check-warning form-switch form-switch-lg"></div>');
             });
         },
         // btn-trigger

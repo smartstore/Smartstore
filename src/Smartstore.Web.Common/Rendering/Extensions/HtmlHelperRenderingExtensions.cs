@@ -62,8 +62,8 @@ namespace Smartstore.Web.Rendering
             string htmlFieldName,
             object additionalViewData)
         {
-            Guard.NotNull(helper, nameof(helper));
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(helper);
+            Guard.NotNull(expression);
 
             if (helper is HtmlHelper htmlHelper)
             {

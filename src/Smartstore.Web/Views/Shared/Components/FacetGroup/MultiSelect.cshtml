@@ -17,10 +17,17 @@
     @foreach (var facet in facets)
     {
         <div class="facet-item facet-check" data-href="@Url.FacetToggle(facet)">
-            <label>
+@*            <label>
                 <input class="facet-control-native" type="checkbox" value="@facet.Value.ToString()" attr-checked='(facet.Value.IsSelected, "checked")' />
                 <span class="facet-control-ui"></span>
                 <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
+                    @(facet.Value.Label ?? facet.Value.ToString())
+                </span>
+            </label>*@
+
+            <label class="form-check">
+                <input class="form-check-input" type="checkbox" value="@facet.Value.ToString()" attr-checked='(facet.Value.IsSelected, "checked")' style="--form-check-size: 20px; position: relative; clip: initial" />
+                <span class="form-check-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
                     @(facet.Value.Label ?? facet.Value.ToString())
                 </span>
             </label>
