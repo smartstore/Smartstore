@@ -1,4 +1,6 @@
-﻿using Smartstore.Collections;
+﻿using System.Collections.Immutable;
+using System.Linq;
+using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Orders;
@@ -7,7 +9,6 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
-using static Smartstore.Core.Security.Permissions.Catalog;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -480,7 +481,7 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             var success = 0;
-            var products = await GetSoftDeletedProducts(productIds);
+            var products = await GetRestoreProducts(productIds);
 
             foreach (var product in products)
             {
@@ -498,43 +499,6 @@ namespace Smartstore.Core.Catalog.Products
             if (success > 0)
             {
                 await _productTagService.Value.ClearCacheAsync();
-            }
-
-            return success;
-        }
-
-        public virtual async Task<int> DeleteProductsPermanentAsync(int[] productIds)
-        {
-            if (productIds.IsNullOrEmpty())
-            {
-                return 0;
-            }
-
-            var excludeProductIds = await _db.OrderItems
-                .Where(x => productIds.Contains(x.ProductId))
-                .Select(x => x.ProductId)
-                .Distinct()
-                .ToArrayAsync();
-
-            if (excludeProductIds.Length > 0)
-            {
-                productIds = productIds.Except(excludeProductIds).ToArray();
-            }
-
-            var success = 0;
-            var products = await GetSoftDeletedProducts(productIds);
-
-            foreach (var product in products)
-            {
-                try
-                {
-                    await DeleteProductInternal(product);
-                    success++;
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
             }
 
             return success;
@@ -605,7 +569,7 @@ namespace Smartstore.Core.Catalog.Products
 
             if (productIds.Count > 0)
             {
-                var otherProducts = await GetSoftDeletedProducts(productIds);
+                var otherProducts = await GetRestoreProducts(productIds);
 
                 foreach (var otherProduct in otherProducts)
                 {
@@ -622,6 +586,58 @@ namespace Smartstore.Core.Catalog.Products
                     GetCategoryIds(parentId.Value);
                 }
             }
+        }
+
+        private Task<List<Product>> GetRestoreProducts(IEnumerable<int> productIds)
+        {
+            return _db.Products
+                .IgnoreQueryFilters()
+                .Include(x => x.ProductTags)
+                .Where(x => productIds.Contains(x.Id) && x.Deleted)
+                .ToListAsync();
+        }
+
+        public virtual async Task<int> DeleteProductsPermanentAsync(int[] productIds)
+        {
+            if (productIds.IsNullOrEmpty())
+            {
+                return 0;
+            }
+
+            var excludeProductIds = await _db.OrderItems
+                .Where(x => productIds.Contains(x.ProductId))
+                .Select(x => x.ProductId)
+                .Distinct()
+                .ToArrayAsync();
+
+            if (excludeProductIds.Length > 0)
+            {
+                productIds = productIds.Except(excludeProductIds).ToArray();
+            }
+
+            var success = 0;
+            var products = await _db.Products
+                .AsSplitQuery()
+                .IgnoreQueryFilters()
+                .Include(x => x.ProductTags)
+                .Include(x => x.ProductReviews)
+                .Where(x => productIds.Contains(x.Id) && x.Deleted)
+                .ToListAsync();
+
+            foreach (var product in products)
+            {
+                try
+                {
+                    await DeleteProductInternal(product);
+                    success++;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
+            }
+
+            return success;
         }
 
         private async Task DeleteProductInternal(Product product)
@@ -647,19 +663,30 @@ namespace Smartstore.Core.Catalog.Products
             }
             else if (product.ProductType == ProductType.BundledProduct)
             {
+                var bundleItemIds = product.ProductBundleItems.Select(x => x.Id).ToArray();
+                if (bundleItemIds.Length > 0)
+                {
+                    // No cascade delete exists.
+                    await _db.ShoppingCartItems
+                        .Where(x => x.BundleItemId != null && bundleItemIds.Contains(x.BundleItemId.Value))
+                        .ExecuteDeleteAsync();
+                }
+            }
+
+            // TODO: product is bundleItem
+            // TODO: ProductReview > CustomerContent
+
+            var reviewIds = product.ProductReviews.Select(x => x.Id).ToArray();
+            if (reviewIds.Length > 0)
+            {
+                // No cascade delete exists.
+                await _db.ProductReviewHelpfulness
+                    .Where(x => reviewIds.Contains(x.ProductReviewId))
+                    .ExecuteDeleteAsync();
             }
 
             // TODO...
 
-        }
-
-        private Task<List<Product>> GetSoftDeletedProducts(IEnumerable<int> productIds)
-        {
-            return _db.Products
-                .IgnoreQueryFilters()
-                .Include(x => x.ProductTags)
-                .Where(x => productIds.Contains(x.Id) && x.Deleted)
-                .ToListAsync();
         }
 
         #endregion
