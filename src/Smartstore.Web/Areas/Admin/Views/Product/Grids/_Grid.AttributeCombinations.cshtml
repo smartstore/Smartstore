@@ -93,7 +93,7 @@
             var id = $(this).data("key");
             var href = '@Url.Content("~/Admin/Product/AttributeCombinationEditPopup/")' + id + '?btnId=btnRefreshCombinations&formId=product-form';
             openPopup(href);
-            return false;
+            return true;
         });
 
         // Refresh grid after popup edit dialog was closed.

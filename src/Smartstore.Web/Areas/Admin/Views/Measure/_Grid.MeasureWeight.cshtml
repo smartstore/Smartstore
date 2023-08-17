@@ -75,7 +75,7 @@
             var id = $(this).data("key");
             var href = "@Url.Content("~/Admin/Measure/EditWeightPopup/")" + id + "?btnId=btnRefresh&formId=measure-weights";
             openPopup(href);
-            return false;
+            return true;
         });
 
         $(document).on('click', '.grid-set-default', function (e) {
@@ -93,7 +93,7 @@
                 }
             });
 
-            return false;
+            return true;
         });
 
         // Refresh grid after popup edit dialog was closed.

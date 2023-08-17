@@ -84,7 +84,7 @@
             var id = $(this).data("key");
             var href = "@Url.Content("~/Admin/CheckoutAttribute/ValueEditPopup/")" + id + "?btnId=btnRefresh&formId=checkout-attribute-values";
             openPopup(href);
-            return false;
+            return true;
         });
 
         // Refresh grid after popup edit dialog was closed.

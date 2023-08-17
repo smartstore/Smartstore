@@ -72,7 +72,7 @@
             var id = $(this).data("key");
             var href = "@Url.Content("~/Admin/PriceLabel/EditPriceLabelPopup/")" + id + "?btnId=btnRefresh&formId=price-labels";
             openPopup(href);
-            return false;
+            return true;
         });
 
         $(document).on('click', '.grid-set-default-compare-price-label,.grid-set-default-regular-price-label', function (e) {
@@ -93,7 +93,7 @@
                 }
             });
 
-            return false;
+            return true;
         });
 
         // Refresh grid after popup edit dialog was closed.

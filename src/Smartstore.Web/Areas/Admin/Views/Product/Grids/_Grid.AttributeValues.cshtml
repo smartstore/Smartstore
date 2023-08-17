@@ -80,7 +80,7 @@
             var id = $(this).data("key");
             var href = '@Url.Content("~/Admin/Product/ProductAttributeValueEditPopup/")' + id + '?btnId=btnRefresh&formId=productvariantattribute-form';
             openPopup(href, true);
-			return false;
+            return true;
         });
     });
 </script>
