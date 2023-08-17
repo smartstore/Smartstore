@@ -820,7 +820,7 @@
         }).trigger('change');
 
         $('#@Html.IdFor(model => model.CustomerSettings.CustomerLoginType)').change(function () {
-            $('#pnlUsernamesEnabled').toggle($(this).val() !== '@(CustomerLoginType.Email.ToString())');
+            $('#pnlUsernamesEnabled').toggle($(this).val() !== '@((int)CustomerLoginType.Email)');
         }).trigger('change');
     });
 </script>
