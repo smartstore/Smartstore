@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
@@ -481,18 +480,34 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             var success = 0;
-            var products = await GetRestoreProducts(productIds);
+            var parentCategories = await _db.Categories
+                .IgnoreQueryFilters()
+                .Select(x => new { x.Id, x.ParentId })
+                .ToDictionaryAsync(x => x.Id, x => x.ParentId ?? 0);
 
-            foreach (var product in products)
+            foreach (var productIdsChunk in productIds.Chunk(100))
             {
-                try
+                var products = await _db.Products
+                    .IgnoreQueryFilters()
+                    .Where(x => productIdsChunk.Contains(x.Id) && x.Deleted)
+                    .Select(x => new RestoreProduct
+                    {
+                        Id = x.Id,
+                        ProductTypeId = x.ProductTypeId
+                    })
+                    .ToListAsync();
+
+                foreach (var product in products)
                 {
-                    await RestoreProductInternal(product);
-                    success++;
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
+                    try
+                    {
+                        await RestoreProductInternal(product, parentCategories);
+                        success++;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                    }
                 }
             }
 
@@ -504,40 +519,12 @@ namespace Smartstore.Core.Catalog.Products
             return success;
         }
 
-        private async Task RestoreProductInternal(Product product)
+        private async Task RestoreProductInternal(RestoreProduct product, Dictionary<int, int> parentCategories)
         {
-            Guard.NotNull(product);
-            Guard.IsTrue(product.Deleted);
-
-            var categoryIds = new HashSet<int>();
-            var productIds = new HashSet<int>();
-
-            // Get IDs of manufacturers to restore.
-            var deletedManufacturerIds = await _db.ProductManufacturers
-                .IgnoreQueryFilters()
-                .Where(x => x.ProductId == product.Id && x.Manufacturer.Deleted)
-                .Select(x => x.ManufacturerId)
-                .ToArrayAsync();
-
-            // Get IDs of categories to restore.
-            var allCategoryParents = await _db.Categories
-                .IgnoreQueryFilters()
-                .Select(x => new { x.Id, x.ParentId })
-                .ToDictionaryAsync(x => x.Id, x => x.ParentId);
-
-            var assignedCategoryIds = await _db.ProductCategories
-                .IgnoreQueryFilters()
-                .Where(x => x.ProductId == product.Id)
-                .Select(x => x.CategoryId)
-                .ToArrayAsync();
-
-            assignedCategoryIds.Each(GetCategoryIds);
-            allCategoryParents.Clear();
-
             // Get IDs of products to restore.
-            productIds.AddRange(product.ParseRequiredProductIds());
+            var productIds = new HashSet<int>(product.Id);
 
-            if (product.ProductType == ProductType.BundledProduct)
+            if (product.ProductTypeId == (int)ProductType.BundledProduct)
             {
                 productIds.AddRange(await _db.ProductBundleItem
                     .IgnoreQueryFilters()
@@ -546,11 +533,32 @@ namespace Smartstore.Core.Catalog.Products
                     .ToArrayAsync());
             }
 
-            // First restore the product. Then restore all other entities.
-            product.Deleted = false;
+            var requiredProductIds = await _db.Products
+                .IgnoreQueryFilters()
+                .Where(x => productIds.Contains(x.Id) && x.RequireOtherProducts && x.Deleted)
+                .Select(x => x.RequiredProductIds)
+                .ToArrayAsync();
 
-            await _db.SaveChangesAsync();
+            foreach (var idsStr in requiredProductIds)
+            {
+                productIds.AddRange(idsStr.SplitSafe(',', StringSplitOptions.TrimEntries)
+                    .Select(x => int.TryParse(x, out var id) ? id : int.MaxValue)
+                    .Where(x => x < int.MaxValue));
+            }
 
+            // First restore products, then all other entities.
+            await _db.Products
+                .IgnoreQueryFilters()
+                .Where(x => productIds.Contains(x.Id) && x.Deleted)
+                .ExecuteUpdateAsync(x => x.SetProperty(m => m.Deleted, m => false));
+
+            // Restore manufacturers.
+            var deletedManufacturerIds = await _db.ProductManufacturers
+                .IgnoreQueryFilters()
+                .Where(x => productIds.Contains(x.ProductId) && x.Manufacturer.Deleted)
+                .Select(x => x.ManufacturerId)
+                .Distinct()
+                .ToArrayAsync();
             if (deletedManufacturerIds.Length > 0)
             {
                 await _db.Manufacturers
@@ -558,6 +566,16 @@ namespace Smartstore.Core.Catalog.Products
                     .Where(x => deletedManufacturerIds.Contains(x.Id))
                     .ExecuteUpdateAsync(x => x.SetProperty(m => m.Deleted, m => false));
             }
+
+            // Restore categories.
+            var categoryIds = new HashSet<int>();
+            var assignedCategoryIds = await _db.ProductCategories
+                .IgnoreQueryFilters()
+                .Where(x => productIds.Contains(x.ProductId))
+                .Select(x => x.CategoryId)
+                .Distinct()
+                .ToArrayAsync();
+            assignedCategoryIds.Each(GetCategoryIds);
 
             if (categoryIds.Count > 0)
             {
@@ -567,34 +585,17 @@ namespace Smartstore.Core.Catalog.Products
                     .ExecuteUpdateAsync(x => x.SetProperty(c => c.Deleted, c => false));
             }
 
-            if (productIds.Count > 0)
-            {
-                var otherProducts = await GetRestoreProducts(productIds);
-
-                foreach (var otherProduct in otherProducts)
-                {
-                    await RestoreProductInternal(otherProduct);
-                }
-            }
-
             void GetCategoryIds(int categoryId)
             {
-                categoryIds.Add(categoryId);
-
-                if (allCategoryParents.TryGetValue(categoryId, out var parentId) && parentId.HasValue)
+                if (categoryId != 0)
                 {
-                    GetCategoryIds(parentId.Value);
+                    categoryIds.Add(categoryId);
+                    if (parentCategories.TryGetValue(categoryId, out var parentId))
+                    {
+                        GetCategoryIds(parentId);
+                    }
                 }
             }
-        }
-
-        private Task<List<Product>> GetRestoreProducts(IEnumerable<int> productIds)
-        {
-            return _db.Products
-                .IgnoreQueryFilters()
-                .Include(x => x.ProductTags)
-                .Where(x => productIds.Contains(x.Id) && x.Deleted)
-                .ToListAsync();
         }
 
         public virtual async Task<int> DeleteProductsPermanentAsync(int[] productIds)
@@ -604,6 +605,7 @@ namespace Smartstore.Core.Catalog.Products
                 return 0;
             }
 
+            // INFO: relationship has a cascade delete rule (dangerous).
             var excludeProductIds = await _db.OrderItems
                 .Where(x => productIds.Contains(x.ProductId))
                 .Select(x => x.ProductId)
@@ -616,20 +618,15 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             var success = 0;
-            var products = await _db.Products
-                .AsSplitQuery()
-                .IgnoreQueryFilters()
-                .Include(x => x.ProductTags)
-                .Include(x => x.ProductReviews)
-                .Where(x => productIds.Contains(x.Id) && x.Deleted)
-                .ToListAsync();
 
-            foreach (var product in products)
+            foreach (var productIdsChunk in productIds.Chunk(50))
             {
                 try
                 {
-                    await DeleteProductInternal(product);
-                    success++;
+                    // INFO: ISoftDeletable would prevent the product from being permanently deleted.
+                    // Better avoid change tracking and hooks, at the cost of some duplicate code.
+                    await DeleteProductsPermanentInternal(productIdsChunk);
+                    success += productIdsChunk.Length;
                 }
                 catch (Exception ex)
                 {
@@ -640,53 +637,83 @@ namespace Smartstore.Core.Catalog.Products
             return success;
         }
 
-        private async Task DeleteProductInternal(Product product)
+        private async Task DeleteProductsPermanentInternal(int[] productIds)
         {
-            Guard.NotNull(product);
-            Guard.IsTrue(product.Deleted);
+            // INFO: not necessary here to check whether an assignment of certain type,
+            // (e.g. if the deleted product is grouped or bundled product). Just remove any assignment.
 
-            // Be sure that the product can really be deleted.
-            product.DeliveryTimeId = null;
-            product.QuantityUnitId = null;
-            product.SampleDownloadId = null;
-            product.CountryOfOriginId = null;
-            product.ComparePriceLabelId = null;
-            product.MainPictureId = null;
+            const string productEntityName = nameof(Product);
 
-            await _db.SaveChangesAsync();
+            // ----- Product assignments.
 
-            if (product.ProductType == ProductType.GroupedProduct)
+            await _db.Products
+                .Where(x => productIds.Contains(x.ParentGroupedProductId))
+                .ExecuteUpdateAsync(x => x.SetProperty(p => p.ParentGroupedProductId, p => 0));
+
+            // ----- Missing cascade delete rules.
+
+            // Cart item of bundle items.
+            var bundleItemIds = await _db.ProductBundleItem
+                .Where(x => productIds.Contains(x.BundleProductId))
+                .Select(x => x.Id)
+                .Distinct()
+                .ToArrayAsync();
+
+            if (bundleItemIds.Length > 0)
             {
-                await _db.Products
-                    .Where(x => x.ParentGroupedProductId == product.Id)
-                    .ExecuteUpdateAsync(x => x.SetProperty(p => p.ParentGroupedProductId, p => 0));
-            }
-            else if (product.ProductType == ProductType.BundledProduct)
-            {
-                var bundleItemIds = product.ProductBundleItems.Select(x => x.Id).ToArray();
-                if (bundleItemIds.Length > 0)
-                {
-                    // No cascade delete exists.
-                    await _db.ShoppingCartItems
-                        .Where(x => x.BundleItemId != null && bundleItemIds.Contains(x.BundleItemId.Value))
-                        .ExecuteDeleteAsync();
-                }
+                await _db.ShoppingCartItems
+                    .Where(x => x.BundleItemId != null && bundleItemIds.Contains(x.BundleItemId.Value))
+                    .ExecuteDeleteAsync();
             }
 
-            // TODO: product is bundleItem
-            // TODO: ProductReview > CustomerContent
+            // Product review helpfulness.
+            var reviewIds = await _db.ProductReviews
+                .Where(x => productIds.Contains(x.Id))
+                .Select(x => x.Id)
+                .Distinct()
+                .ToArrayAsync();
 
-            var reviewIds = product.ProductReviews.Select(x => x.Id).ToArray();
             if (reviewIds.Length > 0)
             {
-                // No cascade delete exists.
+                // TODO: (mg) test if CustomerContent is deleted by referential integrity here.
                 await _db.ProductReviewHelpfulness
                     .Where(x => reviewIds.Contains(x.ProductReviewId))
                     .ExecuteDeleteAsync();
             }
 
-            // TODO...
+            await _db.CrossSellProducts
+                .Where(x => productIds.Contains(x.ProductId1) || productIds.Contains(x.ProductId2))
+                .ExecuteDeleteAsync();
 
+            // ----- Satellite tables.
+
+            await _db.StoreMappings
+                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == productEntityName)
+                .ExecuteDeleteAsync();
+
+            await _db.AclRecords
+                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == productEntityName)
+                .ExecuteDeleteAsync();
+
+            await _db.UrlRecords
+                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == productEntityName)
+                .ExecuteDeleteAsync();
+
+            await _db.LocalizedProperties
+                .Where(x => productIds.Contains(x.EntityId) && x.LocaleKeyGroup == productEntityName)
+                .ExecuteDeleteAsync();
+
+            await _db.SyncMappings
+                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == productEntityName)
+                .ExecuteDeleteAsync();
+
+            // TODO: plugin tables -> use hook.
+        }
+
+        class RestoreProduct
+        {
+            public int Id { get; set; }
+            public int ProductTypeId { get; set; }
         }
 
         #endregion
