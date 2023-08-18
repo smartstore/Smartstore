@@ -67,6 +67,9 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*CustomerNameFormatMaxLength")]
             public int CustomerNameFormatMaxLength { get; set; }
 
+            [LocalizedDisplay("*CustomerNameAllowedCharacters")]
+            public string CustomerNameAllowedCharacters { get; set; }
+
             [LocalizedDisplay("*NewsletterEnabled")]
             public bool NewsletterEnabled { get; set; }
 

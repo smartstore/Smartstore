@@ -20,9 +20,20 @@ namespace Smartstore.Core.Bootstrapping
 
             var usr = options.User;
             usr.RequireUniqueEmail = true;
-            // INFO: Add space to default list of allowed chars.
-            usr.AllowedUserNameCharacters += ' ';
 
+            if (customerSettings.CustomerNameAllowedCharacters.HasValue())
+            {
+                // Add space to default list of allowed characters & characters which were explicitly allowed for customer names.
+                // INFO: We don't use += to add special characters to the default list,
+                // because the default list may have been reseted by the else case where we set the allowed characters to null.
+                usr.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ " + customerSettings.CustomerNameAllowedCharacters;
+            }
+            else
+            {
+                // If no characters were explicitly allowed for customer names, then we allow all characters.
+                usr.AllowedUserNameCharacters = null;
+            }
+            
             var pwd = options.Password;
             pwd.RequiredLength = customerSettings.PasswordMinLength;
             pwd.RequireDigit = customerSettings.PasswordRequireDigit;

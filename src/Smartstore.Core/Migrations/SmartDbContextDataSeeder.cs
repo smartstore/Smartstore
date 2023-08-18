@@ -127,7 +127,16 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.HideDownloadableProductsTab",
                 "Hide downloads in the \"My account\" area",
                 "Downloads im Bereich \"Mein Konto\" ausblenden");
-            
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters",
+                "Additional allowed characters for customer names",
+                "Zusätzlich erlaubte Zeichen für Kundennamen",
+                "Add additional characters here that are permitted when entering a user name. Leave the field blank to allow all characters.",
+                "Fügen Sie hier zusätzliche Zeichen hinzu, die bei der Eingabe eines Benutzernamens zulässig sind. Lassen Sie das Feld leer, um alle Zeichen zuzulassen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint",
+                "The following characters are already allowed by default:",
+                "Standardmäßig sind bereits folgende Zeichen erlaubt:");
         }
 
         /// <summary>

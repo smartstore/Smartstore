@@ -105,6 +105,19 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CustomerNameAllowedCharacters" />
+                    </div>
+                    <div class="adminData wide">
+                        <setting-editor asp-for="CustomerSettings.CustomerNameAllowedCharacters"></setting-editor>
+                        <span class="d-inline-block text-muted pt-2">
+                            @T("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint")
+                            <code>a-z</code>, <code>A-Z</code>, <code>0-9</code>, <code>-</code>, <code>.</code>, <code>_</code>, <code>@@</code>, <code>+</code>
+                        </span>
+                        <span asp-validation-for="CustomerSettings.CustomerNameAllowedCharacters"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="CustomerSettings.CustomerNameFormatMaxLength" />
                     </div>
                     <div class="adminData">

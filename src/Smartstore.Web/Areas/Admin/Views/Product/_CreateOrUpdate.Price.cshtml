@@ -168,6 +168,8 @@
                             <select asp-for="BasePriceMeasureUnit" asp-items="ViewBag.AvailableMeasureUnits"></select>
                         </div>
                     </div>
+                    <span asp-validation-for="BasePriceBaseAmount"></span>
+                    <span asp-validation-for="BasePriceMeasureUnit"></span>
                 </div>
             </div>
             <div class="adminRow">
@@ -176,6 +178,7 @@
                 </div>
                 <div class="adminData">
                     <editor asp-for="BasePriceAmount" />
+                    <span asp-validation-for="BasePriceAmount"></span>
                     <span id="BasePriceAmountInfo" class="d-inline-block text-muted pt-2"></span>
                 </div>
             </div>
