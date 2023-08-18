@@ -417,4 +417,13 @@ $clr-brand-behance:             #0067ff !default;
     @if ($fa-use-pro == true) {
         --fa-font-family: 'Font Awesome 6 Pro';
     }
+
+    // Shadow variables
+    --box-shadow-xs: #{$box-shadow-xs-var};
+    --box-shadow-xl: #{$box-shadow-lg-var};
+
+    $c: $dark;
+    --shadow-color-rgb: 0,0,0;
+    --shadow-colorbase-rgb: #{red($c)}, #{green($c)}, #{blue($c)};
+    --shadow-intensity: #{$shadow-intensity};
 }

@@ -65,15 +65,6 @@
           --gutter-y: #{$value};
         }
       }
-
-      // Gaps
-      //
-      // Make use of `.gap-*` utilities to change gap between CSS grid columns.
-      @each $key, $value in $spacers {
-        .gap#{$infix}-#{$key} {
-          gap: #{$value} !important;
-        }
-      }
     }
   }
 }

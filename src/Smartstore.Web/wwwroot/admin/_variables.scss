@@ -46,9 +46,10 @@ $enable-social-buttons:         false;
 
 
 //
-// BS4 variables
+// BS variables
 // --------------------------------------------------
 
+$prefix:                        '';
 $enable-shadows:                true;
 $enable-gradients:              false;
 
@@ -120,6 +121,7 @@ $line-height-lg:                1.375;  // --> 22px
 $font-weight-light:             100;
 $font-weight-normal:            400;
 $font-weight-medium:            600;
+$font-weight-semibold:          $font-weight-medium;
 $font-weight-bold:              700;
 
 $h1-font-size:                  2.25rem;
@@ -155,9 +157,10 @@ $box-shadow-lg-var:             0 calc(10px * var(--shadow-yoffset, 1)) 40px -4p
 $box-shadow-xl-var:             0 calc(17px * var(--shadow-yoffset, 1)) 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
                                 0 calc(20px * var(--shadow-yoffset, 1)) 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22));
 
-$box-shadow-sm:                 var(--box-shadow);
-$box-shadow:                    var(--box-shadow);
-$box-shadow-lg:                 var(--box-shadow);
+$box-shadow-sm:                 $box-shadow-sm-var;
+$box-shadow:                    $box-shadow-var;
+$box-shadow-lg:                 $box-shadow-lg-var;
+$box-shadow-xl:                 $box-shadow-xl-var;
 
 // Tables
 

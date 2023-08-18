@@ -1,29 +1,23 @@
 // stylelint-disable property-disallowed-list, declaration-no-important
 
 //
-// Border
+// Border shims
 //
 
-.border         { border: $border-width solid $border-color !important; }
-.border-top     { border-top: $border-width solid $border-color !important; }
-.border-right   { border-inline-end: $border-width solid $border-color !important; }
-.border-bottom  { border-bottom: $border-width solid $border-color !important; }
-.border-left    { border-inline-start: $border-width solid $border-color !important; }
-
-.border-0        { border: 0 !important; }
-.border-top-0    { border-top: 0 !important; }
-.border-right-0  { border-inline-end: 0 !important; }
-.border-bottom-0 { border-bottom: 0 !important; }
-.border-left-0   { border-inline-start: 0 !important; }
-
-@each $color, $value in $theme-colors {
-  .border-#{$color} {
-    border-color: $value !important;
-  }
+.border-left {
+    @extend .border-start;
 }
 
-.border-white {
-  border-color: $white !important;
+.border-left-0 {
+    @extend .border-start-0;
+}
+
+.border-right {
+    @extend .border-end;
+}
+
+.border-right-0 {
+    @extend .border-end-0;
 }
 
 //

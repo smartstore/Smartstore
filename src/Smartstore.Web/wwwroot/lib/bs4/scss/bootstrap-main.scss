@@ -4,7 +4,6 @@
 // could put our custom variables. This way we gain more flexibility.
 // ===========================================================================
 
-@import "mixins";
 @import "root";
 @import "reboot";
 @import "type";
@@ -40,3 +39,6 @@
 @import "spinners";
 @import "utilities";
 @import "print";
+
+// Utilities
+@import "utilities/api";

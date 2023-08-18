@@ -9,7 +9,7 @@
 
 @each $index, $size in $font-sizes {
     .fs-h#{$index} {
-         @include font-size($size !important);
+         @extend .fs-#{$index};
     }
 }
 
@@ -63,12 +63,12 @@ h6, .h6 {
 }
 
 .font-weight-medium, .fwm {
-    font-weight: $font-weight-medium !important;
+    @extend .fw-medium;
 }
 
-.fwb { @extend .font-weight-bold; }
-.fwn { @extend .font-weight-normal; }
-.fwl { @extend .font-weight-light; }
+.fwb { @extend .fw-bold; }
+.fwn { @extend .fw-normal; }
+.fwl { @extend .fw-light; }
 
 
 // Heading & Title

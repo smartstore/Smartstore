@@ -137,6 +137,7 @@ $costep-active-label-color:     $costep-label-color;
 // Bootstrap variable overrides
 // ========================================
 
+$prefix:                        '';
 $enable-rounded:                true;
 $enable-shadows:                true;
 $enable-gradients:              false;
@@ -158,6 +159,9 @@ $spacers: (
 $theme-colors: ( 
 	"gray": $gray-700 
 );
+
+$font-weight-medium:            600 !default;
+$font-weight-semibold:          $font-weight-medium !default;
 
 $line-height-base:              1.4; // --> 21px
 $line-height-sm:                1.429; // --> 20px
@@ -191,9 +195,10 @@ $box-shadow-lg-var:             0 10px 40px -4px rgba(var(--shadow-colorbase-rgb
 $box-shadow-xl-var:             0 17px 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
                                 0 20px 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22));
 
-$box-shadow-sm:                 var(--box-shadow);
-$box-shadow:                    var(--box-shadow);
-$box-shadow-lg:                 var(--box-shadow);
+$box-shadow-sm:                 $box-shadow-sm-var;
+$box-shadow:                    $box-shadow-var;
+$box-shadow-lg:                 $box-shadow-lg-var;
+$box-shadow-xl:                 $box-shadow-xl-var;
 
 
 $input-box-shadow:              none;

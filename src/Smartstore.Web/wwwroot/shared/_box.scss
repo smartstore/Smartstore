@@ -20,10 +20,8 @@
     transform: translateY(-8px);
     z-index: 2;
 
-    &.shadow-sm,
-    &.shadow,
-    &.shadow-lg {
-        box-shadow: var(--box-shadow) !important;
+    &.shadow-xs {
+        --box-shadow: #{$box-shadow-sm-var};
     }
 
     &.shadow-sm {

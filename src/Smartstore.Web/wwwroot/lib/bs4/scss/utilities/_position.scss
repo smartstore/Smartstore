@@ -2,36 +2,6 @@
 /// <reference path="../_functions.scss" />
 /// <reference path="../_mixins.scss" />
 
-// stylelint-disable declaration-no-important
-
-// Common values
-@each $position in $positions {
-  .position-#{$position} { position: $position !important; }
-}
-
-
-// top/bottom/start/end
-@each $edge, $prop in (top: block-start, bottom: block-end, start: inline-start, end: inline-end) {
-  @each $size in (0, 50, 100) {
-    .#{$edge}-#{$size} { inset-#{$prop}: #{$size}% !important; }   
-  }
-}
-
-
-// Translate
-
-.translate-middle {
-  transform: translate(-50%,-50%) !important
-}
-
-.translate-middle-x {
-  transform: translateX(-50%) !important
-}
-
-.translate-middle-y {
-  transform: translateY(-50%) !important
-}
-
 // Shorthand
 
 .fixed-top {
