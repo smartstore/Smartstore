@@ -60,7 +60,7 @@
   }
 
   &:focus-visible {
-    $ow: max(0px, $btn-focus-width - 1px);
+    $ow: cssmax(0px, $btn-focus-width - 1px);
     outline: #{$ow} solid $input-focus-border-color;
     outline-offset: calc(#{$ow} * -1);
     box-shadow: var(--btn-focus-box-shadow);

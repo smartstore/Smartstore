@@ -25,9 +25,3 @@
 @each $color, $value in $theme-colors {
   @include text-emphasis-variant(".text-#{$color}", $value, true);
 }
-
-// Misc
-
-.text-hide {
-  @include text-hide($ignore-warning: true);
-}

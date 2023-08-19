@@ -1,0 +1,208 @@
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+//
+// Shared Bootstrap variables for public and admin.
+// --------------------------------------------------
+
+
+// Color system
+
+$white:    #fff !default;
+$gray-100: #f8f9fa !default;
+$gray-200: #e9ecef !default;
+$gray-300: #dee2e6 !default;
+$gray-400: #ced4da !default;
+$gray-500: #aab5bf !default;
+$gray-600: #8d9ba9 !default;
+$gray-700: #596167 !default;
+$gray-800: #393f46 !default;
+$gray-900: #22262a !default;
+$black:    #000 !default;
+
+$blue:    null !default;
+$indigo:  null !default;
+$purple:  null !default;
+$pink:    null !default;
+$red:     null !default;
+$orange:  null !default;
+$yellow:  null !default;
+$green:   null !default;
+$teal:    null !default;
+$cyan:    null !default;
+
+$colors:  ( "black": $black );
+
+$primary:       null !default;
+$secondary:     null !default;
+$success:       null !default;
+$info:          null !default;
+$warning:       null !default;
+$danger:        null !default;
+$light:         null !default;
+$dark:          null !default;
+
+$theme-color-interval:		8%;
+$yiq-contrasted-threshold:  null !default;
+$yiq-text-dark:             null !default;
+$yiq-text-light:            $white !default;
+$min-contrast-ratio:        2.2 !default;
+
+
+// Options
+
+$prefix:                        '';
+$enable-rounded:                true !default;
+$enable-shadows:                true !default;
+$enable-gradients:              false !default;
+$enable-transitions:            true !default;
+$enable-grid-classes:           true !default;
+$enable-responsive-font-sizes:  null !default;
+$enable-important-utilities:    true !default;
+$enable-rfs:                    null !default;
+
+
+// Body
+
+$body-bg:                   $white !default;
+$body-color:                null !default;
+
+
+// Links
+
+$link-color: null !default;
+
+
+// Components
+
+$line-height-base:            null !default;
+$line-height-lg:              null !default;
+$line-height-sm:              null !default;
+
+$border-width:                null !default;
+$border-style:                null !default;
+$border-color:                null !default;
+$border-color-translucent:    rgba($black, .125) !default;
+
+$border-radius:               .375rem !default;
+$border-radius-sm:            .25rem !default;
+$border-radius-lg:            .5rem !default;
+$border-radius-xl:            1rem !default;
+$border-radius-xxl:           2rem !default;
+$border-radius-pill:          50rem !default;
+$rounded-pill:                50rem !default;
+
+$box-shadow:                  null !default;
+$box-shadow-sm:               null !default;
+$box-shadow-lg:               null !default;
+$box-shadow-inset:            null !default;
+
+$embed-responsive-aspect-ratios: ( 
+    (21 9), 
+    (16 9), 
+    (16 10), 
+    (4 3), 
+    (1 1) 
+);
+
+
+// Typo
+
+$font-family-base:            null !default;
+
+$font-weight-lighter:         lighter !default;
+$font-weight-light:           300 !default;
+$font-weight-normal:          400 !default;
+$font-weight-medium:          600 !default;
+$font-weight-semibold:        600 !default;
+$font-weight-bold:            700 !default;
+$font-weight-bolder:          bolder !default;
+
+$h1-font-size:                null !default;
+$h2-font-size:                null !default;
+$h3-font-size:                null !default;
+$h4-font-size:                null !default;
+$h5-font-size:                null !default;
+$h6-font-size:                null !default;
+
+$display1-size:               null !default;
+$display2-size:               null !default;
+$display3-size:               null !default;
+$display4-size:               null !default;
+
+
+// Buttons + Forms
+
+$input-btn-padding-x:         0.75rem !default; // --> 12px
+$input-btn-padding-y:         0.5rem !default; // --> 8px
+$input-btn-font-family:       null !default;
+
+$input-btn-focus-width:       3px !default;
+
+$input-btn-padding-x-sm:      0.625rem !default; // --> 10px
+$input-btn-padding-y-sm:      0.375rem !default; // --> 6px
+
+$input-btn-padding-x-lg:      1.25rem !default; // --> 20px
+$input-btn-padding-y-lg:      0.625rem !default; // --> 10px
+$input-btn-font-size-lg:      1rem !default; // --> 16px
+
+$input-box-shadow:            none !default;
+$input-focus-box-shadow:      none !default;
+
+$input-transition:            none !default;
+
+
+// Buttons
+
+$btn-active-box-shadow:			inset 0 3px 5px rgba($black, .125);
+$btn-transition:                color .1s ease-in-out, background-color .1s ease-in-out, border-color .1s ease-in-out, box-shadow .1s ease-in-out !default;
+$btn-disabled-opacity:          0.5 !default;
+
+$btn-hover-bg-shade-amount:       15% !default;
+$btn-hover-bg-tint-amount:        15% !default;
+$btn-hover-border-shade-amount:   20% !default;
+$btn-hover-border-tint-amount:    10% !default;
+$btn-active-bg-shade-amount:      20% !default;
+$btn-active-bg-tint-amount:       20% !default;
+$btn-active-border-shade-amount:  25% !default;
+$btn-active-border-tint-amount:   10% !default;
+
+
+// Badge
+
+$badge-padding-y:               (1 / 6) * 1em !default;
+$badge-padding-x:               0.5em !default;
+$badge-pill-padding-x:          0.85em !default;
+
+
+// Dropdown
+
+$dropdown-min-width:            10rem !default;
+$dropdown-font-size:            14px !default;
+$dropdown-bg:                   $white !default;
+$dropdown-border-width:         1px !default;
+
+
+
+// Pagination Mini
+// --------------------------------------------------
+
+$pagination-padding-y-xs:           0 !default;
+$pagination-padding-x-xs:           6px !default;
+
+
+
+// Modal
+// --------------------------------------------------
+
+$modal-inner-padding:               1.25rem !default;
+$modal-header-padding:              1.25rem !default;
+$modal-content-border-width:        0 !default;
+$modal-content-border-color:        rgba($black, .06) !default;
+$modal-backdrop-bg:                 $black !default;
+$modal-backdrop-opacity:            .68 !default;
+$modal-transition:                  all 0.2s ease-out !default;
+
+
+// Navs
+
+$nav-pills-link-active-color:       $white;

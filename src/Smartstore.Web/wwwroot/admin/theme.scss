@@ -1,86 +1,100 @@
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+/// <reference path="../lib/bs4/scss/bootstrap-reboot.scss" />
 
+//
 // Theme: Smartstore Admin
 // ========================================
 
 
 //
-// Bootstrap 4
+// Head
 // --------------------------------------------------
 
-@import "_variables.scss";
-@import "../lib/bs4/scss/bootstrap.scss";
+// Bootstrap functions
+@import "../lib/bs4/scss/functions";
 
+// Shared Smartstore functions 
+@import '../shared/functions';
 
-//
-// Shared variables
-// --------------------------------------------------
+// Shared Bootstrap variables
+@import '../shared/variables-shared-bootstrap';
 
-@import '/shared/_variables-shared.scss'; 
+// Admin theme variables and overrides
+@import "variables";
+
+// Bootstrap head: vars, mixins, maps etc.
+@import "../lib/bs4/scss/bootstrap-head";
+
+// Shared Smartstore variables, mixins and :root
+@import '../shared/variables-shared';
+@import '../shared/mixins';
+@import '../shared/root';
+
+// Bootstrap main
+@import "../lib/bs4/scss/bootstrap-main";
+
 
 
 //
 // Vendors
 // --------------------------------------------------
 
-@import "../lib/bs4/scss/vendor/_rfs.scss";
-@import "../lib/select2/scss/core.scss";
-@import "../lib/colorpicker/scss/_colorpicker.scss";
-@import "../lib/datetimepicker/scss/_tempusdominus.scss";
-@import "../lib/editors/summernote/scss/summernote.scss";
+@import "../lib/bs4/scss/vendor/rfs";
+@import "../lib/select2/scss/core";
+@import "../lib/colorpicker/scss/colorpicker";
+@import "../lib/datetimepicker/scss/tempusdominus";
+@import "../lib/editors/summernote/scss/summernote";
 
 
 //
 // Global / Shared
 // --------------------------------------------------
 
-@import '../shared/_mixins.scss';
-@import '../shared/_spacing.scss';
-@import '../shared/_fa.scss';
-@import '../shared/_bootstrap-icons.scss';
-@import '../shared/_typo.scss';
-@import '../shared/_alert.scss';
-@import '../shared/_badge.scss';
-@import '../shared/_buttons.scss';
-@import '../shared/_card.scss';
-@import '../shared/_forms.scss';
-@import '../shared/_numberinput.scss';
-@import '../shared/_pagination.scss';
-@import '../shared/_nav.scss';
-@import "../shared/_modal.scss";
-@import '../shared/_dropdown.scss';
-@import "../shared/_throbber.scss";
-@import "../shared/_spinner.scss";
-@import "../shared/_sortable-grip.scss";
-@import "../shared/_entity-picker.scss";
-@import "../shared/_tree.scss";
-@import '../shared/_choice.scss';
-//@import '/shared/_switch.scss'; // Obsolete
-@import '../shared/_rangeslider.scss';
-@import '../shared/_bg.scss';
-@import '../shared/_custom-scrollbar.scss';
-@import "../shared/_utils.scss";
-@import "../shared/_media.scss";
-@import "../shared/_text-expander.scss";
+@import '../shared/spacing';
+@import '../shared/fa';
+@import '../shared/bootstrap-icons';
+@import '../shared/typo';
+@import '../shared/alert';
+@import '../shared/badge';
+@import '../shared/buttons';
+@import '../shared/card';
+@import '../shared/forms';
+@import '../shared/numberinput';
+@import '../shared/pagination';
+@import '../shared/nav';
+@import "../shared/modal";
+@import '../shared/dropdown';
+@import "../shared/throbber";
+@import "../shared/spinner";
+@import "../shared/sortable-grip";
+@import "../shared/entity-picker";
+@import "../shared/tree";
+@import '../shared/choice';
+//@import '/shared/switch'; // Deprecated
+@import '../shared/rangeslider';
+@import '../shared/bg';
+@import '../shared/custom-scrollbar';
+@import "../shared/utils";
+@import "../shared/media";
+@import "../shared/text-expander";
 
 //
 // Skinning
 // --------------------------------------------------
 
-@import "../skinning/_select2.scss";
-@import "../skinning/_pnotify.scss";
-@import "../skinning/_colorpicker.scss";
-@import "../skinning/_fileupload.scss";
-@import "../skinning/_summernote.scss";
+@import "../skinning/select2";
+@import "../skinning/pnotify";
+@import "../skinning/colorpicker";
+@import "../skinning/fileupload";
+@import "../skinning/summernote";
 
 
 //
 // Main styles
 // --------------------------------------------------
 
-@import "_admin.scss";
-@import "_dashboard.scss";
-@import "../components/datagrid/datagrid.scss";
+@import "admin";
+@import "dashboard";
+@import "../components/datagrid/datagrid";
 
 
 

@@ -22,7 +22,7 @@ $utilities: map-merge(
     // Object Fit utilities
     "object-fit": (
       responsive: true,
-      property: object-fit,
+      property: fit,
       values: (
         contain: contain,
         cover: cover,
@@ -205,6 +205,15 @@ $utilities: map-merge(
         75: 75%,
         100: 100%,
         auto: auto
+      )
+    ),
+    "height-px": (
+      responsive: true,
+      property: height,
+      class: h,
+      values: (
+        medium: 400px,
+        tall: 700px
       )
     ),
     "max-height": (
@@ -673,27 +682,92 @@ $utilities: map-merge(
       values: none auto,
     ),
     // Border Radius
+    "rounded": (
+      //property: border-radius,
+      css-var: true,
+      css-variable-name: border-radius,
+      class: rounded,
+      values: (
+        null: var(--#{$prefix}border-radius-md),
+        0: 0,
+        1: var(--#{$prefix}border-radius-sm),
+        2: var(--#{$prefix}border-radius-md),
+        3: var(--#{$prefix}border-radius-lg),
+        4: var(--#{$prefix}border-radius-xl),
+        5: var(--#{$prefix}border-radius-xxl),
+        circle: 50%,
+        pill: var(--#{$prefix}border-radius-pill)
+      )
+    ),
+    "rounded-top": (
+      //property: border-start-start-radius border-start-end-radius,
+      css-var: true,
+      css-variable-name: border-radius-top,
+      class: rounded-top,
+      values: (
+        null: var(--#{$prefix}border-radius-md),
+        0: 0,
+        1: var(--#{$prefix}border-radius-sm),
+        2: var(--#{$prefix}border-radius-md),
+        3: var(--#{$prefix}border-radius-lg),
+        4: var(--#{$prefix}border-radius-xl),
+        5: var(--#{$prefix}border-radius-xxl),
+        circle: 50%,
+        pill: var(--#{$prefix}border-radius-pill)
+      )
+    ),
+    "rounded-end": (
+      //property: border-start-end-radius border-end-end-radius,
+      css-var: true,
+      css-variable-name: border-radius-end,
+      class: rounded-end,
+      values: (
+        null: var(--#{$prefix}border-radius-md),
+        0: 0,
+        1: var(--#{$prefix}border-radius-sm),
+        2: var(--#{$prefix}border-radius-md),
+        3: var(--#{$prefix}border-radius-lg),
+        4: var(--#{$prefix}border-radius-xl),
+        5: var(--#{$prefix}border-radius-xxl),
+        circle: 50%,
+        pill: var(--#{$prefix}border-radius-pill)
+      )
+    ),
+    "rounded-bottom": (
+      //property: border-end-end-radius border-end-start-radius,
+      css-var: true,
+      css-variable-name: border-radius-bottom,
+      class: rounded-bottom,
+      values: (
+        null: var(--#{$prefix}border-radius-md),
+        0: 0,
+        1: var(--#{$prefix}border-radius-sm),
+        2: var(--#{$prefix}border-radius-md),
+        3: var(--#{$prefix}border-radius-lg),
+        4: var(--#{$prefix}border-radius-xl),
+        5: var(--#{$prefix}border-radius-xxl),
+        circle: 50%,
+        pill: var(--#{$prefix}border-radius-pill)
+      )
+    ),
+    "rounded-start": (
+      //property: border-end-start-radius border-start-start-radius,
+      css-var: true,
+      css-variable-name: border-radius-start,
+      class: rounded-start,
+      values: (
+        null: var(--#{$prefix}border-radius-md),
+        0: 0,
+        1: var(--#{$prefix}border-radius-sm),
+        2: var(--#{$prefix}border-radius-md),
+        3: var(--#{$prefix}border-radius-lg),
+        4: var(--#{$prefix}border-radius-xl),
+        5: var(--#{$prefix}border-radius-xxl),
+        circle: 50%,
+        pill: var(--#{$prefix}border-radius-pill)
+      )
+    ),
 
   ),
   $utilities
 );
-
-
-//@import "utilities/align";
-//@import "utilities/background";
-@import "utilities/borders";
-@import "utilities/clearfix";
-//@import "utilities/display";
-@import "utilities/embed";
-@import "utilities/flex";
-//@import "utilities/float";
-//@import "utilities/interactions";
-//@import "utilities/overflow";
-@import "utilities/position";
-@import "utilities/screenreaders";
-//@import "utilities/shadows";
-//@import "utilities/sizing";
-//@import "utilities/spacing";
-@import "utilities/stretched-link";
-@import "utilities/text";
-@import "utilities/visibility";

@@ -1,28 +1,44 @@
+//
+// Theme: FLEX (RTL overrides)
+// --------------------------------------------------
 
-/* Theme: FLEX (RTL overrides)
-======================================== */
+// Bootstrap functions
+@import "/lib/bs4/scss/functions";
 
-@import '/.app/themevars.scss';
-@import '_variables-custom.scss';
-@import '_variables.scss';
+// Shared Smartstore functions 
+@import '/shared/functions';
 
-@import "/lib/bs4/scss/_functions.scss";
-@import "/lib/bs4/scss/_variables.scss";
-@import '/shared/_variables-shared.scss';
-@import "/lib/bs4/scss/_mixins.scss";
+// Shared Bootstrap variables
+@import '/shared/variables-shared-bootstrap';
+
+// Virtual file that fetches all theme variables 
+// from the database. We use these variables to 
+// override bootstrap defaults.
+@import '/.app/themevars.scss'; 
+
+// Contains theme specific variable defaults
+// and bootstrap variable overrides.
+@import 'variables-custom';
+@import 'variables';
+
+// Bootstrap head: vars, mixins, maps etc.
+@import "/lib/bs4/scss/bootstrap-head";
+
+// Shared Smartstore variables
+@import '/shared/variables-shared';
 
 
 //
 // Shared styles RTL overrides
 // --------------------------------------------------
 
-@import "/shared/_rtl-bs4.scss";
-@import "/shared/_rtl.scss";
-@import "/skinning/_rtl.scss";
+@import "/shared/rtl-bs4";
+@import "/shared/rtl";
+@import "/skinning/rtl";
 
 
 //
 // Theme specific RTL overrides
 // --------------------------------------------------
 
-@import '_rtl.scss';
+@import 'rtl';

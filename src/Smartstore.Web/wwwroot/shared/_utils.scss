@@ -144,12 +144,6 @@
 	height: auto !important;
 }
 
-.fit-fill       { object-fit: fill; }
-.fit-contain    { object-fit: contain; }
-.fit-cover      { object-fit: cover; }
-.fit-scale-down { object-fit: scale-down; }
-.fit-none       { object-fit: none; }
-
 
 //
 // Flag icon
@@ -167,34 +161,15 @@ img[src*="/images/flags/"] {
 // Bootstrap overrides and tweaks
 // --------------------------------------------------
 
-.dropdown .badge {
-	font-size: $font-size-xs;
-}
-
 .popover-title {
 	padding-top: 1rem;
 	padding-bottom: 1rem;
 	font-weight: $font-weight-medium;
 }
 
-.tooltip {
-	font-size: $font-size-sm;
-}
-
 table th {
 	font-weight: $font-weight-medium;
     text-align: start;
-}
-
-
-//
-// Bootstrap additions
-// --------------------------------------------------
-
-.embed-responsive-16by10 {
-    &::before {
-        padding-top: percentage(10 / 16);
-    }
 }
 
 
@@ -232,48 +207,6 @@ table th {
 
 .border-translucent {
     border-color: var(--border-color-translucent) !important;
-}
-
-.rounded, 
-.rounded-top, 
-.rounded-right, 
-.rounded-bottom, 
-.rounded-left {
-    --border-radius: #{$border-radius};
-    --border-radius-inner: calc(#{$border-radius} - 1px);
-}
-
-.rounded-sm {
-    --border-radius: #{$border-radius-sm};
-    --border-radius-inner: calc(#{$border-radius-sm} - 1px);
-    border-radius: $border-radius-sm !important;
-}
-
-.rounded-lg {
-    --border-radius: #{$border-radius-lg};
-    --border-radius-inner: calc(#{$border-radius-lg} - 1px);
-    border-radius: $border-radius-lg !important;
-}
-
-.rounded-xl {
-    --border-radius: #{$border-radius-lg * 2};
-    --border-radius-inner: calc(#{$border-radius-lg * 2} - 2px);
-    border-radius: $border-radius-lg * 2 !important;
-}
-
-.rounded-circle {
-    --border-radius: 50%;
-}
-
-.rounded-pill {
-    --border-radius: 50rem;
-    --border-radius-inner: calc(50rem - 1px);
-    border-radius: 50rem;
-}
-
-.rounded-0 {
-    --border-radius: 0;
-    --btn-border-radius: 0;
 }
 
 
@@ -402,20 +335,6 @@ table th {
 	border: 2px dotted $gray-700 !important;
 	background: transparent;
 	z-index: 100000;
-}
-
-
-// Sizing
-// -------------------------
-
-.h-medium     { min-height: 400px; }
-.h-tall       { min-height: 700px; }
-
-@each $breakpoint in (sm, md, lg, xl) {
-    @include media-breakpoint-up($breakpoint) {
-        .h-#{$breakpoint}-medium     { min-height: 400px; }
-        .h-#{$breakpoint}-tall       { min-height: 700px; }
-    }
 }
 
 

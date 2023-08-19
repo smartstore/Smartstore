@@ -20,50 +20,75 @@
     @extend .border-end-0;
 }
 
+
 //
-// Border-radius
+// Border radius
 //
 
-.rounded-sm {
-  border-radius: $border-radius-sm !important;
-}
-
-.rounded {
-  border-radius: $border-radius !important;
-}
-
-.rounded-top {
-  border-top-left-radius: $border-radius !important;
-  border-top-right-radius: $border-radius !important;
-}
-
-.rounded-right {
-  border-start-end-radius: $border-radius !important;
-  border-end-end-radius: $border-radius !important;
-}
-
-.rounded-bottom {
-  border-bottom-right-radius: $border-radius !important;
-  border-bottom-left-radius: $border-radius !important;
-}
-
-.rounded-left {
-  border-start-start-radius: $border-radius !important;
-  border-end-start-radius: $border-radius !important;
-}
-
-.rounded-lg {
-  border-radius: $border-radius-lg !important;
+.rounded,
+.rounded-1,
+.rounded-2,
+.rounded-3,
+.rounded-4,
+.rounded-5,
+.rounded-pill {
+    --border-radius-inner: calc(var(--border-radius) - 1px);
 }
 
 .rounded-circle {
-  border-radius: 50% !important;
-}
-
-.rounded-pill {
-  border-radius: $rounded-pill !important;
+    --border-radius-inner: 50%;
 }
 
 .rounded-0 {
-  border-radius: 0 !important;
+    --border-radius-inner: 0;
+    --btn-border-radius: 0;
 }
+
+.rounded,
+.rounded-0,
+.rounded-1,
+.rounded-2,
+.rounded-3,
+.rounded-4,
+.rounded-5,
+.rounded-pill,
+.rounded-circle {
+    border-radius: var(--border-radius) !important;
+}
+
+.rounded-left,
+[class*=rounded-start-] {
+    border-end-start-radius: var(--border-radius-start) !important;
+    border-start-start-radius: var(--border-radius-start) !important;
+}
+
+.rounded-right,
+[class*=rounded-end-] {
+    border-start-end-radius: var(--border-radius-end) !important;
+    border-end-end-radius: var(--border-radius-end) !important;
+}
+
+.rounded-top,
+[class*=rounded-top-] {
+    border-start-start-radius: var(--border-radius-top) !important;
+    border-start-end-radius: var(--border-radius-top) !important;
+}
+
+.rounded-bottom,
+[class*=rounded-bottom-] {
+    border-end-end-radius: var(--border-radius-bottom) !important;
+    border-end-start-radius: var(--border-radius-bottom) !important;
+}
+
+
+//
+// Border-radius shims for legacy naming support
+//
+
+.rounded-sm     { @extend .rounded-1; }
+.rounded-lg     { @extend .rounded-3; }
+.rounded-xl     { @extend .rounded-4; }
+.rounded-xxl    { @extend .rounded-5; }
+.rounded-left   { @extend .rounded-start; }
+.rounded-right  { @extend .rounded-end; }
+

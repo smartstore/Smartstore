@@ -1,47 +1,5 @@
 /// <reference path="theme.scss" />
 
-@function divide($dividend, $divisor, $precision: 10) {
-  $sign: if($dividend > 0 and $divisor > 0 or $dividend < 0 and $divisor < 0, 1, -1);
-  $dividend: abs($dividend);
-  $divisor: abs($divisor);
-  @if $dividend == 0 {
-    @return 0;
-  }
-  @if $divisor == 0 {
-    @error "Cannot divide by 0";
-  }
-  $remainder: $dividend;
-  $result: 0;
-  $factor: 10;
-  @while ($remainder > 0 and $precision >= 0) {
-    $quotient: 0;
-    @while ($remainder >= $divisor) {
-      $remainder: $remainder - $divisor;
-      $quotient: $quotient + 1;
-    }
-    $result: $result * 10 + $quotient;
-    $factor: $factor * .1;
-    $remainder: $remainder * 10;
-    $precision: $precision - 1;
-    @if ($precision < 0 and $remainder >= $divisor * 5) {
-      $result: $result + 1;
-    }
-  }
-  $result: $result * $factor * $sign;
-  $dividend-unit: unit($dividend);
-  $divisor-unit: unit($divisor);
-  $unit-map: (
-    "px": 1px,
-    "rem": 1rem,
-    "em": 1em,
-    "%": 1%
-  );
-  @if ($dividend-unit != $divisor-unit and map-has-key($unit-map, $dividend-unit)) {
-    $result: $result * map-get($unit-map, $dividend-unit);
-  }
-  @return $result;
-}
-
 // Theme specific (non-bootstrap) variables
 // ========================================
 
@@ -111,9 +69,6 @@ $enable-rfs:                    true; // declared in _rfs.scss
 $font-size-root-md:             16px !default;
 $font-size-root-sm:             16px !default;
 
-$gray-150:                      mix($gray-100, $gray-200) !default;
-$gray-650:                      mix($gray-600, $gray-700) !default;
-
 //
 // Checkout Steps
 // --------------------------------------------------
@@ -137,35 +92,32 @@ $costep-active-label-color:     $costep-label-color;
 // Bootstrap variable overrides
 // ========================================
 
-$prefix:                        '';
-$enable-rounded:                true;
-$enable-shadows:                true;
-$enable-gradients:              false;
-$enable-transitions:            true;
-$enable-hover-media-query:      false;
-$enable-grid-classes:           true;
-
-$theme-color-interval:		    8%;
 $yiq-contrasted-threshold:	    164;
-$min-contrast-ratio:            2.2 !default;
 $yiq-text-dark:				    $gray-900;
-$yiq-text-light:			    #fff;
+$color-contrast-dark:           $yiq-text-dark;
+$color-contrast-light:          $yiq-text-light;
+
+$gray-150:                      mix($gray-100, $gray-200) !default;
+$gray-650:                      mix($gray-600, $gray-700) !default;
+
+$grays:  ( 
+    "150": $gray-150,
+    "650": $gray-650
+);
 
 $spacer: 1.25rem;
 $spacers: ( 
 	6: ($spacer * 4.5)
 );
 
-$theme-colors: ( 
-	"gray": $gray-700 
-);
-
-$font-weight-medium:            600 !default;
-$font-weight-semibold:          $font-weight-medium !default;
+$theme-colors:                  ( "gray": $gray-700 );
 
 $line-height-base:              1.4; // --> 21px
 $line-height-sm:                1.429; // --> 20px
 $line-height-lg:                1.375; // --> 22px
+
+$font-weight-base:              $font-weight-normal;
+$headings-font-weight:          $font-weight-medium;
 
 $lead-font-size:                1.125rem;
 $lead-font-weight:              $font-weight-light;
@@ -180,10 +132,6 @@ $display1-weight:               $font-weight-light;
 $display2-weight:               $font-weight-light;
 $display3-weight:               $font-weight-light;
 $display4-weight:               $font-weight-light;
-
-$btn-border-radius:             $border-radius;
-$btn-border-radius-lg:          $border-radius;
-$btn-border-radius-sm:          $border-radius;
 
 // Shadows
 $box-shadow-sm-var:             0 2px 16px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
@@ -201,82 +149,50 @@ $box-shadow-lg:                 $box-shadow-lg-var;
 $box-shadow-xl:                 $box-shadow-xl-var;
 
 
-$input-box-shadow:              none;
-$input-focus-box-shadow:        none;
-$input-border-radius:           $btn-border-radius;
-$input-border-radius-lg:        $btn-border-radius-lg;
-$input-border-radius-sm:        $btn-border-radius-sm;
 
 // Buttons + Forms
-//
-// Shared variables that are reassigned to `$input-` and `$btn-` specific variables.
 
-$input-btn-padding-x:           0.75rem; // --> 12px
-$input-btn-padding-y:           0.5rem; // --> 8px
-$input-btn-font-family:         null !default;
-
-$input-btn-focus-width:			3px;
+$input-btn-font-size:           $font-size-base;
+$input-btn-line-height:         $line-height-base;
 $input-btn-focus-color:			rgba($primary, .25);
-$input-btn-focus-box-shadow:	0 0 0 $input-btn-focus-width $input-btn-focus-color;
-
-$input-btn-padding-x-sm:        0.625rem; // --> 10px
-$input-btn-padding-y-sm:        0.375rem; // --> 6px
 $input-btn-font-size-sm:        $font-size-sm; // --> 14px
-
-$input-btn-padding-x-lg:        1.25rem; // --> 20px
-$input-btn-padding-y-lg:        0.625rem; // --> 10px
-$input-btn-font-size-lg:        1rem; // --> 16px
-
-
-$input-box-shadow:				none;
-$input-focus-box-shadow:		none;
+$input-btn-border-width:        $border-width;
+$input-border-radius:           $border-radius;
+$input-border-radius-lg:        $border-radius;
+$input-border-radius-sm:        $border-radius;
 $input-focus-border-color:		lighten($primary, 30%);
-$input-transition:              none;
-$input-group-addon-bg:			$gray-100;
+$input-group-addon-bg:		    $gray-100;
 $input-border-color:            $gray-300;
 $input-disabled-bg:             $gray-100;
 
-$btn-font-weight:				$font-weight-medium;
-$btn-focus-width:				3px;
-$btn-box-shadow:				0 1px 0 rgba($gray-900, 0.04), inset 0 1px 0 rgba(#fff, 0.25);
-$btn-focus-box-shadow:          inset 0 0 0 $btn-focus-width #fff;
-$btn-active-box-shadow:			inset 0 3px 5px rgba(#000, .125);
-$btn-transition:				color .1s ease-in-out, background-color .1s ease-in-out, border-color .1s ease-in-out, box-shadow .1s ease-in-out;
-$btn-disabled-opacity:			0.5;
 
-$btn-hover-bg-shade-amount:     15% !default;
-$btn-hover-bg-tint-amount:      15% !default;
-$btn-hover-border-shade-amount: 20% !default; //
-$btn-hover-border-tint-amount:  10% !default; //
-$btn-active-bg-shade-amount:    25% !default;
-$btn-active-bg-tint-amount:     25% !default;
-$btn-active-border-shade-amount:25% !default; //
-$btn-active-border-tint-amount: 10% !default; //
+// Buttons
+
+$btn-font-weight:               $font-weight-medium;
+$btn-focus-width:               $input-btn-focus-width;
+$btn-box-shadow:                0 1px 0 rgba($gray-900, 0.04), inset 0 1px 0 rgba($white, 0.25);
+$btn-focus-box-shadow:          inset 0 0 0 $btn-focus-width $white;
+$btn-border-radius:             $input-border-radius;
+$btn-border-radius-lg:          $input-border-radius-lg;
+$btn-border-radius-sm:          $input-border-radius-sm;
 
 
 // Badge
 
 $badge-font-size:               (12 / 15) * 1em !default;
 $badge-font-weight:             $font-weight-medium;
-$badge-padding-y:               (1 / 6) * 1em;
-$badge-padding-x:               0.5em;
-$badge-pill-padding-x:          0.85em;
 $badge-border-radius:           $border-radius-sm;
-
 
 // Dropdown
 
-$dropdown-min-width:            10rem;
 $dropdown-padding-x:            .5rem;
 $dropdown-padding-y:            .5rem;
 $dropdown-spacer:               .125rem;
 $dropdown-font-size:            14px;
 $dropdown-font-weight:          $font-weight-normal;
 $dropdown-color:                $body-color;
-$dropdown-bg:                   #fff;
 $dropdown-border-color:         rgba(#000, .15);
 $dropdown-border-radius:        $border-radius-lg;
-$dropdown-border-width:         1px;
 $dropdown-border-color:			$gray-200;
 $dropdown-divider-bg:           $gray-200;
 $dropdown-divider-margin-y:     $dropdown-padding-y;
@@ -301,16 +217,9 @@ $dropdown-item-padding-x:       1rem;
 
 // Modal
 
-$modal-inner-padding:               1.25rem;
-$modal-header-padding:              1.25rem;
-$modal-content-border-width:        0;
-$modal-content-border-color:        rgba(#000, 0.06);
-$modal-content-border-radius:		$border-radius-lg;
-$modal-backdrop-bg:                 #000;
-$modal-backdrop-opacity:            .68;
 $modal-content-box-shadow-xs:       $box-shadow-var;
 $modal-content-box-shadow-sm-up:    $box-shadow-lg-var;
-$modal-transition:                  all 0.2s ease-out;
+$modal-content-border-radius:		$border-radius-lg;
 
 
 // Popover
@@ -379,16 +288,6 @@ $nav-tabs-link-active-color:    $gray-900;
 
 $nav-pills-link-active-color:   #fff;
 $nav-pills-link-active-bg:      $primary;
-
-
-// Embeds (TODO: Use from v4.3 onwards)
-$embed-responsive-aspect-ratios: (
-  (21 9),
-  (16 9),
-  (16 10),
-  (4 3),
-  (1 1)
-);
 
 
 // Breadcrumb

@@ -1,61 +1,59 @@
-/// <reference path="../../../wwwroot/shared/_variables-shared.scss" />
-/// <reference path="../../../wwwroot/shared/_mixins.scss" />
-/// <reference path="_variables.scss" />
-/// <reference path="../../../wwwroot/lib/bs4/scss/bootstrap.scss" />
-/// <reference path="../../../wwwroot/lib/bs4/scss/vendor/_rfs.scss" />
+/// <reference path="../../../wwwroot/lib/bs4/scss/bootstrap-reboot.scss" />
 
-/* Theme: FLEX 
-======================================== */
+//
+// Theme: FLEX
+// ========================================
 
 
 //
+// Head
+// --------------------------------------------------
+
+// Bootstrap functions
+@import "/lib/bs4/scss/functions";
+
+// Shared Smartstore functions 
+@import '/shared/functions';
+
+// Shared Bootstrap variables
+@import '/shared/variables-shared-bootstrap';
+
 // Virtual file that fetches all theme variables 
 // from the database. We use these variables to 
 // override bootstrap defaults.
-// --------------------------------------------------
-
 @import '/.app/themevars.scss'; 
 
-//
 // Contains theme specific variable defaults
 // and bootstrap variable overrides.
-// --------------------------------------------------
+@import 'variables-custom';
+@import 'variables';
 
-@import '_variables-custom.scss';
-@import '_variables.scss'; 
+// Bootstrap head: vars, mixins, maps etc.
+@import "/lib/bs4/scss/bootstrap-head";
+@import 'variables-reset';
 
-//
 // Fonts
-// --------------------------------------------------
+@import "fonts";
 
-@import "_fonts.scss";
+// Shared Smartstore variables, mixins and :root
+//@import 'shared/colors'; // <-- uncomment this for convenient prototyping
+@import '/shared/variables-shared';
+@import '/shared/mixins';
+@import '/shared/root';
 
-//
-// Bootstrap 4 + variables reset
-// --------------------------------------------------
-
-@import "/lib/bs4/scss/bootstrap-head.scss"; 
-@import '_variables-reset.scss';
-@import "/lib/bs4/scss/bootstrap-main.scss";
-
-
-//
-// Shared variables
-// --------------------------------------------------
-
-/*@import 'shared/_colors.scss';*/ // <-- uncomment this for convenient prototyping
-@import '/shared/_variables-shared.scss'; 
+// Bootstrap main
+@import "/lib/bs4/scss/bootstrap-main";
 
 
 //
 // Vendor components (neutral)
 // --------------------------------------------------
 
-@import "/lib/bs4/scss/vendor/_rfs.scss";
-@import "/lib/photoswipe/photoswipe.scss";
-@import "/lib/slick/slick.scss";
-@import "/lib/select2/scss/core.scss";
-@import "/lib/aos/scss/aos.scss";
+@import "/lib/bs4/scss/vendor/rfs";
+@import "/lib/photoswipe/photoswipe";
+@import "/lib/slick/slick";
+@import "/lib/select2/scss/core";
+@import "/lib/aos/scss/aos";
 
 
 
@@ -64,82 +62,82 @@
 // css specificity.
 // -----------------------------------------------------
 
-@import "_buttons.scss";
+@import "buttons";
 
 
 //
 // Global / Shared
 // --------------------------------------------------
 
-@import '/shared/_mixins.scss';
-@import '/shared/_spacing.scss';
-@import '/shared/_typo.scss';
-@import '/shared/_fa.scss'; 
-@import '/shared/_alert.scss';
-@import '/shared/_badge.scss';
-@import '/shared/_buttons.scss'; 
-@import "/shared/_dropdown.scss";
-@import '/shared/_card.scss';
-@import '/shared/_forms.scss';
-@import '/shared/_numberinput.scss';
-@import '/shared/_breadcrumb.scss';
-@import '/shared/_pagination.scss';
-@import '/shared/_nav.scss';
-@import '/shared/_nav-collapsible.scss';
-@import "/shared/_modal.scss"; 
-@import "/shared/_throbber.scss";
-@import "/shared/_spinner.scss";
-@import "/shared/_star-rating.scss";
-@import "/shared/_sortable-grip.scss";
-@import '/shared/_choice.scss';
-@import "/shared/_offcanvas.scss";
-@import "/shared/_sections.scss";
-@import "/shared/_bg.scss";
-@import '/shared/_custom-scrollbar.scss';
-@import "/shared/_box.scss";
-@import "/shared/_utils.scss";
-//@import '/shared/_switch.scss'; // Obsolete
-@import '/shared/_media.scss';
-@import "/shared/_text-expander.scss";
-@import "/shared/_entity-picker.scss";
+@import '/shared/mixins';
+@import '/shared/spacing';
+@import '/shared/typo';
+@import '/shared/fa'; 
+@import '/shared/alert';
+@import '/shared/badge';
+@import '/shared/buttons'; 
+@import "/shared/dropdown";
+@import '/shared/card';
+@import '/shared/forms';
+@import '/shared/numberinput';
+@import '/shared/breadcrumb';
+@import '/shared/pagination';
+@import '/shared/nav';
+@import '/shared/nav-collapsible';
+@import "/shared/modal"; 
+@import "/shared/throbber";
+@import "/shared/spinner";
+@import "/shared/star-rating";
+@import "/shared/sortable-grip";
+@import '/shared/choice';
+@import "/shared/offcanvas";
+@import "/shared/sections";
+@import "/shared/bg";
+@import '/shared/custom-scrollbar';
+@import "/shared/box";
+@import "/shared/utils";
+//@import '/shared/switch'; // Deprecated
+@import '/shared/media';
+@import "/shared/text-expander";
+@import "/shared/entity-picker";
 
 
 //
 // Vendor component (skinning)
 // --------------------------------------------------
 
-@import "/skinning/_select2.scss";
-@import "/skinning/_pnotify.scss";
-@import "/skinning/_colorpicker.scss";
-@import "/skinning/_photoswipe.scss";
-@import "/skinning/_slick.scss";
-@import "/skinning/_drift.scss";
-@import "/skinning/_fileupload.scss";
-@import "/skinning/_summernote.scss";
+@import "/skinning/select2";
+@import "/skinning/pnotify";
+@import "/skinning/colorpicker";
+@import "/skinning/photoswipe";
+@import "/skinning/slick";
+@import "/skinning/drift";
+@import "/skinning/fileupload";
+@import "/skinning/summernote";
 
 
 //
 // Main
 // --------------------------------------------------
 
-@import "_layout.scss";
-@import "_block.scss";
-@import "_shopbar.scss";
-@import "_footer.scss";
-@import "_menu.scss";
-@import "_megamenu.scss";
-@import "_search.scss";
-@import "_login.scss";
-@import "_rating.scss";
-@import "_artlist.scss";
-@import "_product.scss";
-@import "_gallery.scss";
-@import "_cart.scss"; 
-@import "_checkout.scss"; 
-@import "_accordion.scss";
-@import "_cookie-manager.scss"; 
-@import "_misc.scss";
-@import "_print.scss";
+@import "layout";
+@import "block";
+@import "shopbar";
+@import "footer";
+@import "menu";
+@import "megamenu";
+@import "search";
+@import "login";
+@import "rating";
+@import "artlist";
+@import "product";
+@import "gallery";
+@import "cart"; 
+@import "checkout"; 
+@import "accordion";
+@import "cookie-manager"; 
+@import "misc";
+@import "print";
 
 
 //
@@ -153,5 +151,5 @@
 // Customization
 // --------------------------------------------------
 
-@import "_custom.scss";
-@import "_user.scss";
+@import "custom";
+@import "user";
