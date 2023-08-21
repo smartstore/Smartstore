@@ -137,6 +137,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint",
                 "The following characters are already allowed by default:",
                 "Standardmäßig sind bereits folgende Zeichen erlaubt:");
+
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmSoftDelete", 
+                "Do you want to delete the item?", 
+                "Soll der Datensatz gelöscht werden?");
+
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmSoftDeleteMany", 
+                "Do you want to delete the selected {0} items?", 
+                "Sollen die gewählten {0} Datensätze gelöscht werden?");
         }
 
         /// <summary>

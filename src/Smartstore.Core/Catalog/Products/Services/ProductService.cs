@@ -3,6 +3,7 @@ using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -472,7 +473,7 @@ namespace Smartstore.Core.Catalog.Products
 
         #region Recycle bin
 
-        public virtual async Task<int> RestoreProductsAsync(int[] productIds)
+        public virtual async Task<int> RestoreProductsAsync(int[] productIds, CancellationToken cancelToken = default)
         {
             if (productIds.IsNullOrEmpty())
             {
@@ -483,7 +484,7 @@ namespace Smartstore.Core.Catalog.Products
             var parentCategories = await _db.Categories
                 .IgnoreQueryFilters()
                 .Select(x => new { x.Id, x.ParentId })
-                .ToDictionaryAsync(x => x.Id, x => x.ParentId ?? 0);
+                .ToDictionaryAsync(x => x.Id, x => x.ParentId ?? 0, cancelToken);
 
             foreach (var productIdsChunk in productIds.Chunk(100))
             {
@@ -495,13 +496,13 @@ namespace Smartstore.Core.Catalog.Products
                         Id = x.Id,
                         ProductTypeId = x.ProductTypeId
                     })
-                    .ToListAsync();
+                    .ToListAsync(cancelToken);
 
                 foreach (var product in products)
                 {
                     try
                     {
-                        await RestoreProductInternal(product, parentCategories);
+                        await RestoreProductInternal(product, parentCategories, cancelToken);
                         success++;
                     }
                     catch (Exception ex)
@@ -519,7 +520,7 @@ namespace Smartstore.Core.Catalog.Products
             return success;
         }
 
-        private async Task RestoreProductInternal(RestoreProduct product, Dictionary<int, int> parentCategories)
+        private async Task RestoreProductInternal(RestoreProduct product, Dictionary<int, int> parentCategories, CancellationToken cancelToken)
         {
             // Get IDs of products to restore.
             var productIds = new HashSet<int>(product.Id);
@@ -530,14 +531,14 @@ namespace Smartstore.Core.Catalog.Products
                     .IgnoreQueryFilters()
                     .Where(x => x.BundleProductId == product.Id && x.Product.Deleted)
                     .Select(x => x.ProductId)
-                    .ToArrayAsync());
+                    .ToArrayAsync(cancelToken));
             }
 
             var requiredProductIds = await _db.Products
                 .IgnoreQueryFilters()
                 .Where(x => productIds.Contains(x.Id) && x.RequireOtherProducts && x.Deleted)
                 .Select(x => x.RequiredProductIds)
-                .ToArrayAsync();
+                .ToArrayAsync(cancelToken);
 
             foreach (var idsStr in requiredProductIds)
             {
@@ -550,22 +551,18 @@ namespace Smartstore.Core.Catalog.Products
             await _db.Products
                 .IgnoreQueryFilters()
                 .Where(x => productIds.Contains(x.Id) && x.Deleted)
-                .ExecuteUpdateAsync(x => x.SetProperty(m => m.Deleted, m => false));
+                .ExecuteUpdateAsync(x => x.SetProperty(m => m.Deleted, m => false), cancelToken);
 
             // Restore manufacturers.
-            var deletedManufacturerIds = await _db.ProductManufacturers
+            var deletedManufacturerIdsQuery = _db.ProductManufacturers
                 .IgnoreQueryFilters()
                 .Where(x => productIds.Contains(x.ProductId) && x.Manufacturer.Deleted)
-                .Select(x => x.ManufacturerId)
-                .Distinct()
-                .ToArrayAsync();
-            if (deletedManufacturerIds.Length > 0)
-            {
-                await _db.Manufacturers
-                    .IgnoreQueryFilters()
-                    .Where(x => deletedManufacturerIds.Contains(x.Id))
-                    .ExecuteUpdateAsync(x => x.SetProperty(m => m.Deleted, m => false));
-            }
+                .Select(x => x.ManufacturerId);
+
+            await _db.Manufacturers
+                .IgnoreQueryFilters()
+                .Where(x => deletedManufacturerIdsQuery.Contains(x.Id))
+                .ExecuteUpdateAsync(x => x.SetProperty(m => m.Deleted, m => false), cancelToken);
 
             // Restore categories.
             var categoryIds = new HashSet<int>();
@@ -574,7 +571,7 @@ namespace Smartstore.Core.Catalog.Products
                 .Where(x => productIds.Contains(x.ProductId))
                 .Select(x => x.CategoryId)
                 .Distinct()
-                .ToArrayAsync();
+                .ToArrayAsync(cancelToken);
             assignedCategoryIds.Each(GetCategoryIds);
 
             if (categoryIds.Count > 0)
@@ -582,7 +579,7 @@ namespace Smartstore.Core.Catalog.Products
                 await _db.Categories
                     .IgnoreQueryFilters()
                     .Where(x => categoryIds.Contains(x.Id) && x.Deleted)
-                    .ExecuteUpdateAsync(x => x.SetProperty(c => c.Deleted, c => false));
+                    .ExecuteUpdateAsync(x => x.SetProperty(c => c.Deleted, c => false), cancelToken);
             }
 
             void GetCategoryIds(int categoryId)
@@ -598,19 +595,19 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        public virtual async Task<int> DeleteProductsPermanentAsync(int[] productIds)
+        public virtual async Task<int> DeleteProductsPermanentAsync(int[] productIds, CancellationToken cancelToken = default)
         {
             if (productIds.IsNullOrEmpty())
             {
                 return 0;
             }
 
-            // INFO: relationship has a cascade delete rule (dangerous).
+            // INFO: never ever delete products with assigned order items. Relationship has a cascade delete rule (dangerous).
             var excludeProductIds = await _db.OrderItems
                 .Where(x => productIds.Contains(x.ProductId))
                 .Select(x => x.ProductId)
                 .Distinct()
-                .ToArrayAsync();
+                .ToArrayAsync(cancelToken);
 
             if (excludeProductIds.Length > 0)
             {
@@ -623,9 +620,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 try
                 {
-                    // INFO: ISoftDeletable would prevent the product from being permanently deleted.
-                    // Better avoid change tracking and hooks, at the cost of some duplicate code.
-                    await DeleteProductsPermanentInternal(productIdsChunk);
+                    await DeleteProductsPermanentInternal(productIdsChunk, cancelToken);
                     success += productIdsChunk.Length;
                 }
                 catch (Exception ex)
@@ -637,77 +632,141 @@ namespace Smartstore.Core.Catalog.Products
             return success;
         }
 
-        private async Task DeleteProductsPermanentInternal(int[] productIds)
+        private async Task DeleteProductsPermanentInternal(int[] productIds, CancellationToken cancelToken)
         {
-            // INFO: not necessary here to check whether an assignment of certain type,
+            // INFO: not necessary here to check whether an assignment is of certain type,
             // (e.g. if the deleted product is grouped or bundled product). Just remove any assignment.
 
-            const string productEntityName = nameof(Product);
+            const string entityName = nameof(Product);
 
             // ----- Product assignments.
 
             await _db.Products
                 .Where(x => productIds.Contains(x.ParentGroupedProductId))
-                .ExecuteUpdateAsync(x => x.SetProperty(p => p.ParentGroupedProductId, p => 0));
+                .ExecuteUpdateAsync(x => x.SetProperty(p => p.ParentGroupedProductId, p => 0), cancelToken);
+
+            await DeleteProductMenuItems(productIds, cancelToken);
 
             // ----- Missing cascade delete rules.
 
-            // Cart item of bundle items.
-            var bundleItemIds = await _db.ProductBundleItem
+            // Cart items of bundle items.
+            var bundleItemIdsQuery = _db.ProductBundleItem
                 .Where(x => productIds.Contains(x.BundleProductId))
-                .Select(x => x.Id)
-                .Distinct()
-                .ToArrayAsync();
+                .Select(x => x.Id);
 
-            if (bundleItemIds.Length > 0)
-            {
-                await _db.ShoppingCartItems
-                    .Where(x => x.BundleItemId != null && bundleItemIds.Contains(x.BundleItemId.Value))
-                    .ExecuteDeleteAsync();
-            }
+            await _db.ShoppingCartItems
+                .Where(x => x.BundleItemId != null && bundleItemIdsQuery.Contains(x.BundleItemId.Value))
+                .ExecuteDeleteAsync(cancelToken);
 
             // Product review helpfulness.
-            var reviewIds = await _db.ProductReviews
-                .Where(x => productIds.Contains(x.Id))
-                .Select(x => x.Id)
-                .Distinct()
-                .ToArrayAsync();
+            var reviewIdsQuery = _db.ProductReviews
+                .Where(x => productIds.Contains(x.ProductId))
+                .Select(x => x.Id);
 
-            if (reviewIds.Length > 0)
-            {
-                // TODO: (mg) test if CustomerContent is deleted by referential integrity here.
-                await _db.ProductReviewHelpfulness
-                    .Where(x => reviewIds.Contains(x.ProductReviewId))
-                    .ExecuteDeleteAsync();
-            }
+            // TODO: (mg) test if CustomerContent is deleted by referential integrity here.
+            await _db.ProductReviewHelpfulness
+                .Where(x => reviewIdsQuery.Contains(x.ProductReviewId))
+                .ExecuteDeleteAsync(cancelToken);
 
             await _db.CrossSellProducts
                 .Where(x => productIds.Contains(x.ProductId1) || productIds.Contains(x.ProductId2))
-                .ExecuteDeleteAsync();
+                .ExecuteDeleteAsync(cancelToken);
+
+            await _db.RelatedProducts
+                .Where(x => productIds.Contains(x.ProductId1) || productIds.Contains(x.ProductId2))
+                .ExecuteDeleteAsync(cancelToken);
+
+            await _db.Downloads
+                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == entityName)
+                .ExecuteDeleteAsync(cancelToken);
 
             // ----- Satellite tables.
 
             await _db.StoreMappings
-                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == productEntityName)
-                .ExecuteDeleteAsync();
+                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == entityName)
+                .ExecuteDeleteAsync(cancelToken);
 
             await _db.AclRecords
-                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == productEntityName)
-                .ExecuteDeleteAsync();
+                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == entityName)
+                .ExecuteDeleteAsync(cancelToken);
 
             await _db.UrlRecords
-                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == productEntityName)
-                .ExecuteDeleteAsync();
+                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == entityName)
+                .ExecuteDeleteAsync(cancelToken);
 
             await _db.LocalizedProperties
-                .Where(x => productIds.Contains(x.EntityId) && x.LocaleKeyGroup == productEntityName)
-                .ExecuteDeleteAsync();
+                .Where(x => productIds.Contains(x.EntityId) && x.LocaleKeyGroup == entityName)
+                .ExecuteDeleteAsync(cancelToken);
 
             await _db.SyncMappings
-                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == productEntityName)
-                .ExecuteDeleteAsync();
+                .Where(x => productIds.Contains(x.EntityId) && x.EntityName == entityName)
+                .ExecuteDeleteAsync(cancelToken);
 
-            // TODO: plugin tables -> use hook.
+            // FROM [MediaTrack] AS [m]
+            // WHERE EXISTS (
+            //    SELECT 1 FROM [Product_MediaFile_Mapping] AS [p]
+            //    WHERE [p].[ProductId] IN (...) AND [p].[Id] = [m].[EntityId]) AND [m].[EntityName] = N'ProductMediaFile'
+
+            var productMediaFileIdsQuery = _db.ProductMediaFiles
+                .Where(x => productIds.Contains(x.ProductId))
+                .Select(x => x.Id);
+
+            await _db.MediaTracks
+                .Where(x => productMediaFileIdsQuery.Contains(x.EntityId) && x.EntityName == nameof(ProductMediaFile))
+                .ExecuteDeleteAsync(cancelToken);
+
+            // ----- Finally delete products.
+            // If we have forgotten something, this will lead to an exception.
+
+            // TODO: (mg) Change tracker or ExecuteDeleteAsync? Change tracker is slow and ISoftDeletable would prevent the product from being permanently deleted.
+            // But via ExecuteDeleteAsync plugins can't delete their stuff -> two events required. Event for restore too?
+            // Plugins: DependingPrices, FileManagerRecords, FileManagerTabRecords, GoogleProduct, IndexBacklog, PageStoryBlock, PersonalPromo,
+            // ShopConnectorSkuMapping
+
+            //await _db.Products
+            //    .Where(x => productIds.Contains(x.Id))
+            //    .ExecuteDeleteAsync(cancelToken);
+        }
+
+        private async Task DeleteProductMenuItems(int[] productIds, CancellationToken cancelToken)
+        {
+            var menuItemSchema = DefaultLinkProvider.SchemaProduct.EnsureEndsWith(':');
+            var menuItems = await _db.MenuItems
+                .Where(x => x.ProviderName == "entity" && x.Model.StartsWith(menuItemSchema))
+                .Select(x => new { x.Id, x.Model })
+                .ToListAsync(cancelToken);
+
+            if (menuItems.Count > 0)
+            {
+                var menuItemIds = menuItems
+                    .Select(x =>
+                    {
+                        try
+                        {
+                            var link = LinkExpression.Parse(x.Model);
+                            if (int.TryParse(link.Target, out var entityId) && productIds.Contains(entityId))
+                            {
+                                return x.Id;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                        }
+
+                        return 0;
+                    })
+                    .Where(x => x != 0)
+                    .Distinct()
+                    .ToArray();
+
+                if (menuItemIds.Length > 0)
+                {
+                    await _db.MenuItems
+                        .Where(x => menuItemIds.Contains(x.Id))
+                        .ExecuteDeleteAsync(cancelToken);
+                }
+            }
         }
 
         class RestoreProduct

@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Antiforgery;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.OData.ModelBuilder;
 using Newtonsoft.Json;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
@@ -39,6 +41,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string MaxHeightAttributeName = "max-height";
         const string PreserveCommandStateAttributeName = "preserve-command-state";
         const string PreserveGridStateAttributeName = "preserve-grid-state";
+        const string SoftDeleteName = "soft-delete";
         const string ClassAttributeName = "class";
         const string VersionAttributeName = "version";
         const string OnDataBindingAttributeName = "ondatabinding";
@@ -138,7 +141,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         /// <summary>
         /// Grid configuration version. This version is compared with the user preferences version
-        /// saved in browser's localStorage. Ig this version differs, no attempt is made to load
+        /// saved in browser's localStorage. If this version differs, no attempt is made to load
         /// client preferences.
         /// Increment the value if you made changes to the grid columns or any user-customizable option.
         /// </summary>
@@ -165,6 +168,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(PreserveGridStateAttributeName)]
         public bool PreserveGridState { get; set; } = true;
+
+        /// <summary>
+        /// A value that indicates whether deletion moves records to a recycle bin (soft-delete) or deletes them permanently.
+        /// </summary>
+        [HtmlAttributeName(SoftDeleteName)]
+        public bool SoftDelete { get; set; }
 
         /// <summary>
         /// Name of Javascript function to call before data binding.
@@ -335,8 +344,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                 ["xPerPage"] = T(resRoot + "XPerPage"),
                 ["displayingItems"] = T(resRoot + "DisplayingItems"),
                 ["displayingItemsShort"] = T(resRoot + "DisplayingItemsShort"),
-                ["confirmDelete"] = T(resRoot + "ConfirmDelete"),
-                ["confirmDeleteMany"] = T(resRoot + "ConfirmDeleteMany"),
+                ["confirmDelete"] = T(resRoot + (SoftDelete ? "ConfirmSoftDelete" : "ConfirmDelete")),
+                ["confirmDeleteMany"] = T(resRoot + (SoftDelete ? "ConfirmSoftDeleteMany" : "ConfirmDeleteMany")),
                 ["deleteSuccess"] = T(resRoot + "DeleteSuccess"),
             };
 
