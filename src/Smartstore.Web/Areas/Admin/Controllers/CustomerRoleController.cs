@@ -262,6 +262,7 @@ namespace Smartstore.Admin.Controllers
                     var result = await _roleManager.UpdateAsync(role);
                     if (result.Succeeded)
                     {
+                        await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, role, form));
                         Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
                         NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
 
