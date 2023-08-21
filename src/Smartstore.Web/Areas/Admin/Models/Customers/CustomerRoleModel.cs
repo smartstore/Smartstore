@@ -7,7 +7,7 @@ using Smartstore.Web.Models.Customers;
 namespace Smartstore.Admin.Models.Customers
 {
     [LocalizedDisplay("Admin.Customers.CustomerRoles.Fields.")]
-    public class CustomerRoleModel : EntityModelBase
+    public class CustomerRoleModel : TabbableModel
     {
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
