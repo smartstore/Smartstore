@@ -1,10 +1,8 @@
-﻿using Humanizer;
-using Microsoft.AspNetCore.Antiforgery;
+﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.OData.ModelBuilder;
 using Newtonsoft.Json;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
@@ -169,6 +167,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(PreserveGridStateAttributeName)]
         public bool PreserveGridState { get; set; } = true;
 
+        // TODO: (mg) API misuse: This doesn't belong here. Instead, overwrite
+        // "window.Res.DataGrid.confirmDelete*" in particular view.
         /// <summary>
         /// A value that indicates whether deletion moves records to a recycle bin (soft-delete) or deletes them permanently.
         /// </summary>
