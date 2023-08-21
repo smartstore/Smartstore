@@ -14,6 +14,7 @@ namespace Smartstore.Core.Catalog.Products
 
         private readonly HashSet<BaseEntity> _toSendStockNotification = new();
         private readonly HashSet<BaseEntity> _toAdjustInventory = new();
+        private readonly HashSet<int> _oldSampleDownloadIds = new();
 
         public ProductHook(
             SmartDbContext db,
@@ -34,31 +35,41 @@ namespace Smartstore.Core.Catalog.Products
 
         public override Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entry.State == EState.Modified 
-                && entry.Entity is Product p
-                && p.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
+            if (entry.State == EState.Modified && entry.Entity is Product p)
             {
-                var prop = entry.Entry.Property(nameof(Product.StockQuantity));
-                if (prop?.CurrentValue != null && prop?.OriginalValue != null)
+                if (p.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
                 {
-                    var stockQuantityInDatabase = (int)prop.OriginalValue;
-                    var newStockQuantity = (int)prop.CurrentValue;
-
-                    if (p.BackorderMode == BackorderMode.NoBackorders
-                        && p.AllowBackInStockSubscriptions
-                        && p.Published
-                        && !p.Deleted
-                        && !p.IsSystemProduct
-                        && newStockQuantity > 0
-                        && stockQuantityInDatabase <= 0)
+                    var prop = entry.Entry.Property(nameof(Product.StockQuantity));
+                    if (prop?.CurrentValue != null && prop?.OriginalValue != null)
                     {
-                        _toSendStockNotification.Add(entry.Entity);
-                    }
+                        var stockQuantityInDatabase = (int)prop.OriginalValue;
+                        var newStockQuantity = (int)prop.CurrentValue;
 
-                    if (newStockQuantity != stockQuantityInDatabase)
-                    {
-                        _toAdjustInventory.Add(entry.Entity);
+                        if (p.BackorderMode == BackorderMode.NoBackorders
+                            && p.AllowBackInStockSubscriptions
+                            && p.Published
+                            && !p.Deleted
+                            && !p.IsSystemProduct
+                            && newStockQuantity > 0
+                            && stockQuantityInDatabase <= 0)
+                        {
+                            _toSendStockNotification.Add(entry.Entity);
+                        }
+
+                        if (newStockQuantity != stockQuantityInDatabase)
+                        {
+                            _toAdjustInventory.Add(entry.Entity);
+                        }
                     }
+                }
+
+                var sampleDownloadIdProp = entry.Entry.Property(nameof(Product.SampleDownloadId));
+                var oldDownloadId = sampleDownloadIdProp.OriginalValue != null ? (int)sampleDownloadIdProp.OriginalValue : 0;
+                var newDownloadId = sampleDownloadIdProp.CurrentValue != null ? (int)sampleDownloadIdProp.CurrentValue : 0;
+
+                if (oldDownloadId != 0 && oldDownloadId != newDownloadId)
+                {
+                    _oldSampleDownloadIds.Add(oldDownloadId);
                 }
             }
 
@@ -123,6 +134,14 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             await _db.SaveChangesAsync(cancelToken);
+
+            // Set old sample downloads to transient.
+            if (_oldSampleDownloadIds.Count > 0)
+            {
+                await _db.Downloads
+                    .Where(x => _oldSampleDownloadIds.Contains(x.Id))
+                    .ExecuteUpdateAsync(x => x.SetProperty(d => d.IsTransient, d => true), cancelToken);
+            }
 
             if (_toAdjustInventory.Count > 0)
             {

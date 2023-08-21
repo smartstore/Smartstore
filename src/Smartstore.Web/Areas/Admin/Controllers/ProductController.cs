@@ -1199,28 +1199,16 @@ namespace Smartstore.Admin.Controllers
             }
 
             var isUrlDownload = Request.Form["is-url-download-" + model.SampleDownloadId] == "true";
-            var setOldFileToTransient = false;
 
             if (model.SampleDownloadId != model.OldSampleDownloadId && model.SampleDownloadId != 0 && !isUrlDownload)
             {
                 // Insert sample download if a new file was uploaded.
                 model.SampleDownloadId = await InsertSampleDownloadAsync(model.SampleDownloadId, model.Id);
-
-                setOldFileToTransient = true;
             }
             else if (isUrlDownload)
             {
                 var download = await _db.Downloads.FindByIdAsync((int)model.SampleDownloadId);
                 download.IsTransient = false;
-                await _db.SaveChangesAsync();
-
-                setOldFileToTransient = true;
-            }
-
-            if (setOldFileToTransient && model.OldSampleDownloadId > 0)
-            {
-                var download = await _db.Downloads.FindByIdAsync((int)model.OldSampleDownloadId);
-                download.IsTransient = true;
                 await _db.SaveChangesAsync();
             }
         }
