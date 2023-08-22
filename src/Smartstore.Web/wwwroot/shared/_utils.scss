@@ -225,35 +225,6 @@ table th {
 // Shadows
 // --------------------------------------------------
 
-.shadow {
-    --box-shadow: #{$box-shadow-var};
-}
-
-.shadow-xs {
-    --box-shadow: #{$box-shadow-xs-var};
-}
-
-.shadow-sm {
-    --box-shadow: #{$box-shadow-sm-var};
-}
-
-.shadow-lg {
-    --box-shadow: #{$box-shadow-lg-var};
-}
-
-.shadow-xl {
-    --box-shadow: #{$box-shadow-xl-var};
-}
-
-.shadow,
-.shadow-xs,
-.shadow-sm, 
-.shadow-lg, 
-.shadow-xl {
-    // Because of CSS variable specificity
-    box-shadow: var(--box-shadow) !important;
-}
-
 @each $color, $value in $theme-colors {
     @if $color != "secondary" and $color != "light" { 
         .shadow-#{$color} { 

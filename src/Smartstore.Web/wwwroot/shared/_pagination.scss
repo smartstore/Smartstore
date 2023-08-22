@@ -3,7 +3,7 @@
 .pagination {
     flex-wrap: wrap;
     --pag-size: #{$input-height};
-    --pag-border-radius: #{$border-radius};
+    --pag-border-radius: var(--border-radius-md);
     --pag-margin: 3px;
     --pag-padding-x: #{$pagination-padding-x};
     --pag-font-size: #{$font-size-base};
@@ -13,7 +13,7 @@
 
 .pagination-lg {
     --pag-size: #{$input-height-lg};
-    --pag-border-radius: #{$border-radius-lg};
+    --pag-border-radius: var(--border-radius-lg);
     --pag-margin: 4px;
     --pag-padding-x: #{$pagination-padding-x-lg};
     --pag-font-size: #{$font-size-lg};
@@ -21,7 +21,7 @@
 
 .pagination-sm,
 .pagination-xs {
-    --pag-border-radius: #{$border-radius-sm};
+    --pag-border-radius: var(--border-radius-sm);
     --pag-margin: 2px;
 }
 

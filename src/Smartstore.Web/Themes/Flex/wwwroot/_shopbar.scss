@@ -148,7 +148,7 @@
     text-decoration: none !important;
     padding: 0.35rem 0.5rem;
     border: 1px solid transparent;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
     transition: all 0.12s ease;
     cursor: pointer;
 
@@ -245,7 +245,7 @@
     padding: 0.75em;
     text-decoration: none !important;
     text-transform: uppercase;
-    @include border-radius($border-radius);
+    @include border-radius(var(--border-radius-md));
 
     > .menubar-icon {
         font-size: $font-size-base;

@@ -94,8 +94,8 @@
 	}
 }
 .gal-nav .gal-item-viewport {
-	border: 1px solid rgba(#000, 0.12);
-    border-radius: $border-radius;
+	border: 1px solid rgba($black, 0.12);
+    border-radius: var(--border-radius-md);
 }
 .gal-nav .gal-item-viewport:hover {
 	border-color: rgba(#000, 0.35);

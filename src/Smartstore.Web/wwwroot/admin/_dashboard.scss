@@ -86,8 +86,8 @@
 
 .report {
     background-color: white;
-    border-radius: $border-radius;
-    box-shadow: $box-shadow-sm-var;
+    border-radius: var(--border-radius-md);
+    box-shadow: $box-shadow-sm;
     height: 100%;
     overflow: hidden;
 
@@ -306,7 +306,7 @@
         width: fit-content;
         background: rgba(#000, 0.8);
         color: $light;
-        border-radius: $border-radius-sm;
+        border-radius: var(--border-radius-sm);
         transition: all 0.2s ease-in-out;
         pointer-events: none;
         transform: translateX(-50%);

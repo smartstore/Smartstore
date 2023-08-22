@@ -175,7 +175,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     padding: $pd-offer-spacing;
     line-height: $pd-line-height;
     width: 100%;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
     --pd-finalprice-color: #{$pd-price-color};
     --pd-finalprice-offer-color: #{$pd-price-offer-color};
     --pd-offer-muted-color: #{$pd-offer-muted-color};

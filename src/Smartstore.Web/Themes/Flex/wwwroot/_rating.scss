@@ -103,7 +103,7 @@
     .review-vote-link {
 	    text-decoration: none;
 	    padding: 0 0.3rem;
-        border-radius: $border-radius;
+        border-radius: var(--border-radius-md);
 	    &.review-vote-link-yes { color: $success; }
 	    &.review-vote-link-yes:hover { background: $success; color: #fff }
 	    &.review-vote-link-no { color: $danger; }

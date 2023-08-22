@@ -110,8 +110,8 @@
 .artlist-action--pager {
     > * { position: relative; }
     > *:not(:first-child) { margin-inline-start: -1px; }
-    .btn-pager-prev { border-start-start-radius: $border-radius; border-end-start-radius: $border-radius }   
-    .btn-pager-next { border-start-end-radius: $border-radius; border-end-end-radius: $border-radius }    
+    .btn-pager-prev { border-start-start-radius: var(--border-radius-md); border-end-start-radius: var(--border-radius-md) }   
+    .btn-pager-next { border-start-end-radius: var(--border-radius-md); border-end-end-radius: var(--border-radius-md) }    
 }
 
 @media (max-width: 360px) {

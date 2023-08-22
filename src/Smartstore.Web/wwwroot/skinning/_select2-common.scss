@@ -43,7 +43,7 @@
 .select2-search--dropdown {
     .select2-search__field {
         @include bootstrap-input-defaults;
-        border-radius: $border-radius-sm;
+        border-radius: var(--border-radius-sm);
     }
 }
 

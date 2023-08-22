@@ -427,8 +427,8 @@ $btn-wide-padding-x-sm: 1.2rem;
 .btn-3d {
     --shadow-color-rgb: 0,0,0;
     --shadow-intensity: 1;
-    --btn-box-shadow: #{$box-shadow-xs-var};
-    --btn-hover-shadow: #{$box-shadow-var};
+    --btn-box-shadow: #{$box-shadow-xs};
+    --btn-hover-shadow: #{$box-shadow};
     --btn-active-shadow: var(--btn-box-shadow);
 
     transition-property: transform, box-shadow, color, background-color, border-color, opacity !important;

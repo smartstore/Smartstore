@@ -19,7 +19,7 @@ $section-header-height: 70px;
     background-color: $gray-100;
     padding: 1rem;
     margin-bottom: $alert-margin-bottom;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
 }
 
 pre {
@@ -140,7 +140,7 @@ body {
     padding-right: var(--content-padding-x);
     padding-top: $section-header-height;
     padding-bottom: var(--content-padding-x);
-    box-shadow: $box-shadow-sm-var;
+    box-shadow: $box-shadow-sm;
     border-radius: 0;
     background-color: #fff;
     grid-column: 1 / -1;
@@ -150,7 +150,7 @@ body {
 
     @include media-breakpoint-up(sm) {
         margin: 0 var(--content-padding-x);
-        border-radius: $border-radius-lg $border-radius-lg 0 0;
+        border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
     }
 
     .popup & {
@@ -387,7 +387,7 @@ body {
       --dropdown-border-radius: 8px;
       --shadow-intensity: 0.7;
         margin-top: -2px;
-        box-shadow: $box-shadow-lg-var;
+        box-shadow: $box-shadow-lg;
     }
 
     #navbar-menu .nav-item > .dropdown-menu {
@@ -898,7 +898,7 @@ legend {
     background-color: #fff;
     border: 1px solid $border-color;
     margin-bottom: 1rem;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
 
     --tab-caption-display-xs: none;
     --tab-caption-display-sm: var(--tab-caption-display-xs);
@@ -914,8 +914,7 @@ legend {
         padding: 0.4rem;
         border-bottom: 1px solid $border-color;
         background-color: $gray-100;
-        border-top-left-radius: $border-radius;
-        border-top-right-radius: $border-radius;
+        @include border-left-radius(var(--border-radius-md));
         flex-wrap: nowrap;
         overflow-x: auto;
 
@@ -1625,8 +1624,8 @@ a.editable {
         height: $font-size-base;
         vertical-align: bottom;
         display: inline-block;
-        border-radius: $border-radius-sm;
-        border: 1px solid rgba(#000, 0.06);
+        border-radius: var(--border-radius-sm);
+        border: 1px solid rgba($black, 0.06);
     }
 }
 

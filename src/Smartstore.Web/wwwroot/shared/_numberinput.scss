@@ -283,6 +283,6 @@
     z-index: 2;
 
     .input-group-text {
-        border-radius: $border-radius-sm 0 0 $border-radius-sm;
+        border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
     }
 }

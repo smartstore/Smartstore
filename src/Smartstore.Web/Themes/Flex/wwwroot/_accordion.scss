@@ -80,15 +80,13 @@
 
     .card:first-child,
     .card:first-child .card-header,
-    .card:first-child .card-title-link { 
-        border-top-left-radius: $border-radius;  
-        border-top-right-radius: $border-radius;
+    .card:first-child .card-title-link {
+        @include border-left-radius(var(--border-radius-md));
     }
 
     .card:last-child,
     .card:last-child .card-header{ 
-        border-bottom-left-radius: $border-radius;  
-        border-bottom-right-radius: $border-radius;
+        @include border-bottom-radius(var(--border-radius-md));
     }
 
     .card:last-child .card-header{ 

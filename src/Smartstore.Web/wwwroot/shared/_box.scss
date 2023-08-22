@@ -19,19 +19,19 @@
     z-index: 2;
 
     &.shadow-xs {
-        --box-shadow: #{$box-shadow-sm-var};
+        box-shadow: $box-shadow-sm !important;
     }
 
     &.shadow-sm {
-        --box-shadow: #{$box-shadow-var};
+        box-shadow: $box-shadow !important;
     }
 
     &.shadow {
-        --box-shadow: #{$box-shadow-lg-var};
+        box-shadow: $box-shadow-lg !important;
     }
 
     &.shadow-lg {
-        --box-shadow: #{$box-shadow-xl-var};
+        box-shadow: $box-shadow-xl !important;
     }
 }
 

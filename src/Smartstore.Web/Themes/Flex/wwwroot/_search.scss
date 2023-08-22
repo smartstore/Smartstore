@@ -35,7 +35,7 @@ $facet-selection-color:             darken($success, 15%);
 
     @if ($searchbox-shadow == true) {
         &:hover, &:focus, &:active {
-            box-shadow: $box-shadow-sm-var;
+            box-shadow: $box-shadow-sm;
         }
     }
      &:focus, &:active {
@@ -135,7 +135,7 @@ $facet-selection-color:             darken($success, 15%);
     box-shadow: $dropdown-box-shadow;
     background-color: $dropdown-bg;
     z-index: $zindex-dropdown + 100;
-    border-radius: 0 0 $border-radius $border-radius;   
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);   
 
     &.open {
         display: block;

@@ -48,7 +48,7 @@
         color: inherit;
         background: var(--gray-200);
         border: 1px solid rgba(#000, .1);
-        --border-radius: #{$border-radius};
+        --border-radius: var(--border-radius-md);
         border-radius: calc(var(--border-radius) - 1px);
         cursor: default;
         padding: var(--select2-choice-padding-y) var(--select2-choice-padding-x);
@@ -92,7 +92,7 @@
 
         font-weight: 400;
         margin-inline: 3px -2px;
-        border-radius: $border-radius-sm;
+        border-radius: var(--border-radius-sm);
         order: 2;
     }
     // Clear the selection.

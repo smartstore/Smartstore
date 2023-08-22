@@ -37,8 +37,8 @@
     }
 
     // Shadow variables
-    --box-shadow-xs: #{$box-shadow-xs-var};
-    --box-shadow-xl: #{$box-shadow-lg-var};
+    --box-shadow-xs: #{$box-shadow-xs};
+    --box-shadow-xl: #{$box-shadow-xl};
 
     $c: $dark;
     --shadow-color-rgb: 0,0,0;
