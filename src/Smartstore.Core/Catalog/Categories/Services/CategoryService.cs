@@ -19,12 +19,12 @@ namespace Smartstore.Core.Catalog.Categories
         internal static TimeSpan CategoryTreeCacheDuration = TimeSpan.FromHours(6);
 
         // {0} = IncludeHidden, {1} = CustomerRoleIds, {2} = StoreId
-        internal const string CATEGORY_TREE_KEY = "category:tree-{0}-{1}-{2}";
-        internal const string CATEGORY_TREE_PATTERN_KEY = "category:tree-*";
+        internal const string CategoryTreeKey = "category:tree-{0}-{1}-{2}";
+        internal const string CategoryTreePatternKey = "category:tree-*";
 
         // {0} = IncludeHidden, {1} = CustomerId, {2} = StoreId, {3} ParentCategoryId
-        private const string CATEGORIES_BY_PARENT_CATEGORY_ID_KEY = "category:byparent-{0}-{1}-{2}-{3}";
-        internal const string CATEGORIES_PATTERN_KEY = "category:*";
+        const string CategoriesByParentIdKey = "category:byparent-{0}-{1}-{2}-{3}";
+        internal const string CategoriesPatternKey = "category:*";
 
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
@@ -302,7 +302,7 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             var storeId = _storeContext.CurrentStore.Id;
-            var cacheKey = CATEGORIES_BY_PARENT_CATEGORY_ID_KEY.FormatInvariant(includeHidden, _workContext.CurrentCustomer.Id, storeId, parentCategoryId);
+            var cacheKey = CategoriesByParentIdKey.FormatInvariant(includeHidden, _workContext.CurrentCustomer.Id, storeId, parentCategoryId);
 
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
@@ -425,7 +425,7 @@ namespace Smartstore.Core.Catalog.Categories
             var rolesIds = _workContext.CurrentCustomer.GetRoleIds();
             var storeToken = _db.QuerySettings.IgnoreMultiStore ? "0" : storeId.ToString();
             var rolesToken = _db.QuerySettings.IgnoreAcl || includeHidden ? "0" : string.Join(",", rolesIds);
-            var cacheKey = CATEGORY_TREE_KEY.FormatInvariant(includeHidden.ToString().ToLower(), rolesToken, storeToken);
+            var cacheKey = CategoryTreeKey.FormatInvariant(includeHidden.ToString().ToLower(), rolesToken, storeToken);
 
             var root = await _cache.GetAsync(cacheKey, async o =>
             {

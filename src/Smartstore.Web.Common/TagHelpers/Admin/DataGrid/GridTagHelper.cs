@@ -39,7 +39,6 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string MaxHeightAttributeName = "max-height";
         const string PreserveCommandStateAttributeName = "preserve-command-state";
         const string PreserveGridStateAttributeName = "preserve-grid-state";
-        const string SoftDeleteName = "soft-delete";
         const string ClassAttributeName = "class";
         const string VersionAttributeName = "version";
         const string OnDataBindingAttributeName = "ondatabinding";
@@ -166,14 +165,6 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(PreserveGridStateAttributeName)]
         public bool PreserveGridState { get; set; } = true;
-
-        // TODO: (mg) API misuse: This doesn't belong here. Instead, overwrite
-        // "window.Res.DataGrid.confirmDelete*" in particular view.
-        /// <summary>
-        /// A value that indicates whether deletion moves records to a recycle bin (soft-delete) or deletes them permanently.
-        /// </summary>
-        [HtmlAttributeName(SoftDeleteName)]
-        public bool SoftDelete { get; set; }
 
         /// <summary>
         /// Name of Javascript function to call before data binding.
@@ -344,8 +335,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                 ["xPerPage"] = T(resRoot + "XPerPage"),
                 ["displayingItems"] = T(resRoot + "DisplayingItems"),
                 ["displayingItemsShort"] = T(resRoot + "DisplayingItemsShort"),
-                ["confirmDelete"] = T(resRoot + (SoftDelete ? "ConfirmSoftDelete" : "ConfirmDelete")),
-                ["confirmDeleteMany"] = T(resRoot + (SoftDelete ? "ConfirmSoftDeleteMany" : "ConfirmDeleteMany")),
+                ["confirmDelete"] = T(resRoot + "ConfirmDelete"),
+                ["confirmDeleteMany"] = T(resRoot + "ConfirmDeleteMany"),
                 ["deleteSuccess"] = T(resRoot + "DeleteSuccess"),
             };
 

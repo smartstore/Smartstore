@@ -100,6 +100,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Orders are assigned to the product. It cannot be permanently deleted.",
                 "Dem Produkt sind Aufträge zugeordnet. Es kann nicht permanent gelöscht werden.");
 
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.OrderItemReferenceDeletionWarning",
+                "{0} product(s) are assigned to orders and therefore cannot be deleted.",
+                "{0} Produkt(e) sind Aufträgen zugeordnet und können folglich nicht gelöscht werden.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.NumberOfRestoredProducts",
+                "{0} products were successfully restored.",
+                "Es wurden {0} Produkte erfolgreich wiederhergestellt.");
+
             builder.AddOrUpdate("Admin.Packaging.InstallSuccess",
                 "Package '{0}' was uploaded and unzipped successfully. Please click Edit / Reload list of plugins.",
                 "Paket '{0}' wurde hochgeladen und erfolgreich entpackt. Bitte klicken Sie auf Bearbeiten / Plugin-Liste erneut laden.");

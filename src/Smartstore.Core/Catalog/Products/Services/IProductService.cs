@@ -109,7 +109,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Permanently deletes soft-deleted products.
         /// </summary>
         /// <param name="productIds">Identifiers of products to delete.</param>
-        /// <returns>Number of successfully deleted products.</returns>
-        Task<int> DeleteProductsPermanentAsync(int[] productIds, CancellationToken cancelToken = default);
+        /// <returns>Number of successfully deleted products and warnings, if any.</returns>
+        Task<(int NumDeleted, List<string> Warnings)> DeleteProductsPermanentAsync(int[] productIds, CancellationToken cancelToken = default);
     }
 }

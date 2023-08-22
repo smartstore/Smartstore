@@ -48,7 +48,9 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> DeleteProductsPermanent(GridSelection selection)
         {
             var ids = selection.GetEntityIds().ToArray();
-            var numDeleted = await _productService.DeleteProductsPermanentAsync(ids);
+            var (numDeleted, warnings) = await _productService.DeleteProductsPermanentAsync(ids);
+
+            warnings.Take(3).Each(x => NotifyWarning(x));
 
             return Json(new { Success = true, Count = numDeleted });
         }
@@ -59,6 +61,8 @@ namespace Smartstore.Admin.Controllers
         {
             var ids = selection.GetEntityIds().ToArray();
             var numRestored = await _productService.RestoreProductsAsync(ids);
+
+            NotifyInfo(T("Admin.Catalog.Products.RecycleBin.NumberOfRestoredProducts", numRestored));
 
             return Json(new { Success = true, Count = numRestored });
         }

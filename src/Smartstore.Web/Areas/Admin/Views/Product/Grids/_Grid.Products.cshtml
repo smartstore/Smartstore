@@ -10,7 +10,6 @@
           allow-edit="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true"
-          soft-delete="true"
           ondatabound="productGrid_onDataBound">
     <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
@@ -100,3 +99,10 @@
 </datagrid>
 
 <partial name="_CopyProductDialog" model="null" />
+
+<script sm-target-zone="scripts" data-origin="products-grid">
+    $(function () {
+        window.Res.DataGrid.confirmDelete = @T("Admin.DataGrid.ConfirmSoftDelete").JsValue;
+        window.Res.DataGrid.confirmDeleteMany = @T("Admin.DataGrid.ConfirmSoftDeleteMany").JsValue;        
+    });
+</script>

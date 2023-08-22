@@ -1,14 +1,18 @@
 ﻿using System.Collections.Immutable;
+using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -17,6 +21,8 @@ namespace Smartstore.Core.Catalog.Products
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
+        private readonly IEventPublisher _eventPublisher;
+        private readonly ICacheManager _cache;
         private readonly ICommonServices _services;
         private readonly Lazy<IProductTagService> _productTagService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
@@ -27,6 +33,8 @@ namespace Smartstore.Core.Catalog.Products
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
+            IEventPublisher eventPublisher,
+            ICacheManager cache,
             ICommonServices services,
             Lazy<IProductTagService> productTagService,
             IProductAttributeMaterializer productAttributeMaterializer,
@@ -36,6 +44,8 @@ namespace Smartstore.Core.Catalog.Products
             _db = db;
             _workContext = workContext;
             _storeContext = storeContext;
+            _eventPublisher = eventPublisher;
+            _cache = cache;
             _services = services;
             _productTagService = productTagService;
             _productAttributeMaterializer = productAttributeMaterializer;
@@ -44,6 +54,7 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public virtual async Task<(Product Product, ProductVariantAttributeCombination VariantCombination)> GetProductByCodeAsync(
             string code,
@@ -486,44 +497,45 @@ namespace Smartstore.Core.Catalog.Products
                 .Select(x => new { x.Id, x.ParentId })
                 .ToDictionaryAsync(x => x.Id, x => x.ParentId ?? 0, cancelToken);
 
-            foreach (var productIdsChunk in productIds.Chunk(100))
-            {
-                var products = await _db.Products
-                    .IgnoreQueryFilters()
-                    .Where(x => productIdsChunk.Contains(x.Id) && x.Deleted)
-                    .Select(x => new RestoreProduct
-                    {
-                        Id = x.Id,
-                        ProductTypeId = x.ProductTypeId
-                    })
-                    .ToListAsync(cancelToken);
-
-                foreach (var product in products)
+            var products = await _db.Products
+                .IgnoreQueryFilters()
+                .Where(x => productIds.Contains(x.Id) && x.Deleted)
+                .Select(x => new RestoreProduct
                 {
-                    try
+                    Id = x.Id,
+                    ProductTypeId = x.ProductTypeId
+                })
+                .ToListAsync(cancelToken);
+
+            foreach (var product in products)
+            {
+                try
+                {
+                    if (await RestoreProductInternal(product, parentCategories, cancelToken))
                     {
-                        await RestoreProductInternal(product, parentCategories, cancelToken);
                         success++;
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
                 }
             }
 
             if (success > 0)
             {
                 await _productTagService.Value.ClearCacheAsync();
+                await _cache.RemoveByPatternAsync(CategoryService.CategoryTreePatternKey);
             }
 
             return success;
         }
 
-        private async Task RestoreProductInternal(RestoreProduct product, Dictionary<int, int> parentCategories, CancellationToken cancelToken)
+        private async Task<bool> RestoreProductInternal(RestoreProduct product, Dictionary<int, int> parentCategories, CancellationToken cancelToken)
         {
             // Get IDs of products to restore.
-            var productIds = new HashSet<int>(product.Id);
+            var productIds = new HashSet<int> { product.Id };
+            var now = DateTime.UtcNow;
 
             if (product.ProductTypeId == (int)ProductType.BundledProduct)
             {
@@ -548,10 +560,16 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             // First restore products, then all other entities.
-            await _db.Products
+            // Allow to react to restoring via hooks (e.g. updating search index).
+            var products = await _db.Products
                 .IgnoreQueryFilters()
                 .Where(x => productIds.Contains(x.Id) && x.Deleted)
-                .ExecuteUpdateAsync(x => x.SetProperty(m => m.Deleted, m => false), cancelToken);
+                .ToListAsync(cancelToken);
+
+            products.Each(x => x.Deleted = false);
+            var numSuccess = await _db.SaveChangesAsync(cancelToken);
+
+            // TODO: (mg) add missing UrlRecords. I do not know why they are missing but some are missing in my database.
 
             // Restore manufacturers.
             var deletedManufacturerIdsQuery = _db.ProductManufacturers
@@ -562,7 +580,9 @@ namespace Smartstore.Core.Catalog.Products
             await _db.Manufacturers
                 .IgnoreQueryFilters()
                 .Where(x => deletedManufacturerIdsQuery.Contains(x.Id))
-                .ExecuteUpdateAsync(x => x.SetProperty(m => m.Deleted, m => false), cancelToken);
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.Deleted, false)
+                    .SetProperty(x => x.UpdatedOnUtc, now), cancelToken);
 
             // Restore categories.
             var categoryIds = new HashSet<int>();
@@ -579,8 +599,12 @@ namespace Smartstore.Core.Catalog.Products
                 await _db.Categories
                     .IgnoreQueryFilters()
                     .Where(x => categoryIds.Contains(x.Id) && x.Deleted)
-                    .ExecuteUpdateAsync(x => x.SetProperty(c => c.Deleted, c => false), cancelToken);
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(x => x.Deleted, false)
+                        .SetProperty(x => x.UpdatedOnUtc, now), cancelToken);
             }
+
+            return numSuccess > 0;
 
             void GetCategoryIds(int categoryId)
             {
@@ -595,11 +619,13 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        public virtual async Task<int> DeleteProductsPermanentAsync(int[] productIds, CancellationToken cancelToken = default)
+        public virtual async Task<(int NumDeleted, List<string> Warnings)> DeleteProductsPermanentAsync(int[] productIds, CancellationToken cancelToken = default)
         {
+            var warnings = new List<string>();
+
             if (productIds.IsNullOrEmpty())
             {
-                return 0;
+                return (0, warnings);
             }
 
             // INFO: never ever delete products with assigned order items. Relationship has a cascade delete rule (dangerous).
@@ -612,6 +638,7 @@ namespace Smartstore.Core.Catalog.Products
             if (excludeProductIds.Length > 0)
             {
                 productIds = productIds.Except(excludeProductIds).ToArray();
+                warnings.Add(T("Admin.Catalog.Products.RecycleBin.OrderItemReferenceDeletionWarning", excludeProductIds.Length));
             }
 
             var success = 0;
@@ -620,7 +647,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 try
                 {
-                    await DeleteProductsPermanentInternal(productIdsChunk, cancelToken);
+                    await DeleteProductsPermanentInternal(productIdsChunk, warnings, cancelToken);
                     success += productIdsChunk.Length;
                 }
                 catch (Exception ex)
@@ -629,15 +656,28 @@ namespace Smartstore.Core.Catalog.Products
                 }
             }
 
-            return success;
+            return (success, warnings);
         }
 
-        private async Task DeleteProductsPermanentInternal(int[] productIds, CancellationToken cancelToken)
+        private async Task DeleteProductsPermanentInternal(int[] productIds, List<string> warnings, CancellationToken cancelToken)
         {
             // INFO: not necessary here to check whether an assignment is of certain type,
             // (e.g. if the deleted product is grouped or bundled product). Just remove any assignment.
 
             const string entityName = nameof(Product);
+
+            var deletionEvent = new PermanentDeletionRequestedEvent<Product>(productIds);
+            await _eventPublisher.PublishAsync(deletionEvent, cancelToken);
+
+            if (deletionEvent.Disallow)
+            {
+                if (deletionEvent.DisallowMessage.HasValue())
+                {
+                    warnings.Add(deletionEvent.DisallowMessage);
+                }
+
+                return;
+            }
 
             // ----- Product assignments.
 
@@ -718,14 +758,17 @@ namespace Smartstore.Core.Catalog.Products
             // ----- Finally delete products.
             // If we have forgotten something, this will lead to an exception.
 
-            // TODO: (mg) Change tracker or ExecuteDeleteAsync? Change tracker is slow and ISoftDeletable would prevent the product from being permanently deleted.
-            // But via ExecuteDeleteAsync plugins can't delete their stuff -> two events required. Event for restore too?
-            // Plugins: DependingPrices, FileManagerRecords, FileManagerTabRecords, GoogleProduct, IndexBacklog, PageStoryBlock, PersonalPromo,
+            // TODO: (mg) Plugins: DependingPrices, FileManagerRecords, FileManagerTabRecords, GoogleProduct, IndexBacklog, PageStoryBlock, PersonalPromo,
             // ShopConnectorSkuMapping
 
-            //await _db.Products
-            //    .Where(x => productIds.Contains(x.Id))
-            //    .ExecuteDeleteAsync(cancelToken);
+            await _db.Products
+                .Where(x => productIds.Contains(x.Id))
+                .ExecuteDeleteAsync(cancelToken);
+
+            foreach (var entitiesDeleted in deletionEvent.EntitiesDeletedCallbacks)
+            {
+                await entitiesDeleted(cancelToken);
+            }
         }
 
         private async Task DeleteProductMenuItems(int[] productIds, CancellationToken cancelToken)
