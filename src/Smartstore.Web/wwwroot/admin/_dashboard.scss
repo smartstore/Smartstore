@@ -17,7 +17,7 @@
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 130px 130px;
     grid-column-gap: 1rem;
     grid-row-gap: 1rem;
     grid-auto-rows: auto;
@@ -502,18 +502,18 @@
     }
 }
 
-@include media-breakpoint-up(xl) {
+@include media-breakpoint-up(lg) {
     .report-incomplete-orders {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 
     .news-feed {
-        grid-column: 9 / 13;
+        grid-column: 11 / -1;
         grid-row: 1 / 7;
     }
 
     .report-orders {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 
     .report-bestsellers {
@@ -521,20 +521,20 @@
     }
 
     .report-top-customers {
-        grid-column: 5 / 9;
+        grid-column: 5 / 11;
         grid-row: 3 / 4;
     }
 
     .report-customer-registrations {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 
     .report-latest-orders {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 
     .report-store-statistics {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 }
 
@@ -628,12 +628,12 @@
         border: none;
 
         .newsfeed-item {
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--gray-300);
         }
     }
 
-    @include media-breakpoint-up(md) {
-        border: 1px solid #ddd;
+    @include media-breakpoint-up(sm) {
+        border: 1px solid var(--gray-300);
         border-radius: 0.375rem;
 
         .newsfeed-item {
@@ -641,12 +641,12 @@
         }
     }
 
-    @include media-breakpoint-up(xl) {
+    @include media-breakpoint-up(lg) {
         border: none;
         border-radius: 0;
 
         .newsfeed-item {
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--gray-300);
         }
     }
 }
