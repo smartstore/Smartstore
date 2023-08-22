@@ -767,7 +767,19 @@ $utilities: map-merge(
         pill: var(--#{$prefix}border-radius-pill)
       )
     ),
-
+    "visibility": (
+      property: visibility,
+      class: null,
+      values: (
+        visible: visible,
+        invisible: hidden,
+      )
+    ),
+    "z-index": (
+      property: z-index,
+      class: z,
+      values: $zindex-levels,
+    )
   ),
   $utilities
 );

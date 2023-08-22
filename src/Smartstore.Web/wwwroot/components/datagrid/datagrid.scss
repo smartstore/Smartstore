@@ -698,7 +698,7 @@ span.dg-page {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 50%;
+        --btn-height: 50%;
         padding: 0 !important;
         > i {
             font-size: 10px !important;
