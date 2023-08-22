@@ -1,67 +1,27 @@
-/// <reference path="theme.scss" />
+/// <reference path="../../../wwwroot/lib/bs4/scss/_functions.scss" />
+/// <reference path="../../../wwwroot/shared/_functions.scss" />
+/// <reference path="../../../wwwroot/shared/_variables-shared-bootstrap.scss" />
+/// <reference path="_variables-configured.scss" />
+/// <reference path="_variables-custom.scss" />
 
 // Theme specific (non-bootstrap) variables
 // ========================================
 
-$boxed:                         false !default;
-$site-bg:                       $gray-100 !default;
+$btn-secondary-border:			rgba($gray-700, 0.15);  //$btn-border-color-default !default;
 
-$btn-secondary-bg:				#fff !default;
-$btn-secondary-border:			$btn-border-color-default !default; //$gray-400 !default;
-
-$header-bg:                     transparent !default;
-$header-color:                  $body-color !default;
-$header-color-muted:            $text-muted !default;
-$header-hover-bg:               rgba(#000, 0.04) !default;
+$header-hover-bg:               rgba($black, 0.04) !default;
 $header-border-color:           #ddd !default; 
-$header-inverse-color:          #fff !default;
-$header-inverse-color-muted:    rgba(#fff, 0.5) !default;
-$header-inverse-hover-bg:       rgba(#fff, 0.15) !default;
-$header-inverse-border-color:   rgba(#fff, 0.15) !default;
+$header-inverse-color:          $white !default;
+$header-inverse-color-muted:    rgba($white, 0.5) !default;
+$header-inverse-hover-bg:       rgba($white, 0.15) !default;
+$header-inverse-border-color:   rgba($white, 0.15) !default;
 $header-selected-color:         $warning !default;
 $header-inverse-selected-color: $header-selected-color !default;
 
-$menubar-bg:                    transparent !default;
-$shopbar-bg:                    transparent !default;
-$megamenu-bg:                   $gray-100 !default;
 $megamenu-navlink-font-size:    1rem !default;
-$megamenu-line-height:          1.8 !default;
 
-$menubar-color:                 lighten($header-color, 8%) !default;
-$menubar-inverse-color:         $header-inverse-color-muted !default;
-$shopbar-color:                 $header-color !default;
 $shopbar-color-muted:           rgba($shopbar-color, 0.5);
-$shopbar-inverse-color:         $header-inverse-color !default;
 $shopbar-inverse-color-muted:   rgba($shopbar-inverse-color, 0.5);
-$megamenu-color:                $header-color !default;
-$megamenu-inverse-color:        $header-inverse-color !default;
-
-$megamenu-dropdown-bg:          #fff !default;
-$megamenu-text-color:           $body-color !default;
-$megamenu-heading-color:        #222 !default;
-$megamenu-subitem-color:        #999 !default;
-$megamenu-rotator-bg:           rgba(#fff, 0.92) !default;
-
-$searchbox-pill:                true !default;
-$searchbox-shadow:              true !default;
-$searchbox-bg-1:                #fff !default;
-$searchbox-bg-2:                #fff !default;
-$searchbox-bg-mobile:           $light !default;
-$searchbox-color-1:             inherit !default;
-$searchbox-color-2:             inherit !default;
-$searchbox-border-1:            rgba(0,0,0, 0.12) !default;
-$searchbox-border-2:            rgba(0,0,0, 0.12) !default;
-$searchbox-border-mobile:       $light !default;
-$searchbox-hit-tag-color:       darken($warning, 10%) !default;
-
-$footer-bg:                     $gray-100 !default;
-$footer-color:                  $body-color !default;
-$footer-color-muted:            $text-muted !default;
-$footer-inverse-color:          #fff !default;
-$footer-inverse-color-muted:    rgba(#fff, 0.5) !default;
-
-$footer-social-bg:              transparent !default;
-$footer-social-color:           darken($footer-color-muted, 10%) !default;
 
 $facet-control-size:			20px !default;
 
@@ -74,17 +34,17 @@ $font-size-root-sm:             16px !default;
 // --------------------------------------------------
 
 $costep-border:                 #f2f2f2;
-$costep-bg:                     #fff; 
+$costep-bg:                     $white; 
 $costep-color:                  #ccc;
 $costep-label-color:            $body-color;
 
 $costep-visited-border:         $costep-progress-color;
 $costep-visited-bg:             $costep-progress-color;
-$costep-visited-color:          rgba(#fff, 0.85);
+$costep-visited-color:          rgba($white, 0.85);
 $costep-visited-label-color:    $costep-label-color;
 
 $costep-active-border:          $costep-visited-border;
-$costep-active-bg:              #fff;
+$costep-active-bg:              $white;
 $costep-active-color:           $body-color;
 $costep-active-label-color:     $costep-label-color;
 
@@ -93,7 +53,6 @@ $costep-active-label-color:     $costep-label-color;
 // ========================================
 
 $yiq-contrasted-threshold:	    164;
-$yiq-text-dark:				    $gray-900;
 $color-contrast-dark:           $yiq-text-dark;
 $color-contrast-light:          $yiq-text-light;
 
@@ -117,7 +76,6 @@ $line-height-sm:                1.429; // --> 20px
 $line-height-lg:                1.375; // --> 22px
 
 $font-weight-base:              $font-weight-normal;
-$headings-font-weight:          $font-weight-medium;
 
 $lead-font-size:                1.125rem;
 $lead-font-weight:              $font-weight-light;
@@ -190,29 +148,13 @@ $dropdown-padding-y:            .5rem;
 $dropdown-spacer:               .125rem;
 $dropdown-font-size:            14px;
 $dropdown-font-weight:          $font-weight-normal;
-$dropdown-color:                $body-color;
-$dropdown-border-color:         rgba(#000, .15);
-$dropdown-border-radius:        $border-radius-lg;
-$dropdown-border-color:			$gray-200;
-$dropdown-divider-bg:           $gray-200;
 $dropdown-divider-margin-y:     $dropdown-padding-y;
-$dropdown-box-shadow:			0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity, 1) * 0.12));
-
-$dropdown-link-color:           $gray-700;
-$dropdown-link-hover-color:     darken($dropdown-link-color, 5%);
-$dropdown-link-hover-bg:        $gray-150;
 
 $dropdown-link-active-color:    $dropdown-link-hover-color;
-$dropdown-link-active-bg:       $gray-200;
+$dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 3%);
 
 $dropdown-item-padding-y:       0.5rem;
 $dropdown-item-padding-x:       1rem;
-
-
-// Form check
-
-//$form-check-input-bg:                   $input-bg !default;
-//$form-check-input-border:               1px solid rgba(#000, .15);
 
 
 // Modal
@@ -262,8 +204,8 @@ $pagination-disabled-border-color:  $pagination-border-color;
 
 // List Group
 
-$list-group-bg:						#fff;
-$list-group-border-color:			rgba(#000, .125);
+$list-group-bg:						$white;
+$list-group-border-color:			rgba($black, .125);
 
 $list-group-hover-bg:               $gray-100;
 $list-group-active-color:			$body-color;
@@ -286,7 +228,7 @@ $list-group-action-active-bg:       $gray-200;
 $nav-tabs-border-color:         $gray-300;
 $nav-tabs-link-active-color:    $gray-900;
 
-$nav-pills-link-active-color:   #fff;
+$nav-pills-link-active-color:   $white;
 $nav-pills-link-active-bg:      $primary;
 
 
@@ -300,15 +242,6 @@ $breadcrumb-border-radius:          0;
 
 // Misc
 
-$card-border-color:                 rgba(#000, 0.1);
 $card-deck-margin:                  10px;
 $alert-border-radius:               $border-radius;
 $alert-link-font-weight:            $font-weight-medium;
-$product-price-color:               $body-color !default;
-$login-box-bg:                      $gray-100 !default;
-$cart-footer-bg:                    $gray-100 !default;
-$costep-progress-color:             $warning !default;
-$offcanvas-cart-footer:             $success !default;
-$art-active-bg-color:               #fff !default;
-$art-active-border-color:           rgba(0,0,0, 0) !default;
-$product-detail-addtocart-box-bg:   $gray-100 !default;

@@ -1,5 +1,6 @@
-/// <reference path="../lib/bs4/scss/_variables.scss" />
-
+/// <reference path="../lib/bs4/scss/_functions.scss" />
+/// <reference path="../shared/_functions.scss" />
+/// <reference path="../shared/_variables-shared-bootstrap.scss" />
 
 //
 // RFS
@@ -223,32 +224,10 @@ $modal-content-box-shadow-sm-up:$box-shadow-lg-var;
 $modal-content-border-radius:   $border-radius-lg;
 
 
-// Form check
-
-$form-check-input-border:               1px solid rgba(#000, .15);
-$form-check-input-focus-border:         rgba(var(--form-check-checked-bg-rgb), 0.5);
-$form-check-input-focus-box-shadow:     0 0 0 0.2rem rgba(var(--form-check-checked-bg-rgb), 0.25);
-
-// Form switch
-
-$form-switch-color:                     #fff;
-$form-switch-width:                     2em;
-//$form-switch-padding-start:             calc(var(--form-switch-width) + 0.75em);
-$form-switch-bg-image:                  url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><defs><filter id='shadow'><feDropShadow dx='0' dy='0' stdDeviation='0.6' flood-opacity='0.3' /></filter></defs><circle r='3' fill='#{$form-switch-color}' style='filter:url(#shadow)'/></svg>");
-//$form-switch-border-radius:             $form-switch-width;
-$form-switch-transition:                background-color 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out, background-position .2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-$form-switch-focus-color:               #fff;
-$form-switch-focus-bg-image:            $form-switch-bg-image;
-
-$form-switch-checked-color:             #fff;
-$form-switch-checked-bg-image:          $form-switch-bg-image;
-//$form-switch-checked-bg-position:       right center;
-
 // Custom Range
 
 $custom-range-track-height:         0.315rem;
-$custom-range-track-bg:             rgba(#000, 0.12);
+$custom-range-track-bg:             rgba($black, 0.12);
 $custom-range-track-border-radius:  0;
 $custom-range-track-box-shadow:     none;
 
@@ -278,4 +257,4 @@ $chart-color-primary-light:     lighten($primary, 50%);
 
 // Misc
 
-$card-border-color:             rgba(#000, 0.1);
+$card-border-color:             rgba($black, 0.1);

@@ -1,0 +1,122 @@
+/// <reference path="../../../wwwroot/lib/bs4/scss/_functions.scss" />
+/// <reference path="../../../wwwroot/shared/_functions.scss" />
+/// <reference path="../../../wwwroot/shared/_variables-shared-bootstrap.scss" />
+/// <reference path="_variables-custom.scss" />
+
+// Variables from theme.config for intellisense purposes
+
+// Colors
+$bluegrey: null !default;
+
+// Layout
+$boxed: null !default;
+
+// Common Font
+$google-font-1: null !default;
+$google-font-2: null !default;
+$google-font-3: null !default;
+$font-family-sans-serif: null !default;
+$font-family-monospace: null !default;
+$font-size-base: null !default;
+$font-size-lg: null !default;
+$font-size-sm: null !default;
+$font-size-xs: null !default;
+
+// Headings
+$headings-font-family: null !default;
+$headings-font-weight: null !default;
+$headings-line-height: null !default;
+$headings-color: null !default;
+$lead-font-weight: null !default;
+
+// Main site colors
+$site-bg: null !default;
+$text-muted: null !default;
+
+// Secondary button
+$btn-secondary-bg: null !default;
+$btn-secondary-border: null !default;
+
+// Header
+$header-bg: null !default;
+$header-color: null !default;
+$inverse-menubar: null !default;
+$inverse-shopbar: null !default;
+$inverse-navbar: null !default;
+$menubar-bg: null !default;
+$shopbar-bg: null !default;
+$megamenu-bg: null !default;
+$header-color-muted: null !default;
+
+$menubar-color: null !default;
+$shopbar-color: null !default;
+$megamenu-color: null !default;
+$menubar-inverse-color: null !default;
+$shopbar-inverse-color: null !default;
+$megamenu-inverse-color: null !default;
+$megamenu-line-height: null !default;
+
+// Footer
+$inverse-footer: null !default;
+$footer-bg: null !default;
+$footer-color: null !default;
+$footer-color-muted: null !default;
+$footer-inverse-color: null !default;
+$footer-inverse-color-muted: null !default;
+$footer-social-bg: null !default;
+$footer-social-color: null !default;
+
+// Megamenu Dropdowns
+$megamenu-dropdown-bg: null !default;
+$megamenu-heading-color: null !default;
+$megamenu-subitem-color: null !default;
+$megamenu-text-color: null !default;
+$megamenu-rotator-bg: null !default;
+
+// Search
+$searchbox-pill: null !default;
+$searchbox-shadow: null !default;
+$searchbox-bg-1: null !default;
+$searchbox-bg-2: null !default;
+$searchbox-bg-mobile: null !default;
+$searchbox-color-1: null !default;
+$searchbox-color-2: null !default;
+$searchbox-border-1: null !default;
+$searchbox-border-2: null !default;
+$searchbox-border-mobile: null !default;
+$searchbox-hit-tag-color: null !default;
+
+// Cards
+$card-border-radius: null !default;
+$card-border-color: null !default;
+$card-cap-bg: null !default;
+$card-bg: null !default;
+
+// Dropdowns
+$dropdown-bg: null !default;
+$dropdown-border-color: null !default;
+$dropdown-border-radius: null !default;
+$dropdown-divider-bg: null !default;
+$dropdown-box-shadow: null !default;
+$dropdown-link-color: null !default;
+$dropdown-link-hover-color: null !default;
+$dropdown-link-hover-bg: null !default;
+
+// Tables
+$table-bg: null !default;
+$table-accent-bg: null !default;
+$table-hover-bg: null !default;
+$table-active-bg: null !default;
+$table-border-color: null !default;
+
+// Misc
+$shopbar-label: null !default;
+$nav-tabs-active-link-color: null !default;
+$product-price-color: null !default;
+$product-detail-addtocart-box-bg: null !default;
+$login-box-bg: null !default;
+$cart-footer-bg: null !default;
+$costep-progress-color: null !default;
+$offcanvas-cart-footer: null !default;
+$art-active-bg-color: null !default;
+$art-active-border-color: null !default;

@@ -1,11 +1,11 @@
-/// <reference path="theme.scss" />
+/// <reference path="references.scss" />
 
 //
 // Footer Styles
 // --------------------------------------------------
 
 #footer {
-    border-top: 1px solid rgba(#000, 0.1);
+    border-top: 1px solid rgba($black, 0.1);
     background: $footer-bg;
 }
 
@@ -104,7 +104,7 @@
     }
 
     .footer-bottom-wrapper {
-        background: rgba(#000, 0.03);
+        background: rgba($black, 0.03);
         color: lighten($footer-color-muted, 5%);
         a { color: $ftmh; }
     }
@@ -130,7 +130,7 @@
     }
 
     .footer-bottom-wrapper {
-        background: rgba(#fff, 0.06);
+        background: rgba($white, 0.06);
         color: darken($footer-inverse-color-muted, 10%);
         a { color: $ftmh; }
     }

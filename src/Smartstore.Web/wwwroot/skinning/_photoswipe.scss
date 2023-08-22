@@ -1,7 +1,5 @@
-/// <reference path="../shared/_mixins.scss" />
-/// <reference path="../bs4/scss/bootstrap.scss" />
-/// <reference path="../vendors/photoswipe/_main-settings.scss" />
-
+/// <reference path="references.scss" />
+/// <reference path="../lib/photoswipe/_main-settings.scss" />
 
 // Photoswipe Theme
 // ------------------------------------------------------
@@ -66,11 +64,11 @@ $pswp__background-color: #fff;
 
     &:focus,
     &:hover {
-        background: rgba(0,0,0, 0.08);
+        background: rgba($black, 0.08);
     }
 
     &:active {
-        background: rgba(0,0,0, 0.12);
+        background: rgba($black, 0.12);
     }
 
     &:focus,
@@ -207,7 +205,7 @@ $pswp__background-color: #fff;
     font-size: inherit;
     font-weight: $font-weight-medium;
     line-height: 40px;
-    color: rgba(0,0,0, 0.6);
+    color: rgba($black, 0.6);
     //opacity: 0.75;
     padding-left: 20px;
 }
@@ -234,7 +232,7 @@ $pswp__background-color: #fff;
 
     small {
         font-size: 11px;
-        color: #BBB;
+        color: #bbb;
     }
 }
 
@@ -245,7 +243,7 @@ $pswp__background-color: #fff;
     font-size: 13px;
     padding: 10px;
     line-height: 20px;
-    color: #CCC;
+    color: #ccc;
 }
 
 .pswp__caption--empty {
@@ -416,14 +414,14 @@ $pswp__background-color: #fff;
 
 .pswp__top-bar,
 .pswp__caption {
-    background-color: rgba(255,255,255, 0.5);
+    background-color: rgba($white, 0.5);
 }
 
 /* pswp__ui--fit class is added when main image "fits" between top bar and bottom bar (caption) */
 .pswp__ui--fit {
     .pswp__top-bar,
     .pswp__caption {
-        background-color: rgba(255,255,255, 0.3);
+        background-color: rgba($white, 0.3);
     }
 }
 

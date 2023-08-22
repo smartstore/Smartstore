@@ -1,6 +1,5 @@
-/// <reference path="../shared/_mixins.scss" />
-/// <reference path="../bs4/scss/bootstrap.scss" />
-/// <reference path="../vendors/slick/slick.scss" />
+/// <reference path="references.scss" />
+/// <reference path="../lib/slick/slick.scss" />
 
 
 // General
@@ -89,7 +88,7 @@ img.slick-loading {
         border-end-start-radius: 0;
         border-inline-start-width: 0;
 		border-inline-end-width: $btn-border-width;
-        box-shadow: 1px 1px 3px rgba(0,0,0, 0.12);
+        box-shadow: 1px 1px 3px rgba($black, 0.12);
     }
 
     .slick-next { 
@@ -98,16 +97,16 @@ img.slick-loading {
         border-end-end-radius: 0;
         border-inline-end-width: 0;
 		border-inline-start-width: $btn-border-width;
-        box-shadow: -1px 1px 3px rgba(0,0,0, 0.12);
+        box-shadow: -1px 1px 3px rgba($black, 0.12);
     }
 
 	[dir=rtl] & {
 		.slick-prev { 
-			box-shadow: -1px 1px 3px rgba(0,0,0, 0.12);
+			box-shadow: -1px 1px 3px rgba($black, 0.12);
 		}
 
 		.slick-next { 
-			box-shadow: 1px 1px 3px rgba(0,0,0, 0.12);
+			box-shadow: 1px 1px 3px rgba($black, 0.12);
 		}
 	}
 

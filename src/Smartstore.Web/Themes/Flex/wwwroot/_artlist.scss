@@ -1,4 +1,4 @@
-/// <reference path="theme.scss" />
+/// <reference path="references.scss" />
 
 //
 // CSS variables
@@ -14,7 +14,7 @@
     --art-finalprice-font-size: 1rem;
     --art-finalprice-color: #{$product-price-color};
     --art-finalprice-offer-color: #{$product-price-color};
-    --art-muted-color: #{mix($body-color, #fff, 67%)};
+    --art-muted-color: #{mix($body-color, $white, 67%)};
     --art-muted-color-2: #{$text-muted};
     --art-border-color: transparent;
     --art-divider-color: #{$gray-300};

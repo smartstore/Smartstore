@@ -1,6 +1,6 @@
-﻿/// <reference path="theme.scss" />
+﻿/// <reference path="references.scss" />
 
-$ocm-border-color:                      rgba(#000, 0.1);
+$ocm-border-color:                      rgba($black, 0.1);
 $ocm-horizontal-padding:                1.6rem;
 $ocm-selected-color:                    $warning;
 

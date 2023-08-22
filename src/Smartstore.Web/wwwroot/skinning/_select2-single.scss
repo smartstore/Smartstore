@@ -1,5 +1,4 @@
-/// <reference path="../shared/_mixins.scss" />
-/// <reference path="../bs4/scss/bootstrap.scss" />
+/// <reference path="references.scss" />
 
 .select2-selection--single {
     --select2-padding-end: calc(var(--select2-caret-width) + calc(var(--select2-padding-x) / 2));

@@ -1,7 +1,4 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
-/// <reference path="../lib/bs4/scss/vendor/_rfs.scss" />
+/// <reference path="references.scss" />
 
 
 // Font Sizes
@@ -209,7 +206,7 @@ a.pretty-link {
 
 code {
     padding-inline: 0.25rem;
-    background-color: rgba(0,0,0, 0.035);
+    background-color: rgba($black, 0.035);
     border-radius: $border-radius-sm; 
 }
 
