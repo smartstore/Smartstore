@@ -11,6 +11,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Events;
 
@@ -26,6 +27,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly ICommonServices _services;
         private readonly Lazy<IProductTagService> _productTagService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+        private readonly IUrlService _urlService;
         private readonly IMessageFactory _messageFactory;
         private readonly LocalizationSettings _localizationSettings;
 
@@ -38,6 +40,7 @@ namespace Smartstore.Core.Catalog.Products
             ICommonServices services,
             Lazy<IProductTagService> productTagService,
             IProductAttributeMaterializer productAttributeMaterializer,
+            IUrlService urlService,
             IMessageFactory messageFactory,
             LocalizationSettings localizationSettings)
         {
@@ -49,6 +52,7 @@ namespace Smartstore.Core.Catalog.Products
             _services = services;
             _productTagService = productTagService;
             _productAttributeMaterializer = productAttributeMaterializer;
+            _urlService = urlService;
             _messageFactory = messageFactory;
             _localizationSettings = localizationSettings;
         }
@@ -497,21 +501,11 @@ namespace Smartstore.Core.Catalog.Products
                 .Select(x => new { x.Id, x.ParentId })
                 .ToDictionaryAsync(x => x.Id, x => x.ParentId ?? 0, cancelToken);
 
-            var products = await _db.Products
-                .IgnoreQueryFilters()
-                .Where(x => productIds.Contains(x.Id) && x.Deleted)
-                .Select(x => new RestoreProduct
-                {
-                    Id = x.Id,
-                    ProductTypeId = x.ProductTypeId
-                })
-                .ToListAsync(cancelToken);
-
-            foreach (var product in products)
+            foreach (var productId in productIds)
             {
                 try
                 {
-                    if (await RestoreProductInternal(product, parentCategories, cancelToken))
+                    if (await RestoreProductInternal(productId, parentCategories, cancelToken))
                     {
                         success++;
                     }
@@ -531,20 +525,17 @@ namespace Smartstore.Core.Catalog.Products
             return success;
         }
 
-        private async Task<bool> RestoreProductInternal(RestoreProduct product, Dictionary<int, int> parentCategories, CancellationToken cancelToken)
+        private async Task<bool> RestoreProductInternal(int productId, Dictionary<int, int> parentCategories, CancellationToken cancelToken)
         {
-            // Get IDs of products to restore.
-            var productIds = new HashSet<int> { product.Id };
+            var productIds = new HashSet<int> { productId };
             var now = DateTime.UtcNow;
 
-            if (product.ProductTypeId == (int)ProductType.BundledProduct)
-            {
-                productIds.AddRange(await _db.ProductBundleItem
-                    .IgnoreQueryFilters()
-                    .Where(x => x.BundleProductId == product.Id && x.Product.Deleted)
-                    .Select(x => x.ProductId)
-                    .ToArrayAsync(cancelToken));
-            }
+            // Add IDs of related products to be restored as well.
+            productIds.AddRange(await _db.ProductBundleItem
+                .IgnoreQueryFilters()
+                .Where(x => x.BundleProductId == productId && x.Product.Deleted)
+                .Select(x => x.ProductId)
+                .ToArrayAsync(cancelToken));
 
             var requiredProductIds = await _db.Products
                 .IgnoreQueryFilters()
@@ -560,21 +551,47 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             // First restore products, then all other entities.
-            // Allow to react to restoring via hooks (e.g. updating search index).
+            // Allow hooks to react (e.g. for updating search index).
             var products = await _db.Products
                 .IgnoreQueryFilters()
                 .Where(x => productIds.Contains(x.Id) && x.Deleted)
                 .ToListAsync(cancelToken);
 
             products.Each(x => x.Deleted = false);
-            var numSuccess = await _db.SaveChangesAsync(cancelToken);
 
-            // TODO: (mg) add missing UrlRecords. I do not know why they are missing but some are missing in my database.
+            if (0 == await _db.SaveChangesAsync(cancelToken))
+            {
+                return false;
+            }
+
+            // TODO: (mg) Perf: batching. GetProductIdsToRestore > update products > restore related entities
+            var updatedProductIds = products.Select(x => x.Id).ToArray();
+
+            // Check if slugs are missing.
+            var productIdsWithMissingSlug = updatedProductIds.Except(await _db.UrlRecords
+                .Where(x => updatedProductIds.Contains(x.EntityId) && x.EntityName == nameof(Product) && x.IsActive)
+                .Select(x => x.EntityId)
+                .ToArrayAsync(cancelToken)).ToArray();
+
+            var productsWithMissingSlug = products
+                .Where(x => productIdsWithMissingSlug.Contains(x.Id))
+                .ToArray();
+
+            if (productIdsWithMissingSlug.Length > 0)
+            {
+                foreach (var product in productsWithMissingSlug)
+                {
+                    var validateSlugResult = await _urlService.ValidateSlugAsync(product, null, product.Name, true);
+                    await _urlService.ApplySlugAsync(validateSlugResult);
+                }
+
+                await _db.SaveChangesAsync(cancelToken);
+            }
 
             // Restore manufacturers.
             var deletedManufacturerIdsQuery = _db.ProductManufacturers
                 .IgnoreQueryFilters()
-                .Where(x => productIds.Contains(x.ProductId) && x.Manufacturer.Deleted)
+                .Where(x => updatedProductIds.Contains(x.ProductId) && x.Manufacturer.Deleted)
                 .Select(x => x.ManufacturerId);
 
             await _db.Manufacturers
@@ -585,32 +602,32 @@ namespace Smartstore.Core.Catalog.Products
                     .SetProperty(x => x.UpdatedOnUtc, now), cancelToken);
 
             // Restore categories.
-            var categoryIds = new HashSet<int>();
+            var restoreCategoryIds = new HashSet<int>();
             var assignedCategoryIds = await _db.ProductCategories
                 .IgnoreQueryFilters()
-                .Where(x => productIds.Contains(x.ProductId))
+                .Where(x => updatedProductIds.Contains(x.ProductId))
                 .Select(x => x.CategoryId)
                 .Distinct()
                 .ToArrayAsync(cancelToken);
             assignedCategoryIds.Each(GetCategoryIds);
 
-            if (categoryIds.Count > 0)
+            if (restoreCategoryIds.Count > 0)
             {
                 await _db.Categories
                     .IgnoreQueryFilters()
-                    .Where(x => categoryIds.Contains(x.Id) && x.Deleted)
+                    .Where(x => restoreCategoryIds.Contains(x.Id) && x.Deleted)
                     .ExecuteUpdateAsync(setters => setters
                         .SetProperty(x => x.Deleted, false)
                         .SetProperty(x => x.UpdatedOnUtc, now), cancelToken);
             }
 
-            return numSuccess > 0;
+            return true;
 
             void GetCategoryIds(int categoryId)
             {
                 if (categoryId != 0)
                 {
-                    categoryIds.Add(categoryId);
+                    restoreCategoryIds.Add(categoryId);
                     if (parentCategories.TryGetValue(categoryId, out var parentId))
                     {
                         GetCategoryIds(parentId);
@@ -810,12 +827,6 @@ namespace Smartstore.Core.Catalog.Products
                         .ExecuteDeleteAsync(cancelToken);
                 }
             }
-        }
-
-        class RestoreProduct
-        {
-            public int Id { get; set; }
-            public int ProductTypeId { get; set; }
         }
 
         #endregion
