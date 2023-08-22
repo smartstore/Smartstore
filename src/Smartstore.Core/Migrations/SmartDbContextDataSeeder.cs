@@ -270,6 +270,7 @@ namespace Smartstore.Core.Data.Migrations
                 var profiles = await db.ImportProfiles
                     .Where(x => x.ColumnMapping.Length > 3)
                     .ToListAsync(cancelToken);
+
                 if (profiles.Count == 0)
                 {
                     return;

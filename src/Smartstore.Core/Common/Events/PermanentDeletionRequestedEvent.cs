@@ -26,6 +26,8 @@
         /// </summary>
         public int[] EntityIds { get; }
 
+        // TODO: (mg) Bad architecture: A plugin must not prevent the deletion of the whole batch!
+        // Only particular entities. This requires revision (e.g. HashSet of undeletable ids etc.).
         /// <summary>
         /// Gets or sets a value indicating whether the deletion should be executed.
         /// If this is set to <c>true</c> by any event consumer, then none of the entities specified by <see cref="EntityIds"/> will be deleted.
@@ -37,10 +39,11 @@
         /// </summary>
         public string DisallowMessage { get; set; }
 
+        // TODO: (mg) Mem leak risk: After deletion completes, this list should be cleared.
         internal List<Func<CancellationToken, Task>> EntitiesDeletedCallbacks { get; } = new();
 
         /// <summary>
-        /// Adds a callback that is called after the entities specified by <see cref="EntityIds"/> were deleted.
+        /// Adds a callback that is called after the entities specified by <see cref="EntityIds"/> were deleted physically.
         /// </summary>
         public void AddEntitiesDeletedCallback(Func<CancellationToken, Task> entitiesDeleted)
         {
