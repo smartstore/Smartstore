@@ -17,7 +17,7 @@
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 130px 130px;
+    grid-template-columns: repeat(10, 1fr) repeat(2, 130px);
     grid-column-gap: 1rem;
     grid-row-gap: 1rem;
     grid-auto-rows: auto;
