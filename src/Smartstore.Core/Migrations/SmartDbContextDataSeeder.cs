@@ -26,14 +26,39 @@ namespace Smartstore.Core.Data.Migrations
             {
                 foreach (var setting in enableCookieConsentSettings)
                 {
-                    db.Settings.Add(new Setting
-                    {
-                        Name = "PrivacySettings.CookieConsentRequirement",
-                        Value = setting.Value.ToBool() ? CookieConsentRequirement.RequiredInEUCountriesOnly.ToString() : CookieConsentRequirement.NeverRequired.ToString(),
-                        StoreId = setting.StoreId
-                    });
+                    db.Settings.Remove(setting);
                 }
             }
+
+            // Remove duplicate settings for PrivacySettings.CookieConsentRequirement
+            var stores = await db.Stores.ToListAsync(cancelToken);
+            var cookieConsentRequirementSettings = await db.Settings
+                .Where(x => x.Name == "PrivacySettings.CookieConsentRequirement")
+                .ToListAsync(cancelToken);
+
+            if (cookieConsentRequirementSettings.Count > stores.Count)
+            {
+                foreach (var store in stores)
+                {
+                    var storeSpecificSettings = cookieConsentRequirementSettings
+                        .Where(x => x.StoreId == store.Id)
+                        .ToList();
+
+                    if (storeSpecificSettings.Count > 1)
+                    {
+                        db.Settings.RemoveRange(storeSpecificSettings.Skip(1));
+                    }
+                }
+
+                var settingsForAllStores = cookieConsentRequirementSettings
+                    .Where(x => x.StoreId == 0)
+                    .ToList();
+
+                if (settingsForAllStores.Count > 1)
+                {
+                    db.Settings.RemoveRange(settingsForAllStores.Skip(1));
+                }
+            }   
 
             await db.SaveChangesAsync(cancelToken);
 
@@ -157,6 +182,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowShortDescriptionInGridStyleLists.Hint",
                 "Specifies whether the product short description should be displayed in product lists. This setting only refers to the display in the grid view.",
                 "Legt fest, ob die Produkt-Kurzbeschreibung auch in Produktlisten angezeigt werden sollen.Diese Einstellmöglichkeit bezieht sich nur auf die Darstellung in der Grid-Ansicht.");
+
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent.Hint");
         }
 
         /// <summary>
