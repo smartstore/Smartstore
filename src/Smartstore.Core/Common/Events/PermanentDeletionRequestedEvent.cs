@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// An event that is published immediately before the final deletion of ISoftDeletable entities.
-    /// The event is usually part of delteing recycle bin items.
+    /// The event is usually part of deleting recycle bin items.
     /// </summary>
     /// <typeparam name="TEntity">The entity type to be deleted.</typeparam>
     public class PermanentDeletionRequestedEvent<TEntity>
@@ -26,21 +26,24 @@
         /// </summary>
         public int[] EntityIds { get; }
 
-        // TODO: (mg) Bad architecture: A plugin must not prevent the deletion of the whole batch!
-        // Only particular entities. This requires revision (e.g. HashSet of undeletable ids etc.).
         /// <summary>
-        /// Gets or sets a value indicating whether the deletion should be executed.
-        /// If this is set to <c>true</c> by any event consumer, then none of the entities specified by <see cref="EntityIds"/> will be deleted.
+        /// Adds warnings, e.g. reasons why entities cannot be deleted.
         /// </summary>
-        public bool Disallow { get; set; }
+        public HashSet<string> Warnings { get; set; } = new();
 
-        /// <summary>
-        /// Gets or sets an optional message why the deletion is disallowed.
-        /// </summary>
-        public string DisallowMessage { get; set; }
-
-        // TODO: (mg) Mem leak risk: After deletion completes, this list should be cleared.
+        internal HashSet<int> DisallowedEntityIds { get; } = new();
         internal List<Func<CancellationToken, Task>> EntitiesDeletedCallbacks { get; } = new();
+
+        /// <summary>
+        /// Adds identifiers of entities that must not be deleted.
+        /// </summary>
+        public void AddDisallowedEntityIds(params int[] entityIds)
+        {
+            if (entityIds != null)
+            {
+                DisallowedEntityIds.AddRange(entityIds);
+            }
+        }
 
         /// <summary>
         /// Adds a callback that is called after the entities specified by <see cref="EntityIds"/> were deleted physically.

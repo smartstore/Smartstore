@@ -93,8 +93,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.NumberOfOrders", "Number of orders", "Auftragsanzahl");
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.AdminNote",
-                "A recovery of deleted products is intended for emergencies. Some data cannot be restored in the process. These include assignments to delivery times and quantity units, country of origin and the compare price label (e.g. RRP).",
-                "Eine Wiederherstellung von gelöschten Produkten ist für Notfälle gedacht. Einige Daten können dabei nicht wiederhergestellt werden. Dazu zählen Zuordnungen zu Lieferzeiten und Verpackungseinheiten, Herkunftsland und der Vergleichspreiszusatz (z.B. UVP).");
+                "<div>A recovery of deleted products is intended for emergencies. Some data cannot be restored in the process. These include assignments to delivery times and quantity units, country of origin and the compare price label (e.g. RRP).</div><div>Products that are assigned to orders are ignored during deletion, as they cannot be deleted permanently.</div>",
+                "<div>Eine Wiederherstellung von gelöschten Produkten ist für Notfälle gedacht. Einige Daten können dabei nicht wiederhergestellt werden. Dazu zählen Zuordnungen zu Lieferzeiten und Verpackungseinheiten, Herkunftsland und der Vergleichspreiszusatz (z.B. UVP).</div><div>Produkte, die Aufträgen zugeordnet sind, werden beim Löschen ignoriert, da sie nicht entgültig gelöscht werden können.</div>");
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning",
                 "Orders are assigned to the product. It cannot be permanently deleted.",

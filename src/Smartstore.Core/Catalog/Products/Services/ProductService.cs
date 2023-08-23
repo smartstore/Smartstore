@@ -564,7 +564,6 @@ namespace Smartstore.Core.Catalog.Products
                 return false;
             }
 
-            // TODO: (mg) Perf: batching. GetProductIdsToRestore > update products > restore related entities
             var updatedProductIds = products.Select(x => x.Id).ToArray();
 
             // Check if slugs are missing.
@@ -662,39 +661,45 @@ namespace Smartstore.Core.Catalog.Products
 
             foreach (var productIdsChunk in productIds.Chunk(50))
             {
+                var deletionEvent = new PermanentDeletionRequestedEvent<Product>(productIdsChunk);
+
                 try
                 {
-                    await DeleteProductsPermanentInternal(productIdsChunk, warnings, cancelToken);
-                    success += productIdsChunk.Length;
+                    await _eventPublisher.PublishAsync(deletionEvent, cancelToken);
+
+                    var idsToDelete = deletionEvent.DisallowedEntityIds.Count > 0
+                        ? productIds.Except(deletionEvent.DisallowedEntityIds).ToArray()
+                        : productIdsChunk;
+
+                    await DeleteProductsPermanentInternal(idsToDelete, cancelToken);
+                    success += idsToDelete.Length;
+
+                    warnings.AddRange(deletionEvent.Warnings);
+
+                    foreach (var entitiesDeleted in deletionEvent.EntitiesDeletedCallbacks)
+                    {
+                        await entitiesDeleted(cancelToken);
+                    }
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex);
+                }
+                finally
+                {
+                    deletionEvent.EntitiesDeletedCallbacks.Clear();
                 }
             }
 
             return (success, warnings);
         }
 
-        private async Task DeleteProductsPermanentInternal(int[] productIds, List<string> warnings, CancellationToken cancelToken)
+        private async Task DeleteProductsPermanentInternal(int[] productIds, CancellationToken cancelToken)
         {
             // INFO: not necessary here to check whether an assignment is of certain type,
             // (e.g. if the deleted product is grouped or bundled product). Just remove any assignment.
 
             const string entityName = nameof(Product);
-
-            var deletionEvent = new PermanentDeletionRequestedEvent<Product>(productIds);
-            await _eventPublisher.PublishAsync(deletionEvent, cancelToken);
-
-            if (deletionEvent.Disallow)
-            {
-                if (deletionEvent.DisallowMessage.HasValue())
-                {
-                    warnings.Add(deletionEvent.DisallowMessage);
-                }
-
-                return;
-            }
 
             // ----- Product assignments.
 
@@ -781,11 +786,6 @@ namespace Smartstore.Core.Catalog.Products
             await _db.Products
                 .Where(x => productIds.Contains(x.Id))
                 .ExecuteDeleteAsync(cancelToken);
-
-            foreach (var entitiesDeleted in deletionEvent.EntitiesDeletedCallbacks)
-            {
-                await entitiesDeleted(cancelToken);
-            }
         }
 
         private async Task DeleteProductMenuItems(int[] productIds, CancellationToken cancelToken)
