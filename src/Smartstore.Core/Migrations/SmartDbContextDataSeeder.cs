@@ -153,6 +153,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.DataGrid.ConfirmSoftDeleteMany", 
                 "Do you want to delete the selected {0} items?", 
                 "Sollen die gewählten {0} Datensätze gelöscht werden?");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowShortDescriptionInGridStyleLists.Hint",
+                "Specifies whether the product short description should be displayed in product lists. This setting only refers to the display in the grid view.",
+                "Legt fest, ob die Produkt-Kurzbeschreibung auch in Produktlisten angezeigt werden sollen.Diese Einstellmöglichkeit bezieht sich nur auf die Darstellung in der Grid-Ansicht.");
         }
 
         /// <summary>
