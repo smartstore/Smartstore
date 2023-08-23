@@ -249,8 +249,8 @@ namespace Smartstore.Web.Rendering
             object htmlAttributes,
             string tag)
         {
-            Guard.NotNull(helper, nameof(helper));
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(helper);
+            Guard.NotNull(expression);
 
             var htmlGenerator = helper.ViewContext.HttpContext.RequestServices.GetRequiredService<IHtmlGenerator>();
             return htmlGenerator.GenerateValidationMessage(
@@ -271,7 +271,7 @@ namespace Smartstore.Web.Rendering
             ModelExpression expression,
             string defaultColor = null)
         {
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(expression);
 
             return ColorBox(helper, expression.Name, expression.Model?.ToString().EmptyNull(), defaultColor);
         }
@@ -281,7 +281,7 @@ namespace Smartstore.Web.Rendering
             Expression<Func<TModel, string>> expression,
             string defaultColor = null)
         {
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(expression);
 
             return ColorBox(helper, helper.NameFor(expression), helper.ValueFor(expression), defaultColor);
         }
@@ -323,7 +323,7 @@ namespace Smartstore.Web.Rendering
             bool displayHint,
             object htmlAttributes = null)
         {
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(expression);
 
             var modelExpression = helper.ModelExpressionFor(expression);
             var metadata = modelExpression.Metadata;
@@ -364,7 +364,7 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         public static IHtmlContent HintTooltipFor<TModel, TResult>(this IHtmlHelper<TModel> helper, Expression<Func<TModel, TResult>> expression)
         {
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(expression);
 
             var modelExpression = helper.ModelExpressionFor(expression);
             var hintText = modelExpression?.Metadata?.Description;
@@ -406,7 +406,7 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         public static IHtmlContent HintFor<TModel, TResult>(this IHtmlHelper<TModel> helper, Expression<Func<TModel, TResult>> expression)
         {
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(expression);
 
             var modelExpression = helper.ModelExpressionFor(expression);
             var hintText = modelExpression?.Metadata?.Description;
@@ -571,9 +571,13 @@ namespace Smartstore.Web.Rendering
                     {
                         Selected = !hasMasterTemplate && i == 0,
                         Text = language.GetLocalized(x => x.Name),
-                        ImageUrl = "~/images/flags/" + language.FlagImageFileName,
                         Content = localizedTemplate(i).ToHtmlString()
                     };
+
+                    if (language.FlagImageFileName.HasValue())
+                    {
+                        tabItem.ImageUrl = "~/images/flags/" + language.FlagImageFileName;
+                    }
 
                     tabItem.HtmlAttributes.Merge("class", "nav-item-locale");
                     tabItem.LinkHtmlAttributes.Merge("class", "btn btn-light btn-sm");
@@ -650,7 +654,7 @@ namespace Smartstore.Web.Rendering
         /// </param>
         public static IHtmlContent Icon(this IHtmlHelper helper, string name, object htmlAttributes = null)
         {
-            Guard.NotNull(name, nameof(name));
+            Guard.NotNull(name);
 
             if (name.StartsWith("bi:"))
             {
@@ -701,7 +705,7 @@ namespace Smartstore.Web.Rendering
             string transforms = null,
             object htmlAttributes = null)
         {
-            Guard.NotNull(name, nameof(name));
+            Guard.NotNull(name);
 
             var svg = new TagBuilder("svg");
 
@@ -787,7 +791,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>The HTML produced by all widgets registered for the given given zone.</returns>
         public static async Task<IHtmlContent> RenderZoneAsync(this IHtmlHelper helper, string zoneName, object model = null)
         {
-            Guard.NotEmpty(zoneName, nameof(zoneName));
+            Guard.NotEmpty(zoneName);
 
             var viewContext = helper.ViewContext;
             var widgetSelector = viewContext.HttpContext.RequestServices.GetRequiredService<IWidgetSelector>();

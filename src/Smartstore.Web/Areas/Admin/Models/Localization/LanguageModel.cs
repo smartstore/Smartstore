@@ -19,7 +19,6 @@ namespace Smartstore.Admin.Models.Localization
 
         [LocalizedDisplay("*FlagImageFileName")]
         public string FlagImageFileName { get; set; }
-        public List<string> FlagFileNames { get; set; } = new();
 
         [LocalizedDisplay("*Rtl")]
         public bool Rtl { get; set; }
@@ -65,7 +64,6 @@ namespace Smartstore.Admin.Models.Localization
         public LanguageValidator(Localizer T)
         {
             RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.FlagImageFileName).NotEmpty();
             RuleFor(x => x.UniqueSeoCode).NotEmpty();
             // Annoying, never validating rule.
             //RuleFor(x => x.UniqueSeoCode).Length(2);
