@@ -61,36 +61,15 @@
 
 
 //
-// Horizontal rules
-//
-
-hr {
-  margin: $hr-margin-y 0;
-  color: inherit;
-  background-color: currentColor;
-  border: 0;
-  opacity: .25;
-}
-
-hr:not([size]) {
-  height: $hr-border-width;
-}
-
-
-//
 // Emphasis
 //
 
-small,
 .small {
-  @include font-size($small-font-size);
-  font-weight: $font-weight-normal;
+  @extend small;
 }
 
-mark,
 .mark {
-  padding: $mark-padding;
-  background-color: $mark-bg;
+  @extend mark;
 }
 
 
@@ -121,7 +100,7 @@ mark,
 
 // Builds on `abbr`
 .initialism {
-  @include font-size(90%);
+  @include font-size($small-font-size);
   text-transform: uppercase;
 }
 
@@ -129,10 +108,19 @@ mark,
 .blockquote {
   margin-bottom: $spacer;
   @include font-size($blockquote-font-size);
+
+  > :last-child {
+    margin-bottom: 0;
+  }
 }
 
 .blockquote-footer {
-  display: block;
+  &::before {
+    content: "\2014\00A0"; // em dash, nbsp
+  }
+
+  margin-top: -$spacer;
+  margin-bottom: $spacer;
   @include font-size($blockquote-small-font-size);
   color: $blockquote-small-color;
 

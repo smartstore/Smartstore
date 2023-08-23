@@ -153,6 +153,11 @@ $utilities: map-merge(
       ),
       values: $utilities-border-colors
     ),
+    "subtle-border-color": (
+      property: border-color,
+      class: border,
+      values: $utilities-border-subtle
+    ),
     "border-width": (
       property: border-width,
       class: border,
@@ -577,9 +582,12 @@ $utilities: map-merge(
       values: map-merge(
         $utilities-text-colors,
         (
-          "muted": $text-muted, // deprecated
+          "muted": var(--#{$prefix}secondary-color), // deprecated
           "black-50": rgba($black, .5), // deprecated
           "white-50": rgba($white, .5), // deprecated
+          "body-secondary": var(--#{$prefix}secondary-color),
+          "body-tertiary": var(--#{$prefix}tertiary-color),
+          "body-emphasis": var(--#{$prefix}emphasis-color),
           "reset": inherit,
         )
       )
@@ -593,6 +601,11 @@ $utilities: map-merge(
         75: .75,
         100: 1
       )
+    ),
+    "text-color": (
+      property: color,
+      class: text,
+      values: $utilities-text-emphasis-colors
     ),
     "link-opacity": (
       css-var: true,
@@ -666,6 +679,11 @@ $utilities: map-merge(
         75: .75,
         100: 1
       )
+    ),
+    "subtle-background-color": (
+      property: background-color,
+      class: bg,
+      values: $utilities-bg-subtle
     ),
     "gradient": (
       property: background-image,

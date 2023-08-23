@@ -23,6 +23,18 @@
     --#{$prefix}#{$color}-rgb: #{$value};
   }
 
+    @each $color, $value in $theme-colors-text {
+    --#{$prefix}#{$color}-text-emphasis: #{$value};
+  }
+
+  @each $color, $value in $theme-colors-bg-subtle {
+    --#{$prefix}#{$color}-bg-subtle: #{$value};
+  }
+
+  @each $color, $value in $theme-colors-border-subtle {
+    --#{$prefix}#{$color}-border-subtle: #{$value};
+  }
+
   --#{$prefix}white-rgb: #{to-rgb($white)};
   --#{$prefix}black-rgb: #{to-rgb($black)};
 
@@ -50,6 +62,21 @@
   --#{$prefix}body-color-rgb: #{to-rgb($body-color)};
   --#{$prefix}body-bg: #{$body-bg};
   --#{$prefix}body-bg-rgb: #{to-rgb($body-bg)};
+
+  --#{$prefix}emphasis-color: #{$body-emphasis-color};
+  --#{$prefix}emphasis-color-rgb: #{to-rgb($body-emphasis-color)};
+
+  --#{$prefix}secondary-color: #{$body-secondary-color};
+  --#{$prefix}secondary-color-rgb: #{to-rgb($body-secondary-color)};
+  --#{$prefix}secondary-bg: #{$body-secondary-bg};
+  --#{$prefix}secondary-bg-rgb: #{to-rgb($body-secondary-bg)};
+
+  --#{$prefix}tertiary-color: #{$body-tertiary-color};
+  --#{$prefix}tertiary-color-rgb: #{to-rgb($body-tertiary-color)};
+  --#{$prefix}tertiary-bg: #{$body-tertiary-bg};
+  --#{$prefix}tertiary-bg-rgb: #{to-rgb($body-tertiary-bg)};
+
+  --#{$prefix}heading-color: #{$headings-color};
 
   --#{$prefix}link-color: #{$link-color};
   --#{$prefix}link-color-rgb: #{to-rgb($link-color)};

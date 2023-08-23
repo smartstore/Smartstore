@@ -88,6 +88,33 @@ $theme-colors: map-merge(
   $theme-colors
 );
 
+$primary-text-emphasis:   shade-color($primary, 60%) !default;
+$secondary-text-emphasis: shade-color($secondary, 60%) !default;
+$success-text-emphasis:   shade-color($success, 60%) !default;
+$info-text-emphasis:      shade-color($info, 60%) !default;
+$warning-text-emphasis:   shade-color($warning, 60%) !default;
+$danger-text-emphasis:    shade-color($danger, 60%) !default;
+$light-text-emphasis:     $gray-700 !default;
+$dark-text-emphasis:      $gray-700 !default;
+
+$primary-bg-subtle:       tint-color($primary, 80%) !default;
+$secondary-bg-subtle:     tint-color($secondary, 80%) !default;
+$success-bg-subtle:       tint-color($success, 80%) !default;
+$info-bg-subtle:          tint-color($info, 80%) !default;
+$warning-bg-subtle:       tint-color($warning, 80%) !default;
+$danger-bg-subtle:        tint-color($danger, 80%) !default;
+$light-bg-subtle:         mix($gray-100, $white) !default;
+$dark-bg-subtle:          $gray-400 !default;
+
+$primary-border-subtle:   tint-color($primary, 60%) !default;
+$secondary-border-subtle: tint-color($secondary, 60%) !default;
+$success-border-subtle:   tint-color($success, 60%) !default;
+$info-border-subtle:      tint-color($info, 60%) !default;
+$warning-border-subtle:   tint-color($warning, 60%) !default;
+$danger-border-subtle:    tint-color($danger, 60%) !default;
+$light-border-subtle:     $gray-200 !default;
+$dark-border-subtle:      $gray-500 !default;
+
 // Set a specific jump point for requesting color jumps
 $theme-color-interval:      8% !default;
 
@@ -125,6 +152,8 @@ $enable-rounded:                              true !default;
 $enable-shadows:                              false !default;
 $enable-gradients:                            false !default;
 $enable-transitions:                          true !default;
+$enable-reduced-motion:                       true !default;
+$enable-smooth-scroll:                        true !default;
 $enable-prefers-reduced-motion-media-query:   true !default;
 $enable-hover-media-query:                    false !default; // Deprecated, no longer affects any compiled CSS
 $enable-grid-classes:                         true !default;
@@ -196,14 +225,23 @@ $sizes: map-merge(
 $body-bg:                   $white !default;
 $body-color:                $gray-900 !default;
 
+$body-secondary-color:      rgba($body-color, .75) !default;
+$body-secondary-bg:         $gray-200 !default;
+
+$body-tertiary-color:       rgba($body-color, .5) !default;
+$body-tertiary-bg:          $gray-100 !default;
+
+$body-emphasis-color:       $black !default;
+
 
 // Links
 //
 // Style anchor elements.
 
-$link-color:                              theme-color("primary") !default;
+$link-color:                              $primary !default;
 $link-decoration:                         none !default;
-$link-hover-color:                        darken($link-color, 15%) !default;
+$link-shade-percentage:                   20% !default;
+$link-hover-color:                        shift-color($link-color, $link-shade-percentage) !default;
 $link-hover-decoration:                   underline !default;
 // Darken percentage for links with `.text-*` class (e.g. `.text-success`)
 $emphasized-link-hover-darken-percentage: 15% !default;
@@ -362,6 +400,7 @@ $font-sizes: (
 
 $headings-margin-bottom:      $spacer * .5 !default;
 $headings-font-family:        null !default;
+$headings-font-style:         null !default;
 $headings-font-weight:        500 !default;
 $headings-line-height:        1.2 !default;
 $headings-color:              null !default;
@@ -388,15 +427,13 @@ $lead-font-size:              $font-size-base * 1.25 !default;
 $lead-font-weight:            300 !default;
 
 $small-font-size:             .875em !default;
+$sub-sup-font-size:           .75em !default;
 
 $text-muted:                  $gray-600 !default;
 
 $blockquote-small-color:      $gray-600 !default;
 $blockquote-small-font-size:  $small-font-size !default;
 $blockquote-font-size:        $font-size-base * 1.25 !default;
-
-$hr-border-color:             rgba($black, .1) !default;
-$hr-border-width:             $border-width !default;
 
 $mark-padding:                .2em !default;
 
@@ -410,6 +447,11 @@ $list-inline-padding:         .5rem !default;
 $mark-bg:                     #fcf8e3 !default;
 
 $hr-margin-y:                 $spacer !default;
+$hr-color:                    inherit !default;
+
+$hr-border-color:             null !default; // Allows for inherited colors
+$hr-border-width:             var(--#{$prefix}border-width) !default;
+$hr-opacity:                  .25 !default;
 
 
 // Tables
@@ -826,6 +868,14 @@ $zindex-modal:                      1050 !default;
 $zindex-popover:                    1060 !default;
 $zindex-tooltip:                    1070 !default;
 
+$zindex-levels: (
+  n1: -1,
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3
+) !default;
+
 
 // Navs
 
@@ -969,6 +1019,12 @@ $pagination-border-radius-lg:       $border-radius-lg !default;
 $jumbotron-padding:                 2rem !default;
 $jumbotron-color:                   null !default;
 $jumbotron-bg:                      $gray-200 !default;
+
+
+// Placeholders
+
+$placeholder-opacity-max:           .5 !default;
+$placeholder-opacity-min:           .2 !default;
 
 
 // Cards

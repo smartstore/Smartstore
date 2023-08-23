@@ -174,7 +174,6 @@
     .statistics-value {
         font-size: .9rem;
         font-weight: $font-weight-medium;
-        border-bottom: 1px solid #eee;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -183,7 +182,7 @@
 
     .statistics-attribute {
         font-size: .8rem;
-        border-top: 1px solid #eee;
+        border-top: 1px solid var(--gray-300);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

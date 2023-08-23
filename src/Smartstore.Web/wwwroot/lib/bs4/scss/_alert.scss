@@ -65,13 +65,18 @@
 //
 // Generate contextual modifier classes for colorizing the alert.
 
-@each $color, $value in $theme-colors {
-  .alert-#{$color} {
-    $c: theme-color-level($color, $alert-color-level);
+@each $state, $value in $theme-colors {
+  .alert-#{$state} {
+    $c: theme-color-level($state, $alert-color-level);
     --alert-color: #{$c};
     --alert-color-rgb: #{to-rgb($c)};
-    --alert-bg: #{theme-color-level($color, $alert-bg-level)};
-    --alert-border-color: #{theme-color-level($color, $alert-border-level)};
+    --alert-bg: #{theme-color-level($state, $alert-bg-level)};
+    --alert-border-color: #{theme-color-level($state, $alert-border-level)};
     --alert-link-color: #{darken($value, 10%)};
+
+    --alert-color: var(--#{$state}-text-emphasis);
+    --alert-bg: var(--#{$state}-bg-subtle);
+    --alert-border-color: var(--#{$state}-border-subtle);
+    --alert-link-color: var(--#{$state}-text-emphasis);
   }
 }

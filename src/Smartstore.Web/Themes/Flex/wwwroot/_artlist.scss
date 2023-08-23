@@ -296,7 +296,6 @@
     font-weight: $font-weight-medium;
     margin-bottom: 0.25rem;
     line-height: var(--art-line-height);
-    > a { color: $body-color; }
 }
 
 .art-genericname {
@@ -304,7 +303,6 @@
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
-    > a { color: $body-color; }
 }
 
 .art-description {
@@ -470,6 +468,13 @@
 .art-name,
 .art-genericname {
     font-size: var(--art-font-size);
+    > a { 
+        color: $body-color; 
+    }
+
+    > a:not(:hover) {
+        text-decoration: none; 
+    }
 }
 
 .art-brand,
