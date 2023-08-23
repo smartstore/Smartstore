@@ -183,8 +183,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Sollen die gewählten {0} Datensätze gelöscht werden?");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowShortDescriptionInGridStyleLists.Hint",
-                "Specifies whether the product short description should be displayed in product lists. This setting only refers to the display in the grid view.",
-                "Legt fest, ob die Produkt-Kurzbeschreibung auch in Produktlisten angezeigt werden sollen.Diese Einstellmöglichkeit bezieht sich nur auf die Darstellung in der Grid-Ansicht.");
+                "Specifies whether the product short description should be displayed in product lists. This setting only applies to the grid view display.",
+                "Legt fest, ob die Produkt-Kurzbeschreibung auch in Produktlisten angezeigt werden sollen. Diese Einstellungsmöglichkeit bezieht sich nur auf die Darstellung in der Grid-Ansicht.");
 
             builder.Delete("Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent.Hint");
         }
