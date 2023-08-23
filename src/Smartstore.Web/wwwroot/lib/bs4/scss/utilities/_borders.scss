@@ -26,25 +26,6 @@
 //
 
 .rounded,
-.rounded-1,
-.rounded-2,
-.rounded-3,
-.rounded-4,
-.rounded-5,
-.rounded-pill {
-    --border-radius-inner: calc(var(--border-radius) - 1px);
-}
-
-.rounded-circle {
-    --border-radius-inner: 50%;
-}
-
-.rounded-0 {
-    --border-radius-inner: 0;
-    --btn-border-radius: 0;
-}
-
-.rounded,
 .rounded-0,
 .rounded-1,
 .rounded-2,
@@ -54,6 +35,25 @@
 .rounded-pill,
 .rounded-circle {
     border-radius: var(--border-radius) !important;
+}
+
+.rounded,
+.rounded-1,
+.rounded-2,
+.rounded-3,
+.rounded-4,
+.rounded-5 {
+    --border-radius-inner: calc(var(--border-radius) - 1px);
+}
+
+.rounded-pill,
+.rounded-circle {
+    --border-radius-inner: var(--border-radius);
+}
+
+.rounded-0 {
+    --border-radius-inner: 0;
+    --btn-border-radius: 0;
 }
 
 .rounded-left,

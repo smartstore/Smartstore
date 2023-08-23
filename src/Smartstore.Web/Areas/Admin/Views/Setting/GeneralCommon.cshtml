@@ -246,10 +246,12 @@
                     <div class="adminData">
                         <div class="input-group">
                             <editor asp-for="SeoSettings.TestSeoNameCreation" />
-                            <button id="TestSeoNameCreationButton" type="button" class="btn btn-outline-secondary input-group-append rounded-0 align-items-center">
-                                <i class="fa fa-sync"></i>
-                                <span>@T("Admin.Common.Check")</span>
-                            </button>
+                            <span class="input-group-append">
+                                <button id="TestSeoNameCreationButton" type="button" class="btn btn-secondary align-items-center">
+                                    <i class="fa fa-sync"></i>
+                                    <span>@T("Admin.Common.Check")</span>
+                                </button>
+                            </span>
                         </div>
                     </div>
                 </div>

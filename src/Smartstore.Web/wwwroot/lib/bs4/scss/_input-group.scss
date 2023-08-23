@@ -8,6 +8,16 @@
 // Base styles
 //
 
+@mixin start-radius-0() {
+  border-start-start-radius: 0 !important;
+  border-end-start-radius: 0 !important;
+}
+
+@mixin end-radius-0() {
+  border-start-end-radius: 0 !important;
+  border-end-end-radius: 0 !important;
+}
+
 .input-group {
   position: relative;
   display: flex;
@@ -46,7 +56,9 @@
 
   > .form-control,
   > .custom-select {
-    &:not(:first-child) { @include border-left-radius(0); }
+    &:not(:first-child) {
+        @include start-radius-0();
+    }
   }
 
   // Custom file inputs have more complex markup, thus requiring different
@@ -56,8 +68,8 @@
     align-items: center;
 
     &:not(:last-child) .custom-file-label,
-    &:not(:last-child) .custom-file-label::after { @include border-right-radius(0); }
-    &:not(:first-child) .custom-file-label { @include border-left-radius(0); }
+    &:not(:last-child) .custom-file-label::after { @include end-radius-0(); }
+    &:not(:first-child) .custom-file-label { @include start-radius-0(); }
   }
 
   &:not(.has-validation) {
@@ -65,7 +77,7 @@
     > .custom-select:not(:last-child),
     > .custom-file:not(:last-child) .custom-file-label,
     > .custom-file:not(:last-child) .custom-file-label::after {
-      @include border-right-radius(0);
+      @include end-radius-0();
     }
   }
 
@@ -74,7 +86,7 @@
     > .custom-select:nth-last-child(n + 3),
     > .custom-file:nth-last-child(n + 3) .custom-file-label,
     > .custom-file:nth-last-child(n + 3) .custom-file-label::after {
-      @include border-right-radius(0);
+      @include end-radius-0();
     }
   }
 }
@@ -208,7 +220,7 @@
 .input-group.has-validation > .input-group-append:nth-last-child(n + 3) > .input-group-text,
 .input-group > .input-group-append:last-child > .btn:not(:last-child):not(.dropdown-toggle),
 .input-group > .input-group-append:last-child > .input-group-text:not(:last-child) {
-  @include border-right-radius(0);
+  @include end-radius-0();
 }
 
 .input-group > .input-group-append > .btn,
@@ -217,5 +229,5 @@
 .input-group > .input-group-prepend:not(:first-child) > .input-group-text,
 .input-group > .input-group-prepend:first-child > .btn:not(:first-child),
 .input-group > .input-group-prepend:first-child > .input-group-text:not(:first-child) {
-  @include border-left-radius(0);
+  @include start-radius-0();
 }
