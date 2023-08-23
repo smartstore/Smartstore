@@ -59,6 +59,9 @@ $color-contrast-light:          $yiq-text-light;
 $gray-150:                      mix($gray-100, $gray-200) !default;
 $gray-650:                      mix($gray-600, $gray-700) !default;
 
+$body-secondary-color:          $gray-600;
+$body-tertiary-color:           $gray-500;
+
 $grays:  ( 
     "150": $gray-150,
     "650": $gray-650
@@ -211,10 +214,17 @@ $pagination-disabled-bg:            $pagination-bg;
 $pagination-disabled-border-color:  $pagination-border-color;
 
 
+// Cards
+
+//$card-spacer-y:                     1rem !default;
+$card-border-color:                 rgba($black, .1) !default;
+
 // List Group
 
 $list-group-bg:						$white;
-$list-group-border-color:			rgba($black, .125);
+$list-group-border-color:			rgba($black, .1);
+
+$list-group-item-padding-y:         1rem !default;
 
 $list-group-hover-bg:               $gray-100;
 $list-group-active-color:			$body-color;

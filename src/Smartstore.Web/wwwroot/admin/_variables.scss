@@ -58,7 +58,8 @@ $grays:  (
     "650": $gray-650
 );
 
-$text-muted:                    $gray-500;
+$body-secondary-color:          $gray-500;
+$body-tertiary-color:           $gray-400;
 
 $blue:                          $sm-blue;
 $indigo:                        $sm-blue2;
@@ -180,7 +181,7 @@ $dropdown-padding-y:            .375rem;
 //$dropdown-border-color:			rgba(#000, 0.05);
 $dropdown-border-radius:        $border-radius;
 $dropdown-border-color:         $gray-200;
-$dropdown-header-color:         $text-muted;
+$dropdown-header-color:         $body-secondary-color;
 $dropdown-link-disabled-color:  $gray-500;
 $dropdown-divider-margin-y:     $dropdown-padding-y;
 $dropdown-box-shadow:           $box-shadow;

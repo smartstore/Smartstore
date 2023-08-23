@@ -16,7 +16,8 @@
             sm: 576,
             md: 768,
             lg: 992,
-            xl: 1200
+            xl: 1200,
+            xxl: 1400
         },
 
         resolveBreakpoints: function () {
@@ -87,13 +88,13 @@
                 if (expression.operator === '>') {
                     min = expression.orEqual
                         ? internal.breakpoints[alias]
-                        : internal.breakpoints[breakpointList[pos + 1] || 'xl'];
+                        : internal.breakpoints[breakpointList[pos + 1] || 'xxl'];
                     max = 999999;
                 }
                 else {
                     min = 0;
                     max = (expression.orEqual
-                        ? internal.breakpoints[breakpointList[pos + 1] || 'xl']
+                        ? internal.breakpoints[breakpointList[pos + 1] || 'xxl']
                         : internal.breakpoints[alias]) - 1;
                 }
 
