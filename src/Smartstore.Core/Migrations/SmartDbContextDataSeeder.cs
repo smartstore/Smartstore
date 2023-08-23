@@ -130,8 +130,8 @@ namespace Smartstore.Core.Data.Migrations
                 "{0} Produkt(e) sind Aufträgen zugeordnet und können folglich nicht gelöscht werden.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.NumberOfRestoredProducts",
-                "{0} products were successfully restored.",
-                "Es wurden {0} Produkte erfolgreich wiederhergestellt.");
+                "{0} of {1} products were successfully restored.",
+                "Es wurden {0} von {1} Produkten erfolgreich wiederhergestellt.");
 
             builder.AddOrUpdate("Admin.Packaging.InstallSuccess",
                 "Package '{0}' was uploaded and unzipped successfully. Please click Edit / Reload list of plugins.",

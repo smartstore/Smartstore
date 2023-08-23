@@ -57,12 +57,12 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Create)]
-        public async Task<IActionResult> RestoreProducts(GridSelection selection)
+        public async Task<IActionResult> RestoreProducts(RestoreProductModel model)
         {
-            var ids = selection.GetEntityIds().ToArray();
-            var numRestored = await _productService.RestoreProductsAsync(ids);
+            var ids = model.ProductIds.ToIntArray();
+            var numRestored = await _productService.RestoreProductsAsync(ids, model.Published);
 
-            NotifyInfo(T("Admin.Catalog.Products.RecycleBin.NumberOfRestoredProducts", numRestored));
+            NotifyInfo(T("Admin.Catalog.Products.RecycleBin.NumberOfRestoredProducts", numRestored, ids.Length));
 
             return Json(new { Success = true, Count = numRestored });
         }

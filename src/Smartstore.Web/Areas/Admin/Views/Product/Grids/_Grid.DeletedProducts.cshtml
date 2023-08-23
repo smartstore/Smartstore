@@ -85,19 +85,6 @@
 
 <script sm-target-zone="scripts" data-origin="deleted-products-grid">
     $(function () {
-        $(document).on('click', '#grid-restore-selected', function (e) {
-            e.preventDefault();
-            const grid = $('#deleted-products-grid').parent().data('datagrid');
-            restoreProducts(grid.selectedRowKeys);
-            return false;
-        });
-
-        $(document).on('click', '.grid-restore', function (e) {
-            e.preventDefault();
-            restoreProducts($(this).data('key'));
-            return false;
-        });
-
         $(document).on('click', '.deleted-product-name a', function (e) {
             e.preventDefault();
             var key = $(this).closest('.deleted-product-name').data('key');
@@ -106,18 +93,42 @@
             return false;
         });
 
-        function restoreProducts(selectedKeys) {
-            $({}).ajax({
+        $(document).on('click', '#grid-restore-selected', function (e) {
+            e.preventDefault();
+            const grid = $('#deleted-products-grid').parent().data('datagrid');
+            showRestoreDialog(grid.selectedRowKeys);
+            return false;
+        });
+
+        $(document).on('click', '.grid-restore', function (e) {
+            e.preventDefault();
+            showRestoreDialog($(this).data('key'));
+            return false;
+        });
+
+        $(document).on('click', '#btn-restore-products', function (e) {
+            e.preventDefault();
+
+            $('#restore-products-form').ajax({
                 cache: false,
                 type: 'POST',
-                data: { selectedKeys },
-                url: '@Url.Action("RestoreProducts")',
-                ask: @T("Admin.Common.AskToProceed").JsValue,
                 success: function () {
                     const grid = $('#deleted-products-grid').parent().data('datagrid');
                     grid.read();
+                    grid.selectedRows = {};
                 }
             });
+
+            $('#restore-products-window').modal('hide');
+            return false;
+        });
+
+
+        function showRestoreDialog(productIds) {
+            var form = $('#restore-products-form');
+            form.find('[name=ProductIds]').val(productIds);
+
+            $('#restore-products-window').modal();
         }
     });
 </script>

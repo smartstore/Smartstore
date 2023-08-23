@@ -488,7 +488,7 @@ namespace Smartstore.Core.Catalog.Products
 
         #region Recycle bin
 
-        public virtual async Task<int> RestoreProductsAsync(int[] productIds, CancellationToken cancelToken = default)
+        public virtual async Task<int> RestoreProductsAsync(int[] productIds, bool? published = null, CancellationToken cancelToken = default)
         {
             if (productIds.IsNullOrEmpty())
             {
@@ -505,10 +505,8 @@ namespace Smartstore.Core.Catalog.Products
             {
                 try
                 {
-                    if (await RestoreProductInternal(productId, parentCategories, cancelToken))
-                    {
-                        success++;
-                    }
+                    await RestoreProductInternal(productId, published, parentCategories, cancelToken);
+                    success++;
                 }
                 catch (Exception ex)
                 {
@@ -525,7 +523,11 @@ namespace Smartstore.Core.Catalog.Products
             return success;
         }
 
-        private async Task<bool> RestoreProductInternal(int productId, Dictionary<int, int> parentCategories, CancellationToken cancelToken)
+        private async Task RestoreProductInternal(
+            int productId, 
+            bool? published,
+            Dictionary<int, int> parentCategories, 
+            CancellationToken cancelToken)
         {
             var productIds = new HashSet<int> { productId };
             var now = DateTime.UtcNow;
@@ -557,12 +559,17 @@ namespace Smartstore.Core.Catalog.Products
                 .Where(x => productIds.Contains(x.Id) && x.Deleted)
                 .ToListAsync(cancelToken);
 
-            products.Each(x => x.Deleted = false);
-
-            if (0 == await _db.SaveChangesAsync(cancelToken))
+            foreach (var product in products)
             {
-                return false;
+                product.Deleted = false;
+                
+                if (published.HasValue)
+                {
+                    product.Published = published.Value;
+                }
             }
+
+            await _db.SaveChangesAsync(cancelToken);
 
             var updatedProductIds = products.Select(x => x.Id).ToArray();
 
@@ -619,8 +626,6 @@ namespace Smartstore.Core.Catalog.Products
                         .SetProperty(x => x.Deleted, false)
                         .SetProperty(x => x.UpdatedOnUtc, now), cancelToken);
             }
-
-            return true;
 
             void GetCategoryIds(int categoryId)
             {
