@@ -24,21 +24,46 @@ namespace Smartstore.Core.Data.Migrations
             {
                 foreach (var setting in enableCookieConsentSettings)
                 {
-                    db.Settings.Add(new Setting
-                    {
-                        Name = "PrivacySettings.CookieConsentRequirement",
-                        Value = setting.Value.ToBool() ? CookieConsentRequirement.RequiredInEUCountriesOnly.ToString() : CookieConsentRequirement.NeverRequired.ToString(),
-                        StoreId = setting.StoreId
-                    });
+                    db.Settings.Remove(setting);
                 }
             }
+
+            // Remove duplicate settings for PrivacySettings.CookieConsentRequirement
+            var stores = await db.Stores.ToListAsync(cancelToken);
+            var cookieConsentRequirementSettings = await db.Settings
+                .Where(x => x.Name == "PrivacySettings.CookieConsentRequirement")
+                .ToListAsync(cancelToken);
+
+            if (cookieConsentRequirementSettings.Count > stores.Count)
+            {
+                foreach (var store in stores)
+                {
+                    var storeSpecificSettings = cookieConsentRequirementSettings
+                        .Where(x => x.StoreId == store.Id)
+                        .ToList();
+
+                    if (storeSpecificSettings.Count > 1)
+                    {
+                        db.Settings.RemoveRange(storeSpecificSettings.Skip(1));
+                    }
+                }
+
+                var settingsForAllStores = cookieConsentRequirementSettings
+                    .Where(x => x.StoreId == 0)
+                    .ToList();
+
+                if (settingsForAllStores.Count > 1)
+                {
+                    db.Settings.RemoveRange(settingsForAllStores.Skip(1));
+                }
+            }   
 
             await db.SaveChangesAsync(cancelToken);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent.Hint");
         }
     }
 }
