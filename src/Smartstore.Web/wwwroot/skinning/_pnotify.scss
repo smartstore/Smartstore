@@ -8,13 +8,13 @@
 .alert.ui-pnotify-container {
     padding-inline-start: 70px !important;
     padding-inline-end: 1.5rem;
-    box-shadow: 0 6px 12px rgba(#000, 0.175) !important;
+    box-shadow: 0 6px 12px rgba($black, 0.175) !important;
     border-width: 1px;
     min-height: 75px !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border-color: rgba(#fff, 0.12) !important;
+    border-color: rgba($white, 0.12) !important;
     overflow: hidden;
 
     &:after {
@@ -73,7 +73,7 @@
 .ui-pnotify-closer, 
 .ui-pnotify-sticker {
     --action-offset: 5px;
-    @include trailing-action($bg: transparent, $color: rgba(var(--alert-color-rgb), 0.4), $hover-bg: rgba(var(--alert-icon-bg-rgb), 0.75), $active-bg: rgba(var(--alert-icon-bg-rgb), 1));
+    @include trailing-action($bg: transparent, $color: rgba(var(--alert-base-rgb), 0.75), $hover-bg: rgba(var(--alert-icon-bg-rgb), 0.75), $active-bg: rgba(var(--alert-icon-bg-rgb), 1));
 
 	margin: 0;
 	position: absolute;
@@ -125,23 +125,4 @@
 	.ui-pnotify-sticker {
 		float: left;
 	}
-}
-
-
-/* DARK VARIANT
-------------------------------------*/
-
-.ui-pnotify-dark .ui-pnotify-container {
-    background: #fff !important;
-    color: #fff !important;
-    box-shadow: none !important; 
-
-    &.alert-info       { background-color: $info !important }
-    &.alert-success    { background-color: $success !important }
-    &.alert-warning    { background-color: $warning !important }
-    &.alert-danger     { background-color: $danger !important }
-}
-
-.ui-pnotify-dark .ui-pnotify-icon {
-    background-color: rgba(0,0,0, 0.175) !important;
 }

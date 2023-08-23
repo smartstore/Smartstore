@@ -29,6 +29,7 @@
 
   @each $color, $value in $theme-colors-bg-subtle {
     --#{$prefix}#{$color}-bg-subtle: #{$value};
+    --#{$prefix}#{$color}-bg-subtle-rgb: #{to-rgb($value)};
   }
 
   @each $color, $value in $theme-colors-border-subtle {

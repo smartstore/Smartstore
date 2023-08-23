@@ -6,29 +6,39 @@
 
 $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value") !default;
 
-$theme-colors-text: (
-  "primary": $primary-text-emphasis,
-  "secondary": $secondary-text-emphasis,
-  "success": $success-text-emphasis,
-  "info": $info-text-emphasis,
-  "warning": $warning-text-emphasis,
-  "danger": $danger-text-emphasis,
-  "light": $light-text-emphasis,
-  "dark": $dark-text-emphasis,
-) !default;
+$theme-colors-text: () !default;
+$theme-colors-text: map-merge(
+  (
+    "primary": $primary-text-emphasis,
+    "secondary": $secondary-text-emphasis,
+    "success": $success-text-emphasis,
+    "info": $info-text-emphasis,
+    "warning": $warning-text-emphasis,
+    "danger": $danger-text-emphasis,
+    "light": $light-text-emphasis,
+    "dark": $dark-text-emphasis,
+  ),
+  $theme-colors-text
+);
 
-$theme-colors-bg-subtle: (
-  "primary": $primary-bg-subtle,
-  "secondary": $secondary-bg-subtle,
-  "success": $success-bg-subtle,
-  "info": $info-bg-subtle,
-  "warning": $warning-bg-subtle,
-  "danger": $danger-bg-subtle,
-  "light": $light-bg-subtle,
-  "dark": $dark-bg-subtle,
-) !default;
+$theme-colors-bg-subtle: () !default;
+$theme-colors-bg-subtle: map-merge(
+  (
+    "primary": $primary-bg-subtle,
+    "secondary": $secondary-bg-subtle,
+    "success": $success-bg-subtle,
+    "info": $info-bg-subtle,
+    "warning": $warning-bg-subtle,
+    "danger": $danger-bg-subtle,
+    "light": $light-bg-subtle,
+    "dark": $dark-bg-subtle,
+  ),
+  $theme-colors-bg-subtle
+);
 
-$theme-colors-border-subtle: (
+$theme-colors-border-subtle: () !default;
+$theme-colors-border-subtle: map-merge(
+  (
   "primary": $primary-border-subtle,
   "secondary": $secondary-border-subtle,
   "success": $success-border-subtle,
@@ -37,7 +47,9 @@ $theme-colors-border-subtle: (
   "danger": $danger-border-subtle,
   "light": $light-border-subtle,
   "dark": $dark-border-subtle,
-) !default;
+  ),
+  $theme-colors-border-subtle
+);
 
 // Utilities maps
 //

@@ -9,6 +9,8 @@
     <div class="page-body">
         <zone name="home_page_top" />
 
+        <partial name="_Cheatsheet.Badges" />
+
         @await Component.InvokeAsync("TopicBlock", new { systemName = "HomePageText", isLead = true })
         <zone name="home_page_after_intro" />
 

@@ -69,7 +69,21 @@ $spacers: (
 	6: ($spacer * 4.5)
 );
 
-$theme-colors:                  ( "gray": $gray-700 );
+$theme-colors: ( 
+    "gray": $gray-700 
+);
+
+$theme-colors-text: ( 
+    "gray": $gray-800 
+);
+
+$theme-colors-bg-subtle: ( 
+    "gray": $gray-400 
+);
+
+$theme-colors-border-subtle: ( 
+    "gray": $gray-500 
+);
 
 $line-height-base:              1.4; // --> 21px
 $line-height-sm:                1.429; // --> 20px
