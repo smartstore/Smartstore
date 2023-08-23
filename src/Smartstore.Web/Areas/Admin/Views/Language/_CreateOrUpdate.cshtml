@@ -63,7 +63,7 @@
                     <smart-label asp-for="FlagImageFileName" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="FlagImageFileName" asp-placeholder="@T("Common.Unspecified")">
+                    <select asp-for="FlagImageFileName">
                         @foreach (var item in countryFlags)
                         {
                             <option value="@item.Value"

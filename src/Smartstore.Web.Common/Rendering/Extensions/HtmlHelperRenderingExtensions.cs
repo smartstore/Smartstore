@@ -571,13 +571,9 @@ namespace Smartstore.Web.Rendering
                     {
                         Selected = !hasMasterTemplate && i == 0,
                         Text = language.GetLocalized(x => x.Name),
+                        ImageUrl = "~/images/flags/" + language.FlagImageFileName,
                         Content = localizedTemplate(i).ToHtmlString()
                     };
-
-                    if (language.FlagImageFileName.HasValue())
-                    {
-                        tabItem.ImageUrl = "~/images/flags/" + language.FlagImageFileName;
-                    }
 
                     tabItem.HtmlAttributes.Merge("class", "nav-item-locale");
                     tabItem.LinkHtmlAttributes.Merge("class", "btn btn-light btn-sm");

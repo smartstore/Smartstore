@@ -64,6 +64,7 @@ namespace Smartstore.Admin.Models.Localization
         public LanguageValidator(Localizer T)
         {
             RuleFor(x => x.Name).NotEmpty();
+            RuleFor(x => x.FlagImageFileName).NotEmpty();
             RuleFor(x => x.UniqueSeoCode).NotEmpty();
             // Annoying, never validating rule.
             //RuleFor(x => x.UniqueSeoCode).Length(2);
