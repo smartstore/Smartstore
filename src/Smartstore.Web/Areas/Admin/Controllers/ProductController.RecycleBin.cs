@@ -60,7 +60,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> RestoreProducts(RestoreProductModel model)
         {
             var ids = model.ProductIds.ToIntArray();
-            var numRestored = await _productService.RestoreProductsAsync(ids, model.Published);
+            var numRestored = await _productService.RestoreProductsAsync(ids, model.PublishAfterRestore);
 
             NotifyInfo(T("Admin.Catalog.Products.RecycleBin.NumberOfRestoredProducts", numRestored, ids.Length));
 

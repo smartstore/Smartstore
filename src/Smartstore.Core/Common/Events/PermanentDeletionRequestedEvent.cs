@@ -31,19 +31,12 @@
         /// </summary>
         public HashSet<string> Warnings { get; set; } = new();
 
-        internal HashSet<int> DisallowedEntityIds { get; } = new();
-        internal List<Func<CancellationToken, Task>> EntitiesDeletedCallbacks { get; } = new();
-
         /// <summary>
-        /// Adds identifiers of entities that must not be deleted.
+        /// Identifiers of entities that must not be deleted.
         /// </summary>
-        public void AddDisallowedEntityIds(params int[] entityIds)
-        {
-            if (entityIds != null)
-            {
-                DisallowedEntityIds.AddRange(entityIds);
-            }
-        }
+        public HashSet<int> DisallowedEntityIds { get; } = new();
+
+        internal List<Func<CancellationToken, Task>> EntitiesDeletedCallbacks { get; } = new();
 
         /// <summary>
         /// Adds a callback that is called after the entities specified by <see cref="EntityIds"/> were deleted physically.

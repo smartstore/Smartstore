@@ -31,17 +31,20 @@ namespace Smartstore.Core.Data.Migrations
             }
 
             // Remove duplicate settings for PrivacySettings.CookieConsentRequirement
-            var stores = await db.Stores.ToListAsync(cancelToken);
+            var storeIds = await db.Stores
+                .Select(x => x.Id)
+                .ToListAsync(cancelToken);
+
             var cookieConsentRequirementSettings = await db.Settings
                 .Where(x => x.Name == "PrivacySettings.CookieConsentRequirement")
                 .ToListAsync(cancelToken);
 
-            if (cookieConsentRequirementSettings.Count > stores.Count)
+            if (cookieConsentRequirementSettings.Count > storeIds.Count)
             {
-                foreach (var store in stores)
+                foreach (var storeId in storeIds)
                 {
                     var storeSpecificSettings = cookieConsentRequirementSettings
-                        .Where(x => x.StoreId == store.Id)
+                        .Where(x => x.StoreId == storeId)
                         .ToList();
 
                     if (storeSpecificSettings.Count > 1)

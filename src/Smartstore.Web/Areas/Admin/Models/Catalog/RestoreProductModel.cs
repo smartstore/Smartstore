@@ -6,6 +6,6 @@
         public string ProductIds { get; set; }
 
         [LocalizedDisplay("*Published")]
-        public bool? Published { get; set; }
+        public bool? PublishAfterRestore { get; set; }
     }
 }

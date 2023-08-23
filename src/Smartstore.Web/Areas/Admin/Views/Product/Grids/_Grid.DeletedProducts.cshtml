@@ -88,7 +88,7 @@
         $(document).on('click', '.deleted-product-name a', function (e) {
             e.preventDefault();
             var key = $(this).closest('.deleted-product-name').data('key');
-            var href = '@Url.Content("~/Admin/Product/DeletedProductDetails/")';
+            var href = '@Url.Action("DeletedProductDetails")';
             openPopup(href + key);
             return false;
         });

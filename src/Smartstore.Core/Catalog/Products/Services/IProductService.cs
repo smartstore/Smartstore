@@ -102,9 +102,9 @@ namespace Smartstore.Core.Catalog.Products
         /// Restores soft-deleted products.
         /// </summary>
         /// <param name="productIds">Identifiers of products to restore.</param>
-        /// <param name="published">A value indicating whether to publish restored products.</param>
+        /// <param name="publishAfterRestore">A value indicating whether to publish restored products.</param>
         /// <returns>Number of successfully restored products.</returns>
-        Task<int> RestoreProductsAsync(int[] productIds, bool? published = null, CancellationToken cancelToken = default);
+        Task<int> RestoreProductsAsync(int[] productIds, bool? publishAfterRestore = null, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Permanently deletes soft-deleted products.

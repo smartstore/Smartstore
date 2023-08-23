@@ -488,7 +488,7 @@ namespace Smartstore.Core.Catalog.Products
 
         #region Recycle bin
 
-        public virtual async Task<int> RestoreProductsAsync(int[] productIds, bool? published = null, CancellationToken cancelToken = default)
+        public virtual async Task<int> RestoreProductsAsync(int[] productIds, bool? publishAfterRestore = null, CancellationToken cancelToken = default)
         {
             if (productIds.IsNullOrEmpty())
             {
@@ -505,7 +505,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 try
                 {
-                    await RestoreProductInternal(productId, published, parentCategories, cancelToken);
+                    await RestoreProductInternal(productId, publishAfterRestore, parentCategories, cancelToken);
                     success++;
                 }
                 catch (Exception ex)
@@ -525,7 +525,7 @@ namespace Smartstore.Core.Catalog.Products
 
         private async Task RestoreProductInternal(
             int productId, 
-            bool? published,
+            bool? publishAfterRestore,
             Dictionary<int, int> parentCategories, 
             CancellationToken cancelToken)
         {
@@ -563,9 +563,9 @@ namespace Smartstore.Core.Catalog.Products
             {
                 product.Deleted = false;
                 
-                if (published.HasValue)
+                if (publishAfterRestore.HasValue)
                 {
-                    product.Published = published.Value;
+                    product.Published = publishAfterRestore.Value;
                 }
             }
 
