@@ -994,7 +994,7 @@ namespace Smartstore.Admin.Controllers
             var cultureParts = culture.SplitSafe('-').ToArray();
             if (cultureParts.Length > 0)
             {
-                var fileName = cultureParts[^1].EmptyNull().ToLower() + ".png";
+                var fileName = cultureParts[^1].EmptyNull().ToLowerInvariant() + ".png";
 
                 if (applicationContext.WebRoot.FileExists("images/flags/" + fileName))
                 {
