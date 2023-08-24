@@ -388,16 +388,13 @@ namespace Smartstore.Core.Checkout.Tax
             // In addition, the origin of the IP addresses should also be checked for verification.
             var basedOn = _taxSettings.TaxBasedOn;
 
-            if (_taxSettings.EuVatEnabled && productIsEsd && IsEuConsumer(customer))
+            if ((_taxSettings.EuVatEnabled && productIsEsd && IsEuConsumer(customer)) ||
+                (basedOn == TaxBasedOn.ShippingAddress && customer.ShippingAddress == null))
             {
                 basedOn = TaxBasedOn.BillingAddress;
             }
 
-            if (basedOn == TaxBasedOn.BillingAddress && customer?.BillingAddress == null)
-            {
-                basedOn = TaxBasedOn.DefaultAddress;
-            }
-            else if (basedOn == TaxBasedOn.ShippingAddress && customer?.ShippingAddress == null)
+            if (basedOn == TaxBasedOn.BillingAddress && customer.BillingAddress == null)
             {
                 basedOn = TaxBasedOn.DefaultAddress;
             }
