@@ -252,7 +252,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Ensure we have at least one published language
-            var allLanguages = _languageService.GetAllLanguages();
+            var allLanguages = await _languageService.GetAllLanguagesAsync();
             if (allLanguages.Count == 1 && allLanguages[0].Id == language.Id)
             {
                 NotifyError(T("Admin.Configuration.Languages.OnePublishedLanguageRequired"));
@@ -260,8 +260,23 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction(nameof(Edit), new { id = language.Id });
             }
 
-            _db.Languages.Remove(language);
-            await _db.SaveChangesAsync();
+            for (var i = 1; i <= 2; i++)
+            {
+                try
+                {
+                    _db.Languages.Remove(language);
+                    await _db.SaveChangesAsync();
+                    break;
+                }
+                catch
+                {
+                    // SQLite sometimes throws "Database disk image is malformed". After database shrink it works.
+                    if (_db.DataProvider.ProviderType == DbSystemType.SQLite && _db.DataProvider.CanShrink)
+                    {
+                        await _db.DataProvider.ShrinkDatabaseAsync(false);
+                    }
+                }
+            }
 
             NotifySuccess(T("Admin.Configuration.Languages.Deleted"));
 
