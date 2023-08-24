@@ -12,6 +12,7 @@
 
 - Increased performance: added hash codes to attribute combinations. With a large number of attribute combinations, variants are found much faster now.
 - Improved plugin & provider manager UI
+- Use billing address if there is no shipping address and tax calculation is based on shipping address.
 - #580 Added caching for live currency exchange rates.
 - #767 Handle tier prices in depending prices module.
 - #378 Remove the assignments of products to a tax category when the tax category is deleted.
