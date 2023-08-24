@@ -233,8 +233,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                // We can make the parent grouped product assignment only after all the data has been processed and imported.
-                if (segmenter.IsLastSegment)
+                if (segmenter.IsLastSegment || context.Abort == DataExchangeAbortion.Hard)
                 {
                     // ===========================================================================
                     // 9.) Map parent ID of inserted products.
@@ -243,7 +242,15 @@ namespace Smartstore.Core.DataExchange.Import
                         segmenter.HasColumn(nameof(Product.ParentGroupedProductId)) &&
                         !segmenter.IsIgnored(nameof(Product.ParentGroupedProductId)))
                     {
-                        await ProcessGroupedProductsAsync(context, scope);
+                        try
+                        {
+                            // We can make the parent grouped product assignment only after all the data has been processed and imported.
+                            await ProcessGroupedProductsAsync(context, scope);
+                        }
+                        catch (Exception ex)
+                        {
+                            context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessGroupedProductsAsync));
+                        }
                     }
 
                     // ===========================================================================

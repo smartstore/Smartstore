@@ -139,7 +139,7 @@ namespace Smartstore.Core.DataExchange.Import
                     context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAddressesAsync));
                 }
 
-                if (segmenter.IsLastSegment)
+                if (segmenter.IsLastSegment || context.Abort == DataExchangeAbortion.Hard)
                 {
                     AddInfoForDeprecatedFields(context);
 

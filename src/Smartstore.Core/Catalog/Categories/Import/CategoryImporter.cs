@@ -141,8 +141,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                // We can make the parent category assignment only after all the data has been processed and imported.
-                if (segmenter.IsLastSegment)
+                if (segmenter.IsLastSegment || context.Abort == DataExchangeAbortion.Hard)
                 {
                     // ===========================================================================
                     // Process parent category mappings.
@@ -151,7 +150,15 @@ namespace Smartstore.Core.DataExchange.Import
                         segmenter.HasColumn(nameof(Category.ParentId)) &&
                         !segmenter.IsIgnored(nameof(Category.ParentId)))
                     {
-                        await ProcessParentMappingsAsync(context, scope, batch);
+                        try
+                        {
+                            // We can make the parent category assignment only after all the data has been processed and imported.
+                            await ProcessParentMappingsAsync(context, scope, batch);
+                        }
+                        catch (Exception ex)
+                        {
+                            context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessParentMappingsAsync));
+                        }
                     }
 
                     if (cargo.NumberOfNewImages > 0)
