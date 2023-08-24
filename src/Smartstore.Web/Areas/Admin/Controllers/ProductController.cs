@@ -876,6 +876,12 @@ namespace Smartstore.Admin.Controllers
                         };
 
                         response.Add(file);
+
+                        if (files.Count == 1 && productPicture.Product.MainPictureId == null)
+                        {
+                            // Fix missing MainPictureId here because ProductMediaFileHook not executed in this case.
+                            productPicture.Product.MainPictureId = productPicture.MediaFileId;
+                        }
                     }
                     ++displayOrder;
                 }
