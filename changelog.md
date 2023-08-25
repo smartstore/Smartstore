@@ -45,7 +45,6 @@
   - Fixed localized properties were not updated during import.
   - Localized SeName was only updated when import file also contained a non-localized SeName column.
 - Fixed MainPictureId not applied on product edit page if missing and if there is only one picture assigned to a product.
-- Resolves #792 Downloaded language sometimes cannot be deleted when using SQLite.
 
 
 ## Smartstore 5.0.5

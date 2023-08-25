@@ -260,25 +260,8 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction(nameof(Edit), new { id = language.Id });
             }
 
-            for (var i = 1; i <= 2; i++)
-            {
-                try
-                {
-                    _db.Languages.Remove(language);
-                    await _db.SaveChangesAsync();
-                    break;
-                }
-                catch
-                {
-                    // SQLite sometimes throws "Database disk image is malformed". After database shrink it works.
-                    if (_db.DataProvider.ProviderType == DbSystemType.SQLite && _db.DataProvider.CanShrink)
-                    {
-                        // TODO: (mg) Very BAD idea, SQLite vacuum can take VERY long because it actually
-                        // regenerates the DB (drops and recreates ALL indexes etc.).
-                        await _db.DataProvider.ShrinkDatabaseAsync(false);
-                    }
-                }
-            }
+            _db.Languages.Remove(language);
+            await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.Configuration.Languages.Deleted"));
 
