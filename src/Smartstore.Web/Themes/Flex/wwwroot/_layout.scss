@@ -117,7 +117,7 @@ body {
     height: 42px;
     border-radius: 50%;
     background: #fff;
-    color: $body-color !important;
+    color: var(--body-color) !important;
     text-decoration: none;
     opacity: 0;
     transform: scale(0.7);

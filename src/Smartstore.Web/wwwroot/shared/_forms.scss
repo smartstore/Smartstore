@@ -177,11 +177,11 @@ fieldset.content-group {
 }
 
 
-// Input addon button:
+// Input inline addon (button):
 // Absolutely positioned input inset button
 // ------------------------------------------------------
 
-.input-group-inline-button {
+.input-group-inline-addon {
     @extend .input-group-text;
 
     --addon-border-radius: var(--border-radius, #{$input-border-radius});
@@ -198,7 +198,7 @@ fieldset.content-group {
         border-color: $input-focus-border-color;
     }
 
-    > .btn {
+    > * {
         --btn-padding-y: 0;
         --btn-border-radius: var(--addon-border-radius-inner); // Inherit the parent's radius
         --btn-font-size: #{$font-size-sm};
