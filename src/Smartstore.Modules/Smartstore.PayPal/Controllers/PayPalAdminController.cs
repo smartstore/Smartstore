@@ -142,7 +142,7 @@ namespace Smartstore.PayPal.Controllers
             {
                 try
                 {
-                    var getMerchantStatusRequest = new GetMerchantStatusRequest(PartnerId, settings.PayerId);
+                    var getMerchantStatusRequest = new GetMerchantStatusRequest(PayPalConstants.PartnerId, settings.PayerId);
                     var getMerchantStatusResponse = await _client.ExecuteRequestAsync(getMerchantStatusRequest);
                     var merchantStatus = getMerchantStatusResponse.Body<MerchantStatus>();
 
@@ -193,7 +193,7 @@ namespace Smartstore.PayPal.Controllers
                 if (accessTokenResponse.Status == HttpStatusCode.OK)
                 {
                     var accesstoken = accessTokenResponse.Body<AccessToken>();
-                    var credentialsRequest = new GetSellerCredentialsRequest(PartnerId, accesstoken.Token);
+                    var credentialsRequest = new GetSellerCredentialsRequest(PayPalConstants.PartnerId, accesstoken.Token);
                     var credentialsResponse = await _client.ExecuteRequestAsync(credentialsRequest);
 
                     if (credentialsResponse.Status == HttpStatusCode.OK)
@@ -250,7 +250,7 @@ namespace Smartstore.PayPal.Controllers
                 var storeScope = GetActiveStoreScopeConfiguration();
                 var settings = await Services.SettingFactory.LoadSettingsAsync<PayPalSettings>(storeScope);
 
-                var getMerchantStatusRequest = new GetMerchantStatusRequest(PartnerId, settings.PayerId);
+                var getMerchantStatusRequest = new GetMerchantStatusRequest(PayPalConstants.PartnerId, settings.PayerId);
                 var getMerchantStatusResponse = await _client.ExecuteRequestAsync(getMerchantStatusRequest);
                 var merchantStatus = getMerchantStatusResponse.Body<MerchantStatus>();
 

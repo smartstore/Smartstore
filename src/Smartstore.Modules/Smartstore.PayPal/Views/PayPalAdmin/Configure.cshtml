@@ -1,24 +1,22 @@
-﻿@using static Smartstore.PayPal.Module;
-
-@model ConfigurationModel
+﻿@model ConfigurationModel
 
 @{
     Layout = "_ConfigureProvider";
 
     var trasactModes = new List<SelectListItem>
-{
+    {
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.Capture"), Value = "capture", Selected = Model.Intent == "capture" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.Auth"), Value = "authorize", Selected = Model.Intent == "authorize" }
     };
 
     var buttonShapes = new List<SelectListItem>
-{
+    {
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonShape.Pill"), Value = "pill", Selected = Model.ButtonShape == "pill" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonShape.Rect"), Value = "rect", Selected = Model.ButtonShape == "rect" }
     };
 
     var buttonColors = new List<SelectListItem>
-{
+    {
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Gold"), Value = "gold", Selected = Model.ButtonColor == "gold" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Blue"), Value = "blue", Selected = Model.ButtonColor == "blue" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Silver"), Value = "silver", Selected = Model.ButtonColor == "silver" },
@@ -102,7 +100,7 @@
                     scriptUrl = "https://www.sandbox.paypal.com/";
                 }
 
-                var url = $"{scriptUrl}bizsignup/partner/entry?partnerClientId={Module.PartnerClientId}&partnerId={Module.PartnerId}&sellerNonce={sellerNonce}" +
+                var url = $"{scriptUrl}bizsignup/partner/entry?partnerClientId={PayPalConstants.PartnerClientId}&partnerId={PayPalConstants.PartnerId}&sellerNonce={sellerNonce}" +
                           $"&country.x={lang.UniqueSeoCode.ToUpper()}&locale.x={lang.LanguageCulture}" +
                           $"&displayMode=minibrowser&integrationType=FO" +
                           $"&features=PAYMENT&secondaryProducts=payment_methods&capabilities=PAY_UPON_INVOICE";
@@ -256,7 +254,7 @@
                 <div class="input-group">
                     <setting-editor asp-for="WebhookId"></setting-editor>
                     <span class="input-group-append">
-                        <button type="submit" id="createwebhook" name="createwebhook" value="createwebhook" class="btn btn-outline-secondary"
+                        <button type="submit" id="createwebhook" name="createwebhook" value="createwebhook" class="btn btn-light"
                                 attr-disabled='(!Model.ClientId.HasValue() || !Model.Secret.HasValue(), "disabled")'>
                             <i class="fa fa-cog"></i>
                             <span>@T("Plugins.Smartstore.PayPal.CreateWebhook")</span>

@@ -15,9 +15,6 @@ namespace Smartstore.PayPal
 {
     internal class Module : ModuleBase
     {
-        public static string PartnerId => "FW39AHL99XEVN";
-        public static string PartnerClientId => "AWDFq4wYkqD_VwBfNqNU_TuhPhNc3i18fwGb3JwhyH1MNvQnwNmtpSyG1r8RK95JEzS8UDz8wyYV28qq";
-
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
             await ImportLanguageResourcesAsync();
