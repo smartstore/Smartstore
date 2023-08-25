@@ -49,7 +49,7 @@
                 <a href="@itemUrl" attrs="attrs">
                     @if (hasIcons)
                     {
-                        <i class="fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas")"></i>
+                        <i class="fa-fw@(item.Icon.HasValue() ? item.Icon.LeftPad() : " fas fa-arrow-right")"></i>
                     }
                     else if (hasImages && item.ImageUrl.HasValue())
                     {
@@ -57,7 +57,7 @@
                     }
                     else if (hasImages)
                     {
-                        <i class="fa-fw fas"></i>
+                        <i class="fa-fw fas fa-arrow-right"></i>
                     }
 
                     <span sm-language-attributes-for="item">@itemText</span>

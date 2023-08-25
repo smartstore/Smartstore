@@ -102,6 +102,8 @@ $embed-responsive-aspect-ratios: (
     (1 1) 
 );
 
+$transition-base:             all 0.125s ease-in-out !default;
+
 
 // Typo
 
@@ -126,6 +128,8 @@ $display1-size:               null !default;
 $display2-size:               null !default;
 $display3-size:               null !default;
 $display4-size:               null !default;
+
+$hr-opacity:                  .12 !default;
 
 
 // Buttons + Forms

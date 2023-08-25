@@ -14,6 +14,8 @@ $site-bg:                   #fff !default;
 // Easings
 // -------------------------------------------------
 
+$link-transition:       color 0.125s ease, opacity 0.125s ease !default;
+
 $ease-in-sine:          cubic-bezier(.47, 0, .745, .715) !default;
 $ease-out-sine:         cubic-bezier(.39, .575, .565, 1) !default;
 $ease-in-out-sine:      cubic-bezier(.445, .05, .55, .95) !default;

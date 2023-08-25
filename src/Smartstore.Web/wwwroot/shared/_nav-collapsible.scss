@@ -6,6 +6,9 @@
 
 @include media-breakpoint-down(sm) {
     .nav-collapsible {
+        --nav-collapsible-padding-y: 1rem;
+        --nav-collapsible-padding-x: 1rem;
+
         position: relative;
 
         .nav-toggler {
@@ -13,12 +16,13 @@
             line-height: 1.5;
             cursor: pointer;
             margin: 0;
-            padding: 0.75rem 1rem;
+            padding-block: var(--nav-collapsible-padding-y);
+            padding-inline: var(--nav-collapsible-padding-x);
 
             &:after {
                 @include fontawesome("\f054"); // chevron-right
                 position: absolute;
-                inset-inline-end: 1rem;
+                inset-inline-end: var(--nav-collapsible-padding-x);
                 top: 50%;
                 font-size: 85%;
                 transform: translateY(-50%) rotate(90deg);
@@ -31,7 +35,7 @@
         }
 
         .nav-collapse {
-            padding: 0 1rem;
+            padding: 0 var(--nav-collapsible-padding-x);
         }
     }
 }

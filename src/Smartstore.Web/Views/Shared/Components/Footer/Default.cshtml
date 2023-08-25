@@ -34,7 +34,7 @@
         <div class="container footer-main">
             <div class="row sm-gutters">
 
-                <div class="col-md-3">
+                <div class="col-md-4 col-lg-3">
                     <nav class="footer-links nav-collapsible">
                         <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-info" aria-controls="footer-info" aria-expanded="false">
                             @T("Footer.Info")
@@ -45,7 +45,7 @@
                     </nav>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4 col-lg-3">
                     <nav class="footer-links nav-collapsible">
                         <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-service" aria-controls="footer-service" aria-expanded="false">
                             <span class="d-none d-md-block">@T("Footer.Service")</span>
@@ -57,7 +57,7 @@
                     </nav>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4 col-lg-3">
                     <nav class="footer-links company nav-collapsible">
                         <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-company" aria-controls="footer-company" aria-expanded="false">
                             <span class="d-none d-md-block">@T("Footer.Company")</span>
@@ -69,68 +69,70 @@
                     </nav>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12 col-lg-3">
                     <zone name="footer_col_4_before"></zone>
 
-                    @if (!Model.HideNewsletterBlock)
-                    {
-                        <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.Action("Subscribe", "Newsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
-                            <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-newsletter" aria-controls="footer-newsletter" aria-expanded="false">@T("Newsletter.Title")</h4>
-                            <div class="collapse nav-collapse" id="footer-newsletter">
-                                <div id="newsletter-subscribe-block">
-                                    <div class="input-group has-icon mb-2">
-                                        <input asp-for="NewsletterEmail" id="newsletter-email" class="rounded-pill" placeholder="@T("Newsletter.Email")" />
-                                        <span class="input-group-icon text-muted" style="--inline-icon-offset: 4px">
-                                            <i class="far fa-envelope"></i>
-                                        </span>
-                                        <span class="input-group-append">
-                                            <span class="input-group-inline-button rounded-pill">
-                                                <button id="newsletter-subscribe-button" class="btn btn-primary">
-                                                    <span>@T("Newsletter.Button")</span>
-                                                </button>
+                    <div class="row gx-md-4 gy-md-3">
+                        <div sm-if="!Model.HideNewsletterBlock" class="col-12 col-md col-lg-12">
+                            <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.Action("Subscribe", "Newsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
+                                <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-newsletter" aria-controls="footer-newsletter" aria-expanded="false">@T("Newsletter.Title")</h4>
+                                <div class="collapse nav-collapse" id="footer-newsletter">
+                                    <div id="newsletter-subscribe-block">
+                                        <div class="input-group has-icon shadow-xs rounded-pill mb-2">
+                                            <input asp-for="NewsletterEmail" id="newsletter-email" class="rounded-pill" placeholder="@T("Newsletter.Email")" />
+                                            <span class="input-group-icon text-muted" style="--inline-icon-offset: 4px">
+                                                <i class="far fa-envelope"></i>
                                             </span>
-                                        </span>
-                                    </div>
+                                            <span class="input-group-append">
+                                                <span class="input-group-inline-button rounded-pill">
+                                                    <button id="newsletter-subscribe-button" class="btn btn-primary">
+                                                        <span>@T("Newsletter.Button")</span>
+                                                    </button>
+                                                </span>
+                                            </span>
+                                        </div>
 
-                                    <div class="d-none d-lg-block mb-2">
-                                        <div class="hstack">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" id="newsletter-subscribe" value="newsletter-subscribe" name="optionsRadios" checked="checked">
-                                                <label class="form-check-label" for="newsletter-subscribe">
-                                                    <span>@T("Newsletter.Subscribe")</span>
-                                                </label>
-                                            </div>
+                                        <div class="mb-2">
+                                            <div class="hstack">
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" id="newsletter-subscribe" value="newsletter-subscribe" name="optionsRadios" checked="checked">
+                                                    <label class="form-check-label" for="newsletter-subscribe">
+                                                        <span>@T("Newsletter.Subscribe")</span>
+                                                    </label>
+                                                </div>
 
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" id="newsletter-unsubscribe" value="newsletter-unsubscribe" name="optionsRadios">
-                                                <label class="form-check-label" for="newsletter-unsubscribe">
-                                                    <span>@T("Newsletter.Unsubscribe")</span>
-                                                </label>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" id="newsletter-unsubscribe" value="newsletter-unsubscribe" name="optionsRadios">
+                                                    <label class="form-check-label" for="newsletter-unsubscribe">
+                                                        <span>@T("Newsletter.Unsubscribe")</span>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        <zone name="gdpr_consent_small"></zone>
+
+                                        <span asp-validation-for="NewsletterEmail"></span>
+
                                     </div>
-
-                                    <zone name="gdpr_consent_small"></zone>
-
-                                    <span asp-validation-for="NewsletterEmail"></span>
-
+                                    <div id="newsletter-result-block" class="alert alert-success d-none mt-2"></div>
                                 </div>
-                                <div id="newsletter-result-block" class="alert alert-success d-none mt-2"></div>
                             </div>
                         </div>
-                    }
 
-                    @if (Model.ShowThemeSelector)
-                    {
-                        <div class="theme-selector d-none d-md-block" attr-class='(!Model.HideNewsletterBlock, "mt-3")'>
-                            <h4 class="footer-title">@T("Footer.Themes")</h4>
-                            <div class="content">
-                                @{
-                                    @await Component.InvokeAsync("StoreThemeSelector")
-                                }
+                        <div sm-if="Model.ShowThemeSelector" class="col-12 col-md col-lg-12">
+                            <div class="theme-selector nav-collapsible">
+                                <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-themes" aria-controls="footer-newsletter" aria-expanded="false">@T("Footer.Themes")</h4>
+                                <div id="footer-themes" class="content collapse nav-collapse">
+                                    <div class="mb-3 mb-md-0">
+                                        @{
+                                            @await Component.InvokeAsync("StoreThemeSelector")
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    }
+                    </div>
 
                     <zone name="footer_col_4_after"></zone>
                 </div>
@@ -142,16 +144,16 @@
 
     <div class="footer-bottom-wrapper">
         <div class="container footer-bottom">
-            <div class="row sm-gutters">
-                <div sm-if="Model.ShowLegalInfo" class="col pb-1 pb-sm-0">
+            <div class="hstack column-gap-3 row-gap-1 justify-content-between flex-wrap flex-md-nowrap">
+                <div sm-if="Model.ShowLegalInfo">
                     @Html.Raw(Model.LegalInfo)
                 </div>
 
-                <div sm-if="Model.SmartStoreHint.HasValue()" class="col-12 col-sm-auto pb-1 pb-sm-0 text-sm-center">
+                <div sm-if="Model.SmartStoreHint.HasValue()">
                     @Html.Raw(Model.SmartStoreHint)
                 </div>
 
-                <div class="col text-sm-right">
+                <div>
                     @Html.Raw(T("Content.CopyrightNotice", DateTime.Now.Year.ToString(), Model.StoreName))
                 </div>
             </div>

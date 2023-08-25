@@ -618,15 +618,15 @@
         })();
 
 
-        // html text collapser
+        // HTML text collapser
         if ($.fn.moreLess) {
             $('.more-less').moreLess();
         }
 
         // Unselectable radio button groups
         $(document).on('click', '.btn-group-toggle.unselectable > .btn', function (e) {
-            var btn = $(this);
-            var radio = btn.find('input:radio');
+            let btn = $(this);
+            let radio = btn.find('input:radio');
 
             if (radio.length && radio.prop('checked')) {
                 _.delay(function () {
@@ -639,7 +639,7 @@
             }
         });
 
-        // state region dropdown
+        // State region dropdown
         $(document).on('change', '.country-selector', function () {
             var el = $(this);
             var selectedCountryId = el.val();

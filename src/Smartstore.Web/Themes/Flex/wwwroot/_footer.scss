@@ -5,40 +5,100 @@
 // --------------------------------------------------
 
 #footer {
-    border-top: 1px solid rgba($black, 0.1);
-    background: $footer-bg;
+    --footer-bg: #{$footer-bg};
+    --footer-color: #{$footer-color};
+    --footer-social-bg: #{$footer-social-bg};
+    --footer-social-color: #{$footer-social-color};
+    --footer-line-color: #{shade-color($footer-bg, 8%)};
+    --footer-title-color: var(--footer-color);
+    --footer-title-font-size: #{$h5-font-size};
+    --footer-title-font-weight: #{$font-weight-medium};
+    --footer-link-font-size: 1rem;
+    --footer-link-color: #{$footer-color-muted};
+    --footer-link-hover-color: #{shade-color($footer-color-muted, 40%)};
+    --footer-border-top: 1px solid rgba(0,0,0, 0.1);
+    --footer-hr-opacity: 0; // a hr NEVER looks good in the footer
+
+    --footer-bottom-bg: rgba(0,0,0, 0.03);
+    --footer-bottom-color: #{lighten($footer-color-muted, 5%)};
+    --footer-bottom-font-size: 90%;
+
+    border-top: var(--footer-border-top);
+    background-color: var(--footer-bg);
+    color: var(--footer-color);
+
+    &.footer-inverse {
+        --footer-color: #{$footer-inverse-color};
+        --footer-link-color: #{$footer-inverse-color-muted};
+        --footer-link-hover-color: #{opacify($footer-inverse-color-muted, 0.2)};
+        --footer-social-color: #{$footer-inverse-color-muted};
+        --footer-social-bg: transparent;
+        --footer-line-color: #{tint-color($footer-bg, 12%)};
+
+        --footer-bottom-bg: rgba(255,255,255, 0.06);
+        --footer-bottom-color: #{darken($footer-inverse-color-muted, 10%)};
+    }
 }
 
 .footer-social-wrapper {
-    padding: 2.5rem 0;
+    @include rfs(2.5rem, padding-block);
+
+    ~ .footer-main-wrapper {
+        padding-top: 0;
+    }
+}
+
+.footer-social {
+    .btn-social:not(:hover):not(:active):not(:focus) {
+        background-color: var(--footer-social-bg);
+        color: var(--footer-social-color);
+    }
 }
 
 .footer-main-wrapper {
     padding-top: 2rem;
 }
 
-.footer-social-wrapper ~ .footer-main-wrapper {
-    padding-top: 0;
-}
+.footer-main {
+    .footer-title {
+        margin-bottom: 1.25rem;
+        color: var(--footer-title-color);
+        font-weight: var(--footer-title-font-weight);
+    }
 
-.footer-main .footer-title {
-    margin-bottom: 1.25rem;
-    font-weight: $font-weight-medium;
-}
-
-.footer-links {
-    font-size: 1rem;
-    line-height: 1.8;
+    .footer-links {
+        font-size: var(--footer-link-font-size);
+    }
 
     a {
-        display: block;
-        text-decoration: none;     
+        color: var(--footer-link-color);
+        &:hover { 
+            color: var(--footer-link-hover-color); 
+        }
+    }
+
+    a.menu-link {
+        --menu-link-color: var(--footer-link-color);
+        --menu-link-hover-color: var(--footer-link-hover-color);
+    }
+
+    hr {
+        // a hr NEVER looks good in the footer
+        opacity: var(--footer-hr-opacity);
+    }
+}
+
+.footer-bottom-wrapper {
+    background: var(--footer-bottom-bg);
+    color: var(--footer-bottom-color);
+    a { 
+        color: var(--footer-link-hover-color); 
     }
 }
 
 .footer-bottom {
     padding: 1rem 0;
-    font-size: 90%;
+    font-size: var(--footer-bottom-font-size);
 }
 
 @include media-breakpoint-up(md) {
@@ -54,94 +114,24 @@
 
     .footer-main, 
     .footer-bottom {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        margin-inline: 0 !important;
+        padding-inline: 0 !important;
         width: 100% !important;
 		max-width: none;
     }
 
     .footer-bottom {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        padding-inline: 1rem !important;
     }
 
     .nav-collapsible {
-        border-top: 1px solid darken($footer-bg, 10%);
-        border-bottom: 1px solid darken($footer-bg, 10%);
+        border-block: 1px solid var(--footer-line-color);
         margin-top: -1px;
-    }
-
-    .footer-inverse .nav-collapsible {
-        border-top-color: lighten($footer-bg, 10%);
-        border-bottom-color: lighten($footer-bg, 10%);
     }
 
     .footer-main .footer-title {
         margin-bottom: 0;
-        font-size: $h5-font-size;
-    }
-}
-
-.footer-light {
-    $ftmh: darken($footer-color-muted, 30%);
-    color: $footer-color;
-
-    .footer-title {
-        color: $footer-color;
-    }
-
-    a.footer-link,
-    a.menu-link {
-        color: $footer-color-muted;
-        &:hover { color: $ftmh; }
-    }
-
-    .btn-social:not(:hover):not(:active):not(:focus) {
-        background-color: $footer-social-bg;
-        color: $footer-social-color;
-    }
-
-    .footer-bottom-wrapper {
-        background: rgba($black, 0.03);
-        color: lighten($footer-color-muted, 5%);
-        a { color: $ftmh; }
-    }
-}
-
-.footer-inverse {
-    $ftmh: opacify($footer-inverse-color-muted, 0.2);
-    color: $footer-inverse-color;
-
-    .footer-title {
-        color: $footer-inverse-color;
-    }
-
-    a.footer-link,
-    a.menu-link {
-        color: $footer-inverse-color-muted;
-        &:hover { color: $ftmh; }
-    }
-
-    .btn-social:not(:hover):not(:active):not(:focus) {
-        background-color: transparent;
-        color: $footer-inverse-color-muted !important;
-    }
-
-    .footer-bottom-wrapper {
-        background: rgba($white, 0.06);
-        color: darken($footer-inverse-color-muted, 10%);
-        a { color: $ftmh; }
-    }
-
-    .gdpr-consent .form-control-plaintext {
-        color: $footer-inverse-color;
-
-        a {
-            color: $footer-inverse-color-muted;
-            &:hover { color: $ftmh; }
-        }
+        font-size: var(--footer-title-font-size);
     }
 }
 

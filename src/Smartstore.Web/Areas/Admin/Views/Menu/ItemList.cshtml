@@ -12,9 +12,9 @@
         var indentStyle = $" style='padding-left: {padding}px;'";
         var rtl = WorkContext.WorkingLanguage.Rtl;
 
-        <div class="list-group-item menu-item d-flex align-items-center p-1@(level > 0 ? " bg-light" : "")" attr-class='(level == 0, "sub-item")' data-id="@item.EntityId" data-parentid="@parentId">
+        <div class="list-group-item menu-item d-flex align-items-center px-2@(level > 0 ? " bg-light" : "")" attr-class='(level == 0, "sub-item")' data-id="@item.EntityId" data-parentid="@parentId">
             <div class="item-commands dropdown">
-                <button type="button" class="btn btn-secondary btn-flat btn-item-menu dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="btn btn-secondary btn-flat btn-icon btn-sm btn-item-menu dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu @(rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
@@ -68,11 +68,13 @@
 
         if (node.HasChildren)
         {
-            <div class="list-group">
-                @foreach (var child in node.Children)
-                {
-                    await ItemGroup(child, level + 1, padding + 24);
-                }
+            <div class="list-group-item overflow-visible p-0">
+                <div class="list-group list-group-flush">
+                    @foreach (var child in node.Children)
+                    {
+                        await ItemGroup(child, level + 1, padding + 16);
+                    }
+                </div>
             </div>
         }
     }
@@ -83,7 +85,7 @@
     <div class="list-group list-group-flush">
         @foreach (var item in Model.ItemTree.Children)
         {
-            await ItemGroup(item, 0, 8);
+            await ItemGroup(item, 0, 4);
         }
     </div>
 }
