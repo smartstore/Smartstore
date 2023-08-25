@@ -300,7 +300,7 @@ namespace Smartstore.Web.Rendering
             builder.AppendHtml("<div class='input-group colorpicker-component sm-colorbox edit-control' data-fallback-color='{0}' data-editor='color'>".FormatInvariant(defaultColor));
 
             builder.AppendHtml(helper.TextBox(name, isDefault ? string.Empty : color, new { @class = "form-control colorval", placeholder = defaultColor }));
-            builder.AppendFormat("<div class='input-group-append input-group-addon'><div class='input-group-text'><i class='thecolor' style='{0}'>&nbsp;</i></div></div>", defaultColor.HasValue() ? "background-color: " + defaultColor : string.Empty);
+            builder.AppendFormat("<div class='input-group-append'><button type='button' class='input-group-text btn btn-light'><i class='thecolor' style='{0}'>&nbsp;</i></button></div>", defaultColor.HasValue() ? "background-color: " + defaultColor : string.Empty);
 
             builder.AppendHtml("</div>");
 
