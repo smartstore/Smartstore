@@ -52,28 +52,28 @@
 // -----------------------------------------------------
 
 .badge-subtle {
-    --badge-bg-opacity: 0.15;
-    --badge-hover-bg-opacity: 0.25;
+    --badge-bg-opacity: 0.7;
+    --badge-hover-bg-opacity: 1;
 }
 
 .badge-outline {
     --badge-bg-opacity: 0;
     --badge-hover-bg-opacity: 1;
     --badge-ring-opacity: 0.5;
-    --badge-ring-color-rgb: var(--badge-bg-rgb);
+    --badge-ring-color-rgb: var(--badge-base-rgb);
 }
 
 @each $color, $value in $theme-colors {
     .badge-subtle.badge-#{$color},
     .badge-outline.badge-#{$color} {
-        $fg: $body-color;
+        --badge-bg: var(--#{$color}-bg-subtle);
+        --badge-bg-rgb: var(--#{$color}-bg-subtle-rgb);
+        --badge-color: var(--#{$color}-text-emphasis);
+    }
 
-        @if $color != "secondary" {
-            $fg: theme-color-level($color, $badge-color-level);
-        }
-
-        --badge-color: #{$fg};
-        --badge-color-rgb: #{to-rgb($fg)};
+    .badge-subtle.badge-#{$color} {
+        --badge-hover-bg: var(--badge-bg);
+        --badge-hover-bg-rgb: var(--badge-bg-rgb);
     }
 
     .badge-outline.badge-#{$color} {
@@ -182,16 +182,4 @@
     &.edge-bottom-end {
         transform: translate(calc(-100% - var(--edge-offset-x)), calc(-100% - var(--edge-offset-y)));
     }
-    
-
-/*    &.edge-top-end,
-    &.edge-bottom-end {
-        inset-inline-start: auto;
-        inset-inline-end: 3px;
-    }
-
-    &.edge-top-start,
-    &.edge-bottom-start {
-        inset-inline-start: 3px;
-    }*/
 }

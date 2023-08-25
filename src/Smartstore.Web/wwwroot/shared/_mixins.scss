@@ -3,9 +3,9 @@
 // Mixins
 // ========================================================================
 
-@mixin bg-color-vars($color: #fff) {
-    --bg-color: #{$color};
-    --bg-color-rgb: #{to-rgb($color)};
+@mixin bg-color-vars($state) {
+    --bg-color: var(--#{$state});
+    --bg-color-rgb: var(--#{$state}-rgb);
 }
 
 @mixin center($xy: xy) {

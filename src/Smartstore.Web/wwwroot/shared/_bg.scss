@@ -3,10 +3,6 @@
 // Common
 // ------------------------------------
 
-.bg-black {
-    background-color: #000;
-}
-
 .bg-overlay {
     position: absolute;
     left: 0;
@@ -42,7 +38,7 @@
 // Gradients
 // ------------------------------------
 
-@mixin make-gradient-vars($color, $value, $mode: darken) {
+@mixin make-gradient-vars($state, $value, $mode: darken) {
     $cstart: $value;
     $cend: $value;
 
@@ -50,20 +46,20 @@
         $mindeg: 30;
         $maxdeg: 60;
         $deg: ($maxdeg - $mindeg) / 360 * (hue($value) - 360) + $maxdeg;
-        $cshade: theme-color-level($color, 2);
+        $cshade: theme-color-level($state, 2);
         $cstart: adjust-hue($cshade, $deg);
     }
     @else if $mode == "lighten" or $mode == "lighten-rev" {
         $minlevel: -4;
         $maxlevel: -2;
         $level: ($maxlevel - $minlevel) / 100 * (lightness($value) - 100) + $maxlevel;
-        $cstart: theme-color-level($color, $level);
+        $cstart: theme-color-level($state, $level);
     }
     @else {
         $minlevel: 4;
         $maxlevel: 2;
         $level: ($maxlevel - $minlevel) / 100 * (lightness($value) - 100) + $maxlevel;
-        $cend: theme-color-level($color, $level);
+        $cend: theme-color-level($state, $level);
     }
 
     @if (str-index($mode, "-rev")) {
@@ -151,39 +147,39 @@
 .gradient-white {
     --cstart: #fff;
     --cstart-rgb: 255,255,255;
-    --cend: #{$gray-100};
-    --cend-rgb: #{red($gray-100)},#{green($gray-100)},#{blue($gray-100)};
+    --cend: var(--gray-100);
+    --cend-rgb: #{to-rgb($gray-100)};
 }
 
 .gradient-black {
     --cstart: #000;
     --cstart-rgb: 0,0,0;
-    --cend: #{$gray-900};
-    --cend-rgb: #{red($gray-900)},#{green($gray-900)},#{blue($gray-900)};
+    --cend: var(--gray-900);
+    --cend-rgb: #{to-rgb($gray-900)};
 }
 
-@each $color, $value in $theme-colors {
-    .bg-#{$color} {
-        @include bg-color-vars($value);
+@each $state, $value in $theme-colors {
+    .bg-#{$state} {
+        @include bg-color-vars($state);
     }
 
-    .gradient-#{$color} {
-        @include make-gradient-vars($color, $value, "darken");
+    .gradient-#{$state} {
+        @include make-gradient-vars($state, $value, "darken");
     }
-    .gradient-#{$color}-light {
-        @include make-gradient-vars($color, $value, "lighten");
+    .gradient-#{$state}-light {
+        @include make-gradient-vars($state, $value, "lighten");
     }
-    .gradient-#{$color}-hue {
-        @include make-gradient-vars($color, $value, "hue");
+    .gradient-#{$state}-hue {
+        @include make-gradient-vars($state, $value, "hue");
     }
-    .gradient-#{$color}-rev {
-        @include make-gradient-vars($color, $value, "darken-rev");
+    .gradient-#{$state}-rev {
+        @include make-gradient-vars($state, $value, "darken-rev");
     }
-    .gradient-#{$color}-light-rev {
-        @include make-gradient-vars($color, $value, "lighten-rev");
+    .gradient-#{$state}-light-rev {
+        @include make-gradient-vars($state, $value, "lighten-rev");
     }
-    .gradient-#{$color}-hue-rev {
-        @include make-gradient-vars($color, $value, "hue-rev");
+    .gradient-#{$state}-hue-rev {
+        @include make-gradient-vars($state, $value, "hue-rev");
     } 
 }
 

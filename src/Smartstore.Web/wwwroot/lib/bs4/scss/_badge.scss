@@ -69,6 +69,7 @@
 
 @each $color, $value in $theme-colors {
   .badge-#{$color} {
+    --badge-base-rgb: #{to-rgb($value)};
     --badge-bg: #{$value};
     --badge-bg-rgb: #{to-rgb($value)};
     --badge-color: #{color-yiq($value)};
