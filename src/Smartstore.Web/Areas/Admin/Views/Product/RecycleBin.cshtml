@@ -15,6 +15,15 @@
     </div>
     <div class="options">
         <zone name="admin_button_toolbar_before" />
+
+        <form asp-action="EmptyRecycleBin" method="post">
+            <button type="button" id="empty-recyclebin" class="btn btn-danger">
+                <i class="far fa-trash-can"></i>
+                <span>@T("Admin.Catalog.Products.RecycleBin.Clear")</span>
+            </button>
+            <confirm button-id="empty-recyclebin" action="EmptyRecycleBin" message="@T("Admin.Catalog.Products.RecycleBin.ClearConfirm")" />
+        </form>
+
         <zone name="admin_button_toolbar_after" />
     </div>
 </div>
@@ -25,3 +34,74 @@
 
 <partial name="Grids/_Grid.DeletedProducts" model="null" view-data="gridViewData" />
 <partial name="_RestoreProductDialog" model="null" />
+
+<script sm-target-zone="scripts" data-origin="products-recyclebin">
+    $(function () {
+        $(document).on('click', '.deleted-product-name a', function (e) {
+            e.preventDefault();
+            var key = $(this).closest('.deleted-product-name').data('key');
+            var href = '@Url.Action("DeletedProductDetails")';
+            openPopup(href + key);
+            return false;
+        });
+
+        $(document).on('click', '.grid-command', function (e) {
+            e.preventDefault();
+
+            var self = $(this);
+            var restore = self.hasClass('grid-restore') || self.hasClass('grid-restore-selected');
+            var selected = self.hasClass('grid-restore-selected') || self.hasClass('grid-delete-selected');
+            var keys = selected ? $('#deleted-products-grid').parent().data('datagrid').selectedRowKeys : self.data('key');
+
+            if (restore) {
+                var form = $('#restore-products-form');
+                form.find('[name=ProductIds]').val(keys);
+
+                $('#restore-products-window').modal();
+            }
+            else {
+                const numRows = _.isArray(keys) ? keys.length : 1;
+                const message = numRows === 1
+                    ? window.Res.DataGrid.confirmDelete
+                    : window.Res.DataGrid.confirmDeleteMany.format(numRows);
+
+                confirm2({
+                    message,
+                    icon: { type: 'delete' },
+                    callback: function (accepted) {
+                        if (accepted) {
+                            $({}).ajax({
+                                cache: false,
+                                type: 'POST',
+                                url: '@Url.Action("DeleteProductsPermanent")',
+                                data: { productIds: keys.toString() },
+                                success: reloadGridData
+                            });
+                        }
+                    }
+                });
+            }
+
+            return false;
+        });
+
+        $(document).on('click', '#btn-restore-products', function (e) {
+            e.preventDefault();
+
+            $('#restore-products-form').ajax({
+                cache: false,
+                type: 'POST',
+                success: reloadGridData
+            });
+
+            $('#restore-products-window').modal('hide');
+            return false;
+        });
+
+        function reloadGridData() {
+            const grid = $('#deleted-products-grid').parent().data('datagrid');
+            grid.read();
+            grid.selectedRows = {};
+        }
+    });
+</script>

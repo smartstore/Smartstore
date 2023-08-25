@@ -120,19 +120,24 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Common.Restore.Selected", "Restore selected", "Ausgewählte wiederherstellen");
             builder.AddOrUpdate("Common.NumberOfOrders", "Number of orders", "Auftragsanzahl");
 
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.Clear", "Empty recycle bin", "Papierkorb leeren");
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.ClearConfirm",
+                "Are you sure that all entries of the recycle bin should be deleted?", 
+                "Sind Sie sicher, dass alle Einträge des Papierkorbs gelöscht werden sollen?");
+
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.AdminNote",
                 "<div>A recovery of deleted products is intended for emergencies. Some data cannot be restored in the process. These include assignments to delivery times and quantity units, country of origin and the compare price label (e.g. RRP).</div><div>Products that are assigned to orders are ignored during deletion, as they cannot be deleted permanently.</div>",
                 "<div>Eine Wiederherstellung von gelöschten Produkten ist für Notfälle gedacht. Einige Daten können dabei nicht wiederhergestellt werden. Dazu zählen Zuordnungen zu Lieferzeiten und Verpackungseinheiten, Herkunftsland und der Vergleichspreiszusatz (z.B. UVP).</div><div>Produkte, die Aufträgen zugeordnet sind, werden beim Löschen ignoriert, da sie nicht entgültig gelöscht werden können.</div>");
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning",
-                "Orders are assigned to the product. It cannot be permanently deleted.",
-                "Dem Produkt sind Aufträge zugeordnet. Es kann nicht permanent gelöscht werden.");
+                "The product is assigned to {0} orders. A product cannot be permanently deleted if it is assigned to an order.",
+                "Das Produkt ist {0} Aufträgen zugeordnet. Ein Produkt kann nicht permanent gelöscht werden, wenn es einem Auftrag zugeordnet ist.");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.OrderItemReferenceDeletionWarning",
-                "{0} product(s) are assigned to orders and therefore cannot be deleted.",
-                "{0} Produkt(e) sind Aufträgen zugeordnet und können folglich nicht gelöscht werden.");
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.DeleteProductsResult",
+                "{0} of {1} products have been permanently deleted. {2} products were skipped.",
+                "Es wurden {0} von {1} Produkten entgültig gelöscht. {2} Produkte wurden übersprungen.");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.NumberOfRestoredProducts",
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.RestoreProductsResult",
                 "{0} of {1} products were successfully restored.",
                 "Es wurden {0} von {1} Produkten erfolgreich wiederhergestellt.");
 

@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
-    public class RestoreProductModel : ModelBase
+    public class ProductRecycleBinModel : ModelBase
     {
         public string ProductIds { get; set; }
 

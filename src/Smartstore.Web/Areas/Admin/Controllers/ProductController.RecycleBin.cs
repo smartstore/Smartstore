@@ -34,7 +34,27 @@ namespace Smartstore.Admin.Controllers
             var products = await query.ToPagedList(command).LoadAsync();
             var rows = await products.MapAsync(Services.MediaService);
 
-            rows.Each(x => x.EditUrl = "javascript:;");
+            var productIds = products.ToDistinctArray(x => x.Id);
+            var orderCounts = await _db.Products
+                .IgnoreQueryFilters()
+                .Where(p => productIds.Contains(p.Id))
+                .Select(p => new
+                {
+                    p.Id,
+                    Count = _db.Orders
+                        .IgnoreQueryFilters()
+                        .Where(o => o.OrderItems.Any(oi => oi.ProductId == p.Id))
+                        .Select(o => o.Id)
+                        .Distinct()
+                        .Count()
+                })
+                .ToDictionaryAsync(x => x.Id, x => x.Count);
+
+            foreach (var row in rows)
+            {
+                row.EditUrl = "javascript:;";
+                row.NumberOfOrders = orderCounts.Get(row.Id);
+            }
 
             return Json(new GridModel<ProductOverviewModel>
             {
@@ -45,26 +65,46 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Delete)]
-        public async Task<IActionResult> DeleteProductsPermanent(GridSelection selection)
+        public async Task<IActionResult> EmptyRecycleBin()
         {
-            var ids = selection.GetEntityIds().ToArray();
-            var (numDeleted, warnings) = await _productService.DeleteProductsPermanentAsync(ids);
+            var ids = await _db.Products
+                .IgnoreQueryFilters()
+                .Where(x => x.Deleted)
+                .Select(x => x.Id)
+                .ToArrayAsync();
 
-            warnings.Take(3).Each(x => NotifyWarning(x));
+            await DeletePermanent(ids);
 
-            return Json(new { Success = true, Count = numDeleted });
+            return RedirectToAction(nameof(RecycleBin));
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.Delete)]
+        public async Task<IActionResult> DeleteProductsPermanent(ProductRecycleBinModel model)
+        {
+            await DeletePermanent(model.ProductIds.ToIntArray());
+
+            return Json(null);
+        }
+
+        private async Task DeletePermanent(int[] productIds)
+        {
+            var result = await _productService.DeleteProductsPermanentAsync(productIds);
+
+            NotifyInfo(T("Admin.Catalog.Products.RecycleBin.DeleteProductsResult", result.DeletedRecords, productIds.Length, result.SkippedRecords));
+            result.Errors.Take(3).Each(x => NotifyError(x));
         }
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Create)]
-        public async Task<IActionResult> RestoreProducts(RestoreProductModel model)
+        public async Task<IActionResult> RestoreProducts(ProductRecycleBinModel model)
         {
             var ids = model.ProductIds.ToIntArray();
-            var numRestored = await _productService.RestoreProductsAsync(ids, model.PublishAfterRestore);
+            var restoredRecords = await _productService.RestoreProductsAsync(ids, model.PublishAfterRestore);
 
-            NotifyInfo(T("Admin.Catalog.Products.RecycleBin.NumberOfRestoredProducts", numRestored, ids.Length));
+            NotifyInfo(T("Admin.Catalog.Products.RecycleBin.RestoreProductsResult", restoredRecords, ids.Length));
 
-            return Json(new { Success = true, Count = numRestored });
+            return Json(null);
         }
 
         [Permission(Permissions.Catalog.Product.Read)]
@@ -91,6 +131,7 @@ namespace Smartstore.Admin.Controllers
             model.PictureThumbnailUrl = _mediaService.GetUrl(await _mediaService.GetFileByIdAsync(product.MainPictureId ?? 0), _mediaSettings.CartThumbPictureSize);
 
             model.NumberOfOrders = await _db.Orders
+                .IgnoreQueryFilters()
                 .Where(x => x.OrderItems.Any(oi => oi.ProductId == id))
                 .Select(x => x.Id)
                 .Distinct()

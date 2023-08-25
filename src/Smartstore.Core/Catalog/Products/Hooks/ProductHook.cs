@@ -102,9 +102,10 @@ namespace Smartstore.Core.Catalog.Products
                     .Where(x => x.ProductType == ProductType.GroupedProduct)
                     .ToDistinctArray(x => x.Id);
 
-                if (groupedProductIds.Any())
+                if (groupedProductIds.Length > 0)
                 {
                     var allAssociatedProducts = await _db.Products
+                        .IgnoreQueryFilters()
                         .Where(x => groupedProductIds.Contains(x.ParentGroupedProductId))
                         .ExecuteUpdateAsync(x => x.SetProperty(p => p.ParentGroupedProductId, p => 0), cancelToken);
                 }

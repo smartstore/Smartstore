@@ -21,8 +21,8 @@
     </div>
 </div>
 
-<div sm-if="Model.NumberOfOrders > 0" class="alert alert-warning">
-    @T("Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning")
+<div sm-if="Model.NumberOfOrders > 0" class="alert alert-warning mt-3">
+    @T("Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning", Model.NumberOfOrders.ToString("N0"))
 </div>
 
 <div class="adminContent">
@@ -85,16 +85,6 @@
         </div>
         <div class="adminData">
             <input asp-for="ProductTypeName" sm-plaintext readonly />
-        </div>
-    </div>
-    <div sm-if="Model.NumberOfOrders > 0" class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="NumberOfOrders" sm-ignore-hint="true" />
-        </div>
-        <div class="adminData">
-            <div class="form-control-plaintext">
-                @Model.NumberOfOrders.ToString("N0")
-            </div>
         </div>
     </div>
     <div class="adminRow">

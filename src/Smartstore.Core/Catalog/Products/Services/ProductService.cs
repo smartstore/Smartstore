@@ -13,6 +13,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Data;
 using Smartstore.Events;
 
 namespace Smartstore.Core.Catalog.Products
@@ -640,13 +641,13 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        public virtual async Task<(int NumDeleted, List<string> Warnings)> DeleteProductsPermanentAsync(int[] productIds, CancellationToken cancelToken = default)
+        public virtual async Task<DeletionResult> DeleteProductsPermanentAsync(int[] productIds, CancellationToken cancelToken = default)
         {
-            var warnings = new List<string>();
+            var result = new DeletionResult();
 
             if (productIds.IsNullOrEmpty())
             {
-                return (0, warnings);
+                return result;
             }
 
             // INFO: never ever delete products with assigned order items. Relationship has a cascade delete rule (dangerous).
@@ -659,10 +660,8 @@ namespace Smartstore.Core.Catalog.Products
             if (excludeProductIds.Length > 0)
             {
                 productIds = productIds.Except(excludeProductIds).ToArray();
-                warnings.Add(T("Admin.Catalog.Products.RecycleBin.OrderItemReferenceDeletionWarning", excludeProductIds.Length));
+                result.SkippedRecords = excludeProductIds.Length;
             }
-
-            var success = 0;
 
             foreach (var productIdsChunk in productIds.Chunk(50))
             {
@@ -677,9 +676,8 @@ namespace Smartstore.Core.Catalog.Products
                         : productIdsChunk;
 
                     await DeleteProductsPermanentInternal(idsToDelete, cancelToken);
-                    success += idsToDelete.Length;
-
-                    warnings.AddRange(deletionEvent.Warnings);
+                    result.DeletedRecords += idsToDelete.Length;
+                    result.Errors.AddRange(deletionEvent.Errors);
 
                     foreach (var entitiesDeleted in deletionEvent.EntitiesDeletedCallbacks)
                     {
@@ -689,6 +687,7 @@ namespace Smartstore.Core.Catalog.Products
                 catch (Exception ex)
                 {
                     Logger.Error(ex);
+                    result.Errors.Add(ex.Message);
                 }
                 finally
                 {
@@ -696,7 +695,7 @@ namespace Smartstore.Core.Catalog.Products
                 }
             }
 
-            return (success, warnings);
+            return result;
         }
 
         private async Task DeleteProductsPermanentInternal(int[] productIds, CancellationToken cancelToken)
@@ -709,12 +708,18 @@ namespace Smartstore.Core.Catalog.Products
             // ----- Product assignments.
 
             await _db.Products
+                .IgnoreQueryFilters()
                 .Where(x => productIds.Contains(x.ParentGroupedProductId))
                 .ExecuteUpdateAsync(x => x.SetProperty(p => p.ParentGroupedProductId, p => 0), cancelToken);
 
             await DeleteProductMenuItems(productIds, cancelToken);
 
             // ----- Missing cascade delete rules.
+            // Avoids "The DELETE statement conflicted with the REFERENCE constraint...".
+
+            await _db.ProductBundleItem
+                .Where(x => productIds.Contains(x.ProductId))
+                .ExecuteDeleteAsync(cancelToken);
 
             // Cart items of bundle items.
             var bundleItemIdsQuery = _db.ProductBundleItem
@@ -726,14 +731,20 @@ namespace Smartstore.Core.Catalog.Products
                 .ExecuteDeleteAsync(cancelToken);
 
             // Product review helpfulness.
-            var reviewIdsQuery = _db.ProductReviews
-                .Where(x => productIds.Contains(x.ProductId))
-                .Select(x => x.Id);
+            // Produces "The operation 'ExecuteDelete' is being applied on entity type 'ProductReviewHelpfulness', which is using the TPT mapping strategy.
+            // 'ExecuteDelete'/'ExecuteUpdate' operations on hierarchies mapped as TPT is not supported."
+            //await _db.ProductReviewHelpfulness
+            //    .Where(x => productIds.Contains(x.ProductReview.ProductId))
+            //    .ExecuteDeleteAsync(cancelToken);
 
-            // TODO: (mg) test if CustomerContent is deleted by referential integrity here.
-            await _db.ProductReviewHelpfulness
-                .Where(x => reviewIdsQuery.Contains(x.ProductReviewId))
-                .ExecuteDeleteAsync(cancelToken);
+            var reviewHelpfulnessQuery = _db.ProductReviewHelpfulness.Where(x => productIds.Contains(x.ProductReview.ProductId));
+            var reviewHelpfulnessPager = new FastPager<ProductReviewHelpfulness>(reviewHelpfulnessQuery);
+
+            while ((await reviewHelpfulnessPager.ReadNextPageAsync<ProductReviewHelpfulness>(cancelToken)).Out(out var reviewHelpfulness))
+            {
+                _db.ProductReviewHelpfulness.RemoveRange(reviewHelpfulness);
+                await _db.SaveChangesAsync(cancelToken);
+            }
 
             await _db.CrossSellProducts
                 .Where(x => productIds.Contains(x.ProductId1) || productIds.Contains(x.ProductId2))
@@ -789,6 +800,7 @@ namespace Smartstore.Core.Catalog.Products
             // ShopConnectorSkuMapping
 
             await _db.Products
+                .IgnoreQueryFilters()
                 .Where(x => productIds.Contains(x.Id))
                 .ExecuteDeleteAsync(cancelToken);
         }

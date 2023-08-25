@@ -1,6 +1,7 @@
 ﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 
@@ -110,7 +111,6 @@ namespace Smartstore.Core.Catalog.Products
         /// Permanently deletes soft-deleted products.
         /// </summary>
         /// <param name="productIds">Identifiers of products to delete.</param>
-        /// <returns>Number of successfully deleted products and warnings, if any.</returns>
-        Task<(int NumDeleted, List<string> Warnings)> DeleteProductsPermanentAsync(int[] productIds, CancellationToken cancelToken = default);
+        Task<DeletionResult> DeleteProductsPermanentAsync(int[] productIds, CancellationToken cancelToken = default);
     }
 }

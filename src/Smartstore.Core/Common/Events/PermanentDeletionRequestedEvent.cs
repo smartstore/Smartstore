@@ -27,9 +27,9 @@
         public int[] EntityIds { get; }
 
         /// <summary>
-        /// Adds warnings, e.g. reasons why entities cannot be deleted.
+        /// Adds errors, e.g. reasons why entities cannot be deleted.
         /// </summary>
-        public HashSet<string> Warnings { get; set; } = new();
+        public HashSet<string> Errors { get; set; } = new();
 
         /// <summary>
         /// Identifiers of entities that must not be deleted.
@@ -48,5 +48,14 @@
                 EntitiesDeletedCallbacks.Add(entitiesDeleted);
             }
         }
+    }
+
+    public partial class DeletionResult
+    {
+        public int DeletedRecords { get; set; }
+
+        public int SkippedRecords { get; set; }
+
+        public IList<string> Errors { get; } = new List<string>();
     }
 }

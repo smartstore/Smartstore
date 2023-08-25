@@ -10,7 +10,7 @@
           allow-edit="false"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("DeletedProductsList")" delete="@Url.Action("DeleteProductsPermanent")" />
+    <datasource read="@Url.Action("DeletedProductsList")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
@@ -23,11 +23,11 @@
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" id="grid-restore-selected" class="btn btn-primary btn-flat">
+            <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-primary btn-flat grid-command grid-restore-selected">
                 <i class="fa fa-repeat"></i>
                 <span>@T("Admin.Common.Restore.Selected")</span>
             </button>
-            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+            <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-danger no-anims btn-flat grid-command grid-delete-selected">
                 <i class="fa fa-times"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
@@ -78,57 +78,7 @@
         <column for="AvailableEndDateTimeUtc" visible="false" />
     </columns>
     <row-commands>
-        <a datarow-action="DataRowAction.Custom" class="grid-restore" :data-key="item.row.Id">@T("Common.Restore")</a>
-        <a datarow-action="DataRowAction.Delete" v-bind:class="{ disabled: item.row.HasOrders }">@T("Common.Delete")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-command grid-restore" :data-key="item.row.Id">@T("Common.Restore")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-command grid-delete" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.HasOrders }">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
-
-<script sm-target-zone="scripts" data-origin="deleted-products-grid">
-    $(function () {
-        $(document).on('click', '.deleted-product-name a', function (e) {
-            e.preventDefault();
-            var key = $(this).closest('.deleted-product-name').data('key');
-            var href = '@Url.Action("DeletedProductDetails")';
-            openPopup(href + key);
-            return false;
-        });
-
-        $(document).on('click', '#grid-restore-selected', function (e) {
-            e.preventDefault();
-            const grid = $('#deleted-products-grid').parent().data('datagrid');
-            showRestoreDialog(grid.selectedRowKeys);
-            return false;
-        });
-
-        $(document).on('click', '.grid-restore', function (e) {
-            e.preventDefault();
-            showRestoreDialog($(this).data('key'));
-            return false;
-        });
-
-        $(document).on('click', '#btn-restore-products', function (e) {
-            e.preventDefault();
-
-            $('#restore-products-form').ajax({
-                cache: false,
-                type: 'POST',
-                success: function () {
-                    const grid = $('#deleted-products-grid').parent().data('datagrid');
-                    grid.read();
-                    grid.selectedRows = {};
-                }
-            });
-
-            $('#restore-products-window').modal('hide');
-            return false;
-        });
-
-
-        function showRestoreDialog(productIds) {
-            var form = $('#restore-products-form');
-            form.find('[name=ProductIds]').val(productIds);
-
-            $('#restore-products-window').modal();
-        }
-    });
-</script>
