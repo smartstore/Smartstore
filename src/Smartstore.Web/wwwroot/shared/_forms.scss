@@ -186,9 +186,10 @@ fieldset.content-group {
 
     --addon-border-radius: var(--border-radius, #{$input-border-radius});
     --addon-border-radius-inner: var(--border-radius-inner, calc(var(--addon-border-radius) - 1px));
+
+    align-items: stretch;
     position: relative;
     background-color: $input-bg;
-    border: $input-border-width solid $input-border-color;
     border-inline-start-color: $input-bg !important;
     padding: 0.25em !important;
     z-index: 5;
@@ -198,11 +199,11 @@ fieldset.content-group {
         border-color: $input-focus-border-color;
     }
 
-    > * {
+    > .btn {
+        // Some button fixes
         --btn-padding-y: 0;
         --btn-border-radius: var(--addon-border-radius-inner); // Inherit the parent's radius
         --btn-font-size: #{$font-size-sm};
-        height: 100%; // Stretch the button vertically
     }
 }
 
