@@ -23,12 +23,14 @@
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-primary btn-flat grid-command grid-restore-selected">
+            <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-secondary btn-flat grid-command grid-restore-selected">
                 <i class="fa fa-repeat"></i>
+                @* TODO: (mg) Wiederherstellen / Restore *@
                 <span>@T("Admin.Common.Restore.Selected")</span>
             </button>
             <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-danger no-anims btn-flat grid-command grid-delete-selected">
-                <i class="fa fa-times"></i>
+                <i class="far fa-trash-can"></i>
+                @* TODO: (mg) Endgültig löschen / Delete permanently. Please also fix "Ausgewählte *L*öschen" (lcase l) *@
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
@@ -47,7 +49,7 @@
                     resizable="false"
                     reorderable="false">
                 <display-template>
-                    <div v-if="item.row.Id > 0" class="d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
+                    <div v-if="item.row.Id > 0" class="hstack justify-content-center position-absolute w-100 h-100 top-0 start-0" style="padding: 8px;">
                         <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px" />
                     </div>
                 </display-template>

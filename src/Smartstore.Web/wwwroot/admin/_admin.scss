@@ -133,6 +133,11 @@ body {
     grid-column: 1 / 2;
 }
 
+.popup {
+    // Larger padding-x in popups
+    --content-padding-x: #{$content-padding-x};
+}
+
 #content {
     position: relative;
     margin: 0;
@@ -182,20 +187,18 @@ body {
 }
 
 .section-header {
+    --header-size: calc((#{$input-btn-font-size} * #{$input-btn-line-height}) + #{$input-padding-y * 2} + 2px); // Adjust to medium button height
     position: absolute;
-    left: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     top: 0;
-    right: 0;
-    padding-left: var(--content-padding-x);
-    padding-right: var(--content-padding-x);
-    padding-top: var(--content-padding-y);
-    padding-bottom: var(--content-padding-y);
+    padding-inline: var(--content-padding-x);
+    padding-block: var(--content-padding-y);
     transition: box-shadow 0.25s ease;
 
     @include make-row();
     flex-wrap: nowrap;
-    margin-left: 0;
-    margin-right: 0;
+    margin-inline: 0;
 
     .title, .options {
         @include make-col-ready();
@@ -206,12 +209,11 @@ body {
         font-weight: $font-weight-medium;
         color: $headings-color;
         font-size: $h4-font-size;
-        line-height: $input-height;
-        min-height: $input-height;
+        line-height: var(--header-size);
+        min-height: var(--header-size);
         vertical-align: middle;
         @include text-truncate();
-        padding-left: 0;
-        padding-right: 5px;
+        padding-inline: 0 5px;
         color: inherit;
         display: inline-flex;
         align-items: center;
@@ -224,14 +226,14 @@ body {
             display: none; // Turn off for now, seems to look nicer
             font-size: 28px;
             vertical-align: text-top;
-            margin-right: 0.5rem;
+            margin-inline-end: 0.5rem;
             color: $text-muted;
         }
 
         > img {
-            max-height: $input-height;
+            max-height: var(--header-size);
             max-width: 120px;
-            margin-right: 5px;
+            margin-inline-end: 5px;
             vertical-align: top;
         }
 
@@ -240,7 +242,7 @@ body {
             font-family: $font-family-sans-serif;
             font-size: 12px;
             font-weight: normal;
-            padding-left: 5px;
+            padding-inline-start: 5px;
         }
     }
     // .title

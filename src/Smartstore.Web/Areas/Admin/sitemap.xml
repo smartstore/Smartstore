@@ -16,6 +16,7 @@
             <siteMapNode id="manufacturers" icon="bi:building" title="Manufacturers" resKey="Admin.Catalog.Manufacturers" controller="Manufacturer" action="List" area="Admin" permissionNames="catalog.manufacturer" />
             <siteMapNode id="tags" icon="bi:tags" title="Product tags" resKey="Admin.Catalog.ProductTags" controller="Product" action="ProductTags" area="Admin" permissionNames="catalog.product" />
             <siteMapNode id="stockreport" icon="bi:sort-numeric-down" title="Low stock report" resKey="Admin.Catalog.LowStockReport" controller="Product" action="LowStockReport" area="Admin" permissionNames="catalog.product" />
+            <siteMapNode id="recycle-bin" icon="bi:recycle" title="Recycle bin" resKey="Common.RecycleBin" permissionNames="catalog.product" controller="Product" action="RecycleBin" area="Admin" />
 
             <siteMapNode id="attributes-header" isGroupHeader="true" title="Attributes" resKey="Admin.Catalog.Attributes" />
             <siteMapNode id="attributes" icon="bi:card-checklist" title="Products attributes" resKey="Admin.Catalog.Attributes.ProductAttributes" controller="ProductAttribute" action="List" area="Admin" permissionNames="catalog.variant" />
@@ -127,10 +128,9 @@
             <siteMapNode id="queued-emails" icon="bi:inboxes" title="Queued emails" resKey="Admin.System.QueuedEmails" permissionNames="system.message" controller="QueuedEmail" action="List" area="Admin" />
             <siteMapNode id="scheduled tasks" icon="bi:clock" title="Schedule tasks" resKey="Admin.System.ScheduleTasks" permissionNames="system.scheduletask" controller="Scheduling" action="List" area="Admin" />
             <siteMapNode id="seo-names" icon="bi:search" title="Search engine friendly names" resKey="Admin.System.SeNames" permissionNames="system.urlrecord" controller="UrlRecord" action="List" area="Admin" />
-            <siteMapNode id="recycle-bin" icon="bi:trash" title="Recycle bin" resKey="Common.RecycleBin" permissionNames="catalog.product" controller="Product" action="RecycleBin" area="Admin" />
 
 			<siteMapNode id="system-sep-1" isGroupHeader="true" title="[SKIP]" />
-			<siteMapNode id="maintenance" icon="bi:tools" title="Maintenance" resKey="Admin.System.Maintenance" permissionNames="system.maintenance" controller="Maintenance" action="Index" area="Admin" />
+            <siteMapNode id="maintenance" icon="bi:tools" title="Maintenance" resKey="Admin.System.Maintenance" permissionNames="system.maintenance" controller="Maintenance" action="Index" area="Admin" />
 			<siteMapNode id="warnings" icon="bi:exclamation-triangle" title="Warnings" resKey="Admin.System.Warnings" permissionNames="system.maintenance" controller="Maintenance" action="Warnings" area="Admin" />
             <siteMapNode id="system-info" icon="bi:info-circle" title="System information" resKey="Admin.System.SystemInfo" permissionNames="system.maintenance" controller="Maintenance" action="SystemInfo" area="Admin" />
         </siteMapNode>

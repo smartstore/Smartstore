@@ -126,8 +126,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Sind Sie sicher, dass alle Einträge des Papierkorbs gelöscht werden sollen?");
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.AdminNote",
-                "<div>A recovery of deleted products is intended for emergencies. Some data cannot be restored in the process. These include assignments to delivery times and quantity units, country of origin and the compare price label (e.g. RRP).</div><div>Products that are assigned to orders are ignored during deletion, as they cannot be deleted permanently.</div>",
-                "<div>Eine Wiederherstellung von gelöschten Produkten ist für Notfälle gedacht. Einige Daten können dabei nicht wiederhergestellt werden. Dazu zählen Zuordnungen zu Lieferzeiten und Verpackungseinheiten, Herkunftsland und der Vergleichspreiszusatz (z.B. UVP).</div><div>Produkte, die Aufträgen zugeordnet sind, werden beim Löschen ignoriert, da sie nicht entgültig gelöscht werden können.</div>");
+                "A recovery of deleted products is intended for emergencies. Some data cannot be restored in the process. These include assignments to delivery times and quantity units, country of origin and the compare price label (e.g. RRP). Products that are assigned to orders are ignored during deletion, as they cannot be deleted permanently.",
+                "Eine Wiederherstellung von gelöschten Produkten ist für Notfälle gedacht. Einige Daten können dabei nicht wiederhergestellt werden. Dazu zählen Zuordnungen zu Lieferzeiten und Verpackungseinheiten, Herkunftsland und der Vergleichspreiszusatz (z.B. UVP). Produkte, die Aufträgen zugeordnet sind, werden beim Löschen ignoriert, da sie nicht endgültig gelöscht werden können.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning",
                 "The product is assigned to {0} orders. A product cannot be permanently deleted if it is assigned to an order.",
