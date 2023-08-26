@@ -247,11 +247,12 @@ sup { top: -.5em; }
 //
 
 a {
-  color: rgba(var(--#{$prefix}link-color-rgb), var(--#{$prefix}link-opacity, 1));
+  color: var(--link-color, rgba(var(--link-color-rgb), var(--link-opacity, 1)));
   text-decoration: $link-decoration;
 
   &:hover {
-    --#{$prefix}link-color-rgb: var(--#{$prefix}link-hover-color-rgb);
+    //--link-color-rgb: var(--link-hover-color-rgb);
+    color: var(--link-hover-color, rgba(var(--link-hover-color-rgb), var(--link-opacity, 1)));
     text-decoration: $link-hover-decoration;
   }
 }

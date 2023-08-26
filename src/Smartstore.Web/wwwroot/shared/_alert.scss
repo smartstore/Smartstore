@@ -4,6 +4,11 @@
     margin-bottom: 0;
 }
 
+.alert a {
+    @extend .link-duu;
+    @extend .link-transition;
+}
+
 .alert-info,
 .alert-danger,
 .alert-success,

@@ -31,7 +31,7 @@
                 @foreach (var item in Model.Tags)
                 {
                     <li class="list-inline-item">
-                        <a asp-route="ProductsByTag" asp-route-productTagId="@item.Id" asp-route-path="@item.Slug" class="color-body" style="font-size:@(Model.GetFontSize(item))%;">
+                        <a asp-route="ProductsByTag" asp-route-productTagId="@item.Id" asp-route-path="@item.Slug" class="link-body link-transition link-dnu" style="font-size:@(Model.GetFontSize(item))%;">
                             <span sm-language-attributes-for="item.Name">@item.Name</span>
                         </a>
                     </li>

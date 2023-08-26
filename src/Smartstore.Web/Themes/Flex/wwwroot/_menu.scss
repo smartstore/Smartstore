@@ -40,19 +40,12 @@
 
 .cms-menu-linklist {
     .menu-link {
-        --menu-link-color: rgba(var(--secondary-color-rgb), var(--link-opacity, 1));
-        --menu-link-hover-color: rgba(var(--body-color-rgb), var(--link-opacity, 1));
-
-        color: var(--menu-link-color);
+        // Use --link-color and --link-hover-color variables to set colors.
         text-decoration: none !important;
         display: inline-flex;
         align-items: center;
         padding-block: 0.2em;
         gap: 0.75em;
         transition: $link-transition;
-
-        &:hover {
-            color: var(--menu-link-hover-color);
-        }
     }
 }

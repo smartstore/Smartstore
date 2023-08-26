@@ -41,6 +41,7 @@
     } 
 }
 
+
 // Font weight Helpers
 // ======================================
 
@@ -110,6 +111,44 @@ h6, .h6 {
     margin-bottom: 1.5rem;
 }
 
+
+// Links
+// ======================================
+
+.link-dnn {
+    text-decoration: none !important;
+}
+
+.link-duu {
+    text-decoration: underline !important;
+}
+
+.link-dnu {
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.link-transition {
+    transition: $link-transition;
+}
+
+a.pretty-link {
+    @extend .link-body;
+    @extend .link-transition;
+    @extend .link-dnn;
+
+    font-weight: $font-weight-medium;
+
+    > i { padding-inline-end: 1.2rem; }
+    > span {
+        color: var(--gray-600);
+        &:hover, &:active { color: inherit; }
+    }
+}
+
+
 // Bidi
 // ======================================
 
@@ -176,29 +215,6 @@ h6, .h6 {
 
 // Misc typo stuff
 // ======================================
-
-a.color-body {
-    $clr: lighten($body-color, 10%);
-    color: $clr;
-    text-decoration: none;
-
-    &:hover {
-        color: $clr;
-        text-decoration: underline;
-    }
-}
-
-a.pretty-link {
-    color: $body-color;
-    text-decoration: none;
-    font-weight: $font-weight-medium;
-
-    > i { padding-inline-end: 1.2rem; }
-    > span {
-        color: #aaa;
-        &:hover, &:active { color: inherit; }
-    }
-}
 
 .text-wrap {
     white-space: normal !important;

@@ -86,6 +86,8 @@ $theme-colors:                  ( "gray": $gray-700, "primary-dark": $sm-blue2, 
 
 $body-color:                    $gray-800;
 $link-color:                    desaturate(darken($primary, 12%), 0%);
+$link-decoration:               none !default;
+$link-hover-decoration:         underline !default;
 
 $yiq-contrasted-threshold:      179;
 $yiq-text-dark:                 $gray-800;

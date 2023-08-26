@@ -46,13 +46,13 @@
                     <div class="row sm-gutters">
 
                         <div sm-if="Model.ShowProductImages" class="col col-alpha">                            
-                                <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
-                                    <img sm-model="item.Image" />
-                                </a>                            
+                            <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
+                                <img sm-model="item.Image" />
+                            </a>                            
                         </div>
 
                         <div class="col col-data">
-                            <a class="name font-weight-medium" href="@item.ProductUrl" title="@item.ProductName" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                            <a class="name fwm link-body link-dnu" href="@item.ProductUrl" title="@item.ProductName" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
 
                             <div class="short-desc text-muted" sm-language-attributes-for="item.ShortDesc">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))

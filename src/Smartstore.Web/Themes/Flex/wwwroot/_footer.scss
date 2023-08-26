@@ -23,6 +23,9 @@
     --footer-bottom-color: #{lighten($footer-color-muted, 5%)};
     --footer-bottom-font-size: 90%;
 
+    --link-color: var(--footer-link-color);
+    --link-hover-color: var(--footer-link-hover-color);
+
     border-top: var(--footer-border-top);
     background-color: var(--footer-bg);
     color: var(--footer-color);
@@ -70,18 +73,6 @@
         font-size: var(--footer-link-font-size);
     }
 
-    a {
-        color: var(--footer-link-color);
-        &:hover { 
-            color: var(--footer-link-hover-color); 
-        }
-    }
-
-    a.menu-link {
-        --menu-link-color: var(--footer-link-color);
-        --menu-link-hover-color: var(--footer-link-hover-color);
-    }
-
     hr {
         // a hr NEVER looks good in the footer
         opacity: var(--footer-hr-opacity);
@@ -89,11 +80,9 @@
 }
 
 .footer-bottom-wrapper {
+    //--link-color: var(--footer-link-hover-color);
     background: var(--footer-bottom-bg);
     color: var(--footer-bottom-color);
-    a { 
-        color: var(--footer-link-hover-color); 
-    }
 }
 
 .footer-bottom {

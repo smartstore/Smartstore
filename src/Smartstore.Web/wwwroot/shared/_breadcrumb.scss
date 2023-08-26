@@ -26,5 +26,6 @@ div.breadcrumb-item:after {
 }
 
 .breadcrumb-item > a {
-    color: $body-color !important;
+    @extend .link-body;
+    @extend .link-dnu;
 }

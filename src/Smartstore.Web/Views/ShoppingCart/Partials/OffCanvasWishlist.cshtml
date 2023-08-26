@@ -49,7 +49,7 @@
                         </div>
 
                         <div class="col col-data">
-                            <a sm-language-attributes-for="item.ProductName" class="name font-weight-medium" href="@item.ProductUrl" title="@item.ProductName">@item.ProductName</a>
+                            <a sm-language-attributes-for="item.ProductName" class="name fwm link-body link-dnu" href="@item.ProductUrl" title="@item.ProductName">@item.ProductName</a>
                             <div sm-language-attributes-for="item.ShortDesc" class="short-desc text-muted">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
                             </div>
@@ -93,7 +93,7 @@
                             </span>
                         </div>
 
-                        <div class="ml-auto text-nowrap">
+                        <div class="col-auto ml-auto text-nowrap">
                             @if (Model.ShowItemsFromWishlistToCartButton)
                             {
                                 <a class="btn btn-secondary btn-sm btn-icon ajax-cart-link" title='@T("ShoppingCart.AddToCart")'
