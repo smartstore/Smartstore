@@ -4,7 +4,12 @@
     min-height: var(--select2-height);
     display: flex;
     padding: var(--select2-multiple-padding);
-    padding-right: var(--select2-height);
+
+    select[data-placeholder] + &,
+    select[placeholder] + & {
+        // Make room for clear button only when nullable multiselect.
+        padding-inline-end: var(--select2-height);
+    }
 
     .select2-selection__rendered {
         box-sizing: border-box;

@@ -135,10 +135,9 @@
                         <div class="col-md-9">
                             <div class="input-group">
                                 <input asp-for="VatNumber" sm-required="Model.VatRequired" class="remember" />
-                                <span asp-validation-for="VatNumber"></span>
-
                                 <div sm-if="Model.VatNumberStatusNote.HasValue()" class="input-group-append"><span class="input-group-text">@Model.VatNumberStatusNote</span></div>
                             </div>
+                            <span asp-validation-for="VatNumber"></span>
                             <div class="form-text text-muted vat-note">@T("Account.Fields.VatNumber.Note")</div>
                         </div>
                     </div>

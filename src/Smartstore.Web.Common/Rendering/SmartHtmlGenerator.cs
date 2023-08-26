@@ -104,7 +104,10 @@ namespace Smartstore.Web.Rendering
 
             if (inputType is (InputType.Text or InputType.Password))
             {
-                tag.Attributes.AddInValue("class", ' ', "form-control");
+                if (htmlAttributes == null || (htmlAttributes.TryGetValueAs<string>("type", out var strType) && strType is ("text" or "password")))
+                {
+                    tag.Attributes.AddInValue("class", ' ', "form-control");
+                }
             }
 
             return tag;

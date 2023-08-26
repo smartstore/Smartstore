@@ -65,12 +65,12 @@
                 <div class="input-group">
                     <input asp-for="WebhookUrl" readonly />
                     <div class="input-group-append">
-                        <button id="copy-webhook-url" class="btn btn-outline-secondary" title="@T("Common.Copy")">
+                        <button id="copy-webhook-url" class="btn btn-light btn-icon" title="@T("Common.Copy")">
                             <i class="fa fa-copy"></i>
                         </button>
                     </div>
                     <span class="input-group-append">
-                        <button type="submit" id="createwebhook" name="createwebhook" value="createwebhook" class="btn btn-outline-secondary"
+                        <button type="submit" id="createwebhook" name="createwebhook" value="createwebhook" class="btn btn-light"
                                 attr-disabled='(!Model.PublicApiKey.HasValue() || !Model.SecrectApiKey.HasValue(), "disabled")'>
                             <i class="fa fa-cog"></i>
                             <span>@T("Plugins.Smartstore.Stripe.CreateWebhook")</span>
