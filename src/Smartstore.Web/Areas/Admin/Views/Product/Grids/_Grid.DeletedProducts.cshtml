@@ -25,13 +25,11 @@
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-secondary btn-flat grid-command grid-restore-selected">
                 <i class="fa fa-repeat"></i>
-                @* TODO: (mg) Wiederherstellen / Restore *@
-                <span>@T("Admin.Common.Restore.Selected")</span>
+                <span>@T("Common.Restore")</span>
             </button>
             <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-danger no-anims btn-flat grid-command grid-delete-selected">
                 <i class="far fa-trash-can"></i>
-                @* TODO: (mg) Endgültig löschen / Delete permanently. Please also fix "Ausgewählte *L*öschen" (lcase l) *@
-                <span>@T("Admin.Common.Delete.Selected")</span>
+                <span>@T("Common.DeletePermanent")</span>
             </button>
         </toolbar-group>
     </toolbar>

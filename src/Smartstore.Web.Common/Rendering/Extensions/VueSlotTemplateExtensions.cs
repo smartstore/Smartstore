@@ -21,7 +21,7 @@ namespace Smartstore.Web.Rendering
 
             if (typeNameExpression.HasValue() && typeLabelHintExpression.HasValue())
             {
-                var label = "<span class='mr-1 label' :class=\"'label-' + {0}\">{{{{ {1} }}}}</span>".FormatInvariant(typeLabelHintExpression, typeNameExpression);
+                var label = "<span class='mr-1 badge badge-subtle badge-ring' :class=\"'badge-' + {0}\">{{{{ {1} }}}}</span>".FormatInvariant(typeLabelHintExpression, typeNameExpression);
                 builder.AppendHtml(label);
             }
 
