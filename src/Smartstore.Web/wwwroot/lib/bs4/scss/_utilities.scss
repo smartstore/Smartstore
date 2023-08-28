@@ -336,49 +336,49 @@ $utilities: map-merge(
     // Margin utilities
     "margin": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: margin,
       class: m,
       values: map-merge($spacers, (auto: auto))
     ),
     "margin-x": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: margin-inline,
       class: mx,
       values: map-merge($spacers, (auto: auto))
     ),
     "margin-y": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: margin-block,
       class: my,
       values: map-merge($spacers, (auto: auto))
     ),
     "margin-top": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: margin-block-start,
       class: mt,
       values: map-merge($spacers, (auto: auto))
     ),
     "margin-end": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: margin-inline-end,
       class: mr,
       values: map-merge($spacers, (auto: auto))
     ),
     "margin-bottom": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: margin-block-end,
       class: mb,
       values: map-merge($spacers, (auto: auto))
     ),
     "margin-start": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: margin-inline-start,
       class: ml,
       values: map-merge($spacers, (auto: auto))
@@ -429,49 +429,49 @@ $utilities: map-merge(
     // Padding utilities
     "padding": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: padding,
       class: p,
       values: $spacers
     ),
     "padding-x": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: padding-inline,
       class: px,
       values: $spacers
     ),
     "padding-y": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: padding-block,
       class: py,
       values: $spacers
     ),
     "padding-top": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: padding-block-start,
       class: pt,
       values: $spacers
     ),
     "padding-end": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: padding-inline-end,
       class: pr,
       values: $spacers
     ),
     "padding-bottom": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: padding-block-end,
       class: pb,
       values: $spacers
     ),
     "padding-start": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: padding-inline-start,
       class: pl,
       values: $spacers
@@ -479,21 +479,21 @@ $utilities: map-merge(
     // Gap utility
     "gap": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: gap,
       class: gap,
       values: $spacers
     ),
     "row-gap": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: row-gap,
       class: row-gap,
       values: $spacers
     ),
     "column-gap": (
       responsive: true,
-      rfs: true,
+      rfs: false,
       property: column-gap,
       class: column-gap,
       values: $spacers

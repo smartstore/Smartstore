@@ -100,6 +100,47 @@
   @return $_map;
 }
 
+@function varify($list) {
+  $result: null;
+  @each $entry in $list {
+    $result: append($result, var(--#{$prefix}#{$entry}), space);
+  }
+  @return $result;
+}
+
+// Internal Bootstrap function to turn maps into its negative variant.
+// It prefixes the keys with `n` and makes the value negative.
+@function negativify-map($map) {
+  $result: ();
+  @each $key, $value in $map {
+    @if $key != 0 {
+      $result: map-merge($result, ("n" + $key: (-$value)));
+    }
+  }
+  @return $result;
+}
+
+// Get multiple keys from a sass map
+@function map-get-multiple($map, $values) {
+  $result: ();
+  @each $key, $value in $map {
+    @if (index($values, $key) != null) {
+      $result: map-merge($result, ($key: $value));
+    }
+  }
+  @return $result;
+}
+
+// Merge multiple maps
+@function map-merge-multiple($maps...) {
+  $merged-maps: ();
+
+  @each $map in $maps {
+    $merged-maps: map-merge($merged-maps, $map);
+  }
+  @return $merged-maps;
+}
+
 // Color contrast
 @function color-yiq($color, $dark: $yiq-text-dark, $light: $yiq-text-light) {
   $r: red($color);
