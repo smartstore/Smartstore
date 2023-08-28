@@ -2,6 +2,7 @@
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Orders;
@@ -681,7 +682,15 @@ namespace Smartstore.Core.Catalog.Products
 
                     foreach (var entitiesDeleted in deletionEvent.EntitiesDeletedCallbacks)
                     {
-                        await entitiesDeleted(cancelToken);
+                        try
+                        {
+                            await entitiesDeleted(cancelToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                            result.Errors.Add(ex.Message);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -795,10 +804,6 @@ namespace Smartstore.Core.Catalog.Products
 
             // ----- Finally delete products.
             // If we have forgotten something, this will lead to an exception.
-
-            // TODO: (mg) Plugins: DependingPrices, FileManagerRecords, FileManagerTabRecords, GoogleProduct, IndexBacklog, PageStoryBlock, PersonalPromo,
-            // ShopConnectorSkuMapping
-
             await _db.Products
                 .IgnoreQueryFilters()
                 .Where(x => productIds.Contains(x.Id))

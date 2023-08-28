@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Threading;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Events;
 using Smartstore.Google.MerchantCenter.Domain;
@@ -9,7 +11,7 @@ using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Google.MerchantCenter
 {
-    public class Events : IConsumer
+    internal class Events : IConsumer
     {
         private readonly SmartDbContext _db;
 
@@ -105,6 +107,22 @@ namespace Smartstore.Google.MerchantCenter
             _db.GoogleProducts().Add(newGoogleProduct);
 
             await _db.SaveChangesAsync();
+        }
+
+        public Task HandleEventAsync(PermanentDeletionRequestedEvent<Product> message)
+        {
+            Guard.IsTrue(message.EntityType == typeof(Product));
+
+            async Task entitiesDeleted(CancellationToken cancelToken)
+            {
+                await _db.GoogleProducts()
+                    .Where(x => message.EntityIds.Contains(x.ProductId))
+                    .ExecuteDeleteAsync(cancelToken);
+            }
+
+            message.AddEntitiesDeletedCallback(entitiesDeleted);
+
+            return Task.CompletedTask;
         }
     }
 }
