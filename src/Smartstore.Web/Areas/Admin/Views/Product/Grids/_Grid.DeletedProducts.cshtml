@@ -79,6 +79,6 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-command grid-restore" :data-key="item.row.Id">@T("Common.Restore")</a>
-        <a datarow-action="DataRowAction.Custom" class="grid-command grid-delete" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.HasOrders }">@T("Common.Delete")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-command grid-delete" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.HasOrders }">@T("Common.DeletePermanent")</a>
     </row-commands>
 </datagrid>
