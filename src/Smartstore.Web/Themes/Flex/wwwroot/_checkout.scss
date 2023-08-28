@@ -1,10 +1,12 @@
 ﻿/// <reference path="references.scss" />
 
 .costeps {
+    --costep-ring-width: 0px;
+
     position: relative;
-	margin-top: 2rem;  
-    margin-bottom: 1rem;
+    margin: 2rem auto;
     flex-wrap: nowrap;
+    max-width: 720px;
 }
 
 .costep,
@@ -60,11 +62,12 @@
     background-color: $costep-bg;
     color: $costep-color;
     margin: 0 auto;
+    outline: var(--costep-ring-width) solid var(--body-bg);
 }
 
 .costep-label {
     overflow: hidden;
-    white-space: nowrap;
+    //white-space: nowrap;
     text-overflow: ellipsis;
     font-size: 85%;
     display: block;
@@ -76,11 +79,13 @@
     &:before, &:after {
         background-color: $costep-visited-border;
     }
+
     .costep-icon {
         border-color: $costep-visited-border;
         background-color: $costep-visited-bg;
         color: $costep-visited-color;
     }
+
     .costep-label {
         color: $costep-visited-label-color;
     }
@@ -90,18 +95,24 @@
     &:before {
         background-color: $costep-active-border;
     }
+
     .costep-icon {
         border-color: $costep-active-border;
         background-color: $costep-active-bg;
         color: $costep-active-color;
     }
+
     .costep-label {
-        font-weight: $font-weight-bold;
+        font-weight: $font-weight-medium;
         color: $costep-active-label-color;
     }
 }
 
 @include media-breakpoint-up(sm) {
+    .costeps {
+        --costep-ring-width: 0.25rem;
+    }
+
     .costep:before,
     .costep:after {
         top: 24px;
@@ -110,9 +121,9 @@
     .costep-icon {
         width: 50px;
         height: 50px;
-        line-height: 54px;
-        text-align: center;
-        vertical-align: middle;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
         &:before {
             @include fontastic("\e74b", 20px);
@@ -128,6 +139,12 @@
 
     .costep-label {
         font-size: 90%;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .costeps {
+        --costep-ring-width: 0.5rem;
     }
 }
 
