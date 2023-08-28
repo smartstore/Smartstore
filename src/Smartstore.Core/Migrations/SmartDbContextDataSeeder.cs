@@ -192,6 +192,18 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt fest, ob die Produkt-Kurzbeschreibung auch in Produktlisten angezeigt werden sollen. Diese Einstellungsmöglichkeit bezieht sich nur auf die Darstellung in der Grid-Ansicht.");
 
             builder.Delete("Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent.Hint");
+
+            builder.AddOrUpdate("Enums.RuleScope.Cart.Hint",
+                "Rule to grant discounts to the customer or offer shipping and payment methods.",
+                "Regel, um dem Kunden Rabatte zu gewähren oder Versand- und Zahlarten anzubieten.");
+
+            builder.AddOrUpdate("Enums.RuleScope.Customer.Hint",
+                "Rule to automatically assign customers to customer roles per scheduled task.",
+                "Regel, um Kunden automatisch per geplanter Aufgabe Kundengruppen zuzuordnen.");
+
+            builder.AddOrUpdate("Enums.RuleScope.Product.Hint",
+                "Rule to automatically assign products to categories per scheduled task.",
+                "Regel, um Produkte automatisch per geplanter Aufgabe Warengruppen zuzuordnen.");
         }
 
         /// <summary>
