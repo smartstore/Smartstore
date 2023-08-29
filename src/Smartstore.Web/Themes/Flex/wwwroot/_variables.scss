@@ -108,17 +108,6 @@ $display2-weight:               $font-weight-light;
 $display3-weight:               $font-weight-light;
 $display4-weight:               $font-weight-light;
 
-// Shadows
-$box-shadow-sm:                 0 2px 16px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
-                                0 2px 3px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.15));
-$box-shadow:                    0 6px 24px -5px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
-                                0 5px 12px -5px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.17));
-$box-shadow-lg:                 0 10px 40px -4px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
-                                0 12px 28px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.2));
-$box-shadow-xl:                 0 17px 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
-                                0 20px 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22));
-
-
 
 // Buttons + Forms
 
@@ -163,6 +152,7 @@ $dropdown-spacer:               .125rem;
 $dropdown-font-size:            14px;
 $dropdown-font-weight:          $font-weight-normal;
 $dropdown-divider-margin-y:     $dropdown-padding-y;
+$dropdown-shadow-intensity:     0.64;
 
 $dropdown-link-active-color:    $dropdown-link-hover-color;
 $dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 3%);

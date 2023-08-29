@@ -47,8 +47,8 @@ namespace Smartstore.Web.Bundling.Processors
         public ThemeVarsFileInfo(string content, ThemeVariableRepository repo)
             : this(FileName)
         {
-            Guard.NotNull(content, nameof(content));
-            Guard.NotNull(repo, nameof(repo));
+            Guard.NotNull(content);
+            Guard.NotNull(repo);
 
             _content = content;
             _repo = repo;

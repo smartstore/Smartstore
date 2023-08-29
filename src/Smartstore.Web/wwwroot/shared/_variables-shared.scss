@@ -99,6 +99,7 @@ $form-check-input-indeterminate-bg-image:       url("data:image/svg+xml,<svg xml
 $dropdown-font-size:		$font-size-sm !default;
 $dropdown-font-weight:	    $font-weight-normal !default;
 $dropdown-icon-color:		mix($gray-600, $gray-700, 50%) !default;
+$dropdown-shadow-intensity: 0.85 !default;
 
 
 // Modal
@@ -125,10 +126,10 @@ $offcanvas-shadow:              0 0 24px rgba(#000, 0.3) !default;
 // --------------------------------------------------
 
 $shadow-intensity:              1 !default;
-$box-shadow-xs:                 0 1px 8px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
-                                0 1px 1px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.3)) !default;
-$box-shadow-xl:                 0 17px 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
-                                0 20px 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22)) !default;
+$box-shadow-xs:                 0 calc(1px * var(--shadow-yoffset, 1)) 8px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
+                                0 calc(1px * var(--shadow-yoffset, 1)) 1px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.3)) !default;
+$box-shadow-xl:                 0 calc(17px * var(--shadow-yoffset, 1)) 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
+                                0 calc(20px * var(--shadow-yoffset, 1)) 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22)) !default;
 
 $utilities: map-merge(
     $utilities,

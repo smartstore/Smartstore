@@ -154,5 +154,5 @@ b, strong {
 // -----------------------------------------------------
 
 .dropdown-menu {
-	--shadow-intensity: 0.75;
+	--shadow-intensity: #{$dropdown-shadow-intensity};
 }

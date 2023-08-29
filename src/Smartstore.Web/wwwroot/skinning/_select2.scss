@@ -17,7 +17,7 @@
 
 .select2-container {
     --border-radius: #{$input-border-radius};
-    --shadow-intensity: 0.75;
+    --shadow-intensity: #{$dropdown-shadow-intensity};
     --select2-caret-width: calc(#{$input-height} - 2px);
     --select2-height: #{$input-height};
     --select2-line-height: #{$input-btn-line-height};
