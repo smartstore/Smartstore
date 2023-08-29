@@ -204,6 +204,16 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Enums.RuleScope.Product.Hint",
                 "Rule to automatically assign products to categories per scheduled task.",
                 "Regel, um Produkte automatisch per geplanter Aufgabe Warengruppen zuzuordnen.");
+
+            builder.AddOrUpdate("Enums.InvalidLanguageRedirectBehaviour.FallbackToWorkingLanguage",
+                "Fallback to working language",
+                "Zur aktiven Sprache bzw. Standardsprache umleiten");
+
+            builder.AddOrUpdate("Enums.InvalidLanguageRedirectBehaviour.ReturnHttp404",
+                "Return HTTP 404 (page not found) (recommended)",
+                "HTTP 404 zurückgeben (Seite nicht gefunden) (empfohlen)");
+
+            builder.AddOrUpdate("Enums.InvalidLanguageRedirectBehaviour.Tolerate", "Tolerate", "Tolerieren");
         }
 
         /// <summary>
