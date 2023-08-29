@@ -214,6 +214,9 @@ namespace Smartstore.Core.Data.Migrations
                 "HTTP 404 zurückgeben (Seite nicht gefunden) (empfohlen)");
 
             builder.AddOrUpdate("Enums.InvalidLanguageRedirectBehaviour.Tolerate", "Tolerate", "Tolerieren");
+
+            builder.Delete("Enums.CookieConsentRequirement.Disabled");
+            builder.AddOrUpdate("Enums.CookieConsentRequirement.NeverRequired", "Never required", "Nie erforderlich");
         }
 
         /// <summary>
