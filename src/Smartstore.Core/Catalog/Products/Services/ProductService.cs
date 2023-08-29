@@ -607,7 +607,9 @@ namespace Smartstore.Core.Catalog.Products
                 .Where(x => deletedManufacturerIdsQuery.Contains(x.Id))
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(x => x.Deleted, false)
-                    .SetProperty(x => x.UpdatedOnUtc, now), cancelToken);
+                    .SetProperty(x => x.UpdatedOnUtc, now)
+                    .SetProperty(x => x.Published, x => publishAfterRestore != null ? publishAfterRestore.Value : x.Published),
+                    cancelToken);
 
             // Restore categories.
             var restoreCategoryIds = new HashSet<int>();
@@ -626,7 +628,9 @@ namespace Smartstore.Core.Catalog.Products
                     .Where(x => restoreCategoryIds.Contains(x.Id) && x.Deleted)
                     .ExecuteUpdateAsync(setters => setters
                         .SetProperty(x => x.Deleted, false)
-                        .SetProperty(x => x.UpdatedOnUtc, now), cancelToken);
+                        .SetProperty(x => x.UpdatedOnUtc, now)
+                        .SetProperty(x => x.Published, x => publishAfterRestore != null ? publishAfterRestore.Value : x.Published),
+                        cancelToken);
             }
 
             void GetCategoryIds(int categoryId)
