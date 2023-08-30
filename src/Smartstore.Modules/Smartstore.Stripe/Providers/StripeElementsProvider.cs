@@ -54,7 +54,7 @@ namespace Smartstore.StripeElements.Providers
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public static string SystemName => "Smartstore.StripeElements";
+        public static string SystemName => "Payments.StripeElements";
 
         public override bool SupportCapture => true;
 
