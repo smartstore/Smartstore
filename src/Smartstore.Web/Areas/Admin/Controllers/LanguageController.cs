@@ -260,8 +260,24 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction(nameof(Edit), new { id = language.Id });
             }
 
-            _db.Languages.Remove(language);
-            await _db.SaveChangesAsync();
+            for (var i = 1; i <= 2; i++)
+            {
+                try
+                {
+                    _db.Languages.Remove(language);
+                    await _db.SaveChangesAsync();
+                    break;
+                }
+                catch
+                {
+                    // INFO: SQLite throws "Database disk image is malformed" when the database index IX_LocaleStringResource gets corrupted.
+                    // We observed this after Turkish was selected as the default language.
+                    if (_db.DataProvider.ProviderType == DbSystemType.SQLite)
+                    {
+                        await _db.Database.ExecuteSqlAsync($@"REINDEX LocaleStringResource");
+                    }
+                }
+            }
 
             NotifySuccess(T("Admin.Configuration.Languages.Deleted"));
 
