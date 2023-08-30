@@ -76,10 +76,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     }
 }
 
+.zoom-window-container {
+    position: relative;
+}
 
 // Info
 // =====================================================
-
 .pd-name {
     @include font-size(1.75rem);
     font-weight: $font-weight-bold;
