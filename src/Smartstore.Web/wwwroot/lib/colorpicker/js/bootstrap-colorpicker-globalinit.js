@@ -31,6 +31,8 @@
 		return expr.indexOf("(") == -1;
 	}
 
+    return;
+
 	var updateInput = $.colorpicker.prototype.updateInput;
 	$.colorpicker.prototype.updateInput = function (val) {
 		var expr = $(this.input).val();
