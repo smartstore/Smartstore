@@ -1,0 +1,10 @@
+﻿#amazonpay-button {
+    height: 55px;
+}
+
+/* Media query for mobile viewport */
+@include media-breakpoint-down(sm) {
+    .cnt-amazonpay-button {
+        width: 100%;
+    }
+}
