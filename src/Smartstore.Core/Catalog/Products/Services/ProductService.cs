@@ -520,6 +520,8 @@ namespace Smartstore.Core.Catalog.Products
             {
                 await _productTagService.Value.ClearCacheAsync();
                 await _cache.RemoveByPatternAsync(CategoryService.CategoryTreePatternKey);
+                await _eventPublisher.PublishAsync(new CategoryTreeChangedEvent(CategoryTreeChangeReason.Hierarchy), cancelToken);
+                await _eventPublisher.PublishAsync(new CategoryTreeChangedEvent(CategoryTreeChangeReason.ElementCounts), cancelToken);
             }
 
             return success;
