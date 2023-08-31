@@ -13,7 +13,7 @@ namespace Smartstore.Core.Localization
 {
     public partial class XmlResourceManager : IXmlResourceManager
     {
-        [GeneratedRegex("^resources.(.+?).xml$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "de-DE")]
+        [GeneratedRegex("^resources.(.+?).xml$", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
         private static partial Regex FileNameRegEx();
         private static readonly Regex _rgFileName = FileNameRegEx();
 
