@@ -308,11 +308,3 @@ $cp-cursor: default;
     display: table;
     clear: both;
 }
-
-// RTL writing mode support
-*[dir='rtl'] .colorpicker-element input,
-.colorpicker-element[dir='rtl'] input,
-.colorpicker-element input[dir='rtl'] {
-    direction: ltr;
-    text-align: right;
-}

@@ -27,20 +27,7 @@
             padding-left: 0;
         }
     }
-    // Main Menu
-    // ---------
-    #navbar #navbar-menu .nav-item > .dropdown-menu {
-        // Dropdown bubble
-        &:before {
-            right: 10px;
-            left: auto;
-        }
 
-        &:after {
-            right: 11px;
-            left: auto;
-        }
-    }
     // Forms
     // -----
     .ctl-label {

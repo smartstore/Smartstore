@@ -459,8 +459,8 @@ $mixed-megamenu-bg:             $megamenu-bg;
     
     .dropdown-menu {
         margin-top: -1px;
-        min-width: 250px;
-        z-index: ($megamenu-zindex-base + 1);
+        --dropdown-min-width: 250px;
+        --dropdown-zindex: #{$megamenu-zindex-base + 1};
 		transform: translateX($grid-gutter-width/2);
 		&.ar {
 			transform: translateX(-($grid-gutter-width/2));

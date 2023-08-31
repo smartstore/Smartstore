@@ -226,7 +226,7 @@
     padding: 0.4rem 0;
 
     .dropdown-menu {
-        min-width: 200px;
+        --dropdown-min-width: 200px;
     }
 }
 

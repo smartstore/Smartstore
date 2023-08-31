@@ -388,12 +388,12 @@ body {
       --dropdown-divider-margin-y: 0.5rem;
       --dropdown-border-radius: 8px;
       --shadow-intensity: 0.7;
+      --dropdown-box-shadow: #{$box-shadow-lg};
         margin-top: -2px;
-        box-shadow: $box-shadow-lg;
     }
 
     #navbar-menu .nav-item > .dropdown-menu {
-        @include bubble("top", "near", 8, #fff, $dropdown-border-color, 10px);
+        @include bubble("top", "near", 8, var(--dropdown-bg), var(--dropdown-border-color), 10px);
     }
 
     [data-id="nav-modules"] li:not([data-id="modules-manage"]) .dropdown-item {
@@ -1596,7 +1596,7 @@ a.editable {
 }
 
 .rule-operator > .dropdown-menu {
-    min-width: 100%
+    --dropdown-min-width: 100%
 }
 
 

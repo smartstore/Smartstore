@@ -24,10 +24,8 @@
     // -------
 
     .megamenu-dropdown-container.simple {
-        .dropdown-menu {
-            &.ar {
-                transform: translateX(-($grid-gutter-width));
-            }
+        .dropdown-menu.ar {
+            transform: translateX(-($grid-gutter-width));
         }
     }
 

@@ -19,45 +19,79 @@
 
 // The dropdown menu
 .dropdown-menu {
+  --dropdown-zindex: #{$zindex-dropdown};
+  --dropdown-min-width: #{$dropdown-min-width};
   --dropdown-padding-x: #{$dropdown-padding-x};
   --dropdown-padding-y: #{$dropdown-padding-y};
+  --dropdown-spacer: #{$dropdown-spacer};
+  @include rfs($dropdown-font-size, --dropdown-font-size);
+  --dropdown-color: #{$dropdown-color};
+  --dropdown-bg: #{$dropdown-bg};
+  --dropdown-border-width: #{$dropdown-border-width};
+  --dropdown-border-color: #{$dropdown-border-color};
+  --dropdown-border-radius: #{$dropdown-border-radius};
+  --dropdown-inner-border-radius: calc(var(--dropdown-border-radius) - var(--dropdown-border-width));
+  --dropdown-divider-bg: #{$dropdown-divider-bg};
+  --dropdown-divider-margin-y: #{$dropdown-divider-margin-y};
+  --dropdown-box-shadow: #{$dropdown-box-shadow};
+  --dropdown-link-color: #{$dropdown-link-color};
+  --dropdown-link-hover-color: #{$dropdown-link-hover-color};
+  --dropdown-link-hover-bg: #{$dropdown-link-hover-bg};
+  --dropdown-link-active-color: #{$dropdown-link-active-color};
+  --dropdown-link-active-bg: #{$dropdown-link-active-bg};
+  --dropdown-link-disabled-color: #{$dropdown-link-disabled-color};
   --dropdown-item-padding-x: #{$dropdown-item-padding-x};
   --dropdown-item-padding-y: #{$dropdown-item-padding-y};
   --dropdown-item-border-radius: #{$border-radius};
-  --dropdown-border-radius: #{$dropdown-border-radius};
+  --dropdown-header-color: #{$dropdown-header-color};
   --dropdown-header-padding: #{$dropdown-header-padding};
-  --dropdown-divider-margin-y: #{$dropdown-divider-margin-y};
 
   position: absolute;
   top: 100%;
   inset-inline-start: 0;
-  z-index: $zindex-dropdown;
+  z-index: var(--dropdown-zindex);
   display: none; // none by default, but block on "open" of the menu
   float: left;
-  min-width: $dropdown-min-width;
+  min-width: var(--dropdown-min-width);
   padding: var(--dropdown-padding-y) var(--dropdown-padding-x);
-  margin: $dropdown-spacer 0 0; // override default ul
-  @include font-size($dropdown-font-size);
-  color: $dropdown-color;
+  margin: var(--dropdown-spacer) 0 0; // override default ul
+  @include font-size(var(--dropdown-font-size));
+  color: var(--dropdown-color);
   text-align: start; // Ensures proper alignment if parent has it changed (e.g., modal footer)
   list-style: none;
-  background-color: $dropdown-bg;
+  background-color: var(--dropdown-bg);
   background-clip: padding-box;
-  border: $dropdown-border-width solid $dropdown-border-color;
+  border: var(--dropdown-border-width) solid var(--dropdown-border-color);
   @include border-radius(var(--dropdown-border-radius));
-  @include box-shadow($dropdown-box-shadow);
+  @include box-shadow(var(--dropdown-box-shadow));
+
+  // Prevent dropdown overflow if there's no padding
+  // See https://github.com/twbs/bootstrap/pull/27703
+  @if $dropdown-padding-y == 0 {
+    > .dropdown-item:first-child,
+    > li:first-child .dropdown-item {
+      @include border-top-radius(var(--dropdown-inner-border-radius));
+    }
+
+    > .dropdown-item:last-child,
+    > li:last-child .dropdown-item {
+      @include border-bottom-radius(var(--dropdown-inner-border-radius));
+    }
+  }
 }
 
 @each $breakpoint in map-keys($grid-breakpoints) {
   @include media-breakpoint-up($breakpoint) {
     $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
 
-    .dropdown-menu#{$infix}-left {
+    .dropdown-menu#{$infix}-left,
+    .dropdown-menu#{$infix}-start {
       inset-inline-end: auto;
       inset-inline-start: 0;
     }
 
-    .dropdown-menu#{$infix}-right {
+    .dropdown-menu#{$infix}-right,
+    .dropdown-menu#{$infix}-end {
       inset-inline-end: 0;
       inset-inline-start: auto;
     }
@@ -71,7 +105,7 @@
     top: auto;
     bottom: 100%;
     margin-top: 0;
-    margin-bottom: $dropdown-spacer;
+    margin-bottom: var(--dropdown-spacer);
   }
 
   .dropdown-toggle {
@@ -85,7 +119,7 @@
     inset-inline-end: auto;
     inset-inline-start: 100%;
     margin-top: 0;
-    margin-inline-start: $dropdown-spacer;
+    margin-inline-start: var(--dropdown-spacer);
   }
 
   .dropdown-toggle {
@@ -102,7 +136,7 @@
     inset-inline-end: 100%;
     inset-inline-start: auto;
     margin-top: 0;
-    margin-inline-end: $dropdown-spacer;
+    margin-inline-end: var(--dropdown-spacer);
   }
 
   .dropdown-toggle {
@@ -127,7 +161,11 @@
 
 // Dividers (basically an `<hr>`) within the dropdown
 .dropdown-divider {
-  @include nav-divider($dropdown-divider-bg, $dropdown-divider-margin-y, true);
+  height: 0;
+  margin: var(--dropdown-divider-margin-y) 0;
+  overflow: hidden;
+  border-top: 1px solid var(--dropdown-divider-bg);
+  opacity: 1; // Revisit in v6 to de-dupe styles that conflict with <hr> element
 }
 
 // Links, buttons, and more within the dropdown menu
@@ -139,48 +177,35 @@
   padding: var(--dropdown-item-padding-y) var(--dropdown-item-padding-x);
   clear: both;
   font-weight: $font-weight-normal;
-  color: $dropdown-link-color;
+  color: var(--dropdown-link-color);
   text-align: inherit; // For `<button>`s
   text-decoration: if($link-decoration == none, null, none);
   white-space: nowrap; // prevent links from randomly breaking onto new lines
   background-color: transparent; // For `<button>`s
   border: 0; // For `<button>`s
-  @include border-radius(var(--dropdown-item-border-radius));
+  @include border-radius(var(--dropdown-item-border-radius, 0));
 
-  // Prevent dropdown overflow if there's no padding
-  // See https://github.com/twbs/bootstrap/pull/27703
-  @if $dropdown-padding-y == 0 {
-    &:first-child {
-      @include border-top-radius($dropdown-inner-border-radius);
-    }
-
-    &:last-child {
-      @include border-bottom-radius($dropdown-inner-border-radius);
-    }
-  }
-
-  @include hover-focus() {
-    color: $dropdown-link-hover-color;
-    text-decoration: none;
-    @include gradient-bg($dropdown-link-hover-bg);
+  &:hover,
+  &:focus {
+    color: var(--dropdown-link-hover-color);
+    text-decoration: if($link-hover-decoration == underline, none, null);
+    @include gradient-bg(var(--dropdown-link-hover-bg));
   }
 
   &.active,
   &:active {
-    color: $dropdown-link-active-color;
+    color: var(--dropdown-link-active-color);
     text-decoration: none;
-    @include gradient-bg($dropdown-link-active-bg);
+    @include gradient-bg(var(--dropdown-link-active-bg));
   }
 
   &.disabled,
   &:disabled {
-    color: $dropdown-link-disabled-color;
+    color: var(--dropdown-link-disabled-color);
     pointer-events: none;
     background-color: transparent;
     // Remove CSS gradients if they're enabled
-    @if $enable-gradients {
-      background-image: none;
-    }
+    background-image: if($enable-gradients, none, null);
   }
 }
 
@@ -191,16 +216,16 @@
 // Dropdown section headers
 .dropdown-header {
   display: block;
-  padding: $dropdown-header-padding;
+  padding: var(--dropdown-header-padding);
   margin-bottom: 0; // for use with heading elements
   @include font-size($font-size-sm);
-  color: $dropdown-header-color;
+  color: var(--dropdown-header-color);
   white-space: nowrap; // as with > li > a
 }
 
 // Dropdown text
 .dropdown-item-text {
   display: block;
-  padding: $dropdown-item-padding-y $dropdown-item-padding-x;
-  color: $dropdown-link-color;
+  padding: var(--dropdown-item-padding-y) var(--dropdown-item-padding-x);
+  color: var(--dropdown-link-color);
 }

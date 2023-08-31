@@ -237,15 +237,18 @@ $ocm-selected-color:                    $warning;
     }
 
     .dropdown-menu {
+        --dropdown-min-width: initial;
+        --dropdown-border-radius: 0;
+        --dropdown-inner-border-radius: 0;
+        --dropdown-border-width: 0;
+        --dropdown-box-shadow: none;
+
         position: static;
         float: initial;
-        min-width: initial;
-        padding-inline: $dropdown-padding-x;
         margin: initial;
         border: none;
         border-bottom: 1px solid $ocm-border-color;
-        border-radius: initial;
-        box-shadow: initial;
+        padding-inline: var(--dropdown-padding-x);
         padding-block: 0.75rem;
     }
 
