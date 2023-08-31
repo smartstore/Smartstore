@@ -10,32 +10,7 @@
         // RangeSlider
         "range": function (el) { $(el).rangeSlider() },
         // ColorBox
-        "color": function (el) {
-            $(el).colorpicker({
-                autoInputFallback: false,
-                autoHexInputFallback: false,
-                useAlpha: true,
-                format: null,
-                horizontal: true,
-                fallbackColor: false,
-                color: false,
-                debug: false,
-                slidersHorz: {
-                    saturation: {
-                        maxLeft: 200,
-                        maxTop: 150
-                    },
-                    hue: {
-                        maxLeft: 170,
-                        maxTop: 0
-                    },
-                    alpha: {
-                        maxLeft: 170,
-                        maxTop: 0
-                    }
-                }
-            })
-        },
+        "color": function (el) { $(el).colorpickerWrapper() },
         // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
         "select": function (el) {
             if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)
