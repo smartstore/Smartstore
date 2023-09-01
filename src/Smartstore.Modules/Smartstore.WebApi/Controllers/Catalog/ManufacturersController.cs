@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Catalog.Brands;
+﻿using Microsoft.AspNetCore.OData.Formatter;
+using System.ComponentModel.DataAnnotations;
+using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Seo;
@@ -11,10 +13,14 @@ namespace Smartstore.Web.Api.Controllers
     public class ManufacturersController : WebApiController<Manufacturer>
     {
         private readonly Lazy<IUrlService> _urlService;
+        private readonly Lazy<IDiscountService> _discountService;
 
-        public ManufacturersController(Lazy<IUrlService> urlService)
+        public ManufacturersController(
+            Lazy<IUrlService> urlService,
+            Lazy<IDiscountService> discountService)
         {
             _urlService = urlService;
+            _discountService = discountService;
         }
 
         [HttpGet("Manufacturers"), ApiQueryable]
@@ -83,6 +89,38 @@ namespace Smartstore.Web.Api.Controllers
         public Task<IActionResult> Delete(int key)
         {
             return DeleteAsync(key);
+        }
+
+        /// <summary>
+        /// Adds or removes discounts assigments.
+        /// </summary>
+        /// <remarks>
+        /// Identifiers of discounts that are not included in **discountIds** are assigned to the manufacturer.
+        /// Existing assignments to discounts that are not included in **discountIds** are removed.
+        /// </remarks>
+        /// <param name="discountIds">List of discount identifiers to apply.</param>
+        [HttpPost("Manufacturers({key})/ApplyDiscounts"), ApiQueryable]
+        [Permission(Permissions.Catalog.Manufacturer.Update)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(IQueryable<Discount>), Status200OK)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> ApplyDiscounts(int key,
+            [FromODataBody, Required] IEnumerable<int> discountIds)
+        {
+            try
+            {
+                var entity = await GetRequiredById(key, q => q.Include(x => x.AppliedDiscounts));
+                if (await _discountService.Value.ApplyDiscountsAsync(entity, discountIds.ToArray(), DiscountType.AssignedToManufacturers))
+                {
+                    await Db.SaveChangesAsync();
+                }
+
+                return Ok(entity.AppliedDiscounts.AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
         }
 
         private async Task UpdateSlug(Manufacturer entity)

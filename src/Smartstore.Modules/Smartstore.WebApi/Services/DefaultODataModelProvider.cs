@@ -38,7 +38,6 @@ namespace Smartstore.Web.Api
             builder.Namespace = string.Empty;
 
             builder.EntitySet<Address>("Addresses");
-            builder.EntitySet<Category>("Categories");
             builder.EntitySet<CheckoutAttribute>("CheckoutAttributes");
             builder.EntitySet<CheckoutAttributeValue>("CheckoutAttributeValues");
             builder.EntitySet<Country>("Countries");
@@ -54,7 +53,6 @@ namespace Smartstore.Web.Api
             builder.EntitySet<GiftCardUsageHistory>("GiftCardUsageHistory");
             builder.EntitySet<Language>("Languages");
             builder.EntitySet<LocalizedProperty>("LocalizedProperties");
-            builder.EntitySet<Manufacturer>("Manufacturers");
             builder.EntitySet<MeasureDimension>("MeasureDimensions");
             builder.EntitySet<MeasureWeight>("MeasureWeights");
             builder.EntitySet<OrderNote>("OrderNotes");
@@ -90,6 +88,7 @@ namespace Smartstore.Web.Api
             // INFO: functions specified directly on the ODataModelBuilder (instead of entity type or collection)
             // are called unbound functions (like static operations on the service).
 
+            BuildCategories(builder);
             BuildDeliveryTimes(builder);
             BuildImportProfiles(builder);
             BuildMediaFiles(builder);
@@ -99,12 +98,24 @@ namespace Smartstore.Web.Api
             BuildOrders(builder);
             BuildPaymentMethods(builder);
             BuildProducts(builder);
+            BuildManufacturers(builder);
             BuildShipments(builder);
             BuildShoppingCartItems(builder);
         }
 
         public override Stream GetXmlCommentsStream(IApplicationContext appContext)
             => GetModuleXmlCommentsStream(appContext, Module.SystemName);
+
+        private static void BuildCategories(ODataModelBuilder builder)
+        {
+            var set = builder.EntitySet<Category>("Categories");
+
+            set.EntityType
+                .Action(nameof(CategoriesController.ApplyDiscounts))
+                .ReturnsCollectionFromEntitySet<Discount>("Discounts")
+                .CollectionParameter<int>("discountIds")
+                .Required();
+        }
 
         private static void BuildDeliveryTimes(ODataModelBuilder builder)
         {
@@ -416,6 +427,12 @@ namespace Smartstore.Web.Api
                 .CollectionParameter<string>("tagNames")
                 .Required();
 
+            set.EntityType
+                .Action(nameof(ProductsController.ApplyDiscounts))
+                .ReturnsCollectionFromEntitySet<Discount>("Discounts")
+                .CollectionParameter<int>("discountIds")
+                .Required();
+
             var calcPrice = set.EntityType
                 .Action(nameof(ProductsController.CalculatePrice))
                 .Returns<CalculatedProductPrice>();
@@ -456,6 +473,17 @@ namespace Smartstore.Web.Api
                 .Optional();
             saveFiles.Parameter<string>("mpn")
                 .Optional();
+        }
+
+        private static void BuildManufacturers(ODataModelBuilder builder)
+        {
+            var set = builder.EntitySet<Manufacturer>("Manufacturers");
+
+            set.EntityType
+                .Action(nameof(ManufacturersController.ApplyDiscounts))
+                .ReturnsCollectionFromEntitySet<Discount>("Discounts")
+                .CollectionParameter<int>("discountIds")
+                .Required();
         }
 
         private static void BuildShipments(ODataModelBuilder builder)
