@@ -81,6 +81,7 @@ namespace Smartstore.Web.Rendering.Menus
                             {
                                 dirty = true;
                                 x.Value.ElementsCount = null;
+                                x.Value.ElementsCountResolved = false;
                             }
                         }, true);
 
