@@ -8,6 +8,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
+using Smartstore.StripeElements.Providers;
 using Smartstore.StripeElements.Settings;
 
 namespace Smartstore.StripeElements
@@ -33,7 +34,7 @@ namespace Smartstore.StripeElements
         {
             var store = Services.StoreContext.CurrentStore;
 
-            var isActiveStripe = await _paymentService.IsPaymentProviderActiveAsync("Smartstore.StripeElements", null, store.Id);
+            var isActiveStripe = await _paymentService.IsPaymentProviderActiveAsync(StripeElementsProvider.SystemName, null, store.Id);
 
             if (isActiveStripe)
             {
