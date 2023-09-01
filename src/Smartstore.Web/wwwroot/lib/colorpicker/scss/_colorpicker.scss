@@ -11,6 +11,7 @@ $cp-width: 200px;
 $cp-gap: 5px;
 $cp-bar-size: 10px;
 $cp-border-radius: 0;
+$cp-swatch-border-radius: 3px;
 $cp-saturation-outline: none;
 $cp-bar-outline: none;
 $cp-preview-outline: inset 0 0 0 1px rgba($black, 0.1);
@@ -150,25 +151,6 @@ $cp-cursor: default;
     height: 100%;
 }
 
-.colorpicker-preview {
-    @include bgCheckerBox();
-    grid-column: 2;
-    grid-row: 2 / span 2;
-    overflow: hidden;
-    white-space: normal;
-
-    > div {
-        position: absolute !important;
-        inset-inline-start: 0;
-        font-size: 0px;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        box-shadow: $cp-preview-outline;
-    }
-}
-
-
 .colorpicker.colorpicker-disabled,
 .colorpicker.colorpicker-disabled * {
     cursor: default !important;
@@ -238,29 +220,61 @@ $cp-cursor: default;
     display: none;
 }
 
-/** EXTENSIONS **/
 
-.colorpicker-bar.colorpicker-swatches {
+// Preview extension
+// ---------------------------------
+
+.colorpicker-preview {
+    @include bgCheckerBox();
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    overflow: hidden;
+    white-space: normal;
+
+    > div {
+        position: absolute !important;
+        inset-inline-start: 0;
+        font-size: 0px;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        box-shadow: $cp-preview-outline;
+    }
+}
+
+
+// Swatches extension
+// ---------------------------------
+
+.colorpicker-swatches {
     box-shadow: none;
     height: auto;
+    grid-row: -1;
+    grid-column: 1 / -1;
+    margin-top: $cp-gap;
+    padding-inline: 1px;
 }
 
 .colorpicker-swatches--inner {
-    clear: both;
-    margin-top: -$base-margin;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    //grid-auto-rows: 16px;
+    gap: $cp-gap;
+    padding-top: $cp-gap * 2;
+    border-top: 1px solid rgba($black, 0.1);
+
+    > .colorpicker-clear {
+        display: none;
+    }
 }
 
 .colorpicker-swatch {
     position: relative;
-    cursor: pointer;
-    float: left;
-    height: $bar-size-short;
-    width: $bar-size-short;
-    margin-inline-end: $base-margin;
-    margin-top: $base-margin;
-    margin-inline-start: 0;
     display: block;
-    box-shadow: $box-shadow-outline;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1;
     @include bgCheckerBox();
 }
 
@@ -270,41 +284,12 @@ $cp-cursor: default;
     inset-inline-start: 0;
     width: 100%;
     height: 100%;
-}
+    box-shadow: $cp-preview-outline;
+    border-radius: $cp-swatch-border-radius;
 
-// saturation + hue vertical (clear margin-right on nth column + 1)
-.colorpicker-swatch:nth-of-type(#{$columns + 1}n+0) {
-    margin-inline-end: 0;
-}
-
-// saturation + hue + alpha vertical (clear margin-right on nth column + 2)
-.colorpicker-with-alpha {
-    .colorpicker-swatch:nth-of-type(#{$columns + 1}n+0) {
-        margin-inline-end: $base-margin;
+    &:active,
+    &:focus, &:focus-visible {
+        outline: 1px solid rgba($white, 0.75);
+        outline-offset: -2px;
     }
-
-    .colorpicker-swatch:nth-of-type(#{$columns + 2}n+0) {
-        margin-inline-end: 0;
-    }
-}
-
-// horizontal mode (clear margin-right on nth column)
-.colorpicker-horizontal {
-    .colorpicker-swatch:nth-of-type(#{$columns}n+0) {
-        margin-inline-end: 0;
-    }
-
-    .colorpicker-swatch:nth-of-type(#{$columns + 1}n+0) {
-        margin-inline-end: $base-margin;
-    }
-
-    .colorpicker-swatch:nth-of-type(#{$columns + 2}n+0) {
-        margin-inline-end: $base-margin;
-    }
-}
-
-.colorpicker-swatch:last-of-type:after {
-    content: "";
-    display: table;
-    clear: both;
 }

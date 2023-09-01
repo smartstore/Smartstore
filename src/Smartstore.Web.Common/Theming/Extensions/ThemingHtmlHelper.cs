@@ -57,7 +57,7 @@ namespace Smartstore.Web.Theming
 
         public static IHtmlContent ThemeVarEditor(this IHtmlHelper helper, ThemeVariableInfo info, object value)
         {
-            Guard.NotNull(info, "info");
+            Guard.NotNull(info);
 
             string expression = helper.NameForThemeVar(info);
             string strValue = value?.ToString().EmptyNull();
