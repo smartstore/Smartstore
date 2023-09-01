@@ -29,6 +29,7 @@
 - #486 Add setting to capture payment when order status changes to *complete*.
 - #782 Make the total weight of a shipment editable.
 - #782 Enable to mark shipments of an order as *shipped* or *delivered* via orders grid.
+- Added ability to edit delivery time in product grid
 
 ### Bugfixes
 
