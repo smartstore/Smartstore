@@ -74,6 +74,11 @@
         <column for="ManufacturerPartNumber" visible="false" />
         <column for="Price" halign="flex-end" />
         <column for="ComparePrice" halign="flex-end" visible="false" />
+        <column for="DeliveryTimeId" halign="center" width="200px">
+            <display-template>
+                <div class="dg-cell-value">{{ item.row.DeliveryTime }}</div>
+            </display-template>
+        </column>
         <column for="StockQuantity" halign="center" />
         <column for="MinStockQuantity" halign="center" visible="false" />
         <column for="LimitedToStores" visible="!parentModel.IsSingleStoreMode" readonly="true" halign="center" />

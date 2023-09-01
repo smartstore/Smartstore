@@ -170,6 +170,7 @@ namespace Smartstore.Admin.Controllers
                 product.ComparePrice = model.ComparePrice ?? 0;
                 product.AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc;
                 product.AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc;
+                product.DeliveryTimeId = model.DeliveryTimeId;
 
                 await _db.SaveChangesAsync();
 

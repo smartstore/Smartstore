@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Admin.Models.Catalog
@@ -48,6 +49,11 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*IsTaxExempt")]
         public bool IsTaxExempt { get; set; }
+
+        [UIHint("DeliveryTimes")]
+        [LocalizedDisplay("*DeliveryTime")]
+        public int? DeliveryTimeId { get; set; }
+        public string DeliveryTime { get; set; }
 
         [LocalizedDisplay("*StockQuantity")]
         public int StockQuantity { get; set; }

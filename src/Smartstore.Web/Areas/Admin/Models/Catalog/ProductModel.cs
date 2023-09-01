@@ -291,10 +291,6 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*BasePriceBaseAmount")]
         public int? BasePriceBaseAmount { get; set; }
 
-        [UIHint("DeliveryTimes")]
-        [LocalizedDisplay("*DeliveryTime")]
-        public int? DeliveryTimeId { get; set; }
-
         [LocalizedDisplay("*QuantityUnit")]
         public int? QuantityUnitId { get; set; }
         public string ProductSelectCheckboxClass { get; set; }
