@@ -53,37 +53,40 @@
     }
 }
 
-<div class="input-group">
-    <select id="@(id)-EntityId" name="@(id)-EntityId" data-placeholder="@T("Common.Unspecified")" data-remote-url="@remoteUrl">
-        @if (selectedEntity != null)
-        {
-            <option value="@selectedEntity.Value" selected="selected" attr-data-hint='(selectedEntity.Hint?.HasValue() ?? false, selectedEntity.Hint)'>
-                @(selectedEntity.Text.NullEmpty() ?? selectedEntity.Value)
-            </option>
-        }
-    </select>
-
-    @*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
-    <div class="numberinput-group flex-grow-1 ml-2" style="max-width: 140px;">
-        <input type="number"
-               id="@(id)-MinQuantity"
-               name="@(id)-MinQuantity"
-               attr-value='(minQuantity.HasValue(), minQuantity)'
-               title="@fromStr"
-               placeholder="@fromStr"
-               min="0"
-               step="1"
-               class="form-control" />
+<div class="row g-2 flex-nowrap">
+    <div class="col">
+        <select id="@(id)-EntityId" name="@(id)-EntityId" data-placeholder="@T("Common.Unspecified")" data-remote-url="@remoteUrl">
+            @if (selectedEntity != null)
+            {
+                <option value="@selectedEntity.Value" selected="selected" attr-data-hint='(selectedEntity.Hint?.HasValue() ?? false, selectedEntity.Hint)'>
+                    @(selectedEntity.Text.NullEmpty() ?? selectedEntity.Value)
+                </option>
+            }
+        </select>
     </div>
-    <div class="numberinput-group flex-grow-1 ml-2 mr-2" style="max-width: 140px;">
+    <div class="col-auto" style="width: clamp(80px, 20%, 100px);">
+        @*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
         <input type="number"
-               id="@(id)-MaxQuantity"
-               name="@(id)-MaxQuantity"
-               attr-value='(maxQuantity.HasValue(), maxQuantity)'
-               title="@toStr"
-               placeholder="@toStr"
-               min="0"
-               step="1"
-               class="form-control" />
+                id="@(id)-MinQuantity"
+                name="@(id)-MinQuantity"
+                attr-value='(minQuantity.HasValue(), minQuantity)'
+                title="@fromStr"
+                placeholder="@fromStr"
+                min="0"
+                step="1"
+                sm-numberinput-group-class="numberinput-addon-sm"
+                class="form-control" />
+    </div>
+    <div class="col-auto" style="width: clamp(80px, 20%, 100px);">
+        <input type="number"
+                id="@(id)-MaxQuantity"
+                name="@(id)-MaxQuantity"
+                attr-value='(maxQuantity.HasValue(), maxQuantity)'
+                title="@toStr"
+                placeholder="@toStr"
+                min="0"
+                step="1"
+                sm-numberinput-group-class="numberinput-addon-sm"
+                class="form-control" />
     </div>
 </div>

@@ -11,6 +11,10 @@
     --ni-border-radius: #{$input-border-radius};
     --ni-addon-width: var(--ni-height);
 
+    &.numberinput-addon-sm {
+        --ni-addon-width: 1.5rem;
+    }
+
     &.input-group-lg {
         --ni-height: #{$input-height-lg};
         --ni-font-size: #{$font-size-lg};
