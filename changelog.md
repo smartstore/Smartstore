@@ -54,6 +54,7 @@
 - Fixed MainPictureId not applied on product edit page if missing and if there is only one picture assigned to a product.
 - Fixed "The requested service 'Other (Smartstore.Core.Rules.IRuleProvider)' has not been registered" when creating a rule.
 - Fixed #792 Downloaded language sometimes cannot be deleted when using SQLite.
+- Stripe: Fixed incorrect system name in several places.
 
 
 ## Smartstore 5.0.5
