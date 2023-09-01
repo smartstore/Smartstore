@@ -269,35 +269,49 @@ namespace Smartstore.Web.Rendering
         public static IHtmlContent ColorBoxFor(
             this IHtmlHelper helper,
             ModelExpression expression,
-            string defaultColor = null)
+            string defaultColor = null,
+            bool swatches = true)
         {
             Guard.NotNull(expression);
 
-            return ColorBox(helper, expression.Name, expression.Model?.ToString().EmptyNull(), defaultColor);
+            return ColorBox(
+                helper, 
+                expression.Name, 
+                expression.Model?.ToString().EmptyNull(), 
+                defaultColor, 
+                swatches);
         }
 
         public static IHtmlContent ColorBoxFor<TModel>(
             this IHtmlHelper<TModel> helper,
             Expression<Func<TModel, string>> expression,
-            string defaultColor = null)
+            string defaultColor = null,
+            bool swatches = true)
         {
             Guard.NotNull(expression);
 
-            return ColorBox(helper, helper.NameFor(expression), helper.ValueFor(expression), defaultColor);
+            return ColorBox(
+                helper, 
+                helper.NameFor(expression), 
+                helper.ValueFor(expression), 
+                defaultColor, 
+                swatches);
         }
 
         public static IHtmlContent ColorBox(
             this IHtmlHelper helper,
             string name,
             string color,
-            string defaultColor = null)
+            string defaultColor = null,
+            bool swatches = true)
         {
             defaultColor = defaultColor.EmptyNull();
             var isDefault = color.EqualsNoCase(defaultColor);
 
             var builder = new SmartHtmlContentBuilder();
 
-            builder.AppendHtml("<div class='input-group colorpicker-component edit-control' data-fallback-color='{0}' data-editor='color'>".FormatInvariant(defaultColor));
+            builder.AppendHtml(
+                $"<div class='input-group colorpicker-component edit-control' data-swatches='{swatches.ToString().ToLower()}' data-fallback-color='{defaultColor}' data-editor='color'>");
 
             builder.AppendHtml(helper.TextBox(name, isDefault ? string.Empty : color, new { @class = "form-control", placeholder = defaultColor }));
             builder.AppendFormat("<div class='input-group-append'><button type='button' class='input-group-text colorpicker-input-addon btn btn-light'><i class='thecolor' style='{0}'>&nbsp;</i></button></div>", defaultColor.HasValue() ? "background-color: " + defaultColor : string.Empty);

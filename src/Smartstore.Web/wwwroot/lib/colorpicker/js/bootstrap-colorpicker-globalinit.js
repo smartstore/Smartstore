@@ -15,14 +15,12 @@
             const varValues = varNames.map(x => rootStyle.getPropertyValue(x));
 
             swatchColors = _.object(varNames.map(x => 'var(' + x + ')'), varValues);
-
-            console.log(swatchColors);
         }
 
         return swatchColors;
     }
 
-    let defaultOptions = {
+    let defaults = {
         autoInputFallback: false,
         autoHexInputFallback: false,
         swatches: true,
@@ -64,18 +62,18 @@
     };
 
     $.fn.colorpickerWrapper = function (options) {
-        let opts = $.extend(true, {}, defaultOptions, options);
-
-        if (opts.swatches) {
-            opts.extensions.push(swatchExtension);
-        }
-
         return this.each(function () {
             let el = $(this);
 
             if (el.data("colorpicker")) {
                 // skip process if element is colorpicker already
                 return;
+            }
+
+            let opts = $.extend(true, {}, defaults, options, el.data());
+
+            if (opts.swatches) {
+                opts.extensions.push(swatchExtension);
             }
 
             el.colorpicker(opts);

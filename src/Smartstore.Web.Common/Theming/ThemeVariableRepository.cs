@@ -219,7 +219,13 @@ namespace Smartstore.Web.Theming
                 return false;
             }
 
-            if (value[0] == '#' || value.StartsWith("rgb(") || value.StartsWith("rgba(") || value.StartsWith("hsl(") || value.StartsWith("hsla("))
+            if (
+                value[0] == '#' || 
+                value.StartsWith("rgb(") || 
+                value.StartsWith("rgba(") ||
+                value.StartsWith("var(--") || // Allow CSS vars (because of swatches)
+                value.StartsWith("hsl(") || 
+                value.StartsWith("hsla("))
             {
                 return true;
             }

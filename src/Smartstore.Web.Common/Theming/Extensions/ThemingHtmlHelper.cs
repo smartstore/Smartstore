@@ -70,7 +70,8 @@ namespace Smartstore.Web.Theming
 
             if (isValidColor)
             {
-                control = helper.ColorBox(expression, strValue, info.DefaultValue);
+                // Don't allow color swatches in theme configuration because of Sass color functions
+                control = helper.ColorBox(expression, strValue, info.DefaultValue, false);
             }
             else if (info.Type == ThemeVariableType.Boolean)
             {

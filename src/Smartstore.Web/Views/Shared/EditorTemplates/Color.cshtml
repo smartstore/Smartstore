@@ -22,4 +22,5 @@
 <colorbox asp-for="@Model"
           attrs="attributes"
           value="@Value.EmptyNull()"
-          sm-default-color="@(ViewData["fallbackColor"].Convert<string>())" />
+          sm-swatches="@(GetMetadata<bool>("swatches", true))"
+          sm-default-color="@(GetMetadata<string>("fallbackColor"))" />
