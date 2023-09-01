@@ -122,7 +122,7 @@
             </button>
             @if (!hideQueryString)
             {
-                <button type="button" class="btn btn-secondary btn-icon btn-query-string" attr-class='(expression.Schema == "url", "hide")'
+                <button type="button" class="btn btn-secondary btn-icon btn-query-string dropdown-toggle" attr-class='(expression.Schema == "url", "hide")'
                         title="@T("Common.QueryString")" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-question-circle @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
                 </button>
