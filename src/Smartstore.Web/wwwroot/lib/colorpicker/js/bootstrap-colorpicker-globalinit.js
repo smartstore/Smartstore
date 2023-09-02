@@ -81,10 +81,6 @@
             let colorpicker = el.data("colorpicker");
             let sliderHandler = colorpicker.sliderHandler;
 
-            //el.on('colorpickerInvalid', function () {
-            //    console.log(arguments);
-            //});
-
             colorpicker.picker.on('mousedown touchstart', '.colorpicker-guide', function (e) {
                 // Fix for "Moving outside the picker makes the guides keep moving because mouseup is not fired".
                 colorpicker.picker.off('mousemove.colorpicker touchmove.colorpicker mouseup.colorpicker touchend.colorpicker');

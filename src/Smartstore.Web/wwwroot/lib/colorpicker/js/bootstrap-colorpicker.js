@@ -186,6 +186,14 @@ var ColorHandler = function () {
         return '';
       }
 
+      // Fix annoying auto-conversion from hex3 to hex6
+      if (this.color._original) {
+        var original = this.color._original.color;
+        if (original && typeof original === 'string' && original.length < 7 && original[0] == '#') {
+          return original;
+        }
+      }
+
       var format = this.color.alpha === 1 ? 'hex' : this.format;
       var result = this.color.string(format);
 
@@ -2421,6 +2429,14 @@ var PickerHandler = function () {
           hueGuide = this.picker.find('.colorpicker-hue .colorpicker-guide'),
           alphaGuide = this.picker.find('.colorpicker-alpha .colorpicker-guide');
 
+      // Fix picker initializing with black with hex3 colors
+      if (this.color._original) {
+        var original = this.color._original.color;
+        if (original && typeof original === 'string' && original.length === 4 && original[0] == '#') {
+          this.color.replace(original);
+        }
+      }
+
       var hsva = this.color.toHsvaRatio();
 
       // Set guides position
@@ -3832,7 +3848,7 @@ module.exports = exports.default;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.Palette = exports.Swatches = exports.Preview = exports.Debugger = undefined;
+exports.Swatches = exports.Preview = exports.Debugger = undefined;
 
 var _Debugger = __webpack_require__(230);
 
@@ -3846,21 +3862,18 @@ var _Swatches = __webpack_require__(566);
 
 var _Swatches2 = _interopRequireDefault(_Swatches);
 
-var _Palette = __webpack_require__(180);
-
-var _Palette2 = _interopRequireDefault(_Palette);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//import Palette from './Palette';
 
 exports.Debugger = _Debugger2.default;
 exports.Preview = _Preview2.default;
 exports.Swatches = _Swatches2.default;
-exports.Palette = _Palette2.default;
 exports["default"] = {
   'debugger': _Debugger2.default,
   'preview': _Preview2.default,
-  'swatches': _Swatches2.default,
-  'palette': _Palette2.default
+  'swatches': _Swatches2.default
+  //'palette': Palette
 };
 
 /***/ }),
