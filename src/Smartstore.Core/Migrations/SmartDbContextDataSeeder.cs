@@ -1,7 +1,5 @@
 ﻿using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.DataExchange.Import;
-using Smartstore.Core.Identity;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
@@ -12,6 +10,12 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
+            await context.MigrateLocaleResourcesAsync(builder =>
+            {
+                // Lower case resource name fix for SQLite. Added resource in pascal case in MigrateLocaleResources below.
+                builder.Delete("admin.system.systeminfo.appversion", "admin.system.systeminfo.appversion.hint");
+            });
+
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
             await MigrateSettingsAsync(context, cancelToken);
         }
@@ -217,6 +221,8 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.Delete("Enums.CookieConsentRequirement.Disabled");
             builder.AddOrUpdate("Enums.CookieConsentRequirement.NeverRequired", "Never required", "Nie erforderlich");
+
+            builder.AddOrUpdate("Admin.System.SystemInfo.AppVersion", "Smartstore version", "Smartstore Version");
         }
 
         /// <summary>
