@@ -193,8 +193,8 @@
 }
 
 .shopbar-inverse {
-    .shopbar-button { 
-        color: $shopbar-inverse-color !important; 
+    .shopbar-button {
+        color: $shopbar-inverse-color !important;
 
         &:hover {
             border-color: rgba(#fff, 0.2) rgba(#fff, 0.2) rgba(#fff, 0.2);
@@ -206,7 +206,10 @@
             box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.3);
         }
 
-        .shopbar-button-label span { color: $shopbar-inverse-color-muted;  }
+        .shopbar-button-label span,
+        .shopbar-button-label-sm {
+            color: $shopbar-inverse-color-muted;
+        }
     }
 }
 
