@@ -55,6 +55,7 @@
 - Fixed "The requested service 'Other (Smartstore.Core.Rules.IRuleProvider)' has not been registered" when creating a rule.
 - Fixed #792 Downloaded language sometimes cannot be deleted when using SQLite.
 - Stripe: Fixed incorrect system name in several places.
+- Gift cards were not generated according to the order item quantity during order processing.
 
 
 ## Smartstore 5.0.5
