@@ -8,10 +8,10 @@ namespace Smartstore.Core.DataExchange.Import
         /// Gets a temporary directory for an import profile.
         /// </summary>
         /// <param name="profile">Import profile.</param>
-        /// <param name="subpath">Optional subpath, e.g. "Content" to get the content subdirectories.</param>
+        /// <param name="path">Optional relative or absolute path, e.g. "Content" to get the content subdirectories.</param>
         /// <param name="createIfNotExists">A value indicating whether the directory should be created if it does not exist.</param>
         /// <returns>Import directory.</returns>
-        Task<IDirectory> GetImportDirectoryAsync(ImportProfile profile, string subpath = null, bool createIfNotExists = false);
+        Task<IDirectory> GetImportDirectoryAsync(ImportProfile profile, string path = null, bool createIfNotExists = false);
 
         /// <summary>
         /// Gets import files for an import profile.
