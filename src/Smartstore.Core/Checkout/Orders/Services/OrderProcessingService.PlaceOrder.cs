@@ -10,6 +10,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -763,26 +764,21 @@ namespace Smartstore.Core.Checkout.Orders
                         var giftCardInfo = item.AttributeSelection.GetGiftCardInfo();
                         if (giftCardInfo != null)
                         {
-                            for (int i = 0; i < item.Quantity; i++)
+                            _db.GiftCards.AddRange(RangeUtility.Create(item.Quantity, () =>  new GiftCard
                             {
-                                var giftCard = new GiftCard
-                                {
-                                    GiftCardType = product.GiftCardType,
-                                    PurchasedWithOrderItem = orderItem,
-                                    Amount = unitPrice.Tax.Value.PriceNet,
-                                    IsGiftCardActivated = false,
-                                    GiftCardCouponCode = _giftCardService.GenerateGiftCardCode(),
-                                    RecipientName = giftCardInfo.RecipientName,
-                                    RecipientEmail = giftCardInfo.RecipientEmail,
-                                    SenderName = giftCardInfo.SenderName,
-                                    SenderEmail = giftCardInfo.SenderEmail,
-                                    Message = giftCardInfo.Message,
-                                    IsRecipientNotified = false,
-                                    CreatedOnUtc = ctx.Now
-                                };
-
-                                _db.GiftCards.Add(giftCard);
-                            }
+                                GiftCardType = product.GiftCardType,
+                                PurchasedWithOrderItem = orderItem,
+                                Amount = unitPrice.Tax.Value.PriceNet,
+                                IsGiftCardActivated = false,
+                                GiftCardCouponCode = _giftCardService.GenerateGiftCardCode(),
+                                RecipientName = giftCardInfo.RecipientName,
+                                RecipientEmail = giftCardInfo.RecipientEmail,
+                                SenderName = giftCardInfo.SenderName,
+                                SenderEmail = giftCardInfo.SenderEmail,
+                                Message = giftCardInfo.Message,
+                                IsRecipientNotified = false,
+                                CreatedOnUtc = ctx.Now
+                            }));
                         }
                     }
 
