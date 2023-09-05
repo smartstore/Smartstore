@@ -270,7 +270,6 @@ $facet-selection-color:             darken($success, 15%);
 .facet-group {
 	position: relative;
 	border-bottom: 1px solid rgba(0,0,0, 0.12);
-    font-size: 14px;
 }
 
 .facet-group-header {
@@ -278,7 +277,6 @@ $facet-selection-color:             darken($success, 15%);
     display: block;
     padding: 0.75rem 0;
     padding-inline-end: 1rem;
-    font-size: 1rem;
     font-weight: $font-weight-medium;
     color: $body-color !important;
     text-decoration: none !important;
@@ -308,6 +306,7 @@ $facet-selection-color:             darken($success, 15%);
 }
 
 .facet-body {
+    font-size: 14px;
     padding-bottom: 1rem;
 
     .numberinput-group {

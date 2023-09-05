@@ -19,9 +19,7 @@
         this.canvas = $(this.options.canvas || '.wrapper');
         this.state = null;
 
-        if (this.options.placement === 'right') {
-            this.el.addClass('offcanvas-right');
-        }
+        this.el.addClass('offcanvas-' + (this.options.placement || 'left'));
 
         if (this.options.fullscreen) {
             this.el.addClass('offcanvas-fullscreen');
@@ -99,7 +97,7 @@
 
         // Move offcanvas on pan[left|right] and close on swipe
         var onRight = el.hasClass('offcanvas-right'),
-            canPan = el.hasClass('offcanvas-overlay'),
+            canPan = true,
             panning = false,
             scrolling = false,
             nodeScrollable = null;
@@ -151,6 +149,15 @@
 
         el.on('tapstart', function (e, gesture) {
             if (canPan) {
+                // Special handling for horizontally scrollable stacks
+                var hstack = $(e.target).closest('.offcanvas-hstack');
+                if (hstack.length > 0) {
+                    // Let hstack scroll, don't move offcanvas.
+                    scrolling = true;
+                    return;
+                }
+
+                // Special handling for tabs
                 var tabs = $(e.target).closest('.offcanvas-tabs');
                 if (tabs.length > 0) {
                     var tabsWidth = 0;
@@ -224,8 +231,7 @@
         });
 
         body.addClass('canvas-sliding canvas-sliding-'
-            + (this.options.placement === 'right' ? 'left' : 'right')
-            + (this.options.lg ? ' canvas-lg' : '')
+            + (this.options.placement || 'left')
             + (this.options.fullscreen ? ' canvas-fullscreen' : ''));
 
         this.el.addClass("on").one(Prefixer.event.transitionEnd, function (e) {
@@ -257,7 +263,7 @@
         self.state = 'slide-out';
 
         body.addClass('canvas-sliding-out');
-        body.removeClass('canvas-blocking canvas-noscroll canvas-slid canvas-sliding canvas-sliding-left canvas-sliding-right canvas-lg canvas-fullscreen canvas-overlay');
+        body.removeClass('canvas-blocking canvas-noscroll canvas-slid canvas-sliding canvas-sliding-left canvas-sliding-right canvas-sliding-top canvas-sliding-bottom canvas-lg canvas-fullscreen');
 
         this.el.removeClass("on").one(Prefixer.event.transitionEnd, function (e) {
             if (self.state !== 'slide-out') return;

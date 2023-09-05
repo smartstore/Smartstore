@@ -113,7 +113,7 @@ $modal-title-color:         inherit !default;
 
 $offcanvas-width:               320px !default;
 $offcanvas-width-lg:            480px !default;
-$offcanvas-easing:              ease-out !default;
+$offcanvas-easing:              $ease-out-quad !default;
 $offcanvas-duration:            0.3s !default;
 $offcanvas-offset:              0.3 !default;
 $offcanvas-offset-p:            $offcanvas-offset * 100% !default;

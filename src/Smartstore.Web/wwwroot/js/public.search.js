@@ -364,8 +364,8 @@
                 if (btn.data('offcanvas')) return;
 
                 // create offcanvas wrapper
-                var placement = Smartstore.globalization.culture.isRTL ? 'right' : 'left';
-                var offcanvas = $('<aside class="offcanvas offcanvas-' + placement + ' offcanvas-overlay" data-overlay="true"><div class="offcanvas-content offcanvas-scrollable"></div></aside>').appendTo('body');
+                var placement = 'bottom'; // Smartstore.globalization.culture.isRTL ? 'right' : 'left';
+                var offcanvas = $('<aside class="offcanvas offcanvas-' + placement + ' offcanvas-shadow offcanvas-lg offcanvas-rounded" data-overlay="true"><div class="offcanvas-content offcanvas-scrollable"></div></aside>').appendTo('body');
 
                 // handle .offcanvas-closer click
                 offcanvas.one('click', '.offcanvas-closer', function (e) {
