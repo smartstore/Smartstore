@@ -56,6 +56,7 @@
 - Fixed #792 Downloaded language sometimes cannot be deleted when using SQLite.
 - Stripe: Fixed incorrect system name in several places.
 - Gift cards were not generated according to the order item quantity during order processing.
+- Fixed incorrect cart validation if minimum cart quantity and quantity step were configured for a product.
 
 
 ## Smartstore 5.0.5
