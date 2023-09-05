@@ -42,6 +42,7 @@
 - MegaSearch:
   - Fixed incorrect search results when a multistore has different default languages configured.
   - Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
+  - Fixed discounts assigned to categories and limited to customer roles should be excluded from indexing and indexed prices.
 - Fixed the category navigation no longer shows the number of contained products after reindexing.
 - Fixed not yet awarded reward points were reduced when an order was deleted.
 - Web API: fixed 404 file swagger.json not found when opening Swagger documentation in a virtual directory.
@@ -49,6 +50,7 @@
 - Fixed missing cache clearing after importing localized properties.
 - Output Cache: missing `Content-Type` header when serving page from cache
 - #531 Error reading import file with localized values of languages with the same UniqueSeoCode.
+- Fixed discounts assigned to categories and limited to customer roles should be excluded from export and exported prices.
 - Import:
   - Fixed localized properties were not updated during import.
   - Localized SeName was only updated when import file also contained a non-localized SeName column.
