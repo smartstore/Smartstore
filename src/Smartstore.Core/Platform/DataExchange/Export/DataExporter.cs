@@ -1117,7 +1117,7 @@ namespace Smartstore.Core.DataExchange.Export
                 async Task dataLoaded(ICollection<Product> entities)
                 {
                     // Load data behind navigation properties for current entities batch in one go.
-                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(entities, ctx.Store);
+                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(entities, ctx.Store, null, false);
                     ctx.PriceCalculationOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
                     ctx.AttributeCombinationPriceCalcOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx, true);
                     ctx.AssociatedProductBatchContext = null;
