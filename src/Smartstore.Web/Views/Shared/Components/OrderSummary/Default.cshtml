@@ -25,7 +25,7 @@
         </div>
 
         @* "File upload" attribute control type requries "multipart/form-data" *@
-        <form asp-route="ShoppingCart" method="post" enctype="multipart/form-data" onkeydown="return event.key != 'Enter';">
+        <form asp-route="ShoppingCart" id="frm-shopping-cart" method="post" enctype="multipart/form-data" onkeydown="return event.key != 'Enter';">
 
             <div class="card">
                 <div id="cart-items" class="cart mb-0" attr-class='(Model.IsEditable, "cart-editable")'>
@@ -72,20 +72,18 @@
                             }
                         </div>
                         <div class="col-md-6">
-                            @{
-                                if (Model.IsEditable)
-                                {
-                                    <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
-                                }
-
-                                <zone name="order_summary_totals_before" />
-
-                                <div id="order-totals">
-                                    @await Component.InvokeAsync("OrderTotals", new { isEditable = Model.IsEditable })
-                                </div>
-
-                                <zone name="order_summary_totals_after" />
+                            @if (Model.IsEditable)
+                            {
+                                <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
                             }
+
+                            <zone name="order_summary_totals_before" />
+
+                            <div id="order-totals">
+                                @await Component.InvokeAsync("OrderTotals", new { isEditable = Model.IsEditable })
+                            </div>
+
+                            <zone name="order_summary_totals_after" />
                         </div>
                     </div>
                 </div>
@@ -106,9 +104,7 @@
                         <div id="start-checkout-buttons">
                             <div class="checkout-buttons">
                                 <input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" class="d-none" />
-                                <button type="button" id="checkout" name="checkout"
-                                        class="btn btn-danger btn-lg btn-block btn-checkout"
-                                        onclick="$('#startcheckout').trigger('click'); return false;">
+                                <button type="button" id="checkout" name="checkout" class="btn btn-danger btn-lg btn-block btn-checkout">
                                     <span>@T("Checkout.Button")</span>
                                     <i class="fa fa-angle-right ml-3"></i>
                                 </button>
@@ -190,4 +186,17 @@
 @if (Model.IsEditable)
 {
     <script src="~/js/public.refreshcart.js" sm-target-zone="scripts"></script>
+
+    <script sm-target-zone="scripts">
+        $("#checkout").on("click", function () {
+            var form = $("#frm-shopping-cart");
+
+            if (!form[0].reportValidity()) {
+                return false;
+            }
+
+            $('#startcheckout').trigger('click'); 
+            return false;
+        });
+    </script>
 }
