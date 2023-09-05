@@ -84,8 +84,6 @@ namespace Smartstore.Core.Localization
             Guard.NotNull(language);
             Guard.NotNull(xmlDocument);
 
-            await _db.LoadCollectionAsync(language, x => x.LocaleStringResources);
-
             var resources = language.LocaleStringResources.ToDictionarySafe(x => x.ResourceName, StringComparer.OrdinalIgnoreCase);
             var nodes = xmlDocument.SelectNodes(@"//Language/LocaleResource");
             var isDirty = false;
