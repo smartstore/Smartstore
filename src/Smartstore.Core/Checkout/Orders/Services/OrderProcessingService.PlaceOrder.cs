@@ -763,21 +763,26 @@ namespace Smartstore.Core.Checkout.Orders
                         var giftCardInfo = item.AttributeSelection.GetGiftCardInfo();
                         if (giftCardInfo != null)
                         {
-                            _db.GiftCards.AddRange(Enumerable.Repeat(new GiftCard
+                            for (int i = 0; i < item.Quantity; i++)
                             {
-                                GiftCardType = product.GiftCardType,
-                                PurchasedWithOrderItem = orderItem,
-                                Amount = unitPrice.Tax.Value.PriceNet,
-                                IsGiftCardActivated = false,
-                                GiftCardCouponCode = _giftCardService.GenerateGiftCardCode(),
-                                RecipientName = giftCardInfo.RecipientName,
-                                RecipientEmail = giftCardInfo.RecipientEmail,
-                                SenderName = giftCardInfo.SenderName,
-                                SenderEmail = giftCardInfo.SenderEmail,
-                                Message = giftCardInfo.Message,
-                                IsRecipientNotified = false,
-                                CreatedOnUtc = ctx.Now
-                            }, item.Quantity));
+                                var giftCard = new GiftCard
+                                {
+                                    GiftCardType = product.GiftCardType,
+                                    PurchasedWithOrderItem = orderItem,
+                                    Amount = unitPrice.Tax.Value.PriceNet,
+                                    IsGiftCardActivated = false,
+                                    GiftCardCouponCode = _giftCardService.GenerateGiftCardCode(),
+                                    RecipientName = giftCardInfo.RecipientName,
+                                    RecipientEmail = giftCardInfo.RecipientEmail,
+                                    SenderName = giftCardInfo.SenderName,
+                                    SenderEmail = giftCardInfo.SenderEmail,
+                                    Message = giftCardInfo.Message,
+                                    IsRecipientNotified = false,
+                                    CreatedOnUtc = ctx.Now
+                                };
+
+                                _db.GiftCards.Add(giftCard);
+                            }
                         }
                     }
 
@@ -822,21 +827,26 @@ namespace Smartstore.Core.Checkout.Orders
                         var giftCardInfo = oi.AttributeSelection.GetGiftCardInfo();
                         if (giftCardInfo != null)
                         {
-                            _db.GiftCards.AddRange(Enumerable.Repeat(new GiftCard
+                            for (int i = 0; i < oi.Quantity; i++)
                             {
-                                GiftCardType = oi.Product.GiftCardType,
-                                PurchasedWithOrderItem = newOrderItem,
-                                Amount = oi.UnitPriceExclTax,
-                                IsGiftCardActivated = false,
-                                GiftCardCouponCode = _giftCardService.GenerateGiftCardCode(),
-                                RecipientName = giftCardInfo.RecipientName,
-                                RecipientEmail = giftCardInfo.RecipientEmail,
-                                SenderName = giftCardInfo.SenderName,
-                                SenderEmail = giftCardInfo.SenderEmail,
-                                Message = giftCardInfo.Message,
-                                IsRecipientNotified = false,
-                                CreatedOnUtc = ctx.Now
-                            }, oi.Quantity));
+                                var giftCard = new GiftCard
+                                {
+                                    GiftCardType = oi.Product.GiftCardType,
+                                    PurchasedWithOrderItem = newOrderItem,
+                                    Amount = oi.UnitPriceExclTax,
+                                    IsGiftCardActivated = false,
+                                    GiftCardCouponCode = _giftCardService.GenerateGiftCardCode(),
+                                    RecipientName = giftCardInfo.RecipientName,
+                                    RecipientEmail = giftCardInfo.RecipientEmail,
+                                    SenderName = giftCardInfo.SenderName,
+                                    SenderEmail = giftCardInfo.SenderEmail,
+                                    Message = giftCardInfo.Message,
+                                    IsRecipientNotified = false,
+                                    CreatedOnUtc = ctx.Now
+                                };
+
+                                _db.GiftCards.Add(giftCard);
+                            }
                         }
                     }
 
