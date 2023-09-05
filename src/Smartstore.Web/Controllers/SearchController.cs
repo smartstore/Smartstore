@@ -20,6 +20,7 @@ namespace Smartstore.Web.Controllers
         private readonly CatalogSettings _catalogSettings;
         private readonly Lazy<IProductService> _productService;
         private readonly ProductUrlHelper _productUrlHelper;
+        private SearchResultModel _searchResultModel;
 
         public SearchController(
             CatalogHelper catalogHelper,
@@ -29,7 +30,9 @@ namespace Smartstore.Web.Controllers
             SearchSettings searchSettings,
             CatalogSettings catalogSettings,
             Lazy<IProductService> productService,
-            ProductUrlHelper productUrlHelper)
+            ProductUrlHelper productUrlHelper
+            //SearchResultModel search
+            )
         {
             _catalogHelper = catalogHelper;
             _catalogSearchService = catalogSearchService;
@@ -39,6 +42,15 @@ namespace Smartstore.Web.Controllers
             _catalogSettings = catalogSettings;
             _productService = productService;
             _productUrlHelper = productUrlHelper;
+
+            //if(search == null)
+            //{
+            //}
+            //else
+            //{
+            //    _searchResultModel = search;
+            //}
+            _searchResultModel = new SearchResultModel();
         }
 
         [HttpPost]
@@ -59,8 +71,9 @@ namespace Smartstore.Web.Controllers
 
             var result = await _catalogSearchService.SearchAsync(query);
 
-            var model = new SearchResultModel(query)
+            var model = new SearchResultModel()
             {
+                Query = query,
                 SearchResult = result,
                 Term = term,
                 TotalProductsCount = result.TotalHitsCount
@@ -99,23 +112,29 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> Search(CatalogSearchQuery query)
         {
             CatalogSearchResult result = null;
-            var model = new SearchResultModel(query);
+            if(_searchResultModel == null)
+            {
+                _searchResultModel = new();
+            }
+            _searchResultModel.Query = query;
             var term = query?.DefaultTerm;
 
             if (term == null || term.Length < _searchSettings.InstantSearchTermMinLength)
             {
-                model.SearchResult = new CatalogSearchResult(query);
-                model.TopProducts = ProductSummaryModel.Empty;
-                model.Error = T("Search.SearchTermMinimumLengthIsNCharacters", _searchSettings.InstantSearchTermMinLength);
-                return View(model);
+                _searchResultModel.SearchResult = new CatalogSearchResult(query);
+                _searchResultModel.TopProducts = ProductSummaryModel.Empty;
+                _searchResultModel.Error = T("Search.SearchTermMinimumLengthIsNCharacters", _searchSettings.InstantSearchTermMinLength);
+                return View(_searchResultModel);
             }
 
+            //break into it's own method customer check
             var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsSystemAccount)
             {
                 customer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
             }
 
+            //break into it's own method search settings
             try
             {
                 if (_searchSettings.SearchProductByIdentificationNumber)
@@ -139,10 +158,11 @@ namespace Smartstore.Web.Controllers
             }
             catch (Exception ex)
             {
-                model.Error = ex.ToString();
+                _searchResultModel.Error = ex.ToString();
                 result = new CatalogSearchResult(query);
             }
 
+            //break into it's own method spell check suggestion
             if (result.TotalHitsCount == 0 && result.SpellCheckerSuggestions.Length > 0)
             {
                 // No matches, but spell checker made a suggestion.
@@ -154,7 +174,7 @@ namespace Smartstore.Web.Controllers
 
                 if (result.TotalHitsCount > 0)
                 {
-                    model.AttemptedTerm = term;
+                    _searchResultModel.AttemptedTerm = term;
                     // Restore the original suggestions.
                     result.SpellCheckerSuggestions = oldSuggestions.Where(x => x != query.DefaultTerm).ToArray();
                 }
@@ -164,9 +184,9 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            model.SearchResult = result;
-            model.Term = query.DefaultTerm;
-            model.TotalProductsCount = result.TotalHitsCount;
+            _searchResultModel.SearchResult = result;
+            _searchResultModel.Term = query.DefaultTerm;
+            _searchResultModel.TotalProductsCount = result.TotalHitsCount;
 
             var productSummaryViewMode = query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list")
                 ? ProductSummaryViewMode.List
@@ -179,9 +199,9 @@ namespace Smartstore.Web.Controllers
             _catalogHelper.MapListActions(summaryModel, null, _catalogSettings.DefaultPageSizeOptions);
 
             // Add product hits.
-            model.TopProducts = summaryModel;
+            _searchResultModel.TopProducts = summaryModel;
 
-            return View(model);
+            return View(_searchResultModel);
         }
     }
 }

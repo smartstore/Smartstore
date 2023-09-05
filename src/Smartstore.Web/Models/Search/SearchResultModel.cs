@@ -5,12 +5,12 @@ namespace Smartstore.Web.Models.Search
 {
     public class SearchResultModel : SearchResultModelBase, ISearchResultModel
     {
-        public SearchResultModel(CatalogSearchQuery query)
-        {
-            Query = query;
-        }
+        //public SearchResultModel(CatalogSearchQuery query)
+        //{
+        //    Query = query;
+        //}
 
-        public CatalogSearchQuery Query { get; }
+        public CatalogSearchQuery Query { get; set; }
 
         public CatalogSearchResult SearchResult { get; set; }
 
