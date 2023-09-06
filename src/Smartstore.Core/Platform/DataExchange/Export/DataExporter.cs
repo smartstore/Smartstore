@@ -1111,13 +1111,14 @@ namespace Smartstore.Core.DataExchange.Export
             var limit = Math.Max(ctx.Request.Profile.Limit, 0);
             var recordsPerSegment = ctx.IsPreview ? 0 : Math.Max(ctx.Request.Profile.BatchSize, 0);
             var totalRecords = offset + ctx.ShopMetadata[ctx.Store.Id].TotalRecords;
+            var includeHidden = !ctx.Filter.IsPublished.HasValue || ctx.Filter.IsPublished.Value == false;
 
             if (entityType == ExportEntityType.Product)
             {
                 async Task dataLoaded(ICollection<Product> entities)
                 {
                     // Load data behind navigation properties for current entities batch in one go.
-                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(entities, ctx.Store, null, false);
+                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(entities, ctx.Store, null, includeHidden);
                     ctx.PriceCalculationOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
                     ctx.AttributeCombinationPriceCalcOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx, true);
                     ctx.AssociatedProductBatchContext = null;
@@ -1127,7 +1128,7 @@ namespace Smartstore.Core.DataExchange.Export
                     {
                         await context.AssociatedProducts.LoadAllAsync();
                         var associatedProducts = context.AssociatedProducts.SelectMany(x => x.Value);
-                        ctx.AssociatedProductBatchContext = _productService.CreateProductBatchContext(associatedProducts, ctx.Store);
+                        ctx.AssociatedProductBatchContext = _productService.CreateProductBatchContext(associatedProducts, ctx.Store, null, includeHidden);
 
                         var allProductEntities = entities.Where(x => x.ProductType != ProductType.GroupedProduct).Concat(associatedProducts);
                         ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), allProductEntities);
@@ -1179,7 +1180,7 @@ namespace Smartstore.Core.DataExchange.Export
                     var orderItems = ctx.OrderBatchContext.OrderItems.SelectMany(x => x.Value);
                     var products = orderItems.Select(x => x.Product);
 
-                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store);
+                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store, null, includeHidden);
                     ctx.PriceCalculationOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
 
                     ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), products);
@@ -1258,7 +1259,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     var products = entities.Select(x => x.Product);
 
-                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store);
+                    ctx.ProductBatchContext = _productService.CreateProductBatchContext(products, ctx.Store, null, includeHidden);
                     ctx.PriceCalculationOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
 
                     ctx.TranslationsPerPage[nameof(Product)] = await CreateTranslationCollection(nameof(Product), products);
