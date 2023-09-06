@@ -61,6 +61,7 @@
 - Gift cards were not generated according to the order item quantity during order processing.
 - Fixed incorrect cart validation if minimum cart quantity and quantity step were configured for a product.
 - #810 Doubleclicking login button can lead to 400 BadRequest error page. 
+- #776 PayPal credit card payment fails due to missing session PayPalOrderId entry. 
 
 
 ## Smartstore 5.0.5
