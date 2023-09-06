@@ -23,40 +23,34 @@
        sm-close-on-escape-press="!Model.ModalCookieConsent"
        sm-render-at-page-end="false">
     <modal-header>
-        <h4 class="cm-title m-0">
-            @T("CookieManager.Dialog.Heading")
-        </h4>
-        <button sm-if="!Model.ModalCookieConsent" type="button" class="cm-close btn-close" data-dismiss="modal"></button>
+        <h4 class="modal-title">@T("CookieManager.Dialog.Heading")</h4>
+        <button sm-if="!Model.ModalCookieConsent" type="button" class="btn-close" data-dismiss="modal"></button>
     </modal-header>
     <modal-body>
         <form id="cookie-manager-consent" sm-ajax asp-action="SetCookieManagerConsent" asp-controller="Common" asp-antiforgery="false" method="post" sm-oncomplete="OnConsented">
             <input asp-for="AcceptAll" type="hidden" />
 
             <div id="cookie-manager">
-                <div class="cm-header row mb-2">
-                    <div class="col">
-                        <p class="cm-intro">
-                            @Html.Raw(T("CookieManager.Dialog.Intro", Url.Action("Info", "Customer"), await Url.TopicAsync("PrivacyInfo")))
-                        </p>
-                    </div>
-                </div>
+                <p class="cm-intro mb-3">
+                    @Html.Raw(T("CookieManager.Dialog.Intro", Url.Action("Info", "Customer"), await Url.TopicAsync("PrivacyInfo")))
+                </p>
 
                 <div class="cm-consent">
-                    <div class="row nav-toggler align-items-center no-gutters px-0">
+                    <div class="nav-toggler align-items-center row g-0 px-0">
                         <div class="cm-consent-switch col col-auto">
                             <input type="checkbox" asp-for="RequiredConsent" disabled sm-switch="true" />
                         </div>
-                        <h5 class="cm-consent-title collapsed col pl-3" data-toggle="collapse" data-target="#required-cookies" aria-controls="required-cookies" aria-expanded="false">
+                        <h5 class="cm-consent-title collapsed col m-0 pl-3" data-toggle="collapse" data-target="#required-cookies" aria-controls="required-cookies" aria-expanded="false">
                             @T("CookieManager.Dialog.Required.Heading")
                             <i class="fas fa-angle-down collapse-chevron"></i>
                         </h5>
                     </div>
 
-                    <div id="required-cookies" class="collapse nav-collapse" data-parent="#cookie-manager">
+                    <div id="required-cookies" class="collapse nav-collapse small" data-parent="#cookie-manager">
                         <p class="cm-consent-intro">
                             @T("CookieManager.Dialog.Required.Intro")
                         </p>
-                        <table sm-if="requiredCookieInfos.Any()" class="cm-info-table table table-light">
+                        <table sm-if="requiredCookieInfos.Any()" class="cm-info-table table table-striped fs-xs m-0">
                             @foreach (var info in requiredCookieInfos)
                             {
                                 <tr>
@@ -69,21 +63,21 @@
                 </div>
 
                 <div class="cm-consent">
-                    <div class="row nav-toggler align-items-center no-gutters px-0">
+                    <div class="row nav-toggler align-items-center g-0 px-0">
                         <div class="cm-consent-switch col col-auto">
                             <input type="checkbox" asp-for="AnalyticsConsent" sm-switch="true" />
                         </div>
-                        <h5 class="cm-consent-title collapsed col pl-3" data-toggle="collapse" data-target="#analytics-cookies" aria-controls="analytics-cookies" aria-expanded="false">
+                        <h5 class="cm-consent-title collapsed col m-0 pl-3" data-toggle="collapse" data-target="#analytics-cookies" aria-controls="analytics-cookies" aria-expanded="false">
                             @T("CookieManager.Dialog.Analytics.Heading")
                             <i class="fas fa-angle-down collapse-chevron"></i>
                         </h5>
                     </div>
 
-                    <div id="analytics-cookies" class="collapse nav-collapse" data-parent="#cookie-manager">
+                    <div id="analytics-cookies" class="collapse nav-collapse small" data-parent="#cookie-manager">
                         <p class="cm-consent-intro">
                             @T("CookieManager.Dialog.Analytics.Intro")
                         </p>
-                        <table sm-if="analyticsCookieInfos.Any()" class="cm-info-table table table-light">
+                        <table sm-if="analyticsCookieInfos.Any()" class="cm-info-table table table-striped fs-xs m-0">
                             @foreach (var info in analyticsCookieInfos)
                             {
                                 <tr>
@@ -96,22 +90,22 @@
                 </div>
 
                 <div sm-if="thirdPartyCookieInfos.Any()" class="cm-consent">
-                    <div class="row nav-toggler align-items-center no-gutters px-0">
+                    <div class="row nav-toggler align-items-center g-0 px-0">
                         <div class="cm-consent-switch col col-auto">
                             <input type="checkbox" asp-for="ThirdPartyConsent" sm-switch="true" />
                         </div>
-                        <h5 class="cm-consent-title collapsed col pl-3" data-toggle="collapse" data-target="#third-party-cookies" aria-controls="third-party-cookies" aria-expanded="false">
+                        <h5 class="cm-consent-title collapsed col m-0 pl-3" data-toggle="collapse" data-target="#third-party-cookies" aria-controls="third-party-cookies" aria-expanded="false">
                             @T("CookieManager.Dialog.ThirdParty.Heading")
                             <i class="fas fa-angle-down collapse-chevron"></i>
                         </h5>
                     </div>
 
-                    <div id="third-party-cookies" class="collapse nav-collapse" data-parent="#cookie-manager">
+                    <div id="third-party-cookies" class="collapse nav-collapse small" data-parent="#cookie-manager">
                         <p class="cm-consent-intro">
                             @T("CookieManager.Dialog.ThirdParty.Intro")
                         </p>
 
-                        <table class="cm-info-table table table-light">
+                        <table class="cm-info-table table table-striped fs-xs m-0">
                             @foreach (var info in thirdPartyCookieInfos)
                             {
                                 <tr>
@@ -127,12 +121,12 @@
 
         <div class="cm-footer mt-3">
             <div class="row g-2">
-                <div class="col-6">
+                <div class="col-sm-6">
                     <button type="submit" id="accept-selected" name="accept-selected" class="btn btn-block rounded-pill btn-secondary submit-consent">
                         @T("CookieManager.Dialog.Button.AcceptSelected")
                     </button>
                 </div>
-                <div class="col-6">
+                <div class="col-sm-6">
                     <button type="submit" id="accept-all" name="accept-all" class="btn btn-block rounded-pill btn-primary submit-consent">
                         @T("CookieManager.Dialog.Button.AcceptAll")
                     </button>

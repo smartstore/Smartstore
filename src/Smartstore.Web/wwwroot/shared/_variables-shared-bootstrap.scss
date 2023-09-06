@@ -136,6 +136,12 @@ $display4-size:               null !default;
 $hr-opacity:                  .12 !default;
 
 
+// Tables
+
+$table-accent-bg:               rgba($black, .03) !default;
+$table-hover-bg:                rgba($black, .05) !default;
+
+
 // Buttons + Forms
 
 $input-btn-padding-x:         0.75rem !default; // --> 12px
