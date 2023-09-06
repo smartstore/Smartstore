@@ -147,3 +147,22 @@
 		</div>
 	</div>
 </div>
+
+<script sm-target-zone="scripts" data-origin="login">
+    $(function () {
+        var loginButton = $(".btn-login");
+        var loginForm = loginButton.closest("form");
+
+        // We disable the login button after click to prevent double submission.
+        loginButton.on("click", function () {
+            loginButton.prop('disabled', true);
+            loginForm.submit();
+
+            if (!loginForm.valid()) {
+                loginButton.prop('disabled', false);
+            }
+            
+            return true;
+        });
+    });
+</script>
