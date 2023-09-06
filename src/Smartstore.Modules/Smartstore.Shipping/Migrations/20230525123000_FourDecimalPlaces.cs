@@ -9,8 +9,23 @@ namespace Smartstore.Shipping.Migrations
     {
         const string shippingByTotalTable = "ShippingByTotal";
 
+        static readonly string[] _columns = new[]
+        {
+            nameof(ShippingRateByTotal.From),
+            nameof(ShippingRateByTotal.To),
+            nameof(ShippingRateByTotal.ShippingChargePercentage),
+            nameof(ShippingRateByTotal.ShippingChargeAmount),
+            nameof(ShippingRateByTotal.BaseCharge),
+            nameof(ShippingRateByTotal.MaxCharge)
+        };
+
         public override void Up()
         {
+            foreach (var column in _columns)
+            {
+                FixArithmeticOverflow(column);
+            }
+
             MigrateInternal(4);
         }
 
@@ -27,6 +42,17 @@ namespace Smartstore.Shipping.Migrations
             Alter.Column(nameof(ShippingRateByTotal.ShippingChargeAmount)).OnTable(shippingByTotalTable).AsDecimal(18, precision).NotNullable();
             Alter.Column(nameof(ShippingRateByTotal.BaseCharge)).OnTable(shippingByTotalTable).AsDecimal(18, precision).NotNullable();
             Alter.Column(nameof(ShippingRateByTotal.MaxCharge)).OnTable(shippingByTotalTable).AsDecimal(18, precision).Nullable();
+        }
+
+        private void FixArithmeticOverflow(string column)
+        {
+            try
+            {
+                IfDatabase("sqlserver").Execute.Sql($"UPDATE [dbo].[{shippingByTotalTable}] SET [{column}] = 99999999999999 WHERE [{column}] > 99999999999999");
+            }
+            catch
+            {
+            }
         }
     }
 }
