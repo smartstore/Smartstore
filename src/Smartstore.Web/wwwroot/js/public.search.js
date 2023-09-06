@@ -365,15 +365,22 @@
 
                 // create offcanvas wrapper
                 var placement = 'bottom'; // Smartstore.globalization.culture.isRTL ? 'right' : 'left';
-                var offcanvas = $('<aside class="offcanvas offcanvas-' + placement + ' offcanvas-shadow offcanvas-lg offcanvas-rounded" data-overlay="true"><div class="offcanvas-content offcanvas-scrollable"></div></aside>').appendTo('body');
+                var offcanvas =
+                    $(`<aside class="offcanvas offcanvas-${placement} offcanvas-shadow offcanvas-lg offcanvas-rounded" data-overlay="true">
+                            <div class="offcanvas-header hstack justify-content-between p-3">
+                                <h5 class="offcanvas-title">Filtern & Sortieren</h5>
+                                <button type="button" class="btn-close" data-dismiss="offcanvas"></button>
+                            </div>
+                            <div class="offcanvas-content offcanvas-scrollable"></div>
+                       </aside>`).appendTo('body');
 
                 // handle .offcanvas-closer click
-                offcanvas.one('click', '.offcanvas-closer', function (e) {
+                offcanvas.one('click', '.btn-close', function (e) {
                     offcanvas.offcanvas('hide');
                 });
 
                 // put widget into offcanvas wrapper
-                widget.appendTo(offcanvas.children().first());
+                widget.appendTo(offcanvas.find('> .offcanvas-content'));
 
                 btn.data('offcanvas', offcanvas)
                     .attr('data-toggle', 'offcanvas')

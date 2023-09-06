@@ -49,6 +49,7 @@
   padding-inline-end: $close-font-size + $alert-padding-x * 2;
 
   // Adjust close link position
+  .btn-close,
   .close {
     position: absolute;
     top: 0;
@@ -56,7 +57,6 @@
     z-index: 2;
     padding-block: calc(var(--alert-padding-y) * 1);
     padding-inline: var(--alert-padding-x);
-    color: inherit;
   }
 }
 

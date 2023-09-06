@@ -104,25 +104,14 @@
 .modal-closer {
 	position: absolute;
 	display: none;
-	font-size: 2.5rem;
+	font-size: 1rem;
 	padding: 0.5rem;
-	padding-top: 0;
-	top: 0;
-	right: 0;
-	line-height: 1;
-	text-decoration: none !important;
+	top: 0.5rem;
+	right: 0.5rem;
 	z-index: $zindex-modal-backdrop + 1;
-	transition: color 0.1s;
-
-	color: $gray-600;
-	&:hover {
-        color: inherit;
-	}
 
 	.modal[data-backdrop=true] > & {
-		$c: color-yiq($modal-backdrop-bg);
-		color: mix($c, $modal-backdrop-bg, 70%);
-		&:hover { color: $c; }
+        filter: var(--btn-close-white-filter);
 	}
 }
 
@@ -244,13 +233,4 @@
 			justify-content: center;
 		}
 	}
-}
-
-
-.close {
-    // "Fix" font-size
-    font-size: 1.5rem;
-	line-height: 16px;
-	font-weight: $font-weight-normal;
-	outline: 0 !important;
 }

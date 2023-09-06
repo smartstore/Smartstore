@@ -49,7 +49,7 @@ namespace Smartstore.Core.DataExchange.Import
                     Directory.CreateDirectory(path);
                 }
 
-                return await new LocalFileSystem(path).GetDirectoryAsync(null);
+                return new LocalFileSystem(path).GetDirectory(null);
             }
             else
             {

@@ -29,22 +29,15 @@
 // Badge closer
 // -----------------------------------------------------
 
-.badge > .close {
+.badge > .close,
+.badge > .btn-close {
     position: relative;
-    //top: -1px;
-    font-size: inherit;
-    line-height: inherit;
-    font-weight: inherit;
-    float: none;
-    text-shadow: none;
-    color: inherit !important;
-    opacity: 0.7;
-    text-decoration: none !important;
-    transition: opacity 0.1s;
+    box-sizing: border-box;
+    transform: scale(0.85);
+}
 
-    &:hover {
-        opacity: 1 !important;
-    }
+.badge:not(.badge-subtle) > .btn-close {
+    @extend .btn-close-white;
 }
 
 //

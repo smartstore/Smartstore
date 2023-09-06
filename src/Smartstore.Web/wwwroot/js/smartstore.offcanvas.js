@@ -1,7 +1,6 @@
 ﻿/*
 *  Project: OffCanvas SideBar
 *  Author: Murat Cakir, SmartStore AG
-*  Date: 28.01.2016
 */
 
 ; (function ($, window, document, undefined) {
@@ -15,7 +14,7 @@
         var self = this;
 
         var el = this.el = $(element);
-        this.options = $.extend({}, OffCanvas.DEFAULTS, options);
+        this.options = $.extend({}, OffCanvas.defaults, options);
         this.canvas = $(this.options.canvas || '.wrapper');
         this.state = null;
 
@@ -75,7 +74,7 @@
     // OFFCANVAS DEFAULT OPTIONS
     // ======================================================
 
-    OffCanvas.DEFAULTS = {
+    OffCanvas.defaults = {
         canvas: '.wrapper',
         toggle: true,
         placement: 'left',
@@ -225,7 +224,7 @@
             body.addClass('canvas-overlay');
         }
 
-        body.one("tapend", ".offcanvas-closer", function (e) {
+        body.one("tapend", "[data-dismiss=offcanvas]", function (e) {
             e.preventDefault();
             self.hide();
         });
@@ -299,7 +298,7 @@
         return this.each(function () {
             var self = $(this),
                 data = self.data('sm.offcanvas'),
-                options = $.extend({}, OffCanvas.DEFAULTS, self.data(), typeof option === 'object' && option);
+                options = $.extend({}, OffCanvas.defaults, self.data(), typeof option === 'object' && option);
 
             if (!data) self.data('sm.offcanvas', (data = new OffCanvas(this, options)));
             if (typeof option === 'string') data[option]();

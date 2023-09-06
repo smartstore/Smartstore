@@ -1,4 +1,57 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
+.btn-close {
+  --btn-close-color: #{$btn-close-color};
+  --btn-close-bg: #{ escape-svg($btn-close-bg) };
+  --btn-close-opacity: #{$btn-close-opacity};
+  --btn-close-hover-opacity: #{$btn-close-hover-opacity};
+  --btn-close-focus-shadow: #{$btn-close-focus-shadow};
+  --btn-close-focus-opacity: #{$btn-close-focus-opacity};
+  --btn-close-disabled-opacity: #{$btn-close-disabled-opacity};
+  --btn-close-white-filter: #{$btn-close-white-filter};
+
+  box-sizing: content-box;
+  width: $btn-close-width;
+  height: $btn-close-height;
+  padding: $btn-close-padding-y $btn-close-padding-x;
+  color: var(--btn-close-color);
+  background: transparent var(--btn-close-bg) center / $btn-close-width auto no-repeat; // include transparent for button elements
+  border: 0; // for button elements
+  @include border-radius();
+  opacity: var(--btn-close-opacity);
+  transition: opacity 0.1s, color 0.1s;
+
+  &:hover {
+    color: var(--btn-close-color);
+    text-decoration: none;
+    opacity: var(--btn-close-hover-opacity);
+  }
+
+  &:focus {
+    outline: 0;
+    box-shadow: var(--btn-close-focus-shadow);
+    opacity: var(--btn-close-focus-opacity);
+  }
+
+  &:disabled,
+  &.disabled {
+    pointer-events: none;
+    user-select: none;
+    opacity: var(--btn-close-disabled-opacity);
+  }
+}
+
 .close {
+  @extend .btn-close;
+}
+
+.btn-close-white {
+  filter: var(--btn-close-white-filter);
+}
+
+.xclose {
   float: right;
   @include font-size($close-font-size);
   font-weight: $close-font-weight;
@@ -8,7 +61,7 @@
   opacity: .5;
 
   // Override <a>'s hover style
-  @include hover() {
+  &:hover {
     color: $close-color;
     text-decoration: none;
   }
@@ -26,7 +79,7 @@
 // See https://developer.mozilla.org/en-US/docs/Web/Events/click#Safari_Mobile
 
 // stylelint-disable-next-line selector-no-qualifying-type
-button.close {
+button.xclose {
   padding: 0;
   background-color: transparent;
   border: 0;
@@ -35,6 +88,6 @@ button.close {
 // Future-proof disabling of clicks on `<a>` elements
 
 // stylelint-disable-next-line selector-no-qualifying-type
-a.close.disabled {
+a.xclose.disabled {
   pointer-events: none;
 }

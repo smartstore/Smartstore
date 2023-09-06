@@ -54,7 +54,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 }
                 if (ShowClose)
                 {
-                    output.Content.AppendHtmlLine("<button type='button' class='close' data-dismiss='modal'><span aria-hidden='true'>&times;</span></button>");
+                    output.Content.AppendHtmlLine("<button type='button' class='btn-close' data-dismiss='modal'><span aria-hidden='true'></span></button>");
                 }
             }
             else

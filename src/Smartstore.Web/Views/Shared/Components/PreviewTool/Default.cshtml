@@ -70,31 +70,17 @@
         z-index: 99;
         transition-delay: 0s;
     }
-
-    #previewmode form {
-        margin: 0;
-    }
-
-    .previewmode-title {
-        margin-top: 0;
-        padding-bottom: 12px;
-        border-bottom: 1px solid var(--gray-700);
-    }
-
-    #previewmode .close {
-        line-height: 10px;
-        text-shadow: none;
-        font-weight: normal;
-    }
 </style>
 
 <div class="previewmode-wrapper" attr-class='(toolOpen, "open")'>
-    <div id="previewmode" class="rounded-left shadow-lg shadow-dark text-white">
-        <form asp-controller="Theme" asp-action="PreviewTool" asp-area="Admin" method="post">
+    <div id="previewmode" class="rounded-start rounded-end-0 rounded-3 shadow-lg shadow-dark text-white">
+        <form asp-controller="Theme" asp-action="PreviewTool" asp-area="Admin" method="post" class="m-0">
             <input type="hidden" name="returnUrl" value="@Context.Request.RawUrl()" />
             <div class="p-2">
-                <button type="button" class="close toggle-preview text-white mt-1">&times;</button>
-                <h4 class="previewmode-title">@T("Admin.Configuration.Themes.PreviewMode")</h4>
+                <div class="hstack justify-content-between border-bottom border-white border-opacity-25 pb-2 mb-2">
+                    <h4 class="previewmode-title m-0">@T("Admin.Configuration.Themes.PreviewMode")</h4>
+                    <button type="button" class="btn-close btn-close-white toggle-preview"></button>
+                </div>
 
                 <label class="previewmode-label">@T("Admin.Configuration.Themes.Theme"):</label>
                 <select name="theme" id="select-theme" asp-items="themes" class="form-control form-control-sm bg-light noskin"></select>
@@ -105,13 +91,13 @@
                 <div class="row xs-gutters mt-3">
                     <div class="col-6">
                         <button type="submit" name="PreviewMode.Apply" value="@T("Common.Apply")" class="btn btn-sm btn-block btn-applytheme @(disableApply ? "btn-clear" : "btn-warning")" attr-disabled='(disableApply, "disabled")'>
-                            <span class="small">@T("Common.Apply")</span>
+                            <span>@T("Common.Apply")</span>
                         </button>
                     </div>
                     <div class="col-6">
                         <button type="submit" name="PreviewMode.Exit" title="@T("Admin.Configuration.Themes.ExitPreviewMode")" value="@T("Admin.Configuration.Themes.ExitPreviewMode")" class="btn btn-danger btn-sm btn-block btn-exitpreview">
                             <i class="far fa-fw fa-eye-slash"></i>
-                            <span class="small">@T("Common.Exit")</span>
+                            <span>@T("Common.Exit")</span>
                         </button>
                     </div>
                 </div>
