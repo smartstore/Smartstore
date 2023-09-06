@@ -7,12 +7,23 @@
 @if $modal-content-border-width == 0 {
     .modal-dialog:not(.modal-flex) {
 	    .modal-header {
+            // Reset header bottom padding if header is "floating"
             padding-bottom: 0;
 	    }
 
-	    .modal-footer {
-            padding-top: 0;
-	    }
+        @if $modal-footer-bg == null or $modal-footer-bg == transparent {
+            .modal-footer {
+                // Reset footer top padding if footer is "floating"
+                padding-top: 0;
+            }
+        }
+    }
+}
+
+@if $modal-footer-bg != null and $modal-footer-bg != transparent {
+    .modal-footer {
+        // Too much y-padding with colored footer looks bad
+        padding-block: calc(var(--modal-padding) * 0.5);
     }
 }
 
@@ -83,10 +94,6 @@
 	iframe {
 		width: 100%;
 	}
-}
-
-.modal-title {
-	color: $modal-title-color;
 }
 
 .modal-dialog:not(.modal-flex) iframe {
@@ -189,17 +196,11 @@
 
 	.modal-header {
 		border-bottom-width: 1px;
-		padding-top: 0.75rem;
-		padding-bottom: 0.75rem;
+		padding-block: 0.75rem;
 	}
 
 	.modal-footer > .btn {
 		min-width: 90px;
-		margin-inline-start: 0.25rem;
-	}
-
-	&.fade .modal-dialog {
-		//transition-duration: 0.25s !important;
 	}
 
 	.modal-box-body {

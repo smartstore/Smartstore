@@ -22,17 +22,19 @@
        sm-backdrop="@(Model.ModalCookieConsent ? ModalBackdrop.Static : ModalBackdrop.Show)"
        sm-close-on-escape-press="!Model.ModalCookieConsent"
        sm-render-at-page-end="false">
+    <modal-header>
+        <h4 class="cm-title m-0">
+            @T("CookieManager.Dialog.Heading")
+        </h4>
+        <button sm-if="!Model.ModalCookieConsent" type="button" class="cm-close btn-close" data-dismiss="modal"></button>
+    </modal-header>
     <modal-body>
         <form id="cookie-manager-consent" sm-ajax asp-action="SetCookieManagerConsent" asp-controller="Common" asp-antiforgery="false" method="post" sm-oncomplete="OnConsented">
             <input asp-for="AcceptAll" type="hidden" />
-            <button sm-if="!Model.ModalCookieConsent" type="button" class="cm-close btn-close" data-dismiss="modal"></button>
 
-            <div id="cookie-manager" class="container mt-2">
+            <div id="cookie-manager">
                 <div class="cm-header row mb-2">
                     <div class="col">
-                        <h4 class="cm-title">
-                            @T("CookieManager.Dialog.Heading")
-                        </h4>
                         <p class="cm-intro">
                             @Html.Raw(T("CookieManager.Dialog.Intro", Url.Action("Info", "Customer"), await Url.TopicAsync("PrivacyInfo")))
                         </p>
@@ -122,23 +124,22 @@
                 </div>
             </div>
         </form>
-    </modal-body>
-    <modal-footer>
-        <div class="cm-footer container">
-            <div class="row">
-                <div class="col-6 pr-1">
-                    <button type="submit" id="accept-selected" name="accept-selected" class="btn btn-block btn-secondary submit-consent">
+
+        <div class="cm-footer mt-3">
+            <div class="row g-2">
+                <div class="col-6">
+                    <button type="submit" id="accept-selected" name="accept-selected" class="btn btn-block rounded-pill btn-secondary submit-consent">
                         @T("CookieManager.Dialog.Button.AcceptSelected")
                     </button>
                 </div>
-                <div class="col-6 pl-1">
-                    <button type="submit" id="accept-all" name="accept-all" class="btn btn-block btn-primary submit-consent">
+                <div class="col-6">
+                    <button type="submit" id="accept-all" name="accept-all" class="btn btn-block rounded-pill btn-primary submit-consent">
                         @T("CookieManager.Dialog.Button.AcceptAll")
                     </button>
                 </div>
             </div>
         </div>
-    </modal-footer>
+    </modal-body>
 </modal>
 
 @*INFO: (mh) (core) No sm-target-zone here, because this partials is loaded via AJAX*@
