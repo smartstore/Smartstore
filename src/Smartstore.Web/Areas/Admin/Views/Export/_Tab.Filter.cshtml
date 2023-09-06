@@ -312,6 +312,15 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="Filter.IsPublished" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IsPublished" />
+            <span asp-validation-for="Filter.IsPublished"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="Filter.CreatedFrom" />
         </div>
         <div class="adminData">
@@ -413,6 +422,15 @@
         <div class="adminData">
             <editor asp-for="Filter.StoreId" />
             <span asp-validation-for="Filter.StoreId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.IsPublished" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IsPublished" />
+            <span asp-validation-for="Filter.IsPublished"></span>
         </div>
     </div>
     <div class="adminRow">
