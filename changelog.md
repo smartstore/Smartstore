@@ -60,7 +60,8 @@
 - Stripe: Fixed incorrect system name in several places.
 - Gift cards were not generated according to the order item quantity during order processing.
 - Fixed incorrect cart validation if minimum cart quantity and quantity step were configured for a product.
-- #810 Doubleclicking login button can lead to 400 BadRequest error page. 
+- #810 Doubleclicking login button can lead to 400 BadRequest error page.
+- Fixed arithmetic overflow SqlException in `ShippingByWeight` and `ShippingByTotal` four decimal places migrations.
 
 
 ## Smartstore 5.0.5
