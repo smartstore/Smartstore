@@ -17,12 +17,6 @@
 
 <zone name="search_filters_before" />
 
-<script>
-    function stopIt(e) {
-        e.stopPropagation();
-    }
-</script>
-
 <div class="faceted-search-container">
     <div class="faceted-search" id="faceted-search">
 
@@ -31,7 +25,7 @@
                 Sortieren nach
             </a>
             <div class="facet-body" aria-expanded="true">
-                <div class="facet-body-inner offcanvas-hstack hstack flex-nowrap overflow-x-auto gap-1 small" onmousedown="stopIt">
+                <div class="facet-body-inner offcanvas-hstack hstack flex-nowrap overflow-x-auto gap-1 small">
                     <a href="#" class="badge badge-light badge-pill badge-lg fwm">Empfehlung</a>
                     <a href="#" class="badge badge-light badge-pill badge-lg fwn">Name: A bis Z</a>
                     <a href="#" class="badge badge-light badge-pill badge-lg fwn">Name: Z bis A</a>

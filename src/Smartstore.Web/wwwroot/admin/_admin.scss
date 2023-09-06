@@ -916,7 +916,7 @@ legend {
         padding: 0.4rem;
         border-bottom: 1px solid $border-color;
         background-color: $gray-100;
-        @include border-left-radius(var(--border-radius-md));
+        @include border-top-radius(var(--border-radius-md));
         flex-wrap: nowrap;
         overflow-x: auto;
 

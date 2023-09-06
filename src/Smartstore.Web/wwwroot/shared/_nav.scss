@@ -91,10 +91,11 @@
     --nav-tabs-link-active-bg: transparent;
 
     --nav-underline-width: 2px;
-    --nav-underline-color: #{rgba(#000, 0.2)};
+    --nav-underline-color: #{rgba($black, 0.2)};
     --nav-underline-active-color: #{theme-color("warning")};
 
 	position: relative;
+    border-bottom-width: 1px;
 
 	.nav-item {
 		position: relative;
@@ -129,6 +130,8 @@
 	}
 
     &.nav-tabs-line-dense {
+        border-block-width: 0;
+
         &:not(.nav-stacked) {
             --nav-link-padding-x: 0;
             --nav-link-padding-y: 0.825rem;
@@ -364,8 +367,7 @@
 
     .nav-toggler {
         display: none;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        padding-inline: 0 !important;
 
         &:after {
             inset-inline-end: 0.5rem !important;
@@ -383,8 +385,7 @@
         }
 
         .nav-collapse {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
+            padding-inline: 0 !important;
         }
     }
 

@@ -99,6 +99,10 @@
 @include media-breakpoint-down(sm) {
     .footer-main-wrapper {
         padding-top: 0;
+
+        .nav-collapsible {
+            border-color: var(--footer-line-color);
+        }
     }
 
     .footer-main, 
@@ -111,11 +115,6 @@
 
     .footer-bottom {
         padding-inline: 1rem !important;
-    }
-
-    .nav-collapsible {
-        border-block: 1px solid var(--footer-line-color);
-        margin-top: -1px;
     }
 
     .footer-main .footer-title {

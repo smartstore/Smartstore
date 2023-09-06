@@ -1169,9 +1169,8 @@ $modal-backdrop-opacity:            .5 !default;
 
 $modal-header-border-color:         var(--#{$prefix}border-color) !default;
 $modal-header-border-width:         $modal-content-border-width !default;
-$modal-header-padding-y:            $modal-inner-padding !default;
-$modal-header-padding-x:            $modal-inner-padding !default;
-$modal-header-padding:              $modal-header-padding-y $modal-header-padding-x !default; // Keep this for backwards compatibility
+$modal-header-padding-y:            var(--#{$prefix}modal-padding) !default;
+$modal-header-padding-x:            var(--#{$prefix}modal-padding) !default;
 
 $modal-footer-bg:                   null !default;
 $modal-footer-border-color:         $modal-header-border-color !default;

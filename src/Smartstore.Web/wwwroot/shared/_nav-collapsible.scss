@@ -10,6 +10,8 @@
         --nav-collapsible-padding-x: 1rem;
 
         position: relative;
+        border-block: 1px solid var(--light-border-subtle);
+        margin-top: -1px;
 
         .nav-toggler {
             position: relative;

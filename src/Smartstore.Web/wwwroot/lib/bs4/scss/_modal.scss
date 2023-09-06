@@ -31,7 +31,6 @@
   --#{$prefix}modal-inner-border-radius: #{$modal-content-inner-border-radius};
   --#{$prefix}modal-header-padding-x: #{$modal-header-padding-x};
   --#{$prefix}modal-header-padding-y: #{$modal-header-padding-y};
-  --#{$prefix}modal-header-padding: #{$modal-header-padding}; // Todo in v6: Split this padding into x and y
   --#{$prefix}modal-header-border-color: #{$modal-header-border-color};
   --#{$prefix}modal-header-border-width: #{$modal-header-border-width};
   --#{$prefix}modal-title-line-height: #{$modal-title-line-height};
@@ -144,7 +143,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: space-between; // Put modal header elements (title and dismiss) on opposite ends
-  padding: var(--#{$prefix}modal-header-padding);
+  padding: var(--#{$prefix}modal-header-padding-y) var(--#{$prefix}modal-header-padding-x);
   border-bottom: var(--#{$prefix}modal-header-border-width) solid var(--#{$prefix}modal-header-border-color);
   @include border-top-radius(var(--#{$prefix}modal-inner-border-radius));
 
