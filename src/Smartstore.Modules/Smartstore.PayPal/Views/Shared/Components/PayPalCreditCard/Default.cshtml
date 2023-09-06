@@ -10,7 +10,8 @@
 }
 
 <!-- Set up a container element for the paypal button -->
-<div id="paypal-creditcard-hosted-fields-container" 
+<div id="paypal-creditcard-hosted-fields-container"
+     data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
      data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
      data-get-country-code-url="@Url.Action("GetCountryCodeById", "PayPal")"
      data-forward-url="@Url.Action("Confirm", "Checkout")"
