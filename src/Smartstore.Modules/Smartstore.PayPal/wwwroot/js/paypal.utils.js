@@ -169,8 +169,10 @@
                     displayNotification(err, 'error');
                 }
             }).then((cardFields) => {
-                $(".payment-method-next-step-button").on("click", function (e) {
+                $("#nextstep").on("click", function (e) {
+
                     var selectedPaymentSystemName = $("input[name='paymentmethod']:checked").val();
+
                     if (selectedPaymentSystemName != "Payments.PayPalCreditCard") {
                         return true;
                     }
@@ -180,8 +182,14 @@
                         || !cardFields._state.fields.expirationDate.isValid) {
                         e.preventDefault();
 
+                        console.log("CVV is valid" + cardFields._state.fields.cvv.isValid);
+                        console.log("Number is valid" + cardFields._state.fields.number.isValid);
+                        console.log("Expiration date is valid" + cardFields._state.fields.expirationDate.isValid);
+
                         var err = self.hostedFieldsContainer.data("creditcard-error-message");
                         displayNotification(err, 'error');
+
+                        $.scrollTo($(".payment-method-item.active"), 400);
 
                         return false;
                     }
@@ -226,8 +234,10 @@
                                 },
                             })
                             .catch((err) => {
+                                e.preventDefault();
                                 console.log(err);
                                 displayNotification(err.message, 'error');
+                                return false;
                             });
 
                         console.log("Redirecting now");
