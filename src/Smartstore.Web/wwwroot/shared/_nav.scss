@@ -27,6 +27,13 @@
         height: calc(100% + 1px);
         // Spacer for icons
         column-gap: 0.5em;
+
+        &.dropdown-toggle:after {
+            // Quick fix for chevron position
+            position: relative;
+            top: 2px;
+            margin-inline-start: 0;
+        }
     }
 
 	.nav-link > img,
