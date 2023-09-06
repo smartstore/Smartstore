@@ -420,6 +420,47 @@ namespace Smartstore.Core.Catalog.Categories
             return path;
         }
 
+        public async static Task<int> RebuidTreePathsAsync(SmartDbContext context, CancellationToken cancelToken = default)
+        {
+            var numAffected = 0;
+            var folders = await context.MediaFolders
+                .Include(x => x.Children)
+                .Where(x => x.ParentId == null)
+                .ToListAsync(cancelToken);
+
+            foreach (var folder in folders)
+            {
+                BuildTreePath(folder);
+            }
+            numAffected = await context.SaveChangesAsync(cancelToken);
+
+            var categories = await context.Categories
+                .Include(x => x.Children)
+                .Where(x => x.ParentId == null)
+                .ToListAsync(cancelToken);
+
+            foreach (var category in categories)
+            {
+                BuildTreePath(category);
+            }
+            numAffected += await context.SaveChangesAsync(cancelToken);
+
+            return numAffected;
+
+            static void BuildTreePath(ITreeNode node)
+            {
+                node.TreePath = node.BuildTreePath();
+                var childNodes = node.GetChildNodes();
+                if (!childNodes.IsNullOrEmpty())
+                {
+                    foreach (var childNode in childNodes)
+                    {
+                        BuildTreePath(childNode);
+                    }
+                }
+            }
+        }
+
         public async Task<TreeNode<ICategoryNode>> GetCategoryTreeAsync(int rootCategoryId = 0, bool includeHidden = false, int storeId = 0)
         {
             var rolesIds = _workContext.CurrentCustomer.GetRoleIds();

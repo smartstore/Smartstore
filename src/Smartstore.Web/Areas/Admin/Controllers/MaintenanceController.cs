@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Admin.Models.Maintenance;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Configuration;
@@ -26,6 +27,7 @@ using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.IO;
 using Smartstore.Scheduling;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 
@@ -53,6 +55,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<UpdateChecker> _updateChecker;
         private readonly MeasureSettings _measureSettings;
         private readonly IHostApplicationLifetime _appLifetime;
+        private readonly AsyncRunner _asyncRunner;
 
         public MaintenanceController(
             SmartDbContext db,
@@ -72,7 +75,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IImportProfileService> importProfileService,
             Lazy<UpdateChecker> updateChecker,
             MeasureSettings measureSettings,
-            IHostApplicationLifetime appLifetime)
+            IHostApplicationLifetime appLifetime,
+            AsyncRunner asyncRunner)
         {
             _db = db;
             _memCache = memCache;
@@ -92,6 +96,7 @@ namespace Smartstore.Admin.Controllers
             _updateChecker = updateChecker;
             _measureSettings = measureSettings;
             _appLifetime = appLifetime;
+            _asyncRunner = asyncRunner;
         }
 
         #region Maintenance
@@ -227,6 +232,13 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Content(message);
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> RebuildTreePaths()
+        {
+            var numAffected = await CategoryService.RebuidTreePathsAsync(_db, _asyncRunner.AppShutdownCancellationToken);
+            return Content($"Generated {numAffected} TreePath epressions.");
         }
 
         #endregion

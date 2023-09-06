@@ -41,42 +41,9 @@ namespace Smartstore.Core.Data.Migrations
 
         public bool RollbackOnFailure => false;
 
-        public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
+        public Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            var folders = await context.MediaFolders
-                .Include(x => x.Children)
-                .Where(x => x.ParentId == null)
-                .ToListAsync(cancelToken);
-
-            foreach (var folder in folders)
-            {
-                BuildTreePath(folder);
-            }
-            await context.SaveChangesAsync(cancelToken);
-
-            var categories = await context.Categories
-                .Include(x => x.Children)
-                .Where(x => x.ParentId == null)
-                .ToListAsync(cancelToken);
-
-            foreach (var category in categories)
-            {
-                BuildTreePath(category);
-            }
-            await context.SaveChangesAsync(cancelToken);
-
-            static void BuildTreePath(ITreeNode node)
-            {
-                node.TreePath = node.BuildTreePath();
-                var childNodes = node.GetChildNodes();
-                if (!childNodes.IsNullOrEmpty())
-                {
-                    foreach (var childNode in childNodes)
-                    {
-                        BuildTreePath(childNode);
-                    }
-                }
-            }
+            return CategoryService.RebuidTreePathsAsync(context, cancelToken);
         }
 
         private void FixInvalidParentCategoryIds()
