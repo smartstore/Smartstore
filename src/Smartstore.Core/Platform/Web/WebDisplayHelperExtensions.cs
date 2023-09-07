@@ -10,42 +10,14 @@ namespace Smartstore
     {
         #region URL
 
-        /// <summary>
-        /// Modifies a URL (appends/updates a query string part and optionally removes another query string).
-        /// </summary>
-        /// <param name="url">The URL to modifiy. If <c>null</c>, the current page's URL is resolved.</param>
-        /// <param name="query">The new query string part (e.g. "page=10").</param>
-        /// <param name="removeQueryName">A query string name to remove.</param>
-        /// <returns>The modified URL.</returns>
-        public static string? ModifyUrl(this IDisplayHelper displayHelper, string? url, string? query, string? removeQueryName = null)
+        /// <inheritdoc cref="IWebHelper.ModifyQueryString(string?, string?, string?, string?)" />
+        public static string ModifyQueryString(this IDisplayHelper displayHelper, 
+            string? url, 
+            string? queryModification, 
+            string? removeParamName = null,
+            string? anchor = null)
         {
-            var webHelper = displayHelper.Resolve<IWebHelper>();
-            if (webHelper == null)
-            {
-                return url;
-            }
-
-            url = url.NullEmpty() ?? displayHelper.HttpContext.Request.RawUrl();
-            var url2 = webHelper.ModifyQueryString(url, query, null);
-
-            if (removeQueryName.HasValue())
-            {
-                url2 = webHelper.RemoveQueryParam(url2, removeQueryName);
-            }
-
-            return url2;
-        }
-
-        /// <summary>
-        /// Modifies query string
-        /// </summary>
-        /// <param name="url">Url to modify</param>
-        /// <param name="query">Query string modification</param>
-        /// <returns>New url</returns>
-        [Obsolete("Use the ModifyUrl() helper method instead.")]
-        public static string ModifyQueryString(this IDisplayHelper displayHelper, string url, string query, string? removeQueryName = null)
-        {
-            return displayHelper.Resolve<IWebHelper>().ModifyQueryString(url, query, removeQueryName);
+            return displayHelper.Resolve<IWebHelper>().ModifyQueryString(url, queryModification, removeParamName, anchor);
         }
 
         public static string? GenerateHelpUrl(this IDisplayHelper displayHelper, HelpTopic topic)

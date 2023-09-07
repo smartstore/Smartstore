@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿#nullable enable
+
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 
@@ -6,13 +8,13 @@ namespace Smartstore.Core.Web
 {
     public partial interface IWebHelper
     {
-        HttpContext HttpContext { get; }
+        HttpContext? HttpContext { get; }
 
         /// <summary>
         /// Gets URL referrer or <c>null</c> if Uri parsing fails.
         /// </summary>
         /// <returns>URL referrer</returns>
-        Uri GetUrlReferrer();
+        Uri? GetUrlReferrer();
 
         /// <summary>
         /// Gets a unique client identifier
@@ -22,7 +24,7 @@ namespace Smartstore.Core.Web
         /// The client identifier is a hashed combination of client ip address and user agent.
         /// This method returns <c>null</c> if IP or user agent (or both) cannot be determined.
         /// </remarks>
-        string GetClientIdent();
+        string? GetClientIdent();
 
         /// <summary>
         /// Gets client IP address.
@@ -79,28 +81,29 @@ namespace Smartstore.Core.Web
 
 
         /// <summary>
-        /// Modifies query string
+        /// Modifies a URL by merging a query string part and optionally removing a query parameter.
         /// </summary>
-        /// <param name="url">Url to modify</param>
-        /// <param name="queryStringModification">Query string modification, e.g. "param=value&amp;param2=value2"</param>
-        /// <param name="anchor">Add anchor part. Pass without hash char.</param>
+        /// <param name="url">URL to modify. Can be relative or absolute. May contain the query part. If <c>null</c>, the current page's URL is resolved (PathBase + Path + Query).</param>
+        /// <param name="queryModification">The new query string part (e.g. "page=10") to merge. Leading <c>?</c> char is optional.</param>
+        /// <param name="removeParamName">The name of a query param to remove.</param>
+        /// <param name="anchor">Optional anchor part to append. Pass without leading hash char.</param>
         /// <returns>Modified url</returns>
-        string ModifyQueryString(string url, string queryStringModification, string anchor = null);
+        string ModifyQueryString(string? url, string? queryModification, string? removeParamName = null, string? anchor = null);
 
         /// <summary>
         /// Remove query string from url
         /// </summary>
-        /// <param name="url">Url to modify</param>
+        /// <param name="uri">Url to modify</param>
         /// <param name="queryParam">Query param to remove</param>
         /// <returns>New url</returns>
-        string RemoveQueryParam(string url, string queryParam);
+        [Obsolete("Call 'ModifyQueryString()' and pass 'removeParamName' parameter.")]
+        string RemoveQueryParam(string? uri, string? queryParam);
 
         /// <summary>
         /// Gets query string value by name
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="name">Parameter name</param>
         /// <returns>Query string value</returns>
-        T QueryString<T>(string name);
+        T? QueryString<T>(string name);
     }
 }

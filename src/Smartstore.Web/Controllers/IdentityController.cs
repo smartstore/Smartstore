@@ -773,7 +773,7 @@ namespace Smartstore.Web.Controllers
                     var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
                     if (returnUrl.HasValue())
                     {
-                        redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnUrl=" + returnUrl.UrlEncode(), null);
+                        redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnUrl=" + returnUrl.UrlEncode());
                     }
 
                     return Redirect(redirectUrl);

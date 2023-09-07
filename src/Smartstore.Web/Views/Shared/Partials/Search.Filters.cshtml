@@ -24,7 +24,7 @@
     <div class="faceted-search" id="faceted-search">
 
         @* Sorting *@
-        <div sm-if="Model.AllowSorting" class="facet-group d-lg-none">
+        <div sm-if="Model.AllowSorting" class="facet-group d-lg-none" data-key="orderby">
             <a class="facet-group-header">
                 <span>@T("Categories.OrderBy")</span>
             </a>
@@ -34,12 +34,12 @@
                     {
                         var sortName = (sort.Key == (int)ProductSortingEnum.Relevance ? Model.RelevanceSortOrderName : null) ?? sort.Value;
                         var isSelected = sort.Key == Model.CurrentSortOrder;
-                        var className = $"badge badge-pill badge-lg fw" + (isSelected ? "m order-0 badge-info badge-subtle" : "n order-1 badge-light");
+                        var className = $"badge badge-pill badge-lg badge-orderby fw" + (isSelected ? "m order-0 badge-info badge-subtle selected" : "n order-1 badge-light");
                         var url = sort.Key > 0
                             // Add/update query
-                            ? Display.ModifyUrl(null, $"o={sort.Key}")
+                            ? Display.ModifyQueryString(null, $"?o={sort.Key}")
                             // Remove query
-                            : Display.ModifyUrl(null, null, "o");
+                            : Display.ModifyQueryString(null, null, removeParamName: "o");
                         
                         if (isSelected)
                         {

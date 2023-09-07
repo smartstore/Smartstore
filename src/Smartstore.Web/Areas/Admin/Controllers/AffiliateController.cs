@@ -24,7 +24,7 @@ namespace Smartstore.Admin.Controllers
             if (affiliate != null)
             {
                 model.Id = affiliate.Id;
-                model.Url = Services.WebHelper.ModifyQueryString(Services.WebHelper.GetStoreLocation(), "affiliateid=" + affiliate.Id, null);
+                model.Url = Services.WebHelper.ModifyQueryString(Services.WebHelper.GetStoreLocation(), "affiliateid=" + affiliate.Id);
 
                 if (!excludeProperties)
                 {

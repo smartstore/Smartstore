@@ -49,13 +49,13 @@
 
 <div sm-if="Model.AvailablePageSizes != null && Model.AvailablePageSizes.Any()" class="artlist-action--pagesize">
     <div class="dropdown">
-        <button class="btn btn-secondary btn-sm dropdown-toggle fwn" data-toggle="dropdown">
+        <button class="btn btn-secondary dropdown-toggle fwn" data-toggle="dropdown">
             @Html.Raw(T("Pager.XPerPage", $"<span class='fwm'>{pageable.PageSize}</span>"))
         </button>
         <div class="dropdown-menu">
             @foreach (var size in Model.AvailablePageSizes)
             {
-                <a href="@Display.ModifyUrl(null, $"s={size}", "i")" class="dropdown-item">@size</a>
+                <a href="@Display.ModifyQueryString(null, $"?s={size}", removeParamName: "i")" class="dropdown-item">@size</a>
             }
         </div>
     </div>
@@ -68,7 +68,7 @@
                 name="artlist-action-pagesize"
                 id="artlist-action-pagesize"
                 data-qname="s"
-                data-url='@Display.ModifyUrl(null, null, "i")'
+                data-url='@Display.ModifyQueryString(null, null, removeParamName: "i")'
                 title="@T("Pager.XPerPage", pageable.PageSize)">
             @foreach (var size in Model.AvailablePageSizes)
             {

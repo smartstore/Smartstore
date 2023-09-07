@@ -11,7 +11,7 @@
     var returnUrl = Context.Request.Query["returnUrl"].ToString();
     if (returnUrl.HasValue())
     {
-        registerUrl = Display.ModifyUrl(registerUrl, "returnUrl=" + returnUrl.UrlEncode());
+        registerUrl = Display.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.UrlEncode());
     }
 
     var currentUser = WorkContext.CurrentCustomer;

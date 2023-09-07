@@ -77,7 +77,7 @@ namespace Smartstore.Core.DataExchange.Import
                 if (urlOrPath.IsWebUrl())
                 {
                     // We append quality to avoid importing of image duplicates.
-                    item.Url = _webHelper.ModifyQueryString(urlOrPath, "q=100", null);
+                    item.Url = _webHelper.ModifyQueryString(urlOrPath, "q=100");
 
                     if (_downloadUrls.ContainsKey(urlOrPath))
                     {

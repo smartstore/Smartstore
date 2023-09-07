@@ -5,7 +5,7 @@
 @{
     var isGrid = Model.ViewMode == ProductSummaryViewMode.Grid;
     var title = isGrid ? T("Products.SwitchToList") : T("Products.SwitchToGrid");
-    var url = isGrid ? Display.ModifyUrl(null, "v=list") : Display.ModifyUrl(null, "v=grid");
+    var url = isGrid ? Display.ModifyQueryString(null, "?v=list") : Display.ModifyQueryString(null, "?v=grid");
     var icon = isGrid ? "list" : "th";
 }
 

@@ -278,7 +278,9 @@ namespace Smartstore.Core.Web
 
         public virtual T QueryString<T>(string name)
         {
-            var queryParam = HttpContext?.Request?.Query["name"] ?? StringValues.Empty;
+            Guard.NotEmpty(name, nameof(name));
+            
+            var queryParam = HttpContext?.Request?.Query[name] ?? StringValues.Empty;
 
             if (!StringValues.IsNullOrEmpty(queryParam))
             {
@@ -288,16 +290,20 @@ namespace Smartstore.Core.Web
             return default;
         }
 
-        public string ModifyQueryString(string url, string queryStringModification, string anchor = null)
+        public string ModifyQueryString2(string url, string queryModification, string removeParamName = null, string anchor = null)
         {
             if (string.IsNullOrEmpty(url))
+            {
                 return string.Empty;
+            }   
 
-            if (string.IsNullOrEmpty(queryStringModification) && string.IsNullOrEmpty(anchor))
+            if (string.IsNullOrEmpty(queryModification) && string.IsNullOrEmpty(anchor))
+            {
                 return url;
+            }
 
             url = url.EmptyNull();
-            queryStringModification = queryStringModification.EmptyNull();
+            queryModification = queryModification.EmptyNull();
 
             string curAnchor = null;
 
@@ -310,7 +316,7 @@ namespace Smartstore.Core.Web
 
             var parts = url.Split(new[] { '?' });
             var current = new MutableQueryCollection(parts.Length == 2 ? parts[1] : string.Empty);
-            var modify = new MutableQueryCollection(queryStringModification.EnsureStartsWith('?'));
+            var modify = new MutableQueryCollection(queryModification.EnsureStartsWith('?'));
 
             foreach (var nv in modify.Keys)
             {
@@ -320,19 +326,91 @@ namespace Smartstore.Core.Web
             var result = string.Concat(
                 parts[0],
                 current.ToString(),
-                anchor.NullEmpty() == null ? (curAnchor == null ? "" : "#" + curAnchor) : "#" + anchor
+                anchor.NullEmpty() == null ? (curAnchor == null ? string.Empty : "#" + curAnchor) : "#" + anchor
             );
 
             return result;
         }
 
+        public string ModifyQueryString(string url, string queryModification, string removeParamName = null, string anchor = null)
+        {
+            var request = HttpContext?.Request;
+
+            string baseUri;
+            QueryString currentQuery;
+            string currentAnchor;
+
+            if (url == null)
+            {
+                if (request == null)
+                {
+                    // Cannot resolve
+                    return string.Empty;
+                }
+
+                baseUri = request.PathBase + request.Path;
+                currentQuery = request.QueryString;
+                currentAnchor = anchor;
+            }
+            else
+            {
+                TokenizeUrl(url, out baseUri, out currentQuery, out currentAnchor);
+                currentAnchor ??= anchor;
+            }
+
+            if (queryModification != null || removeParamName != null)
+            {
+                var modified = new MutableQueryCollection(currentQuery);
+
+                if (!string.IsNullOrEmpty(removeParamName))
+                {
+                    modified.Remove(removeParamName);
+                }
+
+                currentQuery = modified.Merge(queryModification);
+            }
+
+            var result = string.Concat(
+                baseUri.AsSpan(),
+                currentQuery.ToUriComponent().AsSpan(),
+                currentAnchor.LeftPad(pad: '#').AsSpan()
+            );
+
+            return result;
+        }
+
+        private static void TokenizeUrl(string url, out string baseUri, out QueryString query, out string anchor)
+        {
+            baseUri = url;
+            query = Microsoft.AspNetCore.Http.QueryString.Empty;
+            anchor = null;
+
+            var anchorIndex = url.LastIndexOf('#');
+            if (anchorIndex >= 0)
+            {
+                baseUri = url[..anchorIndex];
+                anchor = url[anchorIndex..];
+            }
+
+            var queryIndex = baseUri.IndexOf('?');
+            if (queryIndex >= 0)
+            {
+                query = new QueryString(baseUri[queryIndex..]);
+                baseUri = baseUri[..queryIndex];
+            }
+        }
+
         public string RemoveQueryParam(string url, string queryParam)
         {
             if (string.IsNullOrEmpty(url))
+            {
                 return string.Empty;
+            }  
 
             if (string.IsNullOrEmpty(queryParam))
+            {
                 return url;
+            }  
 
             var parts = url.SplitSafe('?').ToArray();
 
@@ -350,7 +428,7 @@ namespace Smartstore.Core.Web
 
         public virtual string GetHttpHeader(string name)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             var values = StringValues.Empty;
             if (HttpContext?.Request?.Headers?.TryGetValue(name, out values) == true)
