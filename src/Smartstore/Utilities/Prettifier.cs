@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Xml;
 using Humanizer;
 using Newtonsoft.Json.Linq;
@@ -21,6 +22,13 @@ namespace Smartstore.Utilities
             }
 
             return bytes.Bytes().Humanize(format);
+        }
+
+        public static string HumanizeTimeSpan(TimeSpan timeSpan, CultureInfo culture = null)
+        {
+            Guard.NotNull(timeSpan);
+
+            return timeSpan.Humanize(timeSpan.TotalMinutes < 1 ? 1 : 2, culture ?? CultureInfo.InvariantCulture);
         }
 
         public static string PrettifyXML(string xml)

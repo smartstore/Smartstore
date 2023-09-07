@@ -1,9 +1,4 @@
-/// <reference path="_variables.scss" />
-/// <reference path="../shared/_variables-shared.scss" />
-/// <reference path="../shared/_mixins.scss" />
-/// <reference path="../lib/bs4/scss/_functions.scss" />
-/// <reference path="../lib/bs4/scss/_variables.scss" />
-/// <reference path="../lib/bs4/scss/_mixins.scss" />
+/// <reference path="references.scss" />
 
 // RTL support (right to left)
 // --------------------------------------------------
@@ -32,20 +27,7 @@
             padding-left: 0;
         }
     }
-    // Main Menu
-    // ---------
-    #navbar #navbar-menu .nav-item > .dropdown-menu {
-        // Dropdown bubble
-        &:before {
-            right: 10px;
-            left: auto;
-        }
 
-        &:after {
-            right: 11px;
-            left: auto;
-        }
-    }
     // Forms
     // -----
     .ctl-label {
@@ -102,23 +84,6 @@
     //
     // Navs
     // -------------
-
-    .nav .nav-link > img + span,
-    .nav .nav-link > i + span,
-    .nav .nav-link > .bi + span {
-        padding-left: 0 !important;
-        padding-right: 0.5rem !important;
-    }
-
-    .locale-editor .nav-locales > .nav .nav-item-master {
-        padding-right: 0;
-        padding-left: 6px;
-
-        > .nav-link:after {
-            right: auto;
-            left: 2px;
-        }
-    }
 
     .locale-editor-content[data-rtl="false"] {
         input,

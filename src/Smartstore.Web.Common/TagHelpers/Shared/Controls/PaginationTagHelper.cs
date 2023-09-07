@@ -384,7 +384,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 [QueryParamName.NullEmpty() ?? "page"] = pageNumber
             };
-
+            
             var query = ActionContextAccessor.ActionContext.HttpContext.Request.Query;
             if (query != null && query.Count > 0)
             {

@@ -1,9 +1,6 @@
-// stylelint-disable declaration-no-important
-
-// Common values
-@each $position in $positions {
-  .position-#{$position} { position: $position !important; }
-}
+/// <reference path="../_variables.scss" />
+/// <reference path="../_functions.scss" />
+/// <reference path="../_mixins.scss" />
 
 // Shorthand
 
@@ -23,10 +20,21 @@
   z-index: $zindex-fixed;
 }
 
-.sticky-top {
-  @supports (position: sticky) {
-    position: sticky;
-    top: 0;
-    z-index: $zindex-sticky;
+// Responsive sticky top and bottom
+@each $breakpoint in map-keys($grid-breakpoints) {
+  @include media-breakpoint-up($breakpoint) {
+    $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+    .sticky#{$infix}-top {
+      position: sticky;
+      top: 0;
+      z-index: $zindex-sticky;
+    }
+
+    .sticky#{$infix}-bottom {
+      position: sticky;
+      bottom: 0;
+      z-index: $zindex-sticky;
+    }
   }
 }

@@ -1,6 +1,4 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+/// <reference path="references.scss" />
 
 $default-state-color: $gray-400;
 
@@ -29,7 +27,7 @@ $default-state-color: $gray-400;
 
 .tree-node-content {
     display: inherit;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
     padding: 3px 6px;
 }
 
@@ -235,7 +233,7 @@ $default-state-color: $gray-400;
 .tree-over-indicator {
     content: '';
     border: 1px solid $success;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
 }
 
 

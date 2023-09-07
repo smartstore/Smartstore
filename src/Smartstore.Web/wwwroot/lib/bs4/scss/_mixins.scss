@@ -18,11 +18,13 @@
 @import "mixins/size";
 @import "mixins/reset-text";
 @import "mixins/text-emphasis";
-@import "mixins/text-hide";
+//@import "mixins/text-hide"; // Deprecated
 @import "mixins/text-truncate";
 @import "mixins/visibility";
+@import "mixins/utilities";
 
 // Components
+@import "mixins/backdrop";
 @import "mixins/alert";
 @import "mixins/buttons";
 @import "mixins/caret";

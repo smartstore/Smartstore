@@ -68,7 +68,7 @@ namespace Smartstore.Web.Components
             model.MenuItems.Add(new MenuItem().ToBuilder()
                 .Route("Logout")
                 .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })
-                .Icon("fal fa-sign-out-alt fa-fw")
+                .Icon("fal fa-right-from-bracket fa-fw")
                 .Text(T("Account.Logout"))
                 .AsItem());
 

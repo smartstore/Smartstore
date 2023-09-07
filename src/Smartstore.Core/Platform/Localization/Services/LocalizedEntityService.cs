@@ -140,7 +140,12 @@ namespace Smartstore.Core.Localization
             return false;
         }
 
-        public virtual async Task PrefetchLocalizedPropertiesAsync(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false)
+        public virtual async Task PrefetchLocalizedPropertiesAsync(
+            string localeKeyGroup, 
+            int languageId,
+            int[] entityIds,
+            bool isRange = false, 
+            bool isSorted = false)
         {
             if (languageId == 0)
                 return;
@@ -157,7 +162,11 @@ namespace Smartstore.Core.Localization
             }
         }
 
-        public virtual Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(string localeKeyGroup, int[] entityIds, bool isRange = false, bool isSorted = false)
+        public virtual Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(
+            string localeKeyGroup, 
+            int[] entityIds, 
+            bool isRange = false, 
+            bool isSorted = false)
         {
             return GetLocalizedPropertyCollectionInternal(localeKeyGroup, 0, entityIds, isRange, isSorted);
         }

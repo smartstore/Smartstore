@@ -15,7 +15,7 @@ namespace Smartstore.Web.Infrastructure
             -----------------------------------------------------*/
             bundles.Add(new ScriptBundle("/bundle/js/jquery.js").Include(
                 lib + "modernizr/modernizr.js",
-                lib + "jquery/jquery-3.6.0.js"));
+                lib + "jquery/jquery-3.7.1.js"));
 
             if (!appContext.IsInstalled)
             {

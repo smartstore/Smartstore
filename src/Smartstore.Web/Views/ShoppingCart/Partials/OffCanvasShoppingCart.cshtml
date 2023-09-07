@@ -31,9 +31,7 @@
         var currentItem = Model.Items.FirstOrDefault(x => x.CreatedOnUtc >= DateTime.UtcNow.AddSeconds(-2));
 
         <div sm-if="currentItem != null" class="alert alert-success alert-dismissible rounded-0 fade show" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
             <span sm-language-attributes-for="currentItem.ProductName">
                 @Html.Raw(T("ShoppingCart.Mini.AddedItemToCart", $"<strong>{currentItem.ProductName.Value.Truncate(50, "...")}</strong>"))
             </span>
@@ -46,13 +44,13 @@
                     <div class="row sm-gutters">
 
                         <div sm-if="Model.ShowProductImages" class="col col-alpha">                            
-                                <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
-                                    <img sm-model="item.Image" />
-                                </a>                            
+                            <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
+                                <img sm-model="item.Image" />
+                            </a>                            
                         </div>
 
                         <div class="col col-data">
-                            <a class="name font-weight-medium" href="@item.ProductUrl" title="@item.ProductName" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                            <a class="name fwm link-body link-dnu" href="@item.ProductUrl" title="@item.ProductName" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
 
                             <div class="short-desc text-muted" sm-language-attributes-for="item.ShortDesc">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
@@ -103,7 +101,7 @@
                             }
                         </div>
 
-                        <div class="ml-auto text-nowrap">
+                        <div class="col-auto text-nowrap">
                             @if (Model.DisplayMoveToWishlistButton)
                             {
                                 <a class="btn btn-secondary btn-sm btn-icon ajax-cart-link" title="@T("ShoppingCart.MoveToWishlist")"
@@ -124,7 +122,7 @@
                                data-name="@item.ProductName"
                                data-type="cart"
                                data-action="remove">
-                                <i class="fal fa-trash-alt"></i>
+                                <i class="fal fa-trash-can"></i>
                             </a>
                         </div>
                     </div>
@@ -148,7 +146,7 @@
                 </div>
             </div>
         </div>
-        <div class="offcanvas-cart-footer-col row sm-gutters d-flex flex-wrap">
+        <div class="offcanvas-cart-footer-col row gy-1 gx-2 flex-wrap">
             @if (Model.DisplayCheckoutButton)
             {
                 <div class="col">

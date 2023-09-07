@@ -1,77 +1,22 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
-/// <reference path="../lib/bs4/scss/vendor/_rfs.scss" />
-
-
-
-// Returns a CSS clamp function which resolves to $min-view-width 
-// when page width is below $min-size, $size-at-max-width when 
-// page width is above $max-size, and linearly scales between the 
-// two between $min-width and $max-size
-// --------------------------------------------------------------
-
-@function clamp-calc($min-width, $max-width, $size-at-min-width, $size-at-max-width) {
-    $slope: ($size-at-max-width - $size-at-min-width) / ($max-width - $min-width);
-    $y-axis-intersection: -1 * $min-width * $slope + $size-at-min-width;
-    $return-value: clamp(#{$size-at-min-width}, #{$y-axis-intersection} + #{$slope} * 100vw, #{$size-at-max-width});
-    @return $return-value;
-}
+/// <reference path="references.scss" />
 
 
 // Font Sizes
 // ==============================================================
 
-@if ($enable-rfs) {
-    // Overwrite original sizes only if RFS is enabled to reduce class cluttering
-    h1, .h1 {
-        @include font-size($h1-font-size);
-        //font-size: clamp-calc(1rem, 75rem, 1.25rem, $h1-font-size);
-    }
-
-    h2, .h2 {
-        @include font-size($h2-font-size);
-        //font-size: clamp-calc(1rem, 75rem, 1.25rem, $h2-font-size);
-    }
-
-    h3, .h3 {
-        @include font-size($h3-font-size);
-    }
-
-    h4, .h4 {
-        @include font-size($h4-font-size);
-    }
-
-    .display-1 {
-        @include font-size($display1-size);
-    }
-
-    .display-2 {
-        @include font-size($display2-size);
-    }
-
-    .display-3 {
-        @include font-size($display3-size);
-    }
-
-    .display-4 {
-        @include font-size($display4-size);
+@each $index, $size in $font-sizes {
+    .fs-h#{$index} {
+         @extend .fs-#{$index};
     }
 }
 
-.fs-h1          { @include font-size($h1-font-size !important); }
-.fs-h2          { @include font-size($h2-font-size !important); }
-.fs-h3          { @include font-size($h3-font-size !important); }
-.fs-h4          { @include font-size($h4-font-size !important); }
-.fs-h5          { font-size: $h5-font-size !important; }
-.fs-h6          { font-size: $h6-font-size !important; }
+@each $index, $size in $display-font-sizes {
+    .fs-display-#{$index} {
+         @include font-size($size !important);
+    }
+}
 
-.fs-display-1   { @include font-size($display1-size !important); }
-.fs-display-2   { @include font-size($display2-size !important); }
-.fs-display-3   { @include font-size($display3-size !important); }
-.fs-display-4   { @include font-size($display4-size !important); }
-
-.fs-lead        { font-size: $lead-font-size; }
+.fs-lead        { @include font-size($lead-font-size); }
 
 .fs-sm, 
 .fs-sm a        { font-size: $font-size-sm !important; }
@@ -96,6 +41,7 @@
     } 
 }
 
+
 // Font weight Helpers
 // ======================================
 
@@ -108,18 +54,19 @@ h6, .h6 {
 }
 
 @each $weight, $var in (unset, 100, 200, 300, 400, 500, 600, 700, 800, 900) {
-    .font-weight-#{$weight} {
+    .font-weight-#{$weight},
+    .fw-#{$weight} {
         font-weight: $weight !important;
     }
 }
 
 .font-weight-medium, .fwm {
-    font-weight: $font-weight-medium !important;
+    @extend .fw-medium;
 }
 
-.fwb { @extend .font-weight-bold; }
-.fwn { @extend .font-weight-normal; }
-.fwl { @extend .font-weight-light; }
+.fwb { @extend .fw-bold; }
+.fwn { @extend .fw-normal; }
+.fwl { @extend .fw-light; }
 
 
 // Heading & Title
@@ -163,6 +110,44 @@ h6, .h6 {
 .page-title {
     margin-bottom: 1.5rem;
 }
+
+
+// Links
+// ======================================
+
+.link-dnn {
+    text-decoration: none !important;
+}
+
+.link-duu {
+    text-decoration: underline !important;
+}
+
+.link-dnu {
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.link-transition {
+    transition: $link-transition;
+}
+
+a.pretty-link {
+    @extend .link-body;
+    @extend .link-transition;
+    @extend .link-dnn;
+
+    font-weight: $font-weight-medium;
+
+    > i { padding-inline-end: 1.2rem; }
+    > span {
+        color: var(--gray-600);
+        &:hover, &:active { color: inherit; }
+    }
+}
+
 
 // Bidi
 // ======================================
@@ -231,37 +216,14 @@ h6, .h6 {
 // Misc typo stuff
 // ======================================
 
-a.color-body {
-    $clr: lighten($body-color, 10%);
-    color: $clr;
-    text-decoration: none;
-
-    &:hover {
-        color: $clr;
-        text-decoration: underline;
-    }
-}
-
-a.pretty-link {
-    color: $body-color;
-    text-decoration: none;
-    font-weight: $font-weight-medium;
-
-    > i { padding-right: 1.2rem; }
-    > span {
-        color: #aaa;
-        &:hover, &:active { color: inherit; }
-    }
-}
-
 .text-wrap {
     white-space: normal !important;
 }
 
 code {
     padding-inline: 0.25rem;
-    background-color: rgba(0,0,0, 0.035);
-    border-radius: $border-radius-sm; 
+    background-color: rgba($black, 0.035);
+    border-radius: var(--border-radius-sm); 
 }
 
 .html-editor-content {

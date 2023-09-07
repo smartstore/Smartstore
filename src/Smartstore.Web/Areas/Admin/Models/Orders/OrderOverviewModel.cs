@@ -67,8 +67,8 @@ namespace Smartstore.Admin.Models.Orders
                     PaymentStatus.Pending => "fa fa-fw fa-circle text-danger",
                     PaymentStatus.Authorized => "fa fa-fw fa-circle text-warning",
                     PaymentStatus.Paid => "fa fa-fw fa-check text-success",
-                    PaymentStatus.PartiallyRefunded => "fa fa-fw fa-exchange-alt text-warning",
-                    PaymentStatus.Refunded => "fa fa-fw fa-exchange-alt text-success",
+                    PaymentStatus.PartiallyRefunded => "fa fa-fw fa-right-left text-warning",
+                    PaymentStatus.Refunded => "fa fa-fw fa-right-left text-success",
                     PaymentStatus.Voided => "fa fa-fw fa-ban muted",
                     _ => string.Empty,
                 };
@@ -103,7 +103,7 @@ namespace Smartstore.Admin.Models.Orders
                     ShippingStatus.PartiallyShipped => "fa fa-fw fa-truck fa-flip-horizontal text-warning",
                     ShippingStatus.Shipped => "fa fa-fw fa-truck fa-flip-horizontal text-success",
                     ShippingStatus.Delivered => "fa fa-fw fa-check text-success",
-                    _ => String.Empty,
+                    _ => string.Empty,
                 };
             }
         }

@@ -1,7 +1,10 @@
 ﻿namespace Smartstore.PayPal
 {
-    internal static class PayPalConstants
+    public static class PayPalConstants
     {
+        public const string PartnerId = "FW39AHL99XEVN";
+        public const string PartnerClientId = "AWDFq4wYkqD_VwBfNqNU_TuhPhNc3i18fwGb3JwhyH1MNvQnwNmtpSyG1r8RK95JEzS8UDz8wyYV28qq";
+
         public const string Standard = "Payments.PayPalStandard";
         public const string PayUponInvoice = "Payments.PayPalPayUponInvoice";
         public const string CreditCard = "Payments.PayPalCreditCard";

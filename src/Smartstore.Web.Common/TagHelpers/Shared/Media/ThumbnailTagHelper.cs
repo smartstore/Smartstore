@@ -70,8 +70,8 @@ namespace Smartstore.Web.TagHelpers.Shared
                 "image" => ("far fa-file-image", "#e77c00"),
                 "video" => ("far fa-file-video", "#ff5722"),
                 "audio" => ("far fa-file-audio", "#009688"),
-                "document" => ("fas fa-file-alt", "#2b579a"),
-                "text" => ("far fa-file-alt", "#607d8B"),
+                "document" => ("fas fa-file-lines", "#2b579a"),
+                "text" => ("far fa-file-lines", "#607d8B"),
                 _ => ("far fa-file", "#bbb"),
             };
         }

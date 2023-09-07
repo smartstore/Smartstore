@@ -1,7 +1,5 @@
 ﻿using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.DataExchange.Import;
-using Smartstore.Core.Identity;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
@@ -12,6 +10,12 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
+            await context.MigrateLocaleResourcesAsync(builder =>
+            {
+                // Lower case resource name fix for SQLite. Added resource in pascal case in MigrateLocaleResources below.
+                builder.Delete("admin.system.systeminfo.appversion", "admin.system.systeminfo.appversion.hint");
+            });
+
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
             await MigrateSettingsAsync(context, cancelToken);
         }
@@ -26,14 +30,42 @@ namespace Smartstore.Core.Data.Migrations
             {
                 foreach (var setting in enableCookieConsentSettings)
                 {
-                    db.Settings.Add(new Setting
-                    {
-                        Name = "PrivacySettings.CookieConsentRequirement",
-                        Value = setting.Value.ToBool() ? CookieConsentRequirement.RequiredInEUCountriesOnly.ToString() : CookieConsentRequirement.NeverRequired.ToString(),
-                        StoreId = setting.StoreId
-                    });
+                    db.Settings.Remove(setting);
                 }
             }
+
+            // Remove duplicate settings for PrivacySettings.CookieConsentRequirement
+            var storeIds = await db.Stores
+                .Select(x => x.Id)
+                .ToListAsync(cancelToken);
+
+            var cookieConsentRequirementSettings = await db.Settings
+                .Where(x => x.Name == "PrivacySettings.CookieConsentRequirement")
+                .ToListAsync(cancelToken);
+
+            if (cookieConsentRequirementSettings.Count > storeIds.Count)
+            {
+                foreach (var storeId in storeIds)
+                {
+                    var storeSpecificSettings = cookieConsentRequirementSettings
+                        .Where(x => x.StoreId == storeId)
+                        .ToList();
+
+                    if (storeSpecificSettings.Count > 1)
+                    {
+                        db.Settings.RemoveRange(storeSpecificSettings.Skip(1));
+                    }
+                }
+
+                var settingsForAllStores = cookieConsentRequirementSettings
+                    .Where(x => x.StoreId == 0)
+                    .ToList();
+
+                if (settingsForAllStores.Count > 1)
+                {
+                    db.Settings.RemoveRange(settingsForAllStores.Skip(1));
+                }
+            }   
 
             await db.SaveChangesAsync(cancelToken);
 
@@ -52,7 +84,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete(
                 "Admin.Configuration.Currencies.GetLiveRates",
                 "Common.Error.PreProcessPayment",
-                "Payment.PayingFailed");
+                "Payment.PayingFailed",
+                "Enums.BackorderMode.AllowQtyBelow0AndNotifyCustomer");
 
             builder.AddOrUpdate("Enums.DataExchangeCompletionEmail.Always", "Always", "Immer");
             builder.AddOrUpdate("Enums.DataExchangeCompletionEmail.OnError", "If an error occurs", "Bei einem Fehler");
@@ -66,6 +99,132 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.Update("Admin.Configuration.Payment.Methods.Fields.RecurringPaymentType").Value("de", "Abo Zahlungen");
             builder.Update("Admin.Plugins.LicensingDemoRemainingDays").Value("de", "Demo: noch {0} Tag(e)");
+
+            builder.AddOrUpdate("Admin.ContentManagement.MessageTemplates.Fields.BccEmailAddresses.Hint",
+                "BCC address. The BCC (blind carbon copy) field contains one or more semicolon-separated email addresses to which a copy of the email is sent without being visible to the other specified recipients.",
+                "BCC-Adresse. Das BCC-Feld enthält eine oder mehrere durch Semikolon getrennte E-Mail-Adressen, an die eine Kopie der E-Mail gesendet wird, ohne dass das für die anderen angegebenen Empfänger sichtbar sein soll („Blindkopie“).");
+
+            builder.AddOrUpdate("Enums.BackorderMode.AllowQtyBelow0OnBackorder",
+                "Allow quantity below 0. Delivered as soon as in stock.",
+                "Menge kleiner als 0 zulassen. Wird nachgeliefert, sobald auf Lager.");
+
+            builder.Update("Enums.BackorderMode.AllowQtyBelow0").Value("en", "Allow quantity below 0");
+
+            builder.AddOrUpdate("Common.Pageviews", "Page views", "Seitenaufrufe");
+            builder.AddOrUpdate("Common.PageviewsCount", "{0} page views", "{0} Seitenaufrufe");
+
+            builder.AddOrUpdate("Enums.CapturePaymentReason.OrderCompleted",
+                "The order has been marked as completed",
+                "Der Auftrag wurde als abgeschlossen markiert");
+
+            builder.AddOrUpdate("Admin.Common.Delete.Selected", "Delete selected", "Ausgewählte löschen");
+
+            builder.AddOrUpdate("Common.RecycleBin", "Recycle bin", "Papierkorb");
+            builder.AddOrUpdate("Common.Restore", "Restore", "Wiederherstellen");
+            builder.AddOrUpdate("Common.DeletePermanent", "Delete permanently", "Endgültig löschen");
+            builder.AddOrUpdate("Common.NumberOfOrders", "Number of orders", "Auftragsanzahl");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.Clear", "Empty recycle bin", "Papierkorb leeren");
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.ClearConfirm",
+                "Are you sure that all entries of the recycle bin should be deleted?", 
+                "Sind Sie sicher, dass alle Einträge des Papierkorbs gelöscht werden sollen?");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.AdminNote",
+                "A recovery of deleted products is intended for emergencies. Some data cannot be restored in the process. These include assignments to delivery times and quantity units, country of origin and the compare price label (e.g. RRP). Products that are assigned to orders are ignored during deletion, as they cannot be deleted permanently.",
+                "Eine Wiederherstellung von gelöschten Produkten ist für Notfälle gedacht. Einige Daten können dabei nicht wiederhergestellt werden. Dazu zählen Zuordnungen zu Lieferzeiten und Verpackungseinheiten, Herkunftsland und der Vergleichspreiszusatz (z.B. UVP). Produkte, die Aufträgen zugeordnet sind, werden beim Löschen ignoriert, da sie nicht endgültig gelöscht werden können.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning",
+                "The product is assigned to {0} orders. A product cannot be permanently deleted if it is assigned to an order.",
+                "Das Produkt ist {0} Aufträgen zugeordnet. Ein Produkt kann nicht permanent gelöscht werden, wenn es einem Auftrag zugeordnet ist.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.DeleteProductsResult",
+                "{0} of {1} products have been permanently deleted. {2} products were skipped.",
+                "Es wurden {0} von {1} Produkten entgültig gelöscht. {2} Produkte wurden übersprungen.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.RestoreProductsResult",
+                "{0} of {1} products were successfully restored.",
+                "Es wurden {0} von {1} Produkten erfolgreich wiederhergestellt.");
+
+            builder.AddOrUpdate("Admin.Packaging.InstallSuccess",
+                "Package '{0}' was uploaded and unzipped successfully. Please click Edit / Reload list of plugins.",
+                "Paket '{0}' wurde hochgeladen und erfolgreich entpackt. Bitte klicken Sie auf Bearbeiten / Plugin-Liste erneut laden.");
+
+            builder.AddOrUpdate("Account.Fields.Newsletter",
+                "I would like to subscribe to the newsletter. I agree to the <a href=\"{0}\">Privacy policy</a>. Unsubscription is possible at any time.",
+                "Ich möchte den Newsletter abonnieren. Mit den Bestimmungen zum <a href=\"{0}\">Datenschutz</a> bin ich einverstanden. Eine Abmeldung ist jederzeit möglich.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Login",
+                "Login & Registration",
+                "Login & Registrierung");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Visibility",
+                "Visibility",
+                "Sichtbarkeit");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Misc",
+                "Miscellaneous",
+                "Sonstiges");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CheckUsernameAvailabilityEnabled",
+                "Enable username availability check",
+                "Verfügbarkeitsprüfung des Benutzernamens");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.HideDownloadableProductsTab",
+                "Hide downloads in the \"My account\" area",
+                "Downloads im Bereich \"Mein Konto\" ausblenden");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters",
+                "Additional allowed characters for customer names",
+                "Zusätzlich erlaubte Zeichen für Kundennamen",
+                "Add additional characters here that are permitted when entering a user name. Leave the field blank to allow all characters.",
+                "Fügen Sie hier zusätzliche Zeichen hinzu, die bei der Eingabe eines Benutzernamens zulässig sind. Lassen Sie das Feld leer, um alle Zeichen zuzulassen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint",
+                "The following characters are already allowed by default:",
+                "Standardmäßig sind bereits folgende Zeichen erlaubt:");
+
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmSoftDelete", 
+                "Do you want to delete the item?", 
+                "Soll der Datensatz gelöscht werden?");
+
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmSoftDeleteMany", 
+                "Do you want to delete the selected {0} items?", 
+                "Sollen die gewählten {0} Datensätze gelöscht werden?");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowShortDescriptionInGridStyleLists.Hint",
+                "Specifies whether the product short description should be displayed in product lists. This setting only applies to the grid view display.",
+                "Legt fest, ob die Produkt-Kurzbeschreibung auch in Produktlisten angezeigt werden sollen. Diese Einstellungsmöglichkeit bezieht sich nur auf die Darstellung in der Grid-Ansicht.");
+
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent.Hint");
+
+            builder.AddOrUpdate("Enums.RuleScope.Cart.Hint",
+                "Rule to grant discounts to the customer or offer shipping and payment methods.",
+                "Regel, um dem Kunden Rabatte zu gewähren oder Versand- und Zahlarten anzubieten.");
+
+            builder.AddOrUpdate("Enums.RuleScope.Customer.Hint",
+                "Rule to automatically assign customers to customer roles per scheduled task.",
+                "Regel, um Kunden automatisch per geplanter Aufgabe Kundengruppen zuzuordnen.");
+
+            builder.AddOrUpdate("Enums.RuleScope.Product.Hint",
+                "Rule to automatically assign products to categories per scheduled task.",
+                "Regel, um Produkte automatisch per geplanter Aufgabe Warengruppen zuzuordnen.");
+
+            builder.AddOrUpdate("Enums.InvalidLanguageRedirectBehaviour.FallbackToWorkingLanguage",
+                "Fallback to working language",
+                "Zur aktiven Sprache bzw. Standardsprache umleiten");
+
+            builder.AddOrUpdate("Enums.InvalidLanguageRedirectBehaviour.ReturnHttp404",
+                "Return HTTP 404 (page not found) (recommended)",
+                "HTTP 404 zurückgeben (Seite nicht gefunden) (empfohlen)");
+
+            builder.AddOrUpdate("Enums.InvalidLanguageRedirectBehaviour.Tolerate", "Tolerate", "Tolerieren");
+
+            builder.Delete("Enums.CookieConsentRequirement.Disabled");
+            builder.AddOrUpdate("Enums.CookieConsentRequirement.NeverRequired", "Never required", "Nie erforderlich");
+
+            builder.AddOrUpdate("Admin.System.SystemInfo.AppVersion", "Smartstore version", "Smartstore Version");
+
+            builder.AddOrUpdate("Products.ToFilterAndSort", "Filter & Sort", "Filtern & Sortieren");
         }
 
         /// <summary>
@@ -183,6 +342,7 @@ namespace Smartstore.Core.Data.Migrations
                 var profiles = await db.ImportProfiles
                     .Where(x => x.ColumnMapping.Length > 3)
                     .ToListAsync(cancelToken);
+
                 if (profiles.Count == 0)
                 {
                     return;

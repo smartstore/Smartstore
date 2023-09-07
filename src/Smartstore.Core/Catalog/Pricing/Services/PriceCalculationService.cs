@@ -167,28 +167,37 @@ namespace Smartstore.Core.Catalog.Pricing
                 ? new CalculatorContext(context, context.CartItem.Item.CustomerEnteredPrice)
                 : await RunCalculators(context);
 
-            var unitPrice = await CreateCalculatedPrice(calculatorContext, product);
+            var price = await CreateCalculatedPrice(calculatorContext, product);
 
             if (context.Quantity > 1)
             {
-                var options = context.Options;
-                var subtotal = await CreateCalculatedPrice(calculatorContext, product, context.Quantity);
+                // INFO: the subtotal must always equal the sum of all line totals.
+                // A rounding difference can and may only occur between the unit price and the line total,
+                // and only if net prices are entered and RoundOrderItemsEnabled is disabled.
+                var qty = context.Quantity;
+                var cy = context.Options.RoundingCurrency;
+                var subtotal = price.Clone();
+                subtotal.FinalPrice = new(cy.RoundIfEnabledFor(price.FinalPrice.Amount) * qty, price.FinalPrice.Currency);
+                subtotal.DiscountAmount = new(cy.RoundIfEnabledFor(price.DiscountAmount.Amount) * qty, price.DiscountAmount.Currency);
 
-                // Avoid rounding differences between unit price and line subtotal when calculating with net prices.
-                // ... but this produces a rounding difference between subtotal and line subtotals which can only be solved by a hack.
-                var priceAmount = options.RoundingCurrency.RoundIfEnabledFor(unitPrice.FinalPrice.Amount) * context.Quantity;
-                subtotal.FinalPrice = new(priceAmount, unitPrice.FinalPrice.Currency);
+                if (price.Tax.HasValue)
+                {
+                    var t = price.Tax.Value;
 
-                return (unitPrice, subtotal);
+                    subtotal.Tax = new(
+                        t.Rate,
+                        t.Amount * qty,
+                        cy.RoundIfEnabledFor(t.Price) * qty,
+                        cy.RoundIfEnabledFor(t.PriceNet) * qty,
+                        cy.RoundIfEnabledFor(t.PriceGross) * qty,
+                        t.IsGrossPrice,
+                        t.Inclusive);
+                }
+
+                return (price, subtotal);
             }
 
-            return (unitPrice, unitPrice);
-
-            //var subtotal = context.Quantity > 1
-            //    ? await CreateCalculatedPrice(calculatorContext, product, context.Quantity)
-            //    : unitPrice;
-
-            //return (unitPrice, subtotal);
+            return (price, price);
         }
 
         public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection = null)
@@ -292,18 +301,11 @@ namespace Smartstore.Core.Catalog.Pricing
             return calculatorContext;
         }
 
-        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, int subtotalQuantity = 1)
+        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null)
         {
             product ??= context.Product;
 
             var options = context.Options;
-
-            // Calculate the subtotal price instead of the unit price.
-            if (subtotalQuantity > 1 && context.FinalPrice > 0)
-            {
-                context.FinalPrice = options.RoundingCurrency.RoundIfEnabledFor(context.FinalPrice) * subtotalQuantity;
-                context.DiscountAmount = options.RoundingCurrency.RoundIfEnabledFor(context.DiscountAmount) * subtotalQuantity;
-            }
 
             // Determine tax rate for product.
             var taxRate = await _taxService.GetTaxRateAsync(product, null, options.Customer);
@@ -351,7 +353,6 @@ namespace Smartstore.Core.Catalog.Pricing
             // Detect retail & regular price.
             DetectComparePrices(context, result, taxRate);
 
-            // TODO: (mg) (core) find a way to avoid differing percentage discount in product lists and detail page. Is this still present?
             // Saving price.
             var savingPrice = result.RegularPrice ?? result.RetailPrice ?? Money.Zero;
             var hasSaving = savingPrice > 0 && result.FinalPrice < savingPrice;

@@ -520,7 +520,8 @@ namespace Smartstore.Admin.Controllers
                 || model.PasswordRequireUppercase != settings.PasswordRequireUppercase
                 || model.PasswordRequiredUniqueChars != settings.PasswordRequiredUniqueChars
                 || model.PasswordRequireLowercase != settings.PasswordRequireLowercase
-                || model.PasswordRequireNonAlphanumeric != settings.PasswordRequireNonAlphanumeric)
+                || model.PasswordRequireNonAlphanumeric != settings.PasswordRequireNonAlphanumeric
+                || model.CustomerNameAllowedCharacters != settings.CustomerNameAllowedCharacters)
             {
                 return true;
             }

@@ -8,6 +8,7 @@
           onrowclass="cookieInfos_onRowClass">
     <datasource read="@Url.Action("CookieInfoList")" delete="@Url.Action("CookieInfoDelete")"/>
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
         <toolbar-group>
             <button id="add-cookie-info-button" data-toggle="modal" class="btn btn-primary btn-flat no-anims mr-auto">
@@ -25,7 +26,7 @@
     </toolbar>
     <columns>
         <column for="Name" />
-        <column for="Description" width="3fr" />
+        <column for="Description" width="3fr" wrap="true" />
         <column for="CookieTypeName" width="0.75fr" />
         <column for="IsPluginInfo" width="0.75fr" halign="center" />
     </columns>

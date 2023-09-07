@@ -43,33 +43,31 @@
 
             @if (item.IsDownloadAllowed || item.LicenseId > 0)
             {
-                <div class="card-footer p-0">
-                    <div class="d-flex">
-                        @if (item.IsDownloadAllowed)
-                        {
-                            <a class="btn btn-secondary btn-flat rounded-0" asp-action="GetDownload" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
-                                <i class="fa fa-download"></i>
-                                <span>@T("DownloadableProducts.Fields.Download")</span>
-                            </a>
-                            <a sm-if="item.DownloadVersions.Count > 1" class="btn btn-secondary btn-flat rounded-0" data-toggle="collapse" href="#download-versions-@item.OrderId" rel="nofollow">
-                                <i class="fa fa-info"></i>
-                                <span>@T("Common.Download.Versions")</span>
-                            </a>
-                        }
-                        else
-                        {
-                            <a class="btn btn-secondary btn-flat rounded-0 disabled" href="javascript:void(0)" rel="nofollow">
-                                <span>@T("DownloadableProducts.Fields.Download.NA")</span>
-                            </a>
-                        }
+                <div class="card-footer d-flex p-2">
+                    @if (item.IsDownloadAllowed)
+                    {
+                        <a class="btn btn-light btn-sm btn-flat" asp-action="GetDownload" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
+                            <i class="fa fa-download"></i>
+                            <span>@T("DownloadableProducts.Fields.Download")</span>
+                        </a>
+                        <a sm-if="item.DownloadVersions.Count > 1" class="btn btn-light btn-sm btn-flat" data-toggle="collapse" href="#download-versions-@item.OrderId" rel="nofollow">
+                            <i class="fa fa-info"></i>
+                            <span>@T("Common.Download.Versions")</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-light btn-sm btn-flat disabled" href="javascript:void(0)" rel="nofollow">
+                            <span>@T("DownloadableProducts.Fields.Download.NA")</span>
+                        </a>
+                    }
 
-                        @if (item.LicenseId > 0)
-                        {
-                            <a class="btn btn-secondary btn-flat rounded-0" asp-action="GetLicense" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
-                                <span>@T("DownloadableProducts.Fields.DownloadLicense")</span>
-                            </a>
-                        }
-                    </div>
+                    @if (item.LicenseId > 0)
+                    {
+                        <a class="btn btn-light btn-sm btn-flat" asp-action="GetLicense" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
+                            <span>@T("DownloadableProducts.Fields.DownloadLicense")</span>
+                        </a>
+                    }
                 </div>
 
                 <div sm-if="item.IsDownloadAllowed && item.DownloadVersions.Count > 1" class="collapse download-versions" id="download-versions-@item.OrderId">

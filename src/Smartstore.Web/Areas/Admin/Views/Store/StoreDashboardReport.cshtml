@@ -2,7 +2,7 @@
     var arr = new[]
     {
         new { Part = "ProductsCount", Label = T("Admin.Catalog.Products").Value, Title = T("Admin.Catalog.Products").Value, Icon = "fa fa-cubes" },
-        new { Part = "AttributesCount", Label = T("Admin.Catalog.Attributes").Value, Title = T("Admin.Catalog.Attributes.ProductAttributes").Value, Icon = "far fa-list-alt" },
+        new { Part = "AttributesCount", Label = T("Admin.Catalog.Attributes").Value, Title = T("Admin.Catalog.Attributes.ProductAttributes").Value, Icon = "far fa-rectangle-list" },
         new
         {
             Part = "AttributeCombinationsCount",
@@ -44,18 +44,18 @@
     <div class="report-title-row">
         <div class="report-title">@T("Admin.Report.StoreStatistics")</div>
     </div>
-    <div class="statistics-container pt-2 pb-3">
-        <div class="row pl-4 pr-3 m-0">
+    <div class="statistics-container p-4 pb-5">
+        <div class="row g-5">
             @for (int i = 0; i < arr.Length; i++)
             {
                 <div class="col-6 col-md-4 statistics-col">
                     <div class="statistics-content">
                         <div class="statistics-icon">
-                            <i class="@arr[i].Icon"></i>
+                            <i class="fa-fw @arr[i].Icon"></i>
                         </div>
                         <div class="statistics-container-outer">
                             <div class="statistics-container-inner">
-                                <div class="statistics-value" data-part="@arr[i].Part"></div>
+                                <div class="statistics-value" data-part="@arr[i].Part">0</div>
                                 <div class="statistics-attribute" title="@arr[i].Title">@arr[i].Label</div>
                             </div>
                         </div>

@@ -74,12 +74,6 @@
             {
                 await Html.RenderPartialAsync("Product.List.ViewMode", Model);
             }
-
-            @* Pager *@
-            @if (hasPager)
-            {
-                await Html.RenderPartialAsync("Product.List.Pager", Model);
-            }
         </div>
     </div>
 }
@@ -96,9 +90,15 @@
     }
 </div>
 
-<div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-actions artlist-actions--bottom">
+<div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-actions artlist-actions--bottom d-none">
     <div class="artlist-action-group artlist-action-group--page">
         @{ await Html.RenderPartialAsync("Product.List.Pager", Model); }
     </div>
+</div>
+
+<div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-pagination hstack mb-4">
+    @{ await Html.RenderPartialAsync("Product.List.Pager", Model); }
+    <div class="vr text-muted mx-2"></div>
+    <pagination sm-list-items="Model.PagedList" sm-query-param="i" sm-size="Small" />  
 </div>
 

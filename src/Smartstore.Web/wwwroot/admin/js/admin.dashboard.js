@@ -6,7 +6,7 @@ Smartstore.Admin.Charts = {
         const colorSuccess = style.getPropertyValue('--success');
         const colorWarning = style.getPropertyValue('--warning');
         const colorDanger = style.getPropertyValue('--danger');
-        const fontFamily = style.getPropertyValue('--font-family-sans-serif');
+        const fontFamily = style.getPropertyValue('--font-sans-serif');
 
         const customTooltip = function (tooltip) {
             const canvas = this._chart.canvas;

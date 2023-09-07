@@ -9,6 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Admin.Models.Maintenance;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Configuration;
@@ -234,6 +235,13 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Content(message);
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> RebuildTreePaths()
+        {
+            var numAffected = await CategoryService.RebuidTreePathsAsync(_db, _asyncRunner.AppShutdownCancellationToken);
+            return Content($"Generated {numAffected} TreePath epressions.");
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]

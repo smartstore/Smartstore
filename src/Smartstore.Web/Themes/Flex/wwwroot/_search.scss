@@ -1,4 +1,4 @@
-/// <reference path="theme.scss" />
+/// <reference path="references.scss" />
 
 //
 // InstantSearch Box & Drop Styles
@@ -35,7 +35,7 @@ $facet-selection-color:             darken($success, 15%);
 
     @if ($searchbox-shadow == true) {
         &:hover, &:focus, &:active {
-            box-shadow: $box-shadow-sm-var;
+            box-shadow: $box-shadow-sm;
         }
     }
      &:focus, &:active {
@@ -82,9 +82,7 @@ $facet-selection-color:             darken($success, 15%);
 }
 
 .instasearch-clear {
-    border-radius: 50%;
-    border-width: 0;
-    color: $gray-600;
+    color: var(--gray-600);
     display: none;
     font-size: 14px;
 
@@ -137,7 +135,7 @@ $facet-selection-color:             darken($success, 15%);
     box-shadow: $dropdown-box-shadow;
     background-color: $dropdown-bg;
     z-index: $zindex-dropdown + 100;
-    border-radius: 0 0 $border-radius $border-radius;   
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);   
 
     &.open {
         display: block;
@@ -272,7 +270,6 @@ $facet-selection-color:             darken($success, 15%);
 .facet-group {
 	position: relative;
 	border-bottom: 1px solid rgba(0,0,0, 0.12);
-    font-size: 14px;
 }
 
 .facet-group-header {
@@ -280,7 +277,6 @@ $facet-selection-color:             darken($success, 15%);
     display: block;
     padding: 0.75rem 0;
     padding-inline-end: 1rem;
-    font-size: 1rem;
     font-weight: $font-weight-medium;
     color: $body-color !important;
     text-decoration: none !important;
@@ -310,6 +306,7 @@ $facet-selection-color:             darken($success, 15%);
 }
 
 .facet-body {
+    font-size: 14px;
     padding-bottom: 1rem;
 
     .numberinput-group {
@@ -459,36 +456,23 @@ $facet-selection-color:             darken($success, 15%);
 
 .active-filters {
     position: relative;
-    margin: -0.25rem;
-}
-
-.active-filter-item {
-    display: block;
-    padding: 0.25rem;
-    float: left;
 }
 
 .active-filter-link {
     position: relative;
-    font-weight: 400;
-    padding: 0.2rem 0.6rem;
+    font-weight: $font-weight-normal;
     max-width: 12rem;
-    padding-inline-end: 1.5rem;
-    border-width: 0;
+    line-height: 1.2; // to prevent cutoff
 
     &:after {
-        position: absolute;
+        position: relative;
         display: block;
         content: '\00d7';
-        inset-inline-end: 0.375rem;
-        top: 2px;
-        font-size: 1.25rem;
-        line-height: 1;
+        inset-inline-start: 4px;
     }
 }
 
 .active-filter-label {
-    display: block;
     @include text-truncate();
 }
 
@@ -499,13 +483,14 @@ $facet-selection-color:             darken($success, 15%);
 
 .offcanvas {
     .facet-toggle,
+    .facet-group-header,
     .facet-body {
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding-inline: var(--offcanvas-padding-x, 1.5rem);
     }
 
     .facet-toggle:after {
-        inset-inline-end: 1rem;
+        // TODO: Fix this (+4px) after unifying accordion togglers.
+        inset-inline-end: calc(4px + var(--offcanvas-padding-x, 1.5rem));
     }
 
     .facet-toggle.has-selection {
@@ -513,10 +498,10 @@ $facet-selection-color:             darken($success, 15%);
 
         .facet-selection {
             display: inline;
-            color: rgba(#000, 0.4);
+            color: rgba($black, 0.4);
             font-size: $font-size-base;
             position: absolute;
-            text-align: right;
+            text-align: end;
             inset-inline-end: 2.5rem;
             vertical-align: middle;
             line-height: 1.8;

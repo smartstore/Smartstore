@@ -19,12 +19,12 @@ namespace Smartstore.Core.Catalog.Categories
         internal static TimeSpan CategoryTreeCacheDuration = TimeSpan.FromHours(6);
 
         // {0} = IncludeHidden, {1} = CustomerRoleIds, {2} = StoreId
-        internal const string CATEGORY_TREE_KEY = "category:tree-{0}-{1}-{2}";
-        internal const string CATEGORY_TREE_PATTERN_KEY = "category:tree-*";
+        internal const string CategoryTreeKey = "category:tree-{0}-{1}-{2}";
+        internal const string CategoryTreePatternKey = "category:tree-*";
 
         // {0} = IncludeHidden, {1} = CustomerId, {2} = StoreId, {3} ParentCategoryId
-        private const string CATEGORIES_BY_PARENT_CATEGORY_ID_KEY = "category:byparent-{0}-{1}-{2}-{3}";
-        internal const string CATEGORIES_PATTERN_KEY = "category:*";
+        const string CategoriesByParentIdKey = "category:byparent-{0}-{1}-{2}-{3}";
+        internal const string CategoriesPatternKey = "category:*";
 
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
@@ -302,7 +302,7 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             var storeId = _storeContext.CurrentStore.Id;
-            var cacheKey = CATEGORIES_BY_PARENT_CATEGORY_ID_KEY.FormatInvariant(includeHidden, _workContext.CurrentCustomer.Id, storeId, parentCategoryId);
+            var cacheKey = CategoriesByParentIdKey.FormatInvariant(includeHidden, _workContext.CurrentCustomer.Id, storeId, parentCategoryId);
 
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
@@ -420,12 +420,53 @@ namespace Smartstore.Core.Catalog.Categories
             return path;
         }
 
+        public async static Task<int> RebuidTreePathsAsync(SmartDbContext context, CancellationToken cancelToken = default)
+        {
+            var numAffected = 0;
+            var folders = await context.MediaFolders
+                .Include(x => x.Children)
+                .Where(x => x.ParentId == null)
+                .ToListAsync(cancelToken);
+
+            foreach (var folder in folders)
+            {
+                BuildTreePath(folder);
+            }
+            numAffected = await context.SaveChangesAsync(cancelToken);
+
+            var categories = await context.Categories
+                .Include(x => x.Children)
+                .Where(x => x.ParentId == null)
+                .ToListAsync(cancelToken);
+
+            foreach (var category in categories)
+            {
+                BuildTreePath(category);
+            }
+            numAffected += await context.SaveChangesAsync(cancelToken);
+
+            return numAffected;
+
+            static void BuildTreePath(ITreeNode node)
+            {
+                node.TreePath = node.BuildTreePath();
+                var childNodes = node.GetChildNodes();
+                if (!childNodes.IsNullOrEmpty())
+                {
+                    foreach (var childNode in childNodes)
+                    {
+                        BuildTreePath(childNode);
+                    }
+                }
+            }
+        }
+
         public async Task<TreeNode<ICategoryNode>> GetCategoryTreeAsync(int rootCategoryId = 0, bool includeHidden = false, int storeId = 0)
         {
             var rolesIds = _workContext.CurrentCustomer.GetRoleIds();
             var storeToken = _db.QuerySettings.IgnoreMultiStore ? "0" : storeId.ToString();
             var rolesToken = _db.QuerySettings.IgnoreAcl || includeHidden ? "0" : string.Join(",", rolesIds);
-            var cacheKey = CATEGORY_TREE_KEY.FormatInvariant(includeHidden.ToString().ToLower(), rolesToken, storeToken);
+            var cacheKey = CategoryTreeKey.FormatInvariant(includeHidden.ToString().ToLower(), rolesToken, storeToken);
 
             var root = await _cache.GetAsync(cacheKey, async o =>
             {

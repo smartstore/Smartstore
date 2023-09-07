@@ -118,7 +118,7 @@ var RoxyIconHints = {
 	"code": { name: "fa fa-bolt", color: "#4CAF50" },
 	"exe": { name: "fa fa-cog", color: "#58595B" },
 	"image": { name: "far fa-file-image", color: "#e77c00" },
-	"text": { name: "far fa-file-alt", color: "#607D8B" },
+	"text": { name: "far fa-file-lines", color: "#607D8B" },
 	"video": { name: "far fa-file-video", color: "#FF5722" },
 	"font": { name: "fa fa-font", color: "#797985" },
 	"misc": { name: "far fa-file", color: "#ccc" }

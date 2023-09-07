@@ -700,10 +700,14 @@ namespace Smartstore.Core.Seo
         public virtual void InvalidateAll()
         {
             var dir = BuildSitemapDirPath(null, null);
-            foreach (var subDir in _tenantRoot.EnumerateDirectories(dir).ToArray())
+
+            if (_tenantRoot.DirectoryExists(dir))
             {
-                // Delete only directories, no lock files.
-                subDir.Delete();
+                foreach (var subDir in _tenantRoot.EnumerateDirectories(dir).ToArray())
+                {
+                    // Delete only directories, no lock files.
+                    subDir.Delete();
+                }
             }
         }
 

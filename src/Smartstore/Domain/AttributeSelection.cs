@@ -407,15 +407,23 @@ namespace Smartstore.Domain
         public override int GetHashCode()
         {
             var combiner = HashCodeCombiner.Start();
+            var attributes = _attributes.Attributes.OrderBy(x => x.Key).ToArray();
 
-            foreach (var attribute in _attributes.Attributes.OrderBy(x => x.Key))
+            for (var i = 0; i < attributes.Length; ++i)
             {
+                var attribute = attributes[i];
+                
                 combiner.Add(attribute.Key);
 
-                attribute.Value
+                var values = attribute.Value
                     .Select(x => x.ToString())
                     .OrderBy(x => x)
-                    .Each(x => combiner.Add(x));
+                    .ToArray();
+
+                for (var j = 0; j < values.Length; ++j)
+                {
+                    combiner.Add(values[j]);
+                }
             }
 
             return combiner.CombinedHash;

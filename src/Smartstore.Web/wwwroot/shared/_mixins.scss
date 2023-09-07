@@ -1,25 +1,24 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+/// <reference path="references.scss" />
 
 // Mixins
 // ========================================================================
 
-@mixin bg-color-vars($color: #fff) {
-    --bg-color: #{$color};
-    --bg-color-rgb: #{red($color)},#{green($color)},#{blue($color)};
+@mixin bg-color-vars($state) {
+    --bg-color: var(--#{$state});
+    --bg-color-rgb: var(--#{$state}-rgb);
 }
 
 @mixin center($xy: xy) {
     @if $xy == xy {
-        left: 50%;
+        inset-inline-start: 50%;
         top: 50%;
         bottom: auto;
-        right: auto;
+        inset-inline-end: auto;
         transform: translateX(-50%) translateY(-50%);
     }
     @else if $xy == x {
-        left: 50%;
-        right: auto;
+        inset-inline-start: 50%;
+        inset-inline-end: auto;
         transform: translateX(-50%);
     }
     @else if $xy == y {
@@ -29,25 +28,35 @@
     }
 }
 
-@mixin bubble($direction: "left", $alignment: "near", $size: 10, $backgroundColor: #fff, $borderColor: $card-border-color, $offset: 24px) {
+@mixin bubble($direction: "left", $alignment: "near", $size: 10, $background: #fff, $border: $card-border-color, $offset: 24px) {
     // defaults for direction = left
-    $elemAlignment: "right";
-    $firstBorder: "top";
-    $secondBorder: "bottom";
+    $inset: "inline-start";
+    $elemAlignment: "inline-end";
+    $firstBorder: "block-start";
+    $secondBorder: "block-end";
 
     @if $direction == "right" {
-        $elemAlignment: "left";
+        $inset: "inline-end";
+        $elemAlignment: "inline-start";
     } 
     @else if $direction == "top" {
-        $elemAlignment: "bottom";
-        $firstBorder: "left";
-        $secondBorder: "right";
+        $inset: "block-start";
+        $elemAlignment: "block-end";
+        $firstBorder: "inline-start";
+        $secondBorder: "inline-end";
     } 
     @else if $direction == "bottom" {
-        $elemAlignment: "top";
-        $firstBorder: "left";
-        $secondBorder: "right";
+        $inset: "block-end";
+        $elemAlignment: "block-start";
+        $firstBorder: "inline-start";
+        $secondBorder: "inline-end";
     }
+
+    --bubble-size: #{$size}px;
+    --bubble-width: var(--bubble-size);
+    --bubble-offset: #{$offset};
+    --bubble-bg: #{$background};
+    --bubble-border-color: #{$border};
 
     &:before, &:after {
         content: '' !important;
@@ -56,37 +65,38 @@
     }
 
     &:before {
-        border-#{$firstBorder}: #{$size}px solid transparent;
-        border-#{$secondBorder}: #{$size}px solid transparent;
-        border-#{$elemAlignment}: #{$size}px solid $borderColor;
+        border-#{$firstBorder}: var(--bubble-width) solid transparent;
+        border-#{$secondBorder}: var(--bubble-width) solid transparent;
+        border-#{$elemAlignment}: var(--bubble-width) solid var(--bubble-border-color);
         //border-#{$elemAlignment}-color: rgba(0, 0, 0, 0.2);
-        #{$direction}: -#{$size}px;
+        inset-#{$inset}: calc(var(--bubble-width) * -1);
 
         @if $alignment == "near" {
-            #{$firstBorder}: $offset;
+            inset-#{$firstBorder}: var(--bubble-offset);
         } 
         @else if $alignment == "center" {
-            #{$firstBorder}: 50%;
-            margin-#{$firstBorder}: -#{$size + 1}px;
+            inset-#{$firstBorder}: 50%;
+            margin-#{$firstBorder}: calc((var(--bubble-width) + 1px) * -1);
         } 
         @else if $alignment == "far" {
-            #{$secondBorder}: $offset;
+            inset-#{$secondBorder}: var(--bubble-offset);
         }
     }
 
     &:after {
-        border-#{$firstBorder}: #{$size - 1}px solid transparent;
-        border-#{$secondBorder}: #{$size - 1}px solid transparent;
-        border-#{$elemAlignment}: #{$size - 1}px solid $backgroundColor;
-        #{$direction}: -#{$size - 1}px;
+        --bubble-width: calc(var(--bubble-size) - 1px);
+        border-#{$firstBorder}: var(--bubble-width) solid transparent;
+        border-#{$secondBorder}: var(--bubble-width) solid transparent;
+        border-#{$elemAlignment}: var(--bubble-width) solid var(--bubble-bg);
+        inset-#{$inset}: calc(var(--bubble-width) * -1);
 
         @if $alignment == "near" {
-            #{$firstBorder}: $offset+1px;
+            inset-#{$firstBorder}: calc(var(--bubble-offset) + 1px);
         } @else if $alignment == "center" {
-            #{$firstBorder}: 50%;
-            margin-#{$firstBorder}: -#{$size}px;
+            inset-#{$firstBorder}: 50%;
+            margin-#{$firstBorder}: calc(var(--bubble-size) * -1);
         } @else if $alignment == "far" {
-            #{$secondBorder}: $offset+1px;
+            inset-#{$secondBorder}: calc(var(--bubble-offset) + 1px);
         }
     }
 }
@@ -174,84 +184,48 @@
     --btn-disabled-bg: var(--btn-bg);
     --btn-disabled-border-color: var(--btn-border-color);
 
-    border-radius: var(--btn-border-radius) !important;
+    border-radius: var(--btn-border-radius);
     background-image: none;
 }
 
+@mixin trailing-action(
+    $size: 1.25rem, 
+    $bg: var(--gray-200), 
+    $color: inherit,
+    $hover-bg: var(--gray-600), 
+    $hover-color: #fff,
+    $active-bg: var(--gray-700), 
+    $active-color: $hover-color,
+    $border-radius: 50%
+) {
+    --trailing-action-size: #{$size};
 
-// Functions
-// ===============================================
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: var(--trailing-action-size);
+    height: var(--trailing-action-size);
+    line-height: var(--trailing-action-size);
+    background-color: $bg;
+    color: $color;
+    cursor: pointer;
+    font-weight: $font-weight-medium;
+    border-radius: $border-radius;
+    border: 0;
+    transition: $btn-transition;
 
-$scrim-gradient-coords: (
-    0: 1,
-    19: 0.738,
-    34: 0.541,
-    47: 0.382,
-    56.5: 0.278,
-    65: 0.194,
-    73: 0.126,
-    80.2: 0.075,
-    86.1: 0.042,
-    91: 0.021,
-    95.2: 0.008,
-    98.2: 0.002,
-    100: 0
-);
-
-@function scrim-gradient($start-color: #000, $direction: 'to bottom', $radial: false) {
-    $hue: hue($start-color);
-    $saturation: saturation($start-color);
-    $lightness: lightness($start-color);
-    $stops: ();
-
-    @each $colorstop, $alpha in $scrim-gradient-coords {
-        $stop: hsla($hue, $saturation, $lightness, $alpha) calc(#{$colorstop / 100} * var(--cendpos,100%));
-        $stops: append($stops, $stop, comma);
+    &:hover {
+        color: $hover-color;
+        background-color: $hover-bg;
     }
 
-    @if $radial == true {
-        @return radial-gradient(unquote(#{ $direction }), #{ $stops });
+    &:active {
+        color: $active-color;
+        background-color: $active-bg;
     }
-    @else {
-        @return linear-gradient(unquote(#{ $direction }), #{ $stops });
-    }   
 }
 
-@function scrim-gradient-generic($direction: 'to bottom', $radial: false) {
-    $stops: ();
-
-    @each $colorstop, $alpha in $scrim-gradient-coords {
-        $stop: rgba(var(--cstart-rgb), $alpha) calc(#{$colorstop / 100} * var(--cendpos,100%));
-        $stops: append($stops, $stop, comma);
-    }
-
-    @if $radial == true {
-        @return radial-gradient(unquote(#{ $direction }), #{ $stops });
-    }
-    @else {
-        @return linear-gradient(unquote(#{ $direction }), #{ $stops });
-    }   
-}
-
-@function color-yiq-ex($color, $text-dark: $yiq-text-dark, $text-light: $yiq-text-light) {
-	$r: red($color);
-	$g: green($color);
-	$b: blue($color);
-
-	$yiq: (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
-
-	@if ($yiq >= $yiq-contrasted-threshold) {
-		@return $text-dark;
-	}
-	@else {
-		@return $text-light;
-	}
-}
-
-@function cssmin($expr1, $expr2) {
-    @return #{unquote("min(#{$expr1}, #{$expr2})")};
-}
-
-@function cssmax($expr1, $expr2) {
-    @return #{unquote("max(#{$expr1}, #{$expr2})")};
+@mixin input-clear($size: 1.25rem) {
+    @include trailing-action($size);
+    --input-clear-size: #{$size};
 }

@@ -172,6 +172,17 @@
                             Name = $"itemquantity{item.Id}"
                         }
                     })
+
+                    <span class="field-validation-valid" data-valmsg-for="itemquantity@(item.Id)" data-valmsg-replace="true"></span>
+
+                    <script>
+                        $(function () {
+                            // Disable incorrect jquery validation of the step attribute for quantity inputs.
+                            setTimeout(function () {
+                                $('#itemquantity@(item.Id)').rules('add', { step: 1 });
+                            }, 10);
+                        });
+                    </script>
                 }
                 else
                 {

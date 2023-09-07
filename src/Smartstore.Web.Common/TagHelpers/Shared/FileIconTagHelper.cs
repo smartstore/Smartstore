@@ -59,7 +59,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     "png" or "jpg" or "jpeg" or "bmp" or "psd" => "far fa-file-image",
                     "mp3" or "wav" or "ogg" or "wma" => "far fa-file-audio",
                     "mp4" or "mkv" or "wmv" or "avi" or "asf" or "mpg" or "mpeg" => "far fa-file-video",
-                    "txt" => "far fa-file-alt",
+                    "txt" => "far fa-file-lines",
                     "exe" => "fa fa-cog",
                     "xml" or "html" or "htm" => "far fa-file-code",
                     _ => "far fa-file",

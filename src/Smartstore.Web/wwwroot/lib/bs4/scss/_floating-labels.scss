@@ -26,6 +26,7 @@
     pointer-events: none;
     border: $input-border-width solid transparent; // Required for aligning label's text with the input as it affects inner box model
     transform-origin: 0 0;
+    color: $gray-600;
     @include transition($form-floating-transition);
   }
 
@@ -59,7 +60,8 @@
   > .form-control-plaintext,
   > select.form-control {
     ~ label {
-      color: rgba($body-color, $form-floating-label-opacity);
+      opacity: $form-floating-label-opacity;
+      font-weight: $font-weight-normal;
       transform: $form-floating-label-transform;
 
       &::after {
@@ -76,7 +78,8 @@
   // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
   > .form-control:-webkit-autofill {
     ~ label {
-      color: rgba($body-color, $form-floating-label-opacity);
+      opacity: $form-floating-label-opacity;
+      font-weight: $font-weight-normal;
       transform: $form-floating-label-transform;
     }
   }

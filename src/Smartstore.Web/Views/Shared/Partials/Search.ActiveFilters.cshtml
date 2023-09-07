@@ -38,21 +38,22 @@
     Assets.BodyAttributes.AppendCssClass("has-active-filter");
 
     <div class="active-filters-container">
-        <ul class="list-unstyled clearfix active-filters">
+        <div class="list-unstyled active-filters hstack flex-wrap gap-1">
             @foreach (var filter in activeFilters)
             {
-                <li class="active-filter-item" data-key="@filter.Key" data-group="@filter.FacetGroup.Key">
-                    <a class="btn btn-gray btn-sm active-filter-link" href='@Url.FacetRemove(filter)' title="@T("Search.Facet.RemoveFilter", filter.FacetGroup.Label, filter.Value.Label)">
+                <div class="active-filter-item" data-key="@filter.Key" data-group="@filter.FacetGroup.Key">
+                    <a class="badge badge-gray badge-lg active-filter-link" href='@Url.FacetRemove(filter)' title="@T("Search.Facet.RemoveFilter", filter.FacetGroup.Label, filter.Value.Label)">
                         <span class="active-filter-label">@(filter.Value.Label ?? filter.Value.ToString())</span>
                     </a>
-                </li>
+                </div>
             }
-            <li class="active-filter-item active-filter-item-clear">
-                <a class="btn btn-secondary btn-to-danger btn-flat btn-sm active-filter-link" href='@Url.FacetRemove(activeFilters)'>
+            <div class="vr"></div>
+            <div class="active-filter-item active-filter-item-clear">
+                <a class="badge badge-danger badge-lg active-filter-link" href='@Url.FacetRemove(activeFilters)'>
                     <span class="active-filter-label">@T("Search.Facet.RemoveAllFilters")</span>
                 </a>
-            </li>
-        </ul>
+            </div>
+        </div>
     </div>
 }
 

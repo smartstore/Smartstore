@@ -1,6 +1,4 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+/// <reference path="references.scss" />
 
 //
 // Choice Styles (Variants etc.)
@@ -16,10 +14,11 @@ $choice-box-size-xl:        96px;
     margin-bottom: 1rem;
 }
 
+label.required,
 .col-form-label.required,
 .choice-label.required {
-	color: inherit;
-	font-weight: bold;
+	//color: inherit;
+	font-weight: $font-weight-medium;
 	&:after { content: ' *' }
 }
 
@@ -138,8 +137,8 @@ $choice-box-size-xl:        96px;
 .choice-box-element {
     position: relative;
     display: inline-block;
-    border: 1px solid rgba(0,0,0, .2);
-    border-radius: $border-radius;
+    border: 1px solid rgba(0,0,0, .125);
+    border-radius: var(--border-radius-md);
     background-color: #fff;
 
     height: var(--choice-box-size);

@@ -1,7 +1,4 @@
-/// <reference path="_variables.scss" />
-/// <reference path="../shared/_variables-shared.scss" />
-/// <reference path="../shared/_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+/// <reference path="references.scss" />
 
 $section-header-height: 70px;
 
@@ -22,7 +19,7 @@ $section-header-height: 70px;
     background-color: $gray-100;
     padding: 1rem;
     margin-bottom: $alert-margin-bottom;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
 }
 
 pre {
@@ -34,11 +31,6 @@ pre {
         padding: 1rem !important;
         border: 1px solid rgba(#000, 0.1) !important;
     }
-}
-
-.badge-secondary {
-    background-color: $gray-600;
-    color: $yiq-text-light;
 }
 
 
@@ -55,6 +47,21 @@ b, strong {
 
 .text-primary-darkest {
     color: $sm-violet !important;
+}
+
+
+// Badges (lighter with shadow ring)
+// -----------------------------------------------------
+
+.badge-secondary {
+    --badge-bg: #{$gray-600};
+    --badge-bg-rgb: #{to-rgb($gray-600)};
+    --badge-color: #{$yiq-text-light};
+
+    @at-root a#{&} {
+        --badge-hover-bg: #{$gray-700};
+        --badge-hover-bg-rgb: #{to-rgb($gray-700)};
+    }
 }
 
 
@@ -79,7 +86,7 @@ html {
 }
 
 body {
-    background-color: mix($gray-100, $gray-200);
+    background-color: $gray-150;
 
     &.popup {
         background-color: #fff;
@@ -126,6 +133,11 @@ body {
     grid-column: 1 / 2;
 }
 
+.popup {
+    // Larger padding-x in popups
+    --content-padding-x: #{$content-padding-x};
+}
+
 #content {
     position: relative;
     margin: 0;
@@ -133,7 +145,7 @@ body {
     padding-right: var(--content-padding-x);
     padding-top: $section-header-height;
     padding-bottom: var(--content-padding-x);
-    box-shadow: $box-shadow-sm-var;
+    box-shadow: $box-shadow-sm;
     border-radius: 0;
     background-color: #fff;
     grid-column: 1 / -1;
@@ -143,7 +155,7 @@ body {
 
     @include media-breakpoint-up(sm) {
         margin: 0 var(--content-padding-x);
-        border-radius: $border-radius-lg $border-radius-lg 0 0;
+        border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
     }
 
     .popup & {
@@ -175,20 +187,18 @@ body {
 }
 
 .section-header {
+    --header-size: calc((#{$input-btn-font-size} * #{$input-btn-line-height}) + #{$input-padding-y * 2} + 2px); // Adjust to medium button height
     position: absolute;
-    left: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     top: 0;
-    right: 0;
-    padding-left: var(--content-padding-x);
-    padding-right: var(--content-padding-x);
-    padding-top: var(--content-padding-y);
-    padding-bottom: var(--content-padding-y);
+    padding-inline: var(--content-padding-x);
+    padding-block: var(--content-padding-y);
     transition: box-shadow 0.25s ease;
 
     @include make-row();
     flex-wrap: nowrap;
-    margin-left: 0;
-    margin-right: 0;
+    margin-inline: 0;
 
     .title, .options {
         @include make-col-ready();
@@ -199,12 +209,11 @@ body {
         font-weight: $font-weight-medium;
         color: $headings-color;
         font-size: $h4-font-size;
-        line-height: $input-height;
-        min-height: $input-height;
+        line-height: var(--header-size);
+        min-height: var(--header-size);
         vertical-align: middle;
         @include text-truncate();
-        padding-left: 0;
-        padding-right: 5px;
+        padding-inline: 0 5px;
         color: inherit;
         display: inline-flex;
         align-items: center;
@@ -217,14 +226,14 @@ body {
             display: none; // Turn off for now, seems to look nicer
             font-size: 28px;
             vertical-align: text-top;
-            margin-right: 0.5rem;
+            margin-inline-end: 0.5rem;
             color: $text-muted;
         }
 
         > img {
-            max-height: $input-height;
+            max-height: var(--header-size);
             max-width: 120px;
-            margin-right: 5px;
+            margin-inline-end: 5px;
             vertical-align: top;
         }
 
@@ -233,7 +242,7 @@ body {
             font-family: $font-family-sans-serif;
             font-size: 12px;
             font-weight: normal;
-            padding-left: 5px;
+            padding-inline-start: 5px;
         }
     }
     // .title
@@ -372,22 +381,46 @@ body {
     }
 
     .dropdown-menu {
+      --dropdown-padding-x: 0.5rem;
+      --dropdown-padding-y: 0.5rem;
+      --dropdown-item-padding-x: 1rem;
+      --dropdown-item-padding-y: 0.5rem;
+      --dropdown-divider-margin-y: 0.5rem;
+      --dropdown-border-radius: 8px;
+      --shadow-intensity: 0.7;
+      --dropdown-box-shadow: #{$box-shadow-lg};
         margin-top: -2px;
     }
 
     #navbar-menu .nav-item > .dropdown-menu {
-        @include bubble("top", "near", 8, #fff, $dropdown-border-color, 10px);
+        @include bubble("top", "near", 8, var(--dropdown-bg), var(--dropdown-border-color), 10px);
     }
 
-    .dropdown-item > i,
-    .dropdown-item > img {
-        display: inline-block;
-        font-size: inherit;
+    [data-id="nav-modules"] li:not([data-id="modules-manage"]) .dropdown-item {
+        // Don't emphasize plugin entries
+        font-weight: $font-weight-normal;
+    }
+
+    .dropdown-item {
+        font-weight: $font-weight-medium;
+
+        > i,
+        > svg,
+        > img {
+            margin-inline-start: -0.375rem;
+            margin-inline-end: 0.75rem;
+            display: inline-block;
+            font-size: inherit;
+        }
     }
 
     .dropdown-header {
         font-size: $font-size-xs;
         text-transform: uppercase;
+    }
+
+    .dropdown-divider {
+        margin-block: 0.5rem;
     }
 
     .nav-item {
@@ -710,6 +743,7 @@ legend {
 
     .adminTitle,
     .adminData {
+        position: relative;
         @include make-col-ready();
         padding-right: 0;
         padding-left: 0;
@@ -842,7 +876,7 @@ legend {
 
 .admin-table tbody {
     .omega {
-        text-align: right;
+        text-align: end;
     }
 
     tr {
@@ -866,7 +900,7 @@ legend {
     background-color: #fff;
     border: 1px solid $border-color;
     margin-bottom: 1rem;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
 
     --tab-caption-display-xs: none;
     --tab-caption-display-sm: var(--tab-caption-display-xs);
@@ -882,8 +916,7 @@ legend {
         padding: 0.4rem;
         border-bottom: 1px solid $border-color;
         background-color: $gray-100;
-        border-top-left-radius: $border-radius;
-        border-top-right-radius: $border-radius;
+        @include border-top-radius(var(--border-radius-md));
         flex-wrap: nowrap;
         overflow-x: auto;
 
@@ -906,6 +939,7 @@ legend {
             margin-bottom: 0;
             padding: 0.4rem 0.75rem;
             height: auto;
+            border-radius: var(--nav-tabs-border-radius);
 
             &:active {
                 border-color: var(--nav-tabs-link-active-border-color);
@@ -1203,7 +1237,7 @@ legend {
     }
 
     .btn.activate-provider {
-        > .bi {
+        > svg {
             margin-inline-end: 0.2rem;
         }
         > span {
@@ -1361,8 +1395,8 @@ a.editable {
 
     .attr-caption {
         font-weight: $font-weight-medium;
-        text-align: right;
-        padding-right: 10px;
+        text-align: end;
+        padding-inline-end: 10px;
 
         &:after {
             content: ': '
@@ -1497,7 +1531,7 @@ a.editable {
 // Rules
 // --------------------------------------------------------------
 
-.rule,
+.rule-row,
 .ruleset {
     margin: 1rem;
 }
@@ -1562,7 +1596,7 @@ a.editable {
 }
 
 .rule-operator > .dropdown-menu {
-    min-width: 100%
+    --dropdown-min-width: 100%
 }
 
 
@@ -1592,8 +1626,8 @@ a.editable {
         height: $font-size-base;
         vertical-align: bottom;
         display: inline-block;
-        border-radius: $border-radius-sm;
-        border: 1px solid rgba(#000, 0.06);
+        border-radius: var(--border-radius-sm);
+        border: 1px solid rgba($black, 0.06);
     }
 }
 

@@ -16,6 +16,7 @@ namespace Smartstore.Admin.Models.Customers
         public string Username { get; set; }
 
         [LocalizedDisplay("*Email")]
+        [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 
         [LocalizedDisplay("*Password")]

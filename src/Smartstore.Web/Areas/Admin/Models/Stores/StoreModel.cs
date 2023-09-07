@@ -66,6 +66,7 @@ namespace Smartstore.Admin.Models.Stores
 
         [LocalizedDisplay("*MsTileColor")]
         [UIHint("Color")]
+        [AdditionalMetadata("swatches", false)]
         public string MsTileColor { get; set; }
 
         [LocalizedDisplay("Common.DisplayOrder")]

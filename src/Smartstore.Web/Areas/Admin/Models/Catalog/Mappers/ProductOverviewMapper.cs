@@ -98,6 +98,7 @@ namespace Smartstore.Admin.Models.Catalog
             to.CreatedOn = _services.DateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
             to.CopyProductModel.Name = _services.Localization.GetResource("Admin.Common.CopyOf").FormatInvariant(from.Name);
             to.NoThumb = file == null;
+            to.DeliveryTime = from.DeliveryTimeId.HasValue && from.DeliveryTime != null ? from.DeliveryTime.Name : string.Empty;
 
             // TODO: (core) Use IImageModel
             to.PictureThumbnailUrl = _services.MediaService.GetUrl(file, _mediaSettings.CartThumbPictureSize);

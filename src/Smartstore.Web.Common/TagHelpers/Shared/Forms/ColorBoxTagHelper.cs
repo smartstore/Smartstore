@@ -9,6 +9,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     public class ColorBoxTagHelper : BaseFormTagHelper
     {
         const string DefaultColorAttributeName = "sm-default-color";
+        const string SwatchesAttributeName = "sm-swatches";
 
         /// <summary>
         /// Specifies the default color of the property.
@@ -16,13 +17,19 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(DefaultColorAttributeName)]
         public string DefaultColor { get; set; }
 
+        /// <summary>
+        /// Whether to show color swatches. Default = true.
+        /// </summary>
+        [HtmlAttributeName(SwatchesAttributeName)]
+        public bool Swatches { get; set; } = true;
+
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             IHtmlContent box;
 
             if (For != null)
             {
-                box = HtmlHelper.ColorBoxFor(For, DefaultColor);
+                box = HtmlHelper.ColorBoxFor(For, DefaultColor, Swatches);
             }
             else
             {
@@ -47,7 +54,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     throw new InvalidOperationException("The name of a colorbox field cannot be null or empty.");
                 }
 
-                box = HtmlHelper.ColorBox(name, value, DefaultColor);
+                box = HtmlHelper.ColorBox(name, value, DefaultColor, Swatches);
             }
 
             output.SuppressOutput();

@@ -46,7 +46,8 @@ namespace Smartstore.Core.Checkout.Orders
                     var newStatus = (ShippingStatus)(int)prop.CurrentValue;
                     var reason = _paymentSettings.CapturePaymentReason.Value;
 
-                    // OrderStatus.Complete would be too late. The payment would already be marked as paid and capturing would never happen.
+                    // INFO: CapturePaymentReason.OrderCompleted is processed in CompleteOrderAsync. Would be too late here
+                    // because the payment would already be marked as paid and capturing never happens.
                     if ((newStatus == ShippingStatus.Shipped && reason == CapturePaymentReason.OrderShipped) ||
                         (newStatus == ShippingStatus.Delivered && reason == CapturePaymentReason.OrderDelivered))
                     {

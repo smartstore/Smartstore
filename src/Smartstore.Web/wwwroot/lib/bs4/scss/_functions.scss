@@ -1,5 +1,3 @@
-/// <reference path="_variables.scss" />
-
 // Bootstrap functions
 //
 // Utility mixins and functions for evaluating source code across our variables, maps, and mixins.
@@ -84,6 +82,63 @@
   } @else {
     @return rgba(var(--#{$identifier}-rgb), var(--#{$target}-opacity));
   }
+}
+
+@function map-loop($map, $func, $args...) {
+  $_map: ();
+
+  @each $key, $value in $map {
+    // allow to pass the $key and $value of the map as an function argument
+    $_args: ();
+    @each $arg in $args {
+      $_args: append($_args, if($arg == "$key", $key, if($arg == "$value", $value, $arg)));
+    }
+
+    $_map: map-merge($_map, ($key: call(get-function($func), $_args...)));
+  }
+
+  @return $_map;
+}
+
+@function varify($list) {
+  $result: null;
+  @each $entry in $list {
+    $result: append($result, var(--#{$prefix}#{$entry}), space);
+  }
+  @return $result;
+}
+
+// Internal Bootstrap function to turn maps into its negative variant.
+// It prefixes the keys with `n` and makes the value negative.
+@function negativify-map($map) {
+  $result: ();
+  @each $key, $value in $map {
+    @if $key != 0 {
+      $result: map-merge($result, ("n" + $key: (-$value)));
+    }
+  }
+  @return $result;
+}
+
+// Get multiple keys from a sass map
+@function map-get-multiple($map, $values) {
+  $result: ();
+  @each $key, $value in $map {
+    @if (index($values, $key) != null) {
+      $result: map-merge($result, ($key: $value));
+    }
+  }
+  @return $result;
+}
+
+// Merge multiple maps
+@function map-merge-multiple($maps...) {
+  $merged-maps: ();
+
+  @each $map in $maps {
+    $merged-maps: map-merge($merged-maps, $map);
+  }
+  @return $merged-maps;
 }
 
 // Color contrast
@@ -278,4 +333,12 @@ $_luminance-list: .0008 .001 .0011 .0013 .0015 .0017 .002 .0022 .0025 .0027 .003
     $result: $result * map-get($unit-map, $dividend-unit);
   }
   @return $result;
+}
+
+@function cssmin($expr1, $expr2) {
+  @return #{unquote("min(#{$expr1}, #{$expr2})")};
+}
+
+@function cssmax($expr1, $expr2) {
+  @return #{unquote("max(#{$expr1}, #{$expr2})")};
 }

@@ -4,7 +4,6 @@
 // could put our custom variables. This way we gain more flexibility.
 // ===========================================================================
 
-@import "mixins";
 @import "root";
 @import "reboot";
 @import "type";
@@ -32,11 +31,17 @@
 @import "media";
 @import "list-group";
 @import "close";
-@import "toasts";
+//@import "toasts";
 @import "modal";
 @import "tooltip";
 @import "popover";
 @import "carousel";
 @import "spinners";
-@import "utilities";
+@import "placeholders";
 @import "print";
+
+// Helpers
+@import "helpers";
+
+// Utilities
+@import "utilities/api";

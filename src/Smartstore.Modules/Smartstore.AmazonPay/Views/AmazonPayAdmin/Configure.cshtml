@@ -30,7 +30,7 @@
     <div>
         <div class="alert alert-info alert-dismissible">
             @Html.Raw(T("Plugins.Payments.AmazonPay.AdminInstruction"))
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <button type="button" class="btn-close" data-dismiss="alert"></button>
         </div>
     </div>
     <div>
@@ -55,7 +55,7 @@
             <div class="adminTitle">&nbsp;</div>
             <div class="adminData">
                 <a href="javascript:;" class="btn btn-primary register-now">
-                    <i class="fa fa-sign-in-alt"></i>
+                    <i class="fa fa-right-to-bracket"></i>
                     <span>@T("Plugins.Payments.AmazonPay.RegisterNow")</span>
                 </a>
                 <button type="button" class="btn btn-secondary paste-access-data">
@@ -98,7 +98,7 @@
                 <div sm-if="Model.HasPrivateKey" class="form-control-plaintext">
                     <span>*******</span>
                     <button id="remove-private-key" type="button" class="btn btn-secondary btn-to-danger btn-sm ml-3" data-url="@Url.Action("RemovePrivateKey")">
-                        <i class="far fa-trash-alt"></i>
+                        <i class="far fa-trash-can"></i>
                         <span>@T("Admin.Common.Delete")</span>
                     </button>
                 </div>

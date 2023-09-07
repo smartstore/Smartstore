@@ -103,7 +103,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 //output.MergeAttribute("v-if", "grid.hasSearchPanel"); // ??? Hmmm...
                 output.MergeAttribute("v-bind:class", "{ 'active': options.showSearch }");
                 output.MergeAttribute("v-on:click", "options.showSearch = !options.showSearch");
-                output.PostContent.AppendHtml("<span v-if='grid.numSearchFilters > 0' class='badge badge-pill badge-success dg-toolbar-badge'>{{ grid.numSearchFilters }}</span>");
+                output.PostContent.AppendHtml("<span v-if='grid.numSearchFilters > 0' class='badge badge-pill badge-danger badge-counter badge-counter-ring edge-top-end edge-inset dg-toolbar-badge'>{{ grid.numSearchFilters }}</span>");
 
                 return;
             }
@@ -132,7 +132,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             if (Action == DataGridToolAction.DeleteSelectedRows || Action == DataGridToolAction.ReactToSelection)
             {
                 output.MergeAttribute("v-bind:class", "{ 'disabled': !grid.hasSelection }");
-                output.PostContent.AppendHtml("<span v-if='grid.hasSelection' class='badge badge-success'>{{ grid.selectedRowsCount }}</span>");
+                output.PostContent.AppendHtml("<span v-if='grid.hasSelection' class='badge badge-success badge-counter'>{{ grid.selectedRowsCount }}</span>");
             }
 
             if (Action == DataGridToolAction.DeleteSelectedRows)

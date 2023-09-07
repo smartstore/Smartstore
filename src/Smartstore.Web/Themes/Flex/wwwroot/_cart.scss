@@ -1,18 +1,13 @@
-/// <reference path="theme.scss" />
+/// <reference path="references.scss" />
 
 // General
 // =================================
 
 .label-cart-amount {
-    font-size: 10px;
-    width: 18px;
-    height: 18px;
+    //--badge-font-size: 10px;
     position: absolute;
     inset-inline-end: -5px;
     top: -9px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
 }
 
 
@@ -249,8 +244,11 @@
 }
 
 .cart-item-link {
+    @extend .link-body;
+    @extend .link-dnu;
+    @extend .link-transition;
+
     font-weight: $font-weight-medium;
-    color: inherit !important;
     font-size: 1rem;
     line-height: 1.2;
 
@@ -353,7 +351,7 @@
     padding: 1rem;
 
     .alert {
-        border: 1px solid rgba(#000, 0.08);
+        --alert-border-color: #{rgba(#000, 0.08)};
     }
 }
 

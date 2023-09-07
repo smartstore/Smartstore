@@ -13,14 +13,14 @@
     <div class="block-title">
         <h4>@T("Products.Tags")</h4>
     </div>
-    <div class="block-body pt-3">
+    <div class="block-body pt-3 hstack flex-wrap gap-1">
         @for (int i = 0; i < Model.Count; i++)
         {
             var tag = Model[i];
 
-            <a asp-route="ProductsByTag" asp-route-productTagId="@tag.Id" asp-route-path="@tag.Slug" class="pd-tag">
+            <a asp-route="ProductsByTag" asp-route-productTagId="@tag.Id" asp-route-path="@tag.Slug" class="pd-tag badge badge-lg badge-pill badge-light">
                 <span sm-language-attributes-for="tag.Name">@tag.Name</span>
-                <span class="pd-tag-count pl-1">@tag.ProductCount</span>
+                <span class="pd-tag-count pl-1 fwn text-muted">@tag.ProductCount</span>
             </a>
         }
     </div>

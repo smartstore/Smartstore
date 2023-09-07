@@ -13,10 +13,15 @@ namespace Smartstore
 
         public static ICollection<string> GetMessages(this IDisplayHelper displayHelper, NotifyType type)
         {
-            return ResolveNotifications(displayHelper, type).AsReadOnly();
+            return ResolveNotifications(displayHelper, type).Select(x => x.Message).AsReadOnly();
         }
 
-        private static IEnumerable<string> ResolveNotifications(IDisplayHelper displayHelper, NotifyType? type)
+        public static ICollection<NotifyEntry> GetMessages(this IDisplayHelper displayHelper)
+        {
+            return ResolveNotifications(displayHelper, null).AsReadOnly();
+        }
+
+        private static IEnumerable<NotifyEntry> ResolveNotifications(IDisplayHelper displayHelper, NotifyType? type)
         {
             var allNotifications = displayHelper.HttpContext.GetItem("AllNotifications", () =>
             {
@@ -49,10 +54,10 @@ namespace Smartstore
 
             if (type == null)
             {
-                return allNotifications.Select(x => x.Message);
+                return allNotifications;
             }
 
-            return allNotifications.Where(x => x.Type == type.Value).Select(x => x.Message);
+            return allNotifications.Where(x => x.Type == type.Value);
         }
     }
 }

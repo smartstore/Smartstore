@@ -18,7 +18,7 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*WeightAdjustment")]
         public decimal WeightAdjustment { get; set; }
-        public string BaseWeightIn { get; set; }
+        public string BaseWeight { get; set; }
 
         [LocalizedDisplay("*IsPreSelected")]
         public bool IsPreSelected { get; set; }

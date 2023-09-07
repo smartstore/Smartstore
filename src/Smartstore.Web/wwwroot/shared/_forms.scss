@@ -1,6 +1,4 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+/// <reference path="references.scss" />
 
 // Forms
 // ------------------------------------------------------
@@ -63,17 +61,57 @@ fieldset.content-group {
 }
 
 
-// Native select styling
+// .form-check color variants
 // ------------------------------------------------------
 
-select.form-control:not([multiple], [size]:not([size="1"])) {
-    // Remove this stuff after upgrading to Bootstrap 5
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 16px 12px;
-    padding-right: 2.25rem;
+@each $color, $value in $theme-colors {
+    @if $color != 'secondary' and $color != 'light' {
+        .form-check-#{$color} > .form-check-input {
+            --form-check-checked-bg-rgb: #{to-rgb($value)};
+        }
+    }
+}
+
+
+// .form-check solo
+// Solo check input without label,
+// placed like a regular form-control
+// ------------------------------------------------------
+
+.form-check-solo {
+    display: inline-flex;
+    padding-inline: 0;
+    padding-block: add($input-padding-y-sm, $input-border-width);
+    margin-block: 0;
+
+    .form-check-input {
+        margin-inline: 0;
+        margin-top: 0;
+    }
+}
+
+
+// .form-switch
+// ------------------------------------------------------
+
+.form-switch {
+    .form-check-input {
+        --form-check-bg: var(--gray-200);
+    }
+
+    &.form-check-solo {
+        // Align to common input sm sizing
+        --form-switch-width: #{$input-font-size-sm * $input-line-height-sm * 2};
+    }
+
+    &.form-switch-lg {
+        // Align to common input medium sizing
+        --form-switch-width: #{$input-font-size * $input-line-height * 2};
+
+        &.form-check-solo {
+            padding-block: add($input-padding-y, $input-border-width);
+        }
+    }
 }
 
 
@@ -81,6 +119,10 @@ select.form-control:not([multiple], [size]:not([size="1"])) {
 // ------------------------------------------------------
 
 .has-icon {
+    --inline-icon-size: #{$input-height};
+    --inline-icon-font-size: inherit;
+    --inline-icon-offset: 0px;
+
 	position: relative;
 	display: flex;
 
@@ -91,198 +133,78 @@ select.form-control:not([multiple], [size]:not([size="1"])) {
 
 	.input-group-icon {
 		position: absolute;
-		left: 0;
 		z-index: 10;
-		width: $input-height;
-		height: 100%;
-		line-height: $input-height;
+        height: 100%;
+		width: var(--inline-icon-size);
+        line-height: var(--inline-icon-size);
+        font-size: var(--inline-icon-font-size);
+        inset-inline-start: var(--inline-icon-offset);
 		text-align: center;
 		vertical-align: middle;
         pointer-events: none;
 
         :before {
+            font-size: cssmax(16px, var(--inline-icon-font-size));
             position: absolute;
-            left: 50%;
+            inset-inline-start: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
         }
 	}
 
 	&.has-icon-right .input-group-icon {
-		left: auto;
-		right: 0;
+		inset-inline-start: auto;
+		inset-inline-end: var(--inline-icon-offset);
 	}
 
-	&.input-group-lg .input-group-icon {
-		width: $input-height-lg;
-		height: $input-height-lg;
-		line-height: $input-height-lg;
-		font-size: $font-size-lg;
+	&.input-group-lg {
+        --inline-icon-size: #{$input-height-lg};
+        --inline-icon-font-size: #{$font-size-lg};
 	}
 
-	&.input-group-sm .input-group-icon {
-		width: $input-height-sm;
-		height: $input-height-sm;
-		line-height: $input-height-sm;
-		font-size: $font-size-sm;
+	&.input-group-sm {
+        --inline-icon-size: #{$input-height-sm};
+        --inline-icon-font-size: #{$font-size-sm};
 	}
 
-	&:not(.has-icon-right) {
-		.form-control {
-			padding-left: $input-height;
-		}
-
-		&.input-group-lg .form-control {
-			padding-left: $input-height-lg;
-		}
-
-		&.input-group-sm .form-control {
-			padding-left: $input-height-sm;
-		}
+	&:not(.has-icon-right) .form-control {
+	    padding-inline-start: var(--inline-icon-size);
 	}
 
-	&.has-icon-right {
-		.form-control {
-			padding-right: $input-height;
-		}
-
-		&.input-group-lg .form-control {
-			padding-right: $input-height-lg;
-		}
-
-		&.input-group-sm .form-control {
-			padding-right: $input-height-sm;
-		}
+	&.has-icon-right .form-control {
+	    padding-inline-end: var(--inline-icon-size);
 	}
 }
 
 
-// Checkbox & Radio tweaks (remove after bs6 update)
+// Input inline addon (button):
+// Absolutely positioned input inset button
 // ------------------------------------------------------
 
-.form-check {
-    display: block;
-    min-height: $form-check-min-height;
-    padding-inline-start: $form-check-padding-start;
-    margin-bottom: $form-check-margin-bottom;
+.input-group-inline-addon {
+    @extend .input-group-text;
 
-    .form-check-input {
-        float: left;
-        margin-inline-start: $form-check-padding-start * -1;
-    }
-}
+    --addon-border-radius: var(--border-radius, #{$input-border-radius});
+    --addon-border-radius-inner: var(--border-radius-inner, calc(var(--addon-border-radius) - 1px));
 
-.form-check.form-check-inline {
-    display: inline-block;
-    margin-inline-end: 1rem;
-}
+    align-items: stretch;
+    position: relative;
+    background-color: $input-bg;
+    border-inline-start-color: $input-bg !important;
+    padding: 0.25em !important;
+    z-index: 5;
+    border-radius: var(--addon-border-radius);
 
-.form-check-input {
-    $mfactor: 0.5;
-    @if $font-size-base > 0.9rem {
-        $mfactor: 0.4;
+    .form-control:focus ~ .input-group-append > & {
+        border-color: $input-focus-border-color;
     }
 
-    --form-check-bg: #{$input-bg};
-
-    position: static;
-    width: $form-check-input-width;
-    height: $form-check-input-width;
-    width: cssmax(1rem, #{$form-check-input-width});
-    height: cssmax(1rem, #{$form-check-input-width});
-    margin-inline-start: 0;
-    margin-top: ($line-height-base - $form-check-input-width) * $mfactor !important; // line-height minus check height
-    vertical-align: top;
-    appearance: none;
-    background-color: var(--form-check-bg);
-    background-image: var(--form-check-bg-image);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    border: 1px solid $gray-400;
-    print-color-adjust: exact; // Keep themed appearance for print
-
-    &[type="checkbox"] {
-        border-radius: 0.25em;
+    > .btn {
+        // Some button fixes
+        --btn-padding-y: 0;
+        --btn-border-radius: var(--addon-border-radius-inner); // Inherit the parent's radius
+        --btn-font-size: #{$font-size-sm};
     }
-
-    &[type="radio"] {
-        border-radius: 50%;
-    }
-
-    &:active {
-        filter: brightness(90%);
-    }
-
-    &:focus {
-        border-color: $primary;
-        outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
-    }
-
-    &:checked {
-        background-color: $primary;
-        border-color: $primary;
-
-        &[type="checkbox"] {
-            --form-check-bg-image: #{escape-svg($form-check-input-checked-bg-image)};
-        }
-
-        &[type="radio"] {
-            --form-check-bg-image: #{escape-svg($form-check-radio-checked-bg-image)};
-        }
-    }
-
-    &[type="checkbox"]:indeterminate {
-        background-color: $form-check-input-indeterminate-bg-color;
-        border-color: $form-check-input-indeterminate-border-color;
-        --form-check-bg-image: #{escape-svg($form-check-input-indeterminate-bg-image)};
-    }
-
-    &:disabled {
-        pointer-events: none;
-        filter: none;
-        opacity: .5;
-    }
-
-    // Use disabled attribute in addition of :disabled pseudo-class
-    // See: https://github.com/twbs/bootstrap/issues/28247
-    &[disabled],
-    &:disabled {
-        ~ .form-check-label {
-            cursor: default;
-            opacity: .5;
-        }
-    }
-}
-
-.form-check-label {
-}
-
-
-
-.radio input[type="radio"], 
-.radio-inline input[type="radio"], 
-.checkbox input[type="checkbox"], 
-.checkbox-inline input[type="checkbox"] {
-    //margin-right: 0.25rem;
-}
-
-.wkit.touchevents .form-check {
-	@if $font-size-base < 1 rem {
-        // Fix Chrome mobile check/radio alignment and padding issues:
-        // increase spacing from 1.25rem to 1.5rem
-		//padding-left: 1.5rem;
-	
-		.form-check-input {
-			//margin-left: -1.5rem;
-		}
-	    
-        // Seems not necessary anymore
-        //.form-check-label {
-		//	padding-top: 0.2rem;
-		//}
-	}
 }
 
 
@@ -305,10 +227,6 @@ select.form-control:not([multiple], [size]:not([size="1"])) {
 .validation-summary-valid,
 .validation-summary-errors {
     @extend .alert;
-
-    > *:last-child {
-        margin-bottom: 0;
-    }
 }
 
 .validation-summary-valid {
@@ -362,12 +280,7 @@ select.form-control:not([multiple], [size]:not([size="1"])) {
 
 .link-control > .form-control,
 .link-control > .select2 {
-	border-radius: 0 !important;
 	border-color: $input-border-color !important;
-
-	.select2-selection {
-		border-radius: 0 !important;
-	}
 }
 
 .link-control > .form-control:focus {

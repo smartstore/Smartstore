@@ -1,7 +1,4 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
-
+/// <reference path="references.scss" />
 
 //
 // Bidi
@@ -34,13 +31,13 @@
 }
 
 .sm-gutters {
-    --gutter-x: 0.5rem;
-    --gutter-y: 0.5rem;
+    --gutter-x: 1rem;
+    //--gutter-y: 0.5rem;
 }
 
 .xs-gutters {
-    --gutter-x: 0.25rem;
-    --gutter-y: 0.25rem;
+    --gutter-x: 0.5rem;
+    //--gutter-y: 0.25rem;
 }
 
 .container-fluid {
@@ -58,27 +55,8 @@
 	position: relative;
 	display: inline-block;
 	opacity: 0.6;
-	padding-left: 0.2rem;
+	padding-inline-start: 0.2rem;
 	font-weight: 400;
-}
-
-
-//
-// Icon margins
-// ------------------------------------------------------
-
-.btn,
-.nav-link,
-.menubar-link {
-	> i + span:not(:empty), > .bi + span:not(:empty),
-	> i + em:not(:empty), > .bi + em:not(:empty) {
-		padding-left: 0.5em;
-	}
-
-	> span:not(:empty) + i, > span:not(:empty) + .bi,
-	> em:not(:empty) + i, > em:not(:empty) + .bi {
-		margin-left: 0.5em;
-	}
 }
 
 
@@ -163,12 +141,6 @@
 	height: auto !important;
 }
 
-.fit-fill       { object-fit: fill; }
-.fit-contain    { object-fit: contain; }
-.fit-cover      { object-fit: cover; }
-.fit-scale-down { object-fit: scale-down; }
-.fit-none       { object-fit: none; }
-
 
 //
 // Flag icon
@@ -186,37 +158,15 @@ img[src*="/images/flags/"] {
 // Bootstrap overrides and tweaks
 // --------------------------------------------------
 
-.dropdown .badge {
-	font-size: $font-size-xs;
-}
-
 .popover-title {
 	padding-top: 1rem;
 	padding-bottom: 1rem;
 	font-weight: $font-weight-medium;
 }
 
-.tooltip {
-	font-size: $font-size-sm;
-}
-
-.badge:not(.badge-pill) {
-	border-radius: $border-radius-sm;
-}
-
 table th {
 	font-weight: $font-weight-medium;
-}
-
-
-//
-// Bootstrap additions
-// --------------------------------------------------
-
-.embed-responsive-16by10 {
-    &::before {
-        padding-top: percentage(10 / 16);
-    }
+    text-align: start;
 }
 
 
@@ -242,7 +192,7 @@ table th {
 		}
 
 		.list-group-item-icon {
-			margin-right: 0.75rem;
+			margin-inline-end: 0.75rem;
 		}
 	}
 }
@@ -253,49 +203,7 @@ table th {
 // ------------------------------------------------------
 
 .border-translucent {
-    border-color: rgba(#000, 0.12) !important;
-}
-
-.rounded, 
-.rounded-top, 
-.rounded-right, 
-.rounded-bottom, 
-.rounded-left {
-    --border-radius: #{$border-radius};
-    --border-radius-inner: calc(#{$border-radius} - 1px);
-}
-
-.rounded-sm {
-    --border-radius: #{$border-radius-sm};
-    --border-radius-inner: calc(#{$border-radius-sm} - 1px);
-    border-radius: $border-radius-sm !important;
-}
-
-.rounded-lg {
-    --border-radius: #{$border-radius-lg};
-    --border-radius-inner: calc(#{$border-radius-lg} - 1px);
-    border-radius: $border-radius-lg !important;
-}
-
-.rounded-xl {
-    --border-radius: #{$border-radius-lg * 2};
-    --border-radius-inner: calc(#{$border-radius-lg * 2} - 2px);
-    border-radius: $border-radius-lg * 2 !important;
-}
-
-.rounded-circle {
-    --border-radius: 50%;
-}
-
-.rounded-pill {
-    --border-radius: 50rem;
-    --border-radius-inner: calc(50rem - 1px);
-    border-radius: 50rem;
-}
-
-.rounded-0 {
-    --border-radius: 0;
-    --btn-border-radius: 0;
+    border-color: var(--border-color-translucent) !important;
 }
 
 
@@ -317,34 +225,6 @@ table th {
 // Shadows
 // --------------------------------------------------
 
-.shadow,
-.shadow-xs,
-.shadow-sm,
-.shadow-lg,
-:root {
-    $c: $dark;
-    --shadow-color-rgb: 0,0,0;
-    --shadow-colorbase-rgb: #{red($c)}, #{green($c)}, #{blue($c)};
-    --shadow-intensity: #{$shadow-intensity};
-}
-
-.shadow {
-    --box-shadow: #{$box-shadow-var};
-}
-
-.shadow-xs {
-    --box-shadow: #{$box-shadow-xs-var};
-    box-shadow: var(--box-shadow) !important;
-}
-
-.shadow-sm {
-    --box-shadow: #{$box-shadow-sm-var};
-}
-
-.shadow-lg {
-    --box-shadow: #{$box-shadow-lg-var};
-}
-
 @each $color, $value in $theme-colors {
     @if $color != "secondary" and $color != "light" { 
         .shadow-#{$color} { 
@@ -358,7 +238,7 @@ table th {
 }
 
 .shadow-light {
-    box-shadow: 0 0 20px 0 rgba(#000, .08);
+    box-shadow: 0 0 20px 0 rgba($black, .08);
 }
 
 
@@ -423,20 +303,6 @@ table th {
 	border: 2px dotted $gray-700 !important;
 	background: transparent;
 	z-index: 100000;
-}
-
-
-// Sizing
-// -------------------------
-
-.h-medium     { min-height: 400px; }
-.h-tall       { min-height: 700px; }
-
-@each $breakpoint in (sm, md, lg, xl) {
-    @include media-breakpoint-up($breakpoint) {
-        .h-#{$breakpoint}-medium     { min-height: 400px; }
-        .h-#{$breakpoint}-tall       { min-height: 700px; }
-    }
 }
 
 
@@ -567,7 +433,7 @@ html:not(.edge) .parallax[data-parallax-type=content] {
 .no-anims,
 .no-anims * {
     transition-property: none !important;
-    transition-duration: 0 !important;
+    transition-duration: 0ms !important;
     animation: none !important;
 }
 

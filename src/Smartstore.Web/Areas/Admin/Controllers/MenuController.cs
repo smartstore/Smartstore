@@ -174,7 +174,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Cms.MessageTemplate.Read)]
+        [Permission(Permissions.Cms.Menu.Read)]
         public async Task<IActionResult> MenuEntityList(GridCommand command, MenuEntityListModel model)
         {
             var query = _db.Menus.AsNoTracking();

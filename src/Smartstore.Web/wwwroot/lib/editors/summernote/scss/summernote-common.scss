@@ -107,9 +107,8 @@ $img-margin-right: 10px;
             background-color: #222;
             resize: none;
             outline: none;
-            // override BS2 default style
-            @include box-sizing(border-box);
-            @include rounded(0);
+            box-sizing: border-box;
+            border-radius: 0;
             margin-bottom: 0;
         }
     }
@@ -371,7 +370,7 @@ $img-margin-right: 10px;
                     padding: 0 3px;
                     cursor: pointer;
                     width: 100%;
-                    @include rounded(5px);
+                    border-radius: 5px;
 
                     &:hover {
                         background: #eee;
@@ -468,7 +467,7 @@ $img-margin-right: 10px;
     .modal-dialog {
         outline: 0;
         border-radius: 5px;
-        @include box-shadow(0 3px 9px rgba(0,0,0,.5));
+        box-shadow: 0 3px 9px rgba(0,0,0, .5);
     }
 
     .form-group { // overwrite BS's form-horizontal minus margins
@@ -524,7 +523,7 @@ $img-margin-right: 10px;
             width: 100%;
             height: 100%;
             background-color: #000;
-            @include opacity(0.3);
+            opacity: 0.3;
         }
 
         .note-control-handle {
@@ -583,8 +582,8 @@ $img-margin-right: 10px;
             color: #fff;
             background-color: #000;
             font-size: 12px;
-            @include rounded(5px);
-            @include opacity(0.7);
+            opacity: 0.7;
+            border-radius: 5px;
         }
     }
 }

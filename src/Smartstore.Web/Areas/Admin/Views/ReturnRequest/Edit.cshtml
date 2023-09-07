@@ -38,7 +38,7 @@
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
             <button type="submit" id="returnrequest-delete" name="returnrequest-delete" class="btn btn-danger">
-                <i class="far fa-trash-alt"></i>
+                <i class="far fa-trash-can"></i>
                 <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="returnrequest-delete" />
@@ -51,7 +51,7 @@
 
     <div sm-if="Model.ReturnRequestInfo.HasValue()" class="alert alert-info alert-dismissible">
         @Html.Raw(Model.ReturnRequestInfo)
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
 
     <zone name="returnrequest_top" />

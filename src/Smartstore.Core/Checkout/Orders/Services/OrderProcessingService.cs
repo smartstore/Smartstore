@@ -53,6 +53,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly TaxSettings _taxSettings;
+        private readonly PaymentSettings _paymentSettings;
         private readonly Currency _primaryCurrency;
         private readonly Currency _workingCurrency;
 
@@ -84,7 +85,8 @@ namespace Smartstore.Core.Checkout.Orders
             OrderSettings orderSettings,
             ShoppingCartSettings shoppingCartSettings,
             LocalizationSettings localizationSettings,
-            TaxSettings taxSettings)
+            TaxSettings taxSettings,
+            PaymentSettings paymentSettings)
         {
             _db = db;
             _workContext = workContext;
@@ -114,6 +116,7 @@ namespace Smartstore.Core.Checkout.Orders
             _shoppingCartSettings = shoppingCartSettings;
             _localizationSettings = localizationSettings;
             _taxSettings = taxSettings;
+            _paymentSettings = paymentSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
             _workingCurrency = workContext.WorkingCurrency;
@@ -265,6 +268,11 @@ namespace Smartstore.Core.Checkout.Orders
             if (!order.CanCompleteOrder())
             {
                 throw new InvalidOperationException(T("Order.CannotMarkCompleted"));
+            }
+
+            if (_paymentSettings.CapturePaymentReason == CapturePaymentReason.OrderCompleted && await CanCaptureAsync(order))
+            {
+                await CaptureAsync(order);
             }
 
             if (order.CanMarkOrderAsPaid())

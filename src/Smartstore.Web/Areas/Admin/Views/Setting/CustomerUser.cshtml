@@ -30,6 +30,42 @@
         <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.CustomerSettings")" sm-selected="true">
             <div class="adminContent">
                 <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">
+                            @T("Admin.Configuration.Settings.CustomerUser.Login")
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.UserRegistrationType" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.UserRegistrationType"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.UserRegistrationType"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.RegisterCustomerRoleId" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.RegisterCustomerRoleId">
+                            <editor asp-for="CustomerSettings.RegisterCustomerRoleId" data-placeholder="@T("Common.Unspecified")" />
+                        </setting-editor>
+                        <span asp-validation-for="CustomerSettings.RegisterCustomerRoleId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.NotifyNewCustomerRegistration" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.NotifyNewCustomerRegistration"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.NotifyNewCustomerRegistration"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="CustomerSettings.CustomerLoginType" />
                     </div>
@@ -69,6 +105,19 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CustomerNameAllowedCharacters" />
+                    </div>
+                    <div class="adminData wide">
+                        <setting-editor asp-for="CustomerSettings.CustomerNameAllowedCharacters"></setting-editor>
+                        <span class="d-inline-block text-muted pt-2">
+                            @T("Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint")
+                            <code>a-z</code>, <code>A-Z</code>, <code>0-9</code>, <code>-</code>, <code>.</code>, <code>_</code>, <code>@@</code>, <code>+</code>
+                        </span>
+                        <span asp-validation-for="CustomerSettings.CustomerNameAllowedCharacters"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="CustomerSettings.CustomerNameFormatMaxLength" />
                     </div>
                     <div class="adminData">
@@ -95,32 +144,10 @@
                     </div>
                 </div>
                 <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="CustomerSettings.UserRegistrationType" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="CustomerSettings.UserRegistrationType"></setting-editor>
-                        <span asp-validation-for="CustomerSettings.UserRegistrationType"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="CustomerSettings.RegisterCustomerRoleId" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="CustomerSettings.RegisterCustomerRoleId">
-                            <editor asp-for="CustomerSettings.RegisterCustomerRoleId" data-placeholder="@T("Common.Unspecified")" />
-                        </setting-editor>
-                        <span asp-validation-for="CustomerSettings.RegisterCustomerRoleId"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="CustomerSettings.AllowCustomersToUploadAvatars" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="CustomerSettings.AllowCustomersToUploadAvatars"></setting-editor>
-                        <span asp-validation-for="CustomerSettings.AllowCustomersToUploadAvatars"></span>
+                    <div class="admin-config-group">
+                        <div class="title">
+                            @T("Admin.Configuration.Settings.CustomerUser.Visibility")
+                        </div>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -150,13 +177,21 @@
                         <span asp-validation-for="CustomerSettings.AllowViewingProfiles"></span>
                     </div>
                 </div>
+
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">
+                            @T("Admin.Configuration.Settings.CustomerUser.Misc")
+                        </div>
+                    </div>
+                </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="CustomerSettings.NotifyNewCustomerRegistration" />
+                        <smart-label asp-for="CustomerSettings.AllowCustomersToUploadAvatars" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="CustomerSettings.NotifyNewCustomerRegistration"></setting-editor>
-                        <span asp-validation-for="CustomerSettings.NotifyNewCustomerRegistration"></span>
+                        <setting-editor asp-for="CustomerSettings.AllowCustomersToUploadAvatars"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.AllowCustomersToUploadAvatars"></span>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -200,7 +235,7 @@
         <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.CustomerFormFields")">
             <div class="alert alert-info alert-dismissible">
                 @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.CustomerFormFields.Description"))
-                <button class="close" data-dismiss="alert">&times;</button>
+                <button class="btn-close" data-dismiss="alert"></button>
             </div>
 
             <div class="adminContent">
@@ -416,7 +451,7 @@
         <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.AddressFormFields")">
             <div class="alert alert-info alert-dismissible">
                 @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.AddressFormFields.Description"))
-                <button class="close" data-dismiss="alert">&times;</button>
+                <button class="btn-close" data-dismiss="alert"></button>
             </div>
 
             <div class="adminContent">
@@ -723,7 +758,7 @@
                     <div class="adminTitle">&nbsp;</div>
                     <div class="adminData wide">
                         <div class="alert alert-info alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <button type="button" class="btn-close" data-dismiss="alert"></button>
                             @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.Privacy.SameSiteMode.AdminInstruction"))
                         </div>
                     </div>
@@ -820,7 +855,7 @@
         }).trigger('change');
 
         $('#@Html.IdFor(model => model.CustomerSettings.CustomerLoginType)').change(function () {
-            $('#pnlUsernamesEnabled').toggle($(this).val() !== '@(CustomerLoginType.Email.ToString())');
+            $('#pnlUsernamesEnabled').toggle($(this).val() !== '@((int)CustomerLoginType.Email)');
         }).trigger('change');
     });
 </script>

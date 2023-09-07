@@ -38,7 +38,7 @@
         danger: { name: 'fa fa-exclamation-triangle', color: 'danger' },
         info: { name: 'fa fa-info', color: 'info' },
         warning: { name: 'fa fa-exclamation-circle', color: 'warning' },
-        delete: { name: 'fa fa-trash-alt', color: 'danger' }
+        delete: { name: 'fa fa-trash-can', color: 'danger' }
     };
 
     function createBoxModal(type, opts) {
@@ -95,7 +95,7 @@
             var header = [
                 '<div class="modal-header">',
                 '<h5 class="modal-title">' + opts.title + '</h5>',
-                '<button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>',
+                '<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>',
                 '</div>'
             ].join("");
             $(header).prependTo(modal.find('.modal-content'));
@@ -285,7 +285,7 @@
             var html = [
                 '<div id="' + id + '" class="modal fade" data-backdrop="' + opts.backdrop + '" data-focus="' + opts.focus + '" ',
                 'data-keyboard="' + opts.keyboard + '" role="dialog" aria-hidden="true" tabindex="-1">',
-                !opts.closer ? '' : '<a href="javascript:;" class="modal-closer d-none d-md-block" data-dismiss="modal" title="' + window.Res['Common.Close'] + '">&times;</a>',
+                !opts.closer ? '' : '<a href="javascript:;" class="modal-closer btn-close d-none d-md-block" data-dismiss="modal" title="' + window.Res['Common.Close'] + '"></a>',
                 '<div class="modal-dialog{0} modal-dialog-app" role="document">'.format(sizeClass.length ? ' ' + sizeClass : ''),
                 '<div class="modal-content">',
                 '<div class="modal-body">',

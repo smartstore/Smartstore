@@ -55,6 +55,9 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         /// <param name="context">The context that contains the input product, the calculation options and some cargo data.</param>
         /// <returns>The unit price and the subtotal.</returns>
+        /// <remarks>
+        /// The subtotal is calculated for <see cref="CalculatedPrice.FinalPrice"/>, <see cref="CalculatedPrice.DiscountAmount"/> and <see cref="CalculatedPrice.Tax"/>.
+        /// </remarks>
         Task<(CalculatedPrice UnitPrice, CalculatedPrice Subtotal)> CalculateSubtotalAsync(PriceCalculationContext context);
 
         /// <summary>

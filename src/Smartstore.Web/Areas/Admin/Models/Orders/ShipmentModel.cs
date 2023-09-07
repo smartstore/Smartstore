@@ -31,8 +31,7 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*TotalWeight")]
         public decimal? TotalWeight { get; set; }
-        [LocalizedDisplay("*TotalWeight")]
-        public string TotalWeightString { get; set; }
+        public string BaseWeight { get; set; }
 
         [LocalizedDisplay("*TrackingNumber")]
         public string TrackingNumber { get; set; }

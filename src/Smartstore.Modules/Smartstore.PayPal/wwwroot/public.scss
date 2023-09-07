@@ -1,8 +1,7 @@
 ﻿/* Media query for mobile viewport */
-@media screen and (max-width: 480px) {
+@include media-breakpoint-down(sm) {
     .paypal-button-container {
         width: 100%;
-
         /* On payment selection page we need some padding & alignment */
         .checkout-page:not(.order-summary-page) & {
             align-self: center;
@@ -12,7 +11,7 @@
 }
 
 /* Media query for desktop viewport */
-@media screen and (min-width: 480px) {
+@include media-breakpoint-up(md) {
     .paypal-button-container .paypal-buttons {
         width: 200px !important;
     }

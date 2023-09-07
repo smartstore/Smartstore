@@ -1,23 +1,50 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 // Base class
 //
 // Requires one of the contextual, color modifier classes for `color` and
 // `background-color`.
 
 .badge {
-  display: inline-block;
-  padding: $badge-padding-y $badge-padding-x;
-  @include font-size($badge-font-size);
-  font-weight: $badge-font-weight;
-  line-height: 1;
+  // scss-docs-start badge-css-vars
+  --badge-padding-x: #{$badge-padding-x};
+  --badge-padding-y: #{$badge-padding-y};
+  --badge-font-size: #{$badge-font-size};
+  --badge-font-weight: #{$badge-font-weight};
+  --badge-line-height: 1.25;
+  --badge-bg: transparent;
+  --badge-bg-rgb: 255, 255, 255;
+  --badge-color: inherit;
+  --badge-border-radius: #{$badge-border-radius};
+  --badge-transition: #{$badge-transition};
+  // scss-docs-end badge-css-vars
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375em;
+  padding: var(--badge-padding-y) var(--badge-padding-x);
+  font-size: #{cssmax(12px, var(--badge-font-size))};
+  font-weight: var(--badge-font-weight);
+  line-height: cssmax(16px, calc(var(--badge-line-height) * 1em));
+  color: var(--badge-color);
+  background-color: unquote("rgba(var(--badge-bg-rgb), var(--badge-bg-opacity, 1))");
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
-  @include border-radius($badge-border-radius);
-  @include transition($badge-transition);
+  text-decoration: none;
+  @include border-radius(var(--badge-border-radius));
+  @include transition(var(--badge-transition));
 
   @at-root a#{&} {
-    @include hover-focus() {
-      text-decoration: none;
+    &:hover,
+    &:focus,
+    &:active {
+        text-decoration: none;
+        color: var(--badge-hover-color, var(--badge-color));
+        background-color: unquote("rgba(var(--badge-hover-bg-rgb, var(--badge-bg-rgb)), var(--badge-hover-bg-opacity, var(--badge-bg-opacity, 1)))");
     }
   }
 
@@ -27,20 +54,13 @@
   }
 }
 
-// Quick fix for badges in buttons
-.btn .badge {
-  position: relative;
-  top: -1px;
-}
-
 // Pill badges
 //
 // Make them extra rounded with a modifier to replace v3's badges.
 
 .badge-pill {
-  padding-right: $badge-pill-padding-x;
-  padding-left: $badge-pill-padding-x;
-  @include border-radius($badge-pill-border-radius);
+  --badge-padding-x: #{$badge-pill-padding-x} !important;
+  --badge-border-radius: #{$badge-pill-border-radius} !important;
 }
 
 // Colors
@@ -49,6 +69,15 @@
 
 @each $color, $value in $theme-colors {
   .badge-#{$color} {
-    @include badge-variant($value);
+    --badge-base-rgb: #{to-rgb($value)};
+    --badge-bg: #{$value};
+    --badge-bg-rgb: #{to-rgb($value)};
+    --badge-color: #{color-yiq($value)};
+
+    @at-root a#{&} {
+      $hoverbg: darken($value, 7%);
+      --badge-hover-bg: #{$hoverbg};
+      --badge-hover-bg-rgb: #{to-rgb($hoverbg)};
+    }
   }
 }

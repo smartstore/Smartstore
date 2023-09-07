@@ -1,0 +1,117 @@
+﻿@model ProductModel
+
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = T("Admin.Catalog.Products.EditProductDetails").Value;
+
+    var price = (Money)ViewBag.Price;
+    var manufacturers = ViewBag.Manufacturers as string;
+    var categories = ViewBag.Categories as string;
+    var productAttributes = ViewBag.ProductAttributes as string;
+    var specificationAttributes = ViewBag.SpecificationAttributes as string;
+}
+
+<div class="section-header">
+    <div class="title text-truncate" title="@Model.Name">
+        @if (Model.PictureThumbnailUrl.HasValue())
+        {
+            <img src="@Url.Content(Model.PictureThumbnailUrl)" />
+        }
+        <span class="ml-1">@Model.Name</span>
+    </div>
+</div>
+
+<div sm-if="Model.NumberOfOrders > 0" class="alert alert-warning">
+    @T("Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning", Model.NumberOfOrders.ToString("N0"))
+</div>
+
+<div class="grid row-gap-1 column-gap-4" style="grid-template-columns: max-content 1fr">
+    <label class="fwm" asp-for="Id"></label>
+    @Html.DisplayFor(x => x.Id)
+
+    @if (Model.Sku.HasValue()) 
+    {
+        <label class="fwm" asp-for="Sku"></label>
+        <span>@Html.DisplayFor(x => x.Sku)</span>
+    }
+
+    @if (Model.ManufacturerPartNumber.HasValue())
+    {
+        <label class="fwm" asp-for="ManufacturerPartNumber"></label>
+        <span>@Html.DisplayFor(x => x.ManufacturerPartNumber)</span>
+    }
+
+    @if (Model.Gtin.HasValue())
+    {
+        <label class="fwm" asp-for="Gtin"></label>
+        <span>@Html.DisplayFor(x => x.Gtin)</span>
+    }
+
+    @if (Model.CreatedOn.HasValue)
+    {
+        <label class="fwm" asp-for="CreatedOn"></label>
+        <span>@Model.CreatedOn.Value.ToString("g")</span>
+    }
+
+    @if (Model.UpdatedOn.HasValue)
+    {
+        <label class="fwm" asp-for="UpdatedOn"></label>
+        <span>@Model.UpdatedOn.Value.ToString("g")</span>
+    }
+
+    @if (Model.ProductTypeName.HasValue())
+    {
+        <label class="fwm" asp-for="ProductTypeName"></label>
+        <span>@Html.DisplayFor(x => x.ProductTypeName)</span>
+    }
+
+    <label class="fwm" asp-for="Price"></label>
+    <span>@price</span>
+
+    @if (Model.ShortDescription.HasValue())
+    {
+        <label class="fwm" asp-for="ShortDescription"></label>
+        <span>@Model.ShortDescription.Truncate(300)</span>
+    }
+
+    @if (Model.AdminComment.HasValue())
+    {
+        <label class="fwm" asp-for="AdminComment"></label>
+        <span>@Model.AdminComment.Truncate(300)</span>
+    }
+
+    @if (manufacturers.HasValue())
+    {
+        <label class="fwm">@T("Admin.Catalog.Products.Manufacturers")</label>
+        <span>@manufacturers</span>
+    }
+
+    @if (categories.HasValue())
+    {
+        <label class="fwm">@T("Admin.Catalog.Products.Categories")</label>
+        <span>@categories</span>
+    }
+
+    @if (Model.ProductTagNames.Length > 0)
+    {
+        <label class="fwm" asp-for="ProductTagNames"></label>
+        <div class="hstack flex-wrap gap-1">
+            @foreach (var tagName in Model.ProductTagNames)
+            {
+                <span class="badge badge-secondary badge-pill">@tagName</span>
+            }
+        </div>
+    }
+
+    @if (productAttributes.HasValue())
+    {
+        <label class="fwm">@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes")</label>
+        <span>@productAttributes</span>
+    }
+
+    @if (specificationAttributes.HasValue())
+    {
+        <label class="fwm">@T("Admin.Catalog.Products.SpecificationAttributes")</label>
+        <span>@specificationAttributes</span>
+    }
+</div>

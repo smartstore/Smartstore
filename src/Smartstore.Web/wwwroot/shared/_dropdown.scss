@@ -1,16 +1,6 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+/// <reference path="references.scss" />
 
-
-// Common
-// ==============================================================
-
-.dropdown-menu {
-	--shadow-intensity: 0.7;
-}
-
-// Add nested dropdown support to BS4
+// Add nested dropdown support to Bootstrap
 // ==============================================================
 
 .dropdown-group {
@@ -63,8 +53,12 @@
 // Dropdown icon color and spacing
 // ==============================================================
 
+.dropdown-divider {
+    margin-inline: calc(var(--dropdown-padding-x) * -1);
+}
+
 .dropdown-menu-light-icons .dropdown-item:not(.disabled) > i,
-.dropdown-menu-light-icons .dropdown-item:not(.disabled) > .bi {
+.dropdown-menu-light-icons .dropdown-item:not(.disabled) > svg {
 	color: $dropdown-icon-color;
 }
 
@@ -79,30 +73,46 @@
 		cursor: default;
 	}
 
-	> i, > .bi, > img {
-		margin-inline-start: -0.5rem;
-        margin-inline-end: 0.875rem;
+	> i, 
+    > svg, 
+    > img {
+		margin-inline-start: calc(var(--dropdown-item-padding-x) / 4 * -1);
+        margin-inline-end: cssmax(8px, calc(var(--dropdown-item-padding-x) / 2));
 	}
 
 	&:not(.disabled) {
-		> i, > .bi {
+		> i, 
+        > svg {
 			color: lighten($dropdown-link-color, 15%);
 		}
 
 		.dropdown-group.show > & > i,
-        .dropdown-group.show > & > .bi,
+        .dropdown-group.show > & > svg,
 		&:hover > i,
-        &:hover > .bi {
+        &:hover > svg {
 			color: $dropdown-link-hover-color;
 		}
 
 		&:active > i,
-        &:active > .bi,
+        &:active > svg,
 		&:focus > i,
-        &:focus > .bi {
+        &:focus > svg {
 			color: $dropdown-link-active-color;
 		}
 	}
+}
+
+
+// Dropdown Classic
+// ==============================================================
+
+.dropdown-menu-classic {
+    // A dropdown menu with no x-padding and larger item x-padding,
+    // also no item radius.
+    --dropdown-item-border-radius: 0;
+    --dropdown-padding-x: 0;
+    --dropdown-padding-y: var(--dropdown-border-radius);
+    --dropdown-item-padding-x: 1rem;
 }
 
 
@@ -119,7 +129,7 @@
 
 	> em {
 		font-style: normal;
-		text-align: right;
+		text-align: end;
 		padding-inline-start: 2rem;
 		margin-inline-start: auto;
 		font-size: 90%;

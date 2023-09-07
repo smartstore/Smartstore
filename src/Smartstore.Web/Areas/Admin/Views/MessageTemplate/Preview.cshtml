@@ -75,8 +75,8 @@
                 <div class="dropdown-menu dropdown-menu-right" style="width: 500px">
                     <form sm-ajax="true" asp-action="SendTestMail" asp-controller="MessageTemplate" class="px-4 py-3" sm-oncomplete="onTestMailSent">
                         <div class="input-group testmail-form">
-                            <input type="hidden" name="token" value="@Model.Token" />
                             <input type="email" class="form-control" name="to" placeholder="E-Mail" value="@Model.AccountEmail">
+                            <input type="hidden" name="token" value="@Model.Token" />
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-secondary">
                                     <i class="fa fa-send"></i>

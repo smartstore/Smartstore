@@ -47,7 +47,7 @@
             @if (Model.LogFileExists)
             {
                 <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
-                    <i class="far fa-file-alt"></i>
+                    <i class="far fa-file-lines"></i>
                     <span>@T("Admin.Configuration.ActivityLog")</span>
                 </a>
             }
@@ -61,7 +61,7 @@
             </button>
             <div sm-if="!Model.IsSystemProfile" class="d-inline-block">
                 <button type="submit" id="export-profile-delete" name="export-profile-delete" value="export-profile-delete" class="btn btn-danger">
-                    <i class="far fa-trash-alt"></i>
+                    <i class="far fa-trash-can"></i>
                     <span>@T("Admin.Common.Delete")</span>
                 </button>
                 <confirm button-id="export-profile-delete" />

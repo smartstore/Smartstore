@@ -138,7 +138,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         /// <summary>
         /// Grid configuration version. This version is compared with the user preferences version
-        /// saved in browser's localStorage. Ig this version differs, no attempt is made to load
+        /// saved in browser's localStorage. If this version differs, no attempt is made to load
         /// client preferences.
         /// Increment the value if you made changes to the grid columns or any user-customizable option.
         /// </summary>

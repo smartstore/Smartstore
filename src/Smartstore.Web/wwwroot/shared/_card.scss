@@ -1,10 +1,13 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
-
+/// <reference path="references.scss" />
 
 // Cards
 // ==============================================================
+
+.card-grid {
+    .card {
+        height: 100%;
+    }
+}
 
 .card-deck {
     .card {
@@ -14,7 +17,7 @@
 
 .card-shadow {
     // shim for .shadow-sm
-	box-shadow: $box-shadow-sm-var;
+	box-shadow: $box-shadow-sm;
 }
 
 .card-body > p:last-child {

@@ -13,7 +13,9 @@ namespace Smartstore.Core.Localization
 {
     public partial class XmlResourceManager : IXmlResourceManager
     {
-        private static Regex _rgFileName = new("^resources.(.+?).xml$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        [GeneratedRegex("^resources.(.+?).xml$", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
+        private static partial Regex FileNameRegEx();
+        private static readonly Regex _rgFileName = FileNameRegEx();
 
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;
@@ -36,7 +38,7 @@ namespace Smartstore.Core.Localization
 
         public virtual async Task<string> ExportResourcesToXmlAsync(Language language)
         {
-            Guard.NotNull(language, nameof(language));
+            Guard.NotNull(language);
 
             // TODO: (core) Replace XmlTextWriter with Xml Linq approach.
 
@@ -79,8 +81,8 @@ namespace Smartstore.Core.Localization
             ImportModeFlags mode = ImportModeFlags.Insert | ImportModeFlags.Update,
             bool updateTouchedResources = false)
         {
-            Guard.NotNull(language, nameof(language));
-            Guard.NotNull(xmlDocument, nameof(xmlDocument));
+            Guard.NotNull(language);
+            Guard.NotNull(xmlDocument);
 
             var resources = language.LocaleStringResources.ToDictionarySafe(x => x.ResourceName, StringComparer.OrdinalIgnoreCase);
             var nodes = xmlDocument.SelectNodes(@"//Language/LocaleResource");
@@ -122,22 +124,24 @@ namespace Smartstore.Core.Localization
                 {
                     if (mode.HasFlag(ImportModeFlags.Insert))
                     {
-                        isDirty = true;
-                        _db.LocaleStringResources.Add(new LocaleStringResource
+                        var newResource = new LocaleStringResource
                         {
                             LanguageId = language.Id,
                             ResourceName = name,
                             ResourceValue = value,
                             IsFromPlugin = sourceIsPlugin
-                        });
+                        };
+
+                        _db.LocaleStringResources.Add(newResource);
+                        resources[name] = newResource;
+                        isDirty = true;
                     }
                 }
             }
 
             if (isDirty)
             {
-                int numSaved = await _db.SaveChangesAsync();
-                return numSaved;
+                return await _db.SaveChangesAsync();
             }
 
             return 0;
@@ -233,7 +237,7 @@ namespace Smartstore.Core.Localization
 
         public virtual XmlDocument FlattenResourceFile(XmlDocument source)
         {
-            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(source);
 
             if (source.SelectNodes("//Children").Count == 0)
             {

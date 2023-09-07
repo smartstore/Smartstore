@@ -118,11 +118,10 @@
         <div class="col-auto">
             <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" title="@T("Common.Remove")">
                 <i class="fa fa-unlink"></i>
-                @*<span class="fs-h5" style="line-height: 1">&times;</span>*@
             </button>
             @if (!hideQueryString)
             {
-                <button type="button" class="btn btn-secondary btn-icon btn-query-string" attr-class='(expression.Schema == "url", "hide")'
+                <button type="button" class="btn btn-secondary btn-icon btn-query-string dropdown-toggle" attr-class='(expression.Schema == "url", "hide")'
                         title="@T("Common.QueryString")" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-question-circle @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
                 </button>

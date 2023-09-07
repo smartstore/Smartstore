@@ -90,7 +90,7 @@
 
 			context.memo('button.imageAttributes', function () {
 				var button = ui.button({
-                    contents: '<i class="fa fa-pencil-alt"></i>',
+                    contents: '<i class="fa fa-pencil"></i>',
 					callback: function (btn) {
 						btn.data("placement", "bottom");
 						btn.data("trigger", "hover");

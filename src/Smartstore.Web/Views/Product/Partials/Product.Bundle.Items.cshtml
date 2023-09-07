@@ -29,7 +29,7 @@
                         
                         @if (item.VisibleIndividually)
                         {
-                            <a asp-route="Product" asp-route-SeName="@item.SeName" title="@T("Products.Details")">@item.Name</a>
+                            <a asp-route="Product" asp-route-SeName="@item.SeName" title="@T("Products.Details")" class="link-dnu">@item.Name</a>
                         }
                         else
                         {

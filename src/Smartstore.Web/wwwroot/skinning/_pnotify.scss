@@ -6,18 +6,16 @@
 ------------------------------------*/
 
 .alert.ui-pnotify-container {
-    padding-left: 70px !important;
-    box-shadow: 0 6px 12px rgba(#000, 0.175) !important;
+    padding-inline-start: 70px !important;
+    padding-inline-end: 1.5rem;
+    box-shadow: 0 6px 12px rgba($black, 0.175) !important;
     border-width: 1px;
     min-height: 75px !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border-radius: $border-radius-lg;
+    border-color: rgba($white, 0.12) !important;
     overflow: hidden;
-    padding-right: 1.5rem;
-
-    &.alert { border-color: rgba(0,0,0, 0.12) !important }
 
     &:after {
         visibility: initial;
@@ -28,7 +26,7 @@
 
 .ui-pnotify-icon {
     position: absolute;
-    left: 0;
+    inset-inline-start: 0;
     top: 0;
     bottom: 0;
     width: 3rem;
@@ -37,21 +35,12 @@
 	float: none;
 	margin: 0;
 
-	@if $alert-info-is-primary {
-		// info should have primary color
-		.alert-info &	{ @include bubble('right', 'center', 8, $primary, $primary); }
-    }
-	@else {
-		.alert-info &	{ @include bubble('right', 'center', 8, $info, $info); }
-	}
-    .alert-success &    { @include bubble('right', 'center', 8, $success, $success); }
-    .alert-warning &    { @include bubble('right', 'center', 8, $warning, $warning); }
-    .alert-danger &     { @include bubble('right', 'center', 8, $danger, $danger); }
+    @include bubble('right', 'center', 8, var(--alert-icon-bg), var(--alert-icon-bg));
 
     > span {
         display: none;
         position: absolute;
-        left: 0;
+        inset-inline-start: 0;
         width: 100%;
         text-align: center;
         font-size: 1.25em;
@@ -83,33 +72,25 @@
 
 .ui-pnotify-closer, 
 .ui-pnotify-sticker {
-    opacity: .35;
+    --action-offset: 5px;
+    @include trailing-action($bg: transparent, $color: rgba(var(--alert-base-rgb), 0.75), $hover-bg: rgba(var(--alert-icon-bg-rgb), 0.75), $active-bg: rgba(var(--alert-icon-bg-rgb), 1));
+
 	margin: 0;
 	position: absolute;
-    width: 20px;
-    text-align: center;
-	top: 5px;
-	right: 3px;
-    outline: 0;
-    font-size: 12px;
-    vertical-align: middle;
+	top: var(--action-offset);
+	inset-inline-end: var(--action-offset);
 }
 
 .ui-pnotify-sticker {
     font-size: 10px;
-    top: 24px;
-}
-
-.ui-pnotify-closer:hover, 
-.ui-pnotify-sticker:hover {
-    opacity: .75;
+    top: calc(var(--trailing-action-size) + var(--action-offset));
 }
 
 @media (min-width: 481px) {
     .ui-pnotify.stack-topcenter,
     .ui-pnotify.stack-bottomcenter {
-	    left: 50%;
-	    margin-left: -225px;
+	    inset-inline-start: 50%;
+	    margin-inline-start: -225px;
     }
 
     .ui-pnotify.stack-bottomcenter {
@@ -139,21 +120,9 @@
     }
 }
 
-
-/* DARK VARIANT
-------------------------------------*/
-
-.ui-pnotify-dark .ui-pnotify-container {
-    background: #fff !important;
-    color: #fff !important;
-    box-shadow: none !important; 
-
-    &.alert-info       { background-color: $info !important }
-    &.alert-success    { background-color: $success !important }
-    &.alert-warning    { background-color: $warning !important }
-    &.alert-danger     { background-color: $danger !important }
-}
-
-.ui-pnotify-dark .ui-pnotify-icon {
-    background-color: rgba(0,0,0, 0.175) !important;
+[dir=rtl] {
+	.ui-pnotify-closer, 
+	.ui-pnotify-sticker {
+		float: left;
+	}
 }

@@ -1,7 +1,4 @@
-/// <reference path="_variables.scss" />
-/// <reference path="../shared/_variables-shared.scss" />
-/// <reference path="../shared/_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+/// <reference path="references.scss" />
 
 .chart-colors {
     --chart-color-danger: #{$chart-color-danger};
@@ -20,7 +17,7 @@
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(10, 1fr) repeat(2, 130px);
     grid-column-gap: 1rem;
     grid-row-gap: 1rem;
     grid-auto-rows: auto;
@@ -89,8 +86,8 @@
 
 .report {
     background-color: white;
-    border-radius: $border-radius;
-    box-shadow: $box-shadow-sm-var;
+    border-radius: var(--border-radius-md);
+    box-shadow: $box-shadow-sm;
     height: 100%;
     overflow: hidden;
 
@@ -177,7 +174,6 @@
     .statistics-value {
         font-size: .9rem;
         font-weight: $font-weight-medium;
-        border-bottom: 1px solid #eee;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -186,7 +182,7 @@
 
     .statistics-attribute {
         font-size: .8rem;
-        border-top: 1px solid #eee;
+        border-top: 1px solid var(--gray-300);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -204,11 +200,9 @@
 
     .statistics-col {
         display: flex;
-        width: 100%;
         align-items: center;
         justify-content: center;
         border: 0;
-        padding: 1.6rem 1rem;
     }
 
     .statistics-container-outer {
@@ -311,7 +305,7 @@
         width: fit-content;
         background: rgba(#000, 0.8);
         color: $light;
-        border-radius: $border-radius-sm;
+        border-radius: var(--border-radius-sm);
         transition: all 0.2s ease-in-out;
         pointer-events: none;
         transform: translateX(-50%);
@@ -507,18 +501,18 @@
     }
 }
 
-@include media-breakpoint-up(xl) {
+@include media-breakpoint-up(lg) {
     .report-incomplete-orders {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 
     .news-feed {
-        grid-column: 9 / 13;
+        grid-column: 11 / -1;
         grid-row: 1 / 7;
     }
 
     .report-orders {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 
     .report-bestsellers {
@@ -526,20 +520,20 @@
     }
 
     .report-top-customers {
-        grid-column: 5 / 9;
+        grid-column: 5 / 11;
         grid-row: 3 / 4;
     }
 
     .report-customer-registrations {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 
     .report-latest-orders {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 
     .report-store-statistics {
-        grid-column: 1 / 9;
+        grid-column: 1 / 11;
     }
 }
 
@@ -622,18 +616,45 @@
     }
 }
 
-.newsfeed-item {
-    padding: 0 1rem 1.25rem 1rem;
-    border-bottom: 1px solid #ddd;
+.cnt-newsfeed-item {
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+    flex-flow: column;
+    border: none;
 
-    &.pinned {
-        background-color: lighten($blue, 50%) !important;
+    @include media-breakpoint-up(xs) {
+        border: none;
+
+        .newsfeed-item {
+            border-bottom: 1px solid var(--gray-300);
+        }
     }
 
-    &:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0.25rem;
+    @include media-breakpoint-up(sm) {
+        border: 1px solid var(--gray-300);
+        border-radius: 0.375rem;
+
+        .newsfeed-item {
+            border: none;
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+        border: none;
+        border-radius: 0;
+
+        .newsfeed-item {
+            border-bottom: 1px solid var(--gray-300);
+        }
+    }
+}
+
+.newsfeed-item {
+    padding: 0 1rem 1.25rem 1rem;
+    
+    &.pinned {
+        background-color: lighten($blue, 50%) !important;
     }
 
     .more-info {
@@ -642,6 +663,7 @@
 }
 
 .newsfeed-thumbnail {
+    min-height: 140px;
     max-height: 140px;
     max-width: 100%;
     width: 100%;

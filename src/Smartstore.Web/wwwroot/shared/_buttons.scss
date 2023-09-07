@@ -1,6 +1,4 @@
-/// <reference path="_variables-shared.scss" />
-/// <reference path="_mixins.scss" />
-/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+/// <reference path="references.scss" />
 
 $btn-wide-padding-x: 1.8rem;
 $btn-wide-padding-x-lg: 2.5rem;
@@ -16,7 +14,16 @@ $btn-wide-padding-x-sm: 1.2rem;
 }
 
 
-// Icon colors
+// Generic input clear button
+// -----------------------------------------------------
+
+.input-clear {
+    @include trailing-action();
+    --input-clear-size: var(--trailing-action-size);
+}
+
+
+// Button flex, icon margins, colors, nowrap etc.
 // -----------------------------------------------------
 
 .btn {
@@ -24,14 +31,25 @@ $btn-wide-padding-x-sm: 1.2rem;
     --btn-icon-hover-color: var(--btn-icon-color);
     --btn-icon-active-color: var(--btn-icon-hover-color);
     --btn-icon-transition: opacity .15s ease-in-out;
+    --btn-height: calc((var(--btn-line-height) * 1em) + (var(--btn-padding-y) * 2) + (var(--btn-border-width) * 2));
 
-    > i, > .bi {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    min-height: var(--btn-height);
+
+    > i, 
+    > svg {
         color: var(--btn-icon-color);
         transition: var(--btn-icon-transition);
     }
 
     &:hover {
-        > i, > .bi {
+        > i, 
+        > svg {
             color: var(--btn-icon-hover-color);
         }
     }
@@ -39,7 +57,8 @@ $btn-wide-padding-x-sm: 1.2rem;
     &.disabled,
     &:disabled,
     fieldset:disabled & {
-        > i, > .bi {
+        > i, 
+        > svg {
             color: var(--btn-icon-color);
         }
     }
@@ -47,7 +66,8 @@ $btn-wide-padding-x-sm: 1.2rem;
     &:active,
     &.active,
     .show > &.dropdown-toggle {
-        > i, > .bi {
+        > i, 
+        > svg {
             color: var(--btn-icon-active-color);
         }
     }
@@ -92,29 +112,24 @@ $btn-wide-padding-x-sm: 1.2rem;
 // --------------------------------------------------
 
 .btn-icon {
-    --btn-icon-size: #{$input-height};
-
-    padding-inline: 0;
-    overflow: hidden;
-    width: var(--btn-icon-size);
-    max-height: var(--btn-icon-size);
+    position: relative;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--btn-height);
+    min-width: var(--btn-height);
+    height: var(--btn-height);
+    line-height: var(--btn-height);
 
     > span {
         //display: none;
     }
 
-    &.btn-lg {
-        --btn-icon-size: #{$input-height-lg};
-    }
-
-    &.btn-sm {
-        --btn-icon-size: #{$input-height-sm};
-    }
-
     // Move caret to bottom right corner
     &.dropdown-toggle:after {
         position: absolute;
-        right: 3px;
+        inset-inline-end: 3px;
         bottom: 0.5em;
     }
 }
@@ -320,7 +335,7 @@ $btn-wide-padding-x-sm: 1.2rem;
         transition: transform 0.2s ease-out;
         transform: translate(0, 0);
 
-        > i, > .bi {
+        > i, > svg {
             position: absolute;
             display: inline-block;
             vertical-align: middle;
@@ -347,7 +362,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 
     &:hover > span {
         transform: translateX(var(--btn-animate-offset));
-        > i, > .bi {
+        > i, > svg {
             opacity: 1;
         }
     }
@@ -383,11 +398,13 @@ $btn-wide-padding-x-sm: 1.2rem;
 // btn-to-[danger|primary]
 // --------------------------------------------------
 
-.btn-to-danger > i,
-.btn-to-danger > .bi,
-.btn-to-primary > i,
-.btn-to-primary > .bi {
-    opacity: 1;
+.btn-to-danger,
+.btn-to-primary {
+    --btn-transition: none;
+
+    > i, > svg {
+        opacity: 1;
+    }
 }
 
 .btn-to-danger {
@@ -405,8 +422,8 @@ $btn-wide-padding-x-sm: 1.2rem;
 .btn-3d {
     --shadow-color-rgb: 0,0,0;
     --shadow-intensity: 1;
-    --btn-box-shadow: #{$box-shadow-xs-var};
-    --btn-hover-shadow: #{$box-shadow-var};
+    --btn-box-shadow: #{$box-shadow-xs};
+    --btn-hover-shadow: #{$box-shadow};
     --btn-active-shadow: var(--btn-box-shadow);
 
     transition-property: transform, box-shadow, color, background-color, border-color, opacity !important;
@@ -451,11 +468,6 @@ $btn-wide-padding-x-sm: 1.2rem;
 .btn-toolbar .btn,
 .btn-flat {
     @include button-flat();
-
-    // Transition from flat to colorful button is not really nice
-    &:not(.btn-secondary, .btn-light, .btn-flat-light) {
-        --btn-transition: none;
-    }
 }
 
 .btn-flat-light {
@@ -487,7 +499,6 @@ $btn-wide-padding-x-sm: 1.2rem;
 
     .btn {
         position: relative;
-        white-space: nowrap;
     }
 
     .btn > em {

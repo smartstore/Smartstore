@@ -38,20 +38,32 @@ namespace Smartstore.Core.DataExchange.Import
             _taskStore = taskStore;
         }
 
-        public virtual async Task<IDirectory> GetImportDirectoryAsync(ImportProfile profile, string subpath = null, bool createIfNotExists = false)
+        public virtual async Task<IDirectory> GetImportDirectoryAsync(ImportProfile profile, string path = null, bool createIfNotExists = false)
         {
             Guard.NotNull(profile);
 
-            var root = _appContext.TenantRoot;
-            var path = PathUtility.Join(ImportFileRoot, profile.FolderName, subpath.EmptyNull());
-            var dir = await root.GetDirectoryAsync(path);
-
-            if (createIfNotExists)
+            if (PathUtility.IsAbsolutePhysicalPath(path))
             {
-                await dir.CreateAsync();
-            }
+                if (createIfNotExists && !Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
 
-            return dir;
+                return new LocalFileSystem(path).GetDirectory(null);
+            }
+            else
+            {
+                var root = _appContext.TenantRoot;
+                var fullPath = PathUtility.Join(ImportFileRoot, profile.FolderName, path.EmptyNull());
+                var dir = await root.GetDirectoryAsync(fullPath);
+
+                if (createIfNotExists)
+                {
+                    await dir.CreateAsync();
+                }
+
+                return dir;
+            }
         }
 
         public virtual async Task<IList<ImportFile>> GetImportFilesAsync(ImportProfile profile, bool includeRelatedFiles = true)

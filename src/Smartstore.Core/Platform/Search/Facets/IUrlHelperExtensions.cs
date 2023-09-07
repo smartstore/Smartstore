@@ -6,7 +6,7 @@ namespace Smartstore.Core.Search.Facets
     {
         public static string FacetToggle(this IUrlHelper urlHelper, Facet facet)
         {
-            Guard.NotNull(facet, nameof(facet));
+            Guard.NotNull(facet);
 
             var facetUrlProvider = EngineContext.Current.ResolveService<IFacetUrlHelperProvider>();
             var facetUrlHelper = facetUrlProvider.GetUrlHelper(facet.FacetGroup.Scope);
@@ -16,7 +16,7 @@ namespace Smartstore.Core.Search.Facets
 
         public static string FacetAdd(this IUrlHelper urlHelper, params Facet[] facets)
         {
-            Guard.NotEmpty(facets, nameof(facets));
+            Guard.NotEmpty(facets);
 
             var facetUrlProvider = EngineContext.Current.ResolveService<IFacetUrlHelperProvider>();
             var facetUrlHelper = facetUrlProvider.GetUrlHelper(facets.First().FacetGroup.Scope);
@@ -26,7 +26,7 @@ namespace Smartstore.Core.Search.Facets
 
         public static string FacetRemove(this IUrlHelper urlHelper, params Facet[] facets)
         {
-            Guard.NotEmpty(facets, nameof(facets));
+            Guard.NotEmpty(facets);
 
             var facetUrlProvider = EngineContext.Current.ResolveService<IFacetUrlHelperProvider>();
             var facetUrlHelper = facetUrlProvider.GetUrlHelper(facets.First().FacetGroup.Scope);
@@ -36,7 +36,7 @@ namespace Smartstore.Core.Search.Facets
 
         public static string GetFacetQueryName(this IUrlHelper urlHelper, Facet facet)
         {
-            Guard.NotNull(facet, nameof(facet));
+            Guard.NotNull(facet);
 
             var facetUrlProvider = EngineContext.Current.ResolveService<IFacetUrlHelperProvider>();
             var facetUrlHelper = facetUrlProvider.GetUrlHelper(facet.FacetGroup.Scope);

@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
 
@@ -66,6 +67,13 @@ namespace Smartstore.Core.Stores
                 // When we delete a store we should also ensure that all "per store" settings will also be deleted.
                 await _db.Settings
                     .Where(x => deletedStoreIds.Contains(x.StoreId))
+                    .ExecuteDeleteAsync(cancelToken);
+
+                // Delete AdminAreaStoreScopeConfiguration attribute of deleted stores. Avoids displaying override checkboxes for settings without store scope configuration.
+                var deletedStoreIdsStr = deletedStoreIds.Select(x => x.ToStringInvariant()).ToArray();
+
+                await _db.GenericAttributes
+                    .Where(x => x.Key == SystemCustomerAttributeNames.AdminAreaStoreScopeConfiguration && deletedStoreIdsStr.Contains(x.Value) && x.KeyGroup == nameof(Customer))
                     .ExecuteDeleteAsync(cancelToken);
 
                 // When we had two stores and now have only one store, we also should delete all "per store" settings.

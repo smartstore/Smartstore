@@ -106,8 +106,8 @@ namespace Smartstore.Web.Theming
 
         public async Task<string> GetPreprocessorCssAsync(string themeName, int storeId)
         {
-            Guard.NotEmpty(themeName, nameof(themeName));
-            Guard.IsPositive(storeId, nameof(storeId));
+            Guard.NotEmpty(themeName);
+            Guard.IsPositive(storeId);
 
             var rawVars = await GetRawVariablesAsync(themeName, storeId);
             var variables = BuildVariables(rawVars);
@@ -167,8 +167,8 @@ namespace Smartstore.Web.Theming
 
         internal static void RemoveFromCache(IMemoryCache cache, string themeName, int storeId = 0)
         {
-            Guard.NotNull(cache, nameof(cache));
-            Guard.NotEmpty(themeName, nameof(themeName));
+            Guard.NotNull(cache);
+            Guard.NotEmpty(themeName);
 
             var cacheKey = BuildCacheKey(cache, themeName, storeId);
 
@@ -219,7 +219,13 @@ namespace Smartstore.Web.Theming
                 return false;
             }
 
-            if (value[0] == '#' || value.StartsWith("rgb(") || value.StartsWith("rgba(") || value.StartsWith("hsl(") || value.StartsWith("hsla("))
+            if (
+                value[0] == '#' || 
+                value.StartsWith("rgb(") || 
+                value.StartsWith("rgba(") ||
+                value.StartsWith("var(--") || // Allow CSS vars (because of swatches)
+                value.StartsWith("hsl(") || 
+                value.StartsWith("hsla("))
             {
                 return true;
             }

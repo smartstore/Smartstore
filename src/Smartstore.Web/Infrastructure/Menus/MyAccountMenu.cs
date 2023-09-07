@@ -177,7 +177,7 @@ namespace Smartstore.Web.Infrastructure
             {
                 Id = "changepassword",
                 Text = T("Account.ChangePassword"),
-                Icon = "fal fa-unlock-alt",
+                Icon = "fal fa-unlock-keyhole",
                 ActionName = "ChangePassword",
                 ControllerName = "Identity"
             });

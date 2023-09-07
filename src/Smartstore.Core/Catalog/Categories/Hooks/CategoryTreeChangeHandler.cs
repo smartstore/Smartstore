@@ -122,7 +122,7 @@ namespace Smartstore.Core.Catalog.Categories
                 if (modProps.Keys.Any(x => _h.Contains(x)))
                 {
                     // Hierarchy affecting properties has changed. Nuke each tree.
-                    await _cache.RemoveByPatternAsync(CategoryService.CATEGORY_TREE_PATTERN_KEY);
+                    await _cache.RemoveByPatternAsync(CategoryService.CategoryTreePatternKey);
                     await PublishEvent(CategoryTreeChangeReason.Hierarchy);
                     _invalidated = true;
                 }
@@ -145,7 +145,7 @@ namespace Smartstore.Core.Catalog.Categories
                 {
                     // Only data has changed. Don't nuke trees, update corresponding cache entries instead.
                     var publishEvent = false;
-                    var keys = _cache.Keys(CategoryService.CATEGORY_TREE_PATTERN_KEY).ToArray();
+                    var keys = _cache.Keys(CategoryService.CategoryTreePatternKey).ToArray();
 
                     foreach (var key in keys)
                     {
@@ -223,7 +223,7 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 // INFO: 'Modified' case already handled in 'OnBeforeSave()'.
                 // Hierarchy affecting change, nuke all.
-                await _cache.RemoveByPatternAsync(CategoryService.CATEGORY_TREE_PATTERN_KEY);
+                await _cache.RemoveByPatternAsync(CategoryService.CategoryTreePatternKey);
                 await PublishEvent(CategoryTreeChangeReason.Hierarchy);
                 _invalidated = true;
             }
@@ -303,7 +303,7 @@ namespace Smartstore.Core.Catalog.Categories
 
         private static string BuildCacheKeyPattern(string includeHiddenToken = "*", string rolesToken = "*", string storeToken = "*")
         {
-            return CategoryService.CATEGORY_TREE_KEY.FormatInvariant(includeHiddenToken, rolesToken, storeToken);
+            return CategoryService.CategoryTreeKey.FormatInvariant(includeHiddenToken, rolesToken, storeToken);
         }
     }
 }

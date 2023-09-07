@@ -27,10 +27,10 @@
     </div>
 
     @* TEXT *@
-    <span class="pd-review-link">
+    <span class="pd-review-link link-dnu">
         @if (Model.TotalReviews > 0)
         {
-            <a href="@reviewPageUrl">@T("Reviews.Overview.AddNew")</a>
+            <a href="@reviewPageUrl" class="link-dnu">@T("Reviews.Overview.AddNew")</a>
             @* Hidden microdata info *@
             decimal ratingValue = ratingPercent / (decimal)20;
             <meta itemprop="ratingValue" content='@ratingValue.ToString("0.0", new CultureInfo("en-US"))' />
@@ -39,7 +39,7 @@
         }
         else
         {
-            <a href="@reviewPageUrl">@T("Reviews.Overview.First")</a>
+            <a href="@reviewPageUrl" class="link-dnu">@T("Reviews.Overview.First")</a>
         }
     </span>
 </div>

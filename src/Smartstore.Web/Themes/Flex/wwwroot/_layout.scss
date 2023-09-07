@@ -1,4 +1,4 @@
-/// <reference path="theme.scss" />
+/// <reference path="references.scss" />
 
 
 // Responsive Typo
@@ -109,15 +109,15 @@ body {
 // --------------------------------------------------
 
 #scroll-top {
-    z-index: 9999;
     position: fixed;
+    z-index: $offcanvas-z-index - 1;
     bottom: 1rem;
     inset-inline-end: 1rem;
     width: 42px;
     height: 42px;
     border-radius: 50%;
     background: #fff;
-    color: $body-color !important;
+    color: var(--body-color) !important;
     text-decoration: none;
     opacity: 0;
     transform: scale(0.7);
@@ -125,6 +125,7 @@ body {
     transition-duration: .2s;
     transition-timing-function: ease-in;
     pointer-events: none;
+
     --shadow-intensity: 1.25;
 
     &:active {
@@ -147,4 +148,12 @@ body {
 
 b, strong {
     font-weight: $font-weight-medium;
+}
+
+
+// Components
+// -----------------------------------------------------
+
+.dropdown-menu {
+	--shadow-intensity: #{$dropdown-shadow-intensity};
 }

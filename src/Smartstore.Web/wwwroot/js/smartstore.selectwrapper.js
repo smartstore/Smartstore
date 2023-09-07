@@ -314,28 +314,27 @@
                     }
 
                     if (imageUrl) {
-                        return $(preHtml + '<span class="choice-item' + classes + '"' + attr('title', title) + '><img class="choice-item-img" src="' + imageUrl + '" />' + text + '</span>' + postHtml);
+                        return $(preHtml + '<span class="select2-option choice-item' + classes + '"' + attr('title', title) + '><img class="choice-item-img" src="' + imageUrl + '" />' + text + '</span>' + postHtml);
                     }
                     else if (color) {
-                        return $(preHtml + '<span class="choice-item' + classes + '"' + attr('title', title) + '><span class="choice-item-color" style="background-color: ' + color + '"></span>' + text + '</span>' + postHtml);
+                        return $(preHtml + '<span class="select2-option choice-item' + classes + '"' + attr('title', title) + '><span class="choice-item-color" style="background-color: ' + color + '"></span>' + text + '</span>' + postHtml);
                     }
                     else if (hint && isResult) {
                         return $(preHtml + '<span class="select2-option' + classes + '"><span' + attr('title', title) + '>' + text + '</span><span class="option-hint muted float-right">' + hint + '</span></span>' + postHtml);
                     }
                     else if (icon) {
-                        var html = ['<span class="choice-item' + classes + '"' + attr('title', title) + '>'];
-                        var icons = _.isArray(icon) ? icon : [icon];
-                        var len = (isResult ? 2 : 0) || icons.length;
-
+                        let html = ['<span class="select2-option' + classes + '"' + attr('title', title) + '>'];
+                        let icons = _.isArray(icon) ? icon : [icon];
+                        let len = icons.length;
                         for (i = 0; i < len; i++) {
-                            var iconClass = (i < icons.length ? icons[i] + " " : "far ") + "fa-fw mr-2 fs-h6";
-                            html.push('<i class="' + iconClass + '" style="width: unset;" />');
+                            let iconClass = icons[i] + " fa-fw mr-2 fs-h6";
+                            html.push('<i class="' + iconClass + '" style="font-size: 16px;"></i>');
                         }
 
                         html.push(text);
                         html.push('</span>');
 
-                        return html;
+                        return $(html.join('') + postHtml);
                     }
                     else {
                         return $(preHtml + '<span class="select2-option' + classes + '"' + attr('title', title) + '>' + text + '</span>' + postHtml);
@@ -436,6 +435,9 @@
 
             sel.select2(opts);
 
+            // Cancel event bubbling for unselect button in multiselect control.
+            sel.on("select2:unselect", stopPropagation);
+
             if (sel.hasClass("autowidth")) {
                 // move special "autowidth" class to plugin container,
                 // so we are able to omit min-width per css
@@ -449,6 +451,13 @@
                     sel.data("select-placeholder");
             }
 
+            function stopPropagation(e) {
+                if (!e.params.originalEvent) {
+                    return;
+                }
+
+                e.params.originalEvent.stopPropagation();
+            }
         });
 
     };

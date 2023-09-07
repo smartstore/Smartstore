@@ -89,35 +89,33 @@
                 </a>
             </div>
             <div id="customer-addresses">
-                <div class="row sm-gutters row-gap-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 ">
+                <div class="grid gap-3">
                     @foreach (var address in Model.Addresses)
                     {
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="mb-2">
-                                        @Html.Raw(address.FormattedAddress)
-                                    </div>
-                                    <div class="email">
-                                        @T("Order.Email"): @address.Email
-                                    </div>
-                                    <div sm-if="address.PhoneNumber.HasValue()" class="phone">
-                                        @T("Order.Phone"): @address.PhoneNumber
-                                    </div>
-                                    <div sm-if="address.FaxNumber.HasValue()" class="fax">
-                                        @T("Order.Fax"): @address.FaxNumber
-                                    </div>
+                        <div class="card g-col-12 g-col-sm-6 g-col-md-4 g-col-xl-3">
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    @Html.Raw(address.FormattedAddress)
                                 </div>
-                                <div class="card-footer py-2">
-                                    <a asp-action="AddressEdit" asp-controller="Customer" asp-route-customerId="@Model.Id" asp-route-addressId="@address.Id"
-                                       class="btn btn-sm btn-flat btn-icon btn-secondary" title="@T("Common.Edit")">
-                                        <i class="far fa-edit"></i>
-                                    </a>
-                                    <button id="address-delete-@address.Id" type="button" class="btn btn-sm btn-flat btn-icon btn-danger delete-address" title="@T("Common.Delete")"
-                                            data-url="@Url.Action("AddressDelete", "Customer", new { customerId = Model.Id, addressId = address.Id })">
-                                        <i class="far fa-trash-alt"></i>
-                                    </button>
+                                <div class="email">
+                                    @T("Order.Email"): @address.Email
                                 </div>
+                                <div sm-if="address.PhoneNumber.HasValue()" class="phone">
+                                    @T("Order.Phone"): @address.PhoneNumber
+                                </div>
+                                <div sm-if="address.FaxNumber.HasValue()" class="fax">
+                                    @T("Order.Fax"): @address.FaxNumber
+                                </div>
+                            </div>
+                            <div class="card-footer py-2">
+                                <a asp-action="AddressEdit" asp-controller="Customer" asp-route-customerId="@Model.Id" asp-route-addressId="@address.Id"
+                                    class="btn btn-sm btn-flat btn-icon btn-secondary" title="@T("Common.Edit")">
+                                    <i class="far fa-edit"></i>
+                                </a>
+                                <button id="address-delete-@address.Id" type="button" class="btn btn-sm btn-flat btn-icon btn-danger delete-address" title="@T("Common.Delete")"
+                                        data-url="@Url.Action("AddressDelete", "Customer", new { customerId = Model.Id, addressId = address.Id })">
+                                    <i class="far fa-trash-can"></i>
+                                </button>
                             </div>
                         </div>
                     }
@@ -154,10 +152,8 @@
             </div>
         </tab>
         <tab sm-title="@T("Admin.Customers.Customers.Impersonate")" sm-icon="bi:person-badge">
-            <div class="alert alert-info alert-dismissable">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="alert alert-info alert-dismissible">
+                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                 <p>@T("Admin.Customers.Customers.Impersonate.Description1")</p>
                 <p>@T("Admin.Customers.Customers.Impersonate.Description2")</p>
             </div>

@@ -5,7 +5,7 @@
     const paymentRequestButtonId = "stripe-payment-request-button";
     const paymentRequestButtonSelector = "#" + paymentRequestButtonId;
     const paymentElementSelector = "#stripe-payment-element";
-    const moduleSystemName = "Smartstore.StripeElements";
+    const moduleSystemName = "Payments.StripeElements";
 
     return {
         initPaymentElement: function (publicApiKey, secret, apiVersion) {

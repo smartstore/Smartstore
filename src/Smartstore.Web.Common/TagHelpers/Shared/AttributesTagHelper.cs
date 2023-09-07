@@ -12,7 +12,13 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         private IDictionary<string, (bool Condition, string Value)> _conditionalAttributes;
 
-        public override int Order => -100;
+        /// <summary>
+        /// We set the order to -1100 to run this TagHelper before <see cref="Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper"/>.
+        /// We had to do this because of the QtyInput EditorTemplate which is rendered multiple times on the cart page and needs a unique id and name
+        /// which will be passed to the EditorTemplate by htmlAttributes dictionary and will be passed to the AttributesTagHelper.
+        /// <see cref="Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper"/> does not override the id and name attributes if they are already set.
+        /// </summary>
+        public override int Order => -1100;
 
         /// <summary>
         /// An <see cref="AttributeDictionary"/> instance whose content should be merged with local attributes.

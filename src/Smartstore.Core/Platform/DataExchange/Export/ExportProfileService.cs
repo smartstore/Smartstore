@@ -58,26 +58,26 @@ namespace Smartstore.Core.DataExchange.Export
         protected override Task<HookResult> OnUpdatingAsync(ExportProfile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // INFO: validation of 'FolderName' not necessary anymore. Contains only the name of the export folder (no more path information).
-            if (entity.FolderName.HasValue() && entity.FolderName[0] == '~')
+            if (entity.FolderName.HasValue())
             {
-                // Map legacy folder names. Examples:
-                // ~/App_Data/ExportProfiles/smartstorecategorycsv
-                // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
-                var newFolderName = _regexFolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
+                string newFolderName = null;
 
-                if (newFolderName.IsEmpty())
+                if (entity.FolderName[0] == '~')
                 {
-                    // Profile folder is root folder '~/App_Data/ExportProfiles/'.
-                    var cleanedProviderName = entity.ProviderSystemName
-                        .Replace("Exports.", string.Empty)
-                        .Replace("Feeds.", string.Empty)
-                        .Replace("/", string.Empty)
-                        .Replace("-", string.Empty);
+                    // Map legacy folder names. Examples:
+                    // ~/App_Data/ExportProfiles/smartstorecategorycsv
+                    // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
+                    newFolderName = _regexFolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
 
-                    var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
-                        .Truncate(_dataExchangeSettings.MaxFileNameLength);
-
-                    newFolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(ExportFileRoot, folderName);
+                    if (newFolderName.IsEmpty())
+                    {
+                        // Profile folder is root folder '~/App_Data/ExportProfiles/'.
+                        newFolderName = CreateUniqueDirectoryName(entity);
+                    }
+                }
+                else if (PathUtility.IsAbsolutePhysicalPath(entity.FolderName))
+                {
+                    newFolderName = CreateUniqueDirectoryName(entity);
                 }
 
                 if (newFolderName.HasValue())
@@ -87,6 +87,20 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             return Task.FromResult(HookResult.Ok);
+        }
+
+        private string CreateUniqueDirectoryName(ExportProfile profile)
+        {
+            var cleanedProviderName = profile.ProviderSystemName
+                .Replace("Exports.", string.Empty)
+                .Replace("Feeds.", string.Empty)
+                .Replace("/", string.Empty)
+                .Replace("-", string.Empty);
+
+            var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
+                .Truncate(_dataExchangeSettings.MaxFileNameLength);
+
+            return _appContext.TenantRoot.CreateUniqueDirectoryName(ExportFileRoot, folderName);
         }
 
         #endregion

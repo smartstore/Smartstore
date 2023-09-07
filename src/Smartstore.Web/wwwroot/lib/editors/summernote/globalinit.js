@@ -136,7 +136,7 @@ var summernote_image_upload_url;
 			//'colRemove': 'note-icon-col-remove',
 			'indent': 'fa fa-indent',
 			'outdent': 'fa fa-outdent',
-			'arrowsAlt': 'fa fa-arrows-alt',
+            'arrowsAlt': 'fa fa-up-down-left-right',
 			'bold': 'fa fa-bold',
 			'caret': 'fa fa-caret-down',
 			'circle': 'far fa-circle',
@@ -152,7 +152,7 @@ var summernote_image_upload_url;
 			'menuCheck': 'fa fa-check',
 			'minus': 'fa fa-minus',
 			'orderedlist': 'fa fa-list-ol',
-			'pencil': 'fa fa-pencil-alt',
+			'pencil': 'fa fa-pencil',
 			'picture': 'far fa-image',
 			'question': 'fa fa-question',
 			'redo': 'fa fa-redo',
@@ -197,7 +197,7 @@ var summernote_image_upload_url;
 			}
 		},
 		imageAttributes: {
-            icon: '<i class="fa fa-pencil-alt"/>',
+            icon: '<i class="fa fa-pencil"/>',
 			removeEmpty: true, // true = remove attributes | false = leave empty if present
 			disableUpload: true // true = don't display Upload Options | Display Upload Options
 		}

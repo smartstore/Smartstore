@@ -1,4 +1,4 @@
-/// <reference path="theme.scss" />
+/// <reference path="references.scss" />
 
 //
 // CSS variables
@@ -14,12 +14,12 @@
     --art-finalprice-font-size: 1rem;
     --art-finalprice-color: #{$product-price-color};
     --art-finalprice-offer-color: #{$product-price-color};
-    --art-muted-color: #{mix($body-color, #fff, 67%)};
+    --art-muted-color: #{mix($body-color, $white, 67%)};
     --art-muted-color-2: #{$text-muted};
     --art-border-color: transparent;
     --art-divider-color: #{$gray-300};
-    --art-border-radius: #{$border-radius-sm};
-    --art-box-shadow: #{$box-shadow-sm-var};
+    --art-border-radius: var(--border-radius-md);
+    --art-box-shadow: var(--box-shadow-sm);
     --art-active-bg-color: #{$art-active-bg-color};
     --art-active-border-color: #{$art-active-border-color};
 
@@ -87,7 +87,6 @@
 
     .btn { 
         border-radius: 0; 
-        transition: none; 
     }
 
     .mf-dropdown {
@@ -111,8 +110,8 @@
 .artlist-action--pager {
     > * { position: relative; }
     > *:not(:first-child) { margin-inline-start: -1px; }
-    .btn-pager-prev { border-start-start-radius: $border-radius; border-end-start-radius: $border-radius }   
-    .btn-pager-next { border-start-end-radius: $border-radius; border-end-end-radius: $border-radius }    
+    .btn-pager-prev { border-start-start-radius: var(--border-radius-md); border-end-start-radius: var(--border-radius-md) }   
+    .btn-pager-next { border-start-end-radius: var(--border-radius-md); border-end-end-radius: var(--border-radius-md) }    
 }
 
 @media (max-width: 360px) {
@@ -297,7 +296,6 @@
     font-weight: $font-weight-medium;
     margin-bottom: 0.25rem;
     line-height: var(--art-line-height);
-    > a { color: $body-color; }
 }
 
 .art-genericname {
@@ -305,7 +303,6 @@
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
-    > a { color: $body-color; }
 }
 
 .art-description {
@@ -471,6 +468,13 @@
 .art-name,
 .art-genericname {
     font-size: var(--art-font-size);
+    > a { 
+        color: $body-color; 
+    }
+
+    > a:not(:hover) {
+        text-decoration: none; 
+    }
 }
 
 .art-brand,
@@ -792,6 +796,11 @@
 }
 
 .slick-slider {
+    &.artlist.slick-dotted .slick-dots {
+        // Move slightly up in boxes
+        transform: translateY(-25%);
+    }
+
     &.artlist-grid {
         display: block !important;
     }

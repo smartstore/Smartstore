@@ -25,6 +25,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string PostfixAttributeName = "sm-postfix";
         const string DecimalsAttributeName = "sm-decimals";
         const string StyleAttributeName = "sm-numberinput-style";
+        const string GroupClassAttributeName = "sm-numberinput-group-class";
 
         private readonly ILocalizationService _localizationService;
 
@@ -53,6 +54,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         [HtmlAttributeName(StyleAttributeName)]
         public NumberInputStyle Style { get; set; }
+
+        /// <summary>
+        /// CSS class of parent group tag.
+        /// </summary>
+        [HtmlAttributeName(GroupClassAttributeName)]
+        public string GroupClass { get; set; }
 
         [HtmlAttributeNotBound]
         [ViewContext]
@@ -108,6 +115,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             group.MergeAttribute("data-editor", "number");
 
             group.AppendCssClass("numberinput-" + (Style == NumberInputStyle.Centered ? "centered" : "default"));
+
+            if (GroupClass.HasValue())
+            {
+                group.AppendCssClass(GroupClass);
+            }
 
             if (Postfix.HasValue())
             {

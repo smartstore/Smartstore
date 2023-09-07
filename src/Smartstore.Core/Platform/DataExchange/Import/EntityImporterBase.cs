@@ -11,21 +11,18 @@ namespace Smartstore.Core.DataExchange.Import
     {
         protected SmartDbContext _db;
         protected ICommonServices _services;
-        protected ILocalizedEntityService _localizedEntityService;
         protected IStoreMappingService _storeMappingService;
         protected IUrlService _urlService;
         protected SeoSettings _seoSettings;
 
         protected EntityImporterBase(
             ICommonServices services,
-            ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             SeoSettings seoSettings)
         {
             _db = services.DbContext;
             _services = services;
-            _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _urlService = urlService;
             _seoSettings = seoSettings;
@@ -82,7 +79,8 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var shouldSave = false;
-            var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
+            var lpQuery = _db.LocalizedProperties.Where(x => x.LocaleKeyGroup == keyGroup && entityIds.Contains(x.EntityId));
+            var collection = new LocalizedPropertyCollection(keyGroup, entityIds, await lpQuery.ToListAsync());
 
             foreach (var row in batch)
             {
@@ -243,22 +241,22 @@ namespace Smartstore.Core.DataExchange.Import
                             Source = row.Entity,
                             Slug = SlugUtility.Slugify(seName.NullEmpty() ?? row.EntityDisplayName, _seoSettings)
                         });
+                    }
 
-                        // Process localized slugs.
-                        foreach (var language in context.Languages)
+                    // Process localized slugs.
+                    foreach (var language in context.Languages)
+                    {
+                        var hasSeName = TryGetLocalizedValue(row, "SeName", language, out seName);
+                        var hasLocalizedName = TryGetLocalizedValue(row, "Name", language, out string localizedName);
+
+                        if (hasSeName || hasLocalizedName)
                         {
-                            var hasSeName = TryGetLocalizedValue(row, "SeName", language, out seName);
-                            var hasLocalizedName = TryGetLocalizedValue(row, "Name", language, out string localizedName);
-
-                            if (hasSeName || hasLocalizedName)
+                            scope.ApplySlugs(new ValidateSlugResult
                             {
-                                scope.ApplySlugs(new ValidateSlugResult
-                                {
-                                    Source = row.Entity,
-                                    Slug = SlugUtility.Slugify(seName.NullEmpty() ?? localizedName, _seoSettings),
-                                    LanguageId = language.Id
-                                });
-                            }
+                                Source = row.Entity,
+                                Slug = SlugUtility.Slugify(seName.NullEmpty() ?? localizedName, _seoSettings),
+                                LanguageId = language.Id
+                            });
                         }
                     }
                 }

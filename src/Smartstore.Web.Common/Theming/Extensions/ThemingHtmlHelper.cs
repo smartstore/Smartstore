@@ -57,7 +57,7 @@ namespace Smartstore.Web.Theming
 
         public static IHtmlContent ThemeVarEditor(this IHtmlHelper helper, ThemeVariableInfo info, object value)
         {
-            Guard.NotNull(info, "info");
+            Guard.NotNull(info);
 
             string expression = helper.NameForThemeVar(info);
             string strValue = value?.ToString().EmptyNull();
@@ -70,14 +70,14 @@ namespace Smartstore.Web.Theming
 
             if (isValidColor)
             {
-                control = helper.ColorBox(expression, strValue, info.DefaultValue);
+                // Don't allow color swatches in theme configuration because of Sass color functions
+                control = helper.ColorBox(expression, strValue, info.DefaultValue, false);
             }
             else if (info.Type == ThemeVariableType.Boolean)
             {
-                var label = new TagBuilder("label");
-                label.Attributes.Add("class", "switch");
-                label.InnerHtml.AppendHtml(helper.CheckBox(expression, strValue.ToBool()));
-                label.InnerHtml.AppendHtml("<span class='switch-toggle'></span>");
+                var label = new TagBuilder("div");
+                label.Attributes.Add("class", "form-check form-check-solo form-check-warning form-switch form-switch-lg");
+                label.InnerHtml.AppendHtml(helper.CheckBox(expression, strValue.ToBool(), new { @class = "form-check-input" }));
 
                 control = label;
             }

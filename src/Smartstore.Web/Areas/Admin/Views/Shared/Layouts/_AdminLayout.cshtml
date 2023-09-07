@@ -1,4 +1,5 @@
 ﻿@* Please keep in mind that this layout view is also referenced and used by modules! *@
+@using Smartstore.Core.Logging;
 
 @{
     Layout = "_AdminRoot";
@@ -18,6 +19,11 @@
 		@if (!(ViewBag.CloseWindow == false))
 		{
 			<text>window.parent.closePopup();</text>
+
+            @foreach (var message in Display.GetMessages())
+            {
+                <text>window.parent.displayNotification("@message.Message", "@message.Type.ToString().ToLower()");</text>
+            }
 		}
     </script>
 }

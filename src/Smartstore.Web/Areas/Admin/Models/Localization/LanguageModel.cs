@@ -19,7 +19,6 @@ namespace Smartstore.Admin.Models.Localization
 
         [LocalizedDisplay("*FlagImageFileName")]
         public string FlagImageFileName { get; set; }
-        public List<string> FlagFileNames { get; set; } = new();
 
         [LocalizedDisplay("*Rtl")]
         public bool Rtl { get; set; }

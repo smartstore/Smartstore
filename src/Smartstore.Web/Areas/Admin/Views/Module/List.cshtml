@@ -55,7 +55,7 @@
     </div>
 
     <div class="alert alert-info alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <button type="button" class="btn-close" data-dismiss="alert"></button>
         <h4>@T("Admin.Configuration.Plugins.Description")</h4>
         <ol>
             <li>@Html.Raw(T("Admin.Configuration.Plugins.Description.Step1", "uploadpackage", "#uploadpackage-window"))</li>
@@ -110,6 +110,7 @@
                 placement: "auto",
                 boundary: "window",
                 html: true,
+                sanitize: false,
                 trigger: "manual",
                 customClass: "popover-store-limiter",
                 title: @T("Admin.Common.Store.AvailableFor").JsValue,
@@ -126,12 +127,12 @@
                             </div>`;
                     });
                     return `
-                        <form class="row editableform">
+                        <form class="row g-3 flex-nowrap editableform">
                             <div class="col-auto editable-input">
                                 ${checkboxes.join("")}
                             </div>
                             <div class="col-auto editable-buttons">
-                                <button type="button" class="btn btn-warning btn-icon btn-sm editable-submit mr-1" data-module="${systemName}"><i class="fa fa-check"></i></button>
+                                <button type="button" class="btn btn-warning btn-icon btn-sm editable-submit" data-module="${systemName}"><i class="fa fa-check"></i></button>
                                 <button type="button" class="btn btn-secondary btn-icon btn-sm editable-cancel"><i class="fa fa-times"></i></button>
                             </div>
                         </div>`;

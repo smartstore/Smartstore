@@ -23,6 +23,11 @@ namespace Smartstore.Core.DataExchange
         /// </summary>
         public DateTime? CreatedTo { get; set; }
 
+        /// <summary>
+        /// A value indicating whether to load only published or non published entities.
+        /// </summary>
+        public bool? IsPublished { get; set; }
+
         #region Product
 
         /// <summary>
@@ -54,11 +59,6 @@ namespace Smartstore.Core.DataExchange
         /// Maximum product availability.
         /// </summary>
         public int? AvailabilityMaximum { get; set; }
-
-        /// <summary>
-        /// A value indicating whether to load only published or non published products.
-        /// </summary>
-        public bool? IsPublished { get; set; }
 
         /// <summary>
         /// A value indicating whether to load products without any category mapping.

@@ -26,6 +26,15 @@ namespace Smartstore.Core.Catalog.Attributes
                 .WithMany()
                 .HasForeignKey(c => c.QuantityUnitId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // INFO: by default, EF always read and write to the backing field (not the property) but _hashCode is empty on instantiation.
+            // The caller would have to initialize HashCode itself (by entity.HashCode = entity.GetAttributesHashCode()), but we do not want that.
+            // PreferFieldDuringConstruction causes EF to write to _hashCode only when materializing and to use the HashCode property in all other cases.
+            // See https://learn.microsoft.com/en-us/ef/core/modeling/backing-field?tabs=data-annotations#field-and-property-access
+            builder
+                .Property(c => c.HashCode)
+                .HasField("_hashCode")
+                .UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
         }
     }
 
@@ -159,16 +168,9 @@ namespace Smartstore.Core.Catalog.Attributes
             get => _rawAttributes;
             set
             {
-                var updateHash = !_rawAttributes.EqualsNoCase(value);
-
                 _rawAttributes = value;
                 _attributeSelection = null;
-
-                // Avoids the caller having to call GetAttributesHashCode itself on instantiation.
-                if (updateHash)
-                {
-                    _hashCode = AttributeSelection.GetHashCode();
-                }
+                _hashCode = null;
             }
         }
 
@@ -187,8 +189,13 @@ namespace Smartstore.Core.Catalog.Attributes
         public bool AllowOutOfStockOrders { get; set; }
 
         /// <summary>
-        /// Gets or sets the attributes hash code. This is generally equal to <see cref="AttributeSelection.GetHashCode"/>.
+        /// Gets or sets the attributes hash code.
         /// </summary>
+        /// <remarks>
+        /// Use <see cref="GetAttributesHashCode"/> if you want to regenerate hash code.
+        /// Or use <see cref="AttributeSelection.GetHashCode"/> if you want to skip the backing field.
+        /// Do not use or set <see cref="BaseEntity.GetHashCode"/> for this purpose because it creates a hash code for the whole entity which differs!
+        /// </remarks>
         [Required]
         public int HashCode
         {
@@ -197,6 +204,10 @@ namespace Smartstore.Core.Catalog.Attributes
             set => _hashCode = value;
         }
 
+        /// <summary>
+        /// Gets the attributes hash code.
+        /// </summary>
+        /// <remarks>Uses <see cref="AttributeSelection.GetHashCode"/>, so the returned value differs from that of <see cref="BaseEntity.GetHashCode"/>.</remarks>        
         public int GetAttributesHashCode()
             => _hashCode ??= AttributeSelection.GetHashCode();
 
@@ -225,7 +236,7 @@ namespace Smartstore.Core.Catalog.Attributes
         public void SetAssignedMediaIds(int[] ids)
         {
             AssignedMediaFileIds = ids?.Length > 0
-                ? string.Join(",", ids)
+                ? string.Join(',', ids)
                 : null;
         }
     }

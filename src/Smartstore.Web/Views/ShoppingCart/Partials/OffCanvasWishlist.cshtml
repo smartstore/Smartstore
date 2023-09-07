@@ -28,9 +28,7 @@
         var currentItem = Model.Items.FirstOrDefault(x => x.CreatedOnUtc >= DateTime.UtcNow.AddSeconds(-2));
 
         <div sm-if="currentItem != null" class="alert alert-success alert-dismissible rounded-0 fade show" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
             <span sm-language-attributes-for="currentItem.ProductName">
                 @Html.Raw(T("ShoppingCart.Mini.AddedItemToWishlist", $"<strong>{currentItem.ProductName.Value.Truncate(50, "...")}</strong>"))
             </span>
@@ -49,7 +47,7 @@
                         </div>
 
                         <div class="col col-data">
-                            <a sm-language-attributes-for="item.ProductName" class="name font-weight-medium" href="@item.ProductUrl" title="@item.ProductName">@item.ProductName</a>
+                            <a sm-language-attributes-for="item.ProductName" class="name fwm link-body link-dnu" href="@item.ProductUrl" title="@item.ProductName">@item.ProductName</a>
                             <div sm-language-attributes-for="item.ShortDesc" class="short-desc text-muted">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
                             </div>
@@ -93,7 +91,7 @@
                             </span>
                         </div>
 
-                        <div class="ml-auto text-nowrap">
+                        <div class="col-auto ml-auto text-nowrap">
                             @if (Model.ShowItemsFromWishlistToCartButton)
                             {
                                 <a class="btn btn-secondary btn-sm btn-icon ajax-cart-link" title='@T("ShoppingCart.AddToCart")'
@@ -115,7 +113,7 @@
                                data-type="wishlist"
                                data-action="remove"
                                title='@T("Common.Remove")'>
-                                <i class="far fa-trash-alt"></i>
+                                <i class="far fa-trash-can"></i>
                             </a>
                         </div>
 

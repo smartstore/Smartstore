@@ -1,5 +1,16 @@
 ﻿﻿ /// <reference path="../../../Smartstore.Web/Themes/Flex/wwwroot/theme.scss" />
-#stripe-payment-request-button {
-    width: 200px;
-    margin: 0.5rem 0;
+/* Media query for mobile viewport */
+@include media-breakpoint-down(sm) {
+    #stripe-payment-request-button {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+}
+
+/* Media query for desktop viewport */
+@include media-breakpoint-up(md) {
+    #stripe-payment-request-button {
+        width: 200px;
+        margin: 0.5rem 0;
+    }
 }

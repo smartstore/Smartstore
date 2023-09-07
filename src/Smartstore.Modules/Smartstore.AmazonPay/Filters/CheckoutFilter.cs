@@ -35,8 +35,6 @@ namespace Smartstore.AmazonPay.Filters
             _orderSettings = orderSettings;
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var action = context.RouteData.Values.GetActionName();
@@ -48,7 +46,7 @@ namespace Smartstore.AmazonPay.Filters
                 {
                     // 202 (Accepted): authorization is pending.
                     var completedNote = responseStatus == "202"
-                        ? T("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote").Value
+                        ? _services.Localization.GetResource("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote")
                         : string.Empty;
 
                     if (!_orderSettings.DisableOrderCompletedPage)

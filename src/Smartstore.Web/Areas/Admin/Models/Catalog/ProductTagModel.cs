@@ -4,6 +4,16 @@ using FluentValidation;
 namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Catalog.ProductTags.")]
+    public class ProductTagListModel : ModelBase
+    {
+        [LocalizedDisplay("*Fields.Name")]
+        public string SearchName { get; set; }
+
+        [LocalizedDisplay("*Published")]
+        public bool? SearchPublished { get; set; }
+    }
+
+    [LocalizedDisplay("Admin.Catalog.ProductTags.")]
     public class ProductTagModel : EntityModelBase, ILocalizedModel<ProductTagLocalizedModel>
     {
         [Required]

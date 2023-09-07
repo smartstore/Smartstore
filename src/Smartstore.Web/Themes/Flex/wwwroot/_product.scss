@@ -1,4 +1,4 @@
-/// <reference path="theme.scss" />
+/// <reference path="references.scss" />
 
 $pd-offer-bg:                   $product-detail-addtocart-box-bg;
 $pd-price-color:                $product-price-color;
@@ -76,10 +76,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     }
 }
 
+.zoom-window-container {
+    position: relative;
+}
 
 // Info
 // =====================================================
-
 .pd-name {
     @include font-size(1.75rem);
     font-weight: $font-weight-bold;
@@ -175,7 +177,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     padding: $pd-offer-spacing;
     line-height: $pd-line-height;
     width: 100%;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
     --pd-finalprice-color: #{$pd-price-color};
     --pd-finalprice-offer-color: #{$pd-price-offer-color};
     --pd-offer-muted-color: #{$pd-offer-muted-color};
@@ -343,30 +345,6 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 
-// Tags
-// =====================================================
-
-.pd-tag {
-    text-decoration: none !important;
-    display: inline-flex;
-    padding: 0.5rem 0.75rem;
-    margin: 0;
-    margin-inline-end: 0.2rem;
-    margin-bottom: 0.4rem;
-    font-weight: $font-weight-medium;
-    color: $body-color;
-    font-size: $font-size-sm;
-    line-height: 1;
-    background-color: $light;
-    border-radius: 10rem;
-}
-
-.pd-tag-count {
-    color: $text-muted;
-    font-weight: 400;
-}
-
-
 // Bundles
 // =====================================================
 
@@ -423,14 +401,6 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         display: none;
         content: '';
     }
-}
-
-.pd-bundle-summary-item-qty {
-    font-weight: bold;
-    position: absolute;
-    inset-inline-start: 0;
-    top: 0;
-    font-size: 80%;
 }
 
 

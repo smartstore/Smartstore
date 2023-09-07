@@ -35,6 +35,7 @@ namespace Smartstore.Web.Api.Controllers
         private readonly Lazy<IPriceCalculationService> _priceCalculationService;
         private readonly Lazy<IProductAttributeService> _productAttributeService;
         private readonly Lazy<IProductTagService> _productTagService;
+        private readonly Lazy<IDiscountService> _discountService;
         private readonly Lazy<IMediaImporter> _mediaImporter;
         private readonly Lazy<IWebApiService> _webApiService;
         private readonly Lazy<SearchSettings> _searchSettings;
@@ -46,6 +47,7 @@ namespace Smartstore.Web.Api.Controllers
             Lazy<IPriceCalculationService> priceCalculationService,
             Lazy<IProductAttributeService> productAttributeService,
             Lazy<IProductTagService> productTagService,
+            Lazy<IDiscountService> discountService,
             Lazy<IMediaImporter> mediaImporter,
             Lazy<IWebApiService> webApiService,
             Lazy<SearchSettings> searchSettings)
@@ -56,6 +58,7 @@ namespace Smartstore.Web.Api.Controllers
             _priceCalculationService = priceCalculationService;
             _productAttributeService = productAttributeService;
             _productTagService = productTagService;
+            _discountService = discountService;
             _mediaImporter = mediaImporter;
             _webApiService = webApiService;
             _searchSettings = searchSettings;
@@ -382,7 +385,7 @@ namespace Smartstore.Web.Api.Controllers
         }
 
         /// <summary>
-        /// Updates product tags.
+        /// Adds or removes assigments to product tags.
         /// </summary>
         /// <remarks>
         /// Tags that are not included in **tagNames** are added and assigned to the product.
@@ -395,7 +398,7 @@ namespace Smartstore.Web.Api.Controllers
         [ProducesResponseType(typeof(IQueryable<ProductTag>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> UpdateProductTags(int key,
-            [FromODataBody, Required] IEnumerable<string> tagNames)
+        [FromODataBody, Required] IEnumerable<string> tagNames)
         {
             try
             {
@@ -403,6 +406,38 @@ namespace Smartstore.Web.Api.Controllers
                 await _productTagService.Value.UpdateProductTagsAsync(entity, tagNames);
 
                 return Ok(entity.ProductTags.AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Adds or removes discounts assigments.
+        /// </summary>
+        /// <remarks>
+        /// Identifiers of discounts that are not included in **discountIds** are assigned to the product.
+        /// Existing assignments to discounts that are not included in **discountIds** are removed.
+        /// </remarks>
+        /// <param name="discountIds">List of discount identifiers to apply.</param>
+        [HttpPost("Products({key})/ApplyDiscounts"), ApiQueryable]
+        [Permission(Permissions.Catalog.Product.Update)]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(IQueryable<Discount>), Status200OK)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> ApplyDiscounts(int key,
+            [FromODataBody, Required] IEnumerable<int> discountIds)
+        {
+            try
+            {
+                var entity = await GetRequiredById(key, q => q.Include(x => x.AppliedDiscounts));
+                if (await _discountService.Value.ApplyDiscountsAsync(entity, discountIds.ToArray(), DiscountType.AssignedToSkus))
+                {
+                    await Db.SaveChangesAsync();
+                }
+
+                return Ok(entity.AppliedDiscounts.AsQueryable());
             }
             catch (Exception ex)
             {

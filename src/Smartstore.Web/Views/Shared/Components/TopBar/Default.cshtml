@@ -27,7 +27,7 @@
         @if (Model.IsCustomerImpersonated)
         {
             <a asp-route="Logout" class="menubar-link" title="@T("Account.ImpersonatedAs.Finish.Hint")" rel="nofollow">
-                <i class="fal fa-sign-out-alt menubar-icon"></i>
+                <i class="fal fa-right-from-bracket menubar-icon"></i>
                 <span>@WorkContext.CurrentCustomer.Username</span>
             </a>
         }

@@ -10,7 +10,7 @@
         // RangeSlider
         "range": function (el) { $(el).rangeSlider() },
         // ColorBox
-        "color": function (el) { $(el).colorpicker({ fallbackColor: false, color: false, align: Smartstore.globalization.culture.isRTL ? 'left' : 'right' }) },
+        "color": function (el) { $(el).colorpickerWrapper() },
         // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
         "select": function (el) {
             if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)

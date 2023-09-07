@@ -143,7 +143,7 @@
                     </div>
                     <div class="adminData">
                         <button type="button" class="btn btn-secondary robots-toggle-button">
-                            <i class="fa fa-exchange-alt"></i>
+                            <i class="fa fa-right-left"></i>
                             <span>@T("Admin.Configuration.Settings.GeneralCommon.DisplayAllows")</span>
                             <span class="d-none">@T("Admin.Configuration.Settings.GeneralCommon.DisplayDisallows")</span>
                         </button>
@@ -246,10 +246,12 @@
                     <div class="adminData">
                         <div class="input-group">
                             <editor asp-for="SeoSettings.TestSeoNameCreation" />
-                            <button id="TestSeoNameCreationButton" type="button" class="btn btn-outline-secondary input-group-append rounded-0 align-items-center">
-                                <i class="fa fa-sync"></i>
-                                <span>@T("Admin.Common.Check")</span>
-                            </button>
+                            <span class="input-group-append">
+                                <button id="TestSeoNameCreationButton" type="button" class="btn btn-secondary">
+                                    <i class="fa fa-sync"></i>
+                                    <span>@T("Admin.Common.Check")</span>
+                                </button>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -350,9 +352,11 @@
                     <div class="adminData">
                         <div class="input-group">
                             <editor asp-for="SecuritySettings.EncryptionKey" />
-                            <button type="submit" name="changeencryptionkey" id="changeencryptionkey" value="changeencryptionkey" class="btn btn-outline-secondary input-group-append rounded-0 confirm">
-                                <span>@T("Admin.Common.Change")</span>
-                            </button>
+                            <span class="input-group-append">
+                                <button type="submit" name="changeencryptionkey" id="changeencryptionkey" value="changeencryptionkey" class="btn btn-secondary confirm">
+                                    <span>@T("Admin.Common.Change")</span>
+                                </button>
+                            </span>
                         </div>
                         <span asp-validation-for="SecuritySettings.EncryptionKey"></span>
                     </div>

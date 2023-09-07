@@ -364,6 +364,7 @@ namespace Smartstore.Admin.Controllers
         {
             var ids = selectedIds.ToIntArray();
             var orders = await _db.Orders
+                .Include(x => x.Shipments)
                 .IncludeCustomer(true)
                 .IncludeOrderItems()
                 .Where(x => ids.Contains(x.Id))
@@ -405,6 +406,38 @@ namespace Smartstore.Admin.Controllers
                                 await _orderProcessingService.CompleteOrderAsync(o);
                                 ++numSuccess;
                                 succeededOrderNumbers.Add(o.GetOrderNumber());
+                            }
+                            else
+                            {
+                                ++numSkipped;
+                            }
+                            break;
+                        case "ship":
+                        case "deliver":
+                            if (o.ShippingStatus != ShippingStatus.ShippingNotRequired && o.ShippingAddressId != 0)
+                            {
+                                var ship = operation == "ship";
+                                if (o.Shipments.Count > 0)
+                                {
+                                    foreach (var shipment in o.Shipments)
+                                    {
+                                        if (ship && shipment.ShippedDateUtc == null)
+                                        {
+                                            await _orderProcessingService.ShipAsync(shipment, true);
+                                        }
+                                        else if (!ship && shipment.ShippedDateUtc != null && shipment.DeliveryDateUtc == null)
+                                        {
+                                            await _orderProcessingService.DeliverAsync(shipment, true);
+                                        }
+                                    }
+
+                                    ++numSuccess;
+                                    succeededOrderNumbers.Add(o.GetOrderNumber());
+                                }
+                                else
+                                {
+                                    ++numSkipped;
+                                }
                             }
                             else
                             {
@@ -501,7 +534,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifyInfo(msg.ToString());
 
-            if (succeededOrderNumbers.Any())
+            if (succeededOrderNumbers.Count > 0)
             {
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), string.Join(", ", succeededOrderNumbers.OrderBy(x => x)));
             }
@@ -1745,8 +1778,8 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareOrderModel(OrderModel model, Order order)
         {
-            Guard.NotNull(model, nameof(model));
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(model);
+            Guard.NotNull(order);
 
             var language = Services.WorkContext.WorkingLanguage;
             var store = Services.StoreContext.GetStoreById(order.StoreId);

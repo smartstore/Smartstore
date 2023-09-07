@@ -17,12 +17,9 @@
 
 <partial name="MetaProperties" model="Model.MetaProperties" />
 
-@if (Model.SearchResult.Facets.Count > 0)
-{
-    <widget target-zone="left">
-        <partial name="Search.Filters" model="Model.SearchResult" />
-    </widget>
-} 
+<widget target-zone="left">
+    <partial name="Search.Filters" model="Model.Products" />
+</widget>
 
 <div class="page manufacturer-page">
     <div class="page-title">

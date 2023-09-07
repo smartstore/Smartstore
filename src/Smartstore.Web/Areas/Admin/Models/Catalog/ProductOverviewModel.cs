@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Admin.Models.Catalog
@@ -48,6 +49,11 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*IsTaxExempt")]
         public bool IsTaxExempt { get; set; }
+
+        [UIHint("DeliveryTimes")]
+        [LocalizedDisplay("*DeliveryTime")]
+        public int? DeliveryTimeId { get; set; }
+        public string DeliveryTime { get; set; }
 
         [LocalizedDisplay("*StockQuantity")]
         public int StockQuantity { get; set; }
@@ -108,6 +114,11 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("Admin.Common.CustomerRole.LimitedTo")]
         public bool SubjectToAcl { get; set; }
+
+        [LocalizedDisplay("Common.NumberOfOrders")]
+        public int NumberOfOrders { get; set; }
+        public bool HasOrders
+            => NumberOfOrders > 0;
 
         public CopyProductModel CopyProductModel { get; set; } = new();
     }

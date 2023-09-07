@@ -1,15 +1,17 @@
 ﻿@model ProductOverviewModel
 
-@{ 
+@{
     var parentModel = ViewData["Parent"] as ProductListModel;
 }
 
 <datagrid id="products-grid"
+          version="2"
           allow-resize="true"
           allow-row-selection="true"
           allow-edit="true"
           preserve-grid-state="true" preserve-command-state="true"
-          allow-column-reordering="true">
+          allow-column-reordering="true"
+          ondatabound="productGrid_onDataBound">
     <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
@@ -37,7 +39,7 @@
         <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <i class="far fa-trash-alt"></i>
+                <i class="far fa-trash-can"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
@@ -57,7 +59,7 @@
                     resizable="false"
                     reorderable="false">
                 <display-template>
-                    <div v-if="item.row.Id > 0" class="d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
+                    <div v-if="item.row.Id > 0" class="hstack justify-content-center position-absolute w-100 h-100 top-0 start-0" style="padding: 8px;">
                         <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px" />
                     </div>
                 </display-template>
@@ -73,6 +75,11 @@
         <column for="ManufacturerPartNumber" visible="false" />
         <column for="Price" halign="flex-end" />
         <column for="ComparePrice" halign="flex-end" visible="false" />
+        <column for="DeliveryTimeId" halign="center" width="200px">
+            <display-template>
+                <div class="dg-cell-value">{{ item.row.DeliveryTime }}</div>
+            </display-template>
+        </column>
         <column for="StockQuantity" halign="center" />
         <column for="MinStockQuantity" halign="center" visible="false" />
         <column for="LimitedToStores" visible="!parentModel.IsSingleStoreMode" readonly="true" halign="center" />
@@ -84,10 +91,10 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Custom" 
+        <a datarow-action="DataRowAction.Custom"
            class="copy-product-command"
-           href="#copyproduct-window" 
-           data-toggle="modal" 
+           href="#copyproduct-window"
+           data-toggle="modal"
            :data-copy-product-id="item.row.Id"
            :data-copy-product-name="item.row.CopyProductModel.Name">
             @T("Common.Copy")
@@ -98,3 +105,10 @@
 </datagrid>
 
 <partial name="_CopyProductDialog" model="null" />
+
+<script sm-target-zone="scripts" data-origin="products-grid">
+    $(function () {
+        window.Res.DataGrid.confirmDelete = @T("Admin.DataGrid.ConfirmSoftDelete").JsValue;
+        window.Res.DataGrid.confirmDeleteMany = @T("Admin.DataGrid.ConfirmSoftDeleteMany").JsValue;        
+    });
+</script>

@@ -5,29 +5,65 @@
 ### New Features
 
 - **Botsonic** plugin (commercial)
+- The recycle bin for products enables to restore and permanently delete products.
 - #745 Page Builder: depend story visibility on user roles.
+- Added option to configure allowed characters for user names 
 
 ### Improvements
 
 - Increased performance: added hash codes to attribute combinations. With a large number of attribute combinations, variants are found much faster now.
 - Improved plugin & provider manager UI
+- Use billing address if there is no shipping address and tax calculation is based on shipping address.
 - #580 Added caching for live currency exchange rates.
 - #767 Handle tier prices in depending prices module.
 - #378 Remove the assignments of products to a tax category when the tax category is deleted.
-- #388 Ajaxify product tag selection in backend.
+- Blog: added counter for pageviews.
+- Product tags:
+  - #388 Ajaxify product tag selection in backend.
+  - Added search panel to product tags grid.
+- Web API:
+  - #142 Take back in stock notifications into account.
+  - #805 Add endpoints to assign discounts to entities.
 - #503 Don't round quantity unit amount for PAnGV.
 - #403 Added preview image link of NewsItem to RSS feed.
 - #390 Import: add a setting whether to send the completion email.
+- #276 Enable to set the time of day for start and end date of discounts.
+- #486 Add setting to capture payment when order status changes to *complete*.
+- #782 Make the total weight of a shipment editable.
+- #782 Enable to mark shipments of an order as *shipped* or *delivered* via orders grid.
+- Added ability to edit delivery time in product grid
+- #807 Enable absolute Paths for DataExchangeSettings.ImageImportFolder.
 
 ### Bugfixes
 
-- Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
+- Price calculation:
+  - Rounding differences between the subtotal and the sum of the line totals.
+  - Manufacturer discount is ignored as soon as an attribute with a linked product is selected.
+- MegaSearch:
+  - Fixed incorrect search results when a multistore has different default languages configured.
+  - Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
+  - Fixed discounts assigned to categories and limited to customer roles should be excluded from indexing and indexed prices.
+- Fixed the category navigation no longer shows the number of contained products after reindexing.
 - Fixed not yet awarded reward points were reduced when an order was deleted.
 - Web API: fixed 404 file swagger.json not found when opening Swagger documentation in a virtual directory.
 - Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
 - Fixed missing cache clearing after importing localized properties.
 - Output Cache: missing `Content-Type` header when serving page from cache
 - #531 Error reading import file with localized values of languages with the same UniqueSeoCode.
+- Fixed discounts assigned to categories and limited to customer roles should be excluded from export and exported prices.
+- Import:
+  - Fixed localized properties were not updated during import.
+  - Localized SeName was only updated when import file also contained a non-localized SeName column.
+- Fixed MainPictureId not applied on product edit page if missing and if there is only one picture assigned to a product.
+- Fixed product image gallery issue where no image was displayed at all.
+- Fixed "The requested service 'Other (Smartstore.Core.Rules.IRuleProvider)' has not been registered" when creating a rule.
+- Fixed #792 Downloaded language sometimes cannot be deleted when using SQLite.
+- Stripe: Fixed incorrect system name in several places.
+- Gift cards were not generated according to the order item quantity during order processing.
+- Fixed incorrect cart validation if minimum cart quantity and quantity step were configured for a product.
+- #810 Doubleclicking login button can lead to 400 BadRequest error page.
+- Fixed arithmetic overflow SqlException in `ShippingByWeight` and `ShippingByTotal` four decimal places migrations.
+- #776 PayPal credit card payment fails due to missing session PayPalOrderId entry.
 
 
 ## Smartstore 5.0.5

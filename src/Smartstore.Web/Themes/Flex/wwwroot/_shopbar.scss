@@ -1,4 +1,4 @@
-/// <reference path="theme.scss" />
+/// <reference path="references.scss" />
 
 //
 // ShopBar layout
@@ -148,7 +148,7 @@
     text-decoration: none !important;
     padding: 0.35rem 0.5rem;
     border: 1px solid transparent;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius-md);
     transition: all 0.12s ease;
     cursor: pointer;
 
@@ -193,8 +193,8 @@
 }
 
 .shopbar-inverse {
-    .shopbar-button { 
-        color: $shopbar-inverse-color !important; 
+    .shopbar-button {
+        color: $shopbar-inverse-color !important;
 
         &:hover {
             border-color: rgba(#fff, 0.2) rgba(#fff, 0.2) rgba(#fff, 0.2);
@@ -206,7 +206,10 @@
             box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.3);
         }
 
-        .shopbar-button-label span { color: $shopbar-inverse-color-muted;  }
+        .shopbar-button-label span,
+        .shopbar-button-label-sm {
+            color: $shopbar-inverse-color-muted;
+        }
     }
 }
 
@@ -226,7 +229,7 @@
     padding: 0.4rem 0;
 
     .dropdown-menu {
-        min-width: 200px;
+        --dropdown-min-width: 200px;
     }
 }
 
@@ -238,12 +241,14 @@
 
 .menubar-link {
     position: relative;
-    display: block;
+    display: flex;
+    align-items: baseline;
+    column-gap: 0.5em;
     font-size: $font-size-xs;
     padding: 0.75em;
     text-decoration: none !important;
     text-transform: uppercase;
-    @include border-radius($border-radius);
+    @include border-radius(var(--border-radius-md));
 
     > .menubar-icon {
         font-size: $font-size-base;

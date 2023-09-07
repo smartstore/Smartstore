@@ -1,6 +1,5 @@
-/// <reference path="../shared/_mixins.scss" />
-/// <reference path="../bs4/scss/bootstrap.scss" />
-/// <reference path="../vendors/slick/slick.scss" />
+/// <reference path="references.scss" />
+/// <reference path="../lib/slick/slick.scss" />
 
 
 // General
@@ -21,7 +20,7 @@ img.slick-loading {
 .gal-box {
     .slick-arrow,
     .gal-arrow {
-        font-size: 1.25rem;
+        //font-size: 1.25rem;
     }
     
     .slick-arrow.slick-disabled,
@@ -89,7 +88,7 @@ img.slick-loading {
         border-end-start-radius: 0;
         border-inline-start-width: 0;
 		border-inline-end-width: $btn-border-width;
-        box-shadow: 1px 1px 3px rgba(0,0,0, 0.12);
+        box-shadow: 1px 1px 3px rgba($black, 0.12);
     }
 
     .slick-next { 
@@ -98,16 +97,16 @@ img.slick-loading {
         border-end-end-radius: 0;
         border-inline-end-width: 0;
 		border-inline-start-width: $btn-border-width;
-        box-shadow: -1px 1px 3px rgba(0,0,0, 0.12);
+        box-shadow: -1px 1px 3px rgba($black, 0.12);
     }
 
 	[dir=rtl] & {
 		.slick-prev { 
-			box-shadow: -1px 1px 3px rgba(0,0,0, 0.12);
+			box-shadow: -1px 1px 3px rgba($black, 0.12);
 		}
 
 		.slick-next { 
-			box-shadow: 1px 1px 3px rgba(0,0,0, 0.12);
+			box-shadow: 1px 1px 3px rgba($black, 0.12);
 		}
 	}
 
@@ -126,16 +125,14 @@ img.slick-loading {
 // Dots
 // ------------------------------------------------------
 
-.slick-dotted.slick-slider {
-    margin-block-end: 30px !important;
-}
-
 .slick-dots {
-    position: absolute;
-    inset-block-end: -30px;
-    display: block;
+    position: relative;
+    display: flex !important;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
     width: 100%;
-    padding: 10px 0;
+    padding: 0.75rem 0.5rem;
     margin: 0;
     list-style: none;
     text-align: center;
@@ -146,7 +143,6 @@ img.slick-loading {
     position: relative;
     display: inline-block;
     cursor: pointer;
-    padding: 0 6px;
     height: 10px;
 }
 

@@ -261,6 +261,7 @@ namespace Smartstore.Admin.Controllers
             {
                 shipment.TrackingNumber = model.TrackingNumber;
                 shipment.TrackingUrl = model.TrackingUrl;
+                shipment.TotalWeight = model.TotalWeight;
 
                 await _db.SaveChangesAsync();
 
@@ -452,9 +453,7 @@ namespace Smartstore.Admin.Controllers
             model.OrderNumber = order.GetOrderNumber();
             model.PurchaseOrderNumber = order.PurchaseOrderNumber;
             model.ShippingMethod = order.ShippingMethod;
-            model.TotalWeightString = shipment.TotalWeight.HasValue
-                ? "{0:F2} [{1}]".FormatInvariant(shipment.TotalWeight, baseWeight?.GetLocalized(x => x.Name) ?? string.Empty)
-                : string.Empty;
+            model.BaseWeight = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(shipment.CreatedOnUtc, DateTimeKind.Utc);
 
             model.CanShip = !shipment.ShippedDateUtc.HasValue;

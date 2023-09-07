@@ -9,8 +9,8 @@ namespace Smartstore.Core.Catalog.Products
     public partial class ProductTagService : AsyncDbSaveHook<ProductTag>, IProductTagService
     {
         // {0} : include hidden, {1} : store ID, {2} : customer roles IDs.
-        const string PRODUCTTAG_COUNT_KEY = "producttag:count-{0}-{1}-{2}";
-        const string PRODUCTTAG_PATTERN_KEY = "producttag:*";
+        const string ProductTagCountKey = "producttag:count-{0}-{1}-{2}";
+        const string ProductTagPatternKey = "producttag:*";
 
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
@@ -30,14 +30,14 @@ namespace Smartstore.Core.Catalog.Products
 
         public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            return _cache.RemoveByPatternAsync(PRODUCTTAG_PATTERN_KEY);
+            return ClearCacheAsync();
         }
 
         #endregion
 
         public virtual async Task UpdateProductTagsAsync(Product product, IEnumerable<string> tagNames)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             await _db.LoadCollectionAsync(product, x => x.ProductTags);
 
@@ -119,7 +119,7 @@ namespace Smartstore.Core.Catalog.Products
                 }
             }
 
-            await _cache.RemoveByPatternAsync(PRODUCTTAG_PATTERN_KEY);
+            await ClearCacheAsync();
         }
 
         public virtual async Task<IDictionary<int, int>> GetProductCountsMapAsync(
@@ -141,7 +141,7 @@ namespace Smartstore.Core.Catalog.Products
             var storeToken = _db.QuerySettings.IgnoreMultiStore ? 0 : storeId;
             var rolesToken = "0";
             //var rolesToken = _db.QuerySettings.IgnoreAcl || includeHidden ? "0" : string.Join(",", roleIds);
-            var cacheKey = PRODUCTTAG_COUNT_KEY.FormatInvariant(includeHidden.ToString().ToLower(), storeToken, rolesToken);
+            var cacheKey = ProductTagCountKey.FormatInvariant(includeHidden.ToString().ToLower(), storeToken, rolesToken);
 
             var result = await _cache.GetAsync(cacheKey, async (o) =>
             {
@@ -192,6 +192,11 @@ namespace Smartstore.Core.Catalog.Products
             });
 
             return result;
+        }
+
+        public virtual Task ClearCacheAsync()
+        {
+            return _cache.RemoveByPatternAsync(ProductTagPatternKey);
         }
 
         private class ProductsPerTag

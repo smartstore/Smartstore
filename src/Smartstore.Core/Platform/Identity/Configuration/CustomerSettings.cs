@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Configuration;
+﻿using Microsoft.AspNetCore.Identity;
+using Smartstore.Core.Configuration;
 
 namespace Smartstore.Core.Identity
 {
@@ -128,6 +129,11 @@ namespace Smartstore.Core.Identity
         /// Gets or sets a value indicating the maximum length of a formatted customer name.
         /// </summary>
         public int CustomerNameFormatMaxLength { get; set; } = 64;
+
+        /// <summary>
+        /// Gets or sets a value to be concated with <see cref="UserOptions.AllowedUserNameCharacters"/>.
+        /// </summary>
+        public string CustomerNameAllowedCharacters { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether 'Newsletter' form field is enabled.

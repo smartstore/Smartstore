@@ -47,11 +47,22 @@
     }
 }
 
-<div sm-if="Model.AvailablePageSizes != null && Model.AvailablePageSizes.Any()" class="artlist-action artlist-action--pagesize ml-auto">
-    <div class="mf-dropdown">
-        <button class="btn btn-secondary btn-artlist-action rounded">
+<div sm-if="Model.AvailablePageSizes != null && Model.AvailablePageSizes.Any()" class="artlist-action--pagesize">
+    <div class="dropdown">
+        <button class="btn btn-secondary btn-sm dropdown-toggle fwn" data-toggle="dropdown">
+            @Html.Raw(T("Pager.XPerPage", $"<span class='fwm'>{pageable.PageSize}</span>"))
+        </button>
+        <div class="dropdown-menu">
+            @foreach (var size in Model.AvailablePageSizes)
+            {
+                <a href="@Display.ModifyUrl(null, $"s={size}", "i")" class="dropdown-item">@size</a>
+            }
+        </div>
+    </div>
+
+    <div class="mf-dropdown d-none">
+        <button class="btn btn-secondary btn-sm btn-artlist-action dropdown-toggle rounded">
             <em>@Html.Raw(T("Pager.XPerPage", $"<span>{pageable.PageSize}</span>"))</em>
-            <i class="fas fa-caret-down"></i>
         </button>
         <select class="artlist-action-select form-control noskin"
                 name="artlist-action-pagesize"
@@ -65,53 +76,4 @@
             }
         </select>
     </div>
-</div>
-
-<div sm-if="pageable.TotalPages > 1" class="artlist-action artlist-action--pager d-flex flex-nowrap">
-
-    @if (hasPrev)
-    {
-        <a href='@Display.ModifyUrl(null, "i=" + (pageable.PageNumber - 1))' title="@T("Pager.PageX", pageable.PageNumber - 1)"
-           rel="prev" class="btn btn-secondary btn-pager-prev pull-xs-left rounded-left" data-toggle="tooltip">
-            <i class="fa fa-chevron-left"></i>
-        </a>
-    }
-
-    <div class="mf-dropdown">
-        <button class="btn btn-secondary btn-artlist-action@(!hasPrev ? " rounded-left" : "")" attr-class='(!hasNext, "rounded-right")'>
-            <em class="d-sm-none"><span>@pageable.PageNumber</span>/<span>@pageable.TotalPages</span></em>
-            <em class="d-none d-sm-inline d-md-none">@Html.Raw(T("Pager.PageXOfYShort", $"<span>{pageable.PageNumber}</span>", $"<span>{pageable.TotalPages}</span>"))</em>
-            <em class="d-none d-md-inline">@Html.Raw(T("Pager.PageXOfY", $"<span>{pageable.PageNumber}</span>", $"<span>{pageable.TotalPages}</span>"))</em>
-            <i class="fas fa-caret-down"></i>
-        </button>
-        <select class="artlist-action-select form-control noskin" name="artlist-action-page" id="artlist-action-page" data-qname="i" title="@T("Pager.PageXOfY", pageable.PageNumber, pageable.TotalPages)">
-            @{
-                int pageCount = pageable.TotalPages;
-                int start = GetFirstPageIndex(pageable) + 1;
-                int end = GetLastPageIndex(pageable) + 1;
-            }
-            @if (start > 3)
-            {
-                <option value="1" attr-selected='(1 == pageable.PageNumber, "selected")'>@T("Pager.PageXOfY", 1, pageCount)</option>
-                <option disabled="disabled">...</option>
-            }
-            @for (var i = start; i <= end; i++)
-            {
-                <option value="@i" attr-selected='(i == pageable.PageNumber, "selected")'>@T("Pager.PageXOfY", i, pageCount)</option>
-            }
-            @if (end < (pageCount - 3))
-            {
-                <option disabled="disabled">...</option>
-                <option value="@pageCount" attr-selected='(pageCount == pageable.PageNumber, "selected")'>@T("Pager.PageXOfY", pageCount, pageCount)</option>
-            }
-        </select>
-    </div>
-
-    @if (hasNext)
-    {
-        <a href='@Display.ModifyUrl(null, "i=" + (pageable.PageNumber + 1))' title="@T("Pager.PageX", pageable.PageNumber + 1)"
-           rel="next" class="btn btn-secondary btn-pager-next rounded-right" data-toggle="tooltip">
-            <i class="fa fa-chevron-right"></i>
-        </a>
-    }
 </div>

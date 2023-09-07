@@ -1,4 +1,4 @@
-﻿/// <reference path="theme.scss" />
+﻿/// <reference path="references.scss" />
 
 $megamenu-zindex-base:          ($zindex-dropdown - 20);
 $color-layers:                  $megamenu-bg $header-bg $site-bg $body-bg;
@@ -39,7 +39,6 @@ $mixed-megamenu-bg:             $megamenu-bg;
         width: auto;
         height: auto;
         vertical-align: middle;
-        margin-inline-start: 0.15rem;
     }
 }
 
@@ -295,6 +294,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     }
 
     .mega-menu-dropdown {
+        --dropdown-border-radius: var(--border-radius-lg);
         background-color: $megamenu-dropdown-bg;
         color: $megamenu-text-color;
         z-index: ($megamenu-zindex-base + 1);
@@ -433,7 +433,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 .brand-menu-footer {
     background: $gray-100;
     border-top: 1px solid $gray-300;
-    border-radius: 0 0 $border-radius $border-radius;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
 }
 .brand-menu-footer-thumb-col {
     width: 80px;
@@ -459,8 +459,8 @@ $mixed-megamenu-bg:             $megamenu-bg;
     
     .dropdown-menu {
         margin-top: -1px;
-        min-width: 250px;
-        z-index: ($megamenu-zindex-base + 1);
+        --dropdown-min-width: 250px;
+        --dropdown-zindex: #{$megamenu-zindex-base + 1};
 		transform: translateX($grid-gutter-width/2);
 		&.ar {
 			transform: translateX(-($grid-gutter-width/2));
