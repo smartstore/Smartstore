@@ -1160,10 +1160,12 @@ namespace Smartstore.Web.Controllers
                 else
                 {
                     // Images not belonging to any combination...
-                    allCombinationImageIds ??= new List<int>();
-                    foreach (var file in files.Where(p => !allCombinationImageIds.Contains(p.Id)))
+                    if (allCombinationImageIds != null)
                     {
-                        model.Files.Add(PrepareMediaFileInfo(file, model));
+                        foreach (var file in files.Where(p => !allCombinationImageIds.Contains(p.Id)))
+                        {
+                            model.Files.Add(PrepareMediaFileInfo(file, model));
+                        }
                     }
 
                     // Plus images belonging to selected combination.
@@ -1179,6 +1181,12 @@ namespace Smartstore.Web.Controllers
                                 defaultFile = file;
                             }
                         }
+                    }
+
+                    if (model.Files.Count == 0)
+                    {
+                        // No combination exists for the selection and all images are assigned to combinations.
+                        model.Files.Add(PrepareMediaFileInfo(files[0], model));
                     }
                 }
 
