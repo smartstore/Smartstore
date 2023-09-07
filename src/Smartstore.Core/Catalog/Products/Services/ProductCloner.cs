@@ -108,6 +108,12 @@ namespace Smartstore.Core.Catalog.Products
                 clone.CreatedOnUtc = utcNow;
                 clone.UpdatedOnUtc = utcNow;
 
+                // Reset properties of ratings and reviews.
+                clone.ApprovedRatingSum = 0;
+                clone.NotApprovedRatingSum = 0;
+                clone.ApprovedTotalReviews = 0;
+                clone.NotApprovedTotalReviews = 0;
+
                 // Category mappings.
                 clone.ProductCategories.AddRange(product.ProductCategories.Select(x => new ProductCategory
                 {
