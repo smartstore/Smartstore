@@ -182,9 +182,9 @@
                         || !cardFields._state.fields.expirationDate.isValid) {
                         e.preventDefault();
 
-                        console.log("CVV is valid" + cardFields._state.fields.cvv.isValid);
-                        console.log("Number is valid" + cardFields._state.fields.number.isValid);
-                        console.log("Expiration date is valid" + cardFields._state.fields.expirationDate.isValid);
+                        console.log("CVV is valid: " + cardFields._state.fields.cvv.isValid);
+                        console.log("Number is valid: " + cardFields._state.fields.number.isValid);
+                        console.log("Expiration date is valid: " + cardFields._state.fields.expirationDate.isValid);
 
                         var err = self.hostedFieldsContainer.data("creditcard-error-message");
                         displayNotification(err, 'error');
