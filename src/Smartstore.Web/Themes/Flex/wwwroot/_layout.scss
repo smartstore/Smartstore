@@ -109,8 +109,8 @@ body {
 // --------------------------------------------------
 
 #scroll-top {
-    z-index: 9999;
     position: fixed;
+    z-index: $offcanvas-z-index - 1;
     bottom: 1rem;
     inset-inline-end: 1rem;
     width: 42px;
@@ -125,6 +125,7 @@ body {
     transition-duration: .2s;
     transition-timing-function: ease-in;
     pointer-events: none;
+
     --shadow-intensity: 1.25;
 
     &:active {

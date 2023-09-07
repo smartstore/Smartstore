@@ -73,11 +73,17 @@ body.canvas-blocking .canvas-blocker {
     --offcanvas-top: 0;
     --offcanvas-x-offset: -100%;
     --offcanvas-y-offset: 0;
+    --offcanvas-padding-x: 1.5rem;
+    --offcanvas-padding-y: 1.5rem;
+    --offcanvas-header-border-color: var(--border-color);
+    --offcanvas-header-border-width: 1px;
 
     position: fixed;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
     visibility: hidden;
-    z-index: 0;
+    outline: 0;
     margin: 0; 
     background-color: #fff;
     overflow-x: auto;
@@ -164,12 +170,37 @@ body.canvas-blocking .canvas-blocker {
     }
 }
 
+.offcanvas-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
+    justify-content: space-between;
+    padding: var(--offcanvas-padding-y) var(--offcanvas-padding-x);
+    border-bottom: var(--offcanvas-header-border-width) solid var(--offcanvas-header-border-color);
+}
+
+.offcanvas-title {
+    margin-bottom: 0;
+}
+
+.offcanvas-body {
+    padding: var(--offcanvas-padding-y) var(--offcanvas-padding-x);
+}
+
 .offcanvas-content {
     position: absolute;
     width: 100%;
     height: 100%;
-    //overflow: hidden;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+}
+
+.offcanvas-header + .offcanvas-content {
+    position: relative;
+    height: auto;
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .offcanvas-scrollable {

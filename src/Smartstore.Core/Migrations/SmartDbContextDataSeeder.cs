@@ -223,6 +223,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Enums.CookieConsentRequirement.NeverRequired", "Never required", "Nie erforderlich");
 
             builder.AddOrUpdate("Admin.System.SystemInfo.AppVersion", "Smartstore version", "Smartstore Version");
+
+            builder.AddOrUpdate("Products.ToFilterAndSort", "Filter & Sort", "Filtern & Sortieren");
         }
 
         /// <summary>

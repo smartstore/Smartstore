@@ -294,6 +294,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     }
 
     .mega-menu-dropdown {
+        --dropdown-border-radius: var(--border-radius-lg);
         background-color: $megamenu-dropdown-bg;
         color: $megamenu-text-color;
         z-index: ($megamenu-zindex-base + 1);

@@ -367,8 +367,8 @@
                 var placement = 'bottom'; // Smartstore.globalization.culture.isRTL ? 'right' : 'left';
                 var offcanvas =
                     $(`<aside class="offcanvas offcanvas-${placement} offcanvas-shadow offcanvas-lg offcanvas-rounded" data-overlay="true">
-                            <div class="offcanvas-header hstack justify-content-between p-3">
-                                <h5 class="offcanvas-title">Filtern & Sortieren</h5>
+                            <div class="offcanvas-header">
+                                <h5 class="offcanvas-title"><i class="fa fa-sliders-h mr-2"></i><span>${btn.data("title")}</span></h5>
                                 <button type="button" class="btn-close" data-dismiss="offcanvas"></button>
                             </div>
                             <div class="offcanvas-content offcanvas-scrollable"></div>

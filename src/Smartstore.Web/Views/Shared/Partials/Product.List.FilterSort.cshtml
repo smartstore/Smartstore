@@ -5,8 +5,8 @@
 
 <div sm-if="Model.AllowFiltering" class="artlist-action artlist-action--filter d-lg-none">
     <div class="mf-dropdown">
-        <button class="btn btn-warning btn-labeled icon-right btn-no-border btn-block btn-toggle-filter-widget rounded">
-            <span>@T("Products.ToFilter")</span>
+        <button class="btn btn-primary btn-labeled icon-right btn-no-border btn-block btn-toggle-filter-widget rounded" data-title="@T("Products.ToFilterAndSort")">
+            <span>@T("Products.ToFilterAndSort")</span>
             <b><i class="fa fa-fw fa-sliders-h"></i></b>
         </button>
     </div>
@@ -20,7 +20,7 @@
             <em class="d-none d-xl-inline">@Html.Raw(T("Products.SortByX", $"<span>{Model.CurrentSortOrderName}</span>"))</em>
             <i class="fas fa-caret-down"></i>
         </button>
-        <button class="btn btn-light btn-no-border btn-labeled icon-right btn-block d-lg-none rounded">
+        <button class="btn btn-light btn-no-border btn-labeled icon-right btn-block d-none d-lg-none rounded">
             <span>@T("Products.ToSort")</span>
             <b><i class="fa fa-fw fa-sort"></i></b>
         </button>

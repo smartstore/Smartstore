@@ -10,6 +10,10 @@
     --badge-height: #{calc((var(--badge-line-height) * 1em) + calc(var(--badge-padding-y) * 2))};
 
     box-shadow: inset rgba(var(--badge-ring-color-rgb), var(--badge-ring-opacity)) 0px 0px 0px 1px;
+
+    &.active {
+        background-color: var(--badge-hover-bg, var(--badge-bg));
+    }
 }
 
 //

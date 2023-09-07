@@ -5,16 +5,18 @@
     --pag-size: #{$input-height};
     --pag-border-radius: var(--border-radius-md);
     --pag-margin: 3px;
+    --pag-gap: 6px;
     --pag-padding-x: #{$pagination-padding-x};
     --pag-font-size: #{$font-size-base};
-    margin-top: calc(var(--pag-margin) * -1);
-    margin-bottom: calc(var(--pag-margin) * -1);
+
+    gap: var(--pag-gap);
 }
 
 .pagination-lg {
     --pag-size: #{$input-height-lg};
     --pag-border-radius: var(--border-radius-lg);
     --pag-margin: 4px;
+    --pag-gap: 8px;
     --pag-padding-x: #{$pagination-padding-x-lg};
     --pag-font-size: #{$font-size-lg};
 }
@@ -23,6 +25,7 @@
 .pagination-xs {
     --pag-border-radius: var(--border-radius-sm);
     --pag-margin: 2px;
+    --pag-gap: 4px;
 }
 
 .pagination-sm {
@@ -50,7 +53,7 @@
     height: var(--pag-size);
     font-size: var(--pag-font-size);
     line-height: var(--pag-size);
-    margin: var(--pag-margin);
+    margin: 0;
     padding: 0 var(--pag-padding-x);
     border-radius: var(--pag-border-radius);
 

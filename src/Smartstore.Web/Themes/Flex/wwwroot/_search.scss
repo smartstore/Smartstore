@@ -483,13 +483,14 @@ $facet-selection-color:             darken($success, 15%);
 
 .offcanvas {
     .facet-toggle,
+    .facet-group-header,
     .facet-body {
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding-inline: var(--offcanvas-padding-x, 1.5rem);
     }
 
     .facet-toggle:after {
-        inset-inline-end: 1rem;
+        // TODO: Fix this (+4px) after unifying accordion togglers.
+        inset-inline-end: calc(4px + var(--offcanvas-padding-x, 1.5rem));
     }
 
     .facet-toggle.has-selection {
@@ -497,7 +498,7 @@ $facet-selection-color:             darken($success, 15%);
 
         .facet-selection {
             display: inline;
-            color: rgba(#000, 0.4);
+            color: rgba($black, 0.4);
             font-size: $font-size-base;
             position: absolute;
             text-align: end;

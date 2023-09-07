@@ -1,7 +1,9 @@
 ﻿@using Smartstore.Core.Search.Facets
+@using Smartstore.Web.Models.Catalog
 @using Smartstore.Core.Catalog.Search
+@using Smartstore.Core.Catalog.Products
 
-@model CatalogSearchResult
+@model ProductSummaryModel
 
 @{
     if (Model == null)
@@ -9,8 +11,9 @@
         return;
     }
 
+    var sourceResult = Model.SourceResult;
     var templateProvider = Resolve<IFacetTemplateProvider>();
-    var facetGroups = Model.Facets.Select(x => x.Value).OrderBy(x => x.DisplayOrder);
+    var facetGroups = sourceResult.Facets.Select(x => x.Value).OrderBy(x => x.DisplayOrder);
 
     int i = 0;
 }
@@ -20,18 +23,33 @@
 <div class="faceted-search-container">
     <div class="faceted-search" id="faceted-search">
 
-        <div class="facet-group d-none d-lg-none" data-key="sorting">
-            <a class="facet-group-header facet-toggle">
-                Sortieren nach
+        @* Sorting *@
+        <div sm-if="Model.AllowSorting" class="facet-group d-lg-none">
+            <a class="facet-group-header">
+                <span>@T("Categories.OrderBy")</span>
             </a>
             <div class="facet-body" aria-expanded="true">
-                <div class="facet-body-inner offcanvas-hstack hstack flex-nowrap overflow-x-auto gap-1 small">
-                    <a href="#" class="badge badge-light badge-pill badge-lg fwm">Empfehlung</a>
-                    <a href="#" class="badge badge-light badge-pill badge-lg fwn">Name: A bis Z</a>
-                    <a href="#" class="badge badge-light badge-pill badge-lg fwn">Name: Z bis A</a>
-                    <a href="#" class="badge badge-light badge-pill badge-lg fwn">Preis: aufsteigend</a>
-                    <a href="#" class="badge badge-light badge-pill badge-lg fwn">Preis: absteigend</a>
-                    <a href="#" class="badge badge-light badge-pill badge-lg fwn">Neu eingetroffen</a>
+                <div class="facet-body-inner offcanvas-hstack hstack overflow-x-auto gap-1 small">
+                    @foreach (var sort in Model.AvailableSortOptions)
+                    {
+                        var sortName = (sort.Key == (int)ProductSortingEnum.Relevance ? Model.RelevanceSortOrderName : null) ?? sort.Value;
+                        var isSelected = sort.Key == Model.CurrentSortOrder;
+                        var className = $"badge badge-pill badge-lg fw" + (isSelected ? "m order-0 badge-info badge-subtle" : "n order-1 badge-light");
+                        var url = sort.Key > 0
+                            // Add/update query
+                            ? Display.ModifyUrl(null, $"o={sort.Key}")
+                            // Remove query
+                            : Display.ModifyUrl(null, null, "o");
+                        
+                        if (isSelected)
+                        {
+                            <span class="@className">@sortName</span>
+                        }
+                        else
+                        {
+                            <a href="@url" class="@className">@sortName</a>
+                        }
+                    }
                 </div>
             </div>
         </div>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Web;
 
 namespace Smartstore
@@ -12,7 +13,7 @@ namespace Smartstore
         /// <returns>The local referrer URL or <c>null</c> if the referrer is an external host.</returns>
         public static string Referrer(this IUrlHelper url)
         {
-            Guard.NotNull(url, nameof(url));
+            Guard.NotNull(url);
 
             var httpContext = url.ActionContext.HttpContext;
             var webHelper = httpContext.RequestServices.GetService<IWebHelper>();

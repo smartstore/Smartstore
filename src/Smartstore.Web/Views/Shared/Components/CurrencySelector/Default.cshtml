@@ -21,7 +21,7 @@
         {
             var returnUrl = Context.Request.Query["returnUrl"].ToString().UrlEncode();
             var changeCurrencyUrl = Url.RouteUrl("ChangeCurrency", new { customerCurrency = curr.Id });
-            var href = Display.ModifyQueryString(changeCurrencyUrl, "returnUrl=" + returnUrl, null);
+            var href = Display.ModifyUrl(changeCurrencyUrl, "returnUrl=" + returnUrl);
 
             <a href="@href" class="dropdown-item" attr-class='(curr.Id == activeCurr.Id, "disabled")' title="@curr.Name" rel="nofollow"
                data-selected="@(curr.Equals(activeCurr) ? "true" : "false")" data-abbreviation="@($"{curr.ISOCode} ({curr.Symbol})")">
