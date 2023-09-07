@@ -97,6 +97,11 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
+            if (QueryParamName.IsEmpty())
+            {
+                QueryParamName = "page";
+            }
+
             var items = CreateItemList();
 
             output.Attributes.Add("aria-label", "Page navigation");
@@ -379,25 +384,18 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         protected virtual string GenerateUrl(int pageNumber)
         {
-            var routeValues = ActionContextAccessor.ActionContext.RouteData.Values;
-            var newValues = new RouteValueDictionary(routeValues)
-            {
-                [QueryParamName.NullEmpty() ?? "page"] = pageNumber
-            };
-            
-            var query = ActionContextAccessor.ActionContext.HttpContext.Request.Query;
-            if (query != null && query.Count > 0)
-            {
-                foreach (var item in query)
-                {
-                    if (!newValues.ContainsKey(item.Key))
-                    {
-                        newValues.Add(item.Key, item.Value);
-                    }
-                }
-            }
+            var request = ViewContext.HttpContext.Request;
 
-            return UrlHelper.RouteUrl(newValues);
+            // Resolve current path without query
+            var path = request.PathBase + request.Path;
+            
+            // Merge page index param with current query
+            var queryPart = request.Query.Merge($"?{QueryParamName}={pageNumber}");
+
+            // Append modified query to path
+            var url = path.Add(queryPart);
+
+            return url;
         }
     }
 }
