@@ -25,10 +25,9 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .Include(x => x.SpecificationAttributeOption)
                 .ThenInclude(x => x.SpecificationAttribute)
-                .OrderBy(x => x.DisplayOrder)
+                .ApplyProductsFilter(new[] { productId })
                 .ThenBy(x => x.SpecificationAttributeOption.DisplayOrder)
                 .ThenBy(x => x.SpecificationAttributeOption.Name)
-                .ApplyProductsFilter(new[] { productId })
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
