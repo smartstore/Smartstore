@@ -1233,9 +1233,6 @@ namespace Smartstore.Web.Controllers
                         .Where(x =>
                             (x.ShowOnProductPage == null && x.SpecificationAttributeOption?.SpecificationAttribute?.ShowOnProductPage == true) ||
                             (x.ShowOnProductPage == true))
-                        .OrderBy(x => x.DisplayOrder)
-                        .ThenBy(x => x.SpecificationAttributeOption.DisplayOrder)
-                        .ThenBy(x => x.SpecificationAttributeOption.Name)
                         .ToList();
                 }
                 else
@@ -1248,6 +1245,9 @@ namespace Smartstore.Web.Controllers
                 }
 
                 return attrs
+                    .OrderBy(x => x.DisplayOrder)
+                    .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.DisplayOrder)
+                    .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.Name)
                     .Select(x => new ProductSpecificationModel
                     {
                         SpecificationAttributeId = x.SpecificationAttributeOption.SpecificationAttributeId,
