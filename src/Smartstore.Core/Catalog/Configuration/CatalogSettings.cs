@@ -312,6 +312,9 @@ namespace Smartstore.Core.Catalog
         /// </summary>
         public bool AllowCustomersToSelectPageSize { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets the threshold above which only images that are not assigned to any or the selected attribute combination are displayed.
+        /// </summary>
         public int DisplayAllImagesNumber { get; set; } = 6;
 
         public bool ShowManufacturerInGridStyleLists { get; set; } = true;
