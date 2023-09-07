@@ -43,6 +43,8 @@ namespace Smartstore.Core.Catalog.Products
         private LazyMultimap<ProductTag> _productTags;
         private LazyMultimap<ProductSpecificationAttribute> _specificationAttributes;
         private LazyMultimap<Download> _downloads;
+        private LazyMultimap<RelatedProduct> _relatedProducts;
+        private LazyMultimap<CrossSellProduct> _crossSellProducts;
 
         public ProductBatchContext(
             IEnumerable<Product> products,
@@ -162,6 +164,16 @@ namespace Smartstore.Core.Catalog.Products
         public LazyMultimap<Download> Downloads
         {
             get => _downloads ??= new LazyMultimap<Download>(keys => LoadDownloads(keys), _productIds);
+        }
+
+        public LazyMultimap<RelatedProduct> RelatedProducts
+        {
+            get => _relatedProducts ??= new LazyMultimap<RelatedProduct>(LoadRelatedProducts, _productIds);
+        }
+
+        public LazyMultimap<CrossSellProduct> CrossSellProducts
+        {
+            get => _crossSellProducts ??= new LazyMultimap<CrossSellProduct>(LoadCrossSellProducts, _productIds);
         }
 
         public virtual void Collect(IEnumerable<int> productIds)
@@ -355,6 +367,34 @@ namespace Smartstore.Core.Catalog.Products
                 .ToListAsync();
 
             return downloads.ToMultimap(x => x.EntityId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, RelatedProduct>> LoadRelatedProducts(int[] ids)
+        {
+            var query =
+                from rp in _db.RelatedProducts.AsNoTracking()
+                join p in _db.Products.AsNoTracking() on rp.ProductId2 equals p.Id
+                where ids.Contains(rp.ProductId1) && (_includeHidden || p.Published)
+                orderby rp.DisplayOrder
+                select rp;
+
+            var relatedProducts = await query.ToListAsync();
+
+            return relatedProducts.ToMultimap(x => x.ProductId1, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, CrossSellProduct>> LoadCrossSellProducts(int[] ids)
+        {
+            var query =
+                from csp in _db.CrossSellProducts
+                join p in _db.Products.AsNoTracking() on csp.ProductId2 equals p.Id
+                where ids.Contains(csp.ProductId1) && (_includeHidden || p.Published)
+                orderby csp.Id
+                select csp;
+
+            var crossSellProducts = await query.ToListAsync();
+
+            return crossSellProducts.ToMultimap(x => x.ProductId1, x => x);
         }
 
         #endregion

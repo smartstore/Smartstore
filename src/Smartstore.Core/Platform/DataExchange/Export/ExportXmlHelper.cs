@@ -878,6 +878,37 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteEndElement();
             }
 
+            if (product.RelatedProducts != null)
+            {
+                _writer.WriteStartElement("RelatedProducts");
+                foreach (dynamic relatedProduct in product.RelatedProducts)
+                {
+                    RelatedProduct rpEntity = relatedProduct.Entity;
+
+                    _writer.WriteStartElement("RelatedProduct");
+                    _writer.WriteElementString(nameof(RelatedProduct.Id), rpEntity.Id.ToString());
+                    _writer.WriteElementString(nameof(RelatedProduct.ProductId2), rpEntity.ProductId2.ToString());
+                    _writer.WriteElementString(nameof(RelatedProduct.DisplayOrder), rpEntity.DisplayOrder.ToString());
+                    _writer.WriteEndElement();
+                }
+                _writer.WriteEndElement();
+            }
+
+            if (product.CrossSellProducts != null)
+            {
+                _writer.WriteStartElement("CrossSellProducts");
+                foreach (dynamic crossSellProduct in product.CrossSellProducts)
+                {
+                    CrossSellProduct cspEntity = crossSellProduct.Entity;
+
+                    _writer.WriteStartElement("CrossSellProduct");
+                    _writer.WriteElementString(nameof(CrossSellProduct.Id), cspEntity.Id.ToString());
+                    _writer.WriteElementString(nameof(CrossSellProduct.ProductId2), cspEntity.ProductId2.ToString());
+                    _writer.WriteEndElement();
+                }
+                _writer.WriteEndElement();
+            }
+
             if (product.ProductBundleItems != null)
             {
                 _writer.WriteStartElement("ProductBundleItems");

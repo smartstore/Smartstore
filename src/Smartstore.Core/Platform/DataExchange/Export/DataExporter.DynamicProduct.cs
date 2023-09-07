@@ -194,8 +194,10 @@ namespace Smartstore.Core.DataExchange.Export
             var productManufacturers = await ctx.ProductBatchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
             var productCategories = await ctx.ProductBatchContext.ProductCategories.GetOrLoadAsync(product.Id);
             var productAttributes = await ctx.ProductBatchContext.Attributes.GetOrLoadAsync(product.Id);
-            var productTags = await ctx.ProductBatchContext.ProductTags.GetOrLoadAsync(product.Id);
             var specificationAttributes = await ctx.ProductBatchContext.SpecificationAttributes.GetOrLoadAsync(product.Id);
+            var productTags = await ctx.ProductBatchContext.ProductTags.GetOrLoadAsync(product.Id);
+            var relatedProducts = await ctx.ProductBatchContext.RelatedProducts.GetOrLoadAsync(product.Id);
+            var crossSellProducts = await ctx.ProductBatchContext.CrossSellProducts.GetOrLoadAsync(product.Id);
             var selectedAttributes = combination?.AttributeSelection;
             var variantAttributeValues = combination?.AttributeSelection?.MaterializeProductVariantAttributeValues(productAttributes);
 
@@ -383,6 +385,22 @@ namespace Smartstore.Core.DataExchange.Export
                     dyn.SeName = SlugUtility.Slugify(localizedName, _seoSettings);
                     dyn._Localized = GetLocalized(ctx, x, y => y.Name);
 
+                    return dyn;
+                })
+                .ToList();
+
+            dynObject.RelatedProducts = relatedProducts
+                .Select(x =>
+                {
+                    dynamic dyn = new DynamicEntity(x);
+                    return dyn;
+                })
+                .ToList();
+
+            dynObject.CrossSellProducts = crossSellProducts
+                .Select(x =>
+                {
+                    dynamic dyn = new DynamicEntity(x);
                     return dyn;
                 })
                 .ToList();
