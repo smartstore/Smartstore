@@ -14,6 +14,7 @@
 <div class="cart-action cart-action-rewardpoints">
     <h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-rewardpoints-body" aria-controls="cart-action-rewardpoints-body" aria-expanded="@isExpanded.ToString().ToLower()">
         @T("ShoppingCart.RewardPoints")
+        <span sm-if="Model.RewardPointsBalance > 0" class="badge badge-pill badge-counter badge-success">@Model.RewardPointsBalance</span>
     </h5>
 
     <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-rewardpoints-body" aria-expanded="@isExpanded.ToString().ToLower()">
