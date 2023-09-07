@@ -233,10 +233,40 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
+                // ===========================================================================
+                // 9.) Import related products.
+                // ===========================================================================
+                if (segmenter.HasColumn("RelatedProductIds"))
+                {
+                    try
+                    {
+                        await ProcessRelatedProductsAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessRelatedProductsAsync));
+                    }
+                }
+
+                // ===========================================================================
+                // 10.) Import cross selling products.
+                // ===========================================================================
+                if (segmenter.HasColumn("CrossSellProductIds"))
+                {
+                    try
+                    {
+                        await ProcessCrossSellingProductsAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessCrossSellingProductsAsync));
+                    }
+                }
+
                 if (segmenter.IsLastSegment || context.Abort == DataExchangeAbortion.Hard)
                 {
                     // ===========================================================================
-                    // 9.) Map parent ID of inserted products.
+                    // 11.) Map parent ID of inserted products.
                     // ===========================================================================
                     if (segmenter.HasColumn(nameof(Product.Id)) &&
                         segmenter.HasColumn(nameof(Product.ParentGroupedProductId)) &&
@@ -254,7 +284,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
 
                     // ===========================================================================
-                    // 10.) PostProcess: normalization.
+                    // 12.) PostProcess: normalization.
                     // ===========================================================================          
                     await ProductPictureHelper.FixProductMainPictureIds(_db, context.UtcNow);
 
@@ -743,6 +773,119 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 context.ClearCache = true;
             }
+        }
+
+        protected virtual async Task ProcessRelatedProductsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
+        {
+            var productIds = batch.Select(x => x.Entity.Id).ToArray();
+
+            var existingRelatedProducts = await (
+                from rp in _db.RelatedProducts.AsNoTracking()
+                join p in _db.Products.AsNoTracking() on rp.ProductId2 equals p.Id
+                where productIds.Contains(rp.ProductId1)
+                select rp)
+                .ToListAsync(context.CancelToken);
+
+            var existingRelatedProductsMap = existingRelatedProducts.ToMultimap(x => x.ProductId1, x => x);
+
+            foreach (var row in batch)
+            {
+                var relatedProductIds = row.GetDataValue<List<int>>("RelatedProductIds")
+                    ?.Where(x => x != 0)
+                    ?.Distinct()
+                    ?.ToArray();
+
+                if (relatedProductIds.IsNullOrEmpty())
+                    continue;
+
+                try
+                {
+                    var displayOrder = 0;
+                    if (existingRelatedProductsMap.TryGetValues(row.Entity.Id, out var existingRecords) && existingRecords.Count > 0)
+                    {
+                        displayOrder = existingRecords.Max(x => x.DisplayOrder);
+                    }
+
+                    var existingProductIds = await _db.Products
+                        .Where(x => relatedProductIds.Contains(x.Id))
+                        .Select(x => x.Id)
+                        .ToArrayAsync(context.CancelToken);
+
+                    foreach (var relatedProductId in relatedProductIds)
+                    {
+                        if (existingProductIds.Contains(relatedProductId) &&
+                            (existingRecords == null || !existingRecords.Any(x => x.ProductId2 == relatedProductId)))
+                        {
+                            _db.RelatedProducts.Add(new()
+                            {
+                                ProductId1 = row.Entity.Id,
+                                ProductId2 = relatedProductId,
+                                DisplayOrder = ++displayOrder
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddWarning(ex.Message, row.RowInfo, "RelatedProductIds");
+                }
+            }
+
+            await scope.CommitAsync(context.CancelToken);
+        }
+
+        protected virtual async Task ProcessCrossSellingProductsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
+        {
+            var productIds = batch.Select(x => x.Entity.Id).ToArray();
+
+            var existingCrossSellProducts = await (
+                from csp in _db.CrossSellProducts
+                join p in _db.Products.AsNoTracking() on csp.ProductId2 equals p.Id
+                where productIds.Contains(csp.ProductId1)
+                select csp)
+                .ToListAsync(context.CancelToken);
+
+            var existingCrossSellProductsMap = existingCrossSellProducts.ToMultimap(x => x.ProductId1, x => x);
+
+            foreach (var row in batch)
+            {
+                var crossSellProductIds = row.GetDataValue<List<int>>("CrossSellProductIds")
+                    ?.Where(x => x != 0)
+                    ?.Distinct()
+                    ?.ToArray();
+
+                if (crossSellProductIds.IsNullOrEmpty())
+                    continue;
+
+                try
+                {
+                    existingCrossSellProductsMap.TryGetValues(row.Entity.Id, out var existingRecords);
+
+                    var existingProductIds = await _db.Products
+                        .Where(x => crossSellProductIds.Contains(x.Id))
+                        .Select(x => x.Id)
+                        .ToArrayAsync(context.CancelToken);
+
+                    foreach (var crossSellProductId in crossSellProductIds)
+                    {
+                        if (existingProductIds.Contains(crossSellProductId) &&
+                            (existingRecords == null || !existingRecords.Any(x => x.ProductId2 == crossSellProductId)))
+                        {
+                            _db.CrossSellProducts.Add(new()
+                            {
+                                ProductId1 = row.Entity.Id,
+                                ProductId2 = crossSellProductId
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddWarning(ex.Message, row.RowInfo, "CrossSellProductIds");
+                }
+            }
+
+            await scope.CommitAsync(context.CancelToken);
         }
 
         protected virtual async Task<int> ProcessGroupedProductsAsync(ImportExecuteContext context, DbContextScope scope)
