@@ -1234,6 +1234,8 @@ namespace Smartstore.Web.Controllers
                             (x.ShowOnProductPage == null && x.SpecificationAttributeOption?.SpecificationAttribute?.ShowOnProductPage == true) ||
                             (x.ShowOnProductPage == true))
                         .OrderBy(x => x.DisplayOrder)
+                        .ThenBy(x => x.SpecificationAttributeOption.DisplayOrder)
+                        .ThenBy(x => x.SpecificationAttributeOption.Name)
                         .ToList();
                 }
                 else
