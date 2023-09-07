@@ -778,6 +778,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task ProcessRelatedProductsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
         {
             var productIds = batch.Select(x => x.Entity.Id).ToArray();
+            var idsToRemove = new HashSet<int>();
 
             var existingRelatedProducts = await (
                 from rp in _db.RelatedProducts.AsNoTracking()
@@ -790,20 +791,28 @@ namespace Smartstore.Core.DataExchange.Import
 
             foreach (var row in batch)
             {
-                var relatedProductIds = row.GetDataValue<List<int>>("RelatedProductIds")
-                    ?.Where(x => x != 0)
-                    ?.Distinct()
-                    ?.ToArray();
-
-                if (relatedProductIds.IsNullOrEmpty())
-                    continue;
-
                 try
                 {
+                    var relatedProductIds = row.GetDataValue<List<int>>("RelatedProductIds")
+                        ?.Where(x => x != 0)
+                        ?.Distinct()
+                        ?.ToArray();
+
                     var displayOrder = 0;
-                    if (existingRelatedProductsMap.TryGetValues(row.Entity.Id, out var existingRecords) && existingRecords.Count > 0)
+                    if (existingRelatedProductsMap.TryGetValues(row.Entity.Id, out var existingMappings) && existingMappings.Count > 0)
                     {
-                        displayOrder = existingRecords.Max(x => x.DisplayOrder);
+                        displayOrder = existingMappings.Max(x => x.DisplayOrder);
+                    }
+
+                    if (relatedProductIds.IsNullOrEmpty())
+                    {
+                        idsToRemove.AddRange(existingMappings.Select(x => x.Id));
+                    }
+                    else
+                    {
+                        idsToRemove.AddRange(existingMappings
+                            .Where(x => !relatedProductIds.Contains(x.ProductId2))
+                            .Select(x => x.Id));
                     }
 
                     var existingProductIds = await _db.Products
@@ -813,8 +822,9 @@ namespace Smartstore.Core.DataExchange.Import
 
                     foreach (var relatedProductId in relatedProductIds)
                     {
-                        if (existingProductIds.Contains(relatedProductId) &&
-                            (existingRecords == null || !existingRecords.Any(x => x.ProductId2 == relatedProductId)))
+                        if (relatedProductId != row.Entity.Id &&
+                            existingProductIds.Contains(relatedProductId) &&
+                            (existingMappings == null || !existingMappings.Any(x => x.ProductId2 == relatedProductId)))
                         {
                             _db.RelatedProducts.Add(new()
                             {
@@ -832,6 +842,13 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             await scope.CommitAsync(context.CancelToken);
+
+            foreach (var idsChunk in idsToRemove.Chunk(100))
+            {
+                await _db.RelatedProducts
+                    .Where(x => idsChunk.Contains(x.Id))
+                    .ExecuteDeleteAsync(context.CancelToken);
+            }
         }
 
         protected virtual async Task ProcessCrossSellingProductsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
@@ -868,7 +885,8 @@ namespace Smartstore.Core.DataExchange.Import
 
                     foreach (var crossSellProductId in crossSellProductIds)
                     {
-                        if (existingProductIds.Contains(crossSellProductId) &&
+                        if (crossSellProductId != row.Entity.Id &&
+                            existingProductIds.Contains(crossSellProductId) &&
                             (existingRecords == null || !existingRecords.Any(x => x.ProductId2 == crossSellProductId)))
                         {
                             _db.CrossSellProducts.Add(new()
