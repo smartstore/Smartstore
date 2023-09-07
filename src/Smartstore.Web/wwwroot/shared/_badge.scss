@@ -40,7 +40,7 @@
     transform: scale(0.85);
 }
 
-.badge:not(.badge-subtle) > .btn-close {
+.badge:not(.badge-subtle, .badge-outline, .badge-light) > .btn-close {
     @extend .btn-close-white;
 }
 
