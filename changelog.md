@@ -55,6 +55,7 @@
   - Fixed localized properties were not updated during import.
   - Localized SeName was only updated when import file also contained a non-localized SeName column.
 - Fixed MainPictureId not applied on product edit page if missing and if there is only one picture assigned to a product.
+- Fixed product image gallery issue where no image was displayed at all.
 - Fixed "The requested service 'Other (Smartstore.Core.Rules.IRuleProvider)' has not been registered" when creating a rule.
 - Fixed #792 Downloaded language sometimes cannot be deleted when using SQLite.
 - Stripe: Fixed incorrect system name in several places.
@@ -62,7 +63,7 @@
 - Fixed incorrect cart validation if minimum cart quantity and quantity step were configured for a product.
 - #810 Doubleclicking login button can lead to 400 BadRequest error page.
 - Fixed arithmetic overflow SqlException in `ShippingByWeight` and `ShippingByTotal` four decimal places migrations.
-- #776 PayPal credit card payment fails due to missing session PayPalOrderId entry. 
+- #776 PayPal credit card payment fails due to missing session PayPalOrderId entry.
 
 
 ## Smartstore 5.0.5
