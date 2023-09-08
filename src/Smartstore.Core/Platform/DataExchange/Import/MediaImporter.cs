@@ -56,8 +56,8 @@ namespace Smartstore.Core.DataExchange.Import
             int displayOrder = 0,
             HashSet<string> fileNameLookup = null)
         {
-            Guard.NotNull(imageDirectory, nameof(imageDirectory));
-            Guard.NotNull(downloadDirectory, nameof(downloadDirectory));
+            Guard.NotNull(imageDirectory);
+            Guard.NotNull(downloadDirectory);
 
             if (urlOrPath.IsEmpty())
             {
@@ -111,7 +111,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
             catch
             {
-                MessageHandler?.Invoke(new ImportMessage($"Failed to prepare image download for '{urlOrPath}'. Skipping file.", ImportMessageType.Error), item);
+                InvokeMessageHandler($"Failed to prepare image download for '{urlOrPath}'. Skipping file.", item, ImportMessageType.Error);
                 return null;
             }
 
@@ -148,7 +148,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// Internal caching avoids multiple downloads of identical images.
         /// </param>
         /// <returns>A value indicating whether the download succeeded.</returns>
-        protected bool DownloadSucceeded(DownloadManagerItem item, int maxCachedUrls = 1000)
+        protected virtual bool DownloadSucceeded(DownloadManagerItem item, int maxCachedUrls = 1000)
         {
             if (item.Success && File.Exists(item.Path))
             {
@@ -169,10 +169,26 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 if (item.ErrorMessage.HasValue())
                 {
-                    MessageHandler?.Invoke(new ImportMessage(item.ToString(), ImportMessageType.Error), item);
+                    InvokeMessageHandler(item.ToString(), item, ImportMessageType.Error);
                 }
 
                 return false;
+            }
+        }
+
+        protected virtual void InvokeMessageHandler(
+            string msg,
+            DownloadManagerItem item = null,
+            ImportMessageType messageType = ImportMessageType.Info,
+            ImportMessageReason reason = ImportMessageReason.None)
+        {
+            if (msg.HasValue() && MessageHandler != null)
+            {
+                MessageHandler.Invoke(new ImportMessage(msg, messageType, reason)
+                {
+                    AffectedField = $"{nameof(item.Entity)} #{item.DisplayOrder}"
+                },
+                item);
             }
         }
 
@@ -189,11 +205,11 @@ namespace Smartstore.Core.DataExchange.Import
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default)
         {
-            Guard.NotNull(scope, nameof(scope));
-            Guard.NotNull(items, nameof(items));
-            Guard.NotNull(album, nameof(album));
-            Guard.NotNull(existingFiles, nameof(existingFiles));
-            Guard.NotNull(assignMediaFileHandler, nameof(assignMediaFileHandler));
+            Guard.NotNull(scope);
+            Guard.NotNull(items);
+            Guard.NotNull(album);
+            Guard.NotNull(existingFiles);
+            Guard.NotNull(assignMediaFileHandler);
 
             var itemsMap = items
                 .Where(x => x?.Entity != null)
@@ -235,7 +251,7 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         if (item.Entity == null)
                         {
-                            AddMessage("DownloadManagerItem does not contain the entity to which it belongs.", ImportMessageType.Error);
+                            InvokeMessageHandler("DownloadManagerItem does not contain the entity to which it belongs.", item, ImportMessageType.Error);
                             continue;
                         }
 
@@ -255,7 +271,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 {
                                     // INFO: may occur during a initial import when products have the same SKU and
                                     // the first product was overwritten with the data of the second one.
-                                    AddMessage($"Found equal file in product data for '{item.FileName}'. Skipping file.");
+                                    InvokeMessageHandler($"Found equal file in product data for '{item.FileName}'. Skipping file.", item, reason: ImportMessageReason.EqualFile);
                                 }
                                 else
                                 {
@@ -271,7 +287,7 @@ namespace Smartstore.Core.DataExchange.Import
                                         // the images of the second product are additionally assigned to the first one.
                                         var assignedFile = assignMediaFileHandler(equalityCheck.Value, item);
                                         existingFiles.Add(item.Entity.Id, assignedFile);
-                                        AddMessage($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.");
+                                        InvokeMessageHandler($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.", item, reason: ImportMessageReason.EqualFileInAlbum);
                                     }
                                     else
                                     {
@@ -290,18 +306,13 @@ namespace Smartstore.Core.DataExchange.Import
                         }
                         else if (item.Url.HasValue())
                         {
-                            AddMessage($"Download failed for image {item.Url}.");
-                        }
-
-                        void AddMessage(string msg, ImportMessageType messageType = ImportMessageType.Info)
-                        {
-                            MessageHandler?.Invoke(new ImportMessage(msg, messageType) { AffectedField = $"Image #{item.DisplayOrder}" }, item);
+                            InvokeMessageHandler($"Download failed for image {item.Url}.", item, reason: ImportMessageReason.DownloadFailed);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageHandler?.Invoke(new ImportMessage(ex.ToAllMessages(), ImportMessageType.Warning) { AffectedField = $"Image" }, null);
+                    InvokeMessageHandler(ex.ToAllMessages(), null, ImportMessageType.Warning);
                 }
             }
 
@@ -352,10 +363,10 @@ namespace Smartstore.Core.DataExchange.Import
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default) where T : BaseEntity
         {
-            Guard.NotNull(scope, nameof(scope));
-            Guard.NotNull(items, nameof(items));
-            Guard.NotNull(album, nameof(album));
-            Guard.NotNull(assignMediaFileHandler, nameof(assignMediaFileHandler));
+            Guard.NotNull(scope);
+            Guard.NotNull(items);
+            Guard.NotNull(album);
+            Guard.NotNull(assignMediaFileHandler);
 
             items = items.Where(x => x != null).ToArray();
             if (items.Count == 0)
@@ -372,7 +383,7 @@ namespace Smartstore.Core.DataExchange.Import
                     var entity = item.Entity as T;
                     if (entity == null)
                     {
-                        AddMessage($"DownloadManagerItem does not contain the {nameof(T)} entity to which it belongs.", ImportMessageType.Error);
+                        InvokeMessageHandler($"DownloadManagerItem does not contain the {nameof(T)} entity to which it belongs.", item, ImportMessageType.Error);
                         continue;
                     }
 
@@ -392,7 +403,7 @@ namespace Smartstore.Core.DataExchange.Import
                             // Check for already assigned files.
                             if (await checkAssignedMediaFileHandler(entity, stream))
                             {
-                                AddMessage($"Found equal file for {nameof(entity)} '{item.FileName}'. Skipping file.");
+                                InvokeMessageHandler($"Found equal file for {nameof(entity)} '{item.FileName}'. Skipping file.", item, reason: ImportMessageReason.EqualFile);
                                 continue;
                             }
 
@@ -403,7 +414,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 if (equalityCheck.Success)
                                 {
                                     assignMediaFileHandler(entity, equalityCheck.Value.Id);
-                                    AddMessage($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.");
+                                    InvokeMessageHandler($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.", item, reason: ImportMessageReason.EqualFileInAlbum);
                                     addFileBatchSource = false;
                                 }
                             }
@@ -424,17 +435,12 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                     else if (item.Url.HasValue())
                     {
-                        AddMessage($"Download failed for {nameof(entity)} {item.Url}.");
+                        InvokeMessageHandler($"Download failed for {nameof(entity)} {item.Url}.", item, reason: ImportMessageReason.DownloadFailed);
                     }
                 }
                 catch (Exception ex)
                 {
-                    AddMessage(ex.ToAllMessages(), ImportMessageType.Warning);
-                }
-
-                void AddMessage(string msg, ImportMessageType messageType = ImportMessageType.Info)
-                {
-                    MessageHandler?.Invoke(new ImportMessage(msg, messageType) { AffectedField = nameof(item.Entity) }, item);
+                    InvokeMessageHandler(ex.ToAllMessages(), null, ImportMessageType.Warning);
                 }
             }
 
@@ -565,8 +571,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                         if (updatedFile == null || updatedFile.Id != fileId)
                         {
-                            var msg = $"Failed to update existing product file with ID {fileId} and path '{info.Path.NaIfEmpty()}'.";
-                            MessageHandler?.Invoke(new ImportMessage(msg, ImportMessageType.Error), null);
+                            InvokeMessageHandler($"Failed to update existing product file with ID {fileId} and path '{info.Path.NaIfEmpty()}'.", null, ImportMessageType.Error);
                         }
                         continue;
                     }

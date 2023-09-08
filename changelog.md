@@ -24,9 +24,11 @@
 - Web API:
   - #142 Take back in stock notifications into account.
   - #805 Add endpoints to assign discounts to entities.
+- Import:
+  - #390 Add a setting whether to send the completion email.
+  - #377 Import cross- and checkout-selling products.
 - #503 Don't round quantity unit amount for PAnGV.
 - #403 Added preview image link of NewsItem to RSS feed.
-- #390 Import: add a setting whether to send the completion email.
 - #276 Enable to set the time of day for start and end date of discounts.
 - #486 Add setting to capture payment when order status changes to *complete*.
 - #782 Make the total weight of a shipment editable.

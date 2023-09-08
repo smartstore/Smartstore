@@ -2,23 +2,25 @@
 {
     public class ImportMessage
     {
-        public ImportMessage(string message, ImportMessageType messageType = ImportMessageType.Info)
+        public ImportMessage(string message, 
+            ImportMessageType messageType = ImportMessageType.Info,
+            ImportMessageReason reason = ImportMessageReason.None)
         {
-            Guard.NotEmpty(message, nameof(message));
+            Guard.NotEmpty(message);
 
             Message = message;
             MessageType = messageType;
+            Reason = reason;
         }
 
-        public ImportMessageType MessageType { get; private set; }
+        public ImportMessageType MessageType { get; }
+        public ImportMessageReason Reason { get; }
 
-        public string Message { get; private set; }
+        public string Message { get; }
+        public string FullMessage { get; init; }
 
         public ImportRowInfo AffectedItem { get; init; }
-
         public string AffectedField { get; init; }
-
-        public string FullMessage { get; init; }
 
         public override string ToString()
         {
@@ -52,5 +54,13 @@
         Info = 0,
         Warning = 5,
         Error = 10
+    }
+
+    public enum ImportMessageReason
+    {
+        None = 0,
+        DownloadFailed,
+        EqualFile,
+        EqualFileInAlbum
     }
 }

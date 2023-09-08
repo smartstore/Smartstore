@@ -4,6 +4,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Net.Http;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -274,6 +275,39 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             return num;
+        }
+
+        /// <summary>
+        /// Adds a message to <see cref="ImportExecuteContext.Result"/> and prevents from logging too many messages of the same reason.
+        /// </summary>
+        protected static void AddMessage<TEntity>(ImportMessage msg, DownloadManagerItem item, ImportExecuteContext context)
+            where TEntity : BaseEntity
+        {
+            const int maxLogEntries = 20;
+
+            var rowInfo = item?.State != null
+                ? ((ImportRow<TEntity>)item.State).RowInfo
+                : null;
+
+            if (msg.Reason != ImportMessageReason.None)
+            {
+                var counts = context.GetCustomProperty<Dictionary<int, int>>("LoggedInfosCount");
+                counts.TryGetValue((int)msg.Reason, out var count);
+
+                if (count <= maxLogEntries)
+                {
+                    counts[(int)msg.Reason] = count + 1;
+
+                    if (count < maxLogEntries)
+                        context.Result.AddMessage(msg.Message, msg.MessageType, rowInfo);
+                    else
+                        context.Result.AddMessage($"No further logging of '{msg.Reason}' messages. Reason: too many log entries.", ImportMessageType.Info, rowInfo);
+                }
+            }
+            else
+            {
+                context.Result.AddMessage(msg.Message, msg.MessageType, rowInfo);
+            }
         }
 
         private static bool TryGetLocalizedValue<TEntity>(ImportRow<TEntity> row, string columnName, Language language, out string value)

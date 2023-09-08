@@ -430,11 +430,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             _mediaImporter.MessageHandler ??= (msg, item) =>
             {
-                var rowInfo = item?.State != null
-                    ? ((ImportRow<Customer>)item.State).RowInfo
-                    : null;
-
-                context.Result.AddMessage(msg.Message, msg.MessageType, rowInfo);
+                AddMessage<Customer>(msg, item, context);
             };
 
             var items = batch

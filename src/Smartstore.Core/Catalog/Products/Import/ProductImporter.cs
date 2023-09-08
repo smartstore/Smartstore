@@ -636,11 +636,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             _mediaImporter.MessageHandler ??= (msg, item) =>
             {
-                var rowInfo = item?.State != null
-                    ? ((ImportRow<Product>)item.State).RowInfo
-                    : null;
-
-                context.Result.AddMessage(msg.Message, msg.MessageType, rowInfo);
+                AddMessage<Product>(msg, item, context);
             };
 
             var items = new List<DownloadManagerItem>();
@@ -798,11 +794,8 @@ namespace Smartstore.Core.DataExchange.Import
                         ?.Distinct()
                         ?.ToArray();
 
-                    var displayOrder = 0;
-                    if (existingRelatedProductsMap.TryGetValues(row.Entity.Id, out var existingMappings) && existingMappings.Count > 0)
-                    {
-                        displayOrder = existingMappings.Max(x => x.DisplayOrder);
-                    }
+                    existingRelatedProductsMap.TryGetValues(row.Entity.Id, out var existingMappingsTmp);
+                    var existingMappings = existingMappingsTmp?.AsEnumerable() ?? Enumerable.Empty<RelatedProduct>();
 
                     if (relatedProductIds.IsNullOrEmpty())
                     {
@@ -813,25 +806,27 @@ namespace Smartstore.Core.DataExchange.Import
                         idsToRemove.AddRange(existingMappings
                             .Where(x => !relatedProductIds.Contains(x.ProductId2))
                             .Select(x => x.Id));
-                    }
 
-                    var existingProductIds = await _db.Products
-                        .Where(x => relatedProductIds.Contains(x.Id))
-                        .Select(x => x.Id)
-                        .ToArrayAsync(context.CancelToken);
+                        var displayOrder = existingMappingsTmp?.Count > 0 ? existingMappingsTmp.Max(x => x.DisplayOrder) : 0;
 
-                    foreach (var relatedProductId in relatedProductIds)
-                    {
-                        if (relatedProductId != row.Entity.Id &&
-                            existingProductIds.Contains(relatedProductId) &&
-                            (existingMappings == null || !existingMappings.Any(x => x.ProductId2 == relatedProductId)))
+                        var existingProductIds = await _db.Products
+                            .Where(x => relatedProductIds.Contains(x.Id))
+                            .Select(x => x.Id)
+                            .ToArrayAsync(context.CancelToken);
+
+                        foreach (var relatedProductId in relatedProductIds)
                         {
-                            _db.RelatedProducts.Add(new()
+                            if (relatedProductId != row.Entity.Id &&
+                                existingProductIds.Contains(relatedProductId) &&
+                                !existingMappings.Any(x => x.ProductId2 == relatedProductId))
                             {
-                                ProductId1 = row.Entity.Id,
-                                ProductId2 = relatedProductId,
-                                DisplayOrder = ++displayOrder
-                            });
+                                _db.RelatedProducts.Add(new()
+                                {
+                                    ProductId1 = row.Entity.Id,
+                                    ProductId2 = relatedProductId,
+                                    DisplayOrder = ++displayOrder
+                                });
+                            }
                         }
                     }
                 }
@@ -854,6 +849,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task ProcessCrossSellingProductsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
         {
             var productIds = batch.Select(x => x.Entity.Id).ToArray();
+            var idsToRemove = new HashSet<int>();
 
             var existingCrossSellProducts = await (
                 from csp in _db.CrossSellProducts
@@ -866,34 +862,48 @@ namespace Smartstore.Core.DataExchange.Import
 
             foreach (var row in batch)
             {
-                var crossSellProductIds = row.GetDataValue<List<int>>("CrossSellProductIds")
-                    ?.Where(x => x != 0)
-                    ?.Distinct()
-                    ?.ToArray();
-
-                if (crossSellProductIds.IsNullOrEmpty())
-                    continue;
-
                 try
                 {
-                    existingCrossSellProductsMap.TryGetValues(row.Entity.Id, out var existingRecords);
+                    var crossSellProductIds = row.GetDataValue<List<int>>("CrossSellProductIds")
+                        ?.Where(x => x != 0)
+                        ?.Distinct()
+                        ?.ToArray();
 
-                    var existingProductIds = await _db.Products
-                        .Where(x => crossSellProductIds.Contains(x.Id))
-                        .Select(x => x.Id)
-                        .ToArrayAsync(context.CancelToken);
-
-                    foreach (var crossSellProductId in crossSellProductIds)
+                    if (row.RowInfo.Position >= 524 && row.RowInfo.Position <= 526)
                     {
-                        if (crossSellProductId != row.Entity.Id &&
-                            existingProductIds.Contains(crossSellProductId) &&
-                            (existingRecords == null || !existingRecords.Any(x => x.ProductId2 == crossSellProductId)))
+                        row.RowInfo.Position.ToStringInvariant().Dump();
+                    }
+
+                    existingCrossSellProductsMap.TryGetValues(row.Entity.Id, out var existingMappingsTmp);
+                    var existingMappings = existingMappingsTmp?.AsEnumerable() ?? Enumerable.Empty<CrossSellProduct>();
+
+                    if (crossSellProductIds.IsNullOrEmpty())
+                    {
+                        idsToRemove.AddRange(existingMappings.Select(x => x.Id));
+                    }
+                    else
+                    {
+                        idsToRemove.AddRange(existingMappings
+                            .Where(x => !crossSellProductIds.Contains(x.ProductId2))
+                            .Select(x => x.Id));
+
+                        var existingProductIds = await _db.Products
+                            .Where(x => crossSellProductIds.Contains(x.Id))
+                            .Select(x => x.Id)
+                            .ToArrayAsync(context.CancelToken);
+
+                        foreach (var crossSellProductId in crossSellProductIds)
                         {
-                            _db.CrossSellProducts.Add(new()
+                            if (crossSellProductId != row.Entity.Id &&
+                                existingProductIds.Contains(crossSellProductId) &&
+                                !existingMappings.Any(x => x.ProductId2 == crossSellProductId))
                             {
-                                ProductId1 = row.Entity.Id,
-                                ProductId2 = crossSellProductId
-                            });
+                                _db.CrossSellProducts.Add(new()
+                                {
+                                    ProductId1 = row.Entity.Id,
+                                    ProductId2 = crossSellProductId
+                                });
+                            }
                         }
                     }
                 }
@@ -904,6 +914,13 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             await scope.CommitAsync(context.CancelToken);
+
+            foreach (var idsChunk in idsToRemove.Chunk(100))
+            {
+                await _db.CrossSellProducts
+                    .Where(x => idsChunk.Contains(x.Id))
+                    .ExecuteDeleteAsync(context.CancelToken);
+            }
         }
 
         protected virtual async Task<int> ProcessGroupedProductsAsync(ImportExecuteContext context, DbContextScope scope)
