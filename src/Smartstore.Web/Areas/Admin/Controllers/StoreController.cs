@@ -5,7 +5,7 @@ using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -20,16 +20,16 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICatalogSearchService _catalogSearchService;
-        private readonly CurrencySettings _currencySettings;
+        private readonly Lazy<ICurrencyService> _currencyService;
 
         public StoreController(
             SmartDbContext db,
             ICatalogSearchService catalogSearchService,
-            CurrencySettings currencySettings)
+            Lazy<ICurrencyService> currencyService)
         {
             _db = db;
             _catalogSearchService = catalogSearchService;
-            _currencySettings = currencySettings;
+            _currencyService = currencyService;
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace Smartstore.Admin.Controllers
 
             var model = new StoreModel
             {
-                DefaultCurrencyId = _currencySettings.PrimaryCurrencyId
+                DefaultCurrencyId = _currencyService.Value.PrimaryCurrency.Id
             };
 
             return View(model);
@@ -118,12 +118,6 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var store = await MapperFactory.MapAsync<StoreModel, Store>(model);
-
-                // Ensure we have "/" at the end.
-                store.Url = store.Url.EnsureEndsWith('/');
-
-                // INFO: we have to do this because we have a foreign key constraint on these fields.
-                store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
 
                 _db.Stores.Add(store);
                 await _db.SaveChangesAsync();
@@ -170,12 +164,6 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model, store);
-
-                // Ensure we have "/" at the end.
-                store.Url = store.Url.EnsureEndsWith('/');
-
-                // INFO: we have to do this because we have a foreign key constraint on these fields.
-                store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
 
                 await _db.SaveChangesAsync();
 

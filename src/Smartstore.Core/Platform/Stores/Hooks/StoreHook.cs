@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Data;
+﻿using Smartstore.Core.Common.Services;
+using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
@@ -10,16 +11,33 @@ namespace Smartstore.Core.Stores
     {
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
+        private readonly Lazy<ICurrencyService> _currencyService;
 
         private string _hookErrorMessage;
 
-        public StoreHook(SmartDbContext db, IStoreContext storeContext)
+        public StoreHook(
+            SmartDbContext db,
+            IStoreContext storeContext,
+            Lazy<ICurrencyService> currencyService)
         {
             _db = db;
             _storeContext = storeContext;
+            _currencyService = currencyService;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
+
+        protected override Task<HookResult> OnInsertingAsync(Store entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            FixStoreEntity(entity);
+            return Task.FromResult(HookResult.Ok);
+        }
+
+        protected override Task<HookResult> OnUpdatingAsync(Store entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            FixStoreEntity(entity);
+            return Task.FromResult(HookResult.Ok);
+        }
 
         protected override async Task<HookResult> OnDeletingAsync(Store entity, IHookedEntity entry, CancellationToken cancelToken)
         {
@@ -87,6 +105,18 @@ namespace Smartstore.Core.Stores
                         .Where(x => x.StoreId == allStoreIds[0])
                         .ExecuteDeleteAsync(cancelToken);
                 }
+            }
+        }
+
+        private void FixStoreEntity(Store store)
+        {
+            // Ensure we have "/" at the end.
+            store.Url = store.Url.EnsureEndsWith('/');
+
+            if (store.PrimaryExchangeRateCurrencyId == 0)
+            {
+                // INFO: we have to do this becaue there is a foreign key constraint on these fields.
+                store.PrimaryExchangeRateCurrencyId = _currencyService.Value.PrimaryExchangeCurrency.Id;
             }
         }
     }
