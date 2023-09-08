@@ -74,8 +74,6 @@
 }
 
 .artlist-action {
-    padding: 0 0.25rem;
-
     label {
         font-size: $font-size-sm;
         margin-bottom: 0.35rem;
@@ -83,10 +81,6 @@
 
     .form-group {
         margin-bottom: 0;
-    }
-
-    .btn { 
-        border-radius: 0; 
     }
 
     .mf-dropdown {
@@ -98,7 +92,6 @@
     padding-bottom: 1rem;
     display: flex;
     flex-wrap: nowrap;
-    margin: 0 -0.25rem;
 }
 
 .artlist-action--filter,
@@ -129,7 +122,6 @@
         .btn { 
             font-size: 1rem; 
             text-align: start; 
-            border-radius: 0;
             > b { background: transparent; } 
         }
     }
@@ -142,6 +134,7 @@
 .artlist-actions--top {
 	display: flex;
 	flex-wrap: wrap;
+    border-bottom: 1px solid var(--light-border-subtle);
 
 	.artlist-action-group {
 		width: 100%;
@@ -156,7 +149,6 @@
 		flex: 0 0 auto; // grow shrink basis
 		width: auto;
 		max-width: none;
-		padding-inline-start: 0.5rem;
 	}
 
 	.artlist-action--pagesize,
@@ -166,7 +158,6 @@
 
 	@include media-breakpoint-up(lg) {
 		flex-wrap: nowrap;
-		border-bottom: 1px solid var(--art-divider-color);
 
 		.artlist-action-group--filtersort {
 			flex-grow: 0;
@@ -404,7 +395,6 @@
 
     .art-btn {
         display: block;
-        border-radius: 0;
         border: none;
         outline: none;
         transition: none;

@@ -4,7 +4,7 @@
 // InstantSearch Box & Drop Styles
 // --------------------------------------------------
 
-$facet-selection-color:             darken($success, 15%);
+$facet-selection-color: inherit;
 
 .instasearch-form {
     position: relative;
@@ -124,8 +124,7 @@ $facet-selection-color:             darken($success, 15%);
 .instasearch-drop {
     position: absolute;
     display: none;
-    left: 1px;
-    right: 1px;
+    inset-inline: 1px;
     top: 100%;
     margin-top: -1px;
     min-width: calc(100% - 2px);
@@ -269,12 +268,14 @@ $facet-selection-color:             darken($success, 15%);
 
 .facet-group {
 	position: relative;
-	border-bottom: 1px solid rgba(0,0,0, 0.12);
+	border-bottom: 1px solid rgba($black, 0.12);
 }
 
 .facet-group-header {
     position: relative;
-    display: block;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
     padding: 0.75rem 0;
     padding-inline-end: 1rem;
     font-weight: $font-weight-medium;
@@ -300,8 +301,14 @@ $facet-selection-color:             darken($success, 15%);
 	    transform: rotate(180deg);
     }
 
+    &.has-selection {
+        color: $facet-selection-color !important;
+    }
+
     .facet-selection {
-        display: none;
+        position: relative;
+        margin-inline-start: auto;
+        inset-inline-end: 0.5rem;
     }
 }
 
@@ -456,13 +463,14 @@ $facet-selection-color:             darken($success, 15%);
 
 .active-filters {
     position: relative;
+    font-size: $small-font-size;
 }
 
 .active-filter-link {
     position: relative;
     font-weight: $font-weight-normal;
     max-width: 12rem;
-    line-height: 1.2; // to prevent cutoff
+    //line-height: 1.2; // to prevent cutoff
 
     &:after {
         position: relative;
@@ -488,25 +496,17 @@ $facet-selection-color:             darken($success, 15%);
         padding-inline: var(--offcanvas-padding-x, 1.5rem);
     }
 
-    .facet-toggle:after {
+    .facet-toggle {
         // TODO: Fix this (+4px) after unifying accordion togglers.
-        inset-inline-end: calc(4px + var(--offcanvas-padding-x, 1.5rem));
+        --facet-toggle-end: calc(4px + var(--offcanvas-padding-x, 1.5rem));
+
+        &:after {
+            inset-inline-end: var(--facet-toggle-end);
+        }
     }
 
-    .facet-toggle.has-selection {
-        color: $facet-selection-color !important;
-
-        .facet-selection {
-            display: inline;
-            color: rgba($black, 0.4);
-            font-size: $font-size-base;
-            position: absolute;
-            text-align: end;
-            inset-inline-end: 2.5rem;
-            vertical-align: middle;
-            line-height: 1.8;
-            font-weight: 400;
-        }
+    .facet-selection {
+        inset-inline-end: var(--facet-toggle-end);
     }
 
     .facet-body-inner {

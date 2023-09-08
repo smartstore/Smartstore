@@ -8,7 +8,7 @@ namespace Smartstore.Core.Search.Facets
     {
         protected FacetUrlHelperBase(HttpRequest request)
         {
-            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(request);
 
             Url = UrlPolicy.CombineSegments(request.PathBase, request.Path);
             InitialQuery = request.QueryString;

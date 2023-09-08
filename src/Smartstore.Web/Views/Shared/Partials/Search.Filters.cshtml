@@ -70,8 +70,8 @@
                    aria-controls="facet-body-@(group.Key)"
                    attr-data-selections="(selectedCount > 0, selectedCount.ToString())">
 
-                    <span sm-if="selectedCount > 0" class="facet-selection">@T("Search.Facet.SelectedCount", selectedCount)</span>
                     @(group.Label ?? group.Key)
+                    <span sm-if="selectedCount > 0" class="badge badge-info badge-subtle badge-ring badge-counter facet-selection">@selectedCount</span>
                 </a>
                 <div id="facet-body-@(group.Key)" class="facet-body collapse" attr-class='(expanded, "show")' aria-expanded="@expanded.ToString().ToLower()">
                     @if (widget != null)

@@ -7,7 +7,7 @@
 .badge {
     --badge-ring-opacity: 0;
     --badge-ring-color-rgb: 255,255,255;
-    --badge-height: #{calc((var(--badge-line-height) * 1em) + calc(var(--badge-padding-y) * 2))};
+    --badge-height: calc((var(--badge-line-height) * 1em) + calc(var(--badge-padding-y) * 2));
 
     box-shadow: inset rgba(var(--badge-ring-color-rgb), var(--badge-ring-opacity)) 0px 0px 0px 1px;
 
@@ -21,7 +21,6 @@
 // -----------------------------------------------------
 
 .badge > i {
-    //font-size: cssmax(14px, var(--badge-font-size));
     position: relative;
     top: 1px;
     opacity: 0.6;

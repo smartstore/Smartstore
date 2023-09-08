@@ -68,7 +68,8 @@
         <div sm-if="Model.AllowSorting || Model.AllowFiltering" class="artlist-action-group artlist-action-group--filtersort">
             @{ await Html.RenderPartialAsync("Product.List.FilterSort", Model); }
         </div>
-        <div sm-if="hasPager || Model.AllowViewModeChanging" class="artlist-action-group artlist-action-group--page">
+        <div sm-if="Model.AllowViewModeChanging" class="artlist-action-group artlist-action-group--page ml-0">
+            <div class="vr mx-2 text-body-tertiary"></div>
             @* ViewMode *@
             @if (Model.AllowViewModeChanging && Model.ViewMode == ProductSummaryViewMode.Grid || Model.ViewMode == ProductSummaryViewMode.List)
             {
@@ -98,7 +99,7 @@
 
 <div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-pagination hstack mb-4">
     @{ await Html.RenderPartialAsync("Product.List.Pager", Model); }
-    <div class="vr text-muted mx-2"></div>
+    <div class="vr text-body-tertiary mx-2"></div>
     <pagination sm-list-items="Model.PagedList" sm-query-param="i" sm-size="Medium" />  
 </div>
 
