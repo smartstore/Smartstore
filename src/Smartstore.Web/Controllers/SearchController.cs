@@ -20,7 +20,7 @@ namespace Smartstore.Web.Controllers
         private readonly CatalogSettings _catalogSettings;
         private readonly Lazy<IProductService> _productService;
         private readonly ProductUrlHelper _productUrlHelper;
-        private SearchResultModel _searchResultModel;
+        //private SearchResultModel _searchResultModel;
 
         public SearchController(
             CatalogHelper catalogHelper,
@@ -50,7 +50,7 @@ namespace Smartstore.Web.Controllers
             //{
             //    _searchResultModel = search;
             //}
-            _searchResultModel = new SearchResultModel();
+            //_searchResultModel = new SearchResultModel();
         }
 
         [HttpPost]
@@ -71,9 +71,8 @@ namespace Smartstore.Web.Controllers
 
             var result = await _catalogSearchService.SearchAsync(query);
 
-            var model = new SearchResultModel()
+            var model = new SearchResultModel(query)
             {
-                Query = query,
                 SearchResult = result,
                 Term = term,
                 TotalProductsCount = result.TotalHitsCount
@@ -110,21 +109,22 @@ namespace Smartstore.Web.Controllers
 
         [LocalizedRoute("/search", Name = "Search")]
         public async Task<IActionResult> Search(CatalogSearchQuery query)
+        {      
+            return View(await GetSearchResultModel(query));
+        }
+
+        public async Task<SearchResultModel> GetSearchResultModel(CatalogSearchQuery query)
         {
             CatalogSearchResult result = null;
-            if(_searchResultModel == null)
-            {
-                _searchResultModel = new();
-            }
-            _searchResultModel.Query = query;
+            var model = new SearchResultModel(query);
             var term = query?.DefaultTerm;
 
             if (term == null || term.Length < _searchSettings.InstantSearchTermMinLength)
             {
-                _searchResultModel.SearchResult = new CatalogSearchResult(query);
-                _searchResultModel.TopProducts = ProductSummaryModel.Empty;
-                _searchResultModel.Error = T("Search.SearchTermMinimumLengthIsNCharacters", _searchSettings.InstantSearchTermMinLength);
-                return View(_searchResultModel);
+                model.SearchResult = new CatalogSearchResult(query);
+                model.TopProducts = ProductSummaryModel.Empty;
+                model.Error = T("Search.SearchTermMinimumLengthIsNCharacters", _searchSettings.InstantSearchTermMinLength);
+                return model;
             }
 
             //break into it's own method customer check
@@ -139,26 +139,26 @@ namespace Smartstore.Web.Controllers
             {
                 if (_searchSettings.SearchProductByIdentificationNumber)
                 {
-                    var (product, attributeCombination) = await _productService.Value.GetProductByCodeAsync(term);
-                    if (product != null)
-                    {
-                        if (attributeCombination != null)
-                        {
-                            return Redirect(await _productUrlHelper.GetProductPathAsync(
-                                product.Id, 
-                                await product.GetActiveSlugAsync(), 
-                                attributeCombination.AttributeSelection));
-                        }
+                    //var (product, attributeCombination) = await _productService.Value.GetProductByCodeAsync(term);
+                    //if (product != null)
+                    //{
+                    //    if (attributeCombination != null)
+                    //    {
+                    //        return Redirect(await _productUrlHelper.GetProductPathAsync(
+                    //            product.Id,
+                    //            await product.GetActiveSlugAsync(),
+                    //            attributeCombination.AttributeSelection));
+                    //    }
 
-                        return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
-                    }
+                    //    return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
+                    //}
                 }
 
                 result = await _catalogSearchService.SearchAsync(query);
             }
             catch (Exception ex)
             {
-                _searchResultModel.Error = ex.ToString();
+                model.Error = ex.ToString();
                 result = new CatalogSearchResult(query);
             }
 
@@ -174,7 +174,7 @@ namespace Smartstore.Web.Controllers
 
                 if (result.TotalHitsCount > 0)
                 {
-                    _searchResultModel.AttemptedTerm = term;
+                    model.AttemptedTerm = term;
                     // Restore the original suggestions.
                     result.SpellCheckerSuggestions = oldSuggestions.Where(x => x != query.DefaultTerm).ToArray();
                 }
@@ -184,9 +184,9 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            _searchResultModel.SearchResult = result;
-            _searchResultModel.Term = query.DefaultTerm;
-            _searchResultModel.TotalProductsCount = result.TotalHitsCount;
+            model.SearchResult = result;
+            model.Term = query.DefaultTerm;
+            model.TotalProductsCount = result.TotalHitsCount;
 
             var productSummaryViewMode = query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list")
                 ? ProductSummaryViewMode.List
@@ -199,9 +199,8 @@ namespace Smartstore.Web.Controllers
             _catalogHelper.MapListActions(summaryModel, null, _catalogSettings.DefaultPageSizeOptions);
 
             // Add product hits.
-            _searchResultModel.TopProducts = summaryModel;
-
-            return View(_searchResultModel);
+            model.TopProducts = summaryModel;
+            return model;
         }
     }
 }
