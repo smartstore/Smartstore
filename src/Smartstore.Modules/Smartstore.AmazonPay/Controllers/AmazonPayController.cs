@@ -503,7 +503,7 @@ namespace Smartstore.AmazonPay.Controllers
 
             if (chargePermissionId.IsEmpty())
             {
-                Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", chargePermissionId));
+                Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", chargePermissionId.NaIfEmpty()));
                 return;
             }
 
@@ -590,7 +590,11 @@ namespace Smartstore.AmazonPay.Controllers
             var order = await _db.Orders.FirstOrDefaultAsync(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == chargePermissionId);
             if (order == null)
             {
-                Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", chargePermissionId));
+                // In case of an authorization, the IPN may arrive shortly before order placement.
+                if (!authorize)
+                {
+                    Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", chargePermissionId));
+                }
                 return;
             }
 
