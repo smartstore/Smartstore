@@ -12,10 +12,14 @@ namespace Smartstore.Web.Api.Controllers
     public class CustomersController : WebApiController<Customer>
     {
         private readonly Lazy<UserManager<Customer>> _userManager;
+        private readonly Lazy<CustomerSettings> _customerSettings;
 
-        public CustomersController(Lazy<UserManager<Customer>> userManager)
+        public CustomersController(
+            Lazy<UserManager<Customer>> userManager,
+            Lazy<CustomerSettings> customerSettings)
         {
             _userManager = userManager;
+            _customerSettings = customerSettings;
         }
 
         [HttpGet("Customers"), ApiQueryable]
@@ -102,6 +106,12 @@ namespace Smartstore.Web.Api.Controllers
             }
 
             model = await ApplyRelatedEntityIdsAsync(model);
+            model.PasswordFormat = _customerSettings.Value.DefaultPasswordFormat;
+
+            if (model.CustomerGuid == Guid.Empty)
+            {
+                model.CustomerGuid = Guid.NewGuid();
+            }
 
             var result = await _userManager.Value.CreateAsync(model);
             if (result.Succeeded)
