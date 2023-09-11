@@ -55,7 +55,8 @@ public class SearchControllerTests
         var pagedMock = new Mock<IPagedList<Product>>();
         var pagedList = pagedMock.Object;
 
-        pagedMock.Setup(x => x.it);
+        pagedMock.Setup(x => x.FirstItemIndex == 0);
+        
 
         expected_result.TopProducts = new ProductSummaryModel(pagedList);
 
