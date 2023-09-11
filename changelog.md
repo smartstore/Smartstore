@@ -25,7 +25,7 @@
   - #142 Take back in stock notifications into account.
   - #805 Add endpoints to assign discounts to entities.
 - Import:
-  - #390 Add a setting whether to send the completion email.
+  - #390 Add a setting for whether to send the completion email.
   - #377 Import cross- and checkout-selling products.
 - #503 Don't round quantity unit amount for PAnGV.
 - #403 Added preview image link of NewsItem to RSS feed.

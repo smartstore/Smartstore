@@ -299,9 +299,13 @@ namespace Smartstore.Core.DataExchange.Import
                     counts[(int)msg.Reason] = count + 1;
 
                     if (count < maxLogEntries)
+                    {
                         context.Result.AddMessage(msg.Message, msg.MessageType, rowInfo);
+                    }   
                     else
+                    {
                         context.Result.AddMessage($"No further logging of '{msg.Reason}' messages. Reason: too many log entries.", ImportMessageType.Info, rowInfo);
+                    }   
                 }
             }
             else

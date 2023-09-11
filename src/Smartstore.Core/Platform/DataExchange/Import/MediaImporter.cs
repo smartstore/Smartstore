@@ -182,7 +182,7 @@ namespace Smartstore.Core.DataExchange.Import
             ImportMessageType messageType = ImportMessageType.Info,
             ImportMessageReason reason = ImportMessageReason.None)
         {
-            if (msg.HasValue() && MessageHandler != null)
+            if (MessageHandler != null && msg.HasValue())
             {
                 MessageHandler.Invoke(new ImportMessage(msg, messageType, reason)
                 {
