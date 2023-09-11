@@ -58,20 +58,15 @@
             </display-template>
         </column>
         <column for="IsActive" halign="center" />
-        <column for="ProductUrl" halign="center" width="1fr" sortable="false">
-            <display-template>
-                <a :href="item.row.ProductUrl" target="_blank" class="text-truncate">
-                    {{ item.row.ProductUrlTitle }}
-                </a>
-            </display-template>
-        </column>
         <column for="Sku" halign="center" width="1fr" />
         <column for="Price" halign="center" width="1fr" />
         <column for="StockQuantity" halign="center" />
         <column for="AllowOutOfStockOrders" halign="center" />
     </columns>
     <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.ProductUrl">@T("Common.OpenInShop")</a>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-attribute-combination" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
@@ -83,17 +78,16 @@
         $(document).on('click', '.add-new-combination', function (e) {
             e.preventDefault();
 
-            openPopup('@(Url.Action("AttributeCombinationCreatePopup", "Product", new { productId = parentModel.Id }))&btnId=btnRefreshCombinations&formId=product-form');
+            openPopup('@(Url.Action("AttributeCombinationCreatePopup", new { productId = parentModel.Id }))&btnId=btnRefreshCombinations&formId=product-form');
             return false;
         });
 
         $(document).on('click', '.grid-edit-attribute-combination', function (e) {
             e.preventDefault();
 
-            var id = $(this).data("key");
-            var href = '@Url.Content("~/Admin/Product/AttributeCombinationEditPopup/")' + id + '?btnId=btnRefreshCombinations&formId=product-form';
-            openPopup(href);
-            return true;
+            var id = $(this).data('key');
+            openPopup('@(Url.Action("AttributeCombinationEditPopup").EnsureEndsWith('/'))' + id + '?btnId=btnRefreshCombinations&formId=product-form');
+            return false;
         });
 
         // Refresh grid after popup edit dialog was closed.
@@ -104,7 +98,7 @@
 
         $(document).on('click', '#btnCreateAllCombinations, #btnDeleteAllCombinations', function () {
             $(this).ajax({
-                success: function (resp) {
+                success: function () {
                     $('#btnRefreshCombinations').click();
                 }
             });

@@ -622,127 +622,12 @@ namespace Smartstore.Admin.Controllers
 
         #region Product variant attribute combinations
 
-        private async Task PrepareProductAttributeCombinationModelAsync(
-            ProductVariantAttributeCombinationModel model,
-            ProductVariantAttributeCombination entity,
-            Product product,
-            bool formatAttributes = false)
-        {
-            Guard.NotNull(model, nameof(model));
-            Guard.NotNull(product, nameof(product));
-
-            var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId);
-
-            model.ProductId = product.Id;
-            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-            model.BaseDimensionIn = baseDimension?.GetLocalized(x => x.Name) ?? string.Empty;
-
-            if (entity != null)
-            {
-                if (formatAttributes)
-                {
-                    model.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(
-                        entity.AttributeSelection,
-                        product,
-                        _workContext.CurrentCustomer,
-                        "<br />",
-                        includeHyperlinks: false);
-                }
-            }
-            else
-            {
-                // It's a new entity, so initialize it properly.
-                model.StockQuantity = 10000;
-                model.IsActive = true;
-                model.AllowOutOfStockOrders = true;
-            }
-
-            var quantityUnits = await _db.QuantityUnits
-                .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder)
-                .ToListAsync();
-
-            ViewBag.QuantityUnits = quantityUnits
-                .Select(x => new SelectListItem
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString(),
-                    Selected = entity != null && x.Id == entity.QuantityUnitId.GetValueOrDefault()
-                })
-                .ToList();
-        }
-
-        private async Task PrepareVariantCombinationAttributesAsync(ProductVariantAttributeCombinationModel model, Product product)
-        {
-            var productVariantAttributes = await _db.ProductVariantAttributes
-                .AsNoTracking()
-                .Include(x => x.ProductAttribute)
-                .Include(x => x.ProductVariantAttributeValues)
-                .ApplyListTypeFilter()
-                .ApplyProductFilter(new[] { product.Id })
-                .ToListAsync();
-
-            foreach (var attribute in productVariantAttributes)
-            {
-                var pvaModel = new ProductVariantAttributeCombinationModel.ProductVariantAttributeModel
-                {
-                    Id = attribute.Id,
-                    ProductAttributeId = attribute.ProductAttributeId,
-                    Name = attribute.ProductAttribute.Name,
-                    TextPrompt = attribute.TextPrompt,
-                    IsRequired = attribute.IsRequired,
-                    AttributeControlType = attribute.AttributeControlType
-                };
-
-                foreach (var pvaValue in attribute.ProductVariantAttributeValues)
-                {
-                    pvaModel.Values.Add(new ProductVariantAttributeCombinationModel.ProductVariantAttributeValueModel
-                    {
-                        Id = pvaValue.Id,
-                        Name = pvaValue.Name,
-                        IsPreSelected = pvaValue.IsPreSelected
-                    });
-                }
-
-                model.ProductVariantAttributes.Add(pvaModel);
-            }
-        }
-
-        private async Task PrepareVariantCombinationPicturesAsync(ProductVariantAttributeCombinationModel model, Product product)
-        {
-            var files = await _db.ProductMediaFiles
-                .AsNoTracking()
-                .Include(x => x.MediaFile)
-                .ApplyProductFilter(product.Id)
-                .Select(x => x.MediaFile)
-                .ToListAsync();
-
-            foreach (var file in files)
-            {
-                model.AssignablePictures.Add(new ProductVariantAttributeCombinationModel.PictureSelectItemModel
-                {
-                    Id = file.Id,
-                    IsAssigned = model.AssignedPictureIds.Contains(file.Id),
-                    Media = _mediaService.ConvertMediaFile(file)
-                });
-            }
-        }
-
-        private void PrepareViewBag(string btnId, string formId, bool refreshPage = false, bool isEdit = true)
-        {
-            ViewBag.btnId = btnId;
-            ViewBag.formId = formId;
-            ViewBag.RefreshPage = refreshPage;
-            ViewBag.IsEdit = isEdit;
-        }
-
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductVariantAttributeCombinationList(GridCommand command, int productId)
         {
             var customer = _workContext.CurrentCustomer;
             var product = await _db.Products.FindByIdAsync(productId, false);
-            var productUrlTitle = T("Common.OpenInShop");
             var productSlug = await product.GetActiveSlugAsync();
 
             var allCombinations = await _db.ProductVariantAttributeCombinations
@@ -760,7 +645,6 @@ namespace Smartstore.Admin.Controllers
             {
                 var pvacModel = await mapper.MapAsync(x);
                 pvacModel.ProductId = product.Id;
-                pvacModel.ProductUrlTitle = productUrlTitle;
                 pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductPathAsync(product.Id, productSlug, x.AttributeSelection);
                 pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(x.AttributeSelection, product, customer, "<br />", false, includeHyperlinks: false);
 
@@ -803,8 +687,6 @@ namespace Smartstore.Admin.Controllers
 
             var model = new ProductVariantAttributeCombinationModel();
             await PrepareProductAttributeCombinationModelAsync(model, null, product);
-            await PrepareVariantCombinationAttributesAsync(model, product);
-            await PrepareVariantCombinationPicturesAsync(model, product);
             PrepareViewBag(btnId, formId, false, false);
 
             return View(model);
@@ -852,8 +734,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             await PrepareProductAttributeCombinationModelAsync(model, null, product);
-            await PrepareVariantCombinationAttributesAsync(model, product);
-            await PrepareVariantCombinationPicturesAsync(model, product);
             PrepareViewBag(btnId, formId, warnings.Count == 0, false);
 
             if (warnings.Count > 0)
@@ -882,8 +762,6 @@ namespace Smartstore.Admin.Controllers
             var model = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(combination);
 
             await PrepareProductAttributeCombinationModelAsync(model, combination, product, true);
-            await PrepareVariantCombinationAttributesAsync(model, product);
-            await PrepareVariantCombinationPicturesAsync(model, product);
             PrepareViewBag(btnId, formId);
 
             return View(model);
@@ -916,7 +794,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditVariant)]
-        public async Task<IActionResult> CreateAllAttributeCombinations(ProductVariantAttributeCombinationModel model, int productId)
+        public async Task<IActionResult> CreateAllAttributeCombinations(int productId)
         {
             var hasProduct = await _db.Products.AnyAsync(x => x.Id == productId);
             if (!hasProduct)
@@ -931,7 +809,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditVariant)]
-        public async Task<IActionResult> DeleteAllAttributeCombinations(ProductVariantAttributeCombinationModel model, int productId)
+        public async Task<IActionResult> DeleteAllAttributeCombinations(int productId)
         {
             var hasProduct = await _db.Products.AnyAsync(x => x.Id == productId);
             if (!hasProduct)
@@ -977,6 +855,116 @@ namespace Smartstore.Admin.Controllers
                 Message = message,
                 HasWarning = foundCombination != null
             });
+        }
+
+        private async Task PrepareProductAttributeCombinationModelAsync(
+            ProductVariantAttributeCombinationModel model,
+            ProductVariantAttributeCombination entity,
+            Product product,
+            bool formatAttributes = false)
+        {
+            Guard.NotNull(model);
+            Guard.NotNull(product);
+
+            var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId);
+
+            model.ProductId = product.Id;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
+            model.BaseDimensionIn = baseDimension?.GetLocalized(x => x.Name) ?? string.Empty;
+
+            if (entity != null)
+            {
+                if (formatAttributes)
+                {
+                    model.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(
+                        entity.AttributeSelection,
+                        product,
+                        _workContext.CurrentCustomer,
+                        "<br />",
+                        includeHyperlinks: false);
+                }
+            }
+            else
+            {
+                // It's a new entity, so initialize it properly.
+                model.StockQuantity = 10000;
+                model.IsActive = true;
+                model.AllowOutOfStockOrders = true;
+            }
+
+            // Attributes
+            var productVariantAttributes = await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .Include(x => x.ProductAttribute)
+                .Include(x => x.ProductVariantAttributeValues)
+                .ApplyListTypeFilter()
+                .ApplyProductFilter(new[] { product.Id })
+                .ToListAsync();
+
+            foreach (var attribute in productVariantAttributes)
+            {
+                var pvaModel = new ProductVariantAttributeCombinationModel.ProductVariantAttributeModel
+                {
+                    Id = attribute.Id,
+                    ProductAttributeId = attribute.ProductAttributeId,
+                    Name = attribute.ProductAttribute.Name,
+                    TextPrompt = attribute.TextPrompt,
+                    IsRequired = attribute.IsRequired,
+                    AttributeControlType = attribute.AttributeControlType
+                };
+
+                foreach (var pvaValue in attribute.ProductVariantAttributeValues)
+                {
+                    pvaModel.Values.Add(new()
+                    {
+                        Id = pvaValue.Id,
+                        Name = pvaValue.Name,
+                        IsPreSelected = pvaValue.IsPreSelected
+                    });
+                }
+
+                model.ProductVariantAttributes.Add(pvaModel);
+            }
+
+            // Pictures.
+            var files = await _db.ProductMediaFiles
+                .AsNoTracking()
+                .Include(x => x.MediaFile)
+                .ApplyProductFilter(product.Id)
+                .Select(x => x.MediaFile)
+                .ToListAsync();
+
+            foreach (var file in files)
+            {
+                model.AssignablePictures.Add(new()
+                {
+                    Id = file.Id,
+                    IsAssigned = model.AssignedPictureIds.Contains(file.Id),
+                    Media = _mediaService.ConvertMediaFile(file)
+                });
+            }
+
+            var quantityUnits = await _db.QuantityUnits
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            ViewBag.QuantityUnits = quantityUnits
+                .Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.Id.ToString(),
+                    Selected = entity != null && x.Id == entity.QuantityUnitId.GetValueOrDefault()
+                })
+                .ToList();
+        }
+
+        private void PrepareViewBag(string btnId, string formId, bool refreshPage = false, bool isEdit = true)
+        {
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+            ViewBag.RefreshPage = refreshPage;
+            ViewBag.IsEdit = isEdit;
         }
 
         #endregion

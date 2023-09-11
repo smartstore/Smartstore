@@ -34,7 +34,7 @@ namespace Smartstore.Admin.Models.Catalog
         public int? QuantityUnitId { get; set; }
 
         [LocalizedDisplay("*Pictures")]
-        public int[] AssignedPictureIds { get; set; } = new int[0];
+        public int[] AssignedPictureIds { get; set; } = Array.Empty<int>();
 
         public List<PictureSelectItemModel> AssignablePictures { get; set; } = new();
 
@@ -63,7 +63,6 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("Common.Product")]
         public string ProductUrl { get; set; }
-        public string ProductUrlTitle { get; set; }
 
         public List<string> Warnings { get; set; } = new();
 
