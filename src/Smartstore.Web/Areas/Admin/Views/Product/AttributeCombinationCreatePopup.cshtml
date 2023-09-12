@@ -39,7 +39,7 @@
 				url: '@Url.Action("CombinationExistenceNote", new { productId = Model.ProductId })',
 				success: function (resp) {
                     var cls = resp.HasWarning ? 'warning' : 'info';
-                    var html = `<div class="alert alert-${cls}" style="margin:0;">${resp.Message}</div>`;
+                    var html = `<div class="alert alert-${cls} m-0">${resp.Message}</div>`;
                     note.html(html);
 				}
 			});

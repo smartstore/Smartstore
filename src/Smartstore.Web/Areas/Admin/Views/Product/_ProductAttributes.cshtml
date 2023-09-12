@@ -65,6 +65,7 @@
                 @(attribute.TextPrompt.HasValue() ? attribute.TextPrompt : attribute.Name)
             </label>
             <div class="controls">
+                @* TODO: (mg) Choosing multiple options from a checkbox list is awkward (is faulty?). Better to render select2 for radio and check options. The inline options don't look good anyway.' *@
                 @if (attribute.AttributeControlType == AttributeControlType.Checkboxes
                  || attribute.AttributeControlType == AttributeControlType.RadioList
                  || attribute.AttributeControlType == AttributeControlType.Boxes)
