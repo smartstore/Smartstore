@@ -54,7 +54,7 @@ namespace Smartstore.Core.DataExchange.Import
             else
             {
                 var root = _appContext.TenantRoot;
-                var fullPath = PathUtility.Join(ImportFileRoot, profile.FolderName, path.EmptyNull());
+                var fullPath = PathUtility.Join(_importFileRoot, profile.FolderName, path.EmptyNull());
                 var dir = await root.GetDirectoryAsync(fullPath);
 
                 if (createIfNotExists)
