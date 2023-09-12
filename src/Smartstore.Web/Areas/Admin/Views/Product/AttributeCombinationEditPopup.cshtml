@@ -5,7 +5,7 @@
     ViewBag.Title = T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.EditTitle").Value;
 }
 
-<form asp-action="AttributeCombinationEditPopup">
+<form asp-action="AttributeCombinationEditPopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
     <div class="section-header">
         <button type="button"
                 id="EditPreviousAttributeCombination"
@@ -18,9 +18,12 @@
             @ViewBag.Title
         </div>
         <div class="options">
-            <button type="button" id="SaveAttributeCombination" class="btn btn-warning">
+            <button type="submit" id="save" name="save" value="save" class="btn btn-warning">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="button" id="SaveAttributeCombination" class="btn btn-secondary disabled" disabled title="@T("Admin.Common.SaveContinue")">
+                <i class="fa fa-save"></i>
             </button>
             <button type="button"
                     id="EditNextAttributeCombination"
@@ -38,15 +41,17 @@
 
 <script sm-target-zone="Scripts" data-origin="edit-attribute-combination">
     $(function () {
+        var container = $('#AttributeCombinationContainer');
+
         $(document).on('click', '#EditPreviousAttributeCombination, #EditNextAttributeCombination', function () {
             //const grid = window.parent.window["attributecombinations-grid"].$children[0];
 
-            var container = $('#AttributeCombinationContainer');
             var url = $(this).data('url') + '&currentId=' + container.find('input[name=Id]').val();
 
-            $({}).ajax({
+            $.ajax({
                 cache: false,
                 global: false,
+                type: 'GET',
                 url: url,
                 //type: 'POST',
                 //data: grid.command,
@@ -55,6 +60,7 @@
 
                     Smartstore.media.lazyLoadThumbnails($('#assigned-pictures'));
                     applyCommonPlugins(container);
+                    setDirty(false);
                 }
             });
 
@@ -62,8 +68,6 @@
         });
 
         $(document).on('click', '#SaveAttributeCombination', function () {
-            var container = $('#AttributeCombinationContainer');
-
 			$.ajax({
 				cache: false,
 				type: 'POST',
@@ -88,5 +92,20 @@
 
             return false;
         });
+
+        _.delay(function () {
+            container.on('input change propertychange paste', 'input, select, textarea', function () {
+                setDirty(true);
+            });
+        }, 250);
+
+        function setDirty(dirty) {
+            if (dirty) {
+                $('#SaveAttributeCombination').removeClass('disabled').removeAttr('disabled');
+            }
+            else {
+                $('#SaveAttributeCombination').addClass('disabled').attr('disabled', true);
+            }
+        }
 	});
 </script>

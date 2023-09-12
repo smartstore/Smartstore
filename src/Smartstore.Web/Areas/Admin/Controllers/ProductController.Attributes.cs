@@ -759,6 +759,23 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.EditVariant)]
+        public async Task<IActionResult> AttributeCombinationEditPopup(string btnId, string formId, ProductVariantAttributeCombinationModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (!await SaveProductVariantAttributeCombination(model))
+                {
+                    return NotFound();
+                }
+            }
+
+            PrepareViewBag(btnId, formId, true);
+
+            return View(model);
+        }
+
         // AJAX.
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> EditNextAttributeCombination(/*GridCommand command, */int currentId, int productId, bool next)
@@ -820,14 +837,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(model.Id);
-                var rawAttributes = combination.RawAttributes;
-                await MapperFactory.MapAsync(model, combination);
-                combination.RawAttributes = rawAttributes;
-                combination.SetAssignedMediaIds(model.AssignedPictureIds);
-
-                await _db.SaveChangesAsync();
-                success = true;
+                success = await SaveProductVariantAttributeCombination(model);
             }
             else
             {
@@ -841,30 +851,22 @@ namespace Smartstore.Admin.Controllers
             return new JsonResult(new { success });
         }
 
-        //[HttpPost]
-        //[Permission(Permissions.Catalog.Product.EditVariant)]
-        //public async Task<IActionResult> AttributeCombinationEditPopup(string btnId, string formId, ProductVariantAttributeCombinationModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(model.Id);
-        //        if (combination == null)
-        //        {
-        //            return NotFound();
-        //        }
+        private async Task<bool> SaveProductVariantAttributeCombination(ProductVariantAttributeCombinationModel model)
+        {
+            var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(model.Id);
+            if (combination != null)
+            {
+                var rawAttributes = combination.RawAttributes;
+                await MapperFactory.MapAsync(model, combination);
+                combination.RawAttributes = rawAttributes;
+                combination.SetAssignedMediaIds(model.AssignedPictureIds);
 
-        //        var rawAttributes = combination.RawAttributes;
-        //        await MapperFactory.MapAsync(model, combination);
-        //        combination.RawAttributes = rawAttributes;
-        //        combination.SetAssignedMediaIds(model.AssignedPictureIds);
+                await _db.SaveChangesAsync();
+                return true;
+            }
 
-        //        await _db.SaveChangesAsync();
-
-        //        PrepareViewBag(btnId, formId, true);
-        //    }
-
-        //    return View(model);
-        //}
+            return false;
+        }
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditVariant)]
