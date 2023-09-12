@@ -225,6 +225,17 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.SystemInfo.AppVersion", "Smartstore version", "Smartstore Version");
 
             builder.AddOrUpdate("Products.ToFilterAndSort", "Filter & Sort", "Filtern & Sortieren");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination",
+                "Open previous attribute combination",
+                "Vorherige Attribut-Kombination öffnen");
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenNextCombination",
+                "Open next attribute combination",
+                "Nächste Attribut-Kombination öffnen");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AddTitle",
+                "Add attribute combination",
+                "Attribut-Kombination hinzufügen");
         }
 
         /// <summary>

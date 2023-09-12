@@ -5,18 +5,88 @@
     ViewBag.Title = T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.EditTitle").Value;
 }
 
-<form asp-action="AttributeCombinationEditPopup" asp-route-productId="@Model.ProductId" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+<form asp-action="AttributeCombinationEditPopup">
     <div class="section-header">
+        <button type="button"
+                id="EditPreviousAttributeCombination"
+                class="btn btn-secondary mr-2"
+                title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination")"
+                data-url="@Url.Action("EditNextAttributeCombination", new { productId = Model.ProductId, next = false })">
+            <i class="fa fa fa-angle-left"></i>
+        </button>
         <div class="title">
             @ViewBag.Title
         </div>
         <div class="options">
-            <button type="submit" id="save" name="save" value="save" class="btn btn-warning">
+            <button type="button" id="SaveAttributeCombination" class="btn btn-warning">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
             </button>
+            <button type="button"
+                    id="EditNextAttributeCombination"
+                    class="btn btn-secondary"
+                    title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenNextCombination")"
+                    data-url="@Url.Action("EditNextAttributeCombination", new { productId = Model.ProductId, next = true })">
+                <i class="fa fa fa-angle-right"></i>
+            </button>
         </div>
     </div>
-
-    <partial name="_CreateOrUpdateAttributeCombinationPopup" model="Model" />
+    <div id="AttributeCombinationContainer">
+        <partial name="_CreateOrUpdateAttributeCombinationPopup" model="Model" />
+    </div>
 </form>
+
+<script sm-target-zone="Scripts" data-origin="edit-attribute-combination">
+    $(function () {
+        $(document).on('click', '#EditPreviousAttributeCombination, #EditNextAttributeCombination', function () {
+            //const grid = window.parent.window["attributecombinations-grid"].$children[0];
+
+            var container = $('#AttributeCombinationContainer');
+            var url = $(this).data('url') + '&currentId=' + container.find('input[name=Id]').val();
+
+            $({}).ajax({
+                cache: false,
+                global: false,
+                url: url,
+                //type: 'POST',
+                //data: grid.command,
+                success: function (response) {
+                    container.html(response.partial);
+
+                    Smartstore.media.lazyLoadThumbnails($('#assigned-pictures'));
+                    applyCommonPlugins(container);
+                }
+            });
+
+            return false;
+        });
+
+        $(document).on('click', '#SaveAttributeCombination', function () {
+            var container = $('#AttributeCombinationContainer');
+
+			$.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@Url.Action("SaveAttributeCombination")',
+                data: container.closest('form').serialize(),
+                success: function () {
+                    // Reload grid if current ID is loaded. Could irritate the user otherwise.
+                    const grid = window.parent.window["attributecombinations-grid"].$children[0];
+                    var currentId = parseInt(container.find('input[name=Id]').val());
+                    var loadedIds = grid.rows.map(x => parseInt(x.Id));
+
+                    if (loadedIds.includes(currentId)) {
+                        grid.read();
+                    }
+				},
+                error: function (objXml) {
+                    if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
+                        displayNotification(objXml.responseText, 'error');
+                    }
+                }
+			});
+
+            return false;
+        });
+	});
+</script>

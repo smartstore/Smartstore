@@ -32,6 +32,7 @@
 <div asp-validation-summary="ModelOnly"></div>
 
 <input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="ProductId" />
 
 <div class="well">
     @if (ViewBag.IsEdit)
@@ -212,27 +213,3 @@
         </div>
     </div>
 </div>
-
-<script sm-target-zone="Scripts" data-origin="attribute-combination-popup">
-    $(function () {
-        Smartstore.media.lazyLoadThumbnails($("#assigned-pictures"));
-
-        var container = $('#ProductVariantAttributeContainer');
-        container.find('select').selectWrapper();
-
-        container.change(function () {
-            var note = $('#CombinationExistenceNote');
-			note.empty();
-            container.closest('form').ajax({
-				smallIcon: note,
-				url: '@Url.Action("CombinationExistenceNote", "Product", new { productId = Model.ProductId })',
-				success: function (resp) {
-                    var cls = resp.HasWarning ? 'warning' : 'info';
-                    var html = `<div class="alert alert-${cls}" style="margin:0;">${resp.Message}</div>`;
-
-                    note.html(html);
-				}
-			});
-		});
-	});
-</script>

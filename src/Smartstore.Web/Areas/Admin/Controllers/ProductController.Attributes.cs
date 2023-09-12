@@ -4,6 +4,7 @@ using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
@@ -747,50 +748,123 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> AttributeCombinationEditPopup(int id, string btnId, string formId)
         {
-            var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id, false);
-            if (combination == null)
+            var model = await PrepareProductAttributeCombinationModelAsync(id);
+            if (model == null)
             {
-                return RedirectToAction(nameof(List));
+                return NotFound();
             }
 
-            var product = await _db.Products.FindByIdAsync(combination.ProductId, false);
-            if (product == null)
-            {
-                return RedirectToAction(nameof(List));
-            }
-
-            var model = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(combination);
-
-            await PrepareProductAttributeCombinationModelAsync(model, combination, product, true);
             PrepareViewBag(btnId, formId);
 
             return View(model);
         }
 
+        // AJAX.
+        [Permission(Permissions.Catalog.Product.Read)]
+        public async Task<IActionResult> EditNextAttributeCombination(/*GridCommand command, */int currentId, int productId, bool next)
+        {            
+            var nextCombinationId = await GetQuery(true).FirstOrDefaultAsync();
+            if (nextCombinationId == 0)
+            {
+                nextCombinationId = await GetQuery(false).FirstOrDefaultAsync();
+            }
+
+            //$"id:{currentId} nextId:{nextCombinationId} next:{next} ".Dump();
+
+            var model = await PrepareProductAttributeCombinationModelAsync(nextCombinationId);
+            ViewBag.IsEdit = true;
+
+            var partial = model != null
+                ? await InvokePartialViewAsync("_CreateOrUpdateAttributeCombinationPopup", model)
+                : null;
+
+            return new JsonResult(new { partial });
+
+            IQueryable<int> GetQuery(bool applyIdClause)
+            {
+                var query = _db.ProductVariantAttributeCombinations
+                    .Where(x => x.ProductId == productId);
+
+                // TODO: (mg) consider grid sorting somehow. Requires different approach. Filtering by ID would not work anymore.
+                if (applyIdClause)
+                {
+                    if (next)
+                    {
+                        query = query.Where(x => x.Id > currentId);
+                    }
+                    else
+                    {
+                        query = query.Where(x => x.Id < currentId);
+                    }
+                }
+
+                if (next)
+                {
+                    query = query.OrderBy(x => x.Id);
+                }
+                else
+                {
+                    query = query.OrderByDescending(x => x.Id);
+                }
+
+                return query.Select(x => x.Id);
+            }
+        }
+
+        // AJAX.
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditVariant)]
-        public async Task<IActionResult> AttributeCombinationEditPopup(string btnId, string formId, ProductVariantAttributeCombinationModel model)
+        public async Task<IActionResult> SaveAttributeCombination(ProductVariantAttributeCombinationModel model)
         {
+            var success = false;
+
             if (ModelState.IsValid)
             {
                 var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(model.Id);
-                if (combination == null)
-                {
-                    return RedirectToAction(nameof(List));
-                }
-
                 var rawAttributes = combination.RawAttributes;
                 await MapperFactory.MapAsync(model, combination);
                 combination.RawAttributes = rawAttributes;
                 combination.SetAssignedMediaIds(model.AssignedPictureIds);
 
                 await _db.SaveChangesAsync();
-
-                PrepareViewBag(btnId, formId, true);
+                success = true;
+            }
+            else
+            {
+                ModelState.Values
+                    .SelectMany(x => x.Errors)
+                    .Select(x => x.ErrorMessage)
+                    .Take(3)
+                    .Each(msg => NotifyError(msg));
             }
 
-            return View(model);
+            return new JsonResult(new { success });
         }
+
+        //[HttpPost]
+        //[Permission(Permissions.Catalog.Product.EditVariant)]
+        //public async Task<IActionResult> AttributeCombinationEditPopup(string btnId, string formId, ProductVariantAttributeCombinationModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(model.Id);
+        //        if (combination == null)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        var rawAttributes = combination.RawAttributes;
+        //        await MapperFactory.MapAsync(model, combination);
+        //        combination.RawAttributes = rawAttributes;
+        //        combination.SetAssignedMediaIds(model.AssignedPictureIds);
+
+        //        await _db.SaveChangesAsync();
+
+        //        PrepareViewBag(btnId, formId, true);
+        //    }
+
+        //    return View(model);
+        //}
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditVariant)]
@@ -855,6 +929,24 @@ namespace Smartstore.Admin.Controllers
                 Message = message,
                 HasWarning = foundCombination != null
             });
+        }
+
+        private async Task<ProductVariantAttributeCombinationModel> PrepareProductAttributeCombinationModelAsync(int id)
+        {
+            var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id, false);
+            if (combination != null)
+            {
+                var product = await _db.Products.FindByIdAsync(combination.ProductId, false);
+                if (product != null)
+                {
+                    var model = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(combination);
+                    await PrepareProductAttributeCombinationModelAsync(model, combination, product, true);
+
+                    return model;
+                }
+            }
+
+            return null;
         }
 
         private async Task PrepareProductAttributeCombinationModelAsync(

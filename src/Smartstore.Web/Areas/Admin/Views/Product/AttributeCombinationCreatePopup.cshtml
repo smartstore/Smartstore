@@ -5,10 +5,10 @@
     ViewBag.Title = T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AddTitle").Value;
 }
 
-<form asp-action="AttributeCombinationCreatePopup" asp-route-productId="@Model.ProductId" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+<form asp-action="AttributeCombinationCreatePopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.AddNew")
+            @ViewBag.Title
         </div>
         <div class="options">
             <button type="submit" id="save" name="save" value="save" class="btn btn-primary">
@@ -17,6 +17,32 @@
             </button>
         </div>
     </div>
-
-    <partial name="_CreateOrUpdateAttributeCombinationPopup" model="Model" />
+    <div id="AttributeCombinationContainer">
+        <partial name="_CreateOrUpdateAttributeCombinationPopup" model="Model" />
+    </div>
 </form>
+
+<script sm-target-zone="Scripts" data-origin="create-attribute-combination">
+    $(function () {
+        var container = $('#AttributeCombinationContainer');
+
+        Smartstore.media.lazyLoadThumbnails($("#assigned-pictures"));
+        applyCommonPlugins(container);
+
+        container.on('change', function () {
+            var note = $('#CombinationExistenceNote');
+            note.empty();
+
+            container.closest('form').ajax({
+                global: false,
+				smallIcon: note,
+				url: '@Url.Action("CombinationExistenceNote", new { productId = Model.ProductId })',
+				success: function (resp) {
+                    var cls = resp.HasWarning ? 'warning' : 'info';
+                    var html = `<div class="alert alert-${cls}" style="margin:0;">${resp.Message}</div>`;
+                    note.html(html);
+				}
+			});
+        });
+	});
+</script>
