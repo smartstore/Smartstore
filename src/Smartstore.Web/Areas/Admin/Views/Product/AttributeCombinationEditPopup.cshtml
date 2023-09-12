@@ -11,21 +11,12 @@
             @ViewBag.Title
         </div>
         <div class="options">
-            @* TODO: (mg) Not intuitive: we need 2 buttons here: "Save", "Save and close" *@
-            <button type="button" id="SaveAttributeCombination" class="btn btn-warning">
             <button type="submit" id="save" name="save" value="save" class="btn btn-warning">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
             </button>
             <button type="button" id="SaveAttributeCombination" class="btn btn-secondary disabled" disabled title="@T("Admin.Common.SaveContinue")">
                 <i class="fa fa-save"></i>
-            </button>
-            <button type="button"
-                    id="EditNextAttributeCombination"
-                    class="btn btn-secondary"
-                    title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenNextCombination")"
-                    data-url="@Url.Action("EditNextAttributeCombination", new { productId = Model.ProductId, next = true })">
-                <i class="fa fa fa-angle-right"></i>
             </button>
         </div>
     </div>
