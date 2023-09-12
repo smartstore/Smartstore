@@ -779,7 +779,9 @@ namespace Smartstore.Admin.Controllers
         // AJAX.
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> EditNextAttributeCombination(/*GridCommand command, */int currentId, int productId, bool next)
-        {            
+        {
+            // TODO: (mg) Rename action: EditSiblingAttributeCombination
+            // TODO: (mg) Put the ids of the next and prev combinations to the main model (as nullable ints).
             var nextCombinationId = await GetQuery(true).FirstOrDefaultAsync();
             if (nextCombinationId == 0)
             {

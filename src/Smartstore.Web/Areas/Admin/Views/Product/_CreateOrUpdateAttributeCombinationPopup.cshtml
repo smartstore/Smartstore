@@ -34,10 +34,29 @@
 <input type="hidden" asp-for="Id" />
 <input type="hidden" asp-for="ProductId" />
 
-<div class="well">
+<div class="well d-flex flex-nowrap">
     @if (ViewBag.IsEdit)
     {
         await TableFormattedVariantAttributes(Model.AttributesXml);
+
+        <div class="btn-group ml-auto pl-2">
+            @* TODO: (mg) Disable if first combination *@
+            <button type="button"
+                    id="EditPreviousAttributeCombination"
+                    class="btn btn-light btn-sm btn-icon"
+                    title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination")"
+                    data-url="@Url.Action("EditNextAttributeCombination", new { productId = Model.ProductId, next = false })">
+                <i class="fa fa fa-angle-left"></i>
+            </button>
+            @* TODO: (mg) Disable if last combination *@
+            <button type="button"
+                    id="EditNextAttributeCombination"
+                    class="btn btn-light btn-sm btn-icon"
+                    title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenNextCombination")"
+                    data-url="@Url.Action("EditNextAttributeCombination", new { productId = Model.ProductId, next = true })">
+                <i class="fa fa fa-angle-right"></i>
+            </button>
+        </div>
     }
     else
     {
