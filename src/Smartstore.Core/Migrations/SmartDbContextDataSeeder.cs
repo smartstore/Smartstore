@@ -236,6 +236,17 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AddTitle",
                 "Add attribute combination",
                 "Attribut-Kombination hinzufügen");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DeliveryTimeIdForEmptyStock",
+                "Delivery time displayed when stock is empty",
+                "Angezeigte Lieferzeit bei leerem Lager",
+                "Delivery time to be displayed when the stock quantity of a product is equal or less 0.",
+                "Lieferzeit, die angezeigt wird, wenn der Lagerbestand des Produkts kleiner oder gleich 0 ist.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowCategoryProductNumber",
+                "Show number of products next to the categories",
+                "Produktanzahl neben den Warengruppen anzeigen");
+
         }
 
         /// <summary>
