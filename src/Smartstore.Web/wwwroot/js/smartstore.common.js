@@ -461,6 +461,23 @@
             return confirm(msg);
         });
 
+        // Prevent (button) multiclick
+        $(document).on('click', '.btn-prevent-multiclick', function (e) {
+            let el = $(this);
+            let containingForm = el.closest("form");
+
+            if (containingForm.length) {
+                el.prop('disabled', true);
+                containingForm.submit();
+
+                if (!containingForm.valid()) {
+                    el.prop('disabled', false);
+                }
+            }
+
+            return true;
+        });
+
         // Switch toggle
         $(document).on('click', 'label.switch', function (e) {
             if ($(this).children('input[type="checkbox"]').is('[readonly]')) {
@@ -621,11 +638,6 @@
         // HTML text collapser
         if ($.fn.moreLess) {
             $('.more-less').moreLess();
-        }
-
-        // HTML text collapser
-        if ($.fn.preventDoubleClick) {
-            $('.prevent-double-click').preventDoubleClick();
         }
 
         // Unselectable radio button groups
