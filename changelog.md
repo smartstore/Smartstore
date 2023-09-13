@@ -70,6 +70,8 @@
 - #810 Doubleclicking login button can lead to 400 BadRequest error page.
 - Fixed arithmetic overflow SqlException in `ShippingByWeight` and `ShippingByTotal` four decimal places migrations.
 - #776 PayPal credit card payment fails due to missing session PayPalOrderId entry.
+- #797 Incorrect validation when product can be added to the cart in single positions
+
 
 
 ## Smartstore 5.0.5
