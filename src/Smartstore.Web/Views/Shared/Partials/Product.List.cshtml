@@ -64,16 +64,16 @@
 
 @if (Model.PagedList.TotalCount > 0 && hasActions)
 {
-    <div class="artlist-actions artlist-actions--top d-flex flex-wrap" attr-style='(imgRatio.HasValue(), "--img-aspect-ratio: " + imgRatio)'>
+    <div class="artlist-actions artlist-actions--top d-flex flex-wrap flex-lg-nowrap" attr-style='(imgRatio.HasValue(), "--img-aspect-ratio: " + imgRatio)'>
         <div sm-if="Model.AllowSorting || Model.AllowFiltering" class="artlist-action-group artlist-action-group--filtersort">
-            @{ await Html.RenderPartialAsync("Product.List.FilterSort", Model); }
+            <partial name="Product.List.FilterSort" model="Model" />
         </div>
-        <div sm-if="Model.AllowViewModeChanging" class="artlist-action-group artlist-action-group--page ml-0">
-            <div class="vr mx-2 text-body-tertiary"></div>
+        <div sm-if="Model.AllowViewModeChanging" class="artlist-action-group artlist-action-group--viewmode">
+            <div sm-if="Model.AllowSorting || Model.AllowFiltering" class="vr mx-2 text-body-tertiary"></div>
             @* ViewMode *@
             @if (Model.AllowViewModeChanging && Model.ViewMode == ProductSummaryViewMode.Grid || Model.ViewMode == ProductSummaryViewMode.List)
             {
-                await Html.RenderPartialAsync("Product.List.ViewMode", Model);
+                <partial name="Product.List.ViewMode" model="Model" />
             }
         </div>
     </div>
@@ -87,19 +87,17 @@
 <div sm-if="Model.PagedList.TotalCount > 0" id="@id" class='@string.Join(" ", listCssClasses)'>
     @foreach (var product in Model.Items)
     {
-        await Html.RenderPartialAsync("Product.List.Item", product);
+        <partial name="Product.List.Item" model="product" />
     }
 </div>
 
 <div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-actions artlist-actions--bottom d-none">
     <div class="artlist-action-group artlist-action-group--page">
-        @{ await Html.RenderPartialAsync("Product.List.Pager", Model); }
+        <partial name="Product.List.Pager" model="Model" />
     </div>
 </div>
 
 <div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-pagination hstack mb-4">
-    @{ await Html.RenderPartialAsync("Product.List.Pager", Model); }
-    <div class="vr text-body-tertiary mx-2"></div>
-    <pagination sm-list-items="Model.PagedList" sm-query-param="i" sm-size="Medium" />  
+    <partial name="Product.List.Pager" model="Model" />
 </div>
 

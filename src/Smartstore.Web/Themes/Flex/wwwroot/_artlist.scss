@@ -70,7 +70,10 @@
 // Action Bar
 
 .artlist-actions {
+	display: flex;
+	flex-wrap: wrap;
     margin-bottom: 1rem;
+    padding-bottom: 1rem;
 }
 
 .artlist-action {
@@ -89,97 +92,32 @@
 }
 
 .artlist-action-group {
-    padding-bottom: 1rem;
     display: flex;
     flex-wrap: nowrap;
 }
 
-.artlist-action--filter,
-.artlist-action--sort {
+.artlist-action-group--filtersort {
 	flex-grow: 1;
 	max-width: 100%;
 }
 
-.artlist-action--pager {
-    > * { position: relative; }
-    > *:not(:first-child) { margin-inline-start: -1px; }
-    .btn-pager-prev { border-start-start-radius: var(--border-radius-md); border-end-start-radius: var(--border-radius-md) }   
-    .btn-pager-next { border-start-end-radius: var(--border-radius-md); border-end-end-radius: var(--border-radius-md) }    
+.artlist-action--filter {
+    width: 100%;
 }
 
-@media (max-width: 360px) {
-    .artlist-actions--top .artlist-action--pagesize .mf-dropdown {
-        // Don't show the top pagesize chooser on too small displays (< 360px, e.g. iPhone 4)
-        display: none !important;
+@include media-breakpoint-up(md) {
+    // Don't let filter button take up the whole space, looks ugly.
+    .artlist-action-group--filtersort {
+	    flex-grow: 0;
     }
-}
 
-@include media-breakpoint-down(md) {
-    .btn-artlist-action,
-    .btn-artlist-action span { font-weight: 400 !important; }
-
-    .artlist-action-group {
-        .btn { 
-            font-size: 1rem; 
-            text-align: start; 
-            > b { background: transparent; } 
-        }
+    .artlist-action--filter {
+        min-width: 320px;
     }
-}
-
-@include media-breakpoint-up(lg) {
-    .btn-artlist-action { font-weight: $font-weight-medium; }
 }
 
 .artlist-actions--top {
-	display: flex;
-	flex-wrap: wrap;
     border-bottom: 1px solid var(--light-border-subtle);
-
-	.artlist-action-group {
-		width: 100%;
-	}
-
-	.artlist-action-group--filtersort {
-		flex: 1 1 0; // grow shrink basis
-		max-width: 100%;
-	}
-
-	.artlist-action-group--page {
-		flex: 0 0 auto; // grow shrink basis
-		width: auto;
-		max-width: none;
-	}
-
-	.artlist-action--pagesize,
-	.artlist-action--pager {
-		display: none !important;
-	}
-
-	@include media-breakpoint-up(lg) {
-		flex-wrap: nowrap;
-
-		.artlist-action-group--filtersort {
-			flex-grow: 0;
-		}
-
-		.artlist-action--pagesize,
-		.artlist-action--pager {
-			display: flex !important;
-		}
-
-		.artlist-action-group--page {
-			padding-inline-start: 0;
-		}
-
-		.artlist-action-group {
-			width: auto;
-		}
-
-		.artlist-action-group--page {
-			margin-inline-start: auto;
-		}
-	}
 }
 
 
@@ -399,6 +337,7 @@
         outline: none;
         transition: none;
         padding: 0.65rem 0;
+        border-radius: 0;
 
         &:focus:not(:active) {
             box-shadow: none !important;
