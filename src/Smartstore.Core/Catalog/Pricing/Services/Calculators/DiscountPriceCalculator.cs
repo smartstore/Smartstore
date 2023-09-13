@@ -134,16 +134,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                     if (category?.HasDiscountsApplied ?? false)
                     {
-                        IEnumerable<Discount> appliedDiscounts;
-                        if (_db.IsCollectionLoaded(category, x => x.AppliedDiscounts))
-                        {
-                            appliedDiscounts = category.AppliedDiscounts;
-                        }
-                        else
-                        {
-                            var discounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToCategories);
-                            appliedDiscounts = discounts.Where(x => x.AppliedToCategories.Any(y => y.Id == category.Id));
-                        }
+                        var appliedDiscounts = _db.IsCollectionLoaded(category, x => x.AppliedDiscounts)
+                            ? category.AppliedDiscounts
+                            : categoryDiscounts.Where(x => x.AppliedToCategories.Any(y => y.Id == category.Id));
 
                         await TryAddDiscounts(appliedDiscounts, result, DiscountType.AssignedToCategories, context.Options);
                     }
@@ -162,16 +155,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                     if (manu?.HasDiscountsApplied ?? false)
                     {
-                        IEnumerable<Discount> appliedDiscounts;
-                        if (_db.IsCollectionLoaded(manu, x => x.AppliedDiscounts))
-                        {
-                            appliedDiscounts = manu.AppliedDiscounts;
-                        }
-                        else
-                        {
-                            var discounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToManufacturers);
-                            appliedDiscounts = discounts.Where(x => x.AppliedToManufacturers.Any(y => y.Id == manu.Id));
-                        }
+                        var appliedDiscounts = _db.IsCollectionLoaded(manu, x => x.AppliedDiscounts)
+                            ? manu.AppliedDiscounts
+                            : manufacturerDiscounts.Where(x => x.AppliedToManufacturers.Any(y => y.Id == manu.Id));
 
                         await TryAddDiscounts(appliedDiscounts, result, DiscountType.AssignedToManufacturers, context.Options);
                     }
