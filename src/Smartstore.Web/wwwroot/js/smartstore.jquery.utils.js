@@ -228,7 +228,24 @@
             else if (direction === 'horizontal')
                 return clientSize && hVisible;
         },
+        preventDoubleClick: function () {
+            return this.each(function () {
+                var el = $(this);
+                var containingForm = el.closest("form");
 
+                // We disable the button after click to prevent double submission.
+                el.on("click", function () {    
+                    el.prop('disabled', true);
+                    containingForm.submit();
+
+                    if (!containingForm.valid()) {
+                        el.prop('disabled', false);
+                    }
+
+                    return true;
+                });
+            });
+        },
         moreLess: function () {
             return this.each(function () {
                 var el = $(this);

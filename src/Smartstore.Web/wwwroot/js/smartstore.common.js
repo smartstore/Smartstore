@@ -623,6 +623,11 @@
             $('.more-less').moreLess();
         }
 
+        // HTML text collapser
+        if ($.fn.preventDoubleClick) {
+            $('.prevent-double-click').preventDoubleClick();
+        }
+
         // Unselectable radio button groups
         $(document).on('click', '.btn-group-toggle.unselectable > .btn', function (e) {
             let btn = $(this);
