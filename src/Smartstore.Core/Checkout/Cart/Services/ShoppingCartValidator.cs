@@ -388,9 +388,11 @@ namespace Smartstore.Core.Checkout.Cart
                     if (cartItems != null
                         && (_cartSettings.AddProductsToBasketInSinglePositions || (p.ProductType == ProductType.BundledProduct && p.BundlePerItemPricing)))
                     {
+                        // Since products are added in single positions, we need to sum up the quantities of all items with the same product id
+                        // except the current item of which we already have the qantity.
                         quantityToValidate += cartItems
                             .Select(x => x.Item)
-                            .Where(x => x.ProductId == p.Id && x.ParentItemId == null)
+                            .Where(x => x.ProductId == p.Id && x.ParentItemId == null && x.Id != cartItem.Id)
                             .Sum(x => x.Quantity);
                     }
 
@@ -408,9 +410,11 @@ namespace Smartstore.Core.Checkout.Cart
                     {
                         if (cartItems != null && _cartSettings.AddProductsToBasketInSinglePositions)
                         {
+                            // Since products are added in single positions, we need to sum up the quantities of all items with the same product id.
+                            // except the current item of which we already have the qantity.
                             quantityToValidate += cartItems
                                 .Select(x => x.Item)
-                                .Where(x => x.ProductId == p.Id && x.ParentItemId == null && x.AttributeSelection.Equals(cartItem.AttributeSelection))
+                                .Where(x => x.ProductId == p.Id && x.ParentItemId == null && x.Id != cartItem.Id && x.AttributeSelection.Equals(cartItem.AttributeSelection))
                                 .Sum(x => x.Quantity);
                         }
 
