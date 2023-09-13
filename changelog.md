@@ -11,7 +11,9 @@
 
 ### Improvements
 
-- Increased performance: added hash codes to attribute combinations. With a large number of attribute combinations, variants are found much faster now.
+- Increased performance:
+  - Added hash codes to attribute combinations. With a large number of attribute combinations, variants are found much faster now.
+  - Fixed slow loading of product categories for a large number of categories. Price calculation and product export were affected.
 - Improved plugin & provider manager UI
 - Use billing address if there is no shipping address and tax calculation is based on shipping address.
 - #580 Added caching for live currency exchange rates.
