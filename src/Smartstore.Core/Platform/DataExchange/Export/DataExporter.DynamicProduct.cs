@@ -207,9 +207,10 @@ namespace Smartstore.Core.DataExchange.Export
 
             var categoryFileIds = productCategories
                 .Select(x => x.Category.MediaFileId ?? 0)
-                .Where(x => x != 0)
+                .Where(x => x > 0)
                 .Distinct()
                 .ToArray();
+
             if (categoryFileIds.Length > 0)
             {
                 categoryFiles = await _db.MediaFiles
@@ -220,9 +221,10 @@ namespace Smartstore.Core.DataExchange.Export
 
             var manufacturerFileIds = productManufacturers
                 .Select(x => x.Manufacturer.MediaFileId ?? 0)
-                .Where(x => x != 0)
+                .Where(x => x > 0)
                 .Distinct()
                 .ToArray();
+
             if (manufacturerFileIds.Length > 0)
             {
                 manufacturerFiles = await _db.MediaFiles
