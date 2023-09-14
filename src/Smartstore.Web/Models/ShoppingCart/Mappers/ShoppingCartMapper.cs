@@ -336,11 +336,7 @@ namespace Smartstore.Web.Models.Cart
                             .FirstOrDefault()?
                             .ToString();
 
-                        var dt = enteredDate?.ToDateTime(null);
-                        if (dt != null)
-                        {
-                            caModel.SelectedDate = dt;
-                        }
+                        caModel.SelectedDate = enteredDate?.ToDateTime(null);
                     }
                     break;
 

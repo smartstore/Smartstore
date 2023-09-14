@@ -1,5 +1,4 @@
-﻿using DotLiquid.Tags;
-using Smartstore.Core.Checkout.Payment;
+﻿using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Data.Migrations;
 

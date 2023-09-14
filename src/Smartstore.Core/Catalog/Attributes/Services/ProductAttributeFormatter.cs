@@ -163,15 +163,7 @@ namespace Smartstore.Core.Catalog.Attributes
                             // TextBox, Datepicker
                             if (pva.AttributeControlType == AttributeControlType.Datepicker)
                             {
-                                CultureInfo culture = null;
-                                try
-                                {
-                                    culture = new CultureInfo(language.LanguageCulture);
-                                }
-                                catch
-                                {
-                                }
-
+                                var culture = CommonHelper.TryAction(() => new CultureInfo(language.LanguageCulture));
                                 valueStr = valueStr.ToDateTime(null)?.ToString("D", culture) ?? valueStr;
                             }
 
