@@ -4,6 +4,7 @@ using Smartstore.Collections;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes.Modelling
 {
@@ -121,7 +122,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             if (key.EndsWith("-date"))
             {
                 // Convert from one query string item.
-                var dateItems = value.SplitSafe('-');
+                var dateItems = value.SplitSafe('-').ToArray();
                 year = dateItems.ElementAtOrDefault(0).ToInt();
                 month = dateItems.ElementAtOrDefault(1).ToInt();
                 day = dateItems.ElementAtOrDefault(2).ToInt();
@@ -129,13 +130,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
             if (year > 0 && month > 0 && day > 0)
             {
-                try
-                {
-                    return new DateTime(year, month, day);
-                }
-                catch
-                {
-                }
+                return CommonHelper.TryAction(() => new DateTime(year, month, day));
             }
 
             return null;

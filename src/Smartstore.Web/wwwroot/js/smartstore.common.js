@@ -641,6 +641,8 @@
 
         // Report validity for native form controls.
         if ($.fn.nativeValidation) {
+            // TODO: (mh) I don't like this greedy pattern for such a minor thing. I changed something similar
+            // from you a few days ago, yet you did it again!!
             $('.native-validation').nativeValidation();
         }
 

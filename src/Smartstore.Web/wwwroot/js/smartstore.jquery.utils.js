@@ -230,6 +230,7 @@
         },
 
         nativeValidation: function () {
+            // TODO: (mh) Very bad pattern! Multiple natively validatable controls in a single form will concur. TBD with MC.
             return this.each(function () {
                 var el = $(this);
                 var containingForm = el.closest("form");
