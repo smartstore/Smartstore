@@ -34,11 +34,10 @@
 <input type="hidden" asp-for="Id" />
 <input type="hidden" asp-for="ProductId" />
 
-<div class="well d-flex flex-nowrap">
-    @if (ViewBag.IsEdit)
-    {
-        await TableFormattedVariantAttributes(Model.AttributesXml);
-
+@if (ViewBag.IsEdit)
+{
+    await TableFormattedVariantAttributes(Model.AttributesXml);
+    <div class="well d-flex flex-nowrap">
         <div class="btn-group ml-auto pl-2">
             @* TODO: (mg) Disable if first combination *@
             <button type="button"
@@ -57,14 +56,14 @@
                 <i class="fa fa fa-angle-right"></i>
             </button>
         </div>
-    }
-    else
-    {
-        <div id="ProductVariantAttributeContainer">
-            <partial name="_ProductAttributes" model="Model" />
-        </div>
-    }
-</div>
+    </div>
+}
+else
+{
+    <div sm-if="Model.ProductVariantAttributes.Count > 0" id="ProductVariantAttributeContainer" class="well">
+        <partial name="_ProductAttributes" model="Model" />
+    </div>
+}
 
 <div sm-if="!ViewBag.IsEdit" id="CombinationExistenceNote">
     <div sm-if="Model.Warnings.Count > 0" class="alert alert-warning">

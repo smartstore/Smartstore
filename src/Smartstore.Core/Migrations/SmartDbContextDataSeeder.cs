@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Payment;
+﻿using DotLiquid.Tags;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Data.Migrations;
 
@@ -247,6 +248,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Show number of products next to the categories",
                 "Produktanzahl neben den Warengruppen anzeigen");
 
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.SelectAttributes",
+                "Determine the attributes for the new combination",
+                "Bestimmen Sie die Attribute für die neue Kombination");
         }
 
         /// <summary>
