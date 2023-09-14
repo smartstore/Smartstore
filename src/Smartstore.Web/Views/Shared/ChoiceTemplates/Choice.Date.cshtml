@@ -4,6 +4,10 @@
     var controlId = Model.BuildControlId();
 }
 
-<triple-date-picker day-name="@(controlId + "-day")" month-name="@(controlId + "-month")" year-name="@(controlId + "-year")"
-                    day="Model.SelectedDay" month="Model.SelectedMonth" year="Model.SelectedYear"
-                    begin-year="Model.BeginYear" end-year="Model.EndYear" disabled="Model.IsDisabled" />
+<input type="date"
+       value='@(Model.SelectedDate != null ? ((DateTime)Model.SelectedDate).ToString("yyyy-MM-dd") : DateTime.UtcNow.ToString("yyyy-MM-dd"))'
+       attr-disabled='(Model.IsDisabled, "disabled")'
+       name="@(controlId)-date" id="@(controlId)-date"
+       class="form-control native-validation"
+       min="@DateTime.Now.ToString("yyyy-MM-dd")"
+       max="@DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")" />

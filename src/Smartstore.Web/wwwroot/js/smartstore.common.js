@@ -634,10 +634,14 @@
             });
         })();
 
-
         // HTML text collapser
         if ($.fn.moreLess) {
             $('.more-less').moreLess();
+        }
+
+        // Report validity for native form controls.
+        if ($.fn.nativeValidation) {
+            $('.native-validation').nativeValidation();
         }
 
         // Unselectable radio button groups

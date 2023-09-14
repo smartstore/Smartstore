@@ -341,9 +341,7 @@ namespace Smartstore.Web.Models.Cart
                         if (enteredDate.HasValue()
                             && DateTime.TryParseExact(enteredDate, "D", CultureInfo.CurrentCulture, DateTimeStyles.None, out var selectedDate))
                         {
-                            caModel.SelectedDay = selectedDate.Day;
-                            caModel.SelectedMonth = selectedDate.Month;
-                            caModel.SelectedYear = selectedDate.Year;
+                            caModel.SelectedDate = selectedDate;
                         }
                     }
                     break;

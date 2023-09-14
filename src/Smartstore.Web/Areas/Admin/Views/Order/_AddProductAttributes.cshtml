@@ -51,16 +51,16 @@
                         break;
                     case AttributeControlType.MultilineTextbox:
                         {
-                            <textarea cols="20" id="@(controlId)" name="@(controlId)" rows="2" style="height: 150px;"></textarea>
+                            <textarea id="@(controlId)" name="@(controlId)" rows="6"></textarea>
                         }
                         break;
                     case AttributeControlType.Datepicker:
                         {
-                            <triple-date-picker day-name="@(controlId + "-day")"
-                                                month-name="@(controlId + "-month")"
-                                                year-name="@(controlId + "-year")"
-                                                begin-year="@DateTime.Now.Year"
-                                                end-year="@(DateTime.Now.Year + 1)" />
+                            <input type="date"
+                                   name="@(controlId)-date" id="@(controlId)-date"
+                                   class="native-validation"
+                                   min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                   max="@DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")" />
                         }
                         break;
                     case AttributeControlType.FileUpload:

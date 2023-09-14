@@ -503,9 +503,7 @@ namespace Smartstore.Web.Controllers
                             case AttributeControlType.Datepicker:
                                 if (selectedAttribute.Date.HasValue)
                                 {
-                                    attributeModel.SelectedDay = selectedAttribute.Date.Value.Day;
-                                    attributeModel.SelectedMonth = selectedAttribute.Date.Value.Month;
-                                    attributeModel.SelectedYear = selectedAttribute.Date.Value.Year;
+                                    attributeModel.SelectedDate = selectedAttribute.Date;
                                 }
                                 break;
                             case AttributeControlType.FileUpload:

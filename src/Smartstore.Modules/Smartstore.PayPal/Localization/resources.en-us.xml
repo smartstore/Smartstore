@@ -512,15 +512,6 @@
             <LocaleResource Name="NoWhitespace">
                 <Value>Whitespace isn't allowed.</Value>
             </LocaleResource>
-            <LocaleResource Name="DateOfBirthDay.NotNull">
-                <Value>Please enter the day of your date of birth.</Value>
-            </LocaleResource>
-            <LocaleResource Name="DateOfBirthMonth.NotNull">
-                <Value>Please enter the month of your date of birth.</Value>
-            </LocaleResource>
-            <LocaleResource Name="DateOfBirthYear.NotNull">
-                <Value>Please enter the year of your date of birth.</Value>
-            </LocaleResource>
             <LocaleResource Name="PhoneNumber.Invalid">
                 <Value>Please enter a valid telephone number without spaces.</Value>
             </LocaleResource>

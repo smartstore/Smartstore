@@ -142,7 +142,7 @@
             if ($(el).is(".is-invalid")) {
                 setControlFeedback($(el), true);
             }
-        }
+        },
+        ignore: "input[type=date]"
     });
-
 })(jQuery, this, document);

@@ -7,13 +7,7 @@ namespace Smartstore.PayPal.Models
     public class PublicInvoiceModel : ModelBase
     {
         [LocalizedDisplay("*DateOfBirth")]
-        public int? DateOfBirthDay { get; set; }
-
-        [LocalizedDisplay("*DateOfBirth")]
-        public int? DateOfBirthMonth { get; set; }
-
-        [LocalizedDisplay("*DateOfBirth")]
-        public int? DateOfBirthYear { get; set; }
+        public DateTime DateOfBirth { get; set; }
 
         [LocalizedDisplay("*Phone")]
         [DataType(DataType.PhoneNumber)]
@@ -25,16 +19,6 @@ namespace Smartstore.PayPal.Models
     {
         public PayPalInvoiceValidator(Localizer T)
         {
-            RuleFor(x => x.DateOfBirthDay)
-                .GreaterThan(0)
-                .WithMessage(T("Plugins.Smartstore.PayPal.DateOfBirthDay.NotNull"));
-            RuleFor(x => x.DateOfBirthMonth)
-                .GreaterThan(0)
-                .WithMessage(T("Plugins.Smartstore.PayPal.DateOfBirthMonth.NotNull"));
-            RuleFor(x => x.DateOfBirthYear)
-                .GreaterThan(0)
-                .WithMessage(T("Plugins.Smartstore.PayPal.DateOfBirthYear.NotNull"));
-
             RuleFor(x => x.PhoneNumber)
                 .Matches(@"^[0-9]{1,14}?$")
                 .WithMessage(T("Plugins.Smartstore.PayPal.PhoneNumber.Invalid"));

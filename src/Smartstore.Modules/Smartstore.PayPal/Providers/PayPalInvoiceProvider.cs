@@ -64,9 +64,7 @@ namespace Smartstore.PayPal.Providers
         {
             var model = new PublicInvoiceModel
             {
-                DateOfBirthDay = form["DateOfBirthDay"].ToString().HasValue() ? Convert.ToInt32(form["DateOfBirthDay"]) : 0,
-                DateOfBirthMonth = form["DateOfBirthMonth"].ToString().HasValue() ? Convert.ToInt32(form["DateOfBirthMonth"]) : 0,
-                DateOfBirthYear = form["DateOfBirthYear"].ToString().HasValue() ? Convert.ToInt32(form["DateOfBirthYear"]) : 0,
+                DateOfBirth = DateTime.Parse(form["DateOfBirth"].ToString()),
                 PhoneNumber = form["PhoneNumber"]
             };
 
@@ -79,16 +77,9 @@ namespace Smartstore.PayPal.Providers
                     _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoicePhoneNumber"] = form["PhoneNumber"].ToString();
                 }
 
-                if (!result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.DateOfBirthDay)) 
-                    && !result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.DateOfBirthMonth))
-                    && !result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.DateOfBirthYear)))
+                if (!result.Errors.Any(x => x.PropertyName == nameof(PublicInvoiceModel.DateOfBirth)))
                 {
-                    var birthdate = new DateTime(
-                        Convert.ToInt32(form["DateOfBirthYear"]),
-                        Convert.ToInt32(form["DateOfBirthMonth"]),
-                        Convert.ToInt32(form["DateOfBirthDay"]));
-
-                    _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoiceBirthdate"] = birthdate.ToString("yyyy-MM-dd");
+                    _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoiceBirthdate"] = model.DateOfBirth.ToString("yyyy-MM-dd");
                 }
             }
 
@@ -97,12 +88,7 @@ namespace Smartstore.PayPal.Providers
 
         public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
         {
-            var birthdate = new DateTime(
-                Convert.ToInt32(form["DateOfBirthYear"]),
-                Convert.ToInt32(form["DateOfBirthMonth"]),
-                Convert.ToInt32(form["DateOfBirthDay"]));
-
-            _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoiceBirthdate"] = birthdate.ToString("yyyy-MM-dd");
+            _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoiceBirthdate"] = DateTime.Parse(form["DateOfBirth"]).ToString("yyyy-MM-dd");
             _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoicePhoneNumber"] = form["PhoneNumber"].ToString();
 
             var request = new ProcessPaymentRequest

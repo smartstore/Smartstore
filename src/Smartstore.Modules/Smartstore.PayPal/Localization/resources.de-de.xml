@@ -496,15 +496,6 @@
             <LocaleResource Name="NoWhitespace">
                 <Value>Leerzeichen sind nicht erlaubt.</Value>
             </LocaleResource>
-            <LocaleResource Name="DateOfBirthDay.NotNull">
-                <Value>Bitte geben Sie den Tag Ihres Geburtsdatums an.</Value>
-            </LocaleResource>
-            <LocaleResource Name="DateOfBirthMonth.NotNull">
-                <Value>Bitte geben Sie den Monat Ihres Geburtsdatums an.</Value>
-            </LocaleResource>
-            <LocaleResource Name="DateOfBirthYear.NotNull">
-                <Value>Bitte geben Sie das Jahr Ihres Geburtsdatums an.</Value>
-            </LocaleResource>
             <LocaleResource Name="PhoneNumber.Invalid">
                 <Value>Bitte geben Sie eine gültige Telefonnummer ohne Leerzeichen an.</Value>
             </LocaleResource>

@@ -817,15 +817,9 @@ namespace Smartstore.Web.Controllers
                 customer.Company = model.Company;
             }
 
-            if (_customerSettings.DateOfBirthEnabled && model.DateOfBirthYear.HasValue)
+            if (_customerSettings.DateOfBirthEnabled && model.DateOfBirth.HasValue)
             {
-                try
-                {
-                    customer.BirthDate = new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value);
-                }
-                catch
-                {
-                }
+                customer.BirthDate = model.DateOfBirth;
             }
 
             if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.AutomaticallySet && customer.CustomerNumber.IsEmpty())

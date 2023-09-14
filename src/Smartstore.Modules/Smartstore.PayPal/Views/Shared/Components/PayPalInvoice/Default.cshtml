@@ -3,22 +3,15 @@
 <div class="opt-form">
     <div class="form-group row">
         <div class="col-lg-3">
-            <label asp-for="DateOfBirthDay" class="col-form-label required"></label>
+            <label asp-for="DateOfBirth" class="col-form-label required"></label>
         </div>
         <div class="col-lg-9">
-            <triple-date-picker day-name="@Html.NameFor(x => x.DateOfBirthDay)" 
-                                month-name="@Html.NameFor(x => x.DateOfBirthMonth)" 
-                                year-name="@Html.NameFor(x => x.DateOfBirthYear)"
-                                day="@Model.DateOfBirthDay" 
-                                month="@Model.DateOfBirthMonth" 
-                                year="@Model.DateOfBirthYear"
-                                begin-year="DateTime.Now.Year - 110" 
-                                end-year="DateTime.Now.Year" 
-                                disabled="false" />
+            <input type="date" asp-for="DateOfBirth"
+                   class="native-validation"
+                   max="@DateTime.Now.ToString("yyyy-MM-dd")"
+                   min="@DateTime.Now.AddYears(-110).ToString("yyyy-MM-dd")" />
 
-            <span asp-validation-for="DateOfBirthDay"></span>
-            <span asp-validation-for="DateOfBirthMonth"></span>
-            <span asp-validation-for="DateOfBirthYear"></span>
+            <span asp-validation-for="DateOfBirth"></span>
         </div>
     </div>
     <div class="form-group row">

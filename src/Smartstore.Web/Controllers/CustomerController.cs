@@ -210,15 +210,7 @@ namespace Smartstore.Web.Controllers
 
                     if (_customerSettings.DateOfBirthEnabled)
                     {
-                        try
-                        {
-                            customer.BirthDate = model.DateOfBirthYear.HasValue && model.DateOfBirthMonth.HasValue && model.DateOfBirthDay.HasValue
-                                ? new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value)
-                                : null;
-                        }
-                        catch
-                        {
-                        }
+                        customer.BirthDate = model.DateOfBirth;
                     }
 
                     if (_customerSettings.CompanyEnabled)
@@ -950,8 +942,6 @@ namespace Smartstore.Web.Controllers
 
             if (!excludeProperties)
             {
-                var dateOfBirth = customer.BirthDate;
-
                 var newsletterSubscription = await _db.NewsletterSubscriptions
                     .AsNoTracking()
                     .ApplyMailAddressFilter(customer.Email, Services.StoreContext.CurrentStore.Id)
@@ -965,14 +955,7 @@ namespace Smartstore.Web.Controllers
                 model.CustomerNumber = customer.CustomerNumber;
                 model.Email = customer.Email;
                 model.Username = customer.Username;
-
-                if (dateOfBirth.HasValue)
-                {
-                    model.DateOfBirthDay = dateOfBirth.Value.Day;
-                    model.DateOfBirthMonth = dateOfBirth.Value.Month;
-                    model.DateOfBirthYear = dateOfBirth.Value.Year;
-                }
-
+                model.DateOfBirth = customer.BirthDate;
                 model.VatNumber = customer.GenericAttributes.VatNumber;
                 model.StreetAddress = customer.GenericAttributes.StreetAddress;
                 model.StreetAddress2 = customer.GenericAttributes.StreetAddress2;

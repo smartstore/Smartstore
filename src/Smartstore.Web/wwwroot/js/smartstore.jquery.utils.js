@@ -228,6 +228,22 @@
             else if (direction === 'horizontal')
                 return clientSize && hVisible;
         },
+
+        nativeValidation: function () {
+            return this.each(function () {
+                var el = $(this);
+                var containingForm = el.closest("form");
+
+                containingForm.on("submit", function () {
+                    if (!containingForm[0].checkValidity()) {
+                        containingForm[0].reportValidity();
+                        return false;
+                    }
+                    return true;
+                });
+            });
+        },
+
         moreLess: function () {
             return this.each(function () {
                 var el = $(this);

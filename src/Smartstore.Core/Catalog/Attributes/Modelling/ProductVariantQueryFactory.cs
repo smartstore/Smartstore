@@ -76,7 +76,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
             foreach (var item in QueryItems)
             {
-                if (!item.Value.Any() || item.Key.EndsWith("-day") || item.Key.EndsWith("-month"))
+                if (!item.Value.Any())
                 {
                     continue;
                 }
@@ -126,24 +126,6 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                 month = dateItems.ElementAtOrDefault(1).ToInt();
                 day = dateItems.ElementAtOrDefault(2).ToInt();
             }
-            else if (key.EndsWith("-year"))
-            {
-                // Convert from three form controls.
-                var dateKey = key.Replace("-year", string.Empty);
-                year = value.ToInt();
-
-                if (QueryItems.ContainsKey(dateKey + "-month"))
-                {
-                    var str = QueryItems[dateKey + "-month"].FirstOrDefault();
-                    month = str?.ToInt() ?? 0;
-                }
-
-                if (QueryItems.ContainsKey(dateKey + "-day"))
-                {
-                    var str = QueryItems[dateKey + "-day"].FirstOrDefault();
-                    day = str?.ToInt() ?? 0;
-                }
-            }
 
             if (year > 0 && month > 0 && day > 0)
             {
@@ -167,7 +149,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                 return;
             }
 
-            var isDate = key.EndsWith("-date") || key.EndsWith("-year");
+            var isDate = key.EndsWith("-date");
             var isFile = key.EndsWith("-file");
             var isText = key.EndsWith("-text");
 
@@ -217,7 +199,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                 return;
             }
 
-            var isDate = key.EndsWith("-date") || key.EndsWith("-year");
+            var isDate = key.EndsWith("-date");
             var isFile = key.EndsWith("-file");
             var isText = key.EndsWith("-text");
 
@@ -319,7 +301,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             }
 
             var attributeId = ids[0].ToInt();
-            var isDate = key.EndsWith("-date") || key.EndsWith("-year");
+            var isDate = key.EndsWith("-date");
             var isFile = key.EndsWith("-file");
             var isText = key.EndsWith("-text");
 
