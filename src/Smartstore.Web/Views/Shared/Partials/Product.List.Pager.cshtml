@@ -51,7 +51,7 @@
 {
     <div class="artlist-action--pagesize d-none d-sm-block">
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle fwn" data-toggle="dropdown">
+            <button class="btn btn-secondary dropdown-toggle d-inline-block fwn" data-toggle="dropdown">
                 @Html.Raw(T("Pager.XPerPage", $"<span class='fwm'>{pageable.PageSize}</span>"))
             </button>
             <div class="dropdown-menu">
@@ -66,4 +66,4 @@
     <div class="vr text-body-tertiary d-none d-sm-block mx-2"></div>
 }
 
-<pagination sm-list-items="Model.PagedList" sm-query-param="i" sm-size="Medium" />
+<pagination sm-list-items="Model.PagedList" sm-max-pages="5" sm-query-param="i" sm-size="Medium" sm-show-nav-label="true" />

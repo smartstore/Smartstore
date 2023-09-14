@@ -59,6 +59,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(StyleAttributeName)]
         public PagerStyle Style { get; set; }
 
+        /// <summary>
+        /// Shows labels for the chevron buttons, but only on small devices (>= sm).
+        /// </summary>
         [HtmlAttributeName(ShowNavLabelAttributeName)]
         public bool ShowNavLabel { get; set; }
 
@@ -122,6 +125,10 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 itemsUl.AppendCssClass("pagination-xs");
             }
+            else
+            {
+                itemsUl.AppendCssClass("pagination-md");
+            }
 
             // Alignment
             if (Alignment == PagerAlignment.Centered)
@@ -135,9 +142,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.AppendCssClass("text-right");
             }
 
+            var itemsCount = items.Count;
             foreach (var item in items)
             {
-                AppendItem(itemsUl, item);
+                AppendItem(itemsUl, item, itemsCount);
             }
 
             output.TagName = "nav";
@@ -179,7 +187,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 items.Add(new PagerItem(1, T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
                 {
-                    State = (currentIndex > 1) ? PagerItemState.Normal : PagerItemState.Disabled
+                    State = (currentIndex > 1) ? PagerItemState.Normal : PagerItemState.Disabled,
+                    DispensableSm = true
                 });
             }
 
@@ -212,7 +221,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 items.Add(new PagerItem(totalPages, T("Pager.Last"), GenerateUrl(totalPages), PagerItemType.LastPage)
                 {
-                    State = (currentIndex == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal
+                    State = (currentIndex == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal,
+                    DispensableSm = true
                 });
             }
 
@@ -232,9 +242,11 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             for (var i = start; i <= end; i++)
             {
+                var isActive = i == currentIndex && !SkipActiveState;
                 items.Add(new PagerItem(i, i.ToString(), GenerateUrl(i))
                 {
-                    State = (i == currentIndex && !SkipActiveState) ? PagerItemState.Selected : PagerItemState.Normal
+                    State = isActive ? PagerItemState.Selected : PagerItemState.Normal,
+                    DispensableXs = !isActive && i > start && i < end
                 });
             }
 
@@ -251,8 +263,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <summary>
         /// Creates li tag from <see cref="PagerItem"/> and appends it to ul tag.
         /// </summary>
-        protected virtual void AppendItem(TagBuilder itemsUl, PagerItem item)
+        protected virtual void AppendItem(TagBuilder itemsUl, PagerItem item, int itemsCount)
         {
+            var isResponsive = itemsCount >= 5;
             var itemLi = new TagBuilder("li");
 
             using var classList = itemLi.GetClassList();
@@ -265,18 +278,22 @@ namespace Smartstore.Web.TagHelpers.Shared
                 if (item.Type == PagerItemType.PreviousPage)
                 {
                     classList.Add("prev");
+                    classList.Add("back");
                 }
                 else if (item.Type == PagerItemType.FirstPage)
                 {
                     classList.Add("first");
+                    classList.Add("back");
                 }
                 else if (item.Type == PagerItemType.NextPage)
                 {
                     classList.Add("next");
+                    classList.Add("advance");
                 }
                 else if (item.Type == PagerItemType.LastPage)
                 {
                     classList.Add("last");
+                    classList.Add("advance");
                 }
             }
 
@@ -297,6 +314,20 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (item.CssClass.HasValue())
             {
                 classList.Add(item.CssClass.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+            }
+
+            if (isResponsive)
+            {
+                if (item.DispensableXs)
+                {
+                    classList.Add("d-none");
+                    classList.Add("d-sm-inline-block");
+                }
+                else if (item.DispensableSm)
+                {
+                    classList.Add("d-none");
+                    classList.Add("d-md-inline-block");
+                }
             }
 
             // Dispose here to write all collected classes into tag.
@@ -365,14 +396,14 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 if (ShowNavLabel && item.Type is (PagerItemType.LastPage or PagerItemType.NextPage))
                 {
-                    innerAOrSpan.InnerHtml.AppendHtml($"<span class='pr-1'>{item.Text}</span>");
+                    innerAOrSpan.InnerHtml.AppendHtml($"<span class='nav-label d-sm-none'>{item.Text}</span>");
                 }
                 
                 innerAOrSpan.InnerHtml.AppendHtml(iconI);
 
                 if (ShowNavLabel && item.Type is (PagerItemType.FirstPage or PagerItemType.PreviousPage))
                 {
-                    innerAOrSpan.InnerHtml.AppendHtml($"<span class='pl-1'>{item.Text}</span>");
+                    innerAOrSpan.InnerHtml.AppendHtml($"<span class='nav-label d-sm-none'>{item.Text}</span>");
                 }
             }
 

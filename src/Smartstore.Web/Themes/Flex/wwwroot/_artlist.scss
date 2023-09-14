@@ -151,7 +151,6 @@
     margin-inline-start: -1px;
 
     border-collapse: collapse;
-    border-radius: var(--art-border-radius);
 
     &.active {
         background: var(--art-active-bg-color);
@@ -554,6 +553,15 @@
     .delivery-date-block {
         vertical-align: initial;
     }
+}
+
+
+// Grid styles (common)
+// ---------------------------------------------
+
+.artlist-boxed > .art,
+.artlist-grid > .art.active {
+    border-radius: var(--art-border-radius);
 }
 
 

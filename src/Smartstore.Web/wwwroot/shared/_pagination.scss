@@ -2,20 +2,20 @@
 
 .pagination {
     flex-wrap: wrap;
+    gap: var(--pag-gap);
+}
+
+.pagination {
     --pag-size: #{$input-height};
     --pag-border-radius: var(--border-radius-md);
-    --pag-margin: 3px;
     --pag-gap: 6px;
     --pag-padding-x: #{$pagination-padding-x};
     --pag-font-size: #{$font-size-base};
-
-    gap: var(--pag-gap);
 }
 
 .pagination-lg {
     --pag-size: #{$input-height-lg};
     --pag-border-radius: var(--border-radius-lg);
-    --pag-margin: 4px;
     --pag-gap: 8px;
     --pag-padding-x: #{$pagination-padding-x-lg};
     --pag-font-size: #{$font-size-lg};
@@ -24,7 +24,6 @@
 .pagination-sm,
 .pagination-xs {
     --pag-border-radius: var(--border-radius-sm);
-    --pag-margin: 2px;
     --pag-gap: 4px;
 }
 
@@ -40,19 +39,39 @@
     --pag-font-size: #{$font-size-xs};
 }
 
+@include media-breakpoint-down(sm) {
+    // Make md and lg paginators one level smaller on <=sm
+    .pagination-md {
+        --pag-size: #{$input-height-sm};
+        --pag-border-radius: var(--border-radius-sm);
+        --pag-padding-x: #{$pagination-padding-x-sm};
+        --pag-gap: 4px;
+        --pag-font-size: #{$font-size-sm};
+    }
+
+    .pagination-lg {
+        --pag-size: #{$input-height};
+        --pag-border-radius: var(--border-radius-md);
+        --pag-padding-x: #{$pagination-padding-x};
+        --pag-gap: 6px;
+        --pag-font-size: #{$font-size-base};
+    }
+}
+
 .page-item {
     display: block;
 }
 
 .page-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
+    //align-items: center;
+    //justify-content: center;
+    vertical-align: middle;
     font-weight: $font-weight-medium;
     min-width: var(--pag-size);
     height: var(--pag-size);
+    line-height: calc(var(--pag-size) - 2px);
     font-size: var(--pag-font-size);
-    line-height: var(--pag-size);
     margin: 0;
     padding: 0 var(--pag-padding-x);
     border-radius: var(--pag-border-radius);
@@ -60,6 +79,14 @@
     &:active {
         background-color: $gray-300;
     }
+}
+
+.page-item-nav.back .nav-label {
+    padding-inline-start: 0.375rem;
+}
+
+.page-item-nav.advance .nav-label {
+    padding-inline-end: 0.375rem;
 }
 
 span.page-link {
