@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Pricing;
+﻿using System.Globalization;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
@@ -54,8 +55,8 @@ namespace Smartstore.Core.Catalog.Attributes
             bool includeHyperlinks = true,
             ProductBatchContext batchContext = null)
         {
-            Guard.NotNull(selection, nameof(selection));
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(selection);
+            Guard.NotNull(product);
 
             customer ??= _workContext.CurrentCustomer;
 
@@ -63,7 +64,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (includeProductAttributes)
             {
-                var languageId = _workContext.WorkingLanguage.Id;
+                var language = _workContext.WorkingLanguage;
                 var attributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(selection);
 
                 // Key: ProductVariantAttributeValue.Id, value: calculated attribute price adjustment.
@@ -89,7 +90,7 @@ namespace Smartstore.Core.Catalog.Attributes
                             var pvaValue = pva.ProductVariantAttributeValues.FirstOrDefault(x => x.Id == valueStr.ToInt());
                             if (pvaValue != null)
                             {
-                                pvaAttribute = $"{pva.ProductAttribute.GetLocalized(x => x.Name, languageId)}: {pvaValue.GetLocalized(x => x.Name, languageId)}";
+                                pvaAttribute = $"{pva.ProductAttribute.GetLocalized(x => x.Name, language.Id)}: {pvaValue.GetLocalized(x => x.Name, language.Id)}";
 
                                 if (includePrices)
                                 {
@@ -121,7 +122,7 @@ namespace Smartstore.Core.Catalog.Attributes
                         }
                         else if (pva.AttributeControlType == AttributeControlType.MultilineTextbox)
                         {
-                            string attributeName = pva.ProductAttribute.GetLocalized(x => x.Name, languageId);
+                            string attributeName = pva.ProductAttribute.GetLocalized(x => x.Name, language.Id);
                             pvaAttribute = $"{(htmlEncode ? attributeName.HtmlEncode() : attributeName)}: {HtmlUtility.ConvertPlainTextToHtml(valueStr.HtmlEncode())}";
                         }
                         else if (pva.AttributeControlType == AttributeControlType.FileUpload)
@@ -152,7 +153,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                         attributeText = fileName;
                                     }
 
-                                    string attributeName = pva.ProductAttribute.GetLocalized(a => a.Name, languageId);
+                                    string attributeName = pva.ProductAttribute.GetLocalized(x => x.Name, language.Id);
                                     pvaAttribute = $"{(htmlEncode ? attributeName.HtmlEncode() : attributeName)}: {attributeText}";
                                 }
                             }
@@ -160,7 +161,21 @@ namespace Smartstore.Core.Catalog.Attributes
                         else
                         {
                             // TextBox, Datepicker
-                            pvaAttribute = $"{pva.ProductAttribute.GetLocalized(x => x.Name, languageId)}: {valueStr}";
+                            if (pva.AttributeControlType == AttributeControlType.Datepicker)
+                            {
+                                CultureInfo culture = null;
+                                try
+                                {
+                                    culture = new CultureInfo(language.LanguageCulture);
+                                }
+                                catch
+                                {
+                                }
+
+                                valueStr = valueStr.ToDateTime(null)?.ToString("D", culture) ?? valueStr;
+                            }
+
+                            pvaAttribute = $"{pva.ProductAttribute.GetLocalized(x => x.Name, language.Id)}: {valueStr}";
 
                             if (htmlEncode)
                             {
