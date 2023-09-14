@@ -157,7 +157,7 @@ namespace Smartstore.Core.Catalog.Products
 
                         if (attribute.AttributeControlType == AttributeControlType.Datepicker)
                         {
-                            date = value.ToDateTime(new[] { "D" }, CultureInfo.CurrentCulture, DateTimeStyles.None, null);
+                            date = value.ToDateTime(null);
                             if (date == null)
                             {
                                 continue;

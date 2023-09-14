@@ -1,5 +1,4 @@
 ﻿using System.Dynamic;
-using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
@@ -331,17 +330,16 @@ namespace Smartstore.Web.Models.Cart
 
                     case AttributeControlType.Datepicker:
                     {
-                        // Keep in mind my that the code below works only in the current culture.
                         var enteredDate = selectedCheckoutAttributes.AttributesMap
                             .Where(x => x.Key == attribute.Id)
                             .SelectMany(x => x.Value)
                             .FirstOrDefault()?
                             .ToString();
 
-                        if (enteredDate.HasValue()
-                            && DateTime.TryParseExact(enteredDate, "D", CultureInfo.CurrentCulture, DateTimeStyles.None, out var selectedDate))
+                        var dt = enteredDate?.ToDateTime(null);
+                        if (dt != null)
                         {
-                            caModel.SelectedDate = selectedDate;
+                            caModel.SelectedDate = dt;
                         }
                     }
                     break;

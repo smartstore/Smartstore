@@ -158,7 +158,7 @@ namespace Smartstore.Core.Checkout.Attributes
 
                     case AttributeControlType.FileUpload:
                     {
-                        var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
+                        var selectedValue = string.Join(',', selectedItems.Select(x => x.Value));
                         if (selectedValue.HasValue())
                         {
                             selection.AddAttributeValue(attribute.Id, selectedValue);
