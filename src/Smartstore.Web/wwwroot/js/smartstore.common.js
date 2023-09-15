@@ -480,6 +480,8 @@
 
         // Report validity for native form controls.
         if ($("form").has(".native-validation").length) {
+            // TODO: (mh) This code is broken. "this" refers to "windows"" here. Test thoroughly and fix.
+            // TODO: (mh) Find a better and MEANING-/CONTEXTFUL name for "skip-update".
             var el = $(this);
 
             el.on("submit", function () {
