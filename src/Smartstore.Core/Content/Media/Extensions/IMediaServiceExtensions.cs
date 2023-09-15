@@ -66,7 +66,7 @@ namespace Smartstore.Core.Content.Media
         /// <returns>The passed file binary when no file equals in the sequence, <c>null</c> otherwise.</returns>
         public static byte[] FindEqualFile(this IMediaService service, byte[] sourceBuffer, IEnumerable<MediaFile> files, out MediaFile equalFile)
         {
-            Guard.NotNull(sourceBuffer, nameof(sourceBuffer));
+            Guard.NotNull(sourceBuffer);
 
             if (!service.FindEqualFile(new MemoryStream(sourceBuffer), files, false, out equalFile))
             {
@@ -85,7 +85,7 @@ namespace Smartstore.Core.Content.Media
         /// <returns><c>true</c> when a duplicate file was found, <c>false</c> otherwise.</returns>
         public static Task<AsyncOut<MediaFile>> FindEqualFileAsync(this IMediaService service, string sourcePath, int targetFolderId, bool deepSearch)
         {
-            Guard.NotEmpty(sourcePath, nameof(sourcePath));
+            Guard.NotEmpty(sourcePath);
 
             var fi = new FileInfo(sourcePath);
             if (!fi.Exists)
@@ -106,9 +106,9 @@ namespace Smartstore.Core.Content.Media
         /// <returns><c>true</c> when a duplicate file was found, <c>false</c> otherwise.</returns>
         public static async Task<AsyncOut<MediaFile>> FindEqualFileAsync(this IMediaService service, Stream source, string fileName, int targetFolderId, bool deepSearch)
         {
-            Guard.NotNull(source, nameof(source));
-            Guard.NotEmpty(fileName, nameof(fileName));
-            Guard.IsPositive(targetFolderId, nameof(targetFolderId));
+            Guard.NotNull(source);
+            Guard.NotEmpty(fileName);
+            Guard.IsPositive(targetFolderId);
 
             var query = new MediaSearchQuery
             {

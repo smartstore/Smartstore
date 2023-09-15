@@ -141,7 +141,7 @@ namespace Smartstore.Core.Content.Media
             Func<IQueryable<MediaFile>, IQueryable<MediaFile>> queryModifier,
             MediaLoadFlags flags = MediaLoadFlags.AsNoTracking)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var files = _searcher.SearchFiles(query, flags);
             if (queryModifier != null)
@@ -158,7 +158,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<bool> FileExistsAsync(string path)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
 
             if (_helper.TokenizePath(path, false, out var tokens))
             {
@@ -170,7 +170,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<MediaFileInfo> GetFileByPathAsync(string path, MediaLoadFlags flags = MediaLoadFlags.None)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
 
             if (_helper.TokenizePath(path, false, out var tokens))
             {
@@ -234,7 +234,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<List<MediaFileInfo>> GetFilesByIdsAsync(int[] ids, MediaLoadFlags flags = MediaLoadFlags.AsNoTracking)
         {
-            Guard.NotNull(ids, nameof(ids));
+            Guard.NotNull(ids);
 
             var query = _db.MediaFiles.Where(x => ids.Contains(x.Id));
             var result = await _searcher.ApplyLoadFlags(query, flags).ToListAsync();
@@ -265,7 +265,7 @@ namespace Smartstore.Core.Content.Media
 
         protected internal virtual async Task<bool> CheckUniqueFileNameAsync(MediaPathData pathData)
         {
-            Guard.NotNull(pathData, nameof(pathData));
+            Guard.NotNull(pathData);
 
             // (perf) First make fast check
             var exists = await _db.MediaFiles.AnyAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id);
@@ -289,8 +289,8 @@ namespace Smartstore.Core.Content.Media
 
         protected internal virtual bool CheckUniqueFileName(MediaPathData pathData, HashSet<string> destFileNames)
         {
-            Guard.NotNull(pathData, nameof(pathData));
-            Guard.NotNull(destFileNames, nameof(destFileNames));
+            Guard.NotNull(pathData);
+            Guard.NotNull(destFileNames);
 
             if (_helper.CheckUniqueFileName(pathData.FileTitle, pathData.Extension, destFileNames, out var uniqueName))
             {
@@ -346,8 +346,8 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<AsyncOut<MediaFile>> FindEqualFileAsync(Stream source, IEnumerable<MediaFile> files, bool leaveOpen)
         {
-            Guard.NotNull(source, nameof(source));
-            Guard.NotNull(files, nameof(files));
+            Guard.NotNull(source);
+            Guard.NotNull(files);
 
             var bufferedSource = new BufferedReadStream(source, 8096);
 
@@ -385,9 +385,9 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<MediaFileInfo> ReplaceFileAsync(MediaFile file, Stream inStream, string newFileName)
         {
-            Guard.NotNull(file, nameof(file));
-            Guard.NotNull(inStream, nameof(inStream));
-            Guard.NotEmpty(newFileName, nameof(newFileName));
+            Guard.NotNull(file);
+            Guard.NotNull(inStream);
+            Guard.NotEmpty(newFileName);
 
             var fileInfo = ConvertMediaFile(file);
             var pathData = CreatePathData(fileInfo.Path);
@@ -468,8 +468,8 @@ namespace Smartstore.Core.Content.Media
             DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError,
             CancellationToken cancelToken = default)
         {
-            Guard.NotNull(sources, nameof(sources));
-            Guard.NotNull(destinationFolder, nameof(destinationFolder));
+            Guard.NotNull(sources);
+            Guard.NotNull(destinationFolder);
 
             var batchResults = new List<FileBatchResult>(sources.Length);
 
@@ -590,7 +590,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task DeleteFileAsync(MediaFile file, bool permanent, bool force = false)
         {
-            Guard.NotNull(file, nameof(file));
+            Guard.NotNull(file);
 
             if (file.Id == 0)
             {

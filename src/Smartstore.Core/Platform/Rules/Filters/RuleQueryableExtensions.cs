@@ -107,7 +107,7 @@
             params Expression<Func<T, TValue>>[] memberExpressions)
             where T : class
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (memberExpressions.Length == 0)
             {
