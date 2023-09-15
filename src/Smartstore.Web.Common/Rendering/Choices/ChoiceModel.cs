@@ -39,16 +39,6 @@ namespace Smartstore.Web.Rendering.Choices
         /// Selected date value for datepicker
         /// </summary>
         public DateTime? SelectedDate { get; set; }
-
-        /// <summary>
-        /// Begin year for datepicker
-        /// </summary>
-        public int? BeginYear { get; set; }
-        /// <summary>
-        /// End year for datepicker
-        /// </summary>
-        public int? EndYear { get; set; }
-
         public string UploadedFileGuid { get; set; }
         public string UploadedFileName { get; set; }
 

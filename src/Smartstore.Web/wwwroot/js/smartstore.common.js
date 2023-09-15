@@ -478,6 +478,19 @@
             return true;
         });
 
+        // Report validity for native form controls.
+        if ($("form").has(".native-validation").length) {
+            var el = $(this);
+
+            el.on("submit", function () {
+                if (!el[0].checkValidity()) {
+                    el[0].reportValidity();
+                    return false;
+                }
+                return true;
+            });
+        }
+
         // Switch toggle
         $(document).on('click', 'label.switch', function (e) {
             if ($(this).children('input[type="checkbox"]').is('[readonly]')) {
@@ -637,13 +650,6 @@
         // HTML text collapser
         if ($.fn.moreLess) {
             $('.more-less').moreLess();
-        }
-
-        // Report validity for native form controls.
-        if ($.fn.nativeValidation) {
-            // TODO: (mh) I don't like this greedy pattern for such a minor thing. I changed something similar
-            // from you a few days ago, yet you did it again!!
-            $('.native-validation').nativeValidation();
         }
 
         // Unselectable radio button groups

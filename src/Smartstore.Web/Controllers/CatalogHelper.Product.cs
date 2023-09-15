@@ -526,14 +526,6 @@ namespace Smartstore.Web.Controllers
                     }
                 }
 
-                // TODO: obsolete? Alias field is not used for custom values anymore, only for URL as URL variant alias.
-                if (attribute.AttributeControlType == AttributeControlType.Datepicker && attributeModel.Alias.HasValue() && RegularExpressions.IsYearRange.IsMatch(attributeModel.Alias))
-                {
-                    var match = RegularExpressions.IsYearRange.Match(attributeModel.Alias);
-                    attributeModel.BeginYear = match.Groups[1].Value.ToInt();
-                    attributeModel.EndYear = match.Groups[2].Value.ToInt();
-                }
-
                 foreach (var value in attributeValues)
                 {
                     ProductBundleItemAttributeFilter attributeFilter = null;
