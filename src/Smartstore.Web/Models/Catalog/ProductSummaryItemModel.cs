@@ -21,6 +21,7 @@ namespace Smartstore.Web.Models.Catalog
         public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();
         public Dictionary<string, LocalizedString> Resources { get; set; }
         public string LegalInfo { get; set; }
+        public string TaxExemptLegalInfo { get; set; }
         public Currency PrimaryCurrency { get; set; }
 
         public bool AllowPrices { get; set; }
