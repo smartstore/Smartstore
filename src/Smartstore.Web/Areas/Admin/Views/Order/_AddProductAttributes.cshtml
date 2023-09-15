@@ -46,19 +46,19 @@
                         break;
                     case AttributeControlType.TextBox:
                         {
-                            <input name="@(controlId)" type="text" id="@(controlId)" class="textBox" />
+                            <input name="@(controlId)" type="text" id="@(controlId)" class="form-control" />
                         }
                         break;
                     case AttributeControlType.MultilineTextbox:
                         {
-                            <textarea id="@(controlId)" name="@(controlId)" rows="6"></textarea>
+                            <textarea id="@(controlId)" name="@(controlId)" rows="6" class="form-control"></textarea>
                         }
                         break;
                     case AttributeControlType.Datepicker:
                         {
                             <input type="date"
                                    name="@(controlId)-date" id="@(controlId)-date"
-                                   class="native-validation"
+                                   class="native-validation form-control"
                                    min="@DateTime.Now.ToString("yyyy-MM-dd")"
                                    max="@DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")" />
                         }
