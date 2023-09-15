@@ -64,8 +64,9 @@
 
 .page-link {
     display: inline-block;
-    //align-items: center;
-    //justify-content: center;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     vertical-align: middle;
     font-weight: $font-weight-medium;
     min-width: var(--pag-size);

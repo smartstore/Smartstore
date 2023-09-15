@@ -46,6 +46,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string SkipActiveStateAttributeName = "sm-skip-active-state";
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
         const string QueryParamNameAttributeName = "sm-query-param";
+        const string ContentClassNameAttribute = "sm-content-class";
 
         [HtmlAttributeName(ListItemsAttributeName)]
         public IPageable ListItems { get; set; }
@@ -89,6 +90,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(ItemTitleFormatStringAttributeName)]
         public string ItemTitleFormatString { get; set; }
 
+        [HtmlAttributeName(ContentClassNameAttribute)]
+        public string ContentCssClass { get; set; }
+
         [HtmlAttributeName(QueryParamNameAttributeName)]
         public string QueryParamName { get; set; } = "page";
 
@@ -108,6 +112,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var items = CreateItemList();
 
             output.Attributes.Add("aria-label", "Page navigation");
+            output.AppendCssClass("pagination-container");
 
             var itemsUl = new TagBuilder("ul");
             itemsUl.AppendCssClass("pagination mb-0");
@@ -140,6 +145,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 itemsUl.AppendCssClass("justify-content-end");
                 output.AppendCssClass("text-right");
+            }
+
+            if (ContentCssClass.HasValue())
+            {
+                itemsUl.AppendCssClass(ContentCssClass);
             }
 
             var itemsCount = items.Count;
@@ -242,11 +252,17 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             for (var i = start; i <= end; i++)
             {
-                var isActive = i == currentIndex && !SkipActiveState;
+                // Never hide first and last page on xs
+                var hideOnXs = i != currentIndex && i > 1 && i < totalPages;
+
+                // On sm: Only hide items that are 2 pages away
+                var hideOnSm = hideOnXs && Math.Abs(currentIndex - i) > 1;
+
                 items.Add(new PagerItem(i, i.ToString(), GenerateUrl(i))
                 {
-                    State = isActive ? PagerItemState.Selected : PagerItemState.Normal,
-                    DispensableXs = !isActive && i > start && i < end
+                    State = (i == currentIndex && !SkipActiveState) ? PagerItemState.Selected : PagerItemState.Normal,
+                    DispensableXs = hideOnXs,
+                    DispensableSm = hideOnSm
                 });
             }
 
@@ -265,7 +281,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         protected virtual void AppendItem(TagBuilder itemsUl, PagerItem item, int itemsCount)
         {
-            var isResponsive = itemsCount >= 5;
             var itemLi = new TagBuilder("li");
 
             using var classList = itemLi.GetClassList();
@@ -277,23 +292,19 @@ namespace Smartstore.Web.TagHelpers.Shared
                 classList.Add("page-item-nav");
                 if (item.Type == PagerItemType.PreviousPage)
                 {
-                    classList.Add("prev");
-                    classList.Add("back");
+                    classList.Add("prev", "back");
                 }
                 else if (item.Type == PagerItemType.FirstPage)
                 {
-                    classList.Add("first");
-                    classList.Add("back");
+                    classList.Add("first", "back");
                 }
                 else if (item.Type == PagerItemType.NextPage)
                 {
-                    classList.Add("next");
-                    classList.Add("advance");
+                    classList.Add("next", "advance");
                 }
                 else if (item.Type == PagerItemType.LastPage)
                 {
-                    classList.Add("last");
-                    classList.Add("advance");
+                    classList.Add("last", "advance");
                 }
             }
 
@@ -316,17 +327,16 @@ namespace Smartstore.Web.TagHelpers.Shared
                 classList.Add(item.CssClass.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
             }
 
+            var isResponsive = itemsCount >= 5;
             if (isResponsive)
             {
-                if (item.DispensableXs)
+                if (item.DispensableSm)
                 {
-                    classList.Add("d-none");
-                    classList.Add("d-sm-inline-block");
+                    classList.Add("d-none", "d-md-inline-block");
                 }
-                else if (item.DispensableSm)
+                else if (item.DispensableXs)
                 {
-                    classList.Add("d-none");
-                    classList.Add("d-md-inline-block");
+                    classList.Add("d-none", "d-sm-inline-block");
                 }
             }
 
