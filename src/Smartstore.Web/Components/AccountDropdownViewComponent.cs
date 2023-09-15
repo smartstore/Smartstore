@@ -29,6 +29,13 @@ namespace Smartstore.Web.Components
                 .Text(T("Account.MyAccount"))
                 .AsItem());
 
+            model.MenuItems.Add(new MenuItem().ToBuilder()
+                .Action("Orders", "Customer")
+                .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })
+                .Icon("fal fa-file-invoice fa-fw")
+                .Text(T("Account.CustomerOrders"))
+                .AsItem());
+
             if (model.DisplayAdminLink)
             {
                 model.MenuItems.Add(new MenuItem().ToBuilder()
