@@ -115,7 +115,7 @@ namespace Smartstore.Web.Infrastructure
                 {
                     Id = "orders",
                     Text = T("Account.CustomerOrders"),
-                    Icon = "fal fa-file-invoice",
+                    Icon = "fal fa-file-lines",
                     ActionName = "Orders",
                     ControllerName = "Customer"
                 }

@@ -29,10 +29,11 @@ namespace Smartstore.Web.Components
                 .Text(T("Account.MyAccount"))
                 .AsItem());
 
+            // TODO: (mh) New resource --> "My orders" / "Meine Bestellungen"
             model.MenuItems.Add(new MenuItem().ToBuilder()
                 .Action("Orders", "Customer")
                 .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })
-                .Icon("fal fa-file-invoice fa-fw")
+                .Icon("fal fa-file-lines fa-fw")
                 .Text(T("Account.CustomerOrders"))
                 .AsItem());
 
