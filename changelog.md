@@ -37,6 +37,7 @@
 - #782 Enable to mark shipments of an order as *shipped* or *delivered* via orders grid.
 - Added ability to edit delivery time in product grid
 - #807 Enable absolute Paths for DataExchangeSettings.ImageImportFolder.
+- #786 Replace TripleDatePicker with native input type date.
 
 ### Bugfixes
 
