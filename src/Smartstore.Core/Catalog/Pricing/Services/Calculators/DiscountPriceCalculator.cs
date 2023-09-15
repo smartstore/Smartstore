@@ -134,10 +134,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                     if (category?.HasDiscountsApplied ?? false)
                     {
-                        // INFO: AppliedDiscounts are eager loaded already.
-                        //await _db.LoadCollectionAsync(category, x => x.AppliedDiscounts);
+                        var appliedDiscounts = _db.IsCollectionLoaded(category, x => x.AppliedDiscounts)
+                            ? category.AppliedDiscounts
+                            : categoryDiscounts.Where(x => x.AppliedToCategories.Any(y => y.Id == category.Id));
 
-                        await TryAddDiscounts(category.AppliedDiscounts, result, DiscountType.AssignedToCategories, context.Options);
+                        await TryAddDiscounts(appliedDiscounts, result, DiscountType.AssignedToCategories, context.Options);
                     }
                 }
             }
@@ -154,10 +155,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                     if (manu?.HasDiscountsApplied ?? false)
                     {
-                        // INFO: AppliedDiscounts are eager loaded already.
-                        //await _db.LoadCollectionAsync(manu, x => x.AppliedDiscounts);
+                        var appliedDiscounts = _db.IsCollectionLoaded(manu, x => x.AppliedDiscounts)
+                            ? manu.AppliedDiscounts
+                            : manufacturerDiscounts.Where(x => x.AppliedToManufacturers.Any(y => y.Id == manu.Id));
 
-                        await TryAddDiscounts(manu.AppliedDiscounts, result, DiscountType.AssignedToManufacturers, context.Options);
+                        await TryAddDiscounts(appliedDiscounts, result, DiscountType.AssignedToManufacturers, context.Options);
                     }
                 }
             }
@@ -165,7 +167,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             return result;
         }
 
-        private async Task TryAddDiscounts(ICollection<Discount> source, HashSet<Discount> target, DiscountType type, PriceCalculationOptions options)
+        private async Task TryAddDiscounts(IEnumerable<Discount> source, HashSet<Discount> target, DiscountType type, PriceCalculationOptions options)
         {
             foreach (var discount in source)
             {

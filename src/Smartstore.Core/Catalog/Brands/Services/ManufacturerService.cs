@@ -26,7 +26,7 @@ namespace Smartstore.Core.Catalog.Brands
         {
             Guard.NotNull(productIds, nameof(productIds));
 
-            if (!productIds.Any())
+            if (productIds.Length == 0)
             {
                 return new List<ProductManufacturer>();
             }
@@ -40,9 +40,7 @@ namespace Smartstore.Core.Catalog.Brands
 
             var productManufacturerQuery = _db.ProductManufacturers
                 .AsNoTracking()
-                .AsSplitQuery()
-                .Include(x => x.Manufacturer).ThenInclude(x => x.MediaFile)
-                .Include(x => x.Manufacturer).ThenInclude(x => x.AppliedDiscounts);
+                .Include(x => x.Manufacturer);
 
             var query =
                 from pm in productManufacturerQuery

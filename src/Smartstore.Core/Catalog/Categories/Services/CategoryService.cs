@@ -324,7 +324,7 @@ namespace Smartstore.Core.Catalog.Categories
         {
             Guard.NotNull(productIds);
 
-            if (!productIds.Any())
+            if (productIds.Length == 0)
             {
                 return new List<ProductCategory>();
             }
@@ -338,9 +338,7 @@ namespace Smartstore.Core.Catalog.Categories
 
             var productCategoriesQuery = _db.ProductCategories
                 .AsNoTracking()
-                .AsSplitQuery()
-                .Include(x => x.Category).ThenInclude(x => x.MediaFile)
-                .Include(x => x.Category).ThenInclude(x => x.AppliedDiscounts);
+                .Include(x => x.Category);
 
             var query =
                 from pc in productCategoriesQuery
