@@ -40,6 +40,7 @@
 
 ### Bugfixes
 
+- Fixed do not show tax info in product lists if the product is tax exempt.
 - Price calculation:
   - Rounding differences between the subtotal and the sum of the line totals.
   - Manufacturer discount is ignored as soon as an attribute with a linked product is selected.
