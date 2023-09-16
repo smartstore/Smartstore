@@ -244,7 +244,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<AsyncOut<string>> CheckUniqueFileNameAsync(string path)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
 
             // TODO: (mm) (mc) throw when path is not a file path
 
@@ -808,8 +808,8 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<FileOperationResult> CopyFileAsync(MediaFileInfo mediaFile, string destinationFileName, DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError)
         {
-            Guard.NotNull(mediaFile, nameof(mediaFile));
-            Guard.NotEmpty(destinationFileName, nameof(destinationFileName));
+            Guard.NotNull(mediaFile);
+            Guard.NotEmpty(destinationFileName);
 
             var destPathData = CreateDestinationPathData(mediaFile.File, destinationFileName);
             var destFileName = destPathData.FileName;
