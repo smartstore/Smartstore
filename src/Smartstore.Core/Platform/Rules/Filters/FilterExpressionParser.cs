@@ -192,21 +192,13 @@ namespace Smartstore.Core.Rules.Filters
         private static RuleOperator ConvertOperator(string op, TextSpan termSpan)
         {
             // The unquoted term
-            var term = termSpan.ToString().EmptyNull();
-
-            var wildcardIndex = term.IndexOfAny(_wildcardChars);
-            var hasAnyWildcard = wildcardIndex > -1;
+            var term = termSpan.ToString();
+            var hasAnyWildcard = term != null && term.IndexOfAny(_wildcardChars) > -1;
 
             if (hasAnyWildcard)
             {
                 if (op is (null or "~" or "=" or "=="))
                 {
-                    if (term[^1] == '*' && wildcardIndex < term.Length - 1)
-                    {
-                        // (perf) If the only wildcard is the trailing '*', then we deal with StartsWith, which is faster index-wise.
-                        return RuleOperator.StartsWith;
-                    }
-
                     return RuleOperator.Like;
                 }
                 else if (op is ("!" or "!~" or "!=" or "<>"))
