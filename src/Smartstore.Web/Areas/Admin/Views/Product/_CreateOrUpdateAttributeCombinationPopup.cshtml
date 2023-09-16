@@ -1,20 +1,19 @@
 ﻿@model ProductVariantAttributeCombinationModel
 
-@{
-    async Task TableFormattedVariantAttributes(string formattedVariantAttributes)
+@functions
+{
+    void TableFormattedVariantAttributes(string formattedAttributes)
     {
         string name, value;
-        string[] lines = formattedVariantAttributes.SplitSafe("<br />").ToArray();
-        string separatorValues = ": ";
-
+        string[] lines = formattedAttributes.SplitSafe("<br />").ToArray();
         if (lines.Length <= 0)
             return;
 
         <table class="product-attribute-table">
             @foreach (string line in lines)
-            { 
+            {
                 <tr>
-                    @if (line.SplitToPair(out name, out value, separatorValues))
+                    @if (line.SplitToPair(out name, out value, ": "))
                     {
                         <td class="column-name">@Html.Raw(name):</td>
                         <td class="column-value">@Html.Raw(value)</td>
@@ -36,23 +35,24 @@
 
 @if (ViewBag.IsEdit)
 {
-    await TableFormattedVariantAttributes(Model.AttributesXml);
     <div class="well d-flex flex-nowrap">
+        @{ TableFormattedVariantAttributes(Model.AttributesXml); }
+
         <div class="btn-group ml-auto pl-2">
-            @* TODO: (mg) Disable if first combination *@
             <button type="button"
                     id="EditPreviousAttributeCombination"
                     class="btn btn-light btn-sm btn-icon"
                     title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination")"
-                    data-url="@Url.Action("EditNextAttributeCombination", new { productId = Model.ProductId, next = false })">
+                    data-url="@Url.Action("EditSiblingAttributeCombination", new { id = Model.PreviousCombinationId ?? Model.Id })"
+                    attr-disabled='(Model.PreviousCombinationId == null, "disabled")'>
                 <i class="fa fa fa-angle-left"></i>
             </button>
-            @* TODO: (mg) Disable if last combination *@
             <button type="button"
                     id="EditNextAttributeCombination"
                     class="btn btn-light btn-sm btn-icon"
                     title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenNextCombination")"
-                    data-url="@Url.Action("EditNextAttributeCombination", new { productId = Model.ProductId, next = true })">
+                    data-url="@Url.Action("EditSiblingAttributeCombination", new { id = Model.NextCombinationId ?? Model.Id })"
+                    attr-disabled='(Model.NextCombinationId == null, "disabled")'>
                 <i class="fa fa fa-angle-right"></i>
             </button>
         </div>

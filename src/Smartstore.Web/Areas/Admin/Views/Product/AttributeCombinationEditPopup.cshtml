@@ -30,17 +30,13 @@
         var container = $('#AttributeCombinationContainer');
 
         $(document).on('click', '#EditPreviousAttributeCombination, #EditNextAttributeCombination', function () {
-            //const grid = window.parent.window["attributecombinations-grid"].$children[0];
-
-            var url = $(this).data('url') + '&currentId=' + container.find('input[name=Id]').val();
+            //const command = window.parent.window["attributecombinations-grid"].$children[0].command;
 
             $.ajax({
                 cache: false,
                 global: false,
                 type: 'GET',
-                url: url,
-                //type: 'POST',
-                //data: grid.command,
+                url: $(this).data('url'),
                 success: function (response) {
                     container.html(response.partial);
 
@@ -60,6 +56,8 @@
 				url: '@Url.Action("SaveAttributeCombination")',
                 data: container.closest('form').serialize(),
                 success: function () {
+                    setDirty(false);
+
                     // Reload grid if current ID is loaded. Could irritate the user otherwise.
                     const grid = window.parent.window["attributecombinations-grid"].$children[0];
                     var currentId = parseInt(container.find('input[name=Id]').val());
