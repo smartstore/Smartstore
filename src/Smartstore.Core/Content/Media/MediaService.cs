@@ -277,14 +277,20 @@ namespace Smartstore.Core.Content.Media
             var q = new MediaSearchQuery
             {
                 FolderId = pathData.Folder.Id,
-                Term = string.Concat(pathData.FileTitle, "*.", pathData.Extension),
+                // Avoid "Contains" pattern, force "StartsWith", which is faster.
+                Term = pathData.FileTitle + '*',
                 Deleted = null
             };
 
             var query = _searcher.PrepareQuery(q, MediaLoadFlags.AsNoTracking).Select(x => x.Name);
-            var files = new HashSet<string>(await query.ToListAsync(), StringComparer.CurrentCultureIgnoreCase);
+            var result = await query.ToListAsync();
 
-            return CheckUniqueFileName(pathData, files);
+            // Reduce by file extension in memory
+            var fileNames = new HashSet<string>(
+                result.Where(x => x.EndsWithNoCase('.' + pathData.Extension)),
+                StringComparer.CurrentCultureIgnoreCase);
+
+            return CheckUniqueFileName(pathData, fileNames);
         }
 
         protected internal virtual bool CheckUniqueFileName(MediaPathData pathData, HashSet<string> destFileNames)
