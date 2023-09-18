@@ -8,6 +8,6 @@
        value='@(Model.SelectedDate != null ? ((DateTime)Model.SelectedDate).ToString("yyyy-MM-dd") : DateTime.UtcNow.ToString("yyyy-MM-dd"))'
        attr-disabled='(Model.IsDisabled, "disabled")'
        name="@(controlId)-date" id="@(controlId)-date"
-       class="form-control native-validation skip-update"
+       class="form-control native-validation suppress-pd-ajax-update"
        min="@DateTime.Now.AddYears(-90).ToString("yyyy-MM-dd")"
        max="@DateTime.Now.AddYears(10).ToString("yyyy-MM-dd")" />

@@ -481,7 +481,6 @@
         // Report validity for native form controls.
         var formWithNativeValidation = $("form").has(".native-validation");
         if (formWithNativeValidation.length) {
-            // TODO: (mh) Find a better and MEANING-/CONTEXTFUL name for "skip-update".
             formWithNativeValidation.on("submit", function () {
                 if (!formWithNativeValidation[0].checkValidity()) {
                     formWithNativeValidation[0].reportValidity();
