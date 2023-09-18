@@ -39,7 +39,7 @@
 - Added ability to edit delivery time in product grid
 - #807 Enable absolute Paths for DataExchangeSettings.ImageImportFolder.
 - #786 Replace TripleDatePicker with native input type date.
-- #804 Implemented the new TrustBadge integration mode, including new settings for positioning, colour scheme, etc. 
+- #804 Implemented the new TrustBadge integration mode, including new settings for positioning, color scheme, etc. 
 
 ### Bugfixes
 

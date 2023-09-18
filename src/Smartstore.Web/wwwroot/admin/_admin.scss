@@ -251,8 +251,7 @@ body {
         flex: 0 0 auto;
         width: auto;
         max-width: none; // Reset earlier grid tiers
-        padding-left: 5px;
-        padding-right: 0;
+        padding-inline: 5px 0;
 
         display: flex;
         align-items: center;
@@ -273,15 +272,15 @@ body {
     &.sticky {
         position: fixed;
         z-index: $zindex-sticky;
-        left: var(--sticky-header-left);
-        right: var(--sticky-header-right);
+        inset-inline-start: var(--sticky-header-left);
+        inset-inline-end: var(--sticky-header-right);
         padding: calc(var(--content-padding-y) / 2) var(--content-padding-x);
         background: #fff;
-        box-shadow: 0 10px 30px 0 rgba(#000, .05);
+        box-shadow: 0 10px 30px 0 rgba($black, .05);
 
         .modal-open & {
             // add the killed scrollbar width
-            margin-right: 17px !important;
+            margin-inline-end: 17px !important;
         }
     }
 }
