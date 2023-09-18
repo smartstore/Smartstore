@@ -403,7 +403,7 @@
 .order-summary-content .selected-checkout-attributes,
 .page-order-details .cart-checkout-attrs {
 	.attr-caption {
-		font-weight: bold;
+		font-weight: $font-weight-medium;
 		padding-inline-end: 10px;
 		&:after {
 			content: ': ' 

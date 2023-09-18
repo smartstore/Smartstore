@@ -33,7 +33,7 @@
             });
 
             // Update product data and gallery
-            $(el).on('change', ':input:not(.suppress-pd-ajax-update)', function (e) {
+            $(el).on('change', ':input:not(.skip-pd-ajax-update)', function (e) {
                 var inputCtrl = $(this);
                 var ctx = inputCtrl.closest('.update-container');
                 var isNumberInput = inputCtrl.parent(".numberinput-group").length > 0;

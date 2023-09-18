@@ -479,8 +479,9 @@
         });
 
         // Report validity for native form controls.
-        var formWithNativeValidation = $("form").has(".native-validation");
+        let formWithNativeValidation = $("form.native-validation");
         if (formWithNativeValidation.length) {
+            // TODO/INFO: (mh) This will not run in AJAX scenarios when forms are injected after page load.
             formWithNativeValidation.on("submit", function () {
                 if (!formWithNativeValidation[0].checkValidity()) {
                     formWithNativeValidation[0].reportValidity();
