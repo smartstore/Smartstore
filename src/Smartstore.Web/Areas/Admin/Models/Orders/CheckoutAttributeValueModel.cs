@@ -34,7 +34,6 @@ namespace Smartstore.Admin.Models.Orders
         [UIHint("Color")]
         public string Color { get; set; }
 
-        public bool IsListTypeAttribute { get; set; }
         public List<CheckoutAttributeValueLocalizedModel> Locales { get; set; } = new();
     }
 

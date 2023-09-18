@@ -73,17 +73,15 @@
         $(document).on('click', '.add-checkout-attribute-value', function (e) {
             e.preventDefault();
 
-            var href = "@Url.Content("~/Admin/CheckoutAttribute/ValueCreatePopup/")?checkoutAttributeId=@(checkoutAttributeId)&btnId=btnRefresh&formId=checkout-attribute-values";
-            openPopup(href);
+            openPopup('@(Url.Action("ValueCreatePopup", new { checkoutAttributeId }))&btnId=btnRefresh&formId=checkout-attribute-values');
             return false;
         });
 
         $(document).on('click', '.grid-edit-checkout-attribute-value', function (e) {
             e.preventDefault();
 
-            var id = $(this).data("key");
-            var href = "@Url.Content("~/Admin/CheckoutAttribute/ValueEditPopup/")" + id + "?btnId=btnRefresh&formId=checkout-attribute-values";
-            openPopup(href);
+            var id = $(this).data('key');
+            openPopup('@(Url.Action("ValueEditPopup").EnsureEndsWith('/'))' + id + '?btnId=btnRefresh&formId=checkout-attribute-values');
             return true;
         });
 

@@ -85,7 +85,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Configuration.Currencies.GetLiveRates",
                 "Common.Error.PreProcessPayment",
                 "Payment.PayingFailed",
-                "Enums.BackorderMode.AllowQtyBelow0AndNotifyCustomer");
+                "Enums.BackorderMode.AllowQtyBelow0AndNotifyCustomer",
+                "Admin.Catalog.Attributes.CheckoutAttributes.Values.SaveBeforeEdit");
 
             builder.AddOrUpdate("Enums.DataExchangeCompletionEmail.Always", "Always", "Immer");
             builder.AddOrUpdate("Enums.DataExchangeCompletionEmail.OnError", "If an error occurs", "Bei einem Fehler");

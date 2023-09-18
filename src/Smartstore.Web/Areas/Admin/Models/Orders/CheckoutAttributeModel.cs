@@ -33,6 +33,8 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("Admin.Catalog.Attributes.AttributeControlType")]
         public string AttributeControlTypeName { get; set; }
 
+        public bool IsListTypeAttribute { get; set; }
+
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 

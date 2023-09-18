@@ -5,7 +5,6 @@
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
 <input asp-for="CheckoutAttributeId" type="hidden" />
-<input asp-for="IsListTypeAttribute" type="hidden" />
 
 @(Html.LocalizedEditor<CheckoutAttributeValueModel, CheckoutAttributeValueLocalizedModel>("checkoutattributevalue-localized",
 	@<div class="adminContent">
@@ -36,27 +35,24 @@
 ))
 
 <div class="adminContent">
-    @if (Model.IsListTypeAttribute)
-    {
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="MediaFileId" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="MediaFileId" />
-                <span asp-validation-for="MediaFileId"></span>
-            </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="MediaFileId" />
         </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Color" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="Color" />
-                <span asp-validation-for="Color"></span>
-            </div>
+        <div class="adminData">
+            <editor asp-for="MediaFileId" />
+            <span asp-validation-for="MediaFileId"></span>
         </div>
-    }
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Color" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Color" />
+            <span asp-validation-for="Color"></span>
+        </div>
+    </div>
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="PriceAdjustment" />

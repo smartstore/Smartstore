@@ -456,7 +456,6 @@ namespace Smartstore.Admin.Controllers
             var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
 
             model.CheckoutAttributeId = attribute?.Id ?? 0;
-            model.IsListTypeAttribute = attribute?.IsListTypeAttribute ?? false;
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.BaseWeight = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
         }
