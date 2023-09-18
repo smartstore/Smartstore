@@ -11,13 +11,31 @@
             @ViewBag.Title
         </div>
         <div class="options">
-            <button type="submit" id="save" name="save" value="save" class="btn btn-warning">
+            <div class="btn-group">
+                <button type="button"
+                        id="EditPreviousAttributeCombination"
+                        class="btn btn-secondary btn-icon"
+                        title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination")"
+                        data-url="@Url.Action("EditSiblingAttributeCombination", new { productId = Model.ProductId, next = false })">
+                    <i class="fa fa fa-angle-left"></i>
+                </button>
+                <button type="button" id="SaveAttributeCombination" class="btn btn-secondary disabled" disabled title="@T("Admin.Common.SaveContinue")">
+                    <span>@T("Admin.Common.Save")</span>
+                </button>
+                <button type="button"
+                        id="EditNextAttributeCombination"
+                        class="btn btn-secondary btn-icon"
+                        title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenNextCombination")"
+                        data-url="@Url.Action("EditSiblingAttributeCombination", new { productId = Model.ProductId, next = true })">
+                    <i class="fa fa fa-angle-right"></i>
+                </button>
+            </div>
+
+            <button type="submit" id="save" name="save" value="save" class="btn btn-secondary btn-to-primary">
                 <i class="fa fa-check"></i>
-                <span>@T("Admin.Common.Save")</span>
+                <span>@T("Admin.Common.SaveClose")</span>
             </button>
-            <button type="button" id="SaveAttributeCombination" class="btn btn-secondary disabled" disabled title="@T("Admin.Common.SaveContinue")">
-                <i class="fa fa-save"></i>
-            </button>
+
         </div>
     </div>
     <div id="AttributeCombinationContainer">
@@ -27,16 +45,17 @@
 
 <script sm-target-zone="Scripts" data-origin="edit-attribute-combination">
     $(function () {
-        var container = $('#AttributeCombinationContainer');
+        let container = $('#AttributeCombinationContainer');
 
         $(document).on('click', '#EditPreviousAttributeCombination, #EditNextAttributeCombination', function () {
             //const command = window.parent.window["attributecombinations-grid"].$children[0].command;
+            let url = $(this).data('url') + '&currentId=' + container.find('input[name=Id]').val();
 
             $.ajax({
                 cache: false,
                 global: false,
                 type: 'GET',
-                url: $(this).data('url'),
+                url: url,
                 success: function (response) {
                     container.html(response.partial);
 

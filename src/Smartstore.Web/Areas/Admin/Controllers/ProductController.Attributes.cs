@@ -777,9 +777,15 @@ namespace Smartstore.Admin.Controllers
 
         // AJAX.
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> EditSiblingAttributeCombination(int id)
+        public async Task<IActionResult> EditSiblingAttributeCombination(int currentId, int productId, bool next)
         {
-            var model = await PrepareProductAttributeCombinationModelAsync(id);
+            var siblingCombinationId = await GetSiblingQuery(true).FirstOrDefaultAsync();
+            if (siblingCombinationId == 0)
+            {
+                siblingCombinationId = await GetSiblingQuery(false).FirstOrDefaultAsync();
+            }
+
+            var model = await PrepareProductAttributeCombinationModelAsync(siblingCombinationId);
             ViewBag.IsEdit = true;
 
             var partial = model != null
@@ -787,6 +793,36 @@ namespace Smartstore.Admin.Controllers
                 : null;
 
             return new JsonResult(new { partial });
+
+            IQueryable<int> GetSiblingQuery(bool applyIdClause)
+            {
+                var query = _db.ProductVariantAttributeCombinations
+                    .Where(x => x.ProductId == productId);
+
+                // TODO: (mg) consider grid sorting somehow. Requires different approach. Filtering by ID would not work anymore.
+                if (applyIdClause)
+                {
+                    if (next)
+                    {
+                        query = query.Where(x => x.Id > currentId);
+                    }
+                    else
+                    {
+                        query = query.Where(x => x.Id < currentId);
+                    }
+                }
+
+                if (next)
+                {
+                    query = query.OrderBy(x => x.Id);
+                }
+                else
+                {
+                    query = query.OrderByDescending(x => x.Id);
+                }
+
+                return query.Select(x => x.Id);
+            }
         }
 
         // AJAX.
@@ -903,7 +939,7 @@ namespace Smartstore.Admin.Controllers
                 if (product != null)
                 {
                     var model = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(combination);
-                    await PrepareProductAttributeCombinationModelAsync(model, combination, product, true, true);
+                    await PrepareProductAttributeCombinationModelAsync(model, combination, product, true);
 
                     return model;
                 }
@@ -916,8 +952,7 @@ namespace Smartstore.Admin.Controllers
             ProductVariantAttributeCombinationModel model,
             ProductVariantAttributeCombination entity,
             Product product,
-            bool formatAttributes = false,
-            bool getSiblingIds = false)
+            bool formatAttributes = false)
         {
             Guard.NotNull(model);
             Guard.NotNull(product);
@@ -1000,12 +1035,6 @@ namespace Smartstore.Admin.Controllers
                 });
             }
 
-            if (getSiblingIds)
-            {
-                model.PreviousCombinationId = await GetSiblingId(model.Id, model.ProductId, false);
-                model.NextCombinationId = await GetSiblingId(model.Id, model.ProductId, true);
-            }
-
             var quantityUnits = await _db.QuantityUnits
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
@@ -1019,28 +1048,6 @@ namespace Smartstore.Admin.Controllers
                     Selected = entity != null && x.Id == entity.QuantityUnitId.GetValueOrDefault()
                 })
                 .ToList();
-        }
-
-        private async Task<int?> GetSiblingId(int id, int productId, bool next)
-        {
-            var query = _db.ProductVariantAttributeCombinations
-                .Where(x => x.ProductId == productId);
-
-            if (next)
-            {
-                query = query
-                    .Where(x => x.Id > id)
-                    .OrderBy(x => x.Id);
-            }
-            else
-            {
-                query = query
-                    .Where(x => x.Id < id)
-                    .OrderByDescending(x => x.Id);
-            }
-
-            var siblingId = await query.Select(x => x.Id).FirstOrDefaultAsync();
-            return siblingId == 0 ? null : siblingId;
         }
 
         private void PrepareViewBag(string btnId, string formId, bool refreshPage = false, bool isEdit = true)

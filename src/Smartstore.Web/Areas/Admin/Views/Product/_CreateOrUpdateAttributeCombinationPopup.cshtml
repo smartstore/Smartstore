@@ -37,25 +37,6 @@
 {
     <div class="well d-flex flex-nowrap">
         @{ TableFormattedVariantAttributes(Model.AttributesXml); }
-
-        <div class="btn-group ml-auto pl-2">
-            <button type="button"
-                    id="EditPreviousAttributeCombination"
-                    class="btn btn-light btn-sm btn-icon"
-                    title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination")"
-                    data-url="@Url.Action("EditSiblingAttributeCombination", new { id = Model.PreviousCombinationId ?? Model.Id })"
-                    attr-disabled='(Model.PreviousCombinationId == null, "disabled")'>
-                <i class="fa fa fa-angle-left"></i>
-            </button>
-            <button type="button"
-                    id="EditNextAttributeCombination"
-                    class="btn btn-light btn-sm btn-icon"
-                    title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenNextCombination")"
-                    data-url="@Url.Action("EditSiblingAttributeCombination", new { id = Model.NextCombinationId ?? Model.Id })"
-                    attr-disabled='(Model.NextCombinationId == null, "disabled")'>
-                <i class="fa fa fa-angle-right"></i>
-            </button>
-        </div>
     </div>
 }
 else

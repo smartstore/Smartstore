@@ -4,7 +4,7 @@
 
 <h6>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.SelectAttributes")</h6>
 
-<div class="adminContent">
+<div class="adminContent mb-n3">
     @foreach (var attribute in Model.ProductVariantAttributes)
     {
         var controlId = attribute.GetControlId(Model.ProductId, 0);
@@ -12,9 +12,11 @@
 
         <div class="adminRow">
             <div class="adminTitle" attr-class='(attribute.IsRequired, "required")'>
-                <label for="@controlId">
-                    @(attribute.TextPrompt.NullEmpty() ?? attribute.Name)
-                </label>
+                <div class="ctl-label">
+                    <label for="@controlId">
+                        @(attribute.TextPrompt.NullEmpty() ?? attribute.Name)
+                    </label>
+                </div>
             </div>
             <div class="adminData">
                 <div class="controls">

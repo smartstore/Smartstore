@@ -226,6 +226,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.SystemInfo.AppVersion", "Smartstore version", "Smartstore Version");
 
             builder.AddOrUpdate("Products.ToFilterAndSort", "Filter & Sort", "Filtern & Sortieren");
+            builder.AddOrUpdate("Admin.Common.SaveClose", "Save & close", "Speichern & schließen");
+            builder.AddOrUpdate("Admin.Common.SaveExit", "Save & exit", "Speichern & beenden");
 
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination",
                 "Open previous attribute combination",
