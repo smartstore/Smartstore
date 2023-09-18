@@ -19,6 +19,8 @@ namespace Smartstore.Core.Common.Services
         /// <remarks>The setter is for testing purposes only.</remarks>
         Currency PrimaryExchangeCurrency { get; }
 
+        #region Currency conversion
+
         /// <summary>
         /// Exchanges given <see cref="Money"/> amount to <see cref="IWorkContext.WorkingCurrency"/>,
         /// using <see cref="PrimaryExchangeCurrency"/> as exchange rate currency.
@@ -34,6 +36,24 @@ namespace Smartstore.Core.Common.Services
         /// <param name="amount">The source amount to exchange (should be in <see cref="PrimaryCurrency"/>).</param>
         /// <returns>The exchanged amount.</returns>
         Money ConvertToWorkingCurrency(decimal amount);
+
+        #endregion
+
+        #region Currency rounding
+
+        /// <summary>
+        /// Round value up or down to the nearest multiple of denomination (cash rounding) if activated for currency.
+        /// </summary>
+        /// <param name="amount">Amount to round.</param>
+        /// <param name="currency">Currency. Rounding must be activated for this currency.</param>
+        /// <param name="toNearestRounding">Amount by which was rounded.</param>
+        /// <returns>Rounded amount.</returns>
+        /// <example>"Schweizer Rappenrundung" of 16.23 -> returned value is 16.25 and toNearestRounding is 0.02.</example>
+        decimal RoundToNearest(decimal amount, Currency currency, out decimal toNearestRounding);
+
+        #endregion
+
+        #region Exchange rate provider
 
         /// <summary>
         /// Gets live exchange rates for the <see cref="PrimaryExchangeCurrency"/>.
@@ -62,6 +82,8 @@ namespace Smartstore.Core.Common.Services
         /// </summary>
         /// <returns>Exchange rate providers</returns>
         IEnumerable<Provider<IExchangeRateProvider>> LoadAllExchangeRateProviders();
+
+        #endregion
 
         /// <summary>
         ///     Creates and returns a <see cref="Money"/> struct.

@@ -245,8 +245,8 @@ namespace Smartstore.Core.Checkout.Orders
                     var paymentMethod = await _db.PaymentMethods.AsNoTracking().FirstOrDefaultAsync(x => x.PaymentMethodSystemName == paymentMethodSystemName);
                     if (paymentMethod?.RoundOrderTotalEnabled ?? false)
                     {
-                        orderTotal = _workingCurrency.RoundToNearest(orderTotal.Value, out toNearestRounding);
-                        orderTotalConverted = _workingCurrency.RoundToNearest(orderTotalConverted.Value, out toNearestRoundingConverted);
+                        orderTotal = _currencyService.RoundToNearest(orderTotal.Value, _workingCurrency, out toNearestRounding);
+                        orderTotalConverted = _currencyService.RoundToNearest(orderTotalConverted.Value, _workingCurrency, out toNearestRoundingConverted);
                     }
                 }
             }

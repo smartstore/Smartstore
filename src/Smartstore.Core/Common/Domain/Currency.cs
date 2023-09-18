@@ -88,10 +88,16 @@ namespace Smartstore.Core.Common
 
         #region Rounding
 
+        // TODO: (mg) RoundOrderItemsEnabled becomes obsolete. ("true" as default was wrong anyway.)
         /// <summary>
         /// Gets or sets a value indicating whether rounding of order items is enabled
         /// </summary>
         public bool RoundOrderItemsEnabled { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the rule for rounding during shopping cart calculation.
+        /// </summary>
+        public CartCalculationRoundingRule RoundCartRule { get; set; }
 
         /// <summary>
         /// Gets or sets the number of decimal places to round to
