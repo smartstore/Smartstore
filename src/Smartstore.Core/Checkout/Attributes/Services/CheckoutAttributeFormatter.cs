@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Globalization;
+using System.Web;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
@@ -47,7 +48,7 @@ namespace Smartstore.Core.Checkout.Attributes
             bool renderPrices = true,
             bool allowHyperlinks = true)
         {
-            Guard.NotNull(selection, nameof(selection));
+            Guard.NotNull(selection);
 
             customer ??= _workContext.CurrentCustomer;
 
@@ -124,7 +125,13 @@ namespace Smartstore.Core.Checkout.Attributes
                         }
                         else
                         {
-                            // Other attributes (textbox, datepicker...)
+                            // TextBox, Datepicker
+                            if (currentAttribute.AttributeControlType == AttributeControlType.Datepicker)
+                            {
+                                var culture = CommonHelper.TryAction(() => new CultureInfo(language.LanguageCulture));
+                                currentValue = currentValue.ToDateTime(null)?.ToString("D", culture) ?? currentValue;
+                            }
+
                             attributeStr = $"{currentAttribute.GetLocalized(a => a.Name, language)}: {currentValue}";
 
                             if (htmlEncode)

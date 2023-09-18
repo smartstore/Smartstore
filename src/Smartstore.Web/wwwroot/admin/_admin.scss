@@ -1388,23 +1388,16 @@ a.editable {
 // --------------------------------------------------------------
 
 
-#order-form .checkout-attributes {
-    table {
-        //margin-left: auto
-    }
-
+#order-edit .checkout-attributes {
     .attr-caption {
         font-weight: $font-weight-medium;
-        text-align: end;
         padding-inline-end: 10px;
-
         &:after {
             content: ': '
         }
     }
-
     .attr-value {
-        text-align: left;
+        text-align: start;
     }
 }
 

@@ -138,7 +138,7 @@ namespace Smartstore.Core.Checkout.Attributes
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
                     {
-                        var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
+                        var selectedValue = string.Join(',', selectedItems.Select(x => x.Value));
                         if (selectedValue.HasValue())
                         {
                             selection.AddAttributeValue(attribute.Id, selectedValue);
@@ -151,7 +151,7 @@ namespace Smartstore.Core.Checkout.Attributes
                         var selectedValue = selectedItems.FirstOrDefault()?.Date;
                         if (selectedValue.HasValue)
                         {
-                            selection.AddAttributeValue(attribute.Id, selectedValue.Value);
+                            selection.AddAttributeValue(attribute.Id, selectedValue.Value.ToStringInvariant());
                         }
                     }
                     break;
