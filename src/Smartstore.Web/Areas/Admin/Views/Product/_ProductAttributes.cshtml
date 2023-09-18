@@ -8,44 +8,25 @@
     @foreach (var attribute in Model.ProductVariantAttributes)
     {
         var controlId = attribute.GetControlId(Model.ProductId, 0);
+        var multiple = attribute.AttributeControlType == AttributeControlType.Checkboxes;
 
         <div class="adminRow">
             <div class="adminTitle" attr-class='(attribute.IsRequired, "required")'>
                 <label for="@controlId">
-                    @(attribute.TextPrompt.HasValue() ? attribute.TextPrompt : attribute.Name)
+                    @(attribute.TextPrompt.NullEmpty() ?? attribute.Name)
                 </label>
             </div>
             <div class="adminData">
                 <div class="controls">
-                    @* TODO: (mg) Choosing multiple options from a checkbox list is awkward (is faulty?). Better to render select2 for radio and check options. The inline options don't look good anyway.' *@
-                    @if (attribute.AttributeControlType == AttributeControlType.Checkboxes
-                   || attribute.AttributeControlType == AttributeControlType.RadioList
-                   || attribute.AttributeControlType == AttributeControlType.Boxes)
-                    {
-                        var type = attribute.AttributeControlType == AttributeControlType.Checkboxes ? "checkbox" : "radio";
-
-                        foreach (var pvaValue in attribute.Values)
+                    <select name="@controlId" id="@controlId" class="form-control" attr-multiple='(multiple, "multiple")'>
+                        <option sm-if="!attribute.IsRequired && !multiple" value="0">---</option>
+                        @foreach (var pvaValue in attribute.Values)
                         {
-                            <div class="form-check form-check-inline">
-                                <input type="@type" id="@controlId-@pvaValue.Id" name="@controlId" class="form-check-input" value="@pvaValue.Id" attr-checked='(pvaValue.IsPreSelected, "checked")' />
-                                <label class="form-check-label" for="@controlId-@pvaValue.Id">@pvaValue.Name</label>
-                            </div>
+                            <option attr-selected='(pvaValue.IsPreSelected, "selected")' value="@pvaValue.Id">@pvaValue.Name</option>
                         }
-                    }
-                    else if (attribute.AttributeControlType == AttributeControlType.DropdownList)
-                    {
-                        <select name="@controlId" id="@controlId" class="form-control">
-                            <option sm-if="!attribute.IsRequired" value="0">---</option>
-
-                            @foreach (var pvaValue in attribute.Values)
-                            {
-                                <option attr-selected='(pvaValue.IsPreSelected, "selected")' value="@pvaValue.Id">@pvaValue.Name</option>
-                            }
-                        </select>
-                    }
+                    </select>
                 </div>
             </div>
-
         </div>
     }
 </div>

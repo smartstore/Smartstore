@@ -159,18 +159,14 @@ namespace Smartstore.Web.Rendering
         public static IHtmlContent VariantAttributeValueName(this IHtmlHelper _)
         {
             var builder = new SmartHtmlContentBuilder();
-
-            var icon = "<i :class='item.row.TypeNameClass' :title='item.row.TypeName'></i>";
-            builder.AppendHtml(icon);
+            builder.AppendHtml("<i :class='item.row.TypeNameClass' :title='item.row.TypeName'></i>");
 
             var colorSpan = new TagBuilder("span");
             colorSpan.Attributes.Add("v-if", "item.row.HasColor");
             colorSpan.Attributes.Add("class", "color-container");
             colorSpan.InnerHtml.AppendHtml("<span class='color' :style='{ background: item.row.Color }' :title='item.row.Color'>&nbsp;</span>");
             builder.AppendHtml(colorSpan);
-
-            var quantityInfo = "<span>{{ item.value }} {{ item.row.QuantityInfo }}</span>";
-            builder.AppendHtml(quantityInfo);
+            builder.AppendHtml("<span><a href='javascript:;' class='edit-variant-attribute-value' :data-key='item.row.Id'>{{ item.value }} {{ item.row.QuantityInfo }}</a></span>");
 
             return builder;
         }
@@ -188,7 +184,7 @@ namespace Smartstore.Web.Rendering
 
             var builder = new SmartHtmlContentBuilder();
             builder.AppendHtml(colorSpan);
-            builder.AppendHtml("<a href='javascript:void(0)' class='edit-specification-attribute-option' :data-id='item.row.Id'>{{ item.value }}</a>");
+            builder.AppendHtml("<a href='javascript:;' class='edit-specification-attribute-option' :data-id='item.row.Id'>{{ item.value }}</a>");
 
             return builder;
         }
