@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
@@ -96,8 +97,9 @@ namespace Smartstore.Core.Common
 
         /// <summary>
         /// Gets or sets the rule for rounding during shopping cart calculation.
+        /// If <c>null</c>, the rule will be obtained via <see cref="CurrencySettings.RoundCartRule"/>.
         /// </summary>
-        public CartCalculationRoundingRule RoundCartRule { get; set; }
+        public CartRoundingRule? RoundCartRule { get; set; }
 
         /// <summary>
         /// Gets or sets the number of decimal places to round to

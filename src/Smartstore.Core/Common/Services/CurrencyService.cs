@@ -161,38 +161,6 @@ namespace Smartstore.Core.Common.Services
 
         #endregion
 
-        #region Currency rounding
-
-        public virtual decimal RoundToNearest(decimal amount, Currency currency, out decimal toNearestRounding)
-        {
-            currency ??= _workContext.WorkingCurrency;
-
-            var oldValue = amount;
-
-            switch (currency.RoundOrderTotalRule)
-            {
-                case CurrencyRoundingRule.RoundMidpointUp:
-                    amount = amount.RoundToNearest(currency.RoundOrderTotalDenominator, MidpointRounding.AwayFromZero);
-                    break;
-                case CurrencyRoundingRule.AlwaysRoundDown:
-                    amount = amount.RoundToNearest(currency.RoundOrderTotalDenominator, false);
-                    break;
-                case CurrencyRoundingRule.AlwaysRoundUp:
-                    amount = amount.RoundToNearest(currency.RoundOrderTotalDenominator, true);
-                    break;
-                case CurrencyRoundingRule.RoundMidpointDown:
-                default:
-                    amount = amount.RoundToNearest(currency.RoundOrderTotalDenominator, MidpointRounding.ToEven);
-                    break;
-            }
-
-            toNearestRounding = amount - decimal.Round(oldValue, currency.RoundNumDecimals);
-
-            return amount;
-        }
-
-        #endregion
-
         #region Exchange rate provider
 
         public virtual async Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(bool force = false)

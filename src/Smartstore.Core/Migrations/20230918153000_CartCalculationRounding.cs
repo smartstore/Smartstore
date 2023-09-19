@@ -16,10 +16,7 @@ namespace Smartstore.Core.Migrations
         {
             if (!Schema.Table(CurrencyTable).Column(RoundCartRuleColumn).Exists())
             {
-                Create.Column(RoundCartRuleColumn).OnTable(CurrencyTable)
-                    .AsInt32()
-                    .NotNullable()
-                    .WithDefaultValue((int)CartCalculationRoundingRule.None);
+                Create.Column(RoundCartRuleColumn).OnTable(CurrencyTable).AsInt32().Nullable();
             }
         }
 
@@ -40,7 +37,7 @@ namespace Smartstore.Core.Migrations
 #pragma warning disable 612, 618
             await context.Currencies
                 .Where(x => x.RoundOrderItemsEnabled)
-                .ExecuteUpdateAsync(x => x.SetProperty(c => c.RoundCartRule, p => CartCalculationRoundingRule.AlwaysRound), cancelToken);
+                .ExecuteUpdateAsync(x => x.SetProperty(c => c.RoundCartRule, p => CartRoundingRule.AlwaysRound), cancelToken);
 #pragma warning restore 612, 618
         }
 

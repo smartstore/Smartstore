@@ -33,6 +33,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         IDiscountService _discountService;
         IGiftCardService _giftCardService;
         ICurrencyService _currencyService;
+        IRoundingHelper _roundingHelper;
         ILocalizationService _localizationService;
         TaxSettings _taxSettings;
         RewardPointsSettings _rewardPointsSettings;
@@ -128,6 +129,8 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             currencyServiceMock.Setup(x => x.PrimaryCurrency).Returns(_currency);
             currencyServiceMock.Setup(x => x.PrimaryExchangeCurrency).Returns(_currency);
 
+            _roundingHelper = new Mock<IRoundingHelper>().Object;
+
             var priceLabelService = new Mock<IPriceLabelService>();
 
             var localizationServiceMock = new Mock<ILocalizationService>();
@@ -173,6 +176,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _shippingService,
                 _giftCardService,
                 _currencyService,
+                _roundingHelper,
                 _requestCache,
                 ProviderManager,
                 _checkoutAttributeMaterializer,

@@ -1,5 +1,4 @@
-﻿using Smartstore.Core;
-using Smartstore.Core.Checkout.Orders;
+﻿using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 
@@ -92,30 +91,6 @@ namespace Smartstore
             Guard.NotNull(targetCurrency);
 
             return amount.ExchangeTo(targetCurrency, service.PrimaryExchangeCurrency);
-        }
-
-        #endregion
-
-        #region Currency rounding
-
-        /// <summary>
-        /// Round value up or down to the nearest multiple of denomination (cash rounding) if activated for currency.
-        /// </summary>
-        /// <param name="amount">Amount to round.</param>
-        /// <param name="currency">
-        /// Currency. Rounding must be activated for this currency.
-        /// If <c>null</c>, currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
-        /// </param>
-        /// <param name="toNearestRounding">Amount by which was rounded.</param>
-        /// <returns>Rounded amount.</returns>
-        /// <example>"Schweizer Rappenrundung" of 16.23 -> returned value is 16.25 and toNearestRounding is 0.02.</example>
-        public static Money RoundToNearest(this ICurrencyService service, Money amount, Currency currency, out Money toNearestRounding)
-        {
-            var newValue = service.RoundToNearest(amount.Amount, currency, out var tmpToNearestRounding);
-
-            toNearestRounding = new Money(tmpToNearestRounding, currency);
-
-            return new Money(newValue, currency);
         }
 
         #endregion

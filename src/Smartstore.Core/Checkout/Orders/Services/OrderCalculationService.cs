@@ -30,6 +30,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IShippingService _shippingService;
         private readonly IGiftCardService _giftCardService;
         private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly IRequestCache _requestCache;
         private readonly IProviderManager _providerManager;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
@@ -52,6 +53,7 @@ namespace Smartstore.Core.Checkout.Orders
             IShippingService shippingService,
             IGiftCardService giftCardService,
             ICurrencyService currencyService,
+            IRoundingHelper roundingHelper,
             IRequestCache requestCache,
             IProviderManager providerManager,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
@@ -71,6 +73,7 @@ namespace Smartstore.Core.Checkout.Orders
             _shippingService = shippingService;
             _giftCardService = giftCardService;
             _currencyService = currencyService;
+            _roundingHelper = roundingHelper;
             _requestCache = requestCache;
             _providerManager = providerManager;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
@@ -245,8 +248,8 @@ namespace Smartstore.Core.Checkout.Orders
                     var paymentMethod = await _db.PaymentMethods.AsNoTracking().FirstOrDefaultAsync(x => x.PaymentMethodSystemName == paymentMethodSystemName);
                     if (paymentMethod?.RoundOrderTotalEnabled ?? false)
                     {
-                        orderTotal = _currencyService.RoundToNearest(orderTotal.Value, _workingCurrency, out toNearestRounding);
-                        orderTotalConverted = _currencyService.RoundToNearest(orderTotalConverted.Value, _workingCurrency, out toNearestRoundingConverted);
+                        orderTotal = _roundingHelper.RoundToNearest(orderTotal.Value, out toNearestRounding, _workingCurrency);
+                        orderTotalConverted = _roundingHelper.RoundToNearest(orderTotalConverted.Value, out toNearestRoundingConverted, _workingCurrency);
                     }
                 }
             }

@@ -23,8 +23,19 @@ namespace Smartstore.Core.Common.Configuration
         public string ActiveExchangeRateProviderSystemName { get; set; }
 
         /// <summary>
-        /// Whether automatic currency rate update is enabled
+        /// Gets or sets a value indicating whether to automatically update currency rates.
         /// </summary>
         public bool AutoUpdateEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default rule for rounding during shopping cart calculation.
+        /// </summary>
+        public CartRoundingRule RoundCartRule { get; set; }
+
+        /// <summary>
+        /// Gets or sets the midpoint rounding strategy.
+        /// </summary>
+        /// <remarks>ASP.NET Core default value is <see cref="MidpointRounding.ToEven"/>.</remarks>
+        public MidpointRounding MidpointRounding { get; set; } = MidpointRounding.ToEven;
     }
 }

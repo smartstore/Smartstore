@@ -39,20 +39,6 @@ namespace Smartstore.Core.Common.Services
 
         #endregion
 
-        #region Currency rounding
-
-        /// <summary>
-        /// Round value up or down to the nearest multiple of denomination (cash rounding) if activated for currency.
-        /// </summary>
-        /// <param name="amount">Amount to round.</param>
-        /// <param name="currency">Currency. Rounding must be activated for this currency.</param>
-        /// <param name="toNearestRounding">Amount by which was rounded.</param>
-        /// <returns>Rounded amount.</returns>
-        /// <example>"Schweizer Rappenrundung" of 16.23 -> returned value is 16.25 and toNearestRounding is 0.02.</example>
-        decimal RoundToNearest(decimal amount, Currency currency, out decimal toNearestRounding);
-
-        #endregion
-
         #region Exchange rate provider
 
         /// <summary>

@@ -6,13 +6,13 @@
     /// <remarks>
     /// Changes to this rule may lead to rounding differences compared to external services, such as payment providers.
     /// </remarks>
-    public enum CartCalculationRoundingRule
+    public enum CartRoundingRule
     {
         /// <summary>
         /// Never round during shopping cart calculation.
         /// Nevertheless, a currency amount is displayed rounded according to <see cref="Currency.RoundNumDecimals"/>.
         /// </summary>
-        None = 0,
+        NeverRound = 0,
 
         /// <summary>
         /// Prices and tax amounts are rounded at item level.
@@ -28,6 +28,18 @@
         /// Round at all relevant places during shopping cart calculation.
         /// </summary>
         AlwaysRound = 30
+    }
+
+    public enum CartRoundingItem
+    {
+        ProductUnitAmount,
+        ProductUnitTax,
+        SubtotalAmount,
+        SubtotalTax,
+        ShippingAmount,
+        RewardPointsAmount,
+        TotalAmount,
+        // TODO: probably more required....
     }
 
     /// <summary>

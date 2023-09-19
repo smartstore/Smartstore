@@ -13,7 +13,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly Lazy<IOrderProcessingService> _orderProcessingService;
-        private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly IEventPublisher _eventPublisher;
         private readonly PaymentSettings _paymentSettings;
         private readonly HashSet<Order> _toCapture = new();
@@ -22,12 +22,14 @@ namespace Smartstore.Core.Checkout.Orders
             SmartDbContext db,
             IWorkContext workContext,
             Lazy<IOrderProcessingService> orderProcessingService,
+            IRoundingHelper roundingHelper,
             IEventPublisher eventPublisher,
             PaymentSettings paymentSettings)
         {
             _db = db;
             _workContext = workContext;
             _orderProcessingService = orderProcessingService;
+            _roundingHelper = roundingHelper;
             _eventPublisher = eventPublisher;
             _paymentSettings = paymentSettings;
         }
@@ -120,7 +122,7 @@ namespace Smartstore.Core.Checkout.Orders
                 var paymentMethod = await _db.PaymentMethods.AsNoTracking().FirstOrDefaultAsync(x => x.PaymentMethodSystemName == order.PaymentMethodSystemName);
                 if (paymentMethod?.RoundOrderTotalEnabled ?? false)
                 {
-                    orderTotal = _currencyService.RoundToNearest(orderTotal, targetCurrency, out roundingAmount);
+                    orderTotal = _roundingHelper.RoundToNearest(orderTotal, out roundingAmount, targetCurrency);
                 }
             }
 
