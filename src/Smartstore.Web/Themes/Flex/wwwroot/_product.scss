@@ -76,9 +76,21 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     }
 }
 
-.zoom-window-container {
-    position: relative;
+.pd-section {
+    .zoom-window-container {
+        &:empty {
+            display: none;
+        }
+
+        display: block;
+        position: sticky;
+        left: 0;
+        top: 0;
+        z-index: 1;
+        margin: 0 calc(var(--gutter-x) * -.5);
+    }
 }
+
 
 // Info
 // =====================================================
