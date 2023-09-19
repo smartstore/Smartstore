@@ -42,7 +42,7 @@
 }
 
 .drift-zoom-pane {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba($black, 0.5);
     background: #fff;
     /* This is required because of a bug that causes border-radius to not
     work with child elements in certain cases. */
@@ -59,20 +59,22 @@
 }
 
 .drift-zoom-pane.drift-open {
-    border: 1px solid rgba($black, 0.2);
-    box-shadow: 0 0 5px rgba($black, 0.1);
+    overflow: hidden;
+    border: 1px solid var(--border-color-translucent);
+    box-shadow: var(--box-shadow-lg);
+    border-radius: var(--border-radius-lg);
 }
 
 .drift-zoom-pane:not(.drift-inline) {
     min-height: 300px;
-    max-height: 600px;
+    max-height: cssmin(calc(100vh - 1rem), 600px);
 }
 
 .drift-zoom-pane.drift-inline {
     position: absolute;
     width: 150px;
     height: 150px;
-    border-radius: 75px;
+    border-radius: 50%;
     box-shadow: 0 6px 18px rgba($black, 0.3);
 }
 
@@ -80,7 +82,7 @@
     display: block;
     position: absolute;
     top: 50%;
-    left: 50%;
+    inset-inline-start: 50%;
     transform: translate(-50%, -50%);
     width: 66px;
     height: 20px;
@@ -100,12 +102,12 @@
 }
 
 .drift-zoom-pane-loader:before {
-    left: 0;
+    inset-inline-start: 0;
     animation: drift-loader-before 1800ms infinite linear;
 }
 
 .drift-zoom-pane-loader:after {
-    right: 0;
+    inset-inline-end: 0;
     animation: drift-loader-after 1800ms infinite linear;
     animation-delay: -900ms;
 }

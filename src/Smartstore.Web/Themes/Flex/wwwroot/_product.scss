@@ -84,10 +84,11 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
         display: block;
         position: sticky;
-        left: 0;
-        top: 0;
-        z-index: 3;
+        inset-inline: 0;
+        top: 4px;
+        z-index: $zindex-popover;
         margin: 0 calc(var(--gutter-x) * -.5);
+        box-shadow: var(--box-shadow-md);
     }
 }
 
