@@ -196,7 +196,9 @@ namespace Smartstore.Core.Catalog.Products
         {
             Guard.NotNull(query);
 
-            return query.Include(x => x.ProductMediaFiles.OrderBy(y => y.DisplayOrder)).ThenInclude(x => x.MediaFile);
+            return query.Include(x => x.ProductManufacturers.OrderBy(y => y.DisplayOrder).ThenBy(x => x.Manufacturer.Name))
+                .ThenInclude(x => x.Manufacturer)
+                .ThenInclude(x => x.MediaFile);
         }
 
         /// <summary>
