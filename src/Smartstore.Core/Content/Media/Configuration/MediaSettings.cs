@@ -13,7 +13,7 @@ namespace Smartstore.Core.Content.Media
         public const int ThumbnailSizeSm = 128;
         public const int ThumbnailSizeMd = 256;
         public const int ThumbnailSizeLg = 512;
-        public const int ThumbnailSizeXl = 600;
+        public const int ThumbnailSizeXl = 680;
         public const int ThumbnailSizeXxl = 1024;
         public const int MaxImageSize = 2048;
 

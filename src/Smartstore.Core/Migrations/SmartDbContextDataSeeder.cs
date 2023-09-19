@@ -1,5 +1,6 @@
 ﻿using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.DataExchange.Import;
+using Smartstore.Core.Identity;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
@@ -66,6 +67,24 @@ namespace Smartstore.Core.Data.Migrations
                     db.Settings.RemoveRange(settingsForAllStores.Skip(1));
                 }
             }   
+
+            await db.SaveChangesAsync(cancelToken);
+
+            var productDetailsPictureSizeSettings = await db.Settings
+                .Where(x => x.Name == "MediaSettings.ProductDetailsPictureSize")
+                .ToListAsync(cancelToken);
+
+            if (productDetailsPictureSizeSettings.Count > 0)
+            {
+                foreach (var setting in productDetailsPictureSizeSettings)
+                {
+                    // INFO: 600 is the old default value. We only alter if it is still 600 and thus not changed by the user.
+                    if (setting.Value == "600")
+                    {
+                        setting.Value = "680";
+                    }
+                }
+            }
 
             await db.SaveChangesAsync(cancelToken);
 
