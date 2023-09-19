@@ -82,6 +82,13 @@
     }
 }
 
+.page-item.gap > .page-link {
+    &:not(:hover) {
+        background-color: transparent;
+        border-color: transparent;
+    }
+}
+
 .page-item-nav.back .nav-label {
     padding-inline-start: 0.375rem;
 }

@@ -15,7 +15,7 @@
         Text,
         NextPage,
         LastPage,
-        Misc
+        Gap
     }
 
     public class PagerItem

@@ -187,8 +187,8 @@ namespace Smartstore.Web.TagHelpers.Shared
                 start = v == 0 ? currentIndex - maxPages + 1 : currentIndex - v + 1;
             }
 
-            var p = start + maxPages - 1;
-            p = Math.Min(p, totalPages);
+            var end = start + maxPages - 1;
+            end = Math.Min(end, totalPages);
 
             var items = new List<PagerItem>();
 
@@ -214,7 +214,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Add the page number items.
             if (maxPages > 0)
             {
-                AddPageItemsToList(items, start, p, currentIndex, totalPages);
+                AddPageItemsToList(items, start, end, currentIndex, totalPages);
             }
 
             // Next link.
@@ -241,19 +241,29 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected virtual void AddPageItemsToList(List<PagerItem> items, int start, int end, int currentIndex, int totalPages)
         {
+            var numPages = end - start;
+
             if (start > 1)
             {
                 if (!ShowFirst)
                 {
                     items.Add(new PagerItem(1, "1", GenerateUrl(1)));
+                    numPages++;
                 }
-                items.Add(new PagerItem(start - 1, "...", GenerateUrl(start - 1)));
+                items.Add(new PagerItem(start - 1, "...", GenerateUrl(start - 1), PagerItemType.Gap));
+                numPages++;
+            }
+
+            // Add coming end items to numPages
+            if (end < totalPages)
+            {
+                numPages += (ShowLast ? 1 : 2);
             }
 
             for (var i = start; i <= end; i++)
             {
                 // Never hide first and last page on xs
-                var hideOnXs = i != currentIndex && i > 1 && i < totalPages;
+                var hideOnXs = numPages >= 5 && i != currentIndex && i > 1 && i < totalPages;
 
                 // On sm: Only hide items that are 2 pages away
                 var hideOnSm = hideOnXs && Math.Abs(currentIndex - i) > 1;
@@ -268,7 +278,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (end < totalPages)
             {
-                items.Add(new PagerItem(end + 1, "...", GenerateUrl(end + 1)));
+                items.Add(new PagerItem(end + 1, "...", GenerateUrl(end + 1), PagerItemType.Gap));
                 if (!ShowLast)
                 {
                     items.Add(new PagerItem(totalPages, totalPages.ToString(), GenerateUrl(totalPages)));
@@ -321,13 +331,17 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 classList.Add("shrinked");
             }
+            else if (item.Type == PagerItemType.Gap)
+            {
+                classList.Add("gap");
+            }
 
             if (item.CssClass.HasValue())
             {
                 classList.Add(item.CssClass.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
             }
 
-            var isResponsive = itemsCount >= 5;
+            var isResponsive = itemsCount >= 6;
             if (isResponsive)
             {
                 if (item.DispensableSm)
@@ -343,9 +357,10 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Dispose here to write all collected classes into tag.
             classList.Dispose();
 
-            var innerAOrSpan = new TagBuilder(item.Type == PagerItemType.Page || item.IsNavButton ? "a" : "span");
+            var isClickable = item.Type is PagerItemType.Page or PagerItemType.Gap;
+            var innerAOrSpan = new TagBuilder(isClickable || item.IsNavButton ? "a" : "span");
 
-            if (item.Type == PagerItemType.Page || item.IsNavButton)
+            if (isClickable || item.IsNavButton)
             {
                 innerAOrSpan.Attributes.Add("href", item.Url);
 
