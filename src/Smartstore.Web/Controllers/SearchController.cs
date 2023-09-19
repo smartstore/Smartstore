@@ -126,8 +126,6 @@ namespace Smartstore.Web.Controllers
                         }
 
                         return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
-
-                    
                 }
             }
             return View(await GetSearchResultModel(query));
@@ -137,9 +135,6 @@ namespace Smartstore.Web.Controllers
         {
             CatalogSearchResult result = null;
             var model = new SearchResultModel(query);
-
-
-            //break into it's own method search settings
             
             var service = new SearchControllerService(_catalogSearchService, _searchSettings, _catalogSettings, _catalogHelper);
             return await service.GetSearchResultService(model, result, query);
