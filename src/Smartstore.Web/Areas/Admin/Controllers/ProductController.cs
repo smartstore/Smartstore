@@ -338,50 +338,61 @@ namespace Smartstore.Admin.Controllers
             const int pageSize = 100;
             IEnumerable<Product> products = null;
             var hasMoreData = true;
-            var skip = page * pageSize;
             var ids = selectedIds.ToIntArray();
-            var fields = new List<string> { "name" };
 
-            if (_searchSettings.SearchFields.Contains("sku"))
+            // Perform a search for SKU, MPN or GTIN first.
+            products = await _db.Products
+                .IgnoreQueryFilters()
+                .ApplyProductCodeFilter(term)
+                .ToListAsync();
+
+            // If no products were found by unique identifiers, perform a full text search.
+            if (!products.Any())
             {
-                fields.Add("sku");
-            }
-            if (_searchSettings.SearchFields.Contains("shortdescription"))
-            {
-                fields.Add("shortdescription");
-            }
+                var skip = page * pageSize;
+                var fields = new List<string> { "name" };
 
-            var searchQuery = new CatalogSearchQuery(fields.ToArray(), term);
+                if (_searchSettings.SearchFields.Contains("sku"))
+                {
+                    fields.Add("sku");
+                }
+                if (_searchSettings.SearchFields.Contains("shortdescription"))
+                {
+                    fields.Add("shortdescription");
+                }
 
-            if (_searchSettings.UseCatalogSearchInBackend)
-            {
-                searchQuery = searchQuery
-                    .Slice(skip, pageSize)
-                    .SortBy(ProductSortingEnum.NameAsc);
+                var searchQuery = new CatalogSearchQuery(fields.ToArray(), term);
 
-                var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
-                var hits = await searchResult.GetHitsAsync();
+                if (_searchSettings.UseCatalogSearchInBackend)
+                {
+                    searchQuery = searchQuery
+                        .Slice(skip, pageSize)
+                        .SortBy(ProductSortingEnum.NameAsc);
 
-                hasMoreData = hits.HasNextPage;
-                products = hits;
-            }
-            else
-            {
-                var query = _catalogSearchService.Value.PrepareQuery(searchQuery);
+                    var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
+                    var hits = await searchResult.GetHitsAsync();
 
-                hasMoreData = (page + 1) * pageSize < await query.CountAsync();
+                    hasMoreData = hits.HasNextPage;
+                    products = hits;
+                }
+                else
+                {
+                    var query = _catalogSearchService.Value.PrepareQuery(searchQuery);
 
-                products = await query
-                    .Select(x => new Product
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Sku = x.Sku
-                    })
-                    .OrderBy(x => x.Name)
-                    .Skip(skip)
-                    .Take(pageSize)
-                    .ToListAsync();
+                    hasMoreData = (page + 1) * pageSize < await query.CountAsync();
+
+                    products = await query
+                        .Select(x => new Product
+                        {
+                            Id = x.Id,
+                            Name = x.Name,
+                            Sku = x.Sku
+                        })
+                        .OrderBy(x => x.Name)
+                        .Skip(skip)
+                        .Take(pageSize)
+                        .ToListAsync();
+                }
             }
 
             var items = products.Select(x => new ChoiceListItem
