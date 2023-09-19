@@ -40,6 +40,7 @@
 - #807 Enable absolute Paths for DataExchangeSettings.ImageImportFolder.
 - #786 Replace TripleDatePicker with native input type date.
 - #804 Implemented the new TrustBadge integration mode, including new settings for positioning, color scheme, etc. 
+- #819 Fix zoom on product detail page when there is a large right column 
 
 ### Bugfixes
 
