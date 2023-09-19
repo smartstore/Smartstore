@@ -11,7 +11,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public SettingsMigrator(SmartDbContext db)
         {
-            Guard.NotNull(db, nameof(db));
+            Guard.NotNull(db);
 
             _db = db;
             _settings = _db.Settings;
@@ -19,51 +19,88 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task MigrateAsync(IEnumerable<SettingEntry> entries)
         {
-            Guard.NotNull(entries, nameof(entries));
+            Guard.NotNull(entries);
 
             if (!entries.Any())
                 return;
 
-            var toDelete = new List<Setting>();
             var toAdd = new List<Setting>();
 
             using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Essential);
 
-            // First perform DELETE actions
-            foreach (var entry in entries.Where(x => x.Value == null))
+            // First perform DELETE operations
+            var operations = entries.Where(x => x.Operation == SettingEntryOperation.Delete).ToList();
+            if (operations.Count > 0)
             {
-                bool isPattern = entry.KeyIsGroup;
-                if (!await HasSettingsAsync(entry.Key, isPattern))
-                    continue; // nothing to delete
-
-                var dbSettings = await GetSettingsAsync(entry.Key, isPattern);
-                _settings.RemoveRange(dbSettings);
-            }
-
-            await _db.SaveChangesAsync();
-
-            // Then perform ADD actions
-            foreach (var entry in entries.Where(x => x.Value.HasValue()))
-            {
-                var existing = toAdd.FirstOrDefault(x => x.Name.Equals(entry.Key, StringComparison.InvariantCultureIgnoreCase));
-                if (existing != null)
+                foreach (var entry in operations)
                 {
-                    existing.Value = entry.Value;
-                    continue;
+                    bool isPattern = entry.KeyIsGroup;
+                    if (!await HasSettingsAsync(entry.Key, isPattern))
+                    {
+                        continue; // nothing to delete
+                    }
+
+                    var dbSettings = await GetSettingsAsync(entry.Key, isPattern);
+                    _settings.RemoveRange(dbSettings);
                 }
 
-                if (await HasSettingsAsync(entry.Key, false))
-                    continue; // skip existing (we don't perform updates)
-
-                _settings.Add(new Setting
-                {
-                    Name = entry.Key,
-                    Value = entry.Value,
-                    StoreId = 0
-                });
+                await _db.SaveChangesAsync();
             }
 
-            await _db.SaveChangesAsync();
+
+            // Then perform ADD operations
+            operations = entries.Where(x => x.Operation == SettingEntryOperation.Add).ToList();
+            if (operations.Count > 0)
+            {
+                foreach (var entry in operations)
+                {
+                    if (entry.Value == null)
+                    {
+                        continue;
+                    }
+
+                    var existing = toAdd.FirstOrDefault(x => x.Name.Equals(entry.Key, StringComparison.InvariantCultureIgnoreCase));
+                    if (existing != null)
+                    {
+                        existing.Value = entry.Value;
+                        continue;
+                    }
+
+                    if (await HasSettingsAsync(entry.Key, false))
+                    {
+                        continue; // skip existing (we don't perform updates here)
+                    }
+
+                    _settings.Add(new Setting
+                    {
+                        Name = entry.Key,
+                        Value = entry.Value,
+                        StoreId = 0
+                    });
+                }
+
+                await _db.SaveChangesAsync();
+            }
+
+            // Now perform UPDATE operations
+            operations = entries.Where(x => x.Operation == SettingEntryOperation.Update).ToList();
+            if (operations.Count > 0)
+            {
+                foreach (var entry in entries.Where(x => x.Operation == SettingEntryOperation.Update))
+                {
+                    var existingSettings = await GetSettingsAsync(entry.Key, false);
+
+                    foreach (var setting in existingSettings)
+                    {
+                        if (entry.DefaultValue == null || entry.DefaultValue != setting.Value)
+                        {
+                            setting.Value = entry.Value;
+                        }
+                    }
+                }
+
+                await _db.SaveChangesAsync();
+            }
         }
 
         private Task<bool> HasSettingsAsync(string key, bool isPattern = false)

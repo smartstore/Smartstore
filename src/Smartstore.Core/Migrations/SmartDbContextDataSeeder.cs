@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
 using Smartstore.Data.Migrations;
@@ -23,17 +24,11 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
         {
-            var enableCookieConsentSettings = await db.Settings
-                .Where(x => x.Name == "PrivacySettings.EnableCookieConsent")
-                .ToListAsync(cancelToken);
-
-            if (enableCookieConsentSettings.Count > 0)
+            await db.MigrateSettingsAsync(builder => 
             {
-                foreach (var setting in enableCookieConsentSettings)
-                {
-                    db.Settings.Remove(setting);
-                }
-            }
+                builder.Delete("PrivacySettings.EnableCookieConsent");
+                builder.Update<MediaSettings>(x => x.ProductDetailsPictureSize, 680, 600);
+            });
 
             // Remove duplicate settings for PrivacySettings.CookieConsentRequirement
             var storeIds = await db.Stores
@@ -70,23 +65,6 @@ namespace Smartstore.Core.Data.Migrations
 
             await db.SaveChangesAsync(cancelToken);
 
-            var productDetailsPictureSizeSettings = await db.Settings
-                .Where(x => x.Name == "MediaSettings.ProductDetailsPictureSize")
-                .ToListAsync(cancelToken);
-
-            if (productDetailsPictureSizeSettings.Count > 0)
-            {
-                foreach (var setting in productDetailsPictureSizeSettings)
-                {
-                    // INFO: 600 is the old default value. We only alter if it is still 600 and thus not changed by the user.
-                    if (setting.Value == "600")
-                    {
-                        setting.Value = "680";
-                    }
-                }
-            }
-
-            await db.SaveChangesAsync(cancelToken);
 
             await MigrateOfflinePaymentDescriptions(db, cancelToken);
             await MigrateImportProfileColumnMappings(db, cancelToken);
