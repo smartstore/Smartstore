@@ -27,8 +27,8 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.SpecificationAttributeOption)
                 .ThenInclude(x => x.SpecificationAttribute)
                 .ApplyProductsFilter(new[] { productId })
-                .ThenBy(x => x.SpecificationAttributeOption.DisplayOrder)
-                .ThenBy(x => x.SpecificationAttributeOption.Name)
+                .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.DisplayOrder)
+                .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.Name)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
