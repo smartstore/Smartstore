@@ -11,7 +11,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public static IIncludableQueryable<Customer, CustomerRole> IncludeCustomerRoles(this IQueryable<Customer> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             return query
                 .Include(x => x.CustomerRoleMappings)
@@ -23,7 +23,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public static IIncludableQueryable<Customer, ProductBundleItem> IncludeShoppingCart(this IQueryable<Customer> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var includableQuery = query
                 .AsSplitQuery()
@@ -47,11 +47,13 @@ namespace Smartstore.Core.Identity
             string customerNumber = null,
             bool exactMatch = false)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (email.HasValue())
             {
-                query = exactMatch ? query.Where(c => c.Email == email) : query.Where(c => c.Email.Contains(email));
+                query = exactMatch 
+                    ? query.Where(c => c.Email == email || c.BillingAddress.Email == email || c.ShippingAddress.Email == email) 
+                    : query.Where(c => c.Email.Contains(email) || c.BillingAddress.Email.Contains(email) || c.ShippingAddress.Email.Contains(email));
             }
 
             if (userName.HasValue())
@@ -73,8 +75,8 @@ namespace Smartstore.Core.Identity
         /// <param name="exactMatch">Whether to perform an exact or partial field match.</param>
         public static IQueryable<Customer> ApplySearchTermFilter(this IQueryable<Customer> query, string term, bool exactMatch = false)
         {
-            Guard.NotNull(query, nameof(query));
-            Guard.NotEmpty(term, nameof(term));
+            Guard.NotNull(query);
+            Guard.NotEmpty(term);
 
             query = exactMatch
                 ? query.Where(c => c.FullName == term || c.Company == term)
@@ -91,7 +93,7 @@ namespace Smartstore.Core.Identity
         /// <param name="day">Day of month part (1-31). Pass <c>null</c> for any day.</param>
         public static IQueryable<Customer> ApplyBirthDateFilter(this IQueryable<Customer> query, int? year, int? month, int? day)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (day > 0)
             {
@@ -118,7 +120,7 @@ namespace Smartstore.Core.Identity
         /// <param name="toUtc">Latest (inclusive)</param>
         public static IOrderedQueryable<Customer> ApplyRegistrationFilter(this IQueryable<Customer> query, DateTime? fromUtc, DateTime? toUtc)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (fromUtc.HasValue)
             {
@@ -140,7 +142,7 @@ namespace Smartstore.Core.Identity
         /// <param name="toUtc">Latest (inclusive)</param>
         public static IOrderedQueryable<Customer> ApplyLastActivityFilter(this IQueryable<Customer> query, DateTime? fromUtc, DateTime? toUtc)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (fromUtc.HasValue)
             {
@@ -160,7 +162,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public static IQueryable<Customer> ApplyRolesFilter(this IQueryable<Customer> query, params int[] roleIds)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (roleIds.Length > 0)
             {
@@ -183,7 +185,7 @@ namespace Smartstore.Core.Identity
         /// <param name="minutes"></param>
         public static IOrderedQueryable<Customer> ApplyOnlineCustomersFilter(this IQueryable<Customer> query, int minutes = 20)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var fromUtc = DateTime.UtcNow.AddMinutes(-minutes);
 
@@ -197,7 +199,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public static IQueryable<Customer> ApplyPasswordFormatFilter(this IQueryable<Customer> query, PasswordFormat format)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             int passwordFormatId = (int)format;
             return query.Where(c => c.PasswordFormatId == passwordFormatId);
@@ -208,8 +210,8 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public static IQueryable<Customer> ApplyPhoneFilter(this IQueryable<Customer> query, string phone)
         {
-            Guard.NotNull(query, nameof(query));
-            Guard.NotEmpty(phone, nameof(phone));
+            Guard.NotNull(query);
+            Guard.NotEmpty(phone);
 
             var db = query.GetDbContext<SmartDbContext>();
 
@@ -228,8 +230,8 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public static IQueryable<Customer> ApplyZipPostalCodeFilter(this IQueryable<Customer> query, string zip)
         {
-            Guard.NotNull(query, nameof(query));
-            Guard.NotEmpty(zip, nameof(zip));
+            Guard.NotNull(query);
+            Guard.NotEmpty(zip);
 
             var db = query.GetDbContext<SmartDbContext>();
 
