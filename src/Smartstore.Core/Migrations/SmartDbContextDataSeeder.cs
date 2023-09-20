@@ -250,6 +250,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.SelectAttributes",
                 "Determine the attributes for the new combination",
                 "Bestimmen Sie die Attribute für die neue Kombination");
+
+            builder.AddOrUpdate("Payment.MissingCheckoutState",
+                "Missing checkout session state ({0}). Your payment cannot be processed. Please go to back to the shopping cart and checkout again.",
+                "Fehlender Checkout-Sitzungsstatus ({0}). Ihre Zahlung kann leider nicht verarbeitet werden. Bitte gehen Sie zurück zum Warenkorb und wiederholen Sie den Bestellvorgang.");
         }
 
         /// <summary>
