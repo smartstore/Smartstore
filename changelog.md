@@ -77,6 +77,7 @@
 - #776 PayPal credit card payment fails due to missing session PayPalOrderId entry.
 - #797 Incorrect validation when product can be added to the cart in single positions
 - Manufacturer pictures were not displayed on product detail pages
+- #828 Queued email identifier is 0 for order completed email.
 
 
 
