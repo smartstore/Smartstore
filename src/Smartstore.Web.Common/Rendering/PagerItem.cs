@@ -45,8 +45,7 @@
         public PagerItemState State { get; set; }
         public PagerItemType Type { get; set; }
         public string ExtraData { get; set; }
-        public bool DispensableXs { get; set; }
-        public bool DispensableSm { get; set; }
+        public string DisplayBreakpointUp { get; set; }
         public bool IsNavButton => 
             Type == PagerItemType.FirstPage || 
             Type == PagerItemType.PreviousPage || 
