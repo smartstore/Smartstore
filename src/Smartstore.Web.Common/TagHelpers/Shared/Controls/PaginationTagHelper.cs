@@ -80,8 +80,11 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(ShowPaginatorAttributeName)]
         public bool ShowPaginator { get; set; } = true;
 
+        /// <summary>
+        /// The max number of pages to render. Odd values are recommended: 7, 9, 11 (default), 13, ...
+        /// </summary>
         [HtmlAttributeName(MaxPagesToDisplayAttributeName)]
-        public int MaxPagesToDisplay { get; set; } = 7;
+        public int MaxPagesToDisplay { get; set; } = 11; // First + ... + 3xp + CURRENT + 3xp + ... + Last = 11
 
         [HtmlAttributeName(SkipActiveStateAttributeName)]
         public bool SkipActiveState { get; set; }
@@ -163,81 +166,6 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.Content.AppendHtml(itemsUl);
         }
 
-        ///// <summary>
-        ///// Creates complete item list by adding navigation items.
-        ///// </summary>
-        //protected virtual List<PagerItem> CreateItemList_Safe()
-        //{
-        //    if (!ShowPaginator || ListItems.TotalPages <= 1)
-        //    {
-        //        return new List<PagerItem>();
-        //    }
-
-        //    // INFO: behaves like DataGrid's paginator.
-
-        //    var currentIndex = ListItems.PageNumber;
-        //    var totalPages = ListItems.TotalPages;
-        //    var maxPages = MaxPagesToDisplay;
-        //    var start = 1;
-
-        //    if (currentIndex > maxPages)
-        //    {
-        //        var v = currentIndex % maxPages;
-        //        start = v == 0 ? currentIndex - maxPages + 1 : currentIndex - v + 1;
-        //    }
-
-        //    var end = start + maxPages - 1;
-        //    end = Math.Min(end, totalPages);
-
-        //    var items = new List<PagerItem>();
-
-        //    // First link
-        //    if (ShowFirst)
-        //    {
-        //        items.Add(new PagerItem(1, T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
-        //        {
-        //            State = (currentIndex > 1) ? PagerItemState.Normal : PagerItemState.Disabled,
-        //            //DispensableSm = true
-        //        });
-        //    }
-
-        //    // Previous link
-        //    if (ShowPrevious)
-        //    {
-        //        items.Add(new PagerItem(currentIndex - 1, T("Pager.Previous"), GenerateUrl(currentIndex - 1), PagerItemType.PreviousPage)
-        //        {
-        //            State = (currentIndex > 1) ? PagerItemState.Normal : PagerItemState.Disabled
-        //        });
-        //    }
-
-        //    // Add the page number items.
-        //    if (maxPages > 0)
-        //    {
-        //        AddPageItemsToList(items, start, end, currentIndex, totalPages);
-        //    }
-
-        //    // Next link.
-        //    if (ShowNext)
-        //    {
-        //        items.Add(new PagerItem(currentIndex + 1, T("Pager.Next"), GenerateUrl(currentIndex + 1), PagerItemType.NextPage)
-        //        {
-        //            State = (currentIndex == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal,
-        //        });
-        //    }
-
-        //    // Last link.
-        //    if (ShowLast)
-        //    {
-        //        items.Add(new PagerItem(totalPages, T("Pager.Last"), GenerateUrl(totalPages), PagerItemType.LastPage)
-        //        {
-        //            State = (currentIndex == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal,
-        //            //DispensableSm = true
-        //        });
-        //    }
-
-        //    return items;
-        //}
-
         /// <summary>
         /// Creates complete item list by adding navigation items.
         /// </summary>
@@ -248,9 +176,9 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return new List<PagerItem>();
             }
 
-            var currentIndex = ListItems.PageNumber;
+            var currentPage = ListItems.PageNumber;
             var totalPages = ListItems.TotalPages;
-            var maxPages = MaxPagesToDisplay;
+            var maxPages = Math.Max(5, MaxPagesToDisplay); // Cannot handle less than 5 items: First + ... + CURRENT + ... + Last
 
             var items = new List<PagerItem>();
 
@@ -259,7 +187,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 items.Add(new PagerItem(1, T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
                 {
-                    State = (currentIndex > 1) ? PagerItemState.Normal : PagerItemState.Disabled,
+                    State = (currentPage > 1) ? PagerItemState.Normal : PagerItemState.Disabled,
                     DisplayBreakpointUp = maxPages > 0 ? "md" : null
                 });
             }
@@ -267,51 +195,31 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Previous link
             if (ShowPrevious)
             {
-                items.Add(new PagerItem(currentIndex - 1, T("Pager.Previous"), GenerateUrl(currentIndex - 1), PagerItemType.PreviousPage)
+                items.Add(new PagerItem(currentPage - 1, T("Pager.Previous"), GenerateUrl(currentPage - 1), PagerItemType.PreviousPage)
                 {
-                    State = (currentIndex > 1) ? PagerItemState.Normal : PagerItemState.Disabled
+                    State = (currentPage > 1) ? PagerItemState.Normal : PagerItemState.Disabled
                 });
             }
 
             // Add the page number items.
             if (maxPages > 0)
             {
-                var start = 1;
-                var end = totalPages;
+                var numPages = Math.Min(totalPages, maxPages);
+                
+                // xl range
+                var (start, end) = CalculateItemRange(maxPages);
 
-                if (totalPages > maxPages)
-                {
-                    var middle = (int)Math.Ceiling(maxPages / 2d) - 1;
-                    var below = (currentIndex - middle);
-                    var above = (currentIndex + middle);
-
-                    if (below < 2)
-                    {
-                        above = maxPages;
-                        below = 1;
-                    }
-                    else if (above > (totalPages - 2))
-                    {
-                        above = totalPages;
-                        below = totalPages - maxPages + 1;
-                    }
-
-                    start = below;
-                    end = above;
-                }
-
-                var hasStartGap = start > 2;
+                var hasStartGap = start > 1;
                 var hasEndGap = end < totalPages;
 
-                if (hasStartGap)
-                {
-                    start += 2;
-                }
+                // <= lg range (max 9 items)
+                var (startLg, endLg) = numPages > 9 ? CalculateItemRange(9, hasStartGap, hasEndGap) : (start, end);
 
-                if (hasEndGap)
-                {
-                    end -= 2;
-                }
+                // <= sm range (max 7 items)
+                var (startSm, endSm) = numPages > 7 ? CalculateItemRange(7, hasStartGap, hasEndGap) : (startLg, endLg);
+
+                // xs range (max 5 items)
+                var (startXs, endXs) = numPages > 5 ? CalculateItemRange(5, hasStartGap, hasEndGap) : (startSm, endSm);
 
                 if (start > 1)
                 {
@@ -325,37 +233,30 @@ namespace Smartstore.Web.TagHelpers.Shared
                     }
                 }
 
-                var numPages = Math.Min(totalPages, maxPages);
-
                 for (int i = start; i <= end; i++)
                 {
                     var displayBreakpointUp = (string)null;
 
-                    // Handle responsiveness
-                    if (numPages > 5)
+                    // Handle responsiveness..
+                    if (i != currentPage && i > 1 && i < totalPages)
                     {
-                        if (i != currentIndex && i > 1 && i < totalPages)
+                        // ...by hiding too distant pages. Current, first and last pages are always visible.
+                        if (i < startLg || i > endLg)
                         {
-                            if (Math.Abs(currentIndex - i) > 2)
-                            {
-                                // On md: hide all except first, last, current+-2
-                                displayBreakpointUp = "xl";
-                            }
-                            else if (Math.Abs(currentIndex - i) > 1)
-                            {
-                                // On sm: hide all except first, last, current+-1
-                                displayBreakpointUp = "md";
-                            }
-                            else
-                            {
-                                // On xs: hide all except first, last and current
-                                displayBreakpointUp = "sm";
-                            }
+                            displayBreakpointUp = "xl";
+                        }
+                        else if (i < startSm || i > endSm)
+                        {
+                            displayBreakpointUp = "md";
+                        }
+                        else if (i < startXs || i > endXs)
+                        {
+                            displayBreakpointUp = "sm";
                         }
                     }
 
                     var state = PagerItemState.Normal;
-                    if (!SkipActiveState && (i == currentIndex || (currentIndex <= 0 && i == 1)))
+                    if (!SkipActiveState && (i == currentPage || (currentPage <= 0 && i == 1)))
                     {
                         state = PagerItemState.Selected;
                     }
@@ -383,9 +284,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Next link.
             if (ShowNext)
             {
-                items.Add(new PagerItem(currentIndex + 1, T("Pager.Next"), GenerateUrl(currentIndex + 1), PagerItemType.NextPage)
+                items.Add(new PagerItem(currentPage + 1, T("Pager.Next"), GenerateUrl(currentPage + 1), PagerItemType.NextPage)
                 {
-                    State = (currentIndex == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal,
+                    State = (currentPage == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal,
                 });
             }
 
@@ -394,7 +295,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 items.Add(new PagerItem(totalPages, T("Pager.Last"), GenerateUrl(totalPages), PagerItemType.LastPage)
                 {
-                    State = (currentIndex == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal,
+                    State = (currentPage == totalPages) ? PagerItemState.Disabled : PagerItemState.Normal,
                     DisplayBreakpointUp = maxPages > 0 ? "md" : null
                 });
             }
@@ -402,52 +303,94 @@ namespace Smartstore.Web.TagHelpers.Shared
             return items;
         }
 
-        //protected virtual void AddPageItemsToList(List<PagerItem> items, int start, int end, int currentIndex, int totalPages)
-        //{
-        //    var numPages = end - start;
+        /// <summary>
+        /// Calculates the start...end range.
+        /// </summary>
+        private (int start, int end) CalculateItemRange(int maxPages, bool? hasStartGap = null, bool? hasEndGap = null)
+        {
+            var totalPages = ListItems.TotalPages;
+            var currentPage = ListItems.PageNumber;
+            var start = 1;
+            var end = totalPages;
 
-        //    if (start > 1)
-        //    {
-        //        if (!ShowFirst)
-        //        {
-        //            items.Add(new PagerItem(1, "1", GenerateUrl(1)));
-        //            numPages++;
-        //        }
-        //        items.Add(new PagerItem(start - 1, "...", GenerateUrl(start - 1), PagerItemType.Gap));
-        //        numPages++;
-        //    }
+            if (totalPages > maxPages)
+            {
+                var middle = (int)Math.Ceiling(maxPages / 2d) - 1;
+                var below = (currentPage - middle);
+                var above = (currentPage + middle);
 
-        //    // Add coming end items to numPages
-        //    if (end < totalPages)
-        //    {
-        //        numPages += ShowLast ? 1 : 2;
-        //    }
+                if (below < 2)
+                {
+                    above = maxPages;
+                    below = 1;
+                }
+                else if (above > (totalPages - 2))
+                {
+                    above = totalPages;
+                    below = totalPages - maxPages + 1;
+                }
 
-        //    for (var i = start; i <= end; i++)
-        //    {
-        //        // Never hide first and last page on xs
-        //        var hideOnXs = numPages >= 5 && i != currentIndex && i > 1 && i < totalPages;
+                start = below;
+                end = above;
+            }
 
-        //        // On sm: Only hide items that are 2 pages away
-        //        var hideOnSm = hideOnXs && Math.Abs(currentIndex - i) > 1;
+            // INFO: code can be shorter, but this way it is more readable
+            if (hasStartGap.HasValue)
+            {
+                // A subsequent call to lower (< xl) tiers
+                if (hasStartGap == true)
+                {
+                    // The main tier has a gap (1 & ...). Offset by 2.
+                    start += 2;
+                }
+                else if (start > 1)
+                {
+                    // The main tier has no gap. Offset by 1, because of the first page that is also rendered.
+                    start++;
+                }
+            }
+            else
+            {
+                // The main (xl) call
+                if (start > 1)
+                {
+                    // The main tier has a gap (1 & ...). Offset by 2.
+                    start += 2;
+                }
+            }
 
-        //        items.Add(new PagerItem(i, i.ToString(), GenerateUrl(i))
-        //        {
-        //            State = (i == currentIndex && !SkipActiveState) ? PagerItemState.Selected : PagerItemState.Normal,
-        //            //DispensableXs = hideOnXs,
-        //            //DispensableSm = hideOnSm
-        //        });
-        //    }
+            if (hasEndGap.HasValue)
+            {
+                // A subsequent call to lower (< xl) tiers
+                if (hasEndGap == true)
+                {
+                    // The main tier has a gap (... & LastPage). Offset by 2.
+                    end -= 2;
+                }
+                else if (end < totalPages)
+                {
+                    // The main tier has no gap. Offset by 1, because of the last page that is also rendered.
+                    end--;
+                }
+                else if (currentPage == start - 1)
+                {
+                    // The main tier has no gap, but the current page comes right before the start page.
+                    // Offset by 2 because the last AND current pages need to be rendered.
+                    end -= 2;
+                }
+            }
+            else
+            {
+                // The main (xl) call
+                if (end < totalPages)
+                {
+                    // The main tier has a gap (... & LastPage). Offset by 2.
+                    end -= 2;
+                }
+            }
 
-        //    if (end < totalPages)
-        //    {
-        //        items.Add(new PagerItem(end + 1, "...", GenerateUrl(end + 1), PagerItemType.Gap));
-        //        if (!ShowLast)
-        //        {
-        //            items.Add(new PagerItem(totalPages, totalPages.ToString(), GenerateUrl(totalPages)));
-        //        }
-        //    }
-        //}
+            return (start, end);
+        }
 
         /// <summary>
         /// Creates li tag from <see cref="PagerItem"/> and appends it to ul tag.
