@@ -32,14 +32,13 @@
 
     public enum CartRoundingItem
     {
-        ProductUnitAmount,
-        ProductUnitTax,
-        SubtotalAmount,
-        SubtotalTax,
-        ShippingAmount,
-        RewardPointsAmount,
-        TotalAmount,
-        // TODO: probably more required....
+        Other,
+        ProductPrice,
+        CartSubtotal,
+        CartTotal,
+        Shipping,
+        PaymentFee,
+        RewardPoints
     }
 
     /// <summary>

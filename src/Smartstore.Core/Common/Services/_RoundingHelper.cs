@@ -3,7 +3,6 @@ using Smartstore.Core.Common.Configuration;
 
 namespace Smartstore.Core.Common.Services
 {
-    // TODO: (mg) check where extension methods with Money parameter are required. See IRoundingHelperExtensions.
     public partial class RoundingHelper : IRoundingHelper
     {
         private readonly IWorkContext _workContext;
@@ -15,7 +14,7 @@ namespace Smartstore.Core.Common.Services
             _currencySettings = currencySettings;
         }
 
-        // TODO: (mg) only RoundingHelper should round currency values! Otherwise rounding difference possible. Rounding in structs like Money or Tax is buried too deep.
+        // TODO: (mg) lots of refactoring required. Now only RoundingHelper should round currency values (otherwise rounding difference possible).
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual decimal Round(decimal amount, Currency currency = null)
         {
@@ -24,20 +23,20 @@ namespace Smartstore.Core.Common.Services
             return decimal.Round(amount, currency.RoundNumDecimals, _currencySettings.MidpointRounding);
         }
 
-        public virtual decimal Round(decimal amount, CartRoundingItem item, Currency currency = null)
+        public virtual decimal Round(decimal amount, CartRoundingItem item, bool isTax, Currency currency = null)
         {
             currency ??= _workContext.WorkingCurrency;
 
             switch (currency.RoundCartRule ?? _currencySettings.RoundCartRule)
             {
-                // TODO: (mg) new options...
+                case CartRoundingRule.NeverRound:
+                default:
+                    return amount;
 
                 case CartRoundingRule.AlwaysRound:
                     return Round(amount, currency);
 
-                case CartRoundingRule.NeverRound:
-                default:
-                    return amount;
+                // TODO: (mg) new options...
             }
         }
 

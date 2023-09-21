@@ -1,4 +1,5 @@
-﻿using Smartstore.Core;
+﻿using System.Runtime.CompilerServices;
+using Smartstore.Core;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 
@@ -6,6 +7,22 @@ namespace Smartstore
 {
     public static partial class IRoundingHelperExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal Round(this IRoundingHelper service, decimal amount, CartRoundingItem item, Currency currency = null)
+        {
+            Guard.NotNull(service);
+
+            return service.Round(amount, item, false, currency);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal RoundTax(this IRoundingHelper service, decimal amount, CartRoundingItem item, Currency currency = null)
+        {
+            Guard.NotNull(service);
+
+            return service.Round(amount, item, true, currency);
+        }
+
         /// <summary>
         /// Round value up or down to the nearest multiple of denomination (cash rounding) if activated for currency.
         /// </summary>
@@ -20,6 +37,8 @@ namespace Smartstore
         /// <remarks>Usually this method is used to round the order total.</remarks>
         public static Money RoundToNearest(this IRoundingHelper service, Money amount, out Money toNearestRounding, Currency currency = null)
         {
+            Guard.NotNull(service);
+
             var newValue = service.RoundToNearest(amount.Amount, out var tmpToNearestRounding, currency);
 
             toNearestRounding = new(tmpToNearestRounding, currency);
