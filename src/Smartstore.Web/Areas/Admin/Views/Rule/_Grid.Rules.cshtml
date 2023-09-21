@@ -2,10 +2,11 @@
 
 <datagrid id="rules-grid"
           allow-resize="true"
+          allow-row-selection="true"
           allow-column-reordering="true"
           preserve-grid-state="true"
           onrowclass="rulesGrid_onRowClass">
-    <datasource read="@Url.Action("RuleSetList")" />
+    <datasource read="@Url.Action("RuleSetList")" delete="@Url.Action("RuleSetDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="true">
         <sort by="IsActive" descending="true" />
@@ -17,6 +18,15 @@
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")…</span>
             </a>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-can"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
         </toolbar-group>
     </toolbar>
     <columns>

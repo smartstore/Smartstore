@@ -138,6 +138,25 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
+        [HttpPost]
+        [Permission(Permissions.System.Rule.Delete)]
+        public async Task<IActionResult> RuleSetDelete(GridSelection selection)
+        {
+            var success = false;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                var ruleSets = await _db.RuleSets.GetManyAsync(ids, true);
+                _db.RuleSets.RemoveRange(ruleSets);
+
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { Success = success });
+        }
+
         [Permission(Permissions.System.Rule.Create)]
         public async Task<IActionResult> Create(RuleScope? scope)
         {
