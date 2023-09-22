@@ -30,7 +30,8 @@ namespace Smartstore.PayPal.Filters
         private readonly PayPalHelper _payPalHelper;
         private readonly PayPalHttpClient _client;
         private readonly ICookieConsentManager _cookieConsentManager;
-
+        private readonly IPageAssetBuilder _pageAssetBuilder;
+        
         public PayPalScriptIncludeFilter(
             PayPalSettings settings, 
             IWidgetProvider widgetProvider,
@@ -38,7 +39,8 @@ namespace Smartstore.PayPal.Filters
             ICheckoutStateAccessor checkoutStateAccessor,
             PayPalHelper payPalHelper,
             PayPalHttpClient client,
-            ICookieConsentManager cookieConsentManager)
+            ICookieConsentManager cookieConsentManager,
+            IPageAssetBuilder pageAssetBuilder)
         {
             _settings = settings;
             _widgetProvider = widgetProvider;
@@ -47,6 +49,7 @@ namespace Smartstore.PayPal.Filters
             _payPalHelper = payPalHelper;
             _client = client;
             _cookieConsentManager = cookieConsentManager;
+            _pageAssetBuilder = pageAssetBuilder;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
