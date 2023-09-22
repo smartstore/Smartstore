@@ -8,7 +8,7 @@ namespace Smartstore.Web.Models.Media
         public IList<MediaFileInfo> Files { get; set; } = new List<MediaFileInfo>();
         public int GalleryStartIndex { get; set; }
         public int ThumbSize { get; set; } = 72;
-        public int ImageSize { get; set; } = 600;
+        public int ImageSize { get; set; } = 680;
         public string FallbackUrl { get; set; }
 
         public string ModelName { get; set; }

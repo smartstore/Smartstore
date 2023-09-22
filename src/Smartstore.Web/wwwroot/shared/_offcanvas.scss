@@ -9,8 +9,8 @@
     transition: opacity $offcanvas-duration $offcanvas-easing,
                 transform $offcanvas-duration $offcanvas-easing;
 
-    .canvas-sliding-left &                          { transform: translate3d(15%, 0, 0); }
-    .canvas-sliding-right &                         { transform: translate3d(-15%, 0, 0); }
+    .canvas-sliding-start &                         { transform: translate3d(15%, 0, 0); }
+    .canvas-sliding-end &                           { transform: translate3d(-15%, 0, 0); }
     .canvas-sliding-bottom &                        { transform: translate3d(0, -15vh, 0); }
     .canvas-sliding-top &                           { transform: translate3d(0, 15vh, 0); }
 
@@ -95,7 +95,7 @@ body.canvas-blocking .canvas-blocker {
     width: var(--offcanvas-width);
     height: var(--offcanvas-height);
     top: var(--offcanvas-top);
-    left: 0;
+    inset-inline-start: 0;
     transform: translate3d(var(--offcanvas-x-offset), var(--offcanvas-y-offset), 0);
     @include border-right-radius(var(--offcanvas-border-radius));
 
@@ -107,10 +107,10 @@ body.canvas-blocking .canvas-blocker {
         --offcanvas-width: #{$offcanvas-width-lg};
     }
 
-    &.offcanvas-right {
+    &.offcanvas-end {
         --offcanvas-x-offset: 100%;
-        left: auto !important;
-        right: 0;
+        inset-inline-start: auto !important;
+        inset-inline-end: 0;
         @include border-right-radius(0);
         @include border-left-radius(var(--offcanvas-border-radius));
     }
@@ -252,15 +252,14 @@ body.canvas-blocking .canvas-blocker {
 
         .badge {
             position: relative;
-            right: 0;
+            inset-inline-end: 0;
             top: 0;
         }
     }
 
     @media (max-width: 480px) {
         .nav-link {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
+            padding-inline: 0.5rem;
         }
     }
 }
@@ -272,4 +271,18 @@ body.canvas-blocking .canvas-blocker {
 .canvas-overlay {
     .page-main      { box-shadow: none; }
     .canvas-blocker { width: 200%; left: -50% }
+}
+
+
+/* RTL support
+--------------------------------------------*/
+
+[dir=rtl] {
+    .canvas-sliding-start .canvas-slidable {
+        transform: translate3d(-15%, 0, 0);
+    }
+
+    .canvas-sliding-end .canvas-slidable {
+        transform: translate3d(15%, 0, 0);
+    }
 }

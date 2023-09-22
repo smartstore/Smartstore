@@ -1,5 +1,7 @@
 ﻿using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import;
+using Smartstore.Core.Identity;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
@@ -22,17 +24,11 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
         {
-            var enableCookieConsentSettings = await db.Settings
-                .Where(x => x.Name == "PrivacySettings.EnableCookieConsent")
-                .ToListAsync(cancelToken);
-
-            if (enableCookieConsentSettings.Count > 0)
+            await db.MigrateSettingsAsync(builder => 
             {
-                foreach (var setting in enableCookieConsentSettings)
-                {
-                    db.Settings.Remove(setting);
-                }
-            }
+                builder.Delete("PrivacySettings.EnableCookieConsent");
+                builder.Update<MediaSettings>(x => x.ProductDetailsPictureSize, 680, 600);
+            });
 
             // Remove duplicate settings for PrivacySettings.CookieConsentRequirement
             var storeIds = await db.Stores
@@ -68,6 +64,7 @@ namespace Smartstore.Core.Data.Migrations
             }   
 
             await db.SaveChangesAsync(cancelToken);
+
 
             await MigrateOfflinePaymentDescriptions(db, cancelToken);
             await MigrateImportProfileColumnMappings(db, cancelToken);
@@ -226,6 +223,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.SystemInfo.AppVersion", "Smartstore version", "Smartstore Version");
 
             builder.AddOrUpdate("Products.ToFilterAndSort", "Filter & Sort", "Filtern & Sortieren");
+            builder.AddOrUpdate("Admin.Common.SaveClose", "Save & close", "Speichern & schließen");
+            builder.AddOrUpdate("Admin.Common.SaveExit", "Save & exit", "Speichern & beenden");
 
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination",
                 "Open previous attribute combination",
@@ -251,6 +250,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.SelectAttributes",
                 "Determine the attributes for the new combination",
                 "Bestimmen Sie die Attribute für die neue Kombination");
+
+            builder.AddOrUpdate("Payment.MissingCheckoutState",
+                "Missing checkout session state ({0}). Your payment cannot be processed. Please go to back to the shopping cart and checkout again.",
+                "Fehlender Checkout-Sitzungsstatus ({0}). Ihre Zahlung kann leider nicht verarbeitet werden. Bitte gehen Sie zurück zum Warenkorb und wiederholen Sie den Bestellvorgang.");
         }
 
         /// <summary>

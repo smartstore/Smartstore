@@ -816,6 +816,7 @@ namespace Smartstore.Core.Checkout.Orders
                         if (gc.RecipientEmail.HasValue() && gc.SenderEmail.HasValue())
                         {
                             var msgResult = await _messageFactory.SendGiftCardNotificationAsync(gc, customerLanguage.Id);
+                            // INFO: QueuedEmail.Id may be 0 here because CheckOrderStatusAsync uses scope commit.
                             isRecipientNotified = msgResult?.Email.Id != null;
                         }
                     }
@@ -885,25 +886,28 @@ namespace Smartstore.Core.Checkout.Orders
 
         protected virtual async Task CheckOrderStatusAsync(Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
-            using var scope = new DbContextScope(_db, deferCommit: true);
-
-            if (order.PaymentStatus == PaymentStatus.Paid && !order.PaidDateUtc.HasValue)
+            using (var scope = new DbContextScope(_db, deferCommit: true))
             {
-                order.PaidDateUtc = DateTime.UtcNow;
-            }
+                if (order.PaymentStatus == PaymentStatus.Paid && !order.PaidDateUtc.HasValue)
+                {
+                    order.PaidDateUtc = DateTime.UtcNow;
+                }
 
-            if (order.OrderStatus == OrderStatus.Pending &&
-                (order.PaymentStatus == PaymentStatus.Authorized || order.PaymentStatus == PaymentStatus.Paid))
-            {
-                await SetOrderStatusAsync(order, OrderStatus.Processing, false);
-            }
+                if (order.OrderStatus == OrderStatus.Pending &&
+                    (order.PaymentStatus == PaymentStatus.Authorized || order.PaymentStatus == PaymentStatus.Paid))
+                {
+                    await SetOrderStatusAsync(order, OrderStatus.Processing, false);
+                }
 
-            if (order.OrderStatus == OrderStatus.Pending &&
-                (order.ShippingStatus == ShippingStatus.PartiallyShipped || order.ShippingStatus == ShippingStatus.Shipped || order.ShippingStatus == ShippingStatus.Delivered))
-            {
-                await SetOrderStatusAsync(order, OrderStatus.Processing, false);
+                if (order.OrderStatus == OrderStatus.Pending &&
+                    (order.ShippingStatus == ShippingStatus.PartiallyShipped || order.ShippingStatus == ShippingStatus.Shipped || order.ShippingStatus == ShippingStatus.Delivered))
+                {
+                    await SetOrderStatusAsync(order, OrderStatus.Processing, false);
+                }
+
+                await scope.CommitAsync();
             }
 
             if (order.OrderStatus != OrderStatus.Cancelled &&
@@ -911,10 +915,9 @@ namespace Smartstore.Core.Checkout.Orders
                 order.PaymentStatus == PaymentStatus.Paid &&
                 (order.ShippingStatus == ShippingStatus.ShippingNotRequired || order.ShippingStatus == ShippingStatus.Delivered))
             {
+                // INFO: SetOrderStatusAsync performs commit. Exclude from scope commit because QueuedEmail.Id is required for messages.
                 await SetOrderStatusAsync(order, OrderStatus.Complete, true);
             }
-
-            await scope.CommitAsync();
         }
 
         private async Task<int> SumUpQuantity(OrderItem orderItem, Func<Shipment, bool> predicate)

@@ -606,33 +606,40 @@ namespace Smartstore.Core.Checkout.Cart
         }
 
         /// <summary>
-        /// Removes checkout attributes that require shipping, if the cart does not require shipping at all.
+        /// Removes invalid checkout attributes. For example if the attribute requires shipping but the cart does not require shipping at all.
         /// </summary>
         protected virtual async Task<int> RemoveInvalidCheckoutAttributesAsync(Customer customer, int storeId)
         {
+            var attributeSelection = customer.GenericAttributes.CheckoutAttributes;
+            if (!attributeSelection.HasAttributes)
+            {
+                return 0;
+            }
+
+            var idsToRemove = new HashSet<int>();
+            var attributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
+
             var cart = await GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
             if (!cart.IsShippingRequired())
             {
-                var attributeSelection = customer.GenericAttributes.CheckoutAttributes;
-                var attributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
-
-                var attributeIdsToRemove = attributes
+                idsToRemove.AddRange(attributes
                     .Where(x => x.ShippableProductRequired)
-                    .Select(x => x.Id)
-                    .Distinct()
-                    .ToArray();
-
-                if (attributeIdsToRemove.Any())
-                {
-                    attributeSelection.RemoveAttributes(attributeIdsToRemove);
-
-                    customer.GenericAttributes.CheckoutAttributes = attributeSelection;
-
-                    return await _db.SaveChangesAsync();
-                }
+                    .Select(x => x.Id));
             }
 
-            return 0;
+            idsToRemove.AddRange(attributes
+                .Where(x => !x.IsActive)
+                .Select(x => x.Id));
+
+            if (idsToRemove.Count > 0)
+            {
+                attributeSelection.RemoveAttributes(idsToRemove);
+                customer.GenericAttributes.CheckoutAttributes = attributeSelection;
+
+                await _db.SaveChangesAsync();
+            }
+
+            return idsToRemove.Count;
         }
 
         private async Task LoadCartItemCollection(Customer customer, bool force = false)

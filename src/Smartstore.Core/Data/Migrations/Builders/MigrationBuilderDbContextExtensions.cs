@@ -4,8 +4,8 @@
     {
         public static Task MigrateLocaleResourcesAsync(this SmartDbContext ctx, Action<LocaleResourcesBuilder> buildAction, bool updateTouchedResources = false)
         {
-            Guard.NotNull(ctx, nameof(ctx));
-            Guard.NotNull(buildAction, nameof(buildAction));
+            Guard.NotNull(ctx);
+            Guard.NotNull(buildAction);
 
             var builder = new LocaleResourcesBuilder();
             buildAction(builder);
@@ -17,8 +17,8 @@
 
         public static Task MigrateSettingsAsync(this SmartDbContext ctx, Action<SettingsBuilder> buildAction)
         {
-            Guard.NotNull(ctx, nameof(ctx));
-            Guard.NotNull(buildAction, nameof(buildAction));
+            Guard.NotNull(ctx);
+            Guard.NotNull(buildAction);
 
             var builder = new SettingsBuilder();
             buildAction(builder);

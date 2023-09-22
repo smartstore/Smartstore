@@ -82,6 +82,19 @@
     }
 }
 
+.page-item.gap > .page-link {
+    &:not(:hover) {
+        background-color: transparent;
+        border-color: transparent;
+    }
+}
+
+@media (max-width: 412px) {
+    .page-item:not(.page-item-nav) {
+        display: none;
+    }
+}
+
 .page-item-nav.back .nav-label {
     padding-inline-start: 0.375rem;
 }

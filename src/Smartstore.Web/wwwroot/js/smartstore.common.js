@@ -479,14 +479,12 @@
         });
 
         // Report validity for native form controls.
-        if ($("form").has(".native-validation").length) {
-            // TODO: (mh) This code is broken. "this" refers to "windows"" here. Test thoroughly and fix.
-            // TODO: (mh) Find a better and MEANING-/CONTEXTFUL name for "skip-update".
-            var el = $(this);
-
-            el.on("submit", function () {
-                if (!el[0].checkValidity()) {
-                    el[0].reportValidity();
+        let formWithNativeValidation = $("form.native-validation");
+        if (formWithNativeValidation.length) {
+            // TODO/INFO: (mh) This will not run in AJAX scenarios when forms are injected after page load.
+            formWithNativeValidation.on("submit", function () {
+                if (!formWithNativeValidation[0].checkValidity()) {
+                    formWithNativeValidation[0].reportValidity();
                     return false;
                 }
                 return true;

@@ -89,7 +89,7 @@
                         <smart-label asp-for="IsTaxExempt" />
                     </div>
                     <div class="adminData">
-                        @Html.CheckBoxFor(model => model.IsTaxExempt, new { data_toggler_for = "#pnlTaxCategory" })
+                        @Html.CheckBoxFor(model => model.IsTaxExempt, new { data_toggler_for = "#pnlTaxCategory", data_toggler_reverse = "true" })
                         <span asp-validation-for="IsTaxExempt"></span>
                     </div>
                 </div>

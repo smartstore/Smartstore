@@ -70,9 +70,6 @@ namespace Smartstore.Admin.Models.Catalog
         public string PrimaryStoreCurrencyCode { get; set; }
         public string BaseDimensionIn { get; set; }
 
-        public int? PreviousCombinationId { get; set; }
-        public int? NextCombinationId { get; set; }
-
         #region Nested classes
 
         public class PictureSelectItemModel : EntityModelBase

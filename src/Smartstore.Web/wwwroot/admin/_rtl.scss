@@ -4,29 +4,6 @@
 // --------------------------------------------------
 
 [dir=rtl] {
-    // Layout
-    // ------
-    .section-header {
-        .title {
-            padding-right: 0;
-            padding-left: 5px;
-
-            > i {
-                margin-left: 0.5rem;
-                margin-right: initial;
-            }
-
-            > img {
-                margin-left: 5px;
-                margin-right: initial;
-            }
-        }
-
-        .options {
-            padding-right: 5px;
-            padding-left: 0;
-        }
-    }
 
     // Forms
     // -----

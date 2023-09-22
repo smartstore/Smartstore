@@ -40,13 +40,7 @@ namespace Smartstore.PayPal.Providers
         {
             var model = new PublicCreditCardModel
             {
-                CardholderName = form["CardholderName"],
-                City = form["City"],
-                Address1 = form["Address1"],
-                Address2 = form["Address2"],
-                ZipPostalCode = form["ZipPostalCode"],
-                CountryId = int.Parse(form["CountryId"]),
-                StateProvinceId = int.Parse(form["StateProvinceId"])
+                CardholderName = form["CardholderName"]
             };
 
             var result = await _validator.ValidateAsync(model);

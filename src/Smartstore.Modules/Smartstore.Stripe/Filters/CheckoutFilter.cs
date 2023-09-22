@@ -47,6 +47,12 @@ namespace Smartstore.StripeElements.Filters
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
+            if (!await _stripeHelper.IsStripeElementsActive())
+            {
+                await next();
+                return;
+            }
+
             // If api key hasn't been configured yet, don't do anything.
             if (!_settings.SecrectApiKey.HasValue() || !_settings.PublicApiKey.HasValue())
             {

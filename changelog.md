@@ -9,6 +9,41 @@
 - #745 Page Builder: depend story visibility on user roles.
 - Added option to configure allowed characters for user names 
 
+### Theming
+
+- Infrastructure
+  - Forked & customized **Bootstrap** framework. Our implementation combines version 4.6 and 5.x. We have not made any modifications to the JavaScript files; only SCSS has been customized. The primary objective is to maintain compatibility with the original Bootstrap documentation for developer convenience.
+  - Logical CSS for better RTL support
+  - Added subtle and emphasis colors to the color system
+  - Revamped button styling
+  - Revamped dropdown styling
+  - Revamped select2 styling
+  - Revamped pagination styling
+  - Revamped modal window styling
+  - Badges: new variants and modifiers `.badge-subtle`, `.badge-outline-*`, `.badge-ring`, `.badge-counter`
+  - Revamped check & radio styling: new variants and modifiers `.form-check-solo`, `.form-check-{color}`, `.form-switch`, `.form-switch-lg`
+  - Many improvements to input groups, button groups and collapsibles
+  - Sass variables for all easings, contained in `_easings.scss`
+  - Dropped responsive (rfs) spacing
+- Frontend
+  - New grid breakpoint **xxl** (1400px)
+  - Made components *rounder* by slightly increasing border-radius variables
+  - Revamped product listing action bar styling (sorting, view mode, pagination)
+  - On screens < md, the offcanvas window for product filter slides in from bottom and also provides the sorting options
+  - Revamped image gallery styling
+  - Fixed Slick slider dotted navigation responsiveness issues
+  - Slightly improved InstantSearch box
+  - Revamped product tags component
+  - Revamped checkout progress indicator
+  - Revamped scroll-to-top button
+  - Revamped cookie consent dialog styling
+  - Dropped *Triple Date Picker* component in favour of browser native date picker
+  - Unstyled links are underlined by default
+- Backend
+  - New colorpicker component with swatches
+  - Revamped number input styling
+  - Locale editor tab navigation has been redesigned and is now more responsive
+
 ### Improvements
 
 - Increased performance:
@@ -39,6 +74,8 @@
 - Added ability to edit delivery time in product grid
 - #807 Enable absolute Paths for DataExchangeSettings.ImageImportFolder.
 - #786 Replace TripleDatePicker with native input type date.
+- #804 Implemented the new TrustBadge integration mode, including new settings for positioning, color scheme, etc. 
+- #819 Fix zoom on product detail page when there is a large right column 
 
 ### Bugfixes
 
@@ -52,6 +89,9 @@
   - Fixed discounts assigned to categories and limited to customer roles should be excluded from indexing and indexed prices.
 - Fixed the category navigation no longer shows the number of contained products after reindexing.
 - Fixed not yet awarded reward points were reduced when an order was deleted.
+- Checkout attributes:
+  - Fixed wrong tax was applied to checkout attributes in checkout.
+  - Fixed checkout attributes that are not active anymore should not be applied.
 - Web API: 
   - Fixed 404 file swagger.json not found when opening Swagger documentation in a virtual directory.
   - #815 Import of customers via WebApi/OData sets PasswordFormat to 'clear'.
@@ -74,6 +114,8 @@
 - Fixed arithmetic overflow SqlException in `ShippingByWeight` and `ShippingByTotal` four decimal places migrations.
 - #776 PayPal credit card payment fails due to missing session PayPalOrderId entry.
 - #797 Incorrect validation when product can be added to the cart in single positions
+- Manufacturer pictures were not displayed on product detail pages
+- #828 Queued email identifier is 0 for order completed email.
 
 
 

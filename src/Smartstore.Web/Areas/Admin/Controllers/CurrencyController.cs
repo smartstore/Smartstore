@@ -7,6 +7,7 @@ using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Models.DataGrid;
 
@@ -441,12 +442,20 @@ namespace Smartstore.Admin.Controllers
         {
             Guard.NotNull(model);
 
-            var paymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
-            var paymentProviders = await _paymentService.LoadAllPaymentProvidersAsync();
+            var roundOrderTotalPaymentMethods = await _db.PaymentMethods
+                .AsNoCaching()
+                .Where(x => x.RoundOrderTotalEnabled)
+                .Select(x => x.PaymentMethodSystemName)
+                .ToArrayAsync();
 
-            foreach (var provider in paymentProviders)
+            if (roundOrderTotalPaymentMethods.Length > 0)
             {
-                if (paymentMethods.TryGetValue(provider.Metadata.SystemName, out var paymentMethod) && paymentMethod.RoundOrderTotalEnabled)
+                var paymentProviders = await _paymentService.LoadAllPaymentProvidersAsync();                
+                var roundOrderTotalProviders = paymentProviders
+                    .Where(x => roundOrderTotalPaymentMethods.Contains(x.Metadata.SystemName, StringComparer.OrdinalIgnoreCase))
+                    .ToArray();
+
+                foreach (var provider in roundOrderTotalProviders)
                 {
                     var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
                     model.RoundOrderTotalPaymentMethods[provider.Metadata.SystemName] = friendlyName ?? provider.Metadata.SystemName;
