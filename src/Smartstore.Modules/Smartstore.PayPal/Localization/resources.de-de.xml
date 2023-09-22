@@ -512,6 +512,9 @@
             <LocaleResource Name="Error.CreditCardData">
                 <Value>Bitte überprüfen Sie Ihre Kreditkartendaten.</Value>
             </LocaleResource>
+            <LocaleResource Name="Error.3DSecure">
+                <Value>Bei der Bestätigung Ihrer Karte durch Ihren Kartenanbieter ist ein Fehler aufgetreten.</Value>
+            </LocaleResource>
             <LocaleResource Name="CartHasChanged">
                 <Value>Ihr Warenkorb hat sich nach dem Login geändert. Bitte bestätigen Sie Ihren aktuellen Warenkorb bei PayPal.</Value>
             </LocaleResource>

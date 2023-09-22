@@ -528,6 +528,9 @@
             <LocaleResource Name="Error.CreditCardData">
                 <Value>Please verify your credit card information.</Value>
             </LocaleResource>
+            <LocaleResource Name="Error.3DSecure">
+                <Value>An error has occurred when confirming your card with your card provider.</Value>
+            </LocaleResource>
             <LocaleResource Name="CartHasChanged">
                 <Value>Your shopping cart has changed after login. Please confirm your current shopping cart with PayPal.</Value>
             </LocaleResource>
