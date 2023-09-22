@@ -16,13 +16,13 @@ namespace Smartstore.Core.Checkout.Attributes
 
         public async Task<List<CheckoutAttribute>> MaterializeCheckoutAttributesAsync(CheckoutAttributeSelection selection)
         {
-            Guard.NotNull(selection, nameof(selection));
+            Guard.NotNull(selection);
 
             var ids = selection.AttributesMap.Select(x => x.Key).ToArray();
 
-            if (!ids.Any())
+            if (ids.Length == 00)
             {
-                return new List<CheckoutAttribute>();
+                return new();
             }
 
             return await _db.CheckoutAttributes
@@ -33,12 +33,12 @@ namespace Smartstore.Core.Checkout.Attributes
 
         public async Task<List<CheckoutAttributeValue>> MaterializeCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection)
         {
-            Guard.NotNull(selection, nameof(selection));
+            Guard.NotNull(selection);
 
             var attributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
-            if (!attributeIds.Any())
+            if (attributeIds.Length == 0)
             {
-                return new List<CheckoutAttributeValue>();
+                return new();
             }
 
             // AttributesMap can also contain numeric values of text fields that are not CheckoutAttributeValue IDs!
@@ -51,15 +51,15 @@ namespace Smartstore.Core.Checkout.Attributes
                 .Distinct()
                 .ToArray();
 
-            if (!numericValues.Any())
+            if (numericValues.Length == 0)
             {
-                return new List<CheckoutAttributeValue>();
+                return new();
             }
 
             var values = await _db.CheckoutAttributeValues
                 .AsNoTracking()
                 .Include(x => x.CheckoutAttribute)
-                .Where(x => attributeIds.Contains(x.CheckoutAttributeId) && numericValues.Contains(x.Id))
+                .Where(x => attributeIds.Contains(x.CheckoutAttributeId) && numericValues.Contains(x.Id) && x.CheckoutAttribute.IsActive)
                 .ApplyListTypeFilter()
                 .ToListAsync();
 
@@ -68,7 +68,7 @@ namespace Smartstore.Core.Checkout.Attributes
 
         public async Task<List<CheckoutAttribute>> GetCheckoutAttributesAsync(ShoppingCart cart, int storeId = 0)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             var checkoutAttributes = await _db.CheckoutAttributes
                 .AsNoTracking()
@@ -88,12 +88,12 @@ namespace Smartstore.Core.Checkout.Attributes
 
         public async Task<CheckoutAttributeSelection> CreateCheckoutAttributeSelectionAsync(ProductVariantQuery query, ShoppingCart cart)
         {
-            Guard.NotNull(query, nameof(query));
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(query);
+            Guard.NotNull(cart);
 
             var selection = new CheckoutAttributeSelection(string.Empty);
 
-            if (!query.CheckoutAttributes.Any())
+            if (query.CheckoutAttributes.Count == 0)
             {
                 return selection;
             }
