@@ -89,6 +89,7 @@
   - Fixed discounts assigned to categories and limited to customer roles should be excluded from indexing and indexed prices.
 - Fixed the category navigation no longer shows the number of contained products after reindexing.
 - Fixed not yet awarded reward points were reduced when an order was deleted.
+- Fixed wrong tax was applied to checkout attributes in checkout.
 - Web API: 
   - Fixed 404 file swagger.json not found when opening Swagger documentation in a virtual directory.
   - #815 Import of customers via WebApi/OData sets PasswordFormat to 'clear'.
