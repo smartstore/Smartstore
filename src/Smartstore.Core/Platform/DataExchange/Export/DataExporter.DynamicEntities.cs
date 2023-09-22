@@ -595,6 +595,11 @@ namespace Smartstore.Core.DataExchange.Export
 
         private dynamic ToDynamic(MediaFile file, int thumbPictureSize, int detailsPictureSize, DataExporterContext ctx)
         {
+            if (file == null)
+            {
+                return null;
+            }
+
             return ToDynamic(_mediaService.ConvertMediaFile(file), thumbPictureSize, detailsPictureSize, ctx);
         }
 

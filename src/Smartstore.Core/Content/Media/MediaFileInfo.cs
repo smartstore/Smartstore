@@ -32,6 +32,8 @@ namespace Smartstore.Core.Content.Media
 
         private void Initialize(MediaFile file, string directory)
         {
+            Guard.NotNull(file);
+
             File = file;
             Directory = directory.EmptyNull();
 
