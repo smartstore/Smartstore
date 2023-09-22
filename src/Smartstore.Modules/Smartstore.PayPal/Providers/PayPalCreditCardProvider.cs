@@ -36,17 +36,6 @@ namespace Smartstore.PayPal.Providers
 
         public override bool RequiresInteraction => true;
 
-        public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
-        {
-            var model = new PublicCreditCardModel
-            {
-                CardholderName = form["CardholderName"]
-            };
-
-            var result = await _validator.ValidateAsync(model);
-            return new PaymentValidationResult(result);
-        }
-
         public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
         {
             var request = new ProcessPaymentRequest
