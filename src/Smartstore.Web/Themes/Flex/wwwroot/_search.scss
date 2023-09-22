@@ -197,8 +197,6 @@ $facet-selection-color: inherit;
 }
 .instasearch-hit, 
 .instasearch-no-hits {
-    display: inline-flex;
-    align-items: baseline;
     position: relative;
     width: 100%;
     padding: 8px 20px;
@@ -209,6 +207,8 @@ $facet-selection-color: inherit;
 }
 
 .instasearch-hit {
+    display: inline-flex;
+    align-items: baseline;
     color: $dropdown-link-color;
     text-decoration: none;
 
