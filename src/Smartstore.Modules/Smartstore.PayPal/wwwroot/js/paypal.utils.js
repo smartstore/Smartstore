@@ -241,7 +241,9 @@
                             });
 
                         console.log("Redirecting now");
+                        e.preventDefault();
                         location.href = self.hostedFieldsContainer.data("forward-url");
+                        return false;
                     }
                     else {
                         e.preventDefault();

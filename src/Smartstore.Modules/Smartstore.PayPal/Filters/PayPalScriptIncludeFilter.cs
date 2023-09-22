@@ -62,7 +62,7 @@ namespace Smartstore.PayPal.Filters
             if (isJsSDKMethodEnabled)
             {
                 // INFO: Lets load the utility js regardsless of user consent. It doesn't set any cookies.
-                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='/Modules/Smartstore.PayPal/js/paypal.utils.js?v=5.0.5.0'></script>"));
+                _pageAssetBuilder.AppendScriptFiles($"/Modules/Smartstore.PayPal/js/paypal.utils.js?v={SmartstoreVersion.CurrentFullVersion}.1");
             }
 
             // TODO: (mh) Find a better (or safer) way to render this script.
