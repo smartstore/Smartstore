@@ -15,18 +15,14 @@ namespace Smartstore.PayPal.Providers
     [Order(1)]
     public class PayPalCreditCardProvider : PayPalProviderBase
     {
-        private readonly IValidator<PublicCreditCardModel> _validator;
-
         public PayPalCreditCardProvider(
             SmartDbContext db, 
             PayPalHttpClient client, 
             PayPalSettings settings,
             IPaymentService paymentService,
-            ICheckoutStateAccessor checkoutStateAccessor,
-            IValidator<PublicCreditCardModel> validator)
+            ICheckoutStateAccessor checkoutStateAccessor)
             : base(db, client, settings, paymentService, checkoutStateAccessor)
         {
-            _validator = validator;
         }
 
         public override Widget GetPaymentInfoWidget()
