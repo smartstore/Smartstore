@@ -526,7 +526,7 @@ namespace Smartstore.Core.Checkout.Orders
                         subtotalExclTaxWithoutDiscount += attributeTax.PriceNet;
                         subtotalInclTaxWithoutDiscount += attributeTax.PriceGross;
 
-                        result.TaxRates.Add(attributeTax.Amount, attributeTax.Rate.Rate);
+                        result.TaxRates.Add(attributeTax.Rate.Rate, attributeTax.Amount);
                     }
                 }
             }
