@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Smartstore.PayPal.Components
 {
     /// <summary>
-    /// Renders PayPal hosted fields for credit card processing & and input elements for address data.
+    /// Renders PayPal hosted fields for credit card processing.
     /// </summary>
     public class PayPalCreditCardViewComponent : PayPalViewComponentBase
     {
