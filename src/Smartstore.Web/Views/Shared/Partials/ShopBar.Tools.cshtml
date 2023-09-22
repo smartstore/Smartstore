@@ -3,14 +3,13 @@
 @{
     string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { returnUrl = Context.Request.Query["returnUrl"].ToString() });
     var labelStyle = Display.GetThemeVariable<string>("shopbar-label", "warning");
-    var isRtl = this.WorkContext.WorkingLanguage.Rtl;
 }
 
 <div class="shopbar-col shopbar-tools" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { cart = Model.ShoppingCartEnabled, wishlist = Model.WishlistEnabled, compare = Model.CompareProductsEnabled })">
 
     @*Hamburger Menu*@
     <div class="shopbar-tool d-lg-none" id="shopbar-menu">
-        <a class="shopbar-button" href="#" data-toggle="offcanvas" data-autohide="true" data-placement="@(isRtl ? "right" : "left")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-menu">
+        <a class="shopbar-button" href="#" data-toggle="offcanvas" data-autohide="true" data-placement="start" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-menu">
             <span class="shopbar-button-icon">
                 <i class="icm icm-menu"></i>
             </span>
@@ -37,7 +36,7 @@
     <div sm-if="Model.CompareProductsEnabled" class="shopbar-tool" id="shopbar-compare" data-target="#compare-tab">
         <a asp-action="CompareProducts" asp-controller="Catalog" asp-area="" class="shopbar-button navbar-toggler"
            data-toggle="offcanvas" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { compare = true })"
-           data-autohide="true" data-placement="@(isRtl ? "left" : "right")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
+           data-autohide="true" data-placement="end" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
             <span class="shopbar-button-icon">
                 <i class="icm icm-repeat"></i>
                 <span class='badge badge-pill badge-counter badge-counter-ring label-cart-amount badge-@labelStyle' attr-style='(Model.CompareItemsCount == 0, "display: none")' data-bind-to="CompareItemsCount">
@@ -56,7 +55,7 @@
 
     <div sm-if="Model.WishlistEnabled" class="shopbar-tool" id="shopbar-wishlist" data-target="#wishlist-tab">
         <a asp-route="Wishlist" class="shopbar-button navbar-toggler" data-toggle="offcanvas" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { wishlist = true })"
-           data-autohide="true" data-placement="@(isRtl ? "left" : "right")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
+           data-autohide="true" data-placement="end" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
             <span class="shopbar-button-icon">
                 <i class="icm icm-heart"></i>
                 <span class='badge badge-pill badge-counter badge-counter-ring label-cart-amount badge-@labelStyle' attr-style='(Model.WishlistItemsCount == 0, "display: none")' data-bind-to="WishlistItemsCount">
@@ -75,7 +74,7 @@
 
     <div sm-if="Model.ShoppingCartEnabled" class="shopbar-tool" id="shopbar-cart" data-target="#cart-tab">
         <a asp-route="ShoppingCart" class="shopbar-button navbar-toggler" data-toggle="offcanvas" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { cart = true })"
-           data-autohide="true" data-placement="@(isRtl ? "left" : "right")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
+           data-autohide="true" data-placement="end" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
             <span class="shopbar-button-icon">
                 <i class="icm icm-bag"></i>
                 <span class='badge badge-pill badge-counter badge-counter-ring label-cart-amount badge-@(labelStyle)' attr-style='(Model.CartItemsCount == 0, "display: none")' data-bind-to="CartItemsCount">
@@ -96,7 +95,7 @@
 </div>
 
 <widget target-zone="end" key="offcanvas-menu">
-    <aside id="offcanvas-menu" class="offcanvas offcanvas-@(isRtl ? "right" : "left") offcanvas-shadow" data-blocker="true" data-overlay="true">
+    <aside id="offcanvas-menu" class="offcanvas offcanvas-start offcanvas-shadow" data-blocker="true" data-overlay="true">
         <div class="offcanvas-content">
             <div id="offcanvas-menu-container" data-url="@(Url.Action("OffCanvas", "Menu"))">
                 @*Ajax content will be rendered here*@ 
@@ -106,7 +105,7 @@
 </widget>
 
 <widget target-zone="end" key="offcanvas-cart">
-    <aside id="offcanvas-cart" class="offcanvas offcanvas-lg offcanvas-@(isRtl ? "left" : "right") offcanvas-shadow" data-lg="true" data-blocker="true" data-overlay="true">
+    <aside id="offcanvas-cart" class="offcanvas offcanvas-lg offcanvas-end offcanvas-shadow" data-lg="true" data-blocker="true" data-overlay="true">
         <div class="offcanvas-content">
             @await Component.InvokeAsync("OffCanvasCart")
         </div>

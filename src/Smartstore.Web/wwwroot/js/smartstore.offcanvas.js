@@ -17,8 +17,11 @@
         this.options = $.extend({}, OffCanvas.defaults, options);
         this.canvas = $(this.options.canvas || '.wrapper');
         this.state = null;
+        this.placements = {
+            xs: 'start'
+        };
 
-        this.el.addClass('offcanvas-' + (this.options.placement || 'left'));
+        this.el.addClass('offcanvas-' + (this.options.placement || 'start'));
 
         if (this.options.fullscreen) {
             this.el.addClass('offcanvas-fullscreen');
@@ -77,7 +80,7 @@
     OffCanvas.defaults = {
         canvas: '.wrapper',
         toggle: true,
-        placement: 'left',
+        placement: 'start',
         fullscreen: false,
         overlay: false,
         autohide: true,
@@ -91,11 +94,12 @@
     // ======================================================
 
     OffCanvas.prototype._makeTouchy = function (fn) {
-        var self = this;
-        var el = this.el;
+        let self = this;
+        let el = this.el;
+        let rtl = Smartstore.globalization.culture.isRTL;
 
         // Move offcanvas on pan[left|right] and close on swipe
-        var onRight = el.hasClass('offcanvas-right'),
+        var onRight = (el.hasClass('offcanvas-end') && !rtl) || (el.hasClass('offcanvas-start') && rtl),
             canPan = true,
             panning = false,
             scrolling = false,
@@ -230,7 +234,7 @@
         });
 
         body.addClass('canvas-sliding canvas-sliding-'
-            + (this.options.placement || 'left')
+            + (this.options.placement || 'start')
             + (this.options.fullscreen ? ' canvas-fullscreen' : ''));
 
         this.el.addClass("on").one(Prefixer.event.transitionEnd, function (e) {
@@ -262,7 +266,7 @@
         self.state = 'slide-out';
 
         body.addClass('canvas-sliding-out');
-        body.removeClass('canvas-blocking canvas-noscroll canvas-slid canvas-sliding canvas-sliding-left canvas-sliding-right canvas-sliding-top canvas-sliding-bottom canvas-lg canvas-fullscreen');
+        body.removeClass('canvas-blocking canvas-noscroll canvas-slid canvas-sliding canvas-sliding-start canvas-sliding-end canvas-sliding-top canvas-sliding-bottom canvas-lg canvas-fullscreen');
 
         this.el.removeClass("on").one(Prefixer.event.transitionEnd, function (e) {
             if (self.state !== 'slide-out') return;
@@ -312,19 +316,21 @@
     // ======================================================
 
     $(document).on('click.sm.offcanvas.data-api', '[data-toggle=offcanvas]', function (e) {
-        var self = $(this);
-        var target = self.data('target') || self.attr('href');
-        var $canvas = $(target);
-        var data = $canvas.data('sm.offcanvas');
-        var options = data ? 'toggle' : self.data();
+        let self = $(this);
+        let target = self.data('target') || self.attr('href');
+        let $canvas = $(target);
+        let data = $canvas.data('sm.offcanvas');
+        let options = data ? 'toggle' : self.data();
 
         e.stopPropagation();
         e.preventDefault();
 
-        if (data)
+        if (data) {
             data.toggle();
-        else
+        }
+        else {
             $canvas.offcanvas(options);
+        }
 
         return false;
     })
