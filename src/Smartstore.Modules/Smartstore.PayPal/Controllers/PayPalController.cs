@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -72,11 +73,17 @@ namespace Smartstore.PayPal.Controllers
                 // Store order id temporarily in checkout state.
                 checkoutState.CustomProperties["PayPalOrderId"] = orderId;
 
+                var paypalCheckoutState = checkoutState.GetCustomState<PayPalCheckoutState>();
+                paypalCheckoutState.PayPalOrderId = orderId;
+
                 var session = HttpContext.Session;
 
                 if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
                 {
-                    processPaymentRequest = new ProcessPaymentRequest();
+                    processPaymentRequest = new ProcessPaymentRequest
+                    {
+                        OrderGuid = Guid.NewGuid()
+                    };
                 }
 
                 processPaymentRequest.PayPalOrderId = orderId;
