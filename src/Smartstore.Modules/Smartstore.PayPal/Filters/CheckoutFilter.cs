@@ -159,7 +159,7 @@ namespace Smartstore.PayPal.Filters
                 {
                     // Set property to indicate PayPal order must not be updated
                     // because we are on payment selection page and shipping fees, discounts etc. are known.
-                    checkoutState.CustomProperties["UpdatePayPalOrder"] = false;
+                    checkoutState.CustomProperties.Remove("UpdatePayPalOrder");
                 }
             }
             else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))

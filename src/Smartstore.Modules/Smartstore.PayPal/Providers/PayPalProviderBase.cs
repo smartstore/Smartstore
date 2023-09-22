@@ -1,12 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
+using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
+using Smartstore.PayPal.Controllers;
 
 namespace Smartstore.PayPal.Providers
 {
@@ -17,7 +20,7 @@ namespace Smartstore.PayPal.Providers
         private readonly PayPalSettings _settings;
         private readonly IPaymentService _paymentService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-
+        
         public PayPalProviderBase(
             SmartDbContext db, 
             PayPalHttpClient client, 
@@ -51,19 +54,19 @@ namespace Smartstore.PayPal.Providers
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request)
         {
+            var checkoutState = _checkoutStateAccessor.CheckoutState;
             if (!request.PayPalOrderId.HasValue())
             {
                 // INFO: In some cases the PayPalOrderId is lost in the ProcessPaymentRequest. Lets check the checkout state and log some infos.
-                var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
+                var paypalCheckoutState = checkoutState.GetCustomState<PayPalCheckoutState>();
 
-                var orderId = checkoutState.PayPalOrderId.HasValue() ? checkoutState.PayPalOrderId : _checkoutStateAccessor.CheckoutState.CustomProperties["PayPalOrderId"].ToString();
+                var orderId = paypalCheckoutState.PayPalOrderId.HasValue() ? paypalCheckoutState.PayPalOrderId : checkoutState.CustomProperties["PayPalOrderId"].ToString();
                 if (!orderId.HasValue())
                 {
                     throw new PayPalException(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(request.PayPalOrderId)));
                 }
 
                 request.PayPalOrderId = orderId;
-                Logger.LogInformation("ProcessPaymentRequest lost PayPalOrderId.");
             }
 
             var result = new ProcessPaymentResult
@@ -95,6 +98,11 @@ namespace Smartstore.PayPal.Providers
             catch (Exception ex) 
             {
                 Logger.LogError(ex, "Authorization or capturing failed. User was redirected to payment selection.");
+
+                // Delete properties for backward navigation.
+                checkoutState.CustomProperties.Remove("PayPalButtonUsed");
+                checkoutState.CustomProperties.Remove("UpdatePayPalOrder");
+
                 throw new PayPalException(T("Plugins.Smartstore.PayPal.OrderUpdateFailed"));
             }
 
