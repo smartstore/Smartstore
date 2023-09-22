@@ -389,9 +389,10 @@
                     .data('target', offcanvas);
 
                 if (!afterResize) {
-                    // Collapse all groups on initial page load
-                    widget.find('.facet-toggle:not(.collapsed)').addClass('collapsed');
-                    widget.find('.facet-body.show').removeClass('show');
+                    //// Collapse all groups on initial page load
+                    //// TODO: (mc) Why did we do this? I don't like it anymore, so no auto-collapsing on mobile anymore (for now).
+                    //widget.find('.facet-toggle:not(.collapsed)').addClass('collapsed');
+                    //widget.find('.facet-body.show').removeClass('show');
                 }
             }
 
