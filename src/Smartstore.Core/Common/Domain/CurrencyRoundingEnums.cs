@@ -32,10 +32,10 @@
 
     public enum CartRoundingItem
     {
-        Other,
         ProductPrice,
         CartSubtotal,
         CartTotal,
+        Discount,
         Shipping,
         PaymentFee,
         RewardPoints
