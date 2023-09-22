@@ -11,17 +11,28 @@
     // ======================================================
 
     var OffCanvas = function (element, options) {
-        var self = this;
+        let self = this;
 
-        var el = this.el = $(element);
+        let el = this.el = $(element);
         this.options = $.extend({}, OffCanvas.defaults, options);
         this.canvas = $(this.options.canvas || '.wrapper');
         this.state = null;
-        this.placements = {
-            xs: 'start'
-        };
 
-        this.el.addClass('offcanvas-' + (this.options.placement || 'start'));
+        // Placement stuff
+        let placement = this.options.placement || 'start';
+        if (_.isString(placement)) {
+            this.options.placement = {
+                xs: placement,
+                // TODO: make dynamic...
+                sm: placement,
+                md: placement,
+                lg: placement,
+                xl: placement,
+                xxl: placement
+            }
+        }
+
+        //this.el.addClass('offcanvas-' + this._getPlacement());
 
         if (this.options.fullscreen) {
             this.el.addClass('offcanvas-fullscreen');
@@ -44,7 +55,12 @@
         }
         else {
             EventBroker.subscribe("page.resized", function (msg, viewport) {
-                if (viewport.is('>sm')) self.hide();
+                if (viewport.is('>sm')) {
+                    self.hide();
+                }
+                else {
+                    // TODO: change placement...
+                }
             });
         }
 
@@ -80,7 +96,7 @@
     OffCanvas.defaults = {
         canvas: '.wrapper',
         toggle: true,
-        placement: 'start',
+        placement: { xs: 'start' },
         fullscreen: false,
         overlay: false,
         autohide: true,
@@ -90,8 +106,20 @@
     };
 
 
-    // OFFCANVAS Internal
+    // OFFCANVAS internal
     // ======================================================
+
+    OffCanvas.prototype._getPlacement = function () {
+        let currentBreakpoint = viewport.current();
+        let placement = this.options.placement[currentBreakpoint];
+        console.log(currentBreakpoint, placement);
+        if (!placement) {
+            let breakpoints = ['xxl', 'xl', 'lg', 'md', 'sm', 'xs'];
+            // TODO: continue...
+        }
+
+        return placement || 'start';
+    }
 
     OffCanvas.prototype._makeTouchy = function (fn) {
         let self = this;
@@ -207,12 +235,18 @@
     OffCanvas.prototype.show = function (fn) {
         if (this.state) return;
 
-        var body = $('body');
-        var self = this;
+        let body = $('body');
+        let self = this;
+        let placement = this._getPlacement();
 
         var startEvent = $.Event('show.sm.offcanvas');
         this.el.trigger(startEvent);
         if (startEvent.isDefaultPrevented()) return;
+
+        // TODO: make dynamic...
+        this.el
+            .removeClass('offcanvas-start offcanvas-end offcanvas-top offcanvas-bottom')
+            .addClass('offcanvas-' + placement);
 
         this.state = 'slide-in';
 
@@ -234,7 +268,7 @@
         });
 
         body.addClass('canvas-sliding canvas-sliding-'
-            + (this.options.placement || 'start')
+            + (placement)
             + (this.options.fullscreen ? ' canvas-fullscreen' : ''));
 
         this.el.addClass("on").one(Prefixer.event.transitionEnd, function (e) {

@@ -384,8 +384,8 @@
 
                 btn.data('offcanvas', offcanvas)
                     .attr('data-toggle', 'offcanvas')
-                    .attr('data-placement', placement)
                     .attr('data-disablescrolling', 'true')
+                    .data('placement', { xs: "bottom", sm: "bottom", md: "start" }) // TODO: make dynamic
                     .data('target', offcanvas);
 
                 if (!afterResize) {
