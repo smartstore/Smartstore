@@ -206,32 +206,11 @@
                     }
 
                     if (form.valid()) {
-                        var getCountryCodeUrl = self.hostedFieldsContainer.data("get-country-code-url");
-                        var countryId = document.getElementById("CountryId").value;
-                        var countryCode = getCountryCode(getCountryCodeUrl, countryId);
-
-                        var stateProvince = document.getElementById("StateProvinceId");
-                        var region = stateProvince.options[stateProvince.selectedIndex].text;
-
                         cardFields
                             .submit({
                                 // Cardholder's first and last name
                                 cardholderName: document.getElementById("CardholderName").value,
-                                // Billing Address
-                                billingAddress: {
-                                    // Street address, line 1
-                                    streetAddress: document.getElementById("Address1").value,
-                                    // Street address, line 2 (Ex: Unit, Apartment, etc.)
-                                    extendedAddress: document.getElementById("Address2").value,
-                                    // City
-                                    locality: document.getElementById("City").value,
-                                    // Postal Code
-                                    postalCode: document.getElementById("ZipPostalCode").value,
-                                    // Country Code
-                                    countryCodeAlpha2: countryCode,
-                                    // State
-                                    region: region,
-                                },
+
                             })
                             .catch((err) => {
                                 e.preventDefault();
@@ -289,22 +268,5 @@
                 }
             }
         });
-    }
-
-    function getCountryCode(getCountryCodeUrl, countryId) {
-        var countryCode;
-
-        $.ajax({
-            async: false,   // IMPORTANT INFO: we must wait to get the country code.
-            type: 'POST',
-            url: getCountryCodeUrl,
-            data: { countryId: countryId },
-            cache: false,
-            success: function (resp) {
-                countryCode = resp;
-            }
-        });
-
-        return countryCode;
     }
 })(jQuery, this, document);
