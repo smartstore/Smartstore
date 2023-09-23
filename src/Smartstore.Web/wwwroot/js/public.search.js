@@ -364,9 +364,8 @@
                 if (btn.data('offcanvas')) return;
 
                 // create offcanvas wrapper
-                let placement = 'bottom'; // Smartstore.globalization.culture.isRTL ? 'right' : 'left';
                 let offcanvas =
-                    $(`<aside class="offcanvas offcanvas-${placement} offcanvas-shadow offcanvas-lg offcanvas-rounded" data-overlay="true">
+                    $(`<aside class="offcanvas offcanvas-shadow offcanvas-lg offcanvas-rounded" data-overlay="true">
                             <div class="offcanvas-header">
                                 <h5 class="offcanvas-title"><i class="fa fa-sliders-h mr-2"></i><span>${btn.data("title")}</span></h5>
                                 <button type="button" class="btn-close" data-dismiss="offcanvas"></button>
@@ -385,7 +384,7 @@
                 btn.data('offcanvas', offcanvas)
                     .attr('data-toggle', 'offcanvas')
                     .attr('data-disablescrolling', 'true')
-                    .data('placement', { xs: "bottom", sm: "bottom", md: "start" }) // TODO: make dynamic
+                    .data('placement', { xs: "bottom", md: "start" })
                     .data('target', offcanvas);
 
                 if (!afterResize) {

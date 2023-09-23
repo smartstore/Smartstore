@@ -95,7 +95,7 @@
 </div>
 
 <widget target-zone="end" key="offcanvas-menu">
-    <aside id="offcanvas-menu" class="offcanvas offcanvas-start offcanvas-shadow" data-blocker="true" data-overlay="true">
+    <aside id="offcanvas-menu" class="offcanvas offcanvas-shadow" data-blocker="true" data-overlay="true">
         <div class="offcanvas-content">
             <div id="offcanvas-menu-container" data-url="@(Url.Action("OffCanvas", "Menu"))">
                 @*Ajax content will be rendered here*@ 
@@ -105,7 +105,7 @@
 </widget>
 
 <widget target-zone="end" key="offcanvas-cart">
-    <aside id="offcanvas-cart" class="offcanvas offcanvas-lg offcanvas-end offcanvas-shadow" data-lg="true" data-blocker="true" data-overlay="true">
+    <aside id="offcanvas-cart" class="offcanvas offcanvas-lg offcanvas-shadow" data-lg="true" data-blocker="true" data-overlay="true">
         <div class="offcanvas-content">
             @await Component.InvokeAsync("OffCanvasCart")
         </div>
