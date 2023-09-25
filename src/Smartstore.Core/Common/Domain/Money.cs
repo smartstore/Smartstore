@@ -437,7 +437,7 @@ namespace Smartstore.Core.Common
         /// <returns>A new instance with the rounded amount</returns>
         public Money Round(bool force = false)
         {
-            if (Currency != null && (force || Currency.RoundOrderItemsEnabled))
+            if (Currency != null && (force || Currency.RoundOrderItemsEnabled.GetValueOrDefault()))
             {
                 return WithAmount(RoundedAmount);
             }

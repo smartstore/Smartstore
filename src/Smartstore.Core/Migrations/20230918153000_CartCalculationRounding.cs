@@ -10,21 +10,25 @@ namespace Smartstore.Core.Migrations
     internal class CartCalculationRounding : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
         const string CurrencyTable = nameof(Currency);
-        const string RoundCartRuleColumn = nameof(Currency.RoundCartRule);
+        const string RoundOrderItemsEnabledColumn = nameof(Currency.RoundOrderItemsEnabled);
+        const string RoundForNetPricesColumn = nameof(Currency.RoundForNetPrices);
 
         public override void Up()
         {
-            if (!Schema.Table(CurrencyTable).Column(RoundCartRuleColumn).Exists())
+            // Make nullable.
+            Alter.Column(RoundOrderItemsEnabledColumn).OnTable(CurrencyTable).AsBoolean().Nullable();
+
+            if (!Schema.Table(CurrencyTable).Column(RoundForNetPricesColumn).Exists())
             {
-                Create.Column(RoundCartRuleColumn).OnTable(CurrencyTable).AsInt32().Nullable();
+                Create.Column(RoundForNetPricesColumn).OnTable(CurrencyTable).AsBoolean().Nullable();
             }
         }
 
         public override void Down()
         {
-            if (Schema.Table(CurrencyTable).Column(RoundCartRuleColumn).Exists())
+            if (Schema.Table(CurrencyTable).Column(RoundForNetPricesColumn).Exists())
             {
-                Delete.Column(RoundCartRuleColumn).FromTable(CurrencyTable);
+                Delete.Column(RoundForNetPricesColumn).FromTable(CurrencyTable);
             }
         }
 
@@ -34,11 +38,9 @@ namespace Smartstore.Core.Migrations
         {
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
 
-#pragma warning disable 612, 618
             await context.Currencies
-                .Where(x => x.RoundOrderItemsEnabled)
-                .ExecuteUpdateAsync(x => x.SetProperty(c => c.RoundCartRule, p => CartRoundingRule.AlwaysRound), cancelToken);
-#pragma warning restore 612, 618
+                .Where(x => x.RoundOrderItemsEnabled != null && x.RoundOrderItemsEnabled.Value == true)
+                .ExecuteUpdateAsync(x => x.SetProperty(c => c.RoundForNetPrices, p => true), cancelToken);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)

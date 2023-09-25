@@ -28,9 +28,14 @@ namespace Smartstore.Core.Common.Configuration
         public bool AutoUpdateEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the default rule for rounding during shopping cart calculation.
+        /// Gets or sets a value indicating whether rounding during shopping cart calculation is enabled.
         /// </summary>
-        public CartRoundingRule RoundCartRule { get; set; }
+        public bool RoundOrderItemsEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to round during shopping cart calculation when net prices are displayed for the customer.
+        /// </summary>
+        public bool RoundForNetPrices { get; set; }
 
         /// <summary>
         /// Gets or sets the midpoint rounding strategy.

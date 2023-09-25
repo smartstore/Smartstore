@@ -181,19 +181,19 @@ namespace Smartstore.Core.Catalog.Pricing
                 var cy = context.Options.RoundingCurrency;
                 var subtotal = price.Clone();
 
-                subtotal.FinalPrice = new(_roundingHelper.Round(price.FinalPrice.Amount, RoundingReason.ProductPrice, cy) * qty, price.FinalPrice.Currency);
-                subtotal.DiscountAmount = new(_roundingHelper.Round(price.DiscountAmount.Amount, RoundingReason.ProductPrice, cy) * qty, price.DiscountAmount.Currency);
+                subtotal.FinalPrice = new(cy.RoundIfEnabledFor(price.FinalPrice.Amount) * qty, price.FinalPrice.Currency);
+                subtotal.DiscountAmount = new(cy.RoundIfEnabledFor(price.DiscountAmount.Amount) * qty, price.DiscountAmount.Currency);
 
                 if (price.Tax.HasValue)
                 {
                     var t = price.Tax.Value;
-                    
+
                     subtotal.Tax = new(
                         t.Rate,
                         t.Amount * qty,
-                        _roundingHelper.Round(t.Price, RoundingReason.ProductPrice, cy) * qty,
-                        _roundingHelper.Round(t.PriceNet, RoundingReason.ProductPrice, cy) * qty,
-                        _roundingHelper.Round(t.PriceGross, RoundingReason.ProductPrice, cy) * qty,
+                        cy.RoundIfEnabledFor(t.Price) * qty,
+                        cy.RoundIfEnabledFor(t.PriceNet) * qty,
+                        cy.RoundIfEnabledFor(t.PriceGross) * qty,
                         t.IsGrossPrice,
                         t.Inclusive);
                 }
@@ -347,8 +347,8 @@ namespace Smartstore.Core.Catalog.Pricing
                 var convertedAmount = _currencyService.ConvertFromPrimaryCurrency(context.FinalPrice, options.TargetCurrency).Amount;
 
                 result.Tax = options.IsGrossPrice
-                     ? _taxCalculator.CalculateTaxFromGross(convertedAmount, taxRate, options.TaxInclusive, RoundingReason.ProductPrice, options.RoundingCurrency)
-                     : _taxCalculator.CalculateTaxFromNet(convertedAmount, taxRate, options.TaxInclusive, RoundingReason.ProductPrice, options.RoundingCurrency);
+                     ? _taxCalculator.CalculateTaxFromGross(convertedAmount, taxRate, options.TaxInclusive, options.RoundingCurrency)
+                     : _taxCalculator.CalculateTaxFromNet(convertedAmount, taxRate, options.TaxInclusive, options.RoundingCurrency);
             }
 
             // Convert attribute price adjustments.
@@ -486,8 +486,8 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             tax = options.IsGrossPrice
-                 ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, RoundingReason.ProductPrice, options.RoundingCurrency)
-                 : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, RoundingReason.ProductPrice, options.RoundingCurrency);
+                 ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency)
+                 : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency);
 
             amount = tax.Value.Price;
 

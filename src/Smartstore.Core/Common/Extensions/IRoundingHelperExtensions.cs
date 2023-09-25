@@ -7,22 +7,6 @@ namespace Smartstore
 {
     public static partial class IRoundingHelperExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static decimal Round(this IRoundingHelper service, decimal amount, RoundingReason reason, Currency currency = null)
-        {
-            Guard.NotNull(service);
-
-            return service.Round(amount, reason, false, currency);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static decimal RoundTax(this IRoundingHelper service, decimal amount, RoundingReason reason, Currency currency = null)
-        {
-            Guard.NotNull(service);
-
-            return service.Round(amount, reason, true, currency);
-        }
-
         /// <summary>
         /// Round value up or down to the nearest multiple of denomination (cash rounding) if activated for currency.
         /// </summary>

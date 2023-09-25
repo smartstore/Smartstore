@@ -89,17 +89,17 @@ namespace Smartstore.Core.Common
 
         #region Rounding
 
-        // TODO: (mg) RoundOrderItemsEnabled becomes obsolete. ("true" as default was wrong anyway.)
         /// <summary>
-        /// Gets or sets a value indicating whether rounding of order items is enabled
+        /// Gets or sets a value indicating whether rounding during shopping cart calculation is enabled.
+        /// Will be obtained from <see cref="CurrencySettings.RoundOrderItemsEnabled"/> if <c>null</c>.
         /// </summary>
-        public bool RoundOrderItemsEnabled { get; set; } = true;
+        public bool? RoundOrderItemsEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the rule for rounding during shopping cart calculation.
-        /// If <c>null</c>, the rule will be obtained via <see cref="CurrencySettings.RoundCartRule"/>.
+        /// Gets or sets a value indicating whether to round during shopping cart calculation when net prices are displayed for the customer.
+        /// Will be obtained from <see cref="CurrencySettings.RoundForNetPrices"/> if <c>null</c>.
         /// </summary>
-        public CartRoundingRule? RoundCartRule { get; set; }
+        public bool? RoundForNetPrices { get; set; }
 
         /// <summary>
         /// Gets or sets the number of decimal places to round to
@@ -137,7 +137,7 @@ namespace Smartstore.Core.Common
                 amount = decimal.Zero;
             }
 
-            if (roundIfEnabled && RoundOrderItemsEnabled)
+            if (roundIfEnabled && RoundOrderItemsEnabled.GetValueOrDefault())
             {
                 amount = decimal.Round(amount, RoundNumDecimals);
             }

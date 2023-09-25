@@ -12,9 +12,9 @@ namespace Smartstore
         /// <returns>Rounded value.</returns>
         public static decimal RoundIfEnabledFor(this Currency currency, decimal value)
         {
-            Guard.NotNull(currency, nameof(currency));
+            Guard.NotNull(currency);
 
-            if (currency.RoundOrderItemsEnabled)
+            if (currency.RoundOrderItemsEnabled.GetValueOrDefault())
             {
                 return Math.Round(value, currency.RoundNumDecimals);
             }

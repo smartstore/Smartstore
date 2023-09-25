@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
 
 namespace Smartstore.Core.Common.Services
@@ -15,29 +15,17 @@ namespace Smartstore.Core.Common.Services
         }
 
         // TODO: (mg) lots of refactoring required. Now only RoundingHelper should round currency values (otherwise rounding difference possible).
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual decimal Round(decimal amount, Currency currency = null)
         {
             currency ??= _workContext.WorkingCurrency;
 
-            return decimal.Round(amount, currency.RoundNumDecimals, _currencySettings.MidpointRounding);
-        }
-
-        public virtual decimal Round(decimal amount, RoundingReason reason, bool isTax, Currency currency = null)
-        {
-            currency ??= _workContext.WorkingCurrency;
-
-            switch (currency.RoundCartRule ?? _currencySettings.RoundCartRule)
+            if (!(currency.RoundOrderItemsEnabled ?? _currencySettings.RoundOrderItemsEnabled) ||
+                (_workContext.TaxDisplayType == TaxDisplayType.ExcludingTax && !(currency.RoundForNetPrices ?? _currencySettings.RoundForNetPrices)))
             {
-                case CartRoundingRule.NeverRound:
-                default:
-                    return amount;
-
-                case CartRoundingRule.AlwaysRound:
-                    return Round(amount, currency);
-
-                // TODO: (mg) new options...
+                return amount;
             }
+
+            return decimal.Round(amount, currency.RoundNumDecimals, _currencySettings.MidpointRounding);
         }
 
         public virtual decimal RoundToNearest(decimal amount, out decimal toNearestRounding, Currency currency = null)

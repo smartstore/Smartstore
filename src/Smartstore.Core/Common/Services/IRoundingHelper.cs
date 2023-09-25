@@ -12,18 +12,6 @@
         /// <remarks>This is a gereral method to round currency values.</remarks>
         decimal Round(decimal amount, Currency currency = null);
 
-        /// <summary>Rounds an amount.</summary>
-        /// <param name="amount">Amount to round.</param>
-        /// <param name="reason">The reason to round <paramref name="amount"/>.</param>
-        /// <param name="isTax">A value indicating whether <paramref name="amount"/> is a tax amount.</param>
-        /// <param name="currency">
-        /// Rounds <paramref name="amount"/> according to its <see cref="Currency.RoundCartRule"/>.
-        /// If <c>null</c>, currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
-        /// </param>
-        /// <returns>Rounded amount.</returns>
-        /// <remarks>This method is only intended to be used during shopping cart calculation.</remarks>
-        decimal Round(decimal amount, RoundingReason reason, bool isTax, Currency currency = null);
-
         /// <summary>
         /// Round amount up or down to the nearest multiple of denomination (cash rounding) if activated for currency.
         /// </summary>

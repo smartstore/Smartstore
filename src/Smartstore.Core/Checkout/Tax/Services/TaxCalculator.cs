@@ -38,15 +38,7 @@ namespace Smartstore.Core.Checkout.Tax
         {
             Guard.NotNull(product);
 
-            return CalculateTaxAsync(
-                product, 
-                price, 
-                _taxSettings.PricesIncludeTax, 
-                RoundingReason.ProductPrice,
-                null,
-                inclusive,
-                customer,
-                currency);
+            return CalculateTaxAsync(product, price, _taxSettings.PricesIncludeTax, null, inclusive, customer, currency);
         }
 
         public virtual async Task<Tax> CalculateCheckoutAttributeTaxAsync(
@@ -62,19 +54,11 @@ namespace Smartstore.Core.Checkout.Tax
             var attribute = attributeValue.CheckoutAttribute;
             if (attribute.IsTaxExempt)
             {
-                return CreateTax(TaxRate.Zero, 0m, 0m, true, true, RoundingReason.CheckoutAttribute, currency);
+                return CreateTax(TaxRate.Zero, 0m, 0m, true, true, currency);
                 //return new Tax(TaxRate.Zero, 0m, 0m, true, true, currency);
             }
 
-            return await CalculateTaxAsync(
-                null,
-                attributeValue.PriceAdjustment,
-                _taxSettings.PricesIncludeTax, 
-                RoundingReason.CheckoutAttribute,
-                attribute.TaxCategoryId, 
-                inclusive, 
-                customer,
-                currency);
+            return await CalculateTaxAsync(null, attributeValue.PriceAdjustment, _taxSettings.PricesIncludeTax, attribute.TaxCategoryId, inclusive, customer, currency);
         }
 
         public virtual Task<Tax> CalculateShippingTaxAsync(
@@ -86,20 +70,12 @@ namespace Smartstore.Core.Checkout.Tax
         {
             if (!_taxSettings.ShippingIsTaxable)
             {
-                return Task.FromResult(CreateTax(TaxRate.Zero, 0m, price, true, true, RoundingReason.Shipping, currency));
+                return Task.FromResult(CreateTax(TaxRate.Zero, 0m, price, true, true, currency));
                 //return Task.FromResult(new Tax(TaxRate.Zero, 0m, price, true, true, currency));
             }
 
             taxCategoryId ??= _taxSettings.ShippingTaxClassId;
-            return CalculateTaxAsync(
-                null, 
-                price, 
-                _taxSettings.ShippingPriceIncludesTax, 
-                RoundingReason.Shipping, 
-                taxCategoryId.Value, 
-                inclusive, 
-                customer, 
-                currency);
+            return CalculateTaxAsync(null, price, _taxSettings.ShippingPriceIncludesTax, taxCategoryId.Value, inclusive, customer, currency);
         }
 
         public virtual Task<Tax> CalculatePaymentFeeTaxAsync(
@@ -111,27 +87,18 @@ namespace Smartstore.Core.Checkout.Tax
         {
             if (!_taxSettings.PaymentMethodAdditionalFeeIsTaxable)
             {
-                return Task.FromResult(CreateTax(TaxRate.Zero, 0m, price, true, true, RoundingReason.PaymentFee, currency));
+                return Task.FromResult(CreateTax(TaxRate.Zero, 0m, price, true, true, currency));
                 //return Task.FromResult(new Tax(TaxRate.Zero, 0m, price, true, true, currency));
             }
 
             taxCategoryId ??= _taxSettings.PaymentMethodAdditionalFeeTaxClassId;
-            return CalculateTaxAsync(
-                null, 
-                price, 
-                _taxSettings.PaymentMethodAdditionalFeeIncludesTax, 
-                RoundingReason.PaymentFee, 
-                taxCategoryId.Value,
-                inclusive, 
-                customer,
-                currency);
+            return CalculateTaxAsync(null, price, _taxSettings.PaymentMethodAdditionalFeeIncludesTax, taxCategoryId.Value, inclusive, customer, currency);
         }
 
         protected virtual async Task<Tax> CalculateTaxAsync(
             Product product,
             decimal price,
             bool isGrossPrice,
-            RoundingReason roundingReason,
             int? taxCategoryId = null,
             bool? inclusive = null,
             Customer customer = null,
@@ -152,19 +119,14 @@ namespace Smartstore.Core.Checkout.Tax
 
             var tax = isGrossPrice
                  // Admin: GROSS prices
-                 ? CalculateTaxFromGross(price, taxRate, inclusive.Value, roundingReason, currency)
+                 ? CalculateTaxFromGross(price, taxRate, inclusive.Value, currency)
                  // Admin: NET prices
-                 : CalculateTaxFromNet(price, taxRate, inclusive.Value, roundingReason, currency);
+                 : CalculateTaxFromNet(price, taxRate, inclusive.Value, currency);
 
             return tax;
         }
 
-        public virtual Tax CalculateTaxFromGross(
-            decimal grossPrice, 
-            TaxRate rate, 
-            bool inclusive,
-            RoundingReason roundingReason,
-            Currency currency = null)
+        public virtual Tax CalculateTaxFromGross(decimal grossPrice, TaxRate rate, bool inclusive, Currency currency = null)
         {
             if (grossPrice == 0)
                 return Tax.Zero;
@@ -173,7 +135,6 @@ namespace Smartstore.Core.Checkout.Tax
                 grossPrice,
                 true,
                 inclusive,
-                roundingReason,
                 currency);
 
             //return new Tax(rate, grossPrice / ((100 + rate.Rate) / 100) * (rate.Rate / 100),
@@ -187,7 +148,6 @@ namespace Smartstore.Core.Checkout.Tax
             decimal netPrice, 
             TaxRate rate,
             bool inclusive,
-            RoundingReason roundingReason, 
             Currency currency = null)
         {
             if (netPrice == 0)
@@ -197,7 +157,6 @@ namespace Smartstore.Core.Checkout.Tax
                 netPrice,
                 false,
                 inclusive,
-                roundingReason,
                 currency);
 
             //return new Tax(rate, netPrice * (rate.Rate / 100),
@@ -213,7 +172,6 @@ namespace Smartstore.Core.Checkout.Tax
             decimal price, 
             bool isGrossPrice,
             bool inclusive,
-            RoundingReason roundingReason,
             Currency currency)
         {
             var priceNet = isGrossPrice ? price - amount : price;
@@ -222,7 +180,7 @@ namespace Smartstore.Core.Checkout.Tax
 
             if (currency != null)
             {
-                priceNetOrGross = _roundingHelper.Round(priceNetOrGross, roundingReason, currency);
+                priceNetOrGross = currency.RoundIfEnabledFor(priceNetOrGross);
             }
 
             return new Tax(rate, amount, priceNetOrGross, priceNet, priceGross, isGrossPrice, inclusive);
