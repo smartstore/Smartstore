@@ -30,7 +30,7 @@
         AlwaysRound = 30
     }
 
-    public enum CartRoundingItem
+    public enum RoundingReason
     {
         ProductPrice,
         CartSubtotal,
@@ -38,7 +38,8 @@
         Discount,
         Shipping,
         PaymentFee,
-        RewardPoints
+        RewardPoints,
+        CheckoutAttribute
     }
 
     /// <summary>

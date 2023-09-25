@@ -8,19 +8,19 @@ namespace Smartstore
     public static partial class IRoundingHelperExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static decimal Round(this IRoundingHelper service, decimal amount, CartRoundingItem item, Currency currency = null)
+        public static decimal Round(this IRoundingHelper service, decimal amount, RoundingReason reason, Currency currency = null)
         {
             Guard.NotNull(service);
 
-            return service.Round(amount, item, false, currency);
+            return service.Round(amount, reason, false, currency);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static decimal RoundTax(this IRoundingHelper service, decimal amount, CartRoundingItem item, Currency currency = null)
+        public static decimal RoundTax(this IRoundingHelper service, decimal amount, RoundingReason reason, Currency currency = null)
         {
             Guard.NotNull(service);
 
-            return service.Round(amount, item, true, currency);
+            return service.Round(amount, reason, true, currency);
         }
 
         /// <summary>

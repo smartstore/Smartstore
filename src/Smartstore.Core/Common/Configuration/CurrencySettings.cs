@@ -35,7 +35,17 @@ namespace Smartstore.Core.Common.Configuration
         /// <summary>
         /// Gets or sets the midpoint rounding strategy.
         /// </summary>
-        /// <remarks>ASP.NET Core default value is <see cref="MidpointRounding.ToEven"/>.</remarks>
+        /// <remarks>
+        /// <see cref="MidpointRounding.ToEven"/> equals "banker's rounding" or "mathematisches Runden".
+        /// Round to the nearest even number.
+        /// Examples: 1.2250 is rounded down to 1.22. 1.2350 is rounded up to 1.24.
+        /// 
+        /// <see cref="MidpointRounding.AwayFromZero"/> equals "round to nearest" or "kaufmännisches Runden".
+        /// Round down if the first dropped decimal place is 0, 1, 2, 3 or 4, otherwise round up.
+        /// Examples: 1.2250 is rounded up to 1.23. 1.2240 is rounded down to 1.22.
+        /// 
+        /// ASP.NET Core default value is <see cref="MidpointRounding.ToEven"/>.
+        /// </remarks>
         public MidpointRounding MidpointRounding { get; set; } = MidpointRounding.ToEven;
     }
 }

@@ -23,7 +23,7 @@ namespace Smartstore.Core.Common.Services
             return decimal.Round(amount, currency.RoundNumDecimals, _currencySettings.MidpointRounding);
         }
 
-        public virtual decimal Round(decimal amount, CartRoundingItem item, bool isTax, Currency currency = null)
+        public virtual decimal Round(decimal amount, RoundingReason reason, bool isTax, Currency currency = null)
         {
             currency ??= _workContext.WorkingCurrency;
 
