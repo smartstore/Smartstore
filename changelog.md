@@ -75,7 +75,8 @@
 - #807 Enable absolute Paths for DataExchangeSettings.ImageImportFolder.
 - #786 Replace TripleDatePicker with native input type date.
 - #804 Implemented the new TrustBadge integration mode, including new settings for positioning, color scheme, etc. 
-- #819 Fix zoom on product detail page when there is a large right column 
+- #819 Fix zoom on product detail page when there is a large right column.
+- PayPal credit card: Removed address fields and integrated Strong Customer Authentication (SCA) instead.
 
 ### Bugfixes
 
@@ -113,8 +114,8 @@
 - #810 Doubleclicking login button can lead to 400 BadRequest error page.
 - Fixed arithmetic overflow SqlException in `ShippingByWeight` and `ShippingByTotal` four decimal places migrations.
 - #776 PayPal credit card payment fails due to missing session PayPalOrderId entry.
-- #797 Incorrect validation when product can be added to the cart in single positions
-- Manufacturer pictures were not displayed on product detail pages
+- #797 Incorrect validation when product can be added to the cart in single positions.
+- Manufacturer pictures were not displayed on product detail pages.
 - #828 Queued email identifier is 0 for order completed email.
 
 
