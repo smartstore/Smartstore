@@ -1,14 +1,18 @@
 ﻿/// <reference path="references.scss" />
 
-$ocm-border-color:                      rgba($black, 0.1);
-$ocm-horizontal-padding:                1.25rem;
-$ocm-selected-color:                    $warning;
-
 //
 // Sidebar Navigation Menus (Main menu, Brands menu etc.)
 // ------------------------------------------------------
 
 #offcanvas-menu {
+    --ocm-border-color: #{rgba($black, 0.1)};
+    --ocm-item-padding-x: 1.25rem;
+    --ocm-item-padding-y: 10px;
+    --ocm-item-font-size: #{$font-size-sm};
+    --ocm-item-line-height: 1.3;
+    --ocm-item-selected-color: #{$warning};
+    --ocm-brand-img-size: 80px;
+
     .tab-pane {
         padding: 0;
     }
@@ -52,23 +56,22 @@ $ocm-selected-color:                    $warning;
     .menubar-link,
     .ocm-item {
         margin: 0;
-        border-bottom: 1px solid $ocm-border-color;
-        display: block;
+        border-bottom: 1px solid var(--ocm-border-color);
         position: relative;
+        display: block;
 
         .ocm-link {
             display: block;
             color: $body-color;
-            line-height: 1.3;
-            font-size: $font-size-base;
-            padding: 1rem;
-            padding-inline-end: 2.5rem;
-            padding-inline: $ocm-horizontal-padding 2.5rem;
+            line-height: var(--ocm-item-line-height);
+            font-size: var(--ocm-item-font-size);
+            padding: var(--ocm-item-padding-y) var(--ocm-item-padding-x);
+            padding-inline-end: 1.5rem;
             text-decoration: none !important;
 
             &:active,
             &:focus {
-                background-color: rgba(#000, 0.05);
+                background-color: rgba($black, 0.05);
             }
         }
 
@@ -76,26 +79,32 @@ $ocm-selected-color:                    $warning;
             position: absolute;
             inset-inline-end: 1rem;
             top: 50%;
-            transform: translateY(-50%);
-            @include fontawesome('\f054');
-            color: #646464;
-            font-size: 16px;
-            width: 16px;
-            height: 16px;
-            min-height: 16px;
+            // Don't use transform here... the animation will overwrite it.
+            margin-top: calc(var(--ocm-item-font-size) * -0.5);
+            @include fontawesome('\f054', var(--ocm-item-font-size));
+            color: var(--gray-700);
+            font-size: 14px;
+            width: var(--ocm-item-font-size);
+            height: var(--ocm-item-font-size);
+            min-height: var(--ocm-item-font-size);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
         }
 
         &.has-children.animating:after {
             animation: fa-spin .6s infinite linear;
-            margin-top: -9px;
+            //margin-top: -9px;
+            transform: none;
+            transform-origin: center;
             font-family: fontastic;
             content: '\e8d3' !important;
         }
 
         &.selected:before,
         &.expanded:before {
-            @include active-list-item(5px, $ocm-selected-color);
+            @include active-list-item(5px, var(--ocm-item-selected-color));
         }
     }
 
@@ -112,7 +121,7 @@ $ocm-selected-color:                    $warning;
     }
 
     .ocm-info {
-        padding: 0 $ocm-horizontal-padding;
+        padding: 0 var(--ocm-item-padding-x);
 
         .ocm-name {
             padding-top: 1rem;
@@ -121,15 +130,15 @@ $ocm-selected-color:                    $warning;
     // manufacturer tab
     .manufacturer-container {
         .ocm-item {
-            padding: 0 1.25rem;
+            padding: 0 var(--ocm-item-padding-x);
 
             .col-img {
-                width: 100px;
-                min-width: 100px;
-                max-width: 100px;
+                width: var(--ocm-brand-img-size);
+                min-width: var(--ocm-brand-img-size);
+                max-width: var(--ocm-brand-img-size);
 
                 .ocm-img-link {
-                    padding: 0.5rem;
+                    padding-block: var(--ocm-item-padding-y);
                     display: block;
 
                     > img {
@@ -139,11 +148,11 @@ $ocm-selected-color:                    $warning;
             }
 
             .ocm-link {
-                padding-inline-start: 0.75rem;
+                padding-inline: 0;
             }
 
             .col-img ~ .col-data > .ocm-link {
-                padding-inline-start: 0;
+                //padding-inline-start: 0;
             }
         }
 
@@ -169,8 +178,7 @@ $ocm-selected-color:                    $warning;
         background: #fff;
         transform: translateX(-30%);
         z-index: 0;
-        border-left: 1px solid $ocm-border-color;
-        border-right: 1px solid $ocm-border-color;
+        border-inline: 1px solid var(--ocm-border-color);
 
         &.show {
             transform: translateX(0);
@@ -213,10 +221,9 @@ $ocm-selected-color:                    $warning;
 
     .menubar-link {
         text-transform: initial;
-        padding: 1rem 2rem;
-        padding-inline-start: $ocm-horizontal-padding;
+        padding: var(--ocm-item-padding-y) var(--ocm-item-padding-x);
         font-size: inherit;
-        border-bottom: 1px solid $ocm-border-color;
+        border-bottom: 1px solid var(--ocm-border-color);
         background-color: #fff;
         color: $body-color;
         border-radius: 0;
@@ -248,7 +255,7 @@ $ocm-selected-color:                    $warning;
         float: initial;
         margin: initial;
         border: none;
-        border-bottom: 1px solid $ocm-border-color;
+        border-bottom: 1px solid var(--ocm-border-color);
         padding-inline: var(--dropdown-padding-x);
         padding-block: 0.75rem;
     }
