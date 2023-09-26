@@ -1,8 +1,12 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Moq;
 using NUnit.Framework;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common;
+using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Test.Common;
 
@@ -11,16 +15,30 @@ namespace Smartstore.Core.Tests.Tax
     [TestFixture]
     public class TaxServiceTests : ServiceTestBase
     {
+        IWorkContext _workContext;
+        IRoundingHelper _roundingHelper;
         ITaxService _taxService;
+        CurrencySettings _currencySettings;
+        Currency _currency;
 
         [OneTimeSetUp]
         public new void SetUp()
         {
+            _currencySettings = new CurrencySettings();
+            _currency = new Currency { Id = 1 };
+
+            var workContextMock = new Mock<IWorkContext>();
+            _workContext = workContextMock.Object;
+            workContextMock.Setup(x => x.WorkingCurrency).Returns(_currency);
+
+            _roundingHelper = new RoundingHelper(_workContext, _currencySettings);
+
             _taxService = new TaxService(
                 DbContext,
                 null,
                 ProviderManager,
                 null,
+                _roundingHelper,
                 null,
                 new TaxSettings { DefaultTaxAddressId = 10, EuVatUseWebService = true });
         }

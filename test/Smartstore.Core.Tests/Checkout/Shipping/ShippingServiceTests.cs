@@ -50,10 +50,10 @@ namespace Smartstore.Core.Tests.Shipping
             var storeContextMock = new Mock<IStoreContext>();
             _storeContext = storeContextMock.Object;
 
-            DbContext.ShippingMethods.Add(new ShippingMethod { Name = "1" });
-            DbContext.ShippingMethods.Add(new ShippingMethod { Name = "2" });
-            DbContext.ShippingMethods.Add(new ShippingMethod { Name = "3" });
-            DbContext.ShippingMethods.Add(new ShippingMethod { Name = "4" });
+            DbContext.ShippingMethods.Add(new() { Name = "1" });
+            DbContext.ShippingMethods.Add(new() { Name = "2" });
+            DbContext.ShippingMethods.Add(new() { Name = "3" });
+            DbContext.ShippingMethods.Add(new() { Name = "4" });
             DbContext.SaveChanges();
             
             _shippingService = new ShippingService(
@@ -63,8 +63,8 @@ namespace Smartstore.Core.Tests.Shipping
                 _shippingSettings,
                 ProviderManager,
                 null,
-                _storeContext,
                 null,
+                _storeContext,
                 DbContext);
         }
 

@@ -199,7 +199,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString(nameof(Currency.UpdatedOnUtc), entity.UpdatedOnUtc.ToString(_culture));
             _writer.WriteElementString(nameof(Currency.DomainEndings), entity.DomainEndings);
             _writer.WriteElementString(nameof(Currency.RoundOrderItemsEnabled), entity.RoundOrderItemsEnabled.ToString());
-            _writer.WriteElementString(nameof(Currency.RoundForNetPrices), entity.RoundForNetPrices.ToString());
+            _writer.WriteElementString(nameof(Currency.RoundNetPrices), entity.RoundNetPrices.ToString());
             _writer.WriteElementString(nameof(Currency.RoundNumDecimals), entity.RoundNumDecimals.ToString());
             _writer.WriteElementString(nameof(Currency.RoundOrderTotalEnabled), entity.RoundOrderTotalEnabled.ToString());
             _writer.WriteElementString(nameof(Currency.RoundOrderTotalDenominator), entity.RoundOrderTotalDenominator.ToString(_culture));

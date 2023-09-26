@@ -27,6 +27,8 @@ namespace Smartstore.Core.Common.Configuration
         /// </summary>
         public bool AutoUpdateEnabled { get; set; }
 
+        #region Rounding
+
         /// <summary>
         /// Gets or sets a value indicating whether rounding during shopping cart calculation is enabled.
         /// </summary>
@@ -35,10 +37,15 @@ namespace Smartstore.Core.Common.Configuration
         /// <summary>
         /// Gets or sets a value indicating whether to round during shopping cart calculation when net prices are displayed for the customer.
         /// </summary>
-        public bool RoundForNetPrices { get; set; }
+        public bool RoundNetPrices { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the midpoint rounding strategy.
+        /// Gets or sets a value indicating whether to round the unit price before or after quantity multiplication.
+        /// </summary>
+        public bool RoundUnitPrices { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the rounding strategy of the midway between two numbers.
         /// </summary>
         /// <remarks>
         /// <see cref="MidpointRounding.ToEven"/> equals "banker's rounding" or "mathematisches Runden".
@@ -48,9 +55,9 @@ namespace Smartstore.Core.Common.Configuration
         /// <see cref="MidpointRounding.AwayFromZero"/> equals "round to nearest" or "kaufmännisches Runden".
         /// Round down if the first dropped decimal place is 0, 1, 2, 3 or 4, otherwise round up.
         /// Examples: 1.2250 is rounded up to 1.23. 1.2240 is rounded down to 1.22.
-        /// 
-        /// ASP.NET Core default value is <see cref="MidpointRounding.ToEven"/>.
         /// </remarks>
         public MidpointRounding MidpointRounding { get; set; } = MidpointRounding.ToEven;
+
+        #endregion
     }
 }

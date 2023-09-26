@@ -11,24 +11,35 @@ namespace Smartstore.Core.Migrations
     {
         const string CurrencyTable = nameof(Currency);
         const string RoundOrderItemsEnabledColumn = nameof(Currency.RoundOrderItemsEnabled);
-        const string RoundForNetPricesColumn = nameof(Currency.RoundForNetPrices);
+        const string RoundNetPricesColumn = nameof(Currency.RoundNetPrices);
+        const string RoundUnitPricesColumn = nameof(Currency.RoundUnitPrices);
 
         public override void Up()
         {
             // Make nullable.
             Alter.Column(RoundOrderItemsEnabledColumn).OnTable(CurrencyTable).AsBoolean().Nullable();
 
-            if (!Schema.Table(CurrencyTable).Column(RoundForNetPricesColumn).Exists())
+            if (!Schema.Table(CurrencyTable).Column(RoundNetPricesColumn).Exists())
             {
-                Create.Column(RoundForNetPricesColumn).OnTable(CurrencyTable).AsBoolean().Nullable();
+                Create.Column(RoundNetPricesColumn).OnTable(CurrencyTable).AsBoolean().Nullable();
+            }
+
+            if (!Schema.Table(CurrencyTable).Column(RoundUnitPricesColumn).Exists())
+            {
+                Create.Column(RoundUnitPricesColumn).OnTable(CurrencyTable).AsBoolean().Nullable();
             }
         }
 
         public override void Down()
         {
-            if (Schema.Table(CurrencyTable).Column(RoundForNetPricesColumn).Exists())
+            if (Schema.Table(CurrencyTable).Column(RoundNetPricesColumn).Exists())
             {
-                Delete.Column(RoundForNetPricesColumn).FromTable(CurrencyTable);
+                Delete.Column(RoundNetPricesColumn).FromTable(CurrencyTable);
+            }
+
+            if (Schema.Table(CurrencyTable).Column(RoundUnitPricesColumn).Exists())
+            {
+                Delete.Column(RoundUnitPricesColumn).FromTable(CurrencyTable);
             }
         }
 
@@ -40,7 +51,10 @@ namespace Smartstore.Core.Migrations
 
             await context.Currencies
                 .Where(x => x.RoundOrderItemsEnabled != null && x.RoundOrderItemsEnabled.Value == true)
-                .ExecuteUpdateAsync(x => x.SetProperty(c => c.RoundForNetPrices, p => true), cancelToken);
+                .ExecuteUpdateAsync(setter => setter
+                    .SetProperty(c => c.RoundNetPrices, p => true)
+                    .SetProperty(c => c.RoundUnitPrices, p => true),
+                    cancelToken);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)

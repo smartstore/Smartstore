@@ -97,9 +97,15 @@ namespace Smartstore.Core.Common
 
         /// <summary>
         /// Gets or sets a value indicating whether to round during shopping cart calculation when net prices are displayed for the customer.
-        /// Will be obtained from <see cref="CurrencySettings.RoundForNetPrices"/> if <c>null</c>.
+        /// Will be obtained from <see cref="CurrencySettings.RoundNetPrices"/> if <c>null</c>.
         /// </summary>
-        public bool? RoundForNetPrices { get; set; }
+        public bool? RoundNetPrices { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to round the unit price before or after quantity multiplication.
+        /// Will be obtained from <see cref="CurrencySettings.RoundUnitPrices"/> if <c>null</c>.
+        /// </summary>
+        public bool? RoundUnitPrices { get; set; }
 
         /// <summary>
         /// Gets or sets the number of decimal places to round to

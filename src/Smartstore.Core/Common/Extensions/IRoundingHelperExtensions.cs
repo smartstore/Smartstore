@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Smartstore.Core;
+﻿using Smartstore.Core;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 
@@ -19,11 +18,11 @@ namespace Smartstore
         /// <returns>Rounded amount.</returns>
         /// <example>"Schweizer Rappenrundung" of 16.23 -> returned value is 16.25 and toNearestRounding is 0.02.</example>
         /// <remarks>Usually this method is used to round the order total.</remarks>
-        public static Money RoundToNearest(this IRoundingHelper service, Money amount, out Money toNearestRounding, Currency currency = null)
+        public static Money RoundToNearest(this IRoundingHelper helper, Money amount, out Money toNearestRounding, Currency currency = null)
         {
-            Guard.NotNull(service);
+            Guard.NotNull(helper);
 
-            var newValue = service.RoundToNearest(amount.Amount, out var tmpToNearestRounding, currency);
+            var newValue = helper.ToNearest(amount.Amount, out var tmpToNearestRounding, currency);
 
             toNearestRounding = new(tmpToNearestRounding, currency);
 

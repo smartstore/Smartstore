@@ -55,7 +55,6 @@ namespace Smartstore.Core.Checkout.Tax
             if (attribute.IsTaxExempt)
             {
                 return CreateTax(TaxRate.Zero, 0m, 0m, true, true, currency);
-                //return new Tax(TaxRate.Zero, 0m, 0m, true, true, currency);
             }
 
             return await CalculateTaxAsync(null, attributeValue.PriceAdjustment, _taxSettings.PricesIncludeTax, attribute.TaxCategoryId, inclusive, customer, currency);
@@ -71,7 +70,6 @@ namespace Smartstore.Core.Checkout.Tax
             if (!_taxSettings.ShippingIsTaxable)
             {
                 return Task.FromResult(CreateTax(TaxRate.Zero, 0m, price, true, true, currency));
-                //return Task.FromResult(new Tax(TaxRate.Zero, 0m, price, true, true, currency));
             }
 
             taxCategoryId ??= _taxSettings.ShippingTaxClassId;
@@ -88,7 +86,6 @@ namespace Smartstore.Core.Checkout.Tax
             if (!_taxSettings.PaymentMethodAdditionalFeeIsTaxable)
             {
                 return Task.FromResult(CreateTax(TaxRate.Zero, 0m, price, true, true, currency));
-                //return Task.FromResult(new Tax(TaxRate.Zero, 0m, price, true, true, currency));
             }
 
             taxCategoryId ??= _taxSettings.PaymentMethodAdditionalFeeTaxClassId;
@@ -136,12 +133,6 @@ namespace Smartstore.Core.Checkout.Tax
                 true,
                 inclusive,
                 currency);
-
-            //return new Tax(rate, grossPrice / ((100 + rate.Rate) / 100) * (rate.Rate / 100),
-            //    grossPrice,
-            //    true,
-            //    inclusive,
-            //    currency);
         }
 
         public virtual Tax CalculateTaxFromNet(
@@ -158,12 +149,6 @@ namespace Smartstore.Core.Checkout.Tax
                 false,
                 inclusive,
                 currency);
-
-            //return new Tax(rate, netPrice * (rate.Rate / 100),
-            //    netPrice,
-            //    false,
-            //    inclusive,
-            //    currency);
         }
 
         protected virtual Tax CreateTax(
@@ -180,10 +165,10 @@ namespace Smartstore.Core.Checkout.Tax
 
             if (currency != null)
             {
-                priceNetOrGross = currency.RoundIfEnabledFor(priceNetOrGross);
+                priceNetOrGross = _roundingHelper.Round(priceNetOrGross, currency);
             }
 
-            return new Tax(rate, amount, priceNetOrGross, priceNet, priceGross, isGrossPrice, inclusive);
+            return new(rate, amount, priceNetOrGross, priceNet, priceGross, isGrossPrice, inclusive);
         }
     }
 }

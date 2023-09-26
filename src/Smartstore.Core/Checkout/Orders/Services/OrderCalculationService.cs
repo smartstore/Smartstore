@@ -98,7 +98,7 @@ namespace Smartstore.Core.Checkout.Orders
             bool includePaymentFee = true,
             bool includeCreditBalance = true)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             var cacheKey = $"ordercalculation:carttotal:{cart.GetHashCode()}-{includeRewardPoints}-{includePaymentFee}-{includeCreditBalance}";
 
@@ -143,10 +143,11 @@ namespace Smartstore.Core.Checkout.Orders
                 resultTemp += shipping.ShippingTotal.Value;
             }
 
-            resultTemp = _workingCurrency.RoundIfEnabledFor(resultTemp + paymentFeeWithoutTax + shoppingCartTax);
+            resultTemp = _roundingHelper.Round(resultTemp + paymentFeeWithoutTax + shoppingCartTax);
 
             // Order total discount.
             var (discountAmount, appliedDiscount) = await GetDiscountAmountAsync(resultTemp, DiscountType.AssignedToOrderTotal, customer);
+            discountAmount = _roundingHelper.Round(discountAmount);
 
             // Subtotal with discount.
             if (resultTemp < discountAmount)
@@ -155,7 +156,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Reduce subtotal.
-            resultTemp = _workingCurrency.RoundIfEnabledFor(Math.Max(resultTemp - discountAmount, decimal.Zero));
+            resultTemp = _roundingHelper.Round(Math.Max(resultTemp - discountAmount, decimal.Zero));
 
             // Applied gift cards.
             var appliedGiftCards = new List<AppliedGiftCard>();
@@ -205,7 +206,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            resultTemp = _workingCurrency.RoundIfEnabledFor(Math.Max(resultTemp, decimal.Zero));
+            resultTemp = _roundingHelper.Round(Math.Max(resultTemp, decimal.Zero));
 
             // Return null if we have errors:
             decimal? orderTotal = shipping.ShippingTotal.HasValue ? resultTemp : null;
@@ -239,7 +240,7 @@ namespace Smartstore.Core.Checkout.Orders
                     }
                 }
 
-                orderTotal = _workingCurrency.RoundIfEnabledFor(orderTotal.Value - appliedCreditBalance);
+                orderTotal = _roundingHelper.Round(orderTotal.Value - appliedCreditBalance);
                 orderTotalConverted = _currencyService.ConvertToWorkingCurrency(orderTotal.Value).Amount;
 
                 // Round order total to nearest (cash rounding).
@@ -248,8 +249,8 @@ namespace Smartstore.Core.Checkout.Orders
                     var paymentMethod = await _db.PaymentMethods.AsNoTracking().FirstOrDefaultAsync(x => x.PaymentMethodSystemName == paymentMethodSystemName);
                     if (paymentMethod?.RoundOrderTotalEnabled ?? false)
                     {
-                        orderTotal = _roundingHelper.RoundToNearest(orderTotal.Value, out toNearestRounding, _workingCurrency);
-                        orderTotalConverted = _roundingHelper.RoundToNearest(orderTotalConverted.Value, out toNearestRoundingConverted, _workingCurrency);
+                        orderTotal = _roundingHelper.ToNearest(orderTotal.Value, out toNearestRounding, _workingCurrency);
+                        orderTotalConverted = _roundingHelper.ToNearest(orderTotalConverted.Value, out toNearestRoundingConverted, _workingCurrency);
                     }
                 }
             }
@@ -328,7 +329,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<bool> IsFreeShippingAsync(ShoppingCart cart)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             if (cart.Customer != null)
             {
@@ -384,7 +385,7 @@ namespace Smartstore.Core.Checkout.Orders
             ShippingOption shippingOption,
             IList<ShippingMethod> shippingMethods)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             if (await IsFreeShippingAsync(cart))
             {
@@ -432,7 +433,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             // Discount.
             var (discountAmount, discount) = await GetDiscountAmountAsync(adjustedRate, DiscountType.AssignedToShipping, cart.Customer);
-            adjustedRate = _workingCurrency.RoundIfEnabledFor(Math.Max(adjustedRate - discountAmount, decimal.Zero));
+            adjustedRate = _roundingHelper.Round(Math.Max(adjustedRate - discountAmount, decimal.Zero));
 
             return (adjustedRate, discount);
         }
@@ -440,6 +441,7 @@ namespace Smartstore.Core.Checkout.Orders
         public virtual async Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer)
         {
             var (discountAmount, appliedDiscount) = await GetDiscountAmountAsync(amount.Amount, discountType, customer);
+            discountAmount = _roundingHelper.Round(discountAmount);
 
             return (new(discountAmount, _primaryCurrency), appliedDiscount);
         }
@@ -473,11 +475,11 @@ namespace Smartstore.Core.Checkout.Orders
 
         protected virtual async Task<CartSubtotal> GetCartSubtotalAsync(ShoppingCart cart, bool includeTax, ProductBatchContext batchContext = null)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             var result = new CartSubtotal();
 
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return result;
             }
@@ -501,8 +503,8 @@ namespace Smartstore.Core.Checkout.Orders
                 var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
                 var tax = subtotal.Tax.Value;
-                var itemExclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceNet);
-                var itemInclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceGross);
+                var itemExclTax = _roundingHelper.Round(tax.PriceNet);
+                var itemInclTax = _roundingHelper.Round(tax.PriceGross);
 
                 subtotalExclTaxWithoutDiscount += itemExclTax;
                 subtotalInclTaxWithoutDiscount += itemInclTax;
@@ -535,7 +537,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Subtotal without discount.
-            result.SubtotalWithoutDiscount = _workingCurrency.RoundIfEnabledFor(Math.Max(includeTax ? subtotalInclTaxWithoutDiscount : subtotalExclTaxWithoutDiscount, 0m));
+            result.SubtotalWithoutDiscount = _roundingHelper.Round(Math.Max(includeTax ? subtotalInclTaxWithoutDiscount : subtotalExclTaxWithoutDiscount, 0m));
 
             // We calculate discount amount on order subtotal excl tax (discount first).
             var (discountAmountExclTax, appliedDiscount) = await GetDiscountAmountAsync(subtotalExclTaxWithoutDiscount, DiscountType.AssignedToOrderSubTotal, customer);
@@ -565,7 +567,7 @@ namespace Smartstore.Core.Checkout.Orders
                     {
                         var discountTax = result.TaxRates[taxRate] * (discountAmountExclTax / subtotalExclTaxWithoutDiscount);
                         discountAmountInclTax += discountTax;
-                        taxAmount = _workingCurrency.RoundIfEnabledFor(result.TaxRates[taxRate] - discountTax);
+                        taxAmount = _roundingHelper.Round(result.TaxRates[taxRate] - discountTax);
                         result.TaxRates[taxRate] = taxAmount;
                     }
 
@@ -574,10 +576,10 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            discountAmountExclTax = _workingCurrency.RoundIfEnabledFor(discountAmountExclTax);
-            discountAmountInclTax = _workingCurrency.RoundIfEnabledFor(discountAmountInclTax);
+            discountAmountExclTax = _roundingHelper.Round(discountAmountExclTax);
+            discountAmountInclTax = _roundingHelper.Round(discountAmountInclTax);
 
-            result.SubtotalWithDiscount = _workingCurrency.RoundIfEnabledFor(Math.Max(includeTax ? subtotalInclTaxWithDiscount : subtotalExclTaxWithDiscount, 0m));
+            result.SubtotalWithDiscount = _roundingHelper.Round(Math.Max(includeTax ? subtotalInclTaxWithDiscount : subtotalExclTaxWithDiscount, 0m));
             result.DiscountAmount = includeTax ? discountAmountInclTax : discountAmountExclTax;
             result.AppliedDiscount = appliedDiscount;
 
@@ -586,7 +588,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         protected virtual async Task<CartShippingTotal> GetCartShippingTotalAsync(ShoppingCart cart, bool includeTax)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             if (await IsFreeShippingAsync(cart))
             {
@@ -599,7 +601,7 @@ namespace Smartstore.Core.Checkout.Orders
                 return new CartShippingTotal();
             }
 
-            var shippingTotal = _workingCurrency.RoundIfEnabledFor(Math.Max(shippingTotalAmount.Value, 0m));
+            var shippingTotal = _roundingHelper.Round(Math.Max(shippingTotalAmount.Value, 0m));
 
             await PrepareAuxiliaryServicesTaxingInfosAsync(cart);
 
@@ -642,7 +644,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         protected virtual async Task<(decimal Amount, TaxRatesDictionary TaxRates)> GetCartTaxTotalAsync(ShoppingCart cart, bool includePaymentFee)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             var customer = cart.Customer;
             var taxRates = new TaxRatesDictionary();
@@ -674,7 +676,7 @@ namespace Smartstore.Core.Checkout.Orders
                 var (shippingTotalAmount, _) = await GetAdjustedShippingTotalAsync(cart);
                 if (shippingTotalAmount.HasValue)
                 {
-                    var shippingTotal = _workingCurrency.RoundIfEnabledFor(Math.Max(shippingTotalAmount.Value, 0m));
+                    var shippingTotal = _roundingHelper.Round(Math.Max(shippingTotalAmount.Value, 0m));
 
                     await PrepareAuxiliaryServicesTaxingInfosAsync(cart);
 
@@ -695,7 +697,7 @@ namespace Smartstore.Core.Checkout.Orders
                     var tax = await _taxCalculator.CalculateShippingTaxAsync(shippingTotal, null, taxCategoryId, customer);
                     var taxRate = tax.Rate.Rate;
 
-                    shippingTax = _workingCurrency.RoundIfEnabledFor(Math.Max(tax.Amount, 0m));
+                    shippingTax = _roundingHelper.Round(Math.Max(tax.Amount, 0m));
                     taxRates.Add(taxRate, shippingTax);
                 }
             }
@@ -725,7 +727,7 @@ namespace Smartstore.Core.Checkout.Orders
                     var tax = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentFee.Amount, null, taxCategoryId, customer);
                     var taxRate = tax.Rate.Rate;
 
-                    paymentFeeTax = _workingCurrency.RoundIfEnabledFor(tax.Amount);
+                    paymentFeeTax = _roundingHelper.Round(tax.Amount);
 
                     // In case of a payment fee the tax amount can be less zero!
                     // That's why we do not use helper TaxRatesDictionary.Add here.
@@ -744,12 +746,12 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Add at least one tax rate (0%).
-            if (!taxRates.Any())
+            if (taxRates.Count == 0)
             {
                 taxRates.Add(decimal.Zero, decimal.Zero);
             }
 
-            taxTotal = _workingCurrency.RoundIfEnabledFor(Math.Max(subtotalTax + shippingTax + paymentFeeTax, decimal.Zero));
+            taxTotal = _roundingHelper.Round(Math.Max(subtotalTax + shippingTax + paymentFeeTax, decimal.Zero));
 
             return (taxTotal, taxRates);
         }
@@ -757,7 +759,7 @@ namespace Smartstore.Core.Checkout.Orders
         protected virtual async Task PrepareAuxiliaryServicesTaxingInfosAsync(ShoppingCart cart)
         {
             // No additional infos required.
-            if (!cart.Items.Any() || _taxSettings.AuxiliaryServicesTaxingType == AuxiliaryServicesTaxType.SpecifiedTaxCategory)
+            if (!cart.HasItems || _taxSettings.AuxiliaryServicesTaxingType == AuxiliaryServicesTaxType.SpecifiedTaxCategory)
             {
                 return;
             }
@@ -866,11 +868,6 @@ namespace Smartstore.Core.Checkout.Orders
                 result = decimal.Zero;
             }
 
-            if (discountType != DiscountType.AssignedToOrderSubTotal)
-            {
-                result = _workingCurrency.RoundIfEnabledFor(result);
-            }
-
             return (result, appliedDiscount);
         }
 
@@ -954,7 +951,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         protected virtual async Task<decimal> GetCartPaymentFeeAsync(ShoppingCart cart, string paymentMethodSystemName)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             var paymentFee = decimal.Zero;
             var provider = _providerManager.GetProvider<IPaymentMethod>(paymentMethodSystemName);
@@ -980,12 +977,12 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            return _workingCurrency.RoundIfEnabledFor(paymentFee);
+            return _roundingHelper.Round(paymentFee);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual decimal ConvertRewardPointsToAmountCore(int rewardPoints)
-            => _workingCurrency.RoundIfEnabledFor(rewardPoints > 0 ? rewardPoints * _rewardPointsSettings.ExchangeRate : decimal.Zero);
+            => _roundingHelper.Round(rewardPoints > 0 ? rewardPoints * _rewardPointsSettings.ExchangeRate : decimal.Zero);
 
         protected virtual int ConvertAmountToRewardPoints(decimal amount)
         {

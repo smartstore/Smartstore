@@ -140,7 +140,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _localizationService = localizationServiceMock.Object;
 
             // INFO: no mocking here to use real implementation.
-            _taxService = new TaxService(DbContext, null, ProviderManager, _workContext, _localizationService, _taxSettings);
+            _taxService = new TaxService(DbContext, null, ProviderManager, _workContext, _roundingHelper, _localizationService, _taxSettings);
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _roundingHelper, _taxService, _taxSettings);
 
             // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators
@@ -153,8 +153,8 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _shippingSettings,
                 ProviderManager,
                 null,
+                _roundingHelper,
                 _storeContext,
-                _workContext,
                 DbContext);
 
             _priceCalcService = new PriceCalculationService(
@@ -170,6 +170,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _roundingHelper,
                 priceLabelService.Object,
                 _priceSettings,
+                _currencySettings,
                 _taxSettings);
 
             _orderCalcService = new OrderCalculationService(

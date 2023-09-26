@@ -4,6 +4,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -26,6 +27,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly IRoundingHelper _roundingHelper;
         private readonly IPriceLabelService _priceLabelService;
         private readonly PriceSettings _priceSettings;
+        private readonly CurrencySettings _currencySettings;
         private readonly TaxSettings _taxSettings;
         private readonly Currency _primaryCurrency;
 
@@ -42,6 +44,7 @@ namespace Smartstore.Core.Catalog.Pricing
             IRoundingHelper roundingHelper,
             IPriceLabelService priceLabelService,
             PriceSettings priceSettings,
+            CurrencySettings currencySettings,
             TaxSettings taxSettings)
         {
             _db = db;
@@ -56,6 +59,7 @@ namespace Smartstore.Core.Catalog.Pricing
             _roundingHelper = roundingHelper;
             _priceLabelService = priceLabelService;
             _priceSettings = priceSettings;
+            _currencySettings = currencySettings;
             _taxSettings = taxSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
@@ -181,21 +185,35 @@ namespace Smartstore.Core.Catalog.Pricing
                 var cy = context.Options.RoundingCurrency;
                 var subtotal = price.Clone();
 
-                subtotal.FinalPrice = new(cy.RoundIfEnabledFor(price.FinalPrice.Amount) * qty, price.FinalPrice.Currency);
-                subtotal.DiscountAmount = new(cy.RoundIfEnabledFor(price.DiscountAmount.Amount) * qty, price.DiscountAmount.Currency);
+                subtotal.FinalPrice = new(_roundingHelper.Round(price.FinalPrice.Amount, cy) * qty, price.FinalPrice.Currency);
+                subtotal.DiscountAmount = new(_roundingHelper.Round(price.DiscountAmount.Amount, cy) * qty, price.DiscountAmount.Currency);
 
                 if (price.Tax.HasValue)
                 {
                     var t = price.Tax.Value;
 
-                    subtotal.Tax = new(
-                        t.Rate,
-                        t.Amount * qty,
-                        cy.RoundIfEnabledFor(t.Price) * qty,
-                        cy.RoundIfEnabledFor(t.PriceNet) * qty,
-                        cy.RoundIfEnabledFor(t.PriceGross) * qty,
-                        t.IsGrossPrice,
-                        t.Inclusive);
+                    if (cy.RoundUnitPrices ?? _currencySettings.RoundUnitPrices)
+                    {
+                        subtotal.Tax = new(
+                            t.Rate,
+                            t.Amount * qty,
+                            _roundingHelper.Round(t.Price, cy) * qty,
+                            _roundingHelper.Round(t.PriceNet, cy) * qty,
+                            _roundingHelper.Round(t.PriceGross, cy) * qty,
+                            t.IsGrossPrice,
+                            t.Inclusive);
+                    }
+                    else
+                    {
+                        subtotal.Tax = new(
+                            t.Rate,
+                            t.Amount * qty,
+                            _roundingHelper.Round(t.Price * qty, cy),
+                            _roundingHelper.Round(t.PriceNet * qty, cy),
+                            _roundingHelper.Round(t.PriceGross * qty, cy),
+                            t.IsGrossPrice,
+                            t.Inclusive);
+                    }
                 }
 
                 return (price, subtotal);

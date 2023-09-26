@@ -4,6 +4,8 @@ using NUnit.Framework;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Test.Common;
 
@@ -15,7 +17,9 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         ITaxService _taxService;
         ILocalizationService _localizationService;
         IWorkContext _workContext;
+        IRoundingHelper _roundingHelper;
         TaxSettings _taxSettings;
+        CurrencySettings _currencySettings;
 
         Currency _currencyEUR;
         Currency _currencyUSD;
@@ -24,6 +28,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         public new void SetUp()
         {
             _taxSettings = new TaxSettings();
+            _currencySettings = new CurrencySettings();
 
             _currencyEUR = new Currency
             {
@@ -52,7 +57,10 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             };
 
             var workContextMock = new Mock<IWorkContext>();
+            workContextMock.Setup(x => x.WorkingCurrency).Returns(_currencyEUR);
             _workContext = workContextMock.Object;
+
+            _roundingHelper = new RoundingHelper(_workContext, _currencySettings);
 
             var localizationServiceMock = new Mock<ILocalizationService>();
             _localizationService = localizationServiceMock.Object;
@@ -62,6 +70,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 null,
                 ProviderManager,
                 _workContext,
+                _roundingHelper,
                 _localizationService,
                 _taxSettings);
         }

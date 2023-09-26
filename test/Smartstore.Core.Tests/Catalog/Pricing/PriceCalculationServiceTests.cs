@@ -131,6 +131,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 _roundingHelper,
                 priceLabelService.Object,
                 _priceSettings,
+                _currencySettings,
                 _taxSettings);
         }
 
