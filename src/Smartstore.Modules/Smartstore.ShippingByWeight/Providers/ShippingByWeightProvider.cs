@@ -25,6 +25,7 @@ namespace Smartstore.Shipping
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductService _productService;
         private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly ITaxService _taxService;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
@@ -36,6 +37,7 @@ namespace Smartstore.Shipping
             IPriceCalculationService priceCalculationService,
             IProductService productService,
             ICurrencyService currencyService,
+            IRoundingHelper roundingHelper,
             ITaxService taxService,
             IWorkContext workContext,
             IStoreContext storeContext,
@@ -46,6 +48,7 @@ namespace Smartstore.Shipping
             _priceCalculationService = priceCalculationService;
             _productService = productService;
             _currencyService = currencyService;
+            _roundingHelper = roundingHelper;
             _taxService = taxService;
             _workContext = workContext;
             _storeContext = storeContext;
@@ -69,9 +72,7 @@ namespace Smartstore.Shipping
         {
             if (shippingByWeightRecord == null)
             {
-                return _shippingByWeightSettings.LimitMethodsToCreated
-                    ? null
-                    : decimal.Zero;
+                return _shippingByWeightSettings.LimitMethodsToCreated ? null : decimal.Zero;
             }
 
             if (shippingByWeightRecord.UsePercentage && shippingByWeightRecord.ShippingChargePercentage <= decimal.Zero)
@@ -87,7 +88,7 @@ namespace Smartstore.Shipping
             decimal? shippingTotal;
             if (shippingByWeightRecord.UsePercentage)
             {
-                shippingTotal = _workContext.WorkingCurrency.RoundIfEnabledFor((decimal)(((float)subtotal) * ((float)shippingByWeightRecord.ShippingChargePercentage) / 100f));
+                shippingTotal = _roundingHelper.RoundIfEnabledFor((decimal)(((float)subtotal) * ((float)shippingByWeightRecord.ShippingChargePercentage) / 100f));
             }
             else
             {
@@ -142,7 +143,7 @@ namespace Smartstore.Shipping
 
         public async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request)
         {
-            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(request);
 
             var response = new ShippingOptionResponse();
 

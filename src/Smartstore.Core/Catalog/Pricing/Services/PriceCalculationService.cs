@@ -185,8 +185,8 @@ namespace Smartstore.Core.Catalog.Pricing
                 var cy = context.Options.RoundingCurrency;
                 var subtotal = price.Clone();
 
-                subtotal.FinalPrice = new(_roundingHelper.Round(price.FinalPrice.Amount, cy) * qty, price.FinalPrice.Currency);
-                subtotal.DiscountAmount = new(_roundingHelper.Round(price.DiscountAmount.Amount, cy) * qty, price.DiscountAmount.Currency);
+                subtotal.FinalPrice = new(_roundingHelper.RoundIfEnabledFor(price.FinalPrice.Amount, cy) * qty, price.FinalPrice.Currency);
+                subtotal.DiscountAmount = new(_roundingHelper.RoundIfEnabledFor(price.DiscountAmount.Amount, cy) * qty, price.DiscountAmount.Currency);
 
                 if (price.Tax.HasValue)
                 {
@@ -197,9 +197,9 @@ namespace Smartstore.Core.Catalog.Pricing
                         subtotal.Tax = new(
                             t.Rate,
                             t.Amount * qty,
-                            _roundingHelper.Round(t.Price, cy) * qty,
-                            _roundingHelper.Round(t.PriceNet, cy) * qty,
-                            _roundingHelper.Round(t.PriceGross, cy) * qty,
+                            _roundingHelper.RoundIfEnabledFor(t.Price, cy) * qty,
+                            _roundingHelper.RoundIfEnabledFor(t.PriceNet, cy) * qty,
+                            _roundingHelper.RoundIfEnabledFor(t.PriceGross, cy) * qty,
                             t.IsGrossPrice,
                             t.Inclusive);
                     }
@@ -208,9 +208,9 @@ namespace Smartstore.Core.Catalog.Pricing
                         subtotal.Tax = new(
                             t.Rate,
                             t.Amount * qty,
-                            _roundingHelper.Round(t.Price * qty, cy),
-                            _roundingHelper.Round(t.PriceNet * qty, cy),
-                            _roundingHelper.Round(t.PriceGross * qty, cy),
+                            _roundingHelper.RoundIfEnabledFor(t.Price * qty, cy),
+                            _roundingHelper.RoundIfEnabledFor(t.PriceNet * qty, cy),
+                            _roundingHelper.RoundIfEnabledFor(t.PriceGross * qty, cy),
                             t.IsGrossPrice,
                             t.Inclusive);
                     }

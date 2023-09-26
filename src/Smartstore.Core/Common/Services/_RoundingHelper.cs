@@ -18,24 +18,31 @@ namespace Smartstore.Core.Common.Services
             _currencySettings = currencySettings;
         }
 
-        public virtual decimal Round(decimal amount, Currency currency = null)
+        public virtual decimal RoundIfEnabledFor(decimal amount, Currency currency = null, TaxDisplayType? taxDisplayType = null)
         {
             currency ??= _workContext.WorkingCurrency;
+            taxDisplayType ??= _workContext.TaxDisplayType;
 
-            if (amount == decimal.Zero ||
+            if (amount == decimal.Zero || 
                 !(currency.RoundOrderItemsEnabled ?? _currencySettings.RoundOrderItemsEnabled) ||
-                (_workContext.TaxDisplayType == TaxDisplayType.ExcludingTax && !(currency.RoundNetPrices ?? _currencySettings.RoundNetPrices)))
+                (taxDisplayType == TaxDisplayType.ExcludingTax && !(currency.RoundNetPrices ?? _currencySettings.RoundNetPrices)))
             {
                 return amount;
             }
 
-            return decimal.Round(amount, currency.RoundNumDecimals, _currencySettings.MidpointRounding);
+            return Round(amount, currency.RoundNumDecimals);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual decimal Round(decimal amount, int decimals = 2)
+        {
+            return decimal.Round(amount, decimals, _currencySettings.MidpointRounding);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual int ToSmallestCurrencyUnit(decimal amount)
         {
-            return Convert.ToInt32(decimal.Round(amount * 100, 0, _currencySettings.MidpointRounding));
+            return Convert.ToInt32(Round(amount * 100, 0));
         }
 
         public virtual decimal ToNearest(decimal amount, out decimal toNearestRounding, Currency currency = null)
@@ -61,7 +68,7 @@ namespace Smartstore.Core.Common.Services
                     break;
             }
 
-            toNearestRounding = amount - decimal.Round(oldValue, currency.RoundNumDecimals, _currencySettings.MidpointRounding);
+            toNearestRounding = amount - Round(oldValue, currency.RoundNumDecimals);
 
             return amount;
         }
@@ -73,7 +80,7 @@ namespace Smartstore.Core.Common.Services
                 return amount;
             }
 
-            return decimal.Round(amount / denomination, midpoint) * denomination;
+            return decimal.Round(amount / denomination, 0, midpoint) * denomination;
         }
 
         protected virtual decimal ToNearest(decimal amount, decimal denomination, bool roundUp)
@@ -87,13 +94,13 @@ namespace Smartstore.Core.Common.Services
                 ? decimal.Ceiling(amount / denomination)
                 : decimal.Floor(amount / denomination);
 
-            return decimal.Round(roundedValueBase, _currencySettings.MidpointRounding) * denomination;
+            return Round(roundedValueBase, 0) * denomination;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual string ToString(decimal amount, int decimals = 2)
         {
-            return decimal.Round(amount, decimals, _currencySettings.MidpointRounding).ToString("0.00", CultureInfo.InvariantCulture);
+            return Round(amount, decimals).ToString("0.00", CultureInfo.InvariantCulture);
         }
     }
 }

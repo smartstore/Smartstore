@@ -323,7 +323,7 @@ namespace Smartstore.Core.Checkout.Tax
             }
 
             // Gross > Net RoundFix
-            price = _roundingHelper.Round(price);
+            price = _roundingHelper.RoundIfEnabledFor(price);
 
             return (price, taxRate);
         }

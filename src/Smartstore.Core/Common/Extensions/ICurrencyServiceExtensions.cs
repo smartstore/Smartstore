@@ -69,7 +69,7 @@ namespace Smartstore
             object currencyCodeOrObj = null,
             bool displayCurrency = true)
         {
-            return service.CreateMoney(amount, displayCurrency, currencyCodeOrObj).Exchange(exchangeRate);
+            return service.CreateMoney(amount, currencyCodeOrObj, displayCurrency, false).Exchange(exchangeRate);
         }
 
         /// <summary>

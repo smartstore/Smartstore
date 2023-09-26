@@ -67,6 +67,7 @@ namespace Smartstore.Core.Tests.Common
                 ProviderManager,
                 null,
                 _currencySettings,
+                null, 
                 null)
             {
                 PrimaryCurrency = _currencyUSD,

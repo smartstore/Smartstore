@@ -30,6 +30,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IWebHelper _webHelper;
         private readonly ILocalizationService _localizationService;
         private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly IPaymentService _paymentService;
         private readonly IProductService _productService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
@@ -63,6 +64,7 @@ namespace Smartstore.Core.Checkout.Orders
             IWebHelper webHelper,
             ILocalizationService localizationService,
             ICurrencyService currencyService,
+            IRoundingHelper roundingHelper,
             IPaymentService paymentService,
             IProductService productService,
             IProductAttributeMaterializer productAttributeMaterializer,
@@ -93,6 +95,7 @@ namespace Smartstore.Core.Checkout.Orders
             _webHelper = webHelper;
             _localizationService = localizationService;
             _currencyService = currencyService;
+            _roundingHelper = roundingHelper;
             _paymentService = paymentService;
             _productService = productService;
             _productAttributeMaterializer = productAttributeMaterializer;
@@ -127,7 +130,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual Task<int> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched)
         {
-            Guard.NotNull(orderItem, nameof(orderItem));
+            Guard.NotNull(orderItem);
 
             if (dispatched)
             {
@@ -141,7 +144,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<bool> HasItemsToDispatchAsync(Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             await LoadNavigationProperties(order, false, true);
 
@@ -160,7 +163,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual Task<int> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered)
         {
-            Guard.NotNull(orderItem, nameof(orderItem));
+            Guard.NotNull(orderItem);
 
             if (delivered)
             {
@@ -174,7 +177,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<bool> HasItemsToDeliverAsync(Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             await LoadNavigationProperties(order, false, true);
 
@@ -202,14 +205,14 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual Task<int> GetShipmentItemsCountAsync(OrderItem orderItem)
         {
-            Guard.NotNull(orderItem, nameof(orderItem));
+            Guard.NotNull(orderItem);
 
             return SumUpQuantity(orderItem, null);
         }
 
         public virtual async Task<bool> CanAddItemsToShipmentAsync(Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             await LoadNavigationProperties(order, false, true);
 
@@ -228,7 +231,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task CancelOrderAsync(Order order, bool notifyCustomer)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             await LoadNavigationProperties(order, true);
 
@@ -291,7 +294,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task DeleteOrderAsync(Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             if (order.OrderStatus != OrderStatus.Cancelled)
             {
@@ -324,7 +327,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task ReOrderAsync(Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             await LoadNavigationProperties(order, true);
 
@@ -393,8 +396,8 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task ShipAsync(Shipment shipment, bool notifyCustomer)
         {
-            Guard.NotNull(shipment, nameof(shipment));
-            Guard.NotNull(shipment.Order, nameof(shipment.Order));
+            Guard.NotNull(shipment);
+            Guard.NotNull(shipment.Order);
 
             var order = shipment.Order;
 
@@ -427,8 +430,8 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task DeliverAsync(Shipment shipment, bool notifyCustomer)
         {
-            Guard.NotNull(shipment, nameof(shipment));
-            Guard.NotNull(shipment.Order, nameof(shipment.Order));
+            Guard.NotNull(shipment);
+            Guard.NotNull(shipment.Order);
 
             var order = shipment.Order;
 
@@ -479,7 +482,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<OrderTotalValidationResult> ValidateOrderTotalAsync(ShoppingCart cart, params CustomerRole[] customerRoles)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             var minRolesQuery = _orderSettings.MultipleOrderTotalRestrictionsExpandRange
                 ? customerRoles.Where(x => x.OrderTotalMinimum > decimal.Zero).OrderBy(x => x.OrderTotalMinimum)
@@ -525,7 +528,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             await LoadNavigationProperties(order, true, true);
 
@@ -606,12 +609,13 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task UpdateOrderDetailsAsync(OrderItem orderItem, UpdateOrderDetailsContext context)
         {
-            Guard.NotNull(orderItem, nameof(orderItem));
-            Guard.NotNull(orderItem.Order, nameof(orderItem.Order));
+            Guard.NotNull(orderItem);
+            Guard.NotNull(orderItem.Order);
 
             await LoadNavigationProperties(orderItem.Order, true, true);
 
             var oi = orderItem;
+            var order = oi.Order;
             var oldQuantity = context.OldQuantity ?? oi.Quantity;
             var newQuantity = context.NewQuantity ?? oi.Quantity;
             var oldPriceInclTax = context.OldPriceInclTax ?? oi.PriceInclTax;
@@ -640,29 +644,29 @@ namespace Smartstore.Core.Checkout.Orders
                 oi.PriceExclTax = context.NewPriceExclTax ?? oi.PriceExclTax;
             }
 
-            context.OldRewardPoints = context.NewRewardPoints = oi.Order.Customer.GetRewardPointsBalance();
+            context.OldRewardPoints = context.NewRewardPoints = order.Customer.GetRewardPointsBalance();
 
-            if (context.UpdateTotals && oi.Order.OrderStatusId <= (int)OrderStatus.Pending)
+            if (context.UpdateTotals && order.OrderStatusId <= (int)OrderStatus.Pending)
             {
                 var currency = await _db.Currencies
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.CurrencyCode == oi.Order.CustomerCurrencyCode) ?? _primaryCurrency;
+                    .FirstOrDefaultAsync(x => x.CurrencyCode == order.CustomerCurrencyCode) ?? _primaryCurrency;
 
-                decimal priceInclTax = currency.RoundIfEnabledFor(newQuantity * oi.UnitPriceInclTax);
-                decimal priceExclTax = currency.RoundIfEnabledFor(newQuantity * oi.UnitPriceExclTax);
+                decimal priceInclTax = _roundingHelper.RoundIfEnabledFor(newQuantity * oi.UnitPriceInclTax, currency, order.CustomerTaxDisplayType);
+                decimal priceExclTax = _roundingHelper.RoundIfEnabledFor(newQuantity * oi.UnitPriceExclTax, currency, order.CustomerTaxDisplayType);
 
                 decimal priceInclTaxDiff = priceInclTax - oldPriceInclTax;
                 decimal priceExclTaxDiff = priceExclTax - oldPriceExclTax;
 
                 oi.Quantity = newQuantity;
-                oi.PriceInclTax = currency.RoundIfEnabledFor(priceInclTax);
-                oi.PriceExclTax = currency.RoundIfEnabledFor(priceExclTax);
+                oi.PriceInclTax = _roundingHelper.RoundIfEnabledFor(priceInclTax, currency, order.CustomerTaxDisplayType);
+                oi.PriceExclTax = _roundingHelper.RoundIfEnabledFor(priceExclTax, currency, order.CustomerTaxDisplayType);
 
-                decimal subtotalInclTax = oi.Order.OrderSubtotalInclTax + priceInclTaxDiff;
-                decimal subtotalExclTax = oi.Order.OrderSubtotalExclTax + priceExclTaxDiff;
+                decimal subtotalInclTax = order.OrderSubtotalInclTax + priceInclTaxDiff;
+                decimal subtotalExclTax = order.OrderSubtotalExclTax + priceExclTaxDiff;
 
-                oi.Order.OrderSubtotalInclTax = currency.RoundIfEnabledFor(subtotalInclTax);
-                oi.Order.OrderSubtotalExclTax = currency.RoundIfEnabledFor(subtotalExclTax);
+                order.OrderSubtotalInclTax = _roundingHelper.RoundIfEnabledFor(subtotalInclTax, currency, order.CustomerTaxDisplayType);
+                order.OrderSubtotalExclTax = _roundingHelper.RoundIfEnabledFor(subtotalExclTax, currency, order.CustomerTaxDisplayType);
 
                 decimal quantityChangeFactor = oldQuantity != 0 ? newQuantity / oldQuantity : 1.0M;
 
@@ -672,26 +676,26 @@ namespace Smartstore.Core.Checkout.Orders
                 //decimal deltaDiscountInclTax = discountInclTax - oi.DiscountAmountInclTax;
                 //decimal deltaDiscountExclTax = discountExclTax - oi.DiscountAmountExclTax;
 
-                oi.DiscountAmountInclTax = currency.RoundIfEnabledFor(discountInclTax);
-                oi.DiscountAmountExclTax = currency.RoundIfEnabledFor(discountExclTax);
+                oi.DiscountAmountInclTax = _roundingHelper.RoundIfEnabledFor(discountInclTax, currency, order.CustomerTaxDisplayType);
+                oi.DiscountAmountExclTax = _roundingHelper.RoundIfEnabledFor(discountExclTax, currency, order.CustomerTaxDisplayType);
 
-                decimal total = Math.Max(oi.Order.OrderTotal + priceInclTaxDiff, 0);
-                decimal tax = Math.Max(oi.Order.OrderTax + (priceInclTaxDiff - priceExclTaxDiff), 0);
+                decimal total = Math.Max(order.OrderTotal + priceInclTaxDiff, 0);
+                decimal tax = Math.Max(order.OrderTax + (priceInclTaxDiff - priceExclTaxDiff), 0);
 
-                oi.Order.OrderTotal = currency.RoundIfEnabledFor(total);
-                oi.Order.OrderTax = currency.RoundIfEnabledFor(tax);
+                order.OrderTotal = _roundingHelper.RoundIfEnabledFor(total, currency, order.CustomerTaxDisplayType);
+                order.OrderTax = _roundingHelper.RoundIfEnabledFor(tax, currency, order.CustomerTaxDisplayType);
 
                 // Update tax rate value.
                 var deltaTax = priceInclTaxDiff - priceExclTaxDiff;
                 if (deltaTax != decimal.Zero)
                 {
-                    var taxRates = oi.Order.TaxRatesDictionary;
+                    var taxRates = order.TaxRatesDictionary;
 
                     taxRates[oi.TaxRate] = taxRates.ContainsKey(oi.TaxRate)
                         ? Math.Max(taxRates[oi.TaxRate] + deltaTax, 0)
                         : Math.Max(deltaTax, 0);
 
-                    oi.Order.TaxRates = FormatTaxRates(taxRates);
+                    order.TaxRates = FormatTaxRates(taxRates);
                 }
 
                 await _db.SaveChangesAsync();
@@ -710,9 +714,9 @@ namespace Smartstore.Core.Checkout.Orders
                 // UpdateRewardPoints only visible for unpending orders (see RewardPointsSettingsValidator).
                 // Note: reducing can of course only work if oi.UnitPriceExclTax has not been changed!
                 decimal reduceAmount = Math.Abs(quantityDiff) * oi.UnitPriceInclTax;
-                ApplyRewardPoints(oi.Order, true, reduceAmount);
+                ApplyRewardPoints(order, true, reduceAmount);
 
-                context.NewRewardPoints = oi.Order.Customer.GetRewardPointsBalance();
+                context.NewRewardPoints = order.Customer.GetRewardPointsBalance();
             }
 
             await _db.SaveChangesAsync();
@@ -833,7 +837,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         protected virtual async Task SetOrderStatusAsync(Order order, OrderStatus status, bool notifyCustomer)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             var prevOrderStatus = order.OrderStatus;
             if (prevOrderStatus == status)

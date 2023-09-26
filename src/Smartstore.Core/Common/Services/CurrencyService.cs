@@ -22,6 +22,7 @@ namespace Smartstore.Core.Common.Services
         private readonly IWorkContext _workContext;
         private readonly CurrencySettings _currencySettings;
         private readonly ISettingFactory _settingFactory;
+        private readonly IRoundingHelper _roundingHelper;
 
         private Currency _primaryCurrency;
         private Currency _primaryExchangeCurrency;
@@ -32,7 +33,8 @@ namespace Smartstore.Core.Common.Services
             IProviderManager providerManager,
             IWorkContext workContext,
             CurrencySettings currencySettings,
-            ISettingFactory settingFactory)
+            ISettingFactory settingFactory,
+            IRoundingHelper roundingHelper)
         {
             _db = db;
             _cache = cache;
@@ -40,6 +42,7 @@ namespace Smartstore.Core.Common.Services
             _workContext = workContext;
             _currencySettings = currencySettings;
             _settingFactory = settingFactory;
+            _roundingHelper = roundingHelper;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -150,7 +153,7 @@ namespace Smartstore.Core.Common.Services
                 return amount;
             }
 
-            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+            Guard.NotNull(amount.Currency);
             return amount.ExchangeTo(_workContext.WorkingCurrency, PrimaryExchangeCurrency);
         }
 
@@ -212,7 +215,11 @@ namespace Smartstore.Core.Common.Services
 
         #endregion
 
-        public virtual Money CreateMoney(decimal price, bool displayCurrency = true, object currencyCodeOrObj = null)
+        public virtual Money CreateMoney(
+            decimal amount,
+            object currencyCodeOrObj = null,
+            bool displayCurrency = true, 
+            bool roundIfEnabled = true)
         {
             Currency currency = null;
 
@@ -222,7 +229,7 @@ namespace Smartstore.Core.Common.Services
             }
             else if (currencyCodeOrObj is string currencyCode)
             {
-                Guard.NotEmpty(currencyCode, nameof(currencyCodeOrObj));
+                Guard.NotEmpty(currencyCode);
                 currency =
                     (currencyCode == PrimaryCurrency.CurrencyCode ? PrimaryCurrency : null) ??
                     (currencyCode == PrimaryExchangeCurrency.CurrencyCode ? PrimaryExchangeCurrency : null) ??
@@ -239,7 +246,12 @@ namespace Smartstore.Core.Common.Services
                 throw new ArgumentException("Currency parameter must either be a valid currency code as string or an actual currency entity instance.", nameof(currencyCodeOrObj));
             }
 
-            return new Money(price, currency, !displayCurrency);
+            if (roundIfEnabled)
+            {
+                amount = _roundingHelper.RoundIfEnabledFor(amount, currency);
+            }
+
+            return new Money(amount, currency, !displayCurrency);
         }
     }
 }

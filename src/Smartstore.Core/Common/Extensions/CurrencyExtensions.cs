@@ -5,24 +5,6 @@ namespace Smartstore
     public static class CurrencyExtensions
     {
         /// <summary>
-        /// Rounds a value if rounding is enabled for the currency.
-        /// </summary>
-        /// <param name="value">Value to round.</param>
-        /// <param name="currency">Currency</param>
-        /// <returns>Rounded value.</returns>
-        public static decimal RoundIfEnabledFor(this Currency currency, decimal value)
-        {
-            Guard.NotNull(currency);
-
-            if (currency.RoundOrderItemsEnabled.GetValueOrDefault())
-            {
-                return Math.Round(value, currency.RoundNumDecimals);
-            }
-
-            return value;
-        }
-
-        /// <summary>
         /// Checks if a currency was configured for the domain ending.
         /// </summary>
         /// <param name="domain">Domain to check.</param>

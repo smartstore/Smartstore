@@ -183,7 +183,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 foreach (var option in response.ShippingOptions)
                 {
                     option.ShippingRateComputationMethodSystemName = method.Metadata.SystemName;
-                    option.Rate = _roundingHelper.Round(option.Rate);
+                    option.Rate = _roundingHelper.RoundIfEnabledFor(option.Rate);
 
                     result.ShippingOptions.Add(option);
                 }

@@ -165,7 +165,7 @@ namespace Smartstore.Core.Checkout.Tax
 
             if (currency != null)
             {
-                priceNetOrGross = _roundingHelper.Round(priceNetOrGross, currency);
+                priceNetOrGross = _roundingHelper.RoundIfEnabledFor(priceNetOrGross, currency);
             }
 
             return new(rate, amount, priceNetOrGross, priceNet, priceGross, isGrossPrice, inclusive);

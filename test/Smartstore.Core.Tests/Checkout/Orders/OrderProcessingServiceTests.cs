@@ -113,6 +113,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 webHelperMock.Object,
                 localizationServiceMock.Object,
                 currencyServiceMock.Object,
+                _roundingHelper,
                 _paymentService,
                 productServiceMock.Object,
                 productAttributeMaterializerMock.Object,
