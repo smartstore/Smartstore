@@ -35,7 +35,7 @@
         this.options.placement = placement;
 
         // Remove accidentally set placement classes.
-        // Added the .no-anims class is very important here, 
+        // Adding the .no-anims class is very important here, 
         // otherwise the offcanvas will take time to reposition because of the transition
         this.el.addClass('no-anims').removeClass('offcanvas-start offcanvas-end offcanvas-top offcanvas-bottom');
 
@@ -59,7 +59,7 @@
             var _hide = _.throttle(function () {
                 self.hide();
             }, 250);
-            $(window).on('resize', _hide);
+            $(window).on('resize', _hide); 
         }
         else {
             EventBroker.subscribe("page.resized", function (msg, viewport) {
@@ -75,13 +75,6 @@
         if (this.options.autohide) {
             $('body, .canvas-blocker').on('click', $.proxy(this.autohide, this));
         }
-        requestAnimationFrame(() => {
-            // Animations are allowed from here on
-            this.el.removeClass("no-anims");
-            if (this.options.toggle) {
-                this.toggle();
-            }
-        });
                 
         $(window).on('popstate', function (event) {
             if (event.originalEvent.state) {
@@ -96,8 +89,18 @@
             }
         });
 
-        // Set up events to properly handle (touch) gestures
-        this._makeTouchy();
+        requestAnimationFrame(() => {
+            // Animations are allowed from here on
+            this.el.removeClass("no-anims");
+
+            // Toggle
+            if (this.options.toggle) {
+                this.toggle();
+            }
+
+            // Set up events to properly handle (touch) gestures
+            this._makeTouchy();
+        });
     }
 
 
