@@ -125,7 +125,7 @@ namespace Smartstore.Admin.Models.Discounts
             to.NumberOfRules = from.RuleSets?.Count ?? 0;
             to.DiscountTypeName = _services.Localization.GetLocalizedEnum(from.DiscountType);
             to.FormattedDiscountAmount = !from.UsePercentage
-                ? _services.CurrencyService.PrimaryCurrency.AsMoney(from.DiscountAmount).ToString(true)
+                ? _services.CurrencyService.CreateMoney(from.DiscountAmount, _services.CurrencyService.PrimaryCurrency).ToString(true)
                 : string.Empty;
 
             if (from.StartDateUtc.HasValue)

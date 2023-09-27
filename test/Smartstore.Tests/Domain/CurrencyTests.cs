@@ -11,19 +11,12 @@ namespace Smartstore.Tests.Domain
     [TestFixture]
     public class CurrencyTests
     {
-        IWorkContext _workContext;
         IRoundingHelper _roundingHelper;
-        CurrencySettings _currencySettings;
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            _currencySettings = new CurrencySettings();
-
-            var workContextMock = new Mock<IWorkContext>();
-            _workContext = workContextMock.Object;
-
-            _roundingHelper = new RoundingHelper(_workContext, _currencySettings);
+            _roundingHelper = new RoundingHelper(new Mock<IWorkContext>().Object, new CurrencySettings());
         }
 
         [TestCase(0.05, 9.225, 9.20, CurrencyRoundingRule.AlwaysRoundDown)]

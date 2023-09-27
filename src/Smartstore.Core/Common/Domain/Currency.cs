@@ -90,6 +90,20 @@ namespace Smartstore.Core.Common
         #region Rounding
 
         /// <summary>
+        /// Gets or sets the rounding strategy of the midway between two numbers.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="MidpointRounding.ToEven"/> (default) equals "banker's rounding" or "mathematisches Runden".
+        /// Round to the nearest even number.
+        /// Examples: 1.2250 is rounded down to 1.22. 1.2350 is rounded up to 1.24.
+        /// 
+        /// <see cref="MidpointRounding.AwayFromZero"/> equals "round to nearest" or "kaufmännisches Runden".
+        /// Round down if the first dropped decimal place is 0, 1, 2, 3 or 4, otherwise round up.
+        /// Examples: 1.2250 is rounded up to 1.23. 1.2240 is rounded down to 1.22.
+        /// </remarks>
+        public MidpointRounding MidpointRounding { get; set; } = MidpointRounding.ToEven;
+
+        /// <summary>
         /// Gets or sets a value indicating whether rounding during shopping cart calculation is enabled.
         /// Will be obtained from <see cref="CurrencySettings.RoundOrderItemsEnabled"/> if <c>null</c>.
         /// </summary>
@@ -128,28 +142,6 @@ namespace Smartstore.Core.Common
         public CurrencyRoundingRule RoundOrderTotalRule { get; set; }
 
         #endregion
-
-        /// <summary>
-        /// Creates a <see cref="Money"/> struct with current currency and given <paramref name="amount"/>.
-        /// </summary>
-        /// <param name="amount">The money amount</param>
-        /// <param name="roundIfEnabled">Rounds amount according to <see cref="RoundNumDecimals"/> if <see cref="RoundOrderItemsEnabled"/> is <c>true</c>.</param>
-        /// <param name="notNegative">Ensures that the amount is not negative if <c>true</c>.</param>
-        /// <returns>Money.</returns>
-        public Money AsMoney(decimal amount, bool roundIfEnabled = true, bool notNegative = false)
-        {
-            if (notNegative && amount < decimal.Zero)
-            {
-                amount = decimal.Zero;
-            }
-
-            if (roundIfEnabled && RoundOrderItemsEnabled.GetValueOrDefault())
-            {
-                amount = decimal.Round(amount, RoundNumDecimals);
-            }
-
-            return new Money(amount, this);
-        }
 
         public Currency Clone()
         {

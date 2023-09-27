@@ -18,20 +18,18 @@ namespace Smartstore.Core.Tests.Tax
         IWorkContext _workContext;
         IRoundingHelper _roundingHelper;
         ITaxService _taxService;
-        CurrencySettings _currencySettings;
         Currency _currency;
 
         [OneTimeSetUp]
         public new void SetUp()
         {
-            _currencySettings = new CurrencySettings();
             _currency = new Currency { Id = 1 };
 
             var workContextMock = new Mock<IWorkContext>();
             _workContext = workContextMock.Object;
             workContextMock.Setup(x => x.WorkingCurrency).Returns(_currency);
 
-            _roundingHelper = new RoundingHelper(_workContext, _currencySettings);
+            _roundingHelper = new RoundingHelper(_workContext, new CurrencySettings());
 
             _taxService = new TaxService(
                 DbContext,

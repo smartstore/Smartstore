@@ -178,9 +178,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (context.Quantity > 1)
             {
-                // INFO: the subtotal must always equal the sum of all line totals.
-                // A rounding difference can and may only occur between the unit price and the line total,
-                // and only if net prices are entered and RoundOrderItemsEnabled is disabled.
                 var qty = context.Quantity;
                 var cy = context.Options.RoundingCurrency;
                 var subtotal = price.Clone();

@@ -10,6 +10,7 @@ namespace Smartstore.Core.Migrations
     internal class CartCalculationRounding : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
         const string CurrencyTable = nameof(Currency);
+        const string MidpointRoundingColumn = nameof(Currency.MidpointRounding);
         const string RoundOrderItemsEnabledColumn = nameof(Currency.RoundOrderItemsEnabled);
         const string RoundNetPricesColumn = nameof(Currency.RoundNetPrices);
         const string RoundUnitPricesColumn = nameof(Currency.RoundUnitPrices);
@@ -18,6 +19,11 @@ namespace Smartstore.Core.Migrations
         {
             // Make nullable.
             Alter.Column(RoundOrderItemsEnabledColumn).OnTable(CurrencyTable).AsBoolean().Nullable();
+
+            if (!Schema.Table(CurrencyTable).Column(MidpointRoundingColumn).Exists())
+            {
+                Create.Column(MidpointRoundingColumn).OnTable(CurrencyTable).AsInt32().NotNullable().WithDefaultValue((int)MidpointRounding.ToEven);
+            }
 
             if (!Schema.Table(CurrencyTable).Column(RoundNetPricesColumn).Exists())
             {
@@ -32,6 +38,11 @@ namespace Smartstore.Core.Migrations
 
         public override void Down()
         {
+            if (Schema.Table(CurrencyTable).Column(MidpointRoundingColumn).Exists())
+            {
+                Delete.Column(MidpointRoundingColumn).FromTable(CurrencyTable);
+            }
+
             if (Schema.Table(CurrencyTable).Column(RoundNetPricesColumn).Exists())
             {
                 Delete.Column(RoundNetPricesColumn).FromTable(CurrencyTable);
@@ -47,14 +58,14 @@ namespace Smartstore.Core.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
-
             await context.Currencies
                 .Where(x => x.RoundOrderItemsEnabled != null && x.RoundOrderItemsEnabled.Value == true)
                 .ExecuteUpdateAsync(setter => setter
                     .SetProperty(c => c.RoundNetPrices, p => true)
                     .SetProperty(c => c.RoundUnitPrices, p => true),
                     cancelToken);
+
+            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)

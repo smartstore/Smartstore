@@ -19,7 +19,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         IWorkContext _workContext;
         IRoundingHelper _roundingHelper;
         TaxSettings _taxSettings;
-        CurrencySettings _currencySettings;
 
         Currency _currencyEUR;
         Currency _currencyUSD;
@@ -28,7 +27,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         public new void SetUp()
         {
             _taxSettings = new TaxSettings();
-            _currencySettings = new CurrencySettings();
 
             _currencyEUR = new Currency
             {
@@ -60,7 +58,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             workContextMock.Setup(x => x.WorkingCurrency).Returns(_currencyEUR);
             _workContext = workContextMock.Object;
 
-            _roundingHelper = new RoundingHelper(_workContext, _currencySettings);
+            _roundingHelper = new RoundingHelper(_workContext, new CurrencySettings());
 
             var localizationServiceMock = new Mock<ILocalizationService>();
             _localizationService = localizationServiceMock.Object;

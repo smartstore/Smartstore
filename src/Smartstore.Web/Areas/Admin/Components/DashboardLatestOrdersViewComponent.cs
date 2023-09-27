@@ -34,6 +34,8 @@ namespace Smartstore.Admin.Components
                 .Take(7)
                 .ToListAsync();
 
+            var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
+
             foreach (var order in latestOrders)
             {
                 model.LatestOrders.Add(
@@ -42,7 +44,7 @@ namespace Smartstore.Admin.Components
                         CustomerId = order.CustomerId,
                         CustomerDisplayName = order.Customer.FindEmail() ?? order.Customer.FormatUserName(),
                         ProductsTotal = order.OrderItems.Sum(x => x.Quantity),
-                        TotalAmount = Services.CurrencyService.PrimaryCurrency.AsMoney(order.OrderTotal),
+                        TotalAmount = Services.CurrencyService.CreateMoney(order.OrderTotal, primaryCurrency),
                         Created = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).ToString("g"),
                         OrderState = order.OrderStatus,
                         OrderId = order.Id

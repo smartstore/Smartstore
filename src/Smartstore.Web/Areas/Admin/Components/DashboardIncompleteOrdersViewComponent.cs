@@ -98,13 +98,13 @@ namespace Smartstore.Admin.Components
             foreach (var report in model)
             {
                 report.QuantityTotal = report.Quantity.ToString("N0");
-                report.AmountTotal = primaryCurrency.AsMoney(report.Amount);
+                report.AmountTotal = Services.CurrencyService.CreateMoney(report.Amount, primaryCurrency);
 
                 for (var i = 0; i < report.Data.Count; i++)
                 {
                     var data = report.Data[i];
                     data.QuantityFormatted = data.Quantity.ToString("N0");
-                    data.AmountFormatted = primaryCurrency.AsMoney(data.Amount);
+                    data.AmountFormatted = Services.CurrencyService.CreateMoney(data.Amount, primaryCurrency);
                 }
             }
 

@@ -44,20 +44,6 @@ namespace Smartstore.Core.Common.Configuration
         /// </summary>
         public bool RoundUnitPrices { get; set; } = true;
 
-        /// <summary>
-        /// Gets or sets the rounding strategy of the midway between two numbers.
-        /// </summary>
-        /// <remarks>
-        /// <see cref="MidpointRounding.ToEven"/> equals "banker's rounding" or "mathematisches Runden".
-        /// Round to the nearest even number.
-        /// Examples: 1.2250 is rounded down to 1.22. 1.2350 is rounded up to 1.24.
-        /// 
-        /// <see cref="MidpointRounding.AwayFromZero"/> equals "round to nearest" or "kaufmännisches Runden".
-        /// Round down if the first dropped decimal place is 0, 1, 2, 3 or 4, otherwise round up.
-        /// Examples: 1.2250 is rounded up to 1.23. 1.2240 is rounded down to 1.22.
-        /// </remarks>
-        public MidpointRounding MidpointRounding { get; set; } = MidpointRounding.ToEven;
-
         #endregion
     }
 }

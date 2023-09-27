@@ -226,6 +226,8 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
+
             var orderModels = orders
                 .Select(x => new AffiliateModel.AffiliatedOrderModel
                 {
@@ -233,7 +235,7 @@ namespace Smartstore.Admin.Controllers
                     OrderStatus = Services.Localization.GetLocalizedEnum(x.OrderStatus),
                     PaymentStatus = Services.Localization.GetLocalizedEnum(x.PaymentStatus),
                     ShippingStatus = Services.Localization.GetLocalizedEnum(x.ShippingStatus),
-                    OrderTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(x.OrderTotal),
+                    OrderTotal = Services.CurrencyService.CreateMoney(x.OrderTotal, primaryCurrency),
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                     EditUrl = Url.Action("Edit", "Order", new { id = x.Id })
                 })
