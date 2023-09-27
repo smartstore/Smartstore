@@ -33,7 +33,6 @@ namespace Smartstore.Admin.Models.UrlRecord
         [LocalizedDisplay("*SlugsPerEntity")]
         public int SlugsPerEntity { get; set; }
         public string EditUrl { get; set; }
-        public string FilterUrl { get; set; }
     }
 
     public partial class UrlRecordValidator : AbstractValidator<UrlRecordModel>
