@@ -21,11 +21,11 @@
         <Value>
             <![CDATA[
                 <div class="mb-1">How to set up <b>Login and Pay with Amazon</b>:</div><ul>
-                <li>Create a <b>Login with Amazon</b> application in your <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank" class="alert-link">Amazon Seller Central</a> account. For this, use <b>Allowed JavaScript Origins</b> and <b>Allowed Return URLs</b> listed below (SSL required!).</li>
+                <li>Create a <b>Login with Amazon</b> application in your <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> account. For this, use <b>Allowed JavaScript Origins</b> and <b>Allowed Return URLs</b> listed below (SSL required!).</li>
                 <li>
                     Enter your Amazon credentials in the fields provided below. You can create API keys as follows.
                     <ul>
-                        <li>Log in to <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank" class="alert-link">Amazon Seller Central</a>.</li>
+                        <li>Log in to <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a>.</li>
                         <li>Click the menu icon in the upper left corner and then <b>Integration > Integration Central</b>.</li>
                         <li>For <b>Ecommerce provider or integration type</b> choose <b>Self-developed</b> and <b>One-time Payments, Single Authorization</b> as payment type.</li>
                         <li>At <b>API keys</b> click the button <b>Create keys</b>.</li>

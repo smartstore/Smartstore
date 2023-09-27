@@ -21,11 +21,11 @@
         <Value>
             <![CDATA[
                 <div class="mb-1">So richten Sie <b>Login und Bezahlen mit Amazon</b> ein:</div><ul>
-                <li>Legen Sie in Ihrem <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank" class="alert-link">Amazon Seller Central</a> Konto eine <b>Login mit Amazon</b> Anwendung an. Verwenden Sie dabei die unten aufgeführten <b>Zulässige JavaScript-Ursprünge</b> und <b>Zulässige Rückleitungs-URLs</b> (SSL zwingend erforderlich!).</li>
+                <li>Legen Sie in Ihrem <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> Konto eine <b>Login mit Amazon</b> Anwendung an. Verwenden Sie dabei die unten aufgeführten <b>Zulässige JavaScript-Ursprünge</b> und <b>Zulässige Rückleitungs-URLs</b> (SSL zwingend erforderlich!).</li>
                 <li>
                     Tragen Sie Ihre Amazon-Zugangsdaten unten in die dafür vorgesehenen Felder ein. API-Schlüssel können Sie wie folgt erstellen.
                     <ul>
-                        <li>Loggen Sie sich bei <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank" class="alert-link">Amazon Seller Central</a> ein.</li>
+                        <li>Loggen Sie sich bei <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> ein.</li>
                         <li>Klicken Sie oben links auf das Menüsymbol und dann <b>Integration > Integration Central</b>.</li>
                         <li>Bei <b>E-Commerce-Anbieter oder Integrationstyp</b> wählen Sie bitte <b>Selbst entwickelt</b> und <b>Einmalzahlung</b> als Zahlungstypen.</li>
                         <li>Bei <b>API-Schlüssel</b> klicken Sie auf den Button <b>Schlüssel erstellen</b>.</li>
