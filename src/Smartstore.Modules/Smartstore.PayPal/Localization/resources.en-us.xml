@@ -265,7 +265,7 @@
 							To set up PayPal in your store use the button <b>Connect account</b> or alternatively follow the steps in the following guide.
 						</p>
 						<ul>
-							<li>Sign in with your PayPal account details <a href="https://developer.paypal.com/developer/applications" target="_blank">in the developer dashboard</a>.</li>
+							<li>Sign in with your PayPal account details <a href="https://developer.paypal.com/developer/applications" target="_blank" class="alert-link">in the developer dashboard</a>.</li>
 							<li>Create a new app by clicking on the <b>Create App</b> button.</li>
 							<li>Now enter the account, client ID and secret in the fields provided further down this page.</li>
 							<li>Create a webhook and store the URL below as the webhook URL in your PayPal app.</li>
