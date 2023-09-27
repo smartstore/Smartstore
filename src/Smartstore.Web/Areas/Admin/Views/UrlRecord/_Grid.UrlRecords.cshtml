@@ -7,6 +7,7 @@
 }
 
 <datagrid id="urlrecord-grid"
+          preserve-grid-state="false"
           allow-resize="true"
           allow-row-selection="true"
           allow-column-reordering="true">
@@ -32,7 +33,7 @@
             </button>
         </toolbar-group>
     </toolbar>
-    <search-panel>
+    <search-panel preserve-state="parentModel.EntityName.IsEmpty() && parentModel.EntityId == null">
         <partial name="_Grid.UrlRecords.Search" model="parentModel" />
     </search-panel>
     <columns>
