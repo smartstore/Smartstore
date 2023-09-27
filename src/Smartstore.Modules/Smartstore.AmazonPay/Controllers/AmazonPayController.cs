@@ -16,6 +16,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Http;
@@ -35,6 +36,7 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IPaymentService _paymentService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
 
@@ -48,6 +50,7 @@ namespace Smartstore.AmazonPay.Controllers
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
             IPaymentService paymentService,
+            IRoundingHelper roundingHelper,
             AmazonPaySettings amazonPaySettings,
             OrderSettings orderSettings)
         {
@@ -60,6 +63,7 @@ namespace Smartstore.AmazonPay.Controllers
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
             _paymentService = paymentService;
+            _roundingHelper = roundingHelper;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
         }
@@ -334,7 +338,7 @@ namespace Smartstore.AmazonPay.Controllers
                         var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart);
                         var request = new UpdateCheckoutSessionRequest();
 
-                        request.PaymentDetails.ChargeAmount.Amount = cartTotal.Value.RoundedAmount;
+                        request.PaymentDetails.ChargeAmount.Amount = _roundingHelper.Round(cartTotal.Value.Amount, cartTotal.Value.Currency);
                         request.PaymentDetails.ChargeAmount.CurrencyCode = _amazonPayService.GetAmazonPayCurrency();
                         // INFO: cannot be 'true' if transaction type is 'AuthorizeWithCapture'.
                         request.PaymentDetails.CanHandlePendingAuthorization = _settings.TransactionType == AmazonPayTransactionType.Authorize;

@@ -7,6 +7,15 @@ namespace Smartstore.Core.Common.Services
     /// </summary>
     public partial interface IRoundingHelper
     {
+        /// <summary>Rounds <paramref name="amount"/>.</summary>
+        /// <param name="amount">Amount to round.</param>
+        /// <param name="currency">
+        /// Rounds <paramref name="amount"/> using <see cref="Currency.RoundNumDecimals"/> and <see cref="Currency.MidpointRounding"/>.
+        /// If <c>null</c>, currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
+        /// </param>
+        /// <returns>Rounded amount.</returns>
+        decimal Round(decimal amount, Currency currency = null);
+
         /// <summary>
         /// Rounds <paramref name="amount"/>.
         /// </summary>
@@ -14,7 +23,7 @@ namespace Smartstore.Core.Common.Services
         /// <param name="decimals">Number of decimal places (precision).</param>
         /// <param name="midpointRounding">The rounding strategy of the midway between two numbers.</param>
         /// <returns>Rounded amount.</returns>
-        decimal Round(decimal amount, int decimals = 2, MidpointRounding midpointRounding = MidpointRounding.ToEven);
+        decimal Round(decimal amount, int decimals, MidpointRounding midpointRounding = MidpointRounding.ToEven);
 
         /// <summary>
         /// Rounds <paramref name="amount"/> if rounding is enabled for <paramref name="currency"/>.

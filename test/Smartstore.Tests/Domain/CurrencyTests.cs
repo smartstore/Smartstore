@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using Smartstore.Core;
 using Smartstore.Core.Common;
@@ -59,6 +60,27 @@ namespace Smartstore.Tests.Domain
             };
 
             var roundedAmount = _roundingHelper.ToNearest(amount, out _, currency);
+            roundedAmount.ShouldEqual(result);
+        }
+
+        [TestCase(1.23, 2, 123)]
+        [TestCase(24.9876, 2, 2499)]
+        [TestCase(99.87654321, 4, 998765)]
+        public void Currency_round_to_smallest_unit(decimal amount, int numDecimals, int result)
+        {
+            var currency = new Currency
+            {
+                Id = 1,
+                Name = "Euro",
+                CurrencyCode = "EUR",
+                Rate = 1,
+                DisplayLocale = "de-DE",
+                Published = true,
+                RoundNumDecimals = numDecimals,
+                MidpointRounding = MidpointRounding.ToEven
+            };
+
+            var roundedAmount = _roundingHelper.ToSmallestCurrencyUnit(amount, currency);
             roundedAmount.ShouldEqual(result);
         }
     }

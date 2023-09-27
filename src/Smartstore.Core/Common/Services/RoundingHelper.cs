@@ -17,8 +17,14 @@ namespace Smartstore.Core.Common.Services
             _currencySettings = currencySettings;
         }
 
+        public virtual decimal Round(decimal amount, Currency currency = null)
+        {
+            currency ??= _workContext.WorkingCurrency;
+            return Round(amount, currency.RoundNumDecimals, currency.MidpointRounding);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual decimal Round(decimal amount, int decimals = 2, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+        public virtual decimal Round(decimal amount, int decimals, MidpointRounding midpointRounding = MidpointRounding.ToEven)
         {
             return decimal.Round(amount, decimals, midpointRounding);
         }
