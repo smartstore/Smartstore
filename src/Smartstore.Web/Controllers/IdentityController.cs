@@ -149,12 +149,13 @@ namespace Smartstore.Web.Controllers
                         Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
 
                         if (returnUrl.IsEmpty()
+                            || returnUrl == "/"
                             || returnUrl.Contains("/login?", StringComparison.OrdinalIgnoreCase)
                             || returnUrl.Contains("/passwordrecoveryconfirm", StringComparison.OrdinalIgnoreCase)
                             || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase)
                             || !Url.IsLocalUrl(returnUrl))
                         {
-                            return RedirectToRoute("Homepage");
+                            return RedirectToAction("Info", "Customer");
                         }
 
                         return RedirectToReferrer(returnUrl);
