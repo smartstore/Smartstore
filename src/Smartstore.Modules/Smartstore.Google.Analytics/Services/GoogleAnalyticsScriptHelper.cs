@@ -91,13 +91,13 @@ namespace Smartstore.Google.Analytics.Services
             var defaultProductCategory = (await _categoryService.GetProductCategoriesByProductIdsAsync(new[] { model.Id })).FirstOrDefault();
             var categoryId = defaultProductCategory != null ? defaultProductCategory.Category.Id : 0;
             var categoryPathScript = categoryId != 0 ? await GetCategoryPathAsync(categoryId) : string.Empty;
-            var price = _roundingHelper.Round(model.Price.FinalPrice.Amount).ToStringInvariant();
+            var price = _roundingHelper.Round(model.Price.FinalPrice).ToStringInvariant();
             
             var productsScript = GetItemScript(
                 model.Id,
                 model.Sku,
                 model.Name,
-                !model.Price.HasDiscount ? "''" : _roundingHelper.Round(model.Price.Saving.SavingAmount.Value.Amount).ToStringInvariant(),
+                !model.Price.HasDiscount ? "''" : _roundingHelper.Round(model.Price.Saving.SavingAmount.Value).ToStringInvariant(),
                 brand != null ? brand.Name : string.Empty,
                 price,
                 categoryPathScript, addComma: false);
@@ -189,7 +189,7 @@ namespace Smartstore.Google.Analytics.Services
             var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
             var subtotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubtotal.SubtotalWithoutDiscount.Amount, _workContext.WorkingCurrency);
 
-            return _roundingHelper.Round(subtotalConverted.Amount);
+            return _roundingHelper.Round(subtotalConverted);
         }
 
         /// <summary>
@@ -209,9 +209,9 @@ namespace Smartstore.Google.Analytics.Services
                     product.Id,
                     product.Sku,
                     product.ProductName,
-                    _roundingHelper.Round(product.Discount.Amount).ToStringInvariant(),
+                    _roundingHelper.Round(product.Discount).ToStringInvariant(),
                     string.Empty,
-                    _roundingHelper.Round(product.UnitPrice.Amount).ToStringInvariant(),
+                    _roundingHelper.Round(product.UnitPrice).ToStringInvariant(),
                     index: ++i);
             }
 
@@ -291,9 +291,9 @@ namespace Smartstore.Google.Analytics.Services
                     product.Id,
                     product.Sku,
                     product.Name,
-                    discount != null ? _roundingHelper.Round(discount.Value.Amount).ToStringInvariant() : "0",
+                    discount != null ? _roundingHelper.Round(discount.Value).ToStringInvariant() : "0",
                     product.Brand != null ? product.Brand.Name : string.Empty,
-                    _roundingHelper.Round(product.Price.FinalPrice.Amount).ToStringInvariant(),
+                    _roundingHelper.Round(product.Price.FinalPrice).ToStringInvariant(),
                     categoryPathScript,
                     listName,
                     ++i);

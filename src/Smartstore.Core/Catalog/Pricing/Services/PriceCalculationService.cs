@@ -175,48 +175,44 @@ namespace Smartstore.Core.Catalog.Pricing
                 : await RunCalculators(context);
 
             var price = await CreateCalculatedPrice(calculatorContext, product);
-
-            if (context.Quantity > 1)
+            if (context.Quantity <= 1)
             {
-                var qty = context.Quantity;
-                var cy = context.Options.RoundingCurrency;
-                var subtotal = price.Clone();
-
-                subtotal.FinalPrice = new(_roundingHelper.RoundIfEnabledFor(price.FinalPrice.Amount, cy) * qty, price.FinalPrice.Currency);
-                subtotal.DiscountAmount = new(_roundingHelper.RoundIfEnabledFor(price.DiscountAmount.Amount, cy) * qty, price.DiscountAmount.Currency);
-
-                if (price.Tax.HasValue)
-                {
-                    var t = price.Tax.Value;
-
-                    if (cy.RoundUnitPrices ?? _currencySettings.RoundUnitPrices)
-                    {
-                        subtotal.Tax = new(
-                            t.Rate,
-                            t.Amount * qty,
-                            _roundingHelper.RoundIfEnabledFor(t.Price, cy) * qty,
-                            _roundingHelper.RoundIfEnabledFor(t.PriceNet, cy) * qty,
-                            _roundingHelper.RoundIfEnabledFor(t.PriceGross, cy) * qty,
-                            t.IsGrossPrice,
-                            t.Inclusive);
-                    }
-                    else
-                    {
-                        subtotal.Tax = new(
-                            t.Rate,
-                            t.Amount * qty,
-                            _roundingHelper.RoundIfEnabledFor(t.Price * qty, cy),
-                            _roundingHelper.RoundIfEnabledFor(t.PriceNet * qty, cy),
-                            _roundingHelper.RoundIfEnabledFor(t.PriceGross * qty, cy),
-                            t.IsGrossPrice,
-                            t.Inclusive);
-                    }
-                }
-
-                return (price, subtotal);
+                return (price, price);
             }
 
-            return (price, price);
+            var roundingCurrency = context.Options.RoundingCurrency;
+            var subtotal = price.Clone();
+
+            subtotal.FinalPrice = new(GetSubtotal(price.FinalPrice.Amount), price.FinalPrice.Currency);
+            subtotal.DiscountAmount = new(GetSubtotal(price.DiscountAmount.Amount), price.DiscountAmount.Currency);
+
+            if (price.Tax.HasValue)
+            {
+                var t = price.Tax.Value;
+
+                subtotal.Tax = new(
+                    t.Rate,
+                    t.Amount * context.Quantity,
+                    GetSubtotal(t.Price),
+                    GetSubtotal(t.PriceNet),
+                    GetSubtotal(t.PriceGross),
+                    t.IsGrossPrice,
+                    t.Inclusive);
+            }
+
+            return (price, subtotal);
+
+            decimal GetSubtotal(decimal amount)
+            {
+                if (roundingCurrency.RoundUnitPrices ?? _currencySettings.RoundUnitPrices)
+                {
+                    return _roundingHelper.RoundIfEnabledFor(amount, roundingCurrency) * context.Quantity;
+                }
+                else
+                {
+                    return _roundingHelper.RoundIfEnabledFor(amount * context.Quantity, roundingCurrency);
+                }
+            }
         }
 
         public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection = null)

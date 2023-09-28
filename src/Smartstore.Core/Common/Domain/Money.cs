@@ -74,7 +74,7 @@ namespace Smartstore.Core.Common
         /// <see cref="RoundedAmount"/> is for display only. If an amount is to be rounded according to all currency settings and properties,
         /// the amount rounded by IRoundingHelper must be passed to <see cref="Money"/>! In this case <see cref="Amount"/> and <see cref="RoundedAmount"/> are identical.
         /// </remarks>
-        public decimal RoundedAmount
+        internal decimal RoundedAmount
         {
             get => decimal.Round(Amount, DecimalDigits, Currency?.MidpointRounding ?? MidpointRounding.ToEven);
         }

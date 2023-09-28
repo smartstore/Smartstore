@@ -34,7 +34,6 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
 
                 // Currency values must be rounded here because otherwise unexpected results may occur.
-                // We use primary currency for rounding because prices are entered in primary currency in backend.
                 var roundedSubtotal = _roundingHelper.Round(subtotal.SubtotalWithoutDiscount.Amount);
 
                 var result = expression.Operator.Match(roundedSubtotal, expression.Value);

@@ -190,8 +190,7 @@ namespace Smartstore.Shipping
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(shoppingCartItem, calculationOptions);
                 var (unitPrice, itemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
-                // INFO: leave unrounded when Currency.RoundOrderItemsEnabled is disabled because "subtotal" is just used to find shipping rate.
-                subTotal += itemSubtotal.FinalPrice.Amount;
+                subTotal += _roundingHelper.Round(itemSubtotal.FinalPrice);
             }
 
             var sqThreshold = _shippingByTotalSettings.SmallQuantityThreshold;
