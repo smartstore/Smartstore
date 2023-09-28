@@ -5,6 +5,7 @@ using Smartstore.Caching;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
@@ -27,6 +28,7 @@ namespace Smartstore.StripeElements.Providers
         private readonly IStoreContext _storeContext;
         private readonly ISettingFactory _settingFactory;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly ICacheManager _cache;
         private readonly StripeSettings _settings;
 
@@ -35,6 +37,7 @@ namespace Smartstore.StripeElements.Providers
             IStoreContext storeContext,
             ISettingFactory settingFactory,
             ICheckoutStateAccessor checkoutStateAccessor,
+            IRoundingHelper roundingHelper,
             ICacheManager cache,
             StripeSettings settings)
         {
@@ -42,6 +45,7 @@ namespace Smartstore.StripeElements.Providers
             _storeContext = storeContext;
             _settingFactory = settingFactory;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _roundingHelper = roundingHelper;
             _cache = cache;
             _settings = settings;
 
@@ -131,7 +135,7 @@ namespace Smartstore.StripeElements.Providers
 
             if (request.IsPartialRefund)
             {
-                options.Amount = request.AmountToRefund.Amount.ToSmallestCurrencyUnit();
+                options.Amount = _roundingHelper.ToSmallestCurrencyUnit(request.AmountToRefund);
             }
 
             var service = new RefundService();

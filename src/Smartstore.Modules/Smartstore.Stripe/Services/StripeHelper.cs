@@ -21,6 +21,7 @@ namespace Smartstore.StripeElements.Services
         private readonly IProductService _productService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly IPaymentService _paymentService;
 
         public StripeHelper(
@@ -31,6 +32,7 @@ namespace Smartstore.StripeElements.Services
             IProductService productService,
             IOrderCalculationService orderCalculationService,
             ICurrencyService currencyService,
+            IRoundingHelper roundingHelper,
             IPaymentService paymentService)
         {
             _services = services;
@@ -40,6 +42,7 @@ namespace Smartstore.StripeElements.Services
             _productService = productService;
             _orderCalculationService = orderCalculationService;
             _currencyService = currencyService;
+            _roundingHelper = roundingHelper;
             _paymentService = paymentService;
         }
 
@@ -70,8 +73,8 @@ namespace Smartstore.StripeElements.Services
 
                 displayItems.Add(new StripePaymentItem
                 {
+                    Amount = _roundingHelper.ToSmallestCurrencyUnit(subtotal.FinalPrice),
                     Label = item.Item.Product.GetLocalized(x => x.Name),
-                    Amount = subtotal.FinalPrice.Amount.ToSmallestCurrencyUnit(),
                     Pending = false
                 });
             }
@@ -80,10 +83,10 @@ namespace Smartstore.StripeElements.Services
             var stripePaymentRequest = new StripePaymentRequest
             {
                 Country = _services.WorkContext.WorkingLanguage.UniqueSeoCode.ToUpper(),
-                Currency = _services.WorkContext.WorkingCurrency.CurrencyCode.ToLower(),
+                Currency = currency.CurrencyCode.ToLower(),
                 Total = new StripePaymentItem
                 {
-                    Amount = subTotalConverted.Amount.ToSmallestCurrencyUnit(),
+                    Amount = _roundingHelper.ToSmallestCurrencyUnit(subTotalConverted),
                     Label = T("Order.SubTotal").Value,
                     Pending = false
                 },

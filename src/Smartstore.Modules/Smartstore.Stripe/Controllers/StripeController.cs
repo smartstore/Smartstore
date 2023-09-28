@@ -188,7 +188,7 @@ namespace Smartstore.StripeElements.Controllers
                         // Update Stripe Payment Intent.
                         var intentUpdateOptions = new PaymentIntentUpdateOptions
                         {
-                            Amount = _roundingHelper.ToSmallestCurrencyUnit(convertedTotal.Amount, convertedTotal.Currency),
+                            Amount = _roundingHelper.ToSmallestCurrencyUnit(convertedTotal),
                             Currency = state.PaymentIntent.Currency,
                             PaymentMethod = state.PaymentMethod
                         };

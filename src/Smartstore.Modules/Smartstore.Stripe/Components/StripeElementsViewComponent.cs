@@ -17,6 +17,7 @@ namespace Smartstore.StripeElements.Components
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly StripeHelper _stripeHelper;
 
         public StripeElementsViewComponent(
@@ -25,6 +26,7 @@ namespace Smartstore.StripeElements.Components
             IOrderCalculationService orderCalculationService,
             ICheckoutStateAccessor checkoutStateAccessor,
             ICurrencyService currencyService,
+            IRoundingHelper roundingHelper,
             StripeHelper stripeHelper)
         {
             _settings = settings;
@@ -32,6 +34,7 @@ namespace Smartstore.StripeElements.Components
             _orderCalculationService = orderCalculationService;
             _checkoutStateAccessor = checkoutStateAccessor;
             _currencyService = currencyService;
+            _roundingHelper = roundingHelper;
             _stripeHelper = stripeHelper;
         }
 
@@ -74,8 +77,8 @@ namespace Smartstore.StripeElements.Components
                     var paymentIntentService = new PaymentIntentService();
                     paymentIntent = paymentIntentService.Create(new PaymentIntentCreateOptions
                     {
-                        Amount = subTotalConverted.Amount.ToSmallestCurrencyUnit(),
-                        Currency = Services.WorkContext.WorkingCurrency.CurrencyCode.ToLower(),
+                        Amount = _roundingHelper.ToSmallestCurrencyUnit(subTotalConverted),
+                        Currency = currency.CurrencyCode.ToLower(),
                         CaptureMethod = _settings.CaptureMethod,
                         AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
                         {

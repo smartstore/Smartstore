@@ -76,18 +76,7 @@ namespace Smartstore
                 return decimal.Zero;
             }
 
-            return ((amountInclTax / amountExclTax) - 1.0M) * 100.0M;
-        }
-
-        /// <summary>
-        /// Converts to smallest currency uint, e.g. cents
-        /// </summary>
-        /// <param name="midpoint">Handling of the midway between two numbers. "ToEven" round down, "AwayFromZero" round up.</param>
-        /// <returns>Smallest currency unit</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ToSmallestCurrencyUnit(this decimal value, MidpointRounding midpoint = MidpointRounding.AwayFromZero)
-        {
-            return Convert.ToInt32(Math.Round(value * 100, 0, midpoint));
+            return ((amountInclTax / amountExclTax) - 1.0m) * 100.0m;
         }
 
         /// <summary>
@@ -100,18 +89,6 @@ namespace Smartstore
         public static string FormatInvariant(this decimal value, int decimals = 2)
         {
             return Math.Round(value, decimals).ToString("0.00", CultureInfo.InvariantCulture);
-        }
-
-        /// <summary>
-        /// Rounds and formats a decimal culture invariant
-        /// </summary>
-        /// <param name="value">Value to round</param>
-        /// <param name="decimals">Rounding decimal number</param>
-        /// <returns>Rounded and formated value</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string FormatInvariant(this decimal? value, int decimals = 2)
-        {
-            return value.HasValue ? FormatInvariant(value.Value, decimals) : null;
         }
 
         #endregion

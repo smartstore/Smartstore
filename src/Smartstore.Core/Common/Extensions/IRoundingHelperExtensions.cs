@@ -19,7 +19,19 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Rounds <paramref name="amount"/> to the smallest currency unit, e.g. cents.
+        /// Rounds <see cref="Money.Amount"/> of <paramref name="amount"/> to the smallest currency unit (e.g. cents) by using its <see cref="Money.Currency"/>.
+        /// </summary>
+        /// <param name="amount">Amount to round.</param>
+        /// <returns>Rounded amount.</returns>
+        public static int ToSmallestCurrencyUnit(this IRoundingHelper helper, Money amount)
+        {
+            Guard.NotNull(helper);
+
+            return helper.ToSmallestCurrencyUnit(amount.Amount, amount.Currency);
+        }
+
+        /// <summary>
+        /// Rounds <paramref name="amount"/> to the smallest currency unit (e.g. cents).
         /// </summary>
         /// <param name="amount">Amount to round.</param>
         /// <param name="currency">
