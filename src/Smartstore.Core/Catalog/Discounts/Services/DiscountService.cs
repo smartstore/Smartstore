@@ -161,6 +161,22 @@ namespace Smartstore.Core.Catalog.Discounts
             {
                 var query = _db.Discounts.AsQueryable();
 
+                if (discountType.HasValue)
+                {
+                    switch (discountType.Value)
+                    {
+                        case DiscountType.AssignedToSkus:
+                            query = query.Include(x => x.AppliedToProducts);
+                            break;
+                        case DiscountType.AssignedToCategories:
+                            query = query.Include(x => x.AppliedToCategories);
+                            break;
+                        case DiscountType.AssignedToManufacturers:
+                            query = query.Include(x => x.AppliedToManufacturers);
+                            break;
+                    }
+                }
+
                 if (!includeHidden)
                 {
                     var utcNow = DateTime.UtcNow;
@@ -228,8 +244,7 @@ namespace Smartstore.Core.Catalog.Discounts
             ShoppingCart cart = null;
 
             // Do not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
-            if (
-                flags.HasFlag(DiscountValidationFlags.GiftCards) && 
+            if (flags.HasFlag(DiscountValidationFlags.GiftCards) && 
                 (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal))
             {
                 cart = await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
