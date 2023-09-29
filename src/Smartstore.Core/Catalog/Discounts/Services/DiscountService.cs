@@ -161,6 +161,7 @@ namespace Smartstore.Core.Catalog.Discounts
             {
                 var query = _db.Discounts.AsQueryable();
 
+                // TODO/TBD: (mg) The cache key does not contain the discountType parameter. Is this on purpose?
                 if (discountType.HasValue)
                 {
                     switch (discountType.Value)
