@@ -148,8 +148,7 @@ namespace Smartstore.Core.Catalog.Attributes
                     .OrderBy(x => x.DisplayOrder);
 
                 var attributes = await query.ToListAsync();
-
-                return attributes.ToList();
+                return attributes;
             });
 
             return result;
@@ -336,7 +335,7 @@ namespace Smartstore.Core.Catalog.Attributes
             ProductVariantAttributeSelection selection,
             ProductVariantAttributeCombination combination = null)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             combination ??= await FindAttributeCombinationAsync(product.Id, selection);
 

@@ -330,15 +330,11 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var products = await _db.Products.GetManyAsync(ids);
-
-                foreach (var product in products)
-                {
-                    product.ParentGroupedProductId = 0;
-                    numDeleted++;
-                }
+                var products = await _db.Products.GetManyAsync(ids, true);
+                products.Each(x => x.ParentGroupedProductId = 0);
 
                 await _db.SaveChangesAsync();
+                numDeleted = products.Count;
             }
 
             return Json(new { Success = true, Count = numDeleted });
