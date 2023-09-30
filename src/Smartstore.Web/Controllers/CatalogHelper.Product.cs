@@ -702,11 +702,8 @@ namespace Smartstore.Web.Controllers
                 model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
                     modelContext.SelectedAttributes,
                     product,
-                    modelContext.Customer,
-                    separator: ", ",
-                    includePrices: false,
-                    includeGiftCardAttributes: false,
-                    includeHyperlinks: false);
+                    ProductAttributeFormatOptions.PlainText,
+                    modelContext.Customer);
             }
 
             model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, modelContext.SelectedAttributes);

@@ -140,11 +140,8 @@ namespace Smartstore.Web.Models.Cart
                     AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
                         item.AttributeSelection,
                         product,
+                        new ProductAttributeFormatOptions { FormatTemplate = "<b>{0}:</b> <span>{1}</span>", ItemSeparator = Environment.NewLine, IncludePrices = false, IncludeHyperlinks = false, IncludeGiftCardAttributes = false },
                         null,
-                        ", ",
-                        includePrices: false,
-                        includeGiftCardAttributes: false,
-                        includeHyperlinks: false,
                         batchContext: batchContext)
                 };
 

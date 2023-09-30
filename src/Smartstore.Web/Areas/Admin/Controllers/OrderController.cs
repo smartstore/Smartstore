@@ -1547,7 +1547,7 @@ namespace Smartstore.Admin.Controllers
 
             await _productAttributeMaterializer.MergeWithCombinationAsync(product, selection);
 
-            var attributeDescription = await _productAttributeFormatter.Value.FormatAttributesAsync(selection, product, order.Customer);
+            var attributeDescription = await _productAttributeFormatter.Value.FormatAttributesAsync(selection, product, ProductAttributeFormatOptions.Default, order.Customer);
             var productCost = await _priceCalculationService.Value.CalculateProductCostAsync(product, selection);
 
             var displayDeliveryTime =

@@ -255,9 +255,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Missing checkout session state ({0}). Your payment cannot be processed. Please go to back to the shopping cart and checkout again.",
                 "Fehlender Checkout-Sitzungsstatus ({0}). Ihre Zahlung kann leider nicht verarbeitet werden. Bitte gehen Sie zurück zum Warenkorb und wiederholen Sie den Bestellvorgang.");
 
-            builder.AddOrUpdate("Account.MyOrders",
-                "My orders",
-                "Meine Bestellungen");
+            builder.AddOrUpdate("Account.MyOrders", "My orders", "Meine Bestellungen");
+
+            builder.AddOrUpdate("GiftCardAttribute.For.Physical", "For", "Für");
+            builder.AddOrUpdate("GiftCardAttribute.For.Virtual", "For", "Für");
+            builder.AddOrUpdate("GiftCardAttribute.From.Physical", "From", "Von");
+            builder.AddOrUpdate("GiftCardAttribute.From.Virtual", "From", "Von");
+
+            builder.AddOrUpdate("ShoppingCart.MoveToWishlist", "Move to wishlist", "Auf die Wunschliste");
         }
 
         /// <summary>

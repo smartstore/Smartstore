@@ -794,11 +794,8 @@ namespace Smartstore.Web.Controllers
                 formattedAttributes = await _productAttributeFormatter.Value.FormatAttributesAsync(
                     selection,
                     product,
-                    customer: null,
-                    separator: ", ",
-                    includePrices: false,
-                    includeGiftCardAttributes: false,
-                    includeHyperlinks: false);
+                    ProductAttributeFormatOptions.PlainText,
+                    customer: null);
             }
 
             var seName = await product.GetActiveSlugAsync();
