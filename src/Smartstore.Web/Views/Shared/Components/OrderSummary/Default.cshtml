@@ -27,33 +27,19 @@
         @* "File upload" attribute control type requries "multipart/form-data" *@
         <form asp-route="ShoppingCart" id="frm-shopping-cart" method="post" enctype="multipart/form-data" onkeydown="return event.key != 'Enter';">
             <div class="row cart-container">
-                <div class="col-xl-8">
+                @* Cart Items *@
+                <div class="col-lg-7 col-xl-8">
                     <div id="cart-items" class="cart" attr-class='(Model.IsEditable, "cart-editable")'>
-                        <div class="cart-head">
-                            <div class="cart-row">
-                                <div class="cart-col cart-col-main">
-                                    @T("ShoppingCart.Product(s)")
-                                </div>
-                                <div class="cart-col cart-col-price">
-                                    @T("ShoppingCart.UnitPrice")
-                                </div>
-                                <div class="cart-col cart-col-qty">
-                                    @T("ShoppingCart.Quantity")
-                                </div>
-                                <div class="cart-col cart-col-price cart-col-subtotal">
-                                    @T("ShoppingCart.ItemTotal")
-                                </div>
-                            </div>
-                        </div>
                         <div class="cart-body">
                             <partial name="CartItems" model="Model" />
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-4">
+                @* Cart Summary *@
+                <div class="col-lg-5 col-xl-4">
                     <div class="cart-footer">
                         <div class="row">
-                            <div class="col-md-6 col-xl-12">
+                            <div class="col-12">
                                 @if (Model.IsEditable)
                                 {
                                     <zone name="order_summary_actions_before" />
@@ -74,7 +60,7 @@
 
                                 <hr class="my-2" />
                             </div>
-                            <div class="col-md-6 col-xl-12">
+                            <div class="col-12">
                                 @if (Model.IsEditable)
                                 {
                                     <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
@@ -131,7 +117,9 @@
                         </div>
                     </div>
                 </div>
-                <div sm-if="Model.IsEditable" class="col-12 col-md-6 col-lg-5 col-xl-4 col-xxl-3 my-3">
+
+                @* Back Button *@
+                <div sm-if="Model.IsEditable" class="col-12 col-md-6 col-lg-7 col-xl-4 col-xxl-3 my-3">
                     <button class="btn btn-secondary btn-lg btn-block btn-continue-shopping" type="submit" name="continueshopping" value="continueshopping">
                         <i class="fa fa-angle-left mr-3"></i>
                         <span>@T("ShoppingCart.ContinueShopping")</span>
