@@ -1,84 +1,10 @@
-﻿using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Checkout.Cart
 {
     public static partial class ShoppingCartExtensions
     {
-        /// <summary>
-        /// Finds a cart item in a shopping cart.
-        /// </summary>
-        /// <remarks>Products with the same identifier need to have matching attribute selections as well.</remarks>
-        /// <param name="cart">Shopping cart to search.</param>
-        /// <param name="shoppingCartType">Shopping cart type to search.</param>
-        /// <param name="product">Product to search for.</param>
-        /// <param name="selection">Attribute selection.</param>
-        /// <param name="customerEnteredPrice">Customers entered price needs to match (if enabled by product).</param>
-        /// <returns>Matching <see cref="OrganizedShoppingCartItem"/> or <c>null</c> if none was found.</returns>
-        public static OrganizedShoppingCartItem FindItemInCart(
-            this ShoppingCart cart,
-            ShoppingCartType shoppingCartType,
-            Product product,
-            ProductVariantAttributeSelection selection = null,
-            Money? customerEnteredPrice = null)
-        {
-            Guard.NotNull(cart, nameof(cart));
-            Guard.NotNull(product, nameof(product));
-
-            // Return on product bundle with individual item pricing. It is too complex to compare.
-            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
-            {
-                return null;
-            }
-
-            var priceDigits = customerEnteredPrice?.DecimalDigits ?? 2;
-
-            // Filter items of matching cart type, product ID and product type.
-            var filteredCart = cart.Items.Where(x => x.Item.ShoppingCartType == shoppingCartType &&
-                x.Item.ParentItemId == null &&
-                x.Item.Product.ProductTypeId == product.ProductTypeId &&
-                x.Item.ProductId == product.Id);
-
-            foreach (var cartItem in filteredCart)
-            {
-                var item = cartItem.Item;
-                var giftCardInfoSame = true;
-                var customerEnteredPricesEqual = true;
-                var attributesEqual = item.AttributeSelection == selection;
-
-                if (item.Product.IsGiftCard)
-                {
-                    var info1 = item.AttributeSelection?.GetGiftCardInfo();
-                    var info2 = selection?.GetGiftCardInfo();
-
-                    if (info1 != null && info2 != null)
-                    {
-                        // INFO: in this context, we only compare the name of recipient and sender.
-                        if (!info1.RecipientName.EqualsNoCase(info2.RecipientName) || !info1.SenderName.EqualsNoCase(info2.SenderName))
-                        {
-                            giftCardInfoSame = false;
-                        }
-                    }
-                }
-
-                // Products with CustomerEntersPrice are equal if the price is the same.
-                // But a system product may only be placed once in the shopping cart.
-                if (customerEnteredPrice.HasValue && item.Product.CustomerEntersPrice && !item.Product.IsSystemProduct)
-                {
-                    customerEnteredPricesEqual = Math.Round(item.CustomerEnteredPrice, priceDigits) == Math.Round(customerEnteredPrice.Value.Amount, priceDigits);
-                }
-
-                if (attributesEqual && giftCardInfoSame && customerEnteredPricesEqual)
-                {
-                    return cartItem;
-                }
-            }
-
-            return null;
-        }
-
         /// <summary>
         /// Checks whether the shopping cart requires shipping.
         /// </summary>

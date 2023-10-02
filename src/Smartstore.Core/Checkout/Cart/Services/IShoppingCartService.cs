@@ -1,4 +1,6 @@
 ﻿using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart
@@ -103,5 +105,22 @@ namespace Smartstore.Core.Checkout.Cart
             bool? useRewardPoints = null,
             bool resetCheckoutData = true,
             bool validateCheckoutAttributes = true);
+
+        /// <summary>
+        /// Finds a cart item in a shopping cart.
+        /// </summary>
+        /// <remarks>Products with the same identifier need to have matching attribute selections as well.</remarks>
+        /// <param name="cart">Shopping cart to search.</param>
+        /// <param name="shoppingCartType">Shopping cart type to search.</param>
+        /// <param name="product">Product to search for.</param>
+        /// <param name="selection">Attribute selection.</param>
+        /// <param name="customerEnteredPrice">Customers entered price needs to match (if enabled by product).</param>
+        /// <returns>Matching <see cref="OrganizedShoppingCartItem"/> or <c>null</c> if none was found.</returns>
+        OrganizedShoppingCartItem FindItemInCart(
+            ShoppingCart cart,
+            ShoppingCartType shoppingCartType,
+            Product product,
+            ProductVariantAttributeSelection selection = null,
+            Money? customerEnteredPrice = null);
     }
 }

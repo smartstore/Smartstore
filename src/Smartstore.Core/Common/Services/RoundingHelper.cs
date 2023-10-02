@@ -4,8 +4,6 @@ using Smartstore.Core.Common.Configuration;
 
 namespace Smartstore.Core.Common.Services
 {
-    // TODO: (mg) lots of refactoring required. Now only RoundingHelper should round currency values (otherwise rounding difference possible).
-    // TODO: (mg) refactor decimal numeric extension methods.
     public partial class RoundingHelper : IRoundingHelper
     {
         private readonly IWorkContext _workContext;
