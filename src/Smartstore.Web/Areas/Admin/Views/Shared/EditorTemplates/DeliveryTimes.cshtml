@@ -32,7 +32,12 @@
         attributes["data-placeholder"] = T("Common.Unspecified").Value;
     }
 }
-<select asp-for="@Model" class="edit-control" attrs="attributes" data-editor="select">
+<select asp-for="@Model" 
+        class="edit-control" 
+        attrs="attributes" 
+        data-editor="select" 
+        v-bind:data-select-selected-id="item.value"
+        v-bind:data-select-init-text="item.row.DeliveryTime">
     @foreach (var val in Value)
     {
         <option selected value="@val">@val</option>
