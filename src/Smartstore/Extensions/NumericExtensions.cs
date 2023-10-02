@@ -79,18 +79,6 @@ namespace Smartstore
             return ((amountInclTax / amountExclTax) - 1.0m) * 100.0m;
         }
 
-        /// <summary>
-        /// Rounds and formats a decimal culture invariant
-        /// </summary>
-        /// <param name="value">Value to round</param>
-        /// <param name="decimals">Rounding decimal number</param>
-        /// <returns>Rounded and formated value</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string FormatInvariant(this decimal value, int decimals = 2)
-        {
-            return Math.Round(value, decimals).ToString("0.00", CultureInfo.InvariantCulture);
-        }
-
         #endregion
 
         #region IComparable

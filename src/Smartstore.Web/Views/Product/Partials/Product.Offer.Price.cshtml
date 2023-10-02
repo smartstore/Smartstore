@@ -9,8 +9,6 @@
         return;
     }
 
-    var roundingHelper = Resolve<IRoundingHelper>();
-
     async Task RenderPromoPriceLine(ComparePriceModel priceModel)
     {
         <div sm-if="priceModel != null" class="pd-promoprice-line">
@@ -47,7 +45,7 @@
         var isBundleItemPricing = Model.BundlePerItemPricing;
         var showPriceSaving = priceModel.Saving.SavingAmount.HasValue && (priceModel.ShowRetailPriceSaving || priceModel.RegularPrice != null);
         var showPrice = !(isBundlePart && priceModel.FinalPrice == 0);
-        var roundedPrice = roundingHelper.Round(priceModel.FinalPrice);
+        var roundedPrice = RoundingHelper.Round(priceModel.FinalPrice);
 
         @* Price *@
         <div class="pd-group" sm-suppress-if-empty="true">

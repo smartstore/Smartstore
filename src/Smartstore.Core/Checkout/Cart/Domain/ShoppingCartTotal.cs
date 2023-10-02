@@ -67,10 +67,10 @@ namespace Smartstore.Core.Checkout.Cart
         public ConvertedAmounts ConvertedAmount { get; init; }
 
         /// <summary>
-        /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="Total"/>.
+        /// Returns the rounded and formatted <see cref="Total"/>.
         /// </summary>
         public override string ToString()
-            => Total?.ToString() ?? decimal.Zero.FormatInvariant();
+            => (Total ?? Money.Zero).ToString();
 
         /// <summary>
         /// Represents amount of <see cref="ShoppingCartTotal.Total"/> and <see cref="ShoppingCartTotal.ToNearestRounding"/> converted to <see cref="IWorkContext.WorkingCurrency"/>.

@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Xml;
+using AngleSharp.Dom;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
@@ -8,6 +9,7 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
@@ -40,6 +42,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         private readonly SmartDbContext _db;
         private readonly IProductAttributeService _productAttributeService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly MeasureSettings _measureSettings;
 
         private Multimap<string, int> _attributeMappings;
@@ -47,10 +50,12 @@ namespace Smartstore.Google.MerchantCenter.Providers
         public GmcXmlExportProvider(
             SmartDbContext db,
             IProductAttributeService productAttributeService,
+            IRoundingHelper roundingHelper,
             MeasureSettings measureSettings)
         {
             _db = db;
             _productAttributeService = productAttributeService;
+            _roundingHelper = roundingHelper;
             _measureSettings = measureSettings;
         }
 
@@ -309,7 +314,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                         if (config.SpecialPrice && saving.HasSaving)
                         {
-                            WriteString(writer, "sale_price", price.FormatInvariant() + " " + currency.CurrencyCode);
+                            WriteString(writer, "sale_price", Round(price).ToStringInvariant() + " " + currency.CurrencyCode);
                             price = saving.SavingPrice.Amount;
 
                             if (calculatedPrice.ValidUntilUtc.HasValue)
@@ -325,7 +330,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             }
                         }
 
-                        WriteString(writer, "price", price.FormatInvariant() + " " + currency.CurrencyCode);
+                        WriteString(writer, "price", Round(price).ToStringInvariant() + " " + currency.CurrencyCode);
                         WriteString(writer, "gtin", gtin);
                         WriteString(writer, "brand", brand);
                         WriteString(writer, "mpn", mpn);
@@ -352,7 +357,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             var weight = (decimal)product.Weight;
                             if (weight > 0)
                             {
-                                WriteString(writer, "shipping_weight", weight.FormatInvariant() + " " + measureWeight);
+                                WriteString(writer, "shipping_weight", decimal.Round(weight, 2).ToStringInvariant() + " " + measureWeight);
                             }
                         }
 
@@ -367,8 +372,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                             if (BasePriceSupported(entity.BasePriceBaseAmount ?? 0, measureUnit))
                             {
-                                // INFO: GMC does not support more than 2 digits after a decimal.
-                                var basePriceMeasure = $"{(entity.BasePriceAmount ?? decimal.Zero).FormatInvariant()} {measureUnit}";
+                                var basePriceMeasure = Round(entity.BasePriceAmount ?? decimal.Zero).ToStringInvariant() + " " + measureUnit;
                                 var basePriceBaseMeasure = $"{entity.BasePriceBaseAmount ?? 1} {measureUnit}";
 
                                 WriteString(writer, "unit_pricing_measure", basePriceMeasure);
@@ -410,6 +414,12 @@ namespace Smartstore.Google.MerchantCenter.Providers
             writer.WriteEndElement(); // channel
             writer.WriteEndElement(); // rss
             writer.WriteEndDocument();
+
+            decimal Round(decimal amount)
+            {
+                // INFO: GMC does not support more than 2 decimal places.
+                return _roundingHelper.Round(amount, 2, currency.MidpointRounding);
+            }
         }
     }
 }
