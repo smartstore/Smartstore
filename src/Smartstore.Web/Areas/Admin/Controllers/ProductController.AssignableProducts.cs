@@ -353,7 +353,7 @@ namespace Smartstore.Admin.Controllers
 
             var products = await _db.Products
                 .AsQueryable()
-                .Where(x => selectedProductIds.Contains(x.Id))
+                .Where(x => selectedProductIds.Contains(x.Id) && x.Id != productId && x.ProductTypeId != (int)ProductType.GroupedProduct)
                 .ToListAsync();
 
             foreach (var product in products)
