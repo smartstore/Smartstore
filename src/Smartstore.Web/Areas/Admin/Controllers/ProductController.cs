@@ -1581,7 +1581,7 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(product);
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(product);
                 model.OriginalStockQuantity = product.StockQuantity;
-                model.ProductUrl = await GetEntityUrlAsync(product);
+                model.ProductUrl = await GetEntityPublicUrlAsync(product);
 
                 model.NumberOfOrders = await _db.Orders
                     .Where(x => x.OrderItems.Any(oi => oi.ProductId == product.Id))

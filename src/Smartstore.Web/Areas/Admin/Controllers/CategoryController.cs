@@ -647,7 +647,7 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(category);
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(category);
                 model.SelectedRuleSetIds = category.RuleSets.Select(x => x.Id).ToArray();
-                model.CategoryUrl = await GetEntityUrlAsync(category);
+                model.CategoryUrl = await GetEntityPublicUrlAsync(category);
 
                 var showRuleApplyButton = model.SelectedRuleSetIds.Any();
 

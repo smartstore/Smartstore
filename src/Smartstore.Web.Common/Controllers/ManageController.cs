@@ -111,7 +111,7 @@ namespace Smartstore.Web.Controllers
         /// <summary>
         /// Gets the frontend URL for an entity.
         /// </summary>
-        protected async Task<string> GetEntityUrlAsync<TEntity>(TEntity entity)
+        protected async Task<string> GetEntityPublicUrlAsync<TEntity>(TEntity entity)
             where TEntity : BaseEntity, IStoreRestricted, ISlugSupported
         {
             Guard.NotNull(entity);
@@ -120,8 +120,9 @@ namespace Smartstore.Web.Controllers
             {
                 var storeMappingService = Services.Resolve<IStoreMappingService>();
                 var storeMappings = await storeMappingService.GetStoreMappingCollectionAsync(entity.GetEntityName(), new[] { entity.Id });
+                var currentStoreId = Services.StoreContext.CurrentStore.Id;
 
-                if (storeMappings.FirstOrDefault(x => x.StoreId == Services.StoreContext.CurrentStore.Id) == null)
+                if (storeMappings.FirstOrDefault(x => x.StoreId == currentStoreId) == null)
                 {
                     var storeMapping = storeMappings.FirstOrDefault();
                     if (storeMapping != null)
