@@ -94,6 +94,7 @@ namespace Smartstore.Admin.Models.Catalog
         public string Breadcrumb { get; set; }
 
         public string EditUrl { get; set; }
+        public string CategoryUrl { get; set; }
 
         // ACL.
         [UIHint("CustomerRoles")]

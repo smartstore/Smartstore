@@ -15,7 +15,7 @@
             <zone name="admin_button_toolbar_before" />
 
             <button type="submit" name="preview" value="preview" class="btn btn-secondary"
-                onclick="javascript:openWindow('@Url.RouteUrl("Category", new { SeName = Model.SeName })', 1000, 600, true); return false;">
+                onclick="javascript:openWindow('@Model.CategoryUrl', 1000, 600, true); return false;">
                 <i class="far fa-eye"></i>
                 <span>@T("Admin.Common.Preview")</span>
             </button>

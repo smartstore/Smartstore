@@ -1,6 +1,7 @@
 ﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Modelling;
 
@@ -32,7 +33,7 @@ namespace Smartstore.Web.Controllers
         protected virtual void AddLocales<TLocalizedModelLocal>(IList<TLocalizedModelLocal> locales, Action<TLocalizedModelLocal, int> configure)
             where TLocalizedModelLocal : ILocalizedLocaleModel, new()
         {
-            Guard.NotNull(locales, nameof(locales));
+            Guard.NotNull(locales);
 
             foreach (var language in Services.Resolve<ILanguageService>().GetAllLanguages(true))
             {
@@ -52,7 +53,7 @@ namespace Smartstore.Web.Controllers
         protected virtual async Task AddLocalesAsync<TLocalizedModelLocal>(IList<TLocalizedModelLocal> locales, Func<TLocalizedModelLocal, int, Task> configure)
             where TLocalizedModelLocal : ILocalizedLocaleModel, new()
         {
-            Guard.NotNull(locales, nameof(locales));
+            Guard.NotNull(locales);
 
             foreach (var language in Services.Resolve<ILanguageService>().GetAllLanguages(true))
             {
@@ -73,7 +74,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="selectedStoreIds">Selected store identifiers.</param>
         protected virtual async Task<int> SaveStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) where T : BaseEntity, IStoreRestricted
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             await Services.Resolve<IStoreMappingService>().ApplyStoreMappingsAsync(entity, selectedStoreIds);
             return await Services.DbContext.SaveChangesAsync();
@@ -86,7 +87,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="entity">The entity</param>
         protected virtual async Task<int> SaveAclMappingsAsync<T>(T entity, params int[] selectedCustomerRoleIds) where T : BaseEntity, IAclRestricted
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             await Services.Resolve<IAclService>().ApplyAclMappingsAsync(entity, selectedCustomerRoleIds);
             return await Services.DbContext.SaveChangesAsync();
@@ -107,23 +108,34 @@ namespace Smartstore.Web.Controllers
             return store != null ? store.Id : 0;
         }
 
-        // INFO: instead, throw new AccessDeniedException()
-
         /// <summary>
-        /// Access denied view
+        /// Gets the frontend URL for an entity.
         /// </summary>
-        /// <returns>Access denied view</returns>
-        //protected IActionResult AccessDeniedView()
-        //{
-        //    return RedirectToAction("AccessDenied", "Security", new { pageUrl = this.Request.RawUrl(), area = "Admin" });
-        //}
+        protected async Task<string> GetEntityUrlAsync<TEntity>(TEntity entity)
+            where TEntity : BaseEntity, IStoreRestricted, ISlugSupported
+        {
+            Guard.NotNull(entity);
 
-        /// <summary>
-        /// Renders default access denied view as a partial
-        /// </summary>
-        //protected IActionResult AccessDeniedPartialView()
-        //{
-        //    return PartialView("~/Areas/Admin/Views/Security/AccessDenied.cshtml");
-        //}
+            if (entity.LimitedToStores)
+            {
+                var storeMappingService = Services.Resolve<IStoreMappingService>();
+                var storeMappings = await storeMappingService.GetStoreMappingCollectionAsync(entity.GetEntityName(), new[] { entity.Id });
+
+                if (storeMappings.FirstOrDefault(x => x.StoreId == Services.StoreContext.CurrentStore.Id) == null)
+                {
+                    var storeMapping = storeMappings.FirstOrDefault();
+                    if (storeMapping != null)
+                    {
+                        var store = Services.StoreContext.GetStoreById(storeMapping.StoreId);
+                        if (store != null)
+                        {
+                            return store.GetBaseUrl() + await entity.GetActiveSlugAsync();
+                        }
+                    }
+                }
+            }
+
+            return Url.RouteUrl(entity.GetEntityName(), new { SeName = await entity.GetActiveSlugAsync() }, Request.Scheme);
+        }
     }
 }

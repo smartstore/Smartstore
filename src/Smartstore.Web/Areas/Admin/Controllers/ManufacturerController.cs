@@ -428,6 +428,7 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedDiscountIds = manufacturer.AppliedDiscounts.Select(d => d.Id).ToArray();
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(manufacturer);
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(manufacturer);
+                model.ManufacturerUrl = await GetEntityUrlAsync(manufacturer);
             }
 
             var manufacturerTemplates = await _db.ManufacturerTemplates

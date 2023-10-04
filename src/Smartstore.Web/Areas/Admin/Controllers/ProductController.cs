@@ -1581,34 +1581,13 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(product);
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(product);
                 model.OriginalStockQuantity = product.StockQuantity;
+                model.ProductUrl = await GetEntityUrlAsync(product);
 
                 model.NumberOfOrders = await _db.Orders
                     .Where(x => x.OrderItems.Any(oi => oi.ProductId == product.Id))
                     .Select(x => x.Id)
                     .Distinct()
                     .CountAsync();
-
-                if (product.LimitedToStores)
-                {
-                    var storeMappings = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(Product), new[] { product.Id });
-                    var currentStoreId = Services.StoreContext.CurrentStore.Id;
-
-                    if (storeMappings.FirstOrDefault(x => x.StoreId == currentStoreId) == null)
-                    {
-                        var storeMapping = storeMappings.FirstOrDefault();
-                        if (storeMapping != null)
-                        {
-                            var store = Services.StoreContext.GetStoreById(storeMapping.StoreId);
-                            if (store != null)
-                                model.ProductUrl = store.GetBaseUrl() + await product.GetActiveSlugAsync();
-                        }
-                    }
-                }
-
-                if (model.ProductUrl.IsEmpty())
-                {
-                    model.ProductUrl = Url.RouteUrl("Product", new { SeName = await product.GetActiveSlugAsync() }, Request.Scheme);
-                }
 
                 // Downloads.
                 var productDownloads = await _db.Downloads
