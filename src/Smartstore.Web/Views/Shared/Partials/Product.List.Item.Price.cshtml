@@ -41,7 +41,7 @@
 <div class="art-price-block">
     <span class="@artPriceClass">
         <span class="art-finalprice">
-            <span sm-if="price.HasCalculation" class="art-price-value">
+            <span sm-if="price.HasCalculation || price.CallForPrice" class="art-price-value">
                 @Html.Raw(price.FinalPrice)
             </span>
         </span>
