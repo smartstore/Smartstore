@@ -118,6 +118,7 @@
 - #797 Incorrect validation when product can be added to the cart in single positions.
 - Manufacturer pictures were not displayed on product detail pages.
 - #828 Queued email identifier is 0 for order completed email.
+- #873 Category preview may show 404 page if the category is limited to a certain store.
 
 
 
