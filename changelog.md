@@ -80,10 +80,12 @@
 
 ### Bugfixes
 
-- Fixed do not show tax info in product lists if the product is tax exempt.
 - Price calculation:
   - Rounding differences between the subtotal and the sum of the line totals.
   - Manufacturer discount is ignored as soon as an attribute with a linked product is selected.
+- Product lists:
+  - Fixed do not show tax info in product lists if the product is tax exempt.
+  - Fixed call for price note not displayed in product lists.
 - MegaSearch:
   - Fixed incorrect search results when a multistore has different default languages configured.
   - Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
