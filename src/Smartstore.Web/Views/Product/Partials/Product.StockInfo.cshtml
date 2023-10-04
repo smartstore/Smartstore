@@ -7,30 +7,27 @@
     var isBundleItem = Model.IsBundlePart;
     var displayStock = Model.StockAvailability.HasValue();
     var deliveryPresentation = Model.DeliveryTimesPresentation;
+    var statusLabel = Model.DisplayDeliveryTimeAccordingToStock ? Model.DeliveryTimeName : Model.StockAvailability;
+    var statusColor = Model.DisplayDeliveryTimeAccordingToStock && !displayStock ? Model.DeliveryTimeHexValue : string.Empty;
+
+    var showStatusLabel = statusLabel.HasValue() &&
+        (deliveryPresentation == DeliveryTimesPresentation.LabelOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate || Model.DeliveryTimeDate.IsEmpty());
+
+    var showDeliveryDate =
+        (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) && Model.DeliveryTimeDate.HasValue();
 
     // Never show delivery time when product is out of stock AND stock is displayed.
     var showDeliveryInfos =
         !isBundleItem &&
-        (Model.IsShippingEnabled && deliveryPresentation != DeliveryTimesPresentation.None) &&
+        (showStatusLabel || showDeliveryDate) &&
+        (Model.IsShippingEnabled && deliveryPresentation != DeliveryTimesPresentation.None) && 
         (!displayStock || (displayStock && Model.IsAvailable));
 
-    var showAttrs = showDeliveryInfos || displayStock || Model.DisplayBackInStockSubscription;
-    if (!showAttrs)
+    var showAttributes = showDeliveryInfos || displayStock || Model.DisplayBackInStockSubscription;
+    if (!showAttributes)
     {
         return;
     }
-
-    var showStatusLabel =
-        deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
-        deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
-        !Model.DeliveryTimeDate.HasValue();
-
-    var showDeliveryDate =
-        (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
-        Model.DeliveryTimeDate.HasValue();
-
-    var statusLabel = Model.DisplayDeliveryTimeAccordingToStock ? Model.DeliveryTimeName : Model.StockAvailability;
-    var statusColor = Model.DisplayDeliveryTimeAccordingToStock && !displayStock ? Model.DeliveryTimeHexValue : string.Empty;
 }
 
 <div class="pd-stock-info" attr-class='(!isBundleItem, "pd-group")' sm-suppress-if-empty="true">

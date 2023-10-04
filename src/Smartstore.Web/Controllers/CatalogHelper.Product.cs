@@ -927,7 +927,7 @@ namespace Smartstore.Web.Controllers
             model.DeliveryTimesPresentation = deliveryPresentation;
             model.DisplayDeliveryTimeAccordingToStock = product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
 
-            if (model.DeliveryTimeName.IsEmpty() && deliveryPresentation != DeliveryTimesPresentation.None)
+            if (!model.IsAvailable && model.DeliveryTimeName.IsEmpty() && deliveryPresentation != DeliveryTimesPresentation.None)
             {
                 model.DeliveryTimeName = T("ShoppingCart.NotAvailable");
             }
