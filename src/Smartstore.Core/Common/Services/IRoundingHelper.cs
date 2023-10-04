@@ -21,9 +21,9 @@ namespace Smartstore.Core.Common.Services
         /// </summary>
         /// <param name="amount">Amount to round.</param>
         /// <param name="decimals">Number of decimal places (precision).</param>
-        /// <param name="midpointRounding">The rounding strategy of the midway between two numbers.</param>
+        /// <param name="midpointRounding">The rounding strategy of the midway between two currency amounts.</param>
         /// <returns>Rounded amount.</returns>
-        decimal Round(decimal amount, int decimals, MidpointRounding midpointRounding = MidpointRounding.ToEven);
+        decimal Round(decimal amount, int decimals, CurrencyMidpointRounding midpointRounding = CurrencyMidpointRounding.ToEven);
 
         /// <summary>
         /// Rounds <paramref name="amount"/> if rounding is enabled for <paramref name="currency"/>.

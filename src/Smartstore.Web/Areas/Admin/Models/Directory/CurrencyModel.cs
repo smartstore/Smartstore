@@ -36,13 +36,6 @@ namespace Smartstore.Admin.Models.Common
         [LocalizedDisplay("*DomainEndings")]
         public string DomainEndings { get; set; }
         public string[] DomainEndingsArray { get; set; }
-        public List<SelectListItem> AvailableDomainEndings { get; set; } = new List<SelectListItem>
-        {
-            new SelectListItem { Text = ".com", Value = ".com" },
-            new SelectListItem { Text = ".uk", Value = ".uk" },
-            new SelectListItem { Text = ".de", Value = ".de" },
-            new SelectListItem { Text = ".ch", Value = ".ch" }
-        };
 
         public List<CurrencyLocalizedModel> Locales { get; set; } = new();
 
@@ -64,11 +57,20 @@ namespace Smartstore.Admin.Models.Common
 
         #region Rounding
 
-        [LocalizedDisplay("*RoundOrderItemsEnabled")]
-        public bool RoundOrderItemsEnabled { get; set; }
-
         [LocalizedDisplay("*RoundNumDecimals")]
         public int RoundNumDecimals { get; set; } = 2;
+
+        [LocalizedDisplay("*MidpointRounding")]
+        public CurrencyMidpointRounding MidpointRounding { get; set; } = CurrencyMidpointRounding.ToEven;
+
+        [LocalizedDisplay("*RoundOrderItemsEnabled")]
+        public bool? RoundOrderItemsEnabled { get; set; }
+
+        [LocalizedDisplay("*RoundNetPrices")]
+        public bool? RoundNetPrices { get; set; }
+
+        [LocalizedDisplay("*RoundUnitPrices")]
+        public bool? RoundUnitPrices { get; set; }
 
         [LocalizedDisplay("*RoundOrderTotalEnabled")]
         public bool RoundOrderTotalEnabled { get; set; }
@@ -122,7 +124,6 @@ namespace Smartstore.Admin.Models.Common
 
             RuleFor(x => x.RoundNumDecimals)
                 .InclusiveBetween(0, 8)
-                .When(x => x.RoundOrderItemsEnabled)
                 .WithMessage(T("Admin.Configuration.Currencies.Fields.RoundOrderItemsEnabled.Validation"));
         }
     }

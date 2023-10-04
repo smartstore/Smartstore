@@ -1,5 +1,4 @@
-﻿using System;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Smartstore.Core;
 using Smartstore.Core.Common;
@@ -77,7 +76,7 @@ namespace Smartstore.Tests.Domain
                 DisplayLocale = "de-DE",
                 Published = true,
                 RoundNumDecimals = numDecimals,
-                MidpointRounding = MidpointRounding.ToEven
+                MidpointRounding = CurrencyMidpointRounding.ToEven
             };
 
             var roundedAmount = _roundingHelper.ToSmallestCurrencyUnit(amount, currency);

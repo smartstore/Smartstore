@@ -22,9 +22,9 @@ namespace Smartstore.Core.Common.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual decimal Round(decimal amount, int decimals, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+        public virtual decimal Round(decimal amount, int decimals, CurrencyMidpointRounding midpointRounding = CurrencyMidpointRounding.ToEven)
         {
-            return decimal.Round(amount, decimals, midpointRounding);
+            return decimal.Round(amount, decimals, Convert(midpointRounding));
         }
 
         public virtual decimal RoundIfEnabledFor(decimal amount, Currency currency = null, TaxDisplayType? taxDisplayType = null)
@@ -51,7 +51,7 @@ namespace Smartstore.Core.Common.Services
             switch (currency.RoundOrderTotalRule)
             {
                 case CurrencyRoundingRule.RoundMidpointUp:
-                    amount = ToNearest(amount, currency, MidpointRounding.AwayFromZero, null);
+                    amount = ToNearest(amount, currency, CurrencyMidpointRounding.AwayFromZero, null);
                     break;
                 case CurrencyRoundingRule.AlwaysRoundDown:
                     amount = ToNearest(amount, currency, null, false);
@@ -61,7 +61,7 @@ namespace Smartstore.Core.Common.Services
                     break;
                 case CurrencyRoundingRule.RoundMidpointDown:
                 default:
-                    amount = ToNearest(amount, currency, MidpointRounding.ToEven, null);
+                    amount = ToNearest(amount, currency, CurrencyMidpointRounding.ToEven, null);
                     break;
             }
 
@@ -70,13 +70,13 @@ namespace Smartstore.Core.Common.Services
             return amount;
         }
 
-        protected virtual decimal ToNearest(decimal amount, Currency currency, MidpointRounding? midpointRounding, bool? roundUp)
+        protected virtual decimal ToNearest(decimal amount, Currency currency, CurrencyMidpointRounding? midpointRounding, bool? roundUp)
         {
             if (currency.RoundOrderTotalDenominator != decimal.Zero)
             {
                 if (midpointRounding.HasValue)
                 {
-                    return decimal.Round(amount / currency.RoundOrderTotalDenominator, 0, midpointRounding.Value) * currency.RoundOrderTotalDenominator;
+                    return decimal.Round(amount / currency.RoundOrderTotalDenominator, 0, Convert(midpointRounding.Value)) * currency.RoundOrderTotalDenominator;
                 }
                 else if (roundUp.HasValue)
                 {
@@ -89,6 +89,18 @@ namespace Smartstore.Core.Common.Services
             }
 
             return amount;
+        }
+
+        protected virtual MidpointRounding Convert(CurrencyMidpointRounding midpointRounding)
+        {
+            switch (midpointRounding)
+            {
+                case CurrencyMidpointRounding.AwayFromZero:
+                    return MidpointRounding.AwayFromZero;
+                case CurrencyMidpointRounding.ToEven:
+                default:
+                    return MidpointRounding.ToEven;
+            }
         }
     }
 }

@@ -5,11 +5,13 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -469,16 +471,24 @@ namespace Smartstore.Admin.Controllers
                 model.IsPrimaryExchangeCurrency = currency.Id == _currencySettings.PrimaryExchangeCurrencyId;
             }
 
+            var availableDomainEndings = new List<SelectListItem>
+            {
+                new() { Text = ".com", Value = ".com" },
+                new() { Text = ".uk", Value = ".uk" },
+                new() { Text = ".de", Value = ".de" },
+                new() { Text = ".ch", Value = ".ch" }
+            };
+
             if (!excludeProperties)
             {
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(currency);
 
                 foreach (var ending in model.DomainEndings.SplitSafe(','))
                 {
-                    var item = model.AvailableDomainEndings.FirstOrDefault(x => x.Value.EqualsNoCase(ending));
+                    var item = availableDomainEndings.FirstOrDefault(x => x.Value.EqualsNoCase(ending));
                     if (item == null)
                     {
-                        model.AvailableDomainEndings.Add(new SelectListItem { Text = ending, Value = ending, Selected = true });
+                        availableDomainEndings.Add(new() { Text = ending, Value = ending, Selected = true });
                     }
                     else
                     {
@@ -488,6 +498,24 @@ namespace Smartstore.Admin.Controllers
 
                 model.DomainEndingsArray = model.DomainEndings.SplitSafe(',').ToArray();
             }
+
+            ViewBag.AvailableDomainEndings = availableDomainEndings;
+
+            ViewBag.MidpointRoundings = CurrencyMidpointRounding.ToEven.ToSelectList()
+                .Select(x =>
+                {
+                    var item = new ExtendedSelectListItem
+                    {
+                        Value = x.Value,
+                        Text = x.Text,
+                        Selected = x.Selected
+                    };
+
+                    item.CustomProperties["Description"] = T("Enums.CurrencyMidpointRounding." + ((CurrencyMidpointRounding)x.Value.ToInt()).ToString() + ".Example").Value;
+
+                    return item;
+                })
+                .ToList();
         }
 
         #endregion

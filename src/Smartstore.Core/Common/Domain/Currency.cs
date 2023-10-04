@@ -90,18 +90,14 @@ namespace Smartstore.Core.Common
         #region Rounding
 
         /// <summary>
-        /// Gets or sets the rounding strategy of the midway between two numbers.
+        /// Gets or sets the number of decimal places to round to
         /// </summary>
-        /// <remarks>
-        /// <see cref="MidpointRounding.ToEven"/> (default) equals "banker's rounding" or "mathematisches Runden".
-        /// Round to the nearest even number.
-        /// Examples: 1.2250 is rounded down to 1.22. 1.2350 is rounded up to 1.24.
-        /// 
-        /// <see cref="MidpointRounding.AwayFromZero"/> equals "round to nearest" or "kaufmännisches Runden".
-        /// Round down if the first dropped decimal place is 0, 1, 2, 3 or 4, otherwise round up.
-        /// Examples: 1.2250 is rounded up to 1.23. 1.2240 is rounded down to 1.22.
-        /// </remarks>
-        public MidpointRounding MidpointRounding { get; set; } = MidpointRounding.ToEven;
+        public int RoundNumDecimals { get; set; } = 2;
+
+        /// <summary>
+        /// Gets or sets the rounding strategy of the midpoint between two currency values.
+        /// </summary>
+        public CurrencyMidpointRounding MidpointRounding { get; set; } = CurrencyMidpointRounding.ToEven;
 
         /// <summary>
         /// Gets or sets a value indicating whether rounding during shopping cart calculation is enabled.
@@ -120,11 +116,6 @@ namespace Smartstore.Core.Common
         /// Will be obtained from <see cref="CurrencySettings.RoundUnitPrices"/> if <c>null</c>.
         /// </summary>
         public bool? RoundUnitPrices { get; set; }
-
-        /// <summary>
-        /// Gets or sets the number of decimal places to round to
-        /// </summary>
-        public int RoundNumDecimals { get; set; } = 2;
 
         /// <summary>
         /// Gets or sets a value indicating whether to round the order total
