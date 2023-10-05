@@ -5,6 +5,9 @@
 @{
     ViewBag.Title = T("Admin.System.SeNames").Value;
     Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
 }
 
 <div class="section-header">
@@ -14,4 +17,4 @@
     </div>
 </div>
 
-<partial name="_Grid.UrlRecords" model="null" />
+<partial name="_Grid.UrlRecords" model="null" view-data="gridViewData" />
