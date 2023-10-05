@@ -1072,7 +1072,7 @@ namespace Smartstore.Admin.Controllers
 
             if (storeScope > 0 && await Services.Settings.SettingExistsAsync(taxSettings, x => x.DefaultTaxAddressId, storeScope))
             {
-                _multiStoreSettingHelper.AddOverrideKey(null, nameof(model.TaxSettings.DefaultTaxAddress));
+                _multiStoreSettingHelper.AddOverrideKey(taxSettings, nameof(model.TaxSettings.DefaultTaxAddress));
             }
 
             model.TaxSettings.DefaultTaxAddress.AvailableStates = stateProvinces.ToSelectListItems(defaultAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
@@ -1100,8 +1100,9 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        // INFO: do not use SaveSetting attribute here because it would delete a previously added default tax address if storeScope > 0.
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting]
+        [HttpPost, LoadSetting]
         public async Task<IActionResult> Finance(int storeScope, FinanceSettingsModel model, TaxSettings taxSettings, CurrencySettings currencySettings)
         {
             var form = Request.Form;
@@ -1120,12 +1121,13 @@ namespace Smartstore.Admin.Controllers
             {
                 // Skip to prevent the address from being recreated every time you save.
                 if (propertyName.EqualsNoCase(nameof(taxSettings.DefaultTaxAddressId)))
-                    return null;
+                    return string.Empty;
 
                 return propertyName;
             });
 
             // Special case DefaultTaxAddressId\DefaultTaxAddress.
+            var deleteAddressId = 0;
             if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(taxSettings, nameof(FinanceSettingsModel.TaxSettingsModel.DefaultTaxAddress), form))
             {
                 var addressId = await Services.Settings.SettingExistsAsync(taxSettings, x => x.DefaultTaxAddressId, storeScope) ? taxSettings.DefaultTaxAddressId : 0;
@@ -1146,11 +1148,12 @@ namespace Smartstore.Admin.Controllers
             }
             else
             {
-                _db.Addresses.Remove(taxSettings.DefaultTaxAddressId);
+                deleteAddressId = taxSettings.DefaultTaxAddressId;
                 await Services.Settings.RemoveSettingAsync(taxSettings, x => x.DefaultTaxAddressId, storeScope);
             }
 
             await _db.SaveChangesAsync();
+            await CheckToDeleteAddress(deleteAddressId, $"{nameof(TaxSettings)}.{nameof(TaxSettings.DefaultTaxAddressId)}");
 
             return NotifyAndRedirect(nameof(Finance));
         }
@@ -1246,7 +1249,7 @@ namespace Smartstore.Admin.Controllers
             // Shipping origin
             if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope))
             {
-                _multiStoreSettingHelper.AddOverrideKey(null, "ShippingOriginAddress");
+                _multiStoreSettingHelper.AddOverrideKey(settings, nameof(model.ShippingOriginAddress));
             }
 
             var originAddress = await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false);
@@ -1404,6 +1407,18 @@ namespace Smartstore.Admin.Controllers
                 SeoSettings.CreateCharConversionMap(settings.SeoNameCharConversion));
 
             return Content(result);
+        }
+
+        public async Task<IActionResult> ChangeStoreScopeConfiguration(int storeid, string returnUrl = "")
+        {
+            var store = Services.StoreContext.GetStoreById(storeid);
+            if (store != null || storeid == 0)
+            {
+                Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration = storeid;
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToReferrer(returnUrl, () => RedirectToAction("Index", "Home", new { area = "Admin" }));
         }
 
         private async Task<int> ApplyLocalizedFacetSettings(CommonFacetSettingsModel model, FacetGroupKind kind, int storeId = 0)
@@ -1591,16 +1606,18 @@ namespace Smartstore.Admin.Controllers
             return new SelectListItem { Text = value, Value = value };
         }
 
-        public async Task<IActionResult> ChangeStoreScopeConfiguration(int storeid, string returnUrl = "")
+        private async Task<bool> CheckToDeleteAddress(int addressId, string settingName)
         {
-            var store = Services.StoreContext.GetStoreById(storeid);
-            if (store != null || storeid == 0)
+            if (addressId != 0 &&
+                !await _db.Settings.AnyAsync(x => x.Value == addressId.ToStringInvariant() && x.Name == settingName))
             {
-                Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration = storeid;
+                // Address can be removed because it is not in use anymore.
+                _db.Addresses.Remove(addressId);
                 await _db.SaveChangesAsync();
+                return true;
             }
 
-            return RedirectToReferrer(returnUrl, () => RedirectToAction("Index", "Home", new { area = "Admin" }));
+            return false;
         }
     }
 }
