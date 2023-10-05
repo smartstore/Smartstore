@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Admin.Models.Common
@@ -83,7 +82,7 @@ namespace Smartstore.Admin.Models.Common
 
         public Dictionary<string, string> RoundOrderTotalPaymentMethods { get; set; } = new();
 
-        #endregion Rounding
+        #endregion
     }
 
     public class CurrencyLocalizedModel : ILocalizedLocaleModel
@@ -126,15 +125,5 @@ namespace Smartstore.Admin.Models.Common
                 .InclusiveBetween(0, 8)
                 .WithMessage(T("Admin.Configuration.Currencies.Fields.RoundOrderItemsEnabled.Validation"));
         }
-    }
-
-    [LocalizedDisplay("Admin.Configuration.Currencies.Fields.")]
-    public partial class CurrencyListModel
-    {
-        [LocalizedDisplay("*CurrencyRateAutoUpdateEnabled")]
-        public bool AutoUpdateEnabled { get; set; }
-
-        [LocalizedDisplay("*ExchangeRateProvider")]
-        public string ExchangeRateProvider { get; set; }
     }
 }

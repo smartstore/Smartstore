@@ -18,14 +18,14 @@ namespace Smartstore.Core.Common.Configuration
         public int PrimaryExchangeCurrencyId { get; set; }
 
         /// <summary>
-        /// Active exchange rate provider system name
-        /// </summary>
-        public string ActiveExchangeRateProviderSystemName { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to automatically update currency rates.
         /// </summary>
         public bool AutoUpdateEnabled { get; set; }
+
+        /// <summary>
+        /// Active exchange rate provider system name
+        /// </summary>
+        public string ActiveExchangeRateProviderSystemName { get; set; }
 
         #region Rounding
 
@@ -41,6 +41,7 @@ namespace Smartstore.Core.Common.Configuration
 
         /// <summary>
         /// Gets or sets a value indicating whether to round the unit price before or after quantity multiplication.
+        /// <c>true</c> to round before and <c>false</c> to round after quantity multiplication.
         /// </summary>
         public bool RoundUnitPrices { get; set; } = true;
 

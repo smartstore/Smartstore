@@ -5,7 +5,6 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
@@ -48,33 +47,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Currency.Read)]
         public IActionResult List()
         {
-            var model = new CurrencyListModel
-            {
-                AutoUpdateEnabled = _currencySettings.AutoUpdateEnabled
-            };
-
-            ViewBag.ExchangeRateProviders = Services.CurrencyService.LoadAllExchangeRateProviders()
-                .Select(x => new SelectListItem
-                {
-                    Text = _moduleManager.GetLocalizedFriendlyName(x.Metadata),
-                    Value = x.Metadata.SystemName,
-                    Selected = x.Metadata.SystemName.Equals(_currencySettings.ActiveExchangeRateProviderSystemName, StringComparison.InvariantCultureIgnoreCase)
-                })
-                .ToList();
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Update)]
-        public async Task<IActionResult> List(CurrencyListModel model)
-        {
-            _currencySettings.ActiveExchangeRateProviderSystemName = model.ExchangeRateProvider;
-            _currencySettings.AutoUpdateEnabled = model.AutoUpdateEnabled;
-
-            await _db.SaveChangesAsync();
-
-            return RedirectToAction(nameof(List));
+            return View();
         }
 
         [HttpPost]

@@ -8,10 +8,10 @@
 
     var roundOrderTotalDenominators = new List<SelectListItem>
     {
-        new SelectListItem { Text = 0.05.ToString("F"), Value = "0.05" },
-        new SelectListItem { Text = 0.10.ToString("F"), Value = "0.10" },
-        new SelectListItem { Text = 0.50.ToString("F"), Value = "0.50" },
-        new SelectListItem { Text = 1.00.ToString("F"), Value = "1.00" }
+        new() { Text = 0.05.ToString("F"), Value = "0.05" },
+        new() { Text = 0.10.ToString("F"), Value = "0.10" },
+        new() { Text = 0.50.ToString("F"), Value = "0.50" },
+        new() { Text = 1.00.ToString("F"), Value = "1.00" }
     };
 }
 
@@ -20,6 +20,7 @@
 
 <tabstrip id="currency-edit" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Admin.Common.Info")" sm-selected="true">
+
         @(Html.LocalizedEditor<Smartstore.Admin.Models.Common.CurrencyModel, CurrencyLocalizedModel>("currency-info-localized",
             @<div class="adminContent">
                 <div class="adminRow">
@@ -239,8 +240,7 @@
                     </div>
                 </div>
                 <div class="adminRow">
-                    <div class="adminTitle">
-                    </div>
+                    <div class="adminTitle"></div>
                     <div class="adminData">
                         @if (Model.RoundOrderTotalPaymentMethods.Any())
                         {
@@ -265,7 +265,8 @@
 <script sm-target-zone="scripts" data-origin="currency-edit">
     $(function () {
         $('#@(Html.IdFor(x => x.RoundOrderItemsEnabled))').change(function () {
-            $('#round-order-items').toggle($(this).val().toLowerCase() === 'true');
+            var val = $(this).val().toLowerCase();
+            $('#round-order-items').toggle(val === 'true');
         }).trigger('change');
 
         // Show custom formatting example.

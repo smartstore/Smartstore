@@ -73,6 +73,8 @@ namespace Smartstore.Core.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
+            #region Currency
+
             builder.AddOrUpdate("Enums.CurrencyMidpointRounding.ToEven",
                 "Banker's rounding (round midpoint to the nearest even number)",
                 "Mathematisches Runden (Mittelwert auf den nächstgelegenen geraden Betrag runden)");
@@ -104,8 +106,44 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.RoundUnitPrices",
                 "Round unit price",
                 "Einzelpreis runden",
-                "Specifies whether to round the product unit price before or after quantity multiplication during shopping cart calculation.",
-                "Legt fest, ob bei der Warenkorbberechnung der Einzelpreis eines Produktes vor oder nach der Mengenmultiplikation gerundet werden soll.");
+                "Specifies whether to round the product unit price before or after quantity multiplication during shopping cart calculation. If activated, rounding takes place before, otherwise after the quantity multiplication.",
+                "Legt fest, ob bei der Warenkorbberechnung der Einzelpreis eines Produktes vor oder nach der Mengenmultiplikation gerundet werden soll. Falls aktiviert wird vor, sonst nach der Mengenmultiplikation gerundet.");
+
+            builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.RoundOrderItemsEnabled",
+                "Round all order item amounts",
+                "Beträge aller Bestellpositionen runden",
+                "Specifies whether to round all order item amounts (products, tax, fees etc.). The currency settings will be applied if this setting is not specified.",
+                "Legt fest, ob die Beträge aller Bestellpositionen gerundet werden sollen (Produkte, Steuern, Gebühren etc.). Es werden die gleichnamigen Währungseinstellungen angewendet, sofern diese Einstellung nicht festgelegt ist.");
+
+            builder.AddOrUpdate("Admin.Configuration.Currencies.RoundOrderItemsNote",
+                "The <a href=\"{0}\" class=\"alert-link\">currency settings</a> of the same name will be applied unless settings for rounding order items are specified for this currency.",
+                "Es werden die gleichnamigen <a href=\"{0}\" class=\"alert-link\">Währungseinstellungen</a> angewendet, sofern bei dieser Währung keine Einstellungen zum Runden von Bestellpositionen festgelegt sind.");
+
+            #endregion
+
+            #region Currency settings
+
+            builder.Delete(
+                "Admin.Configuration.Currencies.Fields.ExchangeRateProvider",
+                "Admin.Configuration.Currencies.Fields.ExchangeRateProvider.Hint",
+                "Admin.Configuration.Currencies.Fields.CurrencyRateAutoUpdateEnabled",
+                "Admin.Configuration.Currencies.Fields.CurrencyRateAutoUpdateEnabled.Hint",
+                "Admin.Configuration.Settings.Tax"
+            );
+
+            builder.AddOrUpdate("Common.Finance", "Finance", "Finanzen");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Currency.ExchangeRateProvider",
+                "Online exchange rate service",
+                "Online Wechselkursdienst");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Currency.AutoUpdateEnabled",
+                "Automatically update exchange rates",
+                "Wechselkurse automatisch aktualisieren",
+                "Specifies whether exchange rates should be automatically updated via the associated scheduled task.",
+                "Legt fest, ob Wechselkurse über die zugehörige geplante Aufgabe automatisch aktualisiert werden sollen.");
+
+            #endregion
         }
     }
 }
