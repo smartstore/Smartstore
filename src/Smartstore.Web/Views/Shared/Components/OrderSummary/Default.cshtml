@@ -42,6 +42,22 @@
                             <div class="col-12">
                                 @if (Model.IsEditable)
                                 {
+                                    <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
+                                }
+
+                                <zone name="order_summary_totals_before" />
+
+                                <div id="order-totals">
+                                    @await Component.InvokeAsync("OrderTotals", new { isEditable = Model.IsEditable })
+                                </div>
+
+                                <zone name="order_summary_totals_after" />
+
+                                <hr class="mt-2 mb-3" />
+                            </div>
+                            <div class="col-12">
+                                @if (Model.IsEditable)
+                                {
                                     <zone name="order_summary_actions_before" />
 
                                     <partial name="_DiscountBox" model="Model.DiscountBox" />
@@ -57,22 +73,6 @@
                                         @Html.Raw(Model.CheckoutAttributeInfo)
                                     </div>
                                 }
-
-                                <hr class="my-2" />
-                            </div>
-                            <div class="col-12">
-                                @if (Model.IsEditable)
-                                {
-                                    <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
-                                }
-
-                                <zone name="order_summary_totals_before" />
-
-                                <div id="order-totals">
-                                    @await Component.InvokeAsync("OrderTotals", new { isEditable = Model.IsEditable })
-                                </div>
-
-                                <zone name="order_summary_totals_after" />
                             </div>
                             <div sm-if="Model.IsEditable" class="col-12 mt-3">
                                 <zone name="order_summary_buttons_before" />

@@ -24,9 +24,9 @@
         var deliveryPresentation = Model.DeliveryTimesPresentation;
                 
         <div class="cart-row">
-            <div class="row sm-gutters">
+            <div class="row x-sm-gutters">
                 @* Image *@
-                <div class="cart-item-img col-auto" sm-if="Model.ShowProductImages && item.Image != null && item.Image.HasImage()">
+                <div class="cart-item-img col-3" sm-if="Model.ShowProductImages && item.Image != null && item.Image.HasImage()">
                     <img sm-model="item.Image" class="img-fluid" />
                 </div>
 
@@ -134,18 +134,32 @@
 
                     <zone name="cartitem_desc_after" model="item.Id"></zone>
 
-                    <div class="cart-item-actions hstack flex-wrap gap-2 pt-2 d-none">
+                    <div class="cart-item-actions hstack flex-wrap gap-2 pt-3">
+                        <a sm-if="Model.IsEditable" class="btn btn-secondary btn-to-danger btn-sm btn-icon ajax-action-link"
+                           title="@T("Common.Remove")"
+                           href="#"
+                           rel="nofollow"
+                           data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
+                           data-name="@item.ProductName"
+                           data-type="cart"
+                           data-id="@item.Id"
+                           data-action="remove">
+                            <i class="far fa-trash-can"></i>
+                            <span class="d-none">@T("Common.Remove")</span>
+                        </a>
+
                         <div class="cart-item-qty">
                             @if (Model.IsEditable)
                             {
                                 @Html.EditorFor(x => item, "QtyInput", new
                                 {
+                                    size = ControlSize.Small,
                                     htmlAttributes = new
                                     {
-                                        data_href= Url.Action("UpdateCartItem", "ShoppingCart", new { sciItemId = item.Id, isCartPage = true }),
+                                        data_href = Url.Action("UpdateCartItem", "ShoppingCart", new { sciItemId = item.Id, isCartPage = true }),
                                         data_sci_item = item.Id,
                                         id = $"itemquantity{item.Id}",
-                                        Name = $"itemquantity{item.Id}"
+                                        name = $"itemquantity{item.Id}"
                                     }
                                 })
 
@@ -166,20 +180,8 @@
                             }
                         </div>
 
-
-                        <a sm-if="Model.IsEditable" class="btn btn-secondary btn-to-danger ajax-action-link"
-                           href="#"
-                           rel="nofollow"
-                           data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
-                           data-name="@item.ProductName"
-                           data-type="cart"
-                           data-id="@item.Id"
-                           data-action="remove">
-                            <i class="far fa-trash-can"></i>
-                            <span>@T("Common.Remove")</span>
-                        </a>
-
-                        <a sm-if="Model.IsEditable && Model.DisplayMoveToWishlistButton && !item.DisableWishlistButton" class="btn btn-secondary ajax-action-link"
+                        <a sm-if="Model.IsEditable && Model.DisplayMoveToWishlistButton && !item.DisableWishlistButton" class="btn btn-secondary btn-sm ajax-action-link"
+                           title="@T("ShoppingCart.MoveToWishlist")"
                            href="#"
                            rel="nofollow"
                            data-href='@Url.Action("MoveItemBetweenCartAndWishlist", "ShoppingCart", new { cartItemId = item.Id, cartType = ShoppingCartType.ShoppingCart, isCartPage = true })'
@@ -187,62 +189,9 @@
                            data-type="wishlist"
                            data-action="addfromcart">
                             <i class="fal fa-heart"></i>
-                            <span>@T("ShoppingCart.MoveToWishlist")</span>
+                            <span class="d-none d-md-inline fwn">@T("ShoppingCart.MoveToWishlist")</span>
                         </a>
                     </div>
-                </div>
-            </div>
-
-            <div sm-if="Model.IsEditable" class="cart-item-footer pt-3 row sm-gutters">
-                <div class="cart-item-img col-auto">
-                    <div class="cart-item-qty">
-                        @Html.EditorFor(x => item, "QtyInput", new
-                        {
-                            htmlAttributes = new
-                            {
-                                data_href= Url.Action("UpdateCartItem", "ShoppingCart", new { sciItemId = item.Id, isCartPage = true }),
-                                data_sci_item = item.Id,
-                                id = $"itemquantity{item.Id}",
-                                Name = $"itemquantity{item.Id}"
-                            }
-                        })
-
-                        <span class="field-validation-valid" data-valmsg-for="itemquantity@(item.Id)" data-valmsg-replace="true"></span>
-
-                        <script>
-                            $(function () {
-                                // Disable incorrect jquery validation of the step attribute for quantity inputs.
-                                setTimeout(function () {
-                                    $('#itemquantity@(item.Id)').rules('add', { step: 1 });
-                                }, 10);
-                            });
-                        </script>
-                    </div>
-                </div>
-
-                <div class="cart-item-actions col hstack gap-1">
-                    <a class="btn btn-secondary btn-to-danger ajax-action-link gap-1"
-                       href="#"
-                       rel="nofollow"
-                       data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
-                       data-name="@item.ProductName"
-                       data-type="cart"
-                       data-id="@item.Id"
-                       data-action="remove">
-                        <i class="far fa-fw fa-trash-can"></i>
-                        <span class="d-none d-sm-inline">@T("Common.Remove")</span>
-                    </a>
-
-                    <a sm-if="Model.DisplayMoveToWishlistButton && !item.DisableWishlistButton" class="btn btn-secondary ajax-action-link gap-1"
-                       href="#"
-                       rel="nofollow"
-                       data-href='@Url.Action("MoveItemBetweenCartAndWishlist", "ShoppingCart", new { cartItemId = item.Id, cartType = ShoppingCartType.ShoppingCart, isCartPage = true })'
-                       data-name="@item.ProductName"
-                       data-type="wishlist"
-                       data-action="addfromcart">
-                        <i class="fal fa-fw fa-heart"></i>
-                        <span class="d-none d-sm-inline">@T("ShoppingCart.MoveToWishlist")</span>
-                    </a>
                 </div>
             </div>
         </div>
@@ -255,14 +204,14 @@
             <div class="cart-row cart-row-child">
                 <div class="row sm-gutters">
                     @* Spacer *@
-                    <div class="cart-item-img col-auto">&nbsp;</div>
+                    <div class="cart-item-img col-3 d-none d-md-flex d-lg-none d-xl-flex">&nbsp;</div>
 
                     @* Data *@
                     <div class="cart-item-data col">
                         <div class="cart-item-title">
                             @if (Model.ShowProductBundleImages)
                             {
-                                <span class="mr-1" style="width:@Math.Min(Model.BundleThumbSize, 60)px;">
+                                <span class="cart-item-bundle-img mr-2" style="width: @Math.Min(Model.BundleThumbSize, 60)px;">
                                     @if (item.Image != null && item.Image.HasImage() && !item.BundleItem.HideThumbnail)
                                     {
                                         <img sm-model="item.Image" class="img-fluid" />
