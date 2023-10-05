@@ -30,6 +30,7 @@
   - Made components *rounder* by slightly increasing border-radius variables
   - Revamped product listing action bar styling (sorting, view mode, pagination)
   - On screens < md, the offcanvas window for product filter slides in from bottom and also provides the sorting options
+  - Revamped offcanvas main menu
   - Revamped image gallery styling
   - Fixed Slick slider dotted navigation responsiveness issues
   - Slightly improved InstantSearch box
