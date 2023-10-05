@@ -453,6 +453,7 @@ namespace Smartstore.PayPal.Controllers
 
                 case "declined":
                     order.CaptureTransactionResult = status;
+                    order.PaymentStatus = PaymentStatus.Voided;
                     await _orderProcessingService.CancelOrderAsync(order, true);
                     break;
 
