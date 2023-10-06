@@ -881,16 +881,16 @@ namespace Smartstore.Core.Checkout.Orders
                 {
                     var item = cartItem.Item;
 
-                    if (_shippingSettings.ChargeOnlyHighestProductShippingSurcharge)
+                    if (item.IsShippingEnabled && !item.IsFreeShipping && item.Product != null)
                     {
-                        if (charge < item.Product.AdditionalShippingCharge)
+                        if (_shippingSettings.ChargeOnlyHighestProductShippingSurcharge)
                         {
-                            charge = item.Product.AdditionalShippingCharge;
+                            if (charge < item.Product.AdditionalShippingCharge)
+                            {
+                                charge = item.Product.AdditionalShippingCharge;
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (item.IsShippingEnabled && !item.IsFreeShipping && item.Product != null)
+                        else
                         {
                             if (item.Product.ProductType == ProductType.BundledProduct && item.Product.BundlePerItemShipping)
                             {

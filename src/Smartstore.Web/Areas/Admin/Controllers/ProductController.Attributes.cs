@@ -647,7 +647,11 @@ namespace Smartstore.Admin.Controllers
                 var pvacModel = await mapper.MapAsync(x);
                 pvacModel.ProductId = product.Id;
                 pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductPathAsync(product.Id, productSlug, x.AttributeSelection);
-                pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(x.AttributeSelection, product, customer, "<br />", false, includeHyperlinks: false);
+                pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(
+                    x.AttributeSelection, 
+                    product,
+                    new ProductAttributeFormatOptions { HtmlEncode = false, IncludeHyperlinks = false },
+                    customer);
 
                 return pvacModel;
             })
@@ -970,9 +974,8 @@ namespace Smartstore.Admin.Controllers
                     model.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(
                         entity.AttributeSelection,
                         product,
-                        _workContext.CurrentCustomer,
-                        "<br />",
-                        includeHyperlinks: false);
+                        new ProductAttributeFormatOptions { IncludeHyperlinks = false },
+                        _workContext.CurrentCustomer);
                 }
             }
             else

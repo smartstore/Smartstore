@@ -42,7 +42,8 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             if (context.Product == childProduct)
             {
-                throw new InvalidOperationException("The product of a nested calculation pipeline cannot be the same as that of the root pipeline. It would result in a deadlock.");
+                throw new InvalidOperationException("The product of a nested calculation pipeline cannot be the same as that of the root pipeline. It would result in a deadlock."
+                    + $" Please fix product with ID {context.Product.Id}.");
             }
 
             var childCalculatorContext = new CalculatorContext(context, childProduct.Price)

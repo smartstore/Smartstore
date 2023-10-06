@@ -32,7 +32,7 @@
             </button>
         </toolbar-group>
     </toolbar>
-    <search-panel>
+    <search-panel preserve-state="parentModel.EntityName.IsEmpty() && parentModel.EntityId == null">
         <partial name="_Grid.UrlRecords.Search" model="parentModel" />
     </search-panel>
     <columns>

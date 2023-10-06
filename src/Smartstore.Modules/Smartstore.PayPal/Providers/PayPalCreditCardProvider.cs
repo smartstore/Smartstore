@@ -15,18 +15,14 @@ namespace Smartstore.PayPal.Providers
     [Order(1)]
     public class PayPalCreditCardProvider : PayPalProviderBase
     {
-        private readonly IValidator<PublicCreditCardModel> _validator;
-
         public PayPalCreditCardProvider(
             SmartDbContext db, 
             PayPalHttpClient client, 
             PayPalSettings settings,
             IPaymentService paymentService,
-            ICheckoutStateAccessor checkoutStateAccessor,
-            IValidator<PublicCreditCardModel> validator)
+            ICheckoutStateAccessor checkoutStateAccessor)
             : base(db, client, settings, paymentService, checkoutStateAccessor)
         {
-            _validator = validator;
         }
 
         public override Widget GetPaymentInfoWidget()
@@ -35,17 +31,6 @@ namespace Smartstore.PayPal.Providers
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         public override bool RequiresInteraction => true;
-
-        public override async Task<PaymentValidationResult> ValidatePaymentDataAsync(IFormCollection form)
-        {
-            var model = new PublicCreditCardModel
-            {
-                CardholderName = form["CardholderName"]
-            };
-
-            var result = await _validator.ValidateAsync(model);
-            return new PaymentValidationResult(result);
-        }
 
         public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
         {

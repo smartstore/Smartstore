@@ -221,15 +221,6 @@
                 return;
             }
 
-            if (Modernizr.touchevents && !sel.hasClass("skin") && !sel.data("select-url")) {
-                if (sel.find('option[data-color], option[data-imageurl]').length === 0
-                    || (sel.data("tags") && window.document.documentElement.classList.contains("mobile-device"))) {
-                    // Skip skinning if device is mobile and no rich content exists (color & image)
-                    // or if device is mobile and no data tags exist.
-                    return;
-                }
-            }
-
             var placeholder = getPlaceholder();
 
             // following code only applicable to select boxes (not input:hidden)
@@ -253,6 +244,15 @@
                 // use first option text as placeholder
                 placeholder = firstOption.text();
                 firstOption.text("");
+            }
+
+            if (Modernizr.touchevents && !sel.hasClass("skin") && !sel.data("select-url")) {
+                if (sel.find('option[data-color], option[data-imageurl]').length === 0
+                    || (sel.data("tags") && window.document.documentElement.classList.contains("mobile-device"))) {
+                    // Skip skinning if device is mobile and no rich content exists (color & image)
+                    // or if device is mobile and no data tags exist.
+                    return;
+                }
             }
 
             function attr(name, value) {

@@ -426,7 +426,7 @@ namespace Smartstore.Core.Seo
 
         private async Task<string> BuildBaseUrlAsync(Store store, Language language)
         {
-            var host = _services.StoreContext.CurrentStore.GetBaseUrl();
+            var host = store.GetBaseUrl();
 
             var localizationSettings = await _services.SettingFactory.LoadSettingsAsync<LocalizationSettings>(store.Id);
             if (localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)

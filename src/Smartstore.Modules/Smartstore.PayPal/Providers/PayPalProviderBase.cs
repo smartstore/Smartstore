@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
-using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
-using Smartstore.PayPal.Controllers;
 
 namespace Smartstore.PayPal.Providers
 {

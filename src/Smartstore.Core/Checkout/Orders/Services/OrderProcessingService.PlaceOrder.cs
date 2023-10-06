@@ -685,7 +685,12 @@ namespace Smartstore.Core.Checkout.Orders
 
                     await _productAttributeMaterializer.MergeWithCombinationAsync(product, item.AttributeSelection);
 
-                    var attributeDescription = await _productAttributeFormatter.FormatAttributesAsync(item.AttributeSelection, product, ctx.Customer);
+                    var attributeDescription = await _productAttributeFormatter.FormatAttributesAsync(
+                        item.AttributeSelection, 
+                        product,
+                        ProductAttributeFormatOptions.Default,
+                        ctx.Customer);
+
                     var itemWeight = await _shippingService.GetCartItemWeightAsync(cartItem, false);
                     var displayDeliveryTime =
                         _shoppingCartSettings.DeliveryTimesInShoppingCart != DeliveryTimesPresentation.None &&
@@ -742,9 +747,8 @@ namespace Smartstore.Core.Checkout.Orders
                             var attributesInfo = await _productAttributeFormatter.FormatAttributesAsync(
                                 childItem.Item.AttributeSelection,
                                 childItem.Item.Product,
-                                ctx.Customer,
-                                includePrices: false,
-                                includeHyperlinks: true);
+                                new ProductAttributeFormatOptions { IncludePrices = false },
+                                ctx.Customer);
 
                             var bundleItemData = childItem.Item.BundleItem.ToOrderData(childSubtotal.FinalPrice.Amount, childItem.Item.RawAttributes, attributesInfo);
                             if (bundleItemData != null)

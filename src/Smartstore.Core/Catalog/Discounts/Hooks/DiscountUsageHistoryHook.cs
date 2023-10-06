@@ -18,7 +18,7 @@ namespace Smartstore.Core.Catalog.Discounts
 
         public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            _requestCache.RemoveByPattern(DiscountService.DISCOUNTS_PATTERN_KEY);
+            _requestCache.RemoveByPattern(DiscountService.DiscountsPatternKey);
 
             return Task.CompletedTask;
         }

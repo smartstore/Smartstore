@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -454,7 +453,8 @@ namespace Smartstore.PayPal.Controllers
 
                 case "declined":
                     order.CaptureTransactionResult = status;
-                    order.OrderStatus = OrderStatus.Cancelled;
+                    order.PaymentStatus = PaymentStatus.Voided;
+                    await _orderProcessingService.CancelOrderAsync(order, true);
                     break;
 
                 case "refunded":

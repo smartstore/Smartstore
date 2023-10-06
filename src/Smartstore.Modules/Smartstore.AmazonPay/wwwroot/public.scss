@@ -8,3 +8,12 @@
         width: 100%;
     }
 }
+
+.addon-buttons {
+    .cnt-amazonpay-button {
+        margin: 0 !important;
+        #amazonpay-button {
+            margin: auto;
+        }
+    }
+}

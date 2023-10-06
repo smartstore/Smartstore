@@ -4,14 +4,30 @@ using Smartstore.Core.Identity;
 namespace Smartstore.Core.Catalog.Attributes
 {
     /// <summary>
-    /// Product attribute formatter.
+    /// Product attribute formatter interface.
     /// </summary>
     public partial interface IProductAttributeFormatter
     {
         /// <summary>
         /// Formats product and gift card attributes.
         /// </summary>
-        /// <param name="attributes">Attribute selection.</param>
+        /// <param name="selection">Attribute selection.</param>
+        /// <param name="product">Product entity.</param>
+        /// <param name="options">Formatting options.</param>
+        /// <param name="customer">Customer entity. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
+        /// <param name="batchContext">The product batch context. For example used to load all products of a shopping cart in one go. Will be created internally if <c>null</c>.</param>
+        /// <returns>Formatted attributes.</returns>
+        Task<string> FormatAttributesAsync(
+            ProductVariantAttributeSelection selection,
+            Product product,
+            ProductAttributeFormatOptions options,
+            Customer customer = null,
+            ProductBatchContext batchContext = null);
+
+        /// <summary>
+        /// Formats product and gift card attributes.
+        /// </summary>
+        /// <param name="selection">Attribute selection.</param>
         /// <param name="product">Product entity.</param>
         /// <param name="customer">Customer entity. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="separator">Separator between the formatted attributes.</param>
@@ -22,8 +38,10 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="includeHyperlinks">A value indicating whether to include HTML hyperlinks.</param>
         /// <param name="batchContext">The product batch context. For example used to load all products of a shopping cart in one go. Will be created internally if <c>null</c>.</param>
         /// <returns>Formatted attributes.</returns>
+        /// <remarks>This method will be removed in a future release.</remarks>
+        [Obsolete("Call FormatAttributesAsync() overload with ProductAttributeFormatOptions parameter instead.")]
         Task<string> FormatAttributesAsync(
-            ProductVariantAttributeSelection attributes,
+            ProductVariantAttributeSelection selection,
             Product product,
             Customer customer = null,
             string separator = "<br />",

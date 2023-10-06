@@ -68,6 +68,7 @@ namespace Smartstore.Admin.Models.Catalog
         public List<ManufacturerLocalizedModel> Locales { get; set; } = new();
 
         public string EditUrl { get; set; }
+        public string ManufacturerUrl { get; set; }
 
         // ACL.
         [UIHint("CustomerRoles")]

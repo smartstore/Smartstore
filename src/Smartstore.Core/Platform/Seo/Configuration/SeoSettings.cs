@@ -126,6 +126,7 @@ namespace Smartstore.Core.Seo
 
         public List<string> ExtraRobotsDisallows { get; set; }
         public List<string> ExtraRobotsAllows { get; set; }
+        public string ExtraRobotsLines { get; set; }
 
         /// <summary>
         /// A value indicating whether to load all URL records and active slugs on application startup

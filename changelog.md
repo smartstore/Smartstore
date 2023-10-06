@@ -30,6 +30,7 @@
   - Made components *rounder* by slightly increasing border-radius variables
   - Revamped product listing action bar styling (sorting, view mode, pagination)
   - On screens < md, the offcanvas window for product filter slides in from bottom and also provides the sorting options
+  - Revamped offcanvas main menu
   - Revamped image gallery styling
   - Fixed Slick slider dotted navigation responsiveness issues
   - Slightly improved InstantSearch box
@@ -75,19 +76,23 @@
 - #807 Enable absolute Paths for DataExchangeSettings.ImageImportFolder.
 - #786 Replace TripleDatePicker with native input type date.
 - #804 Implemented the new TrustBadge integration mode, including new settings for positioning, color scheme, etc. 
-- #819 Fix zoom on product detail page when there is a large right column 
+- #819 Fix zoom on product detail page when there is a large right column.
+- PayPal credit card: Removed address fields and integrated Strong Customer Authentication (SCA) instead.
 
 ### Bugfixes
 
-- Fixed do not show tax info in product lists if the product is tax exempt.
 - Price calculation:
   - Rounding differences between the subtotal and the sum of the line totals.
   - Manufacturer discount is ignored as soon as an attribute with a linked product is selected.
+- Product lists:
+  - Fixed do not show tax info in product lists if the product is tax exempt.
+  - Fixed call for price note not displayed in product lists.
 - MegaSearch:
   - Fixed incorrect search results when a multistore has different default languages configured.
   - Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
   - Fixed discounts assigned to categories and limited to customer roles should be excluded from indexing and indexed prices.
 - Fixed the category navigation no longer shows the number of contained products after reindexing.
+- Fixed products associated to a grouped product cannot be deleted via associated products grid.
 - Fixed not yet awarded reward points were reduced when an order was deleted.
 - Checkout attributes:
   - Fixed wrong tax was applied to checkout attributes in checkout.
@@ -113,9 +118,11 @@
 - #810 Doubleclicking login button can lead to 400 BadRequest error page.
 - Fixed arithmetic overflow SqlException in `ShippingByWeight` and `ShippingByTotal` four decimal places migrations.
 - #776 PayPal credit card payment fails due to missing session PayPalOrderId entry.
-- #797 Incorrect validation when product can be added to the cart in single positions
-- Manufacturer pictures were not displayed on product detail pages
+- #797 Incorrect validation when product can be added to the cart in single positions.
+- Manufacturer pictures were not displayed on product detail pages.
 - #828 Queued email identifier is 0 for order completed email.
+- #873 Category preview may show 404 page if the category is limited to a certain store.
+- Do not fallback to "Product is not available" delivery info on product detail page if the product is available.
 
 
 

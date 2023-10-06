@@ -23,8 +23,20 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.UrlRecord.Read)]
-        public async Task<IActionResult> List(string entityName, int? entityId)
+        public IActionResult Index(string entityName, int? entityId)
         {
+            TempData["entityName"] = entityName;
+            TempData["entityId"] = entityId;
+
+            return RedirectToAction(nameof(List));
+        }
+
+        [Permission(Permissions.System.UrlRecord.Read)]
+        public async Task<IActionResult> List()
+        {
+            TempData.TryGetValueAs<string>("entityName", out var entityName);
+            TempData.TryGetAndConvertValue<int?>("entityId", out var entityId);
+
             var model = new UrlRecordListModel
             {
                 EntityName = entityName,
@@ -85,7 +97,6 @@ namespace Smartstore.Admin.Controllers
 
                     model.SlugsPerEntity = slugsPerEntity.ContainsKey(x.Id) ? slugsPerEntity[x.Id] : 0;
                     model.EditUrl = Url.Action(nameof(Edit), "UrlRecord", new { id = x.Id });
-                    model.FilterUrl = Url.Action(nameof(List), "UrlRecord", new { entityName = x.EntityName, entityId = x.EntityId });
 
                     return model;
                 })

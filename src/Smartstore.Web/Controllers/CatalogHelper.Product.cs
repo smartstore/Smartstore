@@ -702,11 +702,8 @@ namespace Smartstore.Web.Controllers
                 model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
                     modelContext.SelectedAttributes,
                     product,
-                    modelContext.Customer,
-                    separator: ", ",
-                    includePrices: false,
-                    includeGiftCardAttributes: false,
-                    includeHyperlinks: false);
+                    ProductAttributeFormatOptions.PlainText,
+                    modelContext.Customer);
             }
 
             model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, modelContext.SelectedAttributes);
@@ -930,7 +927,7 @@ namespace Smartstore.Web.Controllers
             model.DeliveryTimesPresentation = deliveryPresentation;
             model.DisplayDeliveryTimeAccordingToStock = product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
 
-            if (model.DeliveryTimeName.IsEmpty() && deliveryPresentation != DeliveryTimesPresentation.None)
+            if (!model.IsAvailable && model.DeliveryTimeName.IsEmpty() && deliveryPresentation != DeliveryTimesPresentation.None)
             {
                 model.DeliveryTimeName = T("ShoppingCart.NotAvailable");
             }

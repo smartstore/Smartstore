@@ -6,33 +6,41 @@
 ; (function ($, window, document, undefined) {
 
     var viewport = ResponsiveBootstrapToolkit;
+    let breakpoints = ['xxl', 'xl', 'lg', 'md', 'sm', 'xs'];
 
     // OFFCANVAS PUBLIC CLASS DEFINITION
     // ======================================================
 
-    var OffCanvas = function (element, options) {
+    var OffCanvas = function (element, opts) {
         let self = this;
-
-        let el = this.el = $(element);
-        this.options = $.extend({}, OffCanvas.defaults, options);
+        
+        this.el = $(element);
+        this.options = opts;
         this.canvas = $(this.options.canvas || '.wrapper');
         this.state = null;
 
-        // Placement stuff
-        let placement = this.options.placement || 'start';
+        // Normalize placement option
+        let placement = this.options.placement || { xs: "start" };
         if (_.isString(placement)) {
-            this.options.placement = {
-                xs: placement,
-                // TODO: make dynamic...
-                sm: placement,
-                md: placement,
-                lg: placement,
-                xl: placement,
-                xxl: placement
+            placement = placement.trim();
+            if (placement[0] == '{') {
+                placement = JSON.parse(placement);
+            }
+            else {
+                placement = { xs: placement };
             }
         }
 
-        //this.el.addClass('offcanvas-' + this._getPlacement());
+        // Reassign normalized placement option
+        this.options.placement = placement;
+
+        // Remove accidentally set placement classes.
+        // Adding the .no-anims class is very important here, 
+        // otherwise the offcanvas will take time to reposition because of the transition
+        this.el.addClass('no-anims').removeClass('offcanvas-start offcanvas-end offcanvas-top offcanvas-bottom');
+
+        // Determine and remember current placement
+        this._refreshPlacement();
 
         if (this.options.fullscreen) {
             this.el.addClass('offcanvas-fullscreen');
@@ -42,7 +50,7 @@
             this.el.addClass('offcanvas-lg');
         }
 
-        if (this.options.disablescrolling) {
+        if (_.isBoolean(this.options.disablescrolling)) {
             this.options.disableScrolling = this.options.disablescrolling;
             delete this.options.disablescrolling;
         }
@@ -51,25 +59,21 @@
             var _hide = _.throttle(function () {
                 self.hide();
             }, 250);
-            $(window).on('resize', _hide);
+            $(window).on('resize', _hide); 
         }
         else {
             EventBroker.subscribe("page.resized", function (msg, viewport) {
                 if (viewport.is('>sm')) {
                     self.hide();
                 }
-                else {
-                    // TODO: change placement...
-                }
+
+                // Change current placement
+                self._refreshPlacement();
             });
         }
 
         if (this.options.autohide) {
             $('body, .canvas-blocker').on('click', $.proxy(this.autohide, this));
-        }
-
-        if (this.options.toggle) {
-            this.toggle();
         }
                 
         $(window).on('popstate', function (event) {
@@ -85,8 +89,18 @@
             }
         });
 
-        // Set up events to properly handle (touch) gestures
-        this._makeTouchy();
+        requestAnimationFrame(() => {
+            // Animations are allowed from here on
+            this.el.removeClass("no-anims");
+
+            // Toggle
+            if (this.options.toggle) {
+                this.toggle();
+            }
+
+            // Set up events to properly handle (touch) gestures
+            this._makeTouchy();
+        });
     }
 
 
@@ -109,52 +123,99 @@
     // OFFCANVAS internal
     // ======================================================
 
-    OffCanvas.prototype._getPlacement = function () {
-        let currentBreakpoint = viewport.current();
-        let placement = this.options.placement[currentBreakpoint];
-        console.log(currentBreakpoint, placement);
-        if (!placement) {
-            let breakpoints = ['xxl', 'xl', 'lg', 'md', 'sm', 'xs'];
-            // TODO: continue...
+    OffCanvas.prototype._refreshPlacement = function () {
+        let placement = this._getPlacement();
+
+        if (placement == this.currentPlacement) {
+            // Nothing to change
+            return;
         }
 
-        return placement || 'start';
+        if (this.currentPlacement) {
+            // Remove previous placement class if any
+            this.el.removeClass('offcanvas-' + this.currentPlacement);
+        }
+
+        this.currentPlacement = placement;
+        this.el.addClass('offcanvas-' + placement);
+    }
+
+    OffCanvas.prototype._getPlacement = function () {
+        let currentBreakpoint = viewport.current();
+        let index = breakpoints.indexOf(currentBreakpoint);
+        let placement;
+
+        while (!placement) {
+            if (index >= breakpoints.length) {
+                break;
+            }
+
+            placement = this.options.placement[breakpoints[index]];
+            if (placement) {
+                break;
+            }
+
+            index++;
+        }
+
+        if (!placement) {
+            // Fix lowest tier
+            this.options.placement.xs = placement = 'start';
+        }
+
+        return placement;
     }
 
     OffCanvas.prototype._makeTouchy = function (fn) {
         let self = this;
         let el = this.el;
-        let rtl = Smartstore.globalization.culture.isRTL;
 
-        // Move offcanvas on pan[left|right] and close on swipe
-        var onRight = (el.hasClass('offcanvas-end') && !rtl) || (el.hasClass('offcanvas-start') && rtl),
-            canPan = true,
+        // Move offcanvas on pan[left|right|top|bottom] and close on swipe
+        let panDir = '', // Always resolve on tapstart
             panning = false,
             scrolling = false,
             nodeScrollable = null;
 
+        function getPanDirection() {
+            let rtl = Smartstore.globalization.culture.isRTL;
+            switch (self.currentPlacement) {
+                case 'top': return 'up';
+                case 'bottom': return 'down';
+                case 'start': return (rtl ? 'right' : 'left');
+                case 'end': return (rtl ? 'left' : 'right');
+            }
+        }
+
         function getDelta(g) {
-            return onRight
-                ? Math.max(0, g.delta.x)
-                : Math.min(0, g.delta.x);
+            switch (panDir) {
+                case 'left': return Math.min(0, g.delta.x);
+                case 'right': return Math.max(0, g.delta.x);
+                case 'up': return Math.min(0, g.delta.y);
+                case 'down': return Math.max(0, g.delta.y);
+            }
         }
 
         function isScrolling(e, g) {
-            if (nodeScrollable === null || nodeScrollable.length === 0)
+            if (nodeScrollable === null || nodeScrollable.length === 0) {
                 return false;
+            }
 
-            var initialScrollDelta = nodeScrollable.data('initial-scroll-top');
-            if (!_.isNumber(initialScrollDelta))
+            let scrollDeltaOnTapStart = nodeScrollable.data('initial-scroll-top');
+            let currentScrollTop = nodeScrollable.scrollTop();
+
+            if (!_.isNumber(scrollDeltaOnTapStart)) {
                 return false;
-
-            return nodeScrollable.scrollTop() != initialScrollDelta;
+            }  
+            
+            return currentScrollTop != scrollDeltaOnTapStart;
         }
 
         function handleMove(e, g) {
-            // when scrolling started, do NOT attempt to pan left/right.
-            if (scrolling || (scrolling = isScrolling(e, g)))
+            // when inner scrolling started, do NOT attempt to pan.
+            if (scrolling || (scrolling = isScrolling(e, g))) {
                 return;
-
+            }
+            
             var delta = getDelta(g);
             panning = !scrolling && delta != 0;
 
@@ -162,7 +223,8 @@
                 // prevent scrolling during panning
                 e.preventDefault();
 
-                $(e.currentTarget).css(Prefixer.css('transform'), 'translate3d(' + delta + 'px, 0, 0)');
+                const transformName = (panDir == 'left' || panDir == 'right') ? 'translateX' : 'translateY';
+                $(e.currentTarget).css('transform', transformName + '(' + delta + 'px)');
             }
             else {
                 if (nodeScrollable !== null && nodeScrollable.length > 0) {
@@ -178,45 +240,52 @@
             }
         }
 
-        el.on('tapstart', function (e, gesture) {
-            if (canPan) {
-                // Special handling for horizontally scrollable stacks
-                var hstack = $(e.target).closest('.offcanvas-hstack');
-                if (hstack.length > 0) {
-                    // Let hstack scroll, don't move offcanvas.
+        el.on('tapstart.offcanvas', function (e, gesture) {
+            panDir = getPanDirection();
+
+            // Special handling for horizontally scrollable stacks
+            let hstack = $(e.target).closest('.offcanvas-hstack');
+            if (hstack.length > 0) {
+                // Let hstack scroll, don't move offcanvas.
+                scrolling = true;
+                return;
+            }
+
+            // Special handling for tabs
+            var tabs = $(e.target).closest('.offcanvas-tabs');
+            if (tabs.length > 0) {
+                var tabsWidth = 0;
+                var cntWidth = el.width();
+                tabs.find('.nav-item').each(function () { tabsWidth += $(this).width(); });
+                if (tabsWidth > cntWidth) {
+                    // Header tabs width exceed offcanvas width. Let it scroll, don't move offcanvas.
+                    scrolling = true;
+                    return;
+                }
+            }
+
+            nodeScrollable = $(e.target).closest('.offcanvas-scrollable');
+            if (nodeScrollable.length > 0) {
+                if (panDir == 'up' || panDir == 'down') {
+                    // Better not to mess around with deltas if offcanvas is vertical.
+                    // Just don't allow swipe close in this case.
                     scrolling = true;
                     return;
                 }
 
-                // Special handling for tabs
-                var tabs = $(e.target).closest('.offcanvas-tabs');
-                if (tabs.length > 0) {
-                    var tabsWidth = 0;
-                    var cntWidth = el.width();
-                    tabs.find('.nav-item').each(function () { tabsWidth += $(this).width(); });
-                    if (tabsWidth > cntWidth) {
-                        // Header tabs width exceed offcanvas width. Let it scroll, don't move offcanvas.
-                        scrolling = true;
-                        return;
-                    }
-                }
-
-                nodeScrollable = $(e.target).closest('.offcanvas-scrollable');
-                if (nodeScrollable.length > 0) {
-                    nodeScrollable.data('initial-scroll-top', nodeScrollable.scrollTop());
-                }
-
-                $(".select2-hidden-accessible", el).select2("close");
-
-                el.css(Prefixer.css('transition'), 'none');
-                el.on('tapmove.offcanvas', handleMove);
+                nodeScrollable.data('initial-scroll-top', nodeScrollable.scrollTop());
             }
+
+            $(".select2-hidden-accessible", el).select2("close");
+
+            el.css('transition', 'none');
+            el.on('tapmove.offcanvas', handleMove);
         });
 
-        el.on('tapend', function (e, gesture) {
+        el.on('tapend.offcanvas', function (e, gesture) {
             el.off('tapmove.offcanvas')
-                .css(Prefixer.css('transform'), '')
-                .css(Prefixer.css('transition'), '');
+                .css('transform', '')
+                .css('transition', '');
 
             if (!scrolling && Math.abs(getDelta(gesture)) >= 100) {
                 self.hide();
@@ -237,16 +306,10 @@
 
         let body = $('body');
         let self = this;
-        let placement = this._getPlacement();
 
         var startEvent = $.Event('show.sm.offcanvas');
         this.el.trigger(startEvent);
         if (startEvent.isDefaultPrevented()) return;
-
-        // TODO: make dynamic...
-        this.el
-            .removeClass('offcanvas-start offcanvas-end offcanvas-top offcanvas-bottom')
-            .addClass('offcanvas-' + placement);
 
         this.state = 'slide-in';
 
@@ -268,10 +331,10 @@
         });
 
         body.addClass('canvas-sliding canvas-sliding-'
-            + (placement)
+            + (this.currentPlacement)
             + (this.options.fullscreen ? ' canvas-fullscreen' : ''));
 
-        this.el.addClass("on").one(Prefixer.event.transitionEnd, function (e) {
+        this.el.addClass("show").one(Prefixer.event.transitionEnd, function (e) {
             if (self.state !== 'slide-in') return;
             body.addClass('canvas-slid');
             self.state = 'slid';
@@ -302,7 +365,7 @@
         body.addClass('canvas-sliding-out');
         body.removeClass('canvas-blocking canvas-noscroll canvas-slid canvas-sliding canvas-sliding-start canvas-sliding-end canvas-sliding-top canvas-sliding-bottom canvas-lg canvas-fullscreen');
 
-        this.el.removeClass("on").one(Prefixer.event.transitionEnd, function (e) {
+        this.el.removeClass("show").one(Prefixer.event.transitionEnd, function (e) {
             if (self.state !== 'slide-out') return;
 
             body.removeClass('canvas-sliding-out');
@@ -334,7 +397,7 @@
 
     $.fn.offcanvas = function (option) {
         return this.each(function () {
-            var self = $(this),
+            let self = $(this),
                 data = self.data('sm.offcanvas'),
                 options = $.extend({}, OffCanvas.defaults, self.data(), typeof option === 'object' && option);
 

@@ -16,3 +16,10 @@
         width: 200px !important;
     }
 }
+
+.addon-buttons {
+    .paypal-button-container .paypal-buttons {
+        width: 100% !important;
+        display: block !important;
+    }
+}

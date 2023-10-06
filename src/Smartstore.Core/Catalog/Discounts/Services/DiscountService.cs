@@ -12,9 +12,9 @@ namespace Smartstore.Core.Catalog.Discounts
 {
     public partial class DiscountService : AsyncDbSaveHook<Discount>, IDiscountService
     {
-        // {0} = includeHidden, {1} = couponCode.
-        private const string DISCOUNTS_ALL_KEY = "discount.all-{0}-{1}";
-        internal const string DISCOUNTS_PATTERN_KEY = "discount.*";
+        // {0} = discountType, {1} = includeHidden, {2} = couponCode.
+        const string DiscountsAllKey = "discount.all-{0}-{1}-{2}";
+        internal const string DiscountsPatternKey = "discount.*";
 
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;
@@ -121,7 +121,7 @@ namespace Smartstore.Core.Catalog.Discounts
                 _relatedEntityIds.Clear();
             }
 
-            _requestCache.RemoveByPattern(DISCOUNTS_PATTERN_KEY);
+            _requestCache.RemoveByPattern(DiscountsPatternKey);
         }
 
         private async Task UpdateHasDiscountsAppliedProperty<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, CancellationToken cancelToken = default)
@@ -152,14 +152,29 @@ namespace Smartstore.Core.Catalog.Discounts
             couponCode = couponCode.EmptyNull();
 
             var discountTypeId = discountType.HasValue ? (int)discountType.Value : 0;
+            var cacheKey = DiscountsAllKey.FormatInvariant(discountTypeId, includeHidden, couponCode);
 
-            // We load all discounts and filter them by passed "discountType" parameter later because
-            // this method is invoked several times per HTTP request with distinct "discountType" parameter.
-            var cacheKey = DISCOUNTS_ALL_KEY.FormatInvariant(includeHidden, couponCode);
-
-            var result = await _requestCache.GetAsync(cacheKey, async () =>
+            return await _requestCache.GetAsync(cacheKey, async () =>
             {
                 var query = _db.Discounts.AsQueryable();
+
+                if (discountType.HasValue)
+                {
+                    switch (discountType.Value)
+                    {
+                        case DiscountType.AssignedToSkus:
+                            query = query.Include(x => x.AppliedToProducts);
+                            break;
+                        case DiscountType.AssignedToCategories:
+                            query = query.Include(x => x.AppliedToCategories);
+                            break;
+                        case DiscountType.AssignedToManufacturers:
+                            query = query.Include(x => x.AppliedToManufacturers);
+                            break;
+                    }
+
+                    query = query.Where(x => x.DiscountTypeId == discountTypeId);
+                }
 
                 if (!includeHidden)
                 {
@@ -176,19 +191,11 @@ namespace Smartstore.Core.Catalog.Discounts
                 }
 
                 var discounts = await query
-                    .OrderByDescending(d => d.Id)
+                    .OrderByDescending(x => x.Id)
                     .ToListAsync();
 
-                var map = discounts.ToMultimap(x => x.DiscountTypeId, x => x);
-                return map;
+                return discounts;
             });
-
-            if (discountTypeId > 0)
-            {
-                return result[discountTypeId];
-            }
-
-            return result.SelectMany(x => x.Value);
         }
 
         public virtual async Task<bool> IsDiscountValidAsync(
@@ -228,8 +235,7 @@ namespace Smartstore.Core.Catalog.Discounts
             ShoppingCart cart = null;
 
             // Do not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
-            if (
-                flags.HasFlag(DiscountValidationFlags.GiftCards) && 
+            if (flags.HasFlag(DiscountValidationFlags.GiftCards) && 
                 (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal))
             {
                 cart = await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
@@ -269,7 +275,7 @@ namespace Smartstore.Core.Catalog.Discounts
         public virtual async Task<bool> ApplyDiscountsAsync<T>(T entity, int[] selectedDiscountIds, DiscountType type)
             where T : BaseEntity, IDiscountable
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             selectedDiscountIds ??= Array.Empty<int>();
 

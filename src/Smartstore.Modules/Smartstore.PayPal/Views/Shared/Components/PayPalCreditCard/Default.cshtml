@@ -12,11 +12,13 @@
 <!-- Set up a container element for the paypal button -->
 <div id="paypal-creditcard-hosted-fields-container"
      data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
+     data-skip-redirect-oninit="true"
      data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
      data-forward-url="@Url.Action("Confirm", "Checkout")"
-     data-creditcard-error-message="@T("Plugins.Smartstore.PayPal.Error.CreditCardData")"></div>
+     data-creditcard-error-message="@T("Plugins.Smartstore.PayPal.Error.CreditCardData")"
+     data-3dsecure-error-message="@T("Plugins.Smartstore.PayPal.Error.3DSecure")"></div>
 
-@*INFO: No target zone here as can also be rendered via AJAX*@
+@*INFO: No target zone here because it will be rendered via AJAX*@
 <script data-origin="paypal-creditcard-button">
     $(function () {
         const ppHostedFields = new PayPalHostedFieldsMethod("#paypal-creditcard-hosted-fields-container");
@@ -26,19 +28,11 @@
 <div class="opt-form paypal-credit-card">
     <div class="card_container">
         <div class="form-group row">
-            <label asp-for="CardholderName" class="col-md-3 col-form-label required"></label>
-            <div class="col-md-9">
-                <input asp-for="CardholderName" />
-                <span asp-validation-for="CardholderName"></span>
-            </div>
-        </div>
-        <div class="form-group row">
             <label for="card-number" class="col-md-3 col-form-label required">@T("Payment.CardNumber")</label>
             <div class="col-md-9">
                 <div id="card-number" class="card_field form-control"></div>
             </div>
         </div>
-
         <div class="form-group row">
             <label for="expiration-date" class="col-md-3 col-form-label required">@T("Payment.ExpirationDate")</label>
             <div class="col-md-9">
@@ -46,7 +40,6 @@
                     <div class="col-6">
                         <div id="expiration-date" class="card_field form-control"></div>
                     </div>
-                        
                     <div class="col col-3">
                         <label for="cvv" class="text-right col-form-label required d-block">@T("Payment.CardCode")</label>
                     </div>

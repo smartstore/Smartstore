@@ -1,6 +1,4 @@
-﻿
-
-namespace Smartstore.Admin.Components
+﻿namespace Smartstore.Admin.Components
 {
     public class NamesPerEntityViewComponent : SmartViewComponent
     {
@@ -24,7 +22,7 @@ namespace Smartstore.Admin.Components
                 .CountAsync();
 
             ViewBag.CountSlugsPerEntity = numRecords;
-            ViewBag.UrlRecordListUrl = Url.Action("List", "UrlRecord", new { entityName, entityId, area = "Admin" });
+            ViewBag.UrlRecordListUrl = Url.Action("Index", "UrlRecord", new { entityName, entityId, area = "Admin" });
 
             return View();
         }

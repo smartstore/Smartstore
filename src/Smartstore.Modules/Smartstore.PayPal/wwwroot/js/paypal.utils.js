@@ -159,10 +159,8 @@
                     initTransaction({ orderID: orderId }, self.hostedFieldsContainer);
                     return orderId;
                 },
-                // Save obtained order id in checkout state.
                 onApprove: function (data, actions) {
                     console.log("onApprove", data);
-                    initTransaction(data, self.hostedFieldsContainer);
                 },
                 onError: function (err) {
                     console.log(err);
@@ -170,18 +168,17 @@
                 }
             }).then((cardFields) => {
                 $("#nextstep").on("click", function (e) {
-
                     var selectedPaymentSystemName = $("input[name='paymentmethod']:checked").val();
 
                     if (selectedPaymentSystemName != "Payments.PayPalCreditCard") {
                         return true;
                     }
 
+                    e.preventDefault();
+
                     if (!cardFields._state.fields.cvv.isValid
                         || !cardFields._state.fields.number.isValid
                         || !cardFields._state.fields.expirationDate.isValid) {
-                        e.preventDefault();
-
                         console.log("CVV is valid: " + cardFields._state.fields.cvv.isValid);
                         console.log("Number is valid: " + cardFields._state.fields.number.isValid);
                         console.log("Expiration date is valid: " + cardFields._state.fields.expirationDate.isValid);
@@ -194,40 +191,27 @@
                         return false;
                     }
 
-                    var form = $("form[data-form-type='payment']");
-                    if (form.length == 0) {
-                        form = $(".checkout-data > form");
-                    }
-
-                    var validator = form.data('validator');
-                    if (validator) {
-                        validator.settings.ignore = "";
-                        form.validate();
-                    }
-
-                    if (form.valid()) {
-                        cardFields
-                            .submit({
-                                // Cardholder's first and last name
-                                cardholderName: document.getElementById("CardholderName").value,
-
-                            })
-                            .catch((err) => {
-                                e.preventDefault();
-                                console.log(err);
-                                displayNotification(err.message, 'error');
-                                return false;
-                            });
-
-                        console.log("Redirecting now");
-                        e.preventDefault();
-                        location.href = self.hostedFieldsContainer.data("forward-url");
-                        return false;
-                    }
-                    else {
-                        e.preventDefault();
-                        return false;
-                    }
+                    cardFields
+                        .submit({
+                            contingencies: ['SCA_ALWAYS']
+                        })
+                        .then(function (payload) {
+                            if (payload.liabilityShifted) {
+                                // Handle buyer confirmed 3D Secure successfully.
+                                console.log("Redirecting to confirm now");
+                                location.href = self.hostedFieldsContainer.data("forward-url");
+                            } else {
+                                console.log(payload);
+                                var err = self.hostedFieldsContainer.data("3dsecure-error-message");
+                                displayNotification(err, 'error');
+                            }
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            displayNotification(err.message, 'error');
+                        });
+                    
+                    return false;
                 })
             });
         };
@@ -260,8 +244,10 @@
             cache: false,
             success: function (resp) {
                 if (resp.success) {
-                    // Lead customer to address selection or to confirm page if PayPal was choosen from payment selection page.
-                    location.href = container.data("forward-url");
+                    if (!container.data("skip-redirect-oninit")) {
+                        // Lead customer to address selection or to confirm page if PayPal was choosen from payment selection page.
+                        location.href = container.data("forward-url");
+                    }
                 }
                 else {
                     displayNotification(resp.message, 'error');

@@ -160,7 +160,7 @@ body.canvas-blocking .canvas-blocker {
         }
     }
 
-    &.on {
+    &.show {
         --offcanvas-x-offset: 0;
         --offcanvas-y-offset: 0;
         opacity: 1;

@@ -19,7 +19,12 @@
 }
 
 @{
-    var large = ViewData["large"].Convert<bool>();
+    // Legacy sizing
+    var large = GetMetadata<bool>("large");
+
+    // V5.1.0+
+    var controlSize = GetMetadata<ControlSize?>("size") ?? (large ? ControlSize.Large : ControlSize.Medium);
+
     //var itemId = ViewData["itemId"].Convert<string>();
     // TODO: (mc) > (mh) finalize dropdown later in v3.1+
     var inputStyle = "spinner";
@@ -34,7 +39,7 @@
         <input asp-for="EnteredQuantity" 
                type="number" 
                attrs="@attributes"
-               sm-control-size='@(large ? ControlSize.Large : ControlSize.Medium)'
+               sm-control-size="@controlSize"
                sm-postfix="@Model.QuantityUnitName"
                sm-numberinput-style="Centered"
                data-step-interval="150"

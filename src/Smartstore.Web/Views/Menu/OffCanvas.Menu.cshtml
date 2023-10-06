@@ -18,19 +18,16 @@
 }
 
 <div class="ocm-menu" data-depth="@targetNode.Depth">
-    <div sm-if="targetNode.Depth > 0" class="ocm-info">
-        <h3 class="ocm-name" sm-language-attributes-for="WorkContext.WorkingLanguage">@targetNode.Value.Text</h3>
+    <div sm-if="targetNode.Depth > 0" class="ocm-menu-header ocm-back">
+        <a href="@(targetNode.Parent.Value.GenerateUrl(this.Url) ?? "#")" class="ocm-link btn btn-secondary btn-icon btn-sm rounded-circle" data-id="@(targetNode.Parent.IsRoot ? 0 : targetNode.Parent.Id)" data-ajax="true">
+            <i class="fa fa-arrow-left"></i>
+        </a>
+        <h5 class="ocm-title text-truncate" sm-language-attributes-for="WorkContext.WorkingLanguage">@targetNode.Value.Text</h5>
     </div>
     
     <ul class="ocm-nav list-unstyled">
         @if (targetNode.Depth > 0)
         {
-            <li class="ocm-back ocm-item">
-                <a href="@targetNode.Parent.Value.GenerateUrl(this.Url)" class="ocm-link" data-id="@(targetNode.Parent.IsRoot ? 0 : targetNode.Parent.Id)" data-ajax="true">
-                    <i class="fa fa-angle-left"></i>
-                    <span>@T("Common.Back")</span>
-                </a>
-            </li>
             <li sm-if="!targetNode.Value.IsVoid()" class="show-current-node ocm-item">
                 <a href="@targetNode.Value.GenerateUrl(this.Url)" class="ocm-link" data-id="@targetNode.Id" data-ajax="false">
                     @T("Offcanvas.Menu.ShowCurrentCat", targetNode.Value.Text)

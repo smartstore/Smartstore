@@ -52,7 +52,7 @@
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
                             </div>
 
-                            <div sm-if="item.AttributeInfo.HasValue()" class="attributes">
+                            <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-variant small">
                                 @Html.Raw(item.AttributeInfo)
                             </div>
 

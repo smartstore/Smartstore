@@ -522,11 +522,11 @@
                 <smart-label asp-for="IsFreeShipping" />
             </div>
             <div class="adminData">
-                <input asp-for="IsFreeShipping" />
+                <input asp-for="IsFreeShipping" data-toggler-for="#ShippingChargeContainer" data-toggler-reverse="true" />
                 <span asp-validation-for="IsFreeShipping"></span>
             </div>
         </div>
-        <div class="adminRow">
+        <div id="ShippingChargeContainer" class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="AdditionalShippingCharge" />
             </div>

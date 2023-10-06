@@ -15,6 +15,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly HashSet<BaseEntity> _toSendStockNotification = new();
         private readonly HashSet<BaseEntity> _toAdjustInventory = new();
         private readonly HashSet<int> _oldSampleDownloadIds = new();
+        private string _hookErrorMessage;
 
         public ProductHook(
             SmartDbContext db,
@@ -71,9 +72,31 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     _oldSampleDownloadIds.Add(oldDownloadId);
                 }
+
+                var parentIdProp = entry.Entry.Property(nameof(Product.ParentGroupedProductId));
+                var newParentId = parentIdProp.CurrentValue != null ? (int)parentIdProp.CurrentValue : 0;
+
+                if (newParentId != 0 && p.Id == newParentId)
+                {
+                    entry.ResetState();
+                    _hookErrorMessage = $"The product {p.Id} cannot be assigned to itself via the property {nameof(Product.ParentGroupedProductId)}.";
+                }
             }
 
             return Task.FromResult(HookResult.Ok);
+        }
+
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            if (_hookErrorMessage.HasValue())
+            {
+                var message = new string(_hookErrorMessage);
+                _hookErrorMessage = null;
+
+                throw new HookException(message);
+            }
+
+            return Task.CompletedTask;
         }
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)

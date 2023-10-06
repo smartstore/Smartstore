@@ -89,10 +89,8 @@ namespace Smartstore.Web.Models.Cart
                 to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
                     item.AttributeSelection,
                     product,
+                    new ProductAttributeFormatOptions { IncludePrices = false, ItemSeparator = Environment.NewLine, FormatTemplate = "<span>{0}:</span> <span>{1}</span>" },
                     customer,
-                    includePrices: false,
-                    includeGiftCardAttributes: true,
-                    includeHyperlinks: true,
                     batchContext: batchContext);
 
                 var bundleItemName = item.BundleItem.GetLocalized(x => x.Name);
@@ -120,7 +118,12 @@ namespace Smartstore.Web.Models.Cart
             }
             else
             {
-                to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(item.AttributeSelection, product, customer, batchContext: batchContext);
+                to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
+                    item.AttributeSelection, 
+                    product,
+                    new ProductAttributeFormatOptions { ItemSeparator = Environment.NewLine, FormatTemplate = "<span>{0}:</span> <span>{1}</span>" },
+                    customer, 
+                    batchContext: batchContext);
             }
 
             var allowedQuantities = product.ParseAllowedQuantities();
