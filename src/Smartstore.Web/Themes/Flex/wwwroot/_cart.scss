@@ -291,7 +291,7 @@
     @extend .link-transition;
 }
 
-.cart-item-variant {
+.cart-item-attrs {
     display: grid !important;
     grid-template-columns: max-content 1fr; 
     gap: 1px 12px;
@@ -313,6 +313,10 @@
         //font-weight: $font-weight-bold;
         font-weight: $font-weight-medium;
     }
+}
+
+.cart-item-actions {
+    gap: 0.5rem;
 }
 
 .cart-body {

@@ -78,7 +78,7 @@
                     <div class="cart-item-price-group cart-item-group">
                         @* TODO: (mc) Cart item badges *@
                         <div sm-if="!Model.IsEditable" class="cart-item-qty">@T("ShoppingCart.Quantity"): @item.EnteredQuantity</div>
-                        <div class="cart-item-price fwm">@item.SubTotal</div>
+                        <div class="cart-item-price fwm fs-h5">@item.SubTotal</div>
                         <div sm-if="item.UnitPrice != item.SubTotal" class="cart-item-price fwn">@T("ShoppingCart.Mini.UnitPrice"): @item.UnitPrice</div>
                         <div sm-if="item.Discount > decimal.Zero" class="cart-item-saving fs-sm text-muted pt-1">
                             <div>@T("ShoppingCart.ItemYouSave"):</div>
@@ -91,7 +91,7 @@
                     </div>
 
                     @* Attributes & Variants *@
-                    <div sm-if="showAttributes || showVariants" class="cart-item-variant cart-item-group fs-sm">
+                    <div sm-if="showAttributes || showVariants" class="cart-item-attrs cart-item-group fs-sm">
                         @if (showDeliveryName)
                         {
                             <span>@T("Products.DeliveryTime")</span>
@@ -169,7 +169,7 @@
                     <zone name="cartitem_desc_after" model="item.Id"></zone>
 
                     @* Actions *@
-                    <div sm-if="Model.IsEditable" class="cart-item-actions hstack flex-wrap gap-2 pt-2">
+                    <div sm-if="Model.IsEditable" class="cart-item-actions hstack flex-wrap pt-2">
                         <a class="btn btn-secondary btn-to-danger btn-sm btn-icon ajax-action-link"
                            title="@T("Common.Remove")"
                            href="#"
@@ -283,7 +283,7 @@
                         </div>
                     </div>
 
-                    <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-variant cart-item-group">
+                    <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group">
                         @Html.Raw(item.AttributeInfo)
                     </div>
 
