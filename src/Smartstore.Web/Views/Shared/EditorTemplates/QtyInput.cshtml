@@ -28,6 +28,7 @@
     //var itemId = ViewData["itemId"].Convert<string>();
     // TODO: (mc) > (mh) finalize dropdown later in v3.1+
     var inputStyle = "spinner";
+    inputStyle = "dropdown";
     //var inputStyle = Model.QuantityControlType;
 
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
@@ -47,14 +48,17 @@
                data-auto-focus="false"
                min="@Model.MinOrderAmount"
                max="@Model.MaxOrderAmount"
-               step="@Model.QuantityStep" />
+        step="@Model.QuantityStep" />
     }
     else
     {
-        <div sm-if="Model.AllowedQuantities != null && Model.AllowedQuantities.Count > 0" class="mf-dropdown" style="display: block">
-            <button class="btn btn-warning btn-labeled icon-right btn-block" attr-class='(large, "btn-lg")'>
+        Model.AllowedQuantities.AddRange(Enumerable.Range(1, 50).Select(x => new SelectListItem { Text = x.ToString(), Value = x.ToString() }));
+
+        <div sm-if="Model.AllowedQuantities != null && Model.AllowedQuantities.Count > 0" class="mf-dropdown d-block">
+            <button class="btn btn-secondary btn-sm btn-block justify-content-start" attr-class='(large, "btn-lg")'>
+                <span sm-if="Model.QuantityUnitName.HasValue()" class="fwn text-truncate">@(Model.QuantityUnitName):</span>
                 <span data-bind="value">@Model.EnteredQuantity</span>
-                <b><i class="fas fa-caret-down"></i></b>
+                <i class="fas fa-xs fa-angle-down ml-auto"></i>
             </button>
             <select asp-for="EnteredQuantity" asp-items="Model.AllowedQuantities" class="form-control qty-dropdown noskin"></select>
         </div>
