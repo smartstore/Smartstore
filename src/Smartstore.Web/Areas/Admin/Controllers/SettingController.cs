@@ -1126,6 +1126,8 @@ namespace Smartstore.Admin.Controllers
                 return propertyName;
             });
 
+            await _multiStoreSettingHelper.UpdateSettingsAsync(currencySettings, form);
+
             // Special case DefaultTaxAddressId\DefaultTaxAddress.
             var deleteAddressId = 0;
             if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(taxSettings, nameof(FinanceSettingsModel.TaxSettingsModel.DefaultTaxAddress), form))
