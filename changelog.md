@@ -35,6 +35,7 @@
   - Fixed Slick slider dotted navigation responsiveness issues
   - Slightly improved InstantSearch box
   - Revamped product tags component
+  - Dropdown product quantity input (automatically rendered instead of spinner if possible quantities do not exceed 100).
   - Revamped checkout progress indicator
   - Revamped scroll-to-top button
   - Revamped cookie consent dialog styling
