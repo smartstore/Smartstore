@@ -123,15 +123,14 @@
         </div>
     </div>
 
-    @* TODO: display when dropdown was implemented *@
     @* Can be hidden if HideQuantityControl == true *@
-    <div class="adminRow" style="display:none">
+    <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="QuantityControlType" />
+            <smart-label asp-for="AllowedQuantities" />
         </div>
         <div class="adminData">
-            <select asp-for="QuantityControlType" asp-items="Html.GetLocalizedEnumSelectList(typeof(QuantityControlType))"></select>
-            <span asp-validation-for="QuantityControlType"></span>
+            <input asp-for="AllowedQuantities" />
+            <span asp-validation-for="AllowedQuantities"></span>
         </div>
     </div>
 </div>

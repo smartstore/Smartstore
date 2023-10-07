@@ -196,7 +196,12 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>List of allowed quantities.</returns>
 		public static int[] ParseAllowedQuantities(this Product product)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
+
+            if (product.AllowedQuantities.IsEmpty())
+            {
+                return Array.Empty<int>();
+            }
 
             return product.AllowedQuantities
                 .SplitSafe(',', StringSplitOptions.TrimEntries)

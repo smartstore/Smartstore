@@ -2776,7 +2776,7 @@ namespace Smartstore.Core.Installation
                     x.DeliveryTime = _defaultDeliveryTime;
                     x.ManageInventoryMethod = ManageInventoryMethod.DontManageStock;
                     x.OrderMinimumQuantity = 1;
-                    x.OrderMaximumQuantity = MaxOrderQuantity;
+                    x.OrderMaximumQuantity = DefaultMaxOrderQuantity;
                     x.StockQuantity = 10000;
                     x.NotifyAdminForQuantityBelow = 1;
                     x.AllowBackInStockSubscriptions = false;

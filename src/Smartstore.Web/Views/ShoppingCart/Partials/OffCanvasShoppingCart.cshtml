@@ -80,6 +80,7 @@
                         <div class="col col-alpha">
                             @Html.EditorFor(x => item, "QtyInput", new
                             {
+                                size = ControlSize.Small,
                                 htmlAttributes = new
                                 {
                                     data_update_url = Url.Action("UpdateCartItem", "ShoppingCart"),

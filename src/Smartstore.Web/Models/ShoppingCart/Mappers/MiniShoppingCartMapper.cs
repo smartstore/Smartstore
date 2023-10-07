@@ -130,13 +130,8 @@ namespace Smartstore.Web.Models.Cart
                     ProductName = product.GetLocalized(x => x.Name),
                     ShortDesc = product.GetLocalized(x => x.ShortDescription),
                     ProductSeName = productSeName,
-                    EnteredQuantity = item.Quantity,
-                    MaxOrderAmount = product.OrderMaximumQuantity,
-                    MinOrderAmount = product.OrderMinimumQuantity,
-                    QuantityStep = product.QuantityStep > 0 ? product.QuantityStep : 1,
                     CreatedOnUtc = item.UpdatedOnUtc,
                     ProductUrl = await _productUrlHelper.GetProductUrlAsync(productSeName, cartItem),
-                    QuantityUnitName = null,
                     AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
                         item.AttributeSelection,
                         product,
@@ -144,6 +139,8 @@ namespace Smartstore.Web.Models.Cart
                         null,
                         batchContext: batchContext)
                 };
+
+                await cartItem.MapQuantityInputAsync(cartItemModel, mapUnitName: false);
 
                 if (cartItem.ChildItems != null && _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart)
                 {

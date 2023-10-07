@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Catalog
+﻿@using Smartstore.Core.Catalog.Products
+@using Smartstore.Web.Models.Catalog
 @using Smartstore.Utilities
 
 @model IQuantityInput
@@ -26,41 +27,39 @@
     var controlSize = GetMetadata<ControlSize?>("size") ?? (large ? ControlSize.Large : ControlSize.Medium);
 
     //var itemId = ViewData["itemId"].Convert<string>();
-    // TODO: (mc) > (mh) finalize dropdown later in v3.1+
-    var inputStyle = "spinner";
-    inputStyle = "dropdown";
-    //var inputStyle = Model.QuantityControlType;
 
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
-<div class="qty-input">
-    @if (inputStyle == "spinner")
+<div class="qty-input qty-input-@Model.QuantityControlType.ToString().ToLower()">
+    @if (Model.QuantityControlType == QuantityControlType.Spinner || Model.AllowedQuantities.IsNullOrEmpty())
     {
         <input asp-for="EnteredQuantity" 
-               type="number" 
-               attrs="@attributes"
-               sm-control-size="@controlSize"
-               sm-postfix="@Model.QuantityUnitName"
-               sm-numberinput-style="Centered"
-               data-step-interval="150"
-               data-auto-select="false"
-               data-auto-focus="false"
-               min="@Model.MinOrderAmount"
-               max="@Model.MaxOrderAmount"
-        step="@Model.QuantityStep" />
+            type="number" 
+            attrs="@attributes"
+            sm-control-size="@controlSize"
+            sm-postfix="@Model.QuantityUnitName"
+            sm-numberinput-style="Centered"
+            data-step-interval="150"
+            data-auto-select="false"
+            data-auto-focus="false"
+            min="@Model.MinOrderAmount"
+            max="@Model.MaxOrderAmount"
+            step="@Model.QuantityStep" />
     }
-    else
+    else // Dropdown
     {
-        Model.AllowedQuantities.AddRange(Enumerable.Range(1, 50).Select(x => new SelectListItem { Text = x.ToString(), Value = x.ToString() }));
-
-        <div sm-if="Model.AllowedQuantities != null && Model.AllowedQuantities.Count > 0" class="mf-dropdown d-block">
-            <button class="btn btn-secondary btn-sm btn-block justify-content-start" attr-class='(large, "btn-lg")'>
+        <div class="mf-dropdown d-block">
+            <button class="btn btn-secondary btn-block justify-content-start px-2 gap-1" attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "btn-lg" : "btn-sm")'>
                 <span sm-if="Model.QuantityUnitName.HasValue()" class="fwn text-truncate">@(Model.QuantityUnitName):</span>
                 <span data-bind="value">@Model.EnteredQuantity</span>
-                <i class="fas fa-xs fa-angle-down ml-auto"></i>
+                <i class="fas fa-xs fa-angle-down btn-icon-fix ml-auto"></i>
             </button>
-            <select asp-for="EnteredQuantity" asp-items="Model.AllowedQuantities" class="form-control qty-dropdown noskin"></select>
+            <select asp-for="EnteredQuantity"
+                attrs="@attributes"
+                asp-items="Model.AllowedQuantities" 
+                class="form-control qty-dropdown noskin">
+            </select>
         </div>
     }
 </div>

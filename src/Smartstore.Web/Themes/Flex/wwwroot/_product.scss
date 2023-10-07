@@ -207,8 +207,16 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     }
 
     .pd-offer-action-qty {
-        max-width: 120px;
-        min-width: 90px;
+        flex-shrink: 1;
+
+        > .qty-input {
+            min-width: 90px;
+            max-width: 120px;
+
+            &.qty-input-dropdown {
+                max-width: 140px;
+            }
+        }
     }
 
     .quote-request {

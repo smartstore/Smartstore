@@ -177,7 +177,6 @@
     --cart-border-color: var(--border-color);
     --cart-item-img-width: 96px;
     --cart-item-title-font-size: 1rem;
-    --cart-item-qty-input-width: 92px;
     --cart-footer-bg: #{$cart-footer-bg};
     --cart-child-row-bg: #{tint-color($gray-100, 40%)};
 }
@@ -204,8 +203,12 @@
         border-top: 1px solid $gray-300;
     }
 
-    .qty-input {
-        width: var(--cart-item-qty-input-width);
+    .qty-input-dropdown {
+        max-width: 140px;
+    }
+
+    .qty-input-spinner {
+        width: 92px;
     }
 }
 
