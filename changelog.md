@@ -124,6 +124,7 @@
 - #828 Queued email identifier is 0 for order completed email.
 - #873 Category preview may show 404 page if the category is limited to a certain store.
 - Do not fallback to "Product is not available" delivery info on product detail page if the product is available.
+- #839 Output cache must be invalidated when menu items are added or edited 
 
 
 

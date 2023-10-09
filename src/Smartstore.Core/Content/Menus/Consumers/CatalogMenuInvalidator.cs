@@ -17,8 +17,8 @@ namespace Smartstore.Web.Rendering.Menus
         private readonly ICacheManager _cache;
         private readonly SmartDbContext _db;
 
-        private List<string> _invalidated = new List<string>();
-        private List<string> _countsResetted = new List<string>();
+        private List<string> _invalidated = new();
+        private List<string> _countsResetted = new();
 
         public CatalogMenuInvalidator(
             IMenuService menuService,
