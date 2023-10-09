@@ -12,7 +12,7 @@ namespace Smartstore.Web.Rendering.Menus
         /// <returns>Menu model.</returns>
         public static async Task<MenuModel> CreateModelAsync(this IMenu menu, string template, ActionContext actionContext)
         {
-            Guard.NotNull(menu, nameof(menu));
+            Guard.NotNull(menu);
 
             var model = new MenuModel
             {

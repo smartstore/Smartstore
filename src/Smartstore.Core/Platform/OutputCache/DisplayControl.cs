@@ -9,6 +9,7 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -34,6 +35,7 @@ namespace Smartstore.Core.OutputCache
             [typeof(ProductCategory)] = (x, d, c) => ToTask("p" + ((ProductCategory)x).CategoryId, "p" + ((ProductCategory)x).ProductId),
             [typeof(ProductManufacturer)] = (x, d, c) => ToTask("p" + ((ProductManufacturer)x).ManufacturerId, "p" + ((ProductManufacturer)x).ProductId),
             [typeof(Topic)] = (x, d, c) => ToTask("t" + x.Id),
+            [typeof(MenuItemEntity)] = (x, d, c) => ToTask("mi" + x.Id),
             [typeof(MediaFile)] = (x, d, c) => ToTask("mf" + x.Id),
             [typeof(SpecificationAttributeOption)] = HandleSpecificationAttributeOptionsAsync,
             [typeof(ProductTag)] = HandleProductTagsAsync,

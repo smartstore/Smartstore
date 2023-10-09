@@ -15,7 +15,7 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync(string name, string template = null)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             var menu = await _menuService.GetMenuAsync(name);
 
@@ -35,10 +35,9 @@ namespace Smartstore.Web.Components
 
             if (!model.Name.EqualsNoCase("Main"))
             {
-                // Extract menu items from model and announce them to the display control.
-                var menuItemIds = model.Root.Children.Select(x => x.Value.MenuItemId);
-                var children = await Services.DbContext.MenuItems.Where(x => menuItemIds.Contains(x.Id)).ToListAsync();
-                Services.DisplayControl.AnnounceRange(children);
+                // Extract menu items from model and announce them to display control.
+                var menuItemIds = model.Root.FlattenNodes(false).Select(x => x.Value.MenuItemId);
+                Services.DisplayControl.AnnounceRange(menuItemIds.Select(id => new MenuItemEntity { Id = id }));
             }
 
             return View(viewName, model);
