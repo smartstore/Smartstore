@@ -81,7 +81,7 @@ namespace Smartstore.Core.Migrations
 
             builder.AddOrUpdate("Enums.CurrencyMidpointRounding.AwayFromZero",
                 "Commercial rounding (round midpoint to the nearest amount that is away from zero)",
-                "Kaufmännisches Runden (Mittelwert auf den nächstgelegenen von Null entfernten Betrag runden)");
+                "Kaufmännisches Runden (Mittelwert auf den nächstgelegenen, von Null entfernten Betrag runden)");
 
             builder.AddOrUpdate("Enums.CurrencyMidpointRounding.ToEven.Example",
                 "1.2250 is rounded down to 1.22. 1.2350 is rounded up to 1.24.",
@@ -112,12 +112,8 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.RoundOrderItemsEnabled",
                 "Round all order item amounts",
                 "Beträge aller Bestellpositionen runden",
-                "Specifies whether to round all order item amounts (products, tax, fees etc.). The currency settings will be applied if this setting is not specified.",
-                "Legt fest, ob die Beträge aller Bestellpositionen gerundet werden sollen (Produkte, Steuern, Gebühren etc.). Es werden die gleichnamigen Währungseinstellungen angewendet, sofern diese Einstellung nicht festgelegt ist.");
-
-            builder.AddOrUpdate("Admin.Configuration.Currencies.RoundOrderItemsNote",
-                "The <a href=\"{0}\" class=\"alert-link\">currency settings</a> of the same name will be applied unless settings for rounding order items are specified for this currency.",
-                "Es werden die gleichnamigen <a href=\"{0}\" class=\"alert-link\">Währungseinstellungen</a> angewendet, sofern bei dieser Währung keine Einstellungen zum Runden von Bestellpositionen festgelegt sind.");
+                "Specifies whether to round all order item amounts (products, tax, fees etc.). The general rounding settings are applied, if not specified here.",
+                "Legt fest, ob die Beträge aller Bestellpositionen gerundet werden sollen (Produkte, Steuern, Gebühren etc.). Es gelten die allgemeinen Rundungseinstellungen, sofern hier nicht festgelegt.");
 
             #endregion
 
@@ -142,6 +138,12 @@ namespace Smartstore.Core.Migrations
                 "Wechselkurse automatisch aktualisieren",
                 "Specifies whether exchange rates should be automatically updated via the associated scheduled task.",
                 "Legt fest, ob Wechselkurse über die zugehörige geplante Aufgabe automatisch aktualisiert werden sollen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Currency.RoundOrderItemsEnabled",
+                "Round all order item amounts",
+                "Beträge aller Bestellpositionen runden",
+                "Specifies whether to round all order item amounts (products, tax, fees etc.). Rounding settings can optionally also be specified for the respective currency.",
+                "Legt fest, ob die Beträge aller Bestellpositionen gerundet werden sollen (Produkte, Steuern, Gebühren etc.). Rundungseinstellungen können optional auch bei der jeweiligen Währung festgelegt werden.");
 
             #endregion
         }

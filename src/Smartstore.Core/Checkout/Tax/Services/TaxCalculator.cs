@@ -135,11 +135,7 @@ namespace Smartstore.Core.Checkout.Tax
                 currency);
         }
 
-        public virtual Tax CalculateTaxFromNet(
-            decimal netPrice, 
-            TaxRate rate,
-            bool inclusive,
-            Currency currency = null)
+        public virtual Tax CalculateTaxFromNet(decimal netPrice, TaxRate rate, bool inclusive, Currency currency = null)
         {
             if (netPrice == 0)
                 return Tax.Zero;

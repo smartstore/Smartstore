@@ -102,7 +102,7 @@ namespace Smartstore.Admin.Models
 
             #region Rounding
 
-            [LocalizedDisplay("Admin.Configuration.Currencies.Fields.RoundOrderItemsEnabled")]
+            [LocalizedDisplay("*RoundOrderItemsEnabled")]
             public bool RoundOrderItemsEnabled { get; set; }
 
             [LocalizedDisplay("Admin.Configuration.Currencies.Fields.RoundNetPrices")]
