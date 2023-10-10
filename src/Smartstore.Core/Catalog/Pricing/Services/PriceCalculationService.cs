@@ -180,14 +180,6 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             var subtotal = await CreateCalculatedPrice(calculatorContext, product, context.Quantity);
-
-            //"- roundUnit:{0} excludingTax:{1} net:{2,10:N6} gross:{3,10:N6} final:{4,10:N6}".FormatInvariant(
-            //    context.Options.RoundingCurrency.RoundUnitPrices ?? _currencySettings.RoundUnitPrices,
-            //    !context.Options.TaxInclusive,
-            //    subtotal.Tax.Value.PriceNet,
-            //    subtotal.Tax.Value.PriceGross,
-            //    subtotal.FinalPrice.Amount).Dump();
-
             return (price, subtotal);
         }
 

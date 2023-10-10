@@ -18,8 +18,8 @@ namespace Smartstore.Core.Tests.Catalog.Products
             var result = product.ParseAllowedQuantities();
             result.Length.ShouldEqual(4);
             result[0].ShouldEqual(1);
-            result[1].ShouldEqual(5);
-            result[2].ShouldEqual(4);
+            result[1].ShouldEqual(4);
+            result[2].ShouldEqual(5);
             result[3].ShouldEqual(10);
         }
 
