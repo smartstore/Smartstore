@@ -22,8 +22,6 @@ namespace Smartstore.Web.Models.Catalog.Mappers
         {
             if (!customQuantities.IsNullOrEmpty())
             {
-                Array.Sort(customQuantities);
-
                 model.AllowedQuantities.AddRange(customQuantities.Select(qty => new SelectListItem
                 {
                     Text = qty.ToString(),
