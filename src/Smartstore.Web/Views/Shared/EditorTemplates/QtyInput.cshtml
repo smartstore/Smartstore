@@ -49,6 +49,8 @@
     }
     else // Dropdown
     {
+        //var btnSize
+        
         <div class="mf-dropdown d-block">
             <button class="btn btn-secondary btn-block justify-content-start px-2 gap-1" attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "btn-lg" : "btn-sm")'>
                 <span sm-if="Model.QuantityUnitName.HasValue()" class="fwn text-truncate">@(Model.QuantityUnitName):</span>
@@ -57,6 +59,7 @@
             </button>
             <select asp-for="EnteredQuantity"
                 attrs="@attributes"
+                    attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "form-control-lg" : "form-control-sm")'
                 asp-items="Model.AllowedQuantities" 
                 class="form-control qty-dropdown noskin">
             </select>
