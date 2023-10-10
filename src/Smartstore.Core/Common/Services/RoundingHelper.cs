@@ -27,14 +27,21 @@ namespace Smartstore.Core.Common.Services
             return decimal.Round(amount, decimals, Convert(midpointRounding));
         }
 
+        public virtual bool IsShoppingCartRoundingEnabled(Currency currency = null, TaxDisplayType? taxDisplayType = null)
+        {
+            currency ??= _workContext.WorkingCurrency;
+            taxDisplayType ??= _workContext.TaxDisplayType;
+
+            return (currency.RoundOrderItemsEnabled ?? _currencySettings.RoundOrderItemsEnabled)
+                && (taxDisplayType == TaxDisplayType.IncludingTax || (taxDisplayType == TaxDisplayType.ExcludingTax && (currency.RoundNetPrices ?? _currencySettings.RoundNetPrices)));
+        }
+
         public virtual decimal RoundIfEnabledFor(decimal amount, Currency currency = null, TaxDisplayType? taxDisplayType = null)
         {
             currency ??= _workContext.WorkingCurrency;
             taxDisplayType ??= _workContext.TaxDisplayType;
 
-            if (amount == decimal.Zero || 
-                !(currency.RoundOrderItemsEnabled ?? _currencySettings.RoundOrderItemsEnabled) ||
-                (taxDisplayType == TaxDisplayType.ExcludingTax && !(currency.RoundNetPrices ?? _currencySettings.RoundNetPrices)))
+            if (amount == 0m || !IsShoppingCartRoundingEnabled(currency, taxDisplayType))
             {
                 return amount;
             }
@@ -72,7 +79,7 @@ namespace Smartstore.Core.Common.Services
 
         protected virtual decimal ToNearest(decimal amount, Currency currency, CurrencyMidpointRounding? midpointRounding, bool? roundUp)
         {
-            if (currency.RoundOrderTotalDenominator != decimal.Zero)
+            if (currency.RoundOrderTotalDenominator != 0m)
             {
                 if (midpointRounding.HasValue)
                 {

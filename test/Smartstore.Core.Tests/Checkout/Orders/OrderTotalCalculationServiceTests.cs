@@ -192,6 +192,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _taxSettings,
                 _rewardPointsSettings,
                 _priceSettings,
+                _currencySettings,
                 _shippingSettings);
         }
 

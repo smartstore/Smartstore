@@ -45,6 +45,13 @@ namespace Smartstore.Core.Common.Configuration
         /// </summary>
         public bool RoundUnitPrices { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets a rounding difference amount (in the smallest currency unit, e.g. cents) up to which the order total should be adjusted.
+        /// 0 to not adjust the order total.
+        /// A difference (typically 1 cent) may occur if rounding is not used during shopping cart calculation, but on the other hand prices are always displayed rounded.
+        /// </summary>
+        public int RoundOrderTotalDifference { get; set; } = 2;
+
         #endregion
     }
 }

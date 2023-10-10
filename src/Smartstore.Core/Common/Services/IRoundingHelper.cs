@@ -26,7 +26,19 @@ namespace Smartstore.Core.Common.Services
         decimal Round(decimal amount, int decimals, CurrencyMidpointRounding midpointRounding = CurrencyMidpointRounding.ToEven);
 
         /// <summary>
-        /// Rounds <paramref name="amount"/> if rounding is enabled for <paramref name="currency"/>.
+        /// Gets a value indicating whether rounding during shopping cart calculation is enabled.
+        /// </summary>
+        /// <param name="currency">
+        /// Currency. If <c>null</c>, currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
+        /// </param>
+        /// <param name="taxDisplayType">
+        /// Tax display type. If <c>null</c>, type will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
+        /// </param>
+        /// <returns></returns>
+        bool IsShoppingCartRoundingEnabled(Currency currency = null, TaxDisplayType? taxDisplayType = null);
+
+        /// <summary>
+        /// Rounds <paramref name="amount"/> if rounding during shopping cart calculation is enabled.
         /// </summary>
         /// <param name="amount">Amount to round.</param>
         /// <param name="currency">
@@ -34,8 +46,7 @@ namespace Smartstore.Core.Common.Services
         /// If <c>null</c>, currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
         /// </param>
         /// <param name="taxDisplayType">
-        /// Tax display type
-        /// If <c>null</c>, type will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
+        /// Tax display type. If <c>null</c>, type will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
         /// </param>
         /// <returns>Rounded amount if rounding is enabled for <paramref name="currency"/>, <paramref name="amount"/> otherwise.</returns>
         decimal RoundIfEnabledFor(decimal amount, Currency currency = null, TaxDisplayType? taxDisplayType = null);
