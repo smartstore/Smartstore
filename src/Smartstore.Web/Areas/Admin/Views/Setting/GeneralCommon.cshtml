@@ -120,7 +120,30 @@
                         <span asp-validation-for="SeoSettings.CanonicalHostNameRule"></span>
                     </div>
                 </div>
-                <div class="robots-container adminRow">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                    </div>
+                    <div class="adminData">
+                        <div class="btn-group robots-toggle-buttons d-flex">
+                            <button type="button" class="btn btn-secondary active d-block text-truncate" style="flex:1"
+                                    data-target=".display-allows"
+                                    title="@T("Admin.Configuration.Settings.GeneralCommon.DisplayAllows.Title")">
+                                <span>@T("Admin.Configuration.Settings.GeneralCommon.DisplayAllows")</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary d-block text-truncate" style="flex:1"
+                                    data-target=".display-disallows"
+                                    title="@T("Admin.Configuration.Settings.GeneralCommon.DisplayDisallows.Title")">
+                                <span>@T("Admin.Configuration.Settings.GeneralCommon.DisplayDisallows")</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary d-block text-truncate flex-grow-1" style="flex:1"
+                                    data-target=".display-additional-lines"
+                                    title="@T("Admin.Configuration.Settings.GeneralCommon.DisplayAdditionalLines.Title")">
+                                <span>@T("Admin.Configuration.Settings.GeneralCommon.DisplayAdditionalLines")</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="robots-container display-allows adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="SeoSettings.ExtraRobotsDisallows" />
                     </div>
@@ -129,7 +152,7 @@
                         <span asp-validation-for="SeoSettings.ExtraRobotsDisallows"></span>
                     </div>
                 </div>
-                <div class="robots-container d-none adminRow">
+                <div class="robots-container display-disallows d-none adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="SeoSettings.ExtraRobotsAllows" />
                     </div>
@@ -138,15 +161,20 @@
                         <span asp-validation-for="SeoSettings.ExtraRobotsAllows"></span>
                     </div>
                 </div>
+                <div class="robots-container display-additional-lines d-none adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.ExtraRobotsLines" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SeoSettings.ExtraRobotsLines" />
+                        <span asp-validation-for="SeoSettings.ExtraRobotsLines"></span>
+                    </div>
+                </div>
                 <div class="adminRow">
                     <div class="adminTitle">
                     </div>
-                    <div class="adminData">
-                        <button type="button" class="btn btn-secondary robots-toggle-button">
-                            <i class="fa fa-right-left"></i>
-                            <span>@T("Admin.Configuration.Settings.GeneralCommon.DisplayAllows")</span>
-                            <span class="d-none">@T("Admin.Configuration.Settings.GeneralCommon.DisplayDisallows")</span>
-                        </button>
+                    <div class="adminData text-muted wide">
+                        @T("Admin.Configuration.Settings.GeneralCommon.RobotsHint")
                     </div>
                 </div>
                 
@@ -1130,8 +1158,17 @@
         });
 
         // Toggle robots settings for allow & disallow.
-        $('.robots-toggle-button').click(function () {
-            $('.robots-container, .robots-toggle-button > span').toggleClass("d-none");
+        $('.robots-toggle-buttons > button').click(function (e) {
+            e.preventDefault();
+
+            var el = $(this);
+            var target = el.data('target');
+
+            $('.robots-container' + target).removeClass('d-none');
+            $('.robots-container:not(' + target + ")").addClass('d-none');
+
+            $('.robots-toggle-buttons > button').removeClass('active');
+            el.addClass('active');
         });
 	});
 </script>

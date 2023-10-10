@@ -8,6 +8,7 @@
 - The recycle bin for products enables to restore and permanently delete products.
 - #745 Page Builder: depend story visibility on user roles.
 - Added option to configure allowed characters for user names 
+- #836 Added option to define additional lines for robots.txt
 
 ### Theming
 
