@@ -857,11 +857,11 @@ namespace Smartstore.Web.Controllers
                 additionalShippingCosts = shippingSurcharge.Value.ToString(true) + ", ";
             }
 
-            if (!product.IsShippingEnabled || (shippingSurcharge.GetValueOrDefault() == 0 && product.IsFreeShipping))
+            if (!product.IsShippingEnabled || product.IsFreeShipping)
             {
                 model.LegalInfo += product.IsTaxExempt
                     ? T("Common.FreeShipping")
-                    : "{0} {1}, {2}".FormatInvariant(taxInfo, defaultTaxRate, T("Common.FreeShipping"));
+                    : "{0} {1}{2}".FormatInvariant(taxInfo, defaultTaxRate, T("Common.FreeShipping"));
             }
             else
             {
