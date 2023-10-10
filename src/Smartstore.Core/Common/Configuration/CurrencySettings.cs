@@ -48,8 +48,13 @@ namespace Smartstore.Core.Common.Configuration
         /// <summary>
         /// Gets or sets a rounding difference amount (in the smallest currency unit, e.g. cents) up to which the order total should be adjusted.
         /// 0 to not adjust the order total.
-        /// A difference (typically 1 cent) may occur if rounding is not used during shopping cart calculation, but on the other hand prices are always displayed rounded.
+        /// A difference (typically 1 cent) may occur if there is no rounding during shopping cart calculation where on the other hand prices are always displayed rounded.
         /// </summary>
+        /// <remarks>
+        /// Works similar to <see cref="Currency.RoundOrderTotalEnabled"/> with the difference that this total adjustment takes place silently.
+        /// The adjusted amount is not displayed on the shopping cart page.
+        /// This way the admin is not forced to activate the rounding during shopping cart calculation to avoid rounding differences.
+        /// </remarks>
         public int RoundOrderTotalDifference { get; set; } = 2;
 
         #endregion
