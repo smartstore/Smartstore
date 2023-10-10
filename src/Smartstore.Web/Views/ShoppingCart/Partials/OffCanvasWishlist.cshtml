@@ -52,7 +52,7 @@
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
                             </div>
 
-                            <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-variant small">
+                            <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs small">
                                 @Html.Raw(item.AttributeInfo)
                             </div>
 
@@ -62,7 +62,7 @@
                                     for (int i = 0; i < childItems.Count; i++)
                                     {
                                         var bundleItem = childItems[i];
-                                        <a sm-if="bundleItem.Image.HasImage()" href="@bundleItem.ProductUrl" title="@bundleItem.ProductName">
+                                        <a sm-if="bundleItem.Image.HasImage()" href="@bundleItem.ProductUrl" title="@bundleItem.ProductName" class="link-dnn">
                                             <img sm-model="bundleItem.Image" />
                                         </a>
 
@@ -76,7 +76,8 @@
                     <div class="row sm-gutters flex-wrap align-items-center mt-2">
                         <div class="col col-alpha">
                             @Html.EditorFor(x => item, "QtyInput", new 
-                            { 
+                            {
+                                size = ControlSize.Small,
                                 htmlAttributes = new 
                                 { 
                                     data_update_url = Url.Action("UpdateCartItem", "ShoppingCart", new { isWishlist = true }), 

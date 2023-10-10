@@ -48,7 +48,7 @@
                                 <div class="cart-row">
                                     <div class="cart-col cart-col-main">
                                         <a class="cart-item-link fs-h6" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
-                                        <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs text-muted">
+                                        <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs">
                                             @Html.Raw(item.AttributeInfo)
                                         </div>
                                     </div>

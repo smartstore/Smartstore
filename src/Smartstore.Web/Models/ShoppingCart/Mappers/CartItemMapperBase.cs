@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
@@ -69,14 +68,12 @@ namespace Smartstore.Web.Models.Cart
             to.ProductName = product.GetLocalized(x => x.Name);
             to.ProductSeName = productSeName;
             to.ProductUrl = await ProductUrlHelper.GetProductUrlAsync(productSeName, from);
-            to.EnteredQuantity = item.Quantity;
-            to.MinOrderAmount = product.OrderMinimumQuantity;
-            to.MaxOrderAmount = product.OrderMaximumQuantity;
-            to.QuantityStep = product.QuantityStep > 0 ? product.QuantityStep : 1;
             to.ShortDesc = product.GetLocalized(x => x.ShortDescription);
             to.ProductType = product.ProductType;
             to.VisibleIndividually = product.Visibility != ProductVisibility.Hidden;
             to.CreatedOnUtc = item.UpdatedOnUtc;
+
+            await from.MapQuantityInputAsync(to);
 
             if (item.BundleItem != null)
             {
@@ -124,23 +121,6 @@ namespace Smartstore.Web.Models.Cart
                     new ProductAttributeFormatOptions { ItemSeparator = Environment.NewLine, FormatTemplate = "<span>{0}:</span> <span>{1}</span>" },
                     customer, 
                     batchContext: batchContext);
-            }
-
-            var allowedQuantities = product.ParseAllowedQuantities();
-            foreach (var quantity in allowedQuantities)
-            {
-                to.AllowedQuantities.Add(new SelectListItem
-                {
-                    Text = quantity.ToString(),
-                    Value = quantity.ToString(),
-                    Selected = item.Quantity == quantity
-                });
-            }
-
-            var quantityUnit = await Db.QuantityUnits.GetQuantityUnitByIdAsync(product.QuantityUnitId ?? 0, _catalogSettings.ShowDefaultQuantityUnit);
-            if (quantityUnit != null)
-            {
-                to.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);
             }
 
             if (product.IsRecurring)

@@ -12,7 +12,7 @@
     @if (Model.Description.HasValue())
     {
         <meta property='og:description' content='@Html.Encode(Model.Description)' />
-        <meta property='twitter:description' content='Html.Encode(Model.Description)' />
+        <meta property='twitter:description' content='@Html.Encode(Model.Description)' />
     }
 
     @if (Model.ImageUrl.HasValue())

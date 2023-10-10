@@ -101,13 +101,14 @@
                 {
                     @Html.EditorFor(x => item, "QtyInput", new
                     {
+                        size = ControlSize.Small,
                         htmlAttributes = new
-                         {
+                        {
                             data_href= Url.Action("UpdateCartItem", "ShoppingCart", new { sciItemId = item.Id, isCartPage = true }),
                             data_sci_item = item.Id,
                             id = $"itemquantity{item.Id}",
                             Name = $"itemquantity{item.Id}"
-                         }
+                        }
                     })
                 }
                 else
@@ -166,7 +167,7 @@
                                     @Html.Raw(item.ShortDesc.Value.Truncate(210, "..."))
                                 </div>
                             }
-                            <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs text-muted mt-1">
+                            <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs mt-1">
                                 @Html.Raw(item.AttributeInfo)
                             </div>
                         </div>

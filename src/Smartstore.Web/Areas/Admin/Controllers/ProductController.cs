@@ -204,7 +204,8 @@ namespace Smartstore.Admin.Controllers
 
                 product.StockQuantity = 10000;
                 product.OrderMinimumQuantity = 1;
-                product.OrderMaximumQuantity = 100;
+                product.OrderMaximumQuantity = 50;
+                product.QuantityStep = 1;
                 product.HideQuantityControl = false;
                 product.IsShippingEnabled = true;
                 product.AllowCustomerReviews = true;
@@ -1798,7 +1799,7 @@ namespace Smartstore.Admin.Controllers
                 model.StockQuantity = 10000;
                 model.NotifyAdminForQuantityBelow = 1;
                 model.OrderMinimumQuantity = 1;
-                model.OrderMaximumQuantity = 100;
+                model.OrderMaximumQuantity = 50;
                 model.QuantityStep = 1;
                 model.HideQuantityControl = false;
                 model.UnlimitedDownloads = true;
@@ -2117,6 +2118,7 @@ namespace Smartstore.Admin.Controllers
             p.OrderMaximumQuantity = m.OrderMaximumQuantity;
             p.QuantityStep = m.QuantityStep;
             p.HideQuantityControl = m.HideQuantityControl;
+            p.AllowedQuantities = m.AllowedQuantities;
         }
 
         private async Task UpdateProductBundleItemsAsync(Product product, ProductModel model)

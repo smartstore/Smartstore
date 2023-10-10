@@ -16,6 +16,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
+using Smartstore.Web.Models.Catalog.Mappers;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Web.Controllers
@@ -392,7 +393,7 @@ namespace Smartstore.Web.Controllers
             await PrepareProductPropertiesModelAsync(model, modelContext);
 
             // AddToCart
-            PrepareProductCartModel(model, modelContext, selectedQuantity);
+            await PrepareProductCartModelAsync(model, modelContext, selectedQuantity);
 
             // GiftCards
             PrepareProductGiftCardsModel(model, modelContext);
@@ -950,7 +951,7 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        protected void PrepareProductCartModel(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
+        protected async Task PrepareProductCartModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
             using var chronometer = _services.Chronometer.Step("PrepareProductCartModel");
 
@@ -959,14 +960,11 @@ namespace Smartstore.Web.Controllers
             var displayPrices = modelContext.DisplayPrices;
 
             model.AddToCart.ProductId = product.Id;
-            model.AddToCart.EnteredQuantity = product.OrderMinimumQuantity > selectedQuantity ? product.OrderMinimumQuantity : selectedQuantity;
-            model.AddToCart.MinOrderAmount = product.OrderMinimumQuantity;
-            model.AddToCart.MaxOrderAmount = product.OrderMaximumQuantity;
-            model.AddToCart.QuantityUnitName = model.QuantityUnitName; // TODO: (mc) remove 'QuantityUnitName' from parent model later
-            model.AddToCart.QuantityStep = product.QuantityStep > 0 ? product.QuantityStep : 1;
             model.AddToCart.HideQuantityControl = product.HideQuantityControl;
-            model.AddToCart.QuantityControlType = product.QuantityControlType;
             model.AddToCart.AvailableForPreOrder = product.AvailableForPreOrder;
+
+            await product.MapQuantityInputAsync(model.AddToCart, selectedQuantity);
+            model.AddToCart.QuantityUnitName = model.QuantityUnitName; // TODO: (mc) remove 'QuantityUnitName' from parent model later
 
             // 'add to cart', 'add to wishlist' buttons.
             model.AddToCart.DisableBuyButton = !displayPrices || product.DisableBuyButton ||
@@ -986,16 +984,6 @@ namespace Smartstore.Web.Controllers
                 model.AddToCart.CustomerEnteredPriceRange = T("Products.EnterProductPrice.Range",
                     _currencyService.ConvertToWorkingCurrency(minimumCustomerEnteredPrice),
                     _currencyService.ConvertToWorkingCurrency(maximumCustomerEnteredPrice));
-            }
-
-            var allowedQuantities = product.ParseAllowedQuantities();
-            foreach (var qty in allowedQuantities)
-            {
-                model.AddToCart.AllowedQuantities.Add(new SelectListItem
-                {
-                    Text = qty.ToString(),
-                    Value = qty.ToString()
-                });
             }
         }
 

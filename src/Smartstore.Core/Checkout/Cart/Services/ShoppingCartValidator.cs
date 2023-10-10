@@ -360,19 +360,22 @@ namespace Smartstore.Core.Checkout.Cart
                 hasQuantityWarnings = true;
             }
 
-            if (quantityToValidate < p.OrderMinimumQuantity)
-            {
-                currentWarnings.Add(T("ShoppingCart.MinimumQuantity", p.OrderMinimumQuantity));
-                hasQuantityWarnings = true;
-            }
-
-            if (quantityToValidate > p.OrderMaximumQuantity)
-            {
-                currentWarnings.Add(T("ShoppingCart.MaximumQuantity", p.OrderMaximumQuantity));
-                hasQuantityWarnings = true;
-            }
-
             var allowedQuantities = p.ParseAllowedQuantities();
+
+            var minQty = Math.Max(1, allowedQuantities.Length > 0 ? allowedQuantities[0] : p.OrderMinimumQuantity);
+            if (quantityToValidate < minQty)
+            {
+                currentWarnings.Add(T("ShoppingCart.MinimumQuantity", minQty));
+                hasQuantityWarnings = true;
+            }
+
+            var maxQty = Math.Max(minQty, allowedQuantities.Length > 0 ? allowedQuantities.Last() : p.OrderMaximumQuantity);
+            if (quantityToValidate > maxQty)
+            {
+                currentWarnings.Add(T("ShoppingCart.MaximumQuantity", maxQty));
+                hasQuantityWarnings = true;
+            }
+
             if (allowedQuantities.Length > 0 && !allowedQuantities.Contains(quantityToValidate))
             {
                 currentWarnings.Add(T("ShoppingCart.AllowedQuantities", string.Join(", ", allowedQuantities)));

@@ -5,6 +5,12 @@
 <input type="hidden" asp-for="OriginalStockQuantity" />
 
 <div class="adminContent">
+
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Admin.Catalog.Products.Fields.StockQuantity")</div>
+        </div>
+    </div>
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="ManageInventoryMethodId" />
@@ -86,6 +92,16 @@
             <span asp-validation-for="AllowBackInStockSubscriptions"></span>
         </div>
     </div>
+
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Admin.Catalog.Products.CartQuantity")</div>
+            <div class="alert alert-info alert-dismissible fade show">
+                <button type="button" class="btn-close" data-dismiss="alert"></button>
+                @T("Admin.Catalog.Products.CartQuantity.Info")
+            </div>
+        </div>
+    </div>
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="OrderMinimumQuantity" />
@@ -115,6 +131,15 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="AllowedQuantities" />
+        </div>
+        <div class="adminData">
+            <input asp-for="AllowedQuantities" />
+            <span asp-validation-for="AllowedQuantities"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="HideQuantityControl" />
         </div>
         <div class="adminData">
@@ -123,17 +148,6 @@
         </div>
     </div>
 
-    @* TODO: display when dropdown was implemented *@
-    @* Can be hidden if HideQuantityControl == true *@
-    <div class="adminRow" style="display:none">
-        <div class="adminTitle">
-            <smart-label asp-for="QuantityControlType" />
-        </div>
-        <div class="adminData">
-            <select asp-for="QuantityControlType" asp-items="Html.GetLocalizedEnumSelectList(typeof(QuantityControlType))"></select>
-            <span asp-validation-for="QuantityControlType"></span>
-        </div>
-    </div>
 </div>
 
 <script>

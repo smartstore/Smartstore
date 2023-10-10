@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Content.Menus;
+using Smartstore.Core.OutputCache;
 using Smartstore.Web.Rendering.Menus;
 
 namespace Smartstore.Web.Components
@@ -14,7 +15,7 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync(string name, string template = null)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             var menu = await _menuService.GetMenuAsync(name);
 
@@ -30,6 +31,13 @@ namespace Smartstore.Web.Components
             {
                 //viewName = "Menus/" + viewName;
                 //viewName = "~/Views/Shared/Menus/" + viewName + ".cshtml";
+            }
+
+            if (!model.Name.EqualsNoCase("Main"))
+            {
+                // Extract menu items from model and announce them to display control.
+                var menuItemIds = model.Root.FlattenNodes(false).Select(x => x.Value.MenuItemId);
+                Services.DisplayControl.AnnounceRange(menuItemIds.Select(id => new MenuItemEntity { Id = id }));
             }
 
             return View(viewName, model);

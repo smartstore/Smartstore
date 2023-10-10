@@ -483,7 +483,7 @@ namespace Smartstore.Web.Controllers
             var storeId = Services.StoreContext.CurrentStore.Id;
             var cartType = (ShoppingCartType)shoppingCartTypeId;
 
-            var quantityToAdd = product.OrderMinimumQuantity > 0 ? product.OrderMinimumQuantity : 1;
+            var quantityToAdd = product.GetMinOrderQuantity();
 
             // Product looks good so far, let's try adding the product to the cart (with product attribute validation etc.).
             var addToCartContext = new AddToCartContext
@@ -565,7 +565,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            var quantity = product.OrderMinimumQuantity;
+            var quantity = product.GetMinOrderQuantity();
             var key1 = $"addtocart_{productId}.EnteredQuantity";
             var key2 = $"addtocart_{productId}.AddToCart.EnteredQuantity";
 

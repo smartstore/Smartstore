@@ -73,6 +73,12 @@ $btn-wide-padding-x-sm: 1.2rem;
     }
 }
 
+.btn-icon-fix {
+    // Quick fix for directional icons not perfectly aligned with button text
+    position: relative;
+    top: 1px;
+}
+
 
 // btn-outline-(secondary|light)
 // looks really shitty in BS, style it decently.

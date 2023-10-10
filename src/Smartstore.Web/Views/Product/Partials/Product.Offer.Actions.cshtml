@@ -8,7 +8,7 @@
     var showBuyAction = Model.IsAvailable && !Model.AddToCart.DisableBuyButton;
 }
 
-<div class="row pd-offer-actions">
+<div class="row flex-nowrap pd-offer-actions">
     @if (showBuyAction)
     {
         if (Model.Price.CallForPrice)
@@ -27,11 +27,11 @@
         }
         else
         {
-            <div sm-if="!Model.AddToCart.HideQuantityControl" class="col pd-offer-action-qty">
+            <div sm-if="!Model.AddToCart.HideQuantityControl" class="col-auto pd-offer-action-qty">
                 @Html.EditorFor(model => model.AddToCart, "QtyInput", new { large = true })
             </div>
         
-            <div class="col flex-grow-1">
+            <div class="col">
                 <a class="btn btn-primary btn-lg btn-block btn-add-to-cart ajax-cart-link"
                    href="#"
                    rel="nofollow"
