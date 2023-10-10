@@ -214,7 +214,9 @@ namespace Smartstore.Core
             if (currency == null)
             {
                 // Find current customer currency
-                var storeCurrenciesMap = query.ApplyStandardFilter(false, _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
+                var storeCurrenciesMap = await query
+                    .ApplyStandardFilter(false, _storeContext.CurrentStore.Id)
+                    .ToDictionaryAsync(x => x.Id);
 
                 if (customer != null && !customer.IsBot())
                 {
