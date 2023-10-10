@@ -109,7 +109,7 @@ namespace Smartstore.Core.Migrations
                 "Round unit price",
                 "Einzelpreis runden",
                 "Specifies whether the product price should be rounded before or after quantity multiplication during shopping cart calculation. If enabled, the unit price is rounded and then multiplied by the quantity. If disabled, the unit price is multiplied by the quantity and then rounded.",
-                "Legt fest, ob der Produkpreis bei der Warenkorbberechnung vor oder nach der Mengenmultiplikation gerundet werden soll. Falls aktiviert wird der Einzelpreis gerundet und dann mit der Menge multipliziert. Falls deaktiviert wird der Einzelpreis mit der Menge multipliziert und erst danach gerundet.");
+                "Legt fest, ob der Produktpreis bei der Warenkorbberechnung vor oder nach der Mengenmultiplikation gerundet werden soll. Falls aktiviert wird der Einzelpreis gerundet und dann mit der Menge multipliziert. Falls deaktiviert wird der Einzelpreis mit der Menge multipliziert und erst danach gerundet.");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.RoundOrderItemsEnabled",
                 "Round all order item amounts",
