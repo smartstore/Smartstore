@@ -33,13 +33,10 @@ namespace Smartstore.Web.Components
                 //viewName = "~/Views/Shared/Menus/" + viewName + ".cshtml";
             }
 
-            if (!model.Name.EqualsNoCase("Main"))
-            {
-                // Extract menu items from model and announce them to display control.
-                var menuItemIds = model.Root.FlattenNodes(false).Select(x => x.Value.MenuItemId);
-                Services.DisplayControl.AnnounceRange(menuItemIds.Select(id => new MenuItemEntity { Id = id }));
-            }
-
+            // Get menu item ids from model and announce entities to display control.
+            var menuItemIds = model.Root.FlattenNodes(false).Select(x => x.Value.MenuItemId);
+            Services.DisplayControl.AnnounceRange(menuItemIds.Select(id => new MenuItemEntity { Id = id }));
+        
             return View(viewName, model);
         }
     }
