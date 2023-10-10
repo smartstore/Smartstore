@@ -58,12 +58,14 @@ namespace Smartstore.Core.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
+            // Apply default for backward compatibility.
             await context.Currencies
                 .Where(x => x.RoundOrderItemsEnabled != null && x.RoundOrderItemsEnabled.Value == true)
                 .ExecuteUpdateAsync(setter => setter
                     .SetProperty(c => c.RoundNetPrices, p => true)
                     .SetProperty(c => c.RoundUnitPrices, p => true), cancelToken);
 
+            // Set RoundOrderItemsEnabled to "null" to more easily apply CurrencySettings.RoundOrderItemsEnabled (default is "false").
             await context.Currencies
                 .Where(x => x.RoundOrderItemsEnabled != null && x.RoundOrderItemsEnabled.Value == false)
                 .ExecuteUpdateAsync(setter => setter.SetProperty(c => c.RoundOrderItemsEnabled, p => null), cancelToken);
@@ -106,14 +108,14 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.RoundUnitPrices",
                 "Round unit price",
                 "Einzelpreis runden",
-                "Specifies whether to round the product unit price before or after quantity multiplication during shopping cart calculation. If activated, rounding takes place before, otherwise after the quantity multiplication.",
-                "Legt fest, ob bei der Warenkorbberechnung der Einzelpreis eines Produktes vor oder nach der Mengenmultiplikation gerundet werden soll. Falls aktiviert wird vor, sonst nach der Mengenmultiplikation gerundet.");
+                "Specifies whether the product price should be rounded before or after quantity multiplication during shopping cart calculation. If enabled, the unit price is rounded and then multiplied by the quantity. If disabled, the unit price is multiplied by the quantity and then rounded.",
+                "Legt fest, ob der Produkpreis bei der Warenkorbberechnung vor oder nach der Mengenmultiplikation gerundet werden soll. Falls aktiviert wird der Einzelpreis gerundet und dann mit der Menge multipliziert. Falls deaktiviert wird der Einzelpreis mit der Menge multipliziert und erst danach gerundet.");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.RoundOrderItemsEnabled",
                 "Round all order item amounts",
                 "Beträge aller Bestellpositionen runden",
-                "Specifies whether to round all order item amounts (products, tax, fees etc.). The general rounding settings are applied, if not specified here.",
-                "Legt fest, ob die Beträge aller Bestellpositionen gerundet werden sollen (Produkte, Steuern, Gebühren etc.). Es gelten die allgemeinen Rundungseinstellungen, sofern hier nicht festgelegt.");
+                "Specifies whether to round all order item amounts (prices, tax, fees etc.). The general rounding settings are applied, if not specified here.",
+                "Legt fest, ob die Beträge aller Bestellpositionen gerundet werden sollen (Preise, Steuern, Gebühren etc.). Es gelten die allgemeinen Rundungseinstellungen, sofern hier nicht festgelegt.");
 
             #endregion
 
@@ -142,8 +144,8 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Currency.RoundOrderItemsEnabled",
                 "Round all order item amounts",
                 "Beträge aller Bestellpositionen runden",
-                "Specifies whether to round all order item amounts (products, tax, fees etc.). Rounding settings can optionally also be specified for the respective currency.",
-                "Legt fest, ob die Beträge aller Bestellpositionen gerundet werden sollen (Produkte, Steuern, Gebühren etc.). Rundungseinstellungen können optional auch bei der jeweiligen Währung festgelegt werden.");
+                "Specifies whether to round all order item amounts (prices, tax, fees etc.). Rounding settings can optionally also be specified for the respective currency.",
+                "Legt fest, ob die Beträge aller Bestellpositionen gerundet werden sollen (Preise, Steuern, Gebühren etc.). Rundungseinstellungen können optional auch bei der jeweiligen Währung festgelegt werden.");
 
             #endregion
         }
