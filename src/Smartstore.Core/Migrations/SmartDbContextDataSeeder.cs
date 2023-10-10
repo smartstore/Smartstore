@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Checkout.Payment;
+﻿using Newtonsoft.Json.Linq;
+using System.Xml.Linq;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
@@ -289,6 +291,47 @@ namespace Smartstore.Core.Data.Migrations
                 "Mengenschritt",
                 "The order quantity is limited to a multiple of this value.",
                 "Die Bestellmenge ist auf ein Vielfaches dieses Wertes beschränkt.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ExtraRobotsLines",
+                "Additional lines for robots.txt",
+                "Zusätzliche Zeilen für robots.txt",
+                "Specify additional lines here that are to be added to robots.txt unchanged. Each entry has to be entered in a new line.",
+                "Geben Sie hier zusätzliche Zeilen an, die der robots.txt unverändert hinzugefügt werden sollen. Jeder Eintrag muss in einer neuen Zeile erfolgen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayAllows",
+                "Items for 'Allow'",
+                "Einträge für 'Allow'");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayAllows.Title",
+                "Show items for 'Allow'",
+                "Einträge für 'Allow' anzeigen");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayDisallows",
+                "Items for 'Disallow'",
+                "Einträge für 'Disallow'");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayDisallows.Title",
+                "Show items for 'Disallow'",
+                "Einträge für 'Disallow' anzeigen");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayAdditionalLines",
+                "Additional lines'",
+                "Zusätzliche Zeilen");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayAdditionalLines.Title",
+                "Show items for 'additional lines'",
+                "Einträge für 'zusätzliche Zeilen' anzeigen");
+
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.RobotsHint",
+                "The robots.txt file consists of the entries for Allows, Disallows and the additional lines. " +
+                "Each line of the Allows and Disallows entries is prefixed with the corresponding prefix. " +
+                "The entries that are defined as additional lines are appended to the file unchanged.",
+                "Die Datei robots.txt besteht aus den Einträgen für Allows, Disallows und zusätzlichen Zeilen. " +
+                "Dabei wird jeder Zeile der Allows- und Disallows-Einträge das entsprechende Präfix vorangestellt. " +
+                "Die Einträge, die als zusätzliche Zeilen hinterlegt sind, werden unverändert an die Datei angehängt.");
+
+
         }
 
         /// <summary>
