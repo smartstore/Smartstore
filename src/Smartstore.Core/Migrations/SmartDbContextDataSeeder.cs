@@ -263,6 +263,32 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("GiftCardAttribute.From.Virtual", "From", "Von");
 
             builder.AddOrUpdate("ShoppingCart.MoveToWishlist", "Move to wishlist", "Auf die Wunschliste");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.CartQuantity",
+                "Cart quantity",
+                "Bestellmenge");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.CartQuantity.Info",
+                "If the number of possible order quantities is less than 100, a drop-down menu is offered as a control for selecting the order quantity. Otherwise, a numeric input field is generated to allow free entry of the order quantity.",
+                "Wenn die Anzahl der möglichen Bestellmengen kleiner als 100 ist, wird ein Dropdown-Menü als Steuerelement für die Bestellmengenauswahl angeboten. Ansonsten wird ein numerisches Eingabefeld generiert, das eine freie Erfassung der Bestellmenge ermöglicht.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.HideQuantityControl",
+                "Hide quantity selection on product pages",
+                "Mengenauswahl auf Produktseiten ausblenden",
+                "Hides the quantity selection control on product pages. If enabled, 'Minimum cart quantity' determines the quantity added to the cart.",
+                "Blendet das Mengenauswahl-Steuerlement auf Produktseiten aus. 'Mindestbestellmenge' bestimmt i.d.F. die dem Warenkorb hinzugefügte Menge.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.AllowedQuantities",
+                "Custom quantities",
+                "Benutzerdefinierte Mengenliste",
+                "A comma-separated list of allowed order quantities for this product. Customers in this case select an order quantity from a drop-down menu instead of making a free entry. If this field is populated, the min/max/step settings will be disabled.",
+                "Eine kommagetrennte Liste mit erlaubten Bestellmengen für dieses Produkt. Kunden wählen i.d.F. eine Bestellmenge aus einem Dropdown-Menü aus, anstatt eine freie Eingabe zu tätigen. Wenn dieses Feld befüllt ist, werden Min/Max/Schritt außer Kraft gesetzt.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.QuantityStep",
+                "Quantity step",
+                "Mengenschritt",
+                "The order quantity is limited to a multiple of this value.",
+                "Die Bestellmenge ist auf ein Vielfaches dieses Wertes beschränkt.");
         }
 
         /// <summary>

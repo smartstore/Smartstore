@@ -205,6 +205,7 @@ namespace Smartstore.Admin.Controllers
                 product.StockQuantity = 10000;
                 product.OrderMinimumQuantity = 1;
                 product.OrderMaximumQuantity = 50;
+                product.QuantityStep = 1;
                 product.HideQuantityControl = false;
                 product.IsShippingEnabled = true;
                 product.AllowCustomerReviews = true;
