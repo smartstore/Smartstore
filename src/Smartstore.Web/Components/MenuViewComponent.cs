@@ -25,7 +25,7 @@ namespace Smartstore.Web.Components
             }
 
             var model = await menu.CreateModelAsync(template, ViewContext);
-
+            
             var viewName = model.Template ?? model.Name;
             if (viewName[0] != '~' && !viewName.StartsWith("Menus/", StringComparison.OrdinalIgnoreCase))
             {
@@ -33,10 +33,12 @@ namespace Smartstore.Web.Components
                 //viewName = "~/Views/Shared/Menus/" + viewName + ".cshtml";
             }
 
-            // Get menu item ids from model and announce entities to display control.
-            var menuItemIds = model.Root.FlattenNodes(false).Select(x => x.Value.MenuItemId);
-            Services.DisplayControl.AnnounceRange(menuItemIds.Select(id => new MenuItemEntity { Id = id }));
-        
+            // Get menu entity id from model and announce entity to display control.
+            if (model.Root.Value.MenuId > 0)
+            {
+                Services.DisplayControl.Announce(new MenuEntity { Id = model.Root.Value.MenuId });
+            }
+
             return View(viewName, model);
         }
     }

@@ -19,7 +19,15 @@ namespace Smartstore.Core.Content.Menus
         public int EntityId { get; set; }
         public string EntityName { get; set; }
 
+        /// <summary>
+        /// If this menu item originates from the database, the id of the <see cref="MenuItemEntity"/> entity.
+        /// </summary>
         public int MenuItemId { get; set; }
+
+        /// <summary>
+        /// If this menu item originates from the database, the id of the containing <see cref="MenuEntity"/> entity.
+        /// </summary>
+        public int MenuId { get; set; }
 
         /// <summary>
         /// The total count of contained elements (like the count of products within a category)

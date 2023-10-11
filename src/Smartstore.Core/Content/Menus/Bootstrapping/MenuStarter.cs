@@ -24,7 +24,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<DatabaseMenu>().Named<IMenu>("database").InstancePerDependency();
 
             var menuTypes = appContext.TypeScanner.FindTypes<IMenu>();
-            foreach (var type in menuTypes.Where(x => x.IsVisible))
+            foreach (var type in menuTypes.Where(x => x.IsVisible && x != typeof(DatabaseMenu)))
             {
                 builder.RegisterType(type).As<IMenu>().PropertiesAutowired(PropertyWiringOptions.None).InstancePerLifetimeScope();
             }

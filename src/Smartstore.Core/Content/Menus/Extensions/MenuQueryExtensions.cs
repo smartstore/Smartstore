@@ -22,7 +22,7 @@ namespace Smartstore.Core.Content.Menus
             int[] customerRoleIds = null,
             bool includeHidden = false)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (systemName.HasValue())
             {
@@ -58,7 +58,7 @@ namespace Smartstore.Core.Content.Menus
             int[] customerRoleIds = null,
             bool includeHidden = false)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var db = query.GetDbContext<SmartDbContext>();
 

@@ -77,6 +77,7 @@ namespace Smartstore.Core.Content.Menus
                 EntityId = entity.Id,
                 EntityName = "MenuItem", // nameof(MenuItemEntity),
                 MenuItemId = entity.Id,
+                MenuId = entity.MenuId,
                 Text = title,
                 Summary = shortDescription,
                 Visible = entity.Published,
