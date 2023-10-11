@@ -155,9 +155,9 @@ namespace Smartstore.Core.Checkout.Orders
             // Each sub-amount that is displayed separately on the cart page must be verified.
             var displayedAmounts = new List<decimal>
             {
-                includeTax ? subtotal.SubtotalWithoutDiscountInclTax : subtotal.SubtotalWithoutDiscountExclTax,
+                includeTax ? subtotal.SubtotalWithoutDiscountGross : subtotal.SubtotalWithoutDiscountNet,
                 includeTax ? 0m : shoppingCartTax,
-                includeTax ? -subtotal.DiscountAmountInclTax : -subtotal.DiscountAmountExclTax,
+                includeTax ? -subtotal.DiscountAmountGross : -subtotal.DiscountAmountNet,
                 -discountAmount,
                 shipping == null ? 0m : (includeTax ? shipping.Tax.PriceGross : shipping.Tax.PriceNet),
                 includeTax ? paymentFee.PriceGross : paymentFee.PriceNet
@@ -502,8 +502,8 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             var customer = cart.Customer;
-            var subtotalWithoutDiscountExclTax = 0m;
-            var subtotalWithoutDiscountInclTax = 0m;
+            var subtotalWithoutDiscountNet = 0m;
+            var subtotalWithoutDiscountGross = 0m;
 
             batchContext ??= _productService.CreateProductBatchContext(cart.Items.Select(x => x.Item.Product).ToArray(), null, customer, false);
 
@@ -526,13 +526,13 @@ namespace Smartstore.Core.Checkout.Orders
                 //    !subtotal.Tax.Value.Inclusive).Dump();
 
                 var tax = subtotal.Tax.Value;
-                var itemExclTax = _roundingHelper.RoundIfEnabledFor(tax.PriceNet);
-                var itemInclTax = _roundingHelper.RoundIfEnabledFor(tax.PriceGross);
+                var priceNet = _roundingHelper.RoundIfEnabledFor(tax.PriceNet);
+                var priceGross = _roundingHelper.RoundIfEnabledFor(tax.PriceGross);
 
-                subtotalWithoutDiscountExclTax += itemExclTax;
-                subtotalWithoutDiscountInclTax += itemInclTax;
+                subtotalWithoutDiscountNet += priceNet;
+                subtotalWithoutDiscountGross += priceGross;
 
-                result.TaxRates.Add(tax.Rate.Rate, itemInclTax - itemExclTax);
+                result.TaxRates.Add(tax.Rate.Rate, priceGross - priceNet);
 
                 result.LineItems.Add(new ShoppingCartLineItem(cartItem)
                 {
@@ -551,8 +551,8 @@ namespace Smartstore.Core.Checkout.Orders
                     {
                         var attributeTax = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(value, customer: customer);
 
-                        subtotalWithoutDiscountExclTax += attributeTax.PriceNet;
-                        subtotalWithoutDiscountInclTax += attributeTax.PriceGross;
+                        subtotalWithoutDiscountNet += attributeTax.PriceNet;
+                        subtotalWithoutDiscountGross += attributeTax.PriceGross;
 
                         result.TaxRates.Add(attributeTax.Rate.Rate, attributeTax.Amount);
                     }
@@ -560,22 +560,22 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Subtotal without discount.
-            result.SubtotalWithoutDiscountExclTax = _roundingHelper.RoundIfEnabledFor(Math.Max(subtotalWithoutDiscountExclTax, 0m));
-            result.SubtotalWithoutDiscountInclTax = _roundingHelper.RoundIfEnabledFor(Math.Max(subtotalWithoutDiscountInclTax, 0m));
+            result.SubtotalWithoutDiscountNet = _roundingHelper.RoundIfEnabledFor(Math.Max(subtotalWithoutDiscountNet, 0m));
+            result.SubtotalWithoutDiscountGross = _roundingHelper.RoundIfEnabledFor(Math.Max(subtotalWithoutDiscountGross, 0m));
 
             // We calculate discount amount on order subtotal excl tax (discount first).
-            var (discountAmountExclTax, appliedDiscount) = await GetDiscountAmountAsync(subtotalWithoutDiscountExclTax, DiscountType.AssignedToOrderSubTotal, customer);
+            var (discountAmountNet, appliedDiscount) = await GetDiscountAmountAsync(subtotalWithoutDiscountNet, DiscountType.AssignedToOrderSubTotal, customer);
 
-            if (subtotalWithoutDiscountExclTax < discountAmountExclTax)
+            if (subtotalWithoutDiscountNet < discountAmountNet)
             {
-                discountAmountExclTax = subtotalWithoutDiscountExclTax;
+                discountAmountNet = subtotalWithoutDiscountNet;
             }
 
-            var discountAmountInclTax = discountAmountExclTax;
+            var discountAmountGross = discountAmountNet;
 
-            // Subtotal with discount (excl tax).
-            var subtotalWithDiscountExclTax = subtotalWithoutDiscountExclTax - discountAmountExclTax;
-            var subtotalWithDiscountInclTax = subtotalWithDiscountExclTax;
+            // Subtotal with discount net.
+            var subtotalWithDiscountNet = subtotalWithoutDiscountNet - discountAmountNet;
+            var subtotalWithDiscountGross = subtotalWithDiscountNet;
 
             // Add tax for shopping items & checkout attributes.
             var tempTaxRates = new Dictionary<decimal, decimal>(result.TaxRates);
@@ -587,24 +587,23 @@ namespace Smartstore.Core.Checkout.Orders
                 if (taxAmount != 0m)
                 {
                     // Discount the tax amount that applies to subtotal items.
-                    if (subtotalWithoutDiscountExclTax > 0m)
+                    if (subtotalWithoutDiscountNet > 0m)
                     {
-                        var discountTax = result.TaxRates[taxRate] * (discountAmountExclTax / subtotalWithoutDiscountExclTax);
-                        discountAmountInclTax += discountTax;
+                        var discountTax = result.TaxRates[taxRate] * (discountAmountNet / subtotalWithoutDiscountNet);
+                        discountAmountGross += discountTax;
                         taxAmount = _roundingHelper.RoundIfEnabledFor(result.TaxRates[taxRate] - discountTax);
                         result.TaxRates[taxRate] = taxAmount;
                     }
 
-                    // Subtotal with discount (incl tax).
-                    subtotalWithDiscountInclTax += taxAmount;
+                    subtotalWithDiscountGross += taxAmount;
                 }
             }
 
-            result.SubtotalWithDiscountExclTax = _roundingHelper.RoundIfEnabledFor(Math.Max(subtotalWithDiscountExclTax, 0m));
-            result.SubtotalWithDiscountInclTax = _roundingHelper.RoundIfEnabledFor(Math.Max(subtotalWithDiscountInclTax, 0m));
+            result.SubtotalWithDiscountNet = _roundingHelper.RoundIfEnabledFor(Math.Max(subtotalWithDiscountNet, 0m));
+            result.SubtotalWithDiscountGross = _roundingHelper.RoundIfEnabledFor(Math.Max(subtotalWithDiscountGross, 0m));
 
-            result.DiscountAmountExclTax = _roundingHelper.RoundIfEnabledFor(discountAmountExclTax);
-            result.DiscountAmountInclTax = _roundingHelper.RoundIfEnabledFor(discountAmountInclTax);
+            result.DiscountAmountNet = _roundingHelper.RoundIfEnabledFor(discountAmountNet);
+            result.DiscountAmountGross = _roundingHelper.RoundIfEnabledFor(discountAmountGross);
 
             result.AppliedDiscount = appliedDiscount;
 
@@ -1065,20 +1064,20 @@ namespace Smartstore.Core.Checkout.Orders
                 _includeTax = includeTax;
             }
 
-            public decimal SubtotalWithoutDiscountExclTax { get; set; }
-            public decimal SubtotalWithoutDiscountInclTax { get; set; }
+            public decimal SubtotalWithoutDiscountNet { get; set; }
+            public decimal SubtotalWithoutDiscountGross { get; set; }
             public decimal SubtotalWithoutDiscount
-                => _includeTax ? SubtotalWithoutDiscountInclTax : SubtotalWithoutDiscountExclTax;
+                => _includeTax ? SubtotalWithoutDiscountGross : SubtotalWithoutDiscountNet;
 
-            public decimal SubtotalWithDiscountExclTax { get; set; }
-            public decimal SubtotalWithDiscountInclTax { get; set; }
+            public decimal SubtotalWithDiscountNet { get; set; }
+            public decimal SubtotalWithDiscountGross { get; set; }
             public decimal SubtotalWithDiscount
-                => _includeTax ? SubtotalWithDiscountInclTax : SubtotalWithDiscountExclTax;
+                => _includeTax ? SubtotalWithDiscountGross : SubtotalWithDiscountNet;
 
-            public decimal DiscountAmountExclTax { get; set; }
-            public decimal DiscountAmountInclTax { get; set; }
+            public decimal DiscountAmountNet { get; set; }
+            public decimal DiscountAmountGross { get; set; }
             public decimal DiscountAmount
-                => _includeTax ? DiscountAmountInclTax : DiscountAmountExclTax;
+                => _includeTax ? DiscountAmountGross : DiscountAmountNet;
 
             public Discount AppliedDiscount { get; set; }
             public TaxRatesDictionary TaxRates { get; set; } = new();
