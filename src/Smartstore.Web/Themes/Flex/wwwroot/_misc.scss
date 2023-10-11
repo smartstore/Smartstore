@@ -131,14 +131,9 @@
 
         // TODO: We should apply this to avatar images in general.
         .avatar-img {
-            --border-radius: 50%;
-            --border-opacity: 1;
-            --border-radius-inner: var(--border-radius);
-
-            background: #fff;
-            border-color: rgba(var(--light-rgb), var(--border-opacity)) !important;
-            border: var(--border-width) var(--border-style) var(--border-color) !important;
-            padding: 3px;
+            border: 1px solid var(--border-color-translucent);
+            outline: 3px solid #fff;
+            outline-offset: -4px;
         }
     }
 
