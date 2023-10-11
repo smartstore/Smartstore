@@ -30,10 +30,12 @@ namespace Smartstore.Web.Models.Cart
         public string ProductUrl { get; set; }
         public ProductType ProductType { get; set; }
         public bool VisibleIndividually { get; set; }
+
         public Money UnitPrice { get; set; }
         public Money SubTotal { get; set; }
         public Money Discount { get; set; }
         public string BasePrice { get; set; }
+        public CartItemPriceModel Price { get; set; } = new();
 
         public int EnteredQuantity { get; set; }
         public LocalizedValue<string> QuantityUnitName { get; set; }
@@ -61,5 +63,23 @@ namespace Smartstore.Web.Models.Cart
         public string PriceWithDiscount { get; set; }
         public int DisplayOrder { get; set; }
         public bool HideThumbnail { get; set; }
+    }
+
+    public partial class CartItemPriceModel : PriceModel
+    {
+        /// <summary>
+        /// Unit price actually is <see cref="PriceModel.FinalPrice" />
+        /// </summary>
+        public Money UnitPrice 
+        {
+            get => FinalPrice;
+        }
+
+        public int Quantity { get; set; } = 1;
+
+        public Money SubTotal { get; set; }
+        public bool ShowSavingBadge { get; set; }
+        public bool ShowPriceLabel { get; set; }
+        public LocalizedString CountdownText { get; set; }
     }
 }
