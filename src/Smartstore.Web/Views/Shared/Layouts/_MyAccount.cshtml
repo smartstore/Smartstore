@@ -8,7 +8,10 @@
         <div class="row">
             <div class="col-md-4 col-lg-3 d-print-none">
                 <zone name="myaccount_menu_before" />
-                <menu name="MyAccount" template="ListGroup"></menu>
+
+                @await Component.InvokeAsync("MyAccountHeader")
+
+                <menu name="MyAccount" template="ListGroup" />
                 <zone name="myaccount_menu_after" />
             </div>
             <div class="col-md-8 col-lg-9">

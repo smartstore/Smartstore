@@ -311,7 +311,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Dabei wird jeder Zeile der Allows- und Disallows-Einträge das entsprechende Präfix vorangestellt. " +
                 "Die Einträge, die als zusätzliche Zeilen hinterlegt sind, werden unverändert an die Datei angehängt.");
 
-
+            builder.Delete("Account.Navigation");
         }
 
         /// <summary>
