@@ -119,23 +119,23 @@
 .myaccount-header {
     border: $card-border-width solid $card-border-color;
     border-radius: $card-border-radius $card-border-radius 0 0;
-    padding: 0.75rem 1.25rem;
-    x-padding: 0.75rem;
+    padding: 0.75rem 1rem;
     margin-bottom: 0;
     background-color: $card-cap-bg;
     border-bottom: none;
 
     .customer-avatar-lg {
-        width: 75px;
-        height: 75px;
+        width: 64px;
+        height: 64px;
         display: block;
 
         // TODO: We should apply this to avatar images in general.
         .avatar-img {
-            background: #fff;
             --border-radius: 50%;
             --border-opacity: 1;
             --border-radius-inner: var(--border-radius);
+
+            background: #fff;
             border-color: rgba(var(--light-rgb), var(--border-opacity)) !important;
             border: var(--border-width) var(--border-style) var(--border-color) !important;
             padding: 3px;
@@ -144,23 +144,6 @@
 
     .avatar-letter {
         font-size: 3rem;
-    }
-
-    .my-account-email,
-    .my-account-username {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-    }
-
-    .my-account-username {
-        font-weight: 600;
-        font-size: 1rem;
-    }
-
-    .my-account-email {
-        font-size: 0.875rem;
-        color: #6c757d;
     }
 }
 

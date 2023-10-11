@@ -6,8 +6,8 @@
     <div class="col-3 col-md-12 col-xl-4 d-flex align-self-center justify-content-center">
         <partial name="Customer.Avatar" model="Model.Avatar" />
     </div>
-    <div class="col-9 col-md-12 col-xl-8 align-self-center">
-        <div class="my-account-username">@Model.CustomerName</div>
-        <div class="my-account-email text-muted">@Model.CustomerEmail</div>
+    <div class="col-9 col-md-12 col-xl-8 align-self-center text-truncate">
+        <div class="my-account-username fwm text-truncate">@Model.CustomerName</div>
+        <div class="my-account-email text-muted small text-truncate">@Model.CustomerEmail</div>
     </div>
 </div>
