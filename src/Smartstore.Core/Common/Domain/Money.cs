@@ -77,7 +77,7 @@ namespace Smartstore.Core.Common
         internal decimal RoundedAmount
         {
             get => decimal.Round(Amount, DecimalDigits, 
-                Currency == null || Currency.MidpointRounding == CurrencyMidpointRounding.ToEven ? MidpointRounding.ToEven : MidpointRounding.AwayFromZero);
+                Currency == null || Currency.MidpointRounding == CurrencyMidpointRounding.AwayFromZero ? MidpointRounding.AwayFromZero : MidpointRounding.ToEven);
         }
 
         /// <summary>

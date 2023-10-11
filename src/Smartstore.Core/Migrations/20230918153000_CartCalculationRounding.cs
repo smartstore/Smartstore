@@ -22,7 +22,7 @@ namespace Smartstore.Core.Migrations
 
             if (!Schema.Table(CurrencyTable).Column(MidpointRoundingColumn).Exists())
             {
-                Create.Column(MidpointRoundingColumn).OnTable(CurrencyTable).AsInt32().NotNullable().WithDefaultValue((int)CurrencyMidpointRounding.ToEven);
+                Create.Column(MidpointRoundingColumn).OnTable(CurrencyTable).AsInt32().NotNullable().WithDefaultValue((int)CurrencyMidpointRounding.AwayFromZero);
             }
 
             if (!Schema.Table(CurrencyTable).Column(RoundNetPricesColumn).Exists())
@@ -77,27 +77,27 @@ namespace Smartstore.Core.Migrations
         {
             #region Currency
 
-            builder.AddOrUpdate("Enums.CurrencyMidpointRounding.ToEven",
-                "Banker's rounding (round midpoint to the nearest even number)",
-                "Mathematisches Runden (Mittelwert auf den nächstgelegenen geraden Betrag runden)");
-
             builder.AddOrUpdate("Enums.CurrencyMidpointRounding.AwayFromZero",
                 "Commercial rounding (round midpoint to the nearest amount that is away from zero)",
                 "Kaufmännisches Runden (Mittelwert auf den nächstgelegenen, von Null entfernten Betrag runden)");
 
-            builder.AddOrUpdate("Enums.CurrencyMidpointRounding.ToEven.Example",
-                "1.2250 is rounded down to 1.22. 1.2350 is rounded up to 1.24.",
-                "1,2250 wird auf 1,22 abgerundet. 1,2350 wird auf 1,24 aufgerundet.");
+            builder.AddOrUpdate("Enums.CurrencyMidpointRounding.ToEven",
+                "Banker's rounding (round midpoint to the nearest even number)",
+                "Mathematisches Runden (Mittelwert auf den nächstgelegenen geraden Betrag runden)");
 
             builder.AddOrUpdate("Enums.CurrencyMidpointRounding.AwayFromZero.Example",
                 "1.2250 is rounded up to 1.23. 1.2240 is rounded down to 1.22.",
                 "1,2250 wird auf 1,23 aufgerundet. 1,2240 wird auf 1,22 abgerundet.");
 
+            builder.AddOrUpdate("Enums.CurrencyMidpointRounding.ToEven.Example",
+                "1.2250 is rounded down to 1.22. 1.2350 is rounded up to 1.24.",
+                "1,2250 wird auf 1,22 abgerundet. 1,2350 wird auf 1,24 aufgerundet.");
+
             builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.MidpointRounding",
                 "Midpoint rounding",
                 "Mittelwertrundung",
-                "Specifies the rounding strategy of the midway between two amounts. Default is banker's rounding.",
-                "Legt die Rundungsstrategie für die Mitte zwischen zwei Beträgen fest. Standard ist mathematisches Runden.");
+                "Specifies the rounding strategy of the midway between two amounts. Default is comercial rounding.",
+                "Legt die Rundungsstrategie für die Mitte zwischen zwei Beträgen fest. Standard ist kaufmännisches Runden.");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.RoundNetPrices",
                 "Round when net prices are displayed",

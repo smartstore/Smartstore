@@ -22,7 +22,7 @@ namespace Smartstore.Core.Common.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual decimal Round(decimal amount, int decimals, CurrencyMidpointRounding midpointRounding = CurrencyMidpointRounding.ToEven)
+        public virtual decimal Round(decimal amount, int decimals, CurrencyMidpointRounding midpointRounding = CurrencyMidpointRounding.AwayFromZero)
         {
             return decimal.Round(amount, decimals, Convert(midpointRounding));
         }
@@ -102,11 +102,11 @@ namespace Smartstore.Core.Common.Services
         {
             switch (midpointRounding)
             {
-                case CurrencyMidpointRounding.AwayFromZero:
-                    return MidpointRounding.AwayFromZero;
                 case CurrencyMidpointRounding.ToEven:
-                default:
                     return MidpointRounding.ToEven;
+                case CurrencyMidpointRounding.AwayFromZero:
+                default:
+                    return MidpointRounding.AwayFromZero;
             }
         }
     }

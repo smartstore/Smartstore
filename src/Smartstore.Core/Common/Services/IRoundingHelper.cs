@@ -23,7 +23,7 @@ namespace Smartstore.Core.Common.Services
         /// <param name="decimals">Number of decimal places (precision).</param>
         /// <param name="midpointRounding">The rounding strategy of the midway between two currency amounts.</param>
         /// <returns>Rounded amount.</returns>
-        decimal Round(decimal amount, int decimals, CurrencyMidpointRounding midpointRounding = CurrencyMidpointRounding.ToEven);
+        decimal Round(decimal amount, int decimals, CurrencyMidpointRounding midpointRounding = CurrencyMidpointRounding.AwayFromZero);
 
         /// <summary>
         /// Gets a value indicating whether rounding during shopping cart calculation is enabled.

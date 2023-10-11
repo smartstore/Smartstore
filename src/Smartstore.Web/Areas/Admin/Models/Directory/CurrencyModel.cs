@@ -60,7 +60,7 @@ namespace Smartstore.Admin.Models.Common
         public int RoundNumDecimals { get; set; } = 2;
 
         [LocalizedDisplay("*MidpointRounding")]
-        public CurrencyMidpointRounding MidpointRounding { get; set; } = CurrencyMidpointRounding.ToEven;
+        public CurrencyMidpointRounding MidpointRounding { get; set; } = CurrencyMidpointRounding.AwayFromZero;
 
         [LocalizedDisplay("*RoundOrderItemsEnabled")]
         public bool? RoundOrderItemsEnabled { get; set; }

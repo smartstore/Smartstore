@@ -6,16 +6,6 @@
     public enum CurrencyMidpointRounding
     {
         /// <summary>
-        /// Round the midpoint between two amounts to the nearest even number.
-        /// Also called "banker's rounding" or "mathematisches Runden".
-        /// </summary>
-        /// <example>
-        /// 1.2250 is rounded down to 1.22.
-        /// 1.2350 is rounded up to 1.24.
-        /// </example>
-        ToEven = 0,
-
-        /// <summary>
         /// Round the midpoint between two amounts to the nearest number that is away from zero.
         /// Thus down if the first dropped decimal place is 0, 1, 2, 3 or 4, otherwise round up.
         /// Also called "commercial rounding" or "kaufmännisches Runden".
@@ -24,7 +14,17 @@
         /// 1.2250 is rounded up to 1.23.
         /// 1.2240 is rounded down to 1.22.
         /// </example>
-        AwayFromZero
+        AwayFromZero = 0,
+
+        /// <summary>
+        /// Round the midpoint between two amounts to the nearest even number.
+        /// Also called "banker's rounding" or "mathematisches Runden".
+        /// </summary>
+        /// <example>
+        /// 1.2250 is rounded down to 1.22.
+        /// 1.2350 is rounded up to 1.24.
+        /// </example>
+        ToEven
     }
 
     /// <summary>

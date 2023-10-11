@@ -474,7 +474,7 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.AvailableDomainEndings = availableDomainEndings;
 
-            ViewBag.MidpointRoundings = CurrencyMidpointRounding.ToEven.ToSelectList()
+            ViewBag.MidpointRoundings = CurrencyMidpointRounding.AwayFromZero.ToSelectList()
                 .Select(x =>
                 {
                     var item = new ExtendedSelectListItem

@@ -97,7 +97,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the rounding strategy of the midpoint between two currency values.
         /// </summary>
-        public CurrencyMidpointRounding MidpointRounding { get; set; } = CurrencyMidpointRounding.ToEven;
+        public CurrencyMidpointRounding MidpointRounding { get; set; } = CurrencyMidpointRounding.AwayFromZero;
 
         /// <summary>
         /// Gets or sets a value indicating whether rounding during shopping cart calculation is enabled.

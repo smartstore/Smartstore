@@ -76,7 +76,7 @@ namespace Smartstore.Tests.Domain
                 DisplayLocale = "de-DE",
                 Published = true,
                 RoundNumDecimals = numDecimals,
-                MidpointRounding = CurrencyMidpointRounding.ToEven
+                MidpointRounding = CurrencyMidpointRounding.AwayFromZero
             };
 
             var roundedAmount = _roundingHelper.ToSmallestCurrencyUnit(amount, currency);
