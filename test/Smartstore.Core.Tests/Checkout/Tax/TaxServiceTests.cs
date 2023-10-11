@@ -109,18 +109,19 @@ namespace Smartstore.Core.Tests.Tax
         {
             var result = await _taxService.GetVatNumberStatusAsync(vatNumber);
 
+            if (result.Exception != null)
+            {
+                Assert.Warn($"{nameof(ITaxService.GetVatNumberStatusAsync)} threw an exception. Is the VAT check service perhaps temporarily out of service? {result.Exception.Message}");
+                return;
+            }
+
             if (status == VatNumberStatus.Invalid)
             {
-                result.Exception.ShouldBeNull();
                 result.Status.ShouldEqual(status);
             }
             else if (result.Exception == null)
             {
                 result.Status.ShouldEqual(status);
-            }
-            else
-            {
-                Assert.Warn($"{nameof(ITaxService.GetVatNumberStatusAsync)} threw an exception. Is the VAT check service perhaps temporarily out of service? {result.Exception.Message}");
             }
         }
     }
