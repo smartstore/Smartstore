@@ -1,6 +1,7 @@
 ﻿using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Configuration;
 
 namespace Smartstore.Core.Checkout.Cart
 {
@@ -13,7 +14,7 @@ namespace Smartstore.Core.Checkout.Cart
             => obj.Total;
 
         /// <summary>
-        /// Total amount of the shopping cart in the primary currency. <c>null</c> if the cart total couldn't be calculated yet.
+        /// Total amount of the shopping cart in the primary currency. <c>null</c> if the cart total could not be calculated yet.
         /// The total amount is rounded if rounding is enabled for <see cref="IWorkContext.WorkingCurrency"/>.
         /// </summary>
         public Money? Total { get; init; }
@@ -24,6 +25,14 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         /// <example>"Schweizer Rappenrundung" of 16.23 -> <see cref="Total"/> = 16.25 and <see cref="ToNearestRounding"/> = 0.02.</example>
         public Money ToNearestRounding { get; init; }
+
+        /// <summary>
+        /// The amount by which the total was rounded (in primary currency) according to <see cref="CurrencySettings.RoundOrderTotalDifference"/>.
+        /// </summary>
+        /// <remarks>
+        /// Either <see cref="ToNearestRounding"/> or <see cref="RoundingAmount"/> were rounded, but not both.
+        /// </remarks>
+        public Money RoundingAmount { get; init; }
 
         /// <summary>
         /// Applied discount amount in the primary currency.
@@ -78,7 +87,7 @@ namespace Smartstore.Core.Checkout.Cart
         public class ConvertedAmounts
         {
             /// <summary>
-            /// Shopping cart total amount converted to <see cref="IWorkContext.WorkingCurrency"/>. <c>null</c> if the cart total couldn't be calculated now.
+            /// Shopping cart total amount converted to <see cref="IWorkContext.WorkingCurrency"/>. <c>null</c> if the cart total could not be calculated now.
             /// </summary>
             public Money? Total { get; init; }
 
@@ -87,6 +96,14 @@ namespace Smartstore.Core.Checkout.Cart
             /// (cash rounding) is activated for the currency.
             /// </summary>
             public Money ToNearestRounding { get; init; }
+
+            /// <summary>
+            /// The amount by which the total was rounded (in <see cref="IWorkContext.WorkingCurrency"/>) according to <see cref="CurrencySettings.RoundOrderTotalDifference"/>.
+            /// </summary>
+            /// <remarks>
+            /// Either <see cref="ToNearestRounding"/> or <see cref="RoundingAmount"/> were rounded, but not both.
+            /// </remarks>
+            public Money RoundingAmount { get; init; }
         }
     }
 }

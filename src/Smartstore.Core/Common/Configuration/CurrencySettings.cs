@@ -53,7 +53,7 @@ namespace Smartstore.Core.Common.Configuration
         /// <remarks>
         /// Works similar to <see cref="Currency.RoundOrderTotalEnabled"/> with the difference that this total adjustment takes place silently.
         /// The adjusted amount is not displayed on the shopping cart page.
-        /// This way the admin is not forced to activate the rounding during shopping cart calculation to avoid rounding differences.
+        /// This way the administrator can avoid rounding differences without being forced to enable rounding in the shopping cart calculation.
         /// </remarks>
         public int RoundOrderTotalDifference { get; set; } = 2;
 
