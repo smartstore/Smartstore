@@ -4,6 +4,7 @@
 
 ### New Features
 
+- **payever** plugin (commercial)
 - **Botsonic** plugin (commercial)
 - The recycle bin for products enables to restore and permanently delete products.
 - #745 Page Builder: depend story visibility on user roles.
