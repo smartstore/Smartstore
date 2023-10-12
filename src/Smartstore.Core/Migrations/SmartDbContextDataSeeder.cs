@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Payment;
+﻿using Microsoft.AspNetCore.Components.Web;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Data.Migrations;
@@ -312,6 +313,13 @@ namespace Smartstore.Core.Data.Migrations
                 "Die Einträge, die als zusätzliche Zeilen hinterlegt sind, werden unverändert an die Datei angehängt.");
 
             builder.Delete("Account.Navigation");
+
+            builder.AddOrUpdate("PageTitle.Checkout.BillingAddress", "Billing address", "Rechnungsadresse");
+            builder.AddOrUpdate("PageTitle.Checkout.ShippingAddress", "Shipping address", "Lieferadresse");
+            builder.AddOrUpdate("PageTitle.Checkout.ShippingMethod", "Shipping method", "Versandart");
+            builder.AddOrUpdate("PageTitle.Checkout.PaymentMethod", "Payment method", "Zahlart");
+            builder.AddOrUpdate("PageTitle.Checkout.Confirm", "Confirm order", "Bestellbestätigung");
+            builder.AddOrUpdate("PageTitle.Checkout.Completed", "Thank you!", "Vielen Dank!");
         }
 
         /// <summary>
