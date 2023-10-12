@@ -110,25 +110,16 @@
     vertical-align: middle;
 }
 
-.myaccount-page .cms-menu-listgroup .card,
-.myaccount-page .cms-menu-listgroup .card > .list-group:first-child {
-    border-start-start-radius: 0;
-    border-start-end-radius: 0;
+.my-account-menu .card-header {
+    padding: 0.75rem;
 }
 
 .myaccount-header {
-    border: $card-border-width solid $card-border-color;
-    border-radius: $card-border-radius $card-border-radius 0 0;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0;
-    background-color: $card-cap-bg;
-    border-bottom: none;
-
     .customer-avatar-lg {
         width: 64px;
         height: 64px;
         display: block;
-
+        margin-right: 0.625rem;
         // TODO: We should apply this to avatar images in general.
         .avatar-img {
             border: 1px solid var(--border-color-translucent);
@@ -139,13 +130,6 @@
 
     .avatar-letter {
         font-size: 3rem;
-    }
-}
-
-@include media-breakpoint-down(xl) {
-    .myaccount-header .customer-avatar-lg {
-        width: 65px;
-        height: 65px;
     }
 }
 
