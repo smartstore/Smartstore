@@ -96,7 +96,405 @@ namespace Smartstore.Core.Checkout.Orders
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        //public virtual async Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
+        //    ShoppingCart cart,
+        //    bool includeRewardPoints = true,
+        //    bool includePaymentFee = true,
+        //    bool includeCreditBalance = true)
+        //{
+        //    Guard.NotNull(cart);
+
+        //    var cacheKey = $"ordercalculation:carttotal:{cart.GetHashCode()}-{includeRewardPoints}-{includePaymentFee}-{includeCreditBalance}";
+
+        //    // INFO: CartTotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page.
+        //    if (_requestCache.Contains(cacheKey))
+        //    {
+        //        return _requestCache.Get<ShoppingCartTotal>(cacheKey, null);
+        //    }
+
+        //    var customer = cart.Customer;
+        //    var includeTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+        //    var paymentMethodSystemName = customer != null ? customer.GenericAttributes.SelectedPaymentMethod : string.Empty;
+
+        //    var (cartTax, _) = await GetCartTaxTotalAsync(cart, includePaymentFee);
+        //    var cartTaxAmount = _roundingHelper.Round(includeTax ? 0m : cartTax);
+
+        //    var subtotal = await GetCartSubtotalAsync(cart, false);
+        //    var subtotalWithDiscountAmount = _roundingHelper.Round(includeTax ? subtotal.SubtotalWithDiscountGross : subtotal.SubtotalWithDiscountNet);
+        //    var subtotalWithoutDiscountAmount = _roundingHelper.Round(includeTax ? subtotal.SubtotalWithoutDiscountGross : subtotal.SubtotalWithoutDiscountNet);
+        //    var subtotalDiscountAmount = _roundingHelper.Round(includeTax ? subtotal.DiscountAmountGross : subtotal.DiscountAmountNet);
+
+        //    var shipping = await GetCartShippingTotalAsync(cart, false);
+        //    var shippingAmount = shipping != null ? _roundingHelper.Round(includeTax ? shipping.Tax.PriceGross : shipping.Tax.PriceNet) : 0m;
+
+        //    var paymentFeeAmount = 0m;
+        //    if (includePaymentFee && paymentMethodSystemName.HasValue())
+        //    {
+        //        var paymentFee = await GetShoppingCartPaymentFeeAsync(cart, paymentMethodSystemName);
+        //        if (paymentFee.Amount != 0m)
+        //        {
+        //            var paymentFeeTax = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentFee.Amount, false, null, customer);
+        //            paymentFeeAmount = _roundingHelper.Round(includeTax ? paymentFeeTax.PriceGross : paymentFeeTax.PriceNet);
+        //        }
+        //    }
+
+        //    // Order total discount.
+        //    var tempTotal = _roundingHelper.Round(subtotalWithDiscountAmount + cartTaxAmount + shippingAmount + paymentFeeAmount);
+        //    //$"- temp total {tempTotal}... subtotalWithDiscountAmount:{subtotalWithDiscountAmount} cartTaxAmount:{cartTaxAmount} shippingAmount:{shippingAmount} paymentFeeAmount:{paymentFeeAmount}".Dump();
+        //    var (totalDiscountAmount, appliedDiscount) = await GetDiscountAmountAsync(tempTotal, DiscountType.AssignedToOrderTotal, customer);
+        //    totalDiscountAmount = _roundingHelper.Round(totalDiscountAmount);
+        //    if (tempTotal < totalDiscountAmount)
+        //    {
+        //        totalDiscountAmount = tempTotal;
+        //    }
+
+        //    var total = _roundingHelper.Round(
+        //        subtotalWithoutDiscountAmount
+        //        - subtotalDiscountAmount
+        //        - totalDiscountAmount
+        //        + cartTaxAmount
+        //        + shippingAmount 
+        //        + paymentFeeAmount);
+
+        //    // Applied gift cards.
+        //    var appliedGiftCards = new List<AppliedGiftCard>();
+        //    if (!cart.IncludesMatchingItems(x => x.IsRecurring))
+        //    {
+        //        var giftCards = await _giftCardService.GetValidGiftCardsAsync(_storeContext.CurrentStore.Id, customer);
+        //        foreach (var gc in giftCards)
+        //        {
+        //            if (total > 0m)
+        //            {
+        //                var usableAmount = _roundingHelper.Round(gc.UsableAmount.Amount);
+        //                usableAmount = total > usableAmount ? usableAmount : total;
+
+        //                total -= usableAmount;
+
+        //                appliedGiftCards.Add(new()
+        //                {
+        //                    GiftCard = gc.GiftCard,
+        //                    UsableAmount = new(usableAmount, _primaryCurrency)
+        //                });
+        //            }
+        //        }
+        //    }
+
+        //    // Reward points.
+        //    var redeemedRewardPoints = 0;
+        //    var redeemedRewardPointsAmount = 0m;
+
+        //    if (_rewardPointsSettings.Enabled &&
+        //        includeRewardPoints &&
+        //        total > 0m &&
+        //        customer != null &&
+        //        customer.GenericAttributes.UseRewardPointsDuringCheckout)
+        //    {
+        //        var rewardPointsBalance = customer.GetRewardPointsBalance();
+        //        var rewardPointsBalanceAmount = ConvertRewardPointsToAmountInternal(rewardPointsBalance);
+
+        //        if (total > rewardPointsBalanceAmount)
+        //        {
+        //            redeemedRewardPointsAmount = rewardPointsBalanceAmount;
+        //            redeemedRewardPoints = rewardPointsBalance;
+        //        }
+        //        else
+        //        {
+        //            redeemedRewardPointsAmount = total;
+        //            redeemedRewardPoints = ConvertAmountToRewardPoints(redeemedRewardPointsAmount);
+        //        }
+        //    }
+
+        //    total = _roundingHelper.Round(Math.Max(total, 0m));
+
+        //    var totalConverted = total;
+        //    var appliedCreditBalance = 0m;
+        //    var toNearestRounding = 0m;
+        //    var toNearestRoundingConverted = 0m;
+
+        //    if (shipping != null)
+        //    {
+        //        total -= _roundingHelper.Round(redeemedRewardPointsAmount);
+
+        //        // Credit balance.
+        //        if (includeCreditBalance && customer != null && total > 0m)
+        //        {
+        //            var creditBalance = _roundingHelper.Round(customer.GenericAttributes.UseCreditBalanceDuringCheckout);
+        //            if (creditBalance > 0m)
+        //            {
+        //                if (creditBalance > total)
+        //                {
+        //                    // Normalize used amount.
+        //                    appliedCreditBalance = total;
+
+        //                    customer.GenericAttributes.UseCreditBalanceDuringCheckout = total;
+        //                    await _db.SaveChangesAsync();
+        //                }
+        //                else
+        //                {
+        //                    appliedCreditBalance = creditBalance;
+        //                }
+        //            }
+        //        }
+
+        //        total = _roundingHelper.Round(total - appliedCreditBalance);
+        //        // TODO: convert each value to avoid rounding difference!
+        //        totalConverted = _currencyService.ConvertToWorkingCurrency(total).Amount;
+
+        //        // Round order total to nearest (cash rounding).
+        //        if (_workingCurrency.RoundOrderTotalEnabled
+        //            && paymentMethodSystemName.HasValue()
+        //            && await _db.PaymentMethods.AnyAsync(x => x.PaymentMethodSystemName == paymentMethodSystemName && x.RoundOrderTotalEnabled))
+        //        {
+        //            total = _roundingHelper.ToNearest(total, out toNearestRounding);
+        //            totalConverted = _roundingHelper.ToNearest(totalConverted, out toNearestRoundingConverted);
+        //        }
+        //    }
+
+        //    var shoppingCartTotal = new ShoppingCartTotal
+        //    {
+        //        Total = shipping != null ? new(total, _primaryCurrency) : null,
+        //        ToNearestRounding = new(toNearestRounding, _primaryCurrency),
+        //        DiscountAmount = new(totalDiscountAmount, _primaryCurrency),
+        //        AppliedDiscount = appliedDiscount,
+        //        RedeemedRewardPoints = redeemedRewardPoints,
+        //        RedeemedRewardPointsAmount = new(redeemedRewardPointsAmount, _primaryCurrency),
+        //        CreditBalance = new(appliedCreditBalance, _primaryCurrency),
+        //        AppliedGiftCards = appliedGiftCards,
+        //        LineItems = subtotal.LineItems,
+        //        ConvertedAmount = new()
+        //        {
+        //            Total = shipping != null ? new(totalConverted, _workingCurrency) : null,
+        //            ToNearestRounding = new(toNearestRoundingConverted, _workingCurrency)
+        //        }
+        //    };
+
+        //    _requestCache.Put(cacheKey, shoppingCartTotal);
+
+        //    return shoppingCartTotal;
+        //}
+
         public virtual async Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
+            ShoppingCart cart,
+            bool includeRewardPoints = true,
+            bool includePaymentFee = true,
+            bool includeCreditBalance = true)
+        {
+            Guard.NotNull(cart);
+
+            var cacheKey = $"ordercalculation:carttotal:{cart.GetHashCode()}-{includeRewardPoints}-{includePaymentFee}-{includeCreditBalance}";
+
+            // INFO: CartTotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page.
+            if (_requestCache.Contains(cacheKey))
+            {
+                return _requestCache.Get<ShoppingCartTotal>(cacheKey, null);
+            }
+
+            var customer = cart.Customer;
+            var includeTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+            var paymentMethodSystemName = customer != null ? customer.GenericAttributes.SelectedPaymentMethod : string.Empty;
+
+            var (cartTax, _) = await GetCartTaxTotalAsync(cart, includePaymentFee);
+            var cartTaxAmount = Round(includeTax ? 0m : cartTax);
+
+            var subtotal = await GetCartSubtotalAsync(cart, false);
+            var subtotalWithDiscountAmount = Round(includeTax ? subtotal.SubtotalWithDiscountGross : subtotal.SubtotalWithDiscountNet);
+            var subtotalWithoutDiscountAmount = Round(includeTax ? subtotal.SubtotalWithoutDiscountGross : subtotal.SubtotalWithoutDiscountNet);
+            var subtotalDiscountAmount = Round(includeTax ? subtotal.DiscountAmountGross : subtotal.DiscountAmountNet);
+
+            var shipping = await GetCartShippingTotalAsync(cart, false);
+            var shippingAmount = shipping != null ? Round(includeTax ? shipping.Tax.PriceGross : shipping.Tax.PriceNet) : Round(0m);
+
+            var paymentFeeAmount = Round(0m);
+            if (includePaymentFee && paymentMethodSystemName.HasValue())
+            {
+                var paymentFee = await GetShoppingCartPaymentFeeAsync(cart, paymentMethodSystemName);
+                if (paymentFee.Amount != 0m)
+                {
+                    var paymentFeeTax = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentFee.Amount, false, null, customer);
+                    paymentFeeAmount = Round(includeTax ? paymentFeeTax.PriceGross : paymentFeeTax.PriceNet);
+                }
+            }
+
+            // Order total discount.
+            var tempTotal = _roundingHelper.Round(subtotalWithDiscountAmount.Amount + cartTaxAmount.Amount + shippingAmount.Amount + paymentFeeAmount.Amount);
+            var (totalDiscountAmount, appliedDiscount) = await GetDiscountAmountAsync(tempTotal, DiscountType.AssignedToOrderTotal, customer);
+            $"- temp total {tempTotal}".Dump();
+            totalDiscountAmount = _roundingHelper.Round(totalDiscountAmount);
+            totalDiscountAmount = tempTotal < totalDiscountAmount ? tempTotal : totalDiscountAmount;
+
+            var tempTotalConverted = _roundingHelper.Round(subtotalWithDiscountAmount.Converted + cartTaxAmount.Converted + shippingAmount.Converted + paymentFeeAmount.Converted);
+            var (totalDiscountAmountConverted, _) = await GetDiscountAmountAsync(tempTotalConverted, DiscountType.AssignedToOrderTotal, customer);
+            totalDiscountAmountConverted = _roundingHelper.Round(totalDiscountAmountConverted);
+            totalDiscountAmountConverted = tempTotalConverted < totalDiscountAmountConverted ? tempTotalConverted : totalDiscountAmountConverted;
+
+            var total = _roundingHelper.Round(
+                subtotalWithoutDiscountAmount.Amount
+                - subtotalDiscountAmount.Amount
+                - totalDiscountAmount
+                + cartTaxAmount.Amount
+                + shippingAmount.Amount
+                + paymentFeeAmount.Amount);
+
+            var totalConverted = _roundingHelper.Round(
+                subtotalWithoutDiscountAmount.Converted
+                - subtotalDiscountAmount.Converted
+                - totalDiscountAmountConverted
+                + cartTaxAmount.Converted
+                + shippingAmount.Converted
+                + paymentFeeAmount.Converted);
+
+            // Applied gift cards.
+            var appliedGiftCards = new List<AppliedGiftCard>();
+            if (!cart.IncludesMatchingItems(x => x.IsRecurring))
+            {
+                var giftCards = await _giftCardService.GetValidGiftCardsAsync(_storeContext.CurrentStore.Id, customer);
+                foreach (var gc in giftCards)
+                {
+                    var giftCardAmount = Round(gc.UsableAmount.Amount);
+
+                    if (total > 0m)
+                    {
+                        var usableAmount = total > giftCardAmount.Amount ? giftCardAmount.Amount : total;
+                        total -= usableAmount;
+
+                        appliedGiftCards.Add(new()
+                        {
+                            GiftCard = gc.GiftCard,
+                            UsableAmount = new(usableAmount, _primaryCurrency)
+                        });
+                    }
+
+                    if (totalConverted > 0m)
+                    {
+                        var usableAmountConverted = totalConverted > giftCardAmount.Converted ? giftCardAmount.Converted : totalConverted;
+                        totalConverted -= usableAmountConverted;
+                    }
+                }
+            }
+
+            // Reward points.
+            var redeemedRewardPoints = 0;
+            var redeemedRewardPointsAmount = 0m;
+            var redeemedRewardPointsAmountConverted = 0m;
+
+            if (_rewardPointsSettings.Enabled &&
+                includeRewardPoints &&
+                total > 0m &&
+                customer != null &&
+                customer.GenericAttributes.UseRewardPointsDuringCheckout)
+            {
+                var rewardPointsBalance = customer.GetRewardPointsBalance();
+                var rewardPointsBalanceAmount = Round(ConvertRewardPointsToAmountInternal(rewardPointsBalance));
+
+                if (total > rewardPointsBalanceAmount.Amount)
+                {
+                    redeemedRewardPointsAmount = rewardPointsBalanceAmount.Amount;
+                    redeemedRewardPoints = rewardPointsBalance;
+                }
+                else
+                {
+                    redeemedRewardPointsAmount = total;
+                    redeemedRewardPoints = ConvertAmountToRewardPoints(redeemedRewardPointsAmount);
+                }
+
+                redeemedRewardPointsAmountConverted = totalConverted > rewardPointsBalanceAmount.Converted
+                    ? rewardPointsBalanceAmount.Converted
+                    : totalConverted;
+            }
+
+            total = _roundingHelper.Round(Math.Max(total, 0m));
+            totalConverted = _roundingHelper.Round(Math.Max(totalConverted, 0m));
+
+            var creditBalanceToApply = 0m;
+            var creditBalanceToApplyConverted = 0m;
+            var toNearestRounding = 0m;
+            var toNearestRoundingConverted = 0m;
+
+            if (shipping != null)
+            {
+                total -= _roundingHelper.Round(redeemedRewardPointsAmount);
+                totalConverted -= _roundingHelper.Round(redeemedRewardPointsAmountConverted);
+
+                // Credit balance.
+                if (includeCreditBalance && customer != null && total > 0m)
+                {
+                    var creditBalance = Round(customer.GenericAttributes.UseCreditBalanceDuringCheckout);
+                    if (creditBalance.Amount > 0m)
+                    {
+                        if (creditBalance.Amount > total)
+                        {
+                            // Normalize used amount.
+                            creditBalanceToApply = total;
+
+                            customer.GenericAttributes.UseCreditBalanceDuringCheckout = total;
+                            await _db.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            creditBalanceToApply = creditBalance.Amount;
+                        }
+                    }
+
+                    if (creditBalance.Converted > 0m)
+                    {
+                        creditBalanceToApplyConverted = creditBalance.Converted > totalConverted ? totalConverted : creditBalance.Converted;
+                    }
+                }
+
+                total = _roundingHelper.Round(total - creditBalanceToApply);
+                totalConverted = _roundingHelper.Round(totalConverted - creditBalanceToApplyConverted);
+
+                // Round order total to nearest (cash rounding).
+                if (_workingCurrency.RoundOrderTotalEnabled
+                    && paymentMethodSystemName.HasValue()
+                    && await _db.PaymentMethods.AnyAsync(x => x.PaymentMethodSystemName == paymentMethodSystemName && x.RoundOrderTotalEnabled))
+                {
+                    total = _roundingHelper.ToNearest(total, out toNearestRounding);
+                    totalConverted = _roundingHelper.ToNearest(totalConverted, out toNearestRoundingConverted);
+                }
+            }
+
+            var shoppingCartTotal = new ShoppingCartTotal
+            {
+                Total = shipping != null ? new(total, _primaryCurrency) : null,
+                ToNearestRounding = new(toNearestRounding, _primaryCurrency),
+                DiscountAmount = new(totalDiscountAmount, _primaryCurrency),
+                AppliedDiscount = appliedDiscount,
+                RedeemedRewardPoints = redeemedRewardPoints,
+                RedeemedRewardPointsAmount = new(redeemedRewardPointsAmount, _primaryCurrency),
+                CreditBalance = new(creditBalanceToApply, _primaryCurrency),
+                AppliedGiftCards = appliedGiftCards,
+                LineItems = subtotal.LineItems,
+                ConvertedAmount = new()
+                {
+                    Total = shipping != null ? new(totalConverted, _workingCurrency) : null,
+                    ToNearestRounding = new(toNearestRoundingConverted, _workingCurrency)
+                }
+            };
+
+            _requestCache.Put(cacheKey, shoppingCartTotal);
+
+            return shoppingCartTotal;
+        }
+
+        private (decimal Amount, decimal Converted) Round(decimal amount)
+        {
+            if (amount == 0m)
+            {
+                return (0m, 0m);
+            }
+
+            var roundedAmount = _roundingHelper.Round(amount, _workingCurrency);
+
+            if (_primaryCurrency.Id == _workingCurrency.Id)
+            {
+                return (roundedAmount, roundedAmount);
+            }
+
+            return (roundedAmount, _roundingHelper.Round(_currencyService.ConvertToWorkingCurrency(amount).Amount));
+        }
+
+        public virtual async Task<ShoppingCartTotal> GetShoppingCartTotalAsync_Old(
             ShoppingCart cart,
             bool includeRewardPoints = true,
             bool includePaymentFee = true,
@@ -139,6 +537,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             // Cart total.
             var total = _roundingHelper.RoundIfEnabledFor(subtotalBase + shoppingCartTax + shippingAmount + paymentFee.Price);
+            //$"- subtotalBase:{subtotalBase} shoppingCartTax:{shoppingCartTax} shippingAmount:{shippingAmount} paymentFee:{paymentFee.Price}".Dump();
 
             // Order total discount.
             var (discountAmount, appliedDiscount) = await GetDiscountAmountAsync(total, DiscountType.AssignedToOrderTotal, customer);
@@ -1039,7 +1438,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual decimal ConvertRewardPointsToAmountInternal(int rewardPoints)
-            => _roundingHelper.RoundIfEnabledFor(rewardPoints > 0 ? rewardPoints * _rewardPointsSettings.ExchangeRate : 0m);
+            => _roundingHelper.Round(rewardPoints > 0 ? rewardPoints * _rewardPointsSettings.ExchangeRate : 0m);
 
         protected virtual int ConvertAmountToRewardPoints(decimal amount)
         {
@@ -1054,6 +1453,8 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         #endregion
+
+        #region Helpers
 
         protected class CartSubtotal
         {
@@ -1097,5 +1498,7 @@ namespace Smartstore.Core.Checkout.Orders
             public bool HasHighestTaxRate { get; internal set; }
             public decimal ProRataWeighting { get; internal set; } = 0m;
         }
+
+        #endregion
     }
 }
