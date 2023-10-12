@@ -30,7 +30,7 @@
     }
 }
 
-<div class="@(Model.Large ? "customer-avatar-lg" : "customer-avatar")">
+<div class="@(Model.Large ? "customer-avatar-lg" : "customer-avatar")" attr-class='(Model.DisplayCircle, "avatar-circle")'>
     @if (canViewProfile)
     {
         <a class="avatar-link" asp-route="CustomerProfile" asp-route-id="@Model.Id">

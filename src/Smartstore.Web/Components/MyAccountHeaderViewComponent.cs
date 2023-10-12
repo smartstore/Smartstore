@@ -14,7 +14,7 @@ namespace Smartstore.Web.Components
             {
                 CustomerEmail = customer.Email,
                 CustomerName = customerName,
-                Avatar = await customer.MapAsync(customerName, true)
+                Avatar = await customer.MapAsync(customerName, true, true)
             };
 
             return View(model);
