@@ -70,7 +70,9 @@
         color: inherit;
     }
 
-    .avatar-link, .avatar-img, .avatar-letter {
+    .avatar-link, 
+    .avatar-img, 
+    .avatar-letter {
         border-radius: 50%;
         border: 0;
         width: 100%;
@@ -83,12 +85,10 @@
         font-weight: bold;
     }
 
-    &.avatar-circle {
-        .avatar-img {
-            border: 1px solid var(--border-color-translucent);
-            outline: 3px solid #fff;
-            outline-offset: -4px;
-        }
+    .avatar-ring {
+        border: 1px solid var(--border-color-translucent);
+        outline: 3px solid #fff;
+        outline-offset: -4px;
     }
 }
 
@@ -127,7 +127,6 @@
         width: 64px;
         height: 64px;
         display: block;
-        margin-right: 0.625rem;
     }
 
     .avatar-letter {
