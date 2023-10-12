@@ -174,7 +174,7 @@
                     </div>
                 </div>
                 <div class="cart-col cart-col-price">
-                    @Html.Raw(item.BundleItem.PriceWithDiscount.HasValue() ? item.BundleItem.PriceWithDiscount : "&nbsp;")
+                    @Html.Raw(item.BundleItem.Price.HasValue ? item.BundleItem.Price : "&nbsp;")
                 </div>
                 <div class="cart-col">&nbsp;</div>
                 <div class="cart-col">&nbsp;</div>

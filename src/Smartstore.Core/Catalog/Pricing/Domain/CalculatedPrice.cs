@@ -16,7 +16,7 @@ namespace Smartstore.Core.Catalog.Pricing
     {
         public CalculatedPrice(CalculatorContext context)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             Product = context.Product;
             AppliedDiscounts = context.AppliedDiscounts;
@@ -29,7 +29,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public CalculatedPrice(Product product)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             Product = product;
             AppliedDiscounts = new List<Discount>();

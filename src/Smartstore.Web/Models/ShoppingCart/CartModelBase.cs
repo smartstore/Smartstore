@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Catalog;
@@ -61,25 +62,33 @@ namespace Smartstore.Web.Models.Cart
     public partial class BundleItemModel : EntityModelBase
     {
         public string PriceWithDiscount { get; set; }
+        public Money? Price { get; set; }
         public int DisplayOrder { get; set; }
         public bool HideThumbnail { get; set; }
     }
 
-    public partial class CartItemPriceModel : PriceModel
+    public partial class CartItemPriceModel : ModelBase
     {
-        /// <summary>
-        /// Unit price actually is <see cref="PriceModel.FinalPrice" />
-        /// </summary>
-        public Money UnitPrice 
-        {
-            get => FinalPrice;
-        }
-
         public int Quantity { get; set; } = 1;
 
+        public Money UnitPrice { get; set; }
         public Money SubTotal { get; set; }
+        public Money? ShippingSurcharge { get; set; }
+
+        public Money Discount { get; set; }
+        public PriceSaving Saving { get; set; }
+        public DateTime? ValidUntilUtc { get; set; }
+        public LocalizedString CountdownText { get; set; }
+
+        public ComparePriceModel RegularPrice { get; set; }
+        public ComparePriceModel RetailPrice { get; set; }
+
+        public string BasePriceInfo { get; set; }
+
+        public bool ShowRetailPriceSaving { get; set; }
         public bool ShowSavingBadge { get; set; }
         public bool ShowPriceLabel { get; set; }
-        public LocalizedString CountdownText { get; set; }
+
+        public List<ProductBadgeModel> Badges { get; } = new();
     }
 }

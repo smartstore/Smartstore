@@ -33,7 +33,7 @@ namespace Smartstore
         /// <returns>The exchanged amount in <paramref name="toCurrency"/>.</returns>
         public static Money ConvertFromPrimaryCurrency(this ICurrencyService service, decimal amount, Currency toCurrency)
         {
-            Guard.NotNull(toCurrency, nameof(toCurrency));
+            Guard.NotNull(toCurrency);
             return new Money(amount, service.PrimaryCurrency).ExchangeTo(toCurrency, service.PrimaryExchangeCurrency);
         }
 

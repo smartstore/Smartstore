@@ -2,7 +2,6 @@
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Localization;
 using Smartstore.Diagnostics;
 using Smartstore.Web.Models.Catalog;
@@ -313,28 +312,6 @@ namespace Smartstore.Web.Controllers
             }
 
             return contextProduct;
-        }
-
-        #endregion
-
-        #region Cart item price modelling
-
-        public async Task MapCartItemPriceModelAsync(
-            OrganizedShoppingCartItem cartItem, 
-            ShoppingCartSubtotal subTotal,
-            ProductBatchContext batchContext, 
-            string taxFormat)
-        {
-            Guard.NotNull(cartItem);
-
-            var item = cartItem.Item;
-            var product = cartItem.Item.Product;
-            var customer = item.Customer;
-            var shoppingCartType = item.ShoppingCartType;
-
-            // ...
-
-            await Task.Yield();
         }
 
         #endregion

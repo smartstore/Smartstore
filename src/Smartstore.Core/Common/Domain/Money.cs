@@ -474,8 +474,8 @@ namespace Smartstore.Core.Common
         /// <param name="exchangeCurrency">Primary exchange currency.</param>
         public Money ExchangeTo(Currency toCurrency, Currency exchangeCurrency)
         {
-            Guard.NotNull(toCurrency, nameof(toCurrency));
-            Guard.NotNull(exchangeCurrency, nameof(exchangeCurrency));
+            Guard.NotNull(toCurrency);
+            Guard.NotNull(exchangeCurrency);
 
             if (Currency == toCurrency)
                 return this;

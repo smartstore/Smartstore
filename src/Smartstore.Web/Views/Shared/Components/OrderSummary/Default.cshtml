@@ -39,7 +39,7 @@
                 <div class="col-lg-5 col-xl-4">
                     <div class="cart-footer">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-12 cart-footer-group">
                                 @if (Model.IsEditable)
                                 {
                                     <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
@@ -55,7 +55,7 @@
 
                                 <hr class="mt-2 mb-3" />
                             </div>
-                            <div class="col-12">
+                            <div class="col-12 cart-footer-group" sm-suppress-if-empty>
                                 @if (Model.IsEditable)
                                 {
                                     <zone name="order_summary_actions_before" />
@@ -74,7 +74,7 @@
                                     </div>
                                 }
                             </div>
-                            <div sm-if="Model.IsEditable" class="col-12 mt-3">
+                            <div sm-if="Model.IsEditable" class="col-12 mt-3 cart-footer-group">
                                 <zone name="order_summary_buttons_before" />
 
                                 <div class="cart-buttons">

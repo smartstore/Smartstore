@@ -29,11 +29,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="targetCurrency">The target currency for money exchange. Required.</param>
         public PriceCalculationOptions(ProductBatchContext batchContext, Customer customer, Store store, Language language, Currency targetCurrency)
         {
-            Guard.NotNull(batchContext, nameof(batchContext));
-            Guard.NotNull(customer, nameof(customer));
-            Guard.NotNull(store, nameof(store));
-            Guard.NotNull(language, nameof(language));
-            Guard.NotNull(targetCurrency, nameof(targetCurrency));
+            Guard.NotNull(batchContext);
+            Guard.NotNull(customer);
+            Guard.NotNull(store);
+            Guard.NotNull(language);
+            Guard.NotNull(targetCurrency);
 
             BatchContext = batchContext;
             Customer = customer;

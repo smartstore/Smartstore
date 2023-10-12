@@ -31,6 +31,7 @@
         var showWeight = Model.DisplayWeight && item.Weight > 0;
         var showDeliveryName = false;
         var showDeliveryDate = false;
+        var price = item.Price;
 
         if (deliveryPresentation != DeliveryTimesPresentation.None && item.IsShipEnabled)
         {
@@ -78,15 +79,15 @@
                     <div class="cart-item-price-group cart-item-group">
                         @* TODO: (mc) Cart item badges *@
                         <div sm-if="!Model.IsEditable" class="cart-item-qty">@T("ShoppingCart.Quantity"): @item.EnteredQuantity</div>
-                        <div class="cart-item-price fwm fs-h5">@item.SubTotal</div>
-                        <div sm-if="item.UnitPrice != item.SubTotal" class="cart-item-price fwn">@T("ShoppingCart.Mini.UnitPrice"): @item.UnitPrice</div>
-                        <div sm-if="item.Discount > decimal.Zero" class="cart-item-saving fs-sm text-muted pt-1">
+                        <div class="cart-item-price fwm fs-h5">@price.SubTotal</div>
+                        <div sm-if="price.UnitPrice != price.SubTotal" class="cart-item-price fwn">@T("ShoppingCart.Mini.UnitPrice"): @price.UnitPrice</div>
+                        <div sm-if="price.Discount > decimal.Zero" class="cart-item-saving fs-sm text-muted pt-1">
                             <div>@T("ShoppingCart.ItemYouSave"):</div>
-                            <div>@item.Discount</div>
+                            <div>@price.Discount</div>
                         </div>
 
-                        <div sm-if="Model.DisplayBasePrice && item.BasePrice.HasValue()" class="cart-item-base-price text-muted fs-sm lrm">
-                            @item.BasePrice
+                        <div sm-if="Model.DisplayBasePrice && price.BasePriceInfo.HasValue()" class="cart-item-base-price text-muted fs-sm lrm">
+                            @price.BasePriceInfo
                         </div>
                     </div>
 
@@ -276,10 +277,10 @@
                     @* Price *@
                     <div class="cart-item-price-group cart-item-group">
                         <div class="cart-item-price">
-                            @Html.Raw(item.BundleItem.PriceWithDiscount.HasValue() ? item.BundleItem.PriceWithDiscount : "&nbsp;")
+                            @Html.Raw(item.BundleItem.Price.HasValue ? item.BundleItem.Price : "&nbsp;")
                         </div>
-                        <div sm-if="Model.DisplayBasePrice && item.BasePrice.HasValue()" class="cart-item-base-price text-muted lrm">
-                            @item.BasePrice
+                        <div sm-if="Model.DisplayBasePrice && item.Price.BasePriceInfo.HasValue()" class="cart-item-base-price text-muted lrm">
+                            @item.Price.BasePriceInfo
                         </div>
                     </div>
 
