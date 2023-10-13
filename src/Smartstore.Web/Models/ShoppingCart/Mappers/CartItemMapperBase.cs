@@ -334,7 +334,7 @@ namespace Smartstore.Web.Models.Cart
             }
         }
 
-        private ComparePriceModel GetComparePriceModel(Money comparePrice, PriceLabel priceLabel)
+        private static ComparePriceModel GetComparePriceModel(Money comparePrice, PriceLabel priceLabel)
         {
             return new ComparePriceModel 
             { 
