@@ -124,11 +124,12 @@ $facet-selection-color: inherit;
 .instasearch-drop {
     position: absolute;
     display: none;
-    inset-inline: 1px;
+    inset-inline: 0;
     top: 100%;
     margin-top: -1px;
-    min-width: calc(100% - 2px);
-    max-width: calc(100% - 2px);
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
     min-height: 50px;
     border: 1px solid $searchbox-border-2;
     box-shadow: $dropdown-box-shadow;
@@ -144,19 +145,19 @@ $facet-selection-color: inherit;
 
 .instasearch-drop-body {
     margin-top: 1.25rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 10px;
 }
 
 .instasearch-match {
-    font-weight: bold;
+    font-weight: $font-weight-bold;
 }
 
 .instasearch-group-header {
     margin: 0 20px;
     padding-bottom: 0.3rem;
-    font-size: 22px; // rem gets too small on mobile
+    font-size: 18px;
     color: $info;
-    font-weight: $font-weight-light;
+    font-weight: $font-weight-medium;
 
     ~ .instasearch-group-header {
         margin-top: 1.2rem;
@@ -165,54 +166,48 @@ $facet-selection-color: inherit;
 
 .instasearch-hits {
     @include list-unstyled;
-    margin: 0;
+    margin-inline: 10px;
     margin-bottom: 1rem;
 
     &:last-child { margin-bottom: 0; }
     .instasearch-col:first-child &:last-child {
         margin-bottom: 1rem;
     }
-
-    &.has-thumbs li {
-        border-bottom: 1px solid rgba(#000, 0.12);
-    }
-    &.has-thumbs li:last-child {
-        border-bottom: none;
-    }
 }
 
 @include media-breakpoint-up(sm) {
     .instasearch-col {
-        &:first-child { border-inline-end: 1px solid rgba(0,0,0, 0.1)  }
+        &:first-child { border-inline-end: 1px solid rgba($black, 0.1)  }
     }
 }
 @include media-breakpoint-up(lg) {
     .instasearch-drop {
         max-width: none;
+        min-width: 850px;
         inset-inline-end: auto;
-    }
-    .instasearch-row {
-        width: 850px;
     }
 }
 .instasearch-hit, 
 .instasearch-no-hits {
     position: relative;
     width: 100%;
-    padding: 8px 20px;
+    padding: 8px 10px;
     clear: both;
     white-space: normal;
-    font-size: 14px; // rem gets too small on mobile
+    font-size: 14px;
     line-height: 1.3;
 }
 
 .instasearch-hit {
-    display: inline-flex;
-    align-items: baseline;
-    color: $dropdown-link-color;
+    display: inline-block;
+    color: $body-color;
     text-decoration: none;
+    border-radius: var(--border-radius-md);
 
-    &:focus, &:hover, &.active, &.key-hover {
+    &:focus, 
+    &:hover, 
+    &.active, 
+    &.key-hover {
         color: $dropdown-link-hover-color;
         text-decoration: none;
         background-color: $dropdown-link-hover-bg;
@@ -226,7 +221,6 @@ $facet-selection-color: inherit;
 .instasearch-hit-tag {
     color: $searchbox-hit-tag-color;
     font-size: 13px;
-    padding-inline-start: 0.2rem;
 }
 
 .instasearch-hit-wrapper {
@@ -244,7 +238,7 @@ $facet-selection-color: inherit;
 }
 
 .instasearch-hit-label-secondary {
-    padding-top: 4px;
+    padding-top: 1px;
     color: $text-muted;
 }
 

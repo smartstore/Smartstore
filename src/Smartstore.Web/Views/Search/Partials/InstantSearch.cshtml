@@ -17,13 +17,13 @@
 else if (isMultiCol)
 {
     <div class="row no-gutters instasearch-row">
-        <div class="col col-sm-6 col-xl-5 instasearch-col">
+        <div class="col col-sm-6 col-lg-5 instasearch-col">
             @foreach (var group in hitGroups)
             {
                 <partial name="InstantSearch.HitGroup" model="group" />
             }
         </div>
-        <div class="col col-sm-6 col-xl-7 instasearch-col">
+        <div class="col col-sm-6 col-lg-7 instasearch-col">
             <h6 class="instasearch-group-header">@T("Search.Hits")</h6>
             <partial name="InstantSearch.TopProducts" model="Model" />
         </div>

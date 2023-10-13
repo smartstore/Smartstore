@@ -19,7 +19,7 @@
                 }
                 else
                 {
-                    @Html.Raw(parentModel.Highlight(hit.Label, "name", parentModel.Query, null, "<span class='instasearch-match pl-1'>", "</span>"))
+                    @Html.Raw(parentModel.Highlight(hit.Label, "name", parentModel.Query, null, "<span class='instasearch-match'>", "</span>"))
                 }
                 
                 <span sm-if="hit.Tag.HasValue()" class="instasearch-hit-tag">@Html.Raw(hit.Tag)</span>

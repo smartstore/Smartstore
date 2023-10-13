@@ -38,7 +38,7 @@
   - Revamped offcanvas main menu
   - Revamped image gallery styling
   - Fixed Slick slider dotted navigation responsiveness issues
-  - Slightly improved InstantSearch box
+  - Slightly improved InstantSearch box and dropdown
   - Revamped product tags component
   - Dropdown product quantity input (automatically rendered instead of spinner if possible quantities do not exceed 100).
   - Revamped checkout progress indicator
