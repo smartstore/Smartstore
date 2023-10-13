@@ -77,27 +77,22 @@ namespace Smartstore.Core.Migrations
         {
             #region Currency
 
-            builder.AddOrUpdate("Enums.CurrencyMidpointRounding.AwayFromZero",
-                "Commercial rounding (round midpoint to the nearest amount that is away from zero)",
-                "Kaufmännisches Runden (Mittelwert auf den nächstgelegenen, von Null entfernten Betrag runden)");
-
-            builder.AddOrUpdate("Enums.CurrencyMidpointRounding.ToEven",
-                "Banker's rounding (round midpoint to the nearest even number)",
-                "Mathematisches Runden (Mittelwert auf den nächstgelegenen geraden Betrag runden)");
+            builder.AddOrUpdate("Enums.CurrencyMidpointRounding.AwayFromZero", "Commercial rounding (recommended)", "Kaufmännisches Runden (empfohlen)");
+            builder.AddOrUpdate("Enums.CurrencyMidpointRounding.ToEven", "Banker's rounding", "Mathematisches Runden");
 
             builder.AddOrUpdate("Enums.CurrencyMidpointRounding.AwayFromZero.Example",
-                "1.2250 is rounded up to 1.23. 1.2240 is rounded down to 1.22.",
-                "1,2250 wird auf 1,23 aufgerundet. 1,2240 wird auf 1,22 abgerundet.");
+                "1.225 is rounded up to 1.23. 1.224 is rounded down to 1.22.",
+                "1,225 wird auf 1,23 aufgerundet. 1,224 wird auf 1,22 abgerundet.");
 
             builder.AddOrUpdate("Enums.CurrencyMidpointRounding.ToEven.Example",
-                "1.2250 is rounded down to 1.22. 1.2350 is rounded up to 1.24.",
-                "1,2250 wird auf 1,22 abgerundet. 1,2350 wird auf 1,24 aufgerundet.");
+                "1.225 is rounded down to 1.22. 1.235 is rounded up to 1.24.",
+                "1,225 wird auf 1,22 abgerundet. 1,235 wird auf 1,24 aufgerundet.");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.MidpointRounding",
                 "Midpoint rounding",
                 "Mittelwertrundung",
-                "Specifies the rounding strategy of the midway between two amounts. Default is comercial rounding.",
-                "Legt die Rundungsstrategie für die Mitte zwischen zwei Beträgen fest. Standard ist kaufmännisches Runden.");
+                "Specifies the rounding strategy of the midway between two amounts. Default is comercial rounding (round midpoint to the nearest amount that is away from zero).",
+                "Legt die Rundungsstrategie für die Mitte zwischen zwei Beträgen fest. Standard ist kaufmännisches Runden (Mittelwert auf den nächstgelegenen, von Null entfernten Betrag runden).");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.Fields.RoundNetPrices",
                 "Round when net prices are displayed",

@@ -748,8 +748,8 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (reduce)
             {
-                // We use Math.Round here because Truncate increases the risk of inaccuracy of rounding.
-                var points = (int)Math.Round(rewardAmount);
+                // We use IRoundingHelper here because Truncate increases the risk of inaccuracy of rounding.
+                var points = (int)_roundingHelper.Round(rewardAmount, 0, _primaryCurrency.MidpointRounding);
 
                 if (order.RewardPointsRemaining.HasValue && order.RewardPointsRemaining.Value < points)
                 {
@@ -762,7 +762,8 @@ namespace Smartstore.Core.Checkout.Orders
 
                     if (!order.RewardPointsRemaining.HasValue)
                     {
-                        order.RewardPointsRemaining = (int)Math.Round(order.OrderTotal / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points);
+                        var remainingPoints = order.OrderTotal / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
+                        order.RewardPointsRemaining = (int)_roundingHelper.Round(remainingPoints, 0, _primaryCurrency.MidpointRounding);
                     }
 
                     order.RewardPointsRemaining = Math.Max(order.RewardPointsRemaining.Value - points, 0);
