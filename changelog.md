@@ -4,9 +4,12 @@
 
 ### New Features
 
+- Currency rounding:
+  - Added currency properties and settings for rounding: midpoint rounding, skip rounding when displaying net prices, round unit price before or after quantity multiplication.
+  - Amounts are always rounded when calculating the order total to avoid rounding differences (usually of 1 cent).
+- The **recycle bin** for products enables to restore and permanently delete products.
 - **payever** plugin (commercial)
 - **Botsonic** plugin (commercial)
-- The recycle bin for products enables to restore and permanently delete products.
 - #745 Page Builder: depend story visibility on user roles.
 - Added option to configure allowed characters for user names 
 - #836 Added option to define additional lines for robots.txt
@@ -55,9 +58,6 @@
   - Added hash codes to attribute combinations. With a large number of attribute combinations, variants are found much faster now.
   - Fixed slow loading of product categories for a large number of categories. Price calculation and product export were affected.
   - MediaSearcher always performed a LIKE search for terms (the equals operator was missing)
-- Rounding of currency amounts:
-  - Added currency properties and settings for rounding: midpoint rounding, skip rounding when displaying net prices, round unit price before or after quantity multiplication.
-  - Amounts are always rounded when calculating the order total to avoid rounding differences (usually of 1 cent).
 - Improved plugin & provider manager UI
 - Use billing address if there is no shipping address and tax calculation is based on shipping address.
 - #580 Added caching for live currency exchange rates.
