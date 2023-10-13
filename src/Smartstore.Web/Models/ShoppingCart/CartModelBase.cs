@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Catalog;
@@ -30,10 +31,12 @@ namespace Smartstore.Web.Models.Cart
         public string ProductUrl { get; set; }
         public ProductType ProductType { get; set; }
         public bool VisibleIndividually { get; set; }
+
         public Money UnitPrice { get; set; }
         public Money SubTotal { get; set; }
         public Money Discount { get; set; }
         public string BasePrice { get; set; }
+        public CartItemPriceModel Price { get; set; } = new();
 
         public int EnteredQuantity { get; set; }
         public LocalizedValue<string> QuantityUnitName { get; set; }
@@ -59,7 +62,44 @@ namespace Smartstore.Web.Models.Cart
     public partial class BundleItemModel : EntityModelBase
     {
         public string PriceWithDiscount { get; set; }
+        public Money? Price { get; set; }
         public int DisplayOrder { get; set; }
         public bool HideThumbnail { get; set; }
+    }
+
+    public partial class CartItemPriceModel : ModelBase
+    {
+        public int Quantity { get; set; } = 1;
+
+        public Money UnitPrice { get; set; }
+        public Money SubTotal { get; set; }
+        public Money? ShippingSurcharge { get; set; }
+
+        public Money TotalDiscount { get; set; }
+
+        /// <summary>
+        ///  Single unit saving
+        /// </summary>
+        public PriceSaving Saving { get; set; }
+        public DateTime? ValidUntilUtc { get; set; }
+        public LocalizedString CountdownText { get; set; }
+
+        /// <summary>
+        ///  Single unit regular price
+        /// </summary>
+        public ComparePriceModel RegularPrice { get; set; }
+
+        /// <summary>
+        ///  Single unit retail price
+        /// </summary>
+        public ComparePriceModel RetailPrice { get; set; }
+
+        /// <summary>
+        ///  Single unit base price info
+        /// </summary>
+        public string BasePriceInfo { get; set; }
+
+        public bool ShowRetailPriceSaving { get; set; }
+        public List<ProductBadgeModel> Badges { get; } = new();
     }
 }

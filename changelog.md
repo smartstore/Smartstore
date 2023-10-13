@@ -4,6 +4,7 @@
 
 ### New Features
 
+- **payever** plugin (commercial)
 - **Botsonic** plugin (commercial)
 - The recycle bin for products enables to restore and permanently delete products.
 - #745 Page Builder: depend story visibility on user roles.
@@ -42,6 +43,7 @@
   - Revamped cookie consent dialog styling
   - Dropped *Triple Date Picker* component in favour of browser native date picker
   - Unstyled links are underlined by default
+  - New MyAccount menu header with avatar image, customer name and email address 
 - Backend
   - New colorpicker component with swatches
   - Revamped number input styling

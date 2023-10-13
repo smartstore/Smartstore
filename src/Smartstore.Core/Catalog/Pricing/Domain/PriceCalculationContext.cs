@@ -31,8 +31,8 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="options">The calculation options.</param>
         public PriceCalculationContext(Product product, int quantity, PriceCalculationOptions options)
         {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(options, nameof(options));
+            Guard.NotNull(product);
+            Guard.NotNull(options);
 
             Product = product;
             Quantity = quantity;
@@ -43,7 +43,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         protected PriceCalculationContext(PriceCalculationContext context)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             Product = context.Product;
             CartItem = context.CartItem;

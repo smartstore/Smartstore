@@ -299,6 +299,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     font-weight: $font-weight-medium;
     color: var(--pd-finalprice-color);
     margin-inline-end: 0.75rem;
+    white-space: nowrap;
 
     .pd-finalprice-offer & {
         color: var(--pd-finalprice-offer-color);
@@ -313,6 +314,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     font-size: $font-size-sm;
     font-weight: $font-weight-normal;
     color: $warning;
+    color: var(--warning-text-emphasis);
 }
 
 .pd-promoprice-group {

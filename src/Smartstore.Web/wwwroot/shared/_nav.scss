@@ -73,6 +73,49 @@
 }
 
 
+// 
+// Segmented nav
+// ==============================================================
+
+.nav-segmented {
+    --nav-segmented-bg: var(--secondary);
+    --nav-segmented-border-radius: 50rem;
+    --nav-segmented-padding: 4px;
+    --nav-link-color: inherit;
+    --nav-link-padding-y: 0.4rem;
+    --nav-link-font-weight: #{$font-weight-normal};
+    --nav-segmented-link-hover-bg: #{rgba($black, 0.05)};
+    --nav-segmented-link-active-border-color: #{rgba($black, 0.15)};
+    --nav-segmented-link-active-bg: #fff;
+    --nav-segmented-link-active-shadow: #{0 1px 2px rgba($black, 0.08)};
+    --nav-segmented-link-border-radius: var(--nav-segmented-border-radius);
+
+    background-color: var(--nav-segmented-bg);
+    border-radius: var(--nav-segmented-border-radius);
+    padding: var(--nav-segmented-padding);
+    gap: 4px;
+
+    .nav-link {
+        transition: none;
+        border: 1px solid transparent;
+        @include border-radius(var(--nav-segmented-link-border-radius));
+
+        &:hover,
+        &:focus {
+            background-color: var(--nav-segmented-link-hover-bg);
+        }
+    }
+
+    .nav-link.active,
+    .show > .nav-link {
+        font-weight: $font-weight-medium;
+        background-color: var(--nav-segmented-link-active-bg);
+        border-color: var(--nav-segmented-link-active-border-color);
+        box-shadow: var(--nav-segmented-link-active-shadow);
+    }
+}
+
+
 // Material Tabs
 // ==============================================================
 

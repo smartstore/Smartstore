@@ -88,7 +88,7 @@ namespace Smartstore.Web.Infrastructure
             var customer = _services.WorkContext.CurrentCustomer;
             var urlHelper = _urlHelper.Value;
 
-            var root = new TreeNode<MenuItem>(new MenuItem { Text = T("Account.Navigation") })
+            var root = new TreeNode<MenuItem>(new MenuItem ())
             {
                 Id = Name
             };

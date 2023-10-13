@@ -9,9 +9,7 @@ namespace Smartstore.Core.Checkout.Cart
     {
         public ShoppingCartLineItem(OrganizedShoppingCartItem item)
         {
-            Guard.NotNull(item, nameof(item));
-
-            Item = item;
+            Item = Guard.NotNull(item);
         }
 
         /// <summary>

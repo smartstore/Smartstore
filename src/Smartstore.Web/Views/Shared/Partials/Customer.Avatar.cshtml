@@ -15,7 +15,7 @@
     {
         if ((Model.FileId ?? 0) != 0)
         {
-            <img class="avatar-img" src="@await Url.MediaAsync(Model.FileId, Model.AvatarPictureSize, null, false)" title="@Model.UserName" />
+            <img class="avatar-img" attr-class='(Model.DisplayRing, "avatar-ring")' src="@await Url.MediaAsync(Model.FileId, Model.AvatarPictureSize, null, false)" title="@Model.UserName" />
             <span class="avatar-letter d-none bg-@(Model.AvatarColor) @(textColor)" title="@Model.UserName">
                 @Model.AvatarLetter
             </span>

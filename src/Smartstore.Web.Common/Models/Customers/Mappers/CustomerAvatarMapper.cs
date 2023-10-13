@@ -16,10 +16,11 @@ namespace Smartstore.Web.Models.Customers
         /// <returns><see cref="CustomerAvatarModel"/>.</returns>
         public static async Task<CustomerAvatarModel> MapAsync(this Customer entity,
             string userName = null,
-            bool largeAvatar = false)
+            bool largeAvatar = false,
+            bool displayRing = false)
         {
             var model = new CustomerAvatarModel();
-            await MapAsync(entity, model, userName, largeAvatar);
+            await MapAsync(entity, model, userName, largeAvatar, displayRing);
 
             return model;
         }
@@ -34,11 +35,13 @@ namespace Smartstore.Web.Models.Customers
         public static async Task MapAsync(this Customer entity,
             CustomerAvatarModel model,
             string userName = null,
-            bool largeAvatar = false)
+            bool largeAvatar = false,
+            bool displayRing = false)
         {
             dynamic parameters = new ExpandoObject();
             parameters.UserName = userName;
             parameters.LargeAvatar = largeAvatar;
+            parameters.DisplayRing = displayRing;
 
             await MapperFactory.MapAsync(entity, model, parameters);
         }
@@ -69,6 +72,7 @@ namespace Smartstore.Web.Models.Customers
 
             to.Id = from.Id;
             to.Large = (bool)(parameters.LargeAvatar == true);
+            to.DisplayRing = (bool)(parameters.DisplayRing == true);
             to.UserName = parameters.UserName as string;
             to.AvatarPictureSize = _mediaSettings.AvatarPictureSize;
 

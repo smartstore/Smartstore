@@ -179,6 +179,10 @@
     --cart-item-title-font-size: 1rem;
     --cart-footer-bg: #{$cart-footer-bg};
     --cart-child-row-bg: #{tint-color($gray-100, 40%)};
+
+    --pd-finalprice-color: inherit;
+    --pd-finalprice-offer-color: inherit;
+    --pd-offer-muted-color: var(--gray-650, var(--gray-600));
 }
 
 .cart {
@@ -286,6 +290,9 @@
 
 .cart-item-bundle-img {
     flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: start;
 }
 
 .cart-item-link {

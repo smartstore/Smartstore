@@ -12,52 +12,42 @@
 
     var hasIcons = root.Children.Any(x => x.Value.Icon.HasValue());
     var hasImages = root.Children.Any(x => x.Value.ImageUrl.HasValue());
-    var headerText = root.GetItemText(T);
     var rtl = WorkContext.WorkingLanguage.Rtl;
 }
+        
+<div class="list-group list-group-flush has-icons cms-menu cms-menu-listgroup" data-menu-name="@(Model.Name?.ToLower())">
+    @foreach (var node in Model.Root.Children.Where(x => x.Value.Visible))
+    {
+        var item = node.Value;
+        var itemState = node.GetNodePathState(Model.Path);
+        var itemText = node.GetItemText(T);
+        var itemUrl = item.GenerateUrl(this.ViewContext);
 
-<div class="cms-menu cms-menu-listgroup" data-menu-name="@(Model.Name?.ToLower())">
-    <div class="card">
-        
-        <h5 sm-if="headerText.HasValue()" class="card-header">
-            @headerText
-        </h5>
-        
-        <div class="list-group list-group-flush has-icons">
-            @foreach (var node in Model.Root.Children.Where(x => x.Value.Visible))
+        var attrs = item.GetCombinedAttributes();
+        attrs.PrependCssClass("list-group-item list-group-item-action menu-link" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " active" : ""));
+
+        <a href="@itemUrl" attrs="attrs">
+            @if (hasIcons)
             {
-                var item = node.Value;
-                var itemState = node.GetNodePathState(Model.Path);
-                var itemText = node.GetItemText(T);
-                var itemUrl = item.GenerateUrl(this.ViewContext);
-
-                var attrs = item.GetCombinedAttributes();
-                attrs.PrependCssClass("list-group-item list-group-item-action menu-link" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " active" : ""));
-
-                <a href="@itemUrl" attrs="attrs">
-                    @if (hasIcons)
-                    {
-                        <i class="fal fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas") list-group-item-icon"></i>
-                    }
-                    else if (hasImages && item.ImageUrl.HasValue())
-                    {
-                        <img class="sm-icon" src="@Url.Content(item.ImageUrl)" alt="" />
-                    }
-                    else if (hasImages)
-                    {
-                        <i class="fa-fw fas"></i>
-                    }
-
-                    <span sm-language-attributes-for="item">@itemText</span>
-
-                    @if (item.BadgeText.HasValue())
-                    {
-                        <span class="badge badge-pill badge-counter badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower()) ml-auto" attrs="item.BadgeHtmlAttributes">
-                            @Html.Raw(item.BadgeText)
-                        </span>
-                    }
-                </a>
+                <i class="fal fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas") list-group-item-icon"></i>
             }
-        </div>
-    </div>
+            else if (hasImages && item.ImageUrl.HasValue())
+            {
+                <img class="sm-icon" src="@Url.Content(item.ImageUrl)" alt="" />
+            }
+            else if (hasImages)
+            {
+                <i class="fa-fw fas"></i>
+            }
+
+            <span sm-language-attributes-for="item">@itemText</span>
+
+            @if (item.BadgeText.HasValue())
+            {
+                <span class="badge badge-pill badge-counter badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower()) ml-auto" attrs="item.BadgeHtmlAttributes">
+                    @Html.Raw(item.BadgeText)
+                </span>
+            }
+        </a>
+    }
 </div>

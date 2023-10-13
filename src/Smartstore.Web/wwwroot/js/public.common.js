@@ -61,7 +61,7 @@
                 return;
             ctx.find("select:not(.noskin), input:hidden[data-select]").selectWrapper();
         },
-        // tooltips
+        // Tooltips
         function (ctx) {
             if ($.fn.tooltip === undefined)
                 return;
@@ -73,6 +73,12 @@
                 animation: false,
                 trigger: 'hover'
             });
+        },
+        // Popovers
+        function (ctx) {
+            if ($.fn.popover === undefined)
+                return;
+            ctx.find(".popover-trigger").popover();
         },
         // NumberInput
         function (ctx) {

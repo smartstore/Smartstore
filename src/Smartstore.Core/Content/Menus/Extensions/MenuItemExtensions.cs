@@ -144,7 +144,8 @@ namespace Smartstore.Core.Content.Menus
             var rootItem = new MenuItem
             {
                 Text = menu.GetLocalized(x => x.Title),
-                EntityId = 0
+                EntityId = 0,
+                MenuId = menu.Id
             };
             var root = new TreeNode<MenuItem>(rootItem)
             {

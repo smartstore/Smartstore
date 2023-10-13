@@ -11,6 +11,7 @@ namespace Smartstore.Web.Models.Customers
         public string UserName { get; set; }
         public bool AllowViewingProfiles { get; set; }
         public int AvatarPictureSize { get; set; }
+        public bool DisplayRing { get; set; }
     }
 
     public partial class CustomerAvatarEditModel : ModelBase

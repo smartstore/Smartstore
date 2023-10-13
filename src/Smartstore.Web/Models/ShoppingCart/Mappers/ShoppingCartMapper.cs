@@ -425,16 +425,15 @@ namespace Smartstore.Web.Models.Cart
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
 
             dynamic itemParameters = new ExpandoObject();
-            itemParameters.TaxFormat = _taxService.GetTaxFormat();
+            itemParameters.TaxFormat = (string)null;
+            //itemParameters.TaxFormat = _taxService.GetTaxFormat();
             itemParameters.BatchContext = batchContext;
             itemParameters.CartSubtotal = subtotal;
 
             foreach (var cartItem in from.Items)
             {
                 var model = new ShoppingCartModel.ShoppingCartItemModel();
-
                 await cartItem.MapAsync(model, (object)itemParameters);
-
                 to.AddItems(model);
             }
 

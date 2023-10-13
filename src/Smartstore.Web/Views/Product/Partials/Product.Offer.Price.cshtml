@@ -16,7 +16,7 @@
             <span class="pd-promoprice pl-1">@Html.Raw(priceModel.Price)</span>
             <a sm-if="priceModel.Description.HasValue()" href="javascript:;" 
                role="button" 
-               class="pd-promoprice-tip pd-popover-trigger" 
+               class="pd-promoprice-tip popover-trigger" 
                data-toggle="popover"
                data-container="body"
                data-placement="top"
@@ -96,7 +96,7 @@
                 </div>
             </div>
 
-            <zone name="@("productdetails_add_info{0}".FormatWith(isBundlePart ? "_bundle" : string.Empty))" />
+            <zone name="@("productdetails_add_info{0}".FormatInvariant(isBundlePart ? "_bundle" : string.Empty))" />
         </div>
 
         <div sm-if="!isBundlePart" class="pd-tierprices">

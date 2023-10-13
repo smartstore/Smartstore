@@ -1,0 +1,13 @@
+﻿@using Smartstore.Web.Models.Customers
+
+@model MyAccountHeaderModel
+
+<div class="myaccount-header row gx-2 gy-1">
+    <div class="col-auto d-flex align-self-center justify-content-center">
+        <partial name="Customer.Avatar" model="Model.Avatar" />
+    </div>
+    <div class="col align-self-center text-truncate">
+        <div class="my-account-username fwm text-truncate">@Model.CustomerName</div>
+        <div class="my-account-email text-muted small text-truncate">@Model.CustomerEmail</div>
+    </div>
+</div>
