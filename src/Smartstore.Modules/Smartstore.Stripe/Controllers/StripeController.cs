@@ -33,6 +33,7 @@ namespace Smartstore.StripeElements.Controllers
         private readonly IProductService _productService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly StripeHelper _stripeHelper;
         
@@ -46,6 +47,7 @@ namespace Smartstore.StripeElements.Controllers
             IProductService productService,
             IOrderCalculationService orderCalculationService,
             ICurrencyService currencyService,
+            IRoundingHelper roundingHelper,
             IOrderProcessingService orderProcessingService,
             StripeHelper stripeHelper)
         {
@@ -58,6 +60,7 @@ namespace Smartstore.StripeElements.Controllers
             _productService = productService;
             _orderCalculationService = orderCalculationService;
             _currencyService = currencyService;
+            _roundingHelper = roundingHelper;
             _orderProcessingService = orderProcessingService;
             _stripeHelper = stripeHelper;
         }
@@ -180,11 +183,12 @@ namespace Smartstore.StripeElements.Controllers
                     {
                         var state = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
                         var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, true);
+                        var convertedTotal = cartTotal.ConvertedAmount.Total.Value;
 
                         // Update Stripe Payment Intent.
                         var intentUpdateOptions = new PaymentIntentUpdateOptions
                         {
-                            Amount = cartTotal.ConvertedAmount.Total.Value.RoundedAmount.ToSmallestCurrencyUnit(),
+                            Amount = _roundingHelper.ToSmallestCurrencyUnit(convertedTotal),
                             Currency = state.PaymentIntent.Currency,
                             PaymentMethod = state.PaymentMethod
                         };

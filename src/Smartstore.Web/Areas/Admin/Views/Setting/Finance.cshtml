@@ -1,0 +1,365 @@
+﻿@using Smartstore.Core.Checkout.Tax
+
+@model FinanceSettingsModel
+
+@{
+    Layout = "_SettingLayout";
+    ViewBag.Title = T("Common.Finance").Value;
+}
+
+<form asp-action="Finance">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-right-left"></i>
+            <span>@ViewBag.Title</span>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="financesettings-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.Plugins.KnownGroup.Tax")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.PricesIncludeTax" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.PricesIncludeTax"></setting-editor>
+                        <span asp-validation-for="TaxSettings.PricesIncludeTax"></span>
+                    </div>
+                </div>
+
+                @* Not relevant for european market but we have to deal with this option later. *@
+                @*<div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.AllowCustomersToSelectTaxDisplayType" />
+                        </div>
+                        <div class="adminData">
+                            @Html.CheckBoxFor(model => model.TaxSettings.AllowCustomersToSelectTaxDisplayType, new { data_toggler_for = "#pnlTaxDisplayType" })
+                            <span asp-validation-for="TaxSettings.AllowCustomersToSelectTaxDisplayType"></span>
+                        </div>
+                    </div>*@
+                <div class="adminRow" id="pnlTaxDisplayType">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.TaxDisplayType" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.TaxDisplayType"></setting-editor>
+                        <span asp-validation-for="TaxSettings.TaxDisplayType"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.DisplayTaxSuffix" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.DisplayTaxSuffix"></setting-editor>
+                        <span asp-validation-for="TaxSettings.DisplayTaxSuffix"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.DisplayTaxRates" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.DisplayTaxRates"></setting-editor>
+                        <span asp-validation-for="TaxSettings.DisplayTaxRates"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.HideZeroTax" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.HideZeroTax"></setting-editor>
+                        <span asp-validation-for="TaxSettings.HideZeroTax"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.HideTaxInOrderSummary" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.HideTaxInOrderSummary"></setting-editor>
+                        <span asp-validation-for="TaxSettings.HideTaxInOrderSummary"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.ShowLegalHintsInProductList" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.ShowLegalHintsInProductList"></setting-editor>
+                        <span asp-validation-for="TaxSettings.ShowLegalHintsInProductList"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.ShowLegalHintsInProductDetails" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.ShowLegalHintsInProductDetails"></setting-editor>
+                        <span asp-validation-for="TaxSettings.ShowLegalHintsInProductDetails"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.ShowLegalHintsInFooter" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.ShowLegalHintsInFooter"></setting-editor>
+                        <span asp-validation-for="TaxSettings.ShowLegalHintsInFooter"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.TaxBasedOn" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.TaxBasedOn"></setting-editor>
+                        <span asp-validation-for="TaxSettings.TaxBasedOn"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.DefaultTaxAddress" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.DefaultTaxAddress">
+                            <editor asp-for="TaxSettings.DefaultTaxAddress" />
+                        </setting-editor>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.AuxiliaryServicesTaxingType" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.AuxiliaryServicesTaxingType"></setting-editor>
+                        <span asp-validation-for="TaxSettings.AuxiliaryServicesTaxingType"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.ShippingIsTaxable" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.ShippingIsTaxable" data-toggler-for="#pnlShippingIsTaxable"></setting-editor>
+                        <span asp-validation-for="TaxSettings.ShippingIsTaxable"></span>
+                    </div>
+                </div>
+                <div id="pnlShippingIsTaxable">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.ShippingPriceIncludesTax" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="TaxSettings.ShippingPriceIncludesTax"></setting-editor>
+                            <span asp-validation-for="TaxSettings.ShippingPriceIncludesTax"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.ShippingTaxClassId" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="TaxSettings.ShippingTaxClassId">
+                                <select asp-for="TaxSettings.ShippingTaxClassId" asp-items="ViewBag.ShippingTaxCategories" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                            </setting-editor>
+                            <span asp-validation-for="TaxSettings.ShippingTaxClassId"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.PaymentMethodAdditionalFeeIsTaxable" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.PaymentMethodAdditionalFeeIsTaxable" data-toggler-for="#pnlPaymentMethodAdditionalFeeIsTaxable"></setting-editor>
+                        <span asp-validation-for="TaxSettings.PaymentMethodAdditionalFeeIsTaxable"></span>
+                    </div>
+                </div>
+                <div id="pnlPaymentMethodAdditionalFeeIsTaxable">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.PaymentMethodAdditionalFeeIncludesTax" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"></setting-editor>
+                            <span asp-validation-for="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.PaymentMethodAdditionalFeeTaxClassId" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="TaxSettings.PaymentMethodAdditionalFeeTaxClassId">
+                                <select asp-for="TaxSettings.PaymentMethodAdditionalFeeTaxClassId" asp-items="ViewBag.PaymentMethodAdditionalFeeTaxCategories" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                            </setting-editor>
+                            <span asp-validation-for="TaxSettings.PaymentMethodAdditionalFeeTaxClassId"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxSettings.EuVatEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TaxSettings.EuVatEnabled" data-toggler-for="#pnlEuVat"></setting-editor>
+                        <span asp-validation-for="TaxSettings.EuVatEnabled"></span>
+                    </div>
+                </div>
+                <div id="pnlEuVat">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.EuVatShopCountryId" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="TaxSettings.EuVatShopCountryId">
+                                <editor asp-for="TaxSettings.EuVatShopCountryId"
+                                        asp-template="Countries"
+                                        asp-additional-viewdata='new { placeholder = T("Admin.Address.SelectCountry").Value }' />
+                            </setting-editor>
+                            <span asp-validation-for="TaxSettings.EuVatShopCountryId"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.EuVatAllowVatExemption" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="TaxSettings.EuVatAllowVatExemption"></setting-editor>
+                            <span asp-validation-for="TaxSettings.EuVatAllowVatExemption"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.EuVatUseWebService" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="TaxSettings.EuVatUseWebService"></setting-editor>
+                            <span asp-validation-for="TaxSettings.EuVatUseWebService"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.EuVatEmailAdminWhenNewVatSubmitted" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="TaxSettings.EuVatEmailAdminWhenNewVatSubmitted"></setting-editor>
+                            <span asp-validation-for="TaxSettings.EuVatEmailAdminWhenNewVatSubmitted"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TaxSettings.VatRequired" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="TaxSettings.VatRequired"></setting-editor>
+                            <span asp-validation-for="TaxSettings.VatRequired"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+
+        <tab sm-title="@T("Admin.Configuration.Currencies")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CurrencySettings.AutoUpdateEnabled" />
+                    </div>
+                    <div class="adminData">
+                        @*Multistore setting would not make sense and could be confusing.*@
+                        <input asp-for="CurrencySettings.AutoUpdateEnabled" />
+                        <span asp-validation-for="CurrencySettings.AutoUpdateEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CurrencySettings.ActiveExchangeRateProviderSystemName" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CurrencySettings.ActiveExchangeRateProviderSystemName">
+                            <select asp-for="CurrencySettings.ActiveExchangeRateProviderSystemName" asp-items="ViewBag.ExchangeRateProviders" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                        </setting-editor>
+                        <span asp-validation-for="CurrencySettings.ActiveExchangeRateProviderSystemName"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CurrencySettings.RoundOrderItemsEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CurrencySettings.RoundOrderItemsEnabled" data-toggler-for="#round-order-items"></setting-editor>
+                        <span asp-validation-for="CurrencySettings.RoundOrderItemsEnabled"></span>
+                    </div>
+                </div>
+                <div id="round-order-items">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CurrencySettings.RoundNetPrices" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CurrencySettings.RoundNetPrices"></setting-editor>
+                            <span asp-validation-for="CurrencySettings.RoundNetPrices"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CurrencySettings.RoundUnitPrices" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CurrencySettings.RoundUnitPrices"></setting-editor>
+                            <span asp-validation-for="CurrencySettings.RoundUnitPrices"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
+</form>
+
+<script sm-target-zone="Scripts" data-origin="finance-settings">
+    $(function () {
+
+	    $('#@Html.IdFor(x => x.TaxSettings.ShippingIsTaxable)').click(updateAuxiliaryServicesTaxCategories);
+	    $('#@Html.IdFor(x => x.TaxSettings.PaymentMethodAdditionalFeeIsTaxable)').click(updateAuxiliaryServicesTaxCategories);
+	    $('#@Html.IdFor(x => x.TaxSettings.AuxiliaryServicesTaxingType)').change(updateAuxiliaryServicesTaxCategories).trigger('change');
+
+	    function updateAuxiliaryServicesTaxCategories() {
+            var showCategories = ($('#@Html.IdFor(x => x.TaxSettings.AuxiliaryServicesTaxingType)').val() === '@((int)AuxiliaryServicesTaxType.SpecifiedTaxCategory)');
+            var shippingIsTaxable = $('#@Html.IdFor(x => x.TaxSettings.ShippingIsTaxable)').is(':checked');
+		    var paymentFeeIsTaxable = $('#@Html.IdFor(x => x.TaxSettings.PaymentMethodAdditionalFeeIsTaxable)').is(':checked');
+
+		    $('#pnlShippingTaxClass').toggle(showCategories && shippingIsTaxable);
+		    $('#pnlPaymentMethodAdditionalFeeTaxClass').toggle(showCategories && paymentFeeIsTaxable);
+	    }
+
+    });
+</script>

@@ -1,6 +1,4 @@
-﻿@model Smartstore.Admin.Models.Common.CurrencyListModel
-
-@{
+﻿@{
     ViewBag.Title = T("Admin.Configuration.Currencies").Value;
 }
 
@@ -10,12 +8,6 @@
             <i class="far fa-money-bill-1"></i>
             <span>@ViewBag.Title</span>
         </div>
-        <div class="options">
-            <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
-                <span>@T("Admin.Common.Save")</span>
-            </button>
-        </div>
     </div>
 
     <tabstrip id="currency-edit" sm-nav-style="Material" sm-nav-position="Top">
@@ -24,27 +16,6 @@
         </tab>
         <tab sm-title="@T("Admin.Configuration.Currencies.LiveRates")" sm-adaptive-height="true">
             <partial name="_Grid.LiveRates" model="null" />
-        </tab>
-        <tab sm-title="@T("Common.Options")">
-            <div class="adminContent">
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="ExchangeRateProvider" />
-                    </div>
-                    <div class="adminData">
-                        <select asp-for="ExchangeRateProvider" asp-items="ViewBag.ExchangeRateProviders"></select>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="AutoUpdateEnabled" />
-                    </div>
-                    <div class="adminData">
-                        <input asp-for="AutoUpdateEnabled" />
-                        <span asp-validation-for="AutoUpdateEnabled"></span>
-                    </div>
-                </div>
-            </div>
         </tab>
     </tabstrip>
 </form>

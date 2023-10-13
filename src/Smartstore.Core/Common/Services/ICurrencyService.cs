@@ -19,6 +19,8 @@ namespace Smartstore.Core.Common.Services
         /// <remarks>The setter is for testing purposes only.</remarks>
         Currency PrimaryExchangeCurrency { get; }
 
+        #region Currency conversion
+
         /// <summary>
         /// Exchanges given <see cref="Money"/> amount to <see cref="IWorkContext.WorkingCurrency"/>,
         /// using <see cref="PrimaryExchangeCurrency"/> as exchange rate currency.
@@ -34,6 +36,10 @@ namespace Smartstore.Core.Common.Services
         /// <param name="amount">The source amount to exchange (should be in <see cref="PrimaryCurrency"/>).</param>
         /// <returns>The exchanged amount.</returns>
         Money ConvertToWorkingCurrency(decimal amount);
+
+        #endregion
+
+        #region Exchange rate provider
 
         /// <summary>
         /// Gets live exchange rates for the <see cref="PrimaryExchangeCurrency"/>.
@@ -63,20 +69,21 @@ namespace Smartstore.Core.Common.Services
         /// <returns>Exchange rate providers</returns>
         IEnumerable<Provider<IExchangeRateProvider>> LoadAllExchangeRateProviders();
 
+        #endregion
+
         /// <summary>
-        ///     Creates and returns a <see cref="Money"/> struct.
+        /// Creates and returns a <see cref="Money"/> struct.
         /// </summary>
-        /// <param name="price">
-        ///     The money amount.
-        /// </param>
-        /// <param name="displayCurrency">
-        ///     A value indicating whether to display the currency symbol/code.
-        /// </param>
+        /// <param name="amount">The money amount.</param>
         /// <param name="currencyCodeOrObj">
-        ///     Target currency as string code (e.g. USD) or an actual <see cref="Currency"/> instance. If <c>null</c>,
-        ///     currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
+        /// Target currency as string code (e.g. USD) or an actual <see cref="Currency"/> instance.
+        /// If <c>null</c>, currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
+        /// </param>
+        /// <param name="displayCurrency">A value indicating whether to display the currency symbol/code.</param>
+        /// <param name="roundIfEnabled">
+        /// A value indicating whether to rounds <paramref name="amount"/> if rounding is enabled for the currency specified by <paramref name="currencyCodeOrObj"/>.
         /// </param>
         /// <returns>Money</returns>
-        Money CreateMoney(decimal price, bool displayCurrency = true, object currencyCodeOrObj = null);
+        Money CreateMoney(decimal amount, object currencyCodeOrObj = null, bool displayCurrency = true, bool roundIfEnabled = true);
     }
 }

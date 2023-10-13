@@ -9,6 +9,8 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
@@ -25,14 +27,17 @@ namespace Smartstore.PayPal.Controllers
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderProcessingService _orderProcessingService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly PayPalHttpClient _client;
         private readonly PayPalSettings _settings;
+        private readonly Currency _primaryCurrency;
 
         public PayPalController(
             SmartDbContext db,
             ICheckoutStateAccessor checkoutStateAccessor,
             IShoppingCartService shoppingCartService,
             IOrderProcessingService orderProcessingService,
+            IRoundingHelper roundingHelper,
             PayPalHttpClient client,
             PayPalSettings settings)
         {
@@ -40,8 +45,11 @@ namespace Smartstore.PayPal.Controllers
             _checkoutStateAccessor = checkoutStateAccessor;
             _shoppingCartService = shoppingCartService;
             _orderProcessingService = orderProcessingService;
+            _roundingHelper = roundingHelper;
             _client = client;
             _settings = settings;
+
+            _primaryCurrency = Services.CurrencyService.PrimaryCurrency;
         }
 
         [HttpPost]
@@ -402,7 +410,7 @@ namespace Smartstore.PayPal.Controllers
             {
                 case "created":
                     if (decimal.TryParse(resource.Amount?.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var authorizedAmount)
-                        && authorizedAmount == Math.Round(order.OrderTotal, 2)
+                        && authorizedAmount == _roundingHelper.Round(order.OrderTotal, 2, _primaryCurrency.MidpointRounding)
                         && order.CanMarkOrderAsAuthorized())
                     {
                         order.AuthorizationTransactionId = resource.Id;
@@ -437,7 +445,7 @@ namespace Smartstore.PayPal.Controllers
                 case "completed":
                     if (decimal.TryParse(resource.Amount?.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var capturedAmount))
                     {
-                        if (order.CanMarkOrderAsPaid() && capturedAmount == Math.Round(order.OrderTotal, 2))
+                        if (order.CanMarkOrderAsPaid() && capturedAmount == _roundingHelper.Round(order.OrderTotal, 2, _primaryCurrency.MidpointRounding))
                         {
                             order.CaptureTransactionId = resource.Id;
                             order.CaptureTransactionResult = status;
@@ -472,7 +480,7 @@ namespace Smartstore.PayPal.Controllers
                 case "completed":
                     if (decimal.TryParse(resource.Amount?.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var capturedAmount))
                     {
-                        if (order.CanMarkOrderAsPaid() && capturedAmount == Math.Round(order.OrderTotal, 2))
+                        if (order.CanMarkOrderAsPaid() && capturedAmount == _roundingHelper.Round(order.OrderTotal, 2, _primaryCurrency.MidpointRounding))
                         {
                             order.CaptureTransactionId = resource.Id;
                             order.CaptureTransactionResult = status;

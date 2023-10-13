@@ -8,10 +8,10 @@
 
     var roundOrderTotalDenominators = new List<SelectListItem>
     {
-        new SelectListItem { Text = 0.05.ToString("F"), Value = "0.05" },
-        new SelectListItem { Text = 0.10.ToString("F"), Value = "0.10" },
-        new SelectListItem { Text = 0.50.ToString("F"), Value = "0.50" },
-        new SelectListItem { Text = 1.00.ToString("F"), Value = "1.00" }
+        new() { Text = 0.05.ToString("F"), Value = "0.05" },
+        new() { Text = 0.10.ToString("F"), Value = "0.10" },
+        new() { Text = 0.50.ToString("F"), Value = "0.50" },
+        new() { Text = 1.00.ToString("F"), Value = "1.00" }
     };
 }
 
@@ -20,6 +20,7 @@
 
 <tabstrip id="currency-edit" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Admin.Common.Info")" sm-selected="true">
+
         @(Html.LocalizedEditor<Smartstore.Admin.Models.Common.CurrencyModel, CurrencyLocalizedModel>("currency-info-localized",
             @<div class="adminContent">
                 <div class="adminRow">
@@ -91,7 +92,7 @@
                     <smart-label asp-for="DomainEndings" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="DomainEndingsArray" asp-items="Model.AvailableDomainEndings" multiple="multiple" data-tags="true"></select>
+                    <select asp-for="DomainEndingsArray" asp-items="ViewBag.AvailableDomainEndings" multiple="multiple" data-tags="true"></select>
                     <span asp-validation-for="DomainEndings"></span>
                 </div>
             </div>
@@ -169,11 +170,45 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
+                    <smart-label asp-for="MidpointRounding" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="MidpointRounding">
+                        @foreach (var item in (List<ExtendedSelectListItem>)ViewBag.MidpointRoundings)
+                        {
+                            <option value="@item.Value" attr-selected='(item.Selected, "selected")' data-description="@(item.Get<string>("Description"))">@item.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="MidpointRounding"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
                     <smart-label asp-for="RoundOrderItemsEnabled" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="RoundOrderItemsEnabled" />
+                    <editor asp-for="RoundOrderItemsEnabled" />
                     <span asp-validation-for="RoundOrderItemsEnabled"></span>
+                </div>
+            </div>
+            <div id="round-order-items">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RoundNetPrices" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="RoundNetPrices" />
+                        <span asp-validation-for="RoundNetPrices"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RoundUnitPrices" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="RoundUnitPrices" />
+                        <span asp-validation-for="RoundUnitPrices"></span>
+                    </div>
                 </div>
             </div>
             <div class="adminRow">
@@ -181,45 +216,46 @@
                     <smart-label asp-for="RoundOrderTotalEnabled" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="RoundOrderTotalEnabled" />
+                    <input asp-for="RoundOrderTotalEnabled" data-toggler-for="#round-order-total" />
                     <span asp-validation-for="RoundOrderTotalEnabled"></span>
                 </div>
             </div>
-            <div class="adminRow round-order-total">
-                <div class="adminTitle">
-                    <smart-label asp-for="RoundOrderTotalDenominator" />
+            <div id="round-order-total">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RoundOrderTotalDenominator" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="RoundOrderTotalDenominator" asp-items="roundOrderTotalDenominators" class="autowidth" style="width: 150px"></select>
+                        <span asp-validation-for="RoundOrderTotalDenominator"></span>
+                    </div>
                 </div>
-                <div class="adminData">
-                    <select asp-for="RoundOrderTotalDenominator" asp-items="roundOrderTotalDenominators" class="autowidth" style="width: 150px"></select>
-                    <span asp-validation-for="RoundOrderTotalDenominator"></span>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RoundOrderTotalRule" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="RoundOrderTotalRule" asp-items="Model.RoundOrderTotalRule.ToSelectList()"></select>
+                        <span asp-validation-for="RoundOrderTotalRule"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="adminRow round-order-total">
-                <div class="adminTitle">
-                    <smart-label asp-for="RoundOrderTotalRule" />
-                </div>
-                <div class="adminData">
-                    <select asp-for="RoundOrderTotalRule" asp-items="Model.RoundOrderTotalRule.ToSelectList()"></select>
-                    <span asp-validation-for="RoundOrderTotalRule"></span>
-                </div>
-            </div>
-            <div class="adminRow round-order-total">
-                <div class="adminTitle">
-                </div>
-                <div class="adminData">
-                    @if (Model.RoundOrderTotalPaymentMethods.Any())
-                    {
-                        <div class="alert alert-info">
-                            <span>@T("Admin.Configuration.Currencies.PaymentMethodsEnabledRoundingList"):</span>
-                            @Html.Raw(string.Join(" · ", Model.RoundOrderTotalPaymentMethods.Select(x => $"<a href='{Url.Action("Edit", "Payment", new { systemName = x.Key })}'>{x.Value.HtmlEncode()}</a>")))
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-warning">
-                            @Html.Raw(T("Admin.Configuration.Currencies.NoPaymentMethodsEnabledRounding", Url.Action("Providers", "Payment")))
-                        </div>
-                    }
+                <div class="adminRow">
+                    <div class="adminTitle"></div>
+                    <div class="adminData">
+                        @if (Model.RoundOrderTotalPaymentMethods.Any())
+                        {
+                            <div class="alert alert-info">
+                                <span>@T("Admin.Configuration.Currencies.PaymentMethodsEnabledRoundingList"):</span>
+                                @Html.Raw(string.Join(" · ", Model.RoundOrderTotalPaymentMethods.Select(x => $"<a href='{Url.Action("Edit", "Payment", new { systemName = x.Key })}'>{x.Value.HtmlEncode()}</a>")))
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                @Html.Raw(T("Admin.Configuration.Currencies.NoPaymentMethodsEnabledRounding", Url.Action("Providers", "Payment")))
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
@@ -228,8 +264,9 @@
 
 <script sm-target-zone="scripts" data-origin="currency-edit">
     $(function () {
-        $('#@(Html.IdFor(x => x.RoundOrderTotalEnabled))').change(function () {
-            $('.round-order-total').toggle($(this).is(':checked'));
+        $('#@(Html.IdFor(x => x.RoundOrderItemsEnabled))').change(function () {
+            var val = $(this).val().toLowerCase();
+            $('#round-order-items').toggle(val === 'true');
         }).trigger('change');
 
         // Show custom formatting example.

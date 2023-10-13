@@ -289,7 +289,6 @@ namespace Smartstore.Admin.Controllers
                 .FirstOrDefaultAsync() ?? new OrderAverageReportLine();
 
             var productCost = await orderQuery.GetOrdersProductCostsAsync();
-
             var profit = summary.SumOrderTotal - summary.SumTax - productCost;
 
             return Json(new GridModel<OrderOverviewModel>
@@ -298,9 +297,9 @@ namespace Smartstore.Admin.Controllers
                 Total = orders.TotalCount,
                 Aggregates = new
                 {
-                    profit = _primaryCurrency.AsMoney(profit).ToString(true),
-                    tax = _primaryCurrency.AsMoney(summary.SumTax).ToString(true),
-                    total = _primaryCurrency.AsMoney(summary.SumOrderTotal).ToString(true)
+                    profit = Services.CurrencyService.CreateMoney(profit, _primaryCurrency).ToString(true),
+                    tax = Services.CurrencyService.CreateMoney(summary.SumTax, _primaryCurrency).ToString(true),
+                    total = Services.CurrencyService.CreateMoney(summary.SumOrderTotal, _primaryCurrency).ToString(true)
                 }
             });
         }

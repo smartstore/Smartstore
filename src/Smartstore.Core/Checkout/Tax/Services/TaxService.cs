@@ -24,6 +24,7 @@ namespace Smartstore.Core.Checkout.Tax
         private readonly IGeoCountryLookup _geoCountryLookup;
         private readonly IProviderManager _providerManager;
         private readonly IWorkContext _workContext;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly ILocalizationService _localizationService;
         private readonly TaxSettings _taxSettings;
         private readonly SmartDbContext _db;
@@ -33,6 +34,7 @@ namespace Smartstore.Core.Checkout.Tax
             IGeoCountryLookup geoCountryLookup,
             IProviderManager providerManager,
             IWorkContext workContext,
+            IRoundingHelper roundingHelper,
             ILocalizationService localizationService,
             TaxSettings taxSettings)
         {
@@ -40,6 +42,7 @@ namespace Smartstore.Core.Checkout.Tax
             _geoCountryLookup = geoCountryLookup;
             _providerManager = providerManager;
             _workContext = workContext;
+            _roundingHelper = roundingHelper;
             _localizationService = localizationService;
             _taxSettings = taxSettings;
         }
@@ -320,7 +323,7 @@ namespace Smartstore.Core.Checkout.Tax
             }
 
             // Gross > Net RoundFix
-            price = _workContext.WorkingCurrency.RoundIfEnabledFor(price);
+            price = _roundingHelper.RoundIfEnabledFor(price);
 
             return (price, taxRate);
         }

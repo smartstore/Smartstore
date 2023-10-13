@@ -1026,9 +1026,13 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
-        public async Task<IActionResult> Tax(int storeScope, TaxSettings settings)
+        public async Task<IActionResult> Finance(int storeScope, TaxSettings taxSettings, CurrencySettings currencySettings)
         {
-            var model = await MapperFactory.MapAsync<TaxSettings, TaxSettingsModel>(settings);
+            var model = new FinanceSettingsModel();
+
+            await MapperFactory.MapAsync(taxSettings, model.TaxSettings);
+            await MapperFactory.MapAsync(currencySettings, model.CurrencySettings);
+
             var taxCategories = await _db.TaxCategories
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
@@ -1039,89 +1043,121 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var tc in taxCategories)
             {
-                shippingTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id.ToString(), Selected = tc.Id == settings.ShippingTaxClassId });
-                paymentMethodAdditionalFeeTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id.ToString(), Selected = tc.Id == settings.PaymentMethodAdditionalFeeTaxClassId });
+                shippingTaxCategories.Add(new()
+                {
+                    Text = tc.Name,
+                    Value = tc.Id.ToString(), 
+                    Selected = tc.Id == taxSettings.ShippingTaxClassId
+                });
+
+                paymentMethodAdditionalFeeTaxCategories.Add(new()
+                {
+                    Text = tc.Name,
+                    Value = tc.Id.ToString(),
+                    Selected = tc.Id == taxSettings.PaymentMethodAdditionalFeeTaxClassId
+                });
             }
 
             ViewBag.ShippingTaxCategories = shippingTaxCategories;
             ViewBag.PaymentMethodAdditionalFeeTaxCategories = paymentMethodAdditionalFeeTaxCategories;
 
             // Default tax address.
-            var defaultAddress = await _db.Addresses.FindByIdAsync(settings.DefaultTaxAddressId, false);
+            var defaultAddress = await _db.Addresses.FindByIdAsync(taxSettings.DefaultTaxAddressId, false);
             var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(defaultAddress?.CountryId ?? 0, true);
 
             if (defaultAddress != null)
             {
-                MiniMapper.Map(defaultAddress, model.DefaultTaxAddress);
+                MiniMapper.Map(defaultAddress, model.TaxSettings.DefaultTaxAddress);
             }
 
-            if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope))
+            if (storeScope > 0 && await Services.Settings.SettingExistsAsync(taxSettings, x => x.DefaultTaxAddressId, storeScope))
             {
-                _multiStoreSettingHelper.AddOverrideKey(null, "DefaultTaxAddress");
+                _multiStoreSettingHelper.AddOverrideKey(taxSettings, nameof(model.TaxSettings.DefaultTaxAddress));
             }
 
-            model.DefaultTaxAddress.AvailableStates = stateProvinces.ToSelectListItems(defaultAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
+            model.TaxSettings.DefaultTaxAddress.AvailableStates = stateProvinces.ToSelectListItems(defaultAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
             {
-                new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                new() { Text = T("Address.OtherNonUS"), Value = "0" }
             };
 
-            model.DefaultTaxAddress.FirstNameEnabled = false;
-            model.DefaultTaxAddress.LastNameEnabled = false;
-            model.DefaultTaxAddress.EmailEnabled = false;
-            model.DefaultTaxAddress.CountryEnabled = true;
-            model.DefaultTaxAddress.StateProvinceEnabled = true;
-            model.DefaultTaxAddress.ZipPostalCodeEnabled = true;
-            model.DefaultTaxAddress.ZipPostalCodeRequired = true;
+            model.TaxSettings.DefaultTaxAddress.FirstNameEnabled = false;
+            model.TaxSettings.DefaultTaxAddress.LastNameEnabled = false;
+            model.TaxSettings.DefaultTaxAddress.EmailEnabled = false;
+            model.TaxSettings.DefaultTaxAddress.CountryEnabled = true;
+            model.TaxSettings.DefaultTaxAddress.StateProvinceEnabled = true;
+            model.TaxSettings.DefaultTaxAddress.ZipPostalCodeEnabled = true;
+            model.TaxSettings.DefaultTaxAddress.ZipPostalCodeRequired = true;
+
+            ViewBag.ExchangeRateProviders = _currencyService.LoadAllExchangeRateProviders()
+                .Select(x => new SelectListItem
+                {
+                    Text = _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata),
+                    Value = x.Metadata.SystemName,
+                    Selected = x.Metadata.SystemName.EqualsNoCase(currencySettings.ActiveExchangeRateProviderSystemName)
+                })
+                .ToList();
 
             return View(model);
         }
 
+        // INFO: do not use SaveSetting attribute here because it would delete a previously added default tax address if storeScope > 0.
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting]
-        public async Task<IActionResult> Tax(int storeScope, TaxSettings settings, TaxSettingsModel model)
+        [HttpPost, LoadSetting]
+        public async Task<IActionResult> Finance(int storeScope, FinanceSettingsModel model, TaxSettings taxSettings, CurrencySettings currencySettings)
         {
             var form = Request.Form;
 
-            // Note, model state is invalid here due to ShippingOriginAddress validation.
-            await MapperFactory.MapAsync(model, settings);
+            if (!ModelState.IsValid)
+            {
+                return await Finance(storeScope, taxSettings, currencySettings);
+            }
 
-            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, propertyName =>
+            ModelState.Clear();
+
+            await MapperFactory.MapAsync(model.TaxSettings, taxSettings);
+            await MapperFactory.MapAsync(model.CurrencySettings, currencySettings);
+
+            await _multiStoreSettingHelper.UpdateSettingsAsync(taxSettings, form, propertyName =>
             {
                 // Skip to prevent the address from being recreated every time you save.
-                if (propertyName.EqualsNoCase(nameof(settings.DefaultTaxAddressId)))
-                    return null;
+                if (propertyName.EqualsNoCase(nameof(taxSettings.DefaultTaxAddressId)))
+                    return string.Empty;
 
                 return propertyName;
             });
 
+            await _multiStoreSettingHelper.UpdateSettingsAsync(currencySettings, form);
+
             // Special case DefaultTaxAddressId\DefaultTaxAddress.
-            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(TaxSettingsModel.DefaultTaxAddress), form))
+            var deleteAddressId = 0;
+            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(taxSettings, nameof(FinanceSettingsModel.TaxSettingsModel.DefaultTaxAddress), form))
             {
-                var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope) ? settings.DefaultTaxAddressId : 0;
-                var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
+                var addressId = await Services.Settings.SettingExistsAsync(taxSettings, x => x.DefaultTaxAddressId, storeScope) ? taxSettings.DefaultTaxAddressId : 0;
+                var defaultAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
 
-                // Update ID manually (in case we're in multi-store configuration mode it'll be set to the shared one).
-                model.DefaultTaxAddress.Id = originAddress.Id == 0 ? 0 : addressId;
-                await MapperFactory.MapAsync(model.DefaultTaxAddress, originAddress);
+                // Update DefaultTaxAddressId (in case we are in multistore configuration mode it will be set to the shared one).
+                model.TaxSettings.DefaultTaxAddress.Id = defaultAddress.Id == 0 ? 0 : addressId;
+                await MapperFactory.MapAsync(model.TaxSettings.DefaultTaxAddress, defaultAddress);
 
-                if (originAddress.Id == 0)
+                if (defaultAddress.Id == 0)
                 {
-                    _db.Addresses.Add(originAddress);
+                    _db.Addresses.Add(defaultAddress);
                     await _db.SaveChangesAsync();
                 }
 
-                settings.DefaultTaxAddressId = originAddress.Id;
-                await Services.Settings.ApplySettingAsync(settings, x => x.DefaultTaxAddressId, storeScope);
+                taxSettings.DefaultTaxAddressId = defaultAddress.Id;
+                await Services.Settings.ApplySettingAsync(taxSettings, x => x.DefaultTaxAddressId, storeScope);
             }
             else
             {
-                _db.Addresses.Remove(settings.DefaultTaxAddressId);
-                await Services.Settings.RemoveSettingAsync(settings, x => x.DefaultTaxAddressId, storeScope);
+                deleteAddressId = taxSettings.DefaultTaxAddressId;
+                await Services.Settings.RemoveSettingAsync(taxSettings, x => x.DefaultTaxAddressId, storeScope);
             }
 
             await _db.SaveChangesAsync();
+            await CheckToDeleteAddress(deleteAddressId, $"{nameof(TaxSettings)}.{nameof(TaxSettings.DefaultTaxAddressId)}");
 
-            return NotifyAndRedirect(nameof(Tax));
+            return NotifyAndRedirect(nameof(Finance));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -1190,7 +1226,6 @@ namespace Smartstore.Admin.Controllers
         [LoadSetting]
         public async Task<IActionResult> Shipping(int storeScope, ShippingSettings settings)
         {
-            var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
             var model = await MapperFactory.MapAsync<ShippingSettings, ShippingSettingsModel>(settings);
 
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
@@ -1200,7 +1235,7 @@ namespace Smartstore.Admin.Controllers
             for (var i = 1; i <= 24; ++i)
             {
                 var hourStr = i.ToString();
-                todayShipmentHours.Add(new SelectListItem
+                todayShipmentHours.Add(new()
                 {
                     Text = hourStr,
                     Value = hourStr,
@@ -1210,25 +1245,23 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.TodayShipmentHours = todayShipmentHours;
 
-            await _multiStoreSettingHelper.DetectOverrideKeysAsync(settings, model);
-
-            // Shipping origin
-            if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope))
-            {
-                _multiStoreSettingHelper.AddOverrideKey(null, "ShippingOriginAddress");
-            }
-
+            // Shipping origin address.
             var originAddress = await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false);
+            var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(originAddress?.CountryId ?? 0, true);
 
             if (originAddress != null)
             {
                 MiniMapper.Map(originAddress, model.ShippingOriginAddress);
             }
 
-            var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(originAddress?.CountryId ?? 0, true);
+            if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope))
+            {
+                _multiStoreSettingHelper.AddOverrideKey(null, nameof(model.ShippingOriginAddress));
+            }
+
             model.ShippingOriginAddress.AvailableStates = stateProvinces.ToSelectListItems(originAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
             {
-                new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                new() { Text = T("Address.OtherNonUS"), Value = "0" }
             };
 
             model.ShippingOriginAddress.FirstNameEnabled = false;
@@ -1242,31 +1275,39 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        // INFO: do not use SaveSetting attribute here because it would delete a previously added origin shipping address if storeScope > 0.
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting]
+        [HttpPost, LoadSetting]
         public async Task<IActionResult> Shipping(int storeScope, ShippingSettings settings, ShippingSettingsModel model)
         {
             var form = Request.Form;
 
-            // Note, model state is invalid here due to ShippingOriginAddress validation.
+            if (!ModelState.IsValid)
+            {
+                return await Shipping(storeScope, settings);
+            }
+
+            ModelState.Clear();
+
             await MapperFactory.MapAsync(model, settings);
 
             await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, propertyName =>
             {
                 // Skip to prevent the address from being recreated every time you save.
                 if (propertyName.EqualsNoCase(nameof(settings.ShippingOriginAddressId)))
-                    return null;
+                    return string.Empty;
 
                 return propertyName;
             });
 
             // Special case ShippingOriginAddressId\ShippingOriginAddress.
-            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
+            var deleteAddressId = 0;
+            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(ShippingSettingsModel.ShippingOriginAddress), form))
             {
                 var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope) ? settings.ShippingOriginAddressId : 0;
                 var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
 
-                // Update ID manually (in case we're in multi-store configuration mode it'll be set to the shared one).
+                // Update DefaultTaxAddressId (in case we are in multistore configuration mode it will be set to the shared one).
                 model.ShippingOriginAddress.Id = originAddress.Id == 0 ? 0 : addressId;
                 await MapperFactory.MapAsync(model.ShippingOriginAddress, originAddress);
 
@@ -1281,13 +1322,14 @@ namespace Smartstore.Admin.Controllers
             }
             else
             {
-                _db.Addresses.Remove(settings.ShippingOriginAddressId);
+                deleteAddressId = settings.ShippingOriginAddressId;
                 await Services.Settings.RemoveSettingAsync(settings, x => x.ShippingOriginAddressId, storeScope);
             }
 
             await _db.SaveChangesAsync();
+            await CheckToDeleteAddress(deleteAddressId, $"{nameof(ShippingSettings)}.{nameof(ShippingSettings.ShippingOriginAddressId)}");
 
-            return NotifyAndRedirect("Shipping");
+            return NotifyAndRedirect(nameof(Shipping));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -1373,6 +1415,18 @@ namespace Smartstore.Admin.Controllers
                 SeoSettings.CreateCharConversionMap(settings.SeoNameCharConversion));
 
             return Content(result);
+        }
+
+        public async Task<IActionResult> ChangeStoreScopeConfiguration(int storeid, string returnUrl = "")
+        {
+            var store = Services.StoreContext.GetStoreById(storeid);
+            if (store != null || storeid == 0)
+            {
+                Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration = storeid;
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToReferrer(returnUrl, () => RedirectToAction("Index", "Home", new { area = "Admin" }));
         }
 
         private async Task<int> ApplyLocalizedFacetSettings(CommonFacetSettingsModel model, FacetGroupKind kind, int storeId = 0)
@@ -1560,16 +1614,18 @@ namespace Smartstore.Admin.Controllers
             return new SelectListItem { Text = value, Value = value };
         }
 
-        public async Task<IActionResult> ChangeStoreScopeConfiguration(int storeid, string returnUrl = "")
+        private async Task<bool> CheckToDeleteAddress(int addressId, string settingName)
         {
-            var store = Services.StoreContext.GetStoreById(storeid);
-            if (store != null || storeid == 0)
+            if (addressId != 0 &&
+                !await _db.Settings.AnyAsync(x => x.Value == addressId.ToStringInvariant() && x.Name == settingName))
             {
-                Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration = storeid;
+                // Address can be removed because it is not in use anymore.
+                _db.Addresses.Remove(addressId);
                 await _db.SaveChangesAsync();
+                return true;
             }
 
-            return RedirectToReferrer(returnUrl, () => RedirectToAction("Index", "Home", new { area = "Admin" }));
+            return false;
         }
     }
 }

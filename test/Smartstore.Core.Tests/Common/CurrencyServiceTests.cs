@@ -12,7 +12,6 @@ namespace Smartstore.Core.Tests.Common
     [TestFixture]
     public class CurrencyServiceTests : ServiceTestBase
     {
-        CurrencySettings _currencySettings;
         ICurrencyService _currencyService;
         Currency _currencyUSD, _currencyJPY, _currencyEUR;
 
@@ -59,14 +58,13 @@ namespace Smartstore.Core.Tests.Common
                 UpdatedOnUtc = DateTime.UtcNow,
             };
 
-            _currencySettings = new();
-
             _currencyService = new CurrencyService(
                 DbContext,
                 NullCache.Instance,
                 ProviderManager,
                 null,
-                _currencySettings,
+                new CurrencySettings(),
+                null, 
                 null)
             {
                 PrimaryCurrency = _currencyUSD,

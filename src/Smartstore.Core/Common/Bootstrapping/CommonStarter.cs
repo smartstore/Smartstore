@@ -14,6 +14,7 @@ namespace Smartstore.Core.Bootstrapping
         {
             builder.RegisterType<GeoCountryLookup>().As<IGeoCountryLookup>().SingleInstance();
             builder.RegisterType<CurrencyService>().As<ICurrencyService>().InstancePerLifetimeScope();
+            builder.RegisterType<RoundingHelper>().As<IRoundingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<AddressService>().As<IAddressService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<DeliveryTimeService>().As<IDeliveryTimeService>().InstancePerLifetimeScope();

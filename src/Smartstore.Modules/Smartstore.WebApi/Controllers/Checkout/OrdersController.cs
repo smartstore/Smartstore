@@ -6,6 +6,7 @@ using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -22,17 +23,20 @@ namespace Smartstore.Web.Api.Controllers
         private readonly Lazy<IOrderProcessingService> _orderProcessingService;
         private readonly Lazy<ISettingFactory> _settingFactory;
         private readonly Lazy<OrderHelper> _orderHelper;
+        private readonly Lazy<IRoundingHelper> _roundingHelper;
         private readonly IWorkContext _workContext;
 
         public OrdersController(
             Lazy<IOrderProcessingService> orderProcessingService,
             Lazy<ISettingFactory> settingFactory,
             Lazy<OrderHelper> orderHelper,
+            Lazy<IRoundingHelper> roundingHelper,
             IWorkContext workContext)
         {
             _orderProcessingService = orderProcessingService;
             _settingFactory = settingFactory;
             _orderHelper = orderHelper;
+            _roundingHelper = roundingHelper;
             _workContext = workContext;
         }
 
@@ -189,8 +193,8 @@ namespace Smartstore.Web.Api.Controllers
                         ProductName = x.ProductName,
                         ProductSlug = x.ProductSeName,
                         ProductUrl = x.ProductUrl,
-                        UnitPrice = x.UnitPrice.RoundedAmount,
-                        SubTotal = x.SubTotal.RoundedAmount,
+                        UnitPrice = _roundingHelper.Value.Round(x.UnitPrice),
+                        SubTotal = _roundingHelper.Value.Round(x.SubTotal),
                         ProductImageUrl = x.Image?.Url,
                         ProductThumbUrl = x.Image?.ThumbUrl
                     })
@@ -201,8 +205,8 @@ namespace Smartstore.Web.Api.Controllers
                     Id = entity.Id,
                     ShowSku = model.ShowSku,
                     ShowProductImages = model.ShowProductImages,
-                    OrderTotal = model.OrderTotal.RoundedAmount,
-                    OrderSubtotal = model.OrderSubtotal.RoundedAmount,
+                    OrderTotal = _roundingHelper.Value.Round(model.OrderTotal),
+                    OrderSubtotal = _roundingHelper.Value.Round(model.OrderSubtotal),
                     Items = items
                 };
 

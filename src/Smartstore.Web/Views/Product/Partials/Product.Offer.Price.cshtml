@@ -1,6 +1,5 @@
 ﻿@using Smartstore.Web.Models.Catalog
-@using Smartstore.Core.Common
-@using Smartstore.Core.Catalog.Pricing
+@using Smartstore.Core.Common.Services
 
 @model ProductDetailsModel
 
@@ -46,6 +45,7 @@
         var isBundleItemPricing = Model.BundlePerItemPricing;
         var showPriceSaving = priceModel.Saving.SavingAmount.HasValue && (priceModel.ShowRetailPriceSaving || priceModel.RegularPrice != null);
         var showPrice = !(isBundlePart && priceModel.FinalPrice == 0);
+        var roundedPrice = RoundingHelper.Round(priceModel.FinalPrice);
 
         @* Price *@
         <div class="pd-group" sm-suppress-if-empty="true">
@@ -62,7 +62,7 @@
                 @* Final price *@
                 <div sm-if="showPrice" class="pd-finalprice" attr-class='(priceModel.Saving.HasSaving, "pd-finalprice-offer")'>
                     <meta itemprop="priceCurrency" sm-if="!isBundlePart" content="@WorkContext.WorkingCurrency.CurrencyCode" />
-                    <meta itemprop="price" sm-if="!priceModel.CallForPrice && !isBundlePart" content="@priceModel.FinalPrice.RoundedAmount.ToStringInvariant()" />
+                    <meta itemprop="price" sm-if="!priceModel.CallForPrice && !isBundlePart" content="@roundedPrice.ToStringInvariant()" />
                     @if (priceModel.ValidUntilUtc.HasValue)
                     {
                         <meta itemprop="priceValidUntil" content="@priceModel.ValidUntilUtc.Value.ToString("u")" />

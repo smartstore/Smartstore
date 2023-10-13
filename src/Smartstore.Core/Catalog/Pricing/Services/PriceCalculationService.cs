@@ -4,6 +4,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -23,8 +24,10 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly IPriceLabelService _priceLabelService;
         private readonly PriceSettings _priceSettings;
+        private readonly CurrencySettings _currencySettings;
         private readonly TaxSettings _taxSettings;
         private readonly Currency _primaryCurrency;
 
@@ -38,8 +41,10 @@ namespace Smartstore.Core.Catalog.Pricing
             IProductAttributeMaterializer productAttributeMaterializer,
             ITaxService taxService,
             ICurrencyService currencyService,
+            IRoundingHelper roundingHelper,
             IPriceLabelService priceLabelService,
             PriceSettings priceSettings,
+            CurrencySettings currencySettings,
             TaxSettings taxSettings)
         {
             _db = db;
@@ -51,8 +56,10 @@ namespace Smartstore.Core.Catalog.Pricing
             _productAttributeMaterializer = productAttributeMaterializer;
             _taxService = taxService;
             _currencyService = currencyService;
+            _roundingHelper = roundingHelper;
             _priceLabelService = priceLabelService;
             _priceSettings = priceSettings;
+            _currencySettings = currencySettings;
             _taxSettings = taxSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
@@ -160,7 +167,6 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(context);
 
-            // Remember source product.
             var product = context.Product;
 
             var calculatorContext = context.CartItem != null && product.CustomerEntersPrice
@@ -168,36 +174,13 @@ namespace Smartstore.Core.Catalog.Pricing
                 : await RunCalculators(context);
 
             var price = await CreateCalculatedPrice(calculatorContext, product);
-
-            if (context.Quantity > 1)
+            if (context.Quantity <= 1)
             {
-                // INFO: the subtotal must always equal the sum of all line totals.
-                // A rounding difference can and may only occur between the unit price and the line total,
-                // and only if net prices are entered and RoundOrderItemsEnabled is disabled.
-                var qty = context.Quantity;
-                var cy = context.Options.RoundingCurrency;
-                var subtotal = price.Clone();
-                subtotal.FinalPrice = new(cy.RoundIfEnabledFor(price.FinalPrice.Amount) * qty, price.FinalPrice.Currency);
-                subtotal.DiscountAmount = new(cy.RoundIfEnabledFor(price.DiscountAmount.Amount) * qty, price.DiscountAmount.Currency);
-
-                if (price.Tax.HasValue)
-                {
-                    var t = price.Tax.Value;
-
-                    subtotal.Tax = new(
-                        t.Rate,
-                        t.Amount * qty,
-                        cy.RoundIfEnabledFor(t.Price) * qty,
-                        cy.RoundIfEnabledFor(t.PriceNet) * qty,
-                        cy.RoundIfEnabledFor(t.PriceGross) * qty,
-                        t.IsGrossPrice,
-                        t.Inclusive);
-                }
-
-                return (price, subtotal);
+                return (price, price);
             }
 
-            return (price, price);
+            var subtotal = await CreateCalculatedPrice(calculatorContext, product, context.Quantity);
+            return (price, subtotal);
         }
 
         public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection = null)
@@ -284,7 +267,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         #region Utilities
 
-        private async Task<CalculatorContext> RunCalculators(PriceCalculationContext context)
+        protected virtual async Task<CalculatorContext> RunCalculators(PriceCalculationContext context)
         {
             Guard.NotNull(context);
 
@@ -301,89 +284,7 @@ namespace Smartstore.Core.Catalog.Pricing
             return calculatorContext;
         }
 
-        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null)
-        {
-            product ??= context.Product;
-
-            var options = context.Options;
-
-            // Determine tax rate for product.
-            var taxRate = await _taxService.GetTaxRateAsync(product, null, options.Customer);
-
-            var endDates = context.AppliedDiscounts.Select(x => x.EndDateUtc)
-                .Concat(new[] { context.OfferEndDateUtc })
-                .Where(x => x.HasValue && x > DateTime.UtcNow)
-                .ToArray();
-
-            // Prepare result by converting price amounts.
-            var result = new CalculatedPrice(context)
-            {
-                Product = product,
-                OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
-                ValidUntilUtc = endDates.Min(),
-                PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
-                LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
-                DiscountAmount = ConvertAmount(context.DiscountAmount, context, taxRate, false, out _).Value,
-                FinalPrice = ConvertAmount(context.FinalPrice, context, taxRate, true, out var tax).Value,
-                Tax = tax
-            };            
-
-            if (tax.HasValue && _primaryCurrency != options.TargetCurrency)
-            {
-                // Exchange tax amounts.
-                //result.Tax = new Tax(
-                //    tax.Value.Rate,
-                //    // Amount
-                //    _currencyService.ConvertFromPrimaryCurrency(tax.Value.Amount, options.TargetCurrency).Amount,
-                //    // Price
-                //    result.FinalPrice.Amount,
-                //    tax.Value.IsGrossPrice,
-                //    tax.Value.Inclusive);
-
-                var convertedAmount = _currencyService.ConvertFromPrimaryCurrency(context.FinalPrice, options.TargetCurrency).Amount;
-
-                result.Tax = options.IsGrossPrice
-                     ? _taxCalculator.CalculateTaxFromGross(convertedAmount, taxRate, options.TaxInclusive, options.RoundingCurrency)
-                     : _taxCalculator.CalculateTaxFromNet(convertedAmount, taxRate, options.TaxInclusive, options.RoundingCurrency);
-            }
-
-            // Convert attribute price adjustments.
-            context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
-
-            // Detect retail & regular price.
-            DetectComparePrices(context, result, taxRate);
-
-            // Saving price.
-            var savingPrice = result.RegularPrice ?? result.RetailPrice ?? Money.Zero;
-            var hasSaving = savingPrice > 0 && result.FinalPrice < savingPrice;
-
-            result.Saving = new PriceSaving
-            {
-                HasSaving = hasSaving,
-                SavingPrice = savingPrice,
-                SavingPercent = hasSaving ? (float)((savingPrice - result.FinalPrice) / savingPrice) * 100 : 0f,
-                SavingAmount = hasSaving ? (savingPrice - result.FinalPrice).WithPostFormat(null) : null
-            };
-
-            // In product lists, show the base price of the preselected attribute combination (instead of the base price set on product level).
-            var ac = context.AppliedAttributeCombination;
-            if (ac != null
-                && (ac.BasePriceAmount.HasValue || ac.BasePriceBaseAmount.HasValue)
-                && _priceSettings.ShowBasePriceInProductLists)
-            {
-                product.MergedDataValues ??= new();
-
-                if (ac.BasePriceAmount.HasValue)
-                    product.MergedDataValues["BasePriceAmount"] = ac.BasePriceAmount.Value;
-
-                if (ac.BasePriceBaseAmount.HasValue)
-                    product.MergedDataValues["BasePriceBaseAmount"] = ac.BasePriceBaseAmount.Value;
-            }
-
-            return result;
-        }
-
-        private void DetectComparePrices(CalculatorContext context, CalculatedPrice result, TaxRate taxRate)
+        protected virtual void DetectComparePrices(CalculatorContext context, CalculatedPrice result, TaxRate taxRate)
         {
             var product = result.Product;
             var retailPrice = (decimal?)null;
@@ -424,7 +325,7 @@ namespace Smartstore.Core.Catalog.Pricing
             }
         }
 
-        private decimal? GetRegularPrice(CalculatorContext context)
+        protected virtual decimal? GetRegularPrice(CalculatorContext context)
         {
             var product = context.Product;
             var regularPrice = (decimal?)null;
@@ -465,7 +366,77 @@ namespace Smartstore.Core.Catalog.Pricing
             return regularPrice;
         }
 
-        private Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)
+        protected virtual async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, int subtotalQuantity = 1)
+        {
+            product ??= context.Product;
+
+            var options = context.Options;
+
+            // Determine tax rate for product.
+            var taxRate = await _taxService.GetTaxRateAsync(product, null, options.Customer);
+
+            var endDates = context.AppliedDiscounts.Select(x => x.EndDateUtc)
+                .Concat(new[] { context.OfferEndDateUtc })
+                .Where(x => x.HasValue && x > DateTime.UtcNow)
+                .ToArray();
+
+            // Prepare result by converting price amounts.
+            var result = new CalculatedPrice(context)
+            {
+                Product = product,
+                ValidUntilUtc = endDates.Min(),
+                OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _, subtotalQuantity),
+                PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _, subtotalQuantity),
+                LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _, subtotalQuantity),
+                DiscountAmount = ConvertAmount(context.DiscountAmount, context, taxRate, false, out _, subtotalQuantity).Value,
+                FinalPrice = ConvertAmount(context.FinalPrice, context, taxRate, true, out var tax, subtotalQuantity).Value,
+                Tax = tax
+            };
+
+            if (tax.HasValue && _primaryCurrency != options.TargetCurrency)
+            {
+                var convertedAmount = _currencyService.ConvertFromPrimaryCurrency(context.FinalPrice, options.TargetCurrency).Amount;
+
+                result.Tax = CalculateTax(options, convertedAmount, taxRate, subtotalQuantity);
+            }
+
+            // Convert attribute price adjustments.
+            context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
+
+            // Detect retail & regular price.
+            DetectComparePrices(context, result, taxRate);
+
+            // Saving price.
+            var savingPrice = result.RegularPrice ?? result.RetailPrice ?? Money.Zero;
+            var hasSaving = savingPrice > 0 && result.FinalPrice < savingPrice;
+
+            result.Saving = new()
+            {
+                HasSaving = hasSaving,
+                SavingPrice = savingPrice,
+                SavingPercent = hasSaving ? (float)((savingPrice - result.FinalPrice) / savingPrice) * 100 : 0f,
+                SavingAmount = hasSaving ? (savingPrice - result.FinalPrice).WithPostFormat(null) : null
+            };
+
+            // In product lists, show the base price of the preselected attribute combination (instead of the base price set on product level).
+            var ac = context.AppliedAttributeCombination;
+            if (ac != null
+                && (ac.BasePriceAmount.HasValue || ac.BasePriceBaseAmount.HasValue)
+                && _priceSettings.ShowBasePriceInProductLists)
+            {
+                product.MergedDataValues ??= new();
+
+                if (ac.BasePriceAmount.HasValue)
+                    product.MergedDataValues["BasePriceAmount"] = ac.BasePriceAmount.Value;
+
+                if (ac.BasePriceBaseAmount.HasValue)
+                    product.MergedDataValues["BasePriceBaseAmount"] = ac.BasePriceBaseAmount.Value;
+            }
+
+            return result;
+        }
+
+        protected virtual Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax, int subtotalQuantity = 1)
         {
             if (amount == null)
             {
@@ -481,10 +452,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 amount = 0;
             }
 
-            tax = options.IsGrossPrice
-                 ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency)
-                 : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency);
-
+            tax = CalculateTax(options, amount.Value, taxRate, subtotalQuantity);
             amount = tax.Value.Price;
 
             var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, options.TargetCurrency);
@@ -509,6 +477,59 @@ namespace Smartstore.Core.Catalog.Pricing
 
             return money;
         }
+
+        protected virtual Tax CalculateTax(PriceCalculationOptions options, decimal amount, TaxRate taxRate, int subtotalQuantity = 1)
+        {
+            var roundingCurrency = options.RoundingCurrency;
+
+            if (subtotalQuantity > 1)
+            {
+                var taxDisplayType = options.TaxInclusive ? TaxDisplayType.IncludingTax : TaxDisplayType.ExcludingTax;
+
+                amount = roundingCurrency.RoundUnitPrices ?? _currencySettings.RoundUnitPrices
+                    ? _roundingHelper.RoundIfEnabledFor(amount, roundingCurrency, taxDisplayType) * subtotalQuantity
+                    : _roundingHelper.RoundIfEnabledFor(amount * subtotalQuantity, roundingCurrency, taxDisplayType);
+            }
+
+            return options.IsGrossPrice
+                 ? _taxCalculator.CalculateTaxFromGross(amount, taxRate, options.TaxInclusive, roundingCurrency)
+                 : _taxCalculator.CalculateTaxFromNet(amount, taxRate, options.TaxInclusive, roundingCurrency);
+        }
+
+        //private Tax CalculateTax_Old(PriceCalculationOptions options, decimal amount, TaxRate taxRate, int subtotalQuantity = 1)
+        //{
+        //    var roundingCurrency = options.RoundingCurrency;
+
+        //    if (subtotalQuantity <= 1)
+        //    {
+        //        // Round.
+        //        return options.IsGrossPrice
+        //             ? _taxCalculator.CalculateTaxFromGross(amount, taxRate, options.TaxInclusive, roundingCurrency)
+        //             : _taxCalculator.CalculateTaxFromNet(amount, taxRate, options.TaxInclusive, roundingCurrency);
+        //    }
+
+        //    // Do not round.
+        //    var t = options.IsGrossPrice
+        //         ? _taxCalculator.CalculateTaxFromGross(amount, taxRate, options.TaxInclusive)
+        //         : _taxCalculator.CalculateTaxFromNet(amount, taxRate, options.TaxInclusive);
+
+        //    // Round.
+        //    return new(
+        //        t.Rate,
+        //        t.Amount * subtotalQuantity,
+        //        GetSubtotal(t.Price),
+        //        GetSubtotal(t.PriceNet),
+        //        GetSubtotal(t.PriceGross),
+        //        t.IsGrossPrice,
+        //        t.Inclusive);
+
+        //    decimal GetSubtotal(decimal value)
+        //    {
+        //        return roundingCurrency.RoundUnitPrices ?? _currencySettings.RoundUnitPrices
+        //            ? _roundingHelper.RoundIfEnabledFor(value, roundingCurrency) * subtotalQuantity
+        //            : _roundingHelper.RoundIfEnabledFor(value * subtotalQuantity, roundingCurrency);
+        //    }
+        //}
 
         #endregion
     }

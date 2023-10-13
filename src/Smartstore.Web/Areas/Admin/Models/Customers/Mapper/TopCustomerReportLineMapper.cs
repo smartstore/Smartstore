@@ -62,13 +62,13 @@ namespace Smartstore.Admin.Models.Customers
 
         public override Task MapAsync(TopCustomerReportLine from, TopCustomerReportLineModel to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             var customers = parameters.Customers as Dictionary<int, Customer>;
             var customer = customers?.Get(from.CustomerId);
 
-            to.OrderTotal = _services.CurrencyService.PrimaryCurrency.AsMoney(from.OrderTotal);
+            to.OrderTotal = _services.CurrencyService.CreateMoney(from.OrderTotal, _services.CurrencyService.PrimaryCurrency);
             to.OrderCount = from.OrderCount.ToString("N0");
             to.CustomerId = from.CustomerId;
             to.CustomerNumber = customer?.CustomerNumber;

@@ -5,6 +5,7 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -22,8 +23,8 @@ namespace Smartstore.Core.Checkout.Shipping
         private readonly ShippingSettings _shippingSettings;
         private readonly IProviderManager _providerManager;
         private readonly ISettingFactory _settingFactory;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly IStoreContext _storeContext;
-        private readonly IWorkContext _workContext;
         private readonly SmartDbContext _db;
 
         public ShippingService(
@@ -33,8 +34,8 @@ namespace Smartstore.Core.Checkout.Shipping
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
             ISettingFactory settingFactory,
+            IRoundingHelper roundingHelper,
             IStoreContext storeContext,
-            IWorkContext workContext,
             SmartDbContext db)
         {
             _productAttributeMaterializer = productAttributeMaterializer;
@@ -43,8 +44,8 @@ namespace Smartstore.Core.Checkout.Shipping
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
             _settingFactory = settingFactory;
+            _roundingHelper = roundingHelper;
             _storeContext = storeContext;
-            _workContext = workContext;
             _db = db;
         }
 
@@ -174,7 +175,6 @@ namespace Smartstore.Core.Checkout.Shipping
             }
 
             // Get shipping options.
-            var workingCurrency = _workContext.WorkingCurrency;
             var result = new ShippingOptionResponse();
 
             foreach (var method in computationMethods)
@@ -183,7 +183,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 foreach (var option in response.ShippingOptions)
                 {
                     option.ShippingRateComputationMethodSystemName = method.Metadata.SystemName;
-                    option.Rate = workingCurrency.RoundIfEnabledFor(option.Rate);
+                    option.Rate = _roundingHelper.RoundIfEnabledFor(option.Rate);
 
                     result.ShippingOptions.Add(option);
                 }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
@@ -89,14 +90,32 @@ namespace Smartstore.Core.Common
         #region Rounding
 
         /// <summary>
-        /// Gets or sets a value indicating whether rounding of order items is enabled
-        /// </summary>
-        public bool RoundOrderItemsEnabled { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets the number of decimal places to round to
         /// </summary>
         public int RoundNumDecimals { get; set; } = 2;
+
+        /// <summary>
+        /// Gets or sets the rounding strategy of the midpoint between two currency values.
+        /// </summary>
+        public CurrencyMidpointRounding MidpointRounding { get; set; } = CurrencyMidpointRounding.AwayFromZero;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether rounding during shopping cart calculation is enabled.
+        /// Will be obtained from <see cref="CurrencySettings.RoundOrderItemsEnabled"/> if <c>null</c>.
+        /// </summary>
+        public bool? RoundOrderItemsEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to round during shopping cart calculation when net prices are displayed for the customer.
+        /// Will be obtained from <see cref="CurrencySettings.RoundNetPrices"/> if <c>null</c>.
+        /// </summary>
+        public bool? RoundNetPrices { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to round the unit price before or after quantity multiplication.
+        /// Will be obtained from <see cref="CurrencySettings.RoundUnitPrices"/> if <c>null</c>.
+        /// </summary>
+        public bool? RoundUnitPrices { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to round the order total
@@ -114,28 +133,6 @@ namespace Smartstore.Core.Common
         public CurrencyRoundingRule RoundOrderTotalRule { get; set; }
 
         #endregion
-
-        /// <summary>
-        /// Creates a <see cref="Money"/> struct with current currency and given <paramref name="amount"/>.
-        /// </summary>
-        /// <param name="amount">The money amount</param>
-        /// <param name="roundIfEnabled">Rounds amount according to <see cref="RoundNumDecimals"/> if <see cref="RoundOrderItemsEnabled"/> is <c>true</c>.</param>
-        /// <param name="notNegative">Ensures that the amount is not negative if <c>true</c>.</param>
-        /// <returns>Money.</returns>
-        public Money AsMoney(decimal amount, bool roundIfEnabled = true, bool notNegative = false)
-        {
-            if (notNegative && amount < decimal.Zero)
-            {
-                amount = decimal.Zero;
-            }
-
-            if (roundIfEnabled && RoundOrderItemsEnabled)
-            {
-                amount = decimal.Round(amount, RoundNumDecimals);
-            }
-
-            return new Money(amount, this);
-        }
 
         public Currency Clone()
         {

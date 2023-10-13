@@ -293,7 +293,7 @@ namespace Smartstore.Web.Modelling.Settings
         /// <param fieldName="settings">Settings class instance.</param>
         /// <param fieldName="form">Form value collection.</param>
         /// <param fieldName="settingService">Setting service.</param>
-        /// <param fieldName="propertyNameMapper">Function to map property names. Return <c>null</c> to skip a property.</param>
+        /// <param fieldName="propertyNameMapper">Function to map property names. Return <c>string.Empty</c> to skip a property.</param>
         public async Task UpdateSettingsAsync(
             object settings,
             IFormCollection form,

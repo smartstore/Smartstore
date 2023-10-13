@@ -51,16 +51,16 @@ namespace Smartstore.Admin.Components
                 {
                     for (var j = 0; j < data.Amount.Length; j++)
                     {
-                        data.AmountFormatted[j] = primaryCurrency.AsMoney(data.Amount[j]).ToString();
+                        data.AmountFormatted[j] = Services.CurrencyService.CreateMoney(data.Amount[j], primaryCurrency).ToString();
                         data.QuantityFormatted[j] = data.Quantity[j].ToString("N0");
                     }
 
                     data.TotalAmount = data.Amount.Sum();
-                    data.TotalAmountFormatted = primaryCurrency.AsMoney(data.TotalAmount).ToString();
+                    data.TotalAmountFormatted = Services.CurrencyService.CreateMoney(data.TotalAmount, primaryCurrency).ToString();
                 }
 
                 m.TotalAmount = m.DataSets.Sum(x => x.TotalAmount);
-                m.TotalAmountFormatted = primaryCurrency.AsMoney(m.TotalAmount).ToString();
+                m.TotalAmountFormatted = Services.CurrencyService.CreateMoney(m.TotalAmount, primaryCurrency).ToString();
 
                 // Create labels for data points.
                 for (var j = 0; j < m.Labels.Length; j++)

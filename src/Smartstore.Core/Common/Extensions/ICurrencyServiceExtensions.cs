@@ -4,9 +4,9 @@ using Smartstore.Core.Common.Services;
 
 namespace Smartstore
 {
-    public static class ICurrencyServiceExtensions
+    public static partial class ICurrencyServiceExtensions
     {
-        #region Conversion
+        #region Currency conversion
 
         /// <summary>
         /// Exchanges given <see cref="Money"/> amount to <see cref="ICurrencyService.PrimaryCurrency"/>.
@@ -21,7 +21,7 @@ namespace Smartstore
                 return amount;
             }
 
-            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+            Guard.NotNull(amount.Currency);
             return amount.ExchangeTo(service.PrimaryCurrency, service.PrimaryExchangeCurrency);
         }
 
@@ -50,7 +50,7 @@ namespace Smartstore
                 return amount;
             }
 
-            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+            Guard.NotNull(amount.Currency);
             return amount.ExchangeTo(service.PrimaryExchangeCurrency);
         }
 
@@ -69,7 +69,7 @@ namespace Smartstore
             object currencyCodeOrObj = null,
             bool displayCurrency = true)
         {
-            return service.CreateMoney(amount, displayCurrency, currencyCodeOrObj).Exchange(exchangeRate);
+            return service.CreateMoney(amount, currencyCodeOrObj, displayCurrency, false).Exchange(exchangeRate);
         }
 
         /// <summary>
@@ -87,8 +87,8 @@ namespace Smartstore
                 return amount;
             }
 
-            Guard.NotNull(amount.Currency, nameof(amount.Currency));
-            Guard.NotNull(targetCurrency, nameof(targetCurrency));
+            Guard.NotNull(amount.Currency);
+            Guard.NotNull(targetCurrency);
 
             return amount.ExchangeTo(targetCurrency, service.PrimaryExchangeCurrency);
         }

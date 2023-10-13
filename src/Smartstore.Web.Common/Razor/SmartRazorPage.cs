@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
@@ -24,6 +25,7 @@ namespace Smartstore.Web.Razor
         private IPageAssetBuilder? _assets;
         private IUserAgent? _userAgent;
         private ILinkResolver? _linkResolver;
+        private IRoundingHelper? _roundingHelper;
         private ICommonServices? _services;
 
         public SmartRazorPage()
@@ -73,6 +75,11 @@ namespace Smartstore.Web.Razor
         protected ILinkResolver LinkResolver
         {
             get => _linkResolver ??= Context.RequestServices.GetRequiredService<ILinkResolver>();
+        }
+
+        protected IRoundingHelper RoundingHelper
+        {
+            get => _roundingHelper ??= Context.RequestServices.GetRequiredService<IRoundingHelper>();
         }
 
         protected ICommonServices CommonServices

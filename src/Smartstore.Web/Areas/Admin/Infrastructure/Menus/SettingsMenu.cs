@@ -106,13 +106,13 @@ namespace Smartstore.Admin.Infrastructure.Menus
                 },
                 new MenuItem
                 {
-                    Id = "tax",
-                    Text = T("Admin.Plugins.KnownGroup.Tax"),
+                    Id = "finance",
+                    Text = T("Common.Finance"),
                     IconLibrary = "bi",
                     Icon = "percent",
                     PermissionNames = perm,
                     ControllerName = "Setting",
-                    ActionName = "Tax"
+                    ActionName = "Finance"
                 },
                 new MenuItem
                 {

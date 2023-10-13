@@ -27,6 +27,7 @@ namespace Smartstore.Google.Analytics.Services
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
 
@@ -38,6 +39,7 @@ namespace Smartstore.Google.Analytics.Services
             IOrderCalculationService orderCalculationService,
             IShoppingCartService shoppingCartService,
             ICurrencyService currencyService,
+            IRoundingHelper roundingHelper,
             IWorkContext workContext,
             IStoreContext storeContext)
         {
@@ -48,6 +50,7 @@ namespace Smartstore.Google.Analytics.Services
             _orderCalculationService = orderCalculationService;
             _shoppingCartService = shoppingCartService;
             _currencyService = currencyService;
+            _roundingHelper = roundingHelper;
             _workContext = workContext;
             _storeContext = storeContext;
         }
@@ -88,14 +91,15 @@ namespace Smartstore.Google.Analytics.Services
             var defaultProductCategory = (await _categoryService.GetProductCategoriesByProductIdsAsync(new[] { model.Id })).FirstOrDefault();
             var categoryId = defaultProductCategory != null ? defaultProductCategory.Category.Id : 0;
             var categoryPathScript = categoryId != 0 ? await GetCategoryPathAsync(categoryId) : string.Empty;
-
+            var price = _roundingHelper.Round(model.Price.FinalPrice).ToStringInvariant();
+            
             var productsScript = GetItemScript(
                 model.Id,
                 model.Sku,
                 model.Name,
-                !model.Price.HasDiscount ? "''" : model.Price.Saving.SavingAmount.Value.RoundedAmount.ToStringInvariant(),
+                !model.Price.HasDiscount ? "''" : _roundingHelper.Round(model.Price.Saving.SavingAmount.Value).ToStringInvariant(),
                 brand != null ? brand.Name : string.Empty,
-                model.Price.FinalPrice.RoundedAmount.ToStringInvariant(),
+                price,
                 categoryPathScript, addComma: false);
 
             var eventScript = @$"
@@ -109,7 +113,7 @@ namespace Smartstore.Google.Analytics.Services
             
                 gtag('event', 'view_item', {{
                   currency: '{_workContext.WorkingCurrency.CurrencyCode}',
-                  value: {model.Price.FinalPrice.RoundedAmount.ToStringInvariant()},
+                  value: {price},
                   items: [pdItem]
                 }});";
 
@@ -123,10 +127,8 @@ namespace Smartstore.Google.Analytics.Services
         /// <returns>Script part to fire GA event view_cart</returns>
         public async Task<string> GetCartScriptAsync(ShoppingCartModel model)
         {
-            var currency = _workContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
+            var subtotal = await GetSubtotal(cart);
             var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
 
             return @$"
@@ -140,8 +142,8 @@ namespace Smartstore.Google.Analytics.Services
                 window.gaListDataStore.push(cartItemList);
 
                 gtag('event', 'view_cart', {{
-                    currency: '{currency.CurrencyCode}',
-                    value: {subTotalConverted.RoundedAmount.ToStringInvariant()},
+                    currency: '{_workContext.WorkingCurrency.CurrencyCode}',
+                    value: {subtotal.ToStringInvariant()},
                     items: cartItems
                 }});";
         }
@@ -155,10 +157,8 @@ namespace Smartstore.Google.Analytics.Services
         /// <returns>Script part to fire GA event begin_checkout, add_shipping_info or add_payment_info</returns>
         public async Task<string> GetCheckoutScriptAsync(bool addShippingInfo = false, bool addPaymentInfo = false)
         {
-            var currency = _workContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
+            var subtotal = await GetSubtotal(cart);
 
             var model = await cart.MapAsync();
             var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
@@ -174,14 +174,22 @@ namespace Smartstore.Google.Analytics.Services
                 let cartItems = {cartItemsScript};
 
                 gtag('event', '{eventType}', {{
-                    currency: '{currency.CurrencyCode}',
-                    value: {subTotalConverted.RoundedAmount.ToStringInvariant()},
+                    currency: '{_workContext.WorkingCurrency.CurrencyCode}',
+                    value: {subtotal.ToStringInvariant()},
                     coupon: '{model.DiscountBox.CurrentCode}',
                     {(addShippingInfo ? $"shipping_tier: '{model.OrderReviewData.ShippingMethod}'," : string.Empty)}
                     {(addPaymentInfo ? $"payment_type: '{model.OrderReviewData.PaymentMethod}'," : string.Empty)}
                     items: cartItems
                 }});
             ";
+        }
+
+        private async Task<decimal> GetSubtotal(ShoppingCart cart)
+        {
+            var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+            var subtotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubtotal.SubtotalWithoutDiscount.Amount, _workContext.WorkingCurrency);
+
+            return _roundingHelper.Round(subtotalConverted);
         }
 
         /// <summary>
@@ -201,9 +209,9 @@ namespace Smartstore.Google.Analytics.Services
                     product.Id,
                     product.Sku,
                     product.ProductName,
-                    product.Discount.RoundedAmount.ToStringInvariant(),
+                    _roundingHelper.Round(product.Discount).ToStringInvariant(),
                     string.Empty,
-                    product.UnitPrice.RoundedAmount.ToStringInvariant(),
+                    _roundingHelper.Round(product.UnitPrice).ToStringInvariant(),
                     index: ++i);
             }
 
@@ -278,14 +286,14 @@ namespace Smartstore.Google.Analytics.Services
             foreach (var product in products)
             {
                 var discount = product.Price.Saving.SavingAmount;
-
+                
                 productsScript += GetItemScript(
                     product.Id,
                     product.Sku,
                     product.Name,
-                    discount != null ? discount.Value.RoundedAmount.ToStringInvariant() : "0",
+                    discount != null ? _roundingHelper.Round(discount.Value).ToStringInvariant() : "0",
                     product.Brand != null ? product.Brand.Name : string.Empty,
-                    product.Price.FinalPrice.RoundedAmount.ToStringInvariant(),
+                    _roundingHelper.Round(product.Price.FinalPrice).ToStringInvariant(),
                     categoryPathScript,
                     listName,
                     ++i);

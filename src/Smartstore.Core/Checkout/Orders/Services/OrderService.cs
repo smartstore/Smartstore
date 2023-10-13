@@ -1,6 +1,7 @@
 ﻿using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
@@ -12,6 +13,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly Lazy<IOrderProcessingService> _orderProcessingService;
+        private readonly IRoundingHelper _roundingHelper;
         private readonly IEventPublisher _eventPublisher;
         private readonly PaymentSettings _paymentSettings;
         private readonly HashSet<Order> _toCapture = new();
@@ -20,12 +22,14 @@ namespace Smartstore.Core.Checkout.Orders
             SmartDbContext db,
             IWorkContext workContext,
             Lazy<IOrderProcessingService> orderProcessingService,
+            IRoundingHelper roundingHelper,
             IEventPublisher eventPublisher,
             PaymentSettings paymentSettings)
         {
             _db = db;
             _workContext = workContext;
             _orderProcessingService = orderProcessingService;
+            _roundingHelper = roundingHelper;
             _eventPublisher = eventPublisher;
             _paymentSettings = paymentSettings;
         }
@@ -104,7 +108,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public async Task<(Money OrderTotal, Money RoundingAmount)> GetOrderTotalInCustomerCurrencyAsync(Order order, Currency targetCurrency)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             var roundingAmount = order.OrderTotalRounding;
             var orderTotal = order.OrderTotal * order.CurrencyRate;
@@ -118,7 +122,7 @@ namespace Smartstore.Core.Checkout.Orders
                 var paymentMethod = await _db.PaymentMethods.AsNoTracking().FirstOrDefaultAsync(x => x.PaymentMethodSystemName == order.PaymentMethodSystemName);
                 if (paymentMethod?.RoundOrderTotalEnabled ?? false)
                 {
-                    orderTotal = targetCurrency.RoundToNearest(orderTotal, out roundingAmount);
+                    orderTotal = _roundingHelper.ToNearest(orderTotal, out roundingAmount, targetCurrency);
                 }
             }
 

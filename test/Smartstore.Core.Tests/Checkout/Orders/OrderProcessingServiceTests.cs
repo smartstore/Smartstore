@@ -14,6 +14,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -32,9 +33,11 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         IWorkContext _workContext;
         ITaxService _taxService;
         ITaxCalculator _taxCalculator;
+        IRoundingHelper _roundingHelper;
         IPaymentService _paymentService;
         IOrderProcessingService _orderProcessingService;
 
+        CurrencySettings _currencySettings;
         TaxSettings _taxSettings;
         RewardPointsSettings _rewardPointsSettings;
         OrderSettings _orderSettings;
@@ -77,12 +80,6 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             workContextMock.Setup(x => x.WorkingCurrency).Returns(_currency);
             workContextMock.Setup(x => x.WorkingLanguage).Returns(_language);
 
-            var taxServiceMock = new Mock<ITaxService>();
-            _taxService = taxServiceMock.Object;
-
-            _paymentServiceMock = new Mock<IPaymentService>();
-            _paymentService = _paymentServiceMock.Object;
-
             // Settings
             _taxSettings = new TaxSettings
             {
@@ -91,6 +88,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 DefaultTaxAddressId = 10
             };
 
+            _currencySettings = new CurrencySettings();
             _rewardPointsSettings = new RewardPointsSettings();
             _orderSettings = new OrderSettings();
             _localizationSettings = new LocalizationSettings();
@@ -98,8 +96,16 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _catalogSettings = new CatalogSettings();
             _paymentSettings = new PaymentSettings();
 
+            var taxServiceMock = new Mock<ITaxService>();
+            _taxService = taxServiceMock.Object;
+
+            _paymentServiceMock = new Mock<IPaymentService>();
+            _paymentService = _paymentServiceMock.Object;
+
+            _roundingHelper = new RoundingHelper(_workContext, _currencySettings);
+
             // INFO: no mocking here to use real implementation.
-            _taxCalculator = new TaxCalculator(DbContext, _workContext, _taxService, _taxSettings);
+            _taxCalculator = new TaxCalculator(DbContext, _workContext, _roundingHelper, _taxService, _taxSettings);
 
             _orderProcessingService = new OrderProcessingService(
                 DbContext,
@@ -107,6 +113,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 webHelperMock.Object,
                 localizationServiceMock.Object,
                 currencyServiceMock.Object,
+                _roundingHelper,
                 _paymentService,
                 productServiceMock.Object,
                 productAttributeMaterializerMock.Object,

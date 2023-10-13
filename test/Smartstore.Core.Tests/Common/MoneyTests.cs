@@ -1,19 +1,26 @@
 ﻿using System;
+using Moq;
 using NUnit.Framework;
+using Smartstore.Caching;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Common.Services;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Common
 {
     [TestFixture]
-    public class MoneyTests
+    public class MoneyTests : ServiceTestBase
     {
-        Currency currencyUSD, currencyRUR, currencyEUR;
+        CurrencySettings _currencySettings;
+        IRoundingHelper _roundingHelper;
+        ICurrencyService _currencyService;
+        Currency _currencyUSD, _currencyRUR, _currencyEUR;
 
-        [OneTimeSetUp]
-        public void SetUp()
+        [SetUp]
+        public new void SetUp()
         {
-            currencyUSD = new Currency
+            _currencyUSD = new Currency
             {
                 Id = 1,
                 Name = "US Dollar",
@@ -26,7 +33,7 @@ namespace Smartstore.Core.Tests.Common
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
             };
-            currencyEUR = new Currency
+            _currencyEUR = new Currency
             {
                 Id = 2,
                 Name = "Euro",
@@ -39,7 +46,7 @@ namespace Smartstore.Core.Tests.Common
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
             };
-            currencyRUR = new Currency
+            _currencyRUR = new Currency
             {
                 Id = 3,
                 Name = "Russian Rouble",
@@ -52,25 +59,41 @@ namespace Smartstore.Core.Tests.Common
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
             };
+
+            _currencySettings = new CurrencySettings();
+            _roundingHelper = new RoundingHelper(new Mock<IWorkContext>().Object, _currencySettings);
+
+            _currencyService = new CurrencyService(
+                DbContext,
+                NullCache.Instance,
+                ProviderManager,
+                null,
+                _currencySettings,
+                null,
+                _roundingHelper)
+            {
+                PrimaryCurrency = _currencyUSD,
+                PrimaryExchangeCurrency = _currencyEUR
+            };
         }
 
         [Test]
         public void Can_convert_currency_1()
         {
-            currencyUSD.AsMoney(10.1M).Exchange(1.5M).Amount.ShouldEqual(15.15M);
-            currencyUSD.AsMoney(10.1M).Exchange(1).Amount.ShouldEqual(10.1M);
-            currencyUSD.AsMoney(10.1M).Exchange(0).Amount.ShouldEqual(0);
-            currencyUSD.AsMoney(0).Exchange(5).Amount.ShouldEqual(0);
+            _currencyService.CreateMoney(10.1M, _currencyUSD).Exchange(1.5M).Amount.ShouldEqual(15.15M);
+            _currencyService.CreateMoney(10.1M, _currencyUSD).Exchange(1).Amount.ShouldEqual(10.1M);
+            _currencyService.CreateMoney(10.1M, _currencyUSD).Exchange(0).Amount.ShouldEqual(0);
+            _currencyService.CreateMoney(0, _currencyUSD).Exchange(5).Amount.ShouldEqual(0);
         }
 
         [Test]
         public void Can_convert_currency_2()
         {
-            currencyEUR.AsMoney(10M).ExchangeTo(currencyRUR, currencyEUR).Amount.ShouldEqual(345M);
-            currencyEUR.AsMoney(10.1M).ExchangeTo(currencyEUR, currencyEUR).Amount.ShouldEqual(10.1M);
-            currencyRUR.AsMoney(10.1M).ExchangeTo(currencyRUR, currencyEUR).Amount.ShouldEqual(10.1M);
-            currencyUSD.AsMoney(12M).ExchangeTo(currencyRUR, currencyEUR).Amount.ShouldEqual(345M);
-            currencyRUR.AsMoney(345M).ExchangeTo(currencyUSD, currencyEUR).Amount.ShouldEqual(12M);
+            _currencyService.CreateMoney(10M, _currencyEUR).ExchangeTo(_currencyRUR, _currencyEUR).Amount.ShouldEqual(345M);
+            _currencyService.CreateMoney(10.1M, _currencyEUR).ExchangeTo(_currencyEUR, _currencyEUR).Amount.ShouldEqual(10.1M);
+            _currencyService.CreateMoney(10.1M, _currencyRUR).ExchangeTo(_currencyRUR, _currencyEUR).Amount.ShouldEqual(10.1M);
+            _currencyService.CreateMoney(12M, _currencyUSD).ExchangeTo(_currencyRUR, _currencyEUR).Amount.ShouldEqual(345M);
+            _currencyService.CreateMoney(345M, _currencyRUR).ExchangeTo(_currencyUSD, _currencyEUR).Amount.ShouldEqual(12M);
         }
     }
 }

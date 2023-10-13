@@ -10,6 +10,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -46,33 +47,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Currency.Read)]
         public IActionResult List()
         {
-            var model = new CurrencyListModel
-            {
-                AutoUpdateEnabled = _currencySettings.AutoUpdateEnabled
-            };
-
-            ViewBag.ExchangeRateProviders = Services.CurrencyService.LoadAllExchangeRateProviders()
-                .Select(x => new SelectListItem
-                {
-                    Text = _moduleManager.GetLocalizedFriendlyName(x.Metadata),
-                    Value = x.Metadata.SystemName,
-                    Selected = x.Metadata.SystemName.Equals(_currencySettings.ActiveExchangeRateProviderSystemName, StringComparison.InvariantCultureIgnoreCase)
-                })
-                .ToList();
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Update)]
-        public async Task<IActionResult> List(CurrencyListModel model)
-        {
-            _currencySettings.ActiveExchangeRateProviderSystemName = model.ExchangeRateProvider;
-            _currencySettings.AutoUpdateEnabled = model.AutoUpdateEnabled;
-
-            await _db.SaveChangesAsync();
-
-            return RedirectToAction(nameof(List));
+            return View();
         }
 
         [HttpPost]
@@ -469,16 +444,24 @@ namespace Smartstore.Admin.Controllers
                 model.IsPrimaryExchangeCurrency = currency.Id == _currencySettings.PrimaryExchangeCurrencyId;
             }
 
+            var availableDomainEndings = new List<SelectListItem>
+            {
+                new() { Text = ".com", Value = ".com" },
+                new() { Text = ".uk", Value = ".uk" },
+                new() { Text = ".de", Value = ".de" },
+                new() { Text = ".ch", Value = ".ch" }
+            };
+
             if (!excludeProperties)
             {
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(currency);
 
                 foreach (var ending in model.DomainEndings.SplitSafe(','))
                 {
-                    var item = model.AvailableDomainEndings.FirstOrDefault(x => x.Value.EqualsNoCase(ending));
+                    var item = availableDomainEndings.FirstOrDefault(x => x.Value.EqualsNoCase(ending));
                     if (item == null)
                     {
-                        model.AvailableDomainEndings.Add(new SelectListItem { Text = ending, Value = ending, Selected = true });
+                        availableDomainEndings.Add(new() { Text = ending, Value = ending, Selected = true });
                     }
                     else
                     {
@@ -488,6 +471,24 @@ namespace Smartstore.Admin.Controllers
 
                 model.DomainEndingsArray = model.DomainEndings.SplitSafe(',').ToArray();
             }
+
+            ViewBag.AvailableDomainEndings = availableDomainEndings;
+
+            ViewBag.MidpointRoundings = CurrencyMidpointRounding.AwayFromZero.ToSelectList()
+                .Select(x =>
+                {
+                    var item = new ExtendedSelectListItem
+                    {
+                        Value = x.Value,
+                        Text = x.Text,
+                        Selected = x.Selected
+                    };
+
+                    item.CustomProperties["Description"] = T("Enums.CurrencyMidpointRounding." + ((CurrencyMidpointRounding)x.Value.ToInt()).ToString() + ".Example").Value;
+
+                    return item;
+                })
+                .ToList();
         }
 
         #endregion

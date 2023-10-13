@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
-using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Tax
 {
@@ -30,31 +29,6 @@ namespace Smartstore.Core.Checkout.Tax
             PriceNet = priceNet;
             PriceGross = priceGross;
             Price = price;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Tax"/> structure.
-        /// </summary>
-        /// <param name="rate">The tax rate</param>
-        /// <param name="amount">The calculated tax amount</param>
-        /// <param name="price">The origin price</param>
-        /// <param name="isGrossPrice">A value indicating whether <paramref name="price"/> includes tax already.</param>
-        /// <param name="inclusive">A value indicating whether the result price should be gross (including tax).</param>
-        /// <param name="currency">Optional currency for result price rounding. If <c>null</c>, result will be unrounded.</param>
-        public Tax(TaxRate rate, decimal amount, decimal price, bool isGrossPrice, bool inclusive, Currency currency = null)
-        {
-            Rate = rate;
-            Amount = amount;
-            IsGrossPrice = isGrossPrice;
-            Inclusive = inclusive;
-            PriceNet = isGrossPrice ? price - amount : price;
-            PriceGross = isGrossPrice ? price : price + amount;
-            Price = inclusive ? PriceGross : PriceNet;
-
-            if (currency != null)
-            {
-                Price = currency.RoundIfEnabledFor(Price);
-            }
         }
 
         /// <summary>

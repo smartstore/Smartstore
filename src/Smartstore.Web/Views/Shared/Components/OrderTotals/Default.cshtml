@@ -8,8 +8,8 @@
 
 <table class="cart-summary">
     <tr id="CartSummarySubtotal" class="cart-summary-subtotal"
-        data-subtotal-converted="@(Model.SubTotal.Amount.FormatInvariant())"
-        data-subtotal="@(Model?.CartSubtotal?.SubtotalWithoutDiscount.Amount.FormatInvariant())">
+        data-subtotal-converted="@RoundingHelper.Round(Model.SubTotal).ToStringInvariant()"
+        data-subtotal="@(Model.CartSubtotal != null ? RoundingHelper.Round(Model.CartSubtotal.SubtotalWithoutDiscount).ToStringInvariant() : string.Empty)">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.SubTotal"):</td>
         <td class="cart-summary-value">@Model.SubTotal</td>
     </tr>
@@ -20,6 +20,7 @@
             <span>@Model.WeightMeasureUnitName</span>
         </td>
     </tr>
+
     <tr sm-if="Model.SubTotalDiscount != null" class="cart-summary-subtotaldiscount cart-summary-pos">
         <td class="cart-summary-label">
             @if (Model.AllowRemovingSubTotalDiscount)
@@ -141,10 +142,10 @@
             <span>@Model.OrderTotalRounding</span>
         </td>
     </tr>
-
+    
     <tr id="CartSummaryTotal" class="cart-summary-total" 
-        data-total-converted="@((Model.OrderTotal ?? Money.Zero).Amount.FormatInvariant())"
-        data-total="@((Model.CartTotal?.Total ?? Money.Zero).Amount.FormatInvariant())">
+        data-total-converted="@RoundingHelper.Round(Model.OrderTotal ?? Money.Zero).ToStringInvariant()"
+        data-total="@RoundingHelper.Round(Model.CartTotal?.Total ?? Money.Zero).ToStringInvariant()">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.OrderTotal"):</td>
         <td class="cart-summary-value">
             @if (Model.OrderTotal != null)

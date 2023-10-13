@@ -17,6 +17,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IGiftCardService _giftCardService;
         private readonly ILanguageService _languageService;
+        private readonly ICurrencyService _currencyService;
         private readonly IMessageFactory _messageFactory;
         private readonly LocalizationSettings _localizationSettings;
         private readonly Currency _primaryCurrency;
@@ -32,6 +33,7 @@ namespace Smartstore.Admin.Controllers
             _db = db;
             _giftCardService = giftCardService;
             _languageService = languageService;
+            _currencyService = currencyService;
             _messageFactory = messageFactory;
             _localizationSettings = localizationSettings;
 
@@ -48,8 +50,8 @@ namespace Smartstore.Admin.Controllers
         {
             ViewBag.ActivatedList = new List<SelectListItem>
             {
-                new SelectListItem { Value = "true", Text = T("Common.Activated") },
-                new SelectListItem { Value = "false", Text = T("Common.Deactivated") }
+                new() { Value = "true", Text = T("Common.Activated") },
+                new() { Value = "false", Text = T("Common.Deactivated") }
             };
 
             return View(new GiftCardListModel());
@@ -111,7 +113,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     Id = x.Id,
                     OrderId = x.UsedWithOrderId,
-                    UsedValue = Services.CurrencyService.PrimaryCurrency.AsMoney(x.UsedValue).ToString(true),
+                    UsedValue = _currencyService.CreateMoney(x.UsedValue, _primaryCurrency).ToString(true),
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                     OrderEditUrl = Url.Action("Edit", "Order", new { id = x.UsedWithOrderId, area = "Admin" }),
                     OrderEditLinkText = T("Admin.Common.ViewObject", x.UsedWithOrderId)
@@ -315,9 +317,9 @@ namespace Smartstore.Admin.Controllers
                 var remainAmount = await _giftCardService.GetRemainingAmountAsync(giftCard);
 
                 model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(giftCard.CreatedOnUtc, DateTimeKind.Utc);
-                model.AmountStr = Services.CurrencyService.PrimaryCurrency.AsMoney(giftCard.Amount).ToString(true);
+                model.AmountStr = _currencyService.CreateMoney(giftCard.Amount, _primaryCurrency).ToString(true);
                 model.RemainingAmountStr = remainAmount.ToString(true);
-                model.EditUrl = Url.Action("Edit", "GiftCard", new { id = giftCard.Id, area = "Admin" });
+                model.EditUrl = Url.Action(nameof(Edit), "GiftCard", new { id = giftCard.Id, area = "Admin" });
                 model.PurchasedWithOrderId = giftCard.PurchasedWithOrderItem?.OrderId;
             }
         }

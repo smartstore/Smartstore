@@ -27,9 +27,9 @@ namespace Smartstore.Core.Checkout.Cart
         public decimal TaxRate { get; init; }
 
         /// <summary>
-        /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="ShippingTotal"/>.
+        /// Returns the rounded and formatted <see cref="ShippingTotal"/>.
         /// </summary>
         public override string ToString()
-            => ShippingTotal.HasValue ? ShippingTotal.ToString() : decimal.Zero.FormatInvariant();
+            => (ShippingTotal ?? Money.Zero).ToString();
     }
 }

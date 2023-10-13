@@ -13,7 +13,7 @@ using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -31,19 +31,22 @@ namespace Smartstore.AmazonPay.Providers
         private readonly IAmazonPayService _amazonPayService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly IRoundingHelper _roundingHelper;
 
         public AmazonPayProvider(
             SmartDbContext db,
             ICommonServices services,
             IAmazonPayService amazonPayService,
             IHttpContextAccessor httpContextAccessor,
-            ICheckoutStateAccessor checkoutStateAccessor)
+            ICheckoutStateAccessor checkoutStateAccessor,
+            IRoundingHelper roundingHelper)
         {
             _db = db;
             _services = services;
             _amazonPayService = amazonPayService;
             _httpContextAccessor = httpContextAccessor;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _roundingHelper = roundingHelper;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -84,9 +87,9 @@ namespace Smartstore.AmazonPay.Providers
                     throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(state.SessionId)));
                 }
 
-                var orderTotal = new Money(processPaymentRequest.OrderTotal, _services.CurrencyService.PrimaryCurrency);
                 var client = GetClient(processPaymentRequest.StoreId);
-                var request = new CompleteCheckoutSessionRequest(orderTotal.RoundedAmount, _amazonPayService.GetAmazonPayCurrency());
+                var orderTotal = _roundingHelper.Round(processPaymentRequest.OrderTotal, _services.CurrencyService.PrimaryCurrency);
+                var request = new CompleteCheckoutSessionRequest(orderTotal, _amazonPayService.GetAmazonPayCurrency());
                 var response = client.CompleteCheckoutSession(state.SessionId, request);
 
                 if (response.Success)
