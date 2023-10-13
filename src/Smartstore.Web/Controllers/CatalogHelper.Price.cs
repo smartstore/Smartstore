@@ -372,7 +372,7 @@ namespace Smartstore.Web.Controllers
                     product: product,
                     price: price.FinalPrice,
                     targetCurrency: price.FinalPrice.Currency,
-                    // Don't diaplay tax suffix in detail
+                    // Don't display tax suffix in detail
                     displayTaxSuffix: forSummary ? null : false);
             }
 

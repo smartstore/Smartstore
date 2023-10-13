@@ -6,12 +6,14 @@
 @model ShoppingCartModel
 
 @{
+    var bundleItemThumbSize = Math.Min(Model.BundleThumbSize, 60);
+
     @foreach (var item in Model.Items)
     {
         if (item.ProductType == ProductType.BundledProduct)
         {
             await SimpleProduct(item);
-
+            
             var bundleItems = item.ChildItems.OrderBy(x => x.BundleItem.DisplayOrder).ToArray();
             foreach (var bundleItem in bundleItems)
             {
@@ -77,13 +79,16 @@
 
                     @* Price *@
                     <div class="cart-item-price-group cart-item-group">
+                        <partial name="CartItem.Price" model="item.Price">
+                    </div>
+                    <div class="cart-item-price-group cart-item-group mb-2 d-none">
                         @* TODO: (mc) Cart item badges *@
                         <div sm-if="!Model.IsEditable" class="cart-item-qty">@T("ShoppingCart.Quantity"): @item.EnteredQuantity</div>
-                        <div class="cart-item-price fwm fs-h5">@price.SubTotal</div>
+                        <div class="cart-item-price fwm fs-h5">@item.SubTotal</div>
                         <div sm-if="price.UnitPrice != price.SubTotal" class="cart-item-price fwn">@T("ShoppingCart.Mini.UnitPrice"): @price.UnitPrice</div>
-                        <div sm-if="price.Discount > decimal.Zero" class="cart-item-saving fs-sm text-muted pt-1">
+                        <div sm-if="price.TotalDiscount > decimal.Zero" class="cart-item-saving fs-sm text-muted pt-1">
                             <div>@T("ShoppingCart.ItemYouSave"):</div>
-                            <div>@price.Discount</div>
+                            <div>@price.TotalDiscount</div>
                         </div>
 
                         <div sm-if="Model.DisplayBasePrice && price.BasePriceInfo.HasValue()" class="cart-item-base-price text-muted fs-sm lrm">
@@ -241,7 +246,7 @@
                         <div class="cart-item-title">
                             @if (Model.ShowProductBundleImages)
                             {
-                                <span class="cart-item-bundle-img mr-2" style="width: @Math.Min(Model.BundleThumbSize, 60)px;">
+                                <span class="cart-item-bundle-img mr-1" style="width: @(bundleItemThumbSize)px; height: @(bundleItemThumbSize)px;">
                                     @if (item.Image != null && item.Image.HasImage() && !item.BundleItem.HideThumbnail)
                                     {
                                         <img sm-model="item.Image" class="img-fluid" />
@@ -249,7 +254,7 @@
                                 </span>
                             }
 
-                            <span sm-if="item.EnteredQuantity > 1 && item.BundlePerItemShoppingCart" class="badge badge-secondary">
+                            <span sm-if="item.EnteredQuantity > 1" class="badge badge-secondary">
                                 @(item.EnteredQuantity)&nbsp;&#215;
                             </span>
 
@@ -275,7 +280,10 @@
                     </div>
 
                     @* Price *@
-                    <div class="cart-item-price-group cart-item-group">
+                    <div sm-if="item.Price.UnitPrice > 0" class="cart-item-price-group cart-item-group">
+                        <partial name="CartItem.Price" model="item.Price">
+                    </div>
+                    <div sm-if="item.BundleItem.Price.HasValue" class="cart-item-price-group cart-item-group d-none">
                         <div class="cart-item-price">
                             @Html.Raw(item.BundleItem.Price.HasValue ? item.BundleItem.Price : "&nbsp;")
                         </div>

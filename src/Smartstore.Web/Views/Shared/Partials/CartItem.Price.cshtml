@@ -1,0 +1,82 @@
+﻿@using Smartstore.Core.Common;
+@using Smartstore.Core.Catalog.Pricing;
+@using Smartstore.Web.Models.Catalog;
+@using Smartstore.Web.Models.Cart;
+
+@model CartItemPriceModel
+
+@{
+    var showPriceSaving = Model.Saving.SavingAmount.HasValue && (Model.ShowRetailPriceSaving || Model.RegularPrice != null);
+    var isBundlePart = false;
+    var showPrice = !(isBundlePart && Model.UnitPrice == 0);
+
+    async Task RenderPromoPriceLine(ComparePriceModel priceModel)
+    {
+        <div sm-if="priceModel != null" class="pd-promoprice-line">
+            <span class="pd-promoprice-label">@(priceModel.Label):</span>
+            <span class="pd-promoprice pl-1">@Html.Raw(priceModel.Price)</span>
+            <a sm-if="priceModel.Description.HasValue()" href="javascript:;"
+               role="button"
+               class="pd-promoprice-tip popover-trigger"
+               data-toggle="popover"
+               data-container="body"
+               data-placement="top"
+               data-trigger="focus"
+               data-content="@priceModel.Description">
+                <i class="fa fa-circle-info"></i>
+            </a>
+        </div>
+    }
+}
+
+@* Promo badges *@
+<div sm-if="Model.Badges.Count > 0" class="pd-promobadges">
+    @foreach (var badge in Model.Badges.OrderBy(x => x.DisplayOrder))
+    {
+        <span class="badge badge-@badge.Style">@badge.Label</span>
+    }
+</div>
+
+@* Final single unit price *@
+<div sm-if="showPrice" class="pd-finalprice" attr-class='(Model.Saving.HasSaving, "pd-finalprice-offer")'>
+    <span class="pd-finalprice-amount fs-@(isBundlePart ? "h5" : "h4")">
+        @Html.Raw(Model.UnitPrice)
+    </span>
+    <span sm-if="Model.CountdownText != null" class="pd-offer-countdown">
+        @Html.Raw(Model.CountdownText)
+    </span>
+</div>
+
+@* Compare prices *@
+<div sm-if="Model.RegularPrice != null || Model.RetailPrice != null" class="pd-promoprice-group">
+    @{
+        // Regular price
+        await RenderPromoPriceLine(Model.RegularPrice);
+
+        // Retail price
+        await RenderPromoPriceLine(Model.RetailPrice);
+    }
+
+    @* You save *@
+    <div sm-if="showPriceSaving" class="pd-promoprice-line">
+        <span class="pd-promoprice-label">@T("ShoppingCart.ItemYouSave"):</span>
+        <span class="pd-promosaving pl-1 d-flex">
+            <span>@Model.Saving.SavingAmount.Value</span>
+            <span class="badge badge-danger pd-saving-badge">@T("Products.SavingBadgeLabel", Model.Saving.SavingPercent.ToString("N0"))</span>
+        </span>
+    </div>
+</div>
+
+<div class="pt-2 fs-sm" sm-suppress-if-empty>
+    @* Subtotal *@
+    <div sm-if="!isBundlePart && showPrice && Model.UnitPrice != Model.SubTotal" class="pd-subtotal fs-sm">
+        <span class="pd-subtotal-label">@T("ShoppingCart.ItemTotal"):</span>
+        <span class="pd-subtotal-amount fwm">
+            @Html.Raw(Model.SubTotal)
+        </span>
+    </div>
+    @* Pangv *@
+    <div sm-if="Model.BasePriceInfo.HasValue()" class="pd-pangv lrm">
+        @Html.Raw(LocalizedValue.FixBrackets(Model.BasePriceInfo, WorkContext.WorkingLanguage))
+    </div>
+</div>

@@ -124,7 +124,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual LocalizedString GetPromoCountdownText(CalculatedPrice price)
         {
-            Guard.NotNull(price, nameof(price));
+            Guard.NotNull(price);
 
             if (price.ValidUntilUtc == null)
             {

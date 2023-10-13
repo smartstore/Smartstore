@@ -75,20 +75,31 @@ namespace Smartstore.Web.Models.Cart
         public Money SubTotal { get; set; }
         public Money? ShippingSurcharge { get; set; }
 
-        public Money Discount { get; set; }
+        public Money TotalDiscount { get; set; }
+
+        /// <summary>
+        ///  Single unit saving
+        /// </summary>
         public PriceSaving Saving { get; set; }
         public DateTime? ValidUntilUtc { get; set; }
         public LocalizedString CountdownText { get; set; }
 
+        /// <summary>
+        ///  Single unit regular price
+        /// </summary>
         public ComparePriceModel RegularPrice { get; set; }
+
+        /// <summary>
+        ///  Single unit retail price
+        /// </summary>
         public ComparePriceModel RetailPrice { get; set; }
 
+        /// <summary>
+        ///  Single unit base price info
+        /// </summary>
         public string BasePriceInfo { get; set; }
 
         public bool ShowRetailPriceSaving { get; set; }
-        public bool ShowSavingBadge { get; set; }
-        public bool ShowPriceLabel { get; set; }
-
         public List<ProductBadgeModel> Badges { get; } = new();
     }
 }

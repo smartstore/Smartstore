@@ -29,7 +29,7 @@ namespace Smartstore.Core.Common
 
         public Money(decimal amount, Currency currency, bool hideCurrency, string postFormat = null)
         {
-            Guard.NotNull(currency, nameof(currency));
+            Guard.NotNull(currency);
 
             Amount = amount;
             Currency = currency;

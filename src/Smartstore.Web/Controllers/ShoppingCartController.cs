@@ -937,11 +937,7 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
-            var postedFile = Request.Form.Files.FirstOrDefault();
-            if (postedFile == null)
-            {
-                throw new ArgumentException(T("Common.NoFileUploaded"));
-            }
+            var postedFile = Request.Form.Files.FirstOrDefault() ?? throw new ArgumentException(T("Common.NoFileUploaded"));
 
             var download = new Download
             {
