@@ -52,7 +52,7 @@
     > .select2-option,
     > .select2-item-description {
         position: relative;
-        display: inline-block;
+        display: block;
         vertical-align: middle;
         font-size: $font-size-sm;
         // padding for checkmark
@@ -82,7 +82,8 @@
     }
 
     .select2-item-btn {
-        position: relative;
+        position: absolute;
+        z-index: $zindex-popover;
         inset-block-start: -3px;
         inset-inline-end: 6px;
         opacity: 0.0;
