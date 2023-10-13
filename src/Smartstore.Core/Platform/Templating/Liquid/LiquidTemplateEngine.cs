@@ -88,13 +88,13 @@ namespace Smartstore.Templating.Liquid
 
         public Template GetTemplate(Context context, string templateName)
         {
-            var path = NormalizeTemplatePath(context, templateName, out var fs);
+            var path = NormalizeTemplatePath(context, templateName, out var fs, out var theme);
             if (path.IsEmpty() || fs == null)
             {
                 return null;
             }
 
-            var cacheKey = _memCache.BuildScopedKey("Liquid://" + path);
+            var cacheKey = _memCache.BuildScopedKey("Liquid://" + theme.RightPad(pad: '/') + path);
             var cachedTemplate = _memCache.Get(cacheKey);
 
             if (cachedTemplate == null)
@@ -104,11 +104,9 @@ namespace Smartstore.Templating.Liquid
                 var source = ReadTemplateFileInternal(file);
 
                 cachedTemplate = Template.Parse(source);
-                using (var entry = _memCache.CreateEntry(cacheKey))
-                {
-                    entry.Value = cachedTemplate;
-                    entry.ExpirationTokens.Add(fs.Watch(path) ?? NullChangeToken.Singleton);
-                }
+                using var entry = _memCache.CreateEntry(cacheKey);
+                entry.Value = cachedTemplate;
+                entry.ExpirationTokens.Add(fs.Watch(path) ?? NullChangeToken.Singleton);
             }
 
             return (Template)cachedTemplate;
@@ -116,7 +114,7 @@ namespace Smartstore.Templating.Liquid
 
         public string ReadTemplateFile(Context context, string templateName)
         {
-            var path = NormalizeTemplatePath(context, templateName, out var fs);
+            var path = NormalizeTemplatePath(context, templateName, out var fs, out _);
             return ReadTemplateFileInternal(fs?.GetFile(path));
         }
 
@@ -135,8 +133,9 @@ namespace Smartstore.Templating.Liquid
             return file.ReadAllText();
         }
 
-        private string NormalizeTemplatePath(Context context, string path, out IFileSystem fs)
+        private string NormalizeTemplatePath(Context context, string path, out IFileSystem fs, out string theme)
         {
+            theme = null;
             path = ((string)context[path]).NullEmpty() ?? path;
 
             if (path.IsEmpty())
@@ -152,6 +151,7 @@ namespace Smartstore.Templating.Liquid
                     PathUtility.NormalizeRelativePath(path).EnsureEndsWith(".liquid"));
 
                 fs = _themeContext.Value.CurrentTheme?.ContentRoot;
+                theme = _themeContext.Value.CurrentTheme?.Name;
                 return path;
             }
             else
