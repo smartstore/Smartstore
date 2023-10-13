@@ -55,6 +55,9 @@
   - Added hash codes to attribute combinations. With a large number of attribute combinations, variants are found much faster now.
   - Fixed slow loading of product categories for a large number of categories. Price calculation and product export were affected.
   - MediaSearcher always performed a LIKE search for terms (the equals operator was missing)
+- Rounding of currency amounts:
+  - Added currency properties and settings for rounding: midpoint rounding, skip rounding when displaying net prices, round unit price before or after quantity multiplication.
+  - Amounts are always rounded when calculating the order total to avoid rounding differences (usually of 1 cent).
 - Improved plugin & provider manager UI
 - Use billing address if there is no shipping address and tax calculation is based on shipping address.
 - #580 Added caching for live currency exchange rates.
@@ -104,6 +107,7 @@
 - Web API: 
   - Fixed 404 file swagger.json not found when opening Swagger documentation in a virtual directory.
   - #815 Import of customers via WebApi/OData sets PasswordFormat to 'clear'.
+- Fixed the saving of multistore settings for default tax and default shipping address.
 - Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
 - Fixed missing cache clearing after importing localized properties.
 - Output Cache: missing `Content-Type` header when serving page from cache
@@ -128,7 +132,8 @@
 - #828 Queued email identifier is 0 for order completed email.
 - #873 Category preview may show 404 page if the category is limited to a certain store.
 - Do not fallback to "Product is not available" delivery info on product detail page if the product is available.
-- #839 Output cache must be invalidated when menu items are added or edited 
+- #839 Output cache must be invalidated when menu items are added or edited.
+- OpenTrans: fixes RuntimeBinderException "cannot perform runtime binding on a null reference" when exporting shipping address.
 
 
 
