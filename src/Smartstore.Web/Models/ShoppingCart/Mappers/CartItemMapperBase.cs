@@ -77,11 +77,15 @@ namespace Smartstore.Web.Models.Cart
 
             if (item.BundleItem != null)
             {
-                to.BundleItem.Id = item.BundleItem.Id;
-                to.BundleItem.DisplayOrder = item.BundleItem.DisplayOrder;
-                to.BundleItem.HideThumbnail = item.BundleItem.HideThumbnail;
-                to.BundlePerItemPricing = item.BundleItem.BundleProduct.BundlePerItemPricing;
-                to.BundlePerItemShoppingCart = item.BundleItem.BundleProduct.BundlePerItemShoppingCart;
+                to.BundleItem = new BundleItemModel
+                {
+                    Id = item.BundleItem.Id,
+                    DisplayOrder = item.BundleItem.DisplayOrder,
+                    HideThumbnail = item.BundleItem.HideThumbnail,
+                    PerItemPricing = item.BundleItem.BundleProduct.BundlePerItemPricing,
+                    PerItemShoppingCart = item.BundleItem.BundleProduct.BundlePerItemShoppingCart,
+                    Title = item.BundleItem.BundleProduct.GetLocalized(x => x.BundleTitleText)
+                };
 
                 to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
                     item.AttributeSelection,
@@ -162,20 +166,16 @@ namespace Smartstore.Web.Models.Cart
             var taxFormat = parameters?.TaxFormat as string;
             var batchContext = parameters?.BatchContext as ProductBatchContext;
 
-            if (item.BundleItem != null)
+            if (to.BundleItem != null && item.BundleItem != null)
             {
-                if (to.BundlePerItemPricing /*&& to.BundlePerItemShoppingCart*/)
+                if (to.BundleItem.PerItemPricing && to.BundleItem.PerItemShoppingCart)
                 {
                     // Handle a bundle product's sub item pricing
                     var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, null, batchContext);
                     var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(from, calculationOptions);
                     var (bundleItemUnitPrice, bundleItemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
-                    to.BundleItem.PriceWithDiscount = bundleItemSubtotal.FinalPrice.ToString(); // x
-                    to.BundleItem.Price = bundleItemSubtotal.FinalPrice;
-
                     to.BasePrice = _priceCalculationService.GetBasePriceInfo(product, bundleItemUnitPrice.FinalPrice); // x
-                    priceModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, bundleItemUnitPrice.FinalPrice); // x
 
                     MapCalculatedPrice(bundleItemUnitPrice, bundleItemSubtotal);
                 }

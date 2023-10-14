@@ -186,14 +186,19 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 // =====================================================
 
 .pd-offer {
+    --pd-finalprice-color: #{$pd-price-color};
+    --pd-finalprice-offer-color: #{$pd-price-offer-color};
+    --pd-offer-muted-color: #{$pd-offer-muted-color};
+    --pd-finalprice-font-size: 1.8rem;
+    --pd-finalprice-font-size-sm: 1.5rem;
+    --pd-offer-font-size-base: inherit;
+    --pd-offer-font-size-sm: #{$font-size-sm};
+
     background: $pd-offer-bg;
     padding: $pd-offer-spacing;
     line-height: $pd-line-height;
     width: 100%;
     border-radius: var(--border-radius-md);
-    --pd-finalprice-color: #{$pd-price-color};
-    --pd-finalprice-offer-color: #{$pd-price-offer-color};
-    --pd-offer-muted-color: #{$pd-offer-muted-color};
 }
 
 .row.pd-offer-actions {
@@ -238,12 +243,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-price {
-    font-size: 1.8rem;
+    font-size: var(--pd-finalprice-font-size, 1.8rem);
     font-weight: 500;
     color: $pd-price-color;
 
     &.pd-price-sm {
-        font-size: 1.5rem;
+        font-size: var(--pd-finalprice-font-size-sm, 1.5rem);
     }
     &.pd-price--offer {
         color: $pd-price-offer-color;
@@ -295,7 +300,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-finalprice-amount {
-    font-size: 1.8rem;
+    font-size: var(--pd-finalprice-font-size, 1.8rem);
     font-weight: $font-weight-medium;
     color: var(--pd-finalprice-color);
     margin-inline-end: 0.75rem;
@@ -306,19 +311,19 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     }
 
     &.pd-finalprice-sm {
-        font-size: 1.5rem;
+        font-size: var(--pd-finalprice-font-size-sm, 1.5rem);
     }
 }
 
 .pd-offer-countdown {
-    font-size: $font-size-sm;
+    font-size: var(--pd-offer-font-size-sm, 0.875rem);
     font-weight: $font-weight-normal;
     color: $warning;
     color: var(--warning-text-emphasis);
 }
 
 .pd-promoprice-group {
-    font-size: $font-size-sm;
+    font-size: var(--pd-offer-font-size-sm, 0.875rem);
 }
 
 .pd-promoprice-line {
@@ -347,7 +352,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-pangv,
 .pd-legalinfo {
     color: var(--pd-offer-muted-color);
-    font-size: $font-size-sm;
+    font-size: var(--pd-offer-font-size-sm, 0.875rem);
 }
 
 

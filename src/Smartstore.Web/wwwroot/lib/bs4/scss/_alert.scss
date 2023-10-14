@@ -57,6 +57,7 @@
     z-index: 2;
     padding-block: calc(var(--alert-padding-y) * 1);
     padding-inline: var(--alert-padding-x);
+    height: calc(1em * #{$line-height-base}); // Center vertically if only 1 line exists
   }
 }
 

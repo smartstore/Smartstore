@@ -131,7 +131,7 @@
 
     async Task BundleProducts(WishlistModel.WishlistItemModel parentItem)
     {
-        foreach (var item in parentItem.ChildItems.OrderBy(x => x.BundleItem.DisplayOrder))
+        foreach (var item in parentItem.ChildItems.Where(x => x.BundleItem != null).OrderBy(x => x.BundleItem.DisplayOrder).ToArray())
         {
             <div class="cart-row cart-row-child">
                 <div class="cart-col cart-col-main">
@@ -148,7 +148,7 @@
                                     }
                                 </div>                
                                 <div>
-                                    <span sm-if="item.EnteredQuantity > 1 && item.BundlePerItemShoppingCart" class="font-weight-medium">@(item.EnteredQuantity)&nbsp;&#215;</span>
+                                    <span sm-if="item.EnteredQuantity > 1 && item.BundleItem.PerItemShoppingCart" class="fwm">@(item.EnteredQuantity)&nbsp;&#215;</span>
                 
                                     @if (item.VisibleIndividually)
                                     {
@@ -174,7 +174,7 @@
                     </div>
                 </div>
                 <div class="cart-col cart-col-price">
-                    @Html.Raw(item.BundleItem.Price.HasValue ? item.BundleItem.Price : "&nbsp;")
+                    @*Html.Raw(item.BundleItem.Price.HasValue ? item.BundleItem.Price : "&nbsp;")*@
                 </div>
                 <div class="cart-col">&nbsp;</div>
                 <div class="cart-col">&nbsp;</div>

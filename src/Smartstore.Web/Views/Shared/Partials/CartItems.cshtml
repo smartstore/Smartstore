@@ -14,10 +14,10 @@
         {
             await SimpleProduct(item);
             
-            var bundleItems = item.ChildItems.OrderBy(x => x.BundleItem.DisplayOrder).ToArray();
-            foreach (var bundleItem in bundleItems)
+            var bundleItems = item.ChildItems.Where(x => x.BundleItem != null).OrderBy(x => x.BundleItem.DisplayOrder).ToArray();
+            for (var i = 0; i < bundleItems.Length; i++)
             {
-                await BundleProduct(bundleItem, item);
+                await BundleProduct(bundleItems[i], item, i);
             }
         }
         else
@@ -231,12 +231,21 @@
         </div>
     }
 
-    async Task BundleProduct(ShoppingCartModel.ShoppingCartItemModel item, ShoppingCartModel.ShoppingCartItemModel parentItem)
+    async Task BundleProduct(ShoppingCartModel.ShoppingCartItemModel item, ShoppingCartModel.ShoppingCartItemModel parentItem, int index)
     {
         <div class="cart-row cart-row-child">
             <div class="row">
                 @* Spacer for image *@
-                <div class="cart-item-img col-3 d-none d-md-flex d-lg-none d-xl-flex">&nbsp;</div>
+                <div class="cart-item-img col-3 d-none d-md-flex d-lg-none d-xl-flex text-start">
+                    @if (index == 0 && item.BundleItem.Title.HasValue())
+                    {
+                        <span class="fwm pt-1">@(item.BundleItem.Title):</span>
+                    }
+                    else 
+                    {
+                        <span>&nbsp;</span>
+                    }
+                </div>
                     
                 @* Data *@
                 <div class="cart-item-data col">
@@ -254,7 +263,7 @@
                                 </span>
                             }
 
-                            <span sm-if="item.EnteredQuantity > 1" class="badge badge-secondary">
+                            <span sm-if="item.EnteredQuantity > 1 && item.BundleItem.PerItemShoppingCart" class="badge badge-secondary">
                                 @(item.EnteredQuantity)&nbsp;&#215;
                             </span>
 
@@ -266,7 +275,7 @@
                             }
                             else
                             {
-                                <span class="cart-item-link" sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                                <span sm-language-attributes-for="item.ProductName">@item.ProductName</span>
                             }
                         </div>
 
@@ -280,16 +289,8 @@
                     </div>
 
                     @* Price *@
-                    <div sm-if="item.Price.UnitPrice > 0" class="cart-item-price-group cart-item-group">
+                    <div sm-if="item.BundleItem.PerItemShoppingCart" class="cart-item-price-group cart-item-group">
                         <partial name="CartItem.Price" model="item.Price">
-                    </div>
-                    <div sm-if="item.BundleItem.Price.HasValue" class="cart-item-price-group cart-item-group d-none">
-                        <div class="cart-item-price">
-                            @Html.Raw(item.BundleItem.Price.HasValue ? item.BundleItem.Price : "&nbsp;")
-                        </div>
-                        <div sm-if="Model.DisplayBasePrice && item.Price.BasePriceInfo.HasValue()" class="cart-item-base-price text-muted lrm">
-                            @item.Price.BasePriceInfo
-                        </div>
                     </div>
 
                     <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group">

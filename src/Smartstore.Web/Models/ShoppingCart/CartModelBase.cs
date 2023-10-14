@@ -51,9 +51,11 @@ namespace Smartstore.Web.Models.Cart
         public List<string> Warnings { get; set; } = new();
         public LocalizedValue<string> ShortDesc { get; set; }
 
-        public bool BundlePerItemPricing { get; set; }
-        public bool BundlePerItemShoppingCart { get; set; }
-        public BundleItemModel BundleItem { get; set; } = new();
+        public BundleItemModel BundleItem { get; set; }
+        public bool IsBundleItem
+        {
+            get => BundleItem != null;
+        }
 
         public abstract IEnumerable<CartEntityModelBase> ChildItems { get; }
         public DateTime CreatedOnUtc { get; set; }
@@ -61,8 +63,9 @@ namespace Smartstore.Web.Models.Cart
 
     public partial class BundleItemModel : EntityModelBase
     {
-        public string PriceWithDiscount { get; set; }
-        public Money? Price { get; set; }
+        public bool PerItemPricing { get; set; }
+        public bool PerItemShoppingCart { get; set; }
+        public string Title { get; set; }
         public int DisplayOrder { get; set; }
         public bool HideThumbnail { get; set; }
     }
