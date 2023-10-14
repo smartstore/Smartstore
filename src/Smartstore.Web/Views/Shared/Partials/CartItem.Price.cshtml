@@ -39,7 +39,7 @@
 
 @* Final single unit price *@
 <div sm-if="showPrice" class="pd-finalprice" attr-class='(Model.Saving.HasSaving, "pd-finalprice-offer")'>
-    <span class="pd-finalprice-amount>
+    <span class="pd-finalprice-amount">
         @Html.Raw(Model.UnitPrice)
     </span>
     <span sm-if="Model.CountdownText != null" class="pd-offer-countdown">
