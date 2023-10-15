@@ -20,6 +20,7 @@ namespace Smartstore.Web.Controllers
         private readonly CatalogSettings _catalogSettings;
         private readonly Lazy<IProductService> _productService;
         private readonly ProductUrlHelper _productUrlHelper;
+        //private SearchResultModel _searchResultModel;
 
         public SearchController(
             CatalogHelper catalogHelper,
@@ -29,7 +30,9 @@ namespace Smartstore.Web.Controllers
             SearchSettings searchSettings,
             CatalogSettings catalogSettings,
             Lazy<IProductService> productService,
-            ProductUrlHelper productUrlHelper)
+            ProductUrlHelper productUrlHelper
+            //SearchResultModel search
+            )
         {
             _catalogHelper = catalogHelper;
             _catalogSearchService = catalogSearchService;
@@ -39,6 +42,15 @@ namespace Smartstore.Web.Controllers
             _catalogSettings = catalogSettings;
             _productService = productService;
             _productUrlHelper = productUrlHelper;
+
+            //if(search == null)
+            //{
+            //}
+            //else
+            //{
+            //    _searchResultModel = search;
+            //}
+            //_searchResultModel = new SearchResultModel();
         }
 
         [HttpPost]
@@ -98,90 +110,34 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/search", Name = "Search")]
         public async Task<IActionResult> Search(CatalogSearchQuery query)
         {
-            CatalogSearchResult result = null;
-            var model = new SearchResultModel(query);
             var term = query?.DefaultTerm;
 
-            if (term == null || term.Length < _searchSettings.InstantSearchTermMinLength)
+            if (_searchSettings.SearchProductByIdentificationNumber)
             {
-                model.SearchResult = new CatalogSearchResult(query);
-                model.TopProducts = ProductSummaryModel.Empty;
-                model.Error = T("Search.SearchTermMinimumLengthIsNCharacters", _searchSettings.InstantSearchTermMinLength);
-                return View(model);
-            }
-
-            var customer = Services.WorkContext.CurrentCustomer;
-            if (!customer.IsSystemAccount)
-            {
-                customer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
-            }
-
-            try
-            {
-                if (_searchSettings.SearchProductByIdentificationNumber)
+                var (product, attributeCombination) = await _productService.Value.GetProductByCodeAsync(term);
+                if (product != null)
                 {
-                    var (product, attributeCombination) = await _productService.Value.GetProductByCodeAsync(term);
-                    if (product != null)
-                    {
                         if (attributeCombination != null)
                         {
                             return Redirect(await _productUrlHelper.GetProductPathAsync(
-                                product.Id, 
-                                await product.GetActiveSlugAsync(), 
+                                product.Id,
+                                await product.GetActiveSlugAsync(),
                                 attributeCombination.AttributeSelection));
                         }
 
                         return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
-                    }
-                }
-
-                result = await _catalogSearchService.SearchAsync(query);
-            }
-            catch (Exception ex)
-            {
-                model.Error = ex.ToString();
-                result = new CatalogSearchResult(query);
-            }
-
-            if (result.TotalHitsCount == 0 && result.SpellCheckerSuggestions.Length > 0)
-            {
-                // No matches, but spell checker made a suggestion.
-                // We implicitly search again with the first suggested term.
-                var oldSuggestions = result.SpellCheckerSuggestions;
-
-                query.DefaultTerm = oldSuggestions[0];
-                result = await _catalogSearchService.SearchAsync(query);
-
-                if (result.TotalHitsCount > 0)
-                {
-                    model.AttemptedTerm = term;
-                    // Restore the original suggestions.
-                    result.SpellCheckerSuggestions = oldSuggestions.Where(x => x != query.DefaultTerm).ToArray();
-                }
-                else
-                {
-                    query.DefaultTerm = term;
                 }
             }
+            return View(await GetSearchResultModel(query));
+        }
 
-            model.SearchResult = result;
-            model.Term = query.DefaultTerm;
-            model.TotalProductsCount = result.TotalHitsCount;
-
-            var productSummaryViewMode = query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list")
-                ? ProductSummaryViewMode.List
-                : ProductSummaryViewMode.Grid;
-
-            var mappingSettings = _catalogHelper.GetBestFitProductSummaryMappingSettings(productSummaryViewMode);
-            var summaryModel = await _catalogHelper.MapProductSummaryModelAsync(result, mappingSettings);
-
-            // Prepare paging/sorting/mode stuff.
-            _catalogHelper.MapListActions(summaryModel, null, _catalogSettings.DefaultPageSizeOptions);
-
-            // Add product hits.
-            model.TopProducts = summaryModel;
-
-            return View(model);
+        public async Task<SearchResultModel> GetSearchResultModel(CatalogSearchQuery query)
+        {
+            CatalogSearchResult result = null;
+            var model = new SearchResultModel(query);
+            
+            var service = new SearchControllerService(_catalogSearchService, _searchSettings, _catalogSettings, _catalogHelper);
+            return await service.GetSearchResultService(model, result, query);
         }
     }
 }
