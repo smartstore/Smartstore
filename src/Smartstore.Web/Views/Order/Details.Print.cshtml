@@ -234,7 +234,7 @@
                             {
                                 <tr>
                                     <td class="label">@taxRate.Label:</td>
-                                    <td class="value">@taxRate.Value</td>
+                                    <td class="value">@taxRate.Amount.ToString()</td>
                                 </tr>
                             }
                         }
@@ -254,7 +254,7 @@
                             {
                                 <tr>
                                     <td class="label">@Html.Raw(T("Order.GiftCardInfo", gc.CouponCode)):</td>
-                                    <td class="value">@gc.Amount</td>
+                                    <td class="value">@gc.FormattedAmount</td>
                                 </tr>
                             }
                         }

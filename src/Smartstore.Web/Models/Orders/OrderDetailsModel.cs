@@ -117,16 +117,18 @@ namespace Smartstore.Web.Models.Orders
 
         public partial class TaxRate : ModelBase
         {
-            public string Rate { get; set; }
-            public string Value { get; set; }
+            public decimal Rate { get; set; }
+            public string FormattedRate { get; set; }
+            public Money Amount { get; set; }
             public string Label { get; set; }
         }
 
         public partial class GiftCard : ModelBase
         {
+            public Money Amount { get; set; }
+            public string FormattedAmount { get; set; }
+            public Money Remaining { get; set; }
             public string CouponCode { get; set; }
-            public string Amount { get; set; }
-            public string Remaining { get; set; }
         }
 
         public partial class OrderNote : ModelBase

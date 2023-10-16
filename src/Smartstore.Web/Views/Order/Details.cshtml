@@ -285,8 +285,8 @@
                                 foreach (var taxRate in Model.TaxRates)
                                 {
                                     <tr class="cart-summary-tax">
-                                        <td class="cart-summary-label">@T("Order.TaxRateLine", taxRate.Rate):</td>
-                                        <td class="cart-summary-value">@taxRate.Value</td>
+                                        <td class="cart-summary-label">@T("Order.TaxRateLine", taxRate.FormattedRate):</td>
+                                        <td class="cart-summary-value">@taxRate.Amount.ToString()</td>
                                     </tr>
                                 }
                             }
@@ -306,9 +306,9 @@
                                     <tr class="cart-summary-giftcard">
                                         <td class="cart-summary-label">
                                             <span class="cart-summary-pos pr-1">@T("Order.GiftCardInfo", gc.CouponCode)</span>
-                                            <span class="text-nowrap text-muted small">@T("ShoppingCart.Totals.GiftCardInfo.Remaining", gc.Remaining)</span>
+                                            <span class="text-nowrap text-muted small">@T("ShoppingCart.Totals.GiftCardInfo.Remaining", gc.Remaining.ToString())</span>
                                         </td>
-                                        <td class="cart-summary-value cart-summary-pos">@gc.Amount</td>
+                                        <td class="cart-summary-value cart-summary-pos">@gc.FormattedAmount</td>
                                     </tr>
                                 }
                             }

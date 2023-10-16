@@ -466,14 +466,16 @@ namespace Smartstore.Web.Controllers
 
                     foreach (var tr in o.TaxRatesDictionary)
                     {
-                        var rate = _taxService.FormatTaxRate(tr.Key);
+                        var formattedRate = _taxService.FormatTaxRate(tr.Key);
                         var labelKey = _services.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax ? "ShoppingCart.Totals.TaxRateLineIncl" : "ShoppingCart.Totals.TaxRateLineExcl";
+                        var amount = ConvertToExchangeRate(tr.Value);
 
                         model.TaxRates.Add(new OrderDetailsModel.TaxRate
                         {
-                            Rate = rate,
-                            Label = T(labelKey, rate),
-                            Value = ConvertToExchangeRate(tr.Value).ToString()
+                            Rate = tr.Key,
+                            FormattedRate = formattedRate,
+                            Amount = amount,
+                            Label = T(labelKey, formattedRate)
                         });
                     }
                 }
@@ -494,16 +496,16 @@ namespace Smartstore.Web.Controllers
 
             foreach (var gcuh in o.GiftCardUsageHistory)
             {
-                var remainingAmountBase = await _giftCardService.GetRemainingAmountAsync(gcuh.GiftCard);
+                var remainingAmount = await _giftCardService.GetRemainingAmountAsync(gcuh.GiftCard);
+                var amount = ConvertToExchangeRate(gcuh.UsedValue);
 
-                var gcModel = new OrderDetailsModel.GiftCard
+                model.GiftCards.Add(new OrderDetailsModel.GiftCard
                 {
-                    CouponCode = gcuh.GiftCard.GiftCardCouponCode,
-                    Amount = (ConvertToExchangeRate(gcuh.UsedValue) * -1).ToString(),
-                    Remaining = ConvertToExchangeRate(remainingAmountBase.Amount).ToString()
-                };
-
-                model.GiftCards.Add(gcModel);
+                    Amount = amount,
+                    FormattedAmount = (amount * -1).ToString(),
+                    Remaining = ConvertToExchangeRate(remainingAmount.Amount),
+                    CouponCode = gcuh.GiftCard.GiftCardCouponCode
+                });
             }
 
             // Reward points.
