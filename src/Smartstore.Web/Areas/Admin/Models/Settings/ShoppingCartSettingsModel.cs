@@ -73,6 +73,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowLinkedAttributeValueQuantity")]
         public bool ShowLinkedAttributeValueQuantity { get; set; }
 
+        [LocalizedDisplay("*MaxQuantityInputDropdownItems")]
+        public int MaxQuantityInputDropdownItems { get; set; }
+
         [LocalizedDisplay("*ShowCommentBox")]
         public bool ShowCommentBox { get; set; }
 

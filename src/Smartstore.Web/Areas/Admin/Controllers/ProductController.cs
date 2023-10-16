@@ -68,6 +68,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SeoSettings _seoSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly SearchSettings _searchSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly IEventPublisher _eventPublisher;
 
         public ProductController(
@@ -101,6 +102,7 @@ namespace Smartstore.Admin.Controllers
             SeoSettings seoSettings,
             MediaSettings mediaSettings,
             SearchSettings searchSettings,
+            ShoppingCartSettings shoppingCartSettings,
             IEventPublisher eventPublisher)
         {
             _db = db;
@@ -133,6 +135,7 @@ namespace Smartstore.Admin.Controllers
             _seoSettings = seoSettings;
             _mediaSettings = mediaSettings;
             _searchSettings = searchSettings;
+            _shoppingCartSettings = shoppingCartSettings;
             _eventPublisher = eventPublisher;
         }
 
@@ -1788,6 +1791,10 @@ namespace Smartstore.Admin.Controllers
             ViewBag.DefaultComparePriceLabelName = 
                 _priceLabelService.GetDefaultComparePriceLabel()?.GetLocalized(x => x.ShortName)?.Value ?? 
                 T("Common.Unspecified").Value;
+
+            ViewBag.CartQuantityInfo = T("Admin.Catalog.Products.CartQuantity.Info", 
+                _shoppingCartSettings.MaxQuantityInputDropdownItems.ToString("N0"),
+                Url.Action("ShoppingCart", "Setting"));
 
             if (setPredefinedValues)
             {

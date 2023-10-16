@@ -152,6 +152,12 @@ namespace Smartstore.Core.Checkout.Cart
         public bool ShowLinkedAttributeValueQuantity { get; set; }
 
         /// <summary>
+        /// Gets or sets the upper limit of possible order quantities up to which a drop-down menu for entering the order quantity is to be offered.
+        /// If the number is greater, a numeric input field is used.
+        /// </summary>
+        public int MaxQuantityInputDropdownItems { get; set; } = 100;
+
+        /// <summary>
         /// Gets or sets a value indicating whether to add products to the basket in single positions
         /// </summary>
         public bool AddProductsToBasketInSinglePositions { get; set; }

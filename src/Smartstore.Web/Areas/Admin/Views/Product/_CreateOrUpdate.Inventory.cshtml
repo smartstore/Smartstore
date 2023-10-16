@@ -98,7 +98,7 @@
             <div class="head">@T("Admin.Catalog.Products.CartQuantity")</div>
             <div class="alert alert-info alert-dismissible fade show">
                 <button type="button" class="btn-close" data-dismiss="alert"></button>
-                @T("Admin.Catalog.Products.CartQuantity.Info")
+                @Html.Raw(ViewBag.CartQuantityInfo)
             </div>
         </div>
     </div>

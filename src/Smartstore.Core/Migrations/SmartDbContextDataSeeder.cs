@@ -269,8 +269,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Bestellmenge");
 
             builder.AddOrUpdate("Admin.Catalog.Products.CartQuantity.Info",
-                "If the number of possible order quantities is less than 100, a drop-down menu is offered as a control for selecting the order quantity. Otherwise, a numeric input field is generated to allow free entry of the order quantity.",
-                "Wenn die Anzahl der möglichen Bestellmengen kleiner als 100 ist, wird ein Dropdown-Menü als Steuerelement für die Bestellmengenauswahl angeboten. Ansonsten wird ein numerisches Eingabefeld generiert, das eine freie Erfassung der Bestellmenge ermöglicht.");
+                "If the number of possible order quantities is less than {0}, a drop-down menu is offered as a control for selecting the order quantity. Otherwise, a numeric input field is generated to allow free entry of the order quantity. The upper limit can be changed in the <a href='{1}' class='alert-link'>shopping cart settings</a>.",
+                "Wenn die Anzahl der möglichen Bestellmengen kleiner als {0} ist, wird ein Dropdown-Menü als Steuerelement für die Bestellmengenauswahl angeboten. Ansonsten wird ein numerisches Eingabefeld generiert, das eine freie Erfassung der Bestellmenge ermöglicht. Die Obergrenze kann in den <a href='{1}' class='alert-link'>Warenkorb-Einstellungen</a> geändert werden.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.MaxQuantityInputDropdownItems",
+                "Upper limit for order quantity selection via drop-down menu",
+                "Obergrenze für die Bestellmengenauswahl via Dropdown-Menü",
+                "Specifies the upper limit of possible order quantities up to which a drop-down menu for entering the order quantity is to be offered. If the number is greater, a numeric input field is used.",
+                "Legt die Obergrenze möglicher Bestellmengen fest, bis zu der ein Dropdown-Menü zur Eingabe der Bestellmenge angeboten werden soll. Ist die Anzahl größer, wird ein numerisches Eingabefeld als Steuerelement verwendet.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.Fields.HideQuantityControl",
                 "Hide quantity selection on product pages",

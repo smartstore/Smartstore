@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -26,7 +25,11 @@ namespace Smartstore.Web.Models.Cart
         private readonly SmartDbContext _db;
         private readonly CatalogSettings _catalogSettings;
 
-        public CartItemQuantityInputMapper(SmartDbContext db, CatalogSettings catalogSettings)
+        public CartItemQuantityInputMapper(
+            SmartDbContext db, 
+            CatalogSettings catalogSettings,
+            ShoppingCartSettings shoppingCartSettings)
+            : base(shoppingCartSettings)
         {
             _db = db;
             _catalogSettings = catalogSettings;

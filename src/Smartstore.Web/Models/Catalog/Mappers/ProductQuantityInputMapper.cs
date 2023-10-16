@@ -1,5 +1,6 @@
 ﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.Catalog.Mappers
 {
@@ -17,6 +18,11 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
     public class ProductQuantityInputMapper : QuantityInputMapperBase<Product, IQuantityInput>
     {
+        public ProductQuantityInputMapper(ShoppingCartSettings shoppingCartSettings)
+            : base(shoppingCartSettings)
+        {
+        }
+
         protected override Task MapCoreAsync(Product product, IQuantityInput model, dynamic parameters = null)
         {
             var selectedQuantity = (int)parameters.SelectedQuantity;

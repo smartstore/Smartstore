@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.Catalog.Mappers
 {
@@ -8,6 +9,13 @@ namespace Smartstore.Web.Models.Catalog.Mappers
         where TFrom : class
         where TTo : class, IQuantityInput
     {
+        protected readonly ShoppingCartSettings _shoppingCartSettings;
+
+        protected QuantityInputMapperBase(ShoppingCartSettings shoppingCartSettings)
+        {
+            _shoppingCartSettings = shoppingCartSettings;
+        }
+
         public async Task MapAsync(TFrom from, TTo to, dynamic parameters = null)
         {
             await MapCoreAsync(from, to, parameters);
@@ -63,7 +71,7 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                 var step = model.QuantityStep;
                 var range = Math.Max(1, max - min);
 
-                if (range / step > 100)
+                if (range / step > _shoppingCartSettings.MaxQuantityInputDropdownItems)
                 {
                     // Dropdown should not display more than 100+ quantity options.
                     inputType = QuantityControlType.Spinner;
