@@ -28,31 +28,16 @@
                 </div>
 
                 <form asp-route="Wishlist" method="post">
-                    <div class="card mb-4">
-                        <div id="cart-items" class="cart cart-editable mb-0">
-                            <div class="cart-head">
-                                <div class="cart-row">
-                                    <div class="cart-col cart-col-main">
-                                        @T("ShoppingCart.Product(s)")
-                                    </div>
-                                    <div class="cart-col cart-col-price">
-                                        @T("ShoppingCart.UnitPrice")
-                                    </div>
-                                    <div class="cart-col cart-col-qty">
-                                        @T("ShoppingCart.Quantity")
-                                    </div>
-                                    <div class="cart-col cart-col-price cart-col-subtotal">
-                                        @T("ShoppingCart.ItemTotal")
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="cart-container mb-3">
+                        @* Cart Items *@
+                        <div id="cart-items" class="cart cart-editable">
                             <div class="cart-body">
                                 <partial name="WishlistItems" model="Model" />
                             </div>
                         </div>
                     </div>
 
-                    <div class="common-buttons clearfix">
+                    <div class="common-buttons hstack gap-1">
                         @if (Model.IsEditable && Model.EmailWishlistEnabled)
                         {
                             <a asp-action="EmailWishlist" rel="nofollow" class="btn btn-secondary email-a-friend-wishlist-button">
@@ -77,7 +62,8 @@
                 </div>
             }
         </div>
-        <div sm-if="Model.IsEditable && modelHasItems" class="share-info my-5">
+
+        <div sm-if="Model.IsEditable && modelHasItems" class="share-info my-4">
             <h4 class="share-label">
                 <i class="far fa-share-square"></i>
                 @T("Wishlist.YourWishlistURL")

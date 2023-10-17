@@ -77,23 +77,12 @@
                         }
                     </div>
 
+                    @* Custom zone *@
+                    <zone name="cartitem_desc_after" model="item.Id"></zone>
+
                     @* Price *@
                     <div class="cart-item-price-group cart-item-group">
                         <partial name="CartItem.Price" model="item.Price">
-                    </div>
-                    <div class="cart-item-price-group cart-item-group mb-2 d-none">
-                        @* TODO: (mc) Cart item badges *@
-                        <div sm-if="!Model.IsEditable" class="cart-item-qty">@T("ShoppingCart.Quantity"): @item.EnteredQuantity</div>
-                        <div class="cart-item-price fwm fs-h5">@item.SubTotal</div>
-                        <div sm-if="price.UnitPrice != price.SubTotal" class="cart-item-price fwn">@T("ShoppingCart.Mini.UnitPrice"): @price.UnitPrice</div>
-                        <div sm-if="price.TotalDiscount > decimal.Zero" class="cart-item-saving fs-sm text-muted pt-1">
-                            <div>@T("ShoppingCart.ItemYouSave"):</div>
-                            <div>@price.TotalDiscount</div>
-                        </div>
-
-                        <div sm-if="Model.DisplayBasePrice && price.BasePriceInfo.HasValue()" class="cart-item-base-price text-muted fs-sm lrm">
-                            @price.BasePriceInfo
-                        </div>
                     </div>
 
                     @* Attributes & Variants *@
@@ -172,7 +161,7 @@
                     </div>
 
                     @* Custom zone *@
-                    <zone name="cartitem_desc_after" model="item.Id"></zone>
+                    <zone name="cartitem_data_after" model="item.Id"></zone>
 
                     @* Actions *@
                     <div sm-if="Model.IsEditable" class="cart-item-actions hstack flex-wrap pt-2">
