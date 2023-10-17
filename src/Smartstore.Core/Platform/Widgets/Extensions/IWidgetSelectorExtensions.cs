@@ -60,8 +60,8 @@ namespace Smartstore.Core.Widgets
         /// </returns>
         public static async Task<ZoneHtmlContent> GetContentAsync(this IWidgetSelector selector, string zone, ViewContext viewContext, object? model = null)
         {
-            Guard.NotNull(selector, nameof(selector));
-            Guard.NotNull(viewContext, nameof(viewContext));
+            Guard.NotNull(selector);
+            Guard.NotNull(viewContext);
 
             var result = new ZoneHtmlContent();
             var widgets = await selector.GetWidgetsAsync(zone, model ?? viewContext.ViewData.Model);
@@ -81,26 +81,9 @@ namespace Smartstore.Core.Widgets
 
                 foreach (var widget in widgets)
                 {
-                    //var localModel = widget is PartialViewWidget partialInvoker
-                    //    ? partialInvoker.Model
-                    //    : model;
-
-                    //var localViewContext = localModel == null ? viewContext : viewContext.Clone(localModel);
-                    ////var widgetContext = new WidgetContext(viewContext)
-                    ////{
-                    ////    Model = model
-                    ////};
-
-                    //// TODO: (mh) (core) I don't know why you did this, but ViewData is mostly global across partials.
-                    //// You are overriding the very same entry each time. Are you sure?
-                    //localViewContext.ViewData["widgetzone"] = zone;
-
-                    //var content = await widget.InvokeAsync(localViewContext);
-                    //var content = await widget.Invoke2Async(widgetContext);
                     var content = await widget.InvokeAsync(widgetContext);
                     var target = widget.Prepend ? result.PreContent : result.PostContent;
                     target.AppendHtml(content);
-                    //target.AppendLine();
                 }
             }
 
