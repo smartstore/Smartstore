@@ -30,5 +30,6 @@ namespace Smartstore.Web.Models.Search
         public override List<HitGroup> HitGroups { get; protected set; } = new();
 
         public string Error { get; set; }
+        public string CanonicalUrl { get; set; }
     }
 }

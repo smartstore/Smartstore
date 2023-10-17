@@ -12,6 +12,11 @@
 
     Assets.AppendTitleParts(encodedTerm.HasValue() ? T("Search.PageTitle", "\"" + encodedTerm + "\"") : T("Search.Title"));
 
+    if (Model.CanonicalUrl.HasValue())
+    {
+        Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
+    }
+
     ViewBag.HideLeftCol = true; // ...on mobile
 }
 
