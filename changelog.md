@@ -85,6 +85,7 @@
 - #804 Implemented the new TrustBadge integration mode, including new settings for positioning, color scheme, etc. 
 - #819 Fix zoom on product detail page when there is a large right column.
 - PayPal credit card: Removed address fields and integrated Strong Customer Authentication (SCA) instead.
+- #834 Make the expiration date of visitor cookies of guests configurable.
 
 ### Bugfixes
 

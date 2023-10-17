@@ -326,6 +326,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("PageTitle.Checkout.PaymentMethod", "Payment method", "Zahlart");
             builder.AddOrUpdate("PageTitle.Checkout.Confirm", "Confirm order", "Bestellbestätigung");
             builder.AddOrUpdate("PageTitle.Checkout.Completed", "Thank you!", "Vielen Dank!");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.Privacy.VisitorCookieExpirationDays",
+                "Visitor cookies expiration date (in days)",
+                "Verfalldatum von Besucher-Cookies (in Tagen)",
+                "Specifies the number of days after which guest visitor cookies expire. Default are 365 days.",
+                "Legt die Anzahl der Tage fest, nach denen Besucher-Cookies von Gästen verfallen. Standard sind 365 Tage.");
         }
 
         /// <summary>

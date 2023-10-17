@@ -45,6 +45,11 @@ namespace Smartstore.Core.Identity
         public SameSiteMode SameSiteMode { get; set; } = SameSiteMode.Lax;
 
         /// <summary>
+        /// Gets or sets the number of days after which visitor cookies of guests expire.
+        /// </summary>
+        public int VisitorCookieExpirationDays { get; set; } = 365;
+
+        /// <summary>
         /// Gets or sets a value indicating whether to store last IP address for each customer.
         /// </summary>
         public bool StoreLastIpAddress { get; set; }

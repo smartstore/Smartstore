@@ -747,6 +747,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="PrivacySettings.VisitorCookieExpirationDays" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PrivacySettings.VisitorCookieExpirationDays" sm-postfix="@T("Time.Days")"></setting-editor>
+                        <span asp-validation-for="PrivacySettings.VisitorCookieExpirationDays"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="PrivacySettings.SameSiteMode" />
                     </div>
                     <div class="adminData">

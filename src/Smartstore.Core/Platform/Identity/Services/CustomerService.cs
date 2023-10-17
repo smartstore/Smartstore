@@ -232,7 +232,7 @@ namespace Smartstore.Core.Identity
             {
                 var cookieExpiry = customer.CustomerGuid == Guid.Empty
                     ? DateTime.Now.AddMonths(-1)
-                    : DateTime.Now.AddDays(365); // TODO make configurable
+                    : DateTime.Now.AddDays(_privacySettings.VisitorCookieExpirationDays);
 
                 // Set visitor cookie
                 var cookieOptions = new CookieOptions
