@@ -34,7 +34,8 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                 {
                     Text = qty.ToString(),
                     Value = qty.ToStringInvariant(),
-                    Selected = model.EnteredQuantity == qty
+                    Selected = model.EnteredQuantity == qty,
+                    Disabled = model.MaxInStock.HasValue && qty > model.MaxInStock.Value
                 }));
             } 
         }
@@ -83,7 +84,13 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
                     for (var i = min; i <= max; i += step)
                     {
-                        options.Add(new SelectListItem { Text = i.ToString(), Value = i.ToStringInvariant(), Selected = i == model.EnteredQuantity });
+                        options.Add(new SelectListItem
+                        {
+                            Text = i.ToString(),
+                            Value = i.ToStringInvariant(),
+                            Selected = i == model.EnteredQuantity,
+                            Disabled = model.MaxInStock.HasValue && i > model.MaxInStock.Value
+                        });
                     }
 
                     model.AllowedQuantities.AddRange(options);

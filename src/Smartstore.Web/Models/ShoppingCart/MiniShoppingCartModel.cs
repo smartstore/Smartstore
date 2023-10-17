@@ -43,6 +43,8 @@ namespace Smartstore.Web.Models.Cart
 
             public int QuantityStep { get; set; }
 
+            public int? MaxInStock { get; set; }
+
             public QuantityControlType QuantityControlType { get; set; }
 
             public Money UnitPrice { get; set; }

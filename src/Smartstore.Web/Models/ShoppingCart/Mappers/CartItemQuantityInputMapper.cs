@@ -45,6 +45,11 @@ namespace Smartstore.Web.Models.Cart
             model.MaxOrderAmount = product.OrderMaximumQuantity;
             model.QuantityStep = product.QuantityStep;
 
+            if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock || product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
+            {
+                model.MaxInStock = product.StockQuantity;
+            }
+
             MapCustomQuantities(model, product.ParseAllowedQuantities());
 
             var mapUnitName = parameters?.MapUnitName == true;

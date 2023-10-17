@@ -44,7 +44,7 @@
             data-auto-select="false"
             data-auto-focus="false"
             min="@Model.MinOrderAmount"
-            max="@Model.MaxOrderAmount"
+            max="@(Model.MaxInStock ?? Model.MaxOrderAmount)"
             step="@Model.QuantityStep" />
     }
     else // Dropdown
@@ -57,7 +57,7 @@
             </button>
             <select asp-for="EnteredQuantity"
                 attrs="@attributes"
-                    attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "form-control-lg" : "form-control-sm")'
+                attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "form-control-lg" : "form-control-sm")'
                 asp-items="Model.AllowedQuantities" 
                 class="form-control qty-dropdown noskin">
             </select>

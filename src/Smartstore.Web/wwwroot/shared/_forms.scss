@@ -10,6 +10,10 @@ select {
     font-weight: $font-weight-normal;
 }
 
+select.noskin option:disabled {
+    color: $text-muted;
+}
+
 fieldset.content-group {
     margin-bottom: 2rem;
 
@@ -35,13 +39,14 @@ fieldset.content-group {
         > span {
             position: relative;
             display: inline-block;
+
             @if alpha($body-bg) == 0 {
                 background: $site-bg;
             }
             @else {
                 background: $body-bg;
             }
-            
+
             padding-right: 1rem;
             z-index: 1;
         }

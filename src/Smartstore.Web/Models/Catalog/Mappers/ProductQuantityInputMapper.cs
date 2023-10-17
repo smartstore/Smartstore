@@ -33,6 +33,11 @@ namespace Smartstore.Web.Models.Catalog.Mappers
             model.QuantityStep = product.QuantityStep;
             model.QuantityControlType = product.QuantityControlType;
 
+            if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock || product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
+            {
+                model.MaxInStock = product.StockQuantity;
+            }
+
             MapCustomQuantities(model, product.ParseAllowedQuantities());
 
             return Task.CompletedTask;
