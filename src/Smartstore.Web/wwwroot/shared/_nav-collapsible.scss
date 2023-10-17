@@ -8,36 +8,48 @@
     .nav-collapsible {
         --nav-collapsible-padding-y: 1rem;
         --nav-collapsible-padding-x: 1rem;
+        --nav-collapsible-toggle-border-color: var(--light-border-subtle);
 
         position: relative;
-        border-block: 1px solid var(--light-border-subtle);
-        margin-top: -1px;
 
         .nav-toggler {
             position: relative;
-            line-height: 1.5;
-            cursor: pointer;
-            margin: 0;
-            padding-block: var(--nav-collapsible-padding-y);
-            padding-inline: var(--nav-collapsible-padding-x);
 
             &:after {
-                @include fontawesome("\f054"); // chevron-right
+                @include fontawesome("\f077", $variant: light); // chevron-up
                 position: absolute;
                 inset-inline-end: var(--nav-collapsible-padding-x);
                 top: 50%;
                 font-size: 85%;
-                transform: translateY(-50%) rotate(90deg);
+                transform: translateY(-50%) rotate(180deg);
                 transition: transform 0.35s ease;
             }
 
             &.collapsed:after {
                 transform: translateY(-50%) rotate(0deg);
             }
+
+            &.card-header.collapsed {
+                // Remove card header bottom border when collapsed (otherwise we have double border) 
+                border-bottom-color: transparent;
+            }
         }
 
-        .nav-collapse {
-            padding: 0 var(--nav-collapsible-padding-x);
+        &:not(.card) {
+            margin-top: -1px;
+            border-block: 1px solid var(--nav-collapsible-toggle-border-color);
+
+            .nav-toggler {
+                line-height: 1.5;
+                cursor: pointer;
+                margin: 0;
+                padding-block: var(--nav-collapsible-padding-y);
+                padding-inline: var(--nav-collapsible-padding-x);
+            }
+
+            .nav-collapse {
+                padding: 0 var(--nav-collapsible-padding-x);
+            }
         }
     }
 }

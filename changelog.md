@@ -46,7 +46,7 @@
   - Revamped cookie consent dialog styling
   - Dropped *Triple Date Picker* component in favour of browser native date picker
   - Unstyled links are underlined by default
-  - New MyAccount menu header with avatar image, customer name and email address 
+  - New responsive and collapsible MyAccount menu with avatar image, customer name and email address in header.
 - Backend
   - New colorpicker component with swatches
   - Revamped number input styling
