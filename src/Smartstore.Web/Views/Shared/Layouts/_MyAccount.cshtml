@@ -7,16 +7,23 @@
     <div class="page-body">
         <div class="row">
             <div class="col-md-4 col-lg-3 d-print-none">
-                <zone name="myaccount_menu_before" />
-                <div class="card my-account-menu">
-                    <div class="card-header p-2">
+                <div class="d-none d-md-block" sm-suppress-if-empty-zone="myaccount_menu_before">
+                    <zone name="myaccount_menu_before" />
+                </div>
+
+                <div class="card my-account-menu nav-collapsible nav-collapsible-card">
+                    <div class="card-header p-2 nav-toggler collapsed" data-toggle="collapse" data-target="#myaccount-menu" aria-controls="myaccount-menu" aria-expanded="false">
                         @await Component.InvokeAsync("MyAccountHeader")
                     </div>
 
-                    <menu name="MyAccount" template="ListGroup" />
+                    <div id="myaccount-menu" class="collapse nav-collapse">
+                        <menu name="MyAccount" template="ListGroup" />
+                    </div>
                 </div>
                 
-                <zone name="myaccount_menu_after" />
+                <div class="d-none d-md-block" sm-suppress-if-empty-zone="myaccount_menu_after">
+                    <zone name="myaccount_menu_after" />
+                </div>
             </div>
             <div class="col-md-8 col-lg-9">
                 <div class="page-title pt-4 pt-md-0">
