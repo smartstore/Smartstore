@@ -10,6 +10,7 @@
 - The **recycle bin** for products enables to restore and permanently delete products.
 - **payever** plugin (commercial)
 - **Botsonic** plugin (commercial)
+- Cart quantity input control now respects the product's available stock (as max input)
 - #745 Page Builder: depend story visibility on user roles.
 - Added option to configure allowed characters for user names 
 - #836 Added option to define additional lines for robots.txt

@@ -97,6 +97,12 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                 }
             }
 
+            if (model.MaxInStock.HasValue && model.MaxInStock.Value < model.MaxOrderAmount)
+            {
+                // Upper limit for input spinner
+                model.MaxOrderAmount = model.MaxInStock.Value;
+            }
+
             model.QuantityControlType = inputType;
         }
     }
