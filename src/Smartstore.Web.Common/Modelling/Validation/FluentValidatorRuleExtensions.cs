@@ -6,14 +6,13 @@ namespace FluentValidation
 {
     public static class FluentValidatorRuleExtensions
     {
-        public static string _invalidNameChars = "<>@#$€?!";
+        private const string InvalidNameChars = "<>@#$€?!";
 
         public static IRuleBuilderOptions<T, string> ValidName<T>(this IRuleBuilder<T, string> ruleBuilder, Localizer localizer)
         {
-            var invalidNameCharsArray = _invalidNameChars.ToCharArray();
-            var invalidNameChars = string.Join(",", invalidNameCharsArray);
+            var invalidNameChars = string.Join(" ", InvalidNameChars.ToCharArray());
 
-            return ruleBuilder.Matches(expression: @"^[^" + _invalidNameChars + "0-9]+$")
+            return ruleBuilder.Matches(expression: @"^[^" + InvalidNameChars + "0-9]+$")
                 .WithMessage(localizer("Admin.Address.Fields.Name.InvalidChars", invalidNameChars));
         }
 
