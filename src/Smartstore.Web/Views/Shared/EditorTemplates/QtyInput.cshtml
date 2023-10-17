@@ -44,7 +44,7 @@
             data-auto-select="false"
             data-auto-focus="false"
             min="@Model.MinOrderAmount"
-            max="@(Model.MaxInStock ?? Model.MaxOrderAmount)"
+            max="@Model.MaxOrderAmount"
             step="@Model.QuantityStep" />
     }
     else // Dropdown
