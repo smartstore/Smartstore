@@ -1,10 +1,22 @@
 ﻿using Smartstore;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Localization;
 
 namespace FluentValidation
 {
     public static class FluentValidatorRuleExtensions
     {
+        public static string _invalidNameChars = "<>@#$€?!";
+
+        public static IRuleBuilderOptions<T, string> ValidName<T>(this IRuleBuilder<T, string> ruleBuilder, Localizer localizer)
+        {
+            var invalidNameCharsArray = _invalidNameChars.ToCharArray();
+            var invalidNameChars = string.Join(",", invalidNameCharsArray);
+
+            return ruleBuilder.Matches(expression: @"^[^" + _invalidNameChars + "0-9]+$")
+                .WithMessage(localizer("Admin.Address.Fields.Name.InvalidChars", invalidNameChars));
+        }
+
         public static IRuleBuilderOptions<T, string> CreditCardCvvNumber<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             return ruleBuilder.Matches(RegularExpressions.IsCvv);

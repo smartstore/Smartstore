@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Common;
 
@@ -234,36 +235,58 @@ namespace Smartstore.Admin.Models.Customers
 
     public partial class CustomerValidator : AbstractValidator<CustomerModel>
     {
-        public CustomerValidator(CustomerSettings customerSettings)
+        public CustomerValidator(Localizer T, CustomerSettings customerSettings)
         {
             RuleFor(x => x.Password).NotEmpty().When(x => x.Id == 0);
 
             if (customerSettings.FirstNameRequired)
+            {
                 RuleFor(x => x.FirstName).NotEmpty();
+            }
+            
+            RuleFor(x => x.FirstName).ValidName(T);
 
             if (customerSettings.LastNameRequired)
+            {
                 RuleFor(x => x.LastName).NotEmpty();
+            }
+            
+            RuleFor(x => x.LastName).ValidName(T);
 
             if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)
+            {
                 RuleFor(x => x.Company).NotEmpty();
-
+            }
+            
             if (customerSettings.StreetAddressRequired && customerSettings.StreetAddressEnabled)
+            {
                 RuleFor(x => x.StreetAddress).NotEmpty();
-
+            }
+            
             if (customerSettings.StreetAddress2Required && customerSettings.StreetAddress2Enabled)
+            {
                 RuleFor(x => x.StreetAddress2).NotEmpty();
-
+            }
+            
             if (customerSettings.ZipPostalCodeRequired && customerSettings.ZipPostalCodeEnabled)
+            {
                 RuleFor(x => x.ZipPostalCode).NotEmpty();
-
+            }
+            
             if (customerSettings.CityRequired && customerSettings.CityEnabled)
+            {
                 RuleFor(x => x.City).NotEmpty();
-
+            }
+            
             if (customerSettings.PhoneRequired && customerSettings.PhoneEnabled)
+            {
                 RuleFor(x => x.Phone).NotEmpty();
-
+            }
+            
             if (customerSettings.FaxRequired && customerSettings.FaxEnabled)
+            {
                 RuleFor(x => x.Fax).NotEmpty();
+            }
         }
     }
 }

@@ -332,6 +332,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Verfalldatum von Besucher-Cookies (in Tagen)",
                 "Specifies the number of days after which guest visitor cookies expire. Default are 365 days.",
                 "Legt die Anzahl der Tage fest, nach denen Besucher-Cookies von Gästen verfallen. Standard sind 365 Tage.");
+
+            builder.AddOrUpdate("Admin.Address.Fields.Name.InvalidChars",
+                "Please check your input. Numbers and the following characters are not allowed: {0}",
+                "Bitte überprüfen Sie Ihre Eingabe. Zahlen und folgende Zeichen sind nicht erlaubt: {0}");
         }
 
         /// <summary>

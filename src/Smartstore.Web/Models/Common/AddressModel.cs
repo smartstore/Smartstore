@@ -144,11 +144,14 @@ namespace Smartstore.Web.Models.Common
             return sb.ToString();
         }
     }
-
+    
     public class AddressValidator : SmartValidator<AddressModel>
     {
         public AddressValidator(Localizer T, AddressSettings addressSettings, SmartDbContext db)
-        {
+        {            
+            RuleFor(x => x.FirstName).ValidName(T);
+            RuleFor(x => x.LastName).ValidName(T);
+
             if (addressSettings.CountryEnabled)
             {
                 if (addressSettings.CountryRequired)

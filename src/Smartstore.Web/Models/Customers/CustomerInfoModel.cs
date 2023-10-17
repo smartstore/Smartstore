@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Customers
 {
@@ -117,7 +118,7 @@ namespace Smartstore.Web.Models.Customers
 
     public class CustomerInfoValidator : SmartValidator<CustomerInfoModel>
     {
-        public CustomerInfoValidator(CustomerSettings customerSettings)
+        public CustomerInfoValidator(Localizer T, CustomerSettings customerSettings)
         {
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
 
@@ -126,10 +127,16 @@ namespace Smartstore.Web.Models.Customers
             {
                 RuleFor(x => x.FirstName).NotEmpty();
             }
+
+            RuleFor(x => x.FirstName).ValidName(T);
+
             if (customerSettings.LastNameRequired)
             {
                 RuleFor(x => x.LastName).NotEmpty();
             }
+
+            RuleFor(x => x.LastName).ValidName(T);
+
             if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)
             {
                 RuleFor(x => x.Company).NotEmpty();
