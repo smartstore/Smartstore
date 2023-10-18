@@ -72,46 +72,47 @@
                                     </div>
                                 }
                             </div>
-                            <div sm-if="Model.IsEditable" class="col-12 mt-3 cart-footer-actions">
-                                <zone name="order_summary_buttons_before" />
 
-                                <div class="cart-buttons">
+                            <zone name="order_summary_actions" remove-if-empty="true" replace-content="true">
+                                <div sm-if="Model.IsEditable" class="col-12 mt-3 cart-footer-actions">
+                                    <zone name="order_summary_buttons_before" />
 
-                                    <div id="start-checkout-buttons" class="d-flex flex-column row-gap-2">
-                                        <div class="checkout-buttons">
-                                            <input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" class="d-none" />
-                                            <button type="button" id="checkout" name="checkout" class="btn btn-primary btn-lg btn-block btn-checkout">
-                                                <span>@T("Checkout.Button")</span>
-                                                <i class="fa fa-angle-right"></i>
-                                            </button>
-                                        </div>
+                                    <div class="cart-buttons">
+                                        <div id="start-checkout-buttons" class="d-flex flex-column row-gap-2">
+                                            <div class="checkout-buttons">
+                                                <input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" class="d-none" />
+                                                <button type="button" id="checkout" name="checkout" class="btn btn-primary btn-lg btn-block btn-checkout">
+                                                    <span>@T("Checkout.Button")</span>
+                                                    <i class="fa fa-angle-right"></i>
+                                                </button>
+                                            </div>
 
-                                        @{
-                                            var paymentButtons = (await Model.ButtonPaymentMethods.Items
+                                            @{
+                                                var paymentButtons = (await Model.ButtonPaymentMethods.Items
                                                 .SelectAwait(x => x.InvokeAsync(ViewContext))
                                                 .AsyncToList())
                                                 .Where(x => x.HasContent());
-                                        }
+                                            }
 
-                                        <div sm-if="paymentButtons.Any()" class="addon-buttons">
-                                            <div class="d-flex flex-column row-gap-2">
-                                                <div class="text-center">
-                                                    <span>@T("ShoppingCart.AlternativePaymentButtons")</span>
+                                            <div sm-if="paymentButtons.Any()" class="addon-buttons">
+                                                <div class="d-flex flex-column row-gap-2">
+                                                    <div class="text-center">
+                                                        <span>@T("ShoppingCart.AlternativePaymentButtons")</span>
+                                                    </div>
+
+                                                    @*Payment method buttons (e.g. Paypal, Amazon Pay)*@
+                                                    @foreach (var button in paymentButtons)
+                                                    {
+                                                        @button
+                                                    }
                                                 </div>
-
-                                                @*Payment method buttons (e.g. Paypal, Amazon Pay)*@
-                                                @foreach (var button in paymentButtons)
-                                                {
-                                                    @button
-                                                }
                                             </div>
                                         </div>
                                     </div>
 
+                                    <zone name="order_summary_buttons_after" />
                                 </div>
-
-                                <zone name="order_summary_buttons_after" />
-                            </div>
+                            </zone>
                         </div>
                     </div>
                 </div>

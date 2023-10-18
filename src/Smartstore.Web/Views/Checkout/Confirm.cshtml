@@ -95,22 +95,22 @@
         <zone name="checkout_confirm_before_summary" />
 
         <div class="order-summary-body mb-4">
-            @await Component.InvokeAsync("OrderSummary", new { prepareAndDisplayOrderReviewData = true })
-        </div>
-
-        <div class="cart-buttons my-4 row">
-            <div class="col-sm-6 col-lg-4 order-last order-sm-first mt-3 mt-sm-0">
-                <a asp-action="PaymentMethod" class="btn btn-secondary btn-lg btn-block">
-                    <i class="fa fa-angle-left mr-3"></i>
-                    <span>@T("Common.Back")</span>
-                </a>
-            </div>
-            <div class="col-sm-6 col-lg-4 ml-lg-auto">
+            @* Render the buy button into order_summary_actions zone in OrderSummary component *@
+            <div sm-target-zone="order_summary_actions" class="col-12 mt-3 cart-footer-actions">
                 <button class="btn btn-danger btn-lg btn-block btn-buy" onclick="return false;">
                     <span>@T("Checkout.ConfirmButton")</span>
                     <i class="fa fa-angle-right ml-3"></i>
                 </button>
             </div>
+            @await Component.InvokeAsync("OrderSummary", new { prepareAndDisplayOrderReviewData = true })
+        </div>
+
+        @* Back Button *@
+        <div class="cart-buttons col-12 col-md-6 col-lg-7 col-xl-4 col-xxl-3 mb-2">
+            <a asp-action="PaymentMethod" class="btn btn-secondary btn-lg btn-block">
+                <i class="fa fa-angle-left mr-3"></i>
+                <span>@T("Common.Back")</span>
+            </a>
         </div>
                 
         <zone name="checkout_confirm_bottom" />
