@@ -72,6 +72,8 @@
 - Web API:
   - #142 Take back in stock notifications into account.
   - #805 Add endpoints to assign discounts to entities.
+  - #821 Add endpoints for RecurringPayment and RecurringPaymentHistory.
+  - Add endpoints for the recycle bin of products.
 - Import:
   - #390 Add a setting for whether to send the completion email.
   - #377 Import cross- and checkout-selling products.
@@ -100,7 +102,6 @@
 - MegaSearch:
   - Fixed incorrect search results when a multistore has different default languages configured.
   - Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
-  - Fixed discounts assigned to categories and limited to customer roles should be excluded from indexing and indexed prices.
 - Fixed the category navigation no longer shows the number of contained products after reindexing.
 - Fixed products associated to a grouped product cannot be deleted via associated products grid.
 - Fixed not yet awarded reward points were reduced when an order was deleted.

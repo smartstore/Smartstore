@@ -70,6 +70,7 @@ namespace Smartstore.Web.Api
             builder.EntitySet<ProductVariantAttribute>("ProductVariantAttributes");
             builder.EntitySet<ProductVariantAttributeValue>("ProductVariantAttributeValues");
             builder.EntitySet<QuantityUnit>("QuantityUnits");
+            builder.EntitySet<RecurringPaymentHistory>("RecurringPaymentHistory");
             builder.EntitySet<RelatedProduct>("RelatedProducts");
             builder.EntitySet<RewardPointsHistory>("RewardPointsHistory");
             builder.EntitySet<Setting>("Settings");
@@ -91,6 +92,7 @@ namespace Smartstore.Web.Api
             BuildCategories(builder);
             BuildDeliveryTimes(builder);
             BuildImportProfiles(builder);
+            BuildManufacturers(builder);
             BuildMediaFiles(builder);
             BuildMediaFolders(builder);
             BuildNewsletterSubscriptions(builder);
@@ -98,7 +100,7 @@ namespace Smartstore.Web.Api
             BuildOrders(builder);
             BuildPaymentMethods(builder);
             BuildProducts(builder);
-            BuildManufacturers(builder);
+            BuildRecurringPayments(builder);
             BuildShipments(builder);
             BuildShoppingCartItems(builder);
         }
@@ -145,6 +147,17 @@ namespace Smartstore.Web.Api
             saveFiles.Parameter<bool>("startImport")
                 .HasDefaultValue(bool.FalseString)
                 .Optional();
+        }
+
+        private static void BuildManufacturers(ODataModelBuilder builder)
+        {
+            var set = builder.EntitySet<Manufacturer>("Manufacturers");
+
+            set.EntityType
+                .Action(nameof(ManufacturersController.ApplyDiscounts))
+                .ReturnsCollectionFromEntitySet<Discount>("Discounts")
+                .CollectionParameter<int>("discountIds")
+                .Required();
         }
 
         private static void BuildMediaFiles(ODataModelBuilder builder)
@@ -473,17 +486,34 @@ namespace Smartstore.Web.Api
                 .Optional();
             saveFiles.Parameter<string>("mpn")
                 .Optional();
+
+            config.Function(nameof(ProductsController.RecycleBin))
+                .ReturnsFromEntitySet<Product>(set.EntityType.Name);
+
+            config.Action(nameof(ProductsController.DeletePermanent))
+                .Returns<DeletionResult>()
+                .CollectionParameter<int>("productIds")
+                .Required();
+
+            var restore = config.Action(nameof(ProductsController.Restore))
+                .Returns<int>();
+            restore.CollectionParameter<int>("productIds")
+                .Required();
+            restore.Parameter<bool?>("publishAfterRestore")
+                .Optional();
         }
 
-        private static void BuildManufacturers(ODataModelBuilder builder)
+        private static void BuildRecurringPayments(ODataModelBuilder builder)
         {
-            var set = builder.EntitySet<Manufacturer>("Manufacturers");
+            var set = builder.EntitySet<RecurringPayment>("RecurringPayments");
 
             set.EntityType
-                .Action(nameof(ManufacturersController.ApplyDiscounts))
-                .ReturnsCollectionFromEntitySet<Discount>("Discounts")
-                .CollectionParameter<int>("discountIds")
-                .Required();
+                .Action(nameof(RecurringPaymentsController.ProcessNextRecurringPayment))
+                .ReturnsFromEntitySet(set);
+
+            set.EntityType
+                .Action(nameof(RecurringPaymentsController.CancelRecurringPayment))
+                .ReturnsFromEntitySet(set);
         }
 
         private static void BuildShipments(ODataModelBuilder builder)

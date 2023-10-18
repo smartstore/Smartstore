@@ -269,7 +269,7 @@ namespace Smartstore.Core.Checkout.Orders
         Task CancelRecurringPaymentAsync(RecurringPayment recurringPayment);
 
         /// <summary>
-        /// Processes the next recurring psayment.
+        /// Processes the next recurring payment.
         /// </summary>
         /// <param name="recurringPayment">Recurring payment.</param>
         Task ProcessNextRecurringPaymentAsync(RecurringPayment recurringPayment);
