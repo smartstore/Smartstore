@@ -326,24 +326,18 @@ namespace Smartstore.Core.Checkout.Orders
             var initialOrder = recurringPayment.InitialOrder;
             var customer = initialOrder?.Customer;
 
-            if (initialOrder == null || customer == null)
+            if (customer == null || initialOrder == null || initialOrder.OrderStatus == OrderStatus.Cancelled)
             {
                 return false;
             }
 
-            if (initialOrder.OrderStatus == OrderStatus.Cancelled ||
-                (!customerToValidate.IsAdmin() && customer.Id != customerToValidate.Id))
+            if (customer.Id != customerToValidate.Id && !customerToValidate.IsAdmin())
             {
                 return false;
             }
 
             var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
-            if (!nextPaymentDate.HasValue)
-            {
-                return false;
-            }
-
-            return true;
+            return nextPaymentDate.HasValue;
         }
 
         public virtual async Task CancelRecurringPaymentAsync(RecurringPayment recurringPayment)
