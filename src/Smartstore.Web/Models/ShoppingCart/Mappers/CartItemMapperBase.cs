@@ -206,6 +206,7 @@ namespace Smartstore.Web.Models.Cart
                     }
 
                     MapCalculatedPrice(lineItem.UnitPrice, lineItem.Subtotal);
+                    priceModel.IsBundlePart = true;
                 }
                 else
                 {

@@ -7,8 +7,7 @@
 
 @{
     var showPriceSaving = Model.Saving.SavingAmount.HasValue && (Model.ShowRetailPriceSaving || Model.RegularPrice != null);
-    var isBundlePart = false;
-    var showPrice = !(isBundlePart && Model.UnitPrice == 0);
+    var showPrice = !(Model.IsBundlePart && Model.UnitPrice == 0);
 
     async Task RenderPromoPriceLine(ComparePriceModel priceModel)
     {
@@ -69,7 +68,7 @@
 
 <div class="pt-2 fs-sm" sm-suppress-if-empty>
     @* Subtotal *@
-    <div sm-if="!isBundlePart && showPrice && Model.UnitPrice != Model.SubTotal" class="pd-subtotal fs-sm">
+    <div sm-if="!Model.IsBundlePart && showPrice && Model.UnitPrice != Model.SubTotal" class="pd-subtotal fs-sm">
         <span class="pd-subtotal-label">@T("ShoppingCart.ItemTotal"):</span>
         <span class="pd-subtotal-amount fwm">
             @Html.Raw(Model.SubTotal)
