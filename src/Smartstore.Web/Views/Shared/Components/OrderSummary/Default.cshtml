@@ -3,7 +3,6 @@
 @model ShoppingCartModel
 
 <div class="order-summary-content cart-content" data-empty-text="@T("ShoppingCart.CartIsEmpty")">
-
     <zone name="order_summary_content_before" />
     
     <partial name="_OrderReviewData" model="Model.OrderReviewData" />
@@ -15,11 +14,11 @@
 
     @if (Model.Items.Any())
     {
-        <div sm-if="Model.Warnings.Any()" class="alert alert-danger">
+        <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger">
             <ul>                
                 @foreach(var warning in Model.Warnings)
                 {
-                    <li>@warning</li>
+                    <li>@Html.Raw(warning)</li>
                 }
             </ul>
         </div>

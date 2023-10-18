@@ -336,6 +336,18 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Address.Fields.Name.InvalidChars",
                 "Please check your input. Numbers and the following characters are not allowed: {0}",
                 "Bitte überprüfen Sie Ihre Eingabe. Zahlen und folgende Zeichen sind nicht erlaubt: {0}");
+
+            builder.AddOrUpdate("ShoppingCart.SelectAttribute",
+                "Please select <b class=\"fwm\">{0}</b>.",
+                "Bitte <b class=\"fwm\">{0}</b> auswählen.");
+
+            builder.AddOrUpdate("ShoppingCart.EnterAttributeValue",
+                "Please enter <b class=\"fwm\">{0}</b>.",
+                "Bitte <b class=\"fwm\">{0}</b> eingeben.");
+
+            builder.AddOrUpdate("ShoppingCart.UploadAttributeFile",
+                "Please upload <b class=\"fwm\">{0}</b>.",
+                "Bitte <b class=\"fwm\">{0}</b> hochladen.");
         }
 
         /// <summary>
