@@ -40,7 +40,7 @@
         <div class="alert alert-danger">
             @foreach (var warning in warnings)
             {
-                <div>@warning</div>
+                <div>@Html.Raw(warning)</div>
             }
         </div>
     </div>

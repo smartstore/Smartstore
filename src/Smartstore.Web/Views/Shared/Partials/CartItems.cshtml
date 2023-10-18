@@ -153,10 +153,10 @@
                     </div>
 
                     @* Warnings *@
-                    <div sm-if="item.Warnings.Any()" class="alert alert-danger cart-item-group">
+                    <div sm-if="item.Warnings.Count > 0" class="alert alert-danger cart-item-group">
                         @foreach (var warning in item.Warnings)
                         {
-                            <p>@warning</p>
+                            <p>@Html.Raw(warning)</p>
                         }
                     </div>
 
@@ -286,10 +286,10 @@
                         @Html.Raw(item.AttributeInfo)
                     </div>
 
-                    <div sm-if="item.Warnings.Any()" class="alert alert-danger cart-item-group cart-item-group">
+                    <div sm-if="item.Warnings.Count > 0" class="alert alert-danger cart-item-group cart-item-group">
                         @foreach (var warning in item.Warnings)
                         {
-                            <p>@warning</p>
+                            <p>@Html.Raw(warning)</p>
                         }
                     </div>
                 </div>

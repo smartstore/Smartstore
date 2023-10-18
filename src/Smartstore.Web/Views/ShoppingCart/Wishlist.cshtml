@@ -20,10 +20,10 @@
 
             @if (modelHasItems)
             {
-                <div sm-if="Model.Warnings.Any()" class="alert alert-danger">
+                <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger">
                     @foreach (var warning in Model.Warnings)
                     {
-                        <p>@warning</p>
+                        <p>@Html.Raw(warning)</p>
                     }
                 </div>
 
