@@ -52,6 +52,11 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                     model.MinOrderAmount = 1;
                 }
 
+                if (model.MaxInStock.HasValue && model.MaxInStock.Value < model.MaxOrderAmount)
+                {
+                    model.MaxOrderAmount = model.MaxInStock.Value;
+                }
+
                 if (model.MaxOrderAmount < model.MinOrderAmount)
                 {
                     model.MaxOrderAmount = model.MinOrderAmount;
@@ -79,7 +84,7 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                 }
                 else
                 {
-                    // Less than 100 quantities, prepare select options.
+                    // Less than ddLimit (100) quantities, prepare select options.
                     var options = new List<SelectListItem>();
 
                     for (var i = min; i <= max; i += step)
@@ -88,19 +93,12 @@ namespace Smartstore.Web.Models.Catalog.Mappers
                         {
                             Text = i.ToString(),
                             Value = i.ToStringInvariant(),
-                            Selected = i == model.EnteredQuantity,
-                            Disabled = model.MaxInStock.HasValue && i > model.MaxInStock.Value
+                            Selected = i == model.EnteredQuantity
                         });
                     }
 
                     model.AllowedQuantities.AddRange(options);
                 }
-            }
-
-            if (model.MaxInStock.HasValue && model.MaxInStock.Value < model.MaxOrderAmount)
-            {
-                // Upper limit for input spinner
-                model.MaxOrderAmount = model.MaxInStock.Value;
             }
 
             model.QuantityControlType = inputType;

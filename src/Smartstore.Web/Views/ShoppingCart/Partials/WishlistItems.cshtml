@@ -27,32 +27,14 @@
     
     async Task SimpleProduct(WishlistModel.WishlistItemModel item)
     {
-        //var deliveryPresentation = Model.DeliveryTimesPresentation;
         var showSku = Model.ShowSku && item.Sku.HasValue();
-        //var showWeight = Model.DisplayWeight && item.Weight > 0;
-        // var showDeliveryName = false;
-        // var showDeliveryDate = false;
         var price = item.Price;
 
-        // if (deliveryPresentation != DeliveryTimesPresentation.None && item.IsShipEnabled)
-        // {
-        //     showDeliveryName =
-        //         item.DeliveryTimeName.HasValue() && item.DeliveryTimeHexValue.HasValue() &&
-        //         (deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
-        //         deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
-        //         !item.DeliveryTimeDate.HasValue());
-
-        //     showDeliveryDate =
-        //         (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
-        //         item.DeliveryTimeDate.HasValue();
-        // }
-
-        //var showAttributes = showDeliveryName || showDeliveryDate || showSku || showWeight;
         var showAttributes = showSku;
         var showVariants = item.AttributeInfo.HasValue();
         
         <div class="cart-row">
-            <div sm-if="Model.DisplayAddToCart && !Model.IsEditable" class="xcheckbox xmx-3 xmt-1 position-absolute">
+            <div sm-if="Model.DisplayAddToCart && !Model.IsEditable" class="position-absolute">
                 <input type="checkbox" name="addtocart" class="form-check-input" value="@(item.Id)" />
             </div>
 

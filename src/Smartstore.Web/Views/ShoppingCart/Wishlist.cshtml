@@ -12,7 +12,7 @@
 
 <div class="page wishlist-page">
     <div class="page-title">
-        <h1>@(Model.IsEditable ? T("Wishlist") : T("Wishlist.WishlistOf", Model.CustomerFullname))</h1>
+        <h1 class="mb-0">@(Model.IsEditable ? T("Wishlist") : T("Wishlist.WishlistOf", Model.CustomerFullname))</h1>
     </div>
     <div class="page-body">
         <div class="wishlist-content cart-content" data-empty-text=@T("Wishlist.CartIsEmpty").JsValue>
@@ -40,14 +40,14 @@
                     <div class="common-buttons hstack gap-1">
                         @if (Model.IsEditable && Model.EmailWishlistEnabled)
                         {
-                            <a asp-action="EmailWishlist" rel="nofollow" class="btn btn-secondary email-a-friend-wishlist-button">
-                                <i class="fa fa-envelope"></i>
+                            <a asp-action="EmailWishlist" rel="nofollow" class="btn btn-secondary">
+                                <i class="fa fa-share"></i>
                                 <span>@T("Wishlist.EmailAFriend")</span>
                             </a>
                         }
                         @if (!Model.IsEditable && Model.DisplayAddToCart)
                         {
-                            <button type="submit" name="addtocartbutton" value="addtocartbutton" class="btn btn-primary wishlist-add-to-cart-button">
+                            <button type="submit" name="addtocartbutton" value="addtocartbutton" class="btn btn-primary">
                                 <i class="fa fa-cart-arrow-down"></i>
                                 <span>@T("ShoppingCart.AddToCart")</span>
                             </button>
@@ -64,10 +64,10 @@
         </div>
 
         <div sm-if="Model.IsEditable && modelHasItems" class="share-info my-4">
-            <h4 class="share-label">
+            <h5 class="share-label mb-1">
                 <i class="far fa-share-square"></i>
                 @T("Wishlist.YourWishlistURL")
-            </h4>
+            </h5>
             <a asp-route="Wishlist" asp-route-customerGuid="@Model.CustomerGuid" class="share-link">
                 @Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, Context.Request.IsHttps ? "https" : "http", Context.Request.Host.Value)
             </a>
