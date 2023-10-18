@@ -809,8 +809,10 @@ namespace Smartstore.Web.Api.Controllers
 
         /// <summary>
         /// Gets the soft-deleted products of the recycle bin.
-        /// Can only be used in conjunction with the methods Restore and DeletePermanent.
         /// </summary>
+        /// <remarks>
+        /// Can only be used in conjunction with the methods **Restore** and **DeletePermanent** because soft-deleted products are excluded from other endpoints.
+        /// </remarks>
         [HttpGet("Products/RecycleBin"), ApiQueryable]
         [Permission(Permissions.Catalog.Product.Read)]
         [Produces(Json)]
