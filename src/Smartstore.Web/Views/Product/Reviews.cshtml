@@ -23,7 +23,7 @@
 
         @if (Model.SuccessfullyAdded && Model.Result.HasValue())
         {
-            <div class="alert alert-success">
+            <div class="alert alert-success alert-dismissible">
                 <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                 @Model.Result
             </div>
@@ -32,7 +32,7 @@
         {
             <div asp-validation-summary="ModelOnly" class="m-b-0"></div>
 
-            <div class="write-review mb-4" id="review-form">
+            <div class="write-review mb-4 rounded" id="review-form">
                 <h4 class="d-none">@T("Reviews.Overview.AddNew")</h4>
                 <form asp-action="Reviews" class="form-horizontal" method="post">
                     <div class="form-group row">
