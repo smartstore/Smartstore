@@ -73,6 +73,7 @@
   - #142 Take back in stock notifications into account.
   - #805 Add endpoints to assign discounts to entities.
   - #821 Add endpoints for RecurringPayment and RecurringPaymentHistory.
+  - Add endpoints for the recycle bin of products.
 - Import:
   - #390 Add a setting for whether to send the completion email.
   - #377 Import cross- and checkout-selling products.

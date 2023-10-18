@@ -486,6 +486,21 @@ namespace Smartstore.Web.Api
                 .Optional();
             saveFiles.Parameter<string>("mpn")
                 .Optional();
+
+            config.Function(nameof(ProductsController.RecycleBin))
+                .ReturnsFromEntitySet<Product>(set.EntityType.Name);
+
+            config.Action(nameof(ProductsController.DeletePermanent))
+                .Returns<DeletionResult>()
+                .CollectionParameter<int>("productIds")
+                .Required();
+
+            var restore = config.Action(nameof(ProductsController.Restore))
+                .Returns<int>();
+            restore.CollectionParameter<int>("productIds")
+                .Required();
+            restore.Parameter<bool?>("publishAfterRestore")
+                .Optional();
         }
 
         private static void BuildRecurringPayments(ODataModelBuilder builder)
