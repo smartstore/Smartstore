@@ -96,9 +96,13 @@
         };
 
         AjaxMenu.prototype._loadLayer = function (nodeId, callback) {
-            var self = this;
+            if (this.url === undefined) {
+                return;
+            }
 
+            var self = this;
             this._loading = true;
+
             $.ajax({
                 cache: false,
                 url: this.url,
