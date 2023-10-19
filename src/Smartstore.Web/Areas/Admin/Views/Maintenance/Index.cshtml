@@ -103,6 +103,38 @@
             </div>
         </div>
 
+        @* TreePaths *@
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title">
+                        @T("Admin.System.Maintenance.TreePaths.Title")
+                    </h5>
+                    <button type="submit" id="rebuild-tree-paths" class="btn btn-secondary btn-to-primary confirm" style="width: 200px">
+                        <i class="far fa-rotate"></i>
+                        <span>@T("Admin.System.Maintenance.TreePaths.Rebuild")</span>
+                    </button>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        <div>@T("Admin.System.Maintenance.TreePaths.PathCount")</div>
+                        <div id ="rebuild-tree-paths-count" class="text-muted">0</div>
+                    </div>
+                </div>
+                <script>
+                    $(function () {
+                        $("#rebuild-tree-paths").click(function (e) {
+                            e.preventDefault();
+
+                            $.get("@Url.Action("RebuildTreePaths")", function (data) {
+                                $("#rebuild-tree-paths-count").text(data);
+                            });
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+
         @* DbBackups *@
         <div sm-if="Model.CanCreateBackup" class="card mb-4">
             <div class="card-body">

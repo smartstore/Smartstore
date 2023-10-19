@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Web;
-using Smartstore.Core.Checkout.Payment;
+﻿using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Data.Migrations;
@@ -24,7 +23,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
         {
-            await db.MigrateSettingsAsync(builder => 
+            await db.MigrateSettingsAsync(builder =>
             {
                 builder.Delete("PrivacySettings.EnableCookieConsent");
                 builder.Update<MediaSettings>(x => x.ProductDetailsPictureSize, 680, 600);
@@ -61,7 +60,7 @@ namespace Smartstore.Core.Data.Migrations
                 {
                     db.Settings.RemoveRange(settingsForAllStores.Skip(1));
                 }
-            }   
+            }
 
             await db.SaveChangesAsync(cancelToken);
 
@@ -124,7 +123,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.Clear", "Empty recycle bin", "Papierkorb leeren");
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.ClearConfirm",
-                "Are you sure that all entries of the recycle bin should be deleted?", 
+                "Are you sure that all entries of the recycle bin should be deleted?",
                 "Sind Sie sicher, dass alle Einträge des Papierkorbs gelöscht werden sollen?");
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.AdminNote",
@@ -181,12 +180,12 @@ namespace Smartstore.Core.Data.Migrations
                 "The following characters are already allowed by default:",
                 "Standardmäßig sind bereits folgende Zeichen erlaubt:");
 
-            builder.AddOrUpdate("Admin.DataGrid.ConfirmSoftDelete", 
-                "Do you want to delete the item?", 
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmSoftDelete",
+                "Do you want to delete the item?",
                 "Soll der Datensatz gelöscht werden?");
 
-            builder.AddOrUpdate("Admin.DataGrid.ConfirmSoftDeleteMany", 
-                "Do you want to delete the selected {0} items?", 
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmSoftDeleteMany",
+                "Do you want to delete the selected {0} items?",
                 "Sollen die gewählten {0} Datensätze gelöscht werden?");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowShortDescriptionInGridStyleLists.Hint",
@@ -348,6 +347,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("ShoppingCart.UploadAttributeFile",
                 "Please upload <b class=\"fwm\">{0}</b>.",
                 "Bitte <b class=\"fwm\">{0}</b> hochladen.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Title", "Tree paths", "Baumpfade");
+            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Rebuild", "Rebuild", "Neu erstellen");
+            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.PathCount", "Number of new paths", "Anzahl neuer Pfade");
         }
 
         /// <summary>
@@ -410,7 +413,7 @@ namespace Smartstore.Core.Data.Migrations
                     if (description.StartsWithNoCase("@Plugins.Payment"))
                     {
                         var resourceName = description[1..];
-                        
+
                         description = await db.LocaleStringResources
                             .Where(x => x.LanguageId == masterLanguageId && x.ResourceName == resourceName)
                             .Select(x => x.ResourceValue)
@@ -537,7 +540,7 @@ namespace Smartstore.Core.Data.Migrations
                         var seoCode = index;
                         var newCulture = $"{seoCode.ToLowerInvariant()}-{seoCode.ToUpperInvariant()}";
 
-                        var language = 
+                        var language =
                             allLanguages.FirstOrDefault(x => x.LanguageCulture.EqualsNoCase(newCulture)) ??
                             allLanguages.FirstOrDefault(x => x.UniqueSeoCode.EqualsNoCase(seoCode));
 

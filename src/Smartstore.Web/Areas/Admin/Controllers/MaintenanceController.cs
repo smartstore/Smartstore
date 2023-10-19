@@ -148,7 +148,7 @@ namespace Smartstore.Admin.Controllers
             DateTime? endDateValue = model.DeleteGuests.EndDate == null
                 ? null
                 : dtHelper.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
-            
+
             // Execute
             var numDeletedCustomers = await _customerService.DeleteGuestCustomersAsync(
                 startDateValue,
@@ -220,9 +220,9 @@ namespace Smartstore.Admin.Controllers
 
             if (result.NumAttempted < result.NumProcessedEntities)
             {
-                message += 
-                    Environment.NewLine + 
-                    Environment.NewLine + 
+                message +=
+                    Environment.NewLine +
+                    Environment.NewLine +
                     "!! Apparently some embedded images could not be parsed and replaced correctly. Maybe incomplete or invalid HTML?";
             }
 
@@ -238,10 +238,9 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        public async Task<IActionResult> RebuildTreePaths()
+        public async Task<int> RebuildTreePaths()
         {
-            var numAffected = await CategoryService.RebuidTreePathsAsync(_db, _asyncRunner.AppShutdownCancellationToken);
-            return Content($"Generated {numAffected} TreePath epressions.");
+            return await CategoryService.RebuidTreePathsAsync(_db, _asyncRunner.AppShutdownCancellationToken);
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
@@ -340,7 +339,7 @@ namespace Smartstore.Admin.Controllers
             string message = T("Admin.Common.TaskSuccessfullyProcessed");
             NotifySuccess(message);
 
-            return new JsonResult (new { Success = true, Message = message });
+            return new JsonResult(new { Success = true, Message = message });
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
@@ -403,7 +402,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Loaded assemblies
-            model.AppDate = CommonHelper.TryAction(() => 
+            model.AppDate = CommonHelper.TryAction(() =>
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 var fi = new FileInfo(assembly.Location);
@@ -518,7 +517,7 @@ namespace Smartstore.Admin.Controllers
             // ====================================
             try
             {
-                using var taskSchedulerClient =  await _taskScheduler.CreateHttpClientAsync();
+                using var taskSchedulerClient = await _taskScheduler.CreateHttpClientAsync();
                 taskSchedulerClient.Timeout = TimeSpan.FromSeconds(5);
 
                 using var response = await taskSchedulerClient.GetAsync("noop");
