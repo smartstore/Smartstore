@@ -24,7 +24,7 @@
         </div>
 
         @* "File upload" attribute control type requries "multipart/form-data" *@
-        <form asp-route="ShoppingCart" id="frm-shopping-cart" method="post" enctype="multipart/form-data" onkeydown="return event.key != 'Enter';">
+        <form asp-route="ShoppingCart" id="frm-shopping-cart" method="post" enctype="multipart/form-data" onkeydown="return event.target.tagName.toLowerCase() == 'textarea' || event.key !== 'Enter';">
             <div class="row cart-container">
                 @* Cart Items *@
                 <div class="col-lg-7 col-xl-8">
