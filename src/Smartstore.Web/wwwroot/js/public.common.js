@@ -86,6 +86,14 @@
                 return;
             ctx.find(".numberinput-group").numberInput();
         },
+        // QuantityInput
+        function (ctx) {
+            ctx.find('.qty-input .numberinput').on("change", function () {
+                var el = $(this);
+                var quantityUnitName = el.val() > 1 ? el.data("quantity-unit-name-plural") : el.data("quantity-unit-name");
+                el.closest(".qty-input").find(".numberinput-postfix").html(quantityUnitName);
+            });
+        },
         // newsletter subsription
         function (ctx) {
             var newsletterContainer = $(".footer-newsletter");

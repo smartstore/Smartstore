@@ -59,6 +59,7 @@ namespace Smartstore.Web.Models.Cart
                 if (quantityUnit != null)
                 {
                     model.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);
+                    model.QuantityUnitNamePlural = quantityUnit.GetLocalized(x => x.NamePlural);
                 }
             }
         }

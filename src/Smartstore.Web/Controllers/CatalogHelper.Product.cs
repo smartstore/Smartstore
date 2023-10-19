@@ -937,6 +937,7 @@ namespace Smartstore.Web.Controllers
             if (quantityUnit != null)
             {
                 model.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);
+                model.QuantityUnitNamePlural = quantityUnit.GetLocalized(x => x.NamePlural);
             }
 
             // Back in stock subscriptions.
@@ -965,6 +966,7 @@ namespace Smartstore.Web.Controllers
 
             await product.MapQuantityInputAsync(model.AddToCart, selectedQuantity);
             model.AddToCart.QuantityUnitName = model.QuantityUnitName; // TODO: (mc) remove 'QuantityUnitName' from parent model later
+            model.AddToCart.QuantityUnitNamePlural = model.QuantityUnitNamePlural; // TODO: (mc) remove 'QuantityUnitName' from parent model later
 
             // 'add to cart', 'add to wishlist' buttons.
             model.AddToCart.DisableBuyButton = !displayPrices || product.DisableBuyButton ||

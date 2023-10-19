@@ -90,6 +90,7 @@
 - #819 Fix zoom on product detail page when there is a large right column.
 - PayPal credit card: Removed address fields and integrated Strong Customer Authentication (SCA) instead.
 - #834 Make the expiration date of visitor cookies of guests configurable.
+- #493 Display quantity name plural when quantity unit is more then 1.
 
 ### Bugfixes
 

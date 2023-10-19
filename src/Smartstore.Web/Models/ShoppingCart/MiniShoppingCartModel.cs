@@ -34,7 +34,7 @@ namespace Smartstore.Web.Models.Cart
             public int EnteredQuantity { get; set; }
 
             public LocalizedValue<string> QuantityUnitName { get; set; }
-
+            public LocalizedValue<string> QuantityUnitNamePlural { get; set; }
             public List<SelectListItem> AllowedQuantities { get; set; } = new();
 
             public int MinOrderAmount { get; set; }

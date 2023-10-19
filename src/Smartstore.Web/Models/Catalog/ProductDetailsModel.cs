@@ -110,6 +110,7 @@ namespace Smartstore.Web.Models.Catalog
         public string Height { get; set; }
         public int ThumbDimensions { get; set; }
         public LocalizedValue<string> QuantityUnitName { get; set; }
+        public LocalizedValue<string> QuantityUnitNamePlural { get; set; }
         public bool DisplayProductReviews { get; set; }
         public bool IsBasePriceEnabled { get; set; }
         public string BasePriceInfo { get; set; }
@@ -190,6 +191,7 @@ namespace Smartstore.Web.Models.Catalog
             public int MinOrderAmount { get; set; }
             public int MaxOrderAmount { get; set; }
             public LocalizedValue<string> QuantityUnitName { get; set; }
+            public LocalizedValue<string> QuantityUnitNamePlural { get; set; }
             public int QuantityStep { get; set; }
             public int? MaxInStock { get; set; }
             public bool HideQuantityControl { get; set; }

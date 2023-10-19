@@ -12,6 +12,7 @@ namespace Smartstore.Web.Models.Catalog
         int QuantityStep { get; set; }
         int? MaxInStock { get; set; }
         LocalizedValue<string> QuantityUnitName { get; set; }
+        LocalizedValue<string> QuantityUnitNamePlural { get; set; }
         List<SelectListItem> AllowedQuantities { get; }
         QuantityControlType QuantityControlType { get; set; }
     }
