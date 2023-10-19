@@ -120,7 +120,7 @@ namespace Smartstore
             Guard.NotNull(input);
 
             var sb = new StringBuilder(input.Length);
-            var lines = GetLines(input.Trim(), true, removeEmptyLines).ToArray();
+            var lines = ReadLines(input.Trim(), true, removeEmptyLines).ToArray();
 
             foreach (var line in lines)
             {

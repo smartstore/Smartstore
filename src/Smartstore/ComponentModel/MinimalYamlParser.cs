@@ -37,7 +37,7 @@ namespace Smartstore.ComponentModel
         {
             // Line splitting using various splitting characters
             //string[] lines = yamlInputString.Split(new[] { Environment.NewLine, "\r", "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-            var lines = yamlInputString.GetLines(removeEmptyLines: true);
+            var lines = yamlInputString.ReadLines(removeEmptyLines: true);
             int lineCount = 0;
             YamlMapping activeMapping = null;
 

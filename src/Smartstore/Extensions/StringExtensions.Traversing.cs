@@ -16,7 +16,16 @@ namespace Smartstore
         /// </summary>
         /// <param name="input">The string to split</param>
         /// <returns>A sequence with string items per line</returns>
+        [Obsolete("Call the ReadLines() method instead.")]
         public static IEnumerable<string> GetLines(this string? input, bool trimLines = false, bool removeEmptyLines = false)
+            => ReadLines(input, trimLines, removeEmptyLines);
+
+        /// <summary>
+        /// Splits the input string by carriage return.
+        /// </summary>
+        /// <param name="input">The string to split</param>
+        /// <returns>A sequence with string items per line</returns>
+        public static IEnumerable<string> ReadLines(this string? input, bool trimLines = false, bool removeEmptyLines = false)
         {
             if (input.IsEmpty())
             {
@@ -111,7 +120,7 @@ namespace Smartstore
                     if (c == '\r' && (i + 1) < input.Length & input[i + 1] == '\n')
                     {
                         // Split by lines
-                        return input.GetLines(false, true);
+                        return input.ReadLines(false, true);
                     }
                 }
 

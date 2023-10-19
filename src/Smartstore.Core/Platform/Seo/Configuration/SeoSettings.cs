@@ -174,7 +174,7 @@ namespace Smartstore.Core.Seo
         {
             var map = new Dictionary<char, string>();
 
-            foreach (var conversion in charConversion.GetLines(true, true))
+            foreach (var conversion in charConversion.ReadLines(true, true))
             {
                 if (conversion.SplitToPair(out var left, out var right, ";") && left.HasValue())
                 {

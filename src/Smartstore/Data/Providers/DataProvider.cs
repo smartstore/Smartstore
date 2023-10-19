@@ -303,7 +303,7 @@ namespace Smartstore.Data.Providers
             var inMultilineComment = false;
             var commands = new List<string>();
             var command = string.Empty;
-            var lines = sqlScript.GetLines(true);
+            var lines = sqlScript.ReadLines(true);
 
             foreach (var line in lines)
             {
