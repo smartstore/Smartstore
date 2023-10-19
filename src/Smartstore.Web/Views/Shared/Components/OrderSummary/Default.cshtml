@@ -4,7 +4,7 @@
 
 <div class="order-summary-content cart-content" data-empty-text="@T("ShoppingCart.CartIsEmpty")">
     <zone name="order_summary_content_before" />
-    
+
     <partial name="_OrderReviewData" model="Model.OrderReviewData" />
 
     @if (Model.DisplayCommentBox && !Model.IsEditable)
@@ -15,8 +15,8 @@
     @if (Model.Items.Any())
     {
         <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger">
-            <ul>                
-                @foreach(var warning in Model.Warnings)
+            <ul>
+                @foreach (var warning in Model.Warnings)
                 {
                     <li>@Html.Raw(warning)</li>
                 }
@@ -24,7 +24,7 @@
         </div>
 
         @* "File upload" attribute control type requries "multipart/form-data" *@
-        <form asp-route="ShoppingCart" id="frm-shopping-cart" method="post" enctype="multipart/form-data" onkeydown="return event.target.tagName.toLowerCase() == 'textarea' || event.key !== 'Enter';">
+        <form asp-route="ShoppingCart" id="frm-shopping-cart" method="post" enctype="multipart/form-data">
             <div class="row cart-container">
                 @* Cart Items *@
                 <div class="col-lg-7 col-xl-8">
@@ -183,8 +183,16 @@
                 return false;
             }
 
-            $('#startcheckout').trigger('click'); 
+            $('#startcheckout').trigger('click');
             return false;
         });
     </script>
 }
+
+<script sm-target-zone="scripts" data-origin="order-summary">
+    $(function () {
+        $('#frm-shopping-cart').on('keydown', function (e) {
+            return e.key !== 'Enter' || e.target.tagName.toLowerCase() == 'textarea';
+        });
+    });
+</script>
