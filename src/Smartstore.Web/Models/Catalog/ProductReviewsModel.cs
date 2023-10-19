@@ -17,11 +17,10 @@ namespace Smartstore.Web.Models.Catalog
         public int ProductId { get; set; }
         public LocalizedValue<string> ProductName { get; set; }
         public string ProductSeName { get; set; }
-
         public int TotalReviewsCount { get; set; }
         public List<ProductReviewModel> Items { get; set; } = new();
-
         public bool ShowVerfiedPurchaseBadge { get; set; }
+        public bool IsReviewsDetailPage { get; set; }
 
         #region Add
 
@@ -36,7 +35,6 @@ namespace Smartstore.Web.Models.Catalog
         public int Rating { get; set; }
 
         public bool DisplayCaptcha { get; set; }
-
         public bool CanCurrentCustomerLeaveReview { get; set; }
         public bool SuccessfullyAdded { get; set; }
         public string Result { get; set; }

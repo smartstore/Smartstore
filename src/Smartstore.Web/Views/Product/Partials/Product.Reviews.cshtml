@@ -17,7 +17,9 @@
         int ratingPercent = review.Rating * 20;
         var helpfulness = review.Helpfulness;
 
-        <div class="review-item" id="review-item-@(i + 1)" itemprop="review" itemscope itemtype="http://schema.org/Review">
+        <div class="review-item" id="review-item-@(i + 1)" itemscope
+             attr-itemprop='(!Model.IsReviewsDetailPage, "review")'
+             attr-itemtype='(!Model.IsReviewsDetailPage, "http://schema.org/Review")'>
             <div class="review-title">
                 <div class="rating" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
                     <div style="width: @(ratingPercent)%"></div>

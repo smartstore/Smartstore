@@ -515,7 +515,8 @@ namespace Smartstore.Web.Controllers
 
             var model = new ProductReviewsModel
             {
-                Rating = _catalogSettings.DefaultProductRatingValue
+                Rating = _catalogSettings.DefaultProductRatingValue,
+                IsReviewsDetailPage = true
             };
 
             await _helper.PrepareProductReviewsModelAsync(model, product);
