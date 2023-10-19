@@ -173,7 +173,6 @@ namespace Smartstore.Core.Search.Facets
 
         public override string ToString()
         {
-            var result = string.Empty;
             var valueStr = ConvertToString(Value);
 
             if (IsRange)
@@ -181,19 +180,17 @@ namespace Smartstore.Core.Search.Facets
                 var upperValueStr = ConvertToString(UpperValue);
                 if (upperValueStr.HasValue())
                 {
-                    result = string.Concat(valueStr, "~", upperValueStr);
+                    return valueStr + '~' + upperValueStr;
                 }
                 else
                 {
-                    result = valueStr;
+                    return valueStr;
                 }
             }
             else
             {
-                result = valueStr;
+                return valueStr;
             }
-
-            return result;
         }
 
         public FacetValue Clone()
