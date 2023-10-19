@@ -65,22 +65,28 @@
                                 </div>
                             }
 
-                            @if (!paymentMethod.RequiresInteraction || (paymentMethod.Selected && widgetInvoker != null))
+                            @if (!paymentMethod.RequiresInteraction)
                             {
-                                <div class="opt-info payment-method-info"
-                                     attr-data-lazy-info='(paymentMethod.RequiresInteraction, "true")'
-                                     data-system-name="@paymentMethod.PaymentMethodSystemName">
-
-                                    <div sm-if="paymentMethod.Selected && !ViewData.ModelState.IsValid" id="payment-info-validation-summary">
-                                        @Html.ValidationSummary(false)
-                                    </div>
-
-                                    @if (!(description.HasValue() && !paymentMethod.RequiresInteraction) && paymentMethod.InfoWidget != null)
-                                    {
-                                        @await paymentMethod.InfoWidget.InvokeAsync(ViewContext);
-                                    }
-                                </div>
+                                await RenderPaymentWidget(false);
                             }
+                        }
+
+                        async Task RenderPaymentWidget(bool isEmbedded)
+                        {
+                            <div class="opt-info payment-method-info"
+                                 attr-class='(isEmbedded, "opt-info-embedded")'  
+                                 attr-data-lazy-info='(paymentMethod.RequiresInteraction, "true")'
+                                 data-system-name="@paymentMethod.PaymentMethodSystemName">
+
+                                <div sm-if="paymentMethod.Selected && !ViewData.ModelState.IsValid" id="payment-info-validation-summary">
+                                    @Html.ValidationSummary(false)
+                                </div>
+
+                                @if (!(description.HasValue() && !paymentMethod.RequiresInteraction) && paymentMethod.InfoWidget != null)
+                                {
+                                    @await paymentMethod.InfoWidget.InvokeAsync(ViewContext);
+                                }
+                            </div>
                         }
 
                         <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>
@@ -94,6 +100,11 @@
                                         @{ await RenderPaymentMethod(); }
                                     </div>
                                 </div>
+
+                                if (paymentMethod.Selected && widgetInvoker != null)
+                                {
+                                    await RenderPaymentWidget(true);
+                                }
                             }
                             else
                             {
