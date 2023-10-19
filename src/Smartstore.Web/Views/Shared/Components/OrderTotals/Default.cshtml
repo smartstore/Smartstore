@@ -136,7 +136,7 @@
         <td class="cart-summary-value">@Model.CreditBalance</td>
     </tr>
 
-    <tr sm-if="Model.OrderTotalRounding != null" class="cart-summary-totalrounding cart-summary-pos">
+    <tr sm-if="Model.OrderTotalRounding.HasValue" class="cart-summary-totalrounding cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.Rounding"):</td>
         <td class="cart-summary-value">
             <span>@Model.OrderTotalRounding</span>

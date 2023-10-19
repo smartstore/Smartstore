@@ -407,12 +407,14 @@
     }
 
     .cart-summary-pos {
-        color: theme-color-level(success, $alert-color-level);
-        font-weight: $font-weight-medium;
+        color: var(--success-text-emphasis);
+        > .cart-summary-value {
+            font-weight: $font-weight-medium;
+        }
     }
 
     .cart-summary-neg {
-        color: theme-color-level(danger, $alert-color-level);
+        color: var(--danger-text-emphasis);
     }
 
     .cart-summary-total {
