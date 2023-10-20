@@ -32,10 +32,6 @@ namespace Smartstore.Web.Models.Cart
         public ProductType ProductType { get; set; }
         public bool VisibleIndividually { get; set; }
 
-        public Money UnitPrice { get; set; }
-        public Money SubTotal { get; set; }
-        public Money Discount { get; set; }
-        public string BasePrice { get; set; }
         public CartItemPriceModel Price { get; set; } = new();
 
         public int EnteredQuantity { get; set; }

@@ -209,9 +209,9 @@ namespace Smartstore.Google.Analytics.Services
                     product.Id,
                     product.Sku,
                     product.ProductName,
-                    _roundingHelper.Round(product.Discount).ToStringInvariant(),
+                    product.Price.Saving.SavingAmount.HasValue ? _roundingHelper.Round(product.Price.Saving.SavingAmount.Value).ToStringInvariant() : "0",
                     string.Empty,
-                    _roundingHelper.Round(product.UnitPrice).ToStringInvariant(),
+                    _roundingHelper.Round(product.Price.UnitPrice).ToStringInvariant(),
                     index: ++i);
             }
 

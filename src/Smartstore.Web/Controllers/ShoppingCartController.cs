@@ -351,7 +351,7 @@ namespace Smartstore.Web.Controllers
                     totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
                     var sci = model.Items.Where(x => x.Id == sciItemId).FirstOrDefault();
-                    newItemPrice = sci.UnitPrice.ToString();
+                    newItemPrice = sci.Price.UnitPrice.ToString();
                 }
             }
 

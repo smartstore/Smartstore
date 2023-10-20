@@ -175,17 +175,12 @@ namespace Smartstore.Web.Models.Cart
                     var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(from, calculationOptions);
                     var (bundleItemUnitPrice, bundleItemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
-                    to.BasePrice = _priceCalculationService.GetBasePriceInfo(product, bundleItemUnitPrice.FinalPrice); // x
-
                     MapCalculatedPrice(bundleItemUnitPrice, bundleItemSubtotal);
                 }
             }
 
             if (product.CallForPrice)
             {
-                to.UnitPrice = new(0, currency, false, T("Products.CallForPrice")); // x
-                to.SubTotal = to.UnitPrice; // x
-
                 priceModel.UnitPrice = new(0, currency, false, T("Products.CallForPrice"));
                 priceModel.SubTotal = priceModel.UnitPrice;
             }
@@ -196,15 +191,6 @@ namespace Smartstore.Web.Models.Cart
                     var subtotal = parameters?.CartSubtotal as ShoppingCartSubtotal;
                     var lineItem = subtotal.LineItems.FirstOrDefault(x => x.Item.Item.Id == item.Id);
 
-                    to.UnitPrice = ConvertMoney(lineItem.UnitPrice.FinalPrice, taxFormat); // x
-                    to.BasePrice = _priceCalculationService.GetBasePriceInfo(product, to.UnitPrice.WithPostFormat(null)); // x
-                    to.SubTotal = ConvertMoney(lineItem.Subtotal.FinalPrice, taxFormat); // x
-
-                    if (lineItem.Subtotal.DiscountAmount > 0)
-                    {
-                        to.Discount = ConvertMoney(lineItem.Subtotal.DiscountAmount, taxFormat); // x
-                    }
-
                     MapCalculatedPrice(lineItem.UnitPrice, lineItem.Subtotal);
                     priceModel.IsBundlePart = true;
                 }
@@ -213,14 +199,6 @@ namespace Smartstore.Web.Models.Cart
                     var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext);
                     var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(from, calculationOptions);
                     var (unitPrice, itemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
-
-                    to.UnitPrice = unitPrice.FinalPrice; // x
-                    to.SubTotal = itemSubtotal.FinalPrice; // x
-
-                    if (itemSubtotal.DiscountAmount > 0)
-                    {
-                        to.Discount = itemSubtotal.DiscountAmount; // x
-                    }
 
                     MapCalculatedPrice(unitPrice, itemSubtotal);
                 }

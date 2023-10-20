@@ -31,8 +31,8 @@ namespace Smartstore.Web.Models.Cart
 
         public override async Task MapAsync(OrganizedShoppingCartItem from, WishlistModel.WishlistItemModel to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             await base.MapAsync(from, to, (object)parameters);
 
