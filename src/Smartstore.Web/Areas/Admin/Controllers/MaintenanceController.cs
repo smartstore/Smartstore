@@ -238,9 +238,10 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        public async Task<int> RebuildTreePaths()
+        public async Task<string> RebuildTreePaths()
         {
-            return await CategoryService.RebuidTreePathsAsync(_db, _asyncRunner.AppShutdownCancellationToken);
+            var result = await CategoryService.RebuidTreePathsAsync(_db, _asyncRunner.AppShutdownCancellationToken);
+            return T("Admin.System.Maintenance.TreePaths.PathCount", result);
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]

@@ -117,17 +117,19 @@
                 </div>
                 <div class="row">
                     <div class="col-auto">
-                        <div>@T("Admin.System.Maintenance.TreePaths.PathCount")</div>
-                        <div id ="rebuild-tree-paths-count" class="text-muted">0</div>
+                        <div class="text-muted" style="margin-right: 220px">
+                            @T("Admin.System.Maintenance.TreePaths.Hint")
+                        </div>
+                        <div id="rebuild-tree-success" class="alert alert-success d-none mt-3"></div>
                     </div>
                 </div>
                 <script>
                     $(function () {
-                        $("#rebuild-tree-paths").click(function (e) {
+                        $(document).on("click", "#rebuild-tree-paths", function (e) {
                             e.preventDefault();
 
                             $.get("@Url.Action("RebuildTreePaths")", function (data) {
-                                $("#rebuild-tree-paths-count").text(data);
+                                $("#rebuild-tree-success").text(data).removeClass("d-none");
                             });
                         });
                     });

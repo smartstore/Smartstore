@@ -348,9 +348,22 @@ namespace Smartstore.Core.Data.Migrations
                 "Please upload <b class=\"fwm\">{0}</b>.",
                 "Bitte <b class=\"fwm\">{0}</b> hochladen.");
 
-            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Title", "Tree paths", "Baumpfade");
-            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Rebuild", "Rebuild", "Neu erstellen");
-            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.PathCount", "Number of new paths", "Anzahl neuer Pfade");
+            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Title", "Tree path information", "Pfadinformationen");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Hint",
+                "Here you can check the path information for hierarchically arranged data such as categories. " +
+                "In very rare cases, gaps can occur here, e.g. due to incorrect imports. " +
+                "Problems with missing path information can be seen, among other things, in the fact that products are displayed in categories to which they are not assigned. " +
+                "If you find such errors in your shop, you can subsequently create the missing path information here.",
+                "Hier können Sie die Pfadinformationen für hierarchisch angeordnete Daten wie z.B. Warengruppen überprüfen. " +
+                "In sehr seltenen Fällen können hier Lücken auftreten, z.B. durch fehlerhafte Importe. " +
+                "Probleme mit fehlenden Pfadangaben äußern sich unter anderem dadurch, dass Produkte in Warengruppen angezeigt werden, denen Sie nicht zugeordnet sind. " +
+                "Sollten Sie solche Fehler in Ihrem Shop feststellen, können Sie die fehlenden Pfadinformationen hier nachträglich erstellen.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Rebuild", "Check & Repair", "Prüfen & Reparieren");
+            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.PathCount",
+                "The task was completed successfully. {0} new paths were created.",
+                "Die Aufgabe wurde erfolgreich abgeschlossen. Es wurden {0} neue Pfade angelegt.");
         }
 
         /// <summary>
