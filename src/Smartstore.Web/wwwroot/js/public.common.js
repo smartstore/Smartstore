@@ -90,7 +90,7 @@
         function (ctx) {
             ctx.find('.qty-input .numberinput').on("change", function () {
                 var el = $(this);
-                var quantityUnitName = el.val() > 1 ? el.data("qtyunit-plural") : el.data("qtyunit-singular");
+                var quantityUnitName = el.val() > 1 && el.data("qtyunit-plural") != "" ? el.data("qtyunit-plural") : el.data("qtyunit-singular");
                 el.closest(".qty-input").find(".numberinput-postfix").text(quantityUnitName);
             });
         },
