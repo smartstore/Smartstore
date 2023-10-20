@@ -84,17 +84,11 @@ namespace Smartstore.Admin.Models
             RuleFor(x => x.GiftCardsDeactivatedOrderStatusId).NotEqual((int)OrderStatus.Pending)
                 .WithMessage(T("Admin.Configuration.Settings.RewardPoints.PointsForPurchases_Canceled.Pending"));
 
-            RuleFor(x => x.OrderListPageSize)
-                .GreaterThan(0);
-
-            RuleFor(x => x.OrderTotalMaximum)
-                .GreaterThan(x => x.OrderTotalMinimum ?? 0);
-
-            RuleFor(x => x.OrderTotalMinimum)
-                .GreaterThan(0);
-
-            RuleFor(x => x.OrderIdent)
-                .GreaterThan(0);
+            RuleFor(x => x.OrderListPageSize).GreaterThan(0);
+            RuleFor(x => x.OrderTotalMaximum).GreaterThan(x => x.OrderTotalMinimum ?? 0);
+            RuleFor(x => x.OrderTotalMinimum).GreaterThan(0);
+            RuleFor(x => x.OrderIdent).GreaterThan(0);
+            RuleFor(x => x.NumberOfDaysReturnRequestAvailable).GreaterThanOrEqualTo(0);
         }
     }
 }

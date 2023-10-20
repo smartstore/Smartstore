@@ -312,6 +312,12 @@ namespace Smartstore.Admin.Models
 
             RuleFor(x => x.RecentlyAddedProductsNumber)
                 .GreaterThan(0);
+
+            RuleFor(x => x.LabelAsNewForMaxDays)
+                .GreaterThan(0)
+                .When(x => x.LabelAsNewForMaxDays != null);
+
+            RuleFor(x => x.DisplayAllImagesNumber).GreaterThanOrEqualTo(0);
         }
     }
 }

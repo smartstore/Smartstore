@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.DataExchange;
+﻿using FluentValidation;
+using Smartstore.Core.DataExchange;
 
 namespace Smartstore.Admin.Models
 {
@@ -16,5 +17,14 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*ImportCompletionEmail")]
         public DataExchangeCompletionEmail ImportCompletionEmail { get; set; }
+    }
+
+    public partial class DataExchangeSettingsValidator : SettingModelValidator<DataExchangeSettingsModel, DataExchangeSettings>
+    {
+        public DataExchangeSettingsValidator()
+        {
+            RuleFor(x => x.MaxFileNameLength).GreaterThan(3);
+            RuleFor(x => x.ImageDownloadTimeout).GreaterThan(0);
+        }
     }
 }

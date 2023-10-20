@@ -327,6 +327,7 @@ namespace Smartstore.Admin.Models
         public CustomerUserSettingsValidator()
         {
             RuleFor(x => x.CustomerSettings.PasswordMinLength).GreaterThanOrEqualTo(4);
+            RuleFor(x => x.CustomerSettings.PasswordRequiredUniqueChars).GreaterThanOrEqualTo(0);
 
             RuleFor(x => x.PrivacySettings.VisitorCookieExpirationDays).GreaterThan(0);
         }
