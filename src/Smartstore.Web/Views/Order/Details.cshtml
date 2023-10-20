@@ -6,6 +6,8 @@
 @{
     Assets.AppendTitleParts(T("PageTitle.OrderDetails"));
 
+    var bundleItemThumbSize = Math.Min(Model.BundleThumbSize, 60);
+
     async Task RenderAddress(AddressModel address)
     {
         <div class="mb-2">
@@ -27,7 +29,7 @@
         <div class="cart-row">
             <div class="row">
                 @* Image *@
-                <div class="cart-item-img col-3" sm-if="Model.ShowProductImages && item.Image != null && item.Image.HasImage()">
+                <div class="cart-item-img col-3 col-xl-2" sm-if="Model.ShowProductImages && item.Image != null && item.Image.HasImage()">
                     <img sm-model="item.Image" class="img-fluid" />
                 </div>
 
@@ -61,16 +63,17 @@
                         </span>
                     </div>
 
+                    @* Quantity *@
+                    <div class="cart-item-qty pd-muted">
+                        <span>@T("Order.Product(s).Quantity"):</span> <span>@item.Quantity @item.QuantityUnit</span>
+                    </div>
+
                     @* Subtotal *@
-                    <div sm-if="/*!item.IsBundlePart && */item.UnitPrice != item.SubTotal" class="pd-subtotal fs-sm">
+                    <div sm-if="item.UnitPrice != item.SubTotal" class="pd-subtotal pd-muted">
                         <span class="pd-subtotal-label">@T("Order.Product(s).Total"):</span>
                         <span class="pd-subtotal-amount fwm">
                             @Html.Raw(item.SubTotal)
                         </span>
-                    </div>
-
-                    <div class="cart-item-qty fs-sm">
-                        <span>@T("Order.Product(s).Quantity"):</span> <span>@item.Quantity @item.QuantityUnit</span>
                     </div>
                 </div>
             </div>
@@ -79,63 +82,71 @@
         <zone name="orderdetails_page_after_item" model="item.Id" />
     }
 
-    async Task BundleProducts(OrderDetailsModel.OrderItemModel parentItem)
+    async Task BundleProduct(OrderDetailsModel.BundleItemModel item, OrderDetailsModel.OrderItemModel parentItem, int index)
     {
-        if (parentItem.BundleItems != null)
-        {
-            foreach (var item in parentItem.BundleItems.OrderBy(x => x.DisplayOrder))
-            {
-                <div class="cart-row cart-row-child">
-                    <div class="cart-col cart-col-main">
-                        <div class="row sm-gutters">
-                            <div class="col cart-item-img">
-                                <!-- Spacer -->
-                            </div>
-                            <div class="col">
-                                <div class="d-flex w-100 align-items-center justify-content-start flex-nowrap">
-                                    @if (Model.ShowProductBundleImages)
+        <div class="cart-row cart-row-child">
+            <div class="row">
+                @* Spacer for image *@
+                <div class="cart-item-img col-3 col-xl-2 d-none d-md-flex d-lg-none d-xl-flex text-start">
+                    @if (index == 0)
+                    {
+                        <span class="fwm pt-1">@T("Products.Bundle.BundleIncludes"):</span>
+                    }
+                    else
+                    {
+                        <span>&nbsp;</span>
+                    }
+                </div>
+
+                @* Data *@
+                <div class="cart-item-data col">
+                    @* Title & Description *@
+                    <div class="cart-item-group">
+                        @* Title *@
+                        <div class="cart-item-title">
+                            @if (Model.ShowProductBundleImages)
+                            {
+                                <span class="cart-item-bundle-img mr-1" style="width: @(bundleItemThumbSize)px; height: @(bundleItemThumbSize)px;">
+                                    @if (item.Image != null && item.Image.HasImage() && !item.HideThumbnail)
                                     {
-                                        <div class="mr-3" style="@($"width: {Math.Min(Model.BundleThumbSize, 60)}px;")">
-                                            @if (item.Image != null && item.Image.HasImage() && !item.HideThumbnail)
-                                            {
-                                                <img sm-model="item.Image" class="img-fluid" />
-                                            }
-                                        </div>
+                                        <img sm-model="item.Image" class="img-fluid" />
                                     }
-                                    <div>
-                                        <span sm-if="item.Quantity > 1 && parentItem.BundlePerItemShoppingCart" class="font-weight-medium">@(item.Quantity)&nbsp;&#215;</span>
-                                        @if (item.VisibleIndividually)
-                                        {
-                                            <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" dir="auto">@item.ProductName</a>
-                                        }
-                                        else
-                                        {
-                                            <span class="cart-item-link" dir="auto">@item.ProductName</span>
-                                        }
-                                    </div>
-                                </div>
-                                
-                                <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs mt-1">
-                                    @Html.Raw(item.AttributeInfo)
-                                </div>
-                            </div>
+                                </span>
+                            }
+
+                            <span sm-if="item.Quantity > 1 && parentItem.BundlePerItemShoppingCart" class="badge badge-secondary">
+                                @(item.Quantity)&nbsp;&#215;
+                            </span>
+
+                            @if (item.VisibleIndividually)
+                            {
+                                <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">
+                                    @item.ProductName
+                                </a>
+                            }
+                            else
+                            {
+                                <span sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                            }
                         </div>
                     </div>
-                    <div class="cart-col cart-col-price">
-                        @if (item.PriceWithDiscount > 0)
-                        {
-                            <span class="price">@Html.Raw(item.PriceWithDiscount)</span>
-                        }
-                        else
-                        {
-                            <text>&nbsp;</text>
-                        }
+
+                    @* Attributes *@
+                    <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group">
+                        @Html.Raw(item.AttributeInfo)
                     </div>
-                    <div class="cart-col">&nbsp;</div>
-                    <div class="cart-col">&nbsp;</div>
+
+                    @* Price *@
+                    <div sm-if="item.PriceWithDiscount > 0" class="cart-item-price-group cart-item-group">
+                        <div class="pd-finalprice">
+                            <span class="pd-finalprice-amount">
+                                @item.PriceWithDiscount
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            }
-        }
+            </div>
+        </div>
 
         <zone name="orderdetails_page_after_item" model="parentItem.Id" />
     }
@@ -193,7 +204,7 @@
 
         <zone name="orderdetails_page_overview" />
 
-        <div class="card card-body order-details-box">
+        <div class="card card-body order-details-box mb-4">
             <div class="row">
                 <div class="col-md-8">
                     <div class="row">
@@ -253,7 +264,15 @@
                             if (item.ProductType == ProductType.BundledProduct)
                             {
                                 await SimpleProduct(item);
-                                await BundleProducts(item);
+
+                                if (item.BundleItems != null)
+                                {
+                                    var bundleItems = item.BundleItems.OrderBy(x => x.DisplayOrder).ToArray();
+                                    for (var i = 0; i < bundleItems.Length; i++)
+                                    {
+                                        await BundleProduct(bundleItems[i], item, i);
+                                    }
+                                }
                             }
                             else
                             {

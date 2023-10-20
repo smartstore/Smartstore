@@ -350,7 +350,8 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-pangv,
-.pd-legalinfo {
+.pd-legalinfo,
+.pd-muted {
     color: var(--pd-offer-muted-color);
     font-size: var(--pd-offer-font-size-sm, 0.875rem);
 }
