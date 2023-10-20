@@ -40,6 +40,8 @@ namespace Smartstore.Admin.Models
     {
         public RewardPointsSettingsValidator(Localizer T)
         {
+            RuleFor(x => x.PointsForPurchases_Amount).GreaterThan(0);
+
             RuleFor(x => x.PointsForPurchases_Awarded).NotEqual(OrderStatus.Pending)
                 .WithMessage(T("Admin.Configuration.Settings.RewardPoints.PointsForPurchases_Awarded.Pending"));
 

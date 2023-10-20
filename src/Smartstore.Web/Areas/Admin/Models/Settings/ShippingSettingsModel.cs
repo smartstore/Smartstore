@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Admin.Models
@@ -40,5 +42,13 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*TodayShipmentHour")]
         public int? TodayShipmentHour { get; set; }
+    }
+
+    public partial class ShippingSettingsValidator : SettingModelValidator<ShippingSettingsModel, ShippingSettings>
+    {
+        public ShippingSettingsValidator()
+        {
+            RuleFor(x => x.FreeShippingOverXValue).GreaterThanOrEqualTo(0);
+        }
     }
 }

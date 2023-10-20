@@ -75,17 +75,21 @@ namespace Smartstore.Admin.Models
         public string Alias { get; set; }
     }
 
-    public class SearchSettingValidator : SettingModelValidator<SearchSettingsModel, SearchSettings>
+    public partial class SearchSettingValidator : SettingModelValidator<SearchSettingsModel, SearchSettings>
     {
-        private const int MAX_INSTANT_SEARCH_ITEMS = 16;
+        const int MaxInstantSearchItems = 16;
 
         public SearchSettingValidator(Localizer T)
         {
             RuleFor(x => x.InstantSearchNumberOfProducts)
-                .Must(x => x >= 1 && x <= MAX_INSTANT_SEARCH_ITEMS)
+                .Must(x => x >= 1 && x <= MaxInstantSearchItems)
                 //.When(x => (StoreScope == 0 && x.InstantSearchEnabled) || (StoreScope > 0 && IsOverrideChecked("InstantSearchNumberOfProducts")))
                 .WhenSettingOverriden((m, x) => m.InstantSearchEnabled)
-                .WithMessage(T("Admin.Validation.ValueRange", 1, MAX_INSTANT_SEARCH_ITEMS));
+                .WithMessage(T("Admin.Validation.ValueRange", 1, MaxInstantSearchItems));
+
+            RuleFor(x => x.InstantSearchTermMinLength).GreaterThan(0);
+            RuleFor(x => x.FilterMinHitCount).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.FilterMaxChoicesCount).GreaterThan(0);
         }
     }
 }
