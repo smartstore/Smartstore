@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -19,6 +21,7 @@ namespace Smartstore.Core.Tests.Tax
         IRoundingHelper _roundingHelper;
         ITaxService _taxService;
         Currency _currency;
+        IHttpClientFactory _httpClientFactory;
 
         [OneTimeSetUp]
         public new void SetUp()
@@ -31,6 +34,10 @@ namespace Smartstore.Core.Tests.Tax
 
             _roundingHelper = new RoundingHelper(_workContext, new CurrencySettings());
 
+            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
+            _httpClientFactory = httpClientFactoryMock.Object;
+            httpClientFactoryMock.Setup(x => x.CreateClient("eu-tax")).Returns(new HttpClient());
+
             _taxService = new TaxService(
                 DbContext,
                 null,
@@ -38,7 +45,8 @@ namespace Smartstore.Core.Tests.Tax
                 null,
                 _roundingHelper,
                 null,
-                new TaxSettings { DefaultTaxAddressId = 10, EuVatUseWebService = true });
+                new TaxSettings { DefaultTaxAddressId = 10, EuVatUseWebService = true },
+                _httpClientFactory);
         }
 
         [Test]

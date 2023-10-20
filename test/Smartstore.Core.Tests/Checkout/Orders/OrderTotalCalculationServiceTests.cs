@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -49,6 +50,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         ITaxCalculator _taxCalculator;
         IProductAttributeMaterializer _productAttributeMaterializer;
         ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
+        IHttpClientFactory _httpClientFactory;
 
         IRequestCache _requestCache;
         ProductBatchContext _productBatchContext;
@@ -134,13 +136,17 @@ namespace Smartstore.Core.Tests.Checkout.Orders
 
             _roundingHelper = new RoundingHelper(_workContext, _currencySettings);
 
+            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
+            _httpClientFactory = httpClientFactoryMock.Object;
+            httpClientFactoryMock.Setup(x => x.CreateClient("eu-tax")).Returns(new HttpClient());
+
             var priceLabelService = new Mock<IPriceLabelService>();
 
             var localizationServiceMock = new Mock<ILocalizationService>();
             _localizationService = localizationServiceMock.Object;
 
             // INFO: no mocking here to use real implementation.
-            _taxService = new TaxService(DbContext, null, ProviderManager, _workContext, _roundingHelper, _localizationService, _taxSettings);
+            _taxService = new TaxService(DbContext, null, ProviderManager, _workContext, _roundingHelper, _localizationService, _taxSettings, _httpClientFactory);
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _roundingHelper, _taxService, _taxSettings);
 
             // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators

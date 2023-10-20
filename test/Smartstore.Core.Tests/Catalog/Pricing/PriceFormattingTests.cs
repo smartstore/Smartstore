@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Core.Catalog.Pricing;
@@ -19,6 +20,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         IWorkContext _workContext;
         IRoundingHelper _roundingHelper;
         TaxSettings _taxSettings;
+        IHttpClientFactory _httpClientFactory;
 
         Currency _currencyEUR;
         Currency _currencyUSD;
@@ -60,6 +62,10 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
 
             _roundingHelper = new RoundingHelper(_workContext, new CurrencySettings());
 
+            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
+            _httpClientFactory = httpClientFactoryMock.Object;
+            httpClientFactoryMock.Setup(x => x.CreateClient("eu-tax")).Returns(new HttpClient());
+
             var localizationServiceMock = new Mock<ILocalizationService>();
             _localizationService = localizationServiceMock.Object;
 
@@ -70,7 +76,8 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 _workContext,
                 _roundingHelper,
                 _localizationService,
-                _taxSettings);
+                _taxSettings,
+                _httpClientFactory);
         }
 
         [Test]

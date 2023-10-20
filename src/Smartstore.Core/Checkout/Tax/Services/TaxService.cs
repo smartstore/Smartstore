@@ -1,7 +1,12 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Net.Http;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.Xml;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Tax.Domain;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
@@ -28,6 +33,7 @@ namespace Smartstore.Core.Checkout.Tax
         private readonly ILocalizationService _localizationService;
         private readonly TaxSettings _taxSettings;
         private readonly SmartDbContext _db;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public TaxService(
             SmartDbContext db,
@@ -36,7 +42,8 @@ namespace Smartstore.Core.Checkout.Tax
             IWorkContext workContext,
             IRoundingHelper roundingHelper,
             ILocalizationService localizationService,
-            TaxSettings taxSettings)
+            TaxSettings taxSettings,
+            IHttpClientFactory httpClientFactory)
         {
             _db = db;
             _geoCountryLookup = geoCountryLookup;
@@ -45,6 +52,7 @@ namespace Smartstore.Core.Checkout.Tax
             _roundingHelper = roundingHelper;
             _localizationService = localizationService;
             _taxSettings = taxSettings;
+            _httpClientFactory = httpClientFactory;
         }
 
         #region Hook 
@@ -156,19 +164,13 @@ namespace Smartstore.Core.Checkout.Tax
 
             try
             {
-                var vatService = new EuropeCheckVatService.checkVatPortTypeClient();
+                var response = await CheckVatNumberStatusAsync(vatNumber.Replace(" ", string.Empty), twoLetterIsoCode.ToUpper());
 
-                var response = await vatService.checkVatAsync(new EuropeCheckVatService.checkVatRequest
+                return new(response.IsValid ? VatNumberStatus.Valid : VatNumberStatus.Invalid, fullVatNumber)
                 {
-                    vatNumber = vatNumber.Replace(" ", string.Empty),
-                    countryCode = twoLetterIsoCode.ToUpper()
-                });
-
-                return new(response.valid ? VatNumberStatus.Valid : VatNumberStatus.Invalid, fullVatNumber)
-                {
-                    Name = response.name,
-                    Address = response.address,
-                    CountryCode = response.countryCode,
+                    Name = response.Name,
+                    Address = response.Address,
+                    CountryCode = response.CountryCode,
                 };
             }
             catch (Exception ex)
@@ -177,6 +179,40 @@ namespace Smartstore.Core.Checkout.Tax
                 {
                     Exception = ex
                 };
+            }
+        }
+
+        private async Task<CheckVatNumberResponseMessage> CheckVatNumberStatusAsync(string vatNumber, string countryCode)
+        {
+            var url = "https://ec.europa.eu/taxation_customs/vies/rest-api//check-vat-number";
+            var client = _httpClientFactory.CreateClient("eu-tax");
+            client.Timeout = TimeSpan.FromSeconds(30);
+
+            var request = new CheckVatNumberRequestMessage
+            {
+                CountryCode = countryCode,
+                VatNumber = vatNumber
+            };
+
+            var jsonData = JsonConvert.SerializeObject(request);
+            var content = new StringContent(jsonData, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PostAsync(url, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string responseContent = await response.Content.ReadAsStringAsync();
+                var message = JsonConvert.DeserializeObject<CheckVatNumberResponseMessage>(responseContent);
+
+                if (message.ActionSucceed.HasValue && message.ActionSucceed == false)
+                {
+                    throw new Exception($"EU tax service returned an error: {message.ErrorWrappers?.FirstOrDefault().ErrorMessage}.");
+                }
+
+                return message;
+            }
+            else
+            {
+                throw new Exception($"EU tax service returned status code {response.StatusCode}.");
             }
         }
 
