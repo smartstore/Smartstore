@@ -23,45 +23,48 @@
             <form asp-action="ReturnRequest">
                 <input type="hidden" asp-for="OrderId" />
 
-                <h2 class="h4 font-weight-normal text-muted mb-4">@T("ReturnRequests.SelectProduct(s)")</h2>
+                <h2 class="h4 fwn text-muted mb-4">@T("ReturnRequests.SelectProduct(s)")</h2>
 
                 <zone name="returnrequest_wish_before" />
 
-                <div class="card">
-                    <div class="cart cart-editable mb-0">
-                        <div class="cart-head">
-                            <div class="cart-row">
-                                <div class="cart-col cart-col-main">
-                                    @T("ReturnRequests.Products.Name")
-                                </div>
-                                <div class="cart-col cart-col-price">
-                                    @T("ReturnRequests.Products.Price")
-                                </div>
-                                <div class="cart-col cart-col-price">
-                                    @T("ReturnRequests.Products.Quantity")
-                                </div>
-                            </div>
-                        </div>
+                <div class="cart-container">
+                    <div id="cart-items" class="cart cart-editable">
                         <div class="cart-body">
                             @foreach (var item in Model.Items)
                             {
                                 <div class="cart-row">
-                                    <div class="cart-col cart-col-main">
-                                        <a class="cart-item-link fs-h6" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
-                                        <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs">
-                                            @Html.Raw(item.AttributeInfo)
+                                    <div class="cart-item-group">
+                                        <div class="cart-item-title">
+                                            <a class="cart-item-link xfs-h6" href="@item.ProductUrl" sm-language-attributes-for="item.ProductName">
+                                                @item.ProductName
+                                            </a>
                                         </div>
                                     </div>
-                                    <div class="cart-col cart-col-price" data-caption="@T("ReturnRequests.Products.Price")">
-                                        <span class="price">@item.UnitPrice</span>
+
+                                    <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group fs-sm">
+                                        @Html.Raw(item.AttributeInfo)
                                     </div>
-                                    <div class="cart-col cart-col-price" data-caption="@T("ReturnRequests.Products.Quantity")">
-                                        <select name="quantity@(item.Id)" class="form-control">
-                                            @for (int i = 0; i <= item.Quantity; i++)
-                                            {
-                                                <option value="@(i)">@(i)</option>
-                                            }
-                                        </select>
+
+                                    <div class="cart-item-price-group cart-item-group">
+                                        <div>@T("ReturnRequests.Products.Price"):</div>
+                                        <div class="pd-finalprice">
+                                            <span class="pd-finalprice-amount fs-h5">
+                                                @item.UnitPrice
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="cart-item-group">
+                                        <div class="mb-1">@T("ReturnRequests.Products.Quantity"):</div>
+                                        <div style="max-width: 120px">
+                                            <select name="quantity@(item.Id)" class="form-control noskin">
+                                                @for (int i = 0; i <= item.Quantity; i++)
+                                                {
+                                                    <option value="@(i)">@(i)</option>
+                                                }
+                                            </select>
+                                        </div>
+
                                     </div>
                                 </div>
                             }
