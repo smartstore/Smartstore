@@ -1,12 +1,9 @@
 ﻿using System.Net.Http;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.Xml;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Checkout.Tax.Domain;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
@@ -182,9 +179,16 @@ namespace Smartstore.Core.Checkout.Tax
             }
         }
 
+        // TODO: (mh) Very bad API, no encapsulation... that's not what we talked about:
+        // - Create a service class, e.g. ViesTaxationHttpClient (no interface, see PdInvoiceHttpClient, ClickatellHttpClient etc.)
+        // - Register the class in DI, via AddHttpClient()
+        // - Pass HttpClient in ctor (no factory, .NET DI will take care)
+        // - Implement method ViesTaxationHttpClient.CheckVatAsync() that does the work
+        // - The request object should not inherit from HttpRequestMessage
+        // - Refactor the unit tests accordingly: at this point you should have noticed that something is wrong with your API ;-)
         private async Task<CheckVatNumberResponseMessage> CheckVatNumberStatusAsync(string vatNumber, string countryCode)
         {
-            var url = "https://ec.europa.eu/taxation_customs/vies/rest-api//check-vat-number";
+            var url = "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number";
             var client = _httpClientFactory.CreateClient("eu-tax");
             client.Timeout = TimeSpan.FromSeconds(30);
 

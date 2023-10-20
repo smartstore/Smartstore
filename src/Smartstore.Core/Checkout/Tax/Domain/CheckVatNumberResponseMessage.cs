@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Smartstore.Core.Checkout.Tax.Domain
+namespace Smartstore.Core.Checkout.Tax
 {
     public class CheckVatNumberResponseMessage
     {
