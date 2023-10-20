@@ -348,22 +348,22 @@ namespace Smartstore.Core.Data.Migrations
                 "Please upload <b class=\"fwm\">{0}</b>.",
                 "Bitte <b class=\"fwm\">{0}</b> hochladen.");
 
-            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Title", "Tree path information", "Pfadinformationen");
+            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Title", "Tree paths", "Hierarchie Pfade");
 
             builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Hint",
-                "Here you can check the path information for hierarchically arranged data such as categories. " +
-                "In very rare cases, gaps can occur here, e.g. due to incorrect imports. " +
-                "Problems with missing path information can be seen, among other things, in the fact that products are displayed in categories to which they are not assigned. " +
-                "If you find such errors in your shop, you can subsequently create the missing path information here.",
-                "Hier können Sie die Pfadinformationen für hierarchisch angeordnete Daten wie z.B. Warengruppen überprüfen. " +
-                "In sehr seltenen Fällen können hier Lücken auftreten, z.B. durch fehlerhafte Importe. " +
-                "Probleme mit fehlenden Pfadangaben äußern sich unter anderem dadurch, dass Produkte in Warengruppen angezeigt werden, denen Sie nicht zugeordnet sind. " +
-                "Sollten Sie solche Fehler in Ihrem Shop feststellen, können Sie die fehlenden Pfadinformationen hier nachträglich erstellen.");
+                "Tree paths provide quick access to hierarchically organized data records, such as product categories. " +
+                "In very rare cases, gaps can occur here, e.g. due to faulty migrations or imports. " +
+                "Problems with missing paths include products appearing in categories to which they are not assigned. " +
+                "If you experience such problems in your shop, you can generate the missing paths here.",
+                "Hierarchiepfade ermöglichen die performante Abfrage hierarchisch geordneter Datensätze wie z.B. Warengruppen. " +
+                "In sehr seltenen Fällen kann es hier zu Lücken kommen, z.B. durch fehlerhafte Migrationen oder Importe. " +
+                "Probleme mit fehlenden Pfaden äußern sich u.a. darin, dass Produkte in Warengruppen angezeigt werden, denen sie nicht zugeordnet sind. " +
+                "Sollten Sie solche Fehler in Ihrem Shop feststellen, können Sie die fehlenden Pfade hier nachgenerieren lassen.");
 
-            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Rebuild", "Check & Repair", "Prüfen & Reparieren");
+            builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.Rebuild", "Check & repair", "Prüfen & reparieren");
             builder.AddOrUpdate("Admin.System.Maintenance.TreePaths.PathCount",
-                "The task was completed successfully. {0} new paths were created.",
-                "Die Aufgabe wurde erfolgreich abgeschlossen. Es wurden {0} neue Pfade angelegt.");
+                "The task was completed successfully. {0} new paths were generated.",
+                "Die Aufgabe wurde erfolgreich abgeschlossen. Es wurden {0} neue Pfade generiert.");
         }
 
         /// <summary>
