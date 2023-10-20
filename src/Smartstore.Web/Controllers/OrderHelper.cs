@@ -166,7 +166,7 @@ namespace Smartstore.Web.Controllers
                 ProductSeName = await orderItem.Product.GetActiveSlugAsync(),
                 ProductType = orderItem.Product.ProductType,
                 Quantity = orderItem.Quantity,
-                AttributeInfo = orderItem.AttributeDescription
+                AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(orderItem.AttributeDescription))
             };
 
             var quantityUnit = await _db.QuantityUnits.FindByIdAsync(orderItem.Product.QuantityUnitId ?? 0, false);
@@ -201,7 +201,7 @@ namespace Smartstore.Web.Controllers
                         VisibleIndividually = bid.VisibleIndividually,
                         Quantity = bid.Quantity,
                         DisplayOrder = bid.DisplayOrder,
-                        AttributeInfo = bid.AttributesInfo
+                        AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(bid.AttributesInfo))
                     };
 
                     bundleItemModel.ProductUrl = await _productUrlHelper.GetProductPathAsync(bid.ProductId, bundleItemModel.ProductSeName, bid.AttributeSelection);

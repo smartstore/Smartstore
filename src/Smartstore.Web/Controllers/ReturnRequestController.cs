@@ -7,6 +7,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Orders;
 
 namespace Smartstore.Web.Controllers
@@ -164,7 +165,7 @@ namespace Smartstore.Web.Controllers
                     ProductId = orderItem.Product.Id,
                     ProductName = orderItem.Product.GetLocalized(x => x.Name),
                     ProductSeName = await orderItem.Product.GetActiveSlugAsync(),
-                    AttributeInfo = orderItem.AttributeDescription,
+                    AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(orderItem.AttributeDescription)),
                     Quantity = orderItem.Quantity
                 };
 

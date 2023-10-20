@@ -197,7 +197,7 @@ namespace Smartstore.Utilities.Html
         }
 
         /// <summary>
-        /// Converts plain text to HTML
+        /// Converts plain text to HTML.
         /// </summary>
         /// <param name="text">Text</param>
         /// <returns>Formatted text</returns>
@@ -229,7 +229,9 @@ namespace Smartstore.Utilities.Html
         /// </summary>
         /// <param name="text">Text</param>
         /// <param name="decode">A value indicating whether to decode text</param>
-        /// <param name="replaceAnchorTags">A value indicating whether to replace anchor text (remove a tag from the following url <a href="http://example.com">Name</a> and output only the string "Name")</param>
+        /// <param name="replaceAnchorTags">
+        /// A value indicating whether to replace anchor text (remove a tag from the following url <a href="http://example.com">Name</a> and output only the string "Name")
+        /// </param>
         /// <returns>Formatted text</returns>
         public static string ConvertHtmlToPlainText(string? text, bool decode = false, bool replaceAnchorTags = false)
         {
@@ -276,10 +278,8 @@ namespace Smartstore.Utilities.Html
                 return string.Empty;
             }
 
-            text = text.Replace("\r\n", "\n").Replace("\r", "\n") + "\n\n";
 
-            var lines = text.Tokenize(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-
+            var lines = text.ReadLines(true, true);
             if (!lines.Any())
             {
                 return string.Empty;
@@ -289,7 +289,7 @@ namespace Smartstore.Utilities.Html
 
             sb.AppendFormat("<table{0}>", tableCssClass.HasValue() ? "class='" + tableCssClass + "'" : "");
 
-            lines.Where(x => x.HasValue()).Each(x =>
+            lines.Each(x =>
             {
                 sb.Append("<tr>");
                 var tokens = x.Split(new char[] { ':' }, 2);
@@ -309,6 +309,40 @@ namespace Smartstore.Utilities.Html
             });
 
             sb.Append("</table>");
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Formats an attribute string spec by applying <paramref name="lineFormat"/> to each line
+        /// and <paramref name="pairFormat"/> for the name/value pair, where {0} represents name, and {1} represents value.
+        /// </summary>
+        /// <param name="text">The text to format</param>
+        /// <returns>The formatted (html) string</returns>
+        public static string FormatPlainText(string? text, string lineFormat = "{0}", string pairFormat = "<span>{0}:</span><span>{1}</span>")
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
+
+            var lines = text.ReadLines(true, true);
+            if (!lines.Any())
+            {
+                return string.Empty;
+            }
+
+            var sb = new StringBuilder(text.Length * 4);
+
+            lines.Each(x =>
+            {
+                var tokens = x.Split(new char[] { ':' }, 2);
+                var pair = tokens.Length > 1 
+                    ? string.Format(pairFormat, tokens[0], tokens[1])
+                    : string.Format(pairFormat, "&nbsp;", tokens[0]);
+
+                sb.AppendFormat(lineFormat, pair);
+            });
 
             return sb.ToString();
         }
