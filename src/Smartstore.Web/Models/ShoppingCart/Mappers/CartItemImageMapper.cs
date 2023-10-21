@@ -1,5 +1,4 @@
-﻿using System.Dynamic;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -14,12 +13,12 @@ namespace Smartstore.Web.Models.Cart
     {
         public static async Task MapAsync(this OrganizedShoppingCartItem entity, ImageModel model, int pictureSize, string productName)
         {
-            Guard.NotNull(entity, nameof(entity));
-            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(entity);
+            Guard.NotNull(model);
 
             var product = entity.Item.Product;
 
-            dynamic parameters = new ExpandoObject();
+            dynamic parameters = new GracefulDynamicObject();
             parameters.Selection = entity.Item.AttributeSelection;
             parameters.Product = product;
             parameters.ProductName = productName.HasValue() ? productName : product.GetLocalized(x => x.Name);

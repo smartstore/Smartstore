@@ -1,8 +1,8 @@
-﻿using System.Dynamic;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -16,7 +16,7 @@ namespace Smartstore.Web.Models.Cart
             bool isEditable = true,
             bool isOffcanvas = false)
         {
-            dynamic parameters = new ExpandoObject();
+            dynamic parameters = new GracefulDynamicObject();
             parameters.IsEditable = isEditable;
             parameters.IsOffcanvas = isOffcanvas;
 
@@ -26,11 +26,13 @@ namespace Smartstore.Web.Models.Cart
 
     public class WishlistModelMapper : CartMapperBase<WishlistModel>
     {
+        private readonly ITaxService _taxService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
 
         public WishlistModelMapper(
             ICommonServices services,
+            ITaxService taxService,
             IShoppingCartValidator shoppingCartValidator,
             IProductAttributeFormatter productAttributeFormatter,
             ShoppingCartSettings shoppingCartSettings,
@@ -39,6 +41,7 @@ namespace Smartstore.Web.Models.Cart
             Localizer T)
             : base(services, shoppingCartSettings, catalogSettings, mediaSettings, T)
         {
+            _taxService = taxService;
             _shoppingCartValidator = shoppingCartValidator;
             _productAttributeFormatter = productAttributeFormatter;
         }
@@ -48,8 +51,8 @@ namespace Smartstore.Web.Models.Cart
 
         public override async Task MapAsync(ShoppingCart from, WishlistModel to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             if (!from.Items.Any())
             {
@@ -80,7 +83,10 @@ namespace Smartstore.Web.Models.Cart
                     DisableBuyButton = cartItem.Item.Product.DisableBuyButton,
                 };
 
-                await cartItem.MapAsync(model);
+                dynamic itemParameters = new GracefulDynamicObject();
+                itemParameters.TaxFormat = _taxService.GetTaxFormat();
+
+                await cartItem.MapAsync(model, (object)itemParameters);
 
                 if (parameters?.IsOffcanvas == true)
                 {
@@ -92,7 +98,11 @@ namespace Smartstore.Web.Models.Cart
                         model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
                             item.Item.AttributeSelection,
                             item.Item.Product,
-                            new ProductAttributeFormatOptions { FormatTemplate = "<b>{0}:</b> {1}", ItemSeparator = ", ", HtmlEncode = false, IncludePrices = false, IncludeHyperlinks = false, IncludeGiftCardAttributes = false });
+                            new ProductAttributeFormatOptions 
+                            {
+                                FormatTemplate = "<span>{0}:</span> <span>{1}</span>",
+                                ItemSeparator = Environment.NewLine, 
+                                HtmlEncode = false, IncludePrices = false, IncludeHyperlinks = false, IncludeGiftCardAttributes = false });
                     }
                 }
 

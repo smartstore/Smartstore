@@ -1,5 +1,4 @@
-﻿using System.Dynamic;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
@@ -54,7 +53,7 @@ namespace Smartstore.Web.Models.Cart
             bool setEstimateShippingDefaultAddress = true,
             bool prepareAndDisplayOrderReviewData = false)
         {
-            dynamic parameters = new ExpandoObject();
+            dynamic parameters = new GracefulDynamicObject();
             parameters.IsEditable = isEditable;
             parameters.ValidateCheckoutAttributes = validateCheckoutAttributes;
             parameters.PrepareEstimateShippingIfEnabled = prepareEstimateShippingIfEnabled;
@@ -424,9 +423,8 @@ namespace Smartstore.Web.Models.Cart
             var batchContext = _productService.CreateProductBatchContext(allProducts, null, customer, false);
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
 
-            dynamic itemParameters = new ExpandoObject();
-            itemParameters.TaxFormat = (string)null;
-            //itemParameters.TaxFormat = _taxService.GetTaxFormat();
+            dynamic itemParameters = new GracefulDynamicObject();
+            itemParameters.TaxFormat = parameters?.IsOffcanvas == true ? _taxService.GetTaxFormat() : null;
             itemParameters.BatchContext = batchContext;
             itemParameters.CartSubtotal = subtotal;
 

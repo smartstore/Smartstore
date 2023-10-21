@@ -275,7 +275,7 @@ namespace Smartstore.Web.Controllers
             var wishlist = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.Wishlist, storeId);
 
             var model = new WishlistModel();
-            await wishlist.MapAsync(model);
+            await wishlist.MapAsync(model, isOffcanvas: true);
 
             model.ThumbSize = _mediaSettings.MiniCartThumbPictureSize;
 
