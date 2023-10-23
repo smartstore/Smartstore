@@ -275,7 +275,7 @@
     }
 
     .payment-method-item {
-        &:hover {
+        &:hover:not(.active) {
             cursor: pointer;
         }
 
