@@ -207,7 +207,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
 
             private static void RenderText(Image<Rgba32> image, string text, float x, float y, Font font, Color color)
             {
-                var options = new TextOptions(font)
+                var options = new RichTextOptions(font)
                 {
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,

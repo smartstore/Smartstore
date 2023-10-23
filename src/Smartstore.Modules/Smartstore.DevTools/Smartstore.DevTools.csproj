@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.3.8" />
-        <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.3.8" />
+        <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.3.13" />
+        <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.3.13" />
     </ItemGroup>
 
     <ItemGroup>

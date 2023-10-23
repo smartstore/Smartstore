@@ -27,7 +27,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
-        <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.5" />
+        <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.6" />
 	</ItemGroup>
 
 	<ItemGroup> 
