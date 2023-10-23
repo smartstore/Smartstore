@@ -185,6 +185,16 @@
     top: 0;
     background-color: rgba(#fff, 0.5);
     z-index: 1;
+
+    .touchevents & {
+        display: inline-block;
+        background-color: var(--btn-hover-bg);
+        border-color: var(--btn-hover-border-color);
+
+        & > span {
+            display: none;
+        }
+    }
 }
 
 .news-item-page:hover .btn-admin-edit,
