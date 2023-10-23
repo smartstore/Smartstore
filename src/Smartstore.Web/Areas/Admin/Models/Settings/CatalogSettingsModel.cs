@@ -287,7 +287,7 @@ namespace Smartstore.Admin.Models
         {
             RuleFor(x => x.PriceSettings.ShowOfferCountdownRemainingHours)
                 .GreaterThan(0)
-                .When(x => x.PriceSettings.ShowOfferCountdownRemainingHours != null);
+                .WhenSettingOverriden((m, ctx) => m.PriceSettings.ShowOfferCountdownRemainingHours != null);
 
             RuleFor(x => x.MaxItemsToDisplayInCatalogMenu)
                 .GreaterThanOrEqualTo(0);
@@ -315,7 +315,7 @@ namespace Smartstore.Admin.Models
 
             RuleFor(x => x.LabelAsNewForMaxDays)
                 .GreaterThan(0)
-                .When(x => x.LabelAsNewForMaxDays != null);
+                .WhenSettingOverriden((m, ctx) => m.LabelAsNewForMaxDays != null);
 
             RuleFor(x => x.DisplayAllImagesNumber).GreaterThanOrEqualTo(0);
         }
