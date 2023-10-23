@@ -31,7 +31,6 @@ namespace Smartstore.Core.Bootstrapping
 
             services.AddHttpClient<ViesTaxationHttpClient>()
                 .AddSmartstoreUserAgent()
-                .PropagateCookies(CookieNames.Identity, CookieNames.Visitor)
                 .ConfigureHttpClient(client =>
                 {
                     client.Timeout = TimeSpan.FromSeconds(10);
