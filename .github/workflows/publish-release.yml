@@ -1,19 +1,19 @@
-name: Publish release Docker image
+name: Publish release Docker image on Push
 
 on:
-  # Manual trigger
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version, e.g. 5.0.5'
-        required: true
-  
+  push:
+    branches:
+      - '5.0.5.x' # << Change this for new versions.
+
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
-jobs:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
+jobs:
   publish-release:
     name: Build, Publish and Deploy stable release Docker image
     runs-on: ${{ matrix.os }}
@@ -27,7 +27,7 @@ jobs:
       # This is used to complete the identity challenge
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
-        
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -35,31 +35,31 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 7.0.x # << Change this to current .NET version.
         include-prerelease: false
 
     - name: Build
       run: dotnet build Smartstore.sln -c Release
-    
+
     - name: Log in to the GitHub Container registry
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        
+
     - name: Publish and Push for Linux
       if: matrix.os == 'ubuntu-latest'
       run: | 
         dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./.build/release --no-restore --no-build --no-self-contained
-        docker build --build-arg SOURCE=./.build/release -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:latest -t ghcr.io/smartstore/smartstore-linux:${{ github.event.inputs.version }} .
+        docker build --build-arg SOURCE=./.build/release -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:latest -t ghcr.io/smartstore/smartstore-linux:$GITHUB_REF_NAME .
         docker push ghcr.io/smartstore/smartstore-linux:latest
-        docker push ghcr.io/smartstore/smartstore-linux:${{ github.event.inputs.version }}
+        docker push ghcr.io/smartstore/smartstore-linux:$GITHUB_REF_NAME
 
     - name: Publish and Push for Windows
       if: matrix.os == 'windows-latest'
       run: | 
         dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./.build/release --no-restore --no-build --no-self-contained
-        docker build --build-arg SOURCE=./.build/release -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:latest -t ghcr.io/smartstore/smartstore-windows:${{ github.event.inputs.version }} .
+        docker build --build-arg SOURCE=./.build/release -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:latest -t ghcr.io/smartstore/smartstore-windows:$env:GITHUB_REF_NAME .
         docker push ghcr.io/smartstore/smartstore-windows:latest
-        docker push ghcr.io/smartstore/smartstore-windows:${{ github.event.inputs.version }}
+        docker push ghcr.io/smartstore/smartstore-windows:$env:GITHUB_REF_NAME
