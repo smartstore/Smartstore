@@ -153,12 +153,14 @@
             <text>
                 $(".payment-method-item").on('click', function (e) {
                     var item = $(this);
-                    var label = item.find("label");
+                    if (!item.hasClass('active')) {
+                        var label = item.find("label");
 
-                    // Prevent recursive calls.
-                    if (!label.hasClass('clicked')) {
-                        label.addClass('clicked');
-                        label.trigger('click');
+                        // Prevent recursive calls.
+                        if (!label.hasClass('clicked')) {
+                            label.addClass('clicked');
+                            label.trigger('click');
+                        }
                     }
                 });
 
