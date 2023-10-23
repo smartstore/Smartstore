@@ -183,11 +183,14 @@
     position: absolute;
     inset-inline-end: 0;
     top: 0;
-    background-color: rgba(#fff, 0.5);
+    background-color: rgba($white, 0.5);
     z-index: 1;
 
     .touchevents & {
-        display: inline-block;
+        --btn-border-radius: 50%;
+
+        display: inline-flex;
+        inset-inline-end: 8px;
         background-color: var(--btn-hover-bg);
         border-color: var(--btn-hover-border-color);
 

@@ -93,7 +93,7 @@
 - #834 Make the expiration date of visitor cookies of guests configurable.
 - #493 Display quantity name plural when quantity unit is more then 1.
 - #847 EU check VAT service: switch from SOAP to REST API
-- #763 Find a way to display admin edit button for public entities on touch displays  
+- #763 Display admin edit button for public entities on touch displays  
 
 ### Bugfixes
 
