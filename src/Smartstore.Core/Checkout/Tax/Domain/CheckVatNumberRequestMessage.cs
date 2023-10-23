@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Smartstore.Core.Checkout.Tax
 {
-    public class CheckVatNumberRequestMessage : HttpRequestMessage
+    public class CheckVatNumberRequestMessage
     {
         [JsonProperty("countryCode", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string CountryCode;

@@ -21,7 +21,7 @@ namespace Smartstore.Core.Tests.Tax
         IRoundingHelper _roundingHelper;
         ITaxService _taxService;
         Currency _currency;
-        IHttpClientFactory _httpClientFactory;
+        ViesTaxationHttpClient _client;
 
         [OneTimeSetUp]
         public new void SetUp()
@@ -34,9 +34,7 @@ namespace Smartstore.Core.Tests.Tax
 
             _roundingHelper = new RoundingHelper(_workContext, new CurrencySettings());
 
-            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
-            _httpClientFactory = httpClientFactoryMock.Object;
-            httpClientFactoryMock.Setup(x => x.CreateClient("eu-tax")).Returns(new HttpClient());
+            _client = new ViesTaxationHttpClient(new HttpClient());
 
             _taxService = new TaxService(
                 DbContext,
@@ -46,7 +44,7 @@ namespace Smartstore.Core.Tests.Tax
                 _roundingHelper,
                 null,
                 new TaxSettings { DefaultTaxAddressId = 10, EuVatUseWebService = true },
-                _httpClientFactory);
+                _client);
         }
 
         [Test]

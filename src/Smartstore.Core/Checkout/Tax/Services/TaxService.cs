@@ -1,7 +1,5 @@
-﻿using System.Net.Http;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
@@ -30,7 +28,7 @@ namespace Smartstore.Core.Checkout.Tax
         private readonly ILocalizationService _localizationService;
         private readonly TaxSettings _taxSettings;
         private readonly SmartDbContext _db;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ViesTaxationHttpClient _client;
 
         public TaxService(
             SmartDbContext db,
@@ -40,7 +38,7 @@ namespace Smartstore.Core.Checkout.Tax
             IRoundingHelper roundingHelper,
             ILocalizationService localizationService,
             TaxSettings taxSettings,
-            IHttpClientFactory httpClientFactory)
+            ViesTaxationHttpClient client)
         {
             _db = db;
             _geoCountryLookup = geoCountryLookup;
@@ -49,7 +47,7 @@ namespace Smartstore.Core.Checkout.Tax
             _roundingHelper = roundingHelper;
             _localizationService = localizationService;
             _taxSettings = taxSettings;
-            _httpClientFactory = httpClientFactory;
+            _client = client;
         }
 
         #region Hook 
@@ -161,7 +159,7 @@ namespace Smartstore.Core.Checkout.Tax
 
             try
             {
-                var response = await CheckVatNumberStatusAsync(vatNumber.Replace(" ", string.Empty), twoLetterIsoCode.ToUpper());
+                var response = await _client.CheckVatAsync(vatNumber.Replace(" ", string.Empty), twoLetterIsoCode.ToUpper());
 
                 return new(response.IsValid ? VatNumberStatus.Valid : VatNumberStatus.Invalid, fullVatNumber)
                 {
@@ -176,47 +174,6 @@ namespace Smartstore.Core.Checkout.Tax
                 {
                     Exception = ex
                 };
-            }
-        }
-
-        // TODO: (mh) Very bad API, no encapsulation... that's not what we talked about:
-        // - Create a service class, e.g. ViesTaxationHttpClient (no interface, see PdInvoiceHttpClient, ClickatellHttpClient etc.)
-        // - Register the class in DI, via AddHttpClient()
-        // - Pass HttpClient in ctor (no factory, .NET DI will take care)
-        // - Implement method ViesTaxationHttpClient.CheckVatAsync() that does the work
-        // - The request object should not inherit from HttpRequestMessage
-        // - Refactor the unit tests accordingly: at this point you should have noticed that something is wrong with your API ;-)
-        private async Task<CheckVatNumberResponseMessage> CheckVatNumberStatusAsync(string vatNumber, string countryCode)
-        {
-            var url = "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number";
-            var client = _httpClientFactory.CreateClient("eu-tax");
-            client.Timeout = TimeSpan.FromSeconds(30);
-
-            var request = new CheckVatNumberRequestMessage
-            {
-                CountryCode = countryCode,
-                VatNumber = vatNumber
-            };
-
-            var jsonData = JsonConvert.SerializeObject(request);
-            var content = new StringContent(jsonData, System.Text.Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(url, content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                string responseContent = await response.Content.ReadAsStringAsync();
-                var message = JsonConvert.DeserializeObject<CheckVatNumberResponseMessage>(responseContent);
-
-                if (message.ActionSucceed.HasValue && message.ActionSucceed == false)
-                {
-                    throw new Exception($"EU tax service returned an error: {message.ErrorWrappers?.FirstOrDefault().ErrorMessage}.");
-                }
-
-                return message;
-            }
-            else
-            {
-                throw new Exception($"EU tax service returned status code {response.StatusCode}.");
             }
         }
 

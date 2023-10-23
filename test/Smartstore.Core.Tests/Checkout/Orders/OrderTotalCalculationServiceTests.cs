@@ -50,7 +50,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         ITaxCalculator _taxCalculator;
         IProductAttributeMaterializer _productAttributeMaterializer;
         ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        IHttpClientFactory _httpClientFactory;
+        ViesTaxationHttpClient _client;
 
         IRequestCache _requestCache;
         ProductBatchContext _productBatchContext;
@@ -136,9 +136,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
 
             _roundingHelper = new RoundingHelper(_workContext, _currencySettings);
 
-            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
-            _httpClientFactory = httpClientFactoryMock.Object;
-            httpClientFactoryMock.Setup(x => x.CreateClient("eu-tax")).Returns(new HttpClient());
+            _client = new ViesTaxationHttpClient(new HttpClient());
 
             var priceLabelService = new Mock<IPriceLabelService>();
 
@@ -146,7 +144,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _localizationService = localizationServiceMock.Object;
 
             // INFO: no mocking here to use real implementation.
-            _taxService = new TaxService(DbContext, null, ProviderManager, _workContext, _roundingHelper, _localizationService, _taxSettings, _httpClientFactory);
+            _taxService = new TaxService(DbContext, null, ProviderManager, _workContext, _roundingHelper, _localizationService, _taxSettings, _client);
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _roundingHelper, _taxService, _taxSettings);
 
             // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators

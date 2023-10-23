@@ -28,6 +28,14 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     client.Timeout = TimeSpan.FromSeconds(10);
                 });
+
+            services.AddHttpClient<ViesTaxationHttpClient>()
+                .AddSmartstoreUserAgent()
+                .PropagateCookies(CookieNames.Identity, CookieNames.Visitor)
+                .ConfigureHttpClient(client =>
+                {
+                    client.Timeout = TimeSpan.FromSeconds(10);
+                });
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)

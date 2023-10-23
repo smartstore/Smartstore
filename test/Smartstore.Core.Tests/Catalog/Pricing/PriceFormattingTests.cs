@@ -20,7 +20,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         IWorkContext _workContext;
         IRoundingHelper _roundingHelper;
         TaxSettings _taxSettings;
-        IHttpClientFactory _httpClientFactory;
+        ViesTaxationHttpClient _client;
 
         Currency _currencyEUR;
         Currency _currencyUSD;
@@ -62,9 +62,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
 
             _roundingHelper = new RoundingHelper(_workContext, new CurrencySettings());
 
-            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
-            _httpClientFactory = httpClientFactoryMock.Object;
-            httpClientFactoryMock.Setup(x => x.CreateClient("eu-tax")).Returns(new HttpClient());
+            _client = new ViesTaxationHttpClient(new HttpClient());
 
             var localizationServiceMock = new Mock<ILocalizationService>();
             _localizationService = localizationServiceMock.Object;
@@ -77,7 +75,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 _roundingHelper,
                 _localizationService,
                 _taxSettings,
-                _httpClientFactory);
+                _client);
         }
 
         [Test]
