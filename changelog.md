@@ -143,7 +143,7 @@
 - Do not fallback to "Product is not available" delivery info on product detail page if the product is available.
 - #839 Output cache must be invalidated when menu items are added or edited.
 - OpenTrans: fixes RuntimeBinderException "cannot perform runtime binding on a null reference" when exporting shipping address.
-
+- Brand pictures weren't displayed in product lists.
 
 
 ## Smartstore 5.0.5
