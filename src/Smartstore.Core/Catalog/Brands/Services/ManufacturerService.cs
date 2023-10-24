@@ -37,6 +37,7 @@ namespace Smartstore.Core.Catalog.Brands
                 .AsNoTracking()
                 .ApplyStandardFilter(includeHidden, customerRoleIds, storeId);
 
+            // INFO: Never use .ThenInclude(x => x.MediaFile) here! It will make things painfully slow (or even unusable) under certain circumstances.
             var productManufacturerQuery = _db.ProductManufacturers
                 .AsNoTracking()
                 .Include(x => x.Manufacturer);
