@@ -61,6 +61,7 @@
   - Added hash codes to attribute combinations. With a large number of attribute combinations, variants are found much faster now.
   - Fixed slow loading of product categories for a large number of categories. Price calculation and product export were affected.
   - MediaSearcher always performed a LIKE search for terms (the equals operator was missing)
+- #820 Make media service dupe check scalable.
 - Improved plugin & provider manager UI
 - MegaSearch: #842 added hit count for availability filter. Hide filter if it leads to no further hits.
 - Use billing address if there is no shipping address and tax calculation is based on shipping address.

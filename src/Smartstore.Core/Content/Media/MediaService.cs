@@ -28,10 +28,9 @@ namespace Smartstore.Core.Content.Media
         private readonly IImageProcessor _imageProcessor;
         private readonly IImageCache _imageCache;
         private readonly MediaExceptionFactory _exceptionFactory;
+        private readonly IMediaDupeDetectorFactory _dupeDetectorFactory;
         private readonly IMediaStorageProvider _storageProvider;
         private readonly MediaHelper _helper;
-
-        private Dictionary<int, Dictionary<string, MediaFile>> _cachedFilesByFolder;
 
         public MediaService(
             SmartDbContext db,
@@ -46,6 +45,7 @@ namespace Smartstore.Core.Content.Media
             IImageProcessor imageProcessor,
             IImageCache imageCache,
             MediaExceptionFactory exceptionFactory,
+            IMediaDupeDetectorFactory dupeDetectorFactory,
             Func<IMediaStorageProvider> storageProvider,
             MediaHelper helper)
         {
@@ -61,6 +61,7 @@ namespace Smartstore.Core.Content.Media
             _imageProcessor = imageProcessor;
             _imageCache = imageCache;
             _exceptionFactory = exceptionFactory;
+            _dupeDetectorFactory = dupeDetectorFactory;
             _storageProvider = storageProvider();
             _helper = helper;
         }
@@ -484,11 +485,11 @@ namespace Smartstore.Core.Content.Media
                 return batchResults;
             }
 
-            // Get all files in destination folder for faster dupe selection
-            var destFiles = await GetCachedFilesByFolderAsync(destinationFolder.Id);
+            // Use IMediaDupeDetector to get all files in destination folder for faster dupe selection.
+            var dupeDetector = await _dupeDetectorFactory.GetMediaDupeDetectorAsync(destinationFolder.Id);
 
-            // Make a HashSet from all file names in the destination folder for faster unique file name lookups
-            var destNames = new HashSet<string>(destFiles.Keys, StringComparer.CurrentCultureIgnoreCase);
+            // Get a HashSet with all file names in the destination folder for faster unique file name lookups.
+            var destNames = await dupeDetector.GetFileNamesAsync(destinationFolder.Id, cancelToken);
 
             foreach (var source in sources)
             {
@@ -497,7 +498,7 @@ namespace Smartstore.Core.Content.Media
 
                 try
                 {
-                    var file = destFiles.Get(pathData.FileName);
+                    var file = await dupeDetector.GetFileAsync(destinationFolder.Id, pathData.FileName, cancelToken);
                     var isDupe = file != null;
                     var processFileResult = await ProcessFileAsync(
                         file,
@@ -1087,25 +1088,6 @@ namespace Smartstore.Core.Content.Media
         public MediaFileInfo ConvertMediaFile(MediaFile file)
         {
             return ConvertMediaFile(file, _folderService.FindNode(file)?.Value);
-        }
-
-        protected async Task<IDictionary<string, MediaFile>> GetCachedFilesByFolderAsync(int folderId)
-        {
-            if (_cachedFilesByFolder == null)
-            {
-                _cachedFilesByFolder = new Dictionary<int, Dictionary<string, MediaFile>>();
-            }
-
-            if (!_cachedFilesByFolder.TryGetValue(folderId, out var files))
-            {
-                files = (await _searcher
-                    .SearchFiles(new MediaSearchQuery { FolderId = folderId }, MediaLoadFlags.None).LoadAsync())
-                    .ToDictionarySafe(x => x.Name);
-
-                _cachedFilesByFolder[folderId] = files;
-            }
-
-            return files;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

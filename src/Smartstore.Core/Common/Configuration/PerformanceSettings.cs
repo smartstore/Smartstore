@@ -42,5 +42,11 @@ namespace Smartstore.Core.Common.Configuration
         /// compression already. Changing the value requires an application restart to take effect.
         /// </summary>
         public bool UseResponseCompression { get; set; }
+
+        /// <summary>
+        /// Maximum number of MediaFile entities to cache for detecting duplicate files.
+        /// If a folder contains more files, no caching is done and the MediaFile entities are loaded directly from the database.
+        /// </summary>
+        public int MaxDupeDetectorCachedFiles { get; set; } = 10000;
     }
 }
