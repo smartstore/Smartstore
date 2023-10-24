@@ -368,14 +368,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.StoreLastUserAgent",
                 "Store last user agent",
                 "Zuletzt verwendeten User-Agent speichern",
-                "When enabled, the last user agent of customers will be stored. Disable this option to improve performance.",
-                "Legt fest, ob der zuletzt verwendete User-Agent im Kundendatensatz gespeichert werden soll. Das Deaktivieren kann u.U. zu schnellerem Seitenaufbau führen.");
+                "When enabled, the last user agent of customers will be stored.",
+                "Legt fest, ob der zuletzt verwendete User-Agent im Kundendatensatz gespeichert werden soll.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.StoreLastDeviceFamily",
                 "Store last device family",
                 "Letzte Gerätefamilie speichern",
-                "When enabled, the last device family of customers will be stored. Disable this option to improve performance.",
-                "Legt fest, ob die zuletzt verwendete Gerätefamilie im Kundendatensatz gespeichert werden soll. Das Deaktivieren kann u.U. zu schnellerem Seitenaufbau führen.");
+                "When enabled, the last device family of customers (ze.g. Windows, Android, iPad etc.) will be stored.",
+                "Legt fest, ob die zuletzt verwendete Gerätefamilie (z.B. Windows, Android, iPad etc.) im Kundendatensatz gespeichert werden soll.");
         }
 
         /// <summary>

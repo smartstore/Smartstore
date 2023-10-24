@@ -191,7 +191,7 @@ namespace Smartstore.Web.Controllers
                         .Where(x => manufacturerFileIds.Contains(x.Id))
                         .ToListAsync())
                         .Select(_mediaService.ConvertMediaFile)
-                        .ToDictionary(x => x.Id, x => x);
+                        .ToDictionary(x => x.Id);
                 }
 
             }
