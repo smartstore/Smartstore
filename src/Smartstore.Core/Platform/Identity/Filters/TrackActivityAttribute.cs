@@ -124,9 +124,8 @@ namespace Smartstore.Core.Identity
             }
 
             // Last user agent
-            if (_attribute.TrackUserAgent)
+            if (_attribute.TrackUserAgent && _customerSettings.StoreLastUserAgent)
             {
-                // TODO: (mh) (core) Make new setting CustomerSettings.StoreLastUserAgent
                 var currentUserAgent = _userAgent.UserAgent;
                 if (currentUserAgent.HasValue())
                 {
@@ -136,9 +135,8 @@ namespace Smartstore.Core.Identity
             }
 
             // Last device type
-            if (_attribute.TrackDeviceFamily)
+            if (_attribute.TrackDeviceFamily && _customerSettings.StoreLastDeviceFamily)
             {
-                // TODO: (mh) (core) Make new setting CustomerSettings.StoreLastDeviceFamily
                 var currentDeviceName = _userAgent.Device.IsUnknown() ? _userAgent.Platform.Name : _userAgent.Device.Name;
                 if (currentDeviceName.HasValue() && currentDeviceName != "Unknown")
                 {

@@ -230,6 +230,24 @@
                         <span asp-validation-for="CustomerSettings.StoreLastVisitedPage"></span>
                     </div>
                 </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.StoreLastUserAgent" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.StoreLastUserAgent"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.StoreLastUserAgent"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.StoreLastDeviceFamily" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.StoreLastDeviceFamily"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.StoreLastDeviceFamily"></span>
+                    </div>
+                </div>
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.CustomerFormFields")">

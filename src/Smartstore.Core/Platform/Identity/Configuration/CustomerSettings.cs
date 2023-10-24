@@ -155,6 +155,16 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public bool StoreLastVisitedPage { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets a value indicating we should store last user agent for each customer.
+        /// </summary>
+        public bool StoreLastUserAgent { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating we should store last device family for each customer.
+        /// </summary>
+        public bool StoreLastDeviceFamily { get; set; } = true;
+
         #region Form fields
 
         /// <summary>

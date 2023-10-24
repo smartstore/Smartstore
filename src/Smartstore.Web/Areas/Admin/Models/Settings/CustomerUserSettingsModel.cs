@@ -79,6 +79,12 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*StoreLastVisitedPage")]
             public bool StoreLastVisitedPage { get; set; }
 
+            [LocalizedDisplay("*StoreLastUserAgent")]
+            public bool StoreLastUserAgent { get; set; }
+
+            [LocalizedDisplay("*StoreLastDeviceFamily")]
+            public bool StoreLastDeviceFamily { get; set; }
+
             [LocalizedDisplay("*GenderEnabled")]
             public bool GenderEnabled { get; set; }
 
