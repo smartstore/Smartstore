@@ -178,12 +178,22 @@ namespace Smartstore.Web.Controllers
 
             if (withPicture)
             {
-                mediaFileLookup = brands
-                    .Select(x => x.Manufacturer.MediaFile)
-                    .Where(x => x != null)
+                var manufacturerFileIds = brands
+                    .Select(x => x.Manufacturer.MediaFileId ?? 0)
+                    .Where(x => x > 0)
                     .Distinct()
-                    .Select(_mediaService.ConvertMediaFile)
-                    .ToDictionarySafe(x => x.Id);
+                    .ToArray();
+
+                if (manufacturerFileIds.Length > 0)
+                {
+                    mediaFileLookup = (await _db.MediaFiles
+                        .AsNoTracking()
+                        .Where(x => manufacturerFileIds.Contains(x.Id))
+                        .ToListAsync())
+                        .Select(_mediaService.ConvertMediaFile)
+                        .ToDictionary(x => x.Id, x => x);
+                }
+
             }
 
             foreach (var pm in brands)
