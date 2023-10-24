@@ -10024,7 +10024,7 @@ var Renderer = /*#__PURE__*/function () {
     };
   }
 });
-;// CONCATENATED MODULE: ./src/styles/bs4/summernote-bs4.js
+;// CONCATENATED MODULE: ./src/styles/bs4/summernote-bootstrap.js
 function summernote_bs4_typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { summernote_bs4_typeof = function _typeof(obj) { return typeof obj; }; } else { summernote_bs4_typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return summernote_bs4_typeof(obj); }
 
 
@@ -10232,4 +10232,4 @@ var ui = function ui(editorOptions) {
 /******/ })()
 ;
 });
-//# sourceMappingURL=summernote-bs4.js.map
+//# sourceMappingURL=summernote-bootstrap.js.map

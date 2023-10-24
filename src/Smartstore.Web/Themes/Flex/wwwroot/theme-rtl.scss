@@ -3,7 +3,7 @@
 // --------------------------------------------------
 
 // Bootstrap functions
-@import "/lib/bs4/scss/functions";
+@import "/lib/bootstrap/scss/functions";
 
 // Shared Smartstore functions 
 @import '/shared/functions';
@@ -22,7 +22,7 @@
 @import 'variables';
 
 // Bootstrap head: vars, mixins, maps etc.
-@import "/lib/bs4/scss/bootstrap-head";
+@import "/lib/bootstrap/scss/bootstrap-head";
 
 // Shared Smartstore variables
 @import '/shared/variables-shared';
@@ -32,7 +32,7 @@
 // Shared styles RTL overrides
 // --------------------------------------------------
 
-@import "/shared/rtl-bs4";
+@import "/shared/rtl-bootstrap";
 @import "/shared/rtl";
 @import "/skinning/rtl";
 

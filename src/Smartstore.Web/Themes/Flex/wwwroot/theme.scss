@@ -8,7 +8,7 @@
 // --------------------------------------------------
 
 // Bootstrap functions
-@import "/lib/bs4/scss/functions";
+@import "/lib/bootstrap/scss/functions";
 
 // Shared Smartstore functions 
 @import '/shared/functions';
@@ -27,7 +27,7 @@
 @import 'variables';
 
 // Bootstrap head: vars, mixins, maps etc.
-@import "/lib/bs4/scss/bootstrap-head";
+@import "/lib/bootstrap/scss/bootstrap-head";
 @import 'variables-reset';
 
 // Fonts
@@ -40,14 +40,14 @@
 @import '/shared/root';
 
 // Bootstrap main
-@import "/lib/bs4/scss/bootstrap-main";
+@import "/lib/bootstrap/scss/bootstrap-main";
 
 
 //
 // Vendor components (neutral)
 // --------------------------------------------------
 
-@import "/lib/bs4/scss/vendor/rfs";
+@import "/lib/bootstrap/scss/vendor/rfs";
 @import "/lib/photoswipe/photoswipe";
 @import "/lib/slick/slick";
 @import "/lib/select2/scss/core";

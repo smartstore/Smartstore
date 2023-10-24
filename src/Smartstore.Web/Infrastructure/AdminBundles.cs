@@ -60,7 +60,7 @@ namespace Smartstore.Web.Infrastructure
                 lib + "pnotify/js/pnotify.mobile.js",
                 lib + "pnotify/js/pnotify.buttons.js",
                 lib + "pnotify/js/pnotify.animate.js",
-                lib + "bs4/js/bootstrap.bundle.js",
+                lib + "bootstrap/js/bootstrap.bundle.js",
                 // Common
                 js + "underscore.mixins.js",
                 js + "smartstore.system.js",
@@ -108,7 +108,7 @@ namespace Smartstore.Web.Infrastructure
             -----------------------------------------------------*/
             var summernote = "/lib/editors/summernote/";
             bundles.Add(new ScriptBundle("/bundle/js/summernote.js").Include(
-                summernote + "summernote-bs4.min.js",
+                summernote + "summernote-bootstrap.min.js",
                 summernote + "plugins/smartstore.image.js",
                 summernote + "plugins/smartstore.link.js",
                 summernote + "plugins/smartstore.tablestyles.js",
