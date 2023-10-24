@@ -39,6 +39,7 @@
   - On screens < md, the offcanvas window for product filter slides in from bottom and also provides the sorting options
   - Revamped offcanvas main menu
   - Revamped image gallery styling
+  - Revamped cart, wishlist & order confirm
   - Fixed Slick slider dotted navigation responsiveness issues
   - Slightly improved InstantSearch box and dropdown
   - Revamped product tags component
