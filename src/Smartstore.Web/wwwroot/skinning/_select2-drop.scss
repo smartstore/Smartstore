@@ -55,6 +55,7 @@
         display: block;
         vertical-align: middle;
         font-size: $font-size-sm;
+        word-break: break-all;
         // padding for checkmark
         padding-inline-start: 20px;
     }

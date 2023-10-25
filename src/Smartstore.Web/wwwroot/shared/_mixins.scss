@@ -204,6 +204,7 @@
     justify-content: center;
     align-items: center;
     width: var(--trailing-action-size);
+    min-width: var(--trailing-action-size);
     height: var(--trailing-action-size);
     line-height: var(--trailing-action-size);
     background-color: $bg;

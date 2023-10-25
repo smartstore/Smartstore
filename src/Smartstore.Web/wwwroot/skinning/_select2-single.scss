@@ -52,6 +52,9 @@
 
         .select2-option {
             padding-inline-end: 0.5em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .select2-selection__clear {
