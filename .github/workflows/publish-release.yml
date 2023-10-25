@@ -1,9 +1,10 @@
-name: Publish release Docker image on Push
+name: Publish release Docker image
 
 on:
   push:
     branches:
       - '5.0.5.x' # << Change this for new versions.
+  workflow_dispatch:
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
@@ -32,6 +33,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Format branch label
+      id: format-branch-label
+      run: bash .github/FormatBranchLabel.sh
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -52,14 +57,14 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: | 
         dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./.build/release --no-restore --no-build --no-self-contained
-        docker build --build-arg SOURCE=./.build/release -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:latest -t ghcr.io/smartstore/smartstore-linux:$GITHUB_REF_NAME .
+        docker build --build-arg SOURCE=./.build/release -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:latest -t ghcr.io/smartstore/smartstore-linux:${{ steps.format-branch-label.outputs.branch-label }} .
         docker push ghcr.io/smartstore/smartstore-linux:latest
-        docker push ghcr.io/smartstore/smartstore-linux:$GITHUB_REF_NAME
+        docker push ghcr.io/smartstore/smartstore-linux:${{ steps.format-branch-label.outputs.branch-label }}
 
     - name: Publish and Push for Windows
       if: matrix.os == 'windows-latest'
       run: | 
         dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./.build/release --no-restore --no-build --no-self-contained
-        docker build --build-arg SOURCE=./.build/release -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:latest -t ghcr.io/smartstore/smartstore-windows:$env:GITHUB_REF_NAME .
+        docker build --build-arg SOURCE=./.build/release -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:latest -t ghcr.io/smartstore/smartstore-windows:${{ steps.format-branch-label.outputs.branch-label }} .
         docker push ghcr.io/smartstore/smartstore-windows:latest
-        docker push ghcr.io/smartstore/smartstore-windows:$env:GITHUB_REF_NAME
+        docker push ghcr.io/smartstore/smartstore-windows:${{ steps.format-branch-label.outputs.branch-label }}
