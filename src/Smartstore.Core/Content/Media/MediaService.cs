@@ -486,10 +486,10 @@ namespace Smartstore.Core.Content.Media
             }
 
             // Use IMediaDupeDetector to get all files in destination folder for faster dupe selection.
-            var dupeDetector = await _dupeDetectorFactory.GetMediaDupeDetectorAsync(destinationFolder.Id);
+            var dupeDetector = _dupeDetectorFactory.GetDetector(destinationFolder.Id);
 
             // Get a HashSet with all file names in the destination folder for faster unique file name lookups.
-            var destNames = await dupeDetector.GetFileNamesAsync(destinationFolder.Id, cancelToken);
+            var destNames = await dupeDetector.GetAllFileNamesAsync(cancelToken);
 
             foreach (var source in sources)
             {
@@ -498,7 +498,7 @@ namespace Smartstore.Core.Content.Media
 
                 try
                 {
-                    var file = await dupeDetector.GetFileAsync(destinationFolder.Id, pathData.FileName, cancelToken);
+                    var file = await dupeDetector.DetectFileAsync(pathData.FileName, cancelToken);
                     var isDupe = file != null;
                     var processFileResult = await ProcessFileAsync(
                         file,

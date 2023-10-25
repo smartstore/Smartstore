@@ -200,7 +200,7 @@ namespace Smartstore.Core.Content.Media
             }
 
             // Use IMediaDupeDetector to get all files in destination folder for faster dupe selection.
-            var dupeDetector = destNode != null ? await _dupeDetectorFactory.GetMediaDupeDetectorAsync(destNode.Value.Id) : null;
+            var dupeDetector = destNode != null ? _dupeDetectorFactory.GetDetector(destNode.Value.Id) : null;
             HashSet<string> destNames = null;
 
             // Create dest folder
@@ -236,7 +236,7 @@ namespace Smartstore.Core.Content.Media
                         destPathData,
                         false /* copyData */,
                         dupeEntryHandling,
-                        () => dupeDetector?.GetFileAsync(destNode.Value.Id, file.Name, cancelToken),
+                        () => dupeDetector?.DetectFileAsync(file.Name, cancelToken),
                         UniqueFileNameChecker);
 
                     if (copyResult.Copy != null)
@@ -295,7 +295,7 @@ namespace Smartstore.Core.Content.Media
                 if (dupeDetector != null)
                 {
                     // Get a HashSet with all file names in the destination folder for faster unique file name lookups.
-                    destNames ??= await dupeDetector.GetFileNamesAsync(destNode.Value.Id, cancelToken);
+                    destNames ??= await dupeDetector.GetAllFileNamesAsync(cancelToken);
 
                     if (_helper.CheckUniqueFileName(pathData.FileTitle, pathData.Extension, destNames, out var uniqueName))
                     {

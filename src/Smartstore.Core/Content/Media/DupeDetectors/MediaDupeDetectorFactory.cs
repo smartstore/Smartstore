@@ -10,41 +10,42 @@ namespace Smartstore.Core.Content.Media
     public interface IMediaDupeDetectorFactory
     {
         /// <summary>
-        /// Gets the most suitable detector to find <see cref="MediaFile"/> duplicates (uses <see cref="PerformanceSettings.MaxDupeDetectorCachedFiles"/>).
+        /// Gets the most suitable detector to find <see cref="MediaFile"/> duplicates (uses <see cref="PerformanceSettings.MediaDupeDetectorMaxCacheSize"/>).
         /// </summary>
-        /// <param name="folderId"><see cref="MediaFolderNode.Id"/> of the folder to be checked.</param>
-        Task<IMediaDupeDetector> GetMediaDupeDetectorAsync(int folderId);
+        /// <param name="folderId"><see cref="MediaFolderNode.Id"/> of the folder to check for duplicates in.</param>
+        IMediaDupeDetector GetDetector(int folderId);
     }
-
 
     public partial class MediaDupeDetectorFactory : IMediaDupeDetectorFactory
     {
-        private readonly IEnumerable<IMediaDupeDetector> _detectors;
         private readonly IMediaSearcher _searcher;
         private readonly PerformanceSettings _performanceSettings;
 
-        public MediaDupeDetectorFactory(
-            IEnumerable<IMediaDupeDetector> detectors,
-            IMediaSearcher searcher,
-            PerformanceSettings performanceSettings)
+        private readonly Dictionary<int, IMediaDupeDetector> _detectors = new();
+
+        public MediaDupeDetectorFactory(IMediaSearcher searcher, PerformanceSettings performanceSettings)
         {
-            _detectors = detectors;
             _searcher = searcher;
             _performanceSettings = performanceSettings;
         }
 
-        public async Task<IMediaDupeDetector> GetMediaDupeDetectorAsync(int folderId)
+        public IMediaDupeDetector GetDetector(int folderId)
         {
             Guard.NotZero(folderId);
 
-            var query = _searcher.PrepareQuery(new() { FolderId = folderId }, MediaLoadFlags.AsNoTracking);
-            var usesCache = await query.CountAsync() <= _performanceSettings.MaxDupeDetectorCachedFiles;
+            if (!_detectors.TryGetValue(folderId, out var detector))
+            {
+                var query = _searcher.PrepareQuery(new() { FolderId = folderId }, MediaLoadFlags.AsNoTracking);
+                var shouldUseCache = query.Count() <= _performanceSettings.MediaDupeDetectorMaxCacheSize;
 
-            var dupeDetector = _detectors
-                .OrderByDescending(x => x.Ordinal)
-                .FirstOrDefault(x => x != null && x.UsesCache == usesCache);
+                detector = shouldUseCache
+                    ? new CachingMediaDupeDetector(_searcher, folderId)
+                    : new DefaultMediaDupeDetector(_searcher, folderId);
 
-            return dupeDetector!;
+                _detectors[folderId] = detector;
+            }
+
+            return detector!;
         }
     }
 }
