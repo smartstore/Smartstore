@@ -53,10 +53,6 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<MediaMover>().As<IMediaMover>().InstancePerLifetimeScope();
             builder.RegisterType<DownloadService>().As<IDownloadService>().InstancePerLifetimeScope();
             builder.RegisterType<ImageOffloader>().As<IImageOffloder>().InstancePerLifetimeScope();
-
-            // Duplicate detectors.
-            builder.RegisterType<DefaultMediaDupeDetector>().As<IMediaDupeDetector>().InstancePerLifetimeScope();
-            builder.RegisterType<CachingMediaDupeDetector>().As<IMediaDupeDetector>().InstancePerLifetimeScope();
             builder.RegisterType<MediaDupeDetectorFactory>().As<IMediaDupeDetectorFactory>().InstancePerLifetimeScope();
 
             // ImageSharp adapter factory

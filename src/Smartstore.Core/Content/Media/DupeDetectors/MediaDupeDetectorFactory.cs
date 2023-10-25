@@ -36,11 +36,11 @@ namespace Smartstore.Core.Content.Media
             if (!_detectors.TryGetValue(folderId, out var detector))
             {
                 var query = _searcher.PrepareQuery(new() { FolderId = folderId }, MediaLoadFlags.AsNoTracking);
-                var shouldUseCache = query.Count() <= _performanceSettings.MediaDupeDetectorMaxCacheSize;
+                var fileCount = query.Count();
 
-                detector = shouldUseCache
+                detector = fileCount <= _performanceSettings.MediaDupeDetectorMaxCacheSize
                     ? new CachingMediaDupeDetector(_searcher, folderId)
-                    : new DefaultMediaDupeDetector(_searcher, folderId);
+                    : new DefaultMediaDupeDetector(_searcher, folderId, fileCount);
 
                 _detectors[folderId] = detector;
             }

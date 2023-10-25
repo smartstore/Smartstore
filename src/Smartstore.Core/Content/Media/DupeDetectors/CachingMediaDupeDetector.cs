@@ -24,10 +24,15 @@
             return files.Get(fileName);
         }
 
-        public async Task<HashSet<string>> GetAllFileNamesAsync(CancellationToken cancelToken = default)
+        public async Task<string> GetUniqueFileNameAsync(string title, string ext, CancellationToken cancelToken = default)
         {
+            Guard.NotEmpty(title);
+            Guard.NotEmpty(ext);
+
             var files = await GetFiles(cancelToken);
-            return new HashSet<string>(files.Keys, StringComparer.CurrentCultureIgnoreCase);
+            MediaHelper.CheckUniqueFileName(title, ext, files.Keys, out var uniqueName);
+
+            return uniqueName;
         }
 
         private async Task<Dictionary<string, MediaFile>> GetFiles(CancellationToken cancelToken)
