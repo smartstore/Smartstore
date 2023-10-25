@@ -15,7 +15,6 @@ namespace Smartstore.Core.Checkout.Tax
 
         public async Task<CheckVatNumberResponseMessage> CheckVatAsync(string vatNumber, string countryCode, CancellationToken cancelToken = default)
         {
-            // TODO: (mh) Please perform live checks. It always returns MS_UNAVAILABLE during unit tests.
             var url = "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number";
 
             var request = new CheckVatNumberRequestMessage
