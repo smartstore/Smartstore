@@ -268,7 +268,7 @@ namespace Smartstore.Core.Content.Media
         {
             Guard.NotNull(pathData);
 
-            // (perf) First make fast check
+            // (perf) First make fast check. The chance that there's no dupe is much higher.
             var exists = await _db.MediaFiles.AnyAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id, cancelToken);
             if (!exists)
             {

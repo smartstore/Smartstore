@@ -5,7 +5,7 @@
         private readonly IMediaSearcher _searcher;
         private readonly int _folderId;
 
-        private Dictionary<int, Dictionary<string, MediaFile>> _cachedFilesByFolder;
+        private Dictionary<string, MediaFile> _cachedFiles;
 
         public CachingMediaDupeDetector(IMediaSearcher searcher, int folderId)
         {
@@ -30,6 +30,8 @@
             Guard.NotEmpty(ext);
 
             var files = await GetFiles(cancelToken);
+
+            // INFO: The dictionary Keys collection acts like a hashset, so it is ok to pass it around.
             MediaHelper.CheckUniqueFileName(title, ext, files.Keys, out var uniqueName);
 
             return uniqueName;
@@ -37,18 +39,11 @@
 
         private async Task<Dictionary<string, MediaFile>> GetFiles(CancellationToken cancelToken)
         {
-            _cachedFilesByFolder ??= new();
+            _cachedFiles ??= (await _searcher
+                .SearchFiles(new() { FolderId = _folderId }, MediaLoadFlags.None).LoadAsync(false, cancelToken))
+                .ToDictionarySafe(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
-            if (!_cachedFilesByFolder.TryGetValue(_folderId, out var files))
-            {
-                files = (await _searcher
-                    .SearchFiles(new() { FolderId = _folderId }, MediaLoadFlags.None).LoadAsync(false, cancelToken))
-                    .ToDictionarySafe(x => x.Name);
-
-                _cachedFilesByFolder[_folderId] = files;
-            }
-
-            return files;
+            return _cachedFiles;
         }
     }
 }

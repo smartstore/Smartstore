@@ -45,13 +45,27 @@
 
             if (_fileCount > MaxCachedFileNames)
             {
-                // Load file names starting with 'title' but do not cache them.
-                var query = _searcher.PrepareQuery(new MediaSearchQuery
+                // (perf) First make fast check (exact match is still faster than StartsWith). The chance that there's no dupe is much higher.
+                var q = new MediaSearchQuery
                 {
                     FolderId = _folderId,
-                    Term = title + '*',
+                    Term = title + '.' + ext,
+                    ExactMatch = true,
                     Deleted = null
-                }, MediaLoadFlags.AsNoTracking);
+                };
+
+                var query = _searcher.PrepareQuery(q, MediaLoadFlags.AsNoTracking);
+                var exists = await query.AnyAsync(cancelToken);
+                if (!exists)
+                {
+                    return null;
+                }
+
+                // Load file names starting with 'title' but do not cache them.
+                q.Term = title + '*';
+                q.ExactMatch = false;
+
+                query = _searcher.PrepareQuery(q, MediaLoadFlags.AsNoTracking);
 
                 destFileNames = await query.Select(x => x.Name).ToListAsync(cancelToken);
             }
@@ -67,6 +81,11 @@
                 }
 
                 destFileNames = _cachedFileNames;
+            }
+
+            if (destFileNames.Count == 0)
+            {
+                return null;
             }
 
             MediaHelper.CheckUniqueFileName(title, ext, destFileNames, out var uniqueName);

@@ -18,9 +18,9 @@ namespace Smartstore.Core.Content.Media
         /// Gets a unique file name.
         /// </summary>
         /// <param name="title">File title to be checked and to be used to generate unique file names.</param>
-        /// <param name="ext">File extension, e.g. png.</param>
-        /// <returns>Unique file name. <c>null</c> if no file with the name <paramref name="title"/> exists.</returns>
-        Task<string> GetUniqueFileNameAsync(string title, string ext, CancellationToken cancelToken = default);
+        /// <param name="extension">Dot-less file extension, e.g. <c>png</c>.</param>
+        /// <returns>Unique file name, or <c>null</c> if no file with the name <paramref name="title"/> exists.</returns>
+        Task<string> GetUniqueFileNameAsync(string title, string extension, CancellationToken cancelToken = default);
     }
 
     public static class IMediaDupeDetectorExtensions

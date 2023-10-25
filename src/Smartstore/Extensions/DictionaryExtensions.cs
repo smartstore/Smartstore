@@ -18,9 +18,9 @@ namespace Smartstore
         /// if the key was not in the dictionary.</returns>
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, Func<TKey, TValue> valueFactory)
         {
-            Guard.NotNull(source, nameof(source));
-            Guard.NotNull(key, nameof(key));
-            Guard.NotNull(valueFactory, nameof(valueFactory));
+            Guard.NotNull(source);
+            Guard.NotNull(key);
+            Guard.NotNull(valueFactory);
 
             if (source is ConcurrentDictionary<TKey, TValue> concurrentDict)
             {
@@ -159,9 +159,9 @@ namespace Smartstore
 
         public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, Func<TValue> valueAccessor, bool replaceExisting = true)
         {
-            Guard.NotNull(instance, nameof(instance));
-            Guard.NotNull(key, nameof(key));
-            Guard.NotNull(valueAccessor, nameof(valueAccessor));
+            Guard.NotNull(instance);
+            Guard.NotNull(key);
+            Guard.NotNull(valueAccessor);
 
             if (replaceExisting || !instance.ContainsKey(key))
             {
