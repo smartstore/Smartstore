@@ -269,7 +269,7 @@
             </div>
             <div class="adminData">
                 <setting-editor asp-for="PriceSettings.OfferBadgeStyle">
-                    <select asp-for="PriceSettings.OfferBadgeStyle" asp-items="ViewBag.OfferBadgeStyles"></select>
+                    <editor asp-for="PriceSettings.OfferBadgeStyle" badge-text="@Model.PriceSettings.OfferBadgeLabel" />
                 </setting-editor>
                 <span asp-validation-for="PriceSettings.OfferBadgeStyle"></span>
             </div>
@@ -280,7 +280,7 @@
             </div>
             <div class="adminData">
                 <setting-editor asp-for="PriceSettings.LimitedOfferBadgeStyle">
-                    <select asp-for="PriceSettings.LimitedOfferBadgeStyle" asp-items="ViewBag.LimitedOfferBadgeStyles"></select>
+                    <editor asp-for="PriceSettings.LimitedOfferBadgeStyle" badge-text="@Model.PriceSettings.LimitedOfferBadgeLabel" />
                 </setting-editor>
                 <span asp-validation-for="PriceSettings.LimitedOfferBadgeStyle"></span>
             </div>
