@@ -406,6 +406,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.SameServerNote",
                 "Backing up and restoring databases is only possible if the database server (e.g. MS SQL Server or MySQL) and the physical location of the store installation are on the same server.",
                 "Sicherungen und Wiederherstellungen von Datenbanken sind nur möglich, wenn sich der Datenbankserver (z.B. MS SQL Server oder MySQL) und der physikalische Speicherort der Shop-Installation auf dem gleichen Server befinden.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.StartDateMustBeBeforeEndDate",
+                "The start date must not be after the end date.",
+                "Das Anfangsdatum darf nicht nach dem Enddatum liegen.");
         }
 
         /// <summary>

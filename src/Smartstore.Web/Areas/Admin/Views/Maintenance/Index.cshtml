@@ -73,6 +73,8 @@
                             <editor asp-for="DeleteGuests.OnlyWithoutShoppingCart" />
                         </div>
                     </div>
+                    <span asp-validation-for="DeleteGuests.StartDate"></span>
+                    <span asp-validation-for="DeleteGuests.EndDate"></span>
                 </div>
 
             </div>
@@ -99,6 +101,8 @@
                         <smart-label asp-for="DeleteExportedFiles.EndDate" />
                         <editor asp-for="DeleteExportedFiles.EndDate" />
                     </div>
+                    <span asp-validation-for="DeleteExportedFiles.StartDate"></span>
+                    <span asp-validation-for="DeleteExportedFiles.EndDate"></span>
                 </div>
             </div>
         </div>

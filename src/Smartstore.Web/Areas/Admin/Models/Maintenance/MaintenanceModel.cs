@@ -1,4 +1,7 @@
-﻿namespace Smartstore.Admin.Models.Maintenance
+﻿using FluentValidation;
+using Smartstore.Core.Localization;
+
+namespace Smartstore.Admin.Models.Maintenance
 {
     public class MaintenanceModel : ModelBase
     {
@@ -46,6 +49,26 @@
 
             [LocalizedDisplay("*TotalSize")]
             public string TotalSize { get; set; }
+        }
+
+        public class MaintenanceValidator : SmartValidator<MaintenanceModel>
+        {
+            public MaintenanceValidator(Localizer T)
+            {
+                When(data => data.DeleteGuests.StartDate != null && data.DeleteGuests.EndDate != null, () =>
+                {
+                    RuleFor(x => x.DeleteGuests.StartDate)
+                        .LessThanOrEqualTo(x => x.DeleteGuests.EndDate)
+                        .WithMessage(T("Admin.System.Maintenance.StartDateMustBeBeforeEndDate"));
+                });
+
+                When(data => data.DeleteExportedFiles.StartDate != null && data.DeleteExportedFiles.EndDate != null, () =>
+                {
+                    RuleFor(x => x.DeleteExportedFiles.StartDate)
+                        .LessThanOrEqualTo(x => x.DeleteExportedFiles.EndDate)
+                        .WithMessage(T("Admin.System.Maintenance.StartDateMustBeBeforeEndDate"));
+                });
+            }
         }
     }
 }

@@ -139,6 +139,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> DeleteGuestAccounts(MaintenanceModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             var dtHelper = Services.DateTimeHelper;
 
             DateTime? startDateValue = model.DeleteGuests.StartDate == null
@@ -166,6 +171,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> DeleteExportFiles(MaintenanceModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             var dtHelper = Services.DateTimeHelper;
 
             DateTime? startDateUtc = model.DeleteExportedFiles.StartDate == null
