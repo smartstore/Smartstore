@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.Core.Content.Media
 {
-    public partial class DefaultMediaDupeDetector : IMediaDupeDetector
+    internal class DefaultMediaDupeDetector : IMediaDupeDetector
     {
         const int MaxCachedFileNames = 40000;
 
