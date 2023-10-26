@@ -3,7 +3,7 @@
         <Value>Facebook Login</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.Smartstore.Facebook.Auth" AppendRootKey="false">
-        <Value>Erweitert den Shop um die Loginfunktion von Facebook.</Value>
+        <Value>Erweitert den Shop um die Login-Funktion von Facebook.</Value>
     </LocaleResource>
     <LocaleResource Name="AdminInstruction">
         <Value>

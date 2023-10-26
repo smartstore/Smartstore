@@ -3,7 +3,7 @@
         <Value>Twitter Login</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.Smartstore.Twitter.Auth" AppendRootKey="false">
-        <Value>Erweitert den Shop um die Loginfunktion von Twitter.</Value>
+        <Value>Erweitert den Shop um die Login-Funktion von Twitter.</Value>
     </LocaleResource>
     <LocaleResource Name="AdminInstruction">
         <Value>

@@ -3,7 +3,7 @@
         <Value>Web API</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.SmartStore.WebApi" AppendRootKey="false">
-        <Value>Provides data exchange with Smartstore</Value>
+        <Value>Provides data exchange with Smartstore.</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Permissions.DisplayName.WebApi" AppendRootKey="false">
         <Value>Web API</Value>
