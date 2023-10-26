@@ -71,7 +71,7 @@ namespace Smartstore.Web.Components
             if (model.ShowSocialLinks)
             {
                 TryAddSocialLink(_socialSettings.FacebookLink, "facebook-f", "Facebook");
-                TryAddSocialLink(_socialSettings.TwitterLink, "twitter", "Twitter");
+                TryAddSocialLink(_socialSettings.TwitterLink, "x-twitter", "X (Twitter)");
                 TryAddSocialLink(_socialSettings.InstagramLink, "instagram", "Instagram");
                 TryAddSocialLink(_socialSettings.TikTokLink, "tiktok", "TikTok");
                 TryAddSocialLink(_socialSettings.YoutubeLink, "youtube", "Youtube");
