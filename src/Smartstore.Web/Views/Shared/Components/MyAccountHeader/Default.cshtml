@@ -7,19 +7,15 @@
         <partial name="Customer.Avatar" model="Model.Avatar" />
     </div>
     <div class="col align-self-center text-truncate pr-4 pr-md-1">
-        <div class="my-account-username fwm">
-            <div class="row no-gutters">
-                <div class="col text-truncate pr-1">@Model.CustomerName</div>
-                <div sm-if="Model.RewardPoints > 0"
-                        class="col-auto badge badge-pill badge-counter badge-success"
-                        title="@T("ShoppingCart.Totals.RewardPoints", Model.RewardPoints)">
-                    @Model.RewardPoints
-                </div>
-            </div>
+        <div class="my-account-username fwm text-truncate">
+            @Model.CustomerName
         </div>
-        <div class="my-account-email text-truncate small">
-            <span class="text-muted">@T("Account.CustomerSince")</span>
-            <span>@Model.CustomerSince</span>
+        <div class="my-account-info small hstack flex-wrap justify-content-start justify-content-md-center justify-content-xl-start" style="row-gap: 3px; column-gap: 6px">
+            <span class="text-muted">@T("Account.CustomerSince", Model.CustomerSince)</span>
+            <span sm-if="Model.RewardPoints > 0" class="badge badge-pill badge-success pl-1">
+                <i class="far fa-certificate"></i>
+                @T("ShoppingCart.Totals.RewardPoints", Model.RewardPoints)
+            </span>
         </div>
     </div>
 </div>

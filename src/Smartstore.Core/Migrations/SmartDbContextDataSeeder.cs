@@ -377,7 +377,7 @@ namespace Smartstore.Core.Data.Migrations
                 "When enabled, the last device family of customers (ze.g. Windows, Android, iPad etc.) will be stored.",
                 "Legt fest, ob die zuletzt verwendete Gerätefamilie (z.B. Windows, Android, iPad etc.) im Kundendatensatz gespeichert werden soll.");
 
-            builder.AddOrUpdate("Account.CustomerSince", "Customer since:", "Kunde seit:");
+            builder.AddOrUpdate("Account.CustomerSince", "Customer since {0}", "Kunde seit {0}");
         }
 
         /// <summary>
