@@ -340,16 +340,19 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> AllProducts(int page, string term, string selectedIds)
         {
             const int pageSize = 100;
-            IEnumerable<Product> products = null;
+            IEnumerable<Product> products = new List<Product>();
             var hasMoreData = true;
             var ids = selectedIds.ToIntArray();
 
             // Perform a search for SKU, MPN or GTIN first.
-            products = await _db.Products
-                .IgnoreQueryFilters()
-                .ApplyProductCodeFilter(term)
-                .ToListAsync();
-
+            if (term.HasValue())
+            {
+                products = await _db.Products
+                    .IgnoreQueryFilters()
+                    .ApplyProductCodeFilter(term)
+                    .ToListAsync();
+            }
+            
             // If no products were found by unique identifiers, perform a full text search.
             if (!products.Any())
             {
