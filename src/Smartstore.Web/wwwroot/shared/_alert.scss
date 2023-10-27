@@ -33,7 +33,7 @@
 		width: 3rem;
 		z-index: 1;
         background-color: var(--alert-icon-bg);
-        @include border-left-radius(var(--alert-border-radius));
+        @include border-left-radius(var(--border-radius, var(--alert-border-radius)));
 	}
 
     // Icon
