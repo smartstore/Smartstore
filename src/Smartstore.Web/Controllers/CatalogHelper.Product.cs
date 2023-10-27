@@ -218,23 +218,6 @@ namespace Smartstore.Web.Controllers
 
                 #endregion
 
-                #region Share code
-
-                // Social share code.
-                if (_catalogSettings.ShowShareButton && _catalogSettings.PageShareCode.HasValue())
-                {
-                    var shareCode = _catalogSettings.PageShareCode;
-                    if (_services.WebHelper.IsCurrentConnectionSecured())
-                    {
-                        // Need to change the addthis link to be https linked when the page is, so that the page doesn't ask about mixed mode when viewed in https...
-                        shareCode = shareCode.Replace("http://", "https://");
-                    }
-
-                    model.ProductShareCode = shareCode;
-                }
-
-                #endregion
-
                 #region Giftcard
 
                 // Get gift card values from query string.

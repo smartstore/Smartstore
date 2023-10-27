@@ -62,6 +62,14 @@ namespace Smartstore.Core.Data.Migrations
                 }
             }
 
+            // Remove Share settings (AddThis)
+            await db.Settings
+                .Where(x => x.Name == "CatalogSettings.ShowShareButton")
+                .ExecuteDeleteAsync(cancelToken);
+            await db.Settings
+                .Where(x => x.Name == "CatalogSettings.PageShareCode")
+                .ExecuteDeleteAsync(cancelToken);
+
             await db.SaveChangesAsync(cancelToken);
 
 
@@ -423,6 +431,10 @@ namespace Smartstore.Core.Data.Migrations
                 "X (Twitter) username that gets displayed on X (Twitter) cards when a product, category and manufacturer page is shared on X (Twitter). Starts with a '@'.",
                 "Benutzername auf X (Twitter), der auf Karten von X (Twitter) angezeigt wird, wenn ein Produkt, eine Kategorie oder eine Herstellerseite auf X (Twitter) geteilt wird. Beginnt mit einem '@'.");
 
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowShareButton");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowShareButton.Hint");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PageShareCode");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PageShareCode.Hint");
         }
 
         /// <summary>
