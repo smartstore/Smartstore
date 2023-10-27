@@ -258,6 +258,9 @@ namespace Smartstore.Web.Controllers
                     catalogSettings);
             }
 
+            // Custom mapping
+            await MapperFactory.MapWithRegisteredMapperAsync(orderItem, model, new { Order = order, Currency = customerCurrency });
+
             return model;
 
             Money ConvertToExchangeRate(decimal amount)
@@ -568,6 +571,9 @@ namespace Smartstore.Web.Controllers
                 var orderItemModel = await PrepareOrderItemModelAsync(o, orderItem, catalogSettings, shoppingCartSettings, mediaSettings, customerCurrency);
                 model.Items.Add(orderItemModel);
             }
+
+            // Custom mapping
+            await MapperFactory.MapWithRegisteredMapperAsync(o, model, new { Context = context });
 
             return model;
 
