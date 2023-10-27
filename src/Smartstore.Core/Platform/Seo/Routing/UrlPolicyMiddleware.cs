@@ -67,7 +67,12 @@ namespace Smartstore.Core.Seo.Routing
 
             Task HandleRedirect(UrlPolicy policy)
             {
-                var isPermanent = !CommonHelper.IsDevEnvironment;
+                var isPermanent = 
+                    // Never make permanent redirect in a dev environment or on localhost...
+                    !CommonHelper.IsDevEnvironment &&
+                    // ...also: a redirect from a culture-less URL to a culture-specific URL must never be permanent,
+                    // because the browser will cache this info, what blocks the way when we want to switch back again.
+                    (!policy.Culture.IsModified || policy.Culture.Original.HasValue());
 
                 context.Response.StatusCode = policy.Scheme.IsModified
                     ? (isPermanent ? StatusCodes.Status301MovedPermanently : StatusCodes.Status302Found)
