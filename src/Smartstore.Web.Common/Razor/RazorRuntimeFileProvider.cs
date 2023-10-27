@@ -18,7 +18,7 @@ namespace Smartstore.Web.Razor
 
         public RazorRuntimeFileProvider(IApplicationContext appContext, bool ignoreThemes = false)
         {
-            _appContext = Guard.NotNull(appContext, nameof(appContext));
+            _appContext = Guard.NotNull(appContext);
             _ignoreThemes = ignoreThemes;
         }
 
