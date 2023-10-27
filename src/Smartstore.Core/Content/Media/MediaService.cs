@@ -732,10 +732,7 @@ namespace Smartstore.Core.Content.Media
             file.Name = pathData.FileName;
             file.Extension = pathData.Extension;
             file.MimeType = pathData.MimeType;
-            if (file.MediaType == null)
-            {
-                file.MediaType = _typeResolver.Resolve(pathData.Extension, pathData.MimeType);
-            }
+            file.MediaType ??= _typeResolver.Resolve(pathData.Extension, pathData.MimeType);
 
             // Process image
             if (inStream != null && inStream.Length > 0 && file.MediaType == MediaType.Image && (await ProcessImage(file, inStream)).Out(out var outImage))

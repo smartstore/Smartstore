@@ -44,10 +44,7 @@ namespace Smartstore.Engine.Modularity.NuGet
             {
                 lock (_lock)
                 {
-                    if (OfflinePackageFolder == null)
-                    {
-                        OfflinePackageFolder = GetOfflinePackageFolder();
-                    }
+                    OfflinePackageFolder ??= GetOfflinePackageFolder();
                 }
             }
         }
