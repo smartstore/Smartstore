@@ -25,8 +25,12 @@ namespace Smartstore.Core.Data.Migrations
         {
             await db.MigrateSettingsAsync(builder =>
             {
-                builder.Delete("PrivacySettings.EnableCookieConsent");
                 builder.Update<MediaSettings>(x => x.ProductDetailsPictureSize, 680, 600);
+
+                builder.Delete(
+                    "PrivacySettings.EnableCookieConsent", 
+                    "CatalogSettings.ShowShareButton", 
+                    "CatalogSettings.PageShareCode");
             });
 
             // Remove duplicate settings for PrivacySettings.CookieConsentRequirement
@@ -61,14 +65,6 @@ namespace Smartstore.Core.Data.Migrations
                     db.Settings.RemoveRange(settingsForAllStores.Skip(1));
                 }
             }
-
-            // Remove Share settings (AddThis)
-            await db.Settings
-                .Where(x => x.Name == "CatalogSettings.ShowShareButton")
-                .ExecuteDeleteAsync(cancelToken);
-            await db.Settings
-                .Where(x => x.Name == "CatalogSettings.PageShareCode")
-                .ExecuteDeleteAsync(cancelToken);
 
             await db.SaveChangesAsync(cancelToken);
 
