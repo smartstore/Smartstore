@@ -693,18 +693,6 @@ namespace Smartstore.Admin.Controllers
                 new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
                 new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
             };
-
-            ViewBag.BadgeStyles = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "0", Text = "Secondary", Selected = model.BadgeStyle == 0 },
-                new SelectListItem { Value = "1", Text = "Primary", Selected = model.BadgeStyle == 1 },
-                new SelectListItem { Value = "2", Text = "Success", Selected = model.BadgeStyle == 2 },
-                new SelectListItem { Value = "3", Text = "Info", Selected = model.BadgeStyle == 3 },
-                new SelectListItem { Value = "4", Text = "Warning", Selected = model.BadgeStyle == 4 },
-                new SelectListItem { Value = "5", Text = "Danger", Selected = model.BadgeStyle == 5 },
-                new SelectListItem { Value = "6", Text = "Light", Selected = model.BadgeStyle == 6 },
-                new SelectListItem { Value = "7", Text = "Dark", Selected = model.BadgeStyle == 7 }
-            };
         }
 
         private async Task ApplyLocales(CategoryModel model, Category category)

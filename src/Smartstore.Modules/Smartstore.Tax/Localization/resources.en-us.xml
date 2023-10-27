@@ -1,10 +1,10 @@
 ﻿<Language Name="English" IsDefault="true" IsRightToLeft="false">
 
     <LocaleResource Name="Plugins.FriendlyName.SmartStore.Tax" AppendRootKey="false">
-        <Value>Standard Steuerberechnung</Value>
+        <Value>Standard tax calculation</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.SmartStore.Tax" AppendRootKey="false">
-        <Value>Stellt Standard Steuerberechnungsmodule zur Verfügung - u.A. Fester Steuersatz, Steuersatz nach Region etc.</Value>
+        <Value>Provides standard tax calculation modules - including fixed tax rate, tax rate by region, etc.</Value>
     </LocaleResource>
 
     <!-- FixedRate -->

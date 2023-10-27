@@ -3,7 +3,7 @@
         <Value>Microsoft Login</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.Smartstore.Microsoft.Auth" AppendRootKey="false">
-        <Value>Erweitert den Shop um die Loginfunktion von Microsoft.</Value>
+        <Value>Erweitert den Shop um die Login-Funktion von Microsoft.</Value>
     </LocaleResource>
     <LocaleResource Name="AdminInstruction">
         <Value>

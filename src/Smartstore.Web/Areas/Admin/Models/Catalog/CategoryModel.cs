@@ -33,6 +33,8 @@ namespace Smartstore.Admin.Models.Catalog
         public string BadgeText { get; set; }
 
         [LocalizedDisplay("*BadgeStyle")]
+        [UIHint("BadgeStyles")]
+        [AdditionalMetadata("badge-text-resource", "Common.Example")]
         public int BadgeStyle { get; set; }
 
         [LocalizedDisplay("*Alias")]

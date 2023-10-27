@@ -378,6 +378,38 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt fest, ob die zuletzt verwendete Gerätefamilie (z.B. Windows, Android, iPad etc.) im Kundendatensatz gespeichert werden soll.");
 
             builder.AddOrUpdate("Account.CustomerSince", "Customer since {0}", "Kunde seit {0}");
+
+            builder.AddOrUpdate("Admin.Packaging.Dialog.PluginInfo",
+                "Choose a plugin package file (Smartstore.Module.*.zip) to upload to your server. The package will be automatically extracted and displayed after clicking <i>Reload list of plugins</i>. If an older version of the plugin already exists, it will be backed up for you.",
+                "Wählen Sie die Plugin Paket-Datei (Smartstore.Module.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird automatisch entpackt und mit einem Klick auf <i>Plugin-Liste erneut laden</i> angezeigt. Wenn eine ältere Version des Plugins bereits existiert, wird eine Sicherungskopie davon erstellt.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SEOSettings.RestartInfo",
+                "Changing link options will take effect only after restarting the application. Also, the XML sitemap should be regenerated to reflect the changes.",
+                "Das Ändern von Link-Optionen wird erst nach einem Neustart der Anwendung wirksam. Außerdem sollte die XML Sitemap neu generiert werden.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DeleteGuests.StartDate.Hint",
+                "The start date of the search. If no date is specified, everything before the end date is deleted.",
+                "Das Anfangsdatum der Suche. Wird kein Datum angegeben, wird alles bis zum Enddatum gelöscht.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DeleteExportedFiles.StartDate.Hint",
+                "The start date of the search. If no date is specified, everything before the end date is deleted.",
+                "Das Anfangsdatum der Suche. Wird kein Datum angegeben, wird alles bis zum Enddatum gelöscht.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DeleteGuests.EndDate.Hint",
+                "The end date of the search. If no date is specified, everything beginning on the start date is deleted.",
+                "Das Enddatum der Suche. Wenn kein Datum angegeben wird, wird alles ab dem Anfangsdatum gelöscht.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DeleteExportedFiles.EndDate.Hint",
+                "The end date of the search. If no date is specified, everything beginning on the start date is deleted.",
+                "Das Enddatum der Suche. Wenn kein Datum angegeben wird, wird alles ab dem Anfangsdatum gelöscht.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.SameServerNote",
+                "Backing up and restoring databases is only possible if the database server (e.g. MS SQL Server or MySQL) and the physical location of the store installation are on the same server.",
+                "Sicherungen und Wiederherstellungen von Datenbanken sind nur möglich, wenn sich der Datenbankserver (z.B. MS SQL Server oder MySQL) und der physikalische Speicherort der Shop-Installation auf dem gleichen Server befinden.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.StartDateMustBeBeforeEndDate",
+                "The start date must not be after the end date.",
+                "Das Anfangsdatum darf nicht nach dem Enddatum liegen.");
         }
 
         /// <summary>

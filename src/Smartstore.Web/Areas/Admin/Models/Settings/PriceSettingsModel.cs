@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Pricing;
+﻿using System.ComponentModel.DataAnnotations;
+using Smartstore.Core.Catalog.Pricing;
 
 namespace Smartstore.Admin.Models
 {
@@ -66,12 +67,14 @@ namespace Smartstore.Admin.Models
         public string OfferBadgeLabel { get; set; }
 
         [LocalizedDisplay("*OfferBadgeStyle")]
+        [UIHint("BadgeStyles")]
         public string OfferBadgeStyle { get; set; }
 
         [LocalizedDisplay("*LimitedOfferBadgeLabel")]
         public string LimitedOfferBadgeLabel { get; set; }
 
         [LocalizedDisplay("*LimitedOfferBadgeStyle")]
+        [UIHint("BadgeStyles")]
         public string LimitedOfferBadgeStyle { get; set; }
 
         [LocalizedDisplay("*ShowPriceLabelInLists")]

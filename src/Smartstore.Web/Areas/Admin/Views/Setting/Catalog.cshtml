@@ -630,24 +630,6 @@
                         <span asp-validation-for="ShowLinkedAttributeValueImage"></span>
                     </div>
                 </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="ShowShareButton" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="ShowShareButton" data-toggler-for="#pnlPageShareCode"></setting-editor>
-                        <span asp-validation-for="ShowShareButton"></span>
-                    </div>
-                </div>
-                <div class="adminRow" id="pnlPageShareCode">
-                    <div class="adminTitle">
-                        <smart-label asp-for="PageShareCode" />
-                    </div>
-                    <div class="adminData">
-                        <editor asp-for="PageShareCode" />
-                        <span asp-validation-for="PageShareCode"></span>
-                    </div>
-                </div>
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.Settings.Catalog.UserSettings")">

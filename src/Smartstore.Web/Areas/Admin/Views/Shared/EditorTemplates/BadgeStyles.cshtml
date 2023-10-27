@@ -1,0 +1,44 @@
+﻿@using Smartstore.Utilities
+
+@{
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var isNullable = ViewData.ModelMetadata.IsNullableValueType;
+    var items = Html.GetLocalizedEnumSelectList(typeof(BadgeStyle));
+    var placeholder = attributes.Get("placeholder") ?? GetMetadata<string>("placeholder");
+
+    // INFO: We can specify the sample text to be displayed in several ways:
+    // 1. As an attribute (badge-text-resource) in the editor tag which contains the resource key.
+    // 2. As a resource key in the model metadata ([AdditionalMetadata("badge-text-resource", "Common.Example")])
+    // 3. As an attribute (badge-text) in the editor tag which contains the text to be displayed.
+    // 4. As a fallback, the text "Common.Example" is used.
+    var badgeTextResource = attributes.Get("badge-text-resource") ?? GetMetadata<string>("badge-text-resource");
+    var badgeText = attributes.Get("badge-text") ?? T(badgeTextResource);
+    if (!badgeText.HasValue())
+    {
+        badgeText = T("Common.Example");
+    }
+
+    if (isNullable && placeholder.IsEmpty())
+    {
+        <select asp-for="@Model" asp-items="items" asp-placeholder="@T("Common.Unspecified")" attrs="attributes" class="noskin"></select>
+    }
+    else
+    {
+        <select asp-for="@Model" asp-items="items" attrs="attributes" class="badge-chooser noskin"></select>
+    }
+}
+
+<script>
+    $(function () {
+        $('#@Html.IdFor(x => x)').selectWrapper({
+            templateResult: formatOption,
+            templateSelection: formatOption
+        });
+
+        function formatOption(option) {
+            let html = $('<span class="select2-option w-100">' + option.text + '<span class="badge badge-' + option.text.toLowerCase() + ' float-right">@badgeText</span></span>');
+            //let html = $('<span class="select2-option"><span class="badge badge-' + option.text.toLowerCase() + '">' + option.text + '</span></span>');
+            return html;
+        }
+    });
+</script>
