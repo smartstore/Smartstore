@@ -435,7 +435,36 @@ namespace Smartstore.Admin.Controllers
                                 }
                                 else
                                 {
-                                    ++numSkipped;
+                                    if (ship)
+                                    {
+                                        var quantities = new Dictionary<int, int>();
+                                        foreach (var orderItem in o.OrderItems)
+                                        {
+                                            quantities.Add(orderItem.Id, orderItem.Quantity);
+                                        }
+
+                                        var shipment = await _orderProcessingService.AddShipmentAsync(o, "", "", quantities);
+                                        if (shipment != null)
+                                        {
+                                            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), o.GetOrderNumber());
+                                        
+                                            if (ship && shipment.ShippedDateUtc == null)
+                                            {
+                                                await _orderProcessingService.ShipAsync(shipment, true);
+                                            }
+                                    
+                                            ++numSuccess;
+                                            succeededOrderNumbers.Add(o.GetOrderNumber());
+                                        }
+                                        else
+                                        {
+                                            ++numSkipped;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        ++numSkipped;
+                                    }
                                 }
                             }
                             else
