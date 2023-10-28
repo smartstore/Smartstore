@@ -25,8 +25,12 @@ namespace Smartstore.Core.Data.Migrations
         {
             await db.MigrateSettingsAsync(builder =>
             {
-                builder.Delete("PrivacySettings.EnableCookieConsent");
                 builder.Update<MediaSettings>(x => x.ProductDetailsPictureSize, 680, 600);
+
+                builder.Delete(
+                    "PrivacySettings.EnableCookieConsent", 
+                    "CatalogSettings.ShowShareButton", 
+                    "CatalogSettings.PageShareCode");
             });
 
             // Remove duplicate settings for PrivacySettings.CookieConsentRequirement
@@ -410,6 +414,23 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.Maintenance.StartDateMustBeBeforeEndDate",
                 "The start date must not be after the end date.",
                 "Das Anfangsdatum darf nicht nach dem Enddatum liegen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterLink",
+                "X (Twitter) link",
+                "X (Twitter) Link");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite",
+                "X (Twitter) Username",
+                "Benutzername auf X (Twitter)");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite.Hint",
+                "X (Twitter) username that gets displayed on X (Twitter) cards when a product, category and manufacturer page is shared on X (Twitter). Starts with a '@'.",
+                "Benutzername auf X (Twitter), der auf Karten von X (Twitter) angezeigt wird, wenn ein Produkt, eine Kategorie oder eine Herstellerseite auf X (Twitter) geteilt wird. Beginnt mit einem '@'.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowShareButton");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowShareButton.Hint");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PageShareCode");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PageShareCode.Hint");
         }
 
         /// <summary>

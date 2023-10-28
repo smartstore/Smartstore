@@ -294,7 +294,7 @@ Vue.component("sm-datagrid", {
 
                         this.indicator.style.display = "block";
                         this.indicator.style.left = (atStart ? rect.left : rect.right) + "px";
-                        this.indicator.style.top = rect.top + "px";
+                        this.indicator.style.top = (rect.top + window.scrollY) + "px";
                         this.indicator.style.height = rect.height + "px";
                     }
                 },

@@ -82,7 +82,7 @@ namespace Smartstore.Web.Controllers
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public static string OrderDetailsPrintViewPath => "~/Views/Order/Details.Print.cshtml";
+        public static string OrderDetailsPrintViewPath => "/{theme}/Views/Order/Details.Print.cshtml";
 
         private async Task<ImageModel> PrepareOrderItemImageModelAsync(
             Product product,
@@ -257,6 +257,9 @@ namespace Smartstore.Web.Controllers
                     orderItem.AttributeSelection,
                     catalogSettings);
             }
+
+            // Custom mapping
+            await MapperFactory.MapWithRegisteredMapperAsync(orderItem, model, new { Order = order, Currency = customerCurrency });
 
             return model;
 
@@ -568,6 +571,9 @@ namespace Smartstore.Web.Controllers
                 var orderItemModel = await PrepareOrderItemModelAsync(o, orderItem, catalogSettings, shoppingCartSettings, mediaSettings, customerCurrency);
                 model.Items.Add(orderItemModel);
             }
+
+            // Custom mapping
+            await MapperFactory.MapWithRegisteredMapperAsync(o, model, new { Context = context });
 
             return model;
 

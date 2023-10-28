@@ -128,16 +128,6 @@ namespace Smartstore.Core.Catalog
         public bool ShowDescriptionInSubPages { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether a 'Share button' is enabled
-        /// </summary>
-        public bool ShowShareButton { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets a share code (e.g. AddThis button code)
-        /// </summary>
-        public string PageShareCode { get; set; } = "<!-- AddThis Button BEGIN --><div class=\"addthis_toolbox addthis_default_style addthis_32x32_style\"><a class=\"addthis_button_preferred_1\"></a><a class=\"addthis_button_preferred_2\"></a><a class=\"addthis_button_preferred_3\"></a><a class=\"addthis_button_preferred_4\"></a><a class=\"addthis_button_compact\"></a><a class=\"addthis_counter addthis_bubble_style\"></a></div><script type=\"text/javascript\">var addthis_config = {\"data_track_addressbar\":false};</script><script type=\"text/javascript\" src=\"//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-50f6c18f03ecbb2f\"></script><!-- AddThis Button END -->";
-
-        /// <summary>
         /// Gets or sets a value indicating whether to display reviews in product lists
         /// </summary>
         public bool ShowProductReviewsInProductLists { get; set; }

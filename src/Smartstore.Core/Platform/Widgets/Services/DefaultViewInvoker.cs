@@ -63,8 +63,8 @@ namespace Smartstore.Core.Widgets
 
         public async Task<HtmlString> InvokeComponentAsync(ActionContext actionContext, ViewComponentResult result)
         {
-            Guard.NotNull(actionContext, nameof(actionContext));
-            Guard.NotNull(result, nameof(result));
+            Guard.NotNull(actionContext);
+            Guard.NotNull(result);
 
             var widget = result.ViewComponentType != null 
                 ? new ComponentWidget(result.ViewComponentType, result.Arguments)
@@ -81,8 +81,8 @@ namespace Smartstore.Core.Widgets
 
         public async Task<HtmlString> InvokePartialViewAsync(ActionContext actionContext, PartialViewResult result)
         {
-            Guard.NotNull(actionContext, nameof(actionContext));
-            Guard.NotNull(result, nameof(result));
+            Guard.NotNull(actionContext);
+            Guard.NotNull(result);
 
             var widget = new PartialViewWidget(result.ViewName!, result.Model);
             var widgetContext = new WidgetContext(actionContext)
@@ -96,8 +96,8 @@ namespace Smartstore.Core.Widgets
 
         public async Task<HtmlString> InvokeViewAsync(ActionContext actionContext, ViewResult result)
         {
-            Guard.NotNull(actionContext, nameof(actionContext));
-            Guard.NotNull(result, nameof(result));
+            Guard.NotNull(actionContext);
+            Guard.NotNull(result);
 
             var widget = new PartialViewWidget(result.ViewName!, result.Model) { IsMainPage = true };
             var widgetContext = new WidgetContext(actionContext)

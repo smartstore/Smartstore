@@ -3,7 +3,9 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Smartstore.Core.Theming;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Widgets
@@ -11,6 +13,7 @@ namespace Smartstore.Core.Widgets
     public class PartialViewWidgetInvoker : WidgetInvoker<PartialViewWidget>
     {
         private const string ActionNameKey = "action";
+        private const string ViewExtension = ".cshtml";
 
         private readonly ICompositeViewEngine _viewEngine;
 
@@ -53,17 +56,35 @@ namespace Smartstore.Core.Widgets
         {
             viewName ??= GetActionName(actionContext).EmptyNull();
 
-            var result = _viewEngine.GetView(executingFilePath: null, viewPath: viewName, isMainPage: isMainPage);
-            var getViewLocations = result.SearchedLocations;
-            if (!result.Success)
+            ViewEngineResult result = default!;
+            IEnumerable<string> searchedLocations = default!;
+
+            if (IsApplicationRelativePath(viewName) || IsRelativePath(viewName))
             {
+                // Path is specific, like "~/Views/Shared/File.cshtml"
+                var executingFilePath = (actionContext as ViewContext)?.ExecutingFilePath;
+                foreach (var path in ExpandViewPath(viewName, actionContext))
+                {
+                    result = _viewEngine.GetView(executingFilePath, viewPath: path, isMainPage: isMainPage);
+                    if (result.Success)
+                    {
+                        break;
+                    }
+
+                    searchedLocations ??= new List<string>();
+                    ((List<string>)searchedLocations).AddRange(result.SearchedLocations);
+                }
+            }
+            else
+            {
+                // Path is generic, like "File", must resolve location
                 result = _viewEngine.FindView(actionContext, viewName, isMainPage: isMainPage);
+                searchedLocations = result.SearchedLocations;
             }
 
             if (!result.Success)
             {
-                var searchedLocations = Enumerable.Concat(getViewLocations, result.SearchedLocations);
-                result = ViewEngineResult.NotFound(viewName, searchedLocations);
+                result = ViewEngineResult.NotFound(viewName, searchedLocations ?? result.SearchedLocations);
             }
 
             return result;
@@ -90,6 +111,46 @@ namespace Smartstore.Core.Widgets
             }
 
             return stringRouteValue;
+        }
+
+        /// <summary>
+        /// Replaces {theme} token with current theme path and expands viewPath like this 
+        /// (if viewPath is e.g. '/{theme}/Views/Shared/File.cshtml'):
+        /// 1. /Themes/Flex/Views/Shared/File.cshtml
+        /// 2. /Views/Shared/File.cshtml
+        /// </summary>
+        private static IEnumerable<string> ExpandViewPath(string viewPath, ActionContext actionContext)
+        {
+            viewPath = viewPath.TrimStart('~');
+            
+            if (viewPath.StartsWithNoCase("/{theme}/"))
+            {
+                // Strip off /{theme}
+                var subpath = viewPath[8..];
+
+                var workingTheme = actionContext.HttpContext.RequestServices.GetRequiredService<IThemeContext>().WorkingThemeName;
+
+                // --> {/Themes/Flex}/Views/Shared/File.cshtml
+                yield return "/Themes/" + workingTheme + subpath;
+
+                // --> /Views/Shared/File.cshtml
+                yield return subpath;
+            }
+            else
+            {
+                yield return viewPath;
+            }        
+        }
+
+        private static bool IsApplicationRelativePath(string name)
+        {
+            return name[0] == '~' || name[0] == '/';
+        }
+
+        private static bool IsRelativePath(string name)
+        {
+            // Though ./ViewName looks like a relative path, framework searches for that view using view locations.
+            return name.EndsWith(ViewExtension, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

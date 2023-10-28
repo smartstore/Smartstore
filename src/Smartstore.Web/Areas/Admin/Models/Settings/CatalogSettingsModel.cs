@@ -239,14 +239,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*RecentlyAddedProductsNumber")]
         public int RecentlyAddedProductsNumber { get; set; }
 
-        [LocalizedDisplay("*ShowShareButton")]
-        public bool ShowShareButton { get; set; }
-
-        [UIHint("Textarea")]
-        [AdditionalMetadata("rows", 5)]
-        [LocalizedDisplay("*PageShareCode")]
-        public string PageShareCode { get; set; }
-
         [LocalizedDisplay("*ProductsAlsoPurchasedEnabled")]
         public bool ProductsAlsoPurchasedEnabled { get; set; }
 
