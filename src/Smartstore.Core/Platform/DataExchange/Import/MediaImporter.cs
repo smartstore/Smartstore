@@ -2,8 +2,8 @@
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
+using Smartstore.Core.DataExchange.Import.Internal;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Web;
 using Smartstore.Data;
@@ -193,36 +193,22 @@ namespace Smartstore.Core.DataExchange.Import
                             continue;
                         }
 
-                        Stream stream;
-                        if (!newFiles.TryGetValue(item.Path, out var fileSource))
+                        using var file = new MediaImporterFile();
+                        if (!file.Init(item, newFiles))
                         {
-                            stream = File.OpenRead(item.Path);
-                            if (stream.Length <= 0)
-                            {
-                                stream.Dispose();
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            // File was already processed within batch.
-                            stream = fileSource.Source.SourceStream;
+                            continue;
                         }
 
                         var currentFiles = existingFiles.ContainsKey(item.Entity.Id)
                             ? existingFiles[item.Entity.Id]
                             : Enumerable.Empty<IMediaFile>();
 
-                        var equalityCheck = await _mediaService.FindEqualFileAsync(stream, currentFiles.Select(x => x.MediaFile), true);
+                        var equalityCheck = await _mediaService.FindEqualFileAsync(file, currentFiles.Select(x => x.MediaFile), true);
                         if (equalityCheck.Success)
                         {
                             // INFO: may occur during a initial import when products have the same SKU and
                             // the first product was overwritten with the data of the second one.
                             InvokeMessageHandler($"Found equal file in product data for '{item.FileName}'. Skipping file.", item, reason: ImportMessageReason.EqualFile);
-                            if (fileSource == null)
-                            {
-                                stream?.Dispose();
-                            }
                         }
                         else
                         {
@@ -231,7 +217,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 item.DisplayOrder = ++maxDisplayOrder;
                             }
 
-                            equalityCheck = await _mediaService.FindEqualFileAsync(stream, item.FileName, album.Id, true);
+                            equalityCheck = await _mediaService.FindEqualFileAsync(file, item.FileName, album.Id, true);
                             if (equalityCheck.Success)
                             {
                                 // INFO: may occur during a subsequent import when products have the same SKU and
@@ -239,26 +225,10 @@ namespace Smartstore.Core.DataExchange.Import
                                 var assignedFile = assignMediaFileHandler(equalityCheck.Value, item);
                                 existingFiles.Add(item.Entity.Id, assignedFile);
                                 InvokeMessageHandler($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.", item, reason: ImportMessageReason.EqualFileInAlbum);
-                                if (fileSource == null)
-                                {
-                                    stream?.Dispose();
-                                }
                             }
                             else
                             {
-                                if (fileSource == null)
-                                {
-                                    // Keep stream for later batch import of new images.
-                                    newFiles.Add(item.Path, new(MediaStorageItem.FromStream(stream, true))
-                                    {
-                                        FileName = item.FileName,
-                                        State = new List<DownloadManagerItem> { item }
-                                    });
-                                }
-                                else
-                                {
-                                    ((List<DownloadManagerItem>)fileSource.State).Add(item);
-                                }
+                                file.Add(item, newFiles);
                             }
                         }
                     }
@@ -278,14 +248,9 @@ namespace Smartstore.Core.DataExchange.Import
                     // Always turn image post-processing off during imports. It can heavily decrease processing time.
                     _mediaService.ImagePostProcessingEnabled = false;
                     
-                    var batchFileResult = await _mediaService.BatchSaveFilesAsync(
-                        newFiles.Values.ToArray(),
-                        album,
-                        false,
-                        duplicateFileHandling,
-                        cancelToken);
+                    var batchResult = await _mediaService.BatchSaveFilesAsync(newFiles.Values.ToArray(), album, false, duplicateFileHandling, cancelToken);
 
-                    foreach (var fileResult in batchFileResult)
+                    foreach (var fileResult in batchResult)
                     {
                         if (fileResult.Exception == null && fileResult.File?.Id > 0)
                         {
@@ -349,65 +314,31 @@ namespace Smartstore.Core.DataExchange.Import
                         continue;
                     }
 
-                    Stream stream;
-                    if (!newFiles.TryGetValue(item.Path, out var fileSource))
+                    using var file = new MediaImporterFile();
+                    if (!file.Init(item, newFiles))
                     {
-                        stream = File.OpenRead(item.Path);
-                        if (stream.Length <= 0)
-                        {
-                            stream.Dispose();
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        // File was already processed within batch.
-                        stream = fileSource.Source.SourceStream;
-                    }
-
-                    // Check for already assigned files.
-                    if (await checkAssignedMediaFileHandler(entity, stream))
-                    {
-                        InvokeMessageHandler($"Found equal file for {nameof(entity)} '{item.FileName}'. Skipping file.", item, reason: ImportMessageReason.EqualFile);
-                        if (fileSource == null)
-                        {
-                            stream?.Dispose();
-                        }
                         continue;
                     }
 
-                    var addFileSource = true;
+                    // Check for already assigned files.
+                    if (await checkAssignedMediaFileHandler(entity, file))
+                    {
+                        InvokeMessageHandler($"Found equal file for {nameof(entity)} '{item.FileName}'. Skipping file.", item, reason: ImportMessageReason.EqualFile);
+                        continue;
+                    }
+
                     if (checkExistingFile)
                     {
-                        var equalityCheck = await _mediaService.FindEqualFileAsync(stream, item.FileName, album.Id, true);
+                        var equalityCheck = await _mediaService.FindEqualFileAsync(file, item.FileName, album.Id, true);
                         if (equalityCheck.Success)
                         {
                             assignMediaFileHandler(entity, equalityCheck.Value.Id);
                             InvokeMessageHandler($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.", item, reason: ImportMessageReason.EqualFileInAlbum);
-                            addFileSource = false;
-                            if (fileSource == null)
-                            {
-                                stream?.Dispose();
-                            }
+                            continue;
                         }
                     }
 
-                    if (addFileSource)
-                    {
-                        if (fileSource == null)
-                        {
-                            // Keep stream for later batch import of new images.
-                            newFiles.Add(item.Path, new FileBatchSource(MediaStorageItem.FromStream(stream, true))
-                            {
-                                FileName = item.FileName,
-                                State = new List<DownloadManagerItem> { item }
-                            });
-                        }
-                        else
-                        {
-                            ((List<DownloadManagerItem>)fileSource.State).Add(item);
-                        }
-                    }
+                    file.Add(item, newFiles);
                 }
                 catch (Exception ex)
                 {
@@ -424,14 +355,9 @@ namespace Smartstore.Core.DataExchange.Import
                     // Always turn image post-processing off during imports. It can heavily decrease processing time.
                     _mediaService.ImagePostProcessingEnabled = false;
 
-                    var batchFileResult = await _mediaService.BatchSaveFilesAsync(
-                        newFiles.Values.ToArray(),
-                        album,
-                        false,
-                        duplicateFileHandling,
-                        cancelToken);
+                    var batchResult = await _mediaService.BatchSaveFilesAsync(newFiles.Values.ToArray(), album, false, duplicateFileHandling, cancelToken);
 
-                    foreach (var fileResult in batchFileResult)
+                    foreach (var fileResult in batchResult)
                     {
                         if (fileResult.Exception == null && fileResult.File?.Id > 0)
                         {
@@ -441,123 +367,6 @@ namespace Smartstore.Core.DataExchange.Import
                             {
                                 assignMediaFileHandler((T)item.Entity, fileResult.File.Id);
                             }
-                        }
-                    }
-                }
-                finally
-                {
-                    _mediaService.ImagePostProcessingEnabled = postProcessingEnabled;
-                }
-            }
-
-            await scope.CommitAsync(cancelToken);
-
-            return newFiles.Count;
-        }
-
-        public virtual async Task<int> ImportMediaFilesAsync_Old<T>(
-            DbContextScope scope,
-            ICollection<DownloadManagerItem> items,
-            MediaFolderNode album,
-            Action<T, int> assignMediaFileHandler,
-            Func<T, Stream, Task<bool>> checkAssignedMediaFileHandler,
-            bool checkExistingFile,
-            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
-            CancellationToken cancelToken = default) where T : BaseEntity
-        {
-            Guard.NotNull(scope);
-            Guard.NotNull(items);
-            Guard.NotNull(album);
-            Guard.NotNull(assignMediaFileHandler);
-
-            items = items.Where(x => x != null).ToArray();
-            if (items.Count == 0)
-            {
-                return 0;
-            }
-
-            var newFiles = new List<FileBatchSource>();
-
-            foreach (var item in items)
-            {
-                try
-                {
-                    var entity = item.Entity as T;
-
-                    if (item.Url.HasValue() && !item.Success)
-                    {
-                        await _downloadManager.DownloadFilesAsync(new[] { item }, cancelToken);
-                    }
-
-                    if (Succeeded(item))
-                    {
-                        var stream = File.OpenRead(item.Path);
-                        var disposeStream = true;
-
-                        if (stream?.Length > 0)
-                        {
-                            // Check for already assigned files.
-                            if (await checkAssignedMediaFileHandler(entity, stream))
-                            {
-                                InvokeMessageHandler($"Found equal file for {nameof(entity)} '{item.FileName}'. Skipping file.", item, reason: ImportMessageReason.EqualFile);
-                                continue;
-                            }
-
-                            var addFileBatchSource = true;
-                            if (checkExistingFile)
-                            {
-                                var equalityCheck = await _mediaService.FindEqualFileAsync(stream, item.FileName, album.Id, true);
-                                if (equalityCheck.Success)
-                                {
-                                    assignMediaFileHandler(entity, equalityCheck.Value.Id);
-                                    InvokeMessageHandler($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.", item, reason: ImportMessageReason.EqualFileInAlbum);
-                                    addFileBatchSource = false;
-                                }
-                            }
-
-                            if (addFileBatchSource)
-                            {
-                                // Keep path for later batch import of new images.
-                                newFiles.Add(new FileBatchSource(MediaStorageItem.FromStream(stream, true))
-                                {
-                                    FileName = item.FileName,
-                                    State = item.Entity
-                                });
-                                disposeStream = false;
-                            }
-                        }
-
-                        if (disposeStream) stream?.Dispose();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    InvokeMessageHandler(ex.ToAllMessages(), null, ImportMessageType.Warning);
-                }
-            }
-
-            if (newFiles.Count > 0)
-            {
-                var postProcessingEnabled = _mediaService.ImagePostProcessingEnabled;
-
-                try
-                {
-                    // Always turn image post-processing off during imports. It can heavily decrease processing time.
-                    _mediaService.ImagePostProcessingEnabled = false;
-
-                    var batchFileResult = await _mediaService.BatchSaveFilesAsync(
-                        newFiles.ToArray(),
-                        album,
-                        false,
-                        duplicateFileHandling,
-                        cancelToken);
-
-                    foreach (var fileResult in batchFileResult)
-                    {
-                        if (fileResult.Exception == null && fileResult.File?.Id > 0)
-                        {
-                            // Assign MediaFile to corresponding entity via callback.
-                            assignMediaFileHandler((T)fileResult.Source.State, fileResult.File.Id);
                         }
                     }
                 }
@@ -826,22 +635,6 @@ namespace Smartstore.Core.DataExchange.Import
 
         #region Utilities
 
-        protected virtual void InvokeMessageHandler(
-            string msg,
-            DownloadManagerItem item = null,
-            ImportMessageType messageType = ImportMessageType.Info,
-            ImportMessageReason reason = ImportMessageReason.None)
-        {
-            if (MessageHandler != null && msg.HasValue())
-            {
-                MessageHandler.Invoke(new ImportMessage(msg, messageType, reason)
-                {
-                    AffectedField = $"{nameof(item.Entity)} #{item.DisplayOrder}"
-                },
-                item);
-            }
-        }
-
         private async Task Download(DownloadManagerItem[] items, Dictionary<string, DownloadManagerItem> downloadedItems, CancellationToken cancelToken)
         {
             if (items.Length == 0)
@@ -900,6 +693,22 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
+        protected virtual void InvokeMessageHandler(
+            string msg,
+            DownloadManagerItem item = null,
+            ImportMessageType messageType = ImportMessageType.Info,
+            ImportMessageReason reason = ImportMessageReason.None)
+        {
+            if (MessageHandler != null && msg.HasValue())
+            {
+                MessageHandler.Invoke(new ImportMessage(msg, messageType, reason)
+                {
+                    AffectedField = $"{nameof(item.Entity)} #{item.DisplayOrder}"
+                },
+                item);
+            }
+        }
+
         private bool Succeeded(DownloadManagerItem item)
         {
             if (item.Entity == null)
@@ -918,62 +727,5 @@ namespace Smartstore.Core.DataExchange.Import
         }
 
         #endregion
-    }
-
-    internal class ImportFileStream : Disposable
-    {
-        private bool _fileExists;
-
-        public ImportFileStream(DownloadManagerItem item, Dictionary<string, FileBatchSource> files)
-        {
-            if (files.TryGetValue(item.Path, out var fileSource))
-            {
-                // File was already processed within batch.
-                _fileExists = true;
-                Stream = fileSource.Source.SourceStream;
-            }
-            else
-            {
-                _fileExists = false;
-                Stream = File.OpenRead(item.Path);
-                if (Stream.Length <= 0)
-                {
-                    Stream.Dispose();
-                    Stream = null;
-                }
-            }
-        }
-
-        public Stream Stream { get; private set; }
-
-        public void Add(DownloadManagerItem item, Dictionary<string, FileBatchSource> files)
-        {
-            if (_fileExists)
-            {
-                // Assign item.
-                ((List<DownloadManagerItem>)files[item.Path].State).Add(item);               
-            }
-            else
-            {
-                // Keep stream for later batch import of new images.
-                files.Add(item.Path, new(MediaStorageItem.FromStream(Stream, true))
-                {
-                    FileName = item.FileName,
-                    State = new List<DownloadManagerItem> { item }
-                });
-            }
-
-            // Do not dispose stream.
-            _fileExists = true;
-        }
-
-        protected override void OnDispose(bool disposing)
-        {
-            if (disposing && Stream != null && !_fileExists)
-            {
-                Stream?.Dispose();
-                Stream = null;
-            }
-        }
     }
 }
