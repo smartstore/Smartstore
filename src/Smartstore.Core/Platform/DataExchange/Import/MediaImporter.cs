@@ -703,7 +703,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 MessageHandler.Invoke(new ImportMessage(msg, messageType, reason)
                 {
-                    AffectedField = $"{nameof(item.Entity)} #{item.DisplayOrder}"
+                    AffectedField = item != null ? $"{item.Entity.GetEntityName()} #{item.DisplayOrder}" : null
                 },
                 item);
             }
