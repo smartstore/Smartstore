@@ -89,9 +89,3 @@
 .alert > *:last-child {
 	margin-bottom: 0 !important;
 }
-
-.alert.rounded-0 {
-    &:before {
-        @include border-left-radius(0);
-    }
-}
