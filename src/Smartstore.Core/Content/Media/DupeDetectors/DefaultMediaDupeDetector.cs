@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.Core.Content.Media
 {
-    internal class DefaultMediaDupeDetector : IMediaDupeDetector
+    internal class DefaultMediaDupeDetector : MediaDupeDetectorBase
     {
         const int MaxCachedFileNames = 40000;
 
@@ -17,11 +17,11 @@
             _fileCount = fileCount;
         }
 
-        public Task<MediaFile> DetectFileAsync(string fileName, CancellationToken cancelToken = default)
+        public override Task<MediaFile> DetectFileAsync(string fileName, CancellationToken cancelToken = default)
         {
             if (fileName.IsEmpty())
             {
-                return null!;
+                return null;
             }
 
             var query = new MediaSearchQuery
@@ -36,10 +36,10 @@
             return _searcher.PrepareQuery(query, MediaLoadFlags.None).FirstOrDefaultAsync(cancelToken);
         }
 
-        public async Task<string> GetUniqueFileNameAsync(string title, string ext, CancellationToken cancelToken = default)
+        public override async Task<string> GetUniqueFileNameAsync(string title, string extension, CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(title);
-            Guard.NotEmpty(ext);
+            Guard.NotEmpty(extension);
 
             ICollection<string> destFileNames;
 
@@ -49,7 +49,7 @@
                 var q = new MediaSearchQuery
                 {
                     FolderId = _folderId,
-                    Term = title + '.' + ext,
+                    Term = title + '.' + extension,
                     ExactMatch = true,
                     Deleted = null
                 };
@@ -83,13 +83,7 @@
                 destFileNames = _cachedFileNames;
             }
 
-            if (destFileNames.Count == 0)
-            {
-                return null;
-            }
-
-            MediaHelper.CheckUniqueFileName(title, ext, destFileNames, out var uniqueName);
-            return uniqueName;
+            return GetUniqueFileName(title, extension, destFileNames);
         }
     }
 }

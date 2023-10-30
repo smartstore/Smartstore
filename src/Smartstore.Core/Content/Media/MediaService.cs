@@ -486,7 +486,7 @@ namespace Smartstore.Core.Content.Media
             }
 
             // Use IMediaDupeDetector to get all files in destination folder for faster dupe selection.
-            var dupeDetector = _dupeDetectorFactory.GetDetector(destinationFolder.Id);
+            using var dupeDetector = _dupeDetectorFactory.GetDetector(destinationFolder.Id);
 
             foreach (var source in sources)
             {

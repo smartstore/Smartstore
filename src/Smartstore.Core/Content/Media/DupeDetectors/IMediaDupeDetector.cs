@@ -5,10 +5,10 @@ namespace Smartstore.Core.Content.Media
     /// <summary>
     /// Represents a detector for finding duplicate <see cref="MediaFile"/> entities.
     /// </summary>
-    public interface IMediaDupeDetector
+    public interface IMediaDupeDetector : IDisposable
     {
         /// <summary>
-        /// Tries to detects a duplicate file.
+        /// Tries to detect a duplicate file.
         /// </summary>
         /// <param name="fileName">The name of the file to search for.</param>
         /// <returns>Found duplicate file or <c>null</c> if it does not exist.</returns>
