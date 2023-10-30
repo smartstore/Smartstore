@@ -200,7 +200,7 @@ namespace Smartstore.Core.Content.Media
             }
 
             // Use IMediaDupeDetector to get all files in destination folder for faster dupe selection.
-            var dupeDetector = destNode != null ? _dupeDetectorFactory.GetDetector(destNode.Value.Id) : null;
+            using var dupeDetector = destNode != null ? _dupeDetectorFactory.GetDetector(destNode.Value.Id) : null;
 
             // Create dest folder
             destNode ??= await CreateFolderAsync(destPath);

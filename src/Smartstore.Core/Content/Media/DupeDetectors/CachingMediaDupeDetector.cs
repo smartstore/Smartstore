@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.Core.Content.Media
 {
-    internal class CachingMediaDupeDetector : IMediaDupeDetector
+    internal class CachingMediaDupeDetector : MediaDupeDetectorBase
     {
         private readonly IMediaSearcher _searcher;
         private readonly int _folderId;
@@ -13,7 +13,7 @@
             _folderId = folderId;
         }
 
-        public async Task<MediaFile> DetectFileAsync(string fileName, CancellationToken cancelToken = default)
+        public override async Task<MediaFile> DetectFileAsync(string fileName, CancellationToken cancelToken = default)
         {
             if (fileName.IsEmpty())
             {
@@ -24,17 +24,12 @@
             return files.Get(fileName);
         }
 
-        public async Task<string> GetUniqueFileNameAsync(string title, string ext, CancellationToken cancelToken = default)
+        public override async Task<string> GetUniqueFileNameAsync(string title, string extension, CancellationToken cancelToken = default)
         {
-            Guard.NotEmpty(title);
-            Guard.NotEmpty(ext);
-
             var files = await GetFiles(cancelToken);
 
             // INFO: The dictionary Keys collection acts like a hashset, so it is ok to pass it around.
-            MediaHelper.CheckUniqueFileName(title, ext, files.Keys, out var uniqueName);
-
-            return uniqueName;
+            return GetUniqueFileName(title, extension, files.Keys);
         }
 
         private async Task<Dictionary<string, MediaFile>> GetFiles(CancellationToken cancelToken)
