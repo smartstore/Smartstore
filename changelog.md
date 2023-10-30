@@ -109,6 +109,10 @@
 - MegaSearch:
   - Fixed incorrect search results when a multistore has different default languages configured.
   - Fixed an incorrect second search result, executed via a spell checker suggestion, when the first search did not return any hits.
+- Import:
+  - Fixed localized properties were not updated during import.
+  - Localized SeName was only updated when import file also contained a non-localized SeName column.
+  - Fixed duplicate imported images if they were assigned to several products within a batch.
 - Fixed the category navigation no longer shows the number of contained products after reindexing.
 - Fixed products associated to a grouped product cannot be deleted via associated products grid.
 - Fixed not yet awarded reward points were reduced when an order was deleted.
@@ -124,9 +128,6 @@
 - Output Cache: missing `Content-Type` header when serving page from cache
 - #531 Error reading import file with localized values of languages with the same UniqueSeoCode.
 - Fixed discounts assigned to categories and limited to customer roles should be excluded from export and exported prices.
-- Import:
-  - Fixed localized properties were not updated during import.
-  - Localized SeName was only updated when import file also contained a non-localized SeName column.
 - Fixed MainPictureId not applied on product edit page if missing and if there is only one picture assigned to a product.
 - Fixed product image gallery issue where no image was displayed at all.
 - #843 Additional shipping charge displayed in product details even if free shipping is activated.
