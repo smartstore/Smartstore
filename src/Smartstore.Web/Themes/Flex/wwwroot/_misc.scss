@@ -126,7 +126,7 @@
     }
 
     .avatar-letter {
-        font-size: 3rem;
+        font-size: 2.7rem;
     }
 }
 
@@ -149,6 +149,10 @@
     .myaccount-header .customer-avatar-lg {
         width: 55px;
         height: 55px;
+
+        .avatar-letter {
+            font-size: 2.4rem;
+        }
     }
 }
 
