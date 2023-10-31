@@ -206,6 +206,8 @@ namespace Smartstore.Core.Content.Media
             Stream inStream,
             string newFileName);
 
+        Task ReprocessImageAsync(MediaFileInfo fileInfo);
+
         /// <summary>
         /// Saves multiple files batched.
         /// </summary>

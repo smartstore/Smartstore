@@ -15,8 +15,8 @@ namespace Smartstore.Core.Content.Media.Imaging
     {
         public ImageUploadedEvent(ProcessImageQuery query, IImageInfo info)
         {
-            Query = Guard.NotNull(query, nameof(query));
-            Info = Guard.NotNull(info, nameof(info));
+            Query = Guard.NotNull(query);
+            Info = Guard.NotNull(info);
         }
 
         /// <summary>

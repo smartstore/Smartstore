@@ -9,8 +9,8 @@ namespace Smartstore.Imaging
 
         public ImageWrapper(Stream stream, IImageInfo info, bool disposeStream = true)
         {
-            Guard.NotNull(stream, nameof(stream));
-            Guard.NotNull(info, nameof(info));
+            Guard.NotNull(stream);
+            Guard.NotNull(info);
 
             InStream = stream;
             Format = info.Format;
@@ -55,7 +55,7 @@ namespace Smartstore.Imaging
 
         private async Task<IImage> SaveInternal(Stream stream, IImageFormat format, bool async)
         {
-            Guard.NotNull(stream, nameof(stream));
+            Guard.NotNull(stream);
 
             if (stream.CanSeek)
             {

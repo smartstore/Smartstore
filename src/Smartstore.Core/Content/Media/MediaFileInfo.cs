@@ -231,6 +231,7 @@ namespace Smartstore.Core.Content.Media
         public Size Size
         {
             get => _size;
+            internal set => _size = value;
         }
 
         /// <inheritdoc/>

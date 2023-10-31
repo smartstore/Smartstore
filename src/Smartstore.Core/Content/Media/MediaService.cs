@@ -11,6 +11,7 @@ using Smartstore.Data;
 using Smartstore.Events;
 using Smartstore.Imaging;
 using Smartstore.Threading;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -390,6 +391,57 @@ namespace Smartstore.Core.Content.Media
 
         #region Create/Update/Delete/Replace
 
+        public async Task ReprocessImageAsync(MediaFileInfo fileInfo)
+        {
+            Guard.NotNull(fileInfo);
+
+            var file = fileInfo.File;
+
+            if (file.MediaType != MediaType.Image)
+            {
+                throw new InvalidOperationException("TODO");
+            }
+
+            var inStream = await _storageProvider.OpenReadAsync(file);
+
+            if ((await ProcessImage(file, inStream, true)).Out(out var outImage) && (outImage is not ImageWrapper wrapper || wrapper.InStream != inStream))
+            {
+                // If outImage is ImageWrapper and its inStream equals the original stream,
+                // then the image has not been touched.
+                
+                var storageItem = MediaStorageItem.FromImage(outImage);
+
+                file.Width = outImage.Width;
+                file.Height = outImage.Height;
+                file.PixelSize = outImage.Width * outImage.Height;
+                file.Size = (int)storageItem.SourceStream.Length;
+
+                fileInfo.Size = new Size(outImage.Width, outImage.Height);
+
+                // Close read stream, we gonna need it for writing now.
+                inStream.Close();
+
+                try
+                {
+                    await _storageProvider.SaveAsync(file, storageItem);
+                    await _db.SaveChangesAsync();
+
+                    // Delete thumbnail
+                    await _imageCache.DeleteAsync(file);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                    throw ex;
+                }
+            }
+            else
+            {
+                // Close stream anyway
+                inStream.Close();
+            }
+        }
+
         public async Task<MediaFileInfo> ReplaceFileAsync(MediaFile file, Stream inStream, string newFileName)
         {
             Guard.NotNull(file);
@@ -754,18 +806,13 @@ namespace Smartstore.Core.Content.Media
             }
         }
 
-        protected async Task<AsyncOut<IImage>> ProcessImage(MediaFile file, Stream inStream)
+        protected async Task<AsyncOut<IImage>> ProcessImage(MediaFile file, Stream inStream, bool force = false)
         {
-            var originalSize = Size.Empty;
+            // Determine image format
             var format = _imageProcessor.Factory.FindFormatByExtension(file.Extension) ?? new UnsupportedImageFormat(file.MimeType, file.Extension);
-
-            try
-            {
-                originalSize = ImageHeader.GetPixelSize(inStream, file.MimeType);
-            }
-            catch
-            {
-            }
+            
+            // Try to read original dimensions from binary header
+            var originalSize = CommonHelper.TryAction(() => ImageHeader.GetPixelSize(inStream, file.MimeType));
 
             var info = new GenericImageInfo(originalSize, format);
 
@@ -787,14 +834,18 @@ namespace Smartstore.Core.Content.Media
                 IsValidationMode = true
             };
 
-            if (originalSize.IsEmpty || (originalSize.Height <= maxSize && originalSize.Width <= maxSize))
+            if (!force)
             {
-                // Give subscribers the chance to (pre)-process
-                var evt = new ImageUploadedEvent(query, info);
-                await _eventPublisher.PublishAsync(evt);
-                outImage = evt.ResultImage ?? new ImageWrapper(inStream, info);
+                // If force is true, we want it to be processed even if image is smaller than max allowed size
+                if (originalSize.IsEmpty || (originalSize.Height <= maxSize && originalSize.Width <= maxSize))
+                {
+                    // Give subscribers the chance to (pre)-process
+                    var evt = new ImageUploadedEvent(query, info);
+                    await _eventPublisher.PublishAsync(evt);
+                    outImage = evt.ResultImage ?? new ImageWrapper(inStream, info);
 
-                return new AsyncOut<IImage>(true, outImage);
+                    return new AsyncOut<IImage>(true, outImage);
+                }
             }
 
             query.MaxSize = maxSize;

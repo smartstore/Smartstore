@@ -141,8 +141,8 @@ namespace Smartstore
 
         public static async Task<bool> CopyToFileAsync(this Stream stream, string destinationPath, bool leaveOpen = true)
         {
-            Guard.NotNull(stream, nameof(stream));
-            Guard.NotEmpty(destinationPath, nameof(destinationPath));
+            Guard.NotNull(stream);
+            Guard.NotEmpty(destinationPath);
 
             try
             {
