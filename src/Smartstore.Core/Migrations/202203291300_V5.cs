@@ -813,8 +813,6 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Obsolete
 
-            // TODO: (core) Delete all Telerik language resources
-
             builder.Delete(
                 "Admin.Catalog.Categories.BackToList",
                 "Admin.Catalog.Manufacturers.BackToList",
