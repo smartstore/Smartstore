@@ -10,6 +10,7 @@
 - The **recycle bin** for products enables to restore and permanently delete products
 - **payever** plugin (commercial)
 - **Botsonic** plugin (commercial)
+- Media Manager now allows image files to be re-processed based on the current media and post processor settings.
 - Cart quantity input control now respects the product's available stock (as max input)
 - #823 Added canonical URL to search pages
 - #745 Page Builder: depend story visibility on user roles

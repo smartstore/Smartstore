@@ -78,7 +78,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<int> CountFilesAsync(MediaSearchQuery query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var q = _searcher.PrepareQuery(query, MediaLoadFlags.None);
             return await q.CountAsync();
@@ -87,7 +87,7 @@ namespace Smartstore.Core.Content.Media
         public async Task<FileCountResult> CountFilesGroupedAsync(MediaFilesFilter filter)
         {
             // TODO: (core) Throws
-            Guard.NotNull(filter, nameof(filter));
+            Guard.NotNull(filter);
 
             // Base db query
             var q = _searcher.ApplyFilterQuery(filter);
@@ -217,8 +217,8 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<MediaFileInfo> GetFileByNameAsync(int folderId, string fileName, MediaLoadFlags flags = MediaLoadFlags.None)
         {
-            Guard.IsPositive(folderId, nameof(folderId));
-            Guard.NotEmpty(fileName, nameof(fileName));
+            Guard.IsPositive(folderId);
+            Guard.NotEmpty(fileName);
 
             var query = _db.MediaFiles.Where(x => x.Name == fileName && x.FolderId == folderId);
             var entity = await _searcher.ApplyLoadFlags(query, flags).FirstOrDefaultAsync();
@@ -316,8 +316,8 @@ namespace Smartstore.Core.Content.Media
 
         public bool FindEqualFile(Stream source, IEnumerable<MediaFile> files, bool leaveOpen, out MediaFile equalFile)
         {
-            Guard.NotNull(source, nameof(source));
-            Guard.NotNull(files, nameof(files));
+            Guard.NotNull(source);
+            Guard.NotNull(files);
 
             equalFile = null;
 
@@ -399,7 +399,7 @@ namespace Smartstore.Core.Content.Media
 
             if (file.MediaType != MediaType.Image)
             {
-                throw new InvalidOperationException("TODO");
+                throw new InvalidOperationException("Only images can be reprocessed.");
             }
 
             var inStream = await _storageProvider.OpenReadAsync(file);
@@ -421,19 +421,13 @@ namespace Smartstore.Core.Content.Media
                 // Close read stream, we gonna need it for writing now.
                 inStream.Close();
 
-                try
-                {
-                    await _storageProvider.SaveAsync(file, storageItem);
-                    await _db.SaveChangesAsync();
+                // Save/overwrite reprocessed image
+                await _storageProvider.SaveAsync(file, storageItem);
+                await _db.SaveChangesAsync();
 
-                    // Delete thumbnail
-                    await _imageCache.DeleteAsync(file);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                    throw ex;
-                }
+                // Delete thumbnail
+                await _imageCache.DeleteAsync(file);
+
             }
             else
             {
@@ -698,7 +692,7 @@ namespace Smartstore.Core.Content.Media
 
         protected MediaPathData CreatePathData(string path)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
 
             if (!_helper.TokenizePath(path, true, out var pathData))
             {
@@ -806,7 +800,7 @@ namespace Smartstore.Core.Content.Media
             }
         }
 
-        protected async Task<AsyncOut<IImage>> ProcessImage(MediaFile file, Stream inStream, bool force = false)
+        protected async Task<AsyncOut<IImage>> ProcessImage(MediaFile file, Stream inStream, bool isReprocess = false)
         {
             // Determine image format
             var format = _imageProcessor.Factory.FindFormatByExtension(file.Extension) ?? new UnsupportedImageFormat(file.MimeType, file.Extension);
@@ -831,10 +825,11 @@ namespace Smartstore.Core.Content.Media
                 Format = file.Extension,
                 DisposeSource = true,
                 ExecutePostProcessor = ImagePostProcessingEnabled,
-                IsValidationMode = true
+                IsValidationMode = true,
+                Notify = !isReprocess
             };
 
-            if (!force)
+            if (!isReprocess)
             {
                 // If force is true, we want it to be processed even if image is smaller than max allowed size
                 if (originalSize.IsEmpty || (originalSize.Height <= maxSize && originalSize.Width <= maxSize))
@@ -1053,8 +1048,8 @@ namespace Smartstore.Core.Content.Media
             string destinationFileName,
             DuplicateFileHandling dupeFileHandling)
         {
-            Guard.NotNull(file, nameof(file));
-            Guard.NotEmpty(destinationFileName, nameof(destinationFileName));
+            Guard.NotNull(file);
+            Guard.NotEmpty(destinationFileName);
 
             var destPathData = CreateDestinationPathData(file, destinationFileName);
             var destFileName = destPathData.FileName;

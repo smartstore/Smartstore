@@ -60,7 +60,7 @@ namespace Smartstore.Core.Content.Media.Imaging
         public ProcessImageQuery(ProcessImageQuery query)
             : base(CopyStore(query.Store))
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             Source = query.Source;
             Format = query.Format;

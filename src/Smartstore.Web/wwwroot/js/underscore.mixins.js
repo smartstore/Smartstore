@@ -179,12 +179,13 @@
             }
 
             var val, unit;
+            var absBytes = Math.abs(bytes);
 
-            if (bytes >= 1000000000) {
+            if (absBytes >= 1000000000) {
                 val = (bytes / 1000000000);
                 unit = "GB";
             }
-            else if (bytes >= 1000000) {
+            else if (absBytes >= 1000000) {
                 val = (bytes / 1000000);
                 unit = "MB";
             }

@@ -10,15 +10,15 @@ namespace Smartstore.Utilities
     {
         public static string HumanizeBytes(long bytes)
         {
-            string format = "0";
+            string format = "#,#";
 
             if (bytes >= Math.Pow(1024, 3)) // > GB
             {
-                format = "0.00";
+                format = "#,#.##";
             }
             else if (bytes >= Math.Pow(1024, 2)) // MB
             {
-                format = "0.0";
+                format = "#,#.#";
             }
 
             return bytes.Bytes().Humanize(format);
