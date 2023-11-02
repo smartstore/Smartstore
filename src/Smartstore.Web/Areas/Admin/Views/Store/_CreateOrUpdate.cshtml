@@ -50,7 +50,7 @@
                 <smart-label asp-for="SslPort" />
             </div>
             <div class="adminData">
-                <input asp-for="SslPort" placeholder="@WebHelper.GetServerHttpsPort()" />
+                <editor asp-for="SslPort" asp-additional-viewdata='new { placeholder = WebHelper.GetServerHttpsPort() }' />
                 <span asp-validation-for="SslPort"></span>
             </div>
         </div>
