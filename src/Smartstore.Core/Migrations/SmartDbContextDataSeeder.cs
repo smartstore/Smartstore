@@ -251,7 +251,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Produktanzahl neben den Warengruppen anzeigen");
 
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.SelectAttributes",
-                "Determine the attributes for the new combination",
+                "Set the attributes for the new combination",
                 "Bestimmen Sie die Attribute für die neue Kombination");
 
             builder.AddOrUpdate("Payment.MissingCheckoutState",

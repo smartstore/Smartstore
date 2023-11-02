@@ -1030,18 +1030,7 @@ namespace Smartstore.Web.Controllers
 
                 if (isDiscountValid)
                 {
-                    var discountApplied = true;
-                    var oldCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-
-                    cart.Customer.GenericAttributes.DiscountCouponCode = discountCouponCode;
-
-                    if (oldCartTotal.Total.HasValue)
-                    {
-                        var newCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-                        discountApplied = oldCartTotal.Total != newCartTotal.Total;
-                    }
-
-                    if (discountApplied)
+                    if (await ApplyDiscountCouponInternal(discount, discountCouponCode, cart))
                     {
                         success = true;
                         message = T("ShoppingCart.DiscountCouponCode.Applied");
@@ -1081,6 +1070,36 @@ namespace Smartstore.Web.Controllers
                 discountHtml,
                 displayCheckoutButtons = true
             });
+        }
+
+        private async Task<bool> ApplyDiscountCouponInternal(Discount discount, string discountCouponCode, ShoppingCart cart)
+        {
+            switch (discount.DiscountType)
+            {
+                case DiscountType.AssignedToOrderTotal:
+                    cart.Customer.GenericAttributes.DiscountCouponCode = discountCouponCode;
+                    var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+
+                    return !cartTotal.Total.HasValue || discount.Id == cartTotal.AppliedDiscount?.Id;
+
+                case DiscountType.AssignedToShipping:
+                    cart.Customer.GenericAttributes.DiscountCouponCode = discountCouponCode;
+                    var cartShipping = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
+
+                    return !cartShipping.ShippingTotal.HasValue || discount.Id == cartShipping.AppliedDiscount?.Id;
+
+                default:
+                    var oldCartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+                    cart.Customer.GenericAttributes.DiscountCouponCode = discountCouponCode;
+                    var newCartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+
+                    if (discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
+                    {
+                        return discount.Id == newCartSubtotal.AppliedDiscount?.Id;
+                    }
+
+                    return oldCartSubtotal.SubtotalWithDiscount != newCartSubtotal.SubtotalWithDiscount;
+            }
         }
 
         [HttpPost]

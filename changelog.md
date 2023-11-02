@@ -123,6 +123,7 @@
 - Web API: 
   - Fixed 404 file swagger.json not found when opening Swagger documentation in a virtual directory.
   - #815 Import of customers via WebApi/OData sets PasswordFormat to 'clear'.
+- Fixed incorrect message when applying a discount coupon code on cart page.
 - Fixed the saving of multistore settings for default tax and default shipping address.
 - Fixed a scripting issue where the input focus of the direct debit payment form was mistakenly set to a wrong input element.
 - Fixed missing cache clearing after importing localized properties.
