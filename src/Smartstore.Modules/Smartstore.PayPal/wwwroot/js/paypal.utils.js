@@ -240,7 +240,7 @@
         $.ajax({
             type: 'POST',
             url: container.data("init-transaction-url"),
-            data: { orderId: data.orderID },
+            data: $('#startcheckout').closest('form').serialize() + "&orderId=" + data.orderID,
             cache: false,
             success: function (resp) {
                 if (resp.success) {
