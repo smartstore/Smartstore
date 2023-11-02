@@ -65,7 +65,7 @@ namespace Smartstore.StripeElements.Components
 
             // Get subtotal
             var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
+            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, currency);
 
             if (isPaymentSelectionPage)
             {

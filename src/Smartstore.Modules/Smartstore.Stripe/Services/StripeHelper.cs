@@ -57,7 +57,7 @@ namespace Smartstore.StripeElements.Services
 
             // Get subtotal
             var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
+            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, currency);
 
             var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
             var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);

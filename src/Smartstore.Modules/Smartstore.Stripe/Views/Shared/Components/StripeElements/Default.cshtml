@@ -36,10 +36,11 @@
 else 
 {
     <div id="stripe-payment-request-button"
-        data-create-payment-intent-url="@Url.Action("CreatePaymentIntent", "Stripe")"
-        data-get-current-payment-request-url="@Url.Action("GetUpdatePaymentRequest", "Stripe")"
-        data-redirect-url="@Url.Action("BillingAddress", "Checkout", new { area = string.Empty })">
-        <!-- A Stripe Element will be inserted here. -->
+         data-create-payment-intent-url="@Url.Action("CreatePaymentIntent", "Stripe")"
+         data-get-current-payment-request-url="@Url.Action("GetUpdatePaymentRequest", "Stripe")"
+         data-validate-cart-url="@Url.Action("ValidateCart", "Stripe")"
+         data-redirect-url="@Url.Action("BillingAddress", "Checkout", new { area = string.Empty })">
+         <!-- A Stripe Element will be inserted here. -->
     </div>
 
     <script>

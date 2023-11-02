@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -63,6 +64,29 @@ namespace Smartstore.StripeElements.Controllers
             _roundingHelper = roundingHelper;
             _orderProcessingService = orderProcessingService;
             _stripeHelper = stripeHelper;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ValidateCart(ProductVariantQuery query, bool? useRewardPoints)
+        {
+            var success = false;
+            var message = string.Empty;
+            var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
+            var warnings = new List<string>();
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
+            if (isCartValid)
+            {
+                success = true;
+            }
+            else
+            {
+                message = string.Join(Environment.NewLine, warnings);
+            }
+
+            return Json(new { success, message });
         }
 
         [HttpPost]

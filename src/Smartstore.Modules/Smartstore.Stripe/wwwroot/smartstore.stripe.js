@@ -7,6 +7,29 @@
     const paymentElementSelector = "#stripe-payment-element";
     const moduleSystemName = "Payments.StripeElements";
 
+    function validateCart(container) {
+        return new Promise(function (resolve) {
+            $.ajax({
+                type: 'POST',
+                url: container.data("validate-cart-url"),
+                data: $('#startcheckout').closest('form').serialize(),
+                cache: false,
+                success: function (resp) {
+                    if (resp.success) {
+                        resolve(true);
+                    }
+                    else {
+                        displayNotification(resp.message, 'error');
+                        resolve(false);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    displayNotification(error, 'error');
+                }
+            });
+        });
+    }
+
     return {
         initPaymentElement: function (publicApiKey, secret, apiVersion) {
             stripe = Stripe(publicApiKey, {
@@ -121,28 +144,32 @@
 
             // Will be handled when payment is done in stripe terminal.
             paymentRequest.on('paymentmethod', async (ev) => {
-                // Create payment intent.
-                $.ajax({
-                    type: 'POST',
-                    data: {
-                        eventData: JSON.stringify(ev),
-                        paymentRequest: requestData
-                    },
-                    url: paymentRequestButton.data("create-payment-intent-url"),
-                    dataType: 'json',
-                    success: function (data) {
-                        if (data.success) {
-                            // Close stripe terminal.
-                            ev.complete('success');
+                validateCart(paymentRequestButton).then(function (result) {
+                    if (result) {
+                        // Create payment intent.
+                        $.ajax({
+                            type: 'POST',
+                            data: {
+                                eventData: JSON.stringify(ev),
+                                paymentRequest: requestData
+                            },
+                            url: paymentRequestButton.data("create-payment-intent-url"),
+                            dataType: 'json',
+                            success: function (data) {
+                                if (data.success) {
+                                    // Close stripe terminal.
+                                    ev.complete('success');
 
-                            // Redirect to billing address.
-                            location.href = paymentRequestButton.data("redirect-url");
-                        } else {
-                            // Display error in stripe terminal.
-                            ev.complete('fail');
-                        }
+                                    // Redirect to billing address.
+                                    location.href = paymentRequestButton.data("redirect-url");
+                                } else {
+                                    // Display error in stripe terminal.
+                                    ev.complete('fail');
+                                }
+                            }
+                        });
                     }
-                });
+                })
             });
         }
     };
