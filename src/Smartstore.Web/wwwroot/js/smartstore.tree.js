@@ -139,7 +139,7 @@
             });
         }
 
-        // Expander clicked.
+        // Expander clicked
         root.on('click', '.tree-expander', function () {
             var node = $(this).closest('.tree-node');
 
@@ -256,7 +256,7 @@
             var iconUrl = nodeData?.IconUrl || li.data('icon-url') || opt.defaultCollapsedIconUrl;
             var dimmed = nodeData ? nodeData.Dimmed : toBool(li.data('dimmed'), false);
             var enabled = nodeData ? nodeData.Enabled : toBool(li.data('enabled'), true);
-            var textClass = numChildren == 0 ? 'tree-leaf-text' : 'tree-noleaf-text';
+            var textClass = numChildren == 0 ? 'tree-text tree-leaf-text' : 'tree-text tree-noleaf-text';
             var contentClass = `tree-node-content${dimmed ? ' tree-dim' : ''}${enabled ? '' : ' tree-disabled'}`;
             var nodeClass = `tree-node ${numChildren == 0 ? opt.leafClass : 'tree-noleaf'}`;
             var labelHtml = '';

@@ -35,6 +35,10 @@ $default-state-color: $gray-400;
     position: relative;
     user-select: none;
     margin: 0;
+
+    .touchevents & {
+        pointer-events: none;
+    }
 }
 
 .tree-pointer,
@@ -90,6 +94,10 @@ $default-state-color: $gray-400;
     flex: 0 0 auto;
     width: auto;
     max-width: none;
+}
+
+.tree-text {
+    pointer-events: auto;
 }
 
 .tree-noleaf-text {
