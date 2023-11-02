@@ -175,6 +175,7 @@
                 var list = $(this);
                 var slidesToShow = list.data("slides-to-show");
                 var slidesToScroll = list.data("slides-to-scroll");
+                var autoplay = list.data("autoplay");
 
                 list.slick({
                     infinite: false,
@@ -190,6 +191,7 @@
                     respondTo: 'slider',
                     slidesToShow: slidesToShow || 6,
                     slidesToScroll: slidesToScroll || 6,
+                    autoplay: autoplay || false,
                     responsive: [
                         {
                             breakpoint: 280,
