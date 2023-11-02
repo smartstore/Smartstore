@@ -456,6 +456,66 @@ namespace Smartstore.Core.Checkout.Orders
             return (adjustedRate, discount);
         }
 
+        public virtual async Task<(bool Applied, Discount AppliedDiscount)> ApplyDiscountCouponAsync(ShoppingCart cart, string couponCode)
+        {
+            Guard.NotNull(cart);
+
+            if (couponCode.IsEmpty())
+            {
+                return (false, null);
+            }
+
+            var discount = await _db.Discounts.FirstOrDefaultAsync(x => x.CouponCode == couponCode);
+            if (discount == null || !discount.RequiresCouponCode || !await _discountService.IsDiscountValidAsync(discount, cart.Customer, couponCode))
+            {
+                return (false, null);
+            }
+
+            var apply = true;
+            var oldCouponCode = cart.Customer.GenericAttributes.DiscountCouponCode.NullEmpty();
+            cart.Customer.GenericAttributes.DiscountCouponCode = couponCode;
+
+            try
+            {
+                switch (discount.DiscountType)
+                {
+                    case DiscountType.AssignedToOrderTotal:
+                        var cartTotal = await GetShoppingCartTotalAsync(cart);
+                        apply = !cartTotal.Total.HasValue || discount.Id == cartTotal.AppliedDiscount?.Id;
+                        break;
+                    case DiscountType.AssignedToShipping:
+                        var cartShipping = await GetShoppingCartShippingTotalAsync(cart);
+                        apply = !cartShipping.ShippingTotal.HasValue || discount.Id == cartShipping.AppliedDiscount?.Id;
+                        break;
+                    default:
+                        var cartSubtotal = await GetShoppingCartSubtotalAsync(cart);
+
+                        if (discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
+                        {
+                            apply = discount.Id == cartSubtotal.AppliedDiscount?.Id;
+                        }
+                        else
+                        {
+                            var appliedDiscountIds = cartSubtotal.LineItems
+                                .SelectMany(x => x.Subtotal.AppliedDiscounts.Select(d => d.Id))
+                                .ToArray();
+
+                            apply = appliedDiscountIds.Contains(discount.Id);
+                        }
+                        break;
+                }
+            }
+            finally
+            {
+                if (!apply)
+                {
+                    cart.Customer.GenericAttributes.DiscountCouponCode = oldCouponCode;
+                }
+            }
+
+            return (apply, discount);
+        }
+
         public virtual async Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer)
         {
             var (discountAmount, appliedDiscount) = await GetDiscountAmountAsync(amount.Amount, discountType, customer);

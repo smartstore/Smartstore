@@ -1015,47 +1015,14 @@ namespace Smartstore.Web.Controllers
             var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
 
-            string message = null;
-            var success = false;
-
-            if (discountCouponCode.HasValue())
-            {
-                var discount = await _db.Discounts
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.CouponCode == discountCouponCode);
-
-                var isDiscountValid = discount != null
-                    && discount.RequiresCouponCode
-                    && await _discountService.IsDiscountValidAsync(discount, cart.Customer, discountCouponCode);
-
-                if (isDiscountValid)
-                {
-                    if (await ApplyDiscountCouponInternal(discount, discountCouponCode, cart))
-                    {
-                        success = true;
-                        message = T("ShoppingCart.DiscountCouponCode.Applied");
-                    }
-                    else
-                    {
-                        cart.Customer.GenericAttributes.DiscountCouponCode = null;
-                        message = T("ShoppingCart.DiscountCouponCode.NoMoreDiscount");
-                    }
-                }
-                else
-                {
-                    message = T("ShoppingCart.DiscountCouponCode.WrongDiscount");
-                }
-            }
-            else
-            {
-                message = T("ShoppingCart.DiscountCouponCode.WrongDiscount");
-            }
-
+            var (applied, discount) = await _orderCalculationService.ApplyDiscountCouponAsync(cart, discountCouponCode);
             await _db.SaveChangesAsync();
 
             var model = await cart.MapAsync();
-            model.DiscountBox.Message = message;
-            model.DiscountBox.IsWarning = !success;
+            model.DiscountBox.IsWarning = !applied;
+            model.DiscountBox.Message = applied
+                ? T("ShoppingCart.DiscountCouponCode.Applied")
+                : T(discount == null ? "ShoppingCart.DiscountCouponCode.WrongDiscount" : "ShoppingCart.DiscountCouponCode.NoMoreDiscount");
 
             var discountHtml = await InvokePartialViewAsync("_DiscountBox", model.DiscountBox);
             var cartHtml = await InvokePartialViewAsync("CartItems", model);
@@ -1070,36 +1037,6 @@ namespace Smartstore.Web.Controllers
                 discountHtml,
                 displayCheckoutButtons = true
             });
-        }
-
-        private async Task<bool> ApplyDiscountCouponInternal(Discount discount, string discountCouponCode, ShoppingCart cart)
-        {
-            switch (discount.DiscountType)
-            {
-                case DiscountType.AssignedToOrderTotal:
-                    cart.Customer.GenericAttributes.DiscountCouponCode = discountCouponCode;
-                    var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-
-                    return !cartTotal.Total.HasValue || discount.Id == cartTotal.AppliedDiscount?.Id;
-
-                case DiscountType.AssignedToShipping:
-                    cart.Customer.GenericAttributes.DiscountCouponCode = discountCouponCode;
-                    var cartShipping = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
-
-                    return !cartShipping.ShippingTotal.HasValue || discount.Id == cartShipping.AppliedDiscount?.Id;
-
-                default:
-                    var oldCartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-                    cart.Customer.GenericAttributes.DiscountCouponCode = discountCouponCode;
-                    var newCartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-
-                    if (discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
-                    {
-                        return discount.Id == newCartSubtotal.AppliedDiscount?.Id;
-                    }
-
-                    return oldCartSubtotal.SubtotalWithDiscount != newCartSubtotal.SubtotalWithDiscount;
-            }
         }
 
         [HttpPost]

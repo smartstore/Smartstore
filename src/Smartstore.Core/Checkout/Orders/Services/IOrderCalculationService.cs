@@ -92,6 +92,19 @@ namespace Smartstore.Core.Checkout.Orders
             IList<ShippingMethod> shippingMethods);
 
         /// <summary>
+        /// Applies a <paramref name="couponCode"/> to <see cref="ShoppingCart.Customer"/>.
+        /// The caller is responsible for database commit.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="couponCode">The discount coupon code to apply.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="couponCode"/> was applied to <see cref="ShoppingCart.Customer"/>, otherwise <c>false</c>.
+        /// Also returns the discount to which <paramref name="couponCode"/> belongs.
+        /// <c>null</c> if either the discount or the <paramref name="couponCode"/> is invalid.
+        /// </returns>
+        Task<(bool Applied, Discount AppliedDiscount)> ApplyDiscountCouponAsync(ShoppingCart cart, string couponCode);
+
+        /// <summary>
         /// Gets the discount amount in the primary currency and applied discount for a given amount.
         /// </summary>
         /// <param name="amount">Amount.</param>
