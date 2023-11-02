@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -39,7 +40,8 @@ namespace Smartstore.PayPal.Controllers
             IOrderProcessingService orderProcessingService,
             IRoundingHelper roundingHelper,
             PayPalHttpClient client,
-            PayPalSettings settings)
+            PayPalSettings settings,
+            ICurrencyService currencyService)
         {
             _db = db;
             _checkoutStateAccessor = checkoutStateAccessor;
@@ -49,7 +51,9 @@ namespace Smartstore.PayPal.Controllers
             _client = client;
             _settings = settings;
 
-            _primaryCurrency = Services.CurrencyService.PrimaryCurrency;
+            // INFO: Services wasn't resolved anymore in ctor.
+            //_primaryCurrency = Services.CurrencyService.PrimaryCurrency;
+            _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
         [HttpPost]
