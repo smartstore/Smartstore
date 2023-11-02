@@ -149,6 +149,7 @@
 - OpenTrans: fixes RuntimeBinderException "cannot perform runtime binding on a null reference" when exporting shipping address.
 - Brand pictures weren't displayed in product lists.
 - Skin select2 if remote url is used (rules in admin area were unusable on touch devices).
+- When using Stripe or PayPal on cart page checkout attributes were reseted.
 
 
 ## Smartstore 5.0.5
