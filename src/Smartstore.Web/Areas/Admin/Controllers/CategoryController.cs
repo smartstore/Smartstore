@@ -193,7 +193,7 @@ namespace Smartstore.Admin.Controllers
                 DisplayOrder = x.DisplayOrder,
                 LimitedToStores = x.LimitedToStores,
                 ShowOnHomePage = x.ShowOnHomePage,
-                EditUrl = Url.Action("Edit", "Category", new { id = x.Id, area = "Admin" }),
+                EditUrl = Url.Action(nameof(Edit), "Category", new { id = x.Id, area = "Admin" }),
                 CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                 UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc),
                 Breadcrumb = await _categoryService.GetCategoryPathAsync(x, languageId, "<span class='badge badge-secondary'>{0}</span>")
@@ -210,53 +210,26 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Category.Read)]
         public async Task<IActionResult> CategoryTree(int parentId = 0, int searchStoreId = 0)
         {
-            var entityName = nameof(Category);
-            var tree = await _categoryService.GetCategoryTreeAsync(parentId, true);
-            var children = tree.Children;
+            var tree = await _categoryService.GetCategoryTreeAsync(parentId, searchStoreId == 0, searchStoreId);
 
-            if (parentId == 0 && searchStoreId != 0)
-            {
-                var categoryIds = tree.Children
-                    .Where(x => x.Value.LimitedToStores)
-                    .Select(x => x.Value.Id)
-                    .ToArray();
-
-                if (categoryIds.Any())
+            var nodes = tree.Children
+                .Select(x =>
                 {
-                    await _storeMappingService.PrefetchStoreMappingsAsync(entityName, categoryIds);
-                }
+                    var category = x.Value;
 
-                children = await tree.Children
-                    .WhereAwait(async x =>
+                    var nodeValue = new TreeItem
                     {
-                        if (x.Value.LimitedToStores)
-                        {
-                            var storeIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(entityName, x.Value.Id);
-                            return storeIds.Contains(searchStoreId);
-                        }
+                        Name = category.Name,
+                        NumChildren = x.Children.Count,
+                        NumChildrenDeep = x.Flatten(false).Count(),
+                        BadgeText = category.Alias,
+                        Dimmed = !category.Published,
+                        Url = Url.Action(nameof(Edit), "Category", new { id = category.Id })
+                    };
 
-                        return false;
-                    })
-                    .AsyncToList();
-            }
-
-            var nodes = children.Select(x =>
-            {
-                var category = x.Value;
-
-                var nodeValue = new TreeItem
-                {
-                    Name = category.Name,
-                    NumChildren = x.Children.Count,
-                    NumChildrenDeep = x.Flatten(false).Count(),
-                    BadgeText = category.Alias,
-                    Dimmed = !category.Published,
-                    Url = Url.Action("Edit", "Category", new { id = category.Id })
-                };
-
-                return new TreeNode<TreeItem>(nodeValue, category.Id);
-            })
-            .ToList();
+                    return new TreeNode<TreeItem>(nodeValue, category.Id);
+                })
+                .ToList();
 
             return Json(new { nodes });
         }
