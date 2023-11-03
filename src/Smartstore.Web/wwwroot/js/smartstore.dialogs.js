@@ -52,12 +52,24 @@
 				size: 'md', // sm | md | lg
 				message: message,
 				icon: null, // { type: 'check | question | warning | danger | info', name: <FaIconClass>, color: <BrandColor> }
-				prompt: null // { value: <string>, onInit: <fn>, invalidChars: <string> }
+				prompt: null, // { value: <string>, onInit: <fn>, invalidChars: <string> }
+                confirmId: null, // Id of "Do not ask again" checkbox
 				callback: callback,
 				show: true
 			};
 		* ==============================
 		*/
+
+        let consentKey = type === 'confirm' && opts.confirmId && _.isFunction(opts.callback) ? 'confirm2_consent_' + opts.confirmId : null;
+        if (consentKey) {
+            let consented = localStorage.getItem(consentKey);
+            if (consented) {
+                // Don't show modal, directly execute callback, because
+                // user checked the consent checkbox before.
+                opts.callback.apply(this, [true]);
+                return null;
+            }
+        }
 
         var dialogClass = 'modal-dialog modal-dialog-scrollable',
             center = toBool(opts.center, true),
@@ -85,10 +97,11 @@
             '</div>'
         ].join("");
 
-        var modal = $(html).appendTo('body');
+        let modal = $(html).appendTo('body');
+        let boxFooter = modal.find('.modal-footer');
 
         if (type === 'alert') {
-            modal.find('.modal-footer > .btn-cancel').remove();
+            boxFooter.find('> .btn-cancel').remove();
         }
 
         if (opts.title) {
@@ -135,6 +148,24 @@
             boxBody.append(input.wrap('<div class="modal-box-input w-100"></div>').parent());
         }
 
+        let consentCheckbox;
+        if (consentKey) {
+            consentCheckbox =
+                $(`<div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="${consentKey}" />
+                    <label class="form-check-label" for="${consentKey}">${window.Res['Common.DontAskAgain']}</label>
+                </div>`);
+
+            if (centerContent) {
+                boxBody.append(consentCheckbox.addClass('mt-3'));
+            }
+            else {
+                boxFooter.prepend(consentCheckbox.addClass('mr-auto'));
+            } 
+
+            consentCheckbox = consentCheckbox.find('.form-check-input');
+        }
+
         modal.on('shown.bs.modal', function (e) {
             (input || modal.find('.btn-accept')).first().trigger('focus');
             if (input) {
@@ -154,6 +185,12 @@
                     if (accepted) opts.callback.apply(this, [input.val()]);
                 }
                 else {
+                    if (accepted && consentCheckbox && consentCheckbox.is(':checked')) {
+                        // OK was clicked and the consent checkbox is checked:
+                        // Don't ask user again.
+                        localStorage.setItem(consentKey, '1');
+                    }
+
                     opts.callback.apply(this, [accepted]);
                 }
             }
@@ -229,13 +266,13 @@
     window.confirm2 = function (message, callback) {
         var opts = $.isPlainObject(message) ? message : { message: message, callback: callback };
 
-        var modal = $('#modal-confirm-shared');
+        let modal = $('#modal-confirm-shared');
         if (modal.length)
             modal.remove();
 
         modal = createBoxModal('confirm', opts);
 
-        if (toBool(opts.show, true))
+        if (modal && toBool(opts.show, true))
             modal.modal('show');
 
         return modal;

@@ -431,6 +431,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete("Admin.Configuration.Settings.Catalog.ShowShareButton.Hint");
             builder.Delete("Admin.Configuration.Settings.Catalog.PageShareCode");
             builder.Delete("Admin.Configuration.Settings.Catalog.PageShareCode.Hint");
+
+            builder.AddOrUpdate("Common.DontAskAgain", "Don't ask again", "Nicht mehr fragen");
+            builder.AddOrUpdate("Common.DontShowAgain", "Don't show again", "Nicht mehr anzeigen");
         }
 
         /// <summary>
