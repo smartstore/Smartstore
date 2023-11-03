@@ -434,6 +434,10 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Common.DontAskAgain", "Don't ask again", "Nicht mehr fragen");
             builder.AddOrUpdate("Common.DontShowAgain", "Don't show again", "Nicht mehr anzeigen");
+
+            builder.AddOrUpdate("Admin.Catalog.Categories.AutomatedAssignmentRules.Hint",
+                "Products are automatically assigned to this category by scheduled task if they fulfill one of the selected rules and this rule is active.",
+                "Produkte werden automatisch per geplanter Aufgabe dieser Warengruppe zugeordnet, wenn sie eine der gewählten Regeln erfüllen und diese Regel aktiv ist.");
         }
 
         /// <summary>
