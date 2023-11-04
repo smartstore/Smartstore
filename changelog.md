@@ -52,6 +52,7 @@
   - Unstyled links are underlined by default
   - New responsive and collapsible MyAccount menu with avatar image, customer name and email address in header.
 - Backend
+  - Revamped Configuration / Settings and made settings menu responsive
   - Revamped plugin and provider managers
   - New colorpicker component with swatches
   - Revamped number input styling

@@ -10,6 +10,8 @@
     {
         return;
     }
+
+    var iconColors = new[] { "green", "blue", "orange", "indigo", "red", "teal", "gray", "cyan", "pink", "dark" };
 }
 
 @functions {
@@ -24,47 +26,55 @@
     }
 }
 
-<div class="menu-settings tabbable tabs-stacked tabs-left ml-2 my-2 d-block">
-    <nav class="nav-aside">
-        <ul class="nav nav-tabs nav-tabs-line flex-column nav-stacked nav-left" data-menu-name="settings">
-            @{
-                var isCurrent = false;
-                foreach (var node in Model.Root.Children)
-                {
-                    var item = node.Value;
-                    var isSelected = false;
+<div class="settings-menu list-group list-group-flush has-icons m-md-2 mr-md-0" data-menu-name="settings">
+    @{
+        var isCurrent = false;
+        var colorIndex = 0;
 
-                    if (!item.Visible)
-                    {
-                        continue;
-                    }
+        foreach (var node in Model.Root.Children)
+        {
+            var item = node.Value;
+            var isSelected = false;
 
-                    if (!isCurrent)
-                    {
-                        // No need to check further if selected node is found once.
-                        isCurrent = item.IsCurrent(ViewContext);
-                        isSelected = isCurrent;
-                    }
-
-                    var itemText = node.GetItemText(T);
-                    var itemUrl = GetNodeLink(node);
-                    var icon = item.Icon.NullEmpty() ?? "fas fa-fw";
-
-                    <li class="nav-item">
-                        <a class="nav-link text-left" attr-class='(isSelected, "active")' href="@itemUrl">
-                            @if (item.IconLibrary == "bi")
-                            {
-                                <bootstrap-icon name="@icon" class="nav-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
-                            }
-                            else
-                            {
-                                <i class="nav-icon @icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
-                            }
-                            <span class="tab-caption">@itemText</span>
-                        </a>
-                    </li>
-                }
+            if (!item.Visible)
+            {
+                continue;
             }
-        </ul>
-    </nav>
+
+            if (!isCurrent)
+            {
+                // No need to check further if selected node is found once.
+                isCurrent = item.IsCurrent(ViewContext);
+                isSelected = isCurrent;
+            }
+
+            var itemText = node.GetItemText(T);
+            var itemUrl = GetNodeLink(node);
+            var icon = item.Icon.NullEmpty() ?? "fas fa-fw";
+
+            <a class="list-group-item list-group-item-action rounded-pill" attr-class='(isSelected, "active")' href="@itemUrl">
+                <span class="list-group-item-icon">
+                    @if (item.IconLibrary == "bi")
+                    {
+                        if (colorIndex >= iconColors.Length)
+                        {
+                            colorIndex = 0;
+                        }
+
+                        <bootstrap-iconstack>
+                            <bootstrap-icon name="circle-fill" class="bi-circle" scale="2" fill="@(isSelected ? $"var(--{iconColors[colorIndex]})" : "var(--gray-300)")" />
+                            <bootstrap-icon name="@icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' fill="@(isSelected ? "#fff" : "currentcolor")" />
+                        </bootstrap-iconstack>
+
+                        colorIndex++;
+                    }
+                    else
+                    {
+                        <i class="@icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
+                    }
+                </span>
+                <span class="fwm">@itemText</span>
+            </a>
+        }
+    }
 </div>

@@ -2,8 +2,24 @@
     Layout = "_AdminLayout";
 }
 
+@* Desktop menu *@
 <widget target-zone="sidebar_left">
-    <menu name="Settings" template="Settings"></menu>
+    <menu name="Settings" template="Settings" />
 </widget>
+
+@* Mobile menu *@
+<div class="d-md-none">
+    <div class="card nav-collapsible mb-3">
+        <div class="card-header p-3 bg-white nav-toggler collapsed" data-toggle="collapse" data-target="#settings-menu" aria-controls="settings-menu" aria-expanded="false">
+            <h6 class="card-title m-0">
+                <i class="fas fa-bars mr-1"></i>
+                <span>@T("Common.Menu")</span>
+            </h6>
+        </div>
+        <div id="settings-menu" class="collapse nav-collapse p-2">
+            <menu name="Settings" template="Settings" />
+        </div>
+    </div>
+</div>
 
 @RenderBody()

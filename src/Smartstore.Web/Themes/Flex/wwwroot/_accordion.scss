@@ -85,11 +85,11 @@
     }
 
     .card:last-child,
-    .card:last-child .card-header{ 
+    .card:last-child .card-header { 
         @include border-bottom-radius(var(--border-radius-md));
     }
 
-    .card:last-child .card-header{ 
+    .card:last-child .card-header { 
         border-bottom-width: 0;
     }
     
