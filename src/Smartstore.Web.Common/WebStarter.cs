@@ -61,6 +61,13 @@ namespace Smartstore.Web
                 o.HeaderName = "X-XSRF-Token";
             });
 
+            // HSTS
+            services.AddHsts(options =>
+            {
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(appContext.AppConfiguration.HstsMaxAge);
+            });
+
             // Add DataProtection, but distinguish between dev and production. On localhost keys file should be stored
             // in a shared directory, so that switching tenants does not try to encrypt existing cookies with the wrong key.
             var dataProtectionRoot = CommonHelper.IsDevEnvironment ? appContext.AppDataRoot : appContext.TenantRoot;

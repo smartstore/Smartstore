@@ -120,6 +120,11 @@ namespace Smartstore.Engine
         public bool UseCookieTempDataProvider { get; set; }
 
         /// <summary>
+        /// Gets or sets the max-age parameter of the Strict-Transport-Security header in days. Default = 365 days.
+        /// </summary>
+        public int HstsMaxAge { get; set; } = 365;
+
+        /// <summary>
         /// Use with care!
         /// </summary>
         public string? EngineType { get; set; } = typeof(SmartEngine).FullName;
