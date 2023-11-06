@@ -50,7 +50,7 @@ namespace Smartstore.Core.Data.Migrations
         /// <returns>The migration instance.</returns>
         protected IMigration CreateMigration(Type migrationClass)
         {
-            Guard.NotNull(migrationClass, nameof(migrationClass));
+            Guard.NotNull(migrationClass);
 
             return (IMigration)_scope.ResolveUnregistered(migrationClass);
         }

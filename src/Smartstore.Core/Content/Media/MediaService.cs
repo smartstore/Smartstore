@@ -28,10 +28,9 @@ namespace Smartstore.Core.Content.Media
         private readonly IImageProcessor _imageProcessor;
         private readonly IImageCache _imageCache;
         private readonly MediaExceptionFactory _exceptionFactory;
+        private readonly IMediaDupeDetectorFactory _dupeDetectorFactory;
         private readonly IMediaStorageProvider _storageProvider;
         private readonly MediaHelper _helper;
-
-        private Dictionary<int, Dictionary<string, MediaFile>> _cachedFilesByFolder;
 
         public MediaService(
             SmartDbContext db,
@@ -46,6 +45,7 @@ namespace Smartstore.Core.Content.Media
             IImageProcessor imageProcessor,
             IImageCache imageCache,
             MediaExceptionFactory exceptionFactory,
+            IMediaDupeDetectorFactory dupeDetectorFactory,
             Func<IMediaStorageProvider> storageProvider,
             MediaHelper helper)
         {
@@ -61,6 +61,7 @@ namespace Smartstore.Core.Content.Media
             _imageProcessor = imageProcessor;
             _imageCache = imageCache;
             _exceptionFactory = exceptionFactory;
+            _dupeDetectorFactory = dupeDetectorFactory;
             _storageProvider = storageProvider();
             _helper = helper;
         }
@@ -141,7 +142,7 @@ namespace Smartstore.Core.Content.Media
             Func<IQueryable<MediaFile>, IQueryable<MediaFile>> queryModifier,
             MediaLoadFlags flags = MediaLoadFlags.AsNoTracking)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var files = _searcher.SearchFiles(query, flags);
             if (queryModifier != null)
@@ -158,7 +159,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<bool> FileExistsAsync(string path)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
 
             if (_helper.TokenizePath(path, false, out var tokens))
             {
@@ -170,7 +171,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<MediaFileInfo> GetFileByPathAsync(string path, MediaLoadFlags flags = MediaLoadFlags.None)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(path);
 
             if (_helper.TokenizePath(path, false, out var tokens))
             {
@@ -234,7 +235,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<List<MediaFileInfo>> GetFilesByIdsAsync(int[] ids, MediaLoadFlags flags = MediaLoadFlags.AsNoTracking)
         {
-            Guard.NotNull(ids, nameof(ids));
+            Guard.NotNull(ids);
 
             var query = _db.MediaFiles.Where(x => ids.Contains(x.Id));
             var result = await _searcher.ApplyLoadFlags(query, flags).ToListAsync();
@@ -263,12 +264,12 @@ namespace Smartstore.Core.Content.Media
             return new AsyncOut<string>(newPath != null, newPath);
         }
 
-        protected internal virtual async Task<bool> CheckUniqueFileNameAsync(MediaPathData pathData)
+        protected internal virtual async Task<bool> CheckUniqueFileNameAsync(MediaPathData pathData, CancellationToken cancelToken = default)
         {
-            Guard.NotNull(pathData, nameof(pathData));
+            Guard.NotNull(pathData);
 
-            // (perf) First make fast check
-            var exists = await _db.MediaFiles.AnyAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id);
+            // (perf) First make fast check. The chance that there's no dupe is much higher.
+            var exists = await _db.MediaFiles.AnyAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id, cancelToken);
             if (!exists)
             {
                 return false;
@@ -277,22 +278,28 @@ namespace Smartstore.Core.Content.Media
             var q = new MediaSearchQuery
             {
                 FolderId = pathData.Folder.Id,
-                Term = string.Concat(pathData.FileTitle, "*.", pathData.Extension),
+                // Avoid "Contains" pattern, force "StartsWith", which is faster.
+                Term = pathData.FileTitle + '*',
                 Deleted = null
             };
 
             var query = _searcher.PrepareQuery(q, MediaLoadFlags.AsNoTracking).Select(x => x.Name);
-            var files = new HashSet<string>(await query.ToListAsync(), StringComparer.CurrentCultureIgnoreCase);
+            var result = await query.ToListAsync(cancelToken);
 
-            return CheckUniqueFileName(pathData, files);
+            // Reduce by file extension in memory
+            var fileNames = new HashSet<string>(
+                result.Where(x => x.EndsWithNoCase('.' + pathData.Extension)),
+                StringComparer.CurrentCultureIgnoreCase);
+
+            return CheckUniqueFileName(pathData, fileNames);
         }
 
         protected internal virtual bool CheckUniqueFileName(MediaPathData pathData, HashSet<string> destFileNames)
         {
-            Guard.NotNull(pathData, nameof(pathData));
-            Guard.NotNull(destFileNames, nameof(destFileNames));
+            Guard.NotNull(pathData);
+            Guard.NotNull(destFileNames);
 
-            if (_helper.CheckUniqueFileName(pathData.FileTitle, pathData.Extension, destFileNames, out var uniqueName))
+            if (MediaHelper.CheckUniqueFileName(pathData.FileTitle, pathData.Extension, destFileNames, out var uniqueName))
             {
                 pathData.FileName = uniqueName;
                 return true;
@@ -346,8 +353,8 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<AsyncOut<MediaFile>> FindEqualFileAsync(Stream source, IEnumerable<MediaFile> files, bool leaveOpen)
         {
-            Guard.NotNull(source, nameof(source));
-            Guard.NotNull(files, nameof(files));
+            Guard.NotNull(source);
+            Guard.NotNull(files);
 
             var bufferedSource = new BufferedReadStream(source, 8096);
 
@@ -385,9 +392,9 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<MediaFileInfo> ReplaceFileAsync(MediaFile file, Stream inStream, string newFileName)
         {
-            Guard.NotNull(file, nameof(file));
-            Guard.NotNull(inStream, nameof(inStream));
-            Guard.NotEmpty(newFileName, nameof(newFileName));
+            Guard.NotNull(file);
+            Guard.NotNull(inStream);
+            Guard.NotEmpty(newFileName);
 
             var fileInfo = ConvertMediaFile(file);
             var pathData = CreatePathData(fileInfo.Path);
@@ -468,8 +475,8 @@ namespace Smartstore.Core.Content.Media
             DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError,
             CancellationToken cancelToken = default)
         {
-            Guard.NotNull(sources, nameof(sources));
-            Guard.NotNull(destinationFolder, nameof(destinationFolder));
+            Guard.NotNull(sources);
+            Guard.NotNull(destinationFolder);
 
             var batchResults = new List<FileBatchResult>(sources.Length);
 
@@ -478,11 +485,8 @@ namespace Smartstore.Core.Content.Media
                 return batchResults;
             }
 
-            // Get all files in destination folder for faster dupe selection
-            var destFiles = await GetCachedFilesByFolderAsync(destinationFolder.Id);
-
-            // Make a HashSet from all file names in the destination folder for faster unique file name lookups
-            var destNames = new HashSet<string>(destFiles.Keys, StringComparer.CurrentCultureIgnoreCase);
+            // Use IMediaDupeDetector to get all files in destination folder for faster dupe selection.
+            using var dupeDetector = _dupeDetectorFactory.GetDetector(destinationFolder.Id);
 
             foreach (var source in sources)
             {
@@ -491,16 +495,17 @@ namespace Smartstore.Core.Content.Media
 
                 try
                 {
-                    var file = destFiles.Get(pathData.FileName);
+                    var file = await dupeDetector.DetectFileAsync(pathData.FileName, cancelToken);
                     var isDupe = file != null;
                     var processFileResult = await ProcessFileAsync(
                         file,
                         pathData,
-                        inStream: source.Source.SourceStream,
-                        destFileNames: destNames,
-                        isTransient: isTransient,
-                        dupeFileHandling: dupeFileHandling,
-                        mediaValidationType: MimeValidationType.MediaTypeMustMatch);
+                        source.Source.SourceStream,
+                        dupeDetector,
+                        isTransient,
+                        dupeFileHandling,
+                        MimeValidationType.MediaTypeMustMatch,
+                        cancelToken);
 
                     file = processFileResult.File;
 
@@ -590,7 +595,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task DeleteFileAsync(MediaFile file, bool permanent, bool force = false)
         {
-            Guard.NotNull(file, nameof(file));
+            Guard.NotNull(file);
 
             if (file.Id == 0)
             {
@@ -660,18 +665,19 @@ namespace Smartstore.Core.Content.Media
             MediaFile file,
             MediaPathData pathData,
             Stream inStream,
-            HashSet<string> destFileNames = null,
+            IMediaDupeDetector dupeDetector = null,
             bool isTransient = true,
             DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError,
-            MimeValidationType mediaValidationType = MimeValidationType.MimeTypeMustMatch)
+            MimeValidationType mediaValidationType = MimeValidationType.MimeTypeMustMatch,
+            CancellationToken cancelToken = default)
         {
             if (file != null)
             {
                 var madeUniqueFileName = dupeFileHandling == DuplicateFileHandling.Overwrite
                     ? false
-                    : (destFileNames != null
-                        ? CheckUniqueFileName(pathData, destFileNames)
-                        : await CheckUniqueFileNameAsync(pathData));
+                    : (dupeDetector != null 
+                        ? await dupeDetector.CheckUniqueFileNameAsync(pathData, cancelToken)
+                        : await CheckUniqueFileNameAsync(pathData, cancelToken));
 
                 if (dupeFileHandling == DuplicateFileHandling.ThrowError)
                 {
@@ -1043,10 +1049,10 @@ namespace Smartstore.Core.Content.Media
                     {
                         case DuplicateFileHandling.ThrowError:
                             var fullPath = destPathData.FullPath;
-                            _helper.CheckUniqueFileName(destPathData.FileTitle, destPathData.Extension, dupe.Name, out _);
+                            MediaHelper.CheckUniqueFileName(destPathData.FileTitle, destPathData.Extension, dupe.Name, out _);
                             throw _exceptionFactory.DuplicateFile(fullPath, ConvertMediaFile(dupe, destPathData.Folder), destPathData.FullPath);
                         case DuplicateFileHandling.Rename:
-                            if (_helper.CheckUniqueFileName(destPathData.FileTitle, destPathData.Extension, dupe.Name, out var uniqueName))
+                            if (MediaHelper.CheckUniqueFileName(destPathData.FileTitle, destPathData.Extension, dupe.Name, out var uniqueName))
                             {
                                 nameChanged = true;
                                 destPathData.FileName = uniqueName;
@@ -1081,25 +1087,6 @@ namespace Smartstore.Core.Content.Media
         public MediaFileInfo ConvertMediaFile(MediaFile file)
         {
             return ConvertMediaFile(file, _folderService.FindNode(file)?.Value);
-        }
-
-        protected async Task<IDictionary<string, MediaFile>> GetCachedFilesByFolderAsync(int folderId)
-        {
-            if (_cachedFilesByFolder == null)
-            {
-                _cachedFilesByFolder = new Dictionary<int, Dictionary<string, MediaFile>>();
-            }
-
-            if (!_cachedFilesByFolder.TryGetValue(folderId, out var files))
-            {
-                files = (await _searcher
-                    .SearchFiles(new MediaSearchQuery { FolderId = folderId }, MediaLoadFlags.None).LoadAsync())
-                    .ToDictionarySafe(x => x.Name);
-
-                _cachedFilesByFolder[folderId] = files;
-            }
-
-            return files;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

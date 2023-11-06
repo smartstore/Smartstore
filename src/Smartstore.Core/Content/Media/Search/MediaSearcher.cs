@@ -25,7 +25,7 @@ namespace Smartstore.Core.Content.Media
 
         public virtual IQueryable<MediaFile> PrepareQuery(MediaSearchQuery query, MediaLoadFlags flags)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var q = _db.MediaFiles.AsQueryable();
             bool? shouldIncludeDeleted = false;
@@ -98,7 +98,7 @@ namespace Smartstore.Core.Content.Media
 
         public virtual IQueryable<MediaFile> ApplyFilterQuery(MediaFilesFilter filter, IQueryable<MediaFile> sourceQuery = null)
         {
-            Guard.NotNull(filter, nameof(filter));
+            Guard.NotNull(filter);
 
             var q = sourceQuery ?? _db.MediaFiles.AsQueryable();
 
@@ -254,10 +254,6 @@ namespace Smartstore.Core.Content.Media
 
         private static IQueryable<MediaFile> ApplySearchTerm(IQueryable<MediaFile> query, string term, bool includeAlt, bool exactMatch)
         {
-            var hasAnyCharToken = term.IndexOf('*') > -1;
-            var hasSingleCharToken = term.IndexOf('?') > -1;
-            var hasAnyWildcard = hasAnyCharToken || hasSingleCharToken;
-
             List<Expression<Func<MediaFile, string>>> expressions = new(2)
             {
                 x => x.Name
@@ -270,7 +266,7 @@ namespace Smartstore.Core.Content.Media
 
             if (exactMatch)
             {
-                term = '"' + term.Trim('"', '\'') + '"';
+                term = "=\"" + term.Trim('"', '\'') + '"';
             }
 
             return query.ApplySearchFilter(term, Rules.LogicalRuleOperator.Or, expressions.ToArray());

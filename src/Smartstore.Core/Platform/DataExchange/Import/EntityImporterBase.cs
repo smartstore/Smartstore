@@ -4,6 +4,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Net.Http;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -11,21 +12,18 @@ namespace Smartstore.Core.DataExchange.Import
     {
         protected SmartDbContext _db;
         protected ICommonServices _services;
-        protected ILocalizedEntityService _localizedEntityService;
         protected IStoreMappingService _storeMappingService;
         protected IUrlService _urlService;
         protected SeoSettings _seoSettings;
 
         protected EntityImporterBase(
             ICommonServices services,
-            ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             SeoSettings seoSettings)
         {
             _db = services.DbContext;
             _services = services;
-            _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _urlService = urlService;
             _seoSettings = seoSettings;
@@ -60,12 +58,12 @@ namespace Smartstore.Core.DataExchange.Import
             IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties)
             where TEntity : BaseEntity, ILocalizedEntity
         {
-            Guard.NotNull(context, nameof(context));
-            Guard.NotNull(batch, nameof(batch));
-            Guard.NotNull(localizableProperties, nameof(localizableProperties));
+            Guard.NotNull(context);
+            Guard.NotNull(batch);
+            Guard.NotNull(localizableProperties);
 
             var entityIds = batch.Select(x => x.Entity.Id).ToArray();
-            if (!entityIds.Any())
+            if (entityIds.Length == 0)
             {
                 return 0;
             }
@@ -76,7 +74,7 @@ namespace Smartstore.Core.DataExchange.Import
             var localizedProps = (from kvp in localizableProperties
                                   where context.DataSegmenter.GetColumnIndexes(kvp.Key).Length > 0
                                   select kvp.Key).ToArray();
-            if (!localizedProps.Any())
+            if (localizedProps.Length == 0)
             {
                 return 0;
             }
@@ -92,7 +90,7 @@ namespace Smartstore.Core.DataExchange.Import
                     var keySelector = localizableProperties[prop];
                     foreach (var language in context.Languages)
                     {
-                        if (row.TryGetDataValue(prop /* ColumnName */, language.UniqueSeoCode, out string value))
+                        if (TryGetLocalizedValue(row, prop /* ColumnName */, language, out string value))
                         {
                             var localizedProperty = collection.Find(language.Id, row.Entity.Id, prop);
 
@@ -158,7 +156,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var shouldSave = false;
             var entityIds = batch.Select(x => x.Entity.Id).ToArray();
-            if (!entityIds.Any())
+            if (entityIds.Length == 0)
             {
                 return 0;
             }
@@ -249,8 +247,8 @@ namespace Smartstore.Core.DataExchange.Import
                     // Process localized slugs.
                     foreach (var language in context.Languages)
                     {
-                        var hasSeName = row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName);
-                        var hasLocalizedName = row.TryGetDataValue("Name", language.UniqueSeoCode, out string localizedName);
+                        var hasSeName = TryGetLocalizedValue(row, "SeName", language, out seName);
+                        var hasLocalizedName = TryGetLocalizedValue(row, "Name", language, out string localizedName);
 
                         if (hasSeName || hasLocalizedName)
                         {
@@ -270,7 +268,57 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            return await scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
+            if (num != 0)
+            {
+                context.ClearCache = true;
+            }
+
+            return num;
+        }
+
+        /// <summary>
+        /// Adds a message to <see cref="ImportExecuteContext.Result"/> and prevents from logging too many messages of the same reason.
+        /// </summary>
+        protected static void AddMessage<TEntity>(ImportMessage msg, DownloadManagerItem item, ImportExecuteContext context)
+            where TEntity : BaseEntity
+        {
+            const int maxLogEntries = 20;
+
+            var rowInfo = item?.State != null
+                ? ((ImportRow<TEntity>)item.State).RowInfo
+                : null;
+
+            if (msg.Reason != ImportMessageReason.None)
+            {
+                var counts = context.GetCustomProperty<Dictionary<int, int>>("LoggedInfosCount");
+                counts.TryGetValue((int)msg.Reason, out var count);
+
+                if (count <= maxLogEntries)
+                {
+                    counts[(int)msg.Reason] = count + 1;
+
+                    if (count < maxLogEntries)
+                        context.Result.AddMessage(msg.Message, msg.MessageType, rowInfo);
+                    else
+                        context.Result.AddMessage($"No further logging of '{msg.Reason}' messages. Reason: too many log entries.", ImportMessageType.Info, rowInfo);
+                }
+            }
+            else
+            {
+                context.Result.AddMessage(msg.Message, msg.MessageType, rowInfo);
+            }
+        }
+
+        private static bool TryGetLocalizedValue<TEntity>(ImportRow<TEntity> row, string columnName, Language language, out string value)
+            where TEntity : BaseEntity
+        {
+            if (row.TryGetDataValue(columnName, language.LanguageCulture, out value) || row.TryGetDataValue(columnName, language.UniqueSeoCode, out value))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

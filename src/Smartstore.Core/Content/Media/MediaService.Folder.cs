@@ -199,13 +199,11 @@ namespace Smartstore.Core.Content.Media
                 throw _exceptionFactory.DuplicateFolder(sourceNode.Value.Path, destNode.Value);
             }
 
-            var doDupeCheck = destNode != null;
+            // Use IMediaDupeDetector to get all files in destination folder for faster dupe selection.
+            using var dupeDetector = destNode != null ? _dupeDetectorFactory.GetDetector(destNode.Value.Id) : null;
 
             // Create dest folder
-            if (destNode == null)
-            {
-                destNode = await CreateFolderAsync(destPath);
-            }
+            destNode ??= await CreateFolderAsync(destPath);
 
             // INFO: we gonna change file name during the files loop later.
             var destPathData = new MediaPathData(destNode, "placeholder.txt");
@@ -213,19 +211,7 @@ namespace Smartstore.Core.Content.Media
             // Get all source files in one go
             var files = await _searcher.SearchFiles(
                 new MediaSearchQuery { FolderId = sourceNode.Value.Id },
-                MediaLoadFlags.AsNoTracking | MediaLoadFlags.WithTags).LoadAsync();
-
-            IDictionary<string, MediaFile> destFiles = null;
-            HashSet<string> destNames = null;
-
-            if (doDupeCheck)
-            {
-                // Get all files in destination folder for faster dupe selection
-                destFiles = await GetCachedFilesByFolderAsync(destNode.Value.Id);
-
-                // Make a HashSet from all file names in the destination folder for faster unique file name lookups
-                destNames = new HashSet<string>(destFiles.Keys, StringComparer.CurrentCultureIgnoreCase);
-            }
+                MediaLoadFlags.AsNoTracking | MediaLoadFlags.WithTags).LoadAsync(false, cancelToken);
 
             // Holds source and copy together, 'cause we perform a two-pass copy (file first, then data)
             var tuples = new List<(MediaFile, MediaFile)>(500);
@@ -249,8 +235,8 @@ namespace Smartstore.Core.Content.Media
                         destPathData,
                         false /* copyData */,
                         dupeEntryHandling,
-                        () => Task.FromResult(destFiles?.Get(file.Name)),
-                        UniqueFileNameChecker);
+                        () => dupeDetector?.DetectFileAsync(file.Name, cancelToken),
+                        pd => dupeDetector?.CheckUniqueFileNameAsync(pd, cancelToken));
 
                     if (copyResult.Copy != null)
                     {
@@ -302,16 +288,6 @@ namespace Smartstore.Core.Content.Media
             }
 
             return ConvertMediaFolder(destNode);
-
-            Task UniqueFileNameChecker(MediaPathData pathData)
-            {
-                if (destNames != null && _helper.CheckUniqueFileName(pathData.FileTitle, pathData.Extension, destNames, out var uniqueName))
-                {
-                    pathData.FileName = uniqueName;
-                }
-
-                return Task.CompletedTask;
-            }
         }
 
         public async Task<FolderDeleteResult> DeleteFolderAsync(

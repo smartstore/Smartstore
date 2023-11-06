@@ -1,7 +1,6 @@
 ﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
@@ -30,12 +29,11 @@ namespace Smartstore.Core.DataExchange.Import
 
         public CategoryImporter(
             ICommonServices services,
-            ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IMediaImporter mediaImporter,
             SeoSettings seoSettings)
-            : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
+            : base(services, storeMappingService, urlService, seoSettings)
         {
             _mediaImporter = mediaImporter;
         }
@@ -143,8 +141,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                // We can make the parent category assignment only after all the data has been processed and imported.
-                if (segmenter.IsLastSegment)
+                if (segmenter.IsLastSegment || context.Abort == DataExchangeAbortion.Hard)
                 {
                     // ===========================================================================
                     // Process parent category mappings.
@@ -153,7 +150,15 @@ namespace Smartstore.Core.DataExchange.Import
                         segmenter.HasColumn(nameof(Category.ParentId)) &&
                         !segmenter.IsIgnored(nameof(Category.ParentId)))
                     {
-                        await ProcessParentMappingsAsync(context, scope, batch);
+                        try
+                        {
+                            // We can make the parent category assignment only after all the data has been processed and imported.
+                            await ProcessParentMappingsAsync(context, scope, batch);
+                        }
+                        catch (Exception ex)
+                        {
+                            context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessParentMappingsAsync));
+                        }
                     }
 
                     if (cargo.NumberOfNewImages > 0)
@@ -292,11 +297,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             _mediaImporter.MessageHandler ??= (msg, item) =>
             {
-                var rowInfo = item?.State != null
-                    ? ((ImportRow<Category>)item.State).RowInfo
-                    : null;
-
-                context.Result.AddMessage(msg.Message, msg.MessageType, rowInfo);
+                AddMessage<Category>(msg, item, context);
             };
 
             var items = batch
