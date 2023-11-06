@@ -52,6 +52,11 @@
             var itemUrl = GetNodeLink(node);
             var icon = item.Icon.NullEmpty() ?? "fas fa-fw";
 
+            if (node.Next == null)
+            {
+                <hr class="my-2 ml-md-n2" />
+            }
+
             <a class="list-group-item list-group-item-action rounded-pill" attr-class='(isSelected, "active")' href="@itemUrl">
                 <span class="list-group-item-icon">
                     @if (item.IconLibrary == "bi")
