@@ -1,5 +1,17 @@
 # Release Notes
 
+## Smartstore 5.2.0
+
+### New Features
+
+### Improvements
+
+- #876 Changing password in backend via modal dialog.
+
+### Bugfixes
+
+
+
 ## Smartstore 5.1.0
 
 ### New Features
