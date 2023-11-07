@@ -1,6 +1,6 @@
 ### Bootstrap Icons 1.10.0
 
-To keep file size small, the Smartstore backend uses only a subset of [Bootstrap Icons 1.10.0](https://icons.getbootstrap.com/#icons):
+To keep file size small, the Smartstore backend uses only a subset of [Bootstrap Icons 1.11.0](https://icons.getbootstrap.com/#icons):
 
 - Nearly all `*-fill` variants (except such trivial icons like `square-fill` etc.) have been removed.
 
