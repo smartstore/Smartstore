@@ -5,8 +5,8 @@
   "SystemName": "Smartstore.ShippingByWeight",
   "FriendlyName": "Shipping by weight",
   "Description": "Provides shipping methods with computation based on weight.",
-  "Version": "5.0.5",
-  "MinAppVersion": "5.0.5",
+  "Version": "5.1.0",
+  "MinAppVersion": "5.1.0",
   "Order": 1,
   "ResourceRootKey": "Plugins.Shipping.ByWeight",
   "ProjectUrl": ""

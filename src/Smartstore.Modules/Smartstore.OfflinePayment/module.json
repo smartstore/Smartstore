@@ -4,8 +4,8 @@
   "SystemName": "Smartstore.OfflinePayment",
   "FriendlyName": "Adds offline payment methods to the store",
   "Description": "",
-  "Version": "5.0.5",
-  "MinAppVersion": "5.0.5",
+  "Version": "5.1.0",
+  "MinAppVersion": "5.1.0",
   "Author": "SmartStore AG",
   "Order": 1,
   "ResourceRootKey": "Plugins.Smartstore.OfflinePayment"

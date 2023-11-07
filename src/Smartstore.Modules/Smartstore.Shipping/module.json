@@ -4,8 +4,8 @@
   "SystemName": "Smartstore.Shipping",
   "FriendlyName": "Default Shipping Providers",
   "Description": "Provides shipping methods for fixed rate shipping and computation based on total.",
-  "Version": "5.0.5",
-  "MinAppVersion": "5.0.5",
+  "Version": "5.1.0",
+  "MinAppVersion": "5.1.0",
   "Author": "SmartStore AG",
   "Order": 0,
   "ResourceRootKey": "Plugins.SmartStore.Shipping"
