@@ -65,8 +65,8 @@ namespace Smartstore.Web.Models.Customers
 
         public override async Task MapAsync(Customer from, CustomerAvatarModel to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             await _db.LoadCollectionAsync(from, x => x.CustomerRoleMappings, false, x => x.Include(y => y.CustomerRole));
 
@@ -85,30 +85,30 @@ namespace Smartstore.Web.Models.Customers
             {
                 to.AllowViewingProfiles = _customerSettings.AllowViewingProfiles;
 
+                var userName = "?";
+
                 if (from.FirstName.HasValue())
                 {
-                    to.AvatarLetter = from.FirstName.First();
+                    userName = from.FirstName;
                 }
                 else if (from.LastName.HasValue())
                 {
-                    to.AvatarLetter = from.LastName.First();
+                    userName = from.LastName;
                 }
                 else if (from.FullName.HasValue())
                 {
-                    to.AvatarLetter = from.FullName.First();
+                    userName = from.FullName;
                 }
                 else if (from.Username.HasValue())
                 {
-                    to.AvatarLetter = from.Username.First();
+                    userName = from.Username;
                 }
                 else if (to.UserName.HasValue())
                 {
-                    to.AvatarLetter = to.UserName.First();
+                    userName = to.UserName;
                 }
-                else
-                {
-                    to.AvatarLetter = '?';
-                }
+
+                to.AvatarLetter = userName.ToUpper().TrimStart()[0];
 
                 if (_customerSettings.AllowCustomersToUploadAvatars)
                 {
