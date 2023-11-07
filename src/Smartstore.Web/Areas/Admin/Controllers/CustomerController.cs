@@ -321,7 +321,18 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        private async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
+        private void AddModelErrors(IdentityResult result, string key)
+        {
+            if (!result.Succeeded)
+            {
+                result.Errors
+                    .Select(x => x.Description)
+                    .Distinct()
+                    .Each(x => ModelState.AddModelError(key, x));
+            }
+        }
+
+        private static async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
         {
             await address.MapAsync(model.Address);
             model.CustomerId = customer.Id;
@@ -512,7 +523,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 else
                 {
-                    AddModelErrors(createResult, string.Empty);
+                    AddModelErrors(createResult, nameof(model.Password));
                 }
             }
 
@@ -704,27 +715,12 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        private void AddModelErrors(IdentityResult result, string key)
-        {
-            if (!result.Succeeded)
-            {
-                result.Errors
-                    .Select(x => x.Description)
-                    .Distinct()
-                    .Each(x => ModelState.AddModelError(key, x));
-            }
-        }
-
+        // AJAX.
         [HttpPost]
-        [FormValueRequired("changepassword"), ActionName("Edit")]
         [Permission(Permissions.Customer.Update)]
-        public async Task<IActionResult> ChangePassword(CustomerModel model)
+        public async Task<IActionResult> ChangePassword(CustomerModel.ChangePasswordModel model)
         {
-            if (model.Password.IsEmpty())
-            {
-                NotifyError(T("Account.ChangePassword.Errors.PasswordIsNotProvided"));
-                return RedirectToAction(nameof(Edit), model.Id);
-            }
+            ViewBag.ShowFormOnly = true;
 
             var customer = await _db.Customers.FindByIdAsync(model.Id);
             if (customer == null)
@@ -735,7 +731,6 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 IdentityResult passwordResult;
-
                 if (await _userManager.HasPasswordAsync(customer))
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(customer);
@@ -748,19 +743,13 @@ namespace Smartstore.Admin.Controllers
 
                 if (passwordResult.Succeeded)
                 {
-                    NotifySuccess(T("Admin.Customers.Customers.PasswordChanged"));
-                    return RedirectToAction(nameof(Edit), customer.Id);
+                    return new EmptyResult();
                 }
-                else
-                {
-                    AddModelErrors(passwordResult, nameof(model.Password));
-                }
+
+                AddModelErrors(passwordResult, nameof(model.Password));
             }
 
-            // Show model errors.
-            await PrepareCustomerModel(model, customer);
-
-            return View(model);
+            return PartialView("_ChangePasswordPopup", model);
         }
 
         [HttpPost]
@@ -826,9 +815,9 @@ namespace Smartstore.Admin.Controllers
 
                 return RedirectToAction(nameof(List));
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                NotifyError(exception.Message);
+                NotifyError(ex.Message);
                 return RedirectToAction(nameof(Edit), new { id = customer.Id });
             }
         }
@@ -925,9 +914,9 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Customers.Customers.SendEmail.Queued"));
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                NotifyError(exc.Message);
+                NotifyError(ex.Message);
             }
 
             return RedirectToAction(nameof(Edit), new { id = customer.Id });

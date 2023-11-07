@@ -1,7 +1,4 @@
-﻿using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Content.Media;
-using Smartstore.Core.DataExchange.Import;
-using Smartstore.Data.Migrations;
+﻿using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -15,14 +12,14 @@ namespace Smartstore.Core.Data.Migrations
             //await MigrateSettingsAsync(context, cancelToken);
         }
 
-        public async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
-        {
+        //public async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
+        //{
 
-        }
+        //}
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            
+            builder.Delete("Account.ChangePassword.Errors.PasswordIsNotProvided");
         }
     }
 }

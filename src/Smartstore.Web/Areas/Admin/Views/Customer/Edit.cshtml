@@ -9,7 +9,7 @@
         <div class="title">
             <a sm-backto asp-action="List"></a>
             <i class="far fa-user-edit"></i>
-            <span>@T("Admin.Customers.Customers.EditCustomerDetails") - @Model.Username</span>
+            <span>@ViewBag.Title - @Model.Username</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />
@@ -21,10 +21,14 @@
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
-
+            @*TODO: (mg) too many buttons. Use a menu.*@
             <a sm-if="Model.DisplayProfileLink" asp-route="CustomerProfile" asp-route-id="@Model.Id" class="btn btn-secondary" target="user-profile">
                 <i class="fa fa-up-right-from-square"></i>
                 <span>@T("Common.UserProfile")</span>
+            </a>
+            <a sm-if="Model.Id > 0" href="#change-password-dialog" data-toggle="modal" class="btn btn-to-danger btn-secondary">
+                <i class="fa fa-unlock-keyhole"></i>
+                <span>@T("Account.ChangePassword")</span>
             </a>
 
             @if (await Display.ZoneHasWidgetsAsync("admin_button_toolbar_messaging_dropdown"))
@@ -66,3 +70,8 @@
 </form>
 
 <partial name="_SendEmailWindow" model="new CustomerModel.SendEmailModel { CustomerId = Model.Id }" />
+
+@if (Model.Id != 0)
+{
+    <partial name="_ChangePasswordPopup" model="new CustomerModel.ChangePasswordModel { Id = Model.Id }" />
+}

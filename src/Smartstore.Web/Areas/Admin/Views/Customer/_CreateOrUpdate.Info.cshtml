@@ -38,24 +38,15 @@
             <span asp-validation-for="Email"></span>
         </div>
     </div>
-    <div class="adminRow">
+    <div sm-if="Model.Id == 0" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="Password" />
         </div>
         <div class="adminData">
-            <div class="input-group">
-                <editor asp-for="Password" class="form-control" />
-                <span sm-if="Model.Id > 0" class="input-group-append">
-                    <button type="submit" name="changepassword" value="changepassword" class="btn btn-light">
-                        <i class="fa fa-cog"></i>
-                        <span>@T("Account.ChangePassword")</span>
-                    </button>
-                </span>
-            </div>
+            <editor asp-for="Password" class="form-control" />
             <span asp-validation-for="Password"></span>
         </div>
     </div>
-
     <div sm-if="Model.Id > 0 && Model.AssociatedExternalAuthRecords?.Count > 0" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="AssociatedExternalAuthRecords" />

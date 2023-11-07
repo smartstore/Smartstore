@@ -230,6 +230,22 @@ namespace Smartstore.Admin.Models.Customers
                 RuleFor(x => x.Body).NotEmpty();
             }
         }
+
+        public class ChangePasswordModel : EntityModelBase
+        {
+            [LocalizedDisplay("Account.ChangePassword.Fields.NewPassword")]
+            [DataType(DataType.Password)]
+            public string Password { get; set; }
+        }
+
+        public class ChangePasswordValidator : SmartValidator<ChangePasswordModel>
+        {
+            public ChangePasswordValidator()
+            {
+                RuleFor(x => x.Password).NotEmpty();
+            }
+        }
+
         #endregion
     }
 
