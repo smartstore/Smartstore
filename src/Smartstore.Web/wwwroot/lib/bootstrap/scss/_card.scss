@@ -23,7 +23,7 @@
     margin-inline-start: 0;
   }
 
-  .list-group {
+  > .list-group {
     border-top: inherit;
     border-bottom: inherit;
 
@@ -31,7 +31,9 @@
       border-top-width: 0;
       @include border-top-radius($card-inner-border-radius);
     }
+  }
 
+  .list-group {
     &:last-child  {
       border-bottom-width: 0;
       @include border-bottom-radius($card-inner-border-radius);
@@ -94,9 +96,7 @@
   &:first-child {
     @include border-top-radius($card-inner-border-radius);
 
-    &.collapsed {
-        @include border-bottom-radius($card-inner-border-radius);
-    }
+
   }
 }
 

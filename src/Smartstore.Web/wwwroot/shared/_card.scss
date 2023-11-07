@@ -31,3 +31,9 @@
 .card-body.disabled { 
     opacity: .5;
 }
+
+@include media-breakpoint-down(sm) {
+    .card-header:first-child.collapsed {
+        @include border-bottom-radius($card-inner-border-radius);
+    }
+}
