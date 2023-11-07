@@ -183,6 +183,9 @@
 	<LocaleResource Name="Account.CustomerReturnRequests.Title">
 		<Value>Return #{0} - {1}</Value>
 	</LocaleResource>
+	<LocaleResource Name="Account.CustomerSince">
+		<Value>Customer since {0}</Value>
+	</LocaleResource>
 	<LocaleResource Name="Account.DownloadableProducts">
 		<Value>Downloadable products</Value>
 	</LocaleResource>
@@ -241,7 +244,7 @@
 		<Value>Last name</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.Fields.Newsletter">
-		<Value>I would like to subscribe to the newsletter. I agree to the &lt;a href="{0}" Privacy policy&lt;/a&gt;. Unsubscription is possible at any time.</Value>
+		<Value>I would like to subscribe to the newsletter. I agree to the &lt;a href="{0}"&gt;Privacy policy&lt;/a&gt;. Unsubscription is possible at any time.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.Fields.Password">
 		<Value>Password</Value>
@@ -375,8 +378,8 @@
 	<LocaleResource Name="Account.MyAccount">
 		<Value>My account</Value>
 	</LocaleResource>
-	<LocaleResource Name="Account.Navigation">
-		<Value>My account</Value>
+	<LocaleResource Name="Account.MyOrders">
+		<Value>My orders</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.Options">
 		<Value>Options</Value>
@@ -834,6 +837,9 @@
 	<LocaleResource Name="Admin.Address.Fields.LastName.Hint">
 		<Value>Enter last name</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Address.Fields.Name.InvalidChars">
+		<Value>Please check your input. Numbers and the following characters are not allowed: {0}</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Address.Fields.PhoneNumber">
 		<Value>Phone number</Value>
 	</LocaleResource>
@@ -1073,9 +1079,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.WeightAdjustment.Hint">
 		<Value>The weight adjustment applied when choosing this attribute value</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Catalog.Attributes.CheckoutAttributes.Values.SaveBeforeEdit">
-		<Value>You need to save the checkout attribute before you can add values for this checkout attribute page.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Attributes.OptionsSets">
 		<Value>Option sets</Value>
@@ -1336,7 +1339,7 @@
 		<Value>Rules for automated assignment</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Categories.AutomatedAssignmentRules.Hint">
-		<Value>Products are automatically assigned to this category by scheduled task if they fulfill one of the selected rules.</Value>
+		<Value>Products are automatically assigned to this category by scheduled task if they fulfill one of the selected rules and this rule is active.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Categories.Breadcrumb">
 		<Value>Breadcrumb</Value>
@@ -1927,6 +1930,12 @@
 	<LocaleResource Name="Admin.Catalog.Products.BundleItems.SaveBeforeEdit">
 		<Value>You need to save the product before you can add bundled products for this product page.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.CartQuantity">
+		<Value>Cart quantity</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.CartQuantity.Info">
+		<Value>If the number of possible order quantities is less than {0}, a drop-down menu is offered as a control for selecting the order quantity. Otherwise, a numeric input field is generated to allow free entry of the order quantity. The upper limit can be changed in the &lt;a href='{1}' class='alert-link'&gt;shopping cart settings&lt;/a&gt;.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Categories">
 		<Value>Category mappings</Value>
 	</LocaleResource>
@@ -2036,10 +2045,10 @@
 		<Value>Check the box to allow customers to review this product.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.AllowedQuantities">
-		<Value>Allowed quantities</Value>
+		<Value>Custom quantities</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.AllowedQuantities.Hint">
-		<Value>Enter a comma separated list of quantities you want this product to be restricted to. Instead of a quantity textbox that allows them to enter any quantity, they will receive a dropdown list of the values you enter here.</Value>
+		<Value>A comma-separated list of allowed order quantities for this product. Customers in this case select an order quantity from a drop-down menu instead of making a free entry. If this field is populated, the min/max/step settings will be disabled.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.ApprovedRatingSum">
 		<Value>Approved rating sum</Value>
@@ -2285,10 +2294,10 @@
 		<Value>The height of the product.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.HideQuantityControl">
-		<Value>Hide quantity control on product pages</Value>
+		<Value>Hide quantity selection on product pages</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.HideQuantityControl.Hint">
-		<Value>Specifies whether to hide the quantity control on product pages.</Value>
+		<Value>Hides the quantity selection control on product pages. If enabled, 'Minimum cart quantity' determines the quantity added to the cart.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.HomePageDisplayOrder.Hint">
 		<Value>Specifies the display order for products displayed on homepage. 1 represents the first element in the list.</Value>
@@ -2489,7 +2498,7 @@
 		<Value>Quantity step</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.QuantityStep.Hint">
-		<Value>Specifies the incremental respectively decremental step on usage of +/-. Orderable quantities are limited to a multiple of this value.</Value>
+		<Value>The order quantity is limited to a multiple of this value.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.QuantityUnit">
 		<Value>Quantity unit</Value>
@@ -2765,7 +2774,7 @@
 		<Value>Add combination</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AddTitle">
-		<Value>Select new combination and enter details below</Value>
+		<Value>Add attribute combination</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToCombineAll">
 		<Value>Would you like to combine all attributes? Existing combinations will be deleted!</Value>
@@ -2811,6 +2820,15 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Fields.StockQuantity.Hint">
 		<Value>The current stock quantity of this combination.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenNextCombination">
+		<Value>Open next attribute combination</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.OpenPreviousCombination">
+		<Value>Open previous attribute combination</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.SelectAttributes">
+		<Value>Set the attributes for the new combination</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Short">
 		<Value>Combinations</Value>
@@ -2949,6 +2967,24 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Promotion">
 		<Value>Promotion</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.AdminNote">
+		<Value>A recovery of deleted products is intended for emergencies. Some data cannot be restored in the process. These include assignments to delivery times and quantity units, country of origin and the compare price label (e.g. RRP). Products that are assigned to orders are ignored during deletion, as they cannot be deleted permanently.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.Clear">
+		<Value>Empty recycle bin</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.ClearConfirm">
+		<Value>Are you sure that all entries of the recycle bin should be deleted?</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.DeleteProductsResult">
+		<Value>{0} of {1} products have been permanently deleted. {2} products were skipped.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning">
+		<Value>The product is assigned to {0} orders. A product cannot be permanently deleted if it is assigned to an order.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.RestoreProductsResult">
+		<Value>{0} of {1} products were successfully restored.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.RelatedProducts">
 		<Value>Related products</Value>
@@ -3251,7 +3287,7 @@
 		<Value>Delete</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.Delete.Selected">
-		<Value>Delete (selected)</Value>
+		<Value>Delete selected</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.DeleteAll">
 		<Value>Delete all</Value>
@@ -3502,8 +3538,14 @@
 	<LocaleResource Name="Admin.Common.SaveChanges">
 		<Value>Save changes</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Common.SaveClose">
+		<Value>Save &amp; close</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Common.SaveContinue">
 		<Value>Save and Continue Edit</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Common.SaveExit">
+		<Value>Save &amp; exit</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.Search">
 		<Value>Search</Value>
@@ -3883,9 +3925,6 @@
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.CurrencyCode.Hint">
 		<Value>The three letter ISO 4217 currency code.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Currencies.Fields.CurrencyRateAutoUpdateEnabled">
-		<Value>Auto update enabled</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.CustomFormatting">
 		<Value>Custom formatting</Value>
 	</LocaleResource>
@@ -3910,14 +3949,17 @@
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.DomainEndings.Hint">
 		<Value>Selects this currency as the default currency based on the domain extension. Example: .ch</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Currencies.Fields.ExchangeRateProvider">
-		<Value>Current exchange rate provider</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.IsPrimaryExchangeRateCurrency">
 		<Value>Exchange rate currency</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency">
 		<Value>Primary currency</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Currencies.Fields.MidpointRounding">
+		<Value>Midpoint rounding</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Currencies.Fields.MidpointRounding.Hint">
+		<Value>Specifies the rounding strategy of the midway between two amounts. Default is comercial rounding (round midpoint to the nearest amount that is away from zero).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.Name">
 		<Value>Name</Value>
@@ -3937,6 +3979,12 @@
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.Rate.Hint">
 		<Value>The exchange rate against the primary exchange rate currency.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Currencies.Fields.RoundNetPrices">
+		<Value>Round when net prices are displayed</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Currencies.Fields.RoundNetPrices.Hint">
+		<Value>Specifies whether to round during shopping cart calculation even if net prices are displayed to the customer.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.RoundNumDecimals">
 		<Value>Number of decimal digits</Value>
 	</LocaleResource>
@@ -3947,7 +3995,7 @@
 		<Value>Round all order item amounts</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.RoundOrderItemsEnabled.Hint">
-		<Value>Specifies whether to round all order item amounts (products, fees, tax etc.)</Value>
+		<Value>Specifies whether to round all order item amounts (prices, tax, fees etc.). The general rounding settings are applied, if not specified here.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.RoundOrderItemsEnabled.Validation">
 		<Value>The number of decimal digits must be between 0 and 8.</Value>
@@ -3970,8 +4018,11 @@
 	<LocaleResource Name="Admin.Configuration.Currencies.Fields.RoundOrderTotalRule.Hint">
 		<Value>Specifies the rule for rounding the order total amount.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Currencies.GetLiveRates">
-		<Value>Get live rates</Value>
+	<LocaleResource Name="Admin.Configuration.Currencies.Fields.RoundUnitPrices">
+		<Value>Round unit price</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Currencies.Fields.RoundUnitPrices.Hint">
+		<Value>Specifies whether the product price should be rounded before or after quantity multiplication during shopping cart calculation. If enabled, the unit price is rounded and then multiplied by the quantity. If disabled, the unit price is multiplied by the quantity and then rounded.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Currencies.LiveRates">
 		<Value>Live currency rates</Value>
@@ -4784,7 +4835,7 @@
 		<Value>Settings</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.AllSettings">
-		<Value>All settings (advanced)</Value>
+		<Value>All settings</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.AllSettings.AllTypes">
 		<Value>All types</Value>
@@ -4925,10 +4976,10 @@
 		<Value>Specifies how product lists should be displayed by default. The customer can also change the appearance manually.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.DeliveryTimeIdForEmptyStock">
-		<Value>Delivery time dislayed when stock is empty</Value>
+		<Value>Delivery time displayed when stock is empty</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.DeliveryTimeIdForEmptyStock.Hint">
-		<Value>Delivery time to be dislayed when the stock quantity of a product is equal or less 0.</Value>
+		<Value>Delivery time to be displayed when the stock quantity of a product is equal or less 0.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.DeliveryTimesInLists">
 		<Value>Presentation of delivery times</Value>
@@ -5071,13 +5122,6 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.NumberOfProductTags.Hint">
 		<Value>The number of product tags that appear in the tag cloud</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.PageShareCode">
-		<Value>Share button widget code</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.PageShareCode.Hint">
-		<Value>Specifies the code to render the share button widget. By going to addthis.com you can create your own widget code and paste it here. 
-                    This way you can configure the display type of the widget as well as get statistic insight.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ProductDetailSettings">
 		<Value>Product detail</Value>
 	</LocaleResource>
@@ -5169,7 +5213,7 @@
 		<Value>Check the box to show best sellers on home page.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowCategoryProductNumber">
-		<Value>Show the number of distinct products besides each category</Value>
+		<Value>Show number of products next to the categories</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowCategoryProductNumber.Hint">
 		<Value>Check the box to show the number of products besides each category (category navigation block).</Value>
@@ -5318,17 +5362,11 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowProductSku.Hint">
 		<Value>Check the box to show product SKU in public store.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowShareButton">
-		<Value>Show a share button</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowShareButton.Hint">
-		<Value>Check the box to show share button on product details page.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowShortDescriptionInGridStyleLists">
 		<Value>Show short description in product lists</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowShortDescriptionInGridStyleLists.Hint">
-		<Value>Specifies whether the product short description should be displayed in product lists</Value>
+		<Value>Specifies whether the product short description should be displayed in product lists. This setting only applies to the grid view display.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.ShowSubCategoriesInSubPages">
 		<Value>Show subcategories also in subpages</Value>
@@ -5369,6 +5407,21 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.UseSmallProductBoxOnHomePage.Hint">
 		<Value>Defines the size of the product boxes on the homepage of your store.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Currency.AutoUpdateEnabled">
+		<Value>Automatically update exchange rates</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Currency.AutoUpdateEnabled.Hint">
+		<Value>Specifies whether exchange rates should be automatically updated via the associated scheduled task.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Currency.ExchangeRateProvider">
+		<Value>Online exchange rate service</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Currency.RoundOrderItemsEnabled">
+		<Value>Round all order item amounts</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Currency.RoundOrderItemsEnabled.Hint">
+		<Value>Specifies whether to round all order item amounts (prices, tax, fees etc.). Rounding settings can optionally also be specified for the respective currency.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser">
 		<Value>Customer settings</Value>
 	</LocaleResource>
@@ -5403,7 +5456,7 @@
 		<Value>A value indicating whether the viewing of customer profiles is allowed.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CheckUsernameAvailabilityEnabled">
-		<Value>Allow customers to check the availability of usernames</Value>
+		<Value>Enable username availability check</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CheckUsernameAvailabilityEnabled.Hint">
 		<Value>A value indicating whether customers are allowed to check the availability of usernames (when registering or changing in 'My Account').</Value>
@@ -5461,6 +5514,15 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CustomerLoginType.Hint">
 		<Value>Specifies the customer login type.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters">
+		<Value>Additional allowed characters for customer names</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.AdminHint">
+		<Value>The following characters are already allowed by default:</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CustomerNameAllowedCharacters.Hint">
+		<Value>Add additional characters here that are permitted when entering a user name. Leave the field blank to allow all characters.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.CustomerNameFormat">
 		<Value>Customer name format</Value>
@@ -5565,7 +5627,7 @@
 		<Value>Check the box to hide 'Back in stock subscriptions' tab on 'My account' page</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.HideDownloadableProductsTab">
-		<Value>Hide 'Downloadable products' tab</Value>
+		<Value>Hide downloads in the "My account" area</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.HideDownloadableProductsTab.Hint">
 		<Value>Check the box to hide 'Downloadable products' tab on 'My account' page</Value>
@@ -5581,6 +5643,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.LastNameRequired.Hint">
 		<Value>Defines whether the input of 'Last name' is required.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Login">
+		<Value>Login &amp; Registration</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Misc">
+		<Value>Miscellaneous</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.NewsletterEnabled">
 		<Value>'Newsletter' enabled</Value>
@@ -5700,9 +5768,6 @@
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.DisplayGdprConsentOnForms.Hint">
 		<Value>Specifies whether a checkbox is displayed in forms that prompts the user to agree to the processing of his data.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent.Hint">
-		<Value>Specifies whether the Cookie Manager will be displayed in the frontend.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.FullNameOnContactUsRequired">
 		<Value>Name in the contact form is required</Value>
 	</LocaleResource>
@@ -5745,6 +5810,12 @@
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.StoreLastIpAddress.Hint">
 		<Value>Specifies whether to store the IP address in the customer data set.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.VisitorCookieExpirationDays">
+		<Value>Visitor cookies expiration date (in days)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Privacy.VisitorCookieExpirationDays.Hint">
+		<Value>Specifies the number of days after which guest visitor cookies expire. Default are 365 days.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.RegisterCustomerRole">
 		<Value>Customer role at registrations</Value>
 	</LocaleResource>
@@ -5786,6 +5857,18 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.StateProvinceRequired.Hint">
 		<Value>Defines whether the input of 'State / province' is required.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.StoreLastDeviceFamily">
+		<Value>Store last device family</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.StoreLastDeviceFamily.Hint">
+		<Value>When enabled, the last device family of customers (ze.g. Windows, Android, iPad etc.) will be stored.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.StoreLastUserAgent">
+		<Value>Store last user agent</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.StoreLastUserAgent.Hint">
+		<Value>When enabled, the last user agent of customers will be stored.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.StoreLastVisitedPage">
 		<Value>Store last visited page</Value>
@@ -5841,6 +5924,9 @@
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.ValidateEmailAddress.Hint">
 		<Value>Determines whether the customers email address is validated during the checkout process</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.Visibility">
+		<Value>Visibility</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.ZipPostalCodeEnabled">
 		<Value>'Zip / postal code' enabled</Value>
 	</LocaleResource>
@@ -5864,6 +5950,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.DataExchange.ImageImportFolder.Hint">
 		<Value>Specifies a relative path to a folder with images to be imported (e.g. Content\Images).</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.DataExchange.ImportCompletionEmail">
+		<Value>Import completion email</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.DataExchange.ImportCompletionEmail.Hint">
+		<Value>Specifies whether an email should be sent when an import has completed.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.DataExchange.MaxFileNameLength">
 		<Value>Maximum length of file and folder names</Value>
@@ -6399,11 +6491,14 @@
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DetectBrowserUserLanguage.Hint">
 		<Value>Specifies whether the browser language of the visitor should be detected and assigned on his first visit (when inactive, the default store language will be assigned)</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayAdditionalLines">
+		<Value>Additional lines'</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayAllows">
-		<Value>Show items for 'Allow'</Value>
+		<Value>Items for 'Allow'</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayDisallows">
-		<Value>Show items for 'Disallow'</Value>
+		<Value>Items for 'Disallow'</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayRegionInLanguageSelector">
 		<Value>Display region in language selector</Value>
@@ -6443,6 +6538,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.ExtraRobotsDisallows.Hint">
 		<Value>Enter additional paths that should be included as Disallow entries in your robots.txt. Each entry has to be entered in a new line.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.ExtraRobotsLines">
+		<Value>Extra entries for robots.txt</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.ForceSslForAllPages.Hint">
 		<Value>Specifies whether to SSL secure all request.</Value>
@@ -6540,6 +6638,9 @@
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.ReCaptchaTypeChangeWarning">
 		<Value>When changing the reCAPTCHA type, the public and private key must also be changed.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.RobotsHint">
+		<Value>The robots.txt file consists of automatically generated entries, as well as entries for user-defined Allows, Disallows and additional lines. Each line of the Allows and Disallows entries is prefixed with the corresponding prefix. The entries that are defined as additional lines are appended to the file unchanged.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SecuritySettings">
 		<Value>Security</Value>
 	</LocaleResource>
@@ -6610,13 +6711,13 @@
 		<Value>Tumblr Link</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterLink">
-		<Value>Twitter link</Value>
+		<Value>X (Twitter) link</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite">
-		<Value>Twitter Username</Value>
+		<Value>X (Twitter) Username</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite.Hint">
-		<Value>Twitter Username that gets displayed on Twitter cards when a product, category and manufacturer page is shared on Twitter. Starts with a '@'.</Value>
+		<Value>X (Twitter) username that gets displayed on X (Twitter) cards when a product, category and manufacturer page is shared on X (Twitter). Starts with a '@'.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.SocialSettings.VimeoLink">
 		<Value>Vimeo Link</Value>
@@ -7506,6 +7607,12 @@
 	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.MaximumWishlistItems.Hint">
 		<Value>Maximum number of distinct products allowed in a wishlist.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.MaxQuantityInputDropdownItems">
+		<Value>Upper limit for order quantity selection via drop-down menu</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.MaxQuantityInputDropdownItems.Hint">
+		<Value>Specifies the upper limit of possible order quantities up to which a drop-down menu for entering the order quantity is to be offered. If the number is greater, a numeric input field is used.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart.MiniShoppingCartEnabled">
 		<Value>Show mini-shopping cart</Value>
 	</LocaleResource>
@@ -7637,9 +7744,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.StoreScope.CheckAll.Hint">
 		<Value>Switch on if you want to set a custom value for this shop</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.Tax">
-		<Value>Tax settings</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Tax.AllowCustomersToSelectTaxDisplayType">
 		<Value>Allow customers to select tax display type</Value>
@@ -8602,7 +8706,7 @@
 		<Value>BCC</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.MessageTemplates.Fields.BccEmailAddresses.Hint">
-		<Value>The blind carbon copy (BCC) recipients for this e-mail message.</Value>
+		<Value>BCC address. The BCC (blind carbon copy) field contains one or more semicolon-separated email addresses to which a copy of the email is sent without being visible to the other specified recipients.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.ContentManagement.MessageTemplates.Fields.Body">
 		<Value>Body</Value>
@@ -10485,6 +10589,12 @@
 	<LocaleResource Name="Admin.DataGrid.ConfirmDeleteMany">
 		<Value>Do you really want to delete the selected {0} items permanently?</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.DataGrid.ConfirmSoftDelete">
+		<Value>Do you want to delete the item?</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.DataGrid.ConfirmSoftDeleteMany">
+		<Value>Do you want to delete the selected {0} items?</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.DataGrid.DeleteSuccess">
 		<Value>{0} items successfully deleted.</Value>
 	</LocaleResource>
@@ -11896,7 +12006,7 @@
 		<Value>Package file</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Packaging.Dialog.PluginInfo">
-		<Value>Choose a plugin package file (Smartstore.Module.*.zip) to upload to your server. The package will be automatically extracted and installed. If an older version of the plugin already exists, it will be backed up for you.</Value>
+		<Value>Choose a plugin package file (Smartstore.Module.*.zip) to upload to your server. The package will be automatically extracted and displayed after clicking &lt;i&gt;Reload list of plugins&lt;/i&gt;. If an older version of the plugin already exists, it will be backed up for you.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Packaging.Dialog.ThemeInfo">
 		<Value>Choose the theme package file (Smartstore.Theme.*.zip) to upload to your server. The package will be automatically extracted and installed. If an older version of the theme already exists, it will be backed up for you.</Value>
@@ -11905,7 +12015,7 @@
 		<Value>Upload &amp; Install package file</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Packaging.InstallSuccess">
-		<Value>Package '{0}' was uploaded and unzipped successfully. Please reload the list.</Value>
+		<Value>Package '{0}' was uploaded and unzipped successfully. Please click Edit / Reload list of plugins.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Packaging.InstallSuccess.Theme">
 		<Value>Theme '{0}' was uploaded and installed successfully. Please reload the list.</Value>
@@ -13345,7 +13455,7 @@
 		<Value>The backup was created with a different Smartstore version. Restoring it may cause unpredictable issues. Do you still want to proceed?</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DbBackup.SameServerNote">
-		<Value>Backups and restores of databases are only possible if the database server (e.g. MS SQL Server or MySQL) and the physical location of the store installation are on the same server.</Value>
+		<Value>Backing up and restoring databases is only possible if the database server (e.g. MS SQL Server or MySQL) and the physical location of the store installation are on the same server.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DbBackup.Upload">
 		<Value>Upload backup</Value>
@@ -13372,13 +13482,13 @@
 		<Value>End date</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DeleteExportedFiles.EndDate.Hint">
-		<Value>The end date for the search.</Value>
+		<Value>The end date of the search. If no date is specified, everything beginning on the start date is deleted.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DeleteExportedFiles.StartDate">
 		<Value>Start date</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DeleteExportedFiles.StartDate.Hint">
-		<Value>The start date for the search</Value>
+		<Value>The start date of the search. If no date is specified, everything before the end date is deleted.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DeleteExportedFiles.TotalDeleted">
 		<Value>{0} files were deleted</Value>
@@ -13390,7 +13500,7 @@
 		<Value>End date</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DeleteGuests.EndDate.Hint">
-		<Value>The end date for the search.</Value>
+		<Value>The end date of the search. If no date is specified, everything beginning on the start date is deleted.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DeleteGuests.OnlyWithoutShoppingCart">
 		<Value>Only without shopping cart</Value>
@@ -13402,7 +13512,7 @@
 		<Value>Start date</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DeleteGuests.StartDate.Hint">
-		<Value>The start date for the search</Value>
+		<Value>The start date of the search. If no date is specified, everything before the end date is deleted.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.DeleteGuests.TotalDeleted">
 		<Value>{0} customers were deleted</Value>
@@ -13430,6 +13540,21 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Maintenance.SqlQueryTitle">
 		<Value>Execute SQL query directly on database</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.Maintenance.StartDateMustBeBeforeEndDate">
+		<Value>The start date must not be after the end date.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.Maintenance.TreePaths.Hint">
+		<Value>Tree paths provide quick access to hierarchically organized data records, such as product categories. In very rare cases, gaps can occur here, e.g. due to faulty migrations or imports. Problems with missing paths include products appearing in categories to which they are not assigned. If you experience such problems in your shop, you can generate the missing paths here.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.Maintenance.TreePaths.PathCount">
+		<Value>The task was completed successfully. {0} new paths were generated.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.Maintenance.TreePaths.Rebuild">
+		<Value>Check &amp; repair</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.Maintenance.TreePaths.Title">
+		<Value>Tree paths</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.MetaInfos">
 		<Value>Meta tags</Value>
@@ -13901,6 +14026,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Warnings.AccessDeniedToUser">
 		<Value>Access denied to user #{0} '{1}' on {2}.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.Warnings.AttributeCombinationHashCodes.Missing">
+		<Value>The hash code is missing for {0} attribute combination(s). &lt;a href="{1}"&gt;Fix now.&lt;/a&gt;</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.System.Warnings.AttributeCombinationHashCodes.OK">
+		<Value>All hash codes of attribute combinations have been set.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Warnings.DefaultDimension">
 		<Value>Default dimension is not set</Value>
@@ -14644,6 +14775,9 @@
 	<LocaleResource Name="Common.DeleteConfirmationParam">
 		<Value>Are you sure you want to delete "{0}"?</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.DeletePermanent">
+		<Value>Delete permanently</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.DelKey">
 		<Value>Del</Value>
 	</LocaleResource>
@@ -14670,6 +14804,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Common.DoNotLikeIt">
 		<Value>I do not like it anymore</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.DontAskAgain">
+		<Value>Don't ask again</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.DontShowAgain">
+		<Value>Don't show again</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Download">
 		<Value>Download</Value>
@@ -14824,9 +14964,6 @@
 	<LocaleResource Name="Common.Error.OptionAlreadyExists">
 		<Value>The option "{0}" already exists.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Common.Error.PreProcessPayment">
-		<Value>Unfortunately the selected payment method caused an error. Please correct your entries, try it again or select another payment method.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Common.Error.SendMail">
 		<Value>Error while sending the email. Please try again later.</Value>
 	</LocaleResource>
@@ -14889,6 +15026,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Common.Filter">
 		<Value>Filter</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.Finance">
+		<Value>Finance</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.FinishedOn">
 		<Value>Finished on</Value>
@@ -15046,6 +15186,9 @@
 	<LocaleResource Name="Common.NotSelectable">
 		<Value>Not selectable</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.NumberOfOrders">
+		<Value>Number of orders</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Off">
 		<Value>Off</Value>
 	</LocaleResource>
@@ -15075,6 +15218,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Common.Or">
 		<Value>Or</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.Pageviews">
+		<Value>Page views</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.PageviewsCount">
+		<Value>{0} page views</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Partition">
 		<Value>Partition</Value>
@@ -15145,6 +15294,9 @@
 	<LocaleResource Name="Common.Recommended">
 		<Value>Recommended</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.RecycleBin">
+		<Value>Recycle bin</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Refresh">
 		<Value>Refresh</Value>
 	</LocaleResource>
@@ -15162,6 +15314,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Common.RequestProcessingFailed">
 		<Value>The request could not be processed.&lt;br /&gt;Controller: {0}, Action: {1}, Reason: {2}.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.Restore">
+		<Value>Restore</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Resume">
 		<Value>Resume</Value>
@@ -15545,10 +15700,10 @@
 		<Value>Specified tax category</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.BackorderMode.AllowQtyBelow0">
-		<Value>Allow qty below 0</Value>
+		<Value>Allow quantity below 0</Value>
 	</LocaleResource>
-	<LocaleResource Name="Enums.BackorderMode.AllowQtyBelow0AndNotifyCustomer">
-		<Value>Allow qty below 0 and notify customer</Value>
+	<LocaleResource Name="Enums.BackorderMode.AllowQtyBelow0OnBackorder">
+		<Value>Allow quantity below 0. Delivered as soon as in stock.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.BackorderMode.NoBackorders">
 		<Value>No backorders</Value>
@@ -15561,6 +15716,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Enums.CanonicalHostNameRule.RequireWww">
 		<Value>Require www prefix</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.CapturePaymentReason.OrderCompleted">
+		<Value>The order has been marked as completed</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.CapturePaymentReason.OrderDelivered">
 		<Value>The order has been marked as delivered</Value>
@@ -15589,11 +15747,23 @@
 	<LocaleResource Name="Enums.CookieConsentRequirement.DependsOnCountry">
 		<Value>Depends on country configuration</Value>
 	</LocaleResource>
-	<LocaleResource Name="Enums.CookieConsentRequirement.Disabled">
+	<LocaleResource Name="Enums.CookieConsentRequirement.NeverRequired">
 		<Value>Never required</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.CookieConsentRequirement.RequiredInEUCountriesOnly">
 		<Value>Required in EU countries only (recommended)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.CurrencyMidpointRounding.AwayFromZero">
+		<Value>Commercial rounding (recommended)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.CurrencyMidpointRounding.AwayFromZero.Example">
+		<Value>1.225 is rounded up to 1.23. 1.224 is rounded down to 1.22.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.CurrencyMidpointRounding.ToEven">
+		<Value>Banker's rounding</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.CurrencyMidpointRounding.ToEven.Example">
+		<Value>1.225 is rounded down to 1.22. 1.235 is rounded up to 1.24.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.CurrencyRoundingRule.AlwaysRoundDown">
 		<Value>Always round down (e.g. 0.05 rounding: 9.24 will round to 9.20)</Value>
@@ -15651,6 +15821,15 @@
 	</LocaleResource>
 	<LocaleResource Name="Enums.CustomerNumberVisibility.None">
 		<Value>Do not display</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DataExchangeCompletionEmail.Always">
+		<Value>Always</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DataExchangeCompletionEmail.Never">
+		<Value>Never</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DataExchangeCompletionEmail.OnError">
+		<Value>If an error occurs</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.DefaultLanguageRedirectBehaviour.DoNoRedirect">
 		<Value>Do not redirect</Value>
@@ -15870,6 +16049,15 @@
 	</LocaleResource>
 	<LocaleResource Name="Enums.IndexingStatus.Updating">
 		<Value>Updating</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.InvalidLanguageRedirectBehaviour.FallbackToWorkingLanguage">
+		<Value>Fallback to working language</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.InvalidLanguageRedirectBehaviour.ReturnHttp404">
+		<Value>Return HTTP 404 (page not found) (recommended)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.InvalidLanguageRedirectBehaviour.Tolerate">
+		<Value>Tolerate</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.LogLevel.Debug">
 		<Value>Debug</Value>
@@ -16102,14 +16290,23 @@
 	<LocaleResource Name="Enums.RuleScope.Cart">
 		<Value>Cart</Value>
 	</LocaleResource>
+	<LocaleResource Name="Enums.RuleScope.Cart.Hint">
+		<Value>Rule to grant discounts to the customer or offer shipping and payment methods.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Enums.RuleScope.Customer">
 		<Value>Customer</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.RuleScope.Customer.Hint">
+		<Value>Rule to automatically assign customers to customer roles per scheduled task.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.RuleScope.OrderItem">
 		<Value>Order item</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.RuleScope.Product">
 		<Value>Product</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.RuleScope.Product.Hint">
+		<Value>Rule to automatically assign products to categories per scheduled task.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.SearchMode.Contains">
 		<Value>Contains (wildcard)</Value>
@@ -16654,16 +16851,16 @@
 		<Value>Deleted</Value>
 	</LocaleResource>
 	<LocaleResource Name="GiftCardAttribute.For.Physical">
-		<Value>For: {0}</Value>
+		<Value>For</Value>
 	</LocaleResource>
 	<LocaleResource Name="GiftCardAttribute.For.Virtual">
-		<Value>For: {0} &lt;{1}&gt;</Value>
+		<Value>For</Value>
 	</LocaleResource>
 	<LocaleResource Name="GiftCardAttribute.From.Physical">
-		<Value>From: {0}</Value>
+		<Value>From</Value>
 	</LocaleResource>
 	<LocaleResource Name="GiftCardAttribute.From.Virtual">
-		<Value>From: {0} &lt;{1}&gt;</Value>
+		<Value>From</Value>
 	</LocaleResource>
 	<LocaleResource Name="HomePage">
 		<Value>Home page</Value>
@@ -17328,6 +17525,24 @@
 	<LocaleResource Name="PageTitle.Checkout">
 		<Value>Checkout</Value>
 	</LocaleResource>
+	<LocaleResource Name="PageTitle.Checkout.BillingAddress">
+		<Value>Billing address</Value>
+	</LocaleResource>
+	<LocaleResource Name="PageTitle.Checkout.Completed">
+		<Value>Thank you!</Value>
+	</LocaleResource>
+	<LocaleResource Name="PageTitle.Checkout.Confirm">
+		<Value>Confirm order</Value>
+	</LocaleResource>
+	<LocaleResource Name="PageTitle.Checkout.PaymentMethod">
+		<Value>Payment method</Value>
+	</LocaleResource>
+	<LocaleResource Name="PageTitle.Checkout.ShippingAddress">
+		<Value>Shipping address</Value>
+	</LocaleResource>
+	<LocaleResource Name="PageTitle.Checkout.ShippingMethod">
+		<Value>Shipping method</Value>
+	</LocaleResource>
 	<LocaleResource Name="PageTitle.CompareProducts">
 		<Value>Compare Products</Value>
 	</LocaleResource>
@@ -17443,13 +17658,10 @@
 		<Value>The payment method is not available.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.MissingCheckoutState">
-		<Value>Missing checkout session state ({0}). Your payment cannot be processed. Please go to your shopping cart and checkout again.</Value>
+		<Value>Missing checkout session state ({0}). Your payment cannot be processed. Please go to back to the shopping cart and checkout again.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.OneActiveMethodProviderRequired">
 		<Value>At least one payment method provider is required to be active.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Payment.PayingFailed">
-		<Value>Unfortunately we can not handle this purchasing via your preferred payment method. Please select an alternate payment option to complete your order.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.PaymentFailure">
 		<Value>A problem has occurred with this payment method. Please try again or select another payment method.</Value>
@@ -18204,6 +18416,9 @@
 	<LocaleResource Name="Products.ToFilter">
 		<Value>Filter</Value>
 	</LocaleResource>
+	<LocaleResource Name="Products.ToFilterAndSort">
+		<Value>Filter &amp; Sort</Value>
+	</LocaleResource>
 	<LocaleResource Name="Products.ToSort">
 		<Value>Sort</Value>
 	</LocaleResource>
@@ -18732,6 +18947,9 @@
 	<LocaleResource Name="ShoppingCart.DiscountCouponCode.WrongDiscount">
 		<Value>The coupon code you entered couldn't be applied to your order</Value>
 	</LocaleResource>
+	<LocaleResource Name="ShoppingCart.EnterAttributeValue">
+		<Value>Please enter &lt;b class="fwm"&gt;{0}&lt;/b&gt;.</Value>
+	</LocaleResource>
 	<LocaleResource Name="ShoppingCart.EstimateShipping">
 		<Value>Estimate shipping</Value>
 	</LocaleResource>
@@ -18910,7 +19128,7 @@
 		<Value>Apply</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShoppingCart.SelectAttribute">
-		<Value>Please select '{0}'.</Value>
+		<Value>Please select &lt;b class="fwm"&gt;{0}&lt;/b&gt;.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShoppingCart.SenderEmailError">
 		<Value>Enter valid sender email</Value>
@@ -18974,6 +19192,9 @@
 	</LocaleResource>
 	<LocaleResource Name="ShoppingCart.UnitPrice">
 		<Value>Price</Value>
+	</LocaleResource>
+	<LocaleResource Name="ShoppingCart.UploadAttributeFile">
+		<Value>Please upload &lt;b class="fwm"&gt;{0}&lt;/b&gt;.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShoppingCart.Weight">
 		<Value>Weight</Value>
