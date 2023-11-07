@@ -11,7 +11,7 @@ ENV ASPNETCORE_URLS "http://+:80;https://+:443"
 
 # Copy
 ARG EDITION=Community
-ARG VERSION=5.0.5
+ARG VERSION=5.1.0
 ARG RUNTIME=linux-x64
 ARG SOURCE=build/artifacts/${EDITION}.${VERSION}.${RUNTIME}
 
