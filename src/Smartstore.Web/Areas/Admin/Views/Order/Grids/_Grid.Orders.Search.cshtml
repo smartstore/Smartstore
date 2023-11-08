@@ -11,11 +11,11 @@
     <div class="form-row">
         <div class="col">
             <smart-label asp-for="StartDate" />
-            <editor asp-for="StartDate" class="form-control-sm" />
+            <editor asp-for="StartDate" asp-additional-viewdata='new { size = "sm" }' />
         </div>
         <div class="col">
             <smart-label asp-for="EndDate" />
-            <editor asp-for="EndDate" class="form-control-sm" />
+            <editor asp-for="EndDate" asp-additional-viewdata='new { size = "sm" }' />
         </div>
     </div>
 </div>
