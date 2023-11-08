@@ -746,7 +746,7 @@ namespace Smartstore.Admin.Controllers
                     return new EmptyResult();
                 }
 
-                AddModelErrors(passwordResult, nameof(model.Password));
+                AddModelErrors(passwordResult, string.Empty);
             }
 
             return PartialView("_ChangePasswordPopup", model);

@@ -38,14 +38,27 @@
             <span asp-validation-for="Email"></span>
         </div>
     </div>
-    <div sm-if="Model.Id == 0" class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="Password" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password"></span>
-        </div>
+    <div class="adminRow">
+        @if (Model.Id == 0)
+        {
+            <div class="adminTitle">
+                <smart-label asp-for="Password" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password"></span>
+            </div>
+        }
+        else
+        {
+            <div class="adminTitle"></div>
+            <div class="adminData">
+                <a href="#change-password-dialog" data-toggle="modal" class="btn btn-sm btn-to-danger btn-secondary">
+                    <i class="fa fa-unlock-keyhole"></i>
+                    <span>@T("Account.ChangePassword")</span>
+                </a>
+            </div>
+        }
     </div>
     <div sm-if="Model.Id > 0 && Model.AssociatedExternalAuthRecords?.Count > 0" class="adminRow">
         <div class="adminTitle">

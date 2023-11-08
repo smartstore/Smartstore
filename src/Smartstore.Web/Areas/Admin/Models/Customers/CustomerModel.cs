@@ -231,18 +231,28 @@ namespace Smartstore.Admin.Models.Customers
             }
         }
 
+        [LocalizedDisplay("Account.ChangePassword.Fields.")]
         public class ChangePasswordModel : EntityModelBase
         {
-            [LocalizedDisplay("Account.ChangePassword.Fields.NewPassword")]
+            [LocalizedDisplay("*NewPassword")]
             [DataType(DataType.Password)]
             public string Password { get; set; }
+
+            [DataType(DataType.Password)]
+            [LocalizedDisplay("*ConfirmNewPassword")]
+            public string ConfirmPassword { get; set; }
         }
 
-        public class ChangePasswordValidator : SmartValidator<ChangePasswordModel>
+        public class ChangePasswordValidator : AbstractValidator<ChangePasswordModel>
         {
-            public ChangePasswordValidator()
+            public ChangePasswordValidator(Localizer T)
             {
                 RuleFor(x => x.Password).NotEmpty();
+
+                RuleFor(x => x.ConfirmPassword)
+                    .NotEmpty()
+                    .Equal(x => x.Password)
+                    .WithMessage(T("Identity.Error.PasswordMismatch"));
             }
         }
 
