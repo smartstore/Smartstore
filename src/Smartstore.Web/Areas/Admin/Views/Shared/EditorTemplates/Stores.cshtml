@@ -28,17 +28,22 @@
 }
 
 @{
+    var multiple = GetMetadata<bool>("multiple", false);
     var items = StoreContext.GetAllStores().ToSelectListItems(SelectedIds);
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
-    if (!attributes.ContainsKey("data-placeholder"))
+    if (multiple && !attributes.ContainsKey("data-placeholder"))
     {
         attributes["data-placeholder"] = T("Admin.Common.StoresAll").Value;
     }
 }
-<select asp-for="@Model" 
-        asp-items="items" 
+<select asp-for="@Model"
+        asp-items="items"
         attrs="attributes"
         class="edit-control"
         data-editor="select">
+    @if (!multiple)
+    {
+        <option value="">@T("Admin.Common.StoresAll")</option>
+    }
 </select>
