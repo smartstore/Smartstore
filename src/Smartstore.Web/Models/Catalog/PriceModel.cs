@@ -18,13 +18,14 @@ namespace Smartstore.Web.Models.Catalog
         public string BasePriceInfo { get; set; }
 
         public bool CallForPrice { get; set; }
+        public bool CustomerEntersPrice { get; set; }
         public bool ShowRetailPriceSaving { get; set; }
 
         public List<ProductBadgeModel> Badges { get; } = new();
 
         public bool HasCalculation
         {
-            get => CalculatedPrice != null;
+            get => CalculatedPrice != null && !CustomerEntersPrice;
         }
 
         public bool HasDiscount
@@ -45,7 +46,6 @@ namespace Smartstore.Web.Models.Catalog
     public class ProductDetailsPriceModel : PriceModel
     {
         public LocalizedString CountdownText { get; set; }
-        public bool CustomerEntersPrice { get; set; }
         public bool HidePrices { get; set; }
         public bool ShowLoginNote { get; set; }
         public bool BundleItemShowBasePrice { get; set; }

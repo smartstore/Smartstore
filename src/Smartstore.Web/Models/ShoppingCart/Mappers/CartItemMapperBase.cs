@@ -179,12 +179,7 @@ namespace Smartstore.Web.Models.Cart
                 }
             }
 
-            if (product.CallForPrice)
-            {
-                priceModel.UnitPrice = new(0, currency, false, T("Products.CallForPrice"));
-                priceModel.SubTotal = priceModel.UnitPrice;
-            }
-            else if (item.BundleItem == null)
+            if (item.BundleItem == null)
             {
                 if (shoppingCartType == ShoppingCartType.ShoppingCart)
                 {
@@ -207,6 +202,14 @@ namespace Smartstore.Web.Models.Cart
             void MapCalculatedPrice(CalculatedPrice unitPrice, CalculatedPrice totalPrice)
             {
                 priceModel.Quantity = to.EnteredQuantity;
+
+                if (unitPrice.PricingType == PricingType.CallForPrice)
+                {
+                    priceModel.UnitPrice = unitPrice.FinalPrice;
+                    priceModel.SubTotal = unitPrice.FinalPrice;
+                    return;
+                }
+
                 priceModel.ValidUntilUtc = totalPrice.ValidUntilUtc;
                 priceModel.ShowRetailPriceSaving = PriceSettings.ShowRetailPriceSaving;
 

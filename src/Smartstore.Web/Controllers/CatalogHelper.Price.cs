@@ -35,23 +35,9 @@ namespace Smartstore.Web.Controllers
                 return;
             }
 
-            if (product.CustomerEntersPrice && !isBundleItemPricing)
-            {
-                priceModel.CustomerEntersPrice = true;
-                return;
-            }
-
-            if (product.CallForPrice && !isBundleItemPricing)
-            {
-                priceModel.CallForPrice = true;
-                priceModel.FinalPrice = new Money(currency).WithPostFormat(T("Products.CallForPrice"));
-                model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
-                return;
-            }
-
             if (isBundlePricing)
             {
-                // Do not show any bundle item price for parent bundle with specific bundle pricing.
+                // Do not show any bundle item price if parent bundle has bundle pricing.
                 return;
             }
 
@@ -68,7 +54,7 @@ namespace Smartstore.Web.Controllers
                 // Apply price adjustments of selected attributes.
                 calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, bundleItemId);
             }
-            else if (isBundle && product.BundlePerItemPricing && modelContext.VariantQuery.Variants.Any())
+            else if (isBundle && product.BundlePerItemPricing && modelContext.VariantQuery.Variants.Count > 0)
             {
                 // Apply price adjustments of selected bundle items attributes.
                 // INFO: bundles themselves don't have attributes, that's why modelContext.SelectedAttributes is null.
@@ -98,6 +84,15 @@ namespace Smartstore.Web.Controllers
             
             // Map base
             MapPriceBase(calculatedPrice, priceModel, true);
+
+            if ((priceModel.CallForPrice || priceModel.CustomerEntersPrice) && !isBundleItemPricing)
+            {
+                if (priceModel.CallForPrice)
+                {
+                    model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
+                }
+                return;
+            }
 
             // Countdown text
             priceModel.CountdownText = _priceLabelService.GetPromoCountdownText(calculatedPrice);
@@ -267,7 +262,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Return if there's no pricing at all.
-            if (contextProduct == null || contextProduct.CustomerEntersPrice || !context.AllowPrices || _priceSettings.PriceDisplayType == PriceDisplayType.Hide)
+            if (contextProduct == null || !context.AllowPrices || _priceSettings.PriceDisplayType == PriceDisplayType.Hide)
             {
                 return contextProduct;
             }
@@ -275,14 +270,6 @@ namespace Smartstore.Web.Controllers
             // Return if group has no associated products.
             if (product.ProductType == ProductType.GroupedProduct && !associatedProducts.Any())
             {
-                return contextProduct;
-            }
-
-            // Call for price
-            if (contextProduct.CallForPrice)
-            {
-                priceModel.CallForPrice = true;
-                priceModel.FinalPrice = new Money(options.TargetCurrency).WithPostFormat(context.Resources["Products.CallForPrice"]);
                 return contextProduct;
             }
 
@@ -296,6 +283,11 @@ namespace Smartstore.Web.Controllers
 
             // Map base
             MapPriceBase(calculatedPrice, priceModel, model.Parent.ShowBasePrice);
+
+            if (priceModel.CallForPrice || priceModel.CustomerEntersPrice)
+            {
+                return contextProduct;
+            }
 
             priceModel.ShowPriceLabel = _priceSettings.ShowPriceLabelInLists;
 
@@ -322,9 +314,16 @@ namespace Smartstore.Web.Controllers
         {
             model.CalculatedPrice = price;
             model.FinalPrice = price.FinalPrice;
+            model.CallForPrice = price.PricingType == PricingType.CallForPrice;
+            model.CustomerEntersPrice = price.PricingType == PricingType.CustomerEnteredPrice;
             model.Saving = price.Saving;
             model.ValidUntilUtc = price.ValidUntilUtc;
             model.ShowRetailPriceSaving = _priceSettings.ShowRetailPriceSaving;
+
+            if (model.CallForPrice || model.CustomerEntersPrice)
+            {
+                return;
+            }
 
             var product = price.Product;
             var forSummary = model is ProductSummaryPriceModel;

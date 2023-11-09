@@ -154,12 +154,9 @@ namespace Smartstore.Core.Catalog.Pricing
 
             // Remember source product.
             var product = context.Product;
-
-            var calculatorContext = context.CartItem != null && product.CustomerEntersPrice
-                ? new CalculatorContext(context, context.CartItem.Item.CustomerEnteredPrice)
-                : await RunCalculators(context);
-
+            var calculatorContext = await RunCalculators(context);
             var unitPrice = await CreateCalculatedPrice(calculatorContext, product);
+
             return unitPrice;
         }
 
@@ -168,12 +165,9 @@ namespace Smartstore.Core.Catalog.Pricing
             Guard.NotNull(context);
 
             var product = context.Product;
-
-            var calculatorContext = context.CartItem != null && product.CustomerEntersPrice
-                ? new CalculatorContext(context, context.CartItem.Item.CustomerEnteredPrice)
-                : await RunCalculators(context);
-
+            var calculatorContext = await RunCalculators(context);
             var price = await CreateCalculatedPrice(calculatorContext, product);
+
             if (context.Quantity <= 1)
             {
                 return (price, price);
@@ -269,10 +263,18 @@ namespace Smartstore.Core.Catalog.Pricing
 
         protected virtual async Task<CalculatorContext> RunCalculators(PriceCalculationContext context)
         {
-            Guard.NotNull(context);
-
             // Remember source product.
             var product = context.Product;
+
+            // Handle cases where not to run any calculator.
+            if (product.CustomerEntersPrice)
+            {
+                return new(context, context.CartItem?.Item?.CustomerEnteredPrice ?? 0m, PricingType.CustomerEnteredPrice);
+            }
+            else if (product.CallForPrice)
+            {
+                return new(context, 0m, PricingType.CallForPrice);
+            }
 
             // Collect calculators
             var calculators = _calculatorFactory.GetCalculators(context);
@@ -457,7 +459,11 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, options.TargetCurrency);
 
-            if (amount != 0 && options.TaxFormat != null)
+            if (context.PricingType == PricingType.CallForPrice)
+            {
+                money = money.WithPostFormat(T("Products.CallForPrice"));
+            }
+            else if (amount != 0 && options.TaxFormat != null)
             {
                 money = money.WithPostFormat(options.TaxFormat);
             }

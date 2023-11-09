@@ -376,6 +376,7 @@ namespace Smartstore.Web.Controllers
             await PrepareProductPropertiesModelAsync(model, modelContext);
 
             // AddToCart
+            // INFO: must be executed after PrepareProductPriceModelAsync.
             await PrepareProductCartModelAsync(model, modelContext, selectedQuantity);
 
             // GiftCards
@@ -959,7 +960,7 @@ namespace Smartstore.Web.Controllers
                 || product.ProductType == ProductType.GroupedProduct
                 || !_services.Permissions.Authorize(Permissions.Cart.AccessWishlist);
 
-            model.AddToCart.CustomerEntersPrice = product.CustomerEntersPrice;
+            model.AddToCart.CustomerEntersPrice = model.Price.CustomerEntersPrice;
             if (model.AddToCart.CustomerEntersPrice)
             {
                 var minimumCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MinimumCustomerEnteredPrice, currency);
@@ -1177,7 +1178,7 @@ namespace Smartstore.Web.Controllers
 
         protected async Task<List<ProductSpecificationModel>> PrepareProductSpecificationModelAsync(ProductDetailsModelContext modelContext)
         {
-            Guard.NotNull(modelContext, nameof(modelContext));
+            Guard.NotNull(modelContext);
 
             var product = modelContext.Product;
             var batchContext = modelContext.BatchContext;

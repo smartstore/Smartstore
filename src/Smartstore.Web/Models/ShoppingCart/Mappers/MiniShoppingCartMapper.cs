@@ -94,7 +94,7 @@ namespace Smartstore.Web.Models.Cart
             to.ShowBasePrice = _shoppingCartSettings.ShowBasePrice;
             to.TotalProducts = from.GetTotalQuantity();
 
-            if (!from.Items.Any())
+            if (!from.HasItems)
             {
                 return;
             }
@@ -185,18 +185,21 @@ namespace Smartstore.Web.Models.Cart
                 }
 
                 // Unit prices.
-                if (product.CallForPrice)
+                if (lineItems.TryGetValue(item.Id, out var lineItem))
                 {
-                    cartItemModel.UnitPrice = new(0, currency, false, T("Products.CallForPrice"));
-                }
-                else if (lineItems.TryGetValue(item.Id, out var lineItem))
-                {
-                    var unitPrice = _currencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
-                    cartItemModel.UnitPrice = unitPrice.WithPostFormat(taxFormat);
-
-                    if (unitPrice != 0 && to.ShowBasePrice)
+                    if (lineItem.UnitPrice.PricingType == PricingType.CallForPrice)
                     {
-                        cartItemModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(item.Product, unitPrice, currency);
+                        cartItemModel.UnitPrice = lineItem.UnitPrice.FinalPrice;
+                    }
+                    else
+                    {
+                        var unitPrice = _currencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
+                        cartItemModel.UnitPrice = unitPrice.WithPostFormat(taxFormat);
+
+                        if (unitPrice != 0 && to.ShowBasePrice)
+                        {
+                            cartItemModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(item.Product, unitPrice, currency);
+                        }
                     }
                 }
 

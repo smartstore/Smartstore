@@ -1,5 +1,23 @@
 ﻿namespace Smartstore.Core.Catalog.Pricing
 {
+    public enum PricingType
+    {
+        /// <summary>
+        /// Price calculated by price calculation.
+        /// </summary>
+        Calculated = 0,
+
+        /// <summary>
+        /// Customer has to call for price.
+        /// </summary>
+        CallForPrice,
+
+        /// <summary>
+        /// Customer enters the price.
+        /// </summary>
+        CustomerEnteredPrice
+    }
+
     /// <summary>
     /// Represents pricing targets.
     /// </summary>

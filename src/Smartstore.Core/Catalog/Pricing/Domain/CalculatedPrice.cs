@@ -19,6 +19,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Guard.NotNull(context);
 
             Product = context.Product;
+            PricingType = context.PricingType;
             AppliedDiscounts = context.AppliedDiscounts;
             HasPriceRange = context.HasPriceRange;
             AttributePriceAdjustments = context.AttributePriceAdjustments;
@@ -27,11 +28,12 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// For testing or skipped calculations.
         /// </summary>
-        public CalculatedPrice(Product product)
+        public CalculatedPrice(Product product, PricingType pricingType = PricingType.Calculated)
         {
             Guard.NotNull(product);
 
             Product = product;
+            PricingType = pricingType;
             AppliedDiscounts = new List<Discount>();
             AttributePriceAdjustments = new List<CalculatedPriceAdjustment>();
         }
@@ -42,6 +44,8 @@ namespace Smartstore.Core.Catalog.Pricing
         /// In that case this property refers to the lowest price child product.
         /// </summary>
         public Product Product { get; init; }
+
+        public PricingType PricingType { get; }
 
         /// <summary>
         /// The final unit price of the input <see cref="Product"/>.

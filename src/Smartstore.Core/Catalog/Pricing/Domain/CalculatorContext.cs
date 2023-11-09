@@ -11,9 +11,10 @@ namespace Smartstore.Core.Catalog.Pricing
     /// </summary>
     public class CalculatorContext : PriceCalculationContext
     {
-        public CalculatorContext(PriceCalculationContext context, decimal finalPrice)
+        public CalculatorContext(PriceCalculationContext context, decimal finalPrice, PricingType pricingType = PricingType.Calculated)
             : base(context)
         {
+            PricingType = pricingType;
             FinalPrice = finalPrice;
             RegularPrice = context.Product.Price;
         }
@@ -39,6 +40,8 @@ namespace Smartstore.Core.Catalog.Pricing
         /// The tier price applied during calculation of the final price.
         /// </summary>
         public TierPrice AppliedTierPrice { get; set; }
+
+        public PricingType PricingType { get; set; }
 
         /// <summary>
         /// The final price of the product. A calculator should set this property if any adjustment has been made to the price.
@@ -111,9 +114,10 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public void CopyTo(CalculatorContext target)
         {
-            Guard.NotNull(target, nameof(target));
+            Guard.NotNull(target);
 
             target.Product = Product;
+            target.PricingType = PricingType;
             target.FinalPrice = FinalPrice;
             target.HasPriceRange = HasPriceRange;
             target.OfferPrice = OfferPrice;

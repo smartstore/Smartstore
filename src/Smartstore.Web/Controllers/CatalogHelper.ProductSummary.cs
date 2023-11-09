@@ -154,10 +154,7 @@ namespace Smartstore.Web.Controllers
         {
             Guard.NotNull(products);
 
-            if (settings == null)
-            {
-                settings = new ProductSummaryMappingSettings();
-            }
+            settings ??= new ProductSummaryMappingSettings();
 
             using (_services.Chronometer.Step("MapProductSummaryModel"))
             {
@@ -214,7 +211,6 @@ namespace Smartstore.Web.Controllers
 
                 var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "Products.CallForPrice", T("Products.CallForPrice") },
                     { "Products.PriceRangeFrom", T("Products.PriceRangeFrom") },
                     { "Media.Product.ImageLinkTitleFormat", T("Media.Product.ImageLinkTitleFormat") },
                     { "Media.Product.ImageAlternateTextFormat", T("Media.Product.ImageAlternateTextFormat") },
@@ -612,7 +608,7 @@ namespace Smartstore.Web.Controllers
 
         private IEnumerable<ProductSpecificationModel> MapProductSpecificationModels(IEnumerable<ProductSpecificationAttribute> attributes)
         {
-            Guard.NotNull(attributes, nameof(attributes));
+            Guard.NotNull(attributes);
 
             if (!attributes.Any())
                 return Enumerable.Empty<ProductSpecificationModel>();
