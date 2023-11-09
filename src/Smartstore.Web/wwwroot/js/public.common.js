@@ -177,7 +177,6 @@
                 var slidesToScroll = list.data("slides-to-scroll");
 
                 list.slick({
-                    infinite: false,
                     rtl: $("html").attr("dir") == "rtl",
                     dots: true,
                     cssEase: 'ease-in-out',
