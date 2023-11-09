@@ -10,6 +10,7 @@
 
 ### Bugfixes
 
+- Product attributes are lost when navigating to ask question page multiple times.
 
 
 ## Smartstore 5.1.0
