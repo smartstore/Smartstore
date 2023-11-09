@@ -1,5 +1,4 @@
-﻿using DotLiquid.FileSystems;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Catalog;
@@ -698,12 +697,15 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> AskQuestion(int id)
         {
             if (!_catalogSettings.AskQuestionEnabled)
+            {
                 return NotFound();
+            }
 
             var product = await _db.Products.FindByIdAsync(id, false);
-
             if (product == null || product.IsSystemProduct || !product.Published)
+            {
                 return NotFound();
+            }
 
             var model = await PrepareAskQuestionModelAsync(product);
 
@@ -712,21 +714,21 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> AskQuestionAjax(int id, ProductVariantQuery query)
         {
+            if (id == 0)
+            {
+                return NotFound();
+            }
+
             // Get rawAttributes from product variant query
-            if (query != null && id > 0)
+            if (query != null)
             {
                 var attributes = await _db.ProductVariantAttributes
                     .Include(x => x.ProductAttribute)
                     .ApplyProductFilter(new[] { id })
                     .ToListAsync();
 
-                var selection = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, attributes, id, 0, false);
-                var rawAttributes = selection.Selection.AsJson();
-
-                if (rawAttributes.HasValue() && TempData["AskQuestionAttributeSelection-" + id] == null)
-                {
-                    TempData.Add("AskQuestionAttributeSelection-" + id, rawAttributes);
-                }
+                var (selection, _) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, attributes, id, 0, false);
+                TempData["AskQuestionAttributeSelection-" + id] = selection.AsJson();
             }
 
             return new JsonResult(new { redirect = Url.Action("AskQuestion", new { id }) });
@@ -738,12 +740,15 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> AskQuestionSend(ProductAskQuestionModel model, string captchaError)
         {
             if (!_catalogSettings.AskQuestionEnabled)
+            {
                 return NotFound();
+            }
 
             var product = await _db.Products.FindByIdAsync(model.Id, false);
-
             if (product == null || product.IsSystemProduct || !product.Published)
+            {
                 return NotFound();
+            }
 
             if (_captchaSettings.ShowOnAskQuestionPage && captchaError.HasValue())
             {
@@ -786,36 +791,34 @@ namespace Smartstore.Web.Controllers
         {
             var customer = Services.WorkContext.CurrentCustomer;
             var rawAttributes = TempData.Peek("AskQuestionAttributeSelection-" + product.Id) as string;
-
-            // Check if saved rawAttributes belongs to current product id
-            var formattedAttributes = string.Empty;
             var selection = new ProductVariantAttributeSelection(rawAttributes);
-            if (selection.AttributesMap.Any())
-            {
-                formattedAttributes = await _productAttributeFormatter.Value.FormatAttributesAsync(
-                    selection,
-                    product,
-                    ProductAttributeFormatOptions.PlainText,
-                    customer: null);
-            }
+            var slug = await product.GetActiveSlugAsync();
 
-            var seName = await product.GetActiveSlugAsync();
             var model = new ProductAskQuestionModel
             {
                 Id = product.Id,
                 ProductName = product.GetLocalized(x => x.Name),
-                ProductSeName = seName,
+                ProductSeName = slug,
                 SenderEmail = customer.Email,
                 SenderName = customer.GetFullName(),
                 SenderNameRequired = _privacySettings.FullNameOnProductRequestRequired,
                 SenderPhone = customer.GenericAttributes.Phone,
                 DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnAskQuestionPage,
-                SelectedAttributes = formattedAttributes,
-                ProductUrl = await _productUrlHelper.Value.GetAbsoluteProductUrlAsync(product.Id, seName, selection),
+                SelectedAttributes = string.Empty,
+                ProductUrl = await _productUrlHelper.Value.GetAbsoluteProductUrlAsync(product.Id, slug, selection),
                 IsQuoteRequest = product.CallForPrice
             };
 
             model.Question = T("Products.AskQuestion.Question." + (model.IsQuoteRequest ? "QuoteRequest" : "GeneralInquiry"), model.ProductName);
+
+            if (selection.HasAttributes)
+            {
+                model.SelectedAttributes = await _productAttributeFormatter.Value.FormatAttributesAsync(
+                    selection,
+                    product,
+                    ProductAttributeFormatOptions.PlainText,
+                    customer);
+            }
 
             return model;
         }
