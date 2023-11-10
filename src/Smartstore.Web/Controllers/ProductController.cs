@@ -773,7 +773,10 @@ namespace Smartstore.Web.Controllers
                     TempData.Remove("AskQuestionAttributeSelection-" + product.Id);
 
                     NotifySuccess(T("Products.AskQuestion.Sent"));
-                    return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
+
+                    return model.ProductUrl.HasValue()
+                        ? Redirect(model.ProductUrl)
+                        : RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
                 }
                 else
                 {
