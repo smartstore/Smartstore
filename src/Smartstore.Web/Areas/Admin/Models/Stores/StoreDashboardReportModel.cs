@@ -6,6 +6,7 @@
         public string CategoriesCount { get; set; }
         public string ManufacturersCount { get; set; }
         public string MediaCount { get; set; }
+        public string MediaSize { get; set; }
         public string AttributesCount { get; set; }
         public string AttributeCombinationsCount { get; set; }
         public string OrdersCount { get; set; }

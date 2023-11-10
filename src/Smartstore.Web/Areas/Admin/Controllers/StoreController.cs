@@ -10,6 +10,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Utilities;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
 
@@ -216,6 +217,7 @@ namespace Smartstore.Admin.Controllers
             var sumAllOrders = await ordersQuery.SumAsync(x => (decimal?)x.OrderTotal) ?? 0;
             var sumOpenCarts = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.ShoppingCart);
             var sumWishlists = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.Wishlist);
+            var totalMediaSize = await _db.MediaFiles.Where(x => !x.Deleted).SumAsync(x => (long)x.Size);
 
             var model = new StoreDashboardReportModel
             {
@@ -225,6 +227,7 @@ namespace Smartstore.Admin.Controllers
                 AttributesCount = (await _db.ProductAttributes.CountAsync()).ToString("N0"),
                 AttributeCombinationsCount = (await _db.ProductVariantAttributeCombinations.CountAsync(x => x.IsActive)).ToString("N0"),
                 MediaCount = (await Services.MediaService.CountFilesAsync(new MediaSearchQuery { Deleted = false })).ToString("N0"),
+                MediaSize = Prettifier.HumanizeBytes(totalMediaSize),
                 CustomersCount = (await registeredCustomersQuery.CountAsync()).ToString("N0"),
                 OrdersCount = (await ordersQuery.CountAsync()).ToString("N0"),
                 OnlineCustomersCount = (await _db.Customers.ApplyOnlineCustomersFilter(15).CountAsync()).ToString("N0"),

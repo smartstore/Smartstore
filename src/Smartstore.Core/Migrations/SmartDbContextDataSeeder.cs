@@ -20,6 +20,8 @@ namespace Smartstore.Core.Data.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.Delete("Account.ChangePassword.Errors.PasswordIsNotProvided");
+
+            builder.AddOrUpdate("Admin.Report.MediaFilesSize", "Media size", "Mediengröße");
         }
     }
 }
