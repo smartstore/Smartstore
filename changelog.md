@@ -8,6 +8,8 @@
 
 - #876 Changing password in backend via modal dialog.
 - #871 Show the total media file size in dashboard stats.
+- Theming
+  - Revamped dashboard stats
 
 ### Bugfixes
 
