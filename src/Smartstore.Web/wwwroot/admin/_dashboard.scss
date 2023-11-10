@@ -172,20 +172,11 @@
     }
 
     .statistics-value {
-        font-size: .9rem;
-        font-weight: $font-weight-medium;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        padding-bottom: 2px;
+        font-size: 1rem;
     }
 
     .statistics-attribute {
-        font-size: .8rem;
-        border-top: 1px solid var(--gray-300);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        color: var(--gray-600);
     }
 
     .statistics-container {
@@ -195,7 +186,9 @@
     .statistics-content {
         display: flex;
         width: 100%;
-        align-items: center;
+        overflow: hidden;
+        justify-content: space-between;
+        border: 1px solid rgba($black, 0.05);
     }
 
     .statistics-col {
@@ -207,19 +200,17 @@
 
     .statistics-container-outer {
         display: flex;
-        width: 80%;
         justify-content: center;
-        padding-inline-start: 1rem;
     }
 
     .statistics-container-inner {
-        width: 100%;
-        text-align: center;
+        padding-inline-end: 0.5rem;
+        line-height: 1.5;
     }
 
     .statistics-icon {
         font-size: 1.5rem;
-        color: #ccc;
+        color: var(--gray-650);
     }
 
     .indicator {

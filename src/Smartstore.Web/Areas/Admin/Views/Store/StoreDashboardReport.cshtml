@@ -1,42 +1,42 @@
 ﻿@{
     var arr = new[]
     {
-        new { Part = "ProductsCount", Label = T("Admin.Catalog.Products").Value, Title = T("Admin.Catalog.Products").Value, Icon = "fa fa-cubes" },
-        new { Part = "AttributesCount", Label = T("Admin.Catalog.Attributes").Value, Title = T("Admin.Catalog.Attributes.ProductAttributes").Value, Icon = "far fa-rectangle-list" },
+        new { Part = "ProductsCount", Label = T("Admin.Catalog.Products").Value, Title = T("Admin.Catalog.Products").Value, Icon = "boxes" },
+        new { Part = "AttributesCount", Label = T("Admin.Catalog.Attributes").Value, Title = T("Admin.Catalog.Attributes.ProductAttributes").Value, Icon = "card-checklist" },
         new
         {
             Part = "AttributeCombinationsCount",
             Label = T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Short").Value,
             Title = T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations").Value,
-            Icon = "fa fa-layer-group"
+            Icon = "stack"
         },
-        new { Part = "CategoriesCount", Label = T("Admin.Catalog.Categories").Value, Title = T("Admin.Catalog.Categories").Value, Icon = "fa fa-sitemap" },
-        new { Part = "ManufacturersCount", Label = T("Admin.Catalog.Manufacturers").Value, Title = T("Admin.Catalog.Manufacturers").Value, Icon = "far fa-building" },
-        new { Part = "MediaCount", Label = T("Admin.Catalog.Products.Pictures").Value, Title = T("Admin.Catalog.Products.Pictures").Value, Icon = "far fa-images" },
-        new { Part = "MediaSize", Label = T("Admin.Report.MediaFilesSize").Value, Title = T("Admin.Report.MediaFilesSize").Value, Icon = "far fa-file-lines" },
-        new { Part = "CustomersCount", Label = T("Admin.Customers.Customers").Value, Title = T("Admin.Customers.Reports.RegisteredCustomers").Value, Icon = "fa fa-users" },
-        new { Part = "OrdersCount", Label = T("Admin.Orders").Value, Title = T("Admin.Orders.Overall").Value, Icon = "fa fa-chart-bar" },
+        new { Part = "CategoriesCount", Label = T("Admin.Catalog.Categories").Value, Title = T("Admin.Catalog.Categories").Value, Icon = "diagram-3" },
+        new { Part = "ManufacturersCount", Label = T("Admin.Catalog.Manufacturers").Value, Title = T("Admin.Catalog.Manufacturers").Value, Icon = "building" },
+        new { Part = "MediaCount", Label = T("Admin.Catalog.Products.Pictures").Value, Title = T("Admin.Catalog.Products.Pictures").Value, Icon = "images" },
+        new { Part = "MediaSize", Label = T("Admin.Report.MediaFilesSize").Value, Title = T("Admin.Report.MediaFilesSize").Value, Icon = "hdd" },
+        new { Part = "CustomersCount", Label = T("Admin.Customers.Customers").Value, Title = T("Admin.Customers.Reports.RegisteredCustomers").Value, Icon = "people" },
+        new { Part = "OrdersCount", Label = T("Admin.Orders").Value, Title = T("Admin.Orders.Overall").Value, Icon = "graph-up-arrow" },
         new
         {
             Part = "Sales",
             Label = T("Admin.SalesReport.Sales").Value,
             Title = T("Admin.SalesReport.Sales.Hint").Value + " " + T("Enums.TaxDisplayType.IncludingTax").Value,
-            Icon = "far fa-credit-card"
+            Icon = "credit-card"
         },
-        new { Part = "OnlineCustomersCount", Label = T("Admin.Customers.OnlineCustomers").Value, Title = T("Admin.Report.OnlineCustomers").Value, Icon = "fa fa-user-check" },
+        new { Part = "OnlineCustomersCount", Label = T("Admin.Customers.OnlineCustomers").Value, Title = T("Admin.Report.OnlineCustomers").Value, Icon = "box-arrow-in-right" },
         new
         {
             Part = "CartsValue",
             Label = T("Admin.CurrentCarts.Short").Value,
             Title = T("Admin.CurrentCarts").Value + " " + T("Enums.TaxDisplayType.IncludingTax").Value,
-            Icon = "fa fa-cart-arrow-down"
+            Icon = "cart-check"
         },
         new
         {
             Part = "WishlistsValue",
             Label = T("Admin.CurrentWishlists.Short").Value,
             Title = T("Admin.CurrentWishlists").Value + " " + T("Enums.TaxDisplayType.IncludingTax").Value,
-            Icon = "far fa-heart"
+            Icon = "heart"
         }
     };
 }
@@ -46,19 +46,20 @@
         <div class="report-title">@T("Admin.Report.StoreStatistics")</div>
     </div>
     <div class="statistics-container p-4 pb-5">
-        <div class="row g-5">
+        <div class="row g-2">
             @for (int i = 0; i < arr.Length; i++)
             {
-                <div class="col-6 col-md-4 statistics-col">
-                    <div class="statistics-content">
-                        <div class="statistics-icon">
-                            <i class="fa-fw @arr[i].Icon"></i>
-                        </div>
-                        <div class="statistics-container-outer">
-                            <div class="statistics-container-inner">
-                                <div class="statistics-value" data-part="@arr[i].Part">0</div>
-                                <div class="statistics-attribute" title="@arr[i].Title">@arr[i].Label</div>
+                <div class="col-6 col-md-4 col-xl-3 col-xxl-4 statistics-col">
+                    <div class="statistics-content bg-secondary rounded py-2 px-3">
+                        <div class="statistics-container-outer text-truncate">
+                            <div class="statistics-container-inner text-truncate">
+                                <div class="statistics-value text-truncate fwm" data-part="@arr[i].Part">0</div>
+                                <div class="statistics-attribute text-truncate" title="@arr[i].Title">@arr[i].Label</div>
                             </div>
+                        </div>
+                        <div class="statistics-icon">
+                            <i class="fa-fw d-none @arr[i].Icon"></i>
+                            <bootstrap-icon name="@arr[i].Icon" />
                         </div>
                     </div>
                 </div>

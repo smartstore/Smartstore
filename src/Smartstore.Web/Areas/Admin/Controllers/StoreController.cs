@@ -217,7 +217,7 @@ namespace Smartstore.Admin.Controllers
             var sumAllOrders = await ordersQuery.SumAsync(x => (decimal?)x.OrderTotal) ?? 0;
             var sumOpenCarts = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.ShoppingCart);
             var sumWishlists = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.Wishlist);
-            var totalMediaSize = await _db.MediaFiles.Where(x => !x.Deleted).SumAsync(x => (long)x.Size);
+            var totalMediaSize = await _db.MediaFiles.SumAsync(x => (long)x.Size);
 
             var model = new StoreDashboardReportModel
             {
