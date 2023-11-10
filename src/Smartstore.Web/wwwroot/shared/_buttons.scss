@@ -456,14 +456,14 @@ $btn-wide-padding-x-sm: 1.2rem;
     .btn-3d.btn-#{$color},
     .btn-3d.btn-outline-#{$color} {
         @if $color != "secondary" and $color != "light" {
-            $c: mix($value, #000, 50%);
+            $c: mix($value, $black, 50%);
             --shadow-color-rgb: #{to-rgb($c)};
             --shadow-intensity: 1.8;
         }
 
         @if $color == 'secondary' {
             --btn-hover-bg: #fff;
-            --btn-border-color: #{rgba(#000, 0.1)};
+            --btn-border-color: #{rgba($black, 0.1)};
             --btn-hover-border-color: var(--btn-border-color);
             --btn-active-bg: #{$gray-200};
             --btn-active-border-color: var(--btn-border-color);

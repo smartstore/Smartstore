@@ -109,6 +109,7 @@
 @each $color, $value in $theme-colors {
   $border: $btn-border-color-default;
   $border-dark: $btn-active-border-color-default;
+  $lightness: lightness($value);
 
   .btn-#{$color} {
       @include button-inactive-variant($value, $border);
@@ -129,7 +130,7 @@
         $active-background: shade-color($value, $btn-active-bg-shade-amount / 3),
         $active-border: $border-dark);
     }
-    @else if $color == "dark" {
+    @else if $lightness < 25 {
       @include button-active-variant(
         $value,
         $border,
