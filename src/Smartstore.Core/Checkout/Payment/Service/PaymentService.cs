@@ -296,6 +296,11 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<Provider<IPaymentMethod>> LoadPaymentProviderBySystemNameAsync(string systemName, bool onlyWhenEnabled = false, int storeId = 0)
         {
+            if (systemName.IsEmpty())
+            {
+                return null;
+            }
+
             var provider = _providersCache.Value.Get(systemName);
             var checkEnabled = onlyWhenEnabled || storeId > 0;
 
