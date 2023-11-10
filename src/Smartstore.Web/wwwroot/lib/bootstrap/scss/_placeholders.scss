@@ -1,12 +1,15 @@
 /// <reference path="bootstrap-reboot.scss" />
 
 .placeholder {
+  --placeholder-opacity-max: #{$placeholder-opacity-max};
+  --placeholder-min-height: 1em;
+
   display: inline-block;
-  min-height: 1em;
+  min-height: var(--placeholder-min-height);
   vertical-align: middle;
   cursor: wait;
   background-color: currentcolor;
-  opacity: $placeholder-opacity-max;
+  opacity: var(--placeholder-opacity-max);
 
   &.btn::before {
     display: inline-block;
@@ -16,21 +19,21 @@
 
 // Sizing
 .placeholder-xs {
-  min-height: .6em;
+  --placeholder-min-height: .6em;
 }
 
 .placeholder-sm {
-  min-height: .8em;
+  --placeholder-min-height: .8em;
 }
 
 .placeholder-lg {
-  min-height: 1.2em;
+  --placeholder-min-height: 1.2em;
 }
 
 // Animation
 .placeholder-glow {
   .placeholder {
-    animation: placeholder-glow 2s ease-in-out infinite;
+    animation: placeholder-glow 1.2s ease-in-out infinite;
   }
 }
 
@@ -41,11 +44,11 @@
 }
 
 .placeholder-wave {
-  -webkit-mask-image: linear-gradient(130deg, $black 55%, rgba(0, 0, 0, (1 - $placeholder-opacity-min)) 75%, $black 95%);
-  mask-image: gradient(130deg, $black 55%, rgba(0, 0, 0, (1 - $placeholder-opacity-min)) 75%, $black 95%);
+  -webkit-mask-image: linear-gradient(130deg, $black 55%, rgba(0, 0, 0, (1 - $placeholder-opacity-min * 1.75)) 75%, $black 95%);
+  mask-image: gradient(130deg, $black 55%, rgba(0, 0, 0, (1 - $placeholder-opacity-min * 1.75)) 75%, $black 95%);
   mask-size: 200% 100%;
   -webkit-mask-size: 200% 100%;
-  animation: placeholder-wave 2s linear infinite;
+  animation: placeholder-wave 1s linear infinite;
 }
 
 @keyframes placeholder-wave {

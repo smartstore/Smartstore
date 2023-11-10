@@ -53,12 +53,15 @@
                     <div class="statistics-content bg-secondary rounded py-2 px-3">
                         <div class="statistics-container-outer text-truncate">
                             <div class="statistics-container-inner text-truncate">
-                                <div class="statistics-value text-truncate fwm" data-part="@arr[i].Part">0</div>
+                                <div class="statistics-value text-truncate fwm" data-part="@arr[i].Part">
+                                    <span class="placeholder-wave" style="color: var(--gray-600)">
+                                        <span class="placeholder placeholder-xs" style="width: 40px"></span>
+                                    </span>
+                                </div>
                                 <div class="statistics-attribute text-truncate" title="@arr[i].Title">@arr[i].Label</div>
                             </div>
                         </div>
                         <div class="statistics-icon">
-                            <i class="fa-fw d-none @arr[i].Icon"></i>
                             <bootstrap-icon name="@arr[i].Icon" />
                         </div>
                     </div>
