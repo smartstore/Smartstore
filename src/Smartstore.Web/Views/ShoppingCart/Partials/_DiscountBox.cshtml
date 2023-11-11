@@ -27,7 +27,7 @@
 
         <div class="coupon-code form-group">
             <div class="input-group" attr-class='(Model.CurrentCode.HasValue(), "has-success")'>
-                <input name="discountcouponcode" type="text" class="form-control form-control-success discount-coupon-code" value="@Model.CurrentCode" placeholder="@T("ShoppingCart.DiscountCouponCode.Tooltip")" />
+                <input name="discountcouponcode" type="text" class="form-control is-valid discount-coupon-code" value="@Model.CurrentCode" placeholder="@T("ShoppingCart.DiscountCouponCode.Tooltip")" />
                 <span class="input-group-append">
                     @if (Model.CurrentCode.IsEmpty())
                     {
