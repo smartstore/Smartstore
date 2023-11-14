@@ -95,8 +95,6 @@
 
   &:first-child {
     @include border-top-radius($card-inner-border-radius);
-
-
   }
 }
 

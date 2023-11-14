@@ -42,6 +42,6 @@
 
     $c: $dark;
     --shadow-color-rgb: 0,0,0;
-    --shadow-colorbase-rgb: #{red($c)}, #{green($c)}, #{blue($c)};
+    --shadow-colorbase-rgb: #{to-rgb($c)};
     --shadow-intensity: #{$shadow-intensity};
 }

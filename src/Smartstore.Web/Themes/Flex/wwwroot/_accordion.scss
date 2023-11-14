@@ -81,12 +81,12 @@
     .card:first-child,
     .card:first-child .card-header,
     .card:first-child .card-title-link {
-        @include border-top-radius(var(--border-radius-md));
+        @include border-top-radius($card-border-radius);
     }
 
     .card:last-child,
     .card:last-child .card-header { 
-        @include border-bottom-radius(var(--border-radius-md));
+        @include border-bottom-radius($card-border-radius);
     }
 
     .card:last-child .card-header { 
