@@ -10,6 +10,7 @@
 - #871 Show the total media file size in dashboard stats.
 - Theming
   - Revamped dashboard stats
+  - Activate .spa-layout only on screen height > 600px (DataGrid is unusable in mobile landscape mode otherwise)
 
 ### Bugfixes
 
