@@ -16,9 +16,9 @@ namespace Smartstore
 
         public HelpTopic(string name, string enPath, string dePath)
         {
-            Guard.NotEmpty(name, nameof(name));
-            Guard.NotEmpty(enPath, nameof(enPath));
-            Guard.NotEmpty(dePath, nameof(dePath));
+            Guard.NotEmpty(name);
+            Guard.NotEmpty(enPath);
+            Guard.NotEmpty(dePath);
 
             Name = name;
             EnPath = enPath;
@@ -49,9 +49,9 @@ namespace Smartstore
 
             // Get informational version
             var infoVersionAttr = Assembly.GetExecutingAssembly().GetAttribute<AssemblyInformationalVersionAttribute>(false);
-            if (infoVersionAttr != null)
+            if (infoVersionAttr?.InformationalVersion != null)
             {
-                _infoVersion = new Version(infoVersionAttr.InformationalVersion);
+                _infoVersion = new Version(infoVersionAttr.InformationalVersion.Split('+', '-')[0]);
             }
         }
 
@@ -116,8 +116,8 @@ namespace Smartstore
 
         public static string GenerateHelpUrl(string languageCode, HelpTopic topic)
         {
-            Guard.NotEmpty(languageCode, nameof(languageCode));
-            Guard.NotNull(topic, nameof(topic));
+            Guard.NotEmpty(languageCode);
+            Guard.NotNull(topic);
 
             var path = languageCode.EqualsNoCase("de") ? topic.DePath : topic.EnPath;
             return GenerateHelpUrl(languageCode, path);
@@ -125,7 +125,7 @@ namespace Smartstore
 
         public static string GenerateHelpUrl(string languageCode, string path)
         {
-            Guard.NotEmpty(languageCode, nameof(languageCode));
+            Guard.NotEmpty(languageCode);
 
             return string.Concat(
                 HELP_BASEURL,
