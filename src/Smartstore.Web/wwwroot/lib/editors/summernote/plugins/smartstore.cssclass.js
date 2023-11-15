@@ -47,7 +47,7 @@
 				var rgBtn = /^btn(-.+)?$/;
 				var rgBg = /^bg-.+$/;
 				var rgTextColor = /^text-(muted|primary|success|danger|warning|info|dark|white)$/;
-				var rgTextAlign = /^text-(left|center|right)$/;
+				var rgTextAlign = /^text-(start|center|end)$/;
 				var rgDisplay = /^display-[1-4]$/;
 				var rgWidth = /^w-(25|50|75|100)$/;
 				options.cssclass.classes = {
@@ -98,8 +98,7 @@
 					"display-2": { displayClass: "fs-h2", toggle: rgDisplay },
 					"display-3": { displayClass: "fs-h3", toggle: rgDisplay },
 					"display-4": { displayClass: "fs-h4", toggle: rgDisplay },
-					"lead": { },
-					"jumbotron": { displayClass: "p-4 fs-h3 font-weight-400" }
+					"lead": { }
 				};
 			}
 
@@ -140,7 +139,7 @@
 								var obj = options.cssclass.classes[item] || {};
 								var cssClass = item + (obj.displayClass ? " " + obj.displayClass : "") + " d-block";
 								var cssStyle = obj.style ? ' style="{0}"'.format(obj.style) : '';
-								return '<span class="{0}" title="{1}"{2}>{3}</span>'.format(cssClass, item, cssStyle, item);
+                                return '<span class="{0}" title="{1}"{2}>{3}</span>'.format(cssClass, item, cssStyle, item);
 							},
 							click: function (e, namespace, value) {
 								e.preventDefault();

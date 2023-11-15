@@ -16,6 +16,7 @@
 	overflow-x: hidden;
 	overflow-y: auto;
 	padding: $input-padding-y $input-padding-x;
+    border-radius: $input-border-radius;
 	cursor: default;
 
 	&.empty {
@@ -49,11 +50,12 @@
 		flex-wrap: wrap;
 
         .note-btn-group {
+            column-gap: 1px;
             //z-index: $zindex-dropdown - 1;
         }
 
 		> .note-btn-group {
-			border: 0 solid rgba(#000, 0.12);
+			border: 0 solid rgba($black, 0.12);
 			border-inline-end-width: 1px;
 			padding-inline-end: 5px;
 		}
@@ -65,16 +67,8 @@
 
         .btn.note-btn {
             @include button-flat();
+            margin-inline-start: 0;
         }
-
-		.dropdown-toggle:after {
-			margin-inline-start: 0.5em;
-			opacity: 0.6;
-		}
-
-		.dropdown-toggle:empty:after {
-			margin-inline-start: 0;
-		}
 
 		.note-para > .btn-group:last-child .dropdown-menu.show {
 			// Fix: the para popover button groups should not wrap
@@ -86,10 +80,11 @@
 			margin-bottom: 0;
 		}
 
-		.note-color + .btn-group > .btn {
+		.note-font > .btn-group:first-child > .btn {
 			// Fix: the fontsize button width should not change (toolbar flickers)
 			padding-inline: 0.5rem;
-			min-width: 50px;
+			min-width: 120px;
+            justify-content: center;
 		}
 
 		.scrollable-menu {
