@@ -271,6 +271,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
             inset-inline-end: 0;
             bottom: 0;
             pointer-events: none;
+            z-index: -1;
 
             > a {
                 pointer-events: initial;
