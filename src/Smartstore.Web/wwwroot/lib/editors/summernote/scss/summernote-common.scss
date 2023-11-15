@@ -342,8 +342,7 @@ $img-margin-right: 10px;
 
     .note-color {
         .dropdown-toggle {
-            width: 20px;
-            padding-left: 5px;
+            padding-inline: 6px;
         }
 
         .note-dropdown-menu {
@@ -464,12 +463,6 @@ $img-margin-right: 10px;
 /* Dialog
  ------------------------------------------ */
 .note-modal {
-    .modal-dialog {
-        outline: 0;
-        border-radius: 5px;
-        box-shadow: 0 3px 9px rgba(0,0,0, .5);
-    }
-
     .form-group { // overwrite BS's form-horizontal minus margins
         margin-left: 0;
         margin-right: 0;

@@ -93,7 +93,8 @@ var summernote_image_upload_url;
 		},
 		toolbar: [
 			['text', ['bold', 'italic', 'underline', 'strikethrough', 'clear', 'cleaner']],
-			['font', ['fontname', 'color', 'fontsize']],
+            //['font', ['forecolor', 'backcolor']],
+            ['font', ['fontname', 'color', 'fontsize']],
 			['para', ['style', 'cssclass', 'ul', 'ol', 'paragraph']],
 			['insert', ['link', 'media',  'table', 'hr', 'video']],
 			['view', ['fullscreen', 'codeview', 'help']]
@@ -121,7 +122,17 @@ var summernote_image_upload_url;
                 ['table', ['table']],
                 ['insert', ['link', 'picture']]
             ]
-		},
+        },
+        //styleTags: [
+        //    'p', 'h1', 'h3', 'h4', 'h5', 'h6',
+        //    {
+        //        tag: 'h2',
+        //        title: 'dropdown item title',
+        //        //style: '',
+        //        //className: 'h2',
+        //        value: 'h2'
+        //    }
+        //],
 		icons: {
 			'align': 'fa fa-align-left',
 			'alignCenter': 'fa fa-align-center',
