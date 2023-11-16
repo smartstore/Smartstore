@@ -56,18 +56,14 @@ namespace Smartstore
         /// <returns>The theme variable value</returns>
         public static T GetThemeVariable<T>(this IDisplayHelper displayHelper, string name, T defaultValue = default)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
-            var vars = GetThemeVariables(displayHelper) as IDictionary<string, object>;
-            if (vars != null && vars.ContainsKey(name))
+            if (GetThemeVariables(displayHelper) is IDictionary<string, object> vars)
             {
-                string value = vars[name] as string;
-                if (!value.HasValue())
+                if (vars.TryGetValueAs<string>(name, out var value) && value.HasValue())
                 {
-                    return defaultValue;
+                    return value.Convert(defaultValue);
                 }
-
-                return value.Convert<T>();
             }
 
             return defaultValue;
