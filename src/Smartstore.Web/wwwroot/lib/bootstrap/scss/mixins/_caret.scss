@@ -1,8 +1,12 @@
+/// <reference path="../_variables.scss" />
+/// <reference path="../_functions.scss" />
+/// <reference path="../_mixins.scss" />
+
 @mixin caret-down() {
-  border-top: $caret-width solid;
-  border-inline-end: $caret-width solid transparent;
+  border-top: var(--caret-width) solid;
+  border-inline-end: var(--caret-width) solid transparent;
   border-bottom: 0;
-  border-inline-start: $caret-width solid transparent;
+  border-inline-start: var(--caret-width) solid transparent;
 }
 
 @mixin caret-up() {
@@ -28,6 +32,7 @@
 @mixin caret($direction: down) {
   @if $enable-caret {
     &::after {
+      --caret-width: #{$caret-width};
       display: inline-block;
       margin-inline-start: $caret-spacing;
       vertical-align: $caret-vertical-align;

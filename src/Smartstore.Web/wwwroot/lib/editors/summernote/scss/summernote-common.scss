@@ -69,6 +69,7 @@ $img-margin-right: 10px;
 .note-editor.note-frame,
 .note-editor.note-airframe {
     border: 1px solid $border-color;
+    
     // codeview mode
     &.codeview {
         .note-editing-area {
@@ -247,22 +248,49 @@ $img-margin-right: 10px;
 }
 
 
+/* Color Palette
+ ------------------------------------------ */
+
+.note-palette {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+    margin: 0;
+    width: 160px;
+
+    .note-palette-title {
+        font-size: 13px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .note-color-reset,
+    .note-color-select {
+        font-size: 11px;
+        width: 100%;
+    }
+
+    .note-color-row {
+        height: 20px;
+    }
+
+    .note-color-select-btn {
+        display: none;
+    }
+
+    .note-holder-custom {
+        .note-color-btn {
+            border: 1px solid var(--gray-200) !important;
+        }
+    }
+}
+
+
 /* Popover
  ------------------------------------------ */
 .note-popover.popover {
     display: none;
     max-width: none;
-
-    .popover-content {
-        a {
-            display: inline-block;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap; // for FF
-            vertical-align: middle; // for FF
-        }
-    }
 
     .arrow {
         left: 20px !important;
@@ -275,7 +303,8 @@ $img-margin-right: 10px;
     position: relative;
 }
 
-.note-popover .popover-content, .note-editor .note-toolbar {
+.note-popover .popover-content, 
+.note-editor .note-toolbar {
     margin: 0;
     padding: 0 0 5px 5px;
 
@@ -320,23 +349,31 @@ $img-margin-right: 10px;
         }
     }
 
-    .note-style {
-        .dropdown-style {
-            blockquote, pre {
-                margin: 0;
-                padding: 5px 10px;
-            }
+    .dropdown-style {
+        blockquote, pre {
+            margin: 0;
+        }
 
-            h1, h2, h3, h4, h5, h6, p {
-                margin: 0;
-                padding: 0;
-            }
+        pre {
+            padding-block: 5px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, h5, h6, p {
+            margin: 0;
+            padding: 0;
         }
     }
 
     .note-color-all {
         .note-dropdown-menu {
-            min-width: 337px;
+            &.show {
+                display: flex;
+            }
+            
+            min-width: auto;
+            padding: 12px;
+            column-gap: 8px;
         }
     }
 
@@ -344,68 +381,18 @@ $img-margin-right: 10px;
         .dropdown-toggle {
             padding-inline: 6px;
         }
-
-        .note-dropdown-menu {
-            .note-palette {
-                display: inline-block;
-                margin: 0;
-                width: 160px;
-
-                &:first-child {
-                    margin: 0 5px;
-                }
-
-                .note-palette-title {
-                    font-size: 12px;
-                    margin: 2px 7px;
-                    text-align: center;
-                    border-bottom: 1px solid #eee;
-                }
-
-                .note-color-reset,
-                .note-color-select {
-                    font-size: 11px;
-                    margin: 3px;
-                    padding: 0 3px;
-                    cursor: pointer;
-                    width: 100%;
-                    border-radius: 5px;
-
-                    &:hover {
-                        background: #eee;
-                    }
-                }
-
-                .note-color-row {
-                    height: 20px;
-                }
-
-                .note-color-select-btn {
-                    display: none;
-                }
-
-                .note-holder-custom {
-                    .note-color-btn {
-                        border: 1px solid #eee;
-                    }
-                }
-            }
-        }
     }
 
     .note-para {
         .note-dropdown-menu {
-            min-width: 228px;
-            padding: 5px;
-
             & > div + div {
                 margin-left: 5px;
             }
         }
     }
+
     // dropdown-menu for toolbar and popover
     .note-dropdown-menu {
-        min-width: 160px;
         // dropdown-menu right position
         // http://forrst.com/posts/Bootstrap_right_positioned_dropdown-2KB
         &.right {
@@ -424,13 +411,25 @@ $img-margin-right: 10px;
         }
         // dropdown-menu for selectbox
         &.note-check {
-            a i {
-                color: deepskyblue;
-                visibility: hidden;
-            }
+            min-width: initial;
 
-            a.checked i {
-                visibility: visible;
+            > .dropdown-item {
+                justify-content: space-between;
+
+                > i {
+                    color: var(--warning);
+                    visibility: hidden;
+                    order: 2;
+                    margin-inline: 10px -4px !important;
+                }
+
+                &.checked {
+                    font-weight: 600;
+
+                    > i {
+                        visibility: visible;
+                    }
+                }
             }
         }
     }
@@ -438,6 +437,7 @@ $img-margin-right: 10px;
     .note-fontsize-10 {
         font-size: 10px;
     }
+
     // color palette for toolbar and popover
     .note-color-palette {
         line-height: 1;
