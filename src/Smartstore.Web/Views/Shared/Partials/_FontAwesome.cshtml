@@ -1,0 +1,28 @@
+﻿@{
+    var faKitId = Display.GetThemeVariable("fa-kit-id");
+    var faUsePro = Display.GetThemeVariable<bool>("fa-use-pro") && faKitId.HasValue();
+}
+
+@if (!faUsePro)
+{
+    <link as="font" rel="preload" href="~/lib/fontastic/fonts/fontastic.woff2" crossorigin />
+
+    @* Preload web font files to avoid FOIT (Flash of Invisible Text) and FOUT (Flash of Unstyled Text) *@
+    <link as="font" rel="preload" href="~/lib/fa6/webfonts/fa-solid-900.woff2" crossorigin />
+    <link as="font" rel="preload" href="~/lib/fa6/webfonts/fa-regular-400.woff2" crossorigin />
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/fa6/css/all.css" crossorigin />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/lib/fa6/css/all.min.css" crossorigin />
+    </environment>
+}
+else
+{
+    @* Preconnect FA host *@
+    <link rel="preconnect" href="https://kit.fontawesome.com" />
+
+    @* Load custom FA Pro Kit *@
+    <link rel="stylesheet" href="https://kit.fontawesome.com/@(faKitId).css" crossorigin="anonymous" />
+}
