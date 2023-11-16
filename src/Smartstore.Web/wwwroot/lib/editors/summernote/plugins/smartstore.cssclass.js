@@ -19,7 +19,7 @@
 		factory(window.jQuery);
 	}
 }(function ($) {
-	var inlineTags = 'b big i small tt abbr acronym cite code dfn em kbd stron, samp var a bdo br img map object q script span sub sup button input label select textarea'.split(' ');
+	var inlineTags = 'b big i small tt abbr acronym cite code dfn em kbd strong samp var a bdo br img map object q script span sub sup button input label select textarea'.split(' ');
 
 	function isInlineElement(el) {
 		return _.contains(inlineTags, el.tagName.toLowerCase());
@@ -49,7 +49,9 @@
 				var rgTextColor = /^text-(muted|primary|success|danger|warning|info|dark|white)$/;
 				var rgTextAlign = /^text-(start|center|end)$/;
 				var rgDisplay = /^display-[1-4]$/;
-				var rgWidth = /^w-(25|50|75|100)$/;
+                var rgWidth = /^w-(25|50|75|100)$/;
+                var rgRounded = /^rounded(-.+)?$/;
+
 				options.cssclass.classes = {
 					"alert alert-primary": { toggle: rgAlert },
 					"alert alert-secondary": { toggle: rgAlert },
@@ -90,9 +92,14 @@
 					"btn btn-warning": { inline: true, toggle: rgBtn, predicate: "a" },
 					"btn btn-info": { inline: true, toggle: rgBtn, predicate: "a" },
 					"btn btn-light": { inline: true, toggle: rgBtn, predicate: "a" },
-					"btn btn-dark": { inline: true, toggle: rgBtn, predicate: "a" },
-					"rounded": { displayClass: "px-2 py-1 bg-light border rounded", toggle: /^rounded(-.+)?$/ },
-					"rounded-0": { displayClass: "px-2 py-1 bg-light border", toggle: /^rounded(-.+)?$/ },
+                    "btn btn-dark": { inline: true, toggle: rgBtn, predicate: "a" },
+                    "rounded-0": { displayClass: "px-2 py-1 bg-light border", toggle: rgRounded },
+                    "rounded-1": { displayClass: "px-2 py-1 bg-light border rounded-1", toggle: rgRounded },
+                    "rounded-2": { displayClass: "px-2 py-1 bg-light border rounded-2", toggle: rgRounded },
+                    "rounded-3": { displayClass: "px-2 py-1 bg-light border rounded-3", toggle: rgRounded },
+                    "rounded-4": { displayClass: "px-2 py-2 bg-light border rounded-4", toggle: rgRounded },
+                    "rounded-5": { displayClass: "px-2 py-2 bg-light border rounded-5", toggle: rgRounded },
+                    "rounded-pill": { displayClass: "px-2 py-1 bg-light border rounded-pill", toggle: rgRounded },
 					"list-unstyled": { },
 					"display-1": { displayClass: "fs-h1", toggle: rgDisplay },
 					"display-2": { displayClass: "fs-h2", toggle: rgDisplay },
@@ -133,11 +140,19 @@
 							}
 						}),
 						ui.dropdown({
-							className: 'dropdown-style scrollable-menu',
+							className: 'dropdown-cssclass scrollable-menu',
 							items: _.keys(options.cssclass.classes),
-							template: function (item) {
-								var obj = options.cssclass.classes[item] || {};
-								var cssClass = item + (obj.displayClass ? " " + obj.displayClass : "") + " d-block";
+                            template: function (item) {
+                                var obj = options.cssclass.classes[item] || {};
+
+                                var cssClass = item;
+                                if (obj.displayClass) {
+                                    cssClass += " " + obj.displayClass;
+                                }
+                                if (!obj.inline) {
+                                    cssClass += " d-block";
+                                }
+
 								var cssStyle = obj.style ? ' style="{0}"'.format(obj.style) : '';
                                 return '<span class="{0}" title="{1}"{2}>{3}</span>'.format(cssClass, item, cssStyle, item);
 							},
@@ -163,7 +178,7 @@
 					children: [
 						ui.button({
 							className: 'dropdown-toggle',
-							contents: ui.icon("fab fa-css3 pr-1"),
+							contents: ui.icon("fab fa-css3"),
 							callback: function (btn) {
 								btn.data("placement", "bottom");
 								btn.data("trigger", "hover");

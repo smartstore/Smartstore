@@ -179,7 +179,7 @@
 					' data-value="' +
 					value +
 					'">' +
-					'<i class="note-icon-menu-check"></i> ' +
+					'<i class="fa fa-check"></i> ' +
 					" " +
 					label +
 					"</a>";
