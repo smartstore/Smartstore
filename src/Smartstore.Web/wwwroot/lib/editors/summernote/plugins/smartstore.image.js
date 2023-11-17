@@ -110,7 +110,7 @@
 				var body = [
 					'<div class="form-group note-group-image-url">',
 					'	<label class="note-form-label">' + lang.image.url + '</label>',
-					'	<div class="input-group input-group-sm">',
+					'	<div class="input-group">',
 					'		<input id="note-image-src" class="note-image-src form-control note-form-control note-input" type="text" />',
 					'		<div class="input-group-append">',
 					'			<button class="btn btn-secondary btn-browse" type="button">' + lang.link.browse +  '...</button>',
@@ -119,19 +119,19 @@
 					'</div>',
 					'<div class="form-group note-form-group form-group-text">',
 					'	<label class="note-form-label">Alt</label>',
-					'	<input class="note-image-alt form-control form-control-sm note-form-control note-input" type="text" />',
+					'	<input class="note-image-alt form-control note-form-control note-input" type="text" />',
 					'</div>',
 					'<div class="form-group note-form-group form-group-text">',
 					'	<label class="note-form-label">Title</label>',
-					'	<input class="note-image-title form-control form-control-sm note-form-control note-input" type="text" />',
+					'	<input class="note-image-title form-control note-form-control note-input" type="text" />',
 					'</div>',
 					'<div class="form-group note-form-group">',
 					'	<label class="note-form-label">' + lang.attrs.cssClass + '</label>',
-					'	<input class="note-image-class form-control form-control-sm note-form-control note-input" type="text" />',
+					'	<input class="note-image-class form-control note-form-control note-input" type="text" />',
 					'</div>',
 					'<div class="form-group note-form-group">',
 					'	<label class="note-form-label">' + lang.attrs.cssStyle + '</label>',
-					'	<input class="note-image-style form-control form-control-sm note-form-control note-input" type="text" />',
+					'	<input class="note-image-style form-control note-form-control note-input" type="text" />',
 					'</div>'
 				].join('');
 				var footer = [
@@ -139,7 +139,7 @@
 					'<button type="submit" class="btn btn-primary note-btn note-btn-primary note-image-btn" disabled>' + Res['Common.OK'] + '</button>',
 				].join('');
 				self.$dialog = ui.dialog({
-					className: 'image-dialog',
+                    className: 'image-dialog',
 					title: lang.image.image,
 					fade: options.dialogsFade,
 					body: body,
