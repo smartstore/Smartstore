@@ -62,7 +62,7 @@ var summernote_image_upload_url;
 		container: 'body',
 		dialogsFade: true,
 		height: 300,
-		prettifyHtml: true,
+        prettifyHtml: true,
 		onCreateLink: function (url) {
 			// Prevents that summernote prepends "http://" to our links (WTF!!!)
 			var c = url[0];
@@ -79,8 +79,8 @@ var summernote_image_upload_url;
 			return "http://" + url;
 		},
         callbacks: {
-			onFocus: function () {
-				$(this).next().addClass('focus');
+            onFocus: function () {
+                $(this).next().addClass('focus');
             },
             onBlur: function () {
                 $(this).next().removeClass('focus');

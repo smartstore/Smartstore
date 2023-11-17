@@ -45,46 +45,33 @@
 }
 
 .note-editor {
-	border-color: $input-border-color !important;
-	border-radius: $input-border-radius !important;
-
-    &:focus-within,
-    &:focus,
-    &.focus {
-        z-index: $zindex-sticky - 1;
-        border-color: $input-focus-border-color !important;
-    }
-
-	&.focus {
-		// Redundant, but "Edge" will skip :focus-within selector
-        border-color: $input-focus-border-color !important;
-	}
-
-    .note-toolbar-wrapper {
-        position: relative;
-    }
-
 	.note-toolbar {
-		display: flex;
-		flex-wrap: wrap;
+        display: flex;
+	    flex-wrap: wrap;
 
         .note-btn-group {
             column-gap: 1px;
             //z-index: $zindex-dropdown - 1;
         }
 
-		> .note-btn-group {
-			border: 0 solid rgba($black, 0.12);
-			border-inline-end-width: 1px;
-			padding-inline-end: 5px;
-		}
-
-		> .note-btn-group:last-of-type {
-			border-inline-end-width: 0;
-			padding-inline-end: 0;
-		}
-
         .btn.note-btn {
+            min-width: 32px;
+        }
+
+        > .note-btn-group {
+            border: 0 solid rgba($black, 0.12);
+            border-inline-end-width: 1px;
+            padding-inline-end: 5px;
+        }
+
+        > .note-btn-group:last-of-type {
+            border-inline-end-width: 0;
+            padding-inline-end: 0;
+        }
+
+        > .note-btn-group > .note-btn,
+        > .note-btn-group > .note-btn-group > .note-btn {
+            // Apply flat style only to buttons in toolbar
             @include button-flat();
             margin-inline-start: 0;
         }
