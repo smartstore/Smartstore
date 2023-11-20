@@ -33,7 +33,7 @@ namespace Smartstore.Web.Models.Catalog.Mappers
             model.QuantityStep = product.QuantityStep;
             model.QuantityControlType = product.QuantityControlType;
 
-            if (product.ManageInventoryMethod > ManageInventoryMethod.DontManageStock)
+            if (!product.IsAvailableByStock())
             {
                 model.MaxInStock = product.StockQuantity;
             }
