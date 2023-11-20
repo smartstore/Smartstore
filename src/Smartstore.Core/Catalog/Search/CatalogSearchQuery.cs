@@ -198,7 +198,7 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     roleIds.Insert(0, 0);
                     return WithFilter(SearchFilter.Combined(
-                        KnownFilters.RoleId, 
+                        KnownFilters.RoleId,
                         roleIds.Select(x => SearchFilter.ByField(KnownFilters.RoleId, x).ExactMatch().NotAnalyzed()).ToArray()));
                 }
             }
@@ -299,7 +299,7 @@ namespace Smartstore.Core.Catalog.Search
         /// </summary>
         /// <param name="featuredOnly">
         /// A value indicating whether loaded products are marked as "featured" at their category assignment.
-        /// <c>false</c> to load featured products only, <c>true</c> to load unfeatured products only, <c>null</c> to load all products.
+        /// <c>true</c> to load featured products only, <c>false</c> to load unfeatured products only, <c>null</c> to load all products.
         /// </param>
         /// <param name="ids">The category identifiers.</param>
         /// <returns>Search query.</returns>
@@ -323,7 +323,7 @@ namespace Smartstore.Core.Catalog.Search
         /// <param name="treePath">The parent's tree path to get descendants from.</param>
         /// <param name="featuredOnly">
         /// A value indicating whether loaded products are marked as "featured" at their category assignment.
-        /// <c>false</c> to load featured products only, <c>true</c> to load unfeatured products only, <c>null</c> to load all products.
+        /// <c>true</c> to load featured products only, <c>false</c> to load unfeatured products only, <c>null</c> to load all products.
         /// </param>
         /// <param name="includeSelf"><c>true</c> = add the parent node to the result list, <c>false</c> = ignore the parent node.</param>
         /// <returns>Search query.</returns>
@@ -398,7 +398,7 @@ namespace Smartstore.Core.Catalog.Search
 
                 return WithFilter(
                     SearchFilter.Combined(
-                        KnownFilters.Condition, 
+                        KnownFilters.Condition,
                         conditions!.Select(x => SearchFilter.ByField(KnownFilters.Condition, (int)x).ExactMatch().NotAnalyzed()).ToArray()));
             }
 
@@ -498,7 +498,7 @@ namespace Smartstore.Core.Catalog.Search
             {
                 CurrencyCode = currencyCode;
             }
-            
+
             if (CurrencyCode.IsEmpty())
             {
                 throw new ArgumentException("A currency code is required to filter by price.", nameof(currencyCode));

@@ -28,7 +28,7 @@ namespace Smartstore.Core.Catalog.Search
 
         /// <summary>
         /// A value indicating whether loaded products are marked as "featured" at their category assignment.
-        /// <c>false</c> to load featured products only, <c>true</c> to load unfeatured products only, <c>null</c> to load all products.
+        /// <c>true</c> to load featured products only, <c>false</c> to load unfeatured products only, <c>null</c> to load all products.
         /// </summary>
         public bool? FeaturedOnly { get; set; }
 
