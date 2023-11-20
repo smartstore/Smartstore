@@ -16,6 +16,7 @@
 ### Bugfixes
 
 - Product attributes are lost when navigating to *Ask Question* page multiple times.
+- Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 
 
 ## Smartstore 5.1.0
