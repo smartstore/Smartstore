@@ -126,7 +126,7 @@ namespace Smartstore.Core.Identity
             if (!shouldUpdate)
             {
                 var modProps = _db.GetModifiedProperties(entity);
-                shouldUpdate = _candidateProps.Any(x => modProps.ContainsKey(x));
+                shouldUpdate = _candidateProps.Any(modProps.ContainsKey);
             }
 
             if (shouldUpdate)
