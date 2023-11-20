@@ -45,7 +45,7 @@ namespace Smartstore.Web.Models.Cart
             model.MaxOrderAmount = product.OrderMaximumQuantity;
             model.QuantityStep = product.QuantityStep;
 
-            if (product.ManageInventoryMethod > ManageInventoryMethod.DontManageStock)
+            if (!product.IsAvailableByStock())
             {
                 model.MaxInStock = product.StockQuantity;
             }
