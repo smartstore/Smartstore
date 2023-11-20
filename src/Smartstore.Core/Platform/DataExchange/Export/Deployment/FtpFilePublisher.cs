@@ -1,7 +1,4 @@
-﻿using CoreFtp;
-using CoreFtp.Enum;
-using CoreFtp.Infrastructure;
-
+﻿using FluentFTP;
 using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
@@ -15,6 +12,35 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
         {
             _context = context;
 
+            var filesSucceeded = 0;
+            using var client = CreateClient(deployment);
+
+            try
+            {
+                await client.Connect(cancelToken);
+
+                if (!context.CreateZipArchive)
+                {
+                    filesSucceeded += await UploadDirectoryAsync(client, context.ExportDirectory, cancelToken);
+                }
+                else if (context.ZipFile?.Exists ?? false)
+                {
+                    if (await UploadFile(client, context.ZipFile, _rootPath + context.ZipFile.Name, true, cancelToken))
+                    {
+                        ++filesSucceeded;
+                    }
+                }
+            }
+            finally
+            {
+                await client?.Disconnect(cancelToken);
+            }
+
+            context.Log.Info("{0} file(s) successfully uploaded via {1}.".FormatInvariant(filesSucceeded, deployment.UseSsl ? "FTPS" : "FTP"));
+        }
+
+        protected virtual AsyncFtpClient CreateClient(ExportDeployment deployment)
+        {
             var url = deployment.Url.EmptyNull().Replace('\\', '/');
 
             if (!url.StartsWith("ftp://", StringComparison.InvariantCultureIgnoreCase) &&
@@ -24,82 +50,63 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             }
 
             var uri = new Uri(url);
+
             _rootPath = uri.AbsolutePath.EnsureEndsWith('/');
 
-            var succeededFiles = 0;
-            var encryptionType = deployment.UseSsl ? FtpEncryption.Explicit : FtpEncryption.None;
-            var port = deployment.UseSsl ? Constants.FtpsPort : Constants.FtpPort;
-
             // Apply custom port only if explicitly specified.
-            if (uri.Authority.Contains(':'))
-            {
-                port = uri.Port;
-            }
+            var port = uri.Authority.Contains(':')
+                ? uri.Port
+                : (deployment.UseSsl ? 990 : 21);
 
-            using var client = new FtpClient(new FtpClientConfiguration
-            {
-                Host = uri.Host,
-                Username = deployment.Username,
-                Password = deployment.Password,
-                Port = port,
-                EncryptionType = encryptionType
-            });
+            var client = new AsyncFtpClient(uri.Host, deployment.Username, deployment.Password, port);
+            client.Config.EncryptionMode = deployment.UseSsl ? FtpEncryptionMode.Explicit : FtpEncryptionMode.None;
 
-            await client.LoginAsync();
-
-            if (context.CreateZipArchive)
-            {
-                if (context.ZipFile?.Exists ?? false)
-                {
-                    await UploadFile(client, context.ZipFile, _rootPath + context.ZipFile.Name, cancelToken);
-                    ++succeededFiles;
-                }
-            }
-            else
-            {
-                succeededFiles += await UploadDirectory(client, context.ExportDirectory, cancelToken);
-            }
-
-            context.Log.Info($"{succeededFiles} file(s) successfully uploaded via FTP.");
+            return client;
         }
 
-        private async Task<int> UploadDirectory(FtpClient client, IDirectory directory, CancellationToken cancelToken)
+        private static async Task<bool> UploadFile(
+            AsyncFtpClient client, 
+            IFile file, 
+            string relativePath, 
+            bool createRemoteDir = true,
+            CancellationToken cancelToken = default)
+        {
+            using var sourceStream = await file.OpenReadAsync(cancelToken);
+            var status = await client.UploadStream(sourceStream, relativePath, FtpRemoteExists.Overwrite, createRemoteDir, null, cancelToken);
+            //$"- ftp {status} {relativePath}".Dump();
+            return status != FtpStatus.Failed;
+        }
+
+        protected async Task<int> UploadDirectoryAsync(AsyncFtpClient client, IDirectory directory, CancellationToken cancelToken)
         {
             if (directory.SubPath.IsEmpty())
             {
                 return 0;
             }
 
-            var succeededFiles = 0;
+            var filesSucceeded = 0;
             var files = await directory.EnumerateFilesAsync(cancelToken: cancelToken).ToListAsync(cancelToken);
 
-            foreach (var file in files)
+            for (var i = 0; i < files.Count; i++)
             {
-                var targetPath = BuildTargetPath(file);
-
-                await UploadFile(client, file, targetPath, cancelToken);
-                ++succeededFiles;
+                var file = files[i];
+                if (await UploadFile(client, file, BuildTargetPath(file), i == 0, cancelToken))
+                {
+                    ++filesSucceeded;
+                }
             }
 
             var subdirs = await directory.EnumerateDirectoriesAsync(cancelToken: cancelToken).ToListAsync(cancelToken);
 
             foreach (var subdir in subdirs)
             {
-                succeededFiles += await UploadDirectory(client, subdir, cancelToken);
+                filesSucceeded += await UploadDirectoryAsync(client, subdir, cancelToken);
             }
 
-            return succeededFiles;
+            return filesSucceeded;
         }
 
-        private static async Task UploadFile(FtpClient client, IFile file, string relativePath, CancellationToken cancelToken)
-        {
-            await using var targetStream = await client.OpenFileWriteStreamAsync(relativePath);
-            await using var sourceStream = await file.OpenReadAsync(cancelToken);
-
-            await sourceStream.CopyToAsync(targetStream, cancelToken);
-        }
-
-        private string BuildTargetPath(IFileEntry file)
+        protected virtual string BuildTargetPath(IFileEntry file)
         {
             return _rootPath + file.SubPath[_context.ExportDirectory.SubPath.Length..].TrimStart(PathUtility.PathSeparators).Replace('\\', '/');
         }

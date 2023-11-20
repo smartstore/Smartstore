@@ -12,9 +12,9 @@
 
     <ItemGroup>
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
-        <PackageReference Include="CoreFtp" Version="1.4.0" />
         <PackageReference Include="DotLiquid" Version="2.2.692" />
         <PackageReference Include="ExcelDataReader" Version="3.6.0" />
+        <PackageReference Include="FluentFTP" Version="48.0.3" />
         <PackageReference Include="FluentMigrator" Version="3.3.2" />
         <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
