@@ -31,11 +31,11 @@
         <h1 sm-language-attributes-for="Model.Name" class="pd-name" itemprop="name">
             @if (Model.IsAssociatedProduct && Model.VisibleIndividually)
             {
-                <a asp-route="Product" asp-route-SeName="@Model.SeName" title="@T("Products.Details")">@Model.Name</a>
+                <a asp-route="Product" asp-route-SeName="@Model.SeName" title="@T("Products.Details")">@Html.Raw(Model.Name)</a>
             }
             else
             {
-                @Model.Name
+                @Html.Raw(Model.Name)
             }
         </h1>
     </div>
