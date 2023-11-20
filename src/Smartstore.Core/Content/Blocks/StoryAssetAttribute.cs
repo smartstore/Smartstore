@@ -47,6 +47,11 @@
         /// <summary>
         /// The property value is a link builder expression.
         /// </summary>
-        Link
+        Link,
+
+        /// <summary>
+        /// The property value is a audio path.
+        /// </summary>
+        Audio
     }
 }
