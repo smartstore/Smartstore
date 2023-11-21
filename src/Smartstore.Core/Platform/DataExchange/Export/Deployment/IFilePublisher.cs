@@ -1,5 +1,4 @@
-﻿
-using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Localization;
 using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
@@ -40,7 +39,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 // Avoid accidents with incalculable consequences due to hundreds of files.
                 if (ExportDirectory?.SubPath?.HasValue() ?? false)
                 {
-                    var files = await ExportDirectory.EnumerateFilesAsync("*", true).ToListAsync(cancelToken);
+                    var files = await ExportDirectory.EnumerateFilesAsync("*", true, cancelToken).ToListAsync(cancelToken);
                     return files;
                 }
             }

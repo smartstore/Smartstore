@@ -614,7 +614,7 @@ namespace Smartstore.Core.DataExchange.Export
             query = ApplyPaging(query, null, PageSize, ctx);
             var entities = await query.ToListAsync(ctx.CancelToken);
 
-            if (!entities.Any())
+            if (entities.Count == 0)
             {
                 return null;
             }
@@ -694,7 +694,7 @@ namespace Smartstore.Core.DataExchange.Export
             IQueryable<int> customerIdsByRolesQuery = null;
             IQueryable<BaseEntity> result = null;
 
-            if (f.CustomerRoleIds?.Any() ?? false)
+            if (!f.CustomerRoleIds.IsNullOrEmpty())
             {
                 customerIdsByRolesQuery = _db.CustomerRoleMappings
                     .AsNoTracking()
@@ -727,7 +727,7 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.ProductTagId.HasValue)
                     searchQuery = searchQuery.WithProductTagIds(f.ProductTagId.Value);
 
-                if (ctx.Request.EntitiesToExport.Any())
+                if (ctx.Request.EntitiesToExport.Count > 0)
                     searchQuery = searchQuery.WithProductIds(ctx.Request.EntitiesToExport.ToArray());
                 else
                     searchQuery = searchQuery.WithProductId(f.IdMinimum, f.IdMaximum);
@@ -797,10 +797,10 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.IsTaxExempt.HasValue)
                     query = query.Where(x => x.IsTaxExempt == f.IsTaxExempt.Value);
 
-                if (f.BillingCountryIds?.Any() ?? false)
+                if (!f.BillingCountryIds.IsNullOrEmpty())
                     query = query.Where(x => x.BillingAddress != null && f.BillingCountryIds.Contains(x.BillingAddress.CountryId ?? 0));
 
-                if (f.ShippingCountryIds?.Any() ?? false)
+                if (!f.ShippingCountryIds.IsNullOrEmpty())
                     query = query.Where(x => x.ShippingAddress != null && f.ShippingCountryIds.Contains(x.ShippingAddress.CountryId ?? 0));
 
                 if (f.LastActivityFrom.HasValue)
@@ -941,7 +941,7 @@ namespace Smartstore.Core.DataExchange.Export
                 throw new NotSupportedException($"Unsupported entity type '{entityType}'.");
             }
 
-            if (ctx.Request.EntitiesToExport.Any())
+            if (ctx.Request.EntitiesToExport.Count > 0)
             {
                 result = result.Where(x => ctx.Request.EntitiesToExport.Contains(x.Id));
             }
@@ -1383,7 +1383,7 @@ namespace Smartstore.Core.DataExchange.Export
                 .OrderBy(x => x.Id)
                 .ToArray();
 
-            if (!deployments.Any())
+            if (deployments.Length == 0)
             {
                 return false;
             }
@@ -1487,7 +1487,7 @@ namespace Smartstore.Core.DataExchange.Export
                 body.AppendFormat("<p><a href='{0}' download>{1}</a></p>", downloadUrl, ctx.ZipFile.Name);
             }
 
-            if (ctx.IsFileBasedExport && ctx.Result.Files.Any())
+            if (ctx.IsFileBasedExport && ctx.Result.Files.Count > 0)
             {
                 body.Append("<p>");
                 foreach (var file in ctx.Result.Files)
@@ -1515,12 +1515,12 @@ namespace Smartstore.Core.DataExchange.Export
                 message.To.AddRange(addresses);
             }
 
-            if (!message.To.Any() && _contactDataSettings.CompanyEmailAddress.HasValue())
+            if (message.To.Count == 0 && _contactDataSettings.CompanyEmailAddress.HasValue())
             {
                 message.To.Add(new(_contactDataSettings.CompanyEmailAddress));
             }
 
-            if (!message.To.Any())
+            if (message.To.Count == 0)
             {
                 message.To.Add(new(emailAccount.Email, emailAccount.DisplayName));
             }
