@@ -42,7 +42,7 @@ namespace Smartstore.ShippingByWeight.Migrations
             Alter.Column(nameof(ShippingRateByWeight.ShippingChargeAmount)).OnTable(shippingByWeightTable).AsDecimal(18, precision).NotNullable();
 
             // Only alter if column exists else create.
-            if (Schema.Table(shippingByWeightTable).Column(nameof(ShippingRateByWeight.SmallQuantityThreshold)).Exists())
+            if (Schema.Table(shippingByWeightTable).Column(nameof(ShippingRateByWeight.SmallQuantitySurcharge)).Exists())
             {
                 Alter.Column(nameof(ShippingRateByWeight.SmallQuantitySurcharge)).OnTable(shippingByWeightTable).AsDecimal(18, precision).NotNullable();
             }
