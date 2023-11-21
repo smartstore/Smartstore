@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.OData.Formatter;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.OData.Formatter;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Seo;
 
 namespace Smartstore.Web.Api.Controllers
 {
@@ -12,14 +11,10 @@ namespace Smartstore.Web.Api.Controllers
     /// </summary>
     public class ManufacturersController : WebApiController<Manufacturer>
     {
-        private readonly Lazy<IUrlService> _urlService;
         private readonly Lazy<IDiscountService> _discountService;
 
-        public ManufacturersController(
-            Lazy<IUrlService> urlService,
-            Lazy<IDiscountService> discountService)
+        public ManufacturersController(Lazy<IDiscountService> discountService)
         {
-            _urlService = urlService;
             _discountService = discountService;
         }
 
@@ -58,7 +53,7 @@ namespace Smartstore.Web.Api.Controllers
             return PostAsync(model, async () =>
             {
                 await Db.SaveChangesAsync();
-                await UpdateSlug(model);
+                await UpdateSlugAsync(model);
             });
         }
 
@@ -69,7 +64,7 @@ namespace Smartstore.Web.Api.Controllers
             return PutAsync(key, model, async (entity) =>
             {
                 await Db.SaveChangesAsync();
-                await UpdateSlug(entity);
+                await UpdateSlugAsync(entity);
             });
         }
 
@@ -80,7 +75,7 @@ namespace Smartstore.Web.Api.Controllers
             return PatchAsync(key, model, async (entity) =>
             {
                 await Db.SaveChangesAsync();
-                await UpdateSlug(entity);
+                await UpdateSlugAsync(entity);
             });
         }
 
@@ -121,12 +116,6 @@ namespace Smartstore.Web.Api.Controllers
             {
                 return ErrorResult(ex);
             }
-        }
-
-        private async Task UpdateSlug(Manufacturer entity)
-        {
-            var slugResult = await _urlService.Value.ValidateSlugAsync(entity, string.Empty, true);
-            await _urlService.Value.ApplySlugAsync(slugResult, true);
         }
     }
 }

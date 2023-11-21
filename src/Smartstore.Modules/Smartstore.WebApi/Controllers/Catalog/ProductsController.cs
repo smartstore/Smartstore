@@ -17,7 +17,6 @@ using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.DataExchange.Import;
-using Smartstore.Core.Seo;
 using Smartstore.Domain;
 using Smartstore.IO;
 using Smartstore.Web.Api.Models.Catalog;
@@ -29,7 +28,6 @@ namespace Smartstore.Web.Api.Controllers
     /// </summary>
     public class ProductsController : WebApiController<Product>
     {
-        private readonly Lazy<IUrlService> _urlService;
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ICatalogSearchQueryFactory> _catalogSearchQueryFactory;
         private readonly Lazy<IPriceCalculationService> _priceCalculationService;
@@ -42,7 +40,6 @@ namespace Smartstore.Web.Api.Controllers
         private readonly Lazy<SearchSettings> _searchSettings;
 
         public ProductsController(
-            Lazy<IUrlService> urlService,
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ICatalogSearchQueryFactory> catalogSearchQueryFactory,
             Lazy<IPriceCalculationService> priceCalculationService,
@@ -54,7 +51,6 @@ namespace Smartstore.Web.Api.Controllers
             Lazy<IWebApiService> webApiService,
             Lazy<SearchSettings> searchSettings)
         {
-            _urlService = urlService;
             _catalogSearchService = catalogSearchService;
             _catalogSearchQueryFactory = catalogSearchQueryFactory;
             _priceCalculationService = priceCalculationService;
@@ -188,7 +184,7 @@ namespace Smartstore.Web.Api.Controllers
             return PostAsync(model, async () =>
             {
                 await Db.SaveChangesAsync();
-                await UpdateSlug(model);
+                await UpdateSlugAsync(model);
             });
         }
 
@@ -199,7 +195,7 @@ namespace Smartstore.Web.Api.Controllers
             return PutAsync(key, model, async (entity) =>
             {
                 await Db.SaveChangesAsync();
-                await UpdateSlug(entity);
+                await UpdateSlugAsync(entity);
             });
         }
 
@@ -210,7 +206,7 @@ namespace Smartstore.Web.Api.Controllers
             return PatchAsync(key, model, async (entity) =>
             {
                 await Db.SaveChangesAsync();
-                await UpdateSlug(entity);
+                await UpdateSlugAsync(entity);
             });
         }
 
@@ -959,12 +955,6 @@ namespace Smartstore.Web.Api.Controllers
             {
                 return ErrorResult(ex);
             }
-        }
-
-        private async Task UpdateSlug(Product entity)
-        {
-            var slugResult = await _urlService.Value.ValidateSlugAsync(entity, string.Empty, true);
-            await _urlService.Value.ApplySlugAsync(slugResult, true);
         }
 
         #endregion

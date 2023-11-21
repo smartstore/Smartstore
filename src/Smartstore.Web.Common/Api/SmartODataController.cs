@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.OData;
 using Microsoft.OData.UriParser;
+using Smartstore.Core.Seo;
 
 namespace Smartstore.Web.Api
 {
@@ -327,6 +328,49 @@ namespace Smartstore.Web.Api
             }
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Updates a slug and executes SaveChangesAsync.
+        /// </summary>
+        protected async Task UpdateSlugAsync<T>(T entity)
+            where T : ISlugSupported
+        {
+            var urlService = HttpContext.RequestServices.GetService<IUrlService>();
+            var slugResult = await urlService.ValidateSlugAsync(entity, string.Empty, entity.GetDisplayName(), true);
+            var urlRecord = await urlService.ApplySlugAsync(slugResult);
+
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                if (_db.DataProvider.IsUniquenessViolationException(ex))
+                {
+                    // Uniqueness violation of index IX_UrlRecord_Slug caused by multi-threading.
+                    if (urlRecord != null)
+                    {
+                        // Reset to avoid uniqueness violation of original slug again.
+                        var entry = _db.Entry(urlRecord);
+                        if (entry.State == EntityState.Modified)
+                        {
+                            entry.State = EntityState.Unchanged;
+                        }
+                        else if (entry.State == EntityState.Added || entry.State == EntityState.Deleted)
+                        {
+                            entry.State = EntityState.Detached;
+                        }
+                    }
+
+                    // And try validation against database again.
+                    slugResult = await urlService.ValidateSlugAsync(entity, string.Empty, entity.GetDisplayName(), true, null, true);
+                    //$"- try again {slugResult.Slug} isSelf:{slugResult.FoundIsSelf}".Dump();
+
+                    await urlService.ApplySlugAsync(slugResult);
+                    await _db.SaveChangesAsync();
+                }
+            }
         }
 
         #region Utilities

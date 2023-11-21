@@ -73,18 +73,23 @@ namespace Smartstore.Core.Seo
         /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from <paramref name="displayName"/>.</param>
         /// <param name="displayName">Display name used to resolve the slug if <paramref name="seName"/> is empty.</param>
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
+        /// <param name="force">
+        /// <c>true</c> to check slug uniqueness directly against the database.
+        /// <c>false</c> for performance reason, also check internal dictionary with already processed slugs.
+        /// </param>
         /// <returns>A system unique slug</returns>
         ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity,
             string seName,
             string displayName,
             bool ensureNotEmpty,
-            int? languageId = null)
+            int? languageId = null,
+            bool force = false)
             where T : ISlugSupported;
 
         /// <summary>
         /// Applies a slug.
         /// </summary>
-        /// <param name="result">Result data from <see cref="ValidateSlugAsync{T}(T, string, string, bool, int?)"/> method call.</param>
+        /// <param name="result">Result data from <see cref="ValidateSlugAsync{T}(T, string, string, bool, int?, bool)"/> method call.</param>
         /// <param name="save"><c>true</c> will commit result to database.</param>
         /// <returns>
         /// The affected <see cref="UrlRecord"/> instance, either new or existing as tracked entity.
