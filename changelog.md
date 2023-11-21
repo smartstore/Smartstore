@@ -12,6 +12,7 @@
   - Revamped dashboard stats
   - Activate .spa-layout only on screen height > 600px (DataGrid is unusable in mobile landscape mode otherwise)
 - Security: #886 Replace CoreFTP with FluentFTP.
+- Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
 
 ### Bugfixes
 
