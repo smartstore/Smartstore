@@ -116,7 +116,7 @@ namespace Smartstore.Core.Seo
         IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null);
 
         /// <summary>
-        /// Applies a slug.
+        /// Validates and applies a slug.
         /// </summary>
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
         /// <param name="entity">Entity instance</param>
