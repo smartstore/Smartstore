@@ -16,9 +16,7 @@ namespace Smartstore.Core.Checkout.Affiliates.Rules
         public int Order => 0;
 
         public bool Matches(string dataSource)
-        {
-            return dataSource == KnownRuleOptionDataSourceNames.Affiliate;
-        }
+            => dataSource == KnownRuleOptionDataSourceNames.Affiliate;
 
         public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {

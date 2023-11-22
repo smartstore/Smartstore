@@ -1,5 +1,4 @@
-﻿
-using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine.Modularity;
@@ -20,13 +19,11 @@ namespace Smartstore.Core.Checkout.Shipping.Rules
         public int Order => 0;
 
         public bool Matches(string dataSource)
-        {
-            return dataSource == KnownRuleOptionDataSourceNames.ShippingRateComputationMethod;
-        }
+            => dataSource == KnownRuleOptionDataSourceNames.ShippingRateComputationMethod;
 
         public Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
-            var result = new RuleOptionsResult();
+            RuleOptionsResult result = null;
 
             if (context.DataSource == KnownRuleOptionDataSourceNames.ShippingRateComputationMethod)
             {
@@ -40,11 +37,7 @@ namespace Smartstore.Core.Checkout.Shipping.Rules
                     })
                     .ToList();
 
-                result.AddOptions(context, options.OrderBy(x => x.Text));
-            }
-            else
-            {
-                return Task.FromResult<RuleOptionsResult>(null);
+                result = RuleOptionsResult.Create(context, options.OrderBy(x => x.Text));
             }
 
             return Task.FromResult(result);

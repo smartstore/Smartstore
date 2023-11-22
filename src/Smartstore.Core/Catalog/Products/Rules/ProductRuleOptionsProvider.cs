@@ -31,51 +31,46 @@ namespace Smartstore.Core.Catalog.Products.Rules
         public int Order => 0;
 
         public bool Matches(string dataSource)
-        {
-            return dataSource == KnownRuleOptionDataSourceNames.Product;
-        }
+            => dataSource == KnownRuleOptionDataSourceNames.Product;
 
         public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
-            var result = new RuleOptionsResult();
-
-            if (context.DataSource == KnownRuleOptionDataSourceNames.Product)
-            {
-                if (context.Reason == RuleOptionsRequestReason.SelectedDisplayNames)
-                {
-                    var products = await _db.Products
-                        .SelectSummary()
-                        .GetManyAsync(context.Value.ToIntArray());
-
-                    result.AddOptions(context, products.Select(x => new RuleValueSelectListOption
-                    {
-                        Value = x.Id.ToString(),
-                        Text = x.GetLocalized(y => y.Name, context.Language, true, false),
-                        Hint = x.Sku
-                    }));
-                }
-                else
-                {
-                    var options = await SearchProducts(result, context.SearchTerm, context.PageIndex * context.PageSize, context.PageSize);
-                    result.AddOptions(context, options);
-                    result.IsPaged = true;
-                }
-            }
-            else
+            if (context.DataSource != KnownRuleOptionDataSourceNames.Product)
             {
                 return null;
             }
 
-            return result;
+            if (context.Reason == RuleOptionsRequestReason.SelectedDisplayNames)
+            {
+                var products = await _db.Products
+                    .SelectSummary()
+                    .GetManyAsync(context.Value.ToIntArray());
+
+                var options = products.Select(x => new RuleValueSelectListOption
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.GetLocalized(y => y.Name, context.Language, true, false),
+                    Hint = x.Sku
+                });
+
+                return RuleOptionsResult.Create(context, options);
+            }
+            else
+            {
+                return await SearchProducts(context);
+            }
         }
 
-        private async Task<List<RuleValueSelectListOption>> SearchProducts(RuleOptionsResult result, string term, int skip, int take)
+        private async Task<RuleOptionsResult> SearchProducts(RuleOptionsContext context)
         {
             IEnumerable<Product> products = null;
             var localeKeyGroup = nameof(Product);
             var localeKey = nameof(Product.Name);
             var languageId = _workContext.WorkingLanguage.Id;
             var fields = new List<string> { "name" };
+            var hasMoreData = false;
+            var skip = context.PageIndex * context.PageSize;
+            var take = context.PageSize;
 
             if (_searchSettings.SearchFields.Contains("sku"))
             {
@@ -86,7 +81,7 @@ namespace Smartstore.Core.Catalog.Products.Rules
                 fields.Add("shortdescription");
             }
 
-            var searchQuery = new CatalogSearchQuery(fields.ToArray(), term);
+            var searchQuery = new CatalogSearchQuery(fields.ToArray(), context.SearchTerm);
 
             if (_searchSettings.UseCatalogSearchInBackend)
             {
@@ -97,7 +92,7 @@ namespace Smartstore.Core.Catalog.Products.Rules
                 var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
                 var hits = await searchResult.GetHitsAsync();
 
-                result.HasMoreData = hits.HasNextPage;
+                hasMoreData = hits.HasNextPage;
                 products = hits;
             }
             else
@@ -105,7 +100,7 @@ namespace Smartstore.Core.Catalog.Products.Rules
                 var query = _catalogSearchService.PrepareQuery(searchQuery);
 
                 var pageIndex = take == 0 ? 0 : Math.Max(skip / take, 0);
-                result.HasMoreData = (pageIndex + 1) * take < query.Count();
+                hasMoreData = (pageIndex + 1) * take < query.Count();
 
                 products = await query
                     .Select(x => new Product
@@ -131,7 +126,7 @@ namespace Smartstore.Core.Catalog.Products.Rules
                 })
                 .ToList();
 
-            return options;
+            return RuleOptionsResult.Create(context, options, true, hasMoreData);
         }
     }
 }

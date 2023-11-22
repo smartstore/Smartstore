@@ -1,5 +1,4 @@
-﻿
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
@@ -18,33 +17,27 @@ namespace Smartstore.Core.Checkout.Shipping.Rules
         public int Order => 0;
 
         public bool Matches(string dataSource)
-        {
-            return dataSource == KnownRuleOptionDataSourceNames.ShippingMethod;
-        }
+            => dataSource == KnownRuleOptionDataSourceNames.ShippingMethod;
 
         public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
-            var result = new RuleOptionsResult();
-
-            if (context.DataSource == KnownRuleOptionDataSourceNames.ShippingMethod)
-            {
-                var shippingMethods = await _db.ShippingMethods
-                    .AsNoTracking()
-                    .OrderBy(x => x.DisplayOrder)
-                    .ToListAsync();
-
-                result.AddOptions(context, shippingMethods.Select(x => new RuleValueSelectListOption
-                {
-                    Value = context.OptionById ? x.Id.ToString() : x.Name,
-                    Text = context.OptionById ? x.GetLocalized(y => y.Name, context.Language, true, false) : x.Name
-                }));
-            }
-            else
+            if (context.DataSource != KnownRuleOptionDataSourceNames.ShippingMethod)
             {
                 return null;
             }
 
-            return result;
+            var shippingMethods = await _db.ShippingMethods
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            var options = shippingMethods.Select(x => new RuleValueSelectListOption
+            {
+                Value = context.OptionById ? x.Id.ToString() : x.Name,
+                Text = context.OptionById ? x.GetLocalized(y => y.Name, context.Language, true, false) : x.Name
+            });
+
+            return RuleOptionsResult.Create(context, options);
         }
     }
 }

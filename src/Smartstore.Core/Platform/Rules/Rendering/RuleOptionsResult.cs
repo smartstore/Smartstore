@@ -16,6 +16,27 @@
 
     public class RuleOptionsResult
     {
+        public static readonly RuleOptionsResult Empty = new();
+
+        /// <summary>
+        /// Creates a <see cref="RuleOptionsResult"/> instance with given <paramref name="options"/>.
+        /// </summary>
+        public static RuleOptionsResult Create(
+            RuleOptionsContext context,
+            IEnumerable<RuleValueSelectListOption> options,
+            bool isPaged = false,
+            bool hasMoreData = false)
+        {
+            var result = new RuleOptionsResult
+            {
+                IsPaged = isPaged,
+                HasMoreData = hasMoreData
+            };
+
+            result.AddOptions(context, options);
+            return result;
+        }
+
         /// <summary>
         /// Select list options or display names of selected values, depending on <see cref="RuleOptionsRequestReason"/>.
         /// </summary>
@@ -38,7 +59,7 @@
         /// <param name="options">Options to add.</param>
         public void AddOptions(RuleOptionsContext context, IEnumerable<RuleValueSelectListOption> options)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             if (options != null)
             {

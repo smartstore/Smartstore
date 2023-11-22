@@ -1,5 +1,4 @@
-﻿
-using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine.Modularity;
@@ -24,10 +23,10 @@ namespace Smartstore.Core.Checkout.Payment.Rules
 
         public Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
+            RuleOptionsResult result = null;
+
             if (context.DataSource == KnownRuleOptionDataSourceNames.PaymentMethod)
             {
-                var result = new RuleOptionsResult();
-
                 var options = _providerManager.GetAllProviders<IPaymentMethod>()
                     .Select(x => x.Metadata)
                     .Select(x => new RuleValueSelectListOption
@@ -38,12 +37,10 @@ namespace Smartstore.Core.Checkout.Payment.Rules
                     })
                     .ToList();
 
-                result.AddOptions(context, options.OrderBy(x => x.Text).ToList());
-
-                return Task.FromResult(result);
+                result = RuleOptionsResult.Create(context, options.OrderBy(x => x.Text).ToList());
             }
 
-            return Task.FromResult<RuleOptionsResult>(null);
+            return Task.FromResult(result);
         }
 
         private string GetLocalized(RuleOptionsContext context, ProviderMetadata metadata, string propertyName)

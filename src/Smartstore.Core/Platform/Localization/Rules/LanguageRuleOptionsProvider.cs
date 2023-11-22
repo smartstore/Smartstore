@@ -16,33 +16,27 @@ namespace Smartstore.Core.Localization.Rules
         public int Order => 0;
 
         public bool Matches(string dataSource)
-        {
-            return dataSource == KnownRuleOptionDataSourceNames.Language;
-        }
+            => dataSource == KnownRuleOptionDataSourceNames.Language;
 
         public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
-            var result = new RuleOptionsResult();
-
-            if (context.DataSource == KnownRuleOptionDataSourceNames.Language)
-            {
-                var languages = await _db.Languages
-                    .AsNoTracking()
-                    .ApplyStandardFilter(true)
-                    .ToListAsync();
-
-                result.AddOptions(context, languages.Select(x => new RuleValueSelectListOption
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.GetLocalized(x => x.Name)
-                }));
-            }
-            else
+            if (context.DataSource != KnownRuleOptionDataSourceNames.Language)
             {
                 return null;
             }
 
-            return result;
+            var languages = await _db.Languages
+                .AsNoTracking()
+                .ApplyStandardFilter(true)
+                .ToListAsync();
+
+            var options = languages.Select(x => new RuleValueSelectListOption
+            {
+                Value = x.Id.ToString(),
+                Text = x.GetLocalized(x => x.Name)
+            });
+
+            return RuleOptionsResult.Create(context, options);
         }
     }
 }

@@ -17,29 +17,25 @@ namespace Smartstore.Core.Catalog.Products
         public int Order => 0;
 
         public bool Matches(string dataSource)
-        {
-            return dataSource == KnownRuleOptionDataSourceNames.ProductTag;
-        }
+            => dataSource == KnownRuleOptionDataSourceNames.ProductTag;
 
         public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
-            var result = new RuleOptionsResult();
-
-            if (context.DataSource == KnownRuleOptionDataSourceNames.ProductTag)
-            {
-                var productTags = await _db.ProductTags.AsNoTracking().ToListAsync();
-
-                result.AddOptions(context, productTags
-                    .Select(x => new RuleValueSelectListOption
-                    {
-                        Value = x.Id.ToString(),
-                        Text = x.GetLocalized(y => y.Name, context.Language, true, false)
-                    })
-                    .OrderBy(x => x.Text));
-            }
-            else
+            if (context.DataSource != KnownRuleOptionDataSourceNames.ProductTag)
             {
                 return null;
+            }
+
+            var result = new RuleOptionsResult();
+            var pager = _db.ProductTags.AsNoTracking().ToFastPager();
+
+            while ((await pager.ReadNextPageAsync<ProductTag>()).Out(out var tags))
+            {
+                result.AddOptions(context, tags.Select(x => new RuleValueSelectListOption
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.GetLocalized(y => y.Name, context.Language, true, false)
+                }));
             }
 
             return result;
