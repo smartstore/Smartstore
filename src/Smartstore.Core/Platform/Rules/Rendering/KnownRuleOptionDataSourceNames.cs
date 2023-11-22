@@ -2,6 +2,7 @@
 {
     public static partial class KnownRuleOptionDataSourceNames
     {
+        public const string Affiliate = "Affiliate";
         public const string AttributeOption = "AttributeOption";
         public const string CartRule = "CartRule";
         public const string Category = "Category";

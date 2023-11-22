@@ -4,6 +4,10 @@
 
 ### New Features
 
+- Affiliates
+  - #896 Added a cart rule for affiliates.
+  - Added a button to remove the assignment of a customer to an affiliate on customer edit page.
+
 ### Improvements
 
 - #876 Changing password in backend via modal dialog.

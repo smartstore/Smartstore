@@ -753,6 +753,23 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [FormValueRequired("removeAffiliateAssignment"), ActionName("Edit")]
+        [Permission(Permissions.Customer.Update)]
+        public async Task<IActionResult> RemoveAffiliateAssignment(int id)
+        {
+            var customer = await _db.Customers.FindByIdAsync(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            customer.AffiliateId = 0;
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Edit), customer.Id);
+        }
+
+        [HttpPost]
         [FormValueRequired("markVatNumberAsValid"), ActionName("Edit")]
         [Permission(Permissions.Customer.Update)]
         public async Task<IActionResult> MarkVatNumberAsValid(CustomerModel model)
@@ -764,7 +781,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             customer.VatNumberStatusId = (int)VatNumberStatus.Valid;
-
             await _db.SaveChangesAsync();
 
             return RedirectToAction(nameof(Edit), customer.Id);
@@ -782,7 +798,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             customer.VatNumberStatusId = (int)VatNumberStatus.Invalid;
-
             await _db.SaveChangesAsync();
 
             return RedirectToAction(nameof(Edit), customer.Id);

@@ -292,8 +292,13 @@
         <div class="adminTitle">
             <smart-label asp-for="AffiliateId" />
         </div>
-        <div class="adminData form-control-plaintext">
-            <a asp-action="Edit" asp-controller="Affiliate" asp-route-id="@Model.AffiliateId">@Model.AffiliateFullName</a>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                <a asp-action="Edit" asp-controller="Affiliate" asp-route-id="@Model.AffiliateId">@Model.AffiliateFullName</a>
+                <button type="submit" name="removeAffiliateAssignment" value="removeAffiliateAssignment" class="btn btn-sm btn-secondary ml-2 confirm">
+                    <span>@T("Admin.Customers.RemoveAffiliateAssignment")</span>
+                </button>
+            </div>
         </div>
     </div>
     <div sm-if="Model.DisplayVatNumber" class="adminRow">
