@@ -22,6 +22,11 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete("Account.ChangePassword.Errors.PasswordIsNotProvided");
 
             builder.AddOrUpdate("Admin.Report.MediaFilesSize", "Media size", "Mediengröße");
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.Affiliate", "Affiliate", "Partner");
+
+            builder.AddOrUpdate("Admin.Customers.RemoveAffiliateAssignment",
+                "Remove assignment to affiliate",
+                "Zuordnung zum Partner entfernen");
         }
     }
 }

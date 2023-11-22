@@ -1822,7 +1822,7 @@ namespace Smartstore.Admin.Controllers
                     .Include(x => x.Address)
                     .FindByIdAsync(order.AffiliateId);
 
-                model.AffiliateFullName = affiliate?.Address?.GetFullName() ?? StringExtensions.NotAvailable;
+                model.AffiliateFullName = affiliate?.Address?.GetFullName()?.NullEmpty() ?? StringExtensions.NotAvailable;
             }
 
             model.OrderSubtotalInclTaxString = Format(order.OrderSubtotalInclTax, true);

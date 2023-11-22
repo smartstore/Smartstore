@@ -236,7 +236,7 @@ namespace Smartstore.Core.Checkout.Rules
 
             var descriptors = new List<CartRuleDescriptor>
             {
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "Currency",
                     DisplayName = T("Admin.Rules.FilterDescriptor.Currency"),
@@ -244,7 +244,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(CurrencyRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Currency) { Multiple = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "Language",
                     DisplayName = T("Admin.Rules.FilterDescriptor.Language"),
@@ -252,7 +252,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(LanguageRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Language) { Multiple = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "Store",
                     DisplayName = T("Admin.Rules.FilterDescriptor.Store"),
@@ -260,7 +260,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(StoreRule),
                     SelectList = new LocalRuleValueSelectList(stores) { Multiple = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "IPCountry",
                     DisplayName = T("Admin.Rules.FilterDescriptor.IPCountry"),
@@ -268,7 +268,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(IPCountryRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Country) { Multiple = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "Weekday",
                     DisplayName = T("Admin.Rules.FilterDescriptor.Weekday"),
@@ -277,7 +277,7 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new LocalRuleValueSelectList(WeekdayRule.GetDefaultValues(language)) { Multiple = true }
                 },
 
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CustomerRole",
                     DisplayName = T("Admin.Rules.FilterDescriptor.IsInCustomerRole"),
@@ -286,7 +286,15 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.CustomerRole) { Multiple = true },
                     IsComparingSequences = true
                 },
-                new CartRuleDescriptor
+                new()
+                {
+                    Name = "Affiliate",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.Affiliate"),
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(CustomerAffiliateRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Affiliate) { Multiple = true }
+                },
+                new()
                 {
                     Name = "CartBillingCountry",
                     DisplayName = T("Admin.Rules.FilterDescriptor.BillingCountry"),
@@ -294,7 +302,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(BillingCountryRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Country) { Multiple = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartShippingCountry",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ShippingCountry"),
@@ -302,7 +310,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(ShippingCountryRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Country) { Multiple = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartShippingMethod",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ShippingMethod"),
@@ -310,7 +318,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(ShippingMethodRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.ShippingMethod) { Multiple = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartPaymentMethod",
                     DisplayName = T("Admin.Rules.FilterDescriptor.PaymentMethod"),
@@ -319,21 +327,21 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.PaymentMethod) { Multiple = true }
                 },
 
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartTotal",
                     DisplayName = T("Admin.Rules.FilterDescriptor.CartTotal"),
                     RuleType = RuleType.Money,
                     ProcessorType = typeof(CartTotalRule)
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartSubtotal",
                     DisplayName = T("Admin.Rules.FilterDescriptor.CartSubtotal"),
                     RuleType = RuleType.Money,
                     ProcessorType = typeof(CartSubtotalRule)
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartProductCount",
                     DisplayName = T("Admin.Rules.FilterDescriptor.CartProductCount"),
@@ -342,7 +350,7 @@ namespace Smartstore.Core.Checkout.Rules
                 },
                 cartItemQuantity,
                 cartItemFromCategoryQuantity,
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "ProductInCart",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ProductInCart"),
@@ -351,7 +359,7 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Product) { Multiple = true },
                     IsComparingSequences = true
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "ProductFromCategoryInCart",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ProductFromCategoryInCart"),
@@ -360,7 +368,7 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Category) { Multiple = true },
                     IsComparingSequences = true
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "ProductFromManufacturerInCart",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ProductFromManufacturerInCart"),
@@ -369,7 +377,7 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Manufacturer) { Multiple = true },
                     IsComparingSequences = true
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "ProductWithDeliveryTimeInCart",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ProductWithDeliveryTimeInCart"),
@@ -378,7 +386,7 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.DeliveryTime) { Multiple = true },
                     IsComparingSequences = true
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "ProductInWishlist",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ProductOnWishlist"),
@@ -387,21 +395,21 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Product) { Multiple = true },
                     IsComparingSequences = true
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "ProductReviewCount",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ProductReviewCount"),
                     RuleType = RuleType.Int,
                     ProcessorType = typeof(ProductReviewCountRule)
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "RewardPointsBalance",
                     DisplayName = T("Admin.Rules.FilterDescriptor.RewardPointsBalance"),
                     RuleType = RuleType.Int,
                     ProcessorType = typeof(RewardPointsBalanceRule)
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "RuleSet",
                     DisplayName = T("Admin.Rules.FilterDescriptor.RuleSet"),
@@ -411,7 +419,7 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.CartRule),
                 },
 
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartOrderCount",
                     DisplayName = T("Admin.Rules.FilterDescriptor.OrderCount"),
@@ -419,7 +427,7 @@ namespace Smartstore.Core.Checkout.Rules
                     RuleType = RuleType.Int,
                     ProcessorType = typeof(OrderCountRule)
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartSpentAmount",
                     DisplayName = T("Admin.Rules.FilterDescriptor.SpentAmount"),
@@ -427,7 +435,7 @@ namespace Smartstore.Core.Checkout.Rules
                     RuleType = RuleType.Money,
                     ProcessorType = typeof(SpentAmountRule)
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartPaidBy",
                     DisplayName = T("Admin.Rules.FilterDescriptor.PaidBy"),
@@ -437,7 +445,7 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.PaymentMethod) { Multiple = true },
                     IsComparingSequences = true
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartPurchasedProduct",
                     DisplayName = T("Admin.Rules.FilterDescriptor.PurchasedProduct"),
@@ -447,7 +455,7 @@ namespace Smartstore.Core.Checkout.Rules
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Product) { Multiple = true },
                     IsComparingSequences = true
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "CartPurchasedFromManufacturer",
                     DisplayName = T("Admin.Rules.FilterDescriptor.PurchasedFromManufacturer"),
@@ -458,7 +466,7 @@ namespace Smartstore.Core.Checkout.Rules
                     IsComparingSequences = true
                 },
 
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "UserAgent.IsMobile",
                     DisplayName = T("Admin.Rules.FilterDescriptor.MobileDevice"),
@@ -466,7 +474,7 @@ namespace Smartstore.Core.Checkout.Rules
                     RuleType = RuleType.Boolean,
                     ProcessorType = typeof(IsMobileRule)
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "UserAgent.Device",
                     DisplayName = T("Admin.Rules.FilterDescriptor.DeviceFamily"),
@@ -475,7 +483,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(DeviceRule),
                     SelectList = new LocalRuleValueSelectList(DeviceRule.GetDefaultOptions()) { Multiple = true, Tags = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "UserAgent.OS",
                     DisplayName = T("Admin.Rules.FilterDescriptor.OperatingSystem"),
@@ -484,7 +492,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(OSRule),
                     SelectList = new LocalRuleValueSelectList(OSRule.GetDefaultOptions()) { Multiple = true, Tags = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "UserAgent.Browser",
                     DisplayName = T("Admin.Rules.FilterDescriptor.BrowserName"),
@@ -493,7 +501,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(BrowserRule),
                     SelectList = new LocalRuleValueSelectList(BrowserRule.GetDefaultOptions()) { Multiple = true, Tags = true }
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "UserAgent.BrowserMajorVersion",
                     DisplayName = T("Admin.Rules.FilterDescriptor.BrowserMajorVersion"),
@@ -501,7 +509,7 @@ namespace Smartstore.Core.Checkout.Rules
                     RuleType = RuleType.Int,
                     ProcessorType = typeof(BrowserMajorVersionRule)
                 },
-                new CartRuleDescriptor
+                new()
                 {
                     Name = "UserAgent.BrowserMinorVersion",
                     DisplayName = T("Admin.Rules.FilterDescriptor.BrowserMinorVersion"),

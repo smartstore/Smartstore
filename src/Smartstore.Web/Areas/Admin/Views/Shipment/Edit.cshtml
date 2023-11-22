@@ -104,7 +104,7 @@
                     }
                     @if (Model.CanShip)
                     {
-                        <button id="btn-setasshipped" type="button" class="btn btn-sm btn-secondary ml-2 align-text-top" data-url="@Url.Action("SetAsShipped", new { id = Model.Id })">
+                        <button id="btn-setasshipped" type="button" class="btn btn-sm btn-secondary ml-2" data-url="@Url.Action("SetAsShipped", new { id = Model.Id })">
                             <i class="fa fa-check"></i>
                             <span>@T("Admin.Orders.Shipments.ShippedDate.Button")</span>
                         </button>
@@ -128,7 +128,7 @@
                     }
                     @if (Model.CanDeliver)
                     {
-                        <button id="btn-setasdelivered" type="button" class="btn btn-sm btn-secondary ml-2 align-text-top" data-url="@Url.Action("SetAsDelivered", new { id = Model.Id })">
+                        <button id="btn-setasdelivered" type="button" class="btn btn-sm btn-secondary ml-2" data-url="@Url.Action("SetAsDelivered", new { id = Model.Id })">
                             <i class="fa fa-check"></i>
                             <span>@T("Admin.Orders.Shipments.DeliveryDate.Button")</span>
                         </button>
