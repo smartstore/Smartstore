@@ -43,7 +43,7 @@ namespace Smartstore.Core.Seo
             if (_batch.Count == 0)
                 return 0;
 
-            await UrlService.slugGate.BlockAll();
+            await UrlService._slugGate.WaitAsync();
 
             var batch = await ValidateBatchAsync(_batch, cancelToken);
 
@@ -66,7 +66,7 @@ namespace Smartstore.Core.Seo
 
             var numAffected = await _urlService._db.SaveChangesAsync(cancelToken);
             _batch.Clear();
-            UrlService.slugGate.ReleaseAll();
+            UrlService._slugGate.Release();
             return numAffected;
         }
 

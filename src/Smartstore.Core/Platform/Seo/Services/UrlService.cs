@@ -35,7 +35,7 @@ namespace Smartstore.Core.Seo
         internal IDictionary<string, UrlRecord> _extraSlugLookup;
         private IDictionary<string, UrlRecordCollection> _prefetchedCollections;
         private static int _lastCacheSegmentSize = -1;
-        internal static EntitySemaphoreSlim slugGate = new EntitySemaphoreSlim();
+        internal static SemaphoreSlim _slugGate = new SemaphoreSlim(1, 1);
 
         public UrlService(
             SmartDbContext db,
@@ -614,7 +614,7 @@ namespace Smartstore.Core.Seo
         {
             try
             {
-                await (await slugGate.GetEventAsync<T>()).WaitAsync();
+                await _slugGate.WaitAsync();
                 var slugResult = await ValidateSlugAsync(entity, seName, displayName, ensureNotEmpty, languageId, force);
                 // Has to be saved immediately
                 await ApplySlugAsync(slugResult, true);
@@ -622,7 +622,7 @@ namespace Smartstore.Core.Seo
             }
             finally
             {
-                (await slugGate.GetEventAsync<T>()).Release();
+                _slugGate.Release();
             }
         }
 
