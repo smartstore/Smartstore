@@ -28,17 +28,12 @@ namespace Smartstore.Core.Catalog.Pricing
                 .OfType<TierPrice>()
                 .ToList();
 
-            var addedTierPricesProductIds = addedTierPrices
-                .Select(x => x.ProductId)
-                .Distinct()
-                .ToArray();
-
-            if (addedTierPricesProductIds.Any())
+            var addedTierPricesProductIds = addedTierPrices.ToDistinctArray(x => x.ProductId);
+            if (addedTierPricesProductIds.Length > 0)
             {
                 await _db.Products
                     .Where(x => addedTierPricesProductIds.Contains(x.Id))
-                    .ExecuteUpdateAsync(
-                        x => x.SetProperty(p => p.HasTierPrices, p => true));
+                    .ExecuteUpdateAsync(x => x.SetProperty(p => p.HasTierPrices, p => true), cancelToken);
             }
 
             // Process products that have not assigned tier prices.
@@ -48,23 +43,17 @@ namespace Smartstore.Core.Catalog.Pricing
                 .OfType<TierPrice>()
                 .ToList();
 
-            var deletedTierPricesProductIds = deletedTierPrices
-                .Select(x => x.ProductId)
-                .Distinct()
-                .ToArray();
-
-            if (deletedTierPricesProductIds.Any())
+            var deletedTierPricesProductIds = deletedTierPrices.ToDistinctArray(x => x.ProductId);
+            if (deletedTierPricesProductIds.Length > 0)
             {
                 var deletedTierPricesIds = deletedTierPrices
                     .Select(x => x.Id)
                     .ToArray();
 
                 await _db.Products
-                    .Where(x =>
-                        deletedTierPricesProductIds.Contains(x.Id) &&
+                    .Where(x => deletedTierPricesProductIds.Contains(x.Id) &&
                         !x.TierPrices.Where(y => !deletedTierPricesIds.Contains(y.Id)).Any())
-                    .ExecuteUpdateAsync(
-                        x => x.SetProperty(p => p.HasTierPrices, p => false));
+                    .ExecuteUpdateAsync(x => x.SetProperty(p => p.HasTierPrices, p => false), cancelToken);
             }
         }
     }

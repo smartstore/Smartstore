@@ -1017,6 +1017,7 @@ namespace Smartstore.Admin.Controllers
         {
             var tierPrices = await _db.TierPrices
                 .Where(x => x.ProductId == productId)
+                .OrderBy(x => x.Quantity)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -1063,15 +1064,14 @@ namespace Smartstore.Admin.Controllers
                         ProductId = x.ProductId,
                         Quantity = x.Quantity,
                         CalculationMethodId = (int)x.CalculationMethod,
-                        Price1 = x.Price
-                    };
-
-                    tierPriceModel.CalculationMethod = x.CalculationMethod switch
-                    {
-                        TierPriceCalculationMethod.Fixed => T("Admin.Product.Price.Tierprices.Fixed").Value,
-                        TierPriceCalculationMethod.Adjustment => T("Admin.Product.Price.Tierprices.Adjustment").Value,
-                        TierPriceCalculationMethod.Percental => T("Admin.Product.Price.Tierprices.Percental").Value,
-                        _ => x.CalculationMethod.ToString(),
+                        Price1 = x.Price,
+                        CalculationMethod = x.CalculationMethod switch
+                        {
+                            TierPriceCalculationMethod.Fixed => T("Admin.Product.Price.Tierprices.Fixed").Value,
+                            TierPriceCalculationMethod.Adjustment => T("Admin.Product.Price.Tierprices.Adjustment").Value,
+                            TierPriceCalculationMethod.Percental => T("Admin.Product.Price.Tierprices.Percental").Value,
+                            _ => x.CalculationMethod.ToString(),
+                        }
                     };
 
                     if (x.CustomerRoleId.HasValue)
