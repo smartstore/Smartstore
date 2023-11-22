@@ -43,6 +43,8 @@ namespace Smartstore.Core.Seo
             if (_batch.Count == 0)
                 return 0;
 
+            await UrlService.slugGate.BlockAll();
+
             var batch = await ValidateBatchAsync(_batch, cancelToken);
 
             var batchByEntityName = batch.ToMultimap(x => x.EntityName, x => x);
@@ -64,6 +66,7 @@ namespace Smartstore.Core.Seo
 
             var numAffected = await _urlService._db.SaveChangesAsync(cancelToken);
             _batch.Clear();
+            UrlService.slugGate.ReleaseAll();
             return numAffected;
         }
 

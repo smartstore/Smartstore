@@ -114,5 +114,25 @@ namespace Smartstore.Core.Seo
         /// </param>
         /// <returns>The batch scope instance.</returns>
         IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null);
+
+        /// <summary>
+        /// Applies a slug.
+        /// </summary>
+        /// <typeparam name="T">Type of slug supporting entity</typeparam>
+        /// <param name="entity">Entity instance</param>
+        /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from <paramref name="displayName"/>.</param>
+        /// <param name="displayName">Display name used to resolve the slug if <paramref name="seName"/> is empty.</param>
+        /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
+        /// <param name="force">
+        /// <returns>
+        /// The affected <see cref="UrlRecord"/> instance, either new or existing as tracked entity.
+        /// </returns>
+        Task<ValidateSlugResult> ValidateAndApplySlugAsync<T>(T entity,
+            string seName,
+            string displayName,
+            bool ensureNotEmpty,
+            int? languageId = null,
+            bool force = false)
+            where T : ISlugSupported;
     }
 }
