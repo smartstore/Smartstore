@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Xml;
 using AngleSharp.Dom;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
@@ -234,10 +235,19 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         string mpn = product.ManufacturerPartNumber;
                         var availability = defaultAvailability;
                         List<dynamic> productFiles = product.ProductMediaFiles;
-                        var imageUrls = productFiles
-                            .Select(x => (string)x.File._FullSizeImageUrl)
-                            .Where(x => x.HasValue())
-                            .ToList();
+                        List<string> imageUrls = new List<string>();
+
+                        // Get all files which are images.
+                        foreach (var file in productFiles)
+                        {
+                            ProductMediaFile fileEntity = file.Entity;
+                            string imageUrl = file.File._FullSizeImageUrl;
+
+                            if (fileEntity.MediaFile.MediaType == "image" && imageUrl.HasValue())
+                            {
+                                imageUrls.Add(imageUrl);
+                            }
+                        }   
 
                         var attributeValues = !isParent && product._AttributeCombinationValues != null
                             ? ((IList<ProductVariantAttributeValue>)product._AttributeCombinationValues).ToMultimap(x => x.ProductVariantAttribute.ProductAttributeId, x => x)
