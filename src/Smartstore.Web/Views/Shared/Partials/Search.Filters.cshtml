@@ -1,20 +1,18 @@
 ﻿@using Smartstore.Core.Search.Facets
 @using Smartstore.Web.Models.Catalog
-@using Smartstore.Core.Catalog.Search
 @using Smartstore.Core.Catalog.Products
 
 @model ProductSummaryModel
 
 @{
-    if (Model == null)
+    var sourceResult = Model?.SourceResult;
+    if (sourceResult == null)
     {
         return;
     }
 
-    var sourceResult = Model.SourceResult;
     var templateProvider = Resolve<IFacetTemplateProvider>();
     var facetGroups = sourceResult.Facets.Select(x => x.Value).OrderBy(x => x.DisplayOrder);
-
     int i = 0;
 }
 
