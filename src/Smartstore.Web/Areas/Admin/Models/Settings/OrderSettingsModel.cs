@@ -46,6 +46,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*GiftCards_Deactivated")]
         public int? GiftCardsDeactivatedOrderStatusId { get; set; }
 
+        [LocalizedDisplay("*MaxMessageOrderAgeInDays")]
+        public int MaxMessageOrderAgeInDays { get; set; }
+
         public string PrimaryStoreCurrencyCode { get; set; }
         public int StoreCount { get; set; }
 
@@ -89,6 +92,7 @@ namespace Smartstore.Admin.Models
             RuleFor(x => x.OrderTotalMinimum).GreaterThan(0);
             RuleFor(x => x.OrderIdent).GreaterThan(0);
             RuleFor(x => x.NumberOfDaysReturnRequestAvailable).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.MaxMessageOrderAgeInDays).GreaterThanOrEqualTo(0);
         }
     }
 }

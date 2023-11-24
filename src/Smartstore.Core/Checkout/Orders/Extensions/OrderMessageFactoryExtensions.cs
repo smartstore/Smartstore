@@ -9,7 +9,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public static Task<CreateMessageResult> SendOrderPlacedStoreOwnerNotificationAsync(this IMessageFactory factory, Order order, int languageId = 0)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.OrderPlacedStoreOwner, languageId, order.StoreId),
@@ -23,7 +23,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public static Task<CreateMessageResult> SendOrderPlacedCustomerNotificationAsync(this IMessageFactory factory, Order order, int languageId = 0)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.OrderPlacedCustomer, languageId, order.StoreId, order.Customer),
@@ -49,7 +49,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public static Task<CreateMessageResult> SendOrderCancelledCustomerNotificationAsync(this IMessageFactory factory, Order order, int languageId = 0)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.OrderCancelledCustomer, languageId, order.StoreId, order.Customer),
@@ -62,7 +62,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public static Task<CreateMessageResult> SendNewOrderNoteAddedCustomerNotificationAsync(this IMessageFactory factory, OrderNote orderNote, int languageId = 0)
         {
-            Guard.NotNull(orderNote, nameof(orderNote));
+            Guard.NotNull(orderNote);
+
             return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.OrderNoteAddedCustomer, languageId, orderNote.Order?.StoreId, orderNote.Order?.Customer),
                 true,
@@ -75,8 +76,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public static Task<CreateMessageResult> SendNewReturnRequestStoreOwnerNotificationAsync(this IMessageFactory factory, ReturnRequest returnRequest, OrderItem orderItem, int languageId = 0)
         {
-            Guard.NotNull(returnRequest, nameof(returnRequest));
-            Guard.NotNull(orderItem, nameof(orderItem));
+            Guard.NotNull(returnRequest);
+            Guard.NotNull(orderItem);
 
             return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.NewReturnRequestStoreOwner, languageId, orderItem.Order?.StoreId, returnRequest.Customer),
@@ -92,13 +93,16 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public static Task<CreateMessageResult> SendReturnRequestStatusChangedCustomerNotificationAsync(this IMessageFactory factory, ReturnRequest returnRequest, OrderItem orderItem, int languageId = 0)
         {
-            Guard.NotNull(returnRequest, nameof(returnRequest));
-            Guard.NotNull(orderItem, nameof(orderItem));
+            Guard.NotNull(returnRequest);
+            Guard.NotNull(orderItem);
 
             return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.ReturnRequestStatusChangedCustomer, languageId, orderItem.Order?.StoreId, returnRequest.Customer),
                 true,
-                returnRequest);
+                returnRequest,
+                orderItem,
+                orderItem.Order,
+                orderItem.Product);
         }
     }
 }

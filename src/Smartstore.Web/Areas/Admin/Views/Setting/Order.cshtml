@@ -115,6 +115,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="MaxMessageOrderAgeInDays" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MaxMessageOrderAgeInDays" sm-postfix="@T("Time.Days")"></setting-editor>
+                        <span asp-validation-for="MaxMessageOrderAgeInDays"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="OrderListPageSize" />
                     </div>
                     <div class="adminData">

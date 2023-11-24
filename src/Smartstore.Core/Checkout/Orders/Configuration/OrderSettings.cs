@@ -92,5 +92,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets or sets the page size of the recurring payment list.
         /// </summary>
         public int RecurringPaymentListPageSize { get; set; } = 10;
+
+        /// <summary>
+        /// Gets or sets the maximum order age in days up to which to create and send messages.
+        /// Set to 0 to always send messages.
+        /// </summary>
+        public int MaxMessageOrderAgeInDays { get; set; } = 180;
     }
 }

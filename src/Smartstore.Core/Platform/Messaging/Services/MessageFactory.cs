@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Humanizer;
+using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
@@ -22,6 +23,16 @@ namespace Smartstore.Core.Messaging
     {
         const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
 
+        private static readonly string[] _verifyOrderAgeTemplateNames = new[]
+        {
+            MessageTemplateNames.ShipmentSentCustomer,
+            MessageTemplateNames.ShipmentDeliveredCustomer,
+            MessageTemplateNames.OrderCompletedCustomer,
+            MessageTemplateNames.OrderCancelledCustomer,
+            MessageTemplateNames.OrderNoteAddedCustomer,
+            MessageTemplateNames.ReturnRequestStatusChangedCustomer
+        };
+
         private Dictionary<string, Func<Task<object>>> _testModelFactories;
 
         private readonly SmartDbContext _db;
@@ -37,6 +48,7 @@ namespace Smartstore.Core.Messaging
         private readonly IEventPublisher _eventPublisher;
         private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
+        private readonly OrderSettings _orderSettings;
 
         public MessageFactory(
             SmartDbContext db,
@@ -51,7 +63,8 @@ namespace Smartstore.Core.Messaging
             IMediaService mediaService,
             IEventPublisher eventPublisher,
             IStoreContext storeContext,
-            IWorkContext workContext)
+            IWorkContext workContext,
+            OrderSettings orderSettings)
         {
             _db = db;
             _services = services;
@@ -66,6 +79,7 @@ namespace Smartstore.Core.Messaging
             _eventPublisher = eventPublisher;
             _storeContext = storeContext;
             _workContext = workContext;
+            _orderSettings = orderSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -381,15 +395,18 @@ namespace Smartstore.Core.Messaging
                     throw new ArgumentException("'MessageTemplateName' must not be empty if 'MessageTemplate' is null.", nameof(ctx));
                 }
 
-                // INFO: tracked because entity is updated in CreateMessageAsync.
-                ctx.MessageTemplate = _db.MessageTemplates
-                    .Where(x => x.Name == ctx.MessageTemplateName)
-                    .ApplyStoreFilter(ctx.Store.Id)
-                    .FirstOrDefault();
-
-                if (ctx.MessageTemplate != null && !ctx.TestMode && !ctx.MessageTemplate.IsActive)
+                if (CreateMessage(ctx, parts))
                 {
-                    ctx.MessageTemplate = null;
+                    // INFO: tracked because entity is updated in CreateMessageAsync.
+                    ctx.MessageTemplate = _db.MessageTemplates
+                        .Where(x => x.Name == ctx.MessageTemplateName)
+                        .ApplyStoreFilter(ctx.Store.Id)
+                        .FirstOrDefault();
+
+                    if (!ctx.TestMode && ctx.MessageTemplate != null && !ctx.MessageTemplate.IsActive)
+                    {
+                        ctx.MessageTemplate = null;
+                    }
                 }
             }
 
@@ -408,16 +425,35 @@ namespace Smartstore.Core.Messaging
             modelParts = parts.Where(x => x != null).ToArray();
         }
 
+        protected virtual bool CreateMessage(MessageContext ctx, IEnumerable<object> parts)
+        {
+            // Check orders that are too old for message sending.
+            if (!ctx.TestMode
+                && _orderSettings.MaxMessageOrderAgeInDays > 0
+                && _verifyOrderAgeTemplateNames.Contains(ctx.MessageTemplateName))
+            {
+                Order order = parts.OfType<Order>().FirstOrDefault();
+                if (order != null 
+                    && order.OrderStatus >= OrderStatus.Complete
+                    && order.CreatedOnUtc.AddDays(_orderSettings.MaxMessageOrderAgeInDays) < DateTime.UtcNow)
+                {
+                    var createdOnStr = _services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).Humanize(false);
+                    Logger.Info(T("Admin.MessageTemplate.OrderTooOldForMessageInfo", ctx.MessageTemplateName, order.Id, createdOnStr));
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         protected EmailAccount GetEmailAccountOfMessageTemplate(MessageTemplate messageTemplate, int languageId)
         {
             // Note that the email account to be used can be specified separately for each language, that's why we use GetLocalized here.
             var accountId = messageTemplate.GetLocalized(x => x.EmailAccountId, languageId);
-            var account = _db.EmailAccounts.FindById(accountId, false) ?? _emailAccountService.GetDefaultEmailAccount();
-
-            if (account == null)
-            {
-                throw new Exception(T("Common.Error.NoEmailAccount"));
-            }
+            var account = (_db.EmailAccounts.FindById(accountId, false) 
+                ?? _emailAccountService.GetDefaultEmailAccount()) 
+                ?? throw new Exception(T("Common.Error.NoEmailAccount"));
 
             return account;
         }

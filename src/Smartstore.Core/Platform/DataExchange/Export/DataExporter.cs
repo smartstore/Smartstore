@@ -253,7 +253,7 @@ namespace Smartstore.Core.DataExchange.Export
                     {
                         try
                         {
-                            await UpdateOrderStatus(ctx);
+                            await UpdateOrderStatus(ctx, cancelToken);
                         }
                         catch (Exception ex)
                         {
@@ -1541,7 +1541,7 @@ namespace Smartstore.Core.DataExchange.Export
             //await _db.SaveChangesAsync();
         }
 
-        private async Task UpdateOrderStatus(DataExporterContext ctx)
+        private async Task UpdateOrderStatus(DataExporterContext ctx, CancellationToken cancelToken)
         {
             var num = 0;
             int? newOrderStatusId = null;
@@ -1561,8 +1561,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     num += await _db.Orders
                         .Where(x => chunk.Contains(x.Id))
-                        .ExecuteUpdateAsync(
-                            x => x.SetProperty(p => p.OrderStatusId, p => newOrderStatusId.Value));
+                        .ExecuteUpdateAsync(setter => setter.SetProperty(o => o.OrderStatusId, o => newOrderStatusId.Value), cancelToken);
                 }
 
                 ctx.Log.Info($"Updated order status for {num} order(s).");

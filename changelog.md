@@ -16,6 +16,7 @@
   - Revamped dashboard stats
   - Activate .spa-layout only on screen height > 600px (DataGrid is unusable in mobile landscape mode otherwise)
 - Security: #886 Replace CoreFTP with FluentFTP.
+- Add a setting for a maximum order age. For orders over this age, no more messages such as *shipped* or *delivered* may be sent to the buyer.
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
 - GMC: Only export images (not videos or other media types).
 
