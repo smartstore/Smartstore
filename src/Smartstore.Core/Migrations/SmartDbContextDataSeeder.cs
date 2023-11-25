@@ -35,8 +35,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt das maximale Auftragsalter in Tagen fest, bis zu dem Nachrichten erstellt und gesendet werden sollen. Setzen Sie diesen Wert auf 0, um Nachrichten immer zu versenden.");
 
             builder.AddOrUpdate("Admin.MessageTemplate.OrderTooOldForMessageInfo",
-                "The message \"{0}\" for order {1} was not created. It is too old ({2}).",
-                "Die Nachricht \"{0}\" für Auftrag {1} wurde nicht erstellt. Er ist zu alt ({2}).");
+                "The message \"{0}\" was not sent. The order {1} is too old ({2}).",
+                "Die Nachricht \"{0}\" wurde nicht gesendet. Der Auftrag {1} ist zu alt ({2}).");
 
             // Typo.
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.ShowConfirmOrderLegalHint.Hint")
