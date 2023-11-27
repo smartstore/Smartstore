@@ -1,4 +1,7 @@
 ﻿using System.Drawing;
+using System.Globalization;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SixLabors.ImageSharp.PixelFormats;
 using SharpColor = SixLabors.ImageSharp.Color;
 
@@ -6,6 +9,11 @@ namespace Smartstore.Imaging
 {
     public static class ImagingHelper
     {
+        public static ILogger Logger { get; set; } = NullLogger.Instance;
+
+        private static readonly string CssColorComponentDelimiterRegex = @"(\s*/\s*)|(\s*,\s*)|(\s+)";
+        private static readonly Color ColorTranslationFallback = Color.White;
+
         /// <summary>
         /// Converts a <see cref="SixLabors.ImageSharp.Color"/> to <see cref="System.Drawing.Color"/>.
         /// </summary>
@@ -34,7 +42,7 @@ namespace Smartstore.Imaging
         public static Color TranslateColor(string htmlColor)
         {
             Guard.NotEmpty(htmlColor, nameof(htmlColor));
-            
+
             if (!SharpColor.TryParse(htmlColor, out var sharpColor))
             {
                 throw new ArgumentException("Input string color is not in the correct format.", nameof(htmlColor));
@@ -72,12 +80,121 @@ namespace Smartstore.Imaging
 
         public static int GetPerceivedBrightness(string htmlColor)
         {
+            Color colorFromHtml;
+
             if (string.IsNullOrEmpty(htmlColor))
             {
-                htmlColor = "#ffffff";
+                colorFromHtml = ColorTranslationFallback;
+            }
+            else
+            {
+                try
+                {
+                    colorFromHtml = ColorTranslator.FromHtml(htmlColor);
+                }
+                catch
+                {
+                    // Either an unknown color name, a CSS function, or an invalid hex string.
+                    colorFromHtml = Color.Empty;
+                }
+
+                if (colorFromHtml.IsEmpty)
+                {
+                    try
+                    {
+                        if ((htmlColor.StartsWithNoCase("rgb(") || htmlColor.StartsWithNoCase("rgba(")) && htmlColor.EndsWith(')'))
+                        {
+                            colorFromHtml = ConvertRgbaCssColor(htmlColor);
+                        }
+                        else
+                        {
+                            // Invalid or unknown color name / function. Use fallback color.
+                            colorFromHtml = ColorTranslationFallback;
+                        }
+                    }
+                    catch
+                    {
+                        // Invalid or too complex color code. Use fallback color.
+                        colorFromHtml = ColorTranslationFallback;
+                    }
+                }
             }
 
-            return GetPerceivedBrightness(ColorTranslator.FromHtml(htmlColor));
+            return GetPerceivedBrightness(colorFromHtml);
+        }
+
+        /// <summary>
+        /// Converts a CSS rgba() color string into a <see cref="Color"/> instance.
+        /// </summary>
+        /// <param name="htmlColor">The CSS color string must be in rgb(r g b) or rgba(r g b a) format. Valid delimiters are space, comma, and slash.</param>
+        /// <returns>The <see cref="Color"/>.</returns>
+        private static Color ConvertRgbaCssColor(string htmlColor)
+        {
+            var rgba = htmlColor.Substring(htmlColor.IndexOf('(') + 1, htmlColor.IndexOf(')') - htmlColor.IndexOf('(') - 1);
+
+            // Separate the values by spaces and /or commas.
+            rgba = rgba.RegexReplace(CssColorComponentDelimiterRegex, " ");
+            var rgbParts = rgba.Split(' ');
+
+            // Convert the values to integers.
+            var r = ConvertCssColorComponent(rgbParts[0]);
+            var g = ConvertCssColorComponent(rgbParts[1]);
+            var b = ConvertCssColorComponent(rgbParts[2]);
+            var a = rgbParts.Length == 3 ? 255 : ConvertCssColorComponent(rgbParts[3]);
+
+            // On error, use fallback color.
+            if (r == null || g == null || b == null || a == null)
+            {
+                return ColorTranslationFallback;
+            }
+            else
+            {
+                return Color.FromArgb(a.Value, r.Value, g.Value, b.Value);
+            }
+        }
+
+        /// <summary>
+        /// Converts a CSS color component into an integer between 0 and 255.
+        /// </summary>
+        /// <param name="colorComponent">The CSS color component can be an integer, a double, or a percentage.</param>
+        /// <returns>An <see cref="int"/> between 0 and 255. Invalid values default to 0.</returns>
+        private static int? ConvertCssColorComponent(string colorComponent)
+        {
+            // Check for percentage values.
+            if (colorComponent.EndsWith('%'))
+            {
+                if (!double.TryParse(colorComponent.Substring(0, colorComponent.Length - 1), NumberStyles.Any, CultureInfo.InvariantCulture, out double doubleVal))
+                {
+                    return null;
+                }
+                else
+                {
+                    return (int)((doubleVal / 100) * 255);
+                }
+            }
+            // Check for double values.
+            else if (colorComponent.Contains('.'))
+            {
+                if (!double.TryParse(colorComponent, NumberStyles.Any, CultureInfo.InvariantCulture, out double doubleVal))
+                {
+                    return null;
+                }
+                else
+                {
+                    return (int)(doubleVal * 255);
+                }
+            }
+            else
+            {
+                if (!int.TryParse(colorComponent, out int integerValue))
+                {
+                    return null;
+                }
+                else
+                {
+                    return integerValue;
+                }
+            }
         }
 
         /// <summary>
