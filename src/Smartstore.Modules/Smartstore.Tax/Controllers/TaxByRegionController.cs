@@ -134,14 +134,15 @@ namespace Smartstore.Tax.Controllers
         public async Task<IActionResult> TaxRateUpdate(ByRegionTaxRateModel model)
         {
             var success = false;
-
             var taxRate = await _db.TaxRates().FindByIdAsync(model.Id);
-            taxRate.Zip = model.Zip == "*" ? null : model.Zip;
-            taxRate.Percentage = model.Percentage;
 
             if (taxRate != null)
             {
                 await MapperFactory.MapAsync(model, taxRate);
+
+                taxRate.Zip = model.Zip == "*" ? null : model.Zip;
+                taxRate.Percentage = model.Percentage;
+
                 await _db.SaveChangesAsync();
                 success = true;
             }
@@ -174,12 +175,12 @@ namespace Smartstore.Tax.Controllers
         [Permission(Permissions.Configuration.Tax.Create)]
         public async Task<IActionResult> AddTaxByRegionRecord(ByRegionTaxRateModel model)
         {
-            _db.TaxRates().Add(new TaxRateEntity
+            _db.TaxRates().Add(new()
             {
                 TaxCategoryId = model.TaxCategoryId,
                 CountryId = model.CountryId,
                 StateProvinceId = model.StateProvinceId,
-                Zip = model.Zip,
+                Zip = model.Zip == "*" ? null : model.Zip,
                 Percentage = model.Percentage
             });
 
