@@ -25,6 +25,7 @@
 - Product attributes are lost when navigating to *Ask Question* page multiple times.
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 - Fixed `NullReferenceException` calling search page without any search term.
+- Tax by region: fixed tax rate was not applied if asterisk placeholder character was saved for zip code.
 
 
 ## Smartstore 5.1.0
