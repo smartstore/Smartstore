@@ -58,8 +58,8 @@ namespace Smartstore.Core.DataExchange.Import
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
             MediaFolderNode album,
-            Action<T, int> assignMediaFileHandler,
-            Func<T, Stream, Task<bool>> checkAssignedMediaFileHandler,
+            Action<DownloadManagerItem, int> assignMediaFileHandler,
+            Func<DownloadManagerItem, Stream, Task<bool>> checkAssignedMediaFileHandler,
             bool checkExistingFile,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default) where T : BaseEntity;
