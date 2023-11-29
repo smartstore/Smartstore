@@ -139,6 +139,8 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var discount = await MapperFactory.MapAsync<DiscountModel, Discount>(model);
+                discount.CouponCode = discount.CouponCode?.Trim();
+
                 _db.Discounts.Add(discount);
                 await _db.SaveChangesAsync();
 
@@ -207,6 +209,9 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model, discount);
+
+                discount.CouponCode = discount.CouponCode?.Trim();
+
                 await ApplyLocales(model, discount);
                 await _ruleService.ApplyRuleSetMappingsAsync(discount, model.SelectedRuleSetIds);
 

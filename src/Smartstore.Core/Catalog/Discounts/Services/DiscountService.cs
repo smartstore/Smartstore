@@ -199,9 +199,9 @@ namespace Smartstore.Core.Catalog.Discounts
         }
 
         public virtual async Task<bool> IsDiscountValidAsync(
-            Discount discount, 
-            Customer customer, 
-            string couponCodeToValidate, 
+            Discount discount,
+            Customer customer,
+            string couponCodeToValidate,
             Store store = null,
             DiscountValidationFlags flags = DiscountValidationFlags.All)
         {
@@ -216,7 +216,7 @@ namespace Smartstore.Core.Catalog.Discounts
             }
 
             // Check coupon code.
-            if (discount.RequiresCouponCode && (discount.CouponCode.IsEmpty() || !discount.CouponCode.EqualsNoCase(couponCodeToValidate)))
+            if (discount.RequiresCouponCode && (discount.CouponCode.IsEmpty() || !discount.CouponCode.Trim().EqualsNoCase(couponCodeToValidate)))
             {
                 return Cached(false);
             }
@@ -235,7 +235,7 @@ namespace Smartstore.Core.Catalog.Discounts
             ShoppingCart cart = null;
 
             // Do not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
-            if (flags.HasFlag(DiscountValidationFlags.GiftCards) && 
+            if (flags.HasFlag(DiscountValidationFlags.GiftCards) &&
                 (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal))
             {
                 cart = await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
@@ -347,7 +347,7 @@ namespace Smartstore.Core.Catalog.Discounts
                     return false;
             }
         }
-        
+
         class DiscountKey : Tuple<Discount, Customer, string, Store, DiscountValidationFlags>
         {
             public DiscountKey(Discount discount, Customer customer, string customerCouponCode, Store store, DiscountValidationFlags flags)
