@@ -241,9 +241,7 @@
                         </div>
                         <div class="adminData">
                             <setting-editor asp-for="TaxSettings.EuVatShopCountryId">
-                                <editor asp-for="TaxSettings.EuVatShopCountryId"
-                                        asp-template="Countries"
-                                        asp-additional-viewdata='new { placeholder = T("Admin.Address.SelectCountry").Value }' />
+                                <editor asp-for="TaxSettings.EuVatShopCountryId" asp-template="Countries" />
                             </setting-editor>
                             <span asp-validation-for="TaxSettings.EuVatShopCountryId"></span>
                         </div>
