@@ -58,7 +58,7 @@ namespace Smartstore.Admin.Models
             public bool ShippingPriceIncludesTax { get; set; }
 
             [LocalizedDisplay("*ShippingTaxClass")]
-            public int? ShippingTaxClassId { get; set; }
+            public int ShippingTaxClassId { get; set; }
 
             [LocalizedDisplay("*PaymentMethodAdditionalFeeIsTaxable")]
             public bool PaymentMethodAdditionalFeeIsTaxable { get; set; }
@@ -67,7 +67,7 @@ namespace Smartstore.Admin.Models
             public bool PaymentMethodAdditionalFeeIncludesTax { get; set; }
 
             [LocalizedDisplay("*PaymentMethodAdditionalFeeTaxClass")]
-            public int? PaymentMethodAdditionalFeeTaxClassId { get; set; }
+            public int PaymentMethodAdditionalFeeTaxClassId { get; set; }
 
             [LocalizedDisplay("*AuxiliaryServicesTaxingType")]
             public AuxiliaryServicesTaxType AuxiliaryServicesTaxingType { get; set; }
