@@ -44,6 +44,7 @@ namespace Smartstore.Scheduling
             { "BMEcatImportTask", "SmartStore.BMEcat.FileImportTask, SmartStore.BMEcat" },
             { "CleanupCartApprovalTask", "SmartStore.CartApproval.Tasks.DeleteObsoleteRecordsTask, SmartStore.CartApproval" },
             { "CleanupPersonalPromoTask", "SmartStore.PersonalPromo.CleanupTask, SmartStore.PersonalPromo" },
+            { "NewsImportTask", "SmartStore.NewsImporter.NewsImportTask, SmartStore.NewsImporter" },
         };
 
         private readonly IDbContextFactory<SmartDbContext> _dbFactory;
