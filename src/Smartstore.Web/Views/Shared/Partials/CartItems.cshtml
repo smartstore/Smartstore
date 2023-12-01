@@ -10,19 +10,15 @@
 
     @foreach (var item in Model.Items)
     {
+        await SimpleProduct(item);
+
         if (item.ProductType == ProductType.BundledProduct)
-        {
-            await SimpleProduct(item);
-            
+        {   
             var bundleItems = item.ChildItems.Where(x => x.BundleItem != null).OrderBy(x => x.BundleItem.DisplayOrder).ToArray();
             for (var i = 0; i < bundleItems.Length; i++)
             {
                 await BundleProduct(bundleItems[i], item, i);
             }
-        }
-        else
-        {
-            await SimpleProduct(item);
         }
     }
 
