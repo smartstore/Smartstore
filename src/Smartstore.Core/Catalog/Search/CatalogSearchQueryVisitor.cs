@@ -547,11 +547,11 @@ namespace Smartstore.Core.Catalog.Search
                 // Sort by relevance.
                 if (context.CategoryId > 0)
                 {
-                    query = OrderBy(query, x => x.ProductCategories.Where(pc => pc.CategoryId == context.CategoryId.Value).FirstOrDefault().DisplayOrder);
+                    query = OrderBy(query, x => x.ProductCategories.FirstOrDefault(pc => pc.CategoryId == context.CategoryId.Value).DisplayOrder);
                 }
                 else if (context.ManufacturerId > 0)
                 {
-                    query = OrderBy(query, x => x.ProductManufacturers.Where(pm => pm.ManufacturerId == context.ManufacturerId.Value).FirstOrDefault().DisplayOrder);
+                    query = OrderBy(query, x => x.ProductManufacturers.FirstOrDefault(pm => pm.ManufacturerId == context.ManufacturerId.Value).DisplayOrder);
                 }
             }
             else if (sorting.FieldName == names.CreatedOn)
@@ -576,10 +576,16 @@ namespace Smartstore.Core.Catalog.Search
             {
                 return query.OrderBy(x => x.DisplayOrder);
             }
-            else
+            else if (context.CategoryId > 0 && context.SearchQuery.Origin.EqualsNoCase("Catalog/Category"))
             {
-                return query.OrderBy(x => x.Id);
+                return OrderBy(query, x => x.ProductCategories.FirstOrDefault(pc => pc.CategoryId == context.CategoryId.Value).DisplayOrder);
             }
+            else if (context.ManufacturerId > 0 && context.SearchQuery.Origin.EqualsNoCase("Catalog/Manufacturer"))
+            {
+                return OrderBy(query, x => x.ProductManufacturers.FirstOrDefault(pm => pm.ManufacturerId == context.ManufacturerId.Value).DisplayOrder);
+            }
+
+            return query.OrderBy(x => x.Id);
         }
 
         private static IQueryable<Product> ApplyCategoriesFilter(IQueryable<Product> query, int[] ids, bool? featuredOnly)
