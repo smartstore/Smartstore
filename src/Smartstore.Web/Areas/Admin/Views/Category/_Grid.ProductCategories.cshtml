@@ -57,6 +57,7 @@
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
     <columns>
+        <column for="Id" halign="center" visible="false" type="string" readonly="true" />
 		<column for="ProductId" width="3fr" hideable="false" entity-member="Product.Name">
             <display-template>
                 @Html.LabeledProductName(valueExpression: "item.row.ProductName")
