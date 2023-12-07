@@ -10,19 +10,15 @@
 
     @foreach (var item in Model.Items)
     {
+        await SimpleProduct(item);
+
         if (item.ProductType == ProductType.BundledProduct)
-        {
-            await SimpleProduct(item);
-            
+        {   
             var bundleItems = item.ChildItems.Where(x => x.BundleItem != null).OrderBy(x => x.BundleItem.DisplayOrder).ToArray();
             for (var i = 0; i < bundleItems.Length; i++)
             {
                 await BundleProduct(bundleItems[i], item, i);
             }
-        }
-        else
-        {
-            await SimpleProduct(item);
         }
     }
 
@@ -83,6 +79,11 @@
                     @* Price *@
                     <div class="cart-item-price-group cart-item-group">
                         <partial name="CartItem.Price" model="item.Price">
+
+                        @* Quantity *@
+                        <div sm-if="!Model.IsEditable" class="cart-item-qty pd-muted">
+                            <span>@T("Order.Product(s).Quantity"):</span> <span>@item.EnteredQuantity @(item.EnteredQuantity > 1 ? item.QuantityUnitNamePlural : item.QuantityUnitName)</span>
+                        </div>
                     </div>
 
                     @* Attributes & Variants *@

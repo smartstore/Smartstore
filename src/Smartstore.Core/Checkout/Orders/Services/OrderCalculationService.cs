@@ -467,7 +467,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             couponCode = couponCode.Trim();
 
-            var discount = await _db.Discounts.FirstOrDefaultAsync(x => x.CouponCode.Trim().Equals(couponCode));
+            var discount = await _db.Discounts.FirstOrDefaultAsync(x => x.CouponCode == couponCode);
             if (discount == null || !discount.RequiresCouponCode || !await _discountService.IsDiscountValidAsync(discount, cart.Customer, couponCode))
             {
                 return (false, null);

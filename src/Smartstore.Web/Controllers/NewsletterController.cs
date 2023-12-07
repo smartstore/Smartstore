@@ -140,6 +140,8 @@ namespace Smartstore.Web.Controllers
                 _db.NewsletterSubscriptions.Remove(subscription);
             }
 
+            await _db.SaveChangesAsync();
+
             model.Result = T(active ? "Newsletter.ResultActivated" : "Newsletter.ResultDeactivated");
 
             return View(model);

@@ -38,6 +38,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
+        <column for="Id" halign="center" visible="false" type="string" readonly="true" />
         <column for="ManufacturerId" hideable="false" width="4fr" entity-member="Manufacturer.Name">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate" v-html="item.row.Manufacturer"></a>

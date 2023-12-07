@@ -1,17 +1,19 @@
 ﻿using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
+using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Messaging
 {
     public class NewsletterSubscriptionService : AsyncDbSaveHook<NewsletterSubscription>, INewsletterSubscriptionService
     {
+        private readonly HashSet<NewsletterSubscription> _toSubscribe = new();
+        private readonly HashSet<NewsletterSubscription> _toUnsubscribe = new();
+
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;
         private readonly IWorkContext _workContext;
         private readonly IMessageFactory _messageFactory;
-        private readonly HashSet<NewsletterSubscription> _toSubscribe = new();
-        private readonly HashSet<NewsletterSubscription> _toUnsubscribe = new();
 
         public NewsletterSubscriptionService(
             SmartDbContext db,
@@ -33,16 +35,6 @@ namespace Smartstore.Core.Messaging
             return Task.FromResult(HookResult.Ok);
         }
 
-        protected override Task<HookResult> OnInsertedAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            if (entity.Active)
-            {
-                _toSubscribe.Add(entity);
-            }
-
-            return Task.FromResult(HookResult.Ok);
-        }
-
         protected override Task<HookResult> OnUpdatingAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             EnsureValidEntityOrThrow(entity, entry);
@@ -50,24 +42,18 @@ namespace Smartstore.Core.Messaging
             return Task.FromResult(HookResult.Ok);
         }
 
-        protected override Task<HookResult> OnDeletedAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
-        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        public override Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            foreach (var entry in entries)
+            if (entry.Entity is NewsletterSubscription subscription)
             {
-                var subscription = (NewsletterSubscription)entry.Entity;
-
-                if (entry.State == Smartstore.Data.EntityState.Deleted && subscription.Active)
-                {
-                    _toUnsubscribe.Add(subscription);
-                }
-                else if (entry.State == Smartstore.Data.EntityState.Modified)
+                if (entry.State == EState.Modified)
                 {
                     var modProps = _db.GetModifiedProperties(subscription);
-                    var origActive = modProps.ContainsKey(nameof(NewsletterSubscription.Active)) ? (bool)modProps[nameof(NewsletterSubscription.Active)] : subscription.Active;
-                    var origEmail = modProps.ContainsKey(nameof(NewsletterSubscription.Email)) ? modProps[nameof(NewsletterSubscription.Email)].ToString() : subscription.Email;
+                    var origActive = modProps.TryGetValue(nameof(NewsletterSubscription.Active), out object active) ? (bool)active : subscription.Active;
+                    var origEmail = modProps.TryGetValue(nameof(NewsletterSubscription.Email), out object email) ? email.ToString() : subscription.Email;
 
                     // Collect events for modified entities.
                     if ((origActive == false && subscription.Active) || (subscription.Active && (origEmail != subscription.Email)))
@@ -82,6 +68,17 @@ namespace Smartstore.Core.Messaging
                         // If the two mail adresses are different > publish unsubscribed.
                         // or if the original entry was true and the current is false
                         // > publish unsubscribed.
+                        _toUnsubscribe.Add(subscription);
+                    }
+                }
+                else if (subscription.Active)
+                {
+                    if (entry.State == EState.Added)
+                    {
+                        _toSubscribe.Add(subscription);
+                    }
+                    else if (entry.State == EState.Deleted)
+                    {
                         _toUnsubscribe.Add(subscription);
                     }
                 }
@@ -107,10 +104,10 @@ namespace Smartstore.Core.Messaging
 
         private static void EnsureValidEntityOrThrow(NewsletterSubscription entity, IHookedEntity entry)
         {
-            // Subscriptions without store ids aren't allowed.
+            // Subscriptions without store IDs aren't allowed.
             if (entity.StoreId == 0)
             {
-                entry.State = Smartstore.Data.EntityState.Detached;
+                entry.State = EState.Detached;
                 throw new InvalidOperationException("Newsletter subscription must be assigned to a valid store.");
             }
 
@@ -119,7 +116,7 @@ namespace Smartstore.Core.Messaging
 
             if (!email.IsEmail())
             {
-                entry.State = Smartstore.Data.EntityState.Detached;
+                entry.State = EState.Detached;
                 throw new InvalidOperationException("Newsletter subscription must be assigned to a valid email address.");
             }
 
@@ -130,7 +127,7 @@ namespace Smartstore.Core.Messaging
 
         public virtual bool Subscribe(NewsletterSubscription subscription)
         {
-            Guard.NotNull(subscription, nameof(subscription));
+            Guard.NotNull(subscription);
 
             if (!subscription.Active)
             {
@@ -146,7 +143,7 @@ namespace Smartstore.Core.Messaging
 
         public virtual bool Unsubscribe(NewsletterSubscription subscription)
         {
-            Guard.NotNull(subscription, nameof(subscription));
+            Guard.NotNull(subscription);
 
             if (subscription.Active)
             {
@@ -169,6 +166,7 @@ namespace Smartstore.Core.Messaging
                 throw new ArgumentException("Email parameter must be a valid email address.", nameof(email));
             }
 
+            var language = _workContext.WorkingLanguage;
             var subscription = await _db.NewsletterSubscriptions
                 .ApplyMailAddressFilter(email, storeId)
                 .FirstOrDefaultAsync();
@@ -179,7 +177,7 @@ namespace Smartstore.Core.Messaging
                 {
                     if (!subscription.Active)
                     {
-                        await _messageFactory.SendNewsletterSubscriptionActivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
+                        await _messageFactory.SendNewsletterSubscriptionActivationMessageAsync(subscription, language.Id);
                     }
 
                     result = true;
@@ -201,12 +199,12 @@ namespace Smartstore.Core.Messaging
                         Active = false,
                         CreatedOnUtc = DateTime.UtcNow,
                         StoreId = storeId,
-                        WorkingLanguageId = _workContext.WorkingLanguage.Id
+                        WorkingLanguageId = language.Id
                     };
 
                     _db.NewsletterSubscriptions.Add(subscription);
 
-                    await _messageFactory.SendNewsletterSubscriptionActivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
+                    await _messageFactory.SendNewsletterSubscriptionActivationMessageAsync(subscription, language.Id);
 
                     result = true;
                 }

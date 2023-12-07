@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Web.Models.Common;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models
 {
@@ -58,7 +58,7 @@ namespace Smartstore.Admin.Models
             public bool ShippingPriceIncludesTax { get; set; }
 
             [LocalizedDisplay("*ShippingTaxClass")]
-            public int? ShippingTaxClassId { get; set; }
+            public int ShippingTaxClassId { get; set; }
 
             [LocalizedDisplay("*PaymentMethodAdditionalFeeIsTaxable")]
             public bool PaymentMethodAdditionalFeeIsTaxable { get; set; }
@@ -67,7 +67,7 @@ namespace Smartstore.Admin.Models
             public bool PaymentMethodAdditionalFeeIncludesTax { get; set; }
 
             [LocalizedDisplay("*PaymentMethodAdditionalFeeTaxClass")]
-            public int? PaymentMethodAdditionalFeeTaxClassId { get; set; }
+            public int PaymentMethodAdditionalFeeTaxClassId { get; set; }
 
             [LocalizedDisplay("*AuxiliaryServicesTaxingType")]
             public AuxiliaryServicesTaxType AuxiliaryServicesTaxingType { get; set; }
@@ -76,7 +76,7 @@ namespace Smartstore.Admin.Models
             public bool EuVatEnabled { get; set; }
 
             [LocalizedDisplay("*EuVatShopCountry")]
-            public int? EuVatShopCountryId { get; set; }
+            public int EuVatShopCountryId { get; set; }
 
             [LocalizedDisplay("*EuVatAllowVatExemption")]
             public bool EuVatAllowVatExemption { get; set; }

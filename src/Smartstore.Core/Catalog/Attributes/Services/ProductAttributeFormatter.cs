@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
-using Org.BouncyCastle.Security;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -98,17 +97,20 @@ namespace Smartstore.Core.Catalog.Attributes
 
                 foreach (var pva in attributes)
                 {
-                    if (TryGenerateVariantTokens(pva, selection, priceAdjustments, options, out var name, out var value, out var price))
+                    if (TryGenerateVariantTokens(pva, selection, priceAdjustments, options, out var tokens))
                     {
-                        if (price.HasValue())
+                        foreach (var t in tokens)
                         {
-                            value += options.PriceFormatTemplate.FormatInvariant(price);
+                            if (t.Price.HasValue())
+                            {
+                                t.Value += options.PriceFormatTemplate.FormatInvariant(t.Price);
+                            }
+
+                            var formattedItem = options.FormatTemplate.FormatInvariant(t.Name, t.Value);
+
+                            // Append formatted item to StringBuilder.
+                            sb.Grow(formattedItem, options.ItemSeparator);
                         }
-
-                        var formattedItem = options.FormatTemplate.FormatInvariant(name, value);
-
-                        // Append formatted item to StringBuilder
-                        sb.Grow(formattedItem, options.ItemSeparator);
                     }
                 }
             }
@@ -129,25 +131,6 @@ namespace Smartstore.Core.Catalog.Attributes
                     var recipientName = TryEncode(_localizationService.GetResource($"GiftCardAttribute.For.{cardType}"));
                     var recipientValue = TryEncode(product.GiftCardType == GiftCardType.Physical ? gci.RecipientName : $"{gci.RecipientName} <{gci.RecipientEmail}>");
                     sb.Grow(options.FormatTemplate.FormatInvariant(recipientName, recipientValue), options.ItemSeparator);
-
-                    //// Sender.
-                    //var giftCardFrom = product.GiftCardType == GiftCardType.Virtual
-                    //    ? _localizationService.GetResource("GiftCardAttribute.From.Virtual").FormatInvariant(gci.SenderName, gci.SenderEmail)
-                    //    : _localizationService.GetResource("GiftCardAttribute.From.Physical").FormatInvariant(gci.SenderName);
-
-                    //// Recipient.
-                    //var giftCardFor = product.GiftCardType == GiftCardType.Virtual
-                    //    ? _localizationService.GetResource("GiftCardAttribute.For.Virtual").FormatInvariant(gci.RecipientName, gci.RecipientEmail)
-                    //    : _localizationService.GetResource("GiftCardAttribute.For.Physical").FormatInvariant(gci.RecipientName);
-
-                    //if (options.HtmlEncode)
-                    //{
-                    //    giftCardFrom = giftCardFrom.HtmlEncode();
-                    //    giftCardFor = giftCardFor.HtmlEncode();
-                    //}
-
-                    //sb.Grow(giftCardFrom, options.ItemSeparator);
-                    //sb.Grow(giftCardFor, options.ItemSeparator);
                 }
             }
 
@@ -164,21 +147,17 @@ namespace Smartstore.Core.Catalog.Attributes
             ProductVariantAttributeSelection selection,
             IDictionary<int, CalculatedPriceAdjustment> priceAdjustments,
             ProductAttributeFormatOptions options,
-            out string name, 
-            out string value, 
-            out string price)
+            out List<VariantToken> tokens)
         {
-            name = null; 
-            value = null; 
-            price = null;
-
-            var language = _workContext.WorkingLanguage;
+            tokens = new();
 
             var pair = selection.AttributesMap.FirstOrDefault(x => x.Key == pva.Id);
             if (pair.Key == 0)
             {
                 return false;
             }
+
+            var language = _workContext.WorkingLanguage;
 
             foreach (var attrValue in pair.Value)
             {
@@ -189,9 +168,9 @@ namespace Smartstore.Core.Catalog.Attributes
                     var pvaValue = pva.ProductVariantAttributeValues.FirstOrDefault(x => x.Id == valueStr.ToInt());
                     if (pvaValue != null)
                     {
-                        //pvaAttribute = $"{pva.ProductAttribute.GetLocalized(x => x.Name, language.Id)}: {pvaValue.GetLocalized(x => x.Name, language.Id)}";
-                        name = TryEncode(pva.ProductAttribute.GetLocalized(x => x.Name, language.Id));
-                        value = TryEncode(pvaValue.GetLocalized(x => x.Name, language.Id));
+                        var name = TryEncode(pva.ProductAttribute.GetLocalized(x => x.Name, language.Id));
+                        var value = TryEncode(pvaValue.GetLocalized(x => x.Name, language.Id));
+                        string price = null;
 
                         if (options.IncludePrices)
                         {
@@ -199,7 +178,6 @@ namespace Smartstore.Core.Catalog.Attributes
                                 pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
                                 pvaValue.Quantity > 1)
                             {
-                                //pvaAttribute = pvaAttribute + " × " + pvaValue.Quantity;
                                 value = value + " × " + pvaValue.Quantity;
                             }
 
@@ -207,29 +185,21 @@ namespace Smartstore.Core.Catalog.Attributes
                             {
                                 if (adjustment.Price > 0)
                                 {
-                                    //pvaAttribute += $" (+{adjustment.Price})";
-                                    price = $" +{adjustment.Price}";
+                                    price = $"+{adjustment.Price}";
                                 }
                                 else if (adjustment.Price < 0)
                                 {
-                                    //pvaAttribute += $" (-{adjustment.Price * -1})";
-                                    price = $" -{adjustment.Price * -1}";
+                                    price = $"-{adjustment.Price * -1}";
                                 }
                             }
                         }
 
-                        if (options.HtmlEncode)
-                        {
-                            //pvaAttribute = pvaAttribute.HtmlEncode();
-                        }
+                        AddToken(tokens, name, value, price);
                     }
                 }
                 else if (pva.AttributeControlType == AttributeControlType.MultilineTextbox)
                 {
-                    //var attributeName = pva.ProductAttribute.GetLocalized(x => x.Name, language.Id);
-                    //pvaAttribute = $"{(options.HtmlEncode ? attributeName.HtmlEncode() : attributeName)}: {HtmlUtility.ConvertPlainTextToHtml(valueStr.HtmlEncode())}";
-                    name = TryEncode(pva.ProductAttribute.GetLocalized(x => x.Name, language.Id));
-                    value = HtmlUtility.ConvertPlainTextToHtml(valueStr.HtmlEncode());
+                    AddToken(tokens, TryEncode(pva.ProductAttribute.GetLocalized(x => x.Name, language.Id)), HtmlUtility.ConvertPlainTextToHtml(valueStr.HtmlEncode()));
                 }
                 else if (pva.AttributeControlType == AttributeControlType.FileUpload)
                 {
@@ -259,10 +229,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                 attributeText = fileName;
                             }
 
-                            //string attributeName = pva.ProductAttribute.GetLocalized(x => x.Name, language.Id);
-                            //pvaAttribute = $"{(options.HtmlEncode ? attributeName.HtmlEncode() : attributeName)}: {attributeText}";
-                            name = TryEncode(pva.ProductAttribute.GetLocalized(x => x.Name, language.Id));
-                            value = attributeText;
+                            AddToken(tokens, TryEncode(pva.ProductAttribute.GetLocalized(x => x.Name, language.Id)), attributeText);
                         }
                     }
                 }
@@ -275,25 +242,40 @@ namespace Smartstore.Core.Catalog.Attributes
                         valueStr = valueStr.ToDateTime(null)?.ToString("D", culture) ?? valueStr;
                     }
 
-                    //pvaAttribute = $"{pva.ProductAttribute.GetLocalized(x => x.Name, language.Id)}: {valueStr}";
-                    name = TryEncode(pva.ProductAttribute.GetLocalized(x => x.Name, language.Id));
-                    value = TryEncode(valueStr);
-
-                    //if (options.HtmlEncode)
-                    //{
-                    //    pvaAttribute = pvaAttribute.HtmlEncode();
-                    //}
+                    AddToken(tokens, TryEncode(pva.ProductAttribute.GetLocalized(x => x.Name, language.Id)), TryEncode(valueStr));
                 }
-
-                //result.Grow(pvaAttribute, options.ItemSeparator);
             }
 
-            return name != null && value != null;
+            return tokens.Count > 0;
 
             string TryEncode(string input)
             {
                 return options.HtmlEncode ? input.HtmlEncode() : input;
             }
+        }
+
+        private static bool AddToken(List<VariantToken> tokens, string name, string value, string price = null)
+        {
+            if (name.HasValue() && value.HasValue())
+            {
+                tokens.Add(new()
+                {
+                    Name = name,
+                    Value = value,
+                    Price = price
+                });
+
+                return true;
+            }
+
+            return false;
+        }
+
+        class VariantToken
+        {
+            public string Name { get; set; }
+            public string Value { get; set; }
+            public string Price { get; set; }
         }
     }
 }

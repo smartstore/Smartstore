@@ -183,7 +183,7 @@
                         </div>
                         <div class="adminData">
                             <setting-editor asp-for="TaxSettings.ShippingTaxClassId">
-                                <select asp-for="TaxSettings.ShippingTaxClassId" asp-items="ViewBag.ShippingTaxCategories" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                                <select asp-for="TaxSettings.ShippingTaxClassId" asp-items="ViewBag.ShippingTaxCategories"></select>
                             </setting-editor>
                             <span asp-validation-for="TaxSettings.ShippingTaxClassId"></span>
                         </div>
@@ -214,7 +214,7 @@
                         </div>
                         <div class="adminData">
                             <setting-editor asp-for="TaxSettings.PaymentMethodAdditionalFeeTaxClassId">
-                                <select asp-for="TaxSettings.PaymentMethodAdditionalFeeTaxClassId" asp-items="ViewBag.PaymentMethodAdditionalFeeTaxCategories" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                                <select asp-for="TaxSettings.PaymentMethodAdditionalFeeTaxClassId" asp-items="ViewBag.PaymentMethodAdditionalFeeTaxCategories"></select>
                             </setting-editor>
                             <span asp-validation-for="TaxSettings.PaymentMethodAdditionalFeeTaxClassId"></span>
                         </div>
@@ -241,9 +241,7 @@
                         </div>
                         <div class="adminData">
                             <setting-editor asp-for="TaxSettings.EuVatShopCountryId">
-                                <editor asp-for="TaxSettings.EuVatShopCountryId"
-                                        asp-template="Countries"
-                                        asp-additional-viewdata='new { placeholder = T("Admin.Address.SelectCountry").Value }' />
+                                <editor asp-for="TaxSettings.EuVatShopCountryId" asp-template="Countries" />
                             </setting-editor>
                             <span asp-validation-for="TaxSettings.EuVatShopCountryId"></span>
                         </div>
