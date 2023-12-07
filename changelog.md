@@ -27,6 +27,7 @@
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 - Fixed `NullReferenceException` calling search page without any search term.
 - Tax by region: fixed tax rate was not applied if asterisk placeholder character was saved for zip code.
+- #921 IOException "The filename, directory name, or volume label syntax is incorrect" when MediaSettings.AppendFileVersionToUrl is activated.
 
 
 ## Smartstore 5.1.0
