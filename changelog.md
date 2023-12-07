@@ -22,12 +22,13 @@
 
 ### Bugfixes
 
+- Fixed only the first product attribute of list type attributes was displayed on the cart and order page.
 - #914 Featured sorting on category and manufacturer pages not applied when using standard search.
 - Product attributes are lost when navigating to *Ask Question* page multiple times.
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 - Fixed `NullReferenceException` calling search page without any search term.
 - Tax by region: fixed tax rate was not applied if asterisk placeholder character was saved for zip code.
-- #921 IOException "The filename, directory name, or volume label syntax is incorrect" when MediaSettings.AppendFileVersionToUrl is activated.
+- #921 IOException "The filename, directory name, or volume label syntax is incorrect" when `MediaSettings.AppendFileVersionToUrl` is activated.
 
 
 ## Smartstore 5.1.0
