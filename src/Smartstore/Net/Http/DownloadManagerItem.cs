@@ -31,7 +31,7 @@ namespace Smartstore.Net.Http
         public string Path { get; set; }
 
         /// <summary>
-        /// File name without file extension.
+        /// File name.
         /// </summary>
         public string FileName { get; set; }
 

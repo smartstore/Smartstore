@@ -106,7 +106,7 @@ namespace Smartstore.Core.Content.Media
             // Append file hash to query
             if (file != null && _mediaSettings.AppendFileVersionToUrl)
             {
-                query = query.Add("ver", ETagUtility.GenerateETag(file.LastModified, file.Length));
+                query = query.Add("ver", ETagUtility.GenerateETag(file.LastModified, file.Length, null, true));
             }
 
             // Append query to url
