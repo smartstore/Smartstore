@@ -29,6 +29,7 @@
 - Fixed `NullReferenceException` calling search page without any search term.
 - Tax by region: fixed tax rate was not applied if asterisk placeholder character was saved for zip code.
 - #921 IOException "The filename, directory name, or volume label syntax is incorrect" when `MediaSettings.AppendFileVersionToUrl` is activated.
+- #922 Newsletter subscription event not triggered upon email confirmation.
 
 
 ## Smartstore 5.1.0
