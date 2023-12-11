@@ -190,7 +190,7 @@
 
                         return false;
                     }
-
+                    
                     cardFields
                         .submit({
                             contingencies: ['SCA_ALWAYS']
@@ -232,7 +232,7 @@
                 orderId = resp.id;
             }
         });
-
+        
         return orderId;
     }
 
@@ -240,7 +240,7 @@
         $.ajax({
             type: 'POST',
             url: container.data("init-transaction-url"),
-            data: $('#startcheckout').closest('form').serialize() + "&orderId=" + data.orderID,
+            data: $('#startcheckout').closest('form').serialize() + "&orderId=" + data.orderID + "&routeIdent=" + container.data("route-ident"),
             cache: false,
             success: function (resp) {
                 if (resp.success) {

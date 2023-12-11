@@ -15,6 +15,7 @@
      data-skip-redirect-oninit="true"
      data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
      data-forward-url="@Url.Action("Confirm", "Checkout")"
+     data-route-ident="@Model.RouteIdent"
      data-creditcard-error-message="@T("Plugins.Smartstore.PayPal.Error.CreditCardData")"
      data-3dsecure-error-message="@T("Plugins.Smartstore.PayPal.Error.3DSecure")"></div>
 
