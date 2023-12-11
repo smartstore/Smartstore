@@ -120,7 +120,19 @@ namespace Smartstore.PayPal.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder(string paymentSource)
         {
-            var orderMessage = await _client.GetOrderForStandardProviderAsync(isExpressCheckout: true);
+            var session = HttpContext.Session;
+
+            if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
+            {
+                processPaymentRequest = new ProcessPaymentRequest
+                {
+                    OrderGuid = Guid.NewGuid()
+                };
+            }
+
+            session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
