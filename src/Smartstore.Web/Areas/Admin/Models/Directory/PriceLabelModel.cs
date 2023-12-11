@@ -46,7 +46,7 @@ namespace Smartstore.Admin.Models.Common
         public string Description { get; set; }
     }
 
-    public partial class PriceLabelValidator : AbstractValidator<PriceLabelLocalizedModel>
+    public partial class PriceLabelValidator : AbstractValidator<PriceLabelModel>
     {
         public PriceLabelValidator()
         {
