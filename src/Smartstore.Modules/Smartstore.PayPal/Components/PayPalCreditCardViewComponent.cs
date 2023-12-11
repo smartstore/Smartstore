@@ -12,7 +12,8 @@ namespace Smartstore.PayPal.Components
         {
             var model = new PublicCreditCardModel
             {
-                HasClientToken = HttpContext.Session.GetString("PayPalClientToken").HasValue()
+                HasClientToken = HttpContext.Session.GetString("PayPalClientToken").HasValue(),
+                RouteIdent = RouteIdent
             };
 
             return View(model);

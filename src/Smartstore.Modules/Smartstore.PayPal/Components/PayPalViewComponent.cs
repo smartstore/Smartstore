@@ -19,7 +19,8 @@ namespace Smartstore.PayPal.Components
             var model = new PublicPaymentMethodModel
             {
                 ButtonColor = Settings.ButtonColor,
-                ButtonShape = Settings.ButtonShape
+                ButtonShape = Settings.ButtonShape,
+                RouteIdent = RouteIdent
             };
 
             return View(model);
