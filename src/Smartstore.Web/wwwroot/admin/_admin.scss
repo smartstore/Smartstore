@@ -311,33 +311,30 @@ body {
     }
 }
 
-@media screen and (min-height: 600px) {
-    .spa-layout {
+.spa-layout {
+    height: 100%;
+    overflow: hidden;
+
+    #page {
         height: 100%;
+    }
+
+    .page-main {
+        height: 100%;
+        grid-template-columns: 1fr minmax(380px, 20%);
+        --content-row: var(--content-height);
+    }
+
+    .cph {
+        height: 100%;
+    }
+
+    .spa-stretch {
         overflow: hidden;
-
-        #page {
-            height: 100%;
-        }
-
-        .page-main {
-            height: 100%;
-            grid-template-columns: 1fr minmax(380px, 20%);
-            --content-row: var(--content-height);
-        }
-
-        .cph {
-            height: 100%;
-        }
-
-        .spa-stretch {
-            overflow: hidden;
-            display: flex;
-            flex-flow: column;
-        }
+        display: flex;
+        flex-flow: column;
     }
 }
-
 
 @include media-breakpoint-up(md) {
     .spa-layout.has-left-sidebar .page-main {
