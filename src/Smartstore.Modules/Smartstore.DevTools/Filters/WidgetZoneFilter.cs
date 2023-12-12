@@ -56,10 +56,8 @@ namespace Smartstore.DevTools.Filters
                     return;
                 }
 
-                var viewResult = filterContext.Result as ViewResult;
-
                 // Exclude PageBuilder stories that are being edited.
-                if (viewResult?.Model?.GetType().Name == "Story")
+                if (filterContext.Result is ViewResult viewResult && viewResult.Model?.GetType()?.Name == "Story")
                 {
                     return;
                 }
