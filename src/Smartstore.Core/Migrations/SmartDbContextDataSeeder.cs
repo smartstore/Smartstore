@@ -84,7 +84,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Display native language name in language selector",
                 "In der Sprachauswahl den Sprachnamen in der Landesprache anzeigen",
                 "Specifies whether the native language name should be displayed in the language selector. Otherwise, the name maintained in the backend is used.",
-                "Legt fest, ob in der Sprachauswahl der Sprachnamen in der Landesprache angezeigt werden soll. Ansonsten wird der im Backend hinterlegte Name verwendet.");
+                "Legt fest, ob in der Sprachauswahl die Sprachnamen in der nativen Landesprache angezeigt werden soll. Ansonsten wird der im Backend hinterlegte Name verwendet.");
         }
     }
 }
