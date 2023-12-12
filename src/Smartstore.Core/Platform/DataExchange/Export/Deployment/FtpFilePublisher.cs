@@ -39,7 +39,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             context.Log.Info("{0} file(s) successfully uploaded via {1}.".FormatInvariant(filesSucceeded, deployment.UseSsl ? "FTPS" : "FTP"));
         }
 
-        protected virtual AsyncFtpClient CreateClient(ExportDeployment deployment)
+        private AsyncFtpClient CreateClient(ExportDeployment deployment)
         {
             var url = deployment.Url.EmptyNull().Replace('\\', '/');
 
@@ -77,7 +77,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             return status != FtpStatus.Failed;
         }
 
-        protected async Task<int> UploadDirectoryAsync(AsyncFtpClient client, IDirectory directory, CancellationToken cancelToken)
+        private async Task<int> UploadDirectoryAsync(AsyncFtpClient client, IDirectory directory, CancellationToken cancelToken)
         {
             if (directory.SubPath.IsEmpty())
             {
