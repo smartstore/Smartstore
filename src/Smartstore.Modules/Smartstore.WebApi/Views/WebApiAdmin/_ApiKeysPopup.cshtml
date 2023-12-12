@@ -1,5 +1,12 @@
 ﻿@model ApiKeysModel
 
+@*
+    TODO: (mg) Bad UI:
+    - Each key field needs a copy to clipboard button that just copies either the public or the private key
+    - Footer button should be "Close", not "Cancel". There is nothing to cancel obviously.
+    - After generating a key, the grid refreshes and "reorders"" the rows, which is utterly confusing. Please fix if easy, ignore othwersise.
+*@
+
 @{
     async Task RenderBody()
     {
