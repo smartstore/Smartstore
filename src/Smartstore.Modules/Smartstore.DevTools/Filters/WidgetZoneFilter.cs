@@ -56,6 +56,14 @@ namespace Smartstore.DevTools.Filters
                     return;
                 }
 
+                var viewResult = filterContext.Result as ViewResult;
+
+                // Exclude PageBuilder stories that are being edited.
+                if (viewResult?.Model?.GetType().Name == "Story")
+                {
+                    return;
+                }
+
                 // INFO: Don't render in zones where replace-content is true & no <head> zones
                 _widgetProvider.RegisterViewComponent<WidgetZoneViewComponent>(_widgetZonePattern);
             }
