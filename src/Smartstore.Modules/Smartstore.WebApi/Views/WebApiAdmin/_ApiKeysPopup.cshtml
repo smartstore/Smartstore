@@ -1,0 +1,60 @@
+﻿@model ApiKeysModel
+
+@{
+    async Task RenderBody()
+    {
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CustomerName" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        @Model.CustomerName
+                    </div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PublicKey" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        @Model.PublicKey
+                    </div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SecretKey" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        @Model.SecretKey
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="webapi-keys-string" class="hide">@Html.Raw(Model.KeysString)</div>
+    }
+
+    if ((ViewBag.BodyOnly as bool?) ?? false)
+    {
+        await RenderBody();
+        return;
+    }
+}
+
+<modal id="webapi-keys-dialog" sm-render-at-page-end="true" sm-size="Medium">
+    <modal-body>
+        @{ await RenderBody(); }
+    </modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary btn-flat" data-dismiss="modal" aria-hidden="true">
+            <span>@T("Common.Cancel")</span>
+        </button>
+        <button id="webapi-copy-keys" type="button" class="btn btn-secondary">
+            <i class="far fa-clipboard"></i>
+        </button>
+    </modal-footer>
+</modal>

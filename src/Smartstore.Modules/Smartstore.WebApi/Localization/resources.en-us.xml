@@ -18,6 +18,13 @@
 			</ul>]]>
         </Value>
     </LocaleResource>
+    <LocaleResource Name="FormattedApiKeys">
+        <Value>
+            <![CDATA[Web API keys for {0}
+Public key: {1}
+Secret key: {2}]]>
+        </Value>
+    </LocaleResource>
     <LocaleResource Name="UserGridTabTitle">
         <Value>API User</Value>
     </LocaleResource>
@@ -98,6 +105,9 @@
     </LocaleResource>
     <LocaleResource Name="CreateKeys.Hint">
         <Value>Creates API access keys for this customer.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowKeys">
+        <Value>Show keys</Value>
     </LocaleResource>
     <LocaleResource Name="ApiAccess">
         <Value>Access to API</Value>

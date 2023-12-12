@@ -68,6 +68,7 @@
 			var self = $(this);
 			var url = self.closest('.copy-to-clipboard').find('a').attr('href');
 			var succeeded = window.copyTextToClipboard(url);
+            self.find("textarea").remove();
 
 			self.attr('data-original-title', succeeded ? @T("Common.CopyToClipboard.Succeeded").JsValue : @T("Common.CopyToClipboard.Failed").JsValue)
 				.tooltip('show');

@@ -135,3 +135,64 @@
         </div>
     </tab>
 </tabstrip>
+
+<partial name="_ApiKeysPopup" model="new ApiKeysModel()" />
+
+<script sm-target-zone="scripts" data-origin="webapi-config">
+    $(function () {
+
+        $(document).on('click', '.apiuser-grid-cmd', function (e) {
+            e.preventDefault();
+            var btn = $(this);
+            var ask = @T("Admin.Common.AskToProceed").JsValue;
+            var createKeys = btn.hasClass('create-keys');
+            var showKeys = btn.hasClass('show-keys');
+
+            $({}).ajax({
+                cache: false,
+                type: 'POST',
+                url: btn.data('url'),
+                data: { "customerId": btn.data('key') },
+                ask: createKeys || btn.hasClass('delete-keys') ? ask : null,
+                success: function (response) {
+                    if (!showKeys) {
+                        const grid = $('#apiuser-grid').parent().data('datagrid');
+                        grid.read();
+                    }
+
+                    if (createKeys || showKeys) {
+                        var dialog = $('#webapi-keys-dialog');
+                        dialog.find('.modal-body').first().html(response);
+                        dialog.modal('show');
+                    }
+                }
+            });
+        });
+
+        $('#webapi-copy-keys').tooltip({
+			placement: 'top',
+			trigger: 'hover',
+			title: @T("Common.CopyToClipboard").JsValue
+		}).on('click', function (e) {
+            e.preventDefault();
+            var btn = $(this);
+            var keys = $('#webapi-keys-string').text();
+            var succeeded = false;
+
+            if (!_.isEmpty(keys)) {
+                succeeded = window.copyTextToClipboard(keys);
+                btn.find("textarea").remove();
+            }
+
+			btn.attr('data-original-title', succeeded ? @T("Common.CopyToClipboard.Succeeded").JsValue : @T("Common.CopyToClipboard.Failed").JsValue)
+				.tooltip('show');
+
+			setTimeout(function () {
+                btn.attr('data-original-title', @T("Common.CopyToClipboard").JsValue).tooltip('hide');
+            }, 2000);
+
+            return false;
+		});
+
+    });
+</script>
