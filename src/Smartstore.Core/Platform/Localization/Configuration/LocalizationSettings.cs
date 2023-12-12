@@ -61,5 +61,11 @@ namespace Smartstore.Core.Localization
         /// Whether to display region/country name in language selector (e.g. "Deutsch (Deutschland)" instead of "Deutsch")
         /// </summary>
         public bool DisplayRegionInLanguageSelector { get; set; }
+
+        /// <summary>
+        /// A value indicating whether to use the language native name in language selector.
+        /// If <c>false</c>, the language name maintained in backend is used.
+        /// </summary>
+        public bool UseNativeNameInLanguageSelector { get; set; }
     }
 }

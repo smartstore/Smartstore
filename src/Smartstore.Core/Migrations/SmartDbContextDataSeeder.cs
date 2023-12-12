@@ -79,6 +79,12 @@ namespace Smartstore.Core.Data.Migrations
             // Typo.
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.ShowConfirmOrderLegalHint.Hint")
                 .Value("de", "Legt fest, ob rechtliche Hinweise in der Warenkorbübersicht auf der Bestellabschlussseite angezeigt werden. Dieser Text kann in den Sprachresourcen geändert werden.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.UseNativeNameInLanguageSelector",
+                "Display native language name in language selector",
+                "In der Sprachauswahl den Sprachnamen in der Landesprache anzeigen",
+                "Specifies whether the native language name should be displayed in the language selector. Otherwise, the name maintained in the backend is used.",
+                "Legt fest, ob in der Sprachauswahl der Sprachnamen in der Landesprache angezeigt werden soll. Ansonsten wird der im Backend hinterlegte Name verwendet.");
         }
     }
 }

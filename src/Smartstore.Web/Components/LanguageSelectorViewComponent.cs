@@ -28,7 +28,7 @@ namespace Smartstore.Web.Components
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
             var workingLanguage = Services.WorkContext.WorkingLanguage;
-            var key = ModelCacheInvalidator.AVAILABLE_LANGUAGES_MODEL_KEY.FormatInvariant(workingLanguage.Id, storeId);
+            var key = ModelCacheInvalidator.AVAILABLE_LANGUAGES_MODEL_KEY.FormatInvariant(workingLanguage.Id, storeId, _localizationSettings.UseNativeNameInLanguageSelector);
 
             var availableLanguages = await Services.Cache.GetAsync(key, async (o) =>
             {
@@ -51,9 +51,19 @@ namespace Smartstore.Web.Components
 
                         var localizedName = x.GetLocalized(x => x.Name, workingLanguage, returnDefaultValue: workingLanguage.Id == masterLanguageId).Value.NullEmpty();
                         var defaultLocalizedName = x.GetLocalized(x => x.Name, workingLanguage, returnDefaultValue: true).Value;
+                        string nativeName;
+                        string shortNativeName;
 
-                        var nativeName = localizedName ?? culture?.NativeName ?? defaultLocalizedName;
-                        var shortNativeName = localizedName ?? neutralCulture?.NativeName ?? defaultLocalizedName;
+                        if (_localizationSettings.UseNativeNameInLanguageSelector)
+                        {
+                            nativeName = culture?.NativeName ?? localizedName;
+                            shortNativeName = neutralCulture?.NativeName ?? localizedName;
+                        }
+                        else
+                        {
+                            nativeName = localizedName ?? culture?.NativeName;
+                            shortNativeName = localizedName ?? neutralCulture?.NativeName;
+                        }
 
                         var model = new LanguageModel
                         {
@@ -68,8 +78,8 @@ namespace Smartstore.Web.Components
                             FlagImageFileName = x.FlagImageFileName,
                             Name = CultureHelper.NormalizeLanguageDisplayName(defaultLocalizedName, stripRegion: false, culture: culture),
                             ShortName = CultureHelper.NormalizeLanguageDisplayName(defaultLocalizedName, stripRegion: true, culture: culture),
-                            NativeName = CultureHelper.NormalizeLanguageDisplayName(nativeName, stripRegion: false, culture: culture),
-                            ShortNativeName = CultureHelper.NormalizeLanguageDisplayName(shortNativeName, stripRegion: true, culture: culture)
+                            NativeName = CultureHelper.NormalizeLanguageDisplayName(nativeName ?? defaultLocalizedName, stripRegion: false, culture: culture),
+                            ShortNativeName = CultureHelper.NormalizeLanguageDisplayName(shortNativeName ?? defaultLocalizedName, stripRegion: true, culture: culture)
                         };
 
                         return model;
