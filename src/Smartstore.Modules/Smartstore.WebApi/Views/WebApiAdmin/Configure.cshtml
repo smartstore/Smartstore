@@ -143,11 +143,11 @@
 
         $(document).on('click', '.apiuser-grid-cmd', function (e) {
             e.preventDefault();
-            var btn = $(this);
-            var ask = @T("Admin.Common.AskToProceed").JsValue;
-            var createKeys = btn.hasClass('create-keys');
-            var showKeys = btn.hasClass('show-keys');
-            var customerId = btn.data('key');
+            let btn = $(this);
+            let ask = @T("Admin.Common.AskToProceed").JsValue;
+            let createKeys = btn.hasClass('create-keys');
+            let showKeys = btn.hasClass('show-keys');
+            let customerId = btn.data('key');
 
             $({}).ajax({
                 cache: false,
@@ -160,7 +160,7 @@
                         var dialog = $('#webapi-keys-dialog');
                         dialog.find('.modal-body').first().html(response);
 
-                        initClipboardButtons();
+                        applyCommonPlugins(dialog);
                         dialog.modal('show');
                     }
 
@@ -187,33 +187,5 @@
                 }
             });
         });
-
-        function initClipboardButtons() {
-            $('#webapi-copy-publickey, #webapi-copy-secretkey').tooltip({
-                placement: 'bottom',
-                trigger: 'hover',
-                title: @T("Common.CopyToClipboard").JsValue
-		    }).on('click', function (e) {
-                e.preventDefault();
-                var btn = $(this);
-                var key = btn.data('apikey');
-                var succeeded = false;
-
-                if (!_.isEmpty(key)) {
-                    succeeded = window.copyTextToClipboard(key);
-                    btn.find('textarea').remove();
-                }
-
-			    btn.attr('data-original-title', succeeded ? @T("Common.CopyToClipboard.Succeeded").JsValue : @T("Common.CopyToClipboard.Failed").JsValue)
-				    .tooltip('show');
-
-			    setTimeout(function () {
-                    btn.attr('data-original-title', @T("Common.CopyToClipboard").JsValue).tooltip('hide');
-                }, 2000);
-
-                return false;
-		    });
-        }
-
     });
 </script>

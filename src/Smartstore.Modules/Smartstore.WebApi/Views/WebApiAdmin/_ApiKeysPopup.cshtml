@@ -12,8 +12,8 @@
                 <label asp-for="PublicKey" class="mb-0"></label>
                 <div class="hstack gap-1">
                     <span id="webapi-publickey">@Model.PublicKey</span>
-                    <button id="webapi-copy-publickey" type="button" class="btn btn-sm btn-icon btn-flat btn-secondary" data-apikey="@Model.PublicKey">
-                        <i class="far fa-copy"></i>
+                    <button id="webapi-copy-publickey" type="button" class="btn btn-clipboard btn-sm btn-icon btn-flat btn-light" data-copy-from="#webapi-publickey" data-copy="@Model.PublicKey">
+                        <bootstrap-icon name="clipboard"></bootstrap-icon>
                     </button>
                 </div>
             </div>
@@ -21,52 +21,9 @@
                 <label asp-for="SecretKey" class="mb-0"></label>
                 <div class="hstack gap-1">
                     <span id="webapi-secretkey">@Model.SecretKey</span>
-                    <button id="webapi-copy-secretkey" type="button" class="btn btn-sm btn-icon btn-flat btn-secondary" data-apikey="@Model.SecretKey">
-                        <i class="far fa-copy"></i>
+                    <button id="webapi-copy-secretkey" type="button" class="btn btn-clipboard btn-sm btn-icon btn-flat btn-light" data-copy="@Model.SecretKey">
+                        <bootstrap-icon name="clipboard"></bootstrap-icon>
                     </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="adminContent d-none" data-enabled="@Model.Enabled">
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="CustomerName" />
-                </div>
-                <div class="adminData">
-                    <div class="form-control-plaintext">
-                        @Model.CustomerName
-                    </div>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="PublicKey" />
-                </div>
-                <div class="adminData">
-                    <div class="d-flex">
-                        <div class="form-control-plaintext">
-                            @Model.PublicKey
-                        </div>
-                        <button id="webapi-copy-publickey" type="button" class="btn btn-sm btn-icon btn-flat btn-secondary" data-apikey="@Model.PublicKey">
-                            <i class="far fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="SecretKey" />
-                </div>
-                <div class="adminData">
-                    <div class="d-flex">
-                        <div class="form-control-plaintext">
-                            @Model.SecretKey
-                        </div>
-                        <button id="webapi-copy-secretkey" type="button" class="btn btn-sm btn-icon btn-flat btn-secondary" data-apikey="@Model.SecretKey">
-                            <i class="far fa-copy"></i>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
