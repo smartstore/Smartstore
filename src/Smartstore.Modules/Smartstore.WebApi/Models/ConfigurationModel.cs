@@ -56,7 +56,7 @@ namespace Smartstore.Web.Api.Models
         [LocalizedDisplay("*SecretKey")]
         public string SecretKey { get; set; }
 
-        public string KeysString { get; set; }
+        public bool Enabled { get; set; }
     }
 
 

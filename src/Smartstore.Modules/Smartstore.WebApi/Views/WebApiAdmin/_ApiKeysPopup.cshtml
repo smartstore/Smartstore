@@ -1,16 +1,9 @@
 ﻿@model ApiKeysModel
 
-@*
-    TODO: (mg) Bad UI:
-    - Each key field needs a copy to clipboard button that just copies either the public or the private key
-    - Footer button should be "Close", not "Cancel". There is nothing to cancel obviously.
-    - After generating a key, the grid refreshes and "reorders"" the rows, which is utterly confusing. Please fix if easy, ignore othwersise.
-*@
-
 @{
     async Task RenderBody()
     {
-        <div class="adminContent">
+        <div class="adminContent" data-enabled="@Model.Enabled">
             <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="CustomerName" />
@@ -26,8 +19,13 @@
                     <smart-label asp-for="PublicKey" />
                 </div>
                 <div class="adminData">
-                    <div class="form-control-plaintext">
-                        @Model.PublicKey
+                    <div class="d-flex">
+                        <div class="form-control-plaintext">
+                            @Model.PublicKey
+                        </div>
+                        <button id="webapi-copy-publickey" type="button" class="btn btn-sm btn-secondary" data-apikey="@Model.PublicKey">
+                            <i class="far fa-clipboard"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -36,13 +34,17 @@
                     <smart-label asp-for="SecretKey" />
                 </div>
                 <div class="adminData">
-                    <div class="form-control-plaintext">
-                        @Model.SecretKey
+                    <div class="d-flex">
+                        <div class="form-control-plaintext">
+                            @Model.SecretKey
+                        </div>
+                        <button id="webapi-copy-secretkey" type="button" class="btn btn-sm btn-secondary" data-apikey="@Model.SecretKey">
+                            <i class="far fa-clipboard"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="webapi-keys-string" class="hide">@Html.Raw(Model.KeysString)</div>
     }
 
     if ((ViewBag.BodyOnly as bool?) ?? false)
@@ -52,16 +54,14 @@
     }
 }
 
-<modal id="webapi-keys-dialog" sm-render-at-page-end="true" sm-size="Medium">
+<modal id="webapi-keys-dialog" sm-render-at-page-end="true" sm-size="FlexSmall">
+    <modal-header sm-title="@T("Plugins.Api.WebApi.ApiAccess")"></modal-header>
     <modal-body>
         @{ await RenderBody(); }
     </modal-body>
     <modal-footer>
         <button class="btn btn-secondary btn-flat" data-dismiss="modal" aria-hidden="true">
-            <span>@T("Common.Cancel")</span>
-        </button>
-        <button id="webapi-copy-keys" type="button" class="btn btn-secondary">
-            <i class="far fa-clipboard"></i>
+            <span>@T("Common.Close")</span>
         </button>
     </modal-footer>
 </modal>

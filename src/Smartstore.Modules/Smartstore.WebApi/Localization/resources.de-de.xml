@@ -18,13 +18,6 @@
 			</ul>]]>
         </Value>
     </LocaleResource>
-    <LocaleResource Name="FormattedApiKeys">
-        <Value>
-            <![CDATA[Web API Schlüssel für {0}
-Öffentlicher Schlüssel: {1}
-Geheimer Schlüssel: {2}]]>
-        </Value>
-    </LocaleResource>
     <LocaleResource Name="UserGridTabTitle">
         <Value>API Benutzer</Value>
     </LocaleResource>

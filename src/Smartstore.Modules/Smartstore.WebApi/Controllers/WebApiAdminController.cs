@@ -270,7 +270,7 @@ namespace Smartstore.Web.Api.Controllers
                 CustomerName = customerName,
                 PublicKey = apiUser.PublicKey,
                 SecretKey = apiUser.SecretKey,
-                KeysString = T("Plugins.Api.WebApi.FormattedApiKeys", customerName, apiUser.PublicKey, apiUser.SecretKey)
+                Enabled = apiUser.Enabled
             };
 
             return PartialView("_ApiKeysPopup", model);
