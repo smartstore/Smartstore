@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using SixLabors.ImageSharp.PixelFormats;
 using SharpColor = SixLabors.ImageSharp.Color;
 
@@ -7,7 +8,7 @@ namespace Smartstore.Imaging
 {
     public static class ImagingHelper
     {
-        private static readonly string CssColorComponentDelimiterRegex = @"(\s*/\s*)|(\s*,\s*)|(\s+)";
+        private static readonly Regex ColorComponentDelimiterRegex = new(@"(\s*/\s*)|(\s*,\s*)|(\s+)", RegexOptions.Compiled);
         private static readonly Color DefaultColor = Color.White;
 
         /// <summary>
@@ -39,20 +40,20 @@ namespace Smartstore.Imaging
         {
             Guard.NotEmpty(htmlColor);
 
-            if (!SharpColor.TryParse(htmlColor, out var sharpColor))
+            if (!TryTranslateColor(htmlColor, out var color))
             {
                 throw new ArgumentException("Input string color is not in the correct format.", nameof(htmlColor));
             }
 
-            return ConvertColor(sharpColor);
+            return color;
         }
 
         /// <summary>
         /// Attempts to create a new instance of the <see cref="Color"/> struct from the given input string.
         /// </summary>
         /// <param name="htmlColor">
-        /// The name of the color or the hexadecimal representation of the combined color components arranged
-        /// in rgb, rgba, rrggbb, or rrggbbaa format to match web syntax.
+        /// The name of the color, or the hexadecimal representation of the combined color components arranged
+        /// in rgb, rgba, rrggbb, or rrggbbaa format to match web syntax, or the CSS rgb(a) representation.
         /// </param>
         /// <param name="result">When this method returns, contains the <see cref="Color"/> equivalent of the html input.</param>
         /// <returns>The <see cref="bool"/>.</returns>
@@ -71,49 +72,26 @@ namespace Smartstore.Imaging
                 return true;
             }
 
+            if ((htmlColor.StartsWith("rgb(") || htmlColor.StartsWith("rgba(")) && htmlColor.EndsWith(')'))
+            {
+                var colorFromRgbaString = ParseRgbaColor(htmlColor);
+                if (colorFromRgbaString == null)
+                {
+                    return false;
+                }
+
+                result = colorFromRgbaString.Value;
+                return true;
+            }
+
             return false;
         }
 
         public static int GetPerceivedBrightness(string htmlColor)
         {
-            Color colorFromHtml;
-
-            if (string.IsNullOrEmpty(htmlColor))
+            if (!TryTranslateColor(htmlColor, out var colorFromHtml))
             {
                 colorFromHtml = DefaultColor;
-            }
-            else
-            {
-                try
-                {
-                    colorFromHtml = ColorTranslator.FromHtml(htmlColor);
-                }
-                catch
-                {
-                    // Either an unknown color name, a CSS function, or an invalid hex string.
-                    colorFromHtml = Color.Empty;
-                }
-
-                if (colorFromHtml.IsEmpty)
-                {
-                    try
-                    {
-                        if ((htmlColor.StartsWith("rgb(") || htmlColor.StartsWith("rgba(")) && htmlColor.EndsWith(')'))
-                        {
-                            colorFromHtml = ParseRgbaColor(htmlColor);
-                        }
-                        else
-                        {
-                            // Invalid or unknown color name / function. Use fallback color.
-                            colorFromHtml = DefaultColor;
-                        }
-                    }
-                    catch
-                    {
-                        // Invalid or too complex color code. Use fallback color.
-                        colorFromHtml = DefaultColor;
-                    }
-                }
             }
 
             return GetPerceivedBrightness(colorFromHtml);
@@ -123,13 +101,13 @@ namespace Smartstore.Imaging
         /// Converts a CSS rgba() color string into a <see cref="Color"/> instance.
         /// </summary>
         /// <param name="htmlColor">The CSS color string must be in rgb(r g b) or rgba(r g b a) format. Valid delimiters are space, comma, and slash.</param>
-        /// <returns>The <see cref="Color"/>.</returns>
-        private static Color ParseRgbaColor(string htmlColor)
+        /// <returns>The <see cref="Color"/> or <c>null</c> if input is malformed.</returns>
+        private static Color? ParseRgbaColor(string htmlColor)
         {
             var rgba = htmlColor.Substring(htmlColor.IndexOf('(') + 1, htmlColor.IndexOf(')') - htmlColor.IndexOf('(') - 1);
 
-            // Separate the values by spaces and /or commas.
-            rgba = rgba.RegexReplace(CssColorComponentDelimiterRegex, " ");
+            // Separate the values by spaces and/or commas.
+            rgba = ColorComponentDelimiterRegex.Replace(rgba, " ");
             var rgbParts = rgba.Split(' ');
 
             // Convert the values to integers.
@@ -141,7 +119,7 @@ namespace Smartstore.Imaging
             // On error, use fallback color.
             if (r == null || g == null || b == null || a == null)
             {
-                return DefaultColor;
+                return null;
             }
             else
             {
@@ -217,7 +195,7 @@ namespace Smartstore.Imaging
         /// <returns>The rescaled size</returns>
         public static Size Rescale(Size original, int maxSize)
         {
-            Guard.IsPositive(maxSize, nameof(maxSize));
+            Guard.IsPositive(maxSize);
 
             return Rescale(original, new Size(maxSize, maxSize));
         }
