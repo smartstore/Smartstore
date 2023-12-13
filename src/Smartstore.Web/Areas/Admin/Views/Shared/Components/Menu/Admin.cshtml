@@ -41,7 +41,14 @@
             <a class="nav-link@(node.HasChildren ? " dropdown-toggle" : "")" href="@itemUrl" attr-data-toggle='(node.HasChildren, "dropdown")'>
                 @if (item.Icon.HasValue())
                 {
-                    <i class="icm icm-@item.Icon navbar-icon"></i>
+                    if (item.IconLibrary == "bi")
+                    {
+                        <bootstrap-icon name="@item.Icon" class="navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                    }
+                    else
+                    {
+                        <i class="@item.Icon navbar-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
+                    }
                 }
                 else
                 {
