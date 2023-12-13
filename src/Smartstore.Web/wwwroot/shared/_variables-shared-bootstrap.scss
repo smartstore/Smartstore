@@ -246,6 +246,10 @@ $modal-content-border-color:        rgba($black, .06) !default;
 $modal-backdrop-bg:                 $black !default;
 $modal-backdrop-opacity:            .68 !default;
 $modal-transition:                  all 0.2s ease-out !default;
+$modal-content-border-radius:       var(--border-radius-xl) !default;
+$modal-content-inner-border-radius: subtract($modal-content-border-radius, $modal-content-border-width) !default;
+$modal-content-box-shadow-xs:       var(--box-shadow-md) !default;
+$modal-content-box-shadow-sm-up:    var(--box-shadow-lg) !default;
 
 
 // Navs

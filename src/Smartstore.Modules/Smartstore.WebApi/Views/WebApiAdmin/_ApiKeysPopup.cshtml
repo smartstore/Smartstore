@@ -3,7 +3,32 @@
 @{
     async Task RenderBody()
     {
-        <div class="adminContent" data-enabled="@Model.Enabled">
+        <div data-enabled="@Model.Enabled">
+            <div class="form-group">
+                <label asp-for="CustomerName" class="mb-0"></label>
+                <div>@Model.CustomerName</div>
+            </div>
+            <div class="form-group">
+                <label asp-for="PublicKey" class="mb-0"></label>
+                <div class="hstack gap-1">
+                    <span id="webapi-publickey">@Model.PublicKey</span>
+                    <button id="webapi-copy-publickey" type="button" class="btn btn-sm btn-icon btn-flat btn-secondary" data-apikey="@Model.PublicKey">
+                        <i class="far fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group mb-0">
+                <label asp-for="SecretKey" class="mb-0"></label>
+                <div class="hstack gap-1">
+                    <span id="webapi-secretkey">@Model.SecretKey</span>
+                    <button id="webapi-copy-secretkey" type="button" class="btn btn-sm btn-icon btn-flat btn-secondary" data-apikey="@Model.SecretKey">
+                        <i class="far fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="adminContent d-none" data-enabled="@Model.Enabled">
             <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="CustomerName" />
@@ -23,8 +48,8 @@
                         <div class="form-control-plaintext">
                             @Model.PublicKey
                         </div>
-                        <button id="webapi-copy-publickey" type="button" class="btn btn-sm btn-secondary" data-apikey="@Model.PublicKey">
-                            <i class="far fa-clipboard"></i>
+                        <button id="webapi-copy-publickey" type="button" class="btn btn-sm btn-icon btn-flat btn-secondary" data-apikey="@Model.PublicKey">
+                            <i class="far fa-copy"></i>
                         </button>
                     </div>
                 </div>
@@ -38,8 +63,8 @@
                         <div class="form-control-plaintext">
                             @Model.SecretKey
                         </div>
-                        <button id="webapi-copy-secretkey" type="button" class="btn btn-sm btn-secondary" data-apikey="@Model.SecretKey">
-                            <i class="far fa-clipboard"></i>
+                        <button id="webapi-copy-secretkey" type="button" class="btn btn-sm btn-icon btn-flat btn-secondary" data-apikey="@Model.SecretKey">
+                            <i class="far fa-copy"></i>
                         </button>
                     </div>
                 </div>
@@ -54,7 +79,7 @@
     }
 }
 
-<modal id="webapi-keys-dialog" sm-render-at-page-end="true" sm-size="FlexSmall">
+<modal id="webapi-keys-dialog" sm-render-at-page-end="true" sm-size="Medium">
     <modal-header sm-title="@T("Plugins.Api.WebApi.ApiAccess")"></modal-header>
     <modal-body>
         @{ await RenderBody(); }
