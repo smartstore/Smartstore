@@ -47,6 +47,16 @@ namespace Smartstore.Web.Api
                 o.Conventions.Add(new ApiControllerModelConvention());
             });
 
+            services.AddCors(o => o.AddPolicy("WebApiCorsPolicy", policy =>
+            {
+                // Disallow OPTIONS method for preflight requests. Would result in:
+                // "Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response".
+                policy
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE");
+            }));
+
             services.AddSwaggerGen(o =>
             {
                 // INFO: "name" equals ApiExplorer.GroupName. Must be globally unique, URI-friendly and should be in lower case.
@@ -72,7 +82,7 @@ namespace Smartstore.Web.Api
                     Type = SecuritySchemeType.Http,
                     Scheme = "Basic",
                     In = ParameterLocation.Header,
-                    Description = "Please enter your public and private API key."
+                    Description = "Please enter your public and secret API key."
                 });
 
                 o.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -200,6 +210,12 @@ namespace Smartstore.Web.Api
 
                     // If you want to use /$openapi, enable the middleware.
                     //app.UseODataOpenApi();
+                });
+
+                builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
+                {
+                    // Must be called after app.UseRouting and before app.UseEndpoints, UseAuthorization, UseResponseCaching ;-)
+                    app.UseCors();
                 });
 
                 builder.Configure(StarterOrdering.AfterWorkContextMiddleware, app =>
