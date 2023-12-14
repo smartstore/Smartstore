@@ -23,6 +23,7 @@
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
 - GMC: Only export images (not videos or other media types).
 - #912 Add a setting to use the `CultureInfo.NativeName` in language selector instead of the language name maintained in backend.
+- Added meta properties name and uploadDate for videos 
 
 ### Bugfixes
 
