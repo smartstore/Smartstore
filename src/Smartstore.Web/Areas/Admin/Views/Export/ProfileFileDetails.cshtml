@@ -28,53 +28,29 @@
 	}
 </div>
 <div>
-	@foreach (var grp in Model.PublicFiles.OrderBy(x => x.StoreId).GroupBy(x => x.StoreId))
+    @foreach (var grp in Model.PublicFiles.OrderBy(x => x.StoreId).GroupBy(x => x.StoreId))
 	{
 		var storeName = grp.First().StoreName;
-		<div>
+		<div class="mt-3">
 			<div>
-				<span class="fs-h6">@T("Admin.Common.PublicFiles")</span>
+				<span class="fs-h6 fwm">@T("Admin.Common.PublicFiles")</span>
 				<span class="smaller">(@(storeName.HasValue() ? storeName : allStoresString))</span>
 			</div>
 			@foreach (var file in grp)
 			{
-				<div class="py-1 d-flex copy-to-clipboard">
-					<div>
+				<div class="py-1 copy-to-clipboard">
+					<div class="hstack gap-1">
 						<span class="badge @(file.RelatedType.HasValue ? "badge-secondary" : "badge-success")">
 							<file-icon file-extension="@file.File.Extension" />
 							@(file.Label.HasValue() ? file.Label : file.File.Extension.EmptyNull().ToLower().TrimStart('.'))
 						</span>
-						<a href="@file.FileUrl" title="@downloadString" download>@file.FileUrl</a>
-					</div>
-					<div class="ml-auto">
-						<button type="button" class="btn btn-sm btn-secondary btn-copy-to-clipboard">
-							<i class="far fa-clipboard"></i>
-						</button>
+                        <a href="@file.FileUrl" title="@downloadString" download>@file.FileUrl</a>
+                        <button type="button" class="btn btn-sm btn-flat btn-light btn-clipboard" data-copy="@file.FileUrl">
+                            <bootstrap-icon name="clipboard" />
+                        </button>
 					</div>
 				</div>
 			}
 		</div>
 	}
 </div>
-
-<script>
-    $(function() {
-		// Button to copy URL to clipboard.
-		$('.btn-copy-to-clipboard').tooltip({
-			placement: 'bottom',
-			trigger: 'hover',
-			title: @T("Common.CopyToClipboard").JsValue
-		}).on('click', function () {
-			var self = $(this);
-			var url = self.closest('.copy-to-clipboard').find('a').attr('href');
-			var succeeded = window.copyTextToClipboard(url);
-
-			self.attr('data-original-title', succeeded ? @T("Common.CopyToClipboard.Succeeded").JsValue : @T("Common.CopyToClipboard.Failed").JsValue)
-				.tooltip('show');
-
-			setTimeout(function () {
-				self.attr('data-original-title', @T("Common.CopyToClipboard").JsValue).tooltip('hide');
-			}, 2000);
-		});
-	});
-</script>

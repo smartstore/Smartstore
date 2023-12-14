@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<title>Smartstore Web API Client Javascript</title>
+	<link rel="shortcut icon" href="favicon.ico" />
+
+	<link type="text/css" href="styles.css" rel="stylesheet" />
+
+	<script type="text/javascript" src="https://code.jquery.com/jquery-latest.min.js"></script>
+
+	<!-- serves smApiConsumer which wraps api related code -->
+	<script type="text/javascript" src="smwapi-consumer.js"></script>
+
+	<!-- serves smApiClient which wraps this-demo related code -->
+	<script type="text/javascript" src="smwapi-client.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function () {
+
+			smApiConsumer.init({
+				publicKey: 'ea64d4a22db5bf893a0a21d7cb87f458',
+				secretKey: '3a8e5f0e3695d684de04fdabde02f818',
+				url: 'http://localhost:59318'
+			});
+
+			smApiClient.init();
+
+		});
+	</script>
+</head>
+ 
+<body>
+	<div>
+		<span>Service</span>
+		<input type="text" name="service" value="/odata/v1" spellcheck="false" />
+
+		<span>Resource</span>
+		<input type="text" name="resource" value="/Customers?$top=3" spellcheck="false" />
+
+		<button id="GetData">Get</button>
+		<button id="PostOrderNote">POST order note</button>
+		<button id="PatchOrderNote">PATCH order note</button>
+	</div>
+
+	<div id="Outputs"></div>
+
+	<div class="clear" style="margin-top:20px;"></div>
+</body>
+</html>

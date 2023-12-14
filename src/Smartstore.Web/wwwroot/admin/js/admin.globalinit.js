@@ -31,25 +31,54 @@
                     .wrap('<div class="form-check form-check-solo form-check-warning form-switch form-switch-lg"></div>');
             });
         },
-        // btn-trigger
-        function (ctx) {
-            // Temp only: delegates anchor clicks to corresponding form-button.
-            ctx.find("a[rel='btn-trigger']").click(function () {
-                var el = $(this);
-                var target = el.data("target");
-                var action = el.data("action");
-                var button = el.closest("form").find("button[type=submit][name=" + target + "][value=" + action + "]");
-                button.click();
-                return false;
-            });
-        },
         // .multi-store-override-option
         function (ctx) {
             ctx.find('.multi-store-override-option').each(function (i, el) {
                 Smartstore.Admin.checkOverriddenStoreValue(el);
             });
         },
+        // Copy to clipboard button
+        function (ctx) {
+            ctx.find(".btn-clipboard").tooltip({
+                boundary: 'window',
+                placement: "top",
+                trigger: 'hover',
+                title: Res['Common.CopyToClipboard']
+            }).on('click', function (e) {
+                e.preventDefault();
+                let btn = $(this);
+                let text = btn.data('copy');
 
+                if (!text) {
+                    // Try to copy text from another element
+                    let copyFromSelector = btn.data('copy-from');
+                    if (copyFromSelector) {
+                        let copyFrom = $(copyFromSelector);
+                        if (copyFrom.length) {
+                            if (copyFrom.is('input, select, textarea')) {
+                                text = copyFrom.val();
+                            }
+                            else {
+                                text = copyFrom.text();
+                            }
+                        }
+                    }
+                }
+
+                if (text) {
+                    window.copyTextToClipboard(text)
+                        .then(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Succeeded']).tooltip('show'))
+                        .catch(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Failed']).tooltip('show'))
+                        .finally(() => {
+                            setTimeout(() => {
+                                btn.attr('data-original-title', Res['Common.CopyToClipboard']).tooltip('hide');
+                            }, 2000);
+                        });
+                }
+
+                return false;
+            });
+        },
         //// Lazy summernote
         //function (ctx) {
         //    ctx.find(".html-editor-root").each(function (i, el) {

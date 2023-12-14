@@ -36,75 +36,76 @@
     }
 }
 
-@if (Model.IsPasswordProtected)
-{
-    <script sm-target-zone="scripts" data-origin="topic-details">
-        $(function () {
-            $('#ph-topic').hide();
-            $('#ph-password #password').select().focus();
-        });
+<div id="topic-container">
+    @if (!Model.IsPasswordProtected)
+    {
+        <partial name="_Topic" model="Model" />
+        return;
+    }
+</div>
 
-        function OnAuthenticateSuccess(context) {
-            if (context.Authenticated) {
-                $('#ph-title .page-title > *').html(context.Title);
-                if ($('#ph-title .page-title > *').text().length == 0) {
-                    $('#ph-title').hide();
-                }
-                $('#ph-topic .page-body').html(context.Body);
-                $('#ph-password').hide();
-                $('#ph-topic').show();
-            } else {
-                $('#password-error').text(context.Error);
-                $('#ph-password #password').select().focus();
-            }
-        }
-    </script>
-
-    <div id="ph-password">
-        <form sm-ajax method="post" asp-area="" asp-action="Authenticate" asp-controller="Topic"
-              sm-onsuccess="OnAuthenticateSuccess"
-              sm-loading-element-id="#authenticate-progress">
-            <input type="hidden" asp-for="Id" />
+<div id="password-container" class="row">
+    <form id="topic-password-form" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="col-md-6">
             <div class="enter-password-title mb-2">
                 @T("Topic.EnterPassword")
             </div>
-            <div class="enter-password-form">
+            <div>
                 <div class="input-group">
-                    <input type="password" name="password" class="form-control" id="password" />
+                    <input type="password" id="password" name="password" class="form-control" autocomplete="new-password" />
                     <div class="input-group-append">
-                        <button type="submit" class="btn btn-secondary topic-password-button">@T("Topic.Button")</button>
+                        <button id="password-button" type="button" class="btn btn-primary topic-password-button">
+                            <i class="fa fa-check"></i>
+                            <span>@T("Common.OK")</span>
+                        </button>
                     </div>
                 </div>
-                <span id="authenticate-progress" style="display: none;">
-                    @T("Common.Wait...")
-                    <img src='@Url.Content("~/images/ajax_loader_small.gif")' alt="@T("Common.Wait...")" />
-                </span>
             </div>
-            <div class="password-error">
-                <span id="password-error"></span>
-            </div>
-        </form>
-    </div>
-}
-
-<div sm-if="Model.Title.HasValue() || Model.Intro.HasValue() || Model.Body.HasValue()" class="page topic-page" id="ph-topic">
-    <div sm-if="Model.Title.HasValue()" id="ph-title">
-        <div class="page-title">
-            <h3 sm-tagname="@Model.TitleTag" class="block-title" sm-language-attributes-for="Model.Title">
-                @Html.Raw(Model.Title)
-            </h3>
         </div>
-    </div>
-
-    <p sm-if="Model.Intro.HasValue()" class="ph-intro lead" sm-language-attributes-for="Model.Intro">
-        @Html.Raw(Model.Intro)
-    </p>
-
-    <zone name="topic_body_before"></zone>
-
-    <div sm-if="Model.Body.HasValue()" class="page-body html-editor-content" sm-language-attributes-for="Model.Body">
-        @Html.Raw(Model.Body)
-    </div>
-
-    <zone name="topic_body_after"></zone>
+    </form>
 </div>
+
+<script sm-target-zone="scripts" data-origin="topic-details">
+    $(function () {
+        _.delay(function () { $('#password').focus() }, 100);
+
+        var passwordButton = $('#password-button');
+
+        passwordButton.on('click', function () {
+            $.ajax({
+                type: 'POST',
+                cache: false,
+				url: '@Url.Action("Authenticate", "Topic")',
+                data: $('#topic-password-form').serialize(),
+                beforeSend: function () {
+                    setPasswordButtonState(true);
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#password-container').hide();
+                        $('#topic-container').html(response.content);
+                    }
+                    else {
+                        displayNotification(response.message, 'error');
+                    }
+                },
+                complete: function () {
+                    setPasswordButtonState(false);
+                },
+                error: function (objXml) {
+                    if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
+                        console.error(objXml.responseText);
+                    }
+                }
+            });
+        });
+
+        function setPasswordButtonState(disable) {
+            passwordButton.prop('disabled', disable);
+            passwordButton.find('.fa')
+                .removeClass('fa-check fa-spinner fa-spin')
+                .addClass(disable ? 'fa-spinner fa-spin' : 'fa-check');
+        }
+    });
+</script>

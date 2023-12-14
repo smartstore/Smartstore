@@ -44,6 +44,22 @@ namespace Smartstore.Web.Api.Models
         public CustomerSearchModel CustomerSearch { get; set; } = new();
     }
 
+    [LocalizedDisplay("Plugins.Api.WebApi.")]
+    public class ApiKeysModel : ModelBase
+    {
+        [LocalizedDisplay("Common.Entity.Customer")]
+        public string CustomerName { get; set; }
+
+        [LocalizedDisplay("*PublicKey")]
+        public string PublicKey { get; set; }
+
+        [LocalizedDisplay("*SecretKey")]
+        public string SecretKey { get; set; }
+
+        public bool Enabled { get; set; }
+    }
+
+
     public partial class WebApiConfigurationValidator : SettingModelValidator<ConfigurationModel, WebApiSettings>
     {
         public WebApiConfigurationValidator()

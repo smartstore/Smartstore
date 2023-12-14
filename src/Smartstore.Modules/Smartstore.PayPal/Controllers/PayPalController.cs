@@ -57,7 +57,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InitTransaction(ProductVariantQuery query, bool? useRewardPoints, string orderId)
+        public async Task<IActionResult> InitTransaction(ProductVariantQuery query, bool? useRewardPoints, string orderId, string routeIdent)
         {
             var success = false;
             var message = string.Empty;
@@ -78,9 +78,12 @@ namespace Smartstore.PayPal.Controllers
             {
                 var checkoutState = _checkoutStateAccessor.CheckoutState;
 
-                // Set flag which indicates to skip payment selection.
-                checkoutState.CustomProperties["PayPalButtonUsed"] = true;
-
+                // Only set this if we're not on payment page.
+                if (routeIdent != "Checkout.PaymentMethod")
+                {
+                    checkoutState.CustomProperties["PayPalButtonUsed"] = true;
+                }
+                
                 // Store order id temporarily in checkout state.
                 checkoutState.CustomProperties["PayPalOrderId"] = orderId;
 
@@ -117,7 +120,19 @@ namespace Smartstore.PayPal.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder(string paymentSource)
         {
-            var orderMessage = await _client.GetOrderForStandardProviderAsync(isExpressCheckout: true);
+            var session = HttpContext.Session;
+
+            if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
+            {
+                processPaymentRequest = new ProcessPaymentRequest
+                {
+                    OrderGuid = Guid.NewGuid()
+                };
+            }
+
+            session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);

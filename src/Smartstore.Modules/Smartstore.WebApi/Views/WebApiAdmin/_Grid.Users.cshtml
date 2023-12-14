@@ -48,18 +48,20 @@
         <column for="PublicKey" sortable="false" width="2fr">
             <display-template>
                 <div class="dg-cell-value">
-                    <div v-if="!_.isEmpty(item.row.SecretKey)" class="d-table">
-                        <div class="d-table-row">
-                            <div class="d-table-cell">@publicKeyStr:&nbsp;</div><div class="d-table-cell">{{ item.row.PublicKey }}</div>
-                        </div>
-                        <div class="d-table-row">
-                            <div class="d-table-cell">@secretKeyStr:&nbsp;</div><div class="d-table-cell">{{ item.row.SecretKey }}</div>
-                        </div>
-                        <div class="d-table-row">
-                            <div class="d-table-cell">@apiEnabledStr:&nbsp;</div><div class="d-table-cell">{{ item.row.EnabledString }}</div>
-                        </div>
-                        <div class="d-table-row">
-                            <div class="d-table-cell">@lastRequestStr:&nbsp;</div><div class="d-table-cell">{{ item.row.LastRequestDateString }}</div>
+                    <div v-if="!_.isEmpty(item.row.SecretKey)" class="apiuser-info"@*v-bind:class="{ hide: _.isEmpty(item.row.SecretKey) }"*@>
+                        <div class="d-table">
+                            <div class="d-table-row">
+                                <div class="d-table-cell">@publicKeyStr:&nbsp;</div><div class="d-table-cell apiuser-publickey">{{ item.row.PublicKey }}</div>
+                            </div>
+                            <div class="d-table-row">
+                                <div class="d-table-cell">@secretKeyStr:&nbsp;</div><div class="d-table-cell apiuser-secretkey">{{ item.row.SecretKey }}</div>
+                            </div>
+                            <div class="d-table-row">
+                                <div class="d-table-cell">@apiEnabledStr:&nbsp;</div><div class="d-table-cell apiuser-enabled">{{ item.row.EnabledString }}</div>
+                            </div>
+                            <div class="d-table-row">
+                                <div class="d-table-cell">@lastRequestStr:&nbsp;</div><div class="d-table-cell apiuser-lastrequest">{{ item.row.LastRequestDateString }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -67,51 +69,43 @@
         </column>
     </columns>
     <row-commands>
-        <a datarow-action="DataRowAction.Custom" href="javascript:;" class="apiuser-grid-cmd" :data-key="item.row.Id"
-           data-url="@Url.Action("CreateUserKeys")"
-           v-bind:class="{ disabled: !_.isEmpty(item.row.PublicKey) }" title="@T("Plugins.Api.WebApi.CreateKeys.Hint")">
-            @T("Plugins.Api.WebApi.CreateKeys")
-        </a>
-        <a datarow-action="DataRowAction.Custom" href="javascript:;" class="apiuser-grid-cmd" :data-key="item.row.Id"
-           data-url="@Url.Action("DeleteUserKeys")"
-           v-bind:class="{ disabled: _.isEmpty(item.row.PublicKey) }" title="@T("Plugins.Api.WebApi.RemoveKeys.Hint")">
-            @T("Plugins.Api.WebApi.RemoveKeys")
-        </a>
-        <div class="dropdown-divider"></div>
-        <a datarow-action="DataRowAction.Custom" href="javascript:;" class="apiuser-grid-cmd" :data-key="item.row.Id"
+        <a datarow-action="DataRowAction.Custom" href="javascript:;" class="apiuser-grid-cmd enable-user" title="@T("Plugins.Api.WebApi.Activate.Hint")"
+           :data-key="item.row.Id"
            data-url="@Url.Action("EnableUser", new { enable = true })"
-           v-bind:class="{ disabled: _.isEmpty(item.row.PublicKey) || item.row.Enabled }" title="@T("Plugins.Api.WebApi.Activate.Hint")">
+           v-bind:class="{ disabled: _.isEmpty(item.row.PublicKey) || item.row.Enabled }">
             @T("Plugins.Api.WebApi.Activate")
         </a>
-        <a datarow-action="DataRowAction.Custom" href="javascript:;" class="apiuser-grid-cmd" :data-key="item.row.Id"
+        <a datarow-action="DataRowAction.Custom" href="javascript:;" class="apiuser-grid-cmd enable-user" title="@T("Plugins.Api.WebApi.Deactivate.Hint")"
+           :data-key="item.row.Id"
            data-url="@Url.Action("EnableUser", new { enable = false })"
-           v-bind:class="{ disabled: !item.row.Enabled }" title="@T("Plugins.Api.WebApi.Deactivate.Hint")">
+           v-bind:class="{ disabled: !item.row.Enabled }">
             @T("Plugins.Api.WebApi.Deactivate")
+        </a>
+
+        <div class="dropdown-divider"></div>
+
+        <a datarow-action="DataRowAction.Custom" href="javascript:;" class="apiuser-grid-cmd create-keys" title="@T("Plugins.Api.WebApi.CreateKeys.Hint")"
+           :data-key="item.row.Id"
+           data-url="@Url.Action("UserKeys", new { create = true })"
+           v-bind:class="{ hide: !_.isEmpty(item.row.PublicKey) }">
+            @T("Plugins.Api.WebApi.CreateKeys")
+        </a>
+        <a datarow-action="DataRowAction.Custom" href="javascript:;" class="apiuser-grid-cmd show-keys" 
+           :data-key="item.row.Id"
+           data-url="@Url.Action("UserKeys", new { create = false })"
+           v-bind:class="{ hide: _.isEmpty(item.row.PublicKey) }">
+            @T("Plugins.Api.WebApi.ShowKeys")
+        </a>
+        <a datarow-action="DataRowAction.Custom" href="javascript:;" class="apiuser-grid-cmd delete-keys" title="@T("Plugins.Api.WebApi.RemoveKeys.Hint")"
+           :data-key="item.row.Id"
+           data-url="@Url.Action("DeleteUserKeys")"
+           v-bind:class="{ disabled: _.isEmpty(item.row.PublicKey) }">
+            @T("Plugins.Api.WebApi.RemoveKeys")
         </a>
     </row-commands>
 </datagrid>
 
-<script sm-target-zone="scripts" data-origin="users-grid">
-    $(function () {
-
-        $(document).on('click', '.apiuser-grid-cmd', function (e) {
-            e.preventDefault();
-            var btn = $(this);
-
-            $({}).ajax({
-                cache: false,
-                type: 'POST',
-                url: btn.data('url'),
-                data: { "customerId": btn.data('key') },
-                ask: @T("Admin.Common.AskToProceed").JsValue,
-                success: function () {
-                    const grid = $('#apiuser-grid').parent().data('datagrid');
-                    grid.read();
-                }
-            });
-        });
-    });
-
+<script sm-target-zone="scripts" data-origin="webapi-users-grid">
     function usersGrid_onRowClass(row) {
         return {
             "text-muted": !row.Enabled

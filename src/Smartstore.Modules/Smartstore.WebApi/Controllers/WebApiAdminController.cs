@@ -170,7 +170,7 @@ namespace Smartstore.Web.Api.Controllers
                     if (usersDic.TryGetValue(user.Id, out var cachedUser))
                     {
                         user.PublicKey = cachedUser.PublicKey;
-                        user.SecretKey = cachedUser.SecretKey;
+                        user.SecretKey = Mask(cachedUser.SecretKey);
                         user.Enabled = cachedUser.Enabled;
                         user.EnabledString = cachedUser.Enabled ? yes : no;
 
@@ -194,51 +194,89 @@ namespace Smartstore.Web.Api.Controllers
                 Rows = rows,
                 Total = await customers.GetTotalCountAsync()
             });
+
+            static string Mask(string key)
+            {
+                var len = key?.Length ?? 0;
+                if (len == 0)
+                {
+                    return key;
+                }
+
+                return key[..4] + new string('*', len - 8) + key.Substring(len - 4, 4);
+            }
         }
 
+        // AJAX.
         [HttpPost]
         [Permission(WebApiPermissions.Create)]
-        public async Task<IActionResult> CreateUserKeys(int customerId)
+        public async Task<IActionResult> UserKeys(int customerId, bool create)
         {
-            if (customerId == 0)
-            {
-                return BadRequest();
-            }
+            ViewBag.BodyOnly = true;
 
-            var cachedUsers = await _apiService.GetApiUsersAsync();
+            WebApiUser apiUser = null;
 
-            for (var i = 0; i < 9999; i++)
+            if (customerId != 0)
             {
-                if (WebApiService.CreateKeys(out var key1, out var key2) && !cachedUsers.ContainsKey(key1))
+                var cachedUsers = await _apiService.GetApiUsersAsync();
+
+                if (create)
                 {
-                    await RemoveKeys(customerId);
-
-                    var apiUser = new WebApiUser
+                    for (var i = 0; i < 9999; i++)
                     {
-                        CustomerId = customerId,
-                        PublicKey = key1,
-                        SecretKey = key2,
-                        Enabled = true
-                    };
+                        if (WebApiService.CreateKeys(out var publicKey, out var secretKey) && !cachedUsers.ContainsKey(publicKey))
+                        {
+                            await RemoveKeys(customerId);
 
-                    _db.GenericAttributes.Add(new GenericAttribute
-                    {
-                        EntityId = customerId,
-                        KeyGroup = nameof(Customer),
-                        Key = WebApiService.AttributeUserDataKey,
-                        Value = apiUser.ToString()
-                    });
+                            apiUser = new WebApiUser
+                            {
+                                CustomerId = customerId,
+                                PublicKey = publicKey,
+                                SecretKey = secretKey,
+                                Enabled = true
+                            };
 
-                    await _db.SaveChangesAsync();
-                    _apiService.ClearApiUserCache();
+                            _db.GenericAttributes.Add(new()
+                            {
+                                EntityId = customerId,
+                                KeyGroup = nameof(Customer),
+                                Key = WebApiService.AttributeUserDataKey,
+                                Value = apiUser.ToString()
+                            });
 
-                    break;
+                            await _db.SaveChangesAsync();
+                            _apiService.ClearApiUserCache();
+
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    apiUser = cachedUsers.Values.FirstOrDefault(x => x.CustomerId == customerId);
                 }
             }
 
-            return Ok();
+            if (apiUser == null)
+            {
+                return new EmptyResult();
+            }
+
+            var customer = await _db.Customers.FindByIdAsync(customerId, false);
+            var customerName = customer?.FullName ?? customer?.Email ?? StringExtensions.NotAvailable;
+
+            var model = new ApiKeysModel
+            {
+                CustomerName = customerName,
+                PublicKey = apiUser.PublicKey,
+                SecretKey = apiUser.SecretKey,
+                Enabled = apiUser.Enabled
+            };
+
+            return PartialView("_ApiKeysPopup", model);
         }
 
+        // AJAX.
         [HttpPost]
         [Permission(WebApiPermissions.Delete)]
         public async Task<IActionResult> DeleteUserKeys(int customerId)
@@ -249,6 +287,7 @@ namespace Smartstore.Web.Api.Controllers
             return Ok();
         }
 
+        // AJAX.
         [HttpPost]
         [Permission(WebApiPermissions.Update)]
         public async Task<IActionResult> EnableUser(int customerId, bool enable)

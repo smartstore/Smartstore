@@ -54,7 +54,7 @@ namespace Smartstore
 
         public static bool IsAdminArea(this HttpRequest request)
         {
-            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(request);
 
             // Try URL prefix
             if (request.Path.StartsWithSegments("/admin", StringComparison.OrdinalIgnoreCase))

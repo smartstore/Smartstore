@@ -155,7 +155,7 @@ namespace Smartstore.Web.Controllers
                             || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase)
                             || !Url.IsLocalUrl(returnUrl))
                         {
-                            return RedirectToAction("Info", "Customer");
+                            return RedirectToRoute("Homepage");
                         }
 
                         return RedirectToReferrer(returnUrl);

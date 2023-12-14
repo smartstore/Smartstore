@@ -28,7 +28,7 @@ namespace Smartstore.Web.Components
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
             var workingLanguage = Services.WorkContext.WorkingLanguage;
-            var key = ModelCacheInvalidator.AVAILABLE_LANGUAGES_MODEL_KEY.FormatInvariant(workingLanguage.Id, storeId);
+            var key = ModelCacheInvalidator.AVAILABLE_LANGUAGES_MODEL_KEY.FormatInvariant(workingLanguage.Id, storeId, _localizationSettings.UseNativeNameInLanguageSelector);
 
             var availableLanguages = await Services.Cache.GetAsync(key, async (o) =>
             {
@@ -51,9 +51,19 @@ namespace Smartstore.Web.Components
 
                         var localizedName = x.GetLocalized(x => x.Name, workingLanguage, returnDefaultValue: workingLanguage.Id == masterLanguageId).Value.NullEmpty();
                         var defaultLocalizedName = x.GetLocalized(x => x.Name, workingLanguage, returnDefaultValue: true).Value;
+                        string name;
+                        string shortName;
 
-                        var nativeName = localizedName ?? culture?.NativeName ?? defaultLocalizedName;
-                        var shortNativeName = localizedName ?? neutralCulture?.NativeName ?? defaultLocalizedName;
+                        if (_localizationSettings.UseNativeNameInLanguageSelector)
+                        {
+                            name = culture?.NativeName ?? localizedName;
+                            shortName = neutralCulture?.NativeName ?? localizedName;
+                        }
+                        else
+                        {
+                            name = localizedName ?? culture?.NativeName;
+                            shortName = localizedName ?? neutralCulture?.NativeName;
+                        }
 
                         var model = new LanguageModel
                         {
@@ -64,12 +74,11 @@ namespace Smartstore.Web.Components
                             // So I did nothing for now.
                             ISOCode = x.LanguageCulture,
                             CultureCode = x.UniqueSeoCode,
-
                             FlagImageFileName = x.FlagImageFileName,
-                            Name = CultureHelper.NormalizeLanguageDisplayName(defaultLocalizedName, stripRegion: false, culture: culture),
-                            ShortName = CultureHelper.NormalizeLanguageDisplayName(defaultLocalizedName, stripRegion: true, culture: culture),
-                            NativeName = CultureHelper.NormalizeLanguageDisplayName(nativeName, stripRegion: false, culture: culture),
-                            ShortNativeName = CultureHelper.NormalizeLanguageDisplayName(shortNativeName, stripRegion: true, culture: culture)
+                            Name = CultureHelper.NormalizeLanguageDisplayName(name ?? defaultLocalizedName, stripRegion: false, culture: culture),
+                            ShortName = CultureHelper.NormalizeLanguageDisplayName(shortName ?? defaultLocalizedName, stripRegion: true, culture: culture),
+                            LocalizedName = CultureHelper.NormalizeLanguageDisplayName(defaultLocalizedName, stripRegion: false, culture: culture),
+                            LocalizedShortName = CultureHelper.NormalizeLanguageDisplayName(defaultLocalizedName, stripRegion: true, culture: culture)
                         };
 
                         return model;
@@ -83,8 +92,6 @@ namespace Smartstore.Web.Components
             {
                 return Empty();
             }
-
-            ViewBag.AvailableLanguages = availableLanguages;
 
             var defaultSeoCode = await _languageService.Value.GetMasterLanguageSeoCodeAsync();
             var returnUrls = new Dictionary<string, string>();
@@ -111,6 +118,7 @@ namespace Smartstore.Web.Components
             ViewBag.ReturnUrls = returnUrls;
             ViewBag.UseImages = _localizationSettings.UseImagesForLanguageSelection;
             ViewBag.DisplayLongName = _localizationSettings.DisplayRegionInLanguageSelector;
+            ViewBag.AvailableLanguages = availableLanguages;
 
             return View(templateName);
         }

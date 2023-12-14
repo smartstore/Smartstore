@@ -135,3 +135,57 @@
         </div>
     </tab>
 </tabstrip>
+
+<partial name="_ApiKeysPopup" model="new ApiKeysModel()" />
+
+<script sm-target-zone="scripts" data-origin="webapi-config">
+    $(function () {
+
+        $(document).on('click', '.apiuser-grid-cmd', function (e) {
+            e.preventDefault();
+            let btn = $(this);
+            let ask = @T("Admin.Common.AskToProceed").JsValue;
+            let createKeys = btn.hasClass('create-keys');
+            let showKeys = btn.hasClass('show-keys');
+            let customerId = btn.data('key');
+
+            $({}).ajax({
+                cache: false,
+                type: 'POST',
+                url: btn.data('url'),
+                data: { "customerId": customerId },
+                ask: createKeys || btn.hasClass('delete-keys') ? ask : null,
+                success: function (response) {
+                    if (createKeys || showKeys) {
+                        var dialog = $('#webapi-keys-dialog');
+                        dialog.find('.modal-body').first().html(response);
+
+                        applyCommonPlugins(dialog);
+                        dialog.modal('show');
+                    }
+
+                    @*if (createKeys) {
+                        var gridRow = $('#apiuser-grid').find('tr[data-key=' + customerId + ']').first();
+                        var userInfo = gridRow.find('.apiuser-info');
+                        var elPublicKey = $('#webapi-copy-publickey');
+                        var enabled = elPublicKey.closest('.adminContent').data('enabled');
+                        var yes = T("Admin.Common.Yes").JsValue;
+                        var no = T("Admin.Common.No").JsValue;
+
+                        userInfo.find('.apiuser-publickey').text(elPublicKey.data('apikey'));
+                        userInfo.find('.apiuser-secretkey').text($('#webapi-copy-secretkey').data('apikey'));
+                        userInfo.find('.apiuser-enabled').text(enabled ? yes : no);
+                        userInfo.find('.apiuser-lastrequest').text('-');
+
+                        gridRow.removeClass('text-muted');
+                        userInfo.show();
+                    } else*@
+                    if (!showKeys) {
+                        const grid = $('#apiuser-grid').parent().data('datagrid');
+                        grid.read();
+                    }
+                }
+            });
+        });
+    });
+</script>

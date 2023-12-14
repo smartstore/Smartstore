@@ -15,10 +15,15 @@
 - Theming
   - Revamped dashboard stats
   - Activate .spa-layout only on screen height > 600px (DataGrid is unusable in mobile landscape mode otherwise)
+- Web API
+  - Enabling CORS.
+  - #928 mask the secret key in backend API user list.  
 - Security: #886 Replace CoreFTP with FluentFTP.
 - Add a setting for a maximum order age. For orders over this age, no more messages such as *shipped* or *delivered* may be sent to the buyer.
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
 - GMC: Only export images (not videos or other media types).
+- #912 Add a setting to use the `CultureInfo.NativeName` in language selector instead of the language name maintained in backend.
+- Added meta properties name and uploadDate for videos 
 
 ### Bugfixes
 
@@ -30,6 +35,8 @@
 - Tax by region: fixed tax rate was not applied if asterisk placeholder character was saved for zip code.
 - #921 IOException "The filename, directory name, or volume label syntax is incorrect" when `MediaSettings.AppendFileVersionToUrl` is activated.
 - #922 Newsletter subscription event not triggered upon email confirmation.
+- Language selector in off-canvas menu should show the same language name as in the main menu.
+- #936 Password protected topic was not displayed after password has been entered.
 
 
 ## Smartstore 5.1.0

@@ -99,6 +99,9 @@
     <LocaleResource Name="CreateKeys.Hint">
         <Value>Erstellt API-Zugangsschlüssel für diesen Kunden.</Value>
     </LocaleResource>
+    <LocaleResource Name="ShowKeys">
+        <Value>Schlüssel anzeigen</Value>
+    </LocaleResource>
     <LocaleResource Name="ApiAccess">
         <Value>Zugang zur API</Value>
     </LocaleResource>

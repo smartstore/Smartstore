@@ -215,37 +215,46 @@
     };
 
     window.copyTextToClipboard = function (text) {
-        var result = false;
-
-        if (window.clipboardData && window.clipboardData.setData) {
-            result = clipboardData.setData('Text', text);
-        }
-        else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
-            var textarea = document.createElement('textarea'),
-                elFocus = document.activeElement,
-                elContext = elFocus || document.body;
-
-            textarea.textContent = text;
-            textarea.style.position = 'fixed';
-            textarea.style.width = '10px';
-            textarea.style.height = '10px';
-
-            elContext.appendChild(textarea);
-
-            textarea.focus();
-            textarea.setSelectionRange(0, textarea.value.length);
-
-            try {
-                result = document.execCommand('copy');
+        return new Promise((resolve, reject) => {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text)
+                    .then(resolve)
+                    .catch(() => {
+                        executeFallback().then(resolve).catch(ex => reject(ex));
+                    });
             }
-            catch (ex) {
-                elContext.removeChild(textarea);
-                if (elFocus) {
-                    elFocus.focus();
+            else {
+                executeFallback().then(resolve).catch(ex => reject(ex));
+            }
+        });
+
+        // Classic legacy way of writing to the clipboard
+        function executeFallback() {
+            return new Promise((resolve, reject) => {
+                const textArea = document.createElement("textarea");
+                const activeElement = document.activeElement;
+
+                textArea.style.position = "absolute";
+                textArea.style.left = "-9999px";
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+
+                try {
+                    document.execCommand("copy");
+                    resolve();
                 }
-            }
+                catch (ex) {
+                    reject(ex);
+                }
+                finally {
+                    document.body.removeChild(textArea);
+                    if (activeElement) {
+                        activeElement.focus();
+                    }
+                }
+            });
         }
-        return result;
     };
 
     window.getImageSize = function (url, callback) {

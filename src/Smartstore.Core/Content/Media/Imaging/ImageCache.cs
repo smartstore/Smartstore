@@ -116,19 +116,9 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         public virtual async Task ClearAsync()
         {
-            for (int i = 0; i < 10; i++)
+            if (await _fileSystem.TryDeleteDirectoryAsync(_thumbsRootDir))
             {
-                try
-                {
-                    if (await _fileSystem.TryDeleteDirectoryAsync(_thumbsRootDir))
-                    {
-                        await _fileSystem.TryCreateDirectoryAsync(_thumbsRootDir);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
+                await _fileSystem.TryCreateDirectoryAsync(_thumbsRootDir);
             }
         }
 

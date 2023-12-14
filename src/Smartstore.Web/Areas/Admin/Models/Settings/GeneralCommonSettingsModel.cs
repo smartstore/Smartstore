@@ -261,6 +261,9 @@ namespace Smartstore.Admin.Models
 
             [LocalizedDisplay("*DisplayRegionInLanguageSelector")]
             public bool DisplayRegionInLanguageSelector { get; set; }
+
+            [LocalizedDisplay("*UseNativeNameInLanguageSelector")]
+            public bool UseNativeNameInLanguageSelector { get; set; }
         }
 
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.CompanyInformationSettings.")]

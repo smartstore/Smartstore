@@ -1,3 +1,14 @@
-﻿<span class="badge badge-default widget-zone-info" title="@ViewData["widgetZone"]">
-    Widget Zone
-</span>
+﻿@{
+    var widgetZone = ViewData["widgetZone"] as string;
+}
+
+@if (WorkContext.IsAdminArea && "sidebar_left".Equals(widgetZone))
+{
+    // Ignore, because it messes up the admin layout completely.
+}
+else
+{
+    <span class="badge badge-default widget-zone-info" title="@ViewData["widgetZone"]">
+        Widget Zone
+    </span>
+}

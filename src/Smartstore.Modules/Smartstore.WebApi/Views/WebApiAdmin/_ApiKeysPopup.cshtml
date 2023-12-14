@@ -1,0 +1,49 @@
+﻿@model ApiKeysModel
+
+@{
+    async Task RenderBody()
+    {
+        <div data-enabled="@Model.Enabled">
+            <div class="form-group">
+                <label asp-for="CustomerName" class="mb-0"></label>
+                <div>@Model.CustomerName</div>
+            </div>
+            <div class="form-group">
+                <label asp-for="PublicKey" class="mb-0"></label>
+                <div class="hstack gap-1">
+                    <span id="webapi-publickey">@Model.PublicKey</span>
+                    <button id="webapi-copy-publickey" type="button" class="btn btn-clipboard btn-sm btn-icon btn-flat btn-light" data-copy="@Model.PublicKey">
+                        <bootstrap-icon name="clipboard" />
+                    </button>
+                </div>
+            </div>
+            <div class="form-group mb-0">
+                <label asp-for="SecretKey" class="mb-0"></label>
+                <div class="hstack gap-1">
+                    <span id="webapi-secretkey">@Model.SecretKey</span>
+                    <button id="webapi-copy-secretkey" type="button" class="btn btn-clipboard btn-sm btn-icon btn-flat btn-light" data-copy="@Model.SecretKey">
+                        <bootstrap-icon name="clipboard" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+    if ((ViewBag.BodyOnly as bool?) ?? false)
+    {
+        await RenderBody();
+        return;
+    }
+}
+
+<modal id="webapi-keys-dialog" sm-render-at-page-end="true" sm-size="Medium">
+    <modal-header sm-title="@T("Plugins.Api.WebApi.ApiAccess")"></modal-header>
+    <modal-body>
+        @{ await RenderBody(); }
+    </modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary btn-flat" data-dismiss="modal" aria-hidden="true">
+            <span>@T("Common.Close")</span>
+        </button>
+    </modal-footer>
+</modal>
