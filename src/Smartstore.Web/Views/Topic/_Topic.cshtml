@@ -1,0 +1,25 @@
+﻿@using Smartstore.Web.Models.Topics;
+
+@model TopicModel
+
+<div sm-if="Model.Title.HasValue() || Model.Intro.HasValue() || Model.Body.HasValue()" id="ph-topic" class="page topic-page">
+    <div sm-if="Model.Title.HasValue()" id="ph-title">
+        <div class="page-title">
+            <h3 sm-tagname="@Model.TitleTag" class="block-title" sm-language-attributes-for="Model.Title">
+                @Html.Raw(Model.Title)
+            </h3>
+        </div>
+    </div>
+
+    <p sm-if="Model.Intro.HasValue()" class="ph-intro lead" sm-language-attributes-for="Model.Intro">
+        @Html.Raw(Model.Intro)
+    </p>
+
+    <zone name="topic_body_before"></zone>
+
+    <div sm-if="Model.Body.HasValue()" class="page-body html-editor-content" sm-language-attributes-for="Model.Body">
+        @Html.Raw(Model.Body)
+    </div>
+
+    <zone name="topic_body_after"></zone>
+</div>

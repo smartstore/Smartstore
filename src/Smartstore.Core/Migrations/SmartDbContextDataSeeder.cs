@@ -57,7 +57,10 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            builder.Delete("Account.ChangePassword.Errors.PasswordIsNotProvided");
+            builder.Delete(
+                "Account.ChangePassword.Errors.PasswordIsNotProvided",
+                "Common.Wait...",
+                "Topic.Button");
 
             builder.AddOrUpdate("Admin.Report.MediaFilesSize", "Media size", "Mediengröße");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.Affiliate", "Affiliate", "Partner");
@@ -85,6 +88,8 @@ namespace Smartstore.Core.Data.Migrations
                 "In der Sprachauswahl den Sprachnamen in der Landesprache anzeigen",
                 "Specifies whether the native language name should be displayed in the language selector. Otherwise, the name maintained in the backend is used.",
                 "Legt fest, ob in der Sprachauswahl die Sprachnamen in der nativen Landesprache angezeigt werden soll. Ansonsten wird der im Backend hinterlegte Name verwendet.");
+
+            builder.AddOrUpdate("Common.PageNotFound", "The page does not exist.", "Die Seite existiert nicht.");
         }
     }
 }
