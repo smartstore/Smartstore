@@ -46,6 +46,8 @@
                                 {
                                     <meta itemprop="thumbnailURL" content="@file.GetUrl(MediaSettings.ThumbnailSizeMd)" />
                                     <meta itemprop="embedURL" content="@file.GetUrl()" />
+                                    <meta itemprop="name" content="@linkTitle" />
+                                    <meta itemprop="uploadDate" content="@file.CreatedOn.ToString("u")" />
                                 }
                                 <media sm-file="file" sm-size="Model.ThumbSize" class="gal-item-content" alt="@picAlt" title="@picTitle" />
                             </a>
