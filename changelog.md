@@ -36,6 +36,7 @@
 - #921 IOException "The filename, directory name, or volume label syntax is incorrect" when `MediaSettings.AppendFileVersionToUrl` is activated.
 - #922 Newsletter subscription event not triggered upon email confirmation.
 - Language selector in off-canvas menu should show the same language name as in the main menu.
+- #936 Password protected topic not displayed after password was entered.
 
 
 ## Smartstore 5.1.0
