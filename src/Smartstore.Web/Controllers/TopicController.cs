@@ -5,7 +5,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
-using Smartstore.Data.Caching;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Topics;
 
@@ -50,11 +49,7 @@ namespace Smartstore.Web.Controllers
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
 
-                var topic = await _db.Topics
-                    .AsNoTracking()
-                    .AsNoCaching()
-                    .FirstOrDefaultAsync(x => x.Id == topicId);
-
+                var topic = await _db.Topics.FindByIdAsync(topicId, false);
                 if (topic != null
                     && topic.IsPublished
                     && await _storeMappingService.AuthorizeAsync(topic)
