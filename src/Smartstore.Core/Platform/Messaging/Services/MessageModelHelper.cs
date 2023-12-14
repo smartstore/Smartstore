@@ -196,13 +196,7 @@ namespace Smartstore.Core.Messaging
         public static string GetDisplayNameForCustomer(Customer customer)
         {
             var fullName = customer.GetFullName().NullEmpty() ?? customer.Username ?? customer.FindEmail();
-
-            // INFO: We must strip full name from , and ; because they are used to split the template into multiple recipients.
-            fullName = fullName
-                .Replace(",", string.Empty)
-                .Replace(";", string.Empty);
-
-            return fullName;
+            return fullName?.Replace(",", string.Empty).Replace(";", string.Empty);
         }
 
         // INFO: parameters must be of type 'string'. Type 'object' outputs nothing.
