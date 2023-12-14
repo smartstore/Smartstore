@@ -51,6 +51,7 @@ namespace Smartstore.Web.Controllers
                 o.ExpiresIn(TimeSpan.FromDays(1));
 
                 var topic = await _db.Topics
+                    .AsNoTracking()
                     .AsNoCaching()
                     .FirstOrDefaultAsync(x => x.Id == topicId);
 
