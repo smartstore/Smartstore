@@ -65,8 +65,8 @@
                 <div class="input-group">
                     <input asp-for="WebhookUrl" readonly />
                     <div class="input-group-append">
-                        <button id="copy-webhook-url" class="btn btn-light btn-icon" title="@T("Common.Copy")">
-                            <i class="fa fa-copy"></i>
+                        <button class="btn btn-light btn-icon btn-clipboard" data-copy-from="#@(Html.IdFor(x => x.WebhookUrl))">
+                            <bootstrap-icon name="clipboard" />
                         </button>
                     </div>
                     <span class="input-group-append">
@@ -119,18 +119,3 @@
         </div>
     </div>
 </form>
-
-<script>
-    $(document).on('click', '#copy-webhook-url', function (e) {
-        e.preventDefault();
-
-        var webhookUrl = $("#@Html.IdFor(x => x.WebhookUrl)").val();
-        window.copyTextToClipboard(webhookUrl);
-
-        $("#copy-webhook-url").find("textarea").remove();
-
-        displayNotification(@T("Common.CopyToClipboard.Succeeded").JsValue);
-
-        return false;
-    });
-</script>

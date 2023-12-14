@@ -271,6 +271,7 @@
 				smallIcon: fileDialog.find('.modal-body'),
 				success: function (response) {
 					fileDialog.find('.modal-body').html(response);
+                    applyCommonPlugins(fileDialog);
 				}
 			});
 

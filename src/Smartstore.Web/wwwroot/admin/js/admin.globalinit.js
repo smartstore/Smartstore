@@ -47,36 +47,34 @@
             }).on('click', function (e) {
                 e.preventDefault();
                 let btn = $(this);
-                let data = btn.data('copy');
-                let succeeded = false;
+                let text = btn.data('copy');
 
-                if (!data) {
+                if (!text) {
                     // Try to copy text from another element
                     let copyFromSelector = btn.data('copy-from');
                     if (copyFromSelector) {
                         let copyFrom = $(copyFromSelector);
                         if (copyFrom.length) {
                             if (copyFrom.is('input, select, textarea')) {
-                                data = copyFrom.val();
+                                text = copyFrom.val();
                             }
                             else {
-                                data = copyFrom.text();
+                                text = copyFrom.text();
                             }
                         }
                     }
                 }
 
-                if (data) {
-                    succeeded = window.copyTextToClipboard(data);
-                    btn.find('textarea').remove();
+                if (text) {
+                    window.copyTextToClipboard(text)
+                        .then(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Succeeded']).tooltip('show'))
+                        .catch(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Failed']).tooltip('show'))
+                        .finally(() => {
+                            setTimeout(() => {
+                                btn.attr('data-original-title', Res['Common.CopyToClipboard']).tooltip('hide');
+                            }, 2000);
+                        });
                 }
-
-                btn.attr('data-original-title', Res['Common.CopyToClipboard.' + (succeeded ? 'Succeeded' : 'Failed')])
-                    .tooltip('show');
-
-                setTimeout(function () {
-                    btn.attr('data-original-title', Res['Common.CopyToClipboard']).tooltip('hide');
-                }, 2000);
 
                 return false;
             });
