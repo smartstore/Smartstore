@@ -16,6 +16,9 @@ namespace Smartstore.Data.Migrations
         /// <summary>
         /// Gets a value indicating whether migration should be completely rolled back
         /// when an error occurs during migration seeding.
+        /// If <c>false</c>, the seeder is executed during the first request, directly after the app is started, 
+        /// because in this case it is assumed that the seeder is long running. 
+        /// This is to prevent a possible timeout during the app start.
         /// </summary>
         bool RollbackOnFailure { get; }
     }
