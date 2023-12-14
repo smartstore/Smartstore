@@ -200,7 +200,9 @@ namespace Smartstore.Core.Messaging
                 customer.Username ?? 
                 customer.FindEmail();
 
-            return fullName?.Replace(",", string.Empty).Replace(";", string.Empty);
+            return fullName?
+                .Replace(",", string.Empty)
+                .Replace(";", string.Empty);
         }
 
         // INFO: parameters must be of type 'string'. Type 'object' outputs nothing.
