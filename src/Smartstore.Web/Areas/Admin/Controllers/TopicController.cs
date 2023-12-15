@@ -392,7 +392,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(topic, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
                 var urlRecord = await _urlService.SaveSlugAsync(topic, localized.SeName, localized.Title.NullEmpty() ?? localized.ShortTitle, false, localized.LanguageId);
-                model.SeName = urlRecord.Slug;
+                model.SeName = urlRecord?.Slug;
             }
         }
 
