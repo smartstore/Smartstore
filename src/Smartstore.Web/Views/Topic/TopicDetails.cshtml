@@ -45,7 +45,7 @@
 </div>
 
 <div id="password-container" class="row">
-    <form id="topic-password-form" method="post">
+    <form id="topic-password-form" method="post" asp-action="Authenticate">
         <input type="hidden" asp-for="Id" />
         <div class="col-md-6">
             <div class="enter-password-title mb-2">
@@ -55,7 +55,7 @@
                 <div class="input-group">
                     <input type="password" id="password" name="password" class="form-control" autocomplete="new-password" />
                     <div class="input-group-append">
-                        <button id="password-button" type="button" class="btn btn-primary topic-password-button">
+                        <button id="password-button" type="submit" class="btn btn-primary topic-password-button">
                             <i class="fa fa-check"></i>
                             <span>@T("Common.OK")</span>
                         </button>
