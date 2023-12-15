@@ -157,8 +157,8 @@ namespace Smartstore.Admin.Controllers
                 _db.Topics.Add(topic);
                 await _db.SaveChangesAsync();
 
-                var urlRecord = await _urlService.SaveSlugAsync(topic, model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
-                model.SeName = urlRecord.Slug;
+                var slugResult = await _urlService.SaveSlugAsync(topic, model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
+                model.SeName = slugResult.Slug;
 
                 await UpdateLocalesAsync(topic, model);
                 await _storeMappingService.ApplyStoreMappingsAsync(topic, model.SelectedStoreIds);
@@ -274,8 +274,8 @@ namespace Smartstore.Admin.Controllers
 
                 topic.CookieType = (CookieType?)model.CookieType;
 
-                var urlRecord = await _urlService.SaveSlugAsync(topic, model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
-                model.SeName = urlRecord.Slug;
+                var slugResult = await _urlService.SaveSlugAsync(topic, model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
+                model.SeName = slugResult.Slug;
 
                 await UpdateLocalesAsync(topic, model);
                 await _storeMappingService.ApplyStoreMappingsAsync(topic, model.SelectedStoreIds);
@@ -391,8 +391,8 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(topic, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(topic, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                var urlRecord = await _urlService.SaveSlugAsync(topic, localized.SeName, localized.Title.NullEmpty() ?? localized.ShortTitle, false, localized.LanguageId);
-                model.SeName = urlRecord?.Slug;
+                var slugResult = await _urlService.SaveSlugAsync(topic, localized.SeName, localized.Title.NullEmpty() ?? localized.ShortTitle, false, localized.LanguageId);
+                model.SeName = slugResult.Slug;
             }
         }
 

@@ -80,8 +80,7 @@ namespace Smartstore.Core.Data.Migrations
                         new LocalizationSettings(),
                         new SeoSettings { LoadAllUrlAliasesOnStartup = false },
                         new PerformanceSettings(),
-                        new SecuritySettings(),
-                        new DistributedSemaphoreLockProvider());
+                        new SecuritySettings());
                 }
 
                 return _urlService;

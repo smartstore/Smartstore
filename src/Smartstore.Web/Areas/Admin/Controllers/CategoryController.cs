@@ -319,8 +319,8 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var urlRecord = await _urlService.SaveSlugAsync(category, model.SeName, category.GetDisplayName(), true);
-                model.SeName = urlRecord.Slug;
+                var slugResult = await _urlService.SaveSlugAsync(category, model.SeName, category.GetDisplayName(), true);
+                model.SeName = slugResult.Slug;
 
                 await ApplyLocales(model, category);
 
@@ -402,8 +402,8 @@ namespace Smartstore.Admin.Controllers
                 await mapper.MapAsync(model, category);
                 category.ParentId = model.ParentCategoryId;
 
-                var urlRecord = await _urlService.SaveSlugAsync(category, model.SeName, category.GetDisplayName(), true);
-                model.SeName = urlRecord.Slug;
+                var slugResult = await _urlService.SaveSlugAsync(category, model.SeName, category.GetDisplayName(), true);
+                model.SeName = slugResult.Slug;
 
                 await ApplyLocales(model, category);
                 await _discountService.ApplyDiscountsAsync(category, model?.SelectedDiscountIds, DiscountType.AssignedToCategories);

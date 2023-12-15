@@ -2217,8 +2217,8 @@ namespace Smartstore.Admin.Controllers
             //var seoTabLoaded = m.LoadedTabs.Contains("SEO", StringComparer.OrdinalIgnoreCase);
 
             // SEO.
-            var urlRecord = await _urlService.SaveSlugAsync(p, m.SeName, p.GetDisplayName(), true);
-            m.SeName = urlRecord.Slug;
+            var slugResult = await _urlService.SaveSlugAsync(p, m.SeName, p.GetDisplayName(), true);
+            m.SeName = slugResult.Slug;
 
             if (editMode)
             {
