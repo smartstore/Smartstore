@@ -2,9 +2,6 @@
 using Smartstore.Admin.Models.Topics;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Catalog.Brands;
-using Smartstore.Core.Catalog.Categories;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Identity;
@@ -160,9 +157,8 @@ namespace Smartstore.Admin.Controllers
                 _db.Topics.Add(topic);
                 await _db.SaveChangesAsync();
 
-                var slugResult = await topic.ValidateSlugAsync(model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
+                var slugResult = await _urlService.ValidateAndApplySlugAsync(topic, model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
                 model.SeName = slugResult.Slug;
-                await _urlService.ApplySlugAsync(slugResult, true);
 
                 await UpdateLocalesAsync(topic, model);
                 await _storeMappingService.ApplyStoreMappingsAsync(topic, model.SelectedStoreIds);
@@ -278,9 +274,8 @@ namespace Smartstore.Admin.Controllers
 
                 topic.CookieType = (CookieType?)model.CookieType;
 
-                var slugResult = await topic.ValidateSlugAsync(model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
+                var slugResult = await _urlService.ValidateAndApplySlugAsync(topic, model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
                 model.SeName = slugResult.Slug;
-                await _urlService.ApplySlugAsync(slugResult);
 
                 await _db.SaveChangesAsync();
 
@@ -398,9 +393,8 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(topic, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(topic, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                var slugResult = await topic.ValidateSlugAsync(localized.SeName, localized.Title.NullEmpty() ?? localized.ShortTitle, false, localized.LanguageId);
+                var slugResult = await _urlService.ValidateAndApplySlugAsync(topic, localized.SeName, localized.Title.NullEmpty() ?? localized.ShortTitle, false, localized.LanguageId);
                 model.SeName = slugResult.Slug;
-                await _urlService.ApplySlugAsync(slugResult);
             }
         }
 

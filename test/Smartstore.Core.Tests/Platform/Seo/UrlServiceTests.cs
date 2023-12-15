@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data.OleDb;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
@@ -7,6 +9,7 @@ using Smartstore.Caching;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -191,6 +194,45 @@ namespace Smartstore.Core.Tests.Seo
             // Should do nothing as nothing changed
             slugs = db.UrlRecords.ToList();
             slugs.Count.ShouldEqual((newProducts.Count + newCategories.Count) * 2);
+        }
+
+        [Test]
+        public async Task ConcurrentSlugCreation()
+        {
+            var db = DbContext;
+
+            await PopulateSlugs(db.Products.ToList());
+            List<Task> tasks = new List<Task>();
+
+            ConcurrentDictionary<Product, ValidateSlugResult> resultDictionary = new ConcurrentDictionary<Product, ValidateSlugResult>();
+
+            for (var i = 0; i < 100; i++)
+            {
+                var product = new Product { Name = "Product 1 Test" };
+                db.Products.Add(product);
+                await db.SaveChangesAsync();
+                tasks.Add(new Task(async productObject =>
+                {
+                    Product product = (Product)productObject;
+                    var validateSlugResult = await _urlService.ValidateAndApplySlugAsync(product, seName: null, ensureNotEmpty: true, displayName: product.GetDisplayName());
+
+                    resultDictionary.AddOrUpdate(product, _ => validateSlugResult, (_, _) => validateSlugResult);
+                }, product));
+            }
+
+            // Start all tasks at once
+            foreach (Task task in tasks)
+            {
+                task.Start();
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (var kv in resultDictionary)
+            {
+                var activeSlug = await _urlService.GetActiveSlugAsync(kv.Key.Id, kv.Key.GetEntityName(), 0);
+                activeSlug.ShouldEqual(kv.Value.Slug);
+            }
         }
 
         private async Task PopulateSlugs(IEnumerable<ISlugSupported> entities)
