@@ -2217,8 +2217,8 @@ namespace Smartstore.Admin.Controllers
             //var seoTabLoaded = m.LoadedTabs.Contains("SEO", StringComparer.OrdinalIgnoreCase);
 
             // SEO.
-            var validateSlugResult = await _urlService.ValidateAndApplySlugAsync(p, m.SeName, p.GetDisplayName(), true);
-            m.SeName = validateSlugResult.Slug;
+            var urlRecord = await _urlService.SaveSlugAsync(p, m.SeName, p.GetDisplayName(), true);
+            m.SeName = urlRecord.Slug;
 
             if (editMode)
             {
@@ -2232,7 +2232,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(product, x => x.ShortDescription, localized.ShortDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(product, x => x.FullDescription, localized.FullDescription, localized.LanguageId);
 
-                await _urlService.ValidateAndApplySlugAsync(p, localized.SeName, localized.Name, false, localized.LanguageId);
+                await _urlService.SaveSlugAsync(p, localized.SeName, localized.Name, false, localized.LanguageId);
             }
 
             await _storeMappingService.ApplyStoreMappingsAsync(p, model.SelectedStoreIds);

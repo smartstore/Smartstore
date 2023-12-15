@@ -8,6 +8,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
+using Smartstore.Threading;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -79,7 +80,8 @@ namespace Smartstore.Core.Data.Migrations
                         new LocalizationSettings(),
                         new SeoSettings { LoadAllUrlAliasesOnStartup = false },
                         new PerformanceSettings(),
-                        new SecuritySettings());
+                        new SecuritySettings(),
+                        new DistributedSemaphoreLockProvider());
                 }
 
                 return _urlService;
@@ -110,7 +112,7 @@ namespace Smartstore.Core.Data.Migrations
 
         protected async Task PopulateAsync(string stage, Func<Task> populateAction)
         {
-            Guard.NotNull(populateAction, nameof(populateAction));
+            Guard.NotNull(populateAction);
 
             try
             {
@@ -147,8 +149,8 @@ namespace Smartstore.Core.Data.Migrations
         protected async Task PopulateUrlRecordsFor<T>(IEnumerable<T> entities, Func<T, UrlRecord> factory)
             where T : BaseEntity, ISlugSupported, new()
         {
-            Guard.NotNull(entities, nameof(entities));
-            Guard.NotNull(factory, nameof(factory));
+            Guard.NotNull(entities);
+            Guard.NotNull(factory);
 
             using var scope = UrlService.CreateBatchScope();
 

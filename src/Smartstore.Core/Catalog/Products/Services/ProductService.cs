@@ -591,7 +591,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 foreach (var product in productsWithMissingSlug)
                 {
-                    var validateSlugResult = await _urlService.ValidateAndApplySlugAsync(product, null, product.Name, true);
+                    var validateSlugResult = await _urlService.SaveSlugAsync(product, null, product.Name, true);
                 }
 
                 await _db.SaveChangesAsync(cancelToken);

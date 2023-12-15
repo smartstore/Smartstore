@@ -319,8 +319,8 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await _urlService.ValidateAndApplySlugAsync(category, model.SeName, category.GetDisplayName(), true);
-                model.SeName = validateSlugResult.Slug;
+                var urlRecord = await _urlService.SaveSlugAsync(category, model.SeName, category.GetDisplayName(), true);
+                model.SeName = urlRecord.Slug;
 
                 await ApplyLocales(model, category);
 
@@ -402,8 +402,8 @@ namespace Smartstore.Admin.Controllers
                 await mapper.MapAsync(model, category);
                 category.ParentId = model.ParentCategoryId;
 
-                var validateSlugResult = await _urlService.ValidateAndApplySlugAsync(category, model.SeName, category.GetDisplayName(), true);
-                model.SeName = validateSlugResult.Slug;
+                var urlRecord = await _urlService.SaveSlugAsync(category, model.SeName, category.GetDisplayName(), true);
+                model.SeName = urlRecord.Slug;
 
                 await ApplyLocales(model, category);
                 await _discountService.ApplyDiscountsAsync(category, model?.SelectedDiscountIds, DiscountType.AssignedToCategories);
@@ -679,7 +679,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                await _urlService.ValidateAndApplySlugAsync(category, localized.SeName, localized.Name, false, localized.LanguageId);
+                await _urlService.SaveSlugAsync(category, localized.SeName, localized.Name, false, localized.LanguageId);
             }
         }
 

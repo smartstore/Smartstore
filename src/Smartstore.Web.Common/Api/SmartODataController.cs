@@ -337,7 +337,7 @@ namespace Smartstore.Web.Api
             where T : ISlugSupported
         {
             var urlService = HttpContext.RequestServices.GetService<IUrlService>();
-            await urlService.ValidateAndApplySlugAsync(entity, string.Empty, entity.GetDisplayName(), true);
+            await urlService.SaveSlugAsync(entity, string.Empty, entity.GetDisplayName(), true);
         }
 
         #region Utilities

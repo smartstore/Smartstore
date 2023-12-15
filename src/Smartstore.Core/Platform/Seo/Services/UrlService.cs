@@ -8,6 +8,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
+using Smartstore.Threading;
 
 namespace Smartstore.Core.Seo
 {
@@ -31,11 +32,11 @@ namespace Smartstore.Core.Seo
         internal readonly IRouteHelper _routeHelper;
         private readonly PerformanceSettings _performanceSettings;
         private readonly SecuritySettings _securitySettings;
+        private readonly IDistributedLockProvider _lockProvider;
 
         internal IDictionary<string, UrlRecord> _extraSlugLookup;
         private IDictionary<string, UrlRecordCollection> _prefetchedCollections;
         private static int _lastCacheSegmentSize = -1;
-        internal static SemaphoreSlim _slugGate = new SemaphoreSlim(1, 1);
 
         public UrlService(
             SmartDbContext db,
@@ -48,7 +49,8 @@ namespace Smartstore.Core.Seo
             LocalizationSettings localizationSettings,
             SeoSettings seoSettings,
             PerformanceSettings performanceSettings,
-            SecuritySettings securitySettings)
+            SecuritySettings securitySettings,
+            IDistributedLockProvider lockProvider)
         {
             _db = db;
             _cache = cache;
@@ -61,6 +63,7 @@ namespace Smartstore.Core.Seo
             _seoSettings = seoSettings;
             _performanceSettings = performanceSettings;
             _securitySettings = securitySettings;
+            _lockProvider = lockProvider;
 
             _prefetchedCollections = new Dictionary<string, UrlRecordCollection>(StringComparer.OrdinalIgnoreCase);
             _extraSlugLookup = new Dictionary<string, UrlRecord>();
@@ -85,7 +88,8 @@ namespace Smartstore.Core.Seo
                 _localizationSettings,
                 _seoSettings,
                 _performanceSettings,
-                _securitySettings)
+                _securitySettings,
+                _lockProvider)
             {
                 _extraSlugLookup = _extraSlugLookup,
                 _prefetchedCollections = _prefetchedCollections
@@ -604,28 +608,6 @@ namespace Smartstore.Core.Seo
             };
         }
 
-        public virtual async Task<ValidateSlugResult> ValidateAndApplySlugAsync<T>(T entity,
-            string seName,
-            string displayName,
-            bool ensureNotEmpty,
-            int? languageId = null,
-            bool force = false)
-            where T : ISlugSupported
-        {
-            try
-            {
-                await _slugGate.WaitAsync();
-                var slugResult = await ValidateSlugAsync(entity, seName, displayName, ensureNotEmpty, languageId, force);
-                // Has to be saved immediately
-                await ApplySlugAsync(slugResult, true);
-                return slugResult;
-            }
-            finally
-            {
-                _slugGate.Release();
-            }
-        }
-
         public virtual Task<Dictionary<int, int>> CountSlugsPerEntityAsync(params int[] urlRecordIds)
         {
             if (urlRecordIds.Length == 0)
@@ -645,6 +627,9 @@ namespace Smartstore.Core.Seo
 
             return result;
         }
+
+        public IDistributedLock GetLock(string slug)
+            => _lockProvider.GetLock("slug:" + slug);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal protected static bool FoundRecordIsSelf(ISlugSupported source, UrlRecord urlRecord, int? languageId)

@@ -1,5 +1,6 @@
 ﻿using Smartstore.Core.Data;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Threading;
 
 namespace Smartstore.Core.Seo
 {
@@ -116,23 +117,9 @@ namespace Smartstore.Core.Seo
         IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null);
 
         /// <summary>
-        /// Validates and applies a slug.
+        /// Gets a <see cref="IDistributedLock"/> instance for the given <paramref name="slug"/>
+        /// used to synchronize access to the underlying slug storage.
         /// </summary>
-        /// <typeparam name="T">Type of slug supporting entity</typeparam>
-        /// <param name="entity">Entity instance</param>
-        /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from <paramref name="displayName"/>.</param>
-        /// <param name="displayName">Display name used to resolve the slug if <paramref name="seName"/> is empty.</param>
-        /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
-        /// <param name="force">
-        /// <returns>
-        /// The affected <see cref="UrlRecord"/> instance, either new or existing as tracked entity.
-        /// </returns>
-        Task<ValidateSlugResult> ValidateAndApplySlugAsync<T>(T entity,
-            string seName,
-            string displayName,
-            bool ensureNotEmpty,
-            int? languageId = null,
-            bool force = false)
-            where T : ISlugSupported;
+        IDistributedLock GetLock(string slug);
     }
 }

@@ -217,13 +217,13 @@ namespace Smartstore.Core.Catalog.Products
 
         private async Task ProcessSlugs(Product product, Product clone, IEnumerable<Language> languages)
         {
-            await _urlService.ValidateAndApplySlugAsync(clone, string.Empty, clone.GetDisplayName(), true);
+            await _urlService.SaveSlugAsync(clone, string.Empty, clone.GetDisplayName(), true);
 
             foreach (var lang in languages)
             {
                 string name = product.GetLocalized(x => x.Name, lang, false, false);
 
-                await _urlService.ValidateAndApplySlugAsync(clone, string.Empty, name, false, lang.Id, true);
+                await _urlService.SaveSlugAsync(clone, string.Empty, name, false, lang.Id, true);
             }
         }
 
