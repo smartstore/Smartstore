@@ -51,8 +51,8 @@ namespace Smartstore.Core.Data.Migrations
             ILogger<DbMigrator<TContext>> logger)
             : base(scope, migrationTable)
         {
-            Guard.NotNull(db, nameof(db));
-            Guard.NotNull(dbCore, nameof(dbCore));
+            Guard.NotNull(db);
+            Guard.NotNull(dbCore);
 
             _db = db;
             _dbCore = dbCore;
@@ -294,7 +294,7 @@ namespace Smartstore.Core.Data.Migrations
                 }
                 catch (Exception ex)
                 {
-                    if (seeder.RollbackOnFailure)
+                    if (seeder.Stage == DataSeederStage.EarlyWithRollbackOnFailure)
                     {
                         _lastSeedException = new DbMigrationException(entry.PreviousMigration?.Description ?? _initialMigration?.Name, m.Description, ex.InnerException ?? ex, true);
 
