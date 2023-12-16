@@ -11,17 +11,8 @@
         Task InitializeDatabasesAsync(CancellationToken cancelToken);
 
         /// <summary>
-        /// Initializes / migrates the given <paramref name="dbContextType"/>.
+        /// Runs any pending data seeders that have not been run at app start.
         /// </summary>
-        Task InitializeDatabaseAsync(Type dbContextType, CancellationToken cancelToken);
-    }
-
-    public static class IDatabaseInitializerExtensions
-    {
-        /// <summary>
-        /// Initializes / migrates the given <typeparamref name="TContext"/> type.
-        /// </summary>
-        public static Task InitializeDatabaseAsync<TContext>(this IDatabaseInitializer initializer, CancellationToken cancelToken = default)
-            => initializer.InitializeDatabaseAsync(typeof(TContext), cancelToken);
+        Task RunPendingSeedersAsync(CancellationToken cancelToken);
     }
 }

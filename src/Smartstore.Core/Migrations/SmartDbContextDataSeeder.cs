@@ -11,8 +11,6 @@ namespace Smartstore.Core.Data.Migrations
         {
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
             await MigrateSettingsAsync(context, cancelToken);
-
-            await Task.Delay(7000);
         }
 
         public async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
