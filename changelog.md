@@ -38,6 +38,7 @@
 - #922 Newsletter subscription event not triggered upon email confirmation.
 - Language selector in off-canvas menu should show the same language name as in the main menu.
 - #936 Password protected topic was not displayed after password has been entered.
+- Fixed the reward points for purchases setting was not saved in multi-store mode.
 
 
 ## Smartstore 5.1.0
