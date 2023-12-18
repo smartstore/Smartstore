@@ -43,7 +43,7 @@ namespace Smartstore.Core.Seo
         }
 
         /// <inheritdoc cref="SaveSlugAsync{T}(IUrlService, T, string, string, bool, int?, bool)"/>
-        public static Task<UrlRecord> SaveSlugAsync<T>(this IUrlService service, T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+        public static ValueTask<ValidateSlugResult> SaveSlugAsync<T>(this IUrlService service, T entity, string seName, bool ensureNotEmpty, int? languageId = null)
             where T : ISlugSupported
         {
             return SaveSlugAsync(service, entity, seName, entity.GetDisplayName(), ensureNotEmpty, languageId);
@@ -53,16 +53,13 @@ namespace Smartstore.Core.Seo
         /// <summary>
         /// Validates, applies and saves a slug in a single atomic operation.
         /// </summary>
-        /// A <see cref="UrlRecord"/> instance or null if the lock could not be acquired, e.g. due to timeout.
-        /// <returns>
-        /// </returns>
         /// <remarks>
         /// This method is thread-safe.
         /// Call it to prevent another parallel request to recreate the slug record.
         /// Lock acquisition timeout is 3 seconds.
         /// </remarks>
         /// <inheritdoc cref="IUrlService.ValidateSlugAsync{T}(T, string, string, bool, int?, bool)"/>
-        public static async Task<UrlRecord> SaveSlugAsync<T>(this IUrlService service, 
+        public static async ValueTask<ValidateSlugResult> SaveSlugAsync<T>(this IUrlService service, 
             T entity,
             string seName,
             string displayName,
@@ -75,33 +72,36 @@ namespace Smartstore.Core.Seo
 
             // Create lock handle to prevent another parallel request to recreate the slug.
             var lockHandle = (ILockHandle)null;
-            var key = seName.NullEmpty() ?? displayName;
+            var @lock = service.GetLock(entity, seName, displayName, ensureNotEmpty, out var lockKey);
 
-            if (ensureNotEmpty && string.IsNullOrEmpty(key))
+            if (@lock != null)
             {
-                // Use entity identifier as key if empty
-                key = entity.GetEntityName().ToLower() + entity.Id.ToStringInvariant();
-            }
-
-            if (!string.IsNullOrEmpty(key))
-            {
-                var @lock = service.GetLock(key);
-
                 // Try to acquire lock
                 (await @lock.TryAcquireAsync(TimeSpan.FromSeconds(3))).Out(out lockHandle);
             }
 
             lockHandle ??= NullLockHandle.Instance;
 
-            using (lockHandle)
+            try
             {
-                // Validate (key is seName now)
-                var slugResult = await service.ValidateSlugAsync(entity, key, displayName, ensureNotEmpty, languageId, force);
+                // Validate (lockKey is seName now)
+                var slugResult = await service.ValidateSlugAsync(entity, lockKey, null, false, languageId, force);
 
                 // Must be saved immediately
                 var entry = await service.ApplySlugAsync(slugResult, true);
 
-                return entry;
+                if (entry != null && slugResult.Found != entry)
+                {
+                    return new ValidateSlugResult(slugResult) { Found = entry };
+                }
+                else
+                {
+                    return slugResult;
+                }
+            }
+            finally
+            {
+                await lockHandle.ReleaseAsync();
             }
         }
     }

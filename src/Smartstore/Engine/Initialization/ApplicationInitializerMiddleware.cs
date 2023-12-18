@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Smartstore.Diagnostics;
 using Smartstore.Events;
@@ -29,7 +30,6 @@ namespace Smartstore.Engine.Initialization
     public class ApplicationInitializerMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly AsyncLock _asyncLock = new();
         private readonly IApplicationContext _appContext;
         private readonly AsyncRunner _asyncRunner;
         private readonly ILogger<ApplicationInitializerMiddleware> _logger;
@@ -64,7 +64,11 @@ namespace Smartstore.Engine.Initialization
                 if (errorFeature == null)
                 {
                     // Don't run initializers when re-execution after an exception is in progress.
-                    using (await _asyncLock.LockAsync(cancelToken: _asyncRunner.AppShutdownCancellationToken))
+
+                    var lockProvider = context.RequestServices.GetRequiredService<IDistributedLockProvider>();
+                    var @lock = lockProvider.GetLock("ApplicationInitializerMiddleware.Initialize");
+
+                    await using (await @lock.AcquireAsync(cancelToken: _asyncRunner.AppShutdownCancellationToken))
                     {
                         if (!_initialized)
                         {

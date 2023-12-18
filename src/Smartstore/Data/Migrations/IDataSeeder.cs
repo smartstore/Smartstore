@@ -3,6 +3,30 @@
 namespace Smartstore.Data.Migrations
 {
     /// <summary>
+    /// Specifies the data seeder execution stages.
+    /// </summary>
+    public enum DataSeederStage
+    {
+        /// <summary>
+        /// The seeder should run late (after app start, during the very first request).
+        /// Always define <c>Late</c> for potentially long running seeders 
+        /// to avoid a possible timeout during the app start.
+        /// </summary>
+        Late,
+
+        /// <summary>
+        /// The seeder should run early during app startup
+        /// </summary>
+        Early,
+
+        /// <summary>
+        /// The seeder should run early during app startup. 
+        /// Any unhandled exception should rollback the corresponding database migration.
+        /// </summary>
+        EarlyWithRollbackOnFailure
+    }
+    
+    /// <summary>
     /// Data seeder interface. This interface is usually applied to auto-generated migration classes.
     /// </summary>
     /// <typeparam name="TContext">Concrete type of <see cref="DbContext"/> that the seeder can provide data to.</typeparam>
@@ -14,12 +38,8 @@ namespace Smartstore.Data.Migrations
         Task SeedAsync(TContext context, CancellationToken cancelToken = default);
 
         /// <summary>
-        /// Gets a value indicating whether migration should be completely rolled back
-        /// when an error occurs during migration seeding.
-        /// If <c>false</c>, the seeder is executed during the first request, directly after the app is started, 
-        /// because in this case it is assumed that the seeder is long running. 
-        /// This is to prevent a possible timeout during the app start.
+        /// Defines the stage in which the seeder is to be executed.
         /// </summary>
-        bool RollbackOnFailure { get; }
+        DataSeederStage Stage { get; }
     }
 }

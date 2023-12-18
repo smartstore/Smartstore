@@ -8,7 +8,6 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
-using Smartstore.Threading;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -28,12 +27,12 @@ namespace Smartstore.Core.Data.Migrations
         }
 
         /// <inheritdoc/>
-        public bool RollbackOnFailure => false;
+        public virtual DataSeederStage Stage => DataSeederStage.Late;
 
         /// <inheritdoc/>
         public Task SeedAsync(TContext context, CancellationToken cancelToken = default)
         {
-            Context = Guard.NotNull(context, nameof(context));
+            Context = Guard.NotNull(context);
             CancelToken = cancelToken;
 
             return SeedCoreAsync();
@@ -80,8 +79,7 @@ namespace Smartstore.Core.Data.Migrations
                         new LocalizationSettings(),
                         new SeoSettings { LoadAllUrlAliasesOnStartup = false },
                         new PerformanceSettings(),
-                        new SecuritySettings(),
-                        new DistributedSemaphoreLockProvider());
+                        new SecuritySettings());
                 }
 
                 return _urlService;

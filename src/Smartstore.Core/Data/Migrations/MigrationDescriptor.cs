@@ -4,7 +4,7 @@
     {
         internal MigrationDescriptor(Type migrationType)
         {
-            Type = Guard.NotNull(migrationType, nameof(migrationType));
+            Type = Guard.NotNull(migrationType);
 
             var attribute = migrationType.GetAttribute<MigrationVersionAttribute>(false);
 

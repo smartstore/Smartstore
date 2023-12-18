@@ -11,7 +11,7 @@ namespace Smartstore.Core.Seo
 
         public UrlServiceBatchScope(UrlService urlService, SmartDbContext db = null)
         {
-            _urlService = urlService.GetInstanceForForBatching(db);
+            _urlService = urlService.GetInstanceForBatching(db);
             _db = urlService._db;
             _dbSet = _db.UrlRecords;
         }

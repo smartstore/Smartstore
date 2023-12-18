@@ -32,7 +32,6 @@ namespace Smartstore.Core.Seo
         internal readonly IRouteHelper _routeHelper;
         private readonly PerformanceSettings _performanceSettings;
         private readonly SecuritySettings _securitySettings;
-        private readonly IDistributedLockProvider _lockProvider;
 
         internal IDictionary<string, UrlRecord> _extraSlugLookup;
         private IDictionary<string, UrlRecordCollection> _prefetchedCollections;
@@ -49,8 +48,7 @@ namespace Smartstore.Core.Seo
             LocalizationSettings localizationSettings,
             SeoSettings seoSettings,
             PerformanceSettings performanceSettings,
-            SecuritySettings securitySettings,
-            IDistributedLockProvider lockProvider)
+            SecuritySettings securitySettings)
         {
             _db = db;
             _cache = cache;
@@ -63,7 +61,6 @@ namespace Smartstore.Core.Seo
             _seoSettings = seoSettings;
             _performanceSettings = performanceSettings;
             _securitySettings = securitySettings;
-            _lockProvider = lockProvider;
 
             _prefetchedCollections = new Dictionary<string, UrlRecordCollection>(StringComparer.OrdinalIgnoreCase);
             _extraSlugLookup = new Dictionary<string, UrlRecord>();
@@ -71,7 +68,7 @@ namespace Smartstore.Core.Seo
             ValidateCacheState();
         }
 
-        internal UrlService GetInstanceForForBatching(SmartDbContext db = null)
+        internal UrlService GetInstanceForBatching(SmartDbContext db = null)
         {
             if (db == null || db == _db)
             {
@@ -88,8 +85,7 @@ namespace Smartstore.Core.Seo
                 _localizationSettings,
                 _seoSettings,
                 _performanceSettings,
-                _securitySettings,
-                _lockProvider)
+                _securitySettings)
             {
                 _extraSlugLookup = _extraSlugLookup,
                 _prefetchedCollections = _prefetchedCollections
@@ -628,8 +624,25 @@ namespace Smartstore.Core.Seo
             return result;
         }
 
-        public IDistributedLock GetLock(string slug)
-            => _lockProvider.GetLock("slug:" + slug);
+        public IDistributedLock GetLock<T>(T entity, string seName, string displayName, bool ensureNotEmpty, out string lockKey) where T : ISlugSupported
+        {
+            Guard.NotNull(entity);
+
+            lockKey = seName.NullEmpty() ?? displayName;
+
+            if (ensureNotEmpty && string.IsNullOrEmpty(lockKey))
+            {
+                // Use entity identifier as key if empty
+                lockKey = entity.GetEntityName().ToLower() + entity.Id.ToStringInvariant();
+            }
+
+            if (string.IsNullOrEmpty(lockKey))
+            {
+                return null;
+            }
+
+            return DistributedSemaphoreLockProvider.Instance.GetLock("slug:" + lockKey);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal protected static bool FoundRecordIsSelf(ISlugSupported source, UrlRecord urlRecord, int? languageId)

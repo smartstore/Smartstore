@@ -5,7 +5,7 @@ namespace Smartstore.Core.Data.Migrations
 {
     public class SmartDbContextDataSeeder : IDataSeeder<SmartDbContext>
     {
-        public bool RollbackOnFailure => false;
+        public DataSeederStage Stage => DataSeederStage.Early;
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {

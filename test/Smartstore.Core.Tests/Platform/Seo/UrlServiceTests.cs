@@ -61,8 +61,7 @@ namespace Smartstore.Core.Tests.Seo
                 localizationSettings: new LocalizationSettings(),
                 seoSettings: _seoSettings,
                 performanceSettings: new PerformanceSettings(),
-                securitySettings: new SecuritySettings(),
-                lockProvider: new DistributedSemaphoreLockProvider());
+                securitySettings: new SecuritySettings());
 
             PopulateEntities();
         }
@@ -206,7 +205,7 @@ namespace Smartstore.Core.Tests.Seo
             await PopulateSlugs(db.Products.ToList());
 
             var tasks = new List<Task>();
-            var resultDictionary = new ConcurrentDictionary<Product, UrlRecord>();
+            var resultDictionary = new ConcurrentDictionary<Product, ValidateSlugResult>();
 
             for (var i = 0; i < 100; i++)
             {
@@ -217,9 +216,9 @@ namespace Smartstore.Core.Tests.Seo
                 tasks.Add(new Task(async state =>
                 {
                     var p = (Product)state;
-                    var entry = await _urlService.SaveSlugAsync(p, seName: null, ensureNotEmpty: true, displayName: p.GetDisplayName());
+                    var result = await _urlService.SaveSlugAsync(p, seName: null, ensureNotEmpty: true, displayName: p.GetDisplayName());
 
-                    resultDictionary[p] = entry;
+                    resultDictionary[p] = result;
                 }, product));
             }
 

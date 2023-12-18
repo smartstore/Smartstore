@@ -1,4 +1,7 @@
-﻿using Smartstore.Core.Data;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using Smartstore.Core.Data;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Threading;
 
@@ -42,7 +45,7 @@ namespace Smartstore.Core.Seo
         /// <remarks>
         /// Be careful not to load large amounts of data at once (e.g. for "Product" scope with large range).
         /// </remarks>
-        Task PrefetchUrlRecordsAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
+        Task PrefetchUrlRecordsAsync(string entityName, int[]? languageIds, int[]? entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
 
         /// <summary>
         /// Clears the prefetch cache that was populated by calls to <see cref="PrefetchUrlRecordsAsync(string, int[], int[], bool, bool, bool)"/>
@@ -64,7 +67,7 @@ namespace Smartstore.Core.Seo
         /// <remarks>
         /// Be careful not to load large amounts of data at once (e.g. for "Product" scope with large range).
         /// </remarks>
-        Task<UrlRecordCollection> GetUrlRecordCollectionAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
+        Task<UrlRecordCollection> GetUrlRecordCollectionAsync(string entityName, int[]? languageIds, int[]? entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
 
         /// <summary>
         /// Slugifies and checks uniqueness of a given search engine name. If not unique, a number will be appended to the result slug.
@@ -80,8 +83,8 @@ namespace Smartstore.Core.Seo
         /// </param>
         /// <returns>A system unique slug</returns>
         ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity,
-            string seName,
-            string displayName,
+            string? seName,
+            string? displayName,
             bool ensureNotEmpty,
             int? languageId = null,
             bool force = false)
@@ -114,12 +117,20 @@ namespace Smartstore.Core.Seo
         /// The scope will internally use the passed instance or - if null - the request scoped instance from <see cref="IUrlService"/>.
         /// </param>
         /// <returns>The batch scope instance.</returns>
-        IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null);
+        IUrlServiceBatchScope CreateBatchScope(SmartDbContext? db = null);
 
         /// <summary>
-        /// Gets a <see cref="IDistributedLock"/> instance for the given <paramref name="slug"/>
+        /// Gets a <see cref="IDistributedLock"/> instance for the given <paramref name="entity"/>
         /// used to synchronize access to the underlying slug storage.
         /// </summary>
-        IDistributedLock GetLock(string slug);
+        /// <typeparam name="T">Type of slug supporting entity</typeparam>
+        /// <param name="entity">Entity instance</param>
+        /// <param name="seName">Search engine name to acquire a lock for. If <c>null</c> or empty, the slug will be resolved from <paramref name="displayName"/>.</param>
+        /// <param name="displayName">Display name used to to acquire a lock for if <paramref name="seName"/> is empty.</param>
+        /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
+        /// <returns>
+        /// An <see cref="IDistributedLock"/> instance or <c>null</c> if no <paramref name="lockKey"/> could be generated.
+        /// </returns>
+        IDistributedLock? GetLock<T>(T entity, string? seName, string? displayName, bool ensureNotEmpty, out string? lockKey) where T : ISlugSupported;
     }
 }

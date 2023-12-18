@@ -183,8 +183,8 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var urlRecord = await _urlService.SaveSlugAsync(manufacturer, model.SeName, manufacturer.GetDisplayName(), true);
-                model.SeName = urlRecord.Slug;
+                var slugResult = await _urlService.SaveSlugAsync(manufacturer, model.SeName, manufacturer.GetDisplayName(), true);
+                model.SeName = slugResult.Slug;
 
                 await ApplyLocales(model, manufacturer);
 
@@ -258,8 +258,8 @@ namespace Smartstore.Admin.Controllers
                 var mapper = MapperFactory.GetMapper<ManufacturerModel, Manufacturer>();
                 await mapper.MapAsync(model, manufacturer);
 
-                var urlRecord = await _urlService.SaveSlugAsync(manufacturer, model.SeName, manufacturer.GetDisplayName(), true);
-                model.SeName = urlRecord.Slug;
+                var slugResult = await _urlService.SaveSlugAsync(manufacturer, model.SeName, manufacturer.GetDisplayName(), true);
+                model.SeName = slugResult.Slug;
 
                 await ApplyLocales(model, manufacturer);
                 await _discountService.ApplyDiscountsAsync(manufacturer, model?.SelectedDiscountIds, DiscountType.AssignedToManufacturers);

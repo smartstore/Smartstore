@@ -7,7 +7,7 @@ namespace Smartstore.Core.Data.Migrations
     [MigrationVersion("2023-01-05 18:00:00", "Core: Remove translation dupes")]
     internal class RemoveTranslationDupes : Migration, IDataSeeder<SmartDbContext>
     {
-        public bool RollbackOnFailure => true;
+        public DataSeederStage Stage => DataSeederStage.Early;
 
         public override void Up()
         {
