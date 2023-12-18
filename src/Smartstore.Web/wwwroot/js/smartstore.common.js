@@ -661,18 +661,17 @@
             $('.more-less').moreLess();
         }
 
-        // Unselectable radio button groups
-        $(document).on('click', '.btn-group-toggle.unselectable > .btn', function (e) {
+        $(document).on('mouseup', '.btn-group-toggle.unselectable > .btn', function (e) {
             let btn = $(this);
             let radio = btn.find('input:radio');
-
+            
             if (radio.length && radio.prop('checked')) {
+                e.preventDefault();
+                e.stopPropagation();
+
                 _.delay(function () {
                     radio.prop('checked', false);
                     btn.removeClass('active focus');
-
-                    e.preventDefault();
-                    e.stopPropagation();
                 }, 50);
             }
         });
