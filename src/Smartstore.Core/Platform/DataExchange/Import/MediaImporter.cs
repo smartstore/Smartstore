@@ -53,7 +53,8 @@ namespace Smartstore.Core.DataExchange.Import
             string urlOrPath,
             object state = null,
             int displayOrder = 0,
-            HashSet<string> fileNameLookup = null)
+            HashSet<string> fileNameLookup = null,
+            int maxFileNameLength = int.MaxValue)
         {
             Guard.NotNull(imageDirectory);
             Guard.NotNull(downloadDirectory);
@@ -86,8 +87,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                     else
                     {
-                        var fileName = WebHelper.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
-                        item.FileName = GetUniqueFileName(fileName, fileNameLookup);
+                        item.FileName = GetFileName(WebHelper.GetFileNameFromUrl(urlOrPath), maxFileNameLength, fileNameLookup);
 
                         fileNameLookup?.Add(item.FileName);
                     }
@@ -96,8 +96,8 @@ namespace Smartstore.Core.DataExchange.Import
                 }
                 else
                 {
+                    item.FileName = GetFileName(Path.GetFileName(urlOrPath), maxFileNameLength);
                     item.Success = true;
-                    item.FileName = PathUtility.SanitizeFileName(Path.GetFileName(urlOrPath).NullEmpty() ?? Path.GetRandomFileName());
 
                     item.Path = Path.IsPathRooted(urlOrPath)
                         ? urlOrPath
@@ -112,24 +112,6 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 InvokeMessageHandler($"Failed to prepare image download for '{urlOrPath}'. Skipping file.", item, ImportMessageType.Error);
                 return null;
-            }
-
-            static string GetUniqueFileName(string fileName, HashSet<string> lookup)
-            {
-                if (lookup?.Contains(fileName) ?? false)
-                {
-                    var i = 0;
-                    var name = Path.GetFileNameWithoutExtension(fileName);
-                    var ext = Path.GetExtension(fileName);
-
-                    do
-                    {
-                        fileName = $"{name}-{++i}{ext}";
-                    }
-                    while (lookup.Contains(fileName));
-                }
-
-                return fileName;
             }
 
             static string GetAbsolutePath(IDirectory directory, string fileNameOrRelativePath)
@@ -726,6 +708,42 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             return item.Success;
+        }
+
+        private static string GetFileName(string fName, int maxLength = int.MaxValue, HashSet<string> lookup = null)
+        {
+            if (fName.IsEmpty())
+            {
+                return Path.GetRandomFileName();
+            }
+
+            fName = PathUtility.SanitizeFileName(fName);
+
+            if (maxLength == int.MaxValue && lookup == null)
+            {
+                return fName;
+            }
+
+            var name = Path.GetFileNameWithoutExtension(fName);
+            var ext = Path.GetExtension(fName);
+
+            if (name.Length > maxLength)
+            {
+                name = name.Truncate(maxLength);
+                fName = name + ext;
+            }
+
+            if (lookup?.Contains(fName) ?? false)
+            {
+                var i = 0;
+                do
+                {
+                    fName = $"{name}-{++i}{ext}";
+                }
+                while (lookup.Contains(fName));
+            }
+
+            return fName;
         }
 
         #endregion
