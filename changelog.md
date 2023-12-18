@@ -40,6 +40,7 @@
 - #936 Password protected topic was not displayed after password has been entered.
 - Fixed the reward points for purchases setting was not saved in multi-store mode.
 - Fixed offcanvas cart issue in mobile browsers (buttons in the footer were sometimes truncated).
+- Some radio button groups in Page Builder were not deselectable
 
 
 ## Smartstore 5.1.0
