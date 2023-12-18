@@ -11,7 +11,6 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.IO;
-using Smartstore.Net.Http;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
 
@@ -25,7 +24,6 @@ namespace Smartstore.Core.DataExchange.Import
         private readonly ILanguageService _languageService;
         private readonly IEmailAccountService _emailAccountService;
         private readonly IMailService _mailService;
-        private readonly DownloadManager _downloadManager;
         private readonly ContactDataSettings _contactDataSettings;
         private readonly DataExchangeSettings _dataExchangeSettings;
 
@@ -36,7 +34,6 @@ namespace Smartstore.Core.DataExchange.Import
             ILanguageService languageService,
             IEmailAccountService emailAccountService,
             IMailService mailService,
-            DownloadManager downloadManager,
             ContactDataSettings contactDataSettings,
             DataExchangeSettings dataExchangeSettings)
         {
@@ -46,7 +43,6 @@ namespace Smartstore.Core.DataExchange.Import
             _languageService = languageService;
             _emailAccountService = emailAccountService;
             _mailService = mailService;
-            _downloadManager = downloadManager;
             _contactDataSettings = contactDataSettings;
             _dataExchangeSettings = dataExchangeSettings;
         }
@@ -220,7 +216,6 @@ namespace Smartstore.Core.DataExchange.Import
 
             try
             {
-                ctx.ExecuteContext.DownloadManager.Dispose();
                 ctx.Request.CustomData.Clear();
                 ctx.Results.Clear();
             }
@@ -317,8 +312,6 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
 
-            _downloadManager.HttpClient.Timeout = TimeSpan.FromMinutes(_dataExchangeSettings.ImageDownloadTimeout);
-
             var executeContext = new ImportExecuteContext(T("Admin.DataExchange.Import.ProgressInfo"), cancelToken)
             {
                 Request = request,
@@ -330,8 +323,7 @@ namespace Smartstore.Core.DataExchange.Import
                 ImageDownloadDirectory = await _importProfileService.GetImportDirectoryAsync(profile, @"Content\DownloadedImages", true),
                 ExtraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData),
                 Languages = await _languageService.GetAllLanguagesAsync(true),
-                Stores = _services.StoreContext.GetAllStores().AsReadOnly(),
-                DownloadManager = _downloadManager
+                Stores = _services.StoreContext.GetAllStores().AsReadOnly()
             };
 
             // Relative paths for images always refer to the profile directory, not to its "Content" sub-directory.

@@ -1,7 +1,6 @@
 ﻿using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.IO;
-using Smartstore.Net.Http;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.DataExchange.Import
@@ -80,11 +79,6 @@ namespace Smartstore.Core.DataExchange.Import
         /// If the import file contains relative paths for images, then they are expected to be in that directory.
         /// </summary>
         public IDirectory ImageDirectory { get; internal set; }
-
-        /// <summary>
-        /// A download manager that can be used to download images.
-        /// </summary>
-        public DownloadManager DownloadManager { get; internal set; }
 
         /// <summary>
         /// Logger instance to log information into the import log file.
