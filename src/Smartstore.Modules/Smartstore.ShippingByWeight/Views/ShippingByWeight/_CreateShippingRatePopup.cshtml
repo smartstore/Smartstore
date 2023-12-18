@@ -1,0 +1,163 @@
+﻿@model ByWeightModel
+
+<modal id="addrecord-window" sm-render-at-page-end="true" sm-size="Large">
+    <modal-header sm-title="@T("Plugins.Shipping.ByWeight.AddNewRecordTitle")"></modal-header>
+    <modal-body>
+        <form action="#">
+            <div class="adminContent">
+                <div class="adminRow">
+					<div class="adminTitle">
+                        <smart-label asp-for="StoreId" />
+					</div>
+                    <div class="adminData">
+                        <select asp-for="StoreId" asp-items="ViewBag.AvailableStores" asp-placeholder="*"></select>
+                        <span asp-validation-for="StoreId"></span>
+                    </div>
+				</div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CountryId" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="CountryId"
+                                asp-template="Countries"
+                                asp-additional-viewdata='new { nullable = true, placeholder = "*" }' />
+                        <span asp-validation-for="CountryId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Zip" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Zip" />
+                        <span asp-validation-for="Zip"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShippingMethodId" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="ShippingMethodId" asp-items="ViewBag.AvailableShippingMethods"></select>
+                        <span asp-validation-for="ShippingMethodId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+					<div class="adminTitle">
+                        <smart-label asp-for="From" />
+					</div>
+					<div class="adminData">
+                        <editor asp-for="From" sm-postfix="@ViewBag.BaseWeightIn" />
+                        <span asp-validation-for="From"></span>
+					</div>
+				</div>
+				<div class="adminRow">
+					<div class="adminTitle">
+                        <smart-label asp-for="To" />
+					</div>
+					<div class="adminData">
+                        <editor asp-for="To" sm-postfix="@ViewBag.BaseWeightIn" />
+                        <span asp-validation-for="To"></span>
+					</div>
+				</div>
+				<div class="adminRow">
+					<div class="adminTitle">
+                        <smart-label asp-for="UsePercentage" />
+					</div>
+					<div class="adminData">
+                        <input asp-for="UsePercentage" />
+                        <span asp-validation-for="UsePercentage"></span>
+					</div>
+				</div>
+				<div class="adminRow" id="pnlAddShippingChargePercentage">
+					<div class="adminTitle">
+                        <smart-label asp-for="ShippingChargePercentage" />
+					</div>
+					<div class="adminData">
+                        <editor asp-for="ShippingChargePercentage" />
+                        <span asp-validation-for="ShippingChargePercentage"></span>
+					</div>
+				</div>
+				<div class="adminRow" id="pnlAddShippingChargeAmount">
+					<div class="adminTitle">
+                        <smart-label asp-for="ShippingChargeAmount" />
+					</div>
+					<div class="adminData">
+                        <editor asp-for="ShippingChargeAmount" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode" />
+                        <span asp-validation-for="ShippingChargeAmount"></span>
+					</div>
+				</div>
+				<div class="adminRow" id="pnlSmallQuantitySurcharge">
+					<div class="adminTitle">
+                        <smart-label asp-for="SmallQuantitySurcharge" />
+					</div>
+					<div class="adminData">
+                        <editor asp-for="SmallQuantitySurcharge" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode" />
+                        <span asp-validation-for="SmallQuantitySurcharge"></span>
+					</div>
+				</div>
+				<div class="adminRow" id="pnlSmallQuantityThreshold">
+					<div class="adminTitle">
+                        <smart-label asp-for="SmallQuantityThreshold" />
+					</div>
+                    <div class="adminData">
+                        <editor asp-for="SmallQuantityThreshold" />
+                        <span asp-validation-for="SmallQuantityThreshold"></span>
+                    </div>
+				</div>
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button type="button" class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Admin.Common.Cancel")</span>
+        </button>
+        <button id="add-shipping-rate-by-weight" type="submit" class="btn btn-primary">
+            <i class="fa fa-check"></i>
+            <span>@T("Common.AddNew")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="shipping-rate-by-weight">
+    $(function () {
+        $("#@Html.IdFor(model => model.UsePercentage)").click(toggleAddUsePercentage);
+        toggleAddUsePercentage();
+
+	    function toggleAddUsePercentage() {
+		    if ($('#@Html.IdFor(model => model.UsePercentage)').is(':checked')) {
+			    $('#pnlAddShippingChargePercentage').show();
+			    $('#pnlAddShippingChargeAmount').hide();
+		    }
+		    else {
+			    $('#pnlAddShippingChargePercentage').hide();
+			    $('#pnlAddShippingChargeAmount').show();
+		    }
+        }
+
+        $('#add-shipping-rate-by-weight').on("click", function (e) {
+			e.preventDefault();
+
+			var form = $("#addrecord-window").find("form");
+
+			$.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@Url.Action("AddShippingRateByWeight")',
+				data: form.serialize(),
+				dataType: 'json',
+				success: function (data) {
+                    window["shipping-rates-byweight-grid"].$children[0].read();
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+					alert('Failed to add record.');
+				},
+				complete: function () {
+					$('#addrecord-window').modal('hide');
+				}
+			});
+			return false;
+		});
+    });
+</script>

@@ -49,6 +49,5 @@
 
         [LocalizedDisplay("*MaxCharge")]
         public decimal? MaxCharge { get; set; }
-
     }
 }

@@ -1,6 +1,4 @@
-﻿@using Smartstore.Shipping.Models
-
-@model ByTotalListModel
+﻿@model ByTotalListModel
 
 @{
     Layout = "_ConfigureProvider";
@@ -18,6 +16,7 @@
 <tabstrip id="shipping-method-edit" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Plugins.Shipping.ByTotal.TabTitleGrid")" sm-selected="true" sm-adaptive-height="true">
         <partial name="_Grid.ShippingRates" model="null" />
+        <partial name="_CreateShippingRatePopup" model="new ByTotalModel()" />
     </tab>
     <tab sm-title="@T("Plugins.Shipping.ByTotal.TabTitleSettings")">
         <form asp-action="Configure" id="by-total-settings">

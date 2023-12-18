@@ -37,7 +37,7 @@
         <Value>Warengewicht bis</Value>
     </LocaleResource>
     <LocaleResource Name="Fields.To.Hint">
-        <Value>Die Bedingung trifft zu, wenn das Gesamtgewicht aller Positionen im Warenkorb kleiner als dieser Wert ist. Lassen Sie das Feld leer, wenn Sie keine Obergrenze festlegen möchten.</Value>
+        <Value>Die Bedingung trifft zu, wenn das Gesamtgewicht aller Positionen im Warenkorb kleiner als dieser Wert ist.</Value>
     </LocaleResource>
     <LocaleResource Name="Fields.UsePercentage">
         <Value>Prozentual</Value>

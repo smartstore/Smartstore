@@ -15,6 +15,7 @@
 <tabstrip id="shipping-by-weight-edit" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Plugins.Shipping.ByWeight.TabTitleGrid")" sm-selected="true" sm-adaptive-height="true">
         <partial name="_Grid.ShippingRates" model="null" />
+        <partial name="_CreateShippingRatePopup" model="new ByWeightModel()" />
     </tab>
     <tab sm-title="@T("Plugins.Shipping.ByWeight.TabTitleSettings")">
         <form asp-action="Configure" id="by-weight-settings">

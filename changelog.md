@@ -7,6 +7,7 @@
 - Affiliates
   - #896 Added a cart rule for affiliates.
   - Added a button to remove the assignment of a customer to an affiliate on customer edit page.
+- Import news from RSS news feeds.
 
 ### Improvements
 
