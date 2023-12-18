@@ -53,7 +53,8 @@ namespace Smartstore.Core.DataExchange.Import
             string urlOrPath,
             object state = null,
             int displayOrder = 0,
-            HashSet<string> fileNameLookup = null)
+            HashSet<string> fileNameLookup = null,
+            int maxFileNameLength = int.MaxValue)
         {
             Guard.NotNull(imageDirectory);
             Guard.NotNull(downloadDirectory);
@@ -86,8 +87,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                     else
                     {
-                        var fileName = WebHelper.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
-                        item.FileName = GetUniqueFileName(fileName, fileNameLookup);
+                        item.FileName = GetFileName(WebHelper.GetFileNameFromUrl(urlOrPath), maxFileNameLength, fileNameLookup);
 
                         fileNameLookup?.Add(item.FileName);
                     }
@@ -96,8 +96,8 @@ namespace Smartstore.Core.DataExchange.Import
                 }
                 else
                 {
+                    item.FileName = GetFileName(Path.GetFileName(urlOrPath), maxFileNameLength);
                     item.Success = true;
-                    item.FileName = PathUtility.SanitizeFileName(Path.GetFileName(urlOrPath).NullEmpty() ?? Path.GetRandomFileName());
 
                     item.Path = Path.IsPathRooted(urlOrPath)
                         ? urlOrPath
@@ -112,24 +112,6 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 InvokeMessageHandler($"Failed to prepare image download for '{urlOrPath}'. Skipping file.", item, ImportMessageType.Error);
                 return null;
-            }
-
-            static string GetUniqueFileName(string fileName, HashSet<string> lookup)
-            {
-                if (lookup?.Contains(fileName) ?? false)
-                {
-                    var i = 0;
-                    var name = Path.GetFileNameWithoutExtension(fileName);
-                    var ext = Path.GetExtension(fileName);
-
-                    do
-                    {
-                        fileName = $"{name}-{++i}{ext}";
-                    }
-                    while (lookup.Contains(fileName));
-                }
-
-                return fileName;
             }
 
             static string GetAbsolutePath(IDirectory directory, string fileNameOrRelativePath)
@@ -278,8 +260,8 @@ namespace Smartstore.Core.DataExchange.Import
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
             MediaFolderNode album,
-            Action<T, int> assignMediaFileHandler,
-            Func<T, Stream, Task<bool>> checkAssignedMediaFileHandler,
+            Action<DownloadManagerItem, int> assignMediaFileHandler,
+            Func<DownloadManagerItem, Stream, Task<bool>> checkAssignedMediaFileHandler,
             bool checkExistingFile,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default) where T : BaseEntity
@@ -321,7 +303,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
 
                     // Check for already assigned files.
-                    if (await checkAssignedMediaFileHandler(entity, file))
+                    if (await checkAssignedMediaFileHandler(item, file))
                     {
                         InvokeMessageHandler($"Found equal file for {nameof(entity)} '{item.FileName}'. Skipping file.", item, reason: ImportMessageReason.EqualFile);
                         continue;
@@ -332,7 +314,7 @@ namespace Smartstore.Core.DataExchange.Import
                         var equalityCheck = await _mediaService.FindEqualFileAsync(file, item.FileName, album.Id, true);
                         if (equalityCheck.Success)
                         {
-                            assignMediaFileHandler(entity, equalityCheck.Value.Id);
+                            assignMediaFileHandler(item, equalityCheck.Value.Id);
                             InvokeMessageHandler($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.", item, reason: ImportMessageReason.EqualFileInAlbum);
                             continue;
                         }
@@ -365,7 +347,7 @@ namespace Smartstore.Core.DataExchange.Import
                             var assignedItems = fileResult.Source.State as List<DownloadManagerItem>;
                             foreach (var item in assignedItems)
                             {
-                                assignMediaFileHandler((T)item.Entity, fileResult.File.Id);
+                                assignMediaFileHandler(item, fileResult.File.Id);
                             }
                         }
                     }
@@ -569,13 +551,14 @@ namespace Smartstore.Core.DataExchange.Import
                 items,
                 _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value,
                 AssignMediaFile,
-                CheckAssignedFileAsync,
+                CheckAssignedFile,
                 true,
                 duplicateFileHandling,
                 cancelToken);
 
-            async Task<bool> CheckAssignedFileAsync(Category category, Stream stream)
+            async Task<bool> CheckAssignedFile(DownloadManagerItem item, Stream stream)
             {
+                var category = (Category)item.Entity;
                 if (category.MediaFileId.HasValue && existingFiles.TryGetValue(category.MediaFileId.Value, out var assignedFile))
                 {
                     var isEqualData = await _mediaService.FindEqualFileAsync(stream, new[] { assignedFile }, true);
@@ -588,9 +571,9 @@ namespace Smartstore.Core.DataExchange.Import
                 return false;
             }
 
-            static void AssignMediaFile(Category category, int fileId)
+            static void AssignMediaFile(DownloadManagerItem item, int fileId)
             {
-                category.MediaFileId = fileId;
+                ((Category)item.Entity).MediaFileId = fileId;
             }
         }
 
@@ -605,13 +588,14 @@ namespace Smartstore.Core.DataExchange.Import
                 items,
                 _folderService.GetNodeByPath(SystemAlbumProvider.Customers).Value,
                 AddCustomerAvatarMediaFile,
-                CheckAssignedFileAsync,
+                CheckAssignedFile,
                 false,
                 duplicateFileHandling,
                 cancelToken);
 
-            async Task<bool> CheckAssignedFileAsync(Customer customer, Stream stream)
+            async Task<bool> CheckAssignedFile(DownloadManagerItem item, Stream stream)
             {
+                var customer = (Customer)item.Entity;
                 var file = await _mediaService.GetFileByIdAsync(customer.GenericAttributes.AvatarPictureId ?? 0, MediaLoadFlags.AsNoTracking);
                 if (file != null)
                 {
@@ -625,9 +609,9 @@ namespace Smartstore.Core.DataExchange.Import
                 return false;
             }
 
-            static void AddCustomerAvatarMediaFile(Customer customer, int fileId)
+            static void AddCustomerAvatarMediaFile(DownloadManagerItem item, int fileId)
             {
-                customer.GenericAttributes.Set(SystemCustomerAttributeNames.AvatarPictureId, fileId);
+                ((Customer)item.Entity).GenericAttributes.Set(SystemCustomerAttributeNames.AvatarPictureId, fileId);
             }
         }
 
@@ -724,6 +708,42 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             return item.Success;
+        }
+
+        private static string GetFileName(string fName, int maxLength = int.MaxValue, HashSet<string> lookup = null)
+        {
+            if (fName.IsEmpty())
+            {
+                return Path.GetRandomFileName();
+            }
+
+            fName = PathUtility.SanitizeFileName(fName);
+
+            if (maxLength == int.MaxValue && lookup == null)
+            {
+                return fName;
+            }
+
+            var name = Path.GetFileNameWithoutExtension(fName);
+            var ext = Path.GetExtension(fName);
+
+            if (name.Length > maxLength)
+            {
+                name = name.Truncate(maxLength);
+                fName = name + ext;
+            }
+
+            if (lookup?.Contains(fName) ?? false)
+            {
+                var i = 0;
+                do
+                {
+                    fName = $"{name}-{++i}{ext}";
+                }
+                while (lookup.Contains(fName));
+            }
+
+            return fName;
         }
 
         #endregion
