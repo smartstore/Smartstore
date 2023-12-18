@@ -390,7 +390,7 @@ namespace Smartstore.Admin.Controllers
             // Does not contain any store specific settings.
             await Services.SettingFactory.SaveSettingsAsync(securitySettings);
 
-            return NotifyAndRedirect("GeneralCommon");
+            return NotifyAndRedirect(nameof(GeneralCommon));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -439,7 +439,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedSettingAsync(priceSettings, x => x.LimitedOfferBadgeLabel, localized.LimitedOfferBadgeLabel, localized.LanguageId, storeScope);
             }
 
-            return NotifyAndRedirect("Catalog");
+            return NotifyAndRedirect(nameof(Catalog));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -510,7 +510,7 @@ namespace Smartstore.Admin.Controllers
 
             await _db.SaveChangesAsync();
 
-            return NotifyAndRedirect("CustomerUser");
+            return NotifyAndRedirect(nameof(CustomerUser));
         }
 
         private static bool ShouldUpdateIdentityOptions(CustomerUserSettingsModel.CustomerSettingsModel model, CustomerSettings settings)
@@ -897,7 +897,7 @@ namespace Smartstore.Admin.Controllers
 
             await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, settings, form));
 
-            return NotifyAndRedirect("Search");
+            return NotifyAndRedirect(nameof(Search));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -922,7 +922,7 @@ namespace Smartstore.Admin.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
-            return NotifyAndRedirect("DataExchange");
+            return NotifyAndRedirect(nameof(DataExchange));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -960,7 +960,7 @@ namespace Smartstore.Admin.Controllers
             ModelState.Clear();
             await MapperFactory.MapAsync(model, settings);
 
-            return NotifyAndRedirect("Media");
+            return NotifyAndRedirect(nameof(Media));
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
@@ -1021,7 +1021,7 @@ namespace Smartstore.Admin.Controllers
 
             await _cache.RemoveByPatternAsync(PaymentService.ProductDetailPaymentIconsPatternKey);
 
-            return NotifyAndRedirect("Payment");
+            return NotifyAndRedirect(nameof(Payment));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -1162,9 +1162,9 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
-        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings)
+        public IActionResult RewardPoints(RewardPointsSettings settings)
         {
-            var model = await MapperFactory.MapAsync<RewardPointsSettings, RewardPointsSettingsModel>(settings);
+            var model = MiniMapper.Map<RewardPointsSettings, RewardPointsSettingsModel>(settings);
 
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
@@ -1172,19 +1172,31 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting]
-        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, RewardPointsSettingsModel model)
+        [HttpPost, LoadSetting]
+        public async Task<IActionResult> RewardPoints(RewardPointsSettingsModel model, RewardPointsSettings settings, int storeScope)
         {
             if (!ModelState.IsValid)
             {
-                return await RewardPoints(settings);
+                return RewardPoints(settings);
             }
+
+            var form = Request.Form;
 
             ModelState.Clear();
 
-            await MapperFactory.MapAsync(model, settings);
+            settings = ((ISettings)settings).Clone() as RewardPointsSettings;
+            MiniMapper.Map(model, settings);
 
-            return NotifyAndRedirect("RewardPoints");
+            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form);
+
+            if (storeScope != 0 && MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(RewardPointsSettings.PointsForPurchases_Amount), form))
+            {
+                await Services.Settings.ApplySettingAsync(settings, x => x.PointsForPurchases_Points, storeScope);
+            }
+
+            await _db.SaveChangesAsync();
+
+            return NotifyAndRedirect(nameof(RewardPoints));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -1219,7 +1231,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ThirdPartyEmailHandOverLabel, localized.ThirdPartyEmailHandOverLabel, localized.LanguageId, storeScope);
             }
 
-            return NotifyAndRedirect("ShoppingCart");
+            return NotifyAndRedirect(nameof(ShoppingCart));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -1400,7 +1412,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return NotifyAndRedirect("Order");
+            return NotifyAndRedirect(nameof(Order));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
