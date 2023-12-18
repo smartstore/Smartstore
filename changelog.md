@@ -39,6 +39,7 @@
 - Language selector in off-canvas menu should show the same language name as in the main menu.
 - #936 Password protected topic was not displayed after password has been entered.
 - Fixed the reward points for purchases setting was not saved in multi-store mode.
+- Fixed offcanvas cart issue in mobile browsers (buttons in the footer were sometimes truncated).
 
 
 ## Smartstore 5.1.0
