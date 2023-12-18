@@ -96,19 +96,19 @@
                 <div class="adminTitle">
                     <smart-label asp-for="PointsForPurchases_Amount" />
                 </div>
-                <div class="adminData wide">
+                <div class="adminData">
                     <setting-editor asp-for="PointsForPurchases_Amount">
                         <div class="form-row flex-nowrap">
                             <div class="col-auto">
                                 <div class="form-control-plaintext fs-sm text-muted">@T("Admin.Configuration.Settings.RewardPoints.Earning.Hint1")</div>
                             </div>
-                            <div class="col-auto">
+                            <div class="col w-25">
                                 <editor asp-for="PointsForPurchases_Amount" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
                             </div>
                             <div class="col-auto">
                                 <div class=" form-control-plaintext fs-sm text-muted">@T("Admin.Configuration.Settings.RewardPoints.Earning.Hint2")</div>
                             </div>
-                            <div class="col-auto">
+                            <div class="col w-25">
                                 <editor asp-for="PointsForPurchases_Points" />
                             </div>
                             <div class="col-auto">
