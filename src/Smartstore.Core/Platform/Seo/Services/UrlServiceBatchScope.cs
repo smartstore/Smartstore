@@ -18,7 +18,7 @@ namespace Smartstore.Core.Seo
 
         public virtual async Task<string> GetActiveSlugAsync(int entityId, string entityName, int languageId)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotEmpty(entityName);
 
             if (_urlService.TryGetPrefetchedActiveSlug(entityId, entityName, languageId, out var slug))
             {
@@ -64,6 +64,7 @@ namespace Smartstore.Core.Seo
 
             var numAffected = await _urlService._db.SaveChangesAsync(cancelToken);
             _batch.Clear();
+
             return numAffected;
         }
 

@@ -5,7 +5,6 @@ using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Brands;
-using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
@@ -184,9 +183,8 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, true);
-                await _urlService.ApplySlugAsync(validateSlugResult);
-                model.SeName = validateSlugResult.Slug;
+                var urlRecord = await _urlService.SaveSlugAsync(manufacturer, model.SeName, manufacturer.GetDisplayName(), true);
+                model.SeName = urlRecord.Slug;
 
                 await ApplyLocales(model, manufacturer);
 
@@ -260,9 +258,8 @@ namespace Smartstore.Admin.Controllers
                 var mapper = MapperFactory.GetMapper<ManufacturerModel, Manufacturer>();
                 await mapper.MapAsync(model, manufacturer);
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, true);
-                await _urlService.ApplySlugAsync(validateSlugResult);
-                model.SeName = validateSlugResult.Slug;
+                var urlRecord = await _urlService.SaveSlugAsync(manufacturer, model.SeName, manufacturer.GetDisplayName(), true);
+                model.SeName = urlRecord.Slug;
 
                 await ApplyLocales(model, manufacturer);
                 await _discountService.ApplyDiscountsAsync(manufacturer, model?.SelectedDiscountIds, DiscountType.AssignedToManufacturers);
@@ -452,8 +449,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(manufacturer, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(manufacturer, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(localized.SeName, localized.Name, false, localized.LanguageId);
-                await _urlService.ApplySlugAsync(validateSlugResult);
+                await _urlService.SaveSlugAsync(manufacturer, localized.SeName, localized.Name, false, localized.LanguageId);
             }
         }
     }

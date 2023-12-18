@@ -1,5 +1,6 @@
 ﻿using Smartstore.Core.Data;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Threading;
 
 namespace Smartstore.Core.Seo
 {
@@ -114,5 +115,11 @@ namespace Smartstore.Core.Seo
         /// </param>
         /// <returns>The batch scope instance.</returns>
         IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null);
+
+        /// <summary>
+        /// Gets a <see cref="IDistributedLock"/> instance for the given <paramref name="slug"/>
+        /// used to synchronize access to the underlying slug storage.
+        /// </summary>
+        IDistributedLock GetLock(string slug);
     }
 }

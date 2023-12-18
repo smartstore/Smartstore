@@ -1,6 +1,4 @@
-﻿using System.Linq.Dynamic.Core;
-using System.Net;
-using AngleSharp.Common;
+﻿using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
@@ -23,7 +21,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
-using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -214,7 +211,7 @@ namespace Smartstore.Admin.Controllers
                 product.AllowCustomerReviews = true;
                 product.Published = true;
                 product.MaximumCustomerEnteredPrice = 1000;
-                
+
                 if (product.ProductType == ProductType.BundledProduct)
                 {
                     product.BundleTitleText = T("Products.Bundle.BundleIncludes");
@@ -352,7 +349,7 @@ namespace Smartstore.Admin.Controllers
                     .ApplyProductCodeFilter(term)
                     .ToListAsync();
             }
-            
+
             // If no products were found by unique identifiers, perform a full text search.
             if (!products.Any())
             {
@@ -1325,11 +1322,11 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var results = tags.Select(x => new ChoiceListItem
-                {
-                    Id = x,
-                    Text = x,
-                    Selected = selectedNames?.Contains(x) ?? false
-                })
+            {
+                Id = x,
+                Text = x,
+                Selected = selectedNames?.Contains(x) ?? false
+            })
                 .ToList();
 
             return new JsonResult(new
@@ -1791,11 +1788,11 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            ViewBag.DefaultComparePriceLabelName = 
-                _priceLabelService.GetDefaultComparePriceLabel()?.GetLocalized(x => x.ShortName)?.Value ?? 
+            ViewBag.DefaultComparePriceLabelName =
+                _priceLabelService.GetDefaultComparePriceLabel()?.GetLocalized(x => x.ShortName)?.Value ??
                 T("Common.Unspecified").Value;
 
-            ViewBag.CartQuantityInfo = T("Admin.Catalog.Products.CartQuantity.Info", 
+            ViewBag.CartQuantityInfo = T("Admin.Catalog.Products.CartQuantity.Info",
                 _shoppingCartSettings.MaxQuantityInputDropdownItems.ToString("N0"),
                 Url.Action("ShoppingCart", "Setting"));
 
@@ -2220,9 +2217,8 @@ namespace Smartstore.Admin.Controllers
             //var seoTabLoaded = m.LoadedTabs.Contains("SEO", StringComparer.OrdinalIgnoreCase);
 
             // SEO.
-            var validateSlugResult = await p.ValidateSlugAsync(m.SeName, true);
-            m.SeName = validateSlugResult.Slug;
-            await _urlService.ApplySlugAsync(validateSlugResult);
+            var urlRecord = await _urlService.SaveSlugAsync(p, m.SeName, p.GetDisplayName(), true);
+            m.SeName = urlRecord.Slug;
 
             if (editMode)
             {
@@ -2236,8 +2232,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(product, x => x.ShortDescription, localized.ShortDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(product, x => x.FullDescription, localized.FullDescription, localized.LanguageId);
 
-                validateSlugResult = await p.ValidateSlugAsync(localized.SeName, localized.Name, false, localized.LanguageId);
-                await _urlService.ApplySlugAsync(validateSlugResult);
+                await _urlService.SaveSlugAsync(p, localized.SeName, localized.Name, false, localized.LanguageId);
             }
 
             await _storeMappingService.ApplyStoreMappingsAsync(p, model.SelectedStoreIds);
