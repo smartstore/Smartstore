@@ -163,7 +163,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 var entityId = _httpContextAccessor.HttpContext.GetRouteValueAs<int?>("categoryId");
                 if (entityId.HasValue)
                 {
-                    entity = await _services.DbContext.Categories.FindByIdAsync(entityId.Value);
+                    entity = await _services.DbContext.Categories.FindByIdAsync(entityId.Value, false);
                     entityViewMode = ((Category)entity)?.DefaultViewMode;
                 }
             }
@@ -172,7 +172,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 var entityId = _httpContextAccessor.HttpContext.GetRouteValueAs<int?>("manufacturerId");
                 if (entityId.HasValue)
                 {
-                    entity = await _services.DbContext.Manufacturers.FindByIdAsync(entityId.Value);
+                    entity = await _services.DbContext.Manufacturers.FindByIdAsync(entityId.Value, false);
                 }
             }
 
