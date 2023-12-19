@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.CodeAnalysis;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -680,7 +680,6 @@ namespace Smartstore.Web.Controllers
             }
 
             var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(modelContext.SelectedAttributes);
-            //var hasSelectedValues = modelContext.AttributeSelection.AttributesMap.Any();
 
             if (isBundlePricing)
             {
@@ -693,7 +692,8 @@ namespace Smartstore.Web.Controllers
 
             model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, modelContext.SelectedAttributes);
 
-            if (model.SelectedCombination != null && !model.SelectedCombination.IsActive)
+            if ((model.SelectedCombination != null && !model.SelectedCombination.IsActive) ||
+                (product.AttributeCombinationRequired && model.SelectedCombination == null))
             {
                 model.IsAvailable = false;
                 model.StockAvailability = res["Products.Availability.IsNotActive"];

@@ -241,6 +241,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*AttributeChoiceBehaviour")]
         public AttributeChoiceBehaviour AttributeChoiceBehaviour { get; set; }
 
+        [LocalizedDisplay("*AttributeCombinationRequired")]
+        public bool AttributeCombinationRequired { get; set; }
+
         [LocalizedDisplay("*ComparePriceLabelId")]
         public int? ComparePriceLabelId { get; set; }
 

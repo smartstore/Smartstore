@@ -706,6 +706,11 @@ namespace Smartstore.Core.Catalog.Products
         public decimal? LowestAttributeCombinationPrice { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether an attribute combination is required for the product to be ordered.
+        /// </summary>
+        public bool AttributeCombinationRequired { get; set; }
+
+        /// <summary>
         /// Gets or sets the behaviour when selecting product attributes.
         /// </summary>
         public AttributeChoiceBehaviour AttributeChoiceBehaviour { get; set; }

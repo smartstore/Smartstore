@@ -549,7 +549,9 @@ namespace Smartstore.Core.Checkout.Cart
 
             // Checks whether there is an active selected attribute combination.
             var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
-            if (combination != null && !combination.IsActive)
+
+            if ((combination != null && !combination.IsActive) ||
+                (product.AttributeCombinationRequired && combination == null))
             {
                 currentWarnings.Add(T("ShoppingCart.NotAvailable"));
             }

@@ -481,6 +481,7 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.LimitedToStores, !row.GetDataValue<List<int>>("StoreIds").IsNullOrEmpty());
                 row.SetProperty(context.Result, (x) => x.CustomsTariffNumber);
                 row.SetProperty(context.Result, (x) => x.CountryOfOriginId);
+                row.SetProperty(context.Result, (x) => x.AttributeCombinationRequired);
 
                 if (row.TryGetDataValue(nameof(Product.QuantityControlType), out int qct))
                 {

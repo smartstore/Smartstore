@@ -2183,6 +2183,7 @@ namespace Smartstore.Admin.Controllers
 
         private static void UpdateProductAttributes(Product product, ProductModel model)
         {
+            product.AttributeCombinationRequired = model.AttributeCombinationRequired;
             product.AttributeChoiceBehaviour = model.AttributeChoiceBehaviour;
         }
 

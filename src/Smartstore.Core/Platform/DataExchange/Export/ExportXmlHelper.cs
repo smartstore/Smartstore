@@ -721,6 +721,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString(nameof(Product.BundlePerItemShipping), entity.BundlePerItemShipping.ToString());
             _writer.WriteElementString(nameof(Product.BundlePerItemShoppingCart), entity.BundlePerItemShoppingCart.ToString());
             _writer.WriteElementString(nameof(Product.LowestAttributeCombinationPrice), lowestAttributeCombinationPrice?.ToString(_culture) ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.AttributeCombinationRequired), entity.AttributeCombinationRequired.ToString());
             _writer.WriteElementString(nameof(Product.AttributeChoiceBehaviour), ((int)entity.AttributeChoiceBehaviour).ToString());
             _writer.WriteElementString(nameof(Product.IsEsd), entity.IsEsd.ToString());
             _writer.WriteElementString(nameof(Product.CustomsTariffNumber), entity.CustomsTariffNumber);

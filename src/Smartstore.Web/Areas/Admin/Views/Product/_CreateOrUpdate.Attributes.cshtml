@@ -19,8 +19,17 @@
                             <smart-label asp-for="AttributeChoiceBehaviour" />
                         </div>
                         <div class="adminData">
-                            <editor asp-for="AttributeChoiceBehaviour"/>
+                            <editor asp-for="AttributeChoiceBehaviour" />
                             <span asp-validation-for="AttributeChoiceBehaviour"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="AttributeCombinationRequired" />
+                        </div>
+                        <div class="adminData">
+                            <input asp-for="AttributeCombinationRequired" />
+                            <span asp-validation-for="AttributeCombinationRequired"></span>
                         </div>
                     </div>
                 </div>
