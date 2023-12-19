@@ -28,6 +28,7 @@ namespace Smartstore.Core.Data.Migrations
 
         /// <inheritdoc/>
         public virtual DataSeederStage Stage => DataSeederStage.Late;
+        public virtual bool AbortOnFailure => false;
 
         /// <inheritdoc/>
         public Task SeedAsync(TContext context, CancellationToken cancelToken = default)

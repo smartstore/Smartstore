@@ -8,6 +8,7 @@ namespace Smartstore.Core.Data.Migrations
     internal class RemoveTranslationDupes : Migration, IDataSeeder<SmartDbContext>
     {
         public DataSeederStage Stage => DataSeederStage.Early;
+        public bool AbortOnFailure => false;
 
         public override void Up()
         {

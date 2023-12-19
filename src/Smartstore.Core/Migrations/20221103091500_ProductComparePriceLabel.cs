@@ -19,6 +19,7 @@ namespace Smartstore.Core.Data.Migrations
         const string BadgeLabelColumn = nameof(Discount.OfferBadgeLabel);
 
         public DataSeederStage Stage => DataSeederStage.Early;
+        public bool AbortOnFailure => false;
 
         public override void Up()
         {

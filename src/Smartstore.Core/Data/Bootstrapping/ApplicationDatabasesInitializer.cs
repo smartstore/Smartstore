@@ -22,9 +22,7 @@ namespace Smartstore.Core.Bootstrapping
         public int MaxAttempts => 1;
 
         public Task InitializeAsync(HttpContext httpContext)
-        {
-            return _initializer.RunPendingSeedersAsync(_appLifetime.ApplicationStopping);
-        }
+            => _initializer.RunPendingSeedersAsync(_appLifetime.ApplicationStopping);
 
         public Task OnFailAsync(Exception exception, bool willRetry)
             => Task.CompletedTask;

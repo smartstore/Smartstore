@@ -15,6 +15,7 @@ namespace Smartstore.Core.Data.Migrations
         }
 
         public DataSeederStage Stage => DataSeederStage.Early;
+        public bool AbortOnFailure => false;
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {

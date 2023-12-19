@@ -14,6 +14,7 @@ namespace Smartstore.Core.Migrations
         const string SecureOptionColumn = nameof(EmailAccount.SecureOption);
 
         public DataSeederStage Stage => DataSeederStage.Early;
+        public bool AbortOnFailure => false;
 
         public override void Up()
         {

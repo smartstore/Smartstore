@@ -11,7 +11,7 @@
         Task InitializeDatabasesAsync(CancellationToken cancelToken);
 
         /// <summary>
-        /// Runs any pending data seeders that have not been run at app start.
+        /// Runs any pending (long running) data seeders that have not been run at app start.
         /// </summary>
         Task RunPendingSeedersAsync(CancellationToken cancelToken);
     }

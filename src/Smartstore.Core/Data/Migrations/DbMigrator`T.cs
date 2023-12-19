@@ -167,7 +167,7 @@ namespace Smartstore.Core.Data.Migrations
                 // (e.g. for Resource or Setting updates even from external modules).
                 if (migration.Migration is IDataSeeder<SmartDbContext> coreSeeder)
                 {
-                    if (coreSeeder.Stage > DataSeederStage.Late)
+                    if (coreSeeder.Stage == DataSeederStage.Early)
                     {
                         coreSeeders.Add(new SeederEntry { Seeder = coreSeeder, Migration = migration, PreviousMigration = _lastSuccessfulMigration });
                     }
@@ -179,7 +179,7 @@ namespace Smartstore.Core.Data.Migrations
 
                 if (!IsCoreMigration && migration.Migration is IDataSeeder<TContext> externalSeeder)
                 {
-                    if (externalSeeder.Stage > DataSeederStage.Late)
+                    if (externalSeeder.Stage == DataSeederStage.Early)
                     {
                         externalSeeders.Add(new SeederEntry { Seeder = externalSeeder, Migration = migration, PreviousMigration = _lastSuccessfulMigration });
                     }
@@ -290,7 +290,7 @@ namespace Smartstore.Core.Data.Migrations
                     var m = entry.Migration;
                     var seeder = (IDataSeeder<T>)entry.Seeder;
 
-                    if (seeder.Stage == DataSeederStage.EarlyWithRollbackOnFailure)
+                    if (seeder.AbortOnFailure)
                     {
                         _lastSeedException = new DbMigrationException(entry.PreviousMigration?.Description ?? _initialMigration?.Name, m.Description, ex.InnerException ?? ex, true);
 
@@ -382,8 +382,17 @@ namespace Smartstore.Core.Data.Migrations
                 }
                 catch (Exception ex)
                 {
-                    // TODO: throw or continue?
-                    _logger.Error(ex);
+                    var m = entry.Migration;
+                    var seeder = (IDataSeeder<T>)entry.Seeder;
+
+                    if (seeder.AbortOnFailure)
+                    {
+                        throw new DbMigrationException(null, m.Description, ex.InnerException ?? ex, true);
+                    }
+                    else
+                    {
+                        _logger.Error(ex, "Seed error in migration '{0}'.", m.Description);
+                    }  
                 }
             }
         }

@@ -8,22 +8,16 @@ namespace Smartstore.Data.Migrations
     public enum DataSeederStage
     {
         /// <summary>
-        /// The seeder should run late (after app start, during the very first request).
-        /// Always define <c>Late</c> for potentially long running seeders 
-        /// to avoid a possible timeout during the app start.
-        /// </summary>
-        Late,
-
-        /// <summary>
         /// The seeder should run early during app startup
         /// </summary>
         Early,
 
         /// <summary>
-        /// The seeder should run early during app startup. 
-        /// Any unhandled exception should rollback the corresponding database migration.
+        /// The seeder should run late (after app start, during the very first request).
+        /// Always define <c>Late</c> for potentially long running seeders 
+        /// to avoid a possible timeout during the app start.
         /// </summary>
-        EarlyWithRollbackOnFailure
+        Late
     }
     
     /// <summary>
@@ -41,5 +35,11 @@ namespace Smartstore.Data.Migrations
         /// Defines the stage in which the seeder is to be executed.
         /// </summary>
         DataSeederStage Stage { get; }
+
+        /// <summary>
+        /// Any unhandled exception should rollback the corresponding database migration (if in early stage)
+        /// or raise the exception (if in late stage).
+        /// </summary>
+        bool AbortOnFailure { get; }
     }
 }
