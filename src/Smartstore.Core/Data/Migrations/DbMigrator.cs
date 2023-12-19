@@ -131,7 +131,10 @@ namespace Smartstore.Core.Data.Migrations
         /// <summary>
         /// Runs all pending data seeders that are <see cref="DataSeederStage.Late"/>.
         /// </summary>
-        public abstract Task RunPendingSeedersAsync(CancellationToken cancelToken = default);
+        /// <remarks>
+        /// This method is not thread-safe and should only be called in an app initializer.
+        /// </remarks>
+        public abstract Task RunLateSeedersAsync(CancellationToken cancelToken = default);
 
         /// <summary>
         /// Seeds locale resources of pending migrations.

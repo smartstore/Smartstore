@@ -6,6 +6,7 @@ using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
 using Smartstore.Data.Providers;
 using Smartstore.Engine.Modularity;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -28,33 +29,19 @@ namespace Smartstore.Core.Data.Migrations
 
         public virtual async Task InitializeDatabasesAsync(CancellationToken cancelToken = default)
         {
-            if (!ModularState.Instance.HasChanged)
+            var contextTypes = GetDbContextTypes();
+            foreach (var contextType in contextTypes)
             {
-                // (perf) ignore modules, they did not change since last migration.
-                await InitializeDatabaseAsync(typeof(SmartDbContext), cancelToken);
-            }
-            else
-            {
-                var contextTypes = _typeScanner.FindTypes<DbContext>().ToArray();
-                foreach (var contextType in contextTypes)
-                {
-                    await InitializeDatabaseAsync(contextType, cancelToken);
-                }
+                await InitializeDatabaseAsync(contextType, cancelToken);
             }
         }
 
-        protected Task InitializeDatabaseAsync(Type dbContextType, CancellationToken cancelToken = default)
+        protected virtual async Task InitializeDatabaseAsync(Type dbContextType, CancellationToken cancelToken = default)
         {
             Guard.NotNull(dbContextType);
-            Guard.IsAssignableFrom<DbContext>(dbContextType);
+            Guard.IsAssignableFrom<HookingDbContext>(dbContextType);
 
             var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
-            return InitializeDatabaseAsync(migrator, cancelToken);
-        }
-
-        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, CancellationToken cancelToken = default)
-        {
-            Guard.NotNull(migrator);
 
             var context = migrator.Context;
             var type = context.GetInvariantType();
@@ -69,15 +56,8 @@ namespace Smartstore.Core.Data.Migrations
                 throw new InvalidOperationException($"Database migration failed because the target database does not exist. Ensure the database was initialized and properly seeded with data.");
             }
 
-            using (new DbContextScope(context, minHookImportance: HookImportance.Essential))
+            using (BeginMigration(context))
             {
-                // Set (usually longer) command timeout for migrations
-                var prevCommandTimeout = context.Database.GetCommandTimeout();
-                if (_appConfig.DbMigrationCommandTimeout.HasValue && _appConfig.DbMigrationCommandTimeout.Value > 15)
-                {
-                    context.Database.SetCommandTimeout(_appConfig.DbMigrationCommandTimeout.Value);
-                }
-
                 // Run all pending migrations
                 await migrator.RunPendingMigrationsAsync(null, cancelToken);
 
@@ -85,10 +65,29 @@ namespace Smartstore.Core.Data.Migrations
                 // we could have locale resources or settings to add/update.
                 await RunGlobalSeeders(context, cancelToken);
 
-                // Restore standard command timeout
-                context.Database.SetCommandTimeout(prevCommandTimeout);
-
                 _initializedContextTypes.Add(type);
+            }
+        }
+
+        public virtual async Task RunPendingSeedersAsync(CancellationToken cancelToken = default)
+        {
+            var contextTypes = GetDbContextTypes();
+            foreach (var contextType in contextTypes)
+            {
+                await RunPendingSeedersAsync(contextType, cancelToken);
+            }
+        }
+
+        protected async Task RunPendingSeedersAsync(Type dbContextType, CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(dbContextType);
+            Guard.IsAssignableFrom<HookingDbContext>(dbContextType);
+
+            var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
+
+            using (BeginMigration(migrator.Context))
+            {
+                await migrator.RunLateSeedersAsync(cancelToken);
             }
         }
 
@@ -117,30 +116,40 @@ namespace Smartstore.Core.Data.Migrations
             }
         }
 
-        public virtual async Task RunPendingSeedersAsync(CancellationToken cancelToken = default)
+        /// <summary>
+        /// Resolves/discovers all migratable data context types.
+        /// </summary>
+        private Type[] GetDbContextTypes()
         {
             if (!ModularState.Instance.HasChanged)
             {
-                // (perf) ignore modules, they did not change since last migration.
-                await RunPendingSeedersAsync(typeof(SmartDbContext), cancelToken);
+                // (perf) Ignore modules, they did not change since last migration.
+                return new Type[] { typeof(SmartDbContext) };
             }
             else
             {
-                var contextTypes = _typeScanner.FindTypes<DbContext>().ToArray();
-                foreach (var contextType in contextTypes)
-                {
-                    await RunPendingSeedersAsync(contextType, cancelToken);
-                }
+                return _typeScanner.FindTypes<HookingDbContext>().ToArray();
             }
         }
 
-        protected Task RunPendingSeedersAsync(Type dbContextType, CancellationToken cancelToken = default)
+        private IDisposable BeginMigration(HookingDbContext context)
         {
-            Guard.NotNull(dbContextType);
-            Guard.IsAssignableFrom<DbContext>(dbContextType);
+            var prevCommandTimeout = context.Database.GetCommandTimeout();
+            var dbScope = new DbContextScope(context, minHookImportance: HookImportance.Essential);
 
-            var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
-            return migrator.RunPendingSeedersAsync(cancelToken);
+            // Set (usually longer) command timeout for migrations
+            if (_appConfig.DbMigrationCommandTimeout.HasValue && _appConfig.DbMigrationCommandTimeout.Value > 15)
+            {
+                context.Database.SetCommandTimeout(_appConfig.DbMigrationCommandTimeout.Value);
+            }
+
+            return new ActionDisposable(() =>
+            {
+                // Restore standard command timeout
+                context.Database.SetCommandTimeout(prevCommandTimeout);
+
+                dbScope.Dispose();
+            });
         }
     }
 }
