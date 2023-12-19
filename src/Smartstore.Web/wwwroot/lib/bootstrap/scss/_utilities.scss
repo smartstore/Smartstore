@@ -212,9 +212,9 @@ $utilities: map-merge(
         auto: auto
       )
     ),
-    "height-px": (
+    "min-height-px": (
       responsive: true,
-      property: height,
+      property: min-height,
       class: h,
       values: (
         medium: 400px,
