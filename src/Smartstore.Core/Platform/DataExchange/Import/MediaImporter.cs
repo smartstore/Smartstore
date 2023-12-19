@@ -79,11 +79,11 @@ namespace Smartstore.Core.DataExchange.Import
                     // We append quality to avoid importing of image duplicates.
                     item.Url = _webHelper.ModifyQueryString(urlOrPath, "q=100");
 
-                    if (_downloadUrls.ContainsKey(urlOrPath))
+                    if (_downloadUrls.TryGetValue(urlOrPath, out string url))
                     {
                         // URL has already been downloaded.
                         item.Success = true;
-                        item.FileName = _downloadUrls[urlOrPath];
+                        item.FileName = url;
                     }
                     else
                     {
@@ -132,16 +132,15 @@ namespace Smartstore.Core.DataExchange.Import
             CancellationToken cancelToken = default)
         {
             Guard.NotNull(scope);
-            Guard.NotNull(items);
             Guard.NotNull(album);
             Guard.NotNull(existingFiles);
             Guard.NotNull(assignMediaFileHandler);
 
             var itemsMap = items
-                .Where(x => x?.Entity != null)
-                .ToMultimap(x => x.Entity.Id, x => x);
+                ?.Where(x => x?.Entity != null)
+                ?.ToMultimap(x => x.Entity.Id, x => x);
 
-            if (itemsMap.Count == 0)
+            if (itemsMap.IsNullOrEmpty())
             {
                 return 0;
             }
@@ -267,12 +266,12 @@ namespace Smartstore.Core.DataExchange.Import
             CancellationToken cancelToken = default) where T : BaseEntity
         {
             Guard.NotNull(scope);
-            Guard.NotNull(items);
             Guard.NotNull(album);
             Guard.NotNull(assignMediaFileHandler);
+            Guard.NotNull(checkAssignedMediaFileHandler);
 
-            items = items.Where(x => x != null).ToArray();
-            if (items.Count == 0)
+            items = items?.Where(x => x != null)?.ToArray();
+            if (items.IsNullOrEmpty())
             {
                 return 0;
             }
@@ -374,10 +373,10 @@ namespace Smartstore.Core.DataExchange.Import
             CancellationToken cancelToken = default)
         {
             var itemIds = items
-                .Where(x => x?.Entity != null)
-                .ToDistinctArray(x => x.Entity.Id);
+                ?.Where(x => x?.Entity != null)
+                ?.ToDistinctArray(x => x.Entity.Id);
 
-            if (itemIds.Length == 0)
+            if (itemIds.IsNullOrEmpty())
             {
                 return 0;
             }
@@ -532,8 +531,8 @@ namespace Smartstore.Core.DataExchange.Import
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default)
         {
-            var itemsArr = items.Where(x => x != null).ToArray();
-            if (itemsArr.Length == 0)
+            var itemsArr = items?.Where(x => x != null)?.ToArray();
+            if (itemsArr.IsNullOrEmpty())
             {
                 return 0;
             }
