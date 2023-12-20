@@ -25,7 +25,8 @@
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
 - GMC: Only export images (not videos or other media types).
 - #912 Add a setting to use the `CultureInfo.NativeName` in language selector instead of the language name maintained in backend.
-- Added meta properties name and uploadDate for videos 
+- Added meta properties name and uploadDate for videos
+- (DEV) Database migrations: Long running data seeders can now be run during the request stage to overcome app startup timeout issues.
 
 ### Bugfixes
 
@@ -41,7 +42,9 @@
 - #936 Password protected topic was not displayed after password has been entered.
 - Fixed the reward points for purchases setting was not saved in multi-store mode.
 - Fixed offcanvas cart issue in mobile browsers (buttons in the footer were sometimes truncated).
-- Some radio button groups in Page Builder were not deselectable
+- Page Builder
+  - Some radio button groups were not deselectable
+  - Story min-height (medium | tall) often resulted in broken page layout
 
 
 ## Smartstore 5.1.0
