@@ -187,7 +187,6 @@ namespace Smartstore.Web.Models.Cart
                     var lineItem = subtotal.LineItems.FirstOrDefault(x => x.Item.Item.Id == item.Id);
 
                     MapCalculatedPrice(lineItem.UnitPrice, lineItem.Subtotal);
-                    priceModel.IsBundlePart = true;
                 }
                 else
                 {
@@ -198,6 +197,8 @@ namespace Smartstore.Web.Models.Cart
                     MapCalculatedPrice(unitPrice, itemSubtotal);
                 }
             }
+
+            priceModel.IsBundlePart = product.ProductType != ProductType.BundledProduct && item.BundleItem != null;
 
             void MapCalculatedPrice(CalculatedPrice unitPrice, CalculatedPrice totalPrice)
             {
