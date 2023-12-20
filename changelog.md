@@ -46,6 +46,7 @@
 - Page Builder
   - Some radio button groups were not deselectable
   - Story min-height (medium | tall) often resulted in broken page layout
+- #951 The forum post page counter is always incremented by 2 when the page is opened.
 
 
 ## Smartstore 5.1.0
