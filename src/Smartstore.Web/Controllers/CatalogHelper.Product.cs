@@ -695,9 +695,6 @@ namespace Smartstore.Web.Controllers
             if ((model.SelectedCombination != null && !model.SelectedCombination.IsActive) ||
                 (product.AttributeCombinationRequired && model.SelectedCombination == null))
             {
-                // TODO: (mg) Insufficient and rather useless implementation! A non-existent combination
-                // must also be grayed out in the frontend, just like an out-of-stock combination.
-                // That was the whole idea.
                 model.IsAvailable = false;
                 model.StockAvailability = res["Products.Availability.IsNotActive"];
             }
@@ -713,7 +710,7 @@ namespace Smartstore.Web.Controllers
             {
                 var updatePreselection = selectedValueIds.Any() && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
 
-                foreach (ProductDetailsModel.ProductVariantAttributeValueModel value in attribute.Values)
+                foreach (var value in attribute.Values.Cast<ProductDetailsModel.ProductVariantAttributeValueModel>())
                 {
                     if (updatePreselection)
                     {

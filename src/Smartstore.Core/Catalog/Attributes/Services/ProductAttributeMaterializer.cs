@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -7,7 +6,6 @@ using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -377,7 +375,7 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             if (product == null ||
                 _performanceSettings.MaxUnavailableAttributeCombinations <= 0 ||
-                !(selectedValues?.Any() ?? false))
+                selectedValues.IsNullOrEmpty())
             {
                 return null;
             }
@@ -387,7 +385,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 o.ExpiresIn(TimeSpan.FromMinutes(10));
 
-                var data = new Dictionary<string, CombinationAvailabilityInfo>();
+                var data = new Dictionary<int, CombinationAvailabilityInfo>();
                 var query = _db.ProductVariantAttributeCombinations
                     .AsNoTracking()
                     .Where(x => x.ProductId == product.Id);
@@ -410,21 +408,13 @@ namespace Smartstore.Core.Catalog.Attributes
 
                     while ((await pager.ReadNextPageAsync<ProductVariantAttributeCombination>()).Out(out var combinations))
                     {
-                        foreach (var combination in combinations)
+                        foreach (var combination in combinations.Where(x => x.AttributeSelection.HasAttributes))
                         {
-                            if (combination.AttributeSelection.HasAttributes)
+                            data[combination.HashCode] = new()
                             {
-                                // <ProductVariantAttribute.Id>:<ProductVariantAttributeValue.Id>[,...]
-                                var valuesKeys = combination.AttributeSelection.AttributesMap
-                                    .OrderBy(x => x.Key)
-                                    .Select(x => $"{x.Key}:{string.Join(",", x.Value.OrderBy(y => y))}");
-
-                                data[string.Join("-", valuesKeys)] = new CombinationAvailabilityInfo
-                                {
-                                    IsActive = combination.IsActive,
-                                    IsOutOfStock = combination.StockQuantity <= 0 && !combination.AllowOutOfStockOrders
-                                };
-                            }
+                                IsActive = combination.IsActive,
+                                IsOutOfStock = combination.StockQuantity <= 0 && !combination.AllowOutOfStockOrders
+                            };
                         }
                     }
                 }
@@ -432,20 +422,20 @@ namespace Smartstore.Core.Catalog.Attributes
                 return data;
             });
 
-            if (!unavailableCombinations.Any())
+            if (unavailableCombinations.Count == 0 && !product.AttributeCombinationRequired)
             {
                 return null;
             }
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
             var selectedValuesMap = selectedValues.ToMultimap(x => x.ProductVariantAttributeId, x => x);
+            var selection = new ProductVariantAttributeSelection(null);
 
             if (attributes == null || currentValue == null)
             {
                 // Create key to test selectedValues.
                 foreach (var kvp in selectedValuesMap.OrderBy(x => x.Key))
                 {
-                    Append(sb, kvp.Key, kvp.Value.Select(x => x.Id).Distinct());
+                    selection.AddAttribute(kvp.Key, kvp.Value.Select(x => (object)x.Id).Distinct());
                 }
             }
             else
@@ -454,9 +444,9 @@ namespace Smartstore.Core.Catalog.Attributes
                 foreach (var attribute in attributes.OrderBy(x => x.Id))
                 {
                     IEnumerable<int> valueIds;
-
-                    var selectedIds = selectedValuesMap.ContainsKey(attribute.Id)
-                        ? selectedValuesMap[attribute.Id].Select(x => x.Id)
+                    
+                    var selectedIds = selectedValuesMap.TryGetValues(attribute.Id, out var vals)
+                        ? vals.Select(x => x.Id)
                         : null;
 
                     if (attribute.Id == currentValue.ProductVariantAttributeId)
@@ -488,11 +478,11 @@ namespace Smartstore.Core.Catalog.Attributes
                         }
                     }
 
-                    Append(sb, attribute.Id, valueIds);
+                    selection.AddAttribute(attribute.Id, valueIds.Select(x => (object)x));
                 }
             }
 
-            var key = sb.ToString();
+            var key = selection.GetHashCode();
             //$"{!unavailableCombinations.ContainsKey(key),-5} {currentValue.ProductVariantAttributeId}:{currentValue.Id} -> {key}".Dump();
 
             if (unavailableCombinations.TryGetValue(key, out var availability))
@@ -500,23 +490,17 @@ namespace Smartstore.Core.Catalog.Attributes
                 return availability;
             }
 
-            return null;
-
-            static void Append(StringBuilder sb, int pvaId, IEnumerable<int> pvavIds)
+            if (product.AttributeCombinationRequired && await FindAttributeCombinationAsync(product.Id, selection) == null)
             {
-                var idsStr = string.Join(',', pvavIds.OrderBy(x => x));
-
-                if (sb.Length > 0)
-                {
-                    sb.Append('-');
-                }
-                sb.Append($"{pvaId}:{idsStr}");
+                return new() { IsActive = false };
             }
+
+            return null;
         }
 
         protected virtual async Task<IList<ProductVariantAttributeValue>> LoadAttributeValuesAsync(int[] attributeIds, int[] valueIds)
         {
-            if (!attributeIds.Any() || !valueIds.Any())
+            if (attributeIds.IsNullOrEmpty() || valueIds.IsNullOrEmpty())
             {
                 return new List<ProductVariantAttributeValue>();
             }
