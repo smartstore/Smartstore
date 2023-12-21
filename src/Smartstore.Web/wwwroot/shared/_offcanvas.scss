@@ -161,8 +161,8 @@ body.canvas-blocking .canvas-blocker {
     }
 
     &.show {
-        --offcanvas-x-offset: 0;
-        --offcanvas-y-offset: 0;
+        --offcanvas-x-offset: 0 !important;
+        --offcanvas-y-offset: 0 !important;
         opacity: 1;
         visibility: visible;
         transition: transform $offcanvas-duration $offcanvas-easing,
@@ -286,5 +286,13 @@ body.canvas-blocking .canvas-blocker {
 
     .canvas-sliding-end .canvas-slidable {
         transform: translate3d(15%, 0, 0);
+    }
+
+    .offcanvas {
+        --offcanvas-x-offset: 100%;
+
+        &.offcanvas-end {
+            --offcanvas-x-offset: -100%;
+        }
     }
 }
