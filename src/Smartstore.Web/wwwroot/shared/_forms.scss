@@ -142,19 +142,11 @@ fieldset.content-group {
         height: 100%;
 		width: var(--inline-icon-size);
         line-height: var(--inline-icon-size);
-        font-size: var(--inline-icon-font-size);
+        font-size: cssmax(16px, var(--inline-icon-font-size));
         inset-inline-start: var(--inline-icon-offset);
 		text-align: center;
 		vertical-align: middle;
         pointer-events: none;
-
-        :before {
-            font-size: cssmax(16px, var(--inline-icon-font-size));
-            position: absolute;
-            inset-inline-start: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
 	}
 
 	&.has-icon-right .input-group-icon {
