@@ -30,20 +30,6 @@
 // Common
 // --------------------------------------------------------------
 
-.note-btn {
-    --btn-padding-x: 9px;
-}
-
-.note-btn > i,
-.note-btn > svg {
-    //font-size: 16px !important;
-    fill: currentColor;
-}
-
-.note-btn > svg {
-    height: 14px;
-}
-
 .note-editor {
 	.note-toolbar {
         display: flex;

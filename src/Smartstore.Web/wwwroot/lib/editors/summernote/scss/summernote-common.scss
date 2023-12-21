@@ -508,6 +508,20 @@ $img-margin-right: 10px;
     gap: 5px;
 }
 
+.note-btn {
+    --btn-padding-x: 9px;
+
+    > i,
+    > svg {
+        //font-size: 16px !important;
+        fill: currentColor;
+    }
+
+    > svg {
+        height: 14px;
+    }
+}
+
 
 // Para style dropdown
 // -------------------------------------
