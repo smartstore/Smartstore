@@ -99,7 +99,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
 
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -166,7 +166,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
 
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -214,7 +214,7 @@ namespace Smartstore.Web.Controllers
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> NewShippingAddress(CheckoutAddressModel model)
         {
-            var result = await HandleNewAddress(model, true);
+            var result = await HandleNewAddress(model, false);
             if (result != null)
             {
                 return result;
@@ -229,7 +229,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
 
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -276,7 +276,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
 
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -321,7 +321,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
 
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -373,7 +373,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
 
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -443,7 +443,7 @@ namespace Smartstore.Web.Controllers
             var language = Services.WorkContext.WorkingLanguage;
 
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -494,7 +494,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
 
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -587,7 +587,7 @@ namespace Smartstore.Web.Controllers
         {
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -610,7 +610,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, storeId: store.Id);
 
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return RedirectToRoute("ShoppingCart");
             }
