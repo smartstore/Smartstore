@@ -30,6 +30,7 @@
 
 ### Bugfixes
 
+- Fixed a new shipping address is used as the billing address in checkout.
 - Fixed only the first product attribute of list type attributes was displayed on the cart and order page.
 - Fixed cart page shows 0 bundle item price if per-item pricing is deactivated.
 - #914 Featured sorting on category and manufacturer pages not applied when using standard search.
