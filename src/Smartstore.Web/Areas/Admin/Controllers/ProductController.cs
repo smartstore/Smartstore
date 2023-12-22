@@ -337,22 +337,24 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> AllProducts(int page, string term, string selectedIds)
         {
             const int pageSize = 100;
-            IEnumerable<Product> products = new List<Product>();
-            var hasMoreData = true;
-            var ids = selectedIds.ToIntArray();
 
-            // Perform a search for SKU, MPN or GTIN first.
+            var hasMoreData = false;
+            var ids = selectedIds.ToIntArray();
+            IList<Product> products = null;
+
             if (term.HasValue())
             {
-                products = await _db.Products
-                    .IgnoreQueryFilters()
-                    .ApplyProductCodeFilter(term)
-                    .ToListAsync();
+                // Perform a search by SKU, MPN or GTIN first.
+                var (product, _) = await _productService.GetProductByCodeAsync(term, true);
+                if (product != null)
+                {
+                    products = new List<Product> { product };
+                }
             }
 
-            // If no products were found by unique identifiers, perform a full text search.
-            if (!products.Any())
+            if (products.IsNullOrEmpty())
             {
+                // If no products were found by unique identifiers, perform a full text search.
                 var skip = page * pageSize;
                 var fields = new List<string> { "name" };
 
@@ -382,8 +384,9 @@ namespace Smartstore.Admin.Controllers
                 else
                 {
                     var query = _catalogSearchService.Value.PrepareQuery(searchQuery);
+                    var count = await query.CountAsync();
 
-                    hasMoreData = (page + 1) * pageSize < await query.CountAsync();
+                    hasMoreData = (page + 1) * pageSize < count;
 
                     products = await query
                         .Select(x => new Product
