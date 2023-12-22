@@ -698,7 +698,7 @@ namespace Smartstore.Admin.Controllers
                 .Select(x =>
                 {
                     var ruleScope = (RuleScope)x.Value.ToInt();
-                    if (ruleScope == RuleScope.Other)
+                    if (ruleScope >= RuleScope.ProductAttribute)
                     {
                         return null;
                     }

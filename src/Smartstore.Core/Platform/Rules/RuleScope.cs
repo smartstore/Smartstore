@@ -6,6 +6,7 @@
         //OrderItem = 1,
         Customer = 2,
         Product = 3,
+        ProductAttribute = 20,
         Other = int.MaxValue
     }
 }

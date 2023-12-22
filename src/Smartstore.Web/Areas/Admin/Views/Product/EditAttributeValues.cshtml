@@ -3,7 +3,9 @@
 @{
     Assets.BodyAttributes.AppendCssClass("spa-layout");
 
-    ViewBag.Title = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.EditAttributeDetails", Model.ProductVariantAttributeName, Model.ProductName);
+    ViewBag.Title = T(Model.IsListTypeAttribute ? "Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules" : "Admin.Catalog.Products.ProductVariantAttributes.Rules",
+        Model.ProductVariantAttributeName,
+        Model.ProductName);
 
     var gridViewData = new ViewDataDictionary(this.ViewData);
     gridViewData["Parent"] = Model;

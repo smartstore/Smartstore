@@ -141,7 +141,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductVariantAttributeList(GridCommand command, int productId)
         {
-            var editValuesStr = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink").Value;
+            var editOptionsAndRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules").Value;
+            var editRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditRules").Value;
             var copyOptionsStr = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions").Value;
 
             var productVariantAttributes = await _db.ProductVariantAttributes
@@ -155,9 +156,15 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var ruleSetIds = productVariantAttributes.ToDistinctArray(x => x.RuleSetId);
+            var rulesCount = await _db.RuleSets
+                .Where(x => ruleSetIds.Contains(x.Id))
+                .Select(x => new { x.Id, x.Rules.Count })
+                .ToDictionaryAsync(x => x.Id, x => x.Count);
+
             var rows = productVariantAttributes.Select(x =>
             {
-                var pvaModel = new ProductModel.ProductVariantAttributeModel
+                var model = new ProductModel.ProductVariantAttributeModel
                 {
                     Id = x.Id,
                     ProductId = x.ProductId,
@@ -168,27 +175,33 @@ namespace Smartstore.Admin.Controllers
                     IsRequired = x.IsRequired,
                     AttributeControlType = Services.Localization.GetLocalizedEnum(x.AttributeControlType),
                     AttributeControlTypeId = x.AttributeControlTypeId,
-                    DisplayOrder = x.DisplayOrder
+                    DisplayOrder = x.DisplayOrder,
+                    RuleSetId = x.RuleSetId,
+                    NumberOfRules = rulesCount.Get(x.RuleSetId ?? 0),
+                    EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = x.Id })
                 };
 
                 if (x.IsListTypeAttribute())
                 {
-                    pvaModel.ValueCount = x.ProductVariantAttributeValues?.Count ?? 0;
-                    pvaModel.EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = x.Id });
-                    pvaModel.EditText = editValuesStr.FormatInvariant(pvaModel.ValueCount);
+                    model.NumberOfOptions = x.ProductVariantAttributeValues?.Count ?? 0;
+                    model.EditText = editOptionsAndRulesStr.FormatInvariant(model.NumberOfOptions, model.NumberOfRules);
 
-                    if (x.ProductAttribute.ProductAttributeOptionsSets.Any())
+                    if (x.ProductAttribute.ProductAttributeOptionsSets.Count > 0)
                     {
-                        pvaModel.OptionSets.Add(new { Id = string.Empty, Name = copyOptionsStr });
+                        model.OptionSets.Add(new { Id = string.Empty, Name = copyOptionsStr });
 
                         x.ProductAttribute.ProductAttributeOptionsSets.Each(set =>
                         {
-                            pvaModel.OptionSets.Add(new { set.Id, set.Name });
+                            model.OptionSets.Add(new { set.Id, set.Name });
                         });
                     }
                 }
+                else
+                {
+                    model.EditText = editRulesStr.FormatInvariant(model.NumberOfRules);
+                }
 
-                return pvaModel;
+                return model;
             })
             .ToList();
 
@@ -376,21 +389,19 @@ namespace Smartstore.Admin.Controllers
         {
             var pva = await _db.ProductVariantAttributes
                 .Include(x => x.ProductAttribute)
-                .FindByIdAsync(productVariantAttributeId, false);
+                .FindByIdAsync(productVariantAttributeId, false) 
+                ?? throw new ArgumentException(T("Products.Variants.NotFound", productVariantAttributeId));
 
-            if (pva == null)
-                throw new ArgumentException(T("Products.Variants.NotFound", productVariantAttributeId));
-
-            var product = await _db.Products.FindByIdAsync(pva.ProductId, false);
-            if (product == null)
-                throw new ArgumentException(T("Products.NotFound", pva.ProductId));
+            var product = await _db.Products.FindByIdAsync(pva.ProductId, false) 
+                ?? throw new ArgumentException(T("Products.NotFound", pva.ProductId));
 
             var model = new ProductModel.ProductVariantAttributeValueListModel
             {
                 ProductName = product.Name,
                 ProductId = pva.ProductId,
                 ProductVariantAttributeName = pva.ProductAttribute.Name,
-                ProductVariantAttributeId = pva.Id
+                ProductVariantAttributeId = pva.Id,
+                IsListTypeAttribute = pva.IsListTypeAttribute()
             };
 
             return View(model);

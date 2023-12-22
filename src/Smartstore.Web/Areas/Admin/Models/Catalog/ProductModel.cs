@@ -528,11 +528,15 @@ namespace Smartstore.Admin.Models.Catalog
             [LocalizedDisplay("Common.DisplayOrder")]
             public int DisplayOrder { get; set; }
 
-            [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")]
+            public int? RuleSetId { get; set; }
+
+            [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.OptionsAndRules")]
             public string EditUrl { get; set; }
             public string EditText { get; set; }
             public List<object> OptionSets { get; set; } = new();
-            public int ValueCount { get; set; }
+
+            public int NumberOfOptions { get; set; }
+            public int NumberOfRules { get; set; }
         }
 
         public class ProductVariantAttributeValueListModel : ModelBase
@@ -541,6 +545,7 @@ namespace Smartstore.Admin.Models.Catalog
             public string ProductName { get; set; }
             public int ProductVariantAttributeId { get; set; }
             public string ProductVariantAttributeName { get; set; }
+            public bool IsListTypeAttribute { get; set; }
         }
 
         // TODO: DRY. see ProductAttributeOptionModelBase

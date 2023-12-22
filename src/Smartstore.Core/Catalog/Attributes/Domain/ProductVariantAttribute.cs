@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -20,6 +21,11 @@ namespace Smartstore.Core.Catalog.Attributes
             builder.HasOne(c => c.ProductAttribute)
                 .WithMany()
                 .HasForeignKey(c => c.ProductAttributeId);
+
+            builder.HasOne(c => c.RuleSet)
+                .WithMany()
+                .HasForeignKey(c => c.RuleSetId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
@@ -130,6 +136,22 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             get => _productVariantAttributeValues ?? LazyLoader.Load(this, ref _productVariantAttributeValues) ?? (_productVariantAttributeValues ??= new HashSet<ProductVariantAttributeValue>());
             protected set => _productVariantAttributeValues = value;
+        }
+
+        /// <summary>
+        /// Gets or sets an identifier of a rule set with conditions for the visibility of the attribute.
+        /// </summary>
+        public int? RuleSetId { get; set; }
+
+        private RuleSetEntity _ruleSet;
+        /// <summary>
+        /// Gets or sets an optional rule set with conditions for the visibility of the attribute.
+        /// </summary>
+        [IgnoreDataMember]
+        public RuleSetEntity RuleSet
+        {
+            get => _ruleSet ?? LazyLoader.Load(this, ref _ruleSet);
+            set => _ruleSet = value;
         }
     }
 }
