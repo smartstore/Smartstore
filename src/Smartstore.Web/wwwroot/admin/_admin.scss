@@ -155,7 +155,7 @@ body {
 
     @include media-breakpoint-up(sm) {
         margin: 0 var(--content-padding-x);
-        border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+        border-radius: 0.75rem 0.75rem 0 0;
     }
 
     .popup & {

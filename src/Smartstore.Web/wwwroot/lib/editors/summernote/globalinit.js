@@ -97,7 +97,7 @@ var summernote_image_upload_url;
 		toolbar: [
 			['text', ['bold', 'italic', 'underline', 'strikethrough', 'clear', 'cleaner']],
             //['font', ['forecolor', 'backcolor']],
-            ['font', ['fontname', 'color', 'fontsize']],
+            //['font', ['fontname', 'color', 'fontsize']],
 			['para', ['style', 'cssclass', 'ul', 'ol', 'paragraph']],
 			['insert', ['link', 'media',  'table', 'hr', 'video']],
 			['view', ['fullscreen', 'codeview', 'help']]
