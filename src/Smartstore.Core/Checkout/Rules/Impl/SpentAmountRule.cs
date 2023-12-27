@@ -5,7 +5,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class SpentAmountRule : IRule
+    internal class SpentAmountRule : IRule<CartRuleContext>
     {
         private readonly SmartDbContext _db;
         private readonly ICurrencyService _currencyService;

@@ -1,0 +1,20 @@
+﻿@using Smartstore.Core.Rules
+
+@model ProductModel.ProductVariantAttributeValueListModel
+
+@{
+    Assets.AppendScriptFiles("~/admin/js/smartstore.rules.js");
+
+    var scope = (int)RuleScope.ProductAttribute;
+}
+
+<div id="ruleset-root" class="ruleset-root"
+     data-dirty="false"
+     data-scope="@scope"
+     data-url-addgroup="@Url.Action("AddGroup", "Rule", new { area = "Admin" })"
+     data-url-deletegroup="@Url.Action("DeleteGroup", "Rule", new { area = "Admin" })"
+     data-url-updaterules="@Url.Action("UpdateRules", "Rule", new { ruleScope = scope, area = "Admin" })"
+     data-url-addrule="@Url.Action("AddRule", "Rule", new { area = "Admin" })"
+     data-url-deleterule="@Url.Action("DeleteRule", "Rule", new { area = "Admin" })">
+    @*<partial name="~/Areas/Admin/Views/Rule/_RuleSet.cshtml" model="Model.ExpressionGroup" />*@
+</div>

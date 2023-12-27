@@ -3,7 +3,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class CartItemQuantityRule : IRule
+    internal class CartItemQuantityRule : IRule<CartRuleContext>
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

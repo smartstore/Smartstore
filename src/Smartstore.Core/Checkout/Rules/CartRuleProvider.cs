@@ -38,7 +38,7 @@ namespace Smartstore.Core.Checkout.Rules
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public IRule GetProcessor(RuleExpression expression)
+        public IRule<CartRuleContext> GetProcessor(RuleExpression expression)
         {
             var group = expression as RuleExpressionGroup;
             var descriptor = expression.Descriptor as CartRuleDescriptor;
@@ -48,15 +48,15 @@ namespace Smartstore.Core.Checkout.Rules
                 throw new InvalidOperationException($"Missing cart rule descriptor for expression {expression.Id} ('{expression.RawValue.EmptyNull()}').");
             }
 
-            IRule instance;
+            IRule< CartRuleContext> instance;
 
-            if (group == null && descriptor.ProcessorType != typeof(CompositeRule))
+            if (group == null && descriptor.ProcessorType != typeof(CartCompositeRule))
             {
-                instance = _componentContext.ResolveKeyed<IRule>(descriptor.ProcessorType);
+                instance = _componentContext.ResolveKeyed<IRule<CartRuleContext>>(descriptor.ProcessorType);
             }
             else
             {
-                instance = new CompositeRule(group, this);
+                instance = new CartCompositeRule(group, this);
             }
 
             return instance;
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Checkout.Rules
                 Descriptor = new CartRuleDescriptor
                 {
                     RuleType = RuleType.Boolean,
-                    ProcessorType = typeof(CompositeRule)
+                    ProcessorType = typeof(CartCompositeRule)
                 }
             };
 
@@ -129,7 +129,7 @@ namespace Smartstore.Core.Checkout.Rules
             }
 
             var ruleSets = entity.RuleSets.Where(x => x.Scope == RuleScope.Cart).ToArray();
-            if (!ruleSets.Any())
+            if (ruleSets.Length == 0)
             {
                 return true;
             }

@@ -3,23 +3,61 @@
 @{
     Assets.BodyAttributes.AppendCssClass("spa-layout");
 
-    ViewBag.Title = T(Model.IsListTypeAttribute ? "Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules" : "Admin.Catalog.Products.ProductVariantAttributes.Rules",
+    ViewBag.Title = T(Model.IsListTypeAttribute ? "Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRulesForProduct" : "Admin.Catalog.Products.ProductVariantAttributes.RulesForProduct",
         Model.ProductVariantAttributeName,
         Model.ProductName);
 
     var gridViewData = new ViewDataDictionary(this.ViewData);
     gridViewData["Parent"] = Model;
+
+    var attributes = ViewBag.ProductVariantAttributes as List<ExtendedSelectListItem>;
+    var selectedAttribute = attributes.FirstOrDefault(x => x.Selected);
 }
 
 <form asp-action="EditAttributeValues" id="productvariantattribute-form">
     <div class="section-header">
         <div class="title">
-            <a sm-backto asp-action="Edit" asp-controller="Product" asp-route-Id="@Model.ProductId" title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.BackToProduct")"></a>
+            <div class="btn-group mr-3" role="group">
+                <a sm-backto asp-action="Edit" asp-controller="Product" asp-route-Id="@Model.ProductId"
+                   style="margin: 0 !important;"
+                   title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.BackToProduct")"></a>
+                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="true"
+                        data-boundary="window"
+                        title="@selectedAttribute?.Text">
+                    <span>@selectedAttribute?.Text</span>
+                </button>
+                <div class="dropdown-menu">
+                    @foreach (var item in attributes)
+                    {
+                        <a href="@Url.Action("EditAttributeValues", new { productVariantAttributeId = item.Value })"
+                           title="@(item.Get<string>("LinkTitle"))"
+                           class="dropdown-item@(item.Disabled ? " disabled" : string.Empty)">
+                            @item.Text
+                        </a>
+                    }
+                </div>
+            </div>
             <span>@ViewBag.Title</span>
         </div>
-        <div class="options">
-        </div>
+        <div class="options"></div>
     </div>
 </form>
 
-<partial name="Grids/_Grid.AttributeValues" model="null" view-data="gridViewData" />
+@if (Model.IsListTypeAttribute)
+{
+    <tabstrip id="productvariantattribute-edit" sm-nav-style="Material" sm-nav-position="Top">
+        <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")" sm-selected="true" sm-adaptive-height="true">
+            <partial name="Grids/_Grid.AttributeValues" model="null" view-data="gridViewData" />
+        </tab>
+        <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Rules")">
+            <partial name="_ProductVariantAttributeRules" />
+        </tab>
+    </tabstrip>
+}
+else
+{
+    <partial name="_ProductVariantAttributeRules" />
+}

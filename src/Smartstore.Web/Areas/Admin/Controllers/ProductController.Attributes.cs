@@ -10,7 +10,9 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -184,7 +186,7 @@ namespace Smartstore.Admin.Controllers
                 if (x.IsListTypeAttribute())
                 {
                     model.NumberOfOptions = x.ProductVariantAttributeValues?.Count ?? 0;
-                    model.EditText = editOptionsAndRulesStr.FormatInvariant(model.NumberOfOptions, model.NumberOfRules);
+                    model.EditLinkText = editOptionsAndRulesStr.FormatInvariant(model.NumberOfOptions, model.NumberOfRules);
 
                     if (x.ProductAttribute.ProductAttributeOptionsSets.Count > 0)
                     {
@@ -198,7 +200,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 else
                 {
-                    model.EditText = editRulesStr.FormatInvariant(model.NumberOfRules);
+                    model.EditLinkText = editRulesStr.FormatInvariant(model.NumberOfRules);
                 }
 
                 return model;
@@ -389,11 +391,19 @@ namespace Smartstore.Admin.Controllers
         {
             var pva = await _db.ProductVariantAttributes
                 .Include(x => x.ProductAttribute)
-                .FindByIdAsync(productVariantAttributeId, false) 
-                ?? throw new ArgumentException(T("Products.Variants.NotFound", productVariantAttributeId));
+                .FindByIdAsync(productVariantAttributeId, false);
+            if (pva == null)
+            {
+                return NotFound(T("Products.Variants.NotFound", productVariantAttributeId));
+            }
 
-            var product = await _db.Products.FindByIdAsync(pva.ProductId, false) 
-                ?? throw new ArgumentException(T("Products.NotFound", pva.ProductId));
+            var product = await _db.Products
+                .Select(x => new { x.Id, x.Name })
+                .FirstOrDefaultAsync(x => x.Id == pva.ProductId);
+            if (product == null)
+            {
+                return NotFound(T("Products.NotFound", pva.ProductId));
+            }
 
             var model = new ProductModel.ProductVariantAttributeValueListModel
             {
@@ -403,6 +413,44 @@ namespace Smartstore.Admin.Controllers
                 ProductVariantAttributeId = pva.Id,
                 IsListTypeAttribute = pva.IsListTypeAttribute()
             };
+
+            // Attribute navigation list.
+            var editOptionsAndRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules").Value;
+            var editRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditRules").Value;
+
+            var productVariantAttributes = await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .Where(x => x.ProductId == pva.ProductId)
+                .Select(x => new
+                {
+                    Pva = x,
+                    AttributeName = x.ProductAttribute.Name,
+                    NumberOfOptions = x.ProductVariantAttributeValues.Count,
+                    NumberOfRules = _db.Rules.Count(r => x.RuleSetId != null && x.Id == x.RuleSetId)
+                })
+                .OrderBy(x => x.Pva.DisplayOrder)
+                .ToListAsync();
+
+            ViewBag.ProductVariantAttributes = productVariantAttributes
+                .Select(x =>
+                {
+                    var linkTitle = x.Pva.IsListTypeAttribute()
+                        ? editOptionsAndRulesStr.FormatInvariant(x.NumberOfOptions, x.NumberOfRules)
+                        : editRulesStr.FormatInvariant(x.NumberOfRules);
+
+                    return new ExtendedSelectListItem
+                    {
+                        Text = x.AttributeName,
+                        Value = x.Pva.Id.ToString(),
+                        Disabled = x.Pva.Id == productVariantAttributeId,
+                        Selected = x.Pva.Id == productVariantAttributeId,
+                        CustomProperties = new()
+                        {
+                            { "LinkTitle", linkTitle }
+                        }
+                    };
+                })
+                .ToList();
 
             return View(model);
         }
@@ -467,15 +515,12 @@ namespace Smartstore.Admin.Controllers
                     return View(model);
                 }
 
-                try
-                {
-                    await UpdateLocalesAsync(pvav, model);
-                }
-                catch { }
+                await CommonHelper.TryAction(() => UpdateLocalesAsync(pvav, model));
 
                 ViewBag.RefreshPage = true;
                 ViewBag.btnId = btnId;
                 ViewBag.formId = formId;
+
                 return View(model);
             }
 

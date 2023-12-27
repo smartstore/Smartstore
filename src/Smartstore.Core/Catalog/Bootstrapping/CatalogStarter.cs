@@ -85,9 +85,21 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<PriceLabelService>().As<IPriceLabelService>().InstancePerLifetimeScope();
 
             DiscoverCalculators(builder, appContext);
+
+            // Attribute rules.
+            var attributeRuleTypes = appContext.TypeScanner.FindTypes<IRule<AttributeRuleContext>>().ToList();
+            foreach (var ruleType in attributeRuleTypes)
+            {
+                builder.RegisterType(ruleType).Keyed<IRule<AttributeRuleContext>>(ruleType).InstancePerLifetimeScope();
+            }
+
+            builder.RegisterType<AttributeRuleProvider>()
+                .As<IAttributeRuleProvider>()
+                .Keyed<IRuleProvider>(RuleScope.ProductAttribute)
+                .InstancePerLifetimeScope();
         }
 
-        private void DiscoverCalculators(ContainerBuilder builder, IApplicationContext appContext)
+        private static void DiscoverCalculators(ContainerBuilder builder, IApplicationContext appContext)
         {
             var calculatorTypes = appContext.TypeScanner.FindTypes<IPriceCalculator>();
 

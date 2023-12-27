@@ -4,7 +4,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class WeekdayRule : IRule
+    internal class WeekdayRule : IRule<CartRuleContext>
     {
         public static RuleValueSelectListOption[] GetDefaultValues(Language language)
         {

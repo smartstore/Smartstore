@@ -3,7 +3,7 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class BrowserMinorVersionRule : IRule
+    internal class BrowserMinorVersionRule : IRule<CartRuleContext>
     {
         private readonly IUserAgent _userAgent;
 

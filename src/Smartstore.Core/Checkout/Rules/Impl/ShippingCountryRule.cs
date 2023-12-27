@@ -2,7 +2,7 @@
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class ShippingCountryRule : IRule
+    internal class ShippingCountryRule : IRule<CartRuleContext>
     {
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

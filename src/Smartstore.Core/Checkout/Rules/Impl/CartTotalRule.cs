@@ -5,7 +5,7 @@ using Smartstore.Threading;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class CartTotalRule : IRule
+    internal class CartTotalRule : IRule<CartRuleContext>
     {
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IRoundingHelper _roundingHelper;

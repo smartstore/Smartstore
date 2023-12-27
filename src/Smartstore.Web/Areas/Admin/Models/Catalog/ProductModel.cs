@@ -11,6 +11,9 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Web;
 
+// TODO: (mg) way too many classes for one file. Move all attribute models to a subfolder "Attributes"
+// after Conditional Attributes are completed. No need to make all these "nested".
+// TODO: (mg) DRY: ProductModel.ProductVariantAttributeValueModel -> ProductAttributeOptionModelBase.
 namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
@@ -530,9 +533,9 @@ namespace Smartstore.Admin.Models.Catalog
 
             public int? RuleSetId { get; set; }
 
-            [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.OptionsAndRules")]
+            [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules")]
             public string EditUrl { get; set; }
-            public string EditText { get; set; }
+            public string EditLinkText { get; set; }
             public List<object> OptionSets { get; set; } = new();
 
             public int NumberOfOptions { get; set; }
@@ -548,7 +551,6 @@ namespace Smartstore.Admin.Models.Catalog
             public bool IsListTypeAttribute { get; set; }
         }
 
-        // TODO: DRY. see ProductAttributeOptionModelBase
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.")]
         public class ProductVariantAttributeValueModel : EntityModelBase, ILocalizedModel<ProductVariantAttributeValueLocalizedModel>
         {

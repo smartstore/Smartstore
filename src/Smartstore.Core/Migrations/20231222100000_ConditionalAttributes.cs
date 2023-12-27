@@ -65,17 +65,16 @@ namespace Smartstore.Core.Migrations
                 "Edit {0} rules",
                 "{0} Bedingungen bearbeiten");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.Attributes.OptionsAndRules",
-                "Options and rules",
-                "Optionen und Bedingungen");
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules", "Options and rules", "Optionen und Bedingungen");
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.Rules", "Rules", "Bedingungen");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules",
-                "Options and rules for attribute '{0}'. Product: {1}",
-                "Optionen und Bedingungen für Attribut '{0}'. Produkt: {1}");
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRulesForProduct",
+                "Options and rules for attribute \"{0}\". Product: {1}",
+                "Optionen und Bedingungen für Attribut \"{0}\". Produkt: {1}");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.Rules",
-                "Rules for attribute '{0}'. Product: {1}",
-                "Bedingungen für Attribut '{0}'. Produkt: {1}");
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.RulesForProduct",
+                "Rules for attribute \"{0}\". Product: {1}",
+                "Bedingungen für Attribut \"{0}\". Produkt: {1}");
 
 
             builder.Delete(

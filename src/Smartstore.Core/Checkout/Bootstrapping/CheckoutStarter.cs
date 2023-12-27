@@ -55,10 +55,10 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<TaxCalculator>().As<ITaxCalculator>().InstancePerLifetimeScope();
 
             // Cart rules.
-            var cartRuleTypes = appContext.TypeScanner.FindTypes<IRule>().ToList();
+            var cartRuleTypes = appContext.TypeScanner.FindTypes<IRule<CartRuleContext>>().ToList();
             foreach (var ruleType in cartRuleTypes)
             {
-                builder.RegisterType(ruleType).Keyed<IRule>(ruleType).InstancePerLifetimeScope();
+                builder.RegisterType(ruleType).Keyed<IRule<CartRuleContext>>(ruleType).InstancePerLifetimeScope();
             }
 
             builder.RegisterType<CartRuleProvider>()
