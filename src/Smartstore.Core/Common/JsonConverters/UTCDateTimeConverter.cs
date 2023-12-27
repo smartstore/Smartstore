@@ -47,13 +47,15 @@ namespace Smartstore.Core.Common.JsonConverters
                     }
                 }
 
-                // In some celandars Min/Max value 0001/01/01 is not supported and they have their own min/max DateTime
-                Calendar calendar = CultureInfo.CurrentCulture.Calendar;
-                if (d == DateTime.MinValue)
+                // In some calandars default DateTime Min/Max values are not supported, fix it.
+                var calendar = CultureInfo.CurrentCulture.Calendar;
+
+                if (d < calendar.MinSupportedDateTime)
                 {
                     value = calendar.MinSupportedDateTime;
                 }
-                else if (d == DateTime.MaxValue)
+
+                if (d > calendar.MaxSupportedDateTime)
                 {
                     value = calendar.MaxSupportedDateTime;
                 }
