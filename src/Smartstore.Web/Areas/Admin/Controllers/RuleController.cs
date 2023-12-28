@@ -353,14 +353,14 @@ namespace Smartstore.Admin.Controllers
             var descriptors = await provider.GetRuleDescriptorsAsync();
             var descriptor = descriptors.FindDescriptor(ruleType);
 
-            RuleOperator op;
-            if (descriptor.RuleType == RuleType.NullableInt || descriptor.RuleType == RuleType.NullableFloat)
+            var op = (descriptor.RuleType == RuleType.NullableInt || descriptor.RuleType == RuleType.NullableFloat)
+                ? descriptor.Operators.FirstOrDefault(x => x == RuleOperator.GreaterThanOrEqualTo)
+                : descriptor.Operators.First();
+
+            if (ruleSetId == 0)
             {
-                op = descriptor.Operators.FirstOrDefault(x => x == RuleOperator.GreaterThanOrEqualTo);
-            }
-            else
-            {
-                op = descriptor.Operators.First();
+                var ruleSet = await CreateRuleSetIfRequired(ruleSetId, scope);
+                ruleSetId = ruleSet?.Id ?? 0;
             }
 
             var rule = new RuleEntity
@@ -394,11 +394,11 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.Rule.Update)]
-        public async Task<IActionResult> UpdateRules(RuleEditItem[] ruleData, RuleScope ruleScope)
+        public async Task<IActionResult> UpdateRules(RuleEditItem[] ruleData, RuleScope scope)
         {
             try
             {
-                await ApplyRuleData(ruleData, ruleScope);
+                await ApplyRuleData(ruleData, scope);
                 await _db.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -428,10 +428,10 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.Rule.Update)]
-        public async Task<IActionResult> ChangeOperator(int ruleSetId, string op)
+        public async Task<IActionResult> ChangeOperator(int ruleSetId, RuleScope scope, string op)
         {
             var andOp = op.EqualsNoCase("and");
-            var ruleSet = await _db.RuleSets.FindByIdAsync(ruleSetId);
+            var ruleSet = await _db.RuleSets.FindByIdAsync(ruleSetId) ?? await CreateRuleSetIfRequired(ruleSetId, scope);
             if (ruleSet == null)
             {
                 NotifyError(T("Admin.Rules.GroupNotFound", ruleSetId));
@@ -456,6 +456,12 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> AddGroup(int ruleSetId, RuleScope scope)
         {
             var provider = _ruleProvider(scope);
+
+            if (ruleSetId == 0)
+            {
+                var ruleSet = await CreateRuleSetIfRequired(ruleSetId, scope);
+                ruleSetId = ruleSet?.Id ?? 0;
+            }
 
             var group = new RuleSetEntity
             {
@@ -492,9 +498,7 @@ namespace Smartstore.Admin.Controllers
             var refRule = await _db.Rules.FindByIdAsync(refRuleId);
             var ruleSetId = refRule?.Value?.ToInt() ?? 0;
 
-            var group = ruleSetId != 0
-                ? await _db.RuleSets.FindByIdAsync(ruleSetId)
-                : null;
+            var group = await _db.RuleSets.FindByIdAsync(ruleSetId);
             if (group == null)
             {
                 NotifyError(T("Admin.Rules.GroupNotFound", ruleSetId));
@@ -646,11 +650,10 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
-        private async Task ApplyRuleData(RuleEditItem[] ruleData, RuleScope ruleScope)
+        private async Task ApplyRuleData(RuleEditItem[] ruleData, RuleScope scope)
         {
-            var ruleIds = ruleData?.Select(x => x.RuleId)?.Distinct()?.ToArray() ?? Array.Empty<int>();
-
-            if (!ruleIds.Any())
+            var ruleIds = ruleData?.Select(x => x.RuleId)?.Distinct()?.ToArray();
+            if (ruleIds.IsNullOrEmpty())
             {
                 return;
             }
@@ -660,7 +663,7 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => ruleIds.Contains(x.Id))
                 .ToDictionaryAsync(x => x.Id);
 
-            var provider = _ruleProvider(ruleScope);
+            var provider = _ruleProvider(scope);
             var descriptors = await provider.GetRuleDescriptorsAsync();
 
             foreach (var data in ruleData)
@@ -688,6 +691,27 @@ namespace Smartstore.Admin.Controllers
                     entity.Value = data.Value;
                 }
             }
+        }
+
+        private async Task<RuleSetEntity> CreateRuleSetIfRequired(int ruleSetId, RuleScope scope)
+        {
+            if (ruleSetId == 0 && scope == RuleScope.ProductAttribute)
+            {
+                var ruleSet = new RuleSetEntity
+                {
+                    Scope = scope,
+                    Name = nameof(RuleScope.ProductAttribute),
+                    IsActive = true,
+                    LogicalOperator = LogicalRuleOperator.And
+                };
+
+                _db.Add(ruleSet);
+                await _db.SaveChangesAsync();
+
+                return ruleSet;
+            }
+
+            return null;
         }
 
         private async Task PrepareModel(RuleSetModel model, RuleSetEntity entity, RuleScope? scope = null)
@@ -763,9 +787,6 @@ namespace Smartstore.Admin.Controllers
                         })
                         .ToList();
                 }
-
-                ViewBag.ConditionsOrButton = await InvokePartialViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.Or });
-                ViewBag.ConditionsAndButton = await InvokePartialViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.And });
             }
         }
 

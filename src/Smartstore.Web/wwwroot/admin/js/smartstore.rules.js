@@ -124,7 +124,7 @@ Smartstore.Admin.Rules = (function () {
     $(document).on('click', '.r-add-group', function (e) {
         var parentSet = $(this).closest('.ruleset');
         var parentSetId = parentSet.data('ruleset-id');
-        var scope = parentSet.closest('.ruleset-root').data('scope');
+        var scope = root.data('scope');
 
         $.ajax({
             cache: false,
@@ -170,11 +170,12 @@ Smartstore.Admin.Rules = (function () {
         var parentSetId = item.closest('.ruleset').data('ruleset-id');
         var operator = item.closest('.ruleset-operator');
         var op = item.data('value');
+        var scope = root.data('scope');
 
         $.ajax({
             cache: false,
-            url: operator.data('url'),
-            data: { ruleSetId: parentSetId, op: op },
+            url: root.data('url-changeoperator'),
+            data: { ruleSetId: parentSetId, op: op, scope: scope },
             type: 'POST',
             success: function (result) {
                 if (result.Success) {
@@ -213,11 +214,12 @@ Smartstore.Admin.Rules = (function () {
     // Save rules.
     $(document).on('click', 'button.ruleset-save', function () {
         var data = getRuleData();
+        var scope = root.data('scope');
         
         $.ajax({
             cache: false,
             url: root.data('url-updaterules'),
-            data: { ruleData: data },
+            data: { ruleData: data, scope: scope },
             type: 'POST',
             success: function (result) {
                 if (result.Success) {

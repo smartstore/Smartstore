@@ -5,7 +5,6 @@ using Smartstore.Core.Checkout.Rules.Impl;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
-using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.Rules

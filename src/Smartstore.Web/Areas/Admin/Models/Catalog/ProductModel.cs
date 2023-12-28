@@ -2,12 +2,14 @@
 using System.Runtime.Serialization;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Smartstore.Admin.Models.Rules;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Web;
 
@@ -549,6 +551,8 @@ namespace Smartstore.Admin.Models.Catalog
             public int ProductVariantAttributeId { get; set; }
             public string ProductVariantAttributeName { get; set; }
             public bool IsListTypeAttribute { get; set; }
+
+            public RuleSetModel RuleSet { get; set; }
         }
 
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.")]

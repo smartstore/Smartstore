@@ -1,4 +1,4 @@
-﻿@model RuleSetModel
+﻿@model IRuleExpressionGroup
 
 @{
     var ruleOperator = (LogicalRuleOperator)ViewData["ruleOperator"];
@@ -9,7 +9,7 @@
         <span class="logical-operator">@T(ruleOperator == LogicalRuleOperator.And ? "Admin.Rules.Operator.All" : "Admin.Rules.Operator.One")</span>
     </button>
     <div class="dropdown-menu logical-operator-chooser">
-        <a href="javascript:void(0)" class="dropdown-item" data-value="And">@T("Admin.Rules.Operator.All")</a>
-        <a href="javascript:void(0)" class="dropdown-item" data-value="Or" attr-class='(Model.Scope == RuleScope.Product, "disabled")'>@T("Admin.Rules.Operator.One")</a>
+        <a href="javascript:;" class="dropdown-item" data-value="And">@T("Admin.Rules.Operator.All")</a>
+        <a href="javascript:;" class="dropdown-item" data-value="Or" attr-class='(Model.Provider.Scope == RuleScope.Product, "disabled")'>@T("Admin.Rules.Operator.One")</a>
     </div>
 </div>

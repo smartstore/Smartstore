@@ -1,12 +1,15 @@
 ﻿using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
+using Smartstore.Admin.Models.Rules;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -391,6 +394,7 @@ namespace Smartstore.Admin.Controllers
         {
             var pva = await _db.ProductVariantAttributes
                 .Include(x => x.ProductAttribute)
+                .Include(x => x.RuleSet)
                 .FindByIdAsync(productVariantAttributeId, false);
             if (pva == null)
             {
@@ -405,16 +409,19 @@ namespace Smartstore.Admin.Controllers
                 return NotFound(T("Products.NotFound", pva.ProductId));
             }
 
+            var provider = GetRuleProvider();
+
             var model = new ProductModel.ProductVariantAttributeValueListModel
             {
                 ProductName = product.Name,
                 ProductId = pva.ProductId,
                 ProductVariantAttributeName = pva.ProductAttribute.Name,
                 ProductVariantAttributeId = pva.Id,
-                IsListTypeAttribute = pva.IsListTypeAttribute()
+                IsListTypeAttribute = pva.IsListTypeAttribute(),
+                RuleSet = await CreateRuleSetModel(pva, provider)
             };
 
-            // Attribute navigation list.
+            // Attribute navigation list (near page title).
             var editOptionsAndRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules").Value;
             var editRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditRules").Value;
 
@@ -673,6 +680,29 @@ namespace Smartstore.Admin.Controllers
 
             var result = await query.AnyAsync();
             return result;
+        }
+
+        private IAttributeRuleProvider GetRuleProvider()
+        {
+            return Services.ResolveKeyed<IRuleProvider>(RuleScope.ProductAttribute) as IAttributeRuleProvider;
+        }
+
+        private async Task<RuleSetModel> CreateRuleSetModel(ProductVariantAttribute pva, IAttributeRuleProvider provider)
+        {
+            var model = new RuleSetModel
+            {
+                Id = pva.RuleSetId ?? 0,
+                Scope = RuleScope.ProductAttribute,
+                ScopeName = Services.Localization.GetLocalizedEnum(RuleScope.ProductAttribute),
+                ExpressionGroup = await provider.CreateExpressionGroupAsync(pva)
+            };
+
+            if (pva.RuleSet != null)
+            {
+                // TODO.... see RuleController.PrepareExpressions
+            }
+
+            return model;
         }
 
         #endregion

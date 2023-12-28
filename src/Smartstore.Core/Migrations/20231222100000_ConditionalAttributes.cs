@@ -57,6 +57,10 @@ namespace Smartstore.Core.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
+            builder.Delete(
+                "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink",
+                "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.EditAttributeDetails");
+
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules",
                 "Edit {0} options and {1} rules",
                 "{0} Optionen und {1} Bedingungen bearbeiten");
@@ -75,11 +79,6 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.RulesForProduct",
                 "Rules for attribute \"{0}\". Product: {1}",
                 "Bedingungen für Attribut \"{0}\". Produkt: {1}");
-
-
-            builder.Delete(
-                "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink",
-                "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.EditAttributeDetails");
         }
     }
 }

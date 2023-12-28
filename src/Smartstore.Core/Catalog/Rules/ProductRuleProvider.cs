@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
-
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
@@ -452,10 +452,12 @@ namespace Smartstore.Core.Catalog.Rules
                             DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
                             GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
                             RuleType = RuleType.IntArray,
-                            SelectList = new RemoteRuleValueSelectList("VariantValue") { Multiple = true },
+                            SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true },
                             Operators = new RuleOperator[] { RuleOperator.In }
                         };
                         descriptor.Metadata["ParentId"] = variant.Id;
+                        descriptor.Metadata["AllowFiltering"] = true;
+                        descriptor.Metadata["ValueType"] = ProductVariantAttributeValueType.Simple;
 
                         descriptors.Add(descriptor);
                     }
@@ -482,7 +484,7 @@ namespace Smartstore.Core.Catalog.Rules
                             DisplayName = attribute.GetLocalized(x => x.Name, language, true, false),
                             GroupKey = "Admin.Catalog.Attributes.SpecificationAttributes",
                             RuleType = RuleType.IntArray,
-                            SelectList = new RemoteRuleValueSelectList("AttributeOption") { Multiple = true },
+                            SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.AttributeOption) { Multiple = true },
                             Operators = new RuleOperator[] { RuleOperator.In }
                         };
                         descriptor.Metadata["ParentId"] = attribute.Id;

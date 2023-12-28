@@ -9,21 +9,24 @@ namespace Smartstore.Core.Catalog.Rules
     public class AttributeRuleProvider : RuleProviderBase, IAttributeRuleProvider
     {
         private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
         private readonly IComponentContext _componentContext;
         private readonly IRuleService _ruleService;
 
         public AttributeRuleProvider(
             SmartDbContext db,
+            IWorkContext workContext,
             IComponentContext componentContext,
             IRuleService ruleService)
             : base(RuleScope.ProductAttribute)
         {
             _db = db;
+            _workContext = workContext;
             _componentContext = componentContext;
             _ruleService = ruleService;
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+        //public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public IRule<AttributeRuleContext> GetProcessor(RuleExpression expression)
         {
@@ -49,6 +52,19 @@ namespace Smartstore.Core.Catalog.Rules
             return instance;
         }
 
+        public Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute)
+        {
+            Guard.NotNull(attribute);
+
+            if (attribute?.RuleSetId != null)
+            {
+                // TODO...
+                
+            }
+
+            return Task.FromResult(VisitRuleSet(null));
+        }
+
         public override async Task<IRuleExpression> VisitRuleAsync(RuleEntity rule)
         {
             var expression = new RuleExpression();
@@ -58,13 +74,13 @@ namespace Smartstore.Core.Catalog.Rules
 
         public override IRuleExpressionGroup VisitRuleSet(RuleSetEntity ruleSet)
         {
-            var group = new RuleExpressionGroup
+            return new RuleExpressionGroup
             {
-                Id = ruleSet.Id,
-                LogicalOperator = ruleSet.LogicalOperator,
-                IsSubGroup = ruleSet.IsSubGroup,
-                Value = ruleSet.Id,
-                RawValue = ruleSet.Id.ToString(),
+                Id = ruleSet?.Id ?? 0,
+                LogicalOperator = ruleSet?.LogicalOperator ?? LogicalRuleOperator.And,
+                IsSubGroup = ruleSet?.IsSubGroup ?? false,
+                Value = ruleSet?.Id ?? 0,
+                RawValue = ruleSet?.Id.ToString() ?? "0",
                 Provider = this,
                 Descriptor = new AttributeRuleDescriptor
                 {
@@ -72,44 +88,27 @@ namespace Smartstore.Core.Catalog.Rules
                     ProcessorType = typeof(AttributeCompositeRule)
                 }
             };
-
-            return group;
         }
 
-        public async Task<bool> RuleMatchesAsync(
-            ProductVariantAttribute attribute,
-            LogicalRuleOperator logicalOperator,
-            Action<AttributeRuleContext> contextAction = null)
+        public async Task<bool> RuleMatchesAsync(AttributeRuleContext context, LogicalRuleOperator logicalOperator = LogicalRuleOperator.And)
         {
-            if (attribute?.RuleSetId == null)
+            Guard.NotNull(context);
+
+            if (context.Attribute?.RuleSetId == null)
             {
                 return true;
             }
 
-            await _db.LoadReferenceAsync(attribute, x => x.RuleSet, false, q => q.Include(x => x.Rules));
+            await _db.LoadReferenceAsync(context.Attribute, x => x.RuleSet, false, q => q.Include(x => x.Rules));
 
-            var group = await _ruleService.CreateExpressionGroupAsync(attribute.RuleSet, this);
-            if (group == null)
-            {
-                return true;
-            }
+            var rules = await _ruleService.CreateExpressionGroupAsync(context.Attribute.RuleSet, this);
 
-            var expressions = group.Expressions
-                .Select(x => x as RuleExpression)
-                .Where(x => x != null)
-                .ToArray();
+            var expressions = rules?.Expressions
+                ?.Select(x => x as RuleExpression)
+                ?.Where(x => x != null)
+                ?.ToArray();
 
-            return await RuleMatchesAsync(expressions, logicalOperator, contextAction);
-        }
-
-        public async Task<bool> RuleMatchesAsync(
-            RuleExpression[] expressions,
-            LogicalRuleOperator logicalOperator,
-            Action<AttributeRuleContext> contextAction = null)
-        {
-            Guard.NotNull(expressions);
-
-            if (expressions.Length == 0)
+            if (expressions.IsNullOrEmpty())
             {
                 return true;
             }
@@ -126,26 +125,46 @@ namespace Smartstore.Core.Catalog.Rules
                 group.AddExpressions(expressions);
             }
 
-            var context = new AttributeRuleContext
-            {
-            };
-
-            contextAction?.Invoke(context);
-
             var processor = GetProcessor(group);
             var result = await processor.MatchAsync(context, group);
 
             return result;
         }
 
-        protected override Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
+        protected override async Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
         {
-            var descriptors = new List<AttributeRuleDescriptor>
+            var descriptors = new List<AttributeRuleDescriptor>();
+            var language = _workContext.WorkingLanguage;
+            var query = _db.ProductAttributes.AsNoTracking().OrderBy(x => x.DisplayOrder);
+            var pageIndex = -1;
+
+            while (true)
             {
-            };
+                var variants = await query.ToPagedList(++pageIndex, 1000).LoadAsync();
+                foreach (var variant in variants)
+                {
+                    var descriptor = new AttributeRuleDescriptor
+                    {
+                        Name = $"Variant{variant.Id}",
+                        DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
+                        GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
+                        RuleType = RuleType.IntArray,
+                        SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true },
+                        Operators = new[] { RuleOperator.In }
+                    };
+                    descriptor.Metadata["ParentId"] = variant.Id;
+                    descriptor.Metadata["ValueType"] = ProductVariantAttributeValueType.Simple;
 
-            return Task.FromResult(descriptors.Cast<RuleDescriptor>());
+                    descriptors.Add(descriptor);
+                }
+
+                if (!variants.HasNextPage)
+                {
+                    break;
+                }
+            }
+
+            return descriptors;
         }
-
     }
 }

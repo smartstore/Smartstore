@@ -17,29 +17,14 @@ namespace Smartstore.Core.Catalog.Rules
         /// <returns>Rule processor.</returns>
         IRule<AttributeRuleContext> GetProcessor(RuleExpression expression);
 
+        Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute);
+
         /// <summary>
         /// Checks whether a rule is met.
         /// </summary>
-        /// <param name="attribute">The attribute with the rules to be checked.</param>
+        /// <param name="context">Attribute rule context.</param>
         /// <param name="logicalOperator">Rule operator.</param>
-        /// <param name="contextAction">
-        /// An optional action delegate to change the <see cref="AttributeRuleContext"/> 
-        /// instance that is passed to the rules.
-        /// </param>
         /// <returns><c>true</c> the rule is met, otherwise <c>false</c>.</returns>
-        Task<bool> RuleMatchesAsync(
-            ProductVariantAttribute attribute,
-            LogicalRuleOperator logicalOperator,
-            Action<AttributeRuleContext>? contextAction = null);
-
-        /// <inheritdoc cref="RuleMatchesAsync(ProductVariantAttribute, LogicalRuleOperator, Action{AttributeRuleContext}?) "/>
-        /// <param name="expressions">Rule expressions.</param>
-        /// <param name="logicalOperator"></param>
-        /// <param name="contextAction"></param>
-        /// <returns></returns>
-        Task<bool> RuleMatchesAsync(
-            RuleExpression[] expressions,
-            LogicalRuleOperator logicalOperator,
-            Action<AttributeRuleContext>? contextAction = null);
+        Task<bool> RuleMatchesAsync(AttributeRuleContext context, LogicalRuleOperator logicalOperator = LogicalRuleOperator.And);
     }
 }
