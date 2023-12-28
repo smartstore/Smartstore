@@ -3,6 +3,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.IO.Hashing;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -179,20 +180,21 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Computes the xxHash of the input string. xxHash is an extremely fast non-cryptographic Hash algorithm.
+        /// Computes the XxHash64 of the input string. XxHash64 is an extremely fast non-cryptographic hash algorithm.
         /// </summary>
         /// <param name="value">The input string</param>
-        /// <returns>xxHash</returns>
+        /// <returns>XxHash as hex</returns>
         [DebuggerStepThrough]
         [return: NotNullIfNotNull(nameof(value))]
         public static string? XxHash(this string? value)
         {
-            if (value.IsEmpty())
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return value;
             }
 
-            return $"{XxHashUnsafe.ComputeHash(value):X}";
+            var hashCode = XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(value), 0);
+            return $"{hashCode:X}";
         }
 
         /// <summary>
