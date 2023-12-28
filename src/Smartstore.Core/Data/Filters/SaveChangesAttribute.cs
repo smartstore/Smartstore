@@ -7,26 +7,17 @@ namespace Smartstore.Core.Data
     /// Saves all pending changes in a <see cref="DbContext"/> instance to the database
     /// after action method has been executed.
     /// </summary>
+    /// <typeparam name="TContext">The type of context to save changes for.</typeparam>
+    /// <remarks>
+    /// Creates an instance of <see cref="SaveChangesAttribute{TContext}"/>.
+    /// </remarks>
+    /// <param name="saveChanges">Set to <c>false</c> to override any controller-level or global <see cref="SaveChangesAttribute{TContext}"/>.</param>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
-    public sealed class SaveChangesAttribute : ActionFilterAttribute
+    public sealed class SaveChangesAttribute<TContext>(bool saveChanges = true) : ActionFilterAttribute where TContext : DbContext
     {
-        /// <summary>
-        /// Creates an instance of <see cref="SaveChangesAttribute"/>.
-        /// </summary>
-        /// <param name="dbContextType">The type of context to save changes for.</param>
-        /// <param name="saveChanges">Set to <c>false</c> to override any controller-level or global <see cref="SaveChangesAttribute"/>.</param>
-        public SaveChangesAttribute(Type dbContextType, bool saveChanges = true)
-        {
-            Guard.NotNull(dbContextType, nameof(dbContextType));
-            Guard.IsAssignableFrom<DbContext>(dbContextType);
+        public Type DbContextType => typeof(TContext);
 
-            DbContextType = dbContextType;
-            SaveChanges = saveChanges;
-        }
-
-        public Type DbContextType { get; }
-
-        public bool SaveChanges { get; }
+        public bool SaveChanges { get; } = saveChanges;
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
@@ -37,8 +28,8 @@ namespace Smartstore.Core.Data
                 var overrideFilter = context.ActionDescriptor.FilterDescriptors
                     .Where(x => x.Scope == FilterScope.Action)
                     .Select(x => x.Filter)
-                    .OfType<SaveChangesAttribute>()
-                    .FirstOrDefault(x => x.DbContextType == DbContextType);
+                    .OfType<SaveChangesAttribute<TContext>>()
+                    .FirstOrDefault();
 
                 if (overrideFilter?.SaveChanges == false)
                 {

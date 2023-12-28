@@ -455,7 +455,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [FormValueRequired("save", "save-continue")]
         [Permission(Permissions.Customer.Create)]
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> Create(CustomerModel model, bool continueEditing, IFormCollection form)
         {
             var customer = new Customer
@@ -557,7 +557,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [FormValueRequired("save", "save-continue")]
         [Permission(Permissions.Customer.Update)]
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> Edit(CustomerModel model, bool continueEditing, IFormCollection form)
         {
             var customer = await _db.Customers

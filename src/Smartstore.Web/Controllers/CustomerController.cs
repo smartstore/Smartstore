@@ -114,7 +114,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> Info(CustomerInfoModel model)
         {
             var customer = Services.WorkContext.CurrentCustomer;
