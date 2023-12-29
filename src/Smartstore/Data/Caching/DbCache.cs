@@ -14,7 +14,7 @@ namespace Smartstore.Data.Caching
 
         public DbCache()
         {
-            _cache = EngineContext.Current.Application.Services.Resolve<ICacheManager>();
+            _cache = EngineContext.Current.Application.Services.Resolve<ICacheFactory>().GetMemoryCache();
             _cache.Expired += OnEntryExpired;
         }
 

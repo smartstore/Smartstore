@@ -85,12 +85,7 @@ namespace Smartstore.Data.Caching
                 _logger,
                 parameterize: false);
 
-            // Legac non-deterministic expression hash
-            //var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(expression);
-
-            // From 5.2 on we switch to a deterministic expression hash
-            var hashCode = (long)XxHash3.HashToUInt64(expression.ToString().GetBytes(), HashCodeCombiner.GlobalSeed);
-
+            var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(expression);
             var combiner = new HashCodeCombiner(hashCode);
 
             // If query has parameters add to combiner
