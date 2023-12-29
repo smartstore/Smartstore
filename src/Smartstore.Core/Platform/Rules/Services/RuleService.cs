@@ -113,20 +113,23 @@ namespace Smartstore.Core.Rules
             return group;
         }
 
-        public virtual async Task ApplyMetadataAsync(IRuleExpressionGroup group, Language language = null)
+        public virtual Task ApplyMetadataAsync(IRuleExpressionGroup group, Language language = null)
+        {
+            return ApplyMetadataInternal(group, language ?? _workContext.WorkingLanguage, group.Id);
+        }
+
+        private async Task ApplyMetadataInternal(IRuleExpressionGroup group, Language language, int rootRuleSetId)
         {
             if (group == null)
             {
                 return;
             }
 
-            language ??= _workContext.WorkingLanguage;
-
             foreach (var expression in group.Expressions)
             {
                 if (expression is IRuleExpressionGroup subGroup)
                 {
-                    await ApplyMetadataAsync(subGroup, language);
+                    await ApplyMetadataInternal(subGroup, language, rootRuleSetId);
                     continue;
                 }
 
@@ -150,6 +153,8 @@ namespace Smartstore.Core.Rules
                         expression.Metadata["SelectedItems"] = options.Options.ToDictionarySafe(
                             x => x.Value,
                             x => new RuleSelectItem { Text = x.Text, Hint = x.Hint });
+
+                        expression.Metadata["RootRuleSetId"] = rootRuleSetId;
                     }
                 }
             }

@@ -26,8 +26,6 @@ namespace Smartstore.Core.Catalog.Rules
             _ruleService = ruleService;
         }
 
-        //public Localizer T { get; set; } = NullLocalizer.Instance;
-
         public IRule<AttributeRuleContext> GetProcessor(RuleExpression expression)
         {
             var group = expression as RuleExpressionGroup;

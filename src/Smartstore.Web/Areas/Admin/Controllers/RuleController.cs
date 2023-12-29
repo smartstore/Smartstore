@@ -162,8 +162,6 @@ namespace Smartstore.Admin.Controllers
 
             await PrepareModel(model, null, scope);
 
-            ViewBag.RootRuleSetId = 0;
-
             return View(model);
         }
 
@@ -203,8 +201,6 @@ namespace Smartstore.Admin.Controllers
             var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(ruleSet);
 
             await PrepareModel(model, ruleSet);
-
-            ViewBag.RootRuleSetId = ruleSet.Id;
 
             return View(model);
         }
@@ -381,8 +377,6 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             var expression = await provider.VisitRuleAsync(rule);
-
-            ViewBag.RootRuleSetId = command.RuleSetId;
 
             return PartialView("_Rule", expression);
         }
@@ -575,7 +569,7 @@ namespace Smartstore.Admin.Controllers
             string descriptorMetadataKey,
             string rawValue)
         {
-            var rule = await _db.Rules.FindByIdAsync(ruleId) ?? throw new Exception(T("Admin.Rules.NotFound", ruleId));
+            var rule = await _db.Rules.Include(x => x.RuleSet).FindByIdAsync(ruleId, false) ?? throw new Exception(T("Admin.Rules.NotFound", ruleId));
             var provider = _ruleProvider(rule.RuleSet.Scope);
             var expression = await provider.VisitRuleAsync(rule);
 
@@ -607,8 +601,9 @@ namespace Smartstore.Admin.Controllers
                         Language = Services.WorkContext.WorkingLanguage
                     });
 
-                    if (list.DataSource == KnownRuleOptionDataSourceNames.CartRule || list.DataSource == KnownRuleOptionDataSourceNames.TargetGroup)
+                    if (rule.RuleSet.IsSubGroup)
                     {
+                        // The root rule set must not be selected as a subgroup.
                         optionsPredicate = x => x.Value != rootRuleSetId.ToString();
                     }
                 }

@@ -11,7 +11,7 @@
             Metadata = new Dictionary<string, object>();
         }
 
-        public RuleScope Scope { get; protected set; }
+        public RuleScope Scope { get; }
         public string Name { get; set; }
         public string DisplayName { get; set; }
         public string Description { get; set; }
