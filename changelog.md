@@ -45,6 +45,7 @@
 - #936 Password protected topic was not displayed after password has been entered.
 - #955 Searching a product by product code in grids returns an infinite list.
 - Fixed the reward points for purchases setting was not saved in multi-store mode.
+- #960 Setting `ManufacturerItemsToDisplayInOffcanvasMenu` cannot be changed in backend.
 - Fixed offcanvas cart issue in mobile browsers (buttons in the footer were sometimes truncated).
 - Page Builder
   - Some radio button groups were not deselectable
