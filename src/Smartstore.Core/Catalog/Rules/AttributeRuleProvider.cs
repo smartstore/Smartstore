@@ -52,17 +52,21 @@ namespace Smartstore.Core.Catalog.Rules
             return instance;
         }
 
-        public Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute)
+        public async Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute, bool includeHidden = false)
         {
             Guard.NotNull(attribute);
 
-            if (attribute?.RuleSetId != null)
+            if (attribute?.RuleSetId == null)
             {
-                // TODO...
-                
+                return VisitRuleSet(null);
             }
 
-            return Task.FromResult(VisitRuleSet(null));
+            await _db.LoadReferenceAsync(attribute, x => x.RuleSet, false, q => q.Include(x => x.Rules));
+
+            var group = await _ruleService.CreateExpressionGroupAsync(attribute.RuleSet, this, includeHidden);
+            await _ruleService.ApplyMetadataAsync(group);
+
+            return group;
         }
 
         public override async Task<IRuleExpression> VisitRuleAsync(RuleEntity rule)

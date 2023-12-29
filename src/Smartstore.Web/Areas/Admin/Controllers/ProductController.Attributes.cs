@@ -395,6 +395,7 @@ namespace Smartstore.Admin.Controllers
             var pva = await _db.ProductVariantAttributes
                 .Include(x => x.ProductAttribute)
                 .Include(x => x.RuleSet)
+                .ThenInclude(x => x.Rules)
                 .FindByIdAsync(productVariantAttributeId, false);
             if (pva == null)
             {
@@ -694,13 +695,8 @@ namespace Smartstore.Admin.Controllers
                 Id = pva.RuleSetId ?? 0,
                 Scope = RuleScope.ProductAttribute,
                 ScopeName = Services.Localization.GetLocalizedEnum(RuleScope.ProductAttribute),
-                ExpressionGroup = await provider.CreateExpressionGroupAsync(pva)
+                ExpressionGroup = await provider.CreateExpressionGroupAsync(pva, true)
             };
-
-            if (pva.RuleSet != null)
-            {
-                // TODO.... see RuleController.PrepareExpressions
-            }
 
             return model;
         }

@@ -17,7 +17,7 @@ namespace Smartstore.Core.Catalog.Rules
         /// <returns>Rule processor.</returns>
         IRule<AttributeRuleContext> GetProcessor(RuleExpression expression);
 
-        Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute);
+        Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute, bool includeHidden = false);
 
         /// <summary>
         /// Checks whether a rule is met.

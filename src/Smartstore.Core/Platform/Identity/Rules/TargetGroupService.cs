@@ -292,7 +292,7 @@ namespace Smartstore.Core.Identity.Rules
                     DisplayName = T("Admin.Rules.FilterDescriptor.RuleSet"),
                     RuleType = RuleType.Int,
                     Operators = new[] { RuleOperator.IsEqualTo, RuleOperator.IsNotEqualTo },
-                    SelectList = new RemoteRuleValueSelectList("TargetGroup")
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.TargetGroup)
                 },
 
                 new AnyFilterDescriptor<Customer, Order, int>(x => x.Orders, o => o.StoreId)

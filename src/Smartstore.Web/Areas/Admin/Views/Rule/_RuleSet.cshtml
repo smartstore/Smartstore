@@ -33,7 +33,7 @@
     <div class="ruleset-body">
         @foreach (var expression in Model.Expressions)
         {
-            <partial name="@(expression is IRuleExpressionGroup ? "_RuleSet" : "_Rule")" model="expression" />
+            <partial name="@(expression is IRuleExpressionGroup ? "_RuleSet.cshtml" : "_Rule.cshtml")" model="expression" />
         }
     </div>
     <div class="ruleset-footer">
