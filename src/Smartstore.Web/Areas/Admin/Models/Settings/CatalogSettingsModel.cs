@@ -74,7 +74,7 @@ namespace Smartstore.Admin.Models
         public int ManufacturerItemsToDisplayOnHomepage { get; set; }
 
         [LocalizedDisplay("*ManufacturerItemsToDisplayInOffcanvasMenu")]
-        public int ManufacturerItemsToDisplayInOffCanvasMenu { get; set; }
+        public int ManufacturerItemsToDisplayInOffcanvasMenu { get; set; }
 
         [LocalizedDisplay("*ShowManufacturerPictures")]
         public bool ShowManufacturerPictures { get; set; }
