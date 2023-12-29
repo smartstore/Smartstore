@@ -11,7 +11,7 @@ using Smartstore.IO;
 namespace Smartstore.Utilities
 {
     /// <summary>
-    /// Deterministic hash code combiner
+    /// Deterministic hash code combiner.
     /// </summary>
     [DebuggerDisplay("{CombinedHashString}")]
     public struct HashCodeCombiner
@@ -36,12 +36,21 @@ namespace Smartstore.Utilities
         }
 
         /// <summary>
-        /// Initializes the <see cref="HashCodeCombiner"/> with the default seed <c>0x1505L</c>.
+        /// Initializes a deterministic <see cref="HashCodeCombiner"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashCodeCombiner Start()
         {
             return new HashCodeCombiner(_globalSeed);
+        }
+
+        /// <summary>
+        /// Initializes a non-deterministic <see cref="HashCodeCombiner"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashCodeCombiner StartNonDeterministic()
+        {
+            return new HashCodeCombiner(CurrentSeed);
         }
 
         public int CombinedHash
@@ -61,6 +70,9 @@ namespace Smartstore.Utilities
         {
             return self.CombinedHash;
         }
+
+        internal static long GlobalSeed { get; } = _globalSeed;
+        internal static long CurrentSeed { get; } = CommonHelper.GenerateRandomInteger(min: int.MinValue);
 
         public HashCodeCombiner AddSequence<T>(IEnumerable<T> sequence, IEqualityComparer<T>? comparer = null) 
             where T : notnull
@@ -201,11 +213,10 @@ namespace Smartstore.Utilities
             if (value is string str)
             {
                 // XxHash3 is faster than Marvin
-                Append((int)XxHash32.HashToUInt32(Encoding.UTF8.GetBytes(str)));
+                Append((long)XxHash3.HashToUInt64(Encoding.UTF8.GetBytes(str)));
             }
             else if (value is not null)
             {
-                //_hasher.Add(value, comparer);
                 Append(comparer?.GetHashCode(value) ?? value.GetHashCode());
             }
             
@@ -213,7 +224,7 @@ namespace Smartstore.Utilities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Append(int hash)
+        private void Append(long hash)
         {
             if (hash != 0)
             {

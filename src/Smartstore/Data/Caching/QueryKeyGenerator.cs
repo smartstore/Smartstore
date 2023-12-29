@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Hashing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
@@ -58,7 +59,6 @@ namespace Smartstore.Data.Caching
         public virtual DbCacheKey GenerateQueryKey(Expression expression, DbCachingPolicy policy)
         {
             var hash = GetExpressionHash(expression);
-            //System.Diagnostics.Debug.WriteLine(hash.CombinedHash);
 
             var key = _keysCache.GetOrAdd(hash.CombinedHash, key =>
             {
@@ -85,7 +85,12 @@ namespace Smartstore.Data.Caching
                 _logger,
                 parameterize: false);
 
-            var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(expression);
+            // Legac non-deterministic expression hash
+            //var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(expression);
+
+            // From 5.2 on we switch to a deterministic expression hash
+            var hashCode = (long)XxHash3.HashToUInt64(expression.ToString().GetBytes(), HashCodeCombiner.GlobalSeed);
+
             var combiner = new HashCodeCombiner(hashCode);
 
             // If query has parameters add to combiner
