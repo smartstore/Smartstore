@@ -1,10 +1,8 @@
 ﻿using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Smartstore.ComponentModel;
 using Smartstore.Data;
 using Smartstore.Domain;
@@ -72,14 +70,10 @@ namespace Smartstore
         /// <typeparam name="TEntity">The type of entity to locate.</typeparam>
         /// <param name="entityId">The primary key of entity to locate.</param>
         /// <returns>The entity instance if found, <c>null</c> otherwise.</returns>
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
         public static TEntity FindTracked<TEntity>(this HookingDbContext ctx, int entityId)
             where TEntity : BaseEntity
         {
-            var stateManager = ctx.GetDependencies().StateManager;
-            var key = ctx.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey();
-
-            return stateManager.TryGetEntry(key, new object[] { entityId })?.Entity as TEntity;
+            return ctx.Set<TEntity>().Local.FindEntry(entityId)?.Entity;
         }
 
         /// <summary>
