@@ -1,10 +1,9 @@
 ﻿@using Smartstore.Web.Models.Catalog
-@using Smartstore.Core.Common.Services
 
 @model ProductDetailsModel
 
 @{
-    if (Model.AddToCart.DisableBuyButton && Model.AddToCart.DisableWishlistButton && !Model.Price.ShowLoginNote)
+    if (Model.Price.HidePrices && !Model.Price.ShowLoginNote)
     {
         return;
     }

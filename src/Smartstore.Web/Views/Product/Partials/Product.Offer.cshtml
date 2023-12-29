@@ -27,9 +27,9 @@
 <div class="pd-offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
     <meta itemprop="itemCondition" content="@conditionContent" />
     <link itemprop="url" href="@Url.RouteUrl("Product", new { SeName = Model.SeName }, Context.Request.Scheme)" />
-    @if (!Model.AddToCart.DisableBuyButton || !Model.AddToCart.DisableWishlistButton || Model.Price.ShowLoginNote)
+    @if (!Model.Price.HidePrices || Model.Price.ShowLoginNote)
     {
-        if (Model.AddToCart.CustomerEntersPrice && !Model.Price.HidePrices)
+        if (Model.AddToCart.CustomerEntersPrice)
         {
             var dataDictCustomerPrice = new ViewDataDictionary(ViewData);
             dataDictCustomerPrice.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", Model.Id);
