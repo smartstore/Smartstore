@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO.Hashing;
+using System.Text;
 using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.IO;

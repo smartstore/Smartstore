@@ -58,6 +58,7 @@ namespace Smartstore.Data.Caching
         public virtual DbCacheKey GenerateQueryKey(Expression expression, DbCachingPolicy policy)
         {
             var hash = GetExpressionHash(expression);
+            //System.Diagnostics.Debug.WriteLine(hash.CombinedHash);
 
             var key = _keysCache.GetOrAdd(hash.CombinedHash, key =>
             {
@@ -85,17 +86,12 @@ namespace Smartstore.Data.Caching
                 parameterize: false);
 
             var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(expression);
-            var combiner = HashCodeCombiner.Start().Add(hashCode);
-            var parameterValues = queryContext.ParameterValues;
+            var combiner = new HashCodeCombiner(hashCode);
 
-            if (parameterValues.Count > 0)
+            // If query has parameters add to combiner
+            if (queryContext.ParameterValues.Count > 0)
             {
-                // If query has parameters add to combiner
-                foreach (var p in parameterValues)
-                {
-                    combiner.Add(p.Key);
-                    combiner.Add(p.Value);
-                }
+                combiner.AddDictionary(queryContext.ParameterValues);
             }
 
             return combiner;

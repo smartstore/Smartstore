@@ -3,7 +3,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.IO.Hashing;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -114,6 +113,7 @@ namespace Smartstore
         /// <summary>
         /// Parse ISO-8601 UTC timestamp including milliseconds.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DateTime? ToDateTimeIso8601(this string? value)
         {
             return ToDateTimeIso8601(value.AsSpan());
@@ -160,12 +160,14 @@ namespace Smartstore
         /// <param name="encoding">The encoder to use. Default: <see cref="Encoding.UTF8"/></param>
         /// <returns>A byte array containing the results of encoding the specified set of characters.</returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte[] GetBytes(this string value, Encoding? encoding = null)
         {
             return (encoding ?? Encoding.UTF8).GetBytes(value);
         }
 
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ToEnum<T>(this string? value, T defaultValue)
             where T : struct
         {
@@ -173,6 +175,7 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ToEnum<T>(this ReadOnlySpan<char> value, T defaultValue)
             where T : struct
         {
@@ -180,25 +183,63 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Computes the XxHash64 of the input string. XxHash64 is an extremely fast non-cryptographic hash algorithm.
+        /// Computes the 32-bit XxHash32 of the input string.
         /// </summary>
         /// <param name="value">The input string</param>
-        /// <returns>XxHash as hex</returns>
+        /// <param name="seed">The seed value for this hash computation.</param>
+        /// <returns>The XxHash32 hash of the input string in HEX.</returns>
         [DebuggerStepThrough]
         [return: NotNullIfNotNull(nameof(value))]
-        public static string? XxHash(this string? value)
+        public static string? XxHash32(this string? value, int seed = 0)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 return value;
             }
 
-            var hashCode = XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(value), 0);
+            var hashCode = System.IO.Hashing.XxHash32.HashToUInt32(Encoding.UTF8.GetBytes(value), seed);
             return $"{hashCode:X}";
         }
 
         /// <summary>
+        /// Computes the 64-bit XxHash3 of the input string.
         /// </summary>
+        /// <param name="value">The input string</param>
+        /// <param name="seed">The seed value for this hash computation.</param>
+        /// <returns>The XxHash3 hash of the input string in HEX.</returns>
+        [DebuggerStepThrough]
+        [return: NotNullIfNotNull(nameof(value))]
+        public static string? XxHash3(this string? value, long seed = 0)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            var hashCode = System.IO.Hashing.XxHash3.HashToUInt64(Encoding.UTF8.GetBytes(value), seed);
+            return $"{hashCode:X}";
+        }
+
+        /// <summary>
+        /// Computes the 64-bit XxHash64 of the input string.
+        /// </summary>
+        /// <param name="value">The input string</param>
+        /// <param name="seed">The seed value for this hash computation.</param>
+        /// <returns>The XxHash64 hash of the input string in HEX.</returns>
+        [DebuggerStepThrough]
+        [return: NotNullIfNotNull(nameof(value))]
+        public static string? XxHash64(this string? value, long seed = 0)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            var hashCode = System.IO.Hashing.XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(value), seed);
+            return $"{hashCode:X}";
+        }
+
+
         [DebuggerStepThrough]
         [Obsolete("Microsoft recommends SHA256 or SHA512 class instead of MD5. Use MD5 only for compatibility with legacy applications and data.")]
         [return: NotNullIfNotNull(nameof(value))]

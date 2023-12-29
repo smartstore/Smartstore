@@ -196,7 +196,7 @@ namespace Smartstore.IO
         {
             // Sync filtering behaviour with PhysicalFileProvider
 
-            if (info.Name.StartsWith(".", StringComparison.Ordinal))
+            if (info.Name.StartsWith('.'))
             {
                 return true;
             }

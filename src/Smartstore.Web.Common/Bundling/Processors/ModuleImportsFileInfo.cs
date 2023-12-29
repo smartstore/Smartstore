@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO.Hashing;
+using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
@@ -117,7 +118,7 @@ namespace Smartstore.Web.Bundling.Processors
 
         public Task<int> GetFileHashAsync()
         {
-            return Task.FromResult((int)XxHashUnsafe.ComputeHash(GetContent()));
+            return Task.FromResult((int)XxHash32.HashToUInt32(GetContent().GetBytes()));
         }
 
         class ModuleImport

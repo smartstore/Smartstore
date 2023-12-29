@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿using System.IO.Hashing;
+using Microsoft.Extensions.FileProviders;
 using Smartstore.IO;
 using Smartstore.Utilities;
 using Smartstore.Web.Theming;
@@ -76,7 +77,7 @@ namespace Smartstore.Web.Bundling.Processors
             if (_contentHash == null)
             {
                 var css = await GetContentAsync();
-                _contentHash = (int)XxHashUnsafe.ComputeHash(css);
+                _contentHash = (int)XxHash32.HashToUInt32(css.GetBytes());
             }
 
             return _contentHash.Value;

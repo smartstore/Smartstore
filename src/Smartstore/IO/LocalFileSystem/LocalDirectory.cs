@@ -7,8 +7,8 @@ namespace Smartstore.IO
     public class LocalDirectory : IDirectory
     {
         // Defaults are: AttributesToSkip = FileAttributes.Hidden | FileAttributes.System, IgnoreInaccessible = true
-        private static readonly EnumerationOptions _flatEnumerationOptions = new();
-        private static readonly EnumerationOptions _deepEnumerationOptions = new() { RecurseSubdirectories = true };
+        internal static readonly EnumerationOptions FlatEnumerationOptions = new();
+        internal static readonly EnumerationOptions DeepEnumerationOptions = new() { RecurseSubdirectories = true };
 
         private readonly DirectoryInfo _di;
         private LocalFileSystem _fs;
@@ -147,8 +147,7 @@ namespace Smartstore.IO
             }
             
             return _di
-                .EnumerateFileSystemInfos(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
-                .Where(x => !LocalFileSystem.IsExcluded(x))
+                .EnumerateFileSystemInfos(pattern, deep ? DeepEnumerationOptions : FlatEnumerationOptions)
                 .Select(x =>
                 {
                     if (x is FileInfo fi)
@@ -173,8 +172,7 @@ namespace Smartstore.IO
             }
 
             return _di
-                .EnumerateDirectories(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
-                .Where(x => !LocalFileSystem.IsExcluded(x))
+                .EnumerateDirectories(pattern, deep ? DeepEnumerationOptions : FlatEnumerationOptions)
                 .Select(ConvertDirectoryInfo);
         }
 
@@ -186,8 +184,7 @@ namespace Smartstore.IO
             }
 
             return _di
-                .EnumerateFiles(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
-                .Where(x => !LocalFileSystem.IsExcluded(x))
+                .EnumerateFiles(pattern, deep ? DeepEnumerationOptions : FlatEnumerationOptions)
                 .Select(ConvertFileInfo);
         }
 

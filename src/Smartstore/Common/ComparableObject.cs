@@ -50,14 +50,14 @@ namespace Smartstore
                 // It's possible for two objects to return the same hash code based on
                 // identically valued properties, even if they're of two different types,
                 // so we include the object's type in the hash calculation
-                combiner.Add(t.GetHashCode());
+                combiner.Add(t);
 
                 foreach (var prop in signatureProperties)
                 {
                     var value = prop.GetValue(this);
 
                     if (value != null)
-                        combiner.Add(value.GetHashCode());
+                        combiner.Add(value);
                 }
 
                 if (signatureProperties.Length > 0)
