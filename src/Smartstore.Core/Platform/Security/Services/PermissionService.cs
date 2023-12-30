@@ -1,4 +1,5 @@
-﻿using Smartstore.Caching;
+﻿using System.Text;
+using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -12,7 +13,7 @@ namespace Smartstore.Core.Security
     public partial class PermissionService : AsyncDbSaveHook<CustomerRole>, IPermissionService
     {
         // {0} = roleId
-        internal const string PERMISSION_TREE_KEY = "permission:tree-{0}";
+        private readonly static CompositeFormat PERMISSION_TREE_KEY = CompositeFormat.Parse("permission:tree-{0}");
         internal const string PERMISSION_TREE_PATTERN_KEY = "permission:tree-*";
 
         private static readonly Dictionary<string, string> _displayNameResourceKeys = new()

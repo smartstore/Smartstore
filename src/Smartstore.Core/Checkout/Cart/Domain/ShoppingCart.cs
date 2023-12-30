@@ -86,7 +86,7 @@ namespace Smartstore.Core.Checkout.Cart
             var combiner = HashCodeCombiner
                 .Start()
                 .Add(StoreId)
-                .Add((int)CartType)
+                .Add(CartType)
                 .Add(Customer.Id)
                 .Add(attributes?.DiscountCouponCode)
                 .Add(attributes?.RawGiftCardCouponCodes)
@@ -94,7 +94,7 @@ namespace Smartstore.Core.Checkout.Cart
                 .Add(attributes?.VatNumber)
                 .Add(attributes?.UseRewardPointsDuringCheckout)
                 .Add(attributes?.UseCreditBalanceDuringCheckout)
-                .Add(Items.Select(x => x.Item.GetHashCode()));
+                .AddSequence(Items.Select(x => x.Item));
 
             return combiner.CombinedHash;
         }

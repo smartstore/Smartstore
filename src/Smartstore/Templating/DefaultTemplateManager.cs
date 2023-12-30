@@ -20,14 +20,14 @@ namespace Smartstore.Templating
 
         public bool Contains(string name)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             return _templates.ContainsKey(name);
         }
 
         public ITemplate Get(string name)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             _templates.TryGetValue(name, out var template);
             return template;
@@ -35,16 +35,16 @@ namespace Smartstore.Templating
 
         public void Put(string name, ITemplate template)
         {
-            Guard.NotEmpty(name, nameof(name));
-            Guard.NotNull(template, nameof(template));
+            Guard.NotEmpty(name);
+            Guard.NotNull(template);
 
             _templates[name] = template;
         }
 
         public ITemplate GetOrAdd(string name, Func<string> sourceFactory)
         {
-            Guard.NotEmpty(name, nameof(name));
-            Guard.NotNull(sourceFactory, nameof(sourceFactory));
+            Guard.NotEmpty(name);
+            Guard.NotNull(sourceFactory);
 
             return _templates.GetOrAdd(name, key =>
             {
@@ -54,7 +54,7 @@ namespace Smartstore.Templating
 
         public bool TryRemove(string name, out ITemplate template)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             return _templates.TryRemove(name, out template);
         }

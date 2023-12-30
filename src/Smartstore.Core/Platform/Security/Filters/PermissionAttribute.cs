@@ -61,8 +61,8 @@ namespace Smartstore.Core.Security
                 {
                     if (message.HasValue())
                     {
-                        context.HttpContext.Response.Headers.Add("X-Message-Type", "error");
-                        context.HttpContext.Response.Headers.Add("X-Message", Convert.ToBase64String(message.GetBytes()));
+                        context.HttpContext.Response.Headers["X-Message-Type"] = "error";
+                        context.HttpContext.Response.Headers["X-Message"] = Convert.ToBase64String(message.GetBytes());
                     }
 
                     var acceptTypes = request.Headers?.GetCommaSeparatedValues(HeaderNames.Accept);

@@ -8,7 +8,7 @@ using Smartstore.Web.Modelling;
 namespace Smartstore.Web.Controllers
 {
     [TrackActivity(Order = 100)]
-    [SaveChanges(typeof(SmartDbContext), Order = int.MaxValue)]
+    [SaveChanges<SmartDbContext>(Order = int.MaxValue)]
     public abstract class ManageController : SmartController
     {
         /// <summary>

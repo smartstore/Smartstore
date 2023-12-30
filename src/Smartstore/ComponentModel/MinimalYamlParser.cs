@@ -10,7 +10,7 @@ namespace Smartstore.ComponentModel
     /// </remarks>
     public class MinimalYamlParser
     {
-        private readonly Dictionary<string, YamlMapping> _mappings = new();
+        private readonly Dictionary<string, YamlMapping> _mappings = [];
 
         public MinimalYamlParser(string yamlString)
         {

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Frozen;
 using System.Dynamic;
 using System.Globalization;
 using System.Reflection;
@@ -54,6 +55,10 @@ namespace Smartstore.ComponentModel.TypeConverters
                 var expando = new HybridExpando();
                 expando.Merge(dict);
                 return expando;
+            }
+            else if (to == typeof(FrozenDictionary<string, object>))
+            {
+                return dict.ToFrozenDictionary();
             }
             else
             {

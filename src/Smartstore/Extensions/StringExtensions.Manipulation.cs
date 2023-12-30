@@ -26,6 +26,17 @@ namespace Smartstore
             => string.Format(CultureInfo.InvariantCulture, format, args);
 
         /// <summary>
+        /// Formats a string to an invariant culture
+        /// </summary>
+        /// <param name="format">The parsed format string as <see cref="CompositeFormat"/>.</param>
+        /// <param name="objects">The objects.</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string FormatInvariant(this CompositeFormat format, params object?[] args)
+            => string.Format(CultureInfo.InvariantCulture, format, args);
+
+        /// <summary>
         /// Formats a string to the current culture.
         /// </summary>
         /// <param name="format">The format string.</param>
@@ -34,6 +45,17 @@ namespace Smartstore
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string FormatCurrent(this string format, params object?[] args)
+            => string.Format(CultureInfo.CurrentCulture, format, args);
+
+        /// <summary>
+        /// Formats a string to the current culture.
+        /// </summary>
+        /// <param name="format">The parsed format string as <see cref="CompositeFormat"/>.</param>
+        /// <param name="objects">The objects.</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string FormatCurrent(this CompositeFormat format, params object?[] args)
             => string.Format(CultureInfo.CurrentCulture, format, args);
 
         /// <summary>
@@ -47,8 +69,23 @@ namespace Smartstore
         public static string FormatCurrentUI(this string format, params object?[] args)
             => string.Format(CultureInfo.CurrentUICulture, format, args);
 
+        /// <summary>
+        /// Formats a string to the current UI culture.
+        /// </summary>
+        /// <param name="format">The parsed format string as <see cref="CompositeFormat"/>.</param>
+        /// <param name="objects">The objects.</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string FormatCurrentUI(this CompositeFormat format, params object?[] args)
+            => string.Format(CultureInfo.CurrentUICulture, format, args);
+
         [DebuggerStepThrough]
         public static string FormatWith(this string format, IFormatProvider? provider, params object?[] args)
+            => string.Format(provider, format, args);
+
+        [DebuggerStepThrough]
+        public static string FormatWith(this CompositeFormat format, IFormatProvider? provider, params object?[] args)
             => string.Format(provider, format, args);
 
         /// <summary>

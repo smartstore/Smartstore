@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Collections.Frozen;
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,7 +14,8 @@ namespace Smartstore.Web.Rendering
     /// </summary>
     public class SmartHtmlGenerator : DefaultHtmlGenerator
     {
-        private readonly static HashSet<string> _nonInputTypes = new() { "button", "checkbox", "file", "hidden", "image", "radio", "range", "reset", "search", "submit" };
+        private readonly static FrozenSet<string> _nonInputTypes = 
+            new string[] { "button", "checkbox", "file", "hidden", "image", "radio", "range", "reset", "search", "submit" }.ToFrozenSet();
         
         public SmartHtmlGenerator(
             IAntiforgery antiforgery,

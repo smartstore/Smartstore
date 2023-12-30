@@ -217,7 +217,7 @@ namespace Smartstore.Core.Common
         {
             var combiner = HashCodeCombiner
                 .Start()
-                .Add(GetType().GetHashCode())
+                .Add(GetType())
                 .Add(Id)
                 .Add(FirstName)
                 .Add(LastName)

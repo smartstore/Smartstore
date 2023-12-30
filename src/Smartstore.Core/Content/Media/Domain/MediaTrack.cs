@@ -123,7 +123,7 @@ namespace Smartstore.Core.Content.Media
             {
                 var combiner = HashCodeCombiner
                     .Start()
-                    .Add(GetType().GetHashCode())
+                    .Add(GetType())
                     .Add(MediaFileId)
                     .Add(EntityId)
                     .Add(EntityName)

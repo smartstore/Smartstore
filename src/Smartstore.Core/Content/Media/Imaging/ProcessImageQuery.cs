@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Frozen;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
 using Smartstore.Imaging;
@@ -8,21 +9,21 @@ namespace Smartstore.Core.Content.Media.Imaging
     public class ProcessImageQuery : MutableQueryCollection
     {
         private readonly static string[] _validScaleModes
-            = new[] { "max", "boxpad", "crop", "min", "pad", "stretch" };
+            = ["max", "boxpad", "crop", "min", "pad", "stretch"];
 
         private readonly static string[] _validAnchorPositions
-            = new[] { "center", "top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right" };
+            = ["center", "top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right"];
 
         // Key = Supported token name, Value = Validator
-        private readonly static Dictionary<string, Func<string, string, bool>> _supportedTokens = new()
+        private readonly static FrozenDictionary<string, Func<string, string, bool>> _supportedTokens = new Dictionary<string, Func<string, string, bool>>()
         {
-            ["w"] = (k, v) => ValidateSizeToken(k, v),
-            ["h"] = (k, v) => ValidateSizeToken(k, v),
-            ["size"] = (k, v) => ValidateSizeToken(k, v),
-            ["q"] = (k, v) => ValidateQualityToken(k, v),
-            ["m"] = (k, v) => ValidateScaleModeToken(k, v),
-            ["pos"] = (k, v) => ValidateAnchorPosToken(k, v)
-        };
+            ["w"] = ValidateSizeToken,
+            ["h"] = ValidateSizeToken,
+            ["size"] = ValidateSizeToken,
+            ["q"] = ValidateQualityToken,
+            ["m"] = ValidateScaleModeToken,
+            ["pos"] = ValidateAnchorPosToken
+        }.ToFrozenDictionary();
 
         public ProcessImageQuery()
             : this(null, null)

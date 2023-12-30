@@ -51,7 +51,7 @@ namespace Smartstore
         /// </returns>
         public static async Task<bool> EnsureCreatedSchemalessAsync(this DatabaseFacade databaseFacade, CancellationToken cancelToken = default)
         {
-            Guard.NotNull(databaseFacade, nameof(databaseFacade));
+            Guard.NotNull(databaseFacade);
 
             var creator = GetFacadeDependencies(databaseFacade).DatabaseCreator as RelationalDatabaseCreator;
             if (creator != null)
@@ -166,9 +166,9 @@ namespace Smartstore
 
         public static RelationalDataReader ExecuteReaderRaw(this DatabaseFacade databaseFacade, string sql, IEnumerable<object> parameters)
         {
-            Guard.NotNull(databaseFacade, nameof(databaseFacade));
-            Guard.NotEmpty(sql, nameof(sql));
-            Guard.NotNull(parameters, nameof(parameters));
+            Guard.NotNull(databaseFacade);
+            Guard.NotEmpty(sql);
+            Guard.NotNull(parameters);
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
             var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
@@ -203,9 +203,9 @@ namespace Smartstore
             IEnumerable<object> parameters,
             CancellationToken cancelToken = default)
         {
-            Guard.NotNull(databaseFacade, nameof(databaseFacade));
-            Guard.NotEmpty(sql, nameof(sql));
-            Guard.NotNull(parameters, nameof(parameters));
+            Guard.NotNull(databaseFacade);
+            Guard.NotEmpty(sql);
+            Guard.NotNull(parameters);
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
             var concurrencyDetector = facadeDependencies.ConcurrencyDetector;

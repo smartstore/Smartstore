@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Localization;
+﻿using System.IO.Hashing;
+using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Identity
@@ -20,7 +21,7 @@ namespace Smartstore.Core.Identity
     public class CookieInfo : ILocalizedEntity, IDisplayedEntity
     {
         int ILocalizedEntity.Id
-            => Name.IsEmpty() ? 0 : (int)XxHashUnsafe.ComputeHash(Name);
+            => Name.IsEmpty() ? 0 : Name.GetHashCode();
 
         string INamedEntity.GetEntityName() 
             => nameof(CookieInfo);

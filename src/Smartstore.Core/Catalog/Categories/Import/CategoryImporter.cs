@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Categories;
+﻿using System.Collections.Frozen;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.Seo;
@@ -14,7 +15,7 @@ namespace Smartstore.Core.DataExchange.Import
         const string TargetCategoryIdsKey = "CategoryImporter.TargetCategoryIds";
         const string ParentCategoryIdsKey = "CategoryImporter.ParentCategoryIds";
 
-        private static readonly Dictionary<string, Expression<Func<Category, string>>> _localizableProperties = new()
+        private static readonly FrozenDictionary<string, Expression<Func<Category, string>>> _localizableProperties = new Dictionary<string, Expression<Func<Category, string>>>()
         {
             { nameof(Category.Name), x => x.Name },
             { nameof(Category.FullName), x => x.FullName },
@@ -23,7 +24,7 @@ namespace Smartstore.Core.DataExchange.Import
             { nameof(Category.MetaKeywords), x => x.MetaKeywords },
             { nameof(Category.MetaDescription), x => x.MetaDescription },
             { nameof(Category.MetaTitle), x => x.MetaTitle }
-        };
+        }.ToFrozenDictionary();
 
         private readonly IMediaImporter _mediaImporter;
 

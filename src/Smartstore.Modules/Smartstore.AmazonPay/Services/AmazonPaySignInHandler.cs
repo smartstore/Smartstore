@@ -27,12 +27,11 @@ namespace Smartstore.AmazonPay.Services
             IOptionsMonitor<AmazonPaySignInOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            ISystemClock clock,
             IStoreContext storeContext,
             SignInManager<Customer> signInManager,
             IProviderManager providerManager,
             ExternalAuthenticationSettings externalAuthenticationSettings)
-            : base(options, logger, encoder, clock)
+            : base(options, logger, encoder)
         {
             _storeContext = storeContext;
             _signInManager = signInManager;

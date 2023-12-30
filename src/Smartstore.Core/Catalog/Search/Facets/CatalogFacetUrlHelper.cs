@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Frozen;
+using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
@@ -7,7 +8,7 @@ namespace Smartstore.Core.Search.Facets
 {
     public partial class CatalogFacetUrlHelper : FacetUrlHelperBase
     {
-        private readonly static Dictionary<FacetGroupKind, string> _queryNames = new()
+        private readonly static FrozenDictionary<FacetGroupKind, string> _queryNames = new Dictionary<FacetGroupKind, string>()
         {
             { FacetGroupKind.Brand, "m" },
             { FacetGroupKind.Category, "c" },
@@ -16,7 +17,7 @@ namespace Smartstore.Core.Search.Facets
             { FacetGroupKind.DeliveryTime, "d" },
             { FacetGroupKind.Availability, "a" },
             { FacetGroupKind.NewArrivals, "n" }
-        };
+        }.ToFrozenDictionary();
 
         private readonly IWorkContext _workContext;
         private readonly ICatalogSearchQueryAliasMapper _catalogAliasMapper;

@@ -34,9 +34,8 @@ namespace Smartstore.Web.Api.Security
             IApiUserStore apiUserStore,
             IOptionsMonitor<BasicAuthenticationOptions> options,
             ILoggerFactory logger,
-            UrlEncoder encoder,
-            ISystemClock clock)
-            : base(options, logger, encoder, clock)
+            UrlEncoder encoder)
+            : base(options, logger, encoder)
         {
             _apiService = apiService;
             _apiUserStore = apiUserStore;
@@ -50,10 +49,10 @@ namespace Smartstore.Web.Api.Security
             {
                 // INFO: for batch requests, these headers are only present in the first response.
                 var headers = Response.Headers;
-                headers.Add(AppVersionHeader, SmartstoreVersion.CurrentFullVersion);
-                headers.Add(VersionHeader, state.Version);
-                headers.Add(MaxTopHeader, state.MaxTop.ToString());
-                headers.Add(DateHeader, DateTime.UtcNow.ToString("o"));
+                headers[AppVersionHeader] = SmartstoreVersion.CurrentFullVersion;
+                headers[VersionHeader] = state.Version;
+                headers[MaxTopHeader] = state.MaxTop.ToString();
+                headers[DateHeader] = DateTime.UtcNow.ToString("o");
 
                 if (!state.IsActive)
                 {
@@ -104,7 +103,7 @@ namespace Smartstore.Web.Api.Security
                     MaxExpansionDepth = state.MaxExpansionDepth
                 };
 
-                headers.Add(CustomerIdHeader, user.CustomerId.ToString());
+                headers[CustomerIdHeader] = user.CustomerId.ToString();
                 headers.CacheControl = "no-cache";
 
                 var claims = new[]
@@ -132,8 +131,8 @@ namespace Smartstore.Web.Api.Security
 
         private AuthenticateResult Failure(AccessDeniedReason reason, string publicKey = null, int statusCode = Status401Unauthorized)
         {
-            Response.Headers.Add(ResultIdHeader, ((int)reason).ToString());
-            Response.Headers.Add(ResultDescriptionHeader, reason.ToString());
+            Response.Headers[ResultIdHeader] = ((int)reason).ToString();
+            Response.Headers[ResultDescriptionHeader] = reason.ToString();
 
             return Failure(CreateMessage(reason, publicKey), null, statusCode);
         }

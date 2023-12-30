@@ -378,7 +378,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="cartItemId">Identifier of <see cref="ShoppingCartItem"/> to remove.</param>
         /// <param name="isWishlistItem">A value indicating whether to remove the cart item from wishlist or shopping cart.</param>        
         [HttpPost]
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> DeleteCartItem(int cartItemId, bool isWishlistItem = false)
         {
             if (!await Services.Permissions.AuthorizeAsync(isWishlistItem ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
@@ -447,7 +447,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="forceRedirection">A value indicating whether to force a redirection to the shopping cart.</param>
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         [LocalizedRoute("/cart/addproductsimple/{productId:int}", Name = "AddProductToCartSimple")]
         public async Task<IActionResult> AddProductSimple(int productId, int shoppingCartTypeId = 1, bool forceRedirection = false)
         {
@@ -531,7 +531,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="query">The <see cref="ProductVariantQuery"/> of selected attributes.</param>
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         [LocalizedRoute("/cart/addproduct/{productId:int}/{shoppingCartTypeId:int}", Name = "AddProductToCart")]
         public async Task<IActionResult> AddProduct(int productId, int shoppingCartTypeId, ProductVariantQuery query)
         {
@@ -649,7 +649,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         [IgnoreAntiforgeryToken]
         [ActionName("MoveItemBetweenCartAndWishlist")]
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> MoveItemBetweenCartAndWishlistAjax(int cartItemId, ShoppingCartType cartType, bool isCartPage = false)
         {
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)

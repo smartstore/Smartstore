@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Configuration;
@@ -17,7 +18,7 @@ namespace Smartstore.Core.Seo
         /// <summary>
         /// 0 = segment (EntityName.IdRange), 1 = language id
         /// </summary>
-        const string URLRECORD_SEGMENT_KEY = "urlrecord:segment:{0}-lang-{1}";
+        private readonly static CompositeFormat URLRECORD_SEGMENT_KEY = CompositeFormat.Parse("urlrecord:segment:{0}-lang-{1}");
         const string URLRECORD_SEGMENT_PATTERN = "urlrecord:segment:{0}*";
         const string URLRECORD_ALL_ACTIVESLUGS_KEY = "urlrecord:all-active-slugs";
 
@@ -204,7 +205,7 @@ namespace Smartstore.Core.Seo
 
         private static string BuildCacheSegmentKey(string segment, int languageId)
         {
-            return string.Format(URLRECORD_SEGMENT_KEY, segment, languageId);
+            return URLRECORD_SEGMENT_KEY.FormatInvariant(segment, languageId);
         }
 
         private string GetSegmentKeyPart(string entityName, int entityId)
@@ -587,7 +588,7 @@ namespace Smartstore.Core.Seo
 
                 // Try again with unique index appended
                 var suffixLen = Math.Floor(Math.Log10(i) + 1).Convert<int>() + 1;
-                tempSlug = string.Format("{0}-{1}", slug.Truncate(400 - suffixLen), i);
+                tempSlug = CompositeFormatCache.Get("{0}-{1}").FormatInvariant(slug.Truncate(400 - suffixLen), i);
                 found = urlRecord;
                 i++;
             }

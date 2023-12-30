@@ -25,7 +25,7 @@ namespace Smartstore.Collections
         }
 
         private readonly IDictionary<TKey, TValue> _dict;
-        private readonly Dictionary<INotifyPropertyChanged, string> _observerKeyMap = new();
+        private readonly Dictionary<INotifyPropertyChanged, string> _observerKeyMap = [];
 
         public ObservableDictionary()
             : this(0, null)

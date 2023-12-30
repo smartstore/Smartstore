@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Autofac;
@@ -25,7 +26,7 @@ namespace Smartstore.ComponentModel
     public static class MapperFactory
     {
         // Mapper registrations map
-        private static Dictionary<MapperKey, MapperRegistration> _mapperRegistrations = default!;
+        private static IDictionary<MapperKey, MapperRegistration> _mapperRegistrations = default!;
         // Lifetimes
         private readonly static MapperLifetime _singletonMapperLifetime = new SingletonMapperLifetime();
         private readonly static MapperLifetime _scopeMapperLifetime = new ScopeMapperLifetime();
@@ -111,6 +112,8 @@ namespace Smartstore.ComponentModel
 
                 _mapperRegistrations[kvp.Key] = new MapperRegistration(orderedMapperTypes, lifetime);
             }
+
+            _mapperRegistrations = _mapperRegistrations.ToFrozenDictionary();
         }
 
         #endregion

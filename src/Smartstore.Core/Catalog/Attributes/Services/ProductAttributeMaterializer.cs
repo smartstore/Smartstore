@@ -311,7 +311,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 return null;
             }
 
-            var cacheKey = AttributeCombinationByIdJsonKey.FormatInvariant(productId, selection.AsJson().XxHash());
+            var cacheKey = AttributeCombinationByIdJsonKey.FormatInvariant(productId, selection.AsJson().XxHash3());
 
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {

@@ -1,4 +1,5 @@
-﻿using Smartstore.Caching;
+﻿using System.Text;
+using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
@@ -13,7 +14,7 @@ namespace Smartstore.Core.Catalog.Discounts
     public partial class DiscountService : AsyncDbSaveHook<Discount>, IDiscountService
     {
         // {0} = discountType, {1} = includeHidden, {2} = couponCode.
-        const string DiscountsAllKey = "discount.all-{0}-{1}-{2}";
+        private readonly static CompositeFormat DiscountsAllKey = CompositeFormat.Parse("discount.all-{0}-{1}-{2}");
         internal const string DiscountsPatternKey = "discount.*";
 
         private readonly SmartDbContext _db;

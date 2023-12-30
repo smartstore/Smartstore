@@ -19,11 +19,11 @@ namespace Smartstore.Core.Catalog.Categories
         internal static TimeSpan CategoryTreeCacheDuration = TimeSpan.FromHours(6);
 
         // {0} = IncludeHidden, {1} = CustomerRoleIds, {2} = StoreId
-        internal const string CategoryTreeKey = "category:tree-{0}-{1}-{2}";
+        internal readonly static CompositeFormat CategoryTreeKey = CompositeFormat.Parse("category:tree-{0}-{1}-{2}");
         internal const string CategoryTreePatternKey = "category:tree-*";
 
         // {0} = IncludeHidden, {1} = CustomerId, {2} = StoreId, {3} ParentCategoryId
-        const string CategoriesByParentIdKey = "category:byparent-{0}-{1}-{2}-{3}";
+        internal readonly static CompositeFormat CategoriesByParentIdKey = CompositeFormat.Parse("category:byparent-{0}-{1}-{2}-{3}");
         internal const string CategoriesPatternKey = "category:*";
 
         private readonly SmartDbContext _db;

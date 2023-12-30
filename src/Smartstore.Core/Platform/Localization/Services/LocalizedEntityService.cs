@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
@@ -13,7 +14,7 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// 0 = segment (keygroup.key.idrange), 1 = language id
         /// </summary>
-        const string LOCALIZEDPROPERTY_SEGMENT_KEY = "localizedproperty:{0}-lang-{1}";
+        private readonly static CompositeFormat LOCALIZEDPROPERTY_SEGMENT_KEY = CompositeFormat.Parse("localizedproperty:{0}-lang-{1}");
         const string LOCALIZEDPROPERTY_SEGMENT_PATTERN = "localizedproperty:{0}*";
         const string LOCALIZEDPROPERTY_ALLSEGMENTS_PATTERN = "localizedproperty:*";
 
@@ -442,7 +443,7 @@ namespace Smartstore.Core.Localization
 
         private static string BuildCacheSegmentKey(string segment, int languageId)
         {
-            return string.Format(LOCALIZEDPROPERTY_SEGMENT_KEY, segment, languageId);
+            return LOCALIZEDPROPERTY_SEGMENT_KEY.FormatInvariant(segment, languageId);
         }
 
         private string GetSegmentKeyPart(string localeKeyGroup, string localeKey, int entityId)

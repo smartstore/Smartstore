@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using Autofac;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -26,6 +27,7 @@ namespace Smartstore.Http
         private static PathString? _webBasePath;
         private static Lazy<int> _resolvedHttpsPort = new(TryResolveHttpsPort);
 
+        private static readonly CompositeFormat _formatUrl = CompositeFormat.Parse("{0}://{1}{2}");
         private static readonly AsyncLock _asyncLock = new();
         private static readonly Regex _htmlPathPattern = new(@"(?<=(?:href|src)=(?:""|'))(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly Regex _cssPathPattern = new(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
@@ -254,7 +256,7 @@ namespace Smartstore.Http
             }
 
             path = ToAbsolutePath(path).EnsureStartsWith('/'); // request.PathBase + path.EnsureStartsWith('/');
-            path = string.Format("{0}://{1}{2}", protocol, request.Host.Value, path);
+            path = _formatUrl.FormatInvariant(protocol, request.Host.Value, path);
 
             return path;
         }
@@ -487,7 +489,7 @@ namespace Smartstore.Http
 
             if (!requestUri.Host.Equals(safeHostName, StringComparison.OrdinalIgnoreCase))
             {
-                var url = string.Format("{0}://{1}{2}",
+                var url = _formatUrl.FormatInvariant(
                     requestUri.Scheme,
                     requestUri.IsDefaultPort ? safeHostName : safeHostName + ":" + requestUri.Port,
                     requestUri.PathAndQuery);
@@ -565,9 +567,10 @@ namespace Smartstore.Http
 
         private static async Task<bool> TestHostAsync(Uri originalUri, string host, HttpClient httpClient)
         {
-            var url = string.Format("{0}://{1}/taskscheduler/noop",
+            var url = _formatUrl.FormatInvariant(
                 originalUri.Scheme,
-                originalUri.IsDefaultPort ? host : host + ":" + originalUri.Port);
+                originalUri.IsDefaultPort ? host : host + ":" + originalUri.Port,
+                "/taskscheduler/noop");
             var uri = new Uri(url);
 
             try

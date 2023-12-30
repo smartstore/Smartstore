@@ -31,7 +31,8 @@ namespace Smartstore.Core.Bootstrapping
                 .ConfigureRunner(builder =>
                 {
                     builder
-                        .AddSqlServer()
+                        //.AddSqlServer()
+                        .AddSqlServer2014()
                         .AddMySql5()
                         .AddPostgres()
                         .AddSQLite()

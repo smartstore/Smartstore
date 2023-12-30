@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿using System.Text;
+using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore
 {
@@ -44,6 +45,7 @@ namespace Smartstore
             return null;
         }
 
+        private readonly static CompositeFormat _formatRouteIdent = CompositeFormat.Parse("{0}{1}.{2}");
         /// <summary>
         /// Generates an identifier for the given route in the form "[{area}.]{controller}.{action}"
         /// </summary>
@@ -53,7 +55,7 @@ namespace Smartstore
             var controller = values.GetControllerName();
             var action = values.GetActionName();
 
-            return "{0}{1}.{2}".FormatInvariant(area.HasValue() ? area + '.' : string.Empty, controller, action);
+            return _formatRouteIdent.FormatInvariant(area.HasValue() ? area + '.' : string.Empty, controller, action);
         }
 
         public static bool IsSameRoute(this RouteValueDictionary values, string area, string controller, string action)

@@ -5,12 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Npgsql" Version="7.0.6" GeneratePathProperty="true" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" GeneratePathProperty="true" />
-        <None Include="$(PkgNpgsql)\lib\net7.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <PackageReference Include="Npgsql" Version="8.0.1" GeneratePathProperty="true" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" GeneratePathProperty="true" />
+        <None Include="$(PkgNpgsql)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
-        <None Include="$(PkgNpgsql_EntityFrameworkCore_PostgreSQL)\lib\net7.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <None Include="$(PkgNpgsql_EntityFrameworkCore_PostgreSQL)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
     </ItemGroup>

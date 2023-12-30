@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Text;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -207,7 +208,7 @@ namespace Smartstore.Core.Widgets
                         return key;
                     }
 
-                    var minPath = "{0}.min{1}".FormatInvariant(key.Substring(0, key.Length - extension.Length), extension);
+                    var minPath = CompositeFormatCache.Get("{0}.min{1}").FormatInvariant(key[..^extension.Length], extension);
                     fileProvider ??= _appContext.WebRoot;
                     if (fileProvider.GetFileInfo(minPath.TrimStart('~', '/')).Exists)
                     {

@@ -52,7 +52,7 @@ namespace Smartstore
             if (id == 0)
                 return null;
 
-            return dbSet.GetDbContext().FindTracked<TEntity>(id) ?? dbSet.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
+            return dbSet.Local.FindEntry(id)?.Entity ?? dbSet.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
         }
 
         /// <summary>
@@ -79,8 +79,8 @@ namespace Smartstore
         {
             if (id == 0)
                 return null;
-
-            return query.GetDbContext().FindTracked<TEntity>(id) ?? query.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
+            
+            return query.GetDbContext().Set<TEntity>().Local.FindEntry(id)?.Entity ?? query.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Smartstore
             if (id == 0)
                 return ValueTask.FromResult((TEntity)null);
 
-            var trackedEntity = dbSet.GetDbContext().FindTracked<TEntity>(id);
+            var trackedEntity = dbSet.Local.FindEntry(id)?.Entity;
             return trackedEntity != null
                 ? new ValueTask<TEntity>(trackedEntity)
                 : new ValueTask<TEntity>(
@@ -142,7 +142,7 @@ namespace Smartstore
             if (id == 0)
                 return ValueTask.FromResult((TEntity)null);
 
-            var trackedEntity = query.GetDbContext().FindTracked<TEntity>(id);
+            var trackedEntity = query.GetDbContext().Set<TEntity>().Local.FindEntry(id)?.Entity;
             return trackedEntity != null
                 ? new ValueTask<TEntity>(trackedEntity)
                 : new ValueTask<TEntity>(
@@ -157,7 +157,7 @@ namespace Smartstore
         {
             Guard.NotZero(id);
 
-            var entity = dbSet.GetDbContext().FindTracked<TEntity>(id);
+            var entity = dbSet.Local.FindEntry(id)?.Entity;
             if (entity == null && dbSet.Any(x => x.Id == id))
             {
                 entity = new TEntity { Id = id };
@@ -183,8 +183,9 @@ namespace Smartstore
 
             var localEntities = distinctIds
                 .Select(context.FindTracked<TEntity>)
+                .Where(x => x != null)
                 .ToList();
-
+            
             var untrackedIds = distinctIds.Except(localEntities.Select(x => x.Id)).ToArray();
             var dbEntities = dbSet
                 .Where(x => untrackedIds.Contains(x.Id))
