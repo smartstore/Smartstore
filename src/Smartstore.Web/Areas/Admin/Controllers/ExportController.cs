@@ -1,4 +1,5 @@
-﻿using System.Net.Mime;
+﻿using System.Collections.Frozen;
+using System.Net.Mime;
 using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -39,7 +40,7 @@ namespace Smartstore.Admin.Controllers
             { ExportDeploymentType.Http, "fa fa-globe" },
             { ExportDeploymentType.Ftp, "far fa-copy" },
             { ExportDeploymentType.PublicFolder, "fa fa-unlock" },
-        };
+        }.ToFrozenDictionary();
 
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;

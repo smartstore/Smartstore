@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp.Processing;
+﻿using System.Collections.Frozen;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
@@ -7,7 +8,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal static class ImageSharpUtility
     {
-        private readonly static Dictionary<ResamplingMode, Func<IResampler>> _samplerMap = new()
+        private readonly static FrozenDictionary<ResamplingMode, Func<IResampler>> _samplerMap = new Dictionary<ResamplingMode, Func<IResampler>>()
         {
             [ResamplingMode.Bicubic] = () => KnownResamplers.Bicubic,
             [ResamplingMode.Box] = () => KnownResamplers.Box,
@@ -24,7 +25,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             [ResamplingMode.Spline] = () => KnownResamplers.Spline,
             [ResamplingMode.Triangle] = () => KnownResamplers.Triangle,
             [ResamplingMode.Welch] = () => KnownResamplers.Welch
-        };
+        }.ToFrozenDictionary();
 
         public static SharpImageFormat CreateFormat(SharpFormat sharpFormat)
         {

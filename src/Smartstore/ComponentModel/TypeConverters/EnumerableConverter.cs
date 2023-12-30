@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Globalization;
 using Smartstore.Collections;
 
@@ -49,6 +50,13 @@ namespace Smartstore.ComponentModel.TypeConverters
                     activator = (x) => new HashSet<T>(x, (IEqualityComparer<T>)StringComparer.OrdinalIgnoreCase);
                 else
                     activator = (x) => new HashSet<T>(x);
+            }
+            else if (t.IsAssignableFrom(typeof(FrozenSet<T>)))
+            {
+                if (typeof(T) == typeof(string))
+                    activator = (x) => x.ToFrozenSet((IEqualityComparer<T>)StringComparer.OrdinalIgnoreCase);
+                else
+                    activator = (x) => x.ToFrozenSet();
             }
             else if (t.IsAssignableFrom(typeof(Queue<T>)))
             {

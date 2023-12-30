@@ -4,7 +4,6 @@ using Microsoft.Extensions.FileProviders;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
-using Smartstore.Utilities;
 
 namespace Smartstore.Web.Bundling.Processors
 {

@@ -1,4 +1,5 @@
-﻿using System.Dynamic;
+﻿using System.Collections.Frozen;
+using System.Dynamic;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json.Linq;
 
@@ -26,6 +27,10 @@ namespace Smartstore.ComponentModel.TypeConverters
             else if (type == typeof(HybridExpando))
             {
                 return new DictionaryTypeConverter<HybridExpando>();
+            }
+            else if (type == typeof(FrozenDictionary<string, object>))
+            {
+                return new DictionaryTypeConverter<FrozenDictionary<string, object>>();
             }
             else if (type == typeof(JObject))
             {

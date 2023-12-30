@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Frozen;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -60,7 +61,7 @@ namespace Smartstore.Core.Content.Media
     {
         #region static
 
-        private static readonly HashSet<string> _outputAffectingProductProps = new HashSet<string>
+        private static readonly FrozenSet<string> _outputAffectingProductProps = new string[]
         {
             nameof(MediaFile.FolderId),
             nameof(MediaFile.Name),
@@ -68,7 +69,7 @@ namespace Smartstore.Core.Content.Media
             nameof(MediaFile.Title),
             nameof(MediaFile.Hidden),
             nameof(MediaFile.Deleted)
-        };
+        }.ToFrozenSet();
 
         public static IReadOnlyCollection<string> GetOutputAffectingPropertyNames()
         {

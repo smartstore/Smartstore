@@ -16,13 +16,14 @@ using SharpResizeOptions = SixLabors.ImageSharp.Processing.ResizeOptions;
 using SharpFlipMode = SixLabors.ImageSharp.Processing.FlipMode;
 using SharpPixelAlphaCompositionMode = SixLabors.ImageSharp.PixelFormats.PixelAlphaCompositionMode;
 using SharpPixelColorBlendingMode = SixLabors.ImageSharp.PixelFormats.PixelColorBlendingMode;
+using System.Collections.Frozen;
 #endregion
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal sealed class SharpImageTransformer : IImageTransformer
     {
-        private readonly static Dictionary<DitheringMode, Func<IDither>> _dithererMap = new()
+        private readonly static FrozenDictionary<DitheringMode, Func<IDither>> _dithererMap = new Dictionary<DitheringMode, Func<IDither>>()
         {
             [DitheringMode.Atkinson] = () => KnownDitherings.Atkinson,
             [DitheringMode.Bayer8x8] = () => KnownDitherings.Bayer8x8,
@@ -30,7 +31,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             [DitheringMode.FloydSteinberg] = () => KnownDitherings.FloydSteinberg,
             [DitheringMode.Ordered3x3] = () => KnownDitherings.Ordered3x3,
             [DitheringMode.Stucki] = () => KnownDitherings.Stucki
-        };
+        }.ToFrozenDictionary();
 
         private readonly IImageProcessingContext _context;
 

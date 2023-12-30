@@ -4,6 +4,7 @@
 #nullable enable
 
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -122,7 +123,7 @@ namespace Smartstore.ComponentModel
         /// </returns>
         public static IReadOnlyDictionary<string, FastProperty> GetVisibleProperties(Type type, bool uncached = false)
         {
-            Guard.NotNull(type, nameof(type));
+            Guard.NotNull(type);
 
             // Unwrap nullable types. This means Nullable<T>.Value and Nullable<T>.HasValue will not be
             // part of the sequence of properties returned by this method.
@@ -209,7 +210,7 @@ namespace Smartstore.ComponentModel
         /// </returns>
         public static IReadOnlyDictionary<string, FastProperty> GetProperties(Type type, bool uncached = false)
         {
-            Guard.NotNull(type, nameof(type));
+            Guard.NotNull(type);
 
             // Unwrap nullable types. This means Nullable<T>.Value and Nullable<T>.HasValue will not be
             // part of the sequence of properties returned by this method.
@@ -219,24 +220,24 @@ namespace Smartstore.ComponentModel
             {
                 if (uncached)
                 {
-                    props = Get(type);
+                    props = Get(type, false);
                 }
                 else
                 {
-                    props = _propertiesCache.GetOrAdd(type, Get);
+                    props = _propertiesCache.GetOrAdd(type, t => Get(t, true));
                 }
             }
 
             return (IReadOnlyDictionary<string, FastProperty>)props;
 
-            static IDictionary<string, FastProperty> Get(Type t)
+            static IDictionary<string, FastProperty> Get(Type t, bool frozen)
             {
                 var candidates = GetCandidateProperties(t);
                 var fastProperties = candidates
                     .Select(x => new FastProperty(x))
                     .ToDictionarySafe(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
-                return fastProperties;
+                return frozen ? fastProperties.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase) : fastProperties;
             }
         }
 

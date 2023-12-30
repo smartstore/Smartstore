@@ -1,25 +1,32 @@
-﻿using System.Reflection;
+﻿using System.Collections.Frozen;
+using System.Reflection;
 
 namespace Smartstore.Engine.Modularity
 {
     public class ModuleCatalog : IModuleCatalog
     {
-        private readonly Dictionary<string, IModuleDescriptor> _nameMap = new(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<Assembly, IModuleDescriptor> _assemblyMap = new();
+        private readonly FrozenDictionary<string, IModuleDescriptor> _nameMap;
+        private readonly FrozenDictionary<Assembly, IModuleDescriptor> _assemblyMap;
 
         public ModuleCatalog(IEnumerable<IModuleDescriptor> modules)
         {
-            Guard.NotNull(modules, nameof(modules));
+            Guard.NotNull(modules);
+
+            var nameMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
+            var assemblyMap = new Dictionary<Assembly, IModuleDescriptor>();
 
             foreach (var module in modules)
             {
-                _nameMap[module.SystemName] = module;
+                nameMap[module.SystemName] = module;
 
                 if (module.Module?.Assembly != null)
                 {
-                    _assemblyMap[module.Module.Assembly] = module;
+                    assemblyMap[module.Module.Assembly] = module;
                 }
             }
+
+            _nameMap = nameMap.ToFrozenDictionary();
+            _assemblyMap = assemblyMap.ToFrozenDictionary();
 
             IncompatibleModules = modules
                 .Where(x => x.Incompatible)

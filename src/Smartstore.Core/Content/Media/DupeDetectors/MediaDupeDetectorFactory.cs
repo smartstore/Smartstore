@@ -21,7 +21,7 @@ namespace Smartstore.Core.Content.Media
         private readonly IMediaSearcher _searcher;
         private readonly PerformanceSettings _performanceSettings;
 
-        private readonly Dictionary<int, IMediaDupeDetector> _detectors = new();
+        private readonly Dictionary<int, IMediaDupeDetector> _detectors = [];
 
         public MediaDupeDetectorFactory(IMediaSearcher searcher, PerformanceSettings performanceSettings)
         {
