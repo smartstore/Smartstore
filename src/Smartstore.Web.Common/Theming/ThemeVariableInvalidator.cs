@@ -36,7 +36,7 @@ namespace Smartstore.Web.Theming
 
         private void AddEvictableThemeScope(string themeName, int storeId)
         {
-             _themeScopes ??= new();
+             _themeScopes ??= [];
             _themeScopes.Add(new Tuple<string, int>(themeName, storeId));
         }
 

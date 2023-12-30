@@ -16,7 +16,7 @@ namespace Smartstore.Core.Bootstrapping
         /// <returns>The application builder.</returns>
         public static IApplicationBuilder UseRequestLogging(this IApplicationBuilder app)
         {
-            Guard.NotNull(app, nameof(app));
+            Guard.NotNull(app);
 
             app.UseMiddleware<RequestLoggingMiddleware>();
             return app;

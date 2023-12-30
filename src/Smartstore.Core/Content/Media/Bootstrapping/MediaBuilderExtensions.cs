@@ -10,7 +10,7 @@ namespace Smartstore.Core.Bootstrapping
         /// </summary>
         public static IApplicationBuilder MapMedia(this IApplicationBuilder app)
         {
-            Guard.NotNull(app, nameof(app));
+            Guard.NotNull(app);
 
             var publicPath = (app.ApplicationServices.GetService<IMediaStorageConfiguration>()?.PublicPath ?? "media")
                 .EnsureStartsWith('/')
@@ -22,7 +22,7 @@ namespace Smartstore.Core.Bootstrapping
                 branch.UseAuthentication();
                 branch.UseWorkContext();
                 branch.UseRequestLogging();
-
+                
                 branch.UseMiddleware<MediaMiddleware>();
                 branch.UseMiddleware<MediaLegacyMiddleware>();
             });

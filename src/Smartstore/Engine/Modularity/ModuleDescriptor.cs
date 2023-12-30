@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Text;
+using System.Xml;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -314,11 +315,12 @@ namespace Smartstore.Engine.Modularity
             return string.Empty;
         }
 
+        private readonly static CompositeFormat _formatSettingKey = CompositeFormat.Parse("PluginSetting.{0}.{1}");
         /// <inheritdoc/>
         public string GetSettingKey(string name)
         {
             // Compat: DON'T change Plugin > Module
-            return "PluginSetting.{0}.{1}".FormatCurrent(SystemName, name);
+            return _formatSettingKey.FormatCurrent(SystemName, name);
         }
 
         public override string ToString()

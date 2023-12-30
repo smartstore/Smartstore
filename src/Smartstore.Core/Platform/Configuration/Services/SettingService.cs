@@ -1,4 +1,5 @@
-﻿using Smartstore.Caching;
+﻿using System.Text;
+using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -18,10 +19,10 @@ namespace Smartstore.Core.Configuration
     public partial class SettingService : AsyncDbSaveHook<Setting>, ISettingService
     {
         // 0 = SettingType, 1 = StoreId
-        const string ClassCacheKeyPattern = "settings:{0}.{1}";
+        private readonly static CompositeFormat ClassCacheKeyPattern = CompositeFormat.Parse("settings:{0}.{1}");
 
         // 0 = Setting.Name, 1 = StoreId
-        const string RawCacheKeyPattern = "rawsettings:{0}.{1}";
+        private readonly static CompositeFormat RawCacheKeyPattern = CompositeFormat.Parse("rawsettings:{0}.{1}");
 
         internal readonly static TimeSpan DefaultExpiry = TimeSpan.FromHours(8);
 
