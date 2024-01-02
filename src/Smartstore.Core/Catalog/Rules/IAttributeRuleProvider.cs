@@ -17,14 +17,18 @@ namespace Smartstore.Core.Catalog.Rules
         /// <returns>Rule processor.</returns>
         IRule<AttributeRuleContext> GetProcessor(RuleExpression expression);
 
+        /// <summary>
+        /// Creates a rule expression group for a <see cref="ProductVariantAttribute"/>.
+        /// </summary>
+        /// <param name="includeHidden">A value indicating whether to include hidden rulesets.</param>
         Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute, bool includeHidden = false);
 
         /// <summary>
-        /// Checks whether a rule is met.
+        /// Checks whether <see cref="ProductVariantAttribute"/> is active (whether the assigned rule is met).
         /// </summary>
         /// <param name="context">Attribute rule context.</param>
         /// <param name="logicalOperator">Rule operator.</param>
-        /// <returns><c>true</c> the rule is met, otherwise <c>false</c>.</returns>
-        Task<bool> RuleMatchesAsync(AttributeRuleContext context, LogicalRuleOperator logicalOperator = LogicalRuleOperator.And);
+        /// <returns><c>true</c> the attribute is active, otherwise <c>false</c>.</returns>
+        Task<bool> IsAttributeActiveAsync(AttributeRuleContext context, LogicalRuleOperator logicalOperator = LogicalRuleOperator.And);
     }
 }

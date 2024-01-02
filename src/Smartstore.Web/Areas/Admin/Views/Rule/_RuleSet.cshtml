@@ -1,13 +1,15 @@
 ﻿@model IRuleExpressionGroup
 
 @{
+    var scope = Model.Provider.Scope;
+    var productAttributeId = scope == RuleScope.ProductAttribute ? GetMetadata<int>("ProductAttributeId") : 0;
     var ruleDescriptors = await Model.Provider.GetRuleDescriptorsAsync();
     var orButton = await GetConditionsButtonString(LogicalRuleOperator.Or);
     var andButton = await GetConditionsButtonString(LogicalRuleOperator.And);
     string oneCondition;
     string allCondition;
 
-    if (!Model.IsSubGroup && Model.Provider.Scope == RuleScope.ProductAttribute)
+    if (!Model.IsSubGroup && scope == RuleScope.ProductAttribute)
     {
         oneCondition = T("Admin.Rules.ProductAttribute.OneCondition", orButton);
         allCondition = T("Admin.Rules.ProductAttribute.AllConditions", andButton);
@@ -62,6 +64,17 @@
                         }
                         foreach (var d in grp)
                         {
+                            if (productAttributeId != 0
+                                && d.SelectList is RemoteRuleValueSelectList remoteList
+                                && remoteList.DataSource == KnownRuleOptionDataSourceNames.VariantValue
+                                && d.Metadata.TryGetValue("ParentId", out var rawParentId)
+                                && rawParentId is int parentId
+                                && parentId == productAttributeId)
+                            {
+                                // Exclude the attribute to which the currently edited product attribute belongs to.
+                                continue;
+                            }
+
                             <option value="@d.Name">@(d.DisplayName.NullEmpty() ?? d.Name)</option>
                         }
                         if (grp.Key.HasValue())
@@ -71,7 +84,7 @@
                     }
                 </select>
             </div>
-            <div sm-if="Model.Provider.Scope != RuleScope.Product" class="col-8 col-md-9 col-xl-10">
+            <div sm-if="scope != RuleScope.Product" class="col-8 col-md-9 col-xl-10">
                 <button type="button" class="btn btn-outline-secondary btn-to-primary r-add-group">
                     <span>@T("Admin.Rules.AddGroup")</span>
                 </button>

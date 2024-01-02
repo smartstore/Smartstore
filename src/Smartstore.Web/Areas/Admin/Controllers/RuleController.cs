@@ -692,7 +692,8 @@ namespace Smartstore.Admin.Controllers
                     var ruleSet = new RuleSetEntity
                     {
                         Scope = command.Scope,
-                        Name = $"{nameof(ProductVariantAttribute)} {pva.Id}",
+                        Name = pva.Id.ToStringInvariant(),
+                        Description = $"{nameof(ProductVariantAttribute)} {pva.Id}",
                         IsActive = true,
                         LogicalOperator = LogicalRuleOperator.And
                     };

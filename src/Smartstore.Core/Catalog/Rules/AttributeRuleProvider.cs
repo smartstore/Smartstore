@@ -1,30 +1,23 @@
 ﻿using Autofac;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Rules.Impl;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Catalog.Rules
 {
-    public class AttributeRuleProvider : RuleProviderBase, IAttributeRuleProvider
+    public class AttributeRuleProvider(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IComponentContext componentContext,
+        IRuleService ruleService) 
+        : RuleProviderBase(RuleScope.ProductAttribute), IAttributeRuleProvider
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IComponentContext _componentContext;
-        private readonly IRuleService _ruleService;
-
-        public AttributeRuleProvider(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IComponentContext componentContext,
-            IRuleService ruleService)
-            : base(RuleScope.ProductAttribute)
-        {
-            _db = db;
-            _workContext = workContext;
-            _componentContext = componentContext;
-            _ruleService = ruleService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IComponentContext _componentContext = componentContext;
+        private readonly IRuleService _ruleService = ruleService;
 
         public IRule<AttributeRuleContext> GetProcessor(RuleExpression expression)
         {
@@ -92,7 +85,7 @@ namespace Smartstore.Core.Catalog.Rules
             };
         }
 
-        public async Task<bool> RuleMatchesAsync(AttributeRuleContext context, LogicalRuleOperator logicalOperator = LogicalRuleOperator.And)
+        public async Task<bool> IsAttributeActiveAsync(AttributeRuleContext context, LogicalRuleOperator logicalOperator = LogicalRuleOperator.And)
         {
             Guard.NotNull(context);
 
@@ -137,6 +130,7 @@ namespace Smartstore.Core.Catalog.Rules
         {
             var descriptors = new List<AttributeRuleDescriptor>();
             var language = _workContext.WorkingLanguage;
+            var attributeSelectedRuleType = typeof(ProductAttributeSelectedRule);
             var query = _db.ProductAttributes.AsNoTracking().OrderBy(x => x.DisplayOrder);
             var pageIndex = -1;
 
@@ -149,10 +143,12 @@ namespace Smartstore.Core.Catalog.Rules
                     {
                         Name = $"Variant{variant.Id}",
                         DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
-                        GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
+                        //GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
                         RuleType = RuleType.IntArray,
-                        SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true },
-                        Operators = new[] { RuleOperator.In }
+                        ProcessorType = attributeSelectedRuleType,
+                        // TODO: operators depends... IsComparingSequences = ProductVariantAttribute.IsMultipleChoice.
+                        //Operators = RuleType.IntArray.GetValidOperators(IsComparingSequences).ToArray();
+                        SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true }
                     };
                     descriptor.Metadata["ParentId"] = variant.Id;
                     descriptor.Metadata["ValueType"] = ProductVariantAttributeValueType.Simple;

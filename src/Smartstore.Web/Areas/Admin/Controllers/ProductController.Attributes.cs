@@ -416,8 +416,9 @@ namespace Smartstore.Admin.Controllers
             {
                 ProductName = product.Name,
                 ProductId = pva.ProductId,
-                ProductVariantAttributeName = pva.ProductAttribute.Name,
+                ProductAttributeId = pva.ProductAttributeId,
                 ProductVariantAttributeId = pva.Id,
+                ProductVariantAttributeName = pva.ProductAttribute.Name,
                 IsListTypeAttribute = pva.IsListTypeAttribute(),
                 RuleSet = new()
                 {

@@ -4,16 +4,16 @@ namespace Smartstore.Core.Catalog.Rules
 {
     public class AttributeRuleContext
     {
-        public AttributeRuleContext(ProductVariantAttribute attribute, ProductVariantQuery query)
+        public AttributeRuleContext(ProductVariantAttribute attribute, ProductVariantAttributeSelection selectedAttributes)
         {
             Guard.NotNull(attribute);
-            Guard.NotNull(query);
+            Guard.NotNull(selectedAttributes);
 
             Attribute = attribute;
-            Query = query;
+            SelectedAttributes = selectedAttributes;
         }
 
         public ProductVariantAttribute Attribute { get; }
-        public ProductVariantQuery Query { get; }
+        public ProductVariantAttributeSelection SelectedAttributes { get; set; }
     }
 }

@@ -14,5 +14,7 @@
      data-url-addrule="@Url.Action("AddRule", "Rule", new { area = "Admin" })"
      data-url-deleterule="@Url.Action("DeleteRule", "Rule", new { area = "Admin" })"
      data-url-changeoperator="@Url.Action("ChangeOperator", "Rule", new { area = "Admin" })">
-    <partial name="~/Areas/Admin/Views/Rule/_RuleSet.cshtml" model="Model.RuleSet.ExpressionGroup" />
+    <partial name="~/Areas/Admin/Views/Rule/_RuleSet.cshtml" 
+             model="Model.RuleSet.ExpressionGroup" 
+             view-data='new ViewDataDictionary(ViewData) { ["ProductAttributeId"] = Model.ProductAttributeId }'/>
 </div>
