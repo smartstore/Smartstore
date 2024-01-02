@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Frozen;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -12,8 +13,8 @@ namespace Smartstore.Data.Providers
 
     public static class UnifiedDbFunctionMethods
     {
-        private readonly static HashSet<MethodInfo> _uniMethods
-            = new()
+        private readonly static FrozenSet<MethodInfo> _uniMethods
+            = new MethodInfo[]
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffYear),
@@ -110,9 +111,9 @@ namespace Smartstore.Data.Providers
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffSecond),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-            };
+            }.ToFrozenSet();
 
-        public static HashSet<MethodInfo> Methods
+        public static ISet<MethodInfo> Methods
         {
             get => _uniMethods;
         }

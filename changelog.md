@@ -36,18 +36,22 @@
 - #914 Featured sorting on category and manufacturer pages not applied when using standard search.
 - Product attributes are lost when navigating to *Ask Question* page multiple times.
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
+- #957 Fixed prices should not be hidden if the *Access Shopping Cart* permission has not been granted.
 - Fixed `NullReferenceException` calling search page without any search term.
 - Tax by region: fixed tax rate was not applied if asterisk placeholder character was saved for zip code.
 - #921 IOException "The filename, directory name, or volume label syntax is incorrect" when `MediaSettings.AppendFileVersionToUrl` is activated.
 - #922 Newsletter subscription event not triggered upon email confirmation.
 - Language selector in off-canvas menu should show the same language name as in the main menu.
 - #936 Password protected topic was not displayed after password has been entered.
+- #955 Searching a product by product code in grids returns an infinite list.
 - Fixed the reward points for purchases setting was not saved in multi-store mode.
+- #960 Setting `ManufacturerItemsToDisplayInOffcanvasMenu` cannot be changed in backend.
 - Fixed offcanvas cart issue in mobile browsers (buttons in the footer were sometimes truncated).
 - Page Builder
   - Some radio button groups were not deselectable
   - Story min-height (medium | tall) often resulted in broken page layout
 - #951 The forum post page counter is always incremented by 2 when the page is opened.
+- Fixed a filter reset of the product grid does not work correctly.
 
 
 ## Smartstore 5.1.0

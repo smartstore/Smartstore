@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Frozen;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Runtime.Serialization;
@@ -102,7 +103,7 @@ namespace Smartstore.Core.Catalog.Products
     {
         #region Static
 
-        private static readonly HashSet<string> _visibilityAffectingProductProps = new()
+        private static readonly FrozenSet<string> _visibilityAffectingProductProps = new string[]
         {
             nameof(AvailableEndDateTimeUtc),
             nameof(AvailableStartDateTimeUtc),
@@ -114,7 +115,7 @@ namespace Smartstore.Core.Catalog.Products
             nameof(Published),
             nameof(SubjectToAcl),
             nameof(Visibility)
-        };
+        }.ToFrozenSet();
 
         public static IReadOnlyCollection<string> GetVisibilityAffectingPropertyNames()
         {

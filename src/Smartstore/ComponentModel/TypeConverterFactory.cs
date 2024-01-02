@@ -5,7 +5,7 @@ namespace Smartstore.ComponentModel
 {
     public static class TypeConverterFactory
     {
-        private static readonly List<ITypeConverterProvider> _providers = new();
+        private static readonly List<ITypeConverterProvider> _providers = [];
         private static readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
 
         static TypeConverterFactory()
@@ -33,14 +33,14 @@ namespace Smartstore.ComponentModel
 
         public static ITypeConverter GetConverter(object component)
         {
-            Guard.NotNull(component, nameof(component));
+            Guard.NotNull(component);
 
             return GetConverter(component.GetType());
         }
 
         public static ITypeConverter GetConverter(Type type)
         {
-            Guard.NotNull(type, nameof(type));
+            Guard.NotNull(type);
 
             return _typeConverters.GetOrAdd(type, Get);
 

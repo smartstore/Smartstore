@@ -39,7 +39,7 @@ namespace Smartstore.Core.Rules
         {
             var combiner = HashCodeCombiner
                 .Start()
-                .Add(Expressions.Select(x => x.GetHashCode()));
+                .AddSequence(Expressions);
 
             return combiner.CombinedHash;
         }

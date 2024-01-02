@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Collections;
+using System.Collections.Frozen;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Reflection;
@@ -50,7 +51,6 @@ namespace Smartstore.ComponentModel
         /// Adjusted property list for the wrapped instance type after white/black-list members has been applied.
         /// </summary>
         private IDictionary<string, FastProperty>? _instanceProps;
-        private readonly static IDictionary<string, FastProperty> EmptyProps = new Dictionary<string, FastProperty>();
         
         /// <summary>
         /// String Dictionary that contains the extra dynamic values
@@ -377,7 +377,7 @@ namespace Smartstore.ComponentModel
             {
                 if (_instance == null)
                 {
-                    return EmptyProps;
+                    return FrozenDictionary<string, FastProperty>.Empty;
                 }
 
                 if (_instanceProps == null)

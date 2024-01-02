@@ -12,7 +12,7 @@ namespace Smartstore.Core.Security
             Dictionary<string, string> displayNames = null,
             int? languageId = null)
         {
-            Guard.NotNull(permissions, nameof(permissions));
+            Guard.NotNull(permissions);
 
             Permissions = permissions;
             DisplayNames = displayNames;

@@ -49,12 +49,12 @@ namespace Smartstore.PayPal
 
             var oldHash = HashCodeCombiner
                 .Start()
-                .Add(oldCart.Items.Select(x => (x.Item.ProductId + x.Item.Quantity).GetHashCode()))
+                .AddSequence(oldCart.Items.Select(x => x.Item.ProductId + x.Item.Quantity))
                 .CombinedHash;
 
             var newHash = HashCodeCombiner
                 .Start()
-                .Add(newCart.Items.Select(x => (x.Item.ProductId + x.Item.Quantity).GetHashCode()))
+                .AddSequence(newCart.Items.Select(x => x.Item.ProductId + x.Item.Quantity))
                 .CombinedHash;
 
             if (oldHash != newHash)

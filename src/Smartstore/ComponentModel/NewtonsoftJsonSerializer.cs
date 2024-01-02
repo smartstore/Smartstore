@@ -13,8 +13,8 @@ namespace Smartstore.ComponentModel
         private static readonly byte[] NullResult = Encoding.UTF8.GetBytes("null");
 
         // Contains types that cannot be (de)serialized
-        private readonly HashSet<Type> _unSerializableTypes = new() { typeof(Task), typeof(Task<>) };
-        private readonly HashSet<Type> _unDeserializableTypes = new() { typeof(Task), typeof(Task<>) };
+        private readonly HashSet<Type> _unSerializableTypes = [typeof(Task), typeof(Task<>)];
+        private readonly HashSet<Type> _unDeserializableTypes = [typeof(Task), typeof(Task<>)];
 
         //private static JsonSerializerSettings CreateSerializerSettings()
         //{
@@ -77,7 +77,7 @@ namespace Smartstore.ComponentModel
 
         public virtual bool TryDeserialize(Type objectType, byte[] value, bool uncompress, out object result)
         {
-            Guard.NotNull(objectType, nameof(objectType));
+            Guard.NotNull(objectType);
 
             result = null;
 
@@ -107,8 +107,8 @@ namespace Smartstore.ComponentModel
 
         private object Deserialize(Type objectType, byte[] value, bool uncompress)
         {
-            Guard.NotNull(objectType, nameof(objectType));
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(objectType);
+            Guard.NotNull(value);
 
             // Check if null
             if (value.SequenceEqual(NullResult))

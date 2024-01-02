@@ -8,7 +8,7 @@
     {
         public MenuItemProviderAttribute(string providerName)
         {
-            Guard.NotEmpty(providerName, nameof(providerName));
+            Guard.NotEmpty(providerName);
 
             ProviderName = providerName;
         }

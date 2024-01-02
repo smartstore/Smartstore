@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -12,7 +13,7 @@ namespace Smartstore.Core.Security
         /// <summary>
         /// 0 = segment (EntityName.IdRange)
         /// </summary>
-        const string ACL_SEGMENT_KEY = "acl:range-{0}";
+        private readonly static CompositeFormat ACL_SEGMENT_KEY = CompositeFormat.Parse("acl:range-{0}");
         internal const string ACL_SEGMENT_PATTERN = "acl:range-*";
 
         private readonly SmartDbContext _db;
@@ -222,7 +223,7 @@ namespace Smartstore.Core.Security
 
         private static string BuildCacheSegmentKey(string segment)
         {
-            return string.Format(ACL_SEGMENT_KEY, segment);
+            return ACL_SEGMENT_KEY.FormatInvariant(segment);
         }
 
         private static string GetSegmentKeyPart(string entityName, int entityId)

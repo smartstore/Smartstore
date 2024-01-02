@@ -16,7 +16,7 @@
         /// </param>
         public LocalizedEntityAttribute(string filterPredicate)
         {
-            Guard.NotEmpty(filterPredicate, nameof(filterPredicate));
+            Guard.NotEmpty(filterPredicate);
             FilterPredicate = filterPredicate;
         }
 

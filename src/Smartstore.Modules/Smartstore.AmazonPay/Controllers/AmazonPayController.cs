@@ -717,9 +717,9 @@ namespace Smartstore.AmazonPay.Controllers
         /// </summary>
         public async Task<IActionResult> ShareKey(string payload)
         {
-            Response.Headers.Add("Access-Control-Allow-Origin", "https://payments.amazon.com");
-            Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST");
-            Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
+            Response.Headers["Access-Control-Allow-Origin"] = "https://payments.amazon.com";
+            Response.Headers["Access-Control-Allow-Methods"] = "GET, POST";
+            Response.Headers["Access-Control-Allow-Headers"] = "Content-Type";
 
             try
             {

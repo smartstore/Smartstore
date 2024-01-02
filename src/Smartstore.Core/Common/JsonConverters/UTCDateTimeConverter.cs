@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Globalization;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Smartstore.Core.Common.Services;
 
@@ -44,6 +45,19 @@ namespace Smartstore.Core.Common.JsonConverters
                     {
                         value = dtHelper.ConvertToUtcTime(d, dtHelper.CurrentTimeZone);
                     }
+                }
+
+                // In some calandars default DateTime Min/Max values are not supported, fix it.
+                var calendar = CultureInfo.CurrentCulture.Calendar;
+
+                if (d < calendar.MinSupportedDateTime)
+                {
+                    value = calendar.MinSupportedDateTime;
+                }
+
+                if (d > calendar.MaxSupportedDateTime)
+                {
+                    value = calendar.MaxSupportedDateTime;
                 }
             }
 

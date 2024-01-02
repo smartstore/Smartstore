@@ -18,7 +18,7 @@ namespace Smartstore.Web.Bundling
 
         public AssetFileProvider(IFileSystem webRoot)
         {
-            _webRoot = Guard.NotNull(webRoot, nameof(webRoot));
+            _webRoot = Guard.NotNull(webRoot);
         }
 
         /// <summary>

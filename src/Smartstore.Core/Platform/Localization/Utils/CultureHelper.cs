@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Frozen;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
 
@@ -6,10 +7,11 @@ namespace Smartstore.Core.Localization
 {
     public static class CultureHelper
     {
-        private readonly static HashSet<string> _cultureCodes = new(
-                CultureInfo.GetCultures(CultureTypes.NeutralCultures | CultureTypes.SpecificCultures | CultureTypes.UserCustomCulture)
+        private readonly static FrozenSet<string> _cultureCodes = 
+            CultureInfo.GetCultures(CultureTypes.NeutralCultures | CultureTypes.SpecificCultures | CultureTypes.UserCustomCulture)
                 .Select(x => x.Name)
-                .Where(x => !string.IsNullOrWhiteSpace(x)), StringComparer.OrdinalIgnoreCase);
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
         // See https://github.com/dotnet/docs/issues/11363
         private readonly static Dictionary<string, string> _cultureAliasMappings = new(StringComparer.OrdinalIgnoreCase)

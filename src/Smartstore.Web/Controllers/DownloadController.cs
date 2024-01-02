@@ -23,7 +23,7 @@ namespace Smartstore.Web.Controllers
         }
 
         // INFO: overwriting 'SaveChanges' property at class level has no effect.
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> Sample(int productId)
         {
             var product = await _db.Products.FindByIdAsync(productId, false);
@@ -52,7 +52,7 @@ namespace Smartstore.Web.Controllers
             return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
         }
 
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> GetDownload(Guid id, bool agree = false, string fileVersion = "")
         {
             if (id == Guid.Empty)
@@ -158,7 +158,7 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> GetLicense(Guid id)
         {
             if (id == Guid.Empty)
@@ -216,7 +216,7 @@ namespace Smartstore.Web.Controllers
             return RedirectToAction("DownloadableProducts", "Customer");
         }
 
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> GetFileUpload(Guid downloadId)
         {
             var download = await _db.Downloads

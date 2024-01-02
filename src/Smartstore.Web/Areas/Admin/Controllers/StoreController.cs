@@ -200,7 +200,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(Edit), new { id = store.Id });
         }
 
-        [SaveChanges(typeof(SmartDbContext), false)]
+        [SaveChanges<SmartDbContext>(false)]
         [Permission(Permissions.Configuration.Store.ReadStats, false)]
         public async Task<JsonResult> StoreDashboardReportAsync()
         {

@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Attributes;
+﻿using System.Collections.Frozen;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
@@ -29,7 +30,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         const string ParentProductIdsKey = "ProductImporter.ParentProductIds";
 
-        private static readonly Dictionary<string, Expression<Func<Product, string>>> _localizableProperties = new()
+        private static readonly FrozenDictionary<string, Expression<Func<Product, string>>> _localizableProperties = new Dictionary<string, Expression<Func<Product, string>>>()
         {
             { nameof(Product.Name), x => x.Name },
             { nameof(Product.ShortDescription), x => x.ShortDescription },
@@ -38,7 +39,7 @@ namespace Smartstore.Core.DataExchange.Import
             { nameof(Product.MetaDescription), x => x.MetaDescription },
             { nameof(Product.MetaTitle), x => x.MetaTitle },
             { nameof(Product.BundleTitleText), x => x.BundleTitleText }
-        };
+        }.ToFrozenDictionary();
 
         private readonly IMediaImporter _mediaImporter;
 

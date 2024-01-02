@@ -16,7 +16,7 @@ namespace Smartstore.ComponentModel
             where TFrom : class
             where TTo : class, new()
         {
-            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(from);
 
             if (TryMap(from, from.GetType(), typeof(TTo), culture, out var result))
             {
@@ -29,8 +29,8 @@ namespace Smartstore.ComponentModel
         public static object Map<TFrom>(TFrom from, Type toType, CultureInfo culture = null)
             where TFrom : class
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(toType, nameof(toType));
+            Guard.NotNull(from);
+            Guard.NotNull(toType);
             Guard.HasDefaultConstructor(toType);
 
             TryMap(from, from.GetType(), toType, culture, out var result);
@@ -42,8 +42,8 @@ namespace Smartstore.ComponentModel
             where TFrom : class
             where TTo : class
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             MapComplex(from, to, from.GetType(), culture ?? CultureInfo.CurrentCulture);
         }

@@ -1,4 +1,5 @@
-﻿using Smartstore.Caching;
+﻿using System.Text;
+using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
@@ -9,8 +10,8 @@ namespace Smartstore.Core.Widgets
     public partial class WidgetService : IWidgetService, IWidgetSource
     {
         const string WIDGETS_ALLMETADATA_KEY = "widgets:allmetadata";
-        const string WIDGETS_ACTIVE_KEY = "Smartstore.widgets.active-{0}";
-        const string WIDGETS_BYZONE_KEY = "Smartstore.widgets.byzone-{0}-{1}";
+        private readonly static CompositeFormat WIDGETS_ACTIVE_KEY = CompositeFormat.Parse("Smartstore.widgets.active-{0}");
+        private readonly static CompositeFormat WIDGETS_BYZONE_KEY = CompositeFormat.Parse("Smartstore.widgets.byzone-{0}-{1}");
 
         private readonly WidgetSettings _widgetSettings;
         private readonly IProviderManager _providerManager;

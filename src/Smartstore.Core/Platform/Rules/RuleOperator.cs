@@ -33,7 +33,7 @@ namespace Smartstore.Core.Rules
 
         protected RuleOperator(string op)
         {
-            Guard.NotEmpty(op, nameof(op));
+            Guard.NotEmpty(op);
 
             Operator = op;
             _map[op] = this;

@@ -11,7 +11,7 @@ namespace Smartstore.Core.Localization
     public class LocalizedString : IHtmlContent
     {
         public LocalizedString(string value, bool isResourceNotFound = false)
-            : this(value, null, isResourceNotFound, Array.Empty<object>())
+            : this(value, null, isResourceNotFound, [])
         {
         }
 

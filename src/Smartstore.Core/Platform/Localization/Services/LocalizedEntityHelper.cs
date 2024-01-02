@@ -114,8 +114,8 @@ namespace Smartstore.Core.Localization
 
         public string GetLocalizedModuleProperty(IModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
         {
-            Guard.NotNull(module, nameof(module));
-            Guard.NotEmpty(propertyName, nameof(propertyName));
+            Guard.NotNull(module);
+            Guard.NotEmpty(propertyName);
 
             var systemName = module.SystemName;
             var resourceName = string.Format("Plugins.{0}.{1}", propertyName, systemName);

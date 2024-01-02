@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.Collections.Frozen;
+using Autofac;
 using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Configuration;
@@ -7,11 +8,13 @@ namespace Smartstore.Core.Localization
 {
     public class LocalizedEntityDescriptorProvider : ILocalizedEntityDescriptorProvider
     {
-        private readonly Dictionary<Type, LocalizedEntityDescriptor> _descriptors = new();
-        private readonly List<LoadLocalizedEntityDelegate> _delegates = new();
+        private readonly IReadOnlyDictionary<Type, LocalizedEntityDescriptor> _descriptors;
+        private readonly List<LoadLocalizedEntityDelegate> _delegates = [];
         
         public LocalizedEntityDescriptorProvider(ITypeScanner typeScanner, IOptions<LocalizedEntityOptions> options)
         {
+            var descriptors = new Dictionary<Type, LocalizedEntityDescriptor>();
+            
             foreach (var type in typeScanner.FindTypes<ILocalizedEntity>())
             {
                 if (typeof(ISettings).IsAssignableFrom(type))
@@ -26,7 +29,7 @@ namespace Smartstore.Core.Localization
                 {
                     var attr = type.GetAttribute<LocalizedEntityAttribute>(true);
 
-                    _descriptors.Add(type, new LocalizedEntityDescriptor 
+                    descriptors.Add(type, new LocalizedEntityDescriptor 
                     {
                         EntityType = type,
                         KeyGroup = attr?.KeyGroup,
@@ -35,6 +38,8 @@ namespace Smartstore.Core.Localization
                     });
                 }
             }
+
+            _descriptors = descriptors.ToFrozenDictionary();
 
             foreach (var @delegate in options.Value.Delegates)
             {

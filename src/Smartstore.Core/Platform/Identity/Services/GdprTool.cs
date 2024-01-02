@@ -256,7 +256,7 @@ namespace Smartstore.Core.Identity
                     case IdentifierDataType.EmailAddress:
                         //maskedValue = s.Hash(Encoding.ASCII, true) + "@anony.mous";
                         maskedValue = HashCodeCombiner.Start()
-                            .Add(entity.GetHashCode())
+                            .Add(entity)
                             .Add(s)
                             .CombinedHashString + "@anony.mous";
                         break;

@@ -8,7 +8,7 @@
     {
         public BlockAttribute(string systemName)
         {
-            Guard.NotNull(systemName, nameof(systemName));
+            Guard.NotNull(systemName);
 
             SystemName = systemName;
         }

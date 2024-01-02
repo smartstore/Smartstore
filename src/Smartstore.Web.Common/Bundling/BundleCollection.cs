@@ -110,7 +110,7 @@ namespace Smartstore.Web.Bundling
 
         public void Add(Bundle bundle)
         {
-            Guard.NotNull(bundle, nameof(bundle));
+            Guard.NotNull(bundle);
 
             if (bundle is DynamicBundle dynamicBundle)
             {
@@ -131,7 +131,7 @@ namespace Smartstore.Web.Bundling
 
         public bool Remove(Bundle bundle)
         {
-            Guard.NotNull(bundle, nameof(bundle));
+            Guard.NotNull(bundle);
 
             var wasRemoved = _bundles.TryRemove(bundle.Route, out _);
             if (wasRemoved)

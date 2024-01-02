@@ -1,19 +1,57 @@
-﻿using System.Collections;
+﻿#nullable enable
+
 using System.Diagnostics;
 using System.Globalization;
+using System.IO.Hashing;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.IO;
 
 namespace Smartstore.Utilities
 {
     /// <summary>
-    /// Deterministic hash code combiner
+    /// Deterministic hash code combiner.
     /// </summary>
     [DebuggerDisplay("{CombinedHashString}")]
     public struct HashCodeCombiner
     {
+        const long _globalSeed = 0x1505L;
+
         private long _combinedHash64;
+
+        /// <summary>
+        /// Initializes the <see cref="HashCodeCombiner"/> with zero seed.
+        /// </summary>
+        public HashCodeCombiner()
+        {
+        }
+
+        /// <summary>
+        /// Initializes the <see cref="HashCodeCombiner"/> with the given <paramref name="seed"/>.
+        /// </summary>
+        public HashCodeCombiner(long seed)
+        {
+            _combinedHash64 = seed;
+        }
+
+        /// <summary>
+        /// Initializes a deterministic <see cref="HashCodeCombiner"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashCodeCombiner Start()
+        {
+            return new HashCodeCombiner(_globalSeed);
+        }
+
+        /// <summary>
+        /// Initializes a non-deterministic <see cref="HashCodeCombiner"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashCodeCombiner StartNonDeterministic()
+        {
+            return new HashCodeCombiner(CurrentSeed);
+        }
 
         public int CombinedHash
         {
@@ -28,105 +66,70 @@ namespace Smartstore.Utilities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private HashCodeCombiner(long seed)
-        {
-            _combinedHash64 = seed;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public HashCodeCombiner Add(IEnumerable e)
-        {
-            if (e == null)
-            {
-                Add(0);
-            }
-            else
-            {
-                var count = 0;
-                foreach (object o in e)
-                {
-                    Add(o);
-                    count++;
-                }
-                Add(count);
-            }
-
-            return this;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator int(HashCodeCombiner self)
         {
             return self.CombinedHash;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public HashCodeCombiner Add(int i)
+        internal static long GlobalSeed { get; } = _globalSeed;
+        internal static long CurrentSeed { get; } = CommonHelper.GenerateRandomInteger(min: int.MinValue);
+
+        public HashCodeCombiner AddSequence<T>(IEnumerable<T> sequence, IEqualityComparer<T>? comparer = null) 
+            where T : notnull
         {
-            if (i != 0)
+            if (sequence is not null)
             {
-                _combinedHash64 = ((_combinedHash64 << 5) + _combinedHash64) ^ i;
+                var count = 0;
+                foreach (var o in sequence)
+                {
+                    Add(o, comparer);
+                    count++;
+                }
+
+                Append(count);
             }
-            
+
             return this;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public HashCodeCombiner Add(string s)
+        public HashCodeCombiner AddDictionary<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> dictionary)
+            where TKey : notnull
+            where TValue : notnull
         {
-            var hashCode = (s != null) ? XxHashUnsafe.ComputeHash(s) : 0;
-            return Add((int)hashCode);
-        }
+            if (dictionary is not null)
+            {
+                foreach (var kvp in dictionary.OrderBy(x => x.Key))
+                {
+                    Add(kvp.Key);
+                    Add(kvp.Value);
+                }
+            }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public HashCodeCombiner Add(object o)
-        {
-            int hashCode = (o != null)
-                ? (o is string s ? (int)XxHashUnsafe.ComputeHash(s) : o.GetHashCode())
-                : 0;
-
-            return Add(hashCode);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public HashCodeCombiner Add(DateTime d)
-        {
-            return Add(d.GetHashCode());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public HashCodeCombiner Add(DateTimeOffset d)
-        {
-            return Add(d.GetHashCode());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public HashCodeCombiner Add<TValue>(TValue value, IEqualityComparer<TValue> comparer)
-        {
-            var hashCode = value != null ? comparer.GetHashCode(value) : 0;
-            return Add(hashCode);
+            return this;
         }
 
         public HashCodeCombiner Add(IFileEntry entry, bool deep = true)
         {
-            Guard.NotNull(entry, nameof(entry));
+            Guard.NotNull(entry);
 
             if (!entry.Exists)
+            {
                 return this;
+            } 
 
-            Add(entry.PhysicalPath.ToLower());
-            Add(entry.LastModified);
+            Add(entry.PhysicalPath?.ToLower());
+            Append(entry.LastModified.GetHashCode());
 
             if (entry is IFile file)
             {
-                Add(file.Length.GetHashCode());
+                Append(file.Length.GetHashCode());
             }
 
             if (entry is IDirectory dir)
             {
-                foreach (var e in dir.EnumerateFiles(deep: deep))
+                foreach (IFileEntry e in dir.EnumerateFiles(deep: deep))
                 {
-                    Add(e);
+                    Add(e, false);
                 }
             }
 
@@ -135,17 +138,19 @@ namespace Smartstore.Utilities
 
         public HashCodeCombiner Add(IFileInfo entry)
         {
-            Guard.NotNull(entry, nameof(entry));
+            Guard.NotNull(entry);
 
             if (!entry.Exists)
+            {
                 return this;
+            }
 
-            Add(entry.PhysicalPath.ToLower());
-            Add(entry.LastModified);
+            Add(entry.PhysicalPath?.ToLower());
+            Append(entry.LastModified.GetHashCode());
 
             if (!entry.IsDirectory)
             {
-                Add(entry.Length.GetHashCode());
+                Append(entry.Length.GetHashCode());
             }
 
             return this;
@@ -153,42 +158,78 @@ namespace Smartstore.Utilities
 
         public HashCodeCombiner Add(FileSystemInfo fi, bool deep = true)
         {
-            Guard.NotNull(fi, nameof(fi));
+            Guard.NotNull(fi);
 
             if (!fi.Exists)
+            {
                 return this;
+            }
 
             Add(fi.FullName.ToLower());
-            Add(fi.CreationTimeUtc);
-            Add(fi.LastWriteTimeUtc);
+            Append(fi.CreationTimeUtc.GetHashCode());
+            Append(fi.LastWriteTimeUtc.GetHashCode());
 
             if (fi is FileInfo file)
             {
-                Add(file.Length.GetHashCode());
+                Append(file.Length.GetHashCode());
             }
 
             if (fi is DirectoryInfo dir)
             {
-                foreach (var f in dir.GetFiles())
+                var options = deep ? LocalDirectory.DeepEnumerationOptions : LocalDirectory.FlatEnumerationOptions;
+                
+                foreach (FileSystemInfo f in dir.GetFiles("*", options))
                 {
-                    Add(f);
-                }
-                if (deep)
-                {
-                    foreach (var s in dir.GetDirectories())
-                    {
-                        Add(s);
-                    }
+                    Add(f, false);
                 }
             }
 
             return this;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HashCodeCombiner Start()
+        public HashCodeCombiner Add<TStruct>(TStruct? value) 
+            where TStruct : struct
         {
-            return new HashCodeCombiner(0x1505L);
+            // Optimization: for value types, we can avoid boxing "value" by skipping the null check
+            if (value.HasValue)
+            {
+                Append(value.GetHashCode());
+            }
+
+            return this;
+        }
+
+        public HashCodeCombiner Add<TStruct>(TStruct value)
+            where TStruct : struct
+        {
+            // Optimization: for value types, we can avoid boxing "value" by skipping the null check
+            Append(value.GetHashCode());
+
+            return this;
+        }
+
+        public HashCodeCombiner Add<T>(T value, IEqualityComparer<T>? comparer = null)
+        {
+            if (value is string str)
+            {
+                // XxHash3 is faster than Marvin
+                Append((long)XxHash3.HashToUInt64(Encoding.UTF8.GetBytes(str)));
+            }
+            else if (value is not null)
+            {
+                Append(comparer?.GetHashCode(value) ?? value.GetHashCode());
+            }
+            
+            return this;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Append(long hash)
+        {
+            if (hash != 0)
+            {
+                _combinedHash64 = ((_combinedHash64 << 5) + _combinedHash64) ^ hash;
+            }
         }
     }
 }

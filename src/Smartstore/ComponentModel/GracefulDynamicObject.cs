@@ -14,7 +14,7 @@ namespace Smartstore.ComponentModel
 
         public GracefulDynamicObject(bool ignoreCase = false)
         {
-            _data = ignoreCase ? new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase) : new Dictionary<string, object?>();
+            _data = ignoreCase ? new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase) : [];
         }
 
         public override IEnumerable<string> GetDynamicMemberNames()

@@ -19,7 +19,7 @@ namespace Smartstore.Engine.Modularity
 
             protected override int ComputeHash()
             {
-                var hashCombiner = new HashCodeCombiner();
+                var hashCombiner = HashCodeCombiner.Start();
 
                 // Add each *.dll and module.json file of compatible modules.
                 var arrModules = _appContext.ModuleCatalog.GetInstalledModules()

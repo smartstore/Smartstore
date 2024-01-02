@@ -4,12 +4,12 @@
     {
         private readonly static IDictionary<string, string[]> _defaultExtensionsMap = new Dictionary<string, string[]>
         {
-            ["image"] = new[] { "png", "jpg", "jpeg", "jfif", "gif", "webp", "bmp", "svg", "ico" },
-            ["video"] = new[] { "mp4", "m4v", "mkv", "wmv", "avi", "asf", "mpg", "mpeg", "webm", "flv", "ogv", "mov", "3gp" },
-            ["audio"] = new[] { "mp3", "wav", "wma", "aac", "flac", "oga", "wav", "m4a", "ogg" },
-            ["document"] = new[] { "pdf", "doc", "docx", "ppt", "pptx", "pps", "ppsx", "docm", "odt", "ods", "dot", "dotx", "dotm", "psd", "xls", "xlsx", "rtf" },
-            ["text"] = new[] { "txt", "xml", "csv", "htm", "html", "json", "css", "js" },
-            ["bin"] = Array.Empty<string>()
+            ["image"] = ["png", "jpg", "jpeg", "jfif", "gif", "webp", "bmp", "svg", "ico"],
+            ["video"] = ["mp4", "m4v", "mkv", "wmv", "avi", "asf", "mpg", "mpeg", "webm", "flv", "ogv", "mov", "3gp"],
+            ["audio"] = ["mp3", "wav", "wma", "aac", "flac", "oga", "wav", "m4a", "ogg"],
+            ["document"] = ["pdf", "doc", "docx", "ppt", "pptx", "pps", "ppsx", "docm", "odt", "ods", "dot", "dotx", "dotm", "psd", "xls", "xlsx", "rtf"],
+            ["text"] = ["txt", "xml", "csv", "htm", "html", "json", "css", "js"],
+            ["bin"] = []
         };
 
         private readonly static IDictionary<string, MediaType> _map = new Dictionary<string, MediaType>(StringComparer.OrdinalIgnoreCase);

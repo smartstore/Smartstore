@@ -14,10 +14,5 @@ namespace Smartstore.Net.Mail
             : base(message, innerException)
         {
         }
-
-        public MailException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 }
