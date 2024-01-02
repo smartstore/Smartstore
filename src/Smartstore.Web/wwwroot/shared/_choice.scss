@@ -51,9 +51,12 @@ label.required,
 }
 
 .choice-item-color {
-    width: 1em;
+    --form-check-size: #{cssmax(1rem, $form-check-input-width)};
+    min-width: 1em;
     height: 1em;
     padding: 0;
+    align-self: flex-start;
+    margin-top: #{calc((#{$line-height-base} * 1em - var(--form-check-size)) * 0.5)}; // ($line-height-base - $form-check-input-width) * .5; // line-height minus check height
 }
 
 .choice-description {
