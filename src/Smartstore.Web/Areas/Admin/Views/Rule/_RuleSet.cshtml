@@ -1,9 +1,22 @@
 ﻿@model IRuleExpressionGroup
 
 @{
+    var ruleDescriptors = await Model.Provider.GetRuleDescriptorsAsync();
     var orButton = await GetConditionsButtonString(LogicalRuleOperator.Or);
     var andButton = await GetConditionsButtonString(LogicalRuleOperator.And);
-    var ruleDescriptors = await Model.Provider.GetRuleDescriptorsAsync();
+    string oneCondition;
+    string allCondition;
+
+    if (!Model.IsSubGroup && Model.Provider.Scope == RuleScope.ProductAttribute)
+    {
+        oneCondition = T("Admin.Rules.ProductAttribute.OneCondition", orButton);
+        allCondition = T("Admin.Rules.ProductAttribute.AllConditions", andButton);
+    }
+    else
+    {
+        oneCondition = T("Admin.Rules.OneCondition", orButton);
+        allCondition = T("Admin.Rules.AllConditions", andButton);
+    }
 
     async Task<string> GetConditionsButtonString(LogicalRuleOperator op)
     {
@@ -18,10 +31,10 @@
         <div class="ruleset-operator">
             <input type="hidden" asp-for="LogicalOperator" />
             <div class="ruleset-op-one align-items-center justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "hide" : "d-flex")">
-                @Html.Raw(T("Admin.Rules.OneCondition", orButton))
+                @Html.Raw(oneCondition)
             </div>
             <div class="ruleset-op-all align-items-center justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "d-flex" : "hide")">
-                @Html.Raw(T("Admin.Rules.AllConditions", andButton))
+                @Html.Raw(allCondition)
             </div>
         </div>
         <div sm-if="Model.RefRuleId == 0" class="d-flex align-items-center">

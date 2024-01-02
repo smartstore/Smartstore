@@ -2,13 +2,11 @@
 
 @{
     Assets.AppendScriptFiles("~/admin/js/smartstore.rules.js");
-    
-    var scope = (int)Model.RuleSet.Scope;
 }
 
 <div id="ruleset-root" class="ruleset-root"
      data-dirty="false"
-     data-scope="@scope"
+     data-scope="@((int)Model.RuleSet.Scope)"
      data-related-id="@Model.ProductVariantAttributeId"
      data-url-addgroup="@Url.Action("AddGroup", "Rule", new { area = "Admin" })"
      data-url-deletegroup="@Url.Action("DeleteGroup", "Rule", new { area = "Admin" })"

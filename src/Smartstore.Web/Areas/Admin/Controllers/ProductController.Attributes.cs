@@ -410,7 +410,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound(T("Products.NotFound", pva.ProductId));
             }
 
-            var provider = GetRuleProvider();
+            var provider = Services.ResolveKeyed<IRuleProvider>(RuleScope.ProductAttribute) as IAttributeRuleProvider;
 
             var model = new ProductModel.ProductVariantAttributeValueListModel
             {
@@ -419,7 +419,13 @@ namespace Smartstore.Admin.Controllers
                 ProductVariantAttributeName = pva.ProductAttribute.Name,
                 ProductVariantAttributeId = pva.Id,
                 IsListTypeAttribute = pva.IsListTypeAttribute(),
-                RuleSet = await CreateRuleSetModel(pva, provider)
+                RuleSet = new()
+                {
+                    Id = pva.RuleSetId ?? 0,
+                    Scope = RuleScope.ProductAttribute,
+                    ScopeName = Services.Localization.GetLocalizedEnum(RuleScope.ProductAttribute),
+                    ExpressionGroup = await provider.CreateExpressionGroupAsync(pva, true)
+                }
             };
 
             // Attribute navigation list (near page title).
@@ -681,24 +687,6 @@ namespace Smartstore.Admin.Controllers
 
             var result = await query.AnyAsync();
             return result;
-        }
-
-        private IAttributeRuleProvider GetRuleProvider()
-        {
-            return Services.ResolveKeyed<IRuleProvider>(RuleScope.ProductAttribute) as IAttributeRuleProvider;
-        }
-
-        private async Task<RuleSetModel> CreateRuleSetModel(ProductVariantAttribute pva, IAttributeRuleProvider provider)
-        {
-            var model = new RuleSetModel
-            {
-                Id = pva.RuleSetId ?? 0,
-                Scope = RuleScope.ProductAttribute,
-                ScopeName = Services.Localization.GetLocalizedEnum(RuleScope.ProductAttribute),
-                ExpressionGroup = await provider.CreateExpressionGroupAsync(pva, true)
-            };
-
-            return model;
         }
 
         #endregion

@@ -490,6 +490,8 @@ namespace Smartstore.Admin.Controllers
                 return Json(new { Success = false });
             }
 
+            // INFO: "refRule" must be deleted manually (a foreign key relationship does not exist).
+            // Descendant sub rule sets are deleted by RuleSetHook.
             _db.Rules.Remove(refRule);
             _db.RuleSets.Remove(group);
 
