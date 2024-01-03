@@ -154,6 +154,7 @@ namespace Smartstore.Admin.Controllers
                 model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecordsAsync(customer);
                 model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
                 model.HasOrders = await _db.Orders.AnyAsync(x => x.CustomerId == customer.Id);
+                model.IsGuest = customer.IsGuest();
 
                 model.SelectedCustomerRoleIds = customer.CustomerRoleMappings
                     .Where(x => !x.IsSystemMapping)
@@ -199,11 +200,11 @@ namespace Smartstore.Admin.Controllers
                 .ToSelectListItems(model.TimeZoneId.NullEmpty() ?? dtHelper.DefaultStoreTimeZone.Id);
 
             // Countries and state provinces.
-            if (_customerSettings.CountryEnabled)
+            if (_customerSettings.CountryEnabled && model.CountryId > 0)
             {
                 if (_customerSettings.StateProvinceEnabled)
                 {
-                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
+                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync((int)model.CountryId);
                     ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ?? new List<SelectListItem>
                     {
                         new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
@@ -698,7 +699,7 @@ namespace Smartstore.Admin.Controllers
                             ? RedirectToAction(nameof(Edit), customer.Id)
                             : RedirectToAction(nameof(List));
                     }
-                    else
+                    else if (!model.IsGuest)
                     {
                         AddModelErrors(updateResult, string.Empty);
                     }

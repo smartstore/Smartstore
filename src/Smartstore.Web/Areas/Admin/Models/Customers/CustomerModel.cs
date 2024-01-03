@@ -4,12 +4,14 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Common;
+using Smartstore;
 
 namespace Smartstore.Admin.Models.Customers
 {
     [LocalizedDisplay("Admin.Customers.Customers.Fields.")]
     public class CustomerModel : TabbableModel
     {
+        public bool IsGuest { get; set; }
         public bool AllowUsersToChangeUsernames { get; set; }
         public bool UsernamesEnabled { get; set; }
 
@@ -78,7 +80,7 @@ namespace Smartstore.Admin.Models.Customers
         public bool CountryEnabled { get; set; }
 
         [LocalizedDisplay("*Country")]
-        public int CountryId { get; set; }
+        public int? CountryId { get; set; }
 
         public bool StateProvinceEnabled { get; set; }
 
@@ -263,56 +265,60 @@ namespace Smartstore.Admin.Models.Customers
     {
         public CustomerValidator(Localizer T, CustomerSettings customerSettings)
         {
-            RuleFor(x => x.Password).NotEmpty().When(x => x.Id == 0);
+            // Only validate when customer is not guest.
+            When(x => !x.IsGuest, () =>
+            {
+                RuleFor(x => x.Password).NotEmpty().When(x => x.Id == 0);
 
-            if (customerSettings.FirstNameRequired)
-            {
-                RuleFor(x => x.FirstName).NotEmpty();
-            }
-            
-            RuleFor(x => x.FirstName).ValidName(T);
+                if (customerSettings.FirstNameRequired)
+                {
+                    RuleFor(x => x.FirstName).NotEmpty();
+                }
 
-            if (customerSettings.LastNameRequired)
-            {
-                RuleFor(x => x.LastName).NotEmpty();
-            }
-            
-            RuleFor(x => x.LastName).ValidName(T);
+                RuleFor(x => x.FirstName).ValidName(T);
 
-            if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)
-            {
-                RuleFor(x => x.Company).NotEmpty();
-            }
-            
-            if (customerSettings.StreetAddressRequired && customerSettings.StreetAddressEnabled)
-            {
-                RuleFor(x => x.StreetAddress).NotEmpty();
-            }
-            
-            if (customerSettings.StreetAddress2Required && customerSettings.StreetAddress2Enabled)
-            {
-                RuleFor(x => x.StreetAddress2).NotEmpty();
-            }
-            
-            if (customerSettings.ZipPostalCodeRequired && customerSettings.ZipPostalCodeEnabled)
-            {
-                RuleFor(x => x.ZipPostalCode).NotEmpty();
-            }
-            
-            if (customerSettings.CityRequired && customerSettings.CityEnabled)
-            {
-                RuleFor(x => x.City).NotEmpty();
-            }
-            
-            if (customerSettings.PhoneRequired && customerSettings.PhoneEnabled)
-            {
-                RuleFor(x => x.Phone).NotEmpty();
-            }
-            
-            if (customerSettings.FaxRequired && customerSettings.FaxEnabled)
-            {
-                RuleFor(x => x.Fax).NotEmpty();
-            }
+                if (customerSettings.LastNameRequired)
+                {
+                    RuleFor(x => x.LastName).NotEmpty();
+                }
+
+                RuleFor(x => x.LastName).ValidName(T);
+
+                if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)
+                {
+                    RuleFor(x => x.Company).NotEmpty();
+                }
+
+                if (customerSettings.StreetAddressRequired && customerSettings.StreetAddressEnabled)
+                {
+                    RuleFor(x => x.StreetAddress).NotEmpty();
+                }
+
+                if (customerSettings.StreetAddress2Required && customerSettings.StreetAddress2Enabled)
+                {
+                    RuleFor(x => x.StreetAddress2).NotEmpty();
+                }
+
+                if (customerSettings.ZipPostalCodeRequired && customerSettings.ZipPostalCodeEnabled)
+                {
+                    RuleFor(x => x.ZipPostalCode).NotEmpty();
+                }
+
+                if (customerSettings.CityRequired && customerSettings.CityEnabled)
+                {
+                    RuleFor(x => x.City).NotEmpty();
+                }
+
+                if (customerSettings.PhoneRequired && customerSettings.PhoneEnabled)
+                {
+                    RuleFor(x => x.Phone).NotEmpty();
+                }
+
+                if (customerSettings.FaxRequired && customerSettings.FaxEnabled)
+                {
+                    RuleFor(x => x.Fax).NotEmpty();
+                }
+            });
         }
     }
 }
