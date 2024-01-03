@@ -679,7 +679,7 @@ namespace Smartstore.Admin.Controllers
             {
                 var pva = await _db.ProductVariantAttributes
                     .Include(x => x.RuleSet)
-                    .FindByIdAsync(command.RelatedId);
+                    .FindByIdAsync(command.EntityId);
 
                 if (pva != null)
                 {

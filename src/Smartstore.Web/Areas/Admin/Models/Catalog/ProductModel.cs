@@ -548,7 +548,6 @@ namespace Smartstore.Admin.Models.Catalog
         {
             public int ProductId { get; set; }
             public string ProductName { get; set; }
-            public int ProductAttributeId { get; set; }
             public int ProductVariantAttributeId { get; set; }
             public string ProductVariantAttributeName { get; set; }
             public bool IsListTypeAttribute { get; set; }

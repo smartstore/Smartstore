@@ -416,7 +416,6 @@ namespace Smartstore.Admin.Controllers
             {
                 ProductName = product.Name,
                 ProductId = pva.ProductId,
-                ProductAttributeId = pva.ProductAttributeId,
                 ProductVariantAttributeId = pva.Id,
                 ProductVariantAttributeName = pva.ProductAttribute.Name,
                 IsListTypeAttribute = pva.IsListTypeAttribute(),
@@ -439,6 +438,7 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => new
                 {
                     Pva = x,
+                    AttributeId = x.ProductAttributeId,
                     AttributeName = x.ProductAttribute.Name,
                     NumberOfOptions = x.ProductVariantAttributeValues.Count,
                     NumberOfRules = _db.Rules.Count(r => x.RuleSetId != null && x.Id == x.RuleSetId)
@@ -466,6 +466,10 @@ namespace Smartstore.Admin.Controllers
                     };
                 })
                 .ToList();
+
+            ViewBag.RuleProductAttributeIds = productVariantAttributes
+                .Where(x => x.Pva.Id != productVariantAttributeId)
+                .ToDistinctArray(x => x.AttributeId);
 
             return View(model);
         }

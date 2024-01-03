@@ -2,7 +2,6 @@
 
 @{
     var scope = Model.Provider.Scope;
-    var productAttributeId = scope == RuleScope.ProductAttribute ? GetMetadata<int>("ProductAttributeId") : 0;
     var ruleDescriptors = await Model.Provider.GetRuleDescriptorsAsync();
     var orButton = await GetConditionsButtonString(LogicalRuleOperator.Or);
     var andButton = await GetConditionsButtonString(LogicalRuleOperator.And);
@@ -58,20 +57,26 @@
                     <option>@T("Admin.Rules.AddCondition")</option>
                     @foreach (var grp in ruleDescriptors.GroupBy(x => x.GroupKey))
                     {
+                        int[] parentIds = null;
+                        if (scope == RuleScope.ProductAttribute
+                            && grp.Any()
+                            && grp.First().SelectList is RemoteRuleValueSelectList remoteList
+                            && remoteList.DataSource == KnownRuleOptionDataSourceNames.VariantValue)
+                        {
+                            parentIds = GetMetadata<int[]>("ProductAttributeIds");
+                        }
+
                         if (grp.Key.HasValue())
                         {
                             @:<optgroup label="@T(grp.Key)">
                         }
                         foreach (var d in grp)
                         {
-                            if (productAttributeId != 0
-                                && d.SelectList is RemoteRuleValueSelectList remoteList
-                                && remoteList.DataSource == KnownRuleOptionDataSourceNames.VariantValue
-                                && d.Metadata.TryGetValue("ParentId", out var rawParentId)
-                                && rawParentId is int parentId
-                                && parentId == productAttributeId)
+                            if (!parentIds.IsNullOrEmpty()
+                                && d.TryGetMetadata("ParentId", out int parentId)
+                                && !parentIds.Contains(parentId))
                             {
-                                // Exclude the attribute to which the currently edited product attribute belongs to.
+                                // Skip attribute. It is not assigned to the product that is currently being edited.
                                 continue;
                             }
 

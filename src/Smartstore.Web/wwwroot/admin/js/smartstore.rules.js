@@ -129,7 +129,7 @@ Smartstore.Admin.Rules = (function () {
             url: root.data('url-addgroup'),
             data: {
                 ruleSetId: parentSet.data('ruleset-id'),
-                relatedId: root.data('related-id'),
+                entityId: root.data('entity-id'),
                 scope: root.data('scope')
             },
             type: "POST",
@@ -178,7 +178,7 @@ Smartstore.Admin.Rules = (function () {
             url: root.data('url-changeoperator'),
             data: {
                 ruleSetId: item.closest('.ruleset').data('ruleset-id'),
-                relatedId: root.data('related-id'),
+                entityId: root.data('entity-id'),
                 scope: root.data('scope'),
                 op
             },
@@ -226,7 +226,7 @@ Smartstore.Admin.Rules = (function () {
             url: root.data('url-updaterules'),
             data: {
                 ruleData,
-                relatedId: root.data('related-id'),
+                entityId: root.data('entity-id'),
                 scope: root.data('scope')
             },
             type: 'POST',
@@ -258,7 +258,7 @@ Smartstore.Admin.Rules = (function () {
             data: {
                 ruleSetId: parentSet.data('ruleset-id'),
                 ruleType,
-                relatedId: root.data('related-id'),
+                entityId: root.data('entity-id'),
                 scope: root.data('scope')
             },
             type: "POST",

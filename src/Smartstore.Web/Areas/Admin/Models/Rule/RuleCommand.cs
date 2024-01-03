@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Admin.Models.Rules
@@ -9,14 +10,18 @@ namespace Smartstore.Admin.Models.Rules
         [JsonProperty("scope")]
         public RuleScope Scope { get; set; }
 
+        /// <summary>
+        /// Identifier of the related entity.
+        /// <see cref="ProductVariantAttribute.Id"/> if <see cref="Scope"/> == <see cref="RuleScope.ProductAttribute"/>.
+        /// </summary>
+        [JsonProperty("entityId")]
+        public int EntityId { get; set; }
+
         [JsonProperty("ruleSetId")]
         public int RuleSetId { get; set; }
 
         [JsonProperty("ruleId")]
         public int RuleId { get; set; }
-
-        [JsonProperty("relatedId")]
-        public int RelatedId { get; set; }
 
         [JsonProperty("ruleType")]
         public string RuleType { get; set; }

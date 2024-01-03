@@ -2,12 +2,14 @@
 
 @{
     Assets.AppendScriptFiles("~/admin/js/smartstore.rules.js");
+
+    var productAttributeIds = ViewBag.RuleProductAttributeIds as int[];
 }
 
 <div id="ruleset-root" class="ruleset-root"
      data-dirty="false"
      data-scope="@((int)Model.RuleSet.Scope)"
-     data-related-id="@Model.ProductVariantAttributeId"
+     data-entity-id="@Model.ProductVariantAttributeId"
      data-url-addgroup="@Url.Action("AddGroup", "Rule", new { area = "Admin" })"
      data-url-deletegroup="@Url.Action("DeleteGroup", "Rule", new { area = "Admin" })"
      data-url-updaterules="@Url.Action("UpdateRules", "Rule", new { area = "Admin" })"
@@ -16,5 +18,5 @@
      data-url-changeoperator="@Url.Action("ChangeOperator", "Rule", new { area = "Admin" })">
     <partial name="~/Areas/Admin/Views/Rule/_RuleSet.cshtml" 
              model="Model.RuleSet.ExpressionGroup" 
-             view-data='new ViewDataDictionary(ViewData) { ["ProductAttributeId"] = Model.ProductAttributeId }'/>
+             view-data='new ViewDataDictionary(ViewData) { ["ProductAttributeIds"] = productAttributeIds }'/>
 </div>
