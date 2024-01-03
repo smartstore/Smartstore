@@ -24,7 +24,7 @@ namespace Smartstore.Core.Installation
     {
         const string LanguageCookieName = ".Smart.Installation.Lang";
 
-        private IList<InstallationLanguage> _installLanguages;
+        private List<InstallationLanguage> _installLanguages;
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHttpClientFactory _httpClientFactory;

@@ -13,22 +13,24 @@ using Smartstore.Core.Widgets;
 
 namespace Smartstore.Core.Content.Blocks
 {
-    public abstract class BlockHandlerBase<T> : IBlockHandler<T> where T : IBlock
+    public abstract class BlockHandlerBase<TBlock> : IBlockHandler<TBlock> where TBlock : IBlock
     {
         public ICommonServices Services { get; set; }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public ILocalizedEntityService LocalizedEntityService { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public virtual T Create(IBlockEntity entity)
+        public required ILocalizedEntityService LocalizedEntityService { protected get; set; }
+
+        public virtual TBlock Create(IBlockEntity entity)
         {
-            return Activator.CreateInstance<T>();
+            return Activator.CreateInstance<TBlock>();
         }
 
-        protected virtual T Load(IBlockEntity entity, StoryViewMode viewMode)
+        protected virtual TBlock Load(IBlockEntity entity, StoryViewMode viewMode)
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             var block = Create(entity);
             var json = entity.Model;
@@ -49,15 +51,15 @@ namespace Smartstore.Core.Content.Blocks
             return block;
         }
 
-        public virtual Task<T> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
+        public virtual Task<TBlock> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
             => Task.FromResult(Load(entity, viewMode));
 
-        public virtual bool IsValid(T block)
+        public virtual bool IsValid(TBlock block)
             => true;
 
-        protected virtual void Save(T block, IBlockEntity entity)
+        protected virtual void Save(TBlock block, IBlockEntity entity)
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             if (block == null)
             {
@@ -79,7 +81,7 @@ namespace Smartstore.Core.Content.Blocks
             }
         }
 
-        public virtual Task SaveAsync(T block, IBlockEntity entity)
+        public virtual Task SaveAsync(TBlock block, IBlockEntity entity)
         {
             Save(block, entity);
             return Task.CompletedTask;
@@ -120,9 +122,9 @@ namespace Smartstore.Core.Content.Blocks
 
         protected virtual Task RenderByViewAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
         {
-            Guard.NotNull(element, nameof(element));
-            Guard.NotNull(templates, nameof(templates));
-            Guard.NotNull(htmlHelper, nameof(htmlHelper));
+            Guard.NotNull(element);
+            Guard.NotNull(templates);
+            Guard.NotNull(htmlHelper);
 
             var viewContext = htmlHelper.ViewContext;
             var actionContext = GetActionContextFor(element, viewContext);
@@ -155,9 +157,9 @@ namespace Smartstore.Core.Content.Blocks
 
         protected virtual async Task RenderByWidgetAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
         {
-            Guard.NotNull(element, nameof(element));
-            Guard.NotNull(templates, nameof(templates));
-            Guard.NotNull(htmlHelper, nameof(htmlHelper));
+            Guard.NotNull(element);
+            Guard.NotNull(templates);
+            Guard.NotNull(htmlHelper);
 
             var widget = templates.Select(x => GetWidget(element, htmlHelper, x)).FirstOrDefault(x => x != null);
             if (widget == null)

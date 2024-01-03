@@ -2,14 +2,11 @@
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Localization;
 
 namespace Smartstore.Admin.Infrastructure.Menus
 {
     public partial class AdminMenu : MenuBase
     {
-        public Localizer T { get; set; }
-
         public override string Name => "Admin";
 
         public override bool ApplyPermissions => true;

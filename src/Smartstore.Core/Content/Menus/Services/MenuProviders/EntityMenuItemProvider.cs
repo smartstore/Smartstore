@@ -13,11 +13,7 @@ namespace Smartstore.Core.Content.Menus
         public EntityMenuItemProvider(ILinkResolver linkResolver)
         {
             _linkResolver = linkResolver;
-
-            T = NullLocalizer.Instance;
         }
-
-        public Localizer T { get; set; }
 
         protected override async Task ApplyLinkAsync(MenuItemProviderRequest request, TreeNode<MenuItem> node)
         {

@@ -22,11 +22,7 @@ namespace Smartstore.Core.Content.Menus
             _storeContext = storeContext;
             _categoryService = categoryService;
             _linkResolver = linkResolver;
-
-            T = NullLocalizer.Instance;
         }
-
-        public Localizer T { get; set; }
 
         public override async Task<TreeNode<MenuItem>> AppendAsync(MenuItemProviderRequest request)
         {

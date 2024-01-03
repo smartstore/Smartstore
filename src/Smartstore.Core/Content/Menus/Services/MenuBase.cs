@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Caching;
 using Smartstore.Collections;
+using Smartstore.Core.Localization;
 using Smartstore.Diagnostics;
 
 namespace Smartstore.Core.Content.Menus
@@ -22,8 +23,8 @@ namespace Smartstore.Core.Content.Menus
         private List<string> _providers;
 
         public ICommonServices Services { get; set; }
-
-        public IMenuPublisher MenuPublisher { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+        public required IMenuPublisher MenuPublisher { protected get; set; }
 
         public abstract string Name { get; }
 

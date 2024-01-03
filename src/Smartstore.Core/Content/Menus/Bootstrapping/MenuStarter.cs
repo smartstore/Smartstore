@@ -18,7 +18,7 @@ namespace Smartstore.Core.Bootstrapping
             var menuResolverTypes = appContext.TypeScanner.FindTypes<IMenuResolver>();
             foreach (var type in menuResolverTypes)
             {
-                builder.RegisterType(type).As<IMenuResolver>().PropertiesAutowired(PropertyWiringOptions.None).InstancePerLifetimeScope();
+                builder.RegisterType(type).As<IMenuResolver>().InstancePerLifetimeScope();
             }
 
             builder.RegisterType<DatabaseMenu>().Named<IMenu>("database").InstancePerDependency();
@@ -26,7 +26,7 @@ namespace Smartstore.Core.Bootstrapping
             var menuTypes = appContext.TypeScanner.FindTypes<IMenu>();
             foreach (var type in menuTypes.Where(x => x.IsVisible && x != typeof(DatabaseMenu)))
             {
-                builder.RegisterType(type).As<IMenu>().PropertiesAutowired(PropertyWiringOptions.None).InstancePerLifetimeScope();
+                builder.RegisterType(type).As<IMenu>().InstancePerLifetimeScope();
             }
 
             var menuItemProviderTypes = appContext.TypeScanner.FindTypes<IMenuItemProvider>();
@@ -35,7 +35,6 @@ namespace Smartstore.Core.Bootstrapping
                 var attribute = type.GetAttribute<MenuItemProviderAttribute>(false);
                 var registration = builder.RegisterType(type)
                     .As<IMenuItemProvider>()
-                    .PropertiesAutowired(PropertyWiringOptions.None)
                     .InstancePerLifetimeScope()
                     .WithMetadata<MenuItemProviderMetadata>(m =>
                     {
