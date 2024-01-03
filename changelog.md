@@ -53,7 +53,7 @@
 - #951 The forum post page counter is always incremented by 2 when the page is opened.
 - Fixed a filter reset of the product grid does not work correctly.
 - Fixed validation issues when saving guest customers
-
+- #897 Discount code input seems to be confirmed (border color and check icon) 
 
 ## Smartstore 5.1.0
 
