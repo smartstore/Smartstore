@@ -7,9 +7,9 @@
 }
 
 <div class="pd-info pd-group">
-    <meta sm-if="Model.Sku.HasValue()" itemprop="sku" content="@Model.Sku" />
-    <meta sm-if="Model.Gtin.HasValue()" itemprop="gtin" content="@Model.Gtin" />
-    <meta sm-if="Model.ManufacturerPartNumber.HasValue()" itemprop="mpn" content="@Model.ManufacturerPartNumber" />
+    <meta sm-if="Model.Sku.HasValue() && Model.ShowSku" itemprop="sku" content="@Model.Sku" />
+    <meta sm-if="Model.Gtin.HasValue() && Model.ShowGtin" itemprop="gtin" content="@Model.Gtin" />
+    <meta sm-if="Model.ManufacturerPartNumber.HasValue() && Model.ShowManufacturerPartNumber" itemprop="mpn" content="@Model.ManufacturerPartNumber" />
 
     <!-- Brand -->
     <div sm-if="brand != null" class="pd-brand-block" itemprop="brand">
