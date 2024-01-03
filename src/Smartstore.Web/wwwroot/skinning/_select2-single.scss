@@ -4,8 +4,6 @@
     --select2-padding-end: calc(var(--select2-caret-width) + calc(var(--select2-padding-x) / 2));
 
     border-radius: var(--border-radius);
-    height: var(--select2-height);
-    line-height: var(--select2-line-height);
     padding-block: var(--select2-padding-y);
     padding-inline: var(--select2-padding-x) var(--select2-padding-end);
     font-size: var(--select2-font-size);
@@ -51,6 +49,8 @@
         align-items: center;
 
         .select2-option {
+            --choice-item-line-height: var(--select2-line-height);
+
             padding-inline-end: 0.5em;
             overflow: hidden;
             text-overflow: ellipsis;

@@ -23,10 +23,14 @@
     }
 }
 
-// Limit the dropdown height.
 .select2-results > .select2-results__options {
+    --select2-drop-padding-x: 0;
+    --select2-drop-padding-y: 0;
+
+    // Limit the dropdown height.
     max-height: 320px;
     overflow-y: auto;
+    padding: var(--select2-drop-padding-y) var(--select2-drop-padding-x);
 }
 
 
