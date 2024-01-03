@@ -4,7 +4,7 @@
     ViewBag.Title = T("Admin.Customers.Customers.EditCustomerDetails").Value;
 }
 
-<form method="post" asp-action="Edit" id="customer-form">
+<form method="post" asp-action="Edit" id="customer-form" attr-novalidate='(Model.IsGuest, "novalidate")'>
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="List"></a>
@@ -14,11 +14,11 @@
         <div class="options">
             <zone name="admin_button_toolbar_before" />
 
-            <button type="submit" name="save" value="save" class="btn btn-warning">
+            <button type="submit" name="save" value="save" class="btn btn-warning" attr-formnovalidate='(Model.IsGuest, "formnovalidate")'>
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
             </button>
-            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary" attr-formnovalidate='(Model.IsGuest, "formnovalidate")'>
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
 
