@@ -41,7 +41,7 @@
         <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
         <PackageReference Include="NuGet.Protocol" Version="6.6.1" />
         <PackageReference Include="PreMailer.Net" Version="2.4.0" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.1" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.2" />
         <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.0" />
         <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
