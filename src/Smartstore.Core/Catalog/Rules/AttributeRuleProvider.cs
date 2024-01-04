@@ -8,12 +8,14 @@ using Smartstore.Core.Rules;
 namespace Smartstore.Core.Catalog.Rules
 {
     public class AttributeRuleProvider(
+        AttributeRuleProviderContext context,
         SmartDbContext db,
         IWorkContext workContext,
         IComponentContext componentContext,
         IRuleService ruleService) 
         : RuleProviderBase(RuleScope.ProductAttribute), IAttributeRuleProvider
     {
+        private readonly AttributeRuleProviderContext _context = context;
         private readonly SmartDbContext _db = db;
         private readonly IWorkContext _workContext = workContext;
         private readonly IComponentContext _componentContext = componentContext;
@@ -126,43 +128,64 @@ namespace Smartstore.Core.Catalog.Rules
             return result;
         }
 
-        protected override async Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
+        protected override Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
         {
+            // TODO: caching per request
+
             var descriptors = new List<AttributeRuleDescriptor>();
             var language = _workContext.WorkingLanguage;
             var attributeSelectedRuleType = typeof(ProductAttributeSelectedRule);
-            var query = _db.ProductAttributes.AsNoTracking().OrderBy(x => x.DisplayOrder);
-            var pageIndex = -1;
 
-            while (true)
+            foreach (var attribute in _context.AllAttributes.Where(x => x.Id != _context.Attribute.Id))
             {
-                var variants = await query.ToPagedList(++pageIndex, 1000).LoadAsync();
-                foreach (var variant in variants)
-                {
-                    var descriptor = new AttributeRuleDescriptor
-                    {
-                        Name = $"Variant{variant.Id}",
-                        DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
-                        //GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
-                        RuleType = RuleType.IntArray,
-                        ProcessorType = attributeSelectedRuleType,
-                        // TODO: operators depends... IsComparingSequences = ProductVariantAttribute.IsMultipleChoice.
-                        //Operators = RuleType.IntArray.GetValidOperators(IsComparingSequences).ToArray();
-                        SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true }
-                    };
-                    descriptor.Metadata["ParentId"] = variant.Id;
-                    descriptor.Metadata["ValueType"] = ProductVariantAttributeValueType.Simple;
+                var values = attribute.ProductVariantAttributeValues
+                    .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(x => x.Name, language, true, false) })
+                    .ToArray();
 
-                    descriptors.Add(descriptor);
-                }
-
-                if (!variants.HasNextPage)
+                descriptors.Add(new()
                 {
-                    break;
-                }
+                    Name = $"Variant{attribute.Id}",
+                    DisplayName = attribute.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
+                    //GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = attributeSelectedRuleType,
+                    IsComparingSequences = attribute.IsMultipleChoice,
+                    SelectList = new LocalRuleValueSelectList(values) { Multiple = true }
+                });
             }
 
-            return descriptors;
+            //var query = _db.ProductAttributes.AsNoTracking().OrderBy(x => x.DisplayOrder);
+            //var pageIndex = -1;
+
+            //while (true)
+            //{
+            //    var variants = await query.ToPagedList(++pageIndex, 1000).LoadAsync();
+            //    foreach (var variant in variants)
+            //    {
+            //        var descriptor = new AttributeRuleDescriptor
+            //        {
+            //            Name = $"Variant{variant.Id}",
+            //            DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
+            //            //GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
+            //            RuleType = RuleType.IntArray,
+            //            ProcessorType = attributeSelectedRuleType,
+            //            // TODO: operators depends... IsComparingSequences = ProductVariantAttribute.IsMultipleChoice.
+            //            //Operators = RuleType.IntArray.GetValidOperators(IsComparingSequences).ToArray();
+            //            SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true }
+            //        };
+            //        descriptor.Metadata["ParentId"] = variant.Id;
+            //        descriptor.Metadata["ValueType"] = ProductVariantAttributeValueType.Simple;
+
+            //        descriptors.Add(descriptor);
+            //    }
+
+            //    if (!variants.HasNextPage)
+            //    {
+            //        break;
+            //    }
+            //}
+
+            return Task.FromResult(descriptors.Cast<RuleDescriptor>());
         }
     }
 }

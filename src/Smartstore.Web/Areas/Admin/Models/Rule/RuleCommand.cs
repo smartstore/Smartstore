@@ -15,7 +15,7 @@ namespace Smartstore.Admin.Models.Rules
         /// <see cref="ProductVariantAttribute.Id"/> if <see cref="Scope"/> == <see cref="RuleScope.ProductAttribute"/>.
         /// </summary>
         [JsonProperty("entityId")]
-        public int EntityId { get; set; }
+        public int? EntityId { get; set; }
 
         [JsonProperty("ruleSetId")]
         public int RuleSetId { get; set; }

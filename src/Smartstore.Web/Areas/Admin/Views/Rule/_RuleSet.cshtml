@@ -57,29 +57,12 @@
                     <option>@T("Admin.Rules.AddCondition")</option>
                     @foreach (var grp in ruleDescriptors.GroupBy(x => x.GroupKey))
                     {
-                        int[] parentIds = null;
-                        if (scope == RuleScope.ProductAttribute
-                            && grp.Any()
-                            && grp.First().SelectList is RemoteRuleValueSelectList remoteList
-                            && remoteList.DataSource == KnownRuleOptionDataSourceNames.VariantValue)
-                        {
-                            parentIds = GetMetadata<int[]>("ProductAttributeIds");
-                        }
-
                         if (grp.Key.HasValue())
                         {
                             @:<optgroup label="@T(grp.Key)">
                         }
                         foreach (var d in grp)
                         {
-                            if (!parentIds.IsNullOrEmpty()
-                                && d.TryGetMetadata("ParentId", out int parentId)
-                                && !parentIds.Contains(parentId))
-                            {
-                                // Skip attribute. It is not assigned to the product that is currently being edited.
-                                continue;
-                            }
-
                             <option value="@d.Name">@(d.DisplayName.NullEmpty() ?? d.Name)</option>
                         }
                         if (grp.Key.HasValue())

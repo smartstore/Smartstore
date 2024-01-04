@@ -61,10 +61,7 @@ namespace Smartstore.Core.Bootstrapping
                 builder.RegisterType(ruleType).Keyed<IRule<CartRuleContext>>(ruleType).InstancePerLifetimeScope();
             }
 
-            builder.RegisterType<CartRuleProvider>()
-                .As<ICartRuleProvider>()
-                .Keyed<IRuleProvider>(RuleScope.Cart)
-                .InstancePerLifetimeScope();
+            builder.RegisterType<CartRuleProvider>().As<ICartRuleProvider>().InstancePerLifetimeScope();
 
             // Rule options provider.
             builder.RegisterType<PaymentMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();

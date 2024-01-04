@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Catalog.Rules.Impl
@@ -14,24 +15,33 @@ namespace Smartstore.Core.Catalog.Rules.Impl
                 return false;
             }
 
-            var attributeId = expression.Descriptor.Metadata.Get("ParentId").Convert<int>();
-            if (attributeId == 0)
+            var parentId = expression.Descriptor.Metadata.Get("ParentId")?.Convert<int>() ?? 0;
+            if (parentId == 0)
             {
                 return false;
             }
 
-            //context.SelectedAttributes.GetAttributeValues(ProductVariantAttribute.Id)
             var selectedAttributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(context.SelectedAttributes);
-            if (selectedAttributes.Count == 0)
+            var attribute = selectedAttributes.FirstOrDefault(x => x.ProductAttributeId == parentId);
+            if (attribute == null)
             {
                 return false;
             }
 
-            await Task.Delay(10);
-            throw new NotImplementedException();
+            var valueIds = context.SelectedAttributes.GetAttributeValues(attribute.Id)
+                .Select(x => x.ToString())
+                .Where(x => x.HasValue())
+                .Select(x => x.ToInt())
+                .Where(x => x != 0)
+                .Distinct()
+                .ToArray();
+            if (valueIds.Length == 0)
+            {
+                return false;
+            }
 
-            //var match = expression.HasListsMatch(valueIds);
-            //return Task.FromResult(match);
+            var match = expression.HasListsMatch(valueIds);
+            return match;
         }
     }
 }

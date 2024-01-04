@@ -1,7 +1,6 @@
 ﻿using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
-using Smartstore.Admin.Models.Rules;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -410,7 +409,24 @@ namespace Smartstore.Admin.Controllers
                 return NotFound(T("Products.NotFound", pva.ProductId));
             }
 
-            var provider = Services.ResolveKeyed<IRuleProvider>(RuleScope.ProductAttribute) as IAttributeRuleProvider;
+            var attributes = await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .Include(x => x.ProductAttribute)
+                .Include(x => x.ProductVariantAttributeValues)
+                .Where(x => x.ProductId == pva.ProductId)
+                .Select(x => new
+                {
+                    Pva = x,
+                    AttributeId = x.ProductAttributeId,
+                    AttributeName = x.ProductAttribute.Name,
+                    NumberOfOptions = x.ProductVariantAttributeValues.Count,
+                    NumberOfRules = _db.Rules.Count(r => x.RuleSetId != null && x.Id == x.RuleSetId)
+                })
+                .OrderBy(x => x.Pva.DisplayOrder)
+                .ToListAsync();
+
+            var providerContext = new AttributeRuleProviderContext(pva, attributes.Select(x => x.Pva).ToList());
+            var provider = Services.Resolve<IRuleProviderFactory>().GetProvider(RuleScope.ProductAttribute, providerContext) as IAttributeRuleProvider;
 
             var model = new ProductModel.ProductVariantAttributeValueListModel
             {
@@ -432,21 +448,7 @@ namespace Smartstore.Admin.Controllers
             var editOptionsAndRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules").Value;
             var editRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditRules").Value;
 
-            var productVariantAttributes = await _db.ProductVariantAttributes
-                .AsNoTracking()
-                .Where(x => x.ProductId == pva.ProductId)
-                .Select(x => new
-                {
-                    Pva = x,
-                    AttributeId = x.ProductAttributeId,
-                    AttributeName = x.ProductAttribute.Name,
-                    NumberOfOptions = x.ProductVariantAttributeValues.Count,
-                    NumberOfRules = _db.Rules.Count(r => x.RuleSetId != null && x.Id == x.RuleSetId)
-                })
-                .OrderBy(x => x.Pva.DisplayOrder)
-                .ToListAsync();
-
-            ViewBag.ProductVariantAttributes = productVariantAttributes
+            ViewBag.ProductVariantAttributes = attributes
                 .Select(x =>
                 {
                     var linkTitle = x.Pva.IsListTypeAttribute()
@@ -466,10 +468,6 @@ namespace Smartstore.Admin.Controllers
                     };
                 })
                 .ToList();
-
-            ViewBag.RuleProductAttributeIds = productVariantAttributes
-                .Where(x => x.Pva.Id != productVariantAttributeId)
-                .ToDistinctArray(x => x.AttributeId);
 
             return View(model);
         }
