@@ -1,5 +1,5 @@
 ﻿(function ($, window, document) {
-
+    
     window.setLocation = function (url) {
         window.location.href = url;
     };
@@ -383,7 +383,7 @@
 
     // on document ready
     $(function () {
-        var rtl = Smartstore.globalization !== undefined ? Smartstore.globalization.culture.isRTL : false,
+        let rtl = Smartstore.globalization !== undefined ? Smartstore.globalization.culture.isRTL : false,
             win = $(window),
             body = $(document.body);
 
@@ -477,7 +477,7 @@
 
             if (containingForm.length) {
                 el.prop('disabled', true);
-                containingForm.submit();
+                containingForm.trigger('submit');
 
                 if (!containingForm.valid()) {
                     el.prop('disabled', false);
@@ -589,12 +589,40 @@
 
         (function () {
             var currentDrop,
-                currentSubDrop,
+                currentSubGroup,
                 closeTimeout,
                 closeTimeoutSub;
 
-            function closeDrop(drop, fn) {
-                drop.removeClass('show').find('> .dropdown-menu').removeClass('show');
+            function showDrop(group, fn) {
+                let menu = group.find('> .dropdown-menu');
+                if (menu.length) {
+                    let popper = new Popper(group[0], menu[0], {
+                        placement: (rtl ? 'left' : 'right') + '-start',
+                        modifiers: {
+                            computeStyle: { gpuAcceleration: false },
+                        },
+                        preventOverflow: {
+                            boundariesElement: window
+                        }
+                    });
+
+                    group.data('popper', popper);
+
+                    group.addClass('show');
+                    menu.addClass('show');
+
+                    if (_.isFunction(fn)) fn();
+                }
+            }
+
+            function closeDrop(group, fn) {
+                let popper = group.data('popper');
+                if (popper) {
+                    popper.destroy();
+                    group.removeData('popper');
+                }
+
+                group.removeClass('show').find('> .dropdown-menu').removeClass('show');
                 if (_.isFunction(fn)) fn();
             }
 
@@ -624,7 +652,7 @@
 
             // Handle nested dropdown menus
             $(document).on('mouseenter mouseleave click', '.dropdown-group', function (e) {
-                let li = $(this);
+                let group = $(this);
                 let type;
                 let leaveDelay = 250;
 
@@ -633,25 +661,26 @@
                     if (item.length && item.parent().get(0) == this) {
                         type = $(this).is('.show') ? 'leave' : 'enter';
                         leaveDelay = 0;
-                        item.blur();
+                        item.trigger("blur");
                         e.preventDefault();
                         e.stopPropagation();
                     }
                 }
-
+                
                 type = type || (e.type == 'mouseenter' ? 'enter' : 'leave');
 
                 if (type == 'enter') {
-                    if (currentSubDrop) {
+                    if (currentSubGroup) {
                         clearTimeout(closeTimeoutSub);
-                        closeDrop(currentSubDrop);
+                        closeDrop(currentSubGroup);
                     }
-                    li.addClass('show').find('> .dropdown-menu').addClass('show');
-                    currentSubDrop = li;
+
+                    showDrop(group);
+                    currentSubGroup = group;
                 }
                 else {
-                    li.removeClass('show');
-                    closeTimeoutSub = window.setTimeout(function () { closeDrop(li); }, leaveDelay);
+                    group.removeClass('show');
+                    closeTimeoutSub = window.setTimeout(function () { closeDrop(group); }, leaveDelay);
                 }
             });
         })();

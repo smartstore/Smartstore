@@ -18,6 +18,11 @@
 			transform: translateY(-40%);
             color: $gray-500;
 			@include fontawesome("\f054", 10px); // chevron-right
+
+            [dir=rtl] & {
+                // RTL: Swap the icon direction
+                content: '\f053';
+            }
 		}
 	}
 
@@ -27,12 +32,9 @@
 	}
 
 	.dropdown-menu {
+        // Is popperized now (04.01.2024)
 		position: absolute;
 		margin-top: 0 !important;
-		top: $dropdown-padding-y * -1;
-		inset-inline-start: 100% !important;
-		bottom: auto;
-		transform: translateX(-2px);
 	}
 }
 
