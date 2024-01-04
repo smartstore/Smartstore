@@ -72,7 +72,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
 
             var path1 = "~/Attachment.pdf";
             var path2 = CommonHelper.MapPath(path1, false);
-            Assert.IsTrue(await pdfStream.CopyToFileAsync(path2));
+            Assert.That(await pdfStream.CopyToFileAsync(path2), Is.True);
 
             var attachBlob = new QueuedEmailAttachment
             {
@@ -125,27 +125,27 @@ namespace Smartstore.Core.Tests.Platform.Messaging
 
             using (var msg = _queuedEmailService.ConvertMail(qe))
             {
-                Assert.IsNotNull(msg);
-                Assert.IsNotNull(msg.To);
-                Assert.IsNotNull(msg.From);
+                Assert.That(msg, Is.Not.Null);
+                Assert.That(msg.To, Is.Not.Null);
+                Assert.That(msg.From, Is.Not.Null);
 
-                Assert.AreEqual(msg.ReplyTo.Count, 1);
+                Assert.That(msg.ReplyTo, Has.Count.EqualTo(1));
 
                 var replyToAddress = new MailAddress("replyto@mail.com", "ReplyToName");
-                Assert.AreEqual(replyToAddress.ToString(), msg.ReplyTo.First().ToString());
+                Assert.That(msg.ReplyTo.First().ToString(), Is.EqualTo(replyToAddress.ToString()));
 
-                Assert.AreEqual(msg.Cc.Count, 2);
-                Assert.AreEqual(msg.Cc.First().Address, "cc1@mail.com");
-                Assert.AreEqual(msg.Cc.ElementAt(1).Address, "cc2@mail.com");
+                Assert.That(msg.Cc, Has.Count.EqualTo(2));
+                Assert.That(msg.Cc.First().Address, Is.EqualTo("cc1@mail.com"));
+                Assert.That(msg.Cc.ElementAt(1).Address, Is.EqualTo("cc2@mail.com"));
 
-                Assert.AreEqual(msg.Bcc.Count, 2);
-                Assert.AreEqual(msg.Bcc.First().Address, "bcc1@mail.com");
-                Assert.AreEqual(msg.Bcc.ElementAt(1).Address, "bcc2@mail.com");
+                Assert.That(msg.Bcc, Has.Count.EqualTo(2));
+                Assert.That(msg.Bcc.First().Address, Is.EqualTo("bcc1@mail.com"));
+                Assert.That(msg.Bcc.ElementAt(1).Address, Is.EqualTo("bcc2@mail.com"));
 
-                Assert.AreEqual(qe.Subject, msg.Subject);
-                Assert.AreEqual(qe.Body, msg.Body);
+                Assert.That(msg.Subject, Is.EqualTo(qe.Subject));
+                Assert.That(msg.Body, Is.EqualTo(qe.Body));
 
-                Assert.AreEqual(4, msg.Attachments.Count);
+                Assert.That(msg.Attachments, Has.Count.EqualTo(4));
 
                 var attach1 = msg.Attachments.First();
                 var attach2 = msg.Attachments.ElementAt(1);
@@ -153,16 +153,16 @@ namespace Smartstore.Core.Tests.Platform.Messaging
                 var attach4 = msg.Attachments.ElementAt(3);
 
                 // test file names
-                Assert.AreEqual(attach1.Name, "blob.pdf");
-                Assert.AreEqual(attach2.Name, "file.pdf");
-                Assert.AreEqual(attach3.Name, "path1.pdf");
-                Assert.AreEqual(attach4.Name, "path2.pdf");
+                Assert.That(attach1.Name, Is.EqualTo("blob.pdf"));
+                Assert.That(attach2.Name, Is.EqualTo("file.pdf"));
+                Assert.That(attach3.Name, Is.EqualTo("path1.pdf"));
+                Assert.That(attach4.Name, Is.EqualTo("path2.pdf"));
 
                 // test file streams
-                Assert.AreEqual(attach1.ContentStream.Length, pdfBinary.Length);
-                Assert.AreEqual(attach2.ContentStream.Length, pdfBinary.Length);
-                Assert.Greater(attach3.ContentStream.Length, 0);
-                Assert.Greater(attach4.ContentStream.Length, 0);
+                Assert.That(pdfBinary, Has.Length.EqualTo(attach1.ContentStream.Length));
+                Assert.That(pdfBinary, Has.Length.EqualTo(attach2.ContentStream.Length));
+                Assert.That(attach3.ContentStream.Length, Is.GreaterThan(0));
+                Assert.That(attach4.ContentStream.Length, Is.GreaterThan(0));
             }
 
             // delete attachment file

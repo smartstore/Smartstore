@@ -59,9 +59,9 @@ namespace Smartstore.Core.Tests.Common
 
                         var response = geoCountryLookup.LookupCountry(ip);
 
-                        Assert.AreEqual(expect.IsoCode, response.IsoCode, response.Name);
-                        Assert.AreEqual(expect.Name, response.Name, response.Name);
-                        Assert.AreEqual(expect.IsInEu, response.IsInEu, response.Name);
+                        Assert.That(response.IsoCode, Is.EqualTo(expect.IsoCode), response.Name);
+                        Assert.That(response.Name, Is.EqualTo(expect.Name), response.Name);
+                        Assert.That(response.IsInEu, Is.EqualTo(expect.IsInEu), response.Name);
                     }
                 }
             }

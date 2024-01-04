@@ -28,12 +28,12 @@ namespace Smartstore.Core.Tests.Catalog.Search
             Assert.That(query.DefaultTerm, Is.EqualTo("ateg"));
 
             var termFilter = query.Filters.OfType<ICombinedSearchFilter>().FirstOrDefault(x => x.FieldName == "searchterm");
-            Assert.NotNull(termFilter);
+            Assert.That(termFilter, Is.Not.Null);
 
             var allTermsChanged = termFilter.Filters
                 .Select(x => (IAttributeSearchFilter)x)
                 .All(x => (string)x.Term == "ateg");
-            Assert.IsTrue(allTermsChanged);
+            Assert.That(allTermsChanged, Is.True);
         }
     }
 }

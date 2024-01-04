@@ -34,7 +34,7 @@ namespace Smartstore.Tests
                 var path2 = combiner[1];
 
                 var combined = PathUtility.Combine(path1, path2);
-                Assert.AreEqual(combiner[2], combined);
+                Assert.That(combined, Is.EqualTo(combiner[2]));
             }
         }
 
@@ -47,7 +47,7 @@ namespace Smartstore.Tests
                 var path2 = combiner[1].AsSpan();
 
                 var combined = PathUtility.Join(path1, path2);
-                Assert.AreEqual(combiner[2], combined);
+                Assert.That(combined, Is.EqualTo(combiner[2]));
             }
         }
     }

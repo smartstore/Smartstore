@@ -323,7 +323,7 @@ namespace Smartstore.Core.Tests.Catalog.Search
             Assert.That(result.TotalHitsCount, Is.EqualTo(3));
 
             result = await SearchAsync(new CatalogSearchQuery().WithProductIds(98), products);
-            Assert.IsNull((await result.GetHitsAsync()).FirstOrDefault());
+            Assert.That((await result.GetHitsAsync()).FirstOrDefault(), Is.Null);
         }
 
         [Test]
@@ -513,7 +513,7 @@ namespace Smartstore.Core.Tests.Catalog.Search
             Assert.That(result.TotalHitsCount, Is.EqualTo(3));
 
             result = await SearchAsync(new CatalogSearchQuery().WithProductTagIds(22), products);
-            Assert.IsNull((await result.GetHitsAsync()).FirstOrDefault());
+            Assert.That((await result.GetHitsAsync()).FirstOrDefault(), Is.Null);
         }
 
         [Test]

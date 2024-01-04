@@ -43,13 +43,13 @@ namespace Smartstore.Tests.Collections
 
             var allNodes = root.SelectNodes(x => true, false).ToList();
 
-            Assert.AreEqual(nodesCount, allNodes.Count);
+            Assert.That(allNodes, Has.Count.EqualTo(nodesCount));
 
             var node57 = root.SelectNodeById("node-5-7");
 
-            Assert.IsNotNull(node57);
-            Assert.AreEqual(node57.Parent.Id, "node-5");
-            Assert.AreEqual(node57.Root.Value, tree.Value);
+            Assert.That(node57, Is.Not.Null);
+            Assert.That(node57.Parent.Id, Is.EqualTo("node-5"));
+            Assert.That(tree.Value, Is.EqualTo(node57.Root.Value));
         }
     }
 }

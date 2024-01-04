@@ -109,8 +109,8 @@ namespace Smartstore.Core.Tests.Catalog.Brands
                 .ApplyStandardFilter()
                 .ToListAsync();
 
-            Assert.AreEqual(manufacturers.Count, 4);
-            Assert.AreEqual(string.Join(",", manufacturers.Select(x => x.Id)), "1,3,4,5");
+            Assert.That(manufacturers.Count, Is.EqualTo(4));
+            Assert.That(string.Join(",", manufacturers.Select(x => x.Id)), Is.EqualTo("1,3,4,5"));
         }
 
         [Test]
@@ -128,8 +128,8 @@ namespace Smartstore.Core.Tests.Catalog.Brands
                 .ApplyStandardFilter(false, null, 2)
                 .ToListAsync();
 
-            Assert.AreEqual(manufacturers.Count, 3);
-            Assert.AreEqual(string.Join(",", manufacturers.Select(x => x.Id)), "1,4,5");
+            Assert.That(manufacturers.Count, Is.EqualTo(3));
+            Assert.That(string.Join(",", manufacturers.Select(x => x.Id)), Is.EqualTo("1,4,5"));
         }
 
         [Test]
@@ -147,8 +147,8 @@ namespace Smartstore.Core.Tests.Catalog.Brands
                 .ApplyStandardFilter(false, new[] { 1, 2 }, 0)
                 .ToListAsync();
 
-            Assert.AreEqual(manufacturers.Count, 3);
-            Assert.AreEqual(string.Join(",", manufacturers.Select(x => x.Id)), "1,3,4");
+            Assert.That(manufacturers.Count, Is.EqualTo(3));
+            Assert.That(string.Join(",", manufacturers.Select(x => x.Id)), Is.EqualTo("1,3,4"));
         }
 
         [Test]
@@ -158,8 +158,8 @@ namespace Smartstore.Core.Tests.Catalog.Brands
                 .ApplyStandardFilter(false, new[] { 1, 2 }, 2)
                 .ToListAsync();
 
-            Assert.AreEqual(manufacturers.Count, 2);
-            Assert.AreEqual(string.Join(",", manufacturers.Select(x => x.Id)), "1,4");
+            Assert.That(manufacturers.Count, Is.EqualTo(2));
+            Assert.That(string.Join(",", manufacturers.Select(x => x.Id)), Is.EqualTo("1,4"));
         }
     }
 }

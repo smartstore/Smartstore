@@ -17,11 +17,11 @@ namespace Smartstore.Tests
             var html = GetFileStream("testdata.html").AsString();
             var text = html.RemoveHtml();
 
-            Assert.IsTrue(text.StartsWith("Produktmerkmale"), "Produktmerkmale");
-            Assert.IsFalse(text.Contains("function()"), "No function()");
-            Assert.IsFalse(text.Contains(".someclass"), "No .someclass");
-            Assert.IsFalse(text.Contains("This is a comment and should be stripped from result"), "No comment");
-            Assert.IsTrue(text.EndsWith("Technologie:WCDM"), "EndsWith Technologie:WCDM");
+            Assert.That(text, Does.StartWith("Produktmerkmale"), "Produktmerkmale");
+            Assert.That(text, Does.Not.Contain("function()"), "No function()");
+            Assert.That(text, Does.Not.Contain(".someclass"), "No .someclass");
+            Assert.That(text, Does.Not.Contain("This is a comment and should be stripped from result"), "No comment");
+            Assert.That(text, Does.EndWith("Technologie:WCDM"), "EndsWith Technologie:WCDM");
         }
     }
 }

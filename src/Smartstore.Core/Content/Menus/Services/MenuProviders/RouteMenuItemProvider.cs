@@ -6,13 +6,6 @@ namespace Smartstore.Core.Content.Menus
     [MenuItemProvider("route")]
     public class RouteMenuItemProvider : MenuItemProviderBase
     {
-        public RouteMenuItemProvider()
-        {
-            T = NullLocalizer.Instance;
-        }
-
-        public Localizer T { get; set; }
-
         protected override Task ApplyLinkAsync(MenuItemProviderRequest request, TreeNode<MenuItem> node)
         {
             try

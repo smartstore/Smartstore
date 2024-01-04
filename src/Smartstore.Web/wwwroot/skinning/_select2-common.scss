@@ -67,11 +67,14 @@
     --select2-option-indent: 1;
     --select2-option-padding-x-start: #{$input-btn-padding-x};
     --select2-option-padding-x-end: #{$input-btn-padding-x};
-    --select2-option-padding-y: #{$input-btn-padding-y};
+    --select2-option-padding-y: 0.375em;
+    --select2-option-border-radius: 0;
+
     padding-inline-start: calc(var(--select2-option-padding-x-start) * var(--select2-option-indent));
     padding-inline-end: var(--select2-option-padding-x-end);
     padding-block-start: var(--select2-option-padding-y);
     padding-block-end: var(--select2-option-padding-y);
+    border-radius: var(--select2-option-border-radius);
 
     &[role=group] {
         padding: 0 !important;

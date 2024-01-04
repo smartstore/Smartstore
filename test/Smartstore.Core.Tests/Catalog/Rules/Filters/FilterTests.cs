@@ -15,9 +15,12 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.IsNull;
 
-            Assert.AreEqual(true, op.Match(null, null));
-            Assert.AreEqual(false, op.Match("no", null));
-            Assert.AreEqual(true, op.Match((int?)null, null));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match(null, null), Is.EqualTo(true));
+                Assert.That(op.Match("no", null), Is.EqualTo(false));
+                Assert.That(op.Match((int?)null, null), Is.EqualTo(true));
+            });
 
             var expectedResult = Customers.Where(x => x.Username == null).ToList();
             var result = ExecuteQuery(op, x => x.Username, null);
@@ -30,9 +33,12 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.IsNotNull;
 
-            Assert.AreEqual(false, op.Match(null, null));
-            Assert.AreEqual(true, op.Match("no", null));
-            Assert.AreEqual(false, op.Match((int?)null, null));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match(null, null), Is.EqualTo(false));
+                Assert.That(op.Match("no", null), Is.EqualTo(true));
+                Assert.That(op.Match((int?)null, null), Is.EqualTo(false));
+            });
 
             var expectedResult = Customers.Where(x => x.Username != null).ToList();
             var result = ExecuteQuery(op, x => x.Username, null);
@@ -45,9 +51,12 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.IsEmpty;
 
-            Assert.AreEqual(true, op.Match((string)null, null));
-            Assert.AreEqual(true, op.Match(string.Empty, null));
-            Assert.AreEqual(false, op.Match(" ab", null));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match((string)null, null), Is.EqualTo(true));
+                Assert.That(op.Match(string.Empty, null), Is.EqualTo(true));
+                Assert.That(op.Match(" ab", null), Is.EqualTo(false));
+            });
 
             var expectedResult = Customers.Where(x => string.IsNullOrWhiteSpace(x.Username)).ToList();
             var result = ExecuteQuery(op, x => x.Username, null);
@@ -59,9 +68,9 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.IsNotEmpty;
 
-            Assert.AreEqual(false, op.Match((string)null, null));
-            Assert.AreEqual(false, op.Match(string.Empty, null));
-            Assert.AreEqual(true, op.Match(" ab", null));
+            Assert.That(op.Match((string)null, null), Is.EqualTo(false));
+            Assert.That(op.Match(string.Empty, null), Is.EqualTo(false));
+            Assert.That(op.Match(" ab", null), Is.EqualTo(true));
 
             var expectedResult = Customers.Where(x => !string.IsNullOrEmpty(x.Username)).ToList();
             var result = ExecuteQuery(op, x => x.Username, null);
@@ -80,17 +89,17 @@ namespace Smartstore.Core.Tests.Rules.Filters
             var e2 = (DateTimeKind?)DateTimeKind.Utc;
             var e3 = (DateTimeKind?)null;
 
-            Assert.AreEqual(true, op.Match(null, null));
-            Assert.AreEqual(true, op.Match(string.Empty, string.Empty));
-            Assert.AreEqual(true, op.Match("abc", "abc"));
-            Assert.AreEqual(true, op.Match(d1, d2));
-            Assert.AreEqual(true, op.Match(d2, d1));
-            Assert.AreEqual(false, op.Match(d3, d1));
-            Assert.AreEqual(false, op.Match(d2, d3));
-            Assert.AreEqual(true, op.Match(e1, e2));
-            Assert.AreEqual(true, op.Match(e2, e1));
-            Assert.AreEqual(false, op.Match(e3, e1));
-            Assert.AreEqual(false, op.Match(e2, e3));
+            Assert.That(op.Match(null, null), Is.True);
+            Assert.That(op.Match(string.Empty, string.Empty), Is.True);
+            Assert.That(op.Match("abc", "abc"), Is.True);
+            Assert.That(op.Match(d1, d2), Is.True);
+            Assert.That(op.Match(d2, d1), Is.True);
+            Assert.That(op.Match(d3, d1), Is.False);
+            Assert.That(op.Match(d2, d3), Is.False);
+            Assert.That(op.Match(e1, e2), Is.True);
+            Assert.That(op.Match(e2, e1), Is.True);
+            Assert.That(op.Match(e3, e1), Is.False);
+            Assert.That(op.Match(e2, e3), Is.False);
 
             var expectedResult = Customers.Where(x => x.IsTaxExempt == true).ToList();
             var result = ExecuteQuery(op, x => x.IsTaxExempt, true);
@@ -110,17 +119,20 @@ namespace Smartstore.Core.Tests.Rules.Filters
             var e2 = (DateTimeKind?)DateTimeKind.Utc;
             var e3 = (DateTimeKind?)null;
 
-            Assert.AreEqual(false, op.Match(null, null));
-            Assert.AreEqual(false, op.Match(string.Empty, string.Empty));
-            Assert.AreEqual(false, op.Match("abc", "abc"));
-            Assert.AreEqual(false, op.Match(d1, d2));
-            Assert.AreEqual(false, op.Match(d2, d1));
-            Assert.AreEqual(true, op.Match(d3, d1));
-            Assert.AreEqual(true, op.Match(d2, d3));
-            Assert.AreEqual(false, op.Match(e1, e2));
-            Assert.AreEqual(false, op.Match(e2, e1));
-            Assert.AreEqual(true, op.Match(e3, e1));
-            Assert.AreEqual(true, op.Match(e2, e3));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match(null, null), Is.EqualTo(false));
+                Assert.That(op.Match(string.Empty, string.Empty), Is.EqualTo(false));
+                Assert.That(op.Match("abc", "abc"), Is.EqualTo(false));
+                Assert.That(op.Match(d1, d2), Is.EqualTo(false));
+                Assert.That(op.Match(d2, d1), Is.EqualTo(false));
+                Assert.That(op.Match(d3, d1), Is.EqualTo(true));
+                Assert.That(op.Match(d2, d3), Is.EqualTo(true));
+                Assert.That(op.Match(e1, e2), Is.EqualTo(false));
+                Assert.That(op.Match(e2, e1), Is.EqualTo(false));
+                Assert.That(op.Match(e3, e1), Is.EqualTo(true));
+                Assert.That(op.Match(e2, e3), Is.EqualTo(true));
+            });
 
             var expectedResult = Customers.Where(x => x.IsTaxExempt == false).ToList();
             var result = ExecuteQuery(op, x => x.IsTaxExempt, true);
@@ -133,9 +145,9 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.StartsWith;
 
-            Assert.AreEqual(true, op.Match("hello", "he"));
+            Assert.That(op.Match("hello", "he"), Is.EqualTo(true));
 
-            var expectedResult = Customers.Where(x => x.Username.EmptyNull().StartsWith("s")).ToList();
+            var expectedResult = Customers.Where(x => x.Username.EmptyNull().StartsWith('s')).ToList();
             var result = ExecuteQuery(op, x => x.Username, "s");
 
             AssertEquality(expectedResult, result);
@@ -146,9 +158,9 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.EndsWith;
 
-            Assert.AreEqual(true, op.Match("hello", "lo"));
+            Assert.That(op.Match("hello", "lo"), Is.EqualTo(true));
 
-            var expectedResult = Customers.Where(x => x.Username.EmptyNull().EndsWith("y")).ToList();
+            var expectedResult = Customers.Where(x => x.Username.EmptyNull().EndsWith('y')).ToList();
             var result = ExecuteQuery(op, x => x.Username, "y");
 
             AssertEquality(expectedResult, result);
@@ -159,7 +171,7 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.Contains;
 
-            Assert.AreEqual(true, op.Match("hello", "el"));
+            Assert.That(op.Match("hello", "el"), Is.EqualTo(true));
 
             var expectedResult = Customers.Where(x => x.Username.EmptyNull().Contains("now")).ToList();
             var result = ExecuteQuery(op, x => x.Username, "now");
@@ -172,9 +184,9 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.NotContains;
 
-            Assert.AreEqual(true, op.Match("hello", "al"));
+            Assert.That(op.Match("hello", "al"), Is.EqualTo(true));
 
-            var expectedResult = Customers.Where(x => !x.Username.EmptyNull().Contains("a")).ToList();
+            var expectedResult = Customers.Where(x => !x.Username.EmptyNull().Contains('a')).ToList();
             var result = ExecuteQuery(op, x => x.Username, "a");
 
             AssertEquality(expectedResult, result);
@@ -185,8 +197,11 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.GreaterThan;
 
-            Assert.AreEqual(true, op.Match(10, 5));
-            Assert.AreEqual(false, op.Match(5, 10));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match(10, 5), Is.EqualTo(true));
+                Assert.That(op.Match(5, 10), Is.EqualTo(false));
+            });
 
             var expectedResult = Customers.Where(x => x.BirthDate.HasValue && x.BirthDate > DateTime.Now.AddYears(-30)).ToList();
             var result = ExecuteQuery(op, x => x.BirthDate, DateTime.Now.AddYears(-30));
@@ -199,8 +214,11 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.GreaterThanOrEqualTo;
 
-            Assert.AreEqual(true, op.Match(5, 5));
-            Assert.AreEqual(false, op.Match(4, 5));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match(5, 5), Is.EqualTo(true));
+                Assert.That(op.Match(4, 5), Is.EqualTo(false));
+            });
 
             var expectedResult = Customers.Where(x => x.Id >= 2).ToList();
             var result = ExecuteQuery(op, x => x.Id, 2);
@@ -213,8 +231,11 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.LessThan;
 
-            Assert.AreEqual(true, op.Match(5, 10));
-            Assert.AreEqual(false, op.Match(10, 5));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match(5, 10), Is.EqualTo(true));
+                Assert.That(op.Match(10, 5), Is.EqualTo(false));
+            });
 
             var expectedResult = Customers.Where(x => x.BirthDate.HasValue && x.BirthDate < DateTime.Now.AddYears(-10)).ToList();
             var result = ExecuteQuery(op, x => x.BirthDate, DateTime.Now.AddYears(-10));
@@ -227,8 +248,11 @@ namespace Smartstore.Core.Tests.Rules.Filters
         {
             var op = RuleOperator.LessThanOrEqualTo;
 
-            Assert.AreEqual(true, op.Match(5, 5));
-            Assert.AreEqual(false, op.Match(5, 4));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match(5, 5), Is.EqualTo(true));
+                Assert.That(op.Match(5, 4), Is.EqualTo(false));
+            });
 
             var expectedResult = Customers.Where(x => x.Id <= 4).ToList();
             var result = ExecuteQuery(op, x => x.Id, 4);
@@ -242,8 +266,11 @@ namespace Smartstore.Core.Tests.Rules.Filters
             var op = RuleOperator.In;
 
             var orderIds = new List<int> { 1, 2, 5, 8 };
-            Assert.AreEqual(true, op.Match(2, orderIds));
-            Assert.AreEqual(false, op.Match(3, orderIds));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match(2, orderIds), Is.EqualTo(true));
+                Assert.That(op.Match(3, orderIds), Is.EqualTo(false));
+            });
 
             var expectedResult = Customers.Where(x => orderIds.Contains(x.Id)).ToList();
             var result = ExecuteQuery(op, x => x.Id, orderIds);
@@ -257,8 +284,11 @@ namespace Smartstore.Core.Tests.Rules.Filters
             var op = RuleOperator.NotIn;
 
             var orderIds = new List<int> { 1, 2, 3, 5 };
-            Assert.AreEqual(true, op.Match(4, orderIds));
-            Assert.AreEqual(false, op.Match(2, orderIds));
+            Assert.Multiple(() =>
+            {
+                Assert.That(op.Match(4, orderIds), Is.EqualTo(true));
+                Assert.That(op.Match(2, orderIds), Is.EqualTo(false));
+            });
 
             var expectedResult = Customers.Where(x => !orderIds.Contains(x.Id)).ToList();
             var result = ExecuteQuery(op, x => x.Id, orderIds);

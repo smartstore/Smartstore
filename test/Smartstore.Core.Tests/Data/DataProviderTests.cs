@@ -15,15 +15,18 @@ namespace Smartstore.Core.Tests.Data
         {
             var result = DbContext.DataProvider.ValidateBackupFileName(name);
 
-            Assert.AreEqual(result.IsValid, valid);
+            Assert.That(valid, Is.EqualTo(result.IsValid));
 
             if (result.IsValid)
             {
-                Assert.AreEqual(result.Version.Major, major);
-                Assert.AreEqual(result.Version.Minor, minor);
-                Assert.AreEqual(result.Timestamp.Year, year);
-                Assert.AreEqual(result.Timestamp.Month, month);
-                Assert.AreEqual(result.Timestamp.Day, day);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(major, Is.EqualTo(result.Version.Major));
+                    Assert.That(minor, Is.EqualTo(result.Version.Minor));
+                    Assert.That(year, Is.EqualTo(result.Timestamp.Year));
+                    Assert.That(month, Is.EqualTo(result.Timestamp.Month));
+                    Assert.That(day, Is.EqualTo(result.Timestamp.Day));
+                });
             }
         }
     }

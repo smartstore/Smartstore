@@ -27,8 +27,8 @@ namespace Smartstore.Tests.Data.Hooks
         public virtual void SetUp()
         {
             _db = new SmartDbContext(new Microsoft.EntityFrameworkCore.DbContextOptions<SmartDbContext>());
-            _hooks = new[]
-            {
+            _hooks =
+            [
                 CreateHook<Hook_Acl_Deleted, IAclRestricted>(),
                 CreateHook<Hook_Auditable_Inserting_Updating_Important, IAuditable>(),
                 CreateHook<Hook_Category_Pre, BaseEntity>(),
@@ -36,10 +36,16 @@ namespace Smartstore.Tests.Data.Hooks
                 CreateHook<Hook_LocalizedEntity_Deleted, ILocalizedEntity>(),
                 CreateHook<Hook_Product_Post, BaseEntity>(),
                 CreateHook<Hook_SoftDeletable_Updating_ChangingState, ISoftDeletable>()
-            };
+            ];
             _registry = new DefaultDbHookRegistry(_hooks);
             //_handler = new LegacyDbHookHandler(_hooks);
             _handler = new DefaultDbHookProcessor(_registry, new SimpleDbHookActivator());
+        }
+
+        [OneTimeTearDown]
+        public void Teardown()
+        {
+            _db.Dispose();
         }
 
         [Test]
@@ -56,8 +62,8 @@ namespace Smartstore.Tests.Data.Hooks
             var processedHooks = (await _handler.SavedChangesAsync(entries, HookImportance.Normal)).ProcessedHooks;
             var expected = GetExpectedSaveHooks(entries, true, false);
 
-            Assert.AreEqual(expected.Count, processedHooks.Count());
-            Assert.IsTrue(processedHooks.All(x => expected.Contains(x.GetType())));
+            Assert.That(processedHooks.Count(), Is.EqualTo(expected.Count));
+            Assert.That(processedHooks.All(x => expected.Contains(x.GetType())), Is.True);
         }
 
         [Test]
@@ -76,9 +82,12 @@ namespace Smartstore.Tests.Data.Hooks
             var processedHooks = result.ProcessedHooks;
             var expected = GetExpectedSaveHooks(entries, false, true);
 
-            Assert.AreEqual(expected.Count, processedHooks.Count());
-            Assert.AreEqual(false, anyStateChanged);
-            Assert.IsTrue(processedHooks.All(x => expected.Contains(x.GetType())));
+            Assert.Multiple(() =>
+            {
+                Assert.That(processedHooks.Count(), Is.EqualTo(expected.Count));
+                Assert.That(anyStateChanged, Is.False);
+                Assert.That(processedHooks.All(x => expected.Contains(x.GetType())), Is.True);
+            });
         }
 
         private ICollection<Type> GetExpectedSaveHooks(IEnumerable<IHookedEntity> entries, bool isPost, bool importantOnly)

@@ -2,7 +2,7 @@
 {
     internal class DependencyMenuResolver : IMenuResolver
     {
-        private readonly IDictionary<string, IMenu> _menus;
+        private readonly Dictionary<string, IMenu> _menus;
 
         public DependencyMenuResolver(IEnumerable<IMenu> menus)
         {
@@ -13,7 +13,7 @@
 
         public Task<bool> ExistsAsync(string menuName)
         {
-            Guard.NotEmpty(menuName, nameof(menuName));
+            Guard.NotEmpty(menuName);
 
             return Task.FromResult(_menus.ContainsKey(menuName));
         }

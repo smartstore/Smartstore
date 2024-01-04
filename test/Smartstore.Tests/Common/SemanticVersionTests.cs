@@ -51,7 +51,7 @@ namespace Smartstore.Tests.Common
             SemanticVersion.TryParse(version1, out var value1).ShouldBeTrue();
             SemanticVersion.TryParse(version2, out var value2).ShouldBeTrue();
 
-            Assert.IsTrue(value1 > value2);
+            Assert.That(value1, Is.GreaterThan(value2));
         }
 
         [TestCase("1.2.0.0", "1.2.0.0 ")]
@@ -61,7 +61,7 @@ namespace Smartstore.Tests.Common
             SemanticVersion.TryParse(version1, out var value1).ShouldBeTrue();
             SemanticVersion.TryParse(version2, out var value2).ShouldBeTrue();
 
-            Assert.AreEqual(value1, value2);
+            Assert.That(value2, Is.EqualTo(value1));
         }
 
         [TestCase("1.2.0.0", "2.0.0.0")]
@@ -72,7 +72,7 @@ namespace Smartstore.Tests.Common
             SemanticVersion.TryParse(version1, out var value1).ShouldBeTrue();
             SemanticVersion.TryParse(version2, out var value2).ShouldBeTrue();
 
-            Assert.AreNotEqual(value1, value2);
+            Assert.That(value2, Is.Not.EqualTo(value1));
         }
     }
 }

@@ -6,13 +6,14 @@ namespace Smartstore.Core.Content.Menus
 {
     public abstract class MenuItemProviderBase : IMenuItemProvider
     {
-        public IIconExplorer IconExplorer { get; set; }
+        public required IIconExplorer IconExplorer { protected get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public virtual async Task<TreeNode<MenuItem>> AppendAsync(MenuItemProviderRequest request)
         {
-            Guard.NotNull(request, nameof(request));
-            Guard.NotNull(request.Parent, nameof(request.Parent));
-            Guard.NotNull(request.Entity, nameof(request.Entity));
+            Guard.NotNull(request);
+            Guard.NotNull(request.Parent);
+            Guard.NotNull(request.Entity);
 
             // Add group header item.
             if (request.Entity.BeginGroup && !request.IsEditMode)

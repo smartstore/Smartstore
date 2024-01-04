@@ -38,7 +38,7 @@ namespace Smartstore.Core.Data.Migrations
         private IMigrationInfo _lastSuccessfulMigration;
 
         // Value is migration version
-        private readonly static IList<long> _pendingSeeders = new List<long>();
+        private readonly static List<long> _pendingSeeders = [];
 
         public DbMigrator(
             TContext db,

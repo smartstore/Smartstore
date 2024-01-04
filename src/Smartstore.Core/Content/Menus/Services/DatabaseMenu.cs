@@ -28,8 +28,6 @@ namespace Smartstore.Core.Content.Menus
 
         public DatabaseMenu(
             string menuName,
-            ICommonServices services,
-            IMenuPublisher menuPublisher,
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ICategoryService> categoryService,
             CatalogSettings catalogSettings,
@@ -39,8 +37,6 @@ namespace Smartstore.Core.Content.Menus
             Guard.NotEmpty(menuName);
 
             Name = menuName;
-            Services = services;
-            MenuPublisher = menuPublisher;
 
             _catalogSearchService = catalogSearchService;
             _categoryService = categoryService;

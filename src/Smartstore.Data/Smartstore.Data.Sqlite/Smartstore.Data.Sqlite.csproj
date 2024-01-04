@@ -24,10 +24,10 @@
         <None Include="$(PkgSQLitePCLRaw_core)\lib\netstandard2.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
-        <None Include="$(PkgMicrosoft_Data_Sqlite_Core)\lib\net6.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <None Include="$(PkgMicrosoft_Data_Sqlite_Core)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
-        <None Include="$(PkgMicrosoft_EntityFrameworkCore_Sqlite_Core)\lib\net6.0\*.dll" CopyToOutputDirectory="PreserveNewest">
+        <None Include="$(PkgMicrosoft_EntityFrameworkCore_Sqlite_Core)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
     </ItemGroup>

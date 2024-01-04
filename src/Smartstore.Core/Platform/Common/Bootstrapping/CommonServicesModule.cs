@@ -61,7 +61,7 @@ namespace Smartstore.Core.Bootstrapping
                     Accessors = p.GetAccessors(false)
                 })
                 .Where(x => x.PropertyType == typeof(ICommonServices)) // must be ICommonServices
-                .Where(x => x.IndexParameters.Count() == 0) // must not be an indexer
+                .Where(x => x.IndexParameters.Length == 0) // must not be an indexer
                 .Where(x => x.Accessors.Length != 1 || x.Accessors[0].ReturnType == typeof(void)) //must have get/set, or only set
                 .Select(x => x.PropertyInfo)
                 .FirstOrDefault();

@@ -14,7 +14,7 @@ namespace Smartstore.Tests.Domain
             var p1 = new Product();
             var p2 = new Product();
 
-            Assert.AreNotEqual(p1, p2, "Different transient entities should not be equal");
+            Assert.That(p2, Is.Not.EqualTo(p1), "Different transient entities should not be equal");
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace Smartstore.Tests.Domain
             var p1 = new Product();
             var p2 = p1;
 
-            Assert.AreEqual(p1, p2, "Two references to the same transient entity should be equal");
+            Assert.That(p2, Is.EqualTo(p1), "Two references to the same transient entity should be equal");
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace Smartstore.Tests.Domain
             var p1 = new Product { Id = id };
             var p2 = new Product { Id = id };
 
-            Assert.AreEqual(p1, p2, "Entities with the same id should be equal");
+            Assert.That(p2, Is.EqualTo(p1), "Entities with the same id should be equal");
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace Smartstore.Tests.Domain
             var p1 = new Product { Id = 2 };
             var p2 = new Product { Id = 5 };
 
-            Assert.AreNotEqual(p1, p2, "Entities with different ids should not be equal");
+            Assert.That(p2, Is.Not.EqualTo(p1), "Entities with different ids should not be equal");
         }
 
         [Test]
@@ -51,10 +51,11 @@ namespace Smartstore.Tests.Domain
             var p1 = new Product { Id = 1 };
             var p2 = new Product();
 
-            Assert.AreNotEqual(p1, p2, "Entity and transient entity should not be equal");
+            Assert.That(p2, Is.Not.EqualTo(p1), "Entity and transient entity should not be equal");
         }
 
         [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2021:Incompatible types for EqualTo constraint", Justification = "<Pending>")]
         public void Entities_with_same_id_but_different_type_should_not_be_equal()
         {
             int id = 10;
@@ -62,7 +63,7 @@ namespace Smartstore.Tests.Domain
 
             var c1 = new Category { Id = id };
 
-            Assert.AreNotEqual(p1, c1, "Entities of different types should not be equal, even if they have the same id");
+            Assert.That(p1, Is.Not.EqualTo(c1), "Entities of different types should not be equal, even if they have the same id");
         }
 
         [Test]
@@ -71,11 +72,11 @@ namespace Smartstore.Tests.Domain
             var p1 = new Product { Id = 1 };
             var p2 = new Product { Id = 1 };
 
-            Assert.IsTrue(p1 == p2);
+            Assert.That(p1, Is.EqualTo(p2));
 
             var p3 = new Product();
 
-            Assert.IsTrue(p1 != p3);
+            Assert.That(p1, Is.Not.EqualTo(p3));
         }
 
         [Test]
@@ -87,12 +88,12 @@ namespace Smartstore.Tests.Domain
             var hset = new HashSet<Product>();
             hset.UnionWith(new[] { p1, p2 });
 
-            Assert.AreEqual(hset.Count, 1);
+            Assert.That(hset, Has.Count.EqualTo(1));
 
             var p3 = new Product { Id = 2 };
             hset.Add(p3);
 
-            Assert.AreEqual(hset.Count, 2);
+            Assert.That(hset, Has.Count.EqualTo(2));
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Smartstore.Web.Infrastructure
             T = NullLocalizer.Instance;
         }
 
-        public Localizer T { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public string Name => "MyAccount";
 

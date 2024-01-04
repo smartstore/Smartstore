@@ -45,19 +45,22 @@ namespace Smartstore.Tests
             var items = new SortableItem[] { c, e, b, d, a, i, g, f, h };
 
             var sortedItems = items.SortTopological(StringComparer.OrdinalIgnoreCase);
-            //Console.WriteLine(String.Join(", ", sortedItems.Select(x => x.Key).ToArray()));
+            Assert.Multiple(() =>
+            {
+                //Console.WriteLine(String.Join(", ", sortedItems.Select(x => x.Key).ToArray()));
 
-            Assert.AreEqual(items.Length, sortedItems.Length);
-            Assert.Less(Array.IndexOf(sortedItems, a), Array.IndexOf(sortedItems, b));
-            Assert.Less(Array.IndexOf(sortedItems, a), Array.IndexOf(sortedItems, c));
-            Assert.Less(Array.IndexOf(sortedItems, a), Array.IndexOf(sortedItems, d));
-            Assert.Less(Array.IndexOf(sortedItems, a), Array.IndexOf(sortedItems, e));
-            Assert.Less(Array.IndexOf(sortedItems, c), Array.IndexOf(sortedItems, d));
-            Assert.Less(Array.IndexOf(sortedItems, c), Array.IndexOf(sortedItems, e));
-            Assert.Less(Array.IndexOf(sortedItems, d), Array.IndexOf(sortedItems, h));
-            Assert.Less(Array.IndexOf(sortedItems, h), Array.IndexOf(sortedItems, i));
-            Assert.Less(Array.IndexOf(sortedItems, e), Array.IndexOf(sortedItems, f));
-            Assert.Less(Array.IndexOf(sortedItems, f), Array.IndexOf(sortedItems, g));
+                Assert.That(sortedItems, Has.Length.EqualTo(items.Length));
+                Assert.That(Array.IndexOf(sortedItems, a), Is.LessThan(Array.IndexOf(sortedItems, b)));
+                Assert.That(Array.IndexOf(sortedItems, a), Is.LessThan(Array.IndexOf(sortedItems, c)));
+                Assert.That(Array.IndexOf(sortedItems, a), Is.LessThan(Array.IndexOf(sortedItems, d)));
+                Assert.That(Array.IndexOf(sortedItems, a), Is.LessThan(Array.IndexOf(sortedItems, e)));
+                Assert.That(Array.IndexOf(sortedItems, c), Is.LessThan(Array.IndexOf(sortedItems, d)));
+                Assert.That(Array.IndexOf(sortedItems, c), Is.LessThan(Array.IndexOf(sortedItems, e)));
+                Assert.That(Array.IndexOf(sortedItems, d), Is.LessThan(Array.IndexOf(sortedItems, h)));
+                Assert.That(Array.IndexOf(sortedItems, h), Is.LessThan(Array.IndexOf(sortedItems, i)));
+                Assert.That(Array.IndexOf(sortedItems, e), Is.LessThan(Array.IndexOf(sortedItems, f)));
+                Assert.That(Array.IndexOf(sortedItems, f), Is.LessThan(Array.IndexOf(sortedItems, g)));
+            });
         }
 
         [Test]

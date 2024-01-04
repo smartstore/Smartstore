@@ -1,15 +1,12 @@
 ﻿using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Infrastructure.Menus
 {
     public partial class SettingsMenu : MenuBase
     {
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-
         public override string Name => "Settings";
 
         protected override string GetCacheKey()
