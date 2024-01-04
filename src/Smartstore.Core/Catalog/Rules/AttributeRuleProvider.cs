@@ -49,12 +49,17 @@ namespace Smartstore.Core.Catalog.Rules
         {
             Guard.NotNull(attribute);
 
-            if (attribute?.RuleSetId == null)
+            //if (attribute?.RuleSetId == null)
+            //{
+            //    return VisitRuleSet(null);
+            //}
+
+            await _db.LoadReferenceAsync(attribute, x => x.RuleSet, false, q => q.Include(x => x.Rules));
+
+            if (attribute.RuleSet == null)
             {
                 return VisitRuleSet(null);
             }
-
-            await _db.LoadReferenceAsync(attribute, x => x.RuleSet, false, q => q.Include(x => x.Rules));
 
             var group = await _ruleService.CreateExpressionGroupAsync(attribute.RuleSet, this, includeHidden);
             await _ruleService.ApplyMetadataAsync(group);
@@ -91,12 +96,17 @@ namespace Smartstore.Core.Catalog.Rules
         {
             Guard.NotNull(context);
 
-            if (context.Attribute?.RuleSetId == null)
+            //if (context.Attribute?.RuleSetId == null)
+            //{
+            //    return true;
+            //}
+
+            await _db.LoadReferenceAsync(context.Attribute, x => x.RuleSet, false, q => q.Include(x => x.Rules));
+
+            if (context.Attribute.RuleSet == null)
             {
                 return true;
             }
-
-            await _db.LoadReferenceAsync(context.Attribute, x => x.RuleSet, false, q => q.Include(x => x.Rules));
 
             var rules = await _ruleService.CreateExpressionGroupAsync(context.Attribute.RuleSet, this);
 
@@ -136,7 +146,7 @@ namespace Smartstore.Core.Catalog.Rules
             var language = _workContext.WorkingLanguage;
             var attributeSelectedRuleType = typeof(ProductAttributeSelectedRule);
 
-            foreach (var attribute in _context.AllAttributes.Where(x => x.Id != _context.Attribute.Id))
+            foreach (var attribute in _context.Attributes)
             {
                 var values = attribute.ProductVariantAttributeValues
                     .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(x => x.Name, language, true, false) })
@@ -187,5 +197,11 @@ namespace Smartstore.Core.Catalog.Rules
 
             return Task.FromResult(descriptors.Cast<RuleDescriptor>());
         }
+    }
+
+    public partial class AttributeRuleProviderContext(List<ProductVariantAttribute> attributes)
+    {
+        //public int AttributeId { get; } = Guard.NotZero(attributeId);
+        public List<ProductVariantAttribute> Attributes { get; } = Guard.NotNull(attributes);
     }
 }

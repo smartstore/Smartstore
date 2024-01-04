@@ -1,8 +1,8 @@
 ﻿using System.Data;
 using FluentMigrator;
-using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
+using Smartstore.Core.Rules;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Migrations
@@ -10,40 +10,73 @@ namespace Smartstore.Core.Migrations
     [MigrationVersion("2023-12-22 10:00:00", "Core: conditional attributes")]
     internal class ConditionalAttributes : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
-        const string PvaName = "Product_ProductAttribute_Mapping";
-        const string IxRuleSetIdName = "IX_Product_ProductAttribute_Mapping_RuleSetId";
-        const string FkRuleSetIdName = "FK_Product_ProductAttribute_Mapping_RuleSet_RuleSetId";
+        //const string PvaName = "Product_ProductAttribute_Mapping";
+        //const string IxRuleSetIdName = "IX_Product_ProductAttribute_Mapping_RuleSetId";
+        //const string FkRuleSetIdName = "FK_Product_ProductAttribute_Mapping_RuleSet_RuleSetId";
+
+        const string RuleSetName = "RuleSet";
+        const string IxPvaIdName = "IX_RuleSet_ProductVariantAttributeId";
+        const string FkPvaIdName = "FK_RuleSet_Product_ProductAttribute_Mapping_ProductVariantAttributeId";
 
         public override void Up()
         {
-            if (!Schema.Table(PvaName).Column(nameof(ProductVariantAttribute.RuleSetId)).Exists())
+            //if (!Schema.Table(PvaName).Column(nameof(ProductVariantAttribute.RuleSetId)).Exists())
+            //{
+            //    Create.Column(nameof(ProductVariantAttribute.RuleSetId)).OnTable(PvaName)
+            //        .AsInt32()
+            //        .Nullable()
+            //        .Indexed(IxRuleSetIdName)
+            //        .ForeignKey(FkRuleSetIdName, "RuleSet", nameof(BaseEntity.Id))
+            //        .OnDelete(Rule.SetNull);
+            //}
+
+            if (!Schema.Table(RuleSetName).Column(nameof(RuleSetEntity.ProductVariantAttributeId)).Exists())
             {
-                Create.Column(nameof(ProductVariantAttribute.RuleSetId)).OnTable(PvaName)
+                // INFO: actually Unique(IxPvaIdName) must be used instead of Indexed(IxPvaIdName) but that requires a filter
+                // "([ProductVariantAttributeId] IS NOT NULL)" which cannot be created using fluent migrator.
+                Create.Column(nameof(RuleSetEntity.ProductVariantAttributeId)).OnTable(RuleSetName)
                     .AsInt32()
                     .Nullable()
-                    .Indexed(IxRuleSetIdName)
-                    .ForeignKey(FkRuleSetIdName, "RuleSet", nameof(BaseEntity.Id))
+                    .Indexed(IxPvaIdName)
+                    .ForeignKey(FkPvaIdName, "Product_ProductAttribute_Mapping", nameof(BaseEntity.Id))
                     .OnDelete(Rule.SetNull);
             }
         }
 
         public override void Down()
         {
-            var pva = Schema.Table(PvaName);
+            //var pva = Schema.Table(PvaName);
             
-            if (pva.Index(IxRuleSetIdName).Exists())
+            //if (pva.Index(IxRuleSetIdName).Exists())
+            //{
+            //    Delete.Index(IxRuleSetIdName).OnTable(PvaName);
+            //}
+
+            //if (pva.Constraint(FkRuleSetIdName).Exists())
+            //{
+            //    Delete.ForeignKey(FkRuleSetIdName).OnTable(PvaName);
+            //}
+
+            //if (pva.Column(nameof(ProductVariantAttribute.RuleSetId)).Exists())
+            //{
+            //    Delete.Column(nameof(ProductVariantAttribute.RuleSetId)).FromTable(PvaName);
+            //}
+
+            var ruleSet = Schema.Table(RuleSetName);
+
+            if (ruleSet.Index(IxPvaIdName).Exists())
             {
-                Delete.Index(IxRuleSetIdName).OnTable(PvaName);
+                Delete.Index(IxPvaIdName).OnTable(RuleSetName);
             }
 
-            if (pva.Constraint(FkRuleSetIdName).Exists())
+            if (ruleSet.Constraint(FkPvaIdName).Exists())
             {
-                Delete.ForeignKey(FkRuleSetIdName).OnTable(PvaName);
+                Delete.ForeignKey(FkPvaIdName).OnTable(RuleSetName);
             }
 
-            if (pva.Column(nameof(ProductVariantAttribute.RuleSetId)).Exists())
+            if (ruleSet.Column(nameof(RuleSetEntity.ProductVariantAttributeId)).Exists())
             {
-                Delete.Column(nameof(ProductVariantAttribute.RuleSetId)).FromTable(PvaName);
+                Delete.Column(nameof(RuleSetEntity.ProductVariantAttributeId)).FromTable(RuleSetName);
             }
         }
 

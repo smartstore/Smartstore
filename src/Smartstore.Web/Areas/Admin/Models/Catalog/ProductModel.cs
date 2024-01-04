@@ -533,7 +533,7 @@ namespace Smartstore.Admin.Models.Catalog
             [LocalizedDisplay("Common.DisplayOrder")]
             public int DisplayOrder { get; set; }
 
-            public int? RuleSetId { get; set; }
+            //public int? RuleSetId { get; set; }
 
             [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules")]
             public string EditUrl { get; set; }

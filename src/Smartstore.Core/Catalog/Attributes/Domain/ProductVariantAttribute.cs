@@ -22,10 +22,10 @@ namespace Smartstore.Core.Catalog.Attributes
                 .WithMany()
                 .HasForeignKey(c => c.ProductAttributeId);
 
-            builder.HasOne(c => c.RuleSet)
-                .WithMany()
-                .HasForeignKey(c => c.RuleSetId)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(c => c.RuleSet)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.RuleSetId)
+            //    .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
@@ -141,7 +141,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Gets or sets an identifier of a rule set with conditions for the visibility of the attribute.
         /// </summary>
-        public int? RuleSetId { get; set; }
+        //public int? RuleSetId { get; set; }
 
         private RuleSetEntity _ruleSet;
         /// <summary>
