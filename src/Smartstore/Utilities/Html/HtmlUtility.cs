@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,8 +18,8 @@ namespace Smartstore.Utilities.Html
     /// </summary>
     public static partial class HtmlUtility
     {
-        private readonly static char[] _textReplacableChars = new[] { '\r', '\n', '\t' };
-        private readonly static char[] _htmlReplacableChars = new[] { '<', '>', '&' };
+        private readonly static SearchValues<char> _textReplacableChars = SearchValues.Create("\r\n\t");
+        private readonly static SearchValues<char> _htmlReplacableChars = SearchValues.Create("<>&");
 
         private readonly static Regex _rgAnchor = new(@"<a\b[^>]+>([^<]*(?:(?!</a)<[^<]*)*)</a>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
         private readonly static Regex _rgParaStart = new("<p>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
@@ -208,7 +209,7 @@ namespace Smartstore.Utilities.Html
                 return string.Empty;
             }
 
-            if (text.IndexOfAny(_textReplacableChars) == -1 && !text.Contains("  "))
+            if (text.AsSpan().IndexOfAny(_textReplacableChars) == -1 && !text.Contains("  "))
             {
                 // Nothing to replace, return as is.
                 return text;
@@ -245,7 +246,7 @@ namespace Smartstore.Utilities.Html
                 text = HttpUtility.HtmlDecode(text);
             } 
 
-            if (text.IndexOfAny(_htmlReplacableChars) == -1)
+            if (text.AsSpan().IndexOfAny(_htmlReplacableChars) == -1)
             {
                 // Nothing to replace, return as is.
                 return text;

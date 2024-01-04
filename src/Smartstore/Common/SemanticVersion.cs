@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Buffers;
+using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,6 +16,8 @@ namespace Smartstore
     [TypeConverter(typeof(SemanticVersionConverter))]
     public sealed partial class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
     {
+        private static readonly SearchValues<char> _componentSearchValues = SearchValues.Create("-+");
+
         // Versions containing up to 4 digits
         private static readonly Regex _semanticVersionRegex = SemanticVersionRegex();
 
@@ -155,8 +158,8 @@ namespace Smartstore
             {
                 string original;
 
-                // search the start of the SpecialVersion part or metadata, if any
-                int labelIndex = _originalString.IndexOfAny(new char[] { '-', '+' });
+                // Search the start of the SpecialVersion part or metadata, if any
+                int labelIndex = _originalString.AsSpan().IndexOfAny(_componentSearchValues);
                 if (labelIndex != -1)
                 {
                     // remove the SpecialVersion or metadata part

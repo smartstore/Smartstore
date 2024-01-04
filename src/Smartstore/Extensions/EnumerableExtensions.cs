@@ -109,6 +109,10 @@ namespace Smartstore
             {
                 return list.AsReadOnly();
             }
+            else if (source is IList<T> list2)
+            {
+                return new ReadOnlyCollection<T>(list2);
+            }
 
             return new ReadOnlyCollection<T>(source.ToList());
         }
