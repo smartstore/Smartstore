@@ -209,7 +209,7 @@ namespace Smartstore.Tests
                 ShippingRateComputationMethodSystemName = "SystemName"
             };
             var soStr = shippingOption.Convert<string>();
-            Assert.IsNotEmpty(soStr);
+            Assert.That(soStr, Is.Not.Empty);
 
             var arr = (new[] { shippingOption.Convert<string>() }).Convert<ShippingOption[]>();
             arr.ShouldBe<ShippingOption[]>();
@@ -233,7 +233,7 @@ namespace Smartstore.Tests
             Assert.That(soStr, Is.Not.Empty);
 
             shippingOptions = soStr.Convert<List<ShippingOption>>();
-            Assert.That(shippingOptions.Count, Is.EqualTo(2));
+            Assert.That(shippingOptions, Has.Count.EqualTo(2));
             Assert.That(shippingOptions[1].ShippingMethodId, Is.EqualTo(2));
             Assert.That(shippingOptions[1].Description, Is.EqualTo("Desc2"));
 

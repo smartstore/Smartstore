@@ -153,7 +153,7 @@ namespace Smartstore.Core.Tests.Seo
 
             var product10 = products.First(x => x.Name == "Product 10 Test");
             var cachedSlug = collection.Find(0, product10.Id);
-            Assert.NotNull(cachedSlug);
+            Assert.That(cachedSlug, Is.Not.Null);
             cachedSlug.Slug.ShouldEqual("product-10-test");
 
             // Nor prefetch
