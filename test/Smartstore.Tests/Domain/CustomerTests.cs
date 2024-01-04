@@ -37,7 +37,7 @@ namespace Smartstore.Tests.Domain
             customer.Addresses.Add(address);
             customer.BillingAddress = address;
 
-            customer.BillingAddress.ShouldBeTheSameAs(customer.Addresses.First());
+            Assert.That(customer.BillingAddress, Is.SameAs(customer.Addresses.First()));
 
             customer.RemoveAddress(address);
             customer.Addresses.Count.ShouldEqual(0);
