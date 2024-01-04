@@ -25,20 +25,20 @@ namespace Smartstore.Tests
 
             var to = MiniMapper.Map<MapClass1, MapClass2>(from);
 
-            Assert.AreEqual(from.Prop1, to.Prop1);
-            Assert.AreEqual(from.Prop2, to.Prop2);
-            Assert.AreEqual(from.Prop3, to.Prop3);
-            Assert.AreEqual(from.Prop4, to.Prop4);
-            Assert.AreEqual(from.Prop5.Length, to.Prop5.Count);
-            Assert.AreEqual((int)from.Prop5[0], to.Prop5[0]);
-            Assert.AreEqual((int)from.Prop5[1], to.Prop5[1]);
-            Assert.AreEqual((int)from.Prop5[2], to.Prop5[2]);
+            Assert.That(to.Prop1, Is.EqualTo(from.Prop1));
+            Assert.That(to.Prop2, Is.EqualTo(from.Prop2));
+            Assert.That(to.Prop3, Is.EqualTo(from.Prop3));
+            Assert.That(to.Prop4, Is.EqualTo(from.Prop4));
+            Assert.That(to.Prop5.Count, Is.EqualTo(from.Prop5.Length));
+            Assert.That(to.Prop5[0], Is.EqualTo((int)from.Prop5[0]));
+            Assert.That(to.Prop5[1], Is.EqualTo((int)from.Prop5[1]));
+            Assert.That(to.Prop5[2], Is.EqualTo((int)from.Prop5[2]));
 
             var dict = to.Address;
-            Assert.AreEqual(dict.Count, 3);
-            Assert.AreEqual(dict["FirstName"], from.Address.FirstName);
-            Assert.AreEqual(dict["LastName"], from.Address.LastName);
-            Assert.AreEqual(dict["Age"], from.Address.Age);
+            Assert.That(dict, Has.Count.EqualTo(3));
+            Assert.That(from.Address.FirstName, Is.EqualTo(dict["FirstName"]));
+            Assert.That(from.Address.LastName, Is.EqualTo(dict["LastName"]));
+            Assert.That(from.Address.Age, Is.EqualTo(dict["Age"]));
         }
 
         [Test]
@@ -56,15 +56,15 @@ namespace Smartstore.Tests
 
             var to = MiniMapper.Map<MapClass2, MapClass1>(from);
 
-            Assert.AreEqual(from.Prop1, to.Prop1);
-            Assert.AreEqual(from.Prop2, to.Prop2);
-            Assert.AreEqual(from.Prop3, to.Prop3);
+            Assert.That(to.Prop1, Is.EqualTo(from.Prop1));
+            Assert.That(to.Prop2, Is.EqualTo(from.Prop2));
+            Assert.That(to.Prop3, Is.EqualTo(from.Prop3));
 
             var dict = from.Address;
-            Assert.AreEqual(dict.Count, 3);
-            Assert.AreEqual(dict["FirstName"], to.Address.FirstName);
-            Assert.AreEqual(dict["LastName"], to.Address.LastName);
-            Assert.AreEqual(dict["Age"], to.Address.Age);
+            Assert.That(dict.Count, Is.EqualTo(3));
+            Assert.That(to.Address.FirstName, Is.EqualTo(dict["FirstName"]));
+            Assert.That(to.Address.LastName, Is.EqualTo(dict["LastName"]));
+            Assert.That(to.Address.Age, Is.EqualTo(dict["Age"]));
         }
 
         [Test]
@@ -87,16 +87,22 @@ namespace Smartstore.Tests
             var to = new MapClass2();
             MiniMapper.Map(from, to);
 
-            Assert.AreEqual(from.Prop1, to.Prop1);
-            Assert.AreEqual(from.Prop2, to.Prop2);
-            Assert.AreEqual(from.Prop3, to.Prop3);
-            Assert.AreEqual(from.Prop4, to.Prop4);
+            Assert.Multiple(() =>
+            {
+                Assert.That(to.Prop1, Is.EqualTo(from.Prop1));
+                Assert.That(to.Prop2, Is.EqualTo(from.Prop2));
+                Assert.That(to.Prop3, Is.EqualTo(from.Prop3));
+                Assert.That(to.Prop4, Is.EqualTo(from.Prop4));
+            });
 
             var dict = to.Address;
-            Assert.AreEqual(dict.Count, 3);
-            Assert.AreEqual(dict["FirstName"], from.Address.FirstName);
-            Assert.AreEqual(dict["LastName"], from.Address.LastName);
-            Assert.AreEqual(dict["Age"], from.Address.Age);
+            Assert.Multiple(() =>
+            {
+                Assert.That(dict, Has.Count.EqualTo(3));
+                Assert.That(from.Address.FirstName, Is.EqualTo(dict["FirstName"]));
+                Assert.That(from.Address.LastName, Is.EqualTo(dict["LastName"]));
+                Assert.That(from.Address.Age, Is.EqualTo(dict["Age"]));
+            });
         }
     }
 

@@ -12,7 +12,7 @@ namespace Smartstore.Tests
     {
         private string _filePath;
         private string _folderPath;
-        private IFileSystem _fileSystem;
+        private LocalFileSystem _fileSystem;
 
         [OneTimeSetUp]
         public void Init()
@@ -38,6 +38,7 @@ namespace Smartstore.Tests
         public void Teardown()
         {
             Directory.Delete(_folderPath, true);
+            _fileSystem.Dispose();
         }
 
         [Test]

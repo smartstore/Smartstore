@@ -111,12 +111,12 @@ namespace Smartstore.Core.Tests.Rules.Filters
 
         protected void AssertEquality(List<Customer> expected, List<Customer> actual)
         {
-            Assert.AreEqual(expected.Count, actual.Count, "ResultCount");
+            Assert.That(actual, Has.Count.EqualTo(expected.Count), "ResultCount");
             //Console.WriteLine("Customer filter result - expected: {0}".FormatInvariant(expected.Count));
 
             for (int i = 0; i < expected.Count; i++)
             {
-                Assert.AreEqual(expected[i].Id, actual[i].Id, "Item " + i);
+                Assert.That(actual[i].Id, Is.EqualTo(expected[i].Id), "Item " + i);
             }
         }
 

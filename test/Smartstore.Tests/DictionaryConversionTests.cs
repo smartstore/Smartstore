@@ -82,25 +82,25 @@ namespace Smartstore.Tests
 
             var result = (TestClass)converter.ConvertTo(_dict, typeof(TestClass));
 
-            Assert.AreEqual(result.PropString, _dict["PropString"]);
-            Assert.AreEqual(result.PropBool, _dict["PropBool"]);
-            Assert.AreEqual(result.PropDate, _dict["PropDate"]);
-            Assert.AreEqual(result.PropInt, _dict["PropInt"]);
-            Assert.AreEqual(result.PropMoney, _dict["PropMoney"]);
-            Assert.AreEqual(result.PropDictionary, _dict["PropDictionary"]);
+            Assert.That(_dict["PropString"], Is.EqualTo(result.PropString));
+            Assert.That(_dict["PropBool"], Is.EqualTo(result.PropBool));
+            Assert.That(_dict["PropDate"], Is.EqualTo(result.PropDate));
+            Assert.That(_dict["PropInt"], Is.EqualTo(result.PropInt));
+            Assert.That(_dict["PropMoney"], Is.EqualTo(result.PropMoney));
+            Assert.That(_dict["PropDictionary"], Is.EqualTo(result.PropDictionary));
 
             CheckNested(result.PropNested, _dict["PropNested"] as Dictionary<string, object>);
 
-            Assert.AreEqual(result.PropList.Count, 5);
-            Assert.AreEqual(result.PropArray.Length, 4);
+            Assert.That(result.PropList.Count, Is.EqualTo(5));
+            Assert.That(result.PropArray.Length, Is.EqualTo(4));
 
             static void CheckNested(TestClass nested, IDictionary<string, object> nestedDict)
             {
-                Assert.AreEqual(nested.PropString, nestedDict["PropString"]);
-                Assert.AreEqual(nested.PropBool, nestedDict["PropBool"]);
-                Assert.AreEqual(nested.PropDate, nestedDict["PropDate"]);
-                Assert.AreEqual(nested.PropInt, nestedDict["PropInt"]);
-                Assert.AreEqual(nested.PropMoney, nestedDict["PropMoney"]);
+                Assert.That(nestedDict["PropString"], Is.EqualTo(nested.PropString));
+                Assert.That(nestedDict["PropBool"], Is.EqualTo(nested.PropBool));
+                Assert.That(nestedDict["PropDate"], Is.EqualTo(nested.PropDate));
+                Assert.That(nestedDict["PropInt"], Is.EqualTo(nested.PropInt));
+                Assert.That(nestedDict["PropMoney"], Is.EqualTo(nested.PropMoney));
             }
         }
     }

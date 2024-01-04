@@ -40,7 +40,7 @@ namespace Smartstore.Core.Tests.DataExchange
 
             string expected = "1234;abc;def;ghi;\"j;klmn\"\"o\";pqrs" + Environment.NewLine;
 
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.That(sb.ToString(), Is.EqualTo(expected));
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace Smartstore.Core.Tests.DataExchange
 
             string expected = "1234;abc;def;ghi;\"jk\rl\nmno\";pqrs" + Environment.NewLine;
 
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.That(sb.ToString(), Is.EqualTo(expected));
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace Smartstore.Core.Tests.DataExchange
 
             string expected = "'1234';'abc';'def';'ghi';'jk\rl\nmno';'pqrs'" + Environment.NewLine;
 
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.That(sb.ToString(), Is.EqualTo(expected));
         }
 
         [Test]
@@ -142,7 +142,7 @@ namespace Smartstore.Core.Tests.DataExchange
 
             string expected = "'1234';'abc';'def';'ghi';'jk\\'lmo';'pqrs'" + Environment.NewLine;
 
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.That(sb.ToString(), Is.EqualTo(expected));
         }
     }
 }

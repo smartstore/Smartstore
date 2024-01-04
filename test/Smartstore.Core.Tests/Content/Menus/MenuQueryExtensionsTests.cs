@@ -90,15 +90,15 @@ namespace Smartstore.Core.Tests.Content.Menus
                 .ApplySorting()
                 .ToListAsync();
 
-            Assert.AreEqual(menus1.Count, 1);
-            Assert.AreEqual(menus1[0].Id, 1);
+            Assert.That(menus1, Has.Count.EqualTo(1));
+            Assert.That(menus1[0].Id, Is.EqualTo(1));
 
             var menus2 = await DbContext.Menus
                 .ApplyStandardFilter("Menu2")
                 .ApplySorting()
                 .ToListAsync();
 
-            Assert.AreEqual(menus2.Count, 0);
+            Assert.That(menus2, Is.Empty);
         }
 
         [Test]
@@ -109,23 +109,23 @@ namespace Smartstore.Core.Tests.Content.Menus
                 .ApplyMenuItemFilter(1)
                 .ToListAsync();
 
-            Assert.AreEqual(items1.Count, 1);
-            Assert.AreEqual(items1[0].Id, 7);
+            Assert.That(items1, Has.Count.EqualTo(1));
+            Assert.That(items1[0].Id, Is.EqualTo(7));
 
             var items2 = await DbContext.Menus
                 .ApplyStandardFilter("Menu4", null, 2)
                 .ApplyMenuItemFilter(2)
                 .ToListAsync();
 
-            Assert.AreEqual(items2.Count, 2);
-            Assert.AreEqual(string.Join(",", items2.Select(x => x.Id)), "6,7");
+            Assert.That(items2, Has.Count.EqualTo(2));
+            Assert.That(string.Join(",", items2.Select(x => x.Id)), Is.EqualTo("6,7"));
 
             var items3 = await DbContext.Menus
                 .ApplyStandardFilter("Menu4", null, 9)
                 .ApplyMenuItemFilter(9)
                 .ToListAsync();
 
-            Assert.AreEqual(items3.Count, 0);
+            Assert.That(items3, Is.Empty);
         }
 
         [Test]
@@ -136,22 +136,22 @@ namespace Smartstore.Core.Tests.Content.Menus
                 .ApplyMenuItemFilter(0, new[] { 1 })
                 .ToListAsync();
 
-            Assert.AreEqual(items1.Count, 5);
+            Assert.That(items1, Has.Count.EqualTo(5));
 
             var items2 = await DbContext.Menus
                 .ApplyStandardFilter("Menu4", null, 0, new[] { 2 })
                 .ApplyMenuItemFilter(0, new[] { 2 })
                 .ToListAsync();
 
-            Assert.AreEqual(items2.Count, 2);
-            Assert.AreEqual(string.Join(",", items2.Select(x => x.Id)), "6,7");
+            Assert.That(items2.Count, Is.EqualTo(2));
+            Assert.That(string.Join(",", items2.Select(x => x.Id)), Is.EqualTo("6,7"));
 
             var items3 = await DbContext.Menus
-                .ApplyStandardFilter("Menu4", null, 0, new[] { 3, 4 })
-                .ApplyMenuItemFilter(0, new[] { 3, 4 })
+                .ApplyStandardFilter("Menu4", null, 0, [3, 4])
+                .ApplyMenuItemFilter(0, [3, 4])
                 .ToListAsync();
 
-            Assert.AreEqual(items3.Count, 0);
+            Assert.That(items3, Is.Empty);
         }
 
         [Test]
@@ -162,8 +162,8 @@ namespace Smartstore.Core.Tests.Content.Menus
                 .ApplyMenuItemFilter(2, new[] { 2 })
                 .ToListAsync();
 
-            Assert.AreEqual(items.Count, 3);
-            Assert.AreEqual(string.Join(",", items.Select(x => x.Id)), "1,6,7");
+            Assert.That(items.Count, Is.EqualTo(3));
+            Assert.That(string.Join(",", items.Select(x => x.Id)), Is.EqualTo("1,6,7"));
         }
     }
 }

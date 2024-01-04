@@ -9,37 +9,37 @@ namespace Smartstore.Test.Common
     {
         public static T ShouldNotNull<T>(this T obj)
         {
-            Assert.IsNull(obj);
+            Assert.That(obj, Is.Null);
             return obj;
         }
 
         public static T ShouldNotNull<T>(this T obj, string message)
         {
-            Assert.IsNull(obj, message);
+            Assert.That(obj, Is.Null, message);
             return obj;
         }
 
         public static T ShouldNotBeNull<T>(this T obj)
         {
-            Assert.IsNotNull(obj);
+            Assert.That(obj, Is.Not.Null);
             return obj;
         }
 
         public static T ShouldNotBeNull<T>(this T obj, string message)
         {
-            Assert.IsNotNull(obj, message);
+            Assert.That(obj, Is.Not.Null, message);
             return obj;
         }
 
         public static T ShouldEqual<T>(this T actual, object expected)
         {
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
             return actual;
         }
 
         public static IEnumerable<T> ShouldSequenceEqual<T>(this IEnumerable<T> actual, IEnumerable<T> expected)
         {
-            Assert.IsTrue(actual.SequenceEqual(expected));
+            Assert.That(actual.SequenceEqual(expected), Is.True);
             return actual;
         }
 
@@ -52,7 +52,7 @@ namespace Smartstore.Test.Common
         ///<exception cref="AssertionException"></exception>
         public static void ShouldEqual(this object actual, object expected, string message)
         {
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         public static Exception ShouldBeThrownBy(this Type exceptionType, TestDelegate testDelegate)
@@ -62,22 +62,22 @@ namespace Smartstore.Test.Common
 
         public static void ShouldBe<T>(this object actual)
         {
-            Assert.IsInstanceOf<T>(actual);
+            Assert.That(actual, Is.InstanceOf<T>());
         }
 
         public static void ShouldBeNull(this object actual)
         {
-            Assert.IsNull(actual);
+            Assert.That(actual, Is.Null);
         }
 
         public static void ShouldBeTheSameAs(this object actual, object expected)
         {
-            Assert.AreSame(expected, actual);
+            Assert.That(actual, Is.SameAs(expected));
         }
 
         public static void ShouldBeNotBeTheSameAs(this object actual, object expected)
         {
-            Assert.AreNotSame(expected, actual);
+            Assert.That(actual, Is.Not.SameAs(expected));
         }
 
         public static T CastTo<T>(this object source)
@@ -87,12 +87,12 @@ namespace Smartstore.Test.Common
 
         public static void ShouldBeTrue(this bool source)
         {
-            Assert.IsTrue(source);
+            Assert.That(source, Is.True);
         }
 
         public static void ShouldBeFalse(this bool source)
         {
-            Assert.IsFalse(source);
+            Assert.That(source, Is.False);
         }
 
         /// <summary>

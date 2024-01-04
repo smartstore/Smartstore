@@ -47,23 +47,29 @@ namespace Smartstore.Core.Tests.DataExchange
 
         private static void VerifyDataTable(IDataTable table)
         {
-            Assert.AreEqual(12, table.Columns.Count, "Columns Count");
-            Assert.AreEqual(10, table.Rows.Count, "Rows Count");
+            Assert.Multiple(() =>
+            {
+                Assert.That(table.Columns, Has.Count.EqualTo(12), "Columns Count");
+                Assert.That(table.Rows, Has.Count.EqualTo(10), "Rows Count");
+            });
 
             var cols = table.Columns;
 
-            Assert.AreEqual("Id", cols[0].Name);
-            Assert.AreEqual("Sku", cols[1].Name);
-            Assert.AreEqual("Name", cols[2].Name);
-            Assert.AreEqual("Description", cols[3].Name);
-            Assert.AreEqual("Bool", cols[4].Name);
-            Assert.AreEqual("Date", cols[5].Name);
-            Assert.AreEqual("OADate", cols[6].Name);
-            Assert.AreEqual("UnixDate", cols[7].Name);
-            Assert.AreEqual("Int", cols[8].Name);
-            Assert.AreEqual("Double", cols[9].Name);
-            Assert.AreEqual("Guid", cols[10].Name);
-            Assert.AreEqual("IntList", cols[11].Name);
+            Assert.Multiple(() =>
+            {
+                Assert.That(cols[0].Name, Is.EqualTo("Id"));
+                Assert.That(cols[1].Name, Is.EqualTo("Sku"));
+                Assert.That(cols[2].Name, Is.EqualTo("Name"));
+                Assert.That(cols[3].Name, Is.EqualTo("Description"));
+                Assert.That(cols[4].Name, Is.EqualTo("Bool"));
+                Assert.That(cols[5].Name, Is.EqualTo("Date"));
+                Assert.That(cols[6].Name, Is.EqualTo("OADate"));
+                Assert.That(cols[7].Name, Is.EqualTo("UnixDate"));
+                Assert.That(cols[8].Name, Is.EqualTo("Int"));
+                Assert.That(cols[9].Name, Is.EqualTo("Double"));
+                Assert.That(cols[10].Name, Is.EqualTo("Guid"));
+                Assert.That(cols[11].Name, Is.EqualTo("IntList"));
+            });
 
             var rows = table.Rows;
 

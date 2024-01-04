@@ -52,8 +52,11 @@ namespace Smartstore.Core.Tests.Catalog
         {
             var hashCode = CreateAttributeSelection(TestNumber, includeGiftCard, reverseAttributeOrder, reverseValueOrder).GetHashCode();
 
-            Assert.IsTrue(hashCode != 0);
-            Assert.AreEqual(hashCode, TestAttributeCombination.HashCode);
+            Assert.Multiple(() =>
+            {
+                Assert.That(hashCode, Is.Not.EqualTo(0));
+                Assert.That(TestAttributeCombination.HashCode, Is.EqualTo(hashCode));
+            });
         }
 
         [TestCase()]
@@ -68,8 +71,11 @@ namespace Smartstore.Core.Tests.Catalog
         {
             var pvac = CreateAttributeCombination(TestNumber, includeGiftCard, reverseAttributeOrder, reverseValueOrder);
 
-            Assert.IsTrue(pvac.HashCode != 0);
-            Assert.AreEqual(pvac.HashCode, TestAttributeCombination.HashCode);
+            Assert.Multiple(() =>
+            {
+                Assert.That(pvac.HashCode, Is.Not.EqualTo(0));
+                Assert.That(TestAttributeCombination.HashCode, Is.EqualTo(pvac.HashCode));
+            });
 
             var sku = SkuTemplate.FormatInvariant(TestNumber);
             var combi = DbContext.ProductVariantAttributeCombinations
@@ -77,8 +83,8 @@ namespace Smartstore.Core.Tests.Catalog
                 .FirstOrDefault();
             var storedHashCode = combi.HashCode;
 
-            Assert.IsTrue(storedHashCode != 0);
-            Assert.AreEqual(pvac.HashCode, storedHashCode);
+            Assert.That(storedHashCode, Is.Not.EqualTo(0));
+            Assert.That(storedHashCode, Is.EqualTo(pvac.HashCode));
         }
 
         [Test]
@@ -86,10 +92,10 @@ namespace Smartstore.Core.Tests.Catalog
         {
             var pvac1 = CreateAttributeCombination(TestNumber);
             var pvac2 = CreateAttributeCombination();
-            Assert.IsTrue(pvac1.HashCode != pvac2.HashCode);
+            Assert.That(pvac1.HashCode, Is.Not.EqualTo(pvac2.HashCode));
 
             pvac1.RawAttributes = pvac2.RawAttributes;
-            Assert.IsTrue(pvac1.HashCode == pvac2.HashCode);
+            Assert.That(pvac1.HashCode, Is.EqualTo(pvac2.HashCode));
         }
 
         [Test]
@@ -98,11 +104,11 @@ namespace Smartstore.Core.Tests.Catalog
             var pvacXml = CreateAttributeCombination(TestNumber, asJson: false);
             var pvacJson = CreateAttributeCombination(TestNumber, asJson: true);
 
-            Assert.IsTrue(pvacXml.RawAttributes != pvacJson.RawAttributes);
-            Assert.IsTrue(pvacXml.HashCode == pvacJson.HashCode);
+            Assert.That(pvacXml.RawAttributes, Is.Not.EqualTo(pvacJson.RawAttributes));
+            Assert.That(pvacXml.HashCode, Is.EqualTo(pvacJson.HashCode));
 
             pvacXml.RawAttributes = pvacJson.RawAttributes;
-            Assert.IsTrue(pvacXml.HashCode == pvacJson.HashCode);
+            Assert.That(pvacXml.HashCode, Is.EqualTo(pvacJson.HashCode));
         }
 
         [TestCase()]
@@ -117,15 +123,15 @@ namespace Smartstore.Core.Tests.Catalog
         {
             var hashCode1 = CreateAttributeSelection(TestNumber, includeGiftCard, reverseAttributeOrder, reverseValueOrder).GetHashCode();
             var hashCode2 = CreateAttributeSelection(null, includeGiftCard, reverseAttributeOrder, reverseValueOrder).GetHashCode();
-            Assert.IsTrue(hashCode1 != 0);
-            Assert.IsTrue(hashCode2 != 0);
+            Assert.That(hashCode1, Is.Not.EqualTo(0));
+            Assert.That(hashCode2, Is.Not.EqualTo(0));
 
             var variant1 = await DbContext.ProductVariantAttributeCombinations.ApplyHashCodeFilter(TestNumber, hashCode1);
-            Assert.IsTrue(variant1 != null);
-            Assert.IsTrue(variant1.Sku == SkuTemplate.FormatInvariant(TestNumber));
+            Assert.That(variant1, Is.Not.Null);
+            Assert.That(variant1.Sku, Is.EqualTo(SkuTemplate.FormatInvariant(TestNumber)));
 
             var variant2 = await DbContext.ProductVariantAttributeCombinations.ApplyHashCodeFilter(TestNumber, hashCode2);
-            Assert.IsTrue(variant2 == null);
+            Assert.That(variant2, Is.Null);
         }
 
         private static ProductVariantAttributeSelection CreateAttributeSelection(

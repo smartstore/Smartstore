@@ -24,7 +24,7 @@ namespace Smartstore.Test.Common
             }
             catch (Exception ex)
             {
-                Assert.AreEqual(exceptionType, ex.GetType());
+                Assert.That(ex.GetType(), Is.EqualTo(exceptionType));
                 return ex;
             }
             Assert.Fail("Expected exception '" + exceptionType.FullName + "' wasn't thrown.");
@@ -116,7 +116,8 @@ namespace Smartstore.Test.Common
                 {
                     throw new ArgumentException("return me");
                 });
-            Assert.AreEqual("return me", ex.Message);
+
+            Assert.That(ex.Message, Is.EqualTo("return me"));
         }
 
         //[Test, ExpectedException(typeof(MbUnit.Core.Exceptions.AssertionException))]
@@ -150,7 +151,8 @@ namespace Smartstore.Test.Common
                 {
                     throw new ArgumentException("return me");
                 });
-            Assert.AreEqual("return me", ex.Message);
+
+            Assert.That(ex.Message, Is.EqualTo("return me"));
         }
     }
 }
