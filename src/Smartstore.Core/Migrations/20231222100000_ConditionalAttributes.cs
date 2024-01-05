@@ -10,26 +10,12 @@ namespace Smartstore.Core.Migrations
     [MigrationVersion("2023-12-22 10:00:00", "Core: conditional attributes")]
     internal class ConditionalAttributes : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
-        //const string PvaName = "Product_ProductAttribute_Mapping";
-        //const string IxRuleSetIdName = "IX_Product_ProductAttribute_Mapping_RuleSetId";
-        //const string FkRuleSetIdName = "FK_Product_ProductAttribute_Mapping_RuleSet_RuleSetId";
-
         const string RuleSetName = "RuleSet";
         const string IxPvaIdName = "IX_RuleSet_ProductVariantAttributeId";
         const string FkPvaIdName = "FK_RuleSet_Product_ProductAttribute_Mapping_ProductVariantAttributeId";
 
         public override void Up()
         {
-            //if (!Schema.Table(PvaName).Column(nameof(ProductVariantAttribute.RuleSetId)).Exists())
-            //{
-            //    Create.Column(nameof(ProductVariantAttribute.RuleSetId)).OnTable(PvaName)
-            //        .AsInt32()
-            //        .Nullable()
-            //        .Indexed(IxRuleSetIdName)
-            //        .ForeignKey(FkRuleSetIdName, "RuleSet", nameof(BaseEntity.Id))
-            //        .OnDelete(Rule.SetNull);
-            //}
-
             if (!Schema.Table(RuleSetName).Column(nameof(RuleSetEntity.ProductVariantAttributeId)).Exists())
             {
                 // INFO: actually Unique(IxPvaIdName) must be used instead of Indexed(IxPvaIdName) but that requires a filter
@@ -45,23 +31,6 @@ namespace Smartstore.Core.Migrations
 
         public override void Down()
         {
-            //var pva = Schema.Table(PvaName);
-            
-            //if (pva.Index(IxRuleSetIdName).Exists())
-            //{
-            //    Delete.Index(IxRuleSetIdName).OnTable(PvaName);
-            //}
-
-            //if (pva.Constraint(FkRuleSetIdName).Exists())
-            //{
-            //    Delete.ForeignKey(FkRuleSetIdName).OnTable(PvaName);
-            //}
-
-            //if (pva.Column(nameof(ProductVariantAttribute.RuleSetId)).Exists())
-            //{
-            //    Delete.Column(nameof(ProductVariantAttribute.RuleSetId)).FromTable(PvaName);
-            //}
-
             var ruleSet = Schema.Table(RuleSetName);
 
             if (ruleSet.Index(IxPvaIdName).Exists())

@@ -1,4 +1,6 @@
-﻿using Autofac;
+﻿using System.Text;
+using Autofac;
+using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Rules.Impl;
 using Smartstore.Core.Data;
@@ -12,14 +14,19 @@ namespace Smartstore.Core.Catalog.Rules
         SmartDbContext db,
         IWorkContext workContext,
         IComponentContext componentContext,
-        IRuleService ruleService) 
+        IRuleService ruleService,
+        IRequestCache requestCache)
         : RuleProviderBase(RuleScope.ProductAttribute), IAttributeRuleProvider
     {
-        private readonly AttributeRuleProviderContext _context = context;
+        // {0} = ProductVariantAttribute.Id
+        private readonly static CompositeFormat DescriptorsByAttributeIdKey = CompositeFormat.Parse("ruledescriptors:byattribute-{0}");
+
+        private readonly AttributeRuleProviderContext _ctx = context;
         private readonly SmartDbContext _db = db;
         private readonly IWorkContext _workContext = workContext;
         private readonly IComponentContext _componentContext = componentContext;
         private readonly IRuleService _ruleService = ruleService;
+        private readonly IRequestCache _requestCache = requestCache;
 
         public IRule<AttributeRuleContext> GetProcessor(RuleExpression expression)
         {
@@ -48,11 +55,6 @@ namespace Smartstore.Core.Catalog.Rules
         public async Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute, bool includeHidden = false)
         {
             Guard.NotNull(attribute);
-
-            //if (attribute?.RuleSetId == null)
-            //{
-            //    return VisitRuleSet(null);
-            //}
 
             await _db.LoadReferenceAsync(attribute, x => x.RuleSet, false, q => q.Include(x => x.Rules));
 
@@ -96,11 +98,6 @@ namespace Smartstore.Core.Catalog.Rules
         {
             Guard.NotNull(context);
 
-            //if (context.Attribute?.RuleSetId == null)
-            //{
-            //    return true;
-            //}
-
             await _db.LoadReferenceAsync(context.Attribute, x => x.RuleSet, false, q => q.Include(x => x.Rules));
 
             if (context.Attribute.RuleSet == null)
@@ -138,70 +135,50 @@ namespace Smartstore.Core.Catalog.Rules
             return result;
         }
 
-        protected override Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
+        protected override async Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
         {
-            // TODO: caching per request
-
-            var descriptors = new List<AttributeRuleDescriptor>();
-            var language = _workContext.WorkingLanguage;
-            var attributeSelectedRuleType = typeof(ProductAttributeSelectedRule);
-
-            foreach (var attribute in _context.Attributes)
+            var result = await _requestCache.GetAsync(DescriptorsByAttributeIdKey.FormatInvariant(_ctx.AttributeId), async () =>
             {
-                var values = attribute.ProductVariantAttributeValues
-                    .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(x => x.Name, language, true, false) })
-                    .ToArray();
+                var descriptors = new List<AttributeRuleDescriptor>();
+                var attributeSelectedRuleType = typeof(ProductAttributeSelectedRule);
+                var language = _workContext.WorkingLanguage;
 
-                descriptors.Add(new()
+                var attributes = _ctx.Attributes ?? await _db.ProductVariantAttributes
+                    .AsNoTracking()
+                    .Include(x => x.ProductAttribute)
+                    .Include(x => x.ProductVariantAttributeValues)
+                    .Where(x => x.ProductId == _db.ProductVariantAttributes.FirstOrDefault(x => x.Id == _ctx.AttributeId).ProductId)
+                    .OrderBy(x => x.DisplayOrder)
+                    .ToListAsync();
+
+                foreach (var attribute in attributes.Where(x => x.Id != _ctx.AttributeId))
                 {
-                    Name = $"Variant{attribute.Id}",
-                    DisplayName = attribute.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
-                    //GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = attributeSelectedRuleType,
-                    IsComparingSequences = attribute.IsMultipleChoice,
-                    SelectList = new LocalRuleValueSelectList(values) { Multiple = true }
-                });
-            }
+                    var values = attribute.ProductVariantAttributeValues
+                        .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(x => x.Name, language, true, false) })
+                        .ToArray();
 
-            //var query = _db.ProductAttributes.AsNoTracking().OrderBy(x => x.DisplayOrder);
-            //var pageIndex = -1;
+                    descriptors.Add(new()
+                    {
+                        Name = $"Variant{attribute.Id}",
+                        DisplayName = attribute.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
+                        //GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
+                        RuleType = RuleType.IntArray,
+                        ProcessorType = attributeSelectedRuleType,
+                        IsComparingSequences = attribute.IsMultipleChoice,
+                        SelectList = new LocalRuleValueSelectList(values) { Multiple = true }
+                    });
+                }
 
-            //while (true)
-            //{
-            //    var variants = await query.ToPagedList(++pageIndex, 1000).LoadAsync();
-            //    foreach (var variant in variants)
-            //    {
-            //        var descriptor = new AttributeRuleDescriptor
-            //        {
-            //            Name = $"Variant{variant.Id}",
-            //            DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
-            //            //GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
-            //            RuleType = RuleType.IntArray,
-            //            ProcessorType = attributeSelectedRuleType,
-            //            // TODO: operators depends... IsComparingSequences = ProductVariantAttribute.IsMultipleChoice.
-            //            //Operators = RuleType.IntArray.GetValidOperators(IsComparingSequences).ToArray();
-            //            SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true }
-            //        };
-            //        descriptor.Metadata["ParentId"] = variant.Id;
-            //        descriptor.Metadata["ValueType"] = ProductVariantAttributeValueType.Simple;
+                return descriptors.Cast<RuleDescriptor>();
+            });
 
-            //        descriptors.Add(descriptor);
-            //    }
-
-            //    if (!variants.HasNextPage)
-            //    {
-            //        break;
-            //    }
-            //}
-
-            return Task.FromResult(descriptors.Cast<RuleDescriptor>());
+            return result;
         }
     }
 
-    public partial class AttributeRuleProviderContext(List<ProductVariantAttribute> attributes)
+    public partial class AttributeRuleProviderContext(int attributeId, List<ProductVariantAttribute> attributes = null)
     {
-        //public int AttributeId { get; } = Guard.NotZero(attributeId);
-        public List<ProductVariantAttribute> Attributes { get; } = Guard.NotNull(attributes);
+        public int AttributeId { get; } = Guard.NotZero(attributeId);
+        public List<ProductVariantAttribute> Attributes { get; } = attributes;
     }
 }

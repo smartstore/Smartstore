@@ -128,9 +128,9 @@ Smartstore.Admin.Rules = (function () {
             cache: false,
             url: root.data('url-addgroup'),
             data: {
-                ruleSetId: parentSet.data('ruleset-id'),
+                scope: root.data('scope'),
                 entityId: root.data('entity-id'),
-                scope: root.data('scope')
+                ruleSetId: parentSet.data('ruleset-id')
             },
             type: "POST",
             success: function (html) {
@@ -150,6 +150,8 @@ Smartstore.Admin.Rules = (function () {
             cache: false,
             url: root.data('url-deletegroup'),
             data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
                 ruleId: parentSet.data('refrule-id')
             },
             type: "POST",
@@ -177,9 +179,9 @@ Smartstore.Admin.Rules = (function () {
             cache: false,
             url: root.data('url-changeoperator'),
             data: {
-                ruleSetId: item.closest('.ruleset').data('ruleset-id'),
-                entityId: root.data('entity-id'),
                 scope: root.data('scope'),
+                entityId: root.data('entity-id'),
+                ruleSetId: item.closest('.ruleset').data('ruleset-id'),
                 op
             },
             type: 'POST',
@@ -225,9 +227,9 @@ Smartstore.Admin.Rules = (function () {
             cache: false,
             url: root.data('url-updaterules'),
             data: {
-                ruleData,
+                scope: root.data('scope'),
                 entityId: root.data('entity-id'),
-                scope: root.data('scope')
+                ruleData
             },
             type: 'POST',
             success: function (result) {
@@ -256,10 +258,10 @@ Smartstore.Admin.Rules = (function () {
             cache: false,
             url: root.data('url-addrule'),
             data: {
-                ruleSetId: parentSet.data('ruleset-id'),
-                ruleType,
+                scope: root.data('scope'),
                 entityId: root.data('entity-id'),
-                scope: root.data('scope')
+                ruleSetId: parentSet.data('ruleset-id'),
+                ruleType
             },
             type: "POST",
             success: function (html) {
@@ -279,6 +281,8 @@ Smartstore.Admin.Rules = (function () {
             cache: false,
             url: root.data('url-deleterule'),
             data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
                 ruleId: rule.data('rule-id')
             },
             type: "POST",
@@ -301,6 +305,8 @@ Smartstore.Admin.Rules = (function () {
             cache: false,
             url: $(this).attr('href'),
             data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
                 ruleSetId: ruleSet.data('ruleset-id')
             },
             type: "POST",

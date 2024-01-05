@@ -533,8 +533,6 @@ namespace Smartstore.Admin.Models.Catalog
             [LocalizedDisplay("Common.DisplayOrder")]
             public int DisplayOrder { get; set; }
 
-            //public int? RuleSetId { get; set; }
-
             [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules")]
             public string EditUrl { get; set; }
             public string EditLinkText { get; set; }
@@ -552,7 +550,8 @@ namespace Smartstore.Admin.Models.Catalog
             public string ProductVariantAttributeName { get; set; }
             public bool IsListTypeAttribute { get; set; }
 
-            public RuleSetModel RuleSet { get; set; }
+            public IRuleExpressionGroup ExpressionGroup { get; set; }
+            public string RawRuleData { get; set; }
         }
 
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.")]

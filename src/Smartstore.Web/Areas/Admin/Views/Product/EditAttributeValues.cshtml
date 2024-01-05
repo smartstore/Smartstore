@@ -15,6 +15,9 @@
 }
 
 <form asp-action="EditAttributeValues" id="productvariantattribute-form">
+    <input type="hidden" asp-for="ProductVariantAttributeId" />
+    <input type="hidden" asp-for="RawRuleData" />
+
     <div class="section-header">
         <div class="title">
             <div class="btn-group mr-3" role="group">
@@ -42,7 +45,15 @@
             </div>
             <span>@ViewBag.Title</span>
         </div>
-        <div class="options"></div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+        </div>
     </div>
 </form>
 

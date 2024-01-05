@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Rules
 {
@@ -33,6 +34,15 @@ namespace Smartstore.Core.Rules
         /// <param name="includeHidden">A value indicating whether to include hidden rulesets.</param>
         /// <returns>Expression group.</returns>
         Task<IRuleExpressionGroup> CreateExpressionGroupAsync(RuleSetEntity ruleSet, IRuleVisitor visitor, bool includeHidden = false);
+
+        /// <summary>
+        /// Applies given <paramref name="ruleData"/> to the related <see cref="RuleEntity"/>'s.
+        /// The caller is responsible for database commit.
+        /// </summary>
+        /// <param name="ruleData">Rule data to apply.</param>
+        /// <param name="provider">The associated rule provider.</param>
+        /// <returns>Number of updated <see cref="RuleEntity"/>'s.</returns>
+        Task<int> ApplyRuleDataAsync(RuleEditItem[] ruleData, IRuleProvider provider);
 
         /// <summary>
         /// Applies metadata to the expressions of <paramref name="group"/>, e.g. errors about invalid descriptors.

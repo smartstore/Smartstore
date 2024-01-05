@@ -138,6 +138,10 @@ namespace Smartstore.Core.Rules
             protected set => _customerRoles = value;
         }
 
+        /// <summary>
+        /// Gets or sets the identifier of an assigned <see cref="ProductVariantAttribute" />
+        /// Only applicable for <see cref="RuleScope.ProductAttribute"/>.
+        /// </summary>
         public int? ProductVariantAttributeId { get; set; }
 
         private ProductVariantAttribute _productVariantAttribute;

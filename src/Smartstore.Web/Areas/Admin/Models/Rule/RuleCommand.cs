@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Rules;
+using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Admin.Models.Rules
 {

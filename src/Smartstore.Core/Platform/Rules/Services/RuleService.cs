@@ -1,25 +1,19 @@
-﻿using Autofac;
+﻿using System.Globalization;
+using Autofac;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Rules
 {
-    public partial class RuleService : IRuleService
+    public partial class RuleService(
+        SmartDbContext db,
+        IWorkContext workContext,
+        Lazy<IEnumerable<IRuleOptionsProvider>> ruleOptionsProviders) : IRuleService
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly Lazy<IEnumerable<IRuleOptionsProvider>> _ruleOptionsProviders;
-
-        public RuleService(
-            SmartDbContext db,
-            IWorkContext workContext,
-            Lazy<IEnumerable<IRuleOptionsProvider>> ruleOptionsProviders)
-        {
-            _db = db;
-            _workContext = workContext;
-            _ruleOptionsProviders = ruleOptionsProviders;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly Lazy<IEnumerable<IRuleOptionsProvider>> _ruleOptionsProviders = ruleOptionsProviders;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
@@ -111,6 +105,58 @@ namespace Smartstore.Core.Rules
             group.AddExpressions(expressions);
 
             return group;
+        }
+
+        public virtual async Task<int> ApplyRuleDataAsync(RuleEditItem[] ruleData, IRuleProvider provider)
+        {
+            Guard.NotNull(ruleData);
+            Guard.NotNull(provider);
+
+            var ruleIds = ruleData?.Select(x => x.RuleId)?.Distinct()?.ToArray();
+            if (ruleIds.IsNullOrEmpty())
+            {
+                return 0;
+            }
+
+            var rules = await _db.Rules
+                .Where(x => ruleIds.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id);
+            if (rules.Count == 0)
+            {
+                return 0;
+            }
+
+            var num = 0;
+            var descriptors = await provider.GetRuleDescriptorsAsync();
+
+            foreach (var data in ruleData)
+            {
+                if (rules.TryGetValue(data.RuleId, out var entity))
+                {
+                    if (data.Value.HasValue())
+                    {
+                        var descriptor = descriptors.FindDescriptor(entity.RuleType);
+
+                        if (data.Op == RuleOperator.IsEmpty || data.Op == RuleOperator.IsNotEmpty ||
+                            data.Op == RuleOperator.IsNull || data.Op == RuleOperator.IsNotNull)
+                        {
+                            data.Value = null;
+                        }
+                        else if (descriptor.RuleType == RuleType.DateTime || descriptor.RuleType == RuleType.NullableDateTime)
+                        {
+                            // Always store invariant formatted UTC values, otherwise database queries return inaccurate results.
+                            var dt = data.Value.Convert<DateTime>(CultureInfo.CurrentCulture).ToUniversalTime();
+                            data.Value = dt.ToString(CultureInfo.InvariantCulture);
+                        }
+                    }
+
+                    entity.Operator = data.Op;
+                    entity.Value = data.Value;
+                    ++num;
+                }
+            }
+
+            return num;
         }
 
         public virtual Task ApplyMetadataAsync(IRuleExpressionGroup group, Language language = null)

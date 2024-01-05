@@ -21,6 +21,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -59,6 +60,8 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IDownloadService> _downloadService;
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ProductUrlHelper> _productUrlHelper;
+        private readonly Lazy<IRuleProviderFactory> _ruleProviderFactory;
+        private readonly Lazy<IRuleService> _ruleService;
         private readonly AdminAreaSettings _adminAreaSettings;
         private readonly CatalogSettings _catalogSettings;
         private readonly MeasureSettings _measureSettings;
@@ -93,6 +96,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IDownloadService> downloadService,
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ProductUrlHelper> productUrlHelper,
+            Lazy<IRuleProviderFactory> ruleProviderFactory,
+            Lazy<IRuleService> ruleService,
             AdminAreaSettings adminAreaSettings,
             CatalogSettings catalogSettings,
             MeasureSettings measureSettings,
@@ -126,6 +131,8 @@ namespace Smartstore.Admin.Controllers
             _downloadService = downloadService;
             _catalogSearchService = catalogSearchService;
             _productUrlHelper = productUrlHelper;
+            _ruleProviderFactory = ruleProviderFactory;
+            _ruleService = ruleService;
             _adminAreaSettings = adminAreaSettings;
             _catalogSettings = catalogSettings;
             _measureSettings = measureSettings;
