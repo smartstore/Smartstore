@@ -1,6 +1,8 @@
-﻿using Autofac;
+﻿using System.Reflection;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.ComponentModel;
 using Smartstore.Threading;
 
 namespace Smartstore.Events
@@ -26,7 +28,7 @@ namespace Smartstore.Events
         {
             var d = descriptor;
             var p = descriptor.WithEnvelope ? (object)envelope : envelope.Message;
-            var method = d.Method;
+            var invoker = FastInvoker.GetInvoker(d.Method);
             var ct = cancelToken;
 
             Task task;
@@ -71,7 +73,7 @@ namespace Smartstore.Events
                 if (d.Parameters.Length == 0)
                 {
                     // Only one method param: the message!
-                    return method.Invoke(consumer, new object[] { p });
+                    return invoker.Invoke(consumer, p);
                 }
 
                 var parameters = new object[d.Parameters.Length + 1];
@@ -84,7 +86,7 @@ namespace Smartstore.Events
                     parameters[i] = obj;
                 }
 
-                return method.Invoke(consumer, parameters);
+                return invoker.Invoke(consumer, parameters);
             }
         }
 

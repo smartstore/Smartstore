@@ -36,7 +36,7 @@ namespace Smartstore.ComponentModel
             {
                 if (_invoker == null)
                 {
-                    _invoker = ConstructorInvoker.Create(Constructor);
+                    Interlocked.Exchange(ref _invoker, ConstructorInvoker.Create(Constructor));
                 }
 
                 return _invoker;
@@ -67,12 +67,11 @@ namespace Smartstore.ComponentModel
 
         private static FastActivator[] GetActivatorsCore(Type type)
         {
-            if (!_activatorsCache.TryGetValue(type, out FastActivator[] activators))
+            var activators = _activatorsCache.GetOrAdd(type, key =>
             {
                 var candidates = GetCandidateConstructors(type);
-                activators = candidates.Select(c => new FastActivator(c)).ToArray();
-                _activatorsCache.TryAdd(type, activators);
-            }
+                return candidates.Select(c => new FastActivator(c)).ToArray();
+            });
 
             return activators;
         }

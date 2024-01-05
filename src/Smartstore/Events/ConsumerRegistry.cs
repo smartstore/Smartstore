@@ -5,7 +5,7 @@ namespace Smartstore.Events
 {
     public class ConsumerRegistry : IConsumerRegistry
     {
-        private readonly Multimap<Type, ConsumerDescriptor> _descriptorMap = new Multimap<Type, ConsumerDescriptor>();
+        private readonly Multimap<Type, ConsumerDescriptor> _descriptorMap = [];
 
         public ConsumerRegistry(IEnumerable<Lazy<IConsumer, EventConsumerMetadata>> consumers)
         {

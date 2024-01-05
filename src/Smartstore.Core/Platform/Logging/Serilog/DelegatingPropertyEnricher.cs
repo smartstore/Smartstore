@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Serilog.Core;
 using Serilog.Events;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.Logging.Serilog
 {
@@ -32,10 +33,10 @@ namespace Smartstore.Core.Logging.Serilog
     {
         // Get internal method
         //  --> internal static void Render(object value, TextWriter output, string format = null, IFormatProvider formatProvider = null)
-        static readonly MethodInfo ScalarValueRenderMethod = typeof(ScalarValue).GetMethod(
+        static readonly FastInvoker ScalarValueRenderMethodInvoker = new(typeof(ScalarValue).GetMethod(
             "Render",
             BindingFlags.Static | BindingFlags.NonPublic,
-            new[] { typeof(object), typeof(TextWriter), typeof(string), typeof(IFormatProvider) });
+            new[] { typeof(object), typeof(TextWriter), typeof(string), typeof(IFormatProvider) }));
 
         Func<object> _valueAccessor;
         object _value;
@@ -48,7 +49,7 @@ namespace Smartstore.Core.Logging.Serilog
 
         public override void Render(TextWriter output, string format = null, IFormatProvider formatProvider = null)
         {
-            ScalarValueRenderMethod.Invoke(null, new object[] { Value, output, format, formatProvider });
+            ScalarValueRenderMethodInvoker.Invoke(null, Value, output, format, formatProvider);
         }
 
         public void Freeze()
