@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 
 namespace Smartstore
 {
@@ -48,8 +47,8 @@ namespace Smartstore
         /// <returns>Number of removed entries.</returns>
         public static int Remove<T>(this IList<T> list, Func<T, bool> selector)
         {
-            Guard.NotNull(list, nameof(list));
-            Guard.NotNull(selector, nameof(selector));
+            Guard.NotNull(list);
+            Guard.NotNull(selector);
 
             var count = 0;
             for (var i = list.Count - 1; i >= 0; i--)

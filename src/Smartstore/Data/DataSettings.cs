@@ -32,7 +32,7 @@ namespace Smartstore.Data
 
         public static void SetApplicationContext(IApplicationContext appContext, Action<DataSettings> loaded = null)
         {
-            Guard.NotNull(appContext, nameof(appContext));
+            Guard.NotNull(appContext);
 
             Interlocked.Exchange(ref _appContext, appContext);
             Interlocked.Exchange(ref _loadedCallback, loaded);
@@ -40,7 +40,7 @@ namespace Smartstore.Data
 
         public static void ReplaceFactory(Func<IApplicationContext, DataSettings> factory)
         {
-            Guard.NotNull(factory, nameof(factory));
+            Guard.NotNull(factory);
 
             Interlocked.Exchange(ref _settingsFactory, factory);
         }
@@ -296,7 +296,7 @@ namespace Smartstore.Data
             return (curTenant.TrimEnd('/'), tenantRoot);
         }
 
-        protected virtual IDictionary<string, string> ParseSettings(string text)
+        protected virtual Dictionary<string, string> ParseSettings(string text)
         {
             var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 

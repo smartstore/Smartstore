@@ -1,4 +1,5 @@
-﻿using Parlot;
+﻿using System.Buffers;
+using Parlot;
 using Parlot.Fluent;
 using Smartstore.Core.Rules.Operators;
 using static Parlot.Fluent.Parsers;
@@ -7,7 +8,7 @@ namespace Smartstore.Core.Rules.Filters
 {
     public static class FilterExpressionParser
     {
-        static readonly char[] _wildcardChars = new[] { '*', '?' };
+        static readonly SearchValues<char> _wildcardChars = SearchValues.Create("*?");
         static readonly Parser<List<FilterExpression>> Grammar;
 
         #region Tokens
@@ -193,7 +194,7 @@ namespace Smartstore.Core.Rules.Filters
         {
             // The unquoted term
             var term = termSpan.ToString();
-            var hasAnyWildcard = term != null && term.IndexOfAny(_wildcardChars) > -1;
+            var hasAnyWildcard = term != null && term.AsSpan().IndexOfAny(_wildcardChars) > -1;
 
             if (hasAnyWildcard)
             {

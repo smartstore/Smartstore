@@ -19,6 +19,12 @@ namespace Smartstore
         }
 
         /// <summary>
+        /// Creates a <see cref="MethodInvoker"/> instance for the given <paramref name="method"/>>.
+        /// </summary>
+        public static MethodInvoker CreateInvoker(this MethodBase method)
+            => MethodInvoker.Create(method);
+
+        /// <summary>
         /// Given a MethodBase for a property's get or set method,
         /// return the corresponding property info.
         /// </summary>
@@ -26,8 +32,8 @@ namespace Smartstore
         /// <returns>PropertyInfo for the property, or null if method is not part of a property.</returns>
         public static PropertyInfo GetPropertyFromMethod(this MethodBase method)
         {
-            Guard.NotNull(method, nameof(method));
-
+            Guard.NotNull(method);
+            
             PropertyInfo property = null;
 
             if (method.IsSpecialName)

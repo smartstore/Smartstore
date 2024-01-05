@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Buffers;
+using System.Drawing;
 using System.Linq.Dynamic.Core;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.WebUtilities;
@@ -1272,9 +1273,10 @@ namespace Smartstore.Core.Content.Media
             }
         }
 
+        private static readonly SearchValues<char> _pathSeparators = SearchValues.Create("/\\");
         private static bool IsPath(string path)
         {
-            return path.IndexOfAny(new[] { '/', '\\' }) > -1;
+            return path.AsSpan().IndexOfAny(_pathSeparators) > -1;
         }
 
         #endregion

@@ -292,25 +292,6 @@ namespace Smartstore.Data
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
-        //private static MethodBase TryFindCallingHookMember(StackTrace trace)
-        //{
-        //    var numFrames = trace.FrameCount;
-
-        //    for (int i = 0; i < numFrames; i++)
-        //    {
-        //        var method = trace.GetFrame(i)?.GetMethod();
-        //        if (method != null)
-        //        {
-        //            if (typeof(IDbSaveHook).IsAssignableFrom(method.ReflectedType))
-        //            {
-        //                return method;
-        //            }
-        //        }
-        //    }
-
-        //    return null;
-        //}
-
         #endregion
 
         #region Model bootstrapping

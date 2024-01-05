@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
@@ -16,17 +17,17 @@ namespace Smartstore.IO
         internal const string SeparatorString = "/";
 
         private static readonly char[] _invalidPathChars;
-        private static readonly char[] _invalidFileNameChars;
-        private static readonly char[] _invalidFilterChars;
+        private static readonly SearchValues<char> _invalidFileNameChars;
+        private static readonly SearchValues<char> _invalidFilterChars;
         private static readonly Regex _invalidCharsPattern;
 
         static PathUtility()
         {
             _invalidPathChars = Path.GetInvalidPathChars();
-            _invalidFileNameChars = Path.GetInvalidFileNameChars();
-            _invalidFilterChars = _invalidFileNameChars.Where(c => c != '*' && c != '|' && c != '?').ToArray();
-
-            var invalidChars = Regex.Escape(new string(_invalidPathChars) + new string(_invalidFileNameChars));
+            _invalidFileNameChars = SearchValues.Create(Path.GetInvalidFileNameChars());
+            _invalidFilterChars = SearchValues.Create(Path.GetInvalidFileNameChars().Where(c => c != '*' && c != '|' && c != '?').ToArray());
+            
+            var invalidChars = Regex.Escape(new string(Path.GetInvalidPathChars()) + new string(Path.GetInvalidFileNameChars()));
             _invalidCharsPattern = new Regex(string.Format(@"[{0}]+", invalidChars), RegexOptions.Compiled | RegexOptions.NonBacktracking);
         }
 
@@ -367,7 +368,7 @@ namespace Smartstore.IO
 
         public static bool HasInvalidFilterChars(string? path)
         {
-            return path != null && path!.IndexOfAny(_invalidFilterChars) >= 0;
+            return path != null && path!.AsSpan().IndexOfAny(_invalidFilterChars) >= 0;
         }
 
         public static bool HasInvalidFilterChars(ReadOnlySpan<char> path)

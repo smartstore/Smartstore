@@ -31,7 +31,7 @@ namespace FluentValidation
         /// <param name="ignoreProperties">An optional list of property names to ignore.</param>
         protected virtual void ApplyEntityRules<TEntity>(DbContext db, params string[] ignoreProperties) where TEntity : BaseEntity, new()
         {
-            Guard.NotNull(db, nameof(db));
+            Guard.NotNull(db);
 
             // Get all model properties
             var modelProps = FastProperty.GetProperties(typeof(TModel));
@@ -113,16 +113,16 @@ namespace FluentValidation
             // But there's no alternative to it, unfortunately.
 
             // Make DynamicExpressionParser.ParseLambda<TModel, TProperty>(...)
-            var parseLambdaMethod = ParseLambdaMethod.MakeGenericMethod(typeof(TModel), modelProp.Property.PropertyType);
+            var parseLambdaMethod = FastInvoker.GetInvoker(ParseLambdaMethod.MakeGenericMethod(typeof(TModel), modelProp.Property.PropertyType));
 
             // Call ParseLambda<<TModel, TPropType>() method
-            var expression = parseLambdaMethod.Invoke(null, new object[] { null, false, "@" + modelProp.Property.Name, null });
+            var expression = parseLambdaMethod.Invoke(null, null, false, "@" + modelProp.Property.Name, null);
 
             // Create rule: first make AbstractValidator<T>.RuleFor<TProperty>(...) method
-            var ruleForMethod = RuleForMethod.MakeGenericMethod(modelProp.Property.PropertyType);
+            var ruleForMethod = FastInvoker.GetInvoker(RuleForMethod.MakeGenericMethod(modelProp.Property.PropertyType));
 
             // Then call .RuleFor<TProperty>(Expression<Func<T, TProperty>> expression)
-            var rule = ruleForMethod.Invoke(this, new object[] { expression });
+            var rule = ruleForMethod.Invoke(this, expression);
 
             // Create Validator instance
             var validatorType = typeof(NotNullValidator<,>).MakeGenericType(typeof(TModel), modelProp.Property.PropertyType);

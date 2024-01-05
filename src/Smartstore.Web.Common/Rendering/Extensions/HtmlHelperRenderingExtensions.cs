@@ -19,7 +19,7 @@ namespace Smartstore.Web.Rendering
     public static class HtmlHelperRenderingExtensions
     {
         // Get the protected "HtmlHelper.GenerateEditor" method
-        private readonly static MethodInfo GenerateEditorMethod = typeof(HtmlHelper).GetMethod("GenerateEditor", BindingFlags.NonPublic | BindingFlags.Instance);
+        private readonly static MethodInvoker GenerateEditorMethodInvoker = typeof(HtmlHelper).GetMethod("GenerateEditor", BindingFlags.NonPublic | BindingFlags.Instance).CreateInvoker();
 
         #region EditorFor
 
@@ -67,13 +67,11 @@ namespace Smartstore.Web.Rendering
 
             if (helper is HtmlHelper htmlHelper)
             {
-                return (IHtmlContent)GenerateEditorMethod.Invoke(htmlHelper, new object[]
-                {
+                return (IHtmlContent)GenerateEditorMethodInvoker.Invoke(htmlHelper,
                     expression.ModelExplorer,
                     htmlFieldName ?? expression.Name,
                     templateName,
-                    additionalViewData
-                });
+                    additionalViewData);
             }
             else
             {

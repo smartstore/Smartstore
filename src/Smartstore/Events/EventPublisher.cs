@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Events
 {
@@ -28,7 +29,7 @@ namespace Smartstore.Events
             }
 
             var envelopeType = typeof(ConsumeContext<>).MakeGenericType(typeof(T));
-            var envelope = (ConsumeContext<T>)Activator.CreateInstance(envelopeType, message);
+            var envelope = (ConsumeContext<T>)FastActivator.CreateInstance(envelopeType, message);
 
             foreach (var d in descriptors)
             {

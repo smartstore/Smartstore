@@ -36,14 +36,14 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Attempts to add the specified key and value to the <paramref name="source"/> dictionary.
+        /// Tries to add the specified key and value to the <paramref name="source"/> dictionary.
         /// </summary>
         /// <param name="key">The key of the element to add.</param>
         /// <param name="value">The value of the element to add. The value can be a null reference for reference types.</param>
         /// <returns>
         /// true if the key/value pair was added to the dictionary successfully; otherwise, false.
         /// </returns>
-        public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, TValue value, bool updateIfExists = false)
+        public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, TValue value, bool updateIfExists)
         {
             if (source == null || key == null)
             {
@@ -55,21 +55,15 @@ namespace Smartstore
                 return concurrentDict.TryAdd(key, value);
             }
 
-            if (source.ContainsKey(key))
+            if (updateIfExists)
             {
-                if (updateIfExists)
-                {
-                    source[key] = value;
-                    return true;
-                }
+                source[key] = value;
+                return true;
             }
             else
             {
-                source.Add(key, value);
-                return true;
+                return source.TryAdd(key, value);
             }
-
-            return false;
         }
 
         /// <summary>
@@ -85,12 +79,17 @@ namespace Smartstore
         {
             value = default;
 
+            if (source is null || key is null)
+            {
+                return false;
+            }
+
             if (source is ConcurrentDictionary<TKey, TValue> concurrentDict)
             {
                 return concurrentDict.TryRemove(key, out value);
             }
 
-            if (source != null && key != null && source.TryGetValue(key, out value))
+            if (source.TryGetValue(key, out value))
             {
                 source.Remove(key);
                 return true;
@@ -174,8 +173,8 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key)
         {
-            Guard.NotNull(instance).TryGetValue(key, out var val);
-            return val;
+            Guard.NotNull(instance);
+            return instance.TryGetValue(key, out var val) ? val : default;
         }
 
         public static bool TryGetValueAs<TValue>(this IDictionary<string, object> source, string key, out TValue value)

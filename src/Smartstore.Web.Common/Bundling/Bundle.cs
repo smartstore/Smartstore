@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
@@ -51,7 +52,10 @@ namespace Smartstore.Web.Bundling
     [DebuggerDisplay("Bundle: {Route}")]
     public class Bundle
     {
-        private readonly HashSet<string> _sourceFiles = new();
+        private static readonly SearchValues<char> _globChars = SearchValues.Create("*[?");
+        private static readonly SearchValues<char> _queryChars = SearchValues.Create("?#");
+
+        private readonly HashSet<string> _sourceFiles = [];
 
         protected Bundle()
         {
@@ -89,7 +93,7 @@ namespace Smartstore.Web.Bundling
 
         protected virtual string ValidateRoute(string route)
         {
-            if (route.IndexOfAny(new[] { '*', '[', '?' }) > -1)
+            if (route.AsSpan().IndexOfAny(_globChars) > -1)
             {
                 throw new ArgumentException($"The route \"{route}\" appears to be a globbing pattern which isn't supported for bundle routes.", nameof(route));
             }
@@ -104,7 +108,7 @@ namespace Smartstore.Web.Bundling
                 ? "/" + route.Trim().TrimStart('~', '/')
                 : route;
 
-            var index = normalizedRoute.IndexOfAny(new[] { '?', '#' });
+            var index = normalizedRoute.AsSpan().IndexOfAny(_queryChars);
             if (index > -1)
             {
                 normalizedRoute = normalizedRoute[..index];

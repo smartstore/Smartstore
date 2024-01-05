@@ -76,7 +76,8 @@ namespace Smartstore.Web.Infrastructure
                 lib + "pnotify/js/pnotify.animate.js",
                 lib + "slick/slick.js",
                 lib + "aos/js/aos.js",
-                lib + "bootstrap/js/bootstrap.bundle.js",
+                lib + "popper/popper.js",
+                lib + "bootstrap/js/bootstrap.js",
                 // Common
                 js + "underscore.mixins.js",
                 js + "smartstore.system.js",

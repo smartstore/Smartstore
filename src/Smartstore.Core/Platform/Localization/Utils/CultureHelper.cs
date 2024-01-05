@@ -1,4 +1,5 @@
-﻿using System.Collections.Frozen;
+﻿using System.Buffers;
+using System.Collections.Frozen;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
@@ -7,6 +8,7 @@ namespace Smartstore.Core.Localization
 {
     public static class CultureHelper
     {
+        private static readonly SearchValues<char> _bracketChars = SearchValues.Create("([");
         private readonly static FrozenSet<string> _cultureCodes = 
             CultureInfo.GetCultures(CultureTypes.NeutralCultures | CultureTypes.SpecificCultures | CultureTypes.UserCustomCulture)
                 .Select(x => x.Name)
@@ -120,7 +122,7 @@ namespace Smartstore.Core.Localization
                 languageName = (culture ?? CultureInfo.InvariantCulture).TextInfo.ToTitleCase(languageName);
             }
 
-            var bracketIndex = languageName.IndexOfAny(new[] { '(', '[' });
+            var bracketIndex = languageName.AsSpan().IndexOfAny(_bracketChars);
             var hasRegion = bracketIndex > -1;
             var endBracket = ')';
 
@@ -143,7 +145,7 @@ namespace Smartstore.Core.Localization
                 var commaIndex = languageName.IndexOf(',');
                 if (commaIndex > -1)
                 {
-                    languageName = languageName.Substring(0, commaIndex) + endBracket;
+                    languageName = languageName[..commaIndex] + endBracket;
                 }
             }
 
