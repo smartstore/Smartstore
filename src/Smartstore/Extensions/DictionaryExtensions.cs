@@ -127,7 +127,7 @@ namespace Smartstore
             return source.Merge(ConvertUtility.ObjectToDictionary(values), replaceExisting);
         }
 
-        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IReadOnlyDictionary<TKey, TValue> from, bool replaceExisting = true)
+        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IDictionary<TKey, TValue> from, bool replaceExisting = true)
         {
             Guard.NotNull(instance);
             Guard.NotNull(from);
@@ -171,13 +171,13 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TValue Get<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> instance, TKey key)
+        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key)
         {
             Guard.NotNull(instance);
             return instance.TryGetValue(key, out var val) ? val : default;
         }
 
-        public static bool TryGetValueAs<TValue>(this IReadOnlyDictionary<string, object> source, string key, out TValue value)
+        public static bool TryGetValueAs<TValue>(this IDictionary<string, object> source, string key, out TValue value)
         {
             Guard.NotNull(source);
 
@@ -191,7 +191,7 @@ namespace Smartstore
             return false;
         }
 
-        public static bool TryGetAndConvertValue<TValue>(this IReadOnlyDictionary<string, object> source, string key, out TValue value)
+        public static bool TryGetAndConvertValue<TValue>(this IDictionary<string, object> source, string key, out TValue value)
         {
             Guard.NotNull(source);
 

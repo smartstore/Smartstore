@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 
 namespace Smartstore
 {

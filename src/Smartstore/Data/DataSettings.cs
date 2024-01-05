@@ -296,7 +296,7 @@ namespace Smartstore.Data
             return (curTenant.TrimEnd('/'), tenantRoot);
         }
 
-        protected virtual IDictionary<string, string> ParseSettings(string text)
+        protected virtual Dictionary<string, string> ParseSettings(string text)
         {
             var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 

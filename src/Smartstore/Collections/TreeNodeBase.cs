@@ -27,7 +27,7 @@ namespace Smartstore.Collections
         private int _index = -1;
 
         protected object? _id;
-        private IDictionary<object, TreeNodeBase<T>>? _idNodeMap;
+        private Dictionary<object, TreeNodeBase<T>>? _idNodeMap;
 
         protected IDictionary<string, object?>? _metadata;
         private readonly static ContextState<Dictionary<string, object?>> _contextState = new("TreeNodeBase.ContextMetadata");
@@ -173,7 +173,7 @@ namespace Smartstore.Collections
             return node;
         }
 
-        private IDictionary<object, TreeNodeBase<T>> GetIdNodeMap()
+        private Dictionary<object, TreeNodeBase<T>> GetIdNodeMap()
         {
             var map = Root._idNodeMap ??= new Dictionary<object, TreeNodeBase<T>>();
             return map;
