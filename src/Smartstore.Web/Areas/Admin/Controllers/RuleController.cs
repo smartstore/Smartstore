@@ -340,7 +340,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Rule.Create)]
         public async Task<IActionResult> AddRule(RuleCommand command)
         {
-            await CreateRuleSetIfRequired(command);
+            if (await IsProductAttributeRuleSetMissing(command))
+            {
+                command.RuleSetId = await CreateProductAttributeRuleSet(command);
+            }
 
             var provider = GetProvider(null, command);
             var descriptors = await provider.GetRuleDescriptorsAsync();
@@ -409,7 +412,7 @@ namespace Smartstore.Admin.Controllers
 
             _db.Rules.Remove(rule);
             await _db.SaveChangesAsync();
-            await DeleteRuleSetIfNotRequired(command);
+            //await DeleteRuleSetIfNotRequired(command);
 
             return Json(new { Success = true });
         }
@@ -418,7 +421,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Rule.Update)]
         public async Task<IActionResult> ChangeOperator(RuleCommand command)
         {
-            await CreateRuleSetIfRequired(command);
+            if (await IsProductAttributeRuleSetMissing(command))
+            {
+                NotifyWarning(T("Admin.Rules.AddRuleWarning"));
+                return Json(new { Success = false });
+            }
 
             var andOp = command.Op.EqualsNoCase("and");
             var ruleSet = await _db.RuleSets.FindByIdAsync(command.RuleSetId);
@@ -445,7 +452,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Rule.Create)]
         public async Task<IActionResult> AddGroup(RuleCommand command)
         {
-            await CreateRuleSetIfRequired(command);
+            if (await IsProductAttributeRuleSetMissing(command))
+            {
+                command.RuleSetId = await CreateProductAttributeRuleSet(command);
+            }
 
             var provider = GetProvider(null, command);
 
@@ -497,7 +507,7 @@ namespace Smartstore.Admin.Controllers
             _db.RuleSets.Remove(group);
 
             await _db.SaveChangesAsync();
-            await DeleteRuleSetIfNotRequired(command);
+            //await DeleteRuleSetIfNotRequired(command);
 
             return Json(new { Success = true });
         }
@@ -632,47 +642,39 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
-        private async Task CreateRuleSetIfRequired(RuleCommand command)
+        private async Task<bool> IsProductAttributeRuleSetMissing(RuleCommand command)
         {
-            if (command.Scope == RuleScope.ProductAttribute)
-            {
-                var attributeId = Guard.NotZero(command.EntityId ?? 0);
-
-                if (!await _db.RuleSets.AnyAsync(x => x.ProductVariantAttributeId == attributeId && x.Scope == RuleScope.ProductAttribute && !x.IsSubGroup))
-                {
-                    var ruleSet = new RuleSetEntity
-                    {
-                        Scope = RuleScope.ProductAttribute,
-                        IsActive = true,
-                        IsSubGroup = false,
-                        LogicalOperator = LogicalRuleOperator.And,
-                        ProductVariantAttributeId = attributeId
-                    };
-
-                    _db.Add(ruleSet);
-                    await _db.SaveChangesAsync();
-                    
-                    command.RuleSetId = ruleSet.Id;
-                }
-            }
+            return command.Scope == RuleScope.ProductAttribute 
+                && (command.RuleSetId == 0 || !await _db.RuleSets.AnyAsync(x => x.Id == command.RuleSetId));
         }
 
-        private async Task DeleteRuleSetIfNotRequired(RuleCommand command)
+        private async Task<int> CreateProductAttributeRuleSet(RuleCommand command)
         {
-            if (command.Scope == RuleScope.ProductAttribute)
+            var attributeId = Guard.NotZero(command.EntityId ?? 0);
+
+            var existingRuleSetId = await _db.RuleSets
+                .Where(x => x.ProductVariantAttributeId == attributeId && x.Scope == RuleScope.ProductAttribute && !x.IsSubGroup)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync();
+
+            if (existingRuleSetId == 0)
             {
-                var attributeId = Guard.NotZero(command.EntityId ?? 0);
-                var existingRuleSet = await _db.RuleSets
-                    .FirstOrDefaultAsync(x => x.ProductVariantAttributeId == attributeId && x.Scope == RuleScope.ProductAttribute && !x.IsSubGroup && x.Rules.Count == 0);
-
-                if (existingRuleSet != null)
+                var ruleSet = new RuleSetEntity
                 {
-                    _db.RuleSets.Remove(existingRuleSet);
-                    await _db.SaveChangesAsync();
+                    Scope = RuleScope.ProductAttribute,
+                    IsActive = true,
+                    IsSubGroup = false,
+                    LogicalOperator = LogicalRuleOperator.And,
+                    ProductVariantAttributeId = attributeId
+                };
 
-                    command.RuleSetId = 0;
-                }
+                _db.Add(ruleSet);
+                await _db.SaveChangesAsync();
+
+                return ruleSet.Id;
             }
+
+            return existingRuleSetId;
         }
 
         private async Task PrepareModel(RuleSetModel model, RuleSetEntity ruleSet, RuleScope? scope = null)

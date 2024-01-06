@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Cms;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -393,11 +392,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> EditAttributeValues(int productVariantAttributeId)
         {
-            var pva = await _db.ProductVariantAttributes
-                .Include(x => x.ProductAttribute)
-                .Include(x => x.RuleSet)
-                .ThenInclude(x => x.Rules)
-                .FindByIdAsync(productVariantAttributeId, false);
+            var pva = await LoadAttributeSafe(productVariantAttributeId);
             if (pva == null)
             {
                 return NotFound(T("Products.Variants.NotFound", productVariantAttributeId));
@@ -435,7 +430,7 @@ namespace Smartstore.Admin.Controllers
                 ProductName = product.Name,
                 ProductId = pva.ProductId,
                 ProductVariantAttributeId = pva.Id,
-                ProductVariantAttributeName = pva.ProductAttribute.Name,
+                ProductVariantAttributeName = pva.ProductAttribute.GetLocalized(x => x.Name, _workContext.WorkingLanguage, true, false),
                 IsListTypeAttribute = pva.IsListTypeAttribute(),
                 ExpressionGroup = await provider.CreateExpressionGroupAsync(pva, true)
             };
@@ -468,13 +463,51 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        private async Task<ProductVariantAttribute> LoadAttributeSafe(int id)
+        {
+            for (var i = 0; i < 2; ++i)
+            {
+                try
+                {
+                    return await _db.ProductVariantAttributes
+                        .Include(x => x.ProductAttribute)
+                        .Include(x => x.RuleSet)
+                        .ThenInclude(x => x.Rules)
+                        .FindByIdAsync(id, false);
+                }
+                catch (InvalidOperationException ioe)
+                {
+                    if (ioe.IsAlreadyAttachedEntityException())
+                    {
+                        var ruleSetIdsToDelete = await _db.RuleSets
+                            .Where(x => x.ProductVariantAttributeId == id)
+                            .Select(x => x.Id)
+                            .OrderBy(x => x)
+                            .Skip(1)
+                            .ToArrayAsync();
+
+                        if (ruleSetIdsToDelete.Length > 0)
+                        {
+                            await _db.RuleSets
+                                .Where(x => ruleSetIdsToDelete.Contains(x.Id))
+                                .ExecuteDeleteAsync();
+                        }
+                    }
+                    else
+                    {
+                        ioe.ReThrow();
+                    }
+                }
+            }
+
+            return null;
+        }
+
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> EditAttributeValues(ProductModel.ProductVariantAttributeValueListModel model, bool continueEditing)
         {
-            var pva = await _db.ProductVariantAttributes
-                .Include(x => x.RuleSet)
-                .FindByIdAsync(model.ProductVariantAttributeId, false);
+            var pva = await _db.ProductVariantAttributes.FindByIdAsync(model.ProductVariantAttributeId, false);
             if (pva == null)
             {
                 return NotFound(T("Products.Variants.NotFound", model.ProductVariantAttributeId));
@@ -482,11 +515,6 @@ namespace Smartstore.Admin.Controllers
 
             if (model.RawRuleData.HasValue())
             {
-                if (pva.RuleSet == null)
-                {
-                    return NotFound($"Missing rule set for {nameof(ProductVariantAttribute)} with ID {pva.Id}.");
-                }
-
                 try
                 {
                     var ruleData = JsonConvert.DeserializeObject<RuleEditItem[]>(model.RawRuleData);
@@ -510,9 +538,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> ProductAttributeValueCreatePopup(string btnId, string formId, int productVariantAttributeId)
         {
-            var pva = await _db.ProductVariantAttributes.FindByIdAsync(productVariantAttributeId, false);
-            if (pva == null)
-                throw new ArgumentException(T("Products.Variants.NotFound", productVariantAttributeId));
+            var pva = await _db.ProductVariantAttributes.FindByIdAsync(productVariantAttributeId, false) 
+                ?? throw new ArgumentException(T("Products.Variants.NotFound", productVariantAttributeId));
 
             var model = new ProductModel.ProductVariantAttributeValueModel
             {

@@ -16,12 +16,12 @@ namespace Smartstore.Core.Rules
     {
         public void Configure(EntityTypeBuilder<RuleSetEntity> builder)
         {
-            // INFO: convention would work except for DeleteBehavior (falls back to unwanted "NoAction").
+            // INFO: optional one-to-one foreign key relationship. Can also specified by EF convention, except for constraint name.
             builder.HasOne(c => c.ProductVariantAttribute)
                 .WithOne(c => c.RuleSet)
                 .HasForeignKey<RuleSetEntity>(c => c.ProductVariantAttributeId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+                .HasConstraintName("FK_RuleSet_ProductVariantAttributeId")
+                .IsRequired(false);
         }
     }
 

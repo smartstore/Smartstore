@@ -1,5 +1,5 @@
-﻿using System.Data;
-using FluentMigrator;
+﻿using FluentMigrator;
+using FluentMigrator.SqlServer;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Rules;
@@ -10,42 +10,54 @@ namespace Smartstore.Core.Migrations
     [MigrationVersion("2023-12-22 10:00:00", "Core: conditional attributes")]
     internal class ConditionalAttributes : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
-        const string RuleSetName = "RuleSet";
-        const string IxPvaIdName = "IX_RuleSet_ProductVariantAttributeId";
-        const string FkPvaIdName = "FK_RuleSet_Product_ProductAttribute_Mapping_ProductVariantAttributeId";
+        const string RuleSetTable = "RuleSet";
+        const string AttributeIdColumn = nameof(RuleSetEntity.ProductVariantAttributeId);
+        const string IxAttributeId = "IX_RuleSet_ProductVariantAttributeId";
+        // INFO: EF creates a key "FK_RuleSet_Product_ProductAttribute_Mapping_ProductVariantAttributeId" which is too long for MySQL.
+        // Produces MySqlException: Identifier name 'xyz' is too long.
+        const string FkAttributeId = "FK_RuleSet_ProductVariantAttributeId";
 
         public override void Up()
         {
-            if (!Schema.Table(RuleSetName).Column(nameof(RuleSetEntity.ProductVariantAttributeId)).Exists())
+            var ruleSet = Schema.Table(RuleSetTable);
+
+            if (!ruleSet.Column(AttributeIdColumn).Exists())
             {
-                // INFO: actually Unique(IxPvaIdName) must be used instead of Indexed(IxPvaIdName) but that requires a filter
-                // "([ProductVariantAttributeId] IS NOT NULL)" which cannot be created using fluent migrator.
-                Create.Column(nameof(RuleSetEntity.ProductVariantAttributeId)).OnTable(RuleSetName)
+                Create.Column(AttributeIdColumn).OnTable(RuleSetTable)
                     .AsInt32()
                     .Nullable()
-                    .Indexed(IxPvaIdName)
-                    .ForeignKey(FkPvaIdName, "Product_ProductAttribute_Mapping", nameof(BaseEntity.Id))
-                    .OnDelete(Rule.SetNull);
+                    .ForeignKey(FkAttributeId, "Product_ProductAttribute_Mapping", nameof(BaseEntity.Id));
+            }
+
+            if (!ruleSet.Index(IxAttributeId).Exists())
+            {
+                // We want exactly what EF specifies during an installation.
+                // https://fluentmigrator.github.io/articles/extensions/sql-server-extensions.html#create-a-unique-constraint-on-nullable-columns-using-null-value-filter
+                Create.Index(IxAttributeId)
+                    .OnTable(RuleSetTable)
+                    .OnColumn(AttributeIdColumn).Ascending()
+                    .WithOptions().Unique()
+                    .WithOptions().Filter($"([{AttributeIdColumn}] IS NOT NULL)");
             }
         }
 
         public override void Down()
         {
-            var ruleSet = Schema.Table(RuleSetName);
+            var ruleSet = Schema.Table(RuleSetTable);
 
-            if (ruleSet.Index(IxPvaIdName).Exists())
+            if (ruleSet.Index(IxAttributeId).Exists())
             {
-                Delete.Index(IxPvaIdName).OnTable(RuleSetName);
+                Delete.Index(IxAttributeId).OnTable(RuleSetTable);
             }
 
-            if (ruleSet.Constraint(FkPvaIdName).Exists())
+            if (ruleSet.Constraint(FkAttributeId).Exists())
             {
-                Delete.ForeignKey(FkPvaIdName).OnTable(RuleSetName);
+                Delete.ForeignKey(FkAttributeId).OnTable(RuleSetTable);
             }
 
-            if (ruleSet.Column(nameof(RuleSetEntity.ProductVariantAttributeId)).Exists())
+            if (ruleSet.Column(AttributeIdColumn).Exists())
             {
-                Delete.Column(nameof(RuleSetEntity.ProductVariantAttributeId)).FromTable(RuleSetName);
+                Delete.Column(AttributeIdColumn).FromTable(RuleSetTable);
             }
         }
 
@@ -90,7 +102,9 @@ namespace Smartstore.Core.Migrations
                 "{0} Bedingungen bearbeiten");
 
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules", "Options and rules", "Optionen und Bedingungen");
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.Rules", "Rules", "Bedingungen");            
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.Rules", "Rules", "Bedingungen");
+
+            builder.AddOrUpdate("Admin.Rules.AddRuleWarning", "Please add a rule first.", "Bitte zuerst eine Bedingung hinzufügen.");
         }
     }
 }
