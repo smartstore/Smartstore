@@ -161,9 +161,12 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var pvaIds = productVariantAttributes.Select(x => x.Id).ToArray();
+            var pvaIds = productVariantAttributes.Select(x => x.Id).ToList();
+
+            // INFO: avoid MySQL InvalidOperationException "The LINQ expression '[Microsoft.EntityFrameworkCore.Query.ParameterQueryRootExpression]' could not be translated."
+            // in where-clause.
             var rulesCount = (await _db.RuleSets
-                .Where(x => pvaIds.Any(id => id == x.ProductVariantAttributeId))
+                .Where(x => x.ProductVariantAttributeId != null && pvaIds.Contains(x.ProductVariantAttributeId.Value))
                 .Select(x => new { x.ProductVariantAttributeId, x.Rules.Count })
                 .ToListAsync())
                 .ToDictionarySafe(x => x.ProductVariantAttributeId, x => x.Count);
