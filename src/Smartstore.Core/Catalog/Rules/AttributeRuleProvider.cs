@@ -2,6 +2,7 @@
 using Autofac;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules.Impl;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -15,11 +16,12 @@ namespace Smartstore.Core.Catalog.Rules
         IWorkContext workContext,
         IComponentContext componentContext,
         IRuleService ruleService,
-        IRequestCache requestCache)
+        IRequestCache requestCache,
+        Lazy<IProductService> productService)
         : RuleProviderBase(RuleScope.ProductAttribute), IAttributeRuleProvider
     {
-        // {0} = ProductVariantAttribute.Id
-        private readonly static CompositeFormat DescriptorsByAttributeIdKey = CompositeFormat.Parse("ruledescriptors:byattribute-{0}");
+        // {0} = Product.Id
+        private readonly static CompositeFormat DescriptorsByProductIdKey = CompositeFormat.Parse("ruledescriptors:byproduct-{0}");
 
         private readonly AttributeRuleProviderContext _ctx = context;
         private readonly SmartDbContext _db = db;
@@ -27,6 +29,7 @@ namespace Smartstore.Core.Catalog.Rules
         private readonly IComponentContext _componentContext = componentContext;
         private readonly IRuleService _ruleService = ruleService;
         private readonly IRequestCache _requestCache = requestCache;
+        private readonly Lazy<IProductService> _productService = productService;
 
         public IRule<AttributeRuleContext> GetProcessor(RuleExpression expression)
         {
@@ -137,27 +140,20 @@ namespace Smartstore.Core.Catalog.Rules
 
         protected override async Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
         {
-            var result = await _requestCache.GetAsync(DescriptorsByAttributeIdKey.FormatInvariant(_ctx.AttributeId), async () =>
+            var result = await _requestCache.GetAsync(DescriptorsByProductIdKey.FormatInvariant(_ctx.ProductId), async () =>
             {
                 var descriptors = new List<AttributeRuleDescriptor>();
                 var attributeSelectedRuleType = typeof(ProductAttributeSelectedRule);
                 var language = _workContext.WorkingLanguage;
+                var attributes = _ctx.Attributes ?? await _productService.Value.CreateProductBatchContext().Attributes.GetOrLoadAsync(_ctx.ProductId);
 
-                var attributes = _ctx.Attributes ?? await _db.ProductVariantAttributes
-                    .AsNoTracking()
-                    .Include(x => x.ProductAttribute)
-                    .Include(x => x.ProductVariantAttributeValues)
-                    .Where(x => x.ProductId == _db.ProductVariantAttributes.FirstOrDefault(x => x.Id == _ctx.AttributeId).ProductId)
-                    .OrderBy(x => x.DisplayOrder)
-                    .ToListAsync();
-
-                foreach (var attribute in attributes.Where(x => x.Id != _ctx.AttributeId))
+                foreach (var attribute in attributes)
                 {
                     var values = attribute.ProductVariantAttributeValues
                         .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(x => x.Name, language, true, false) })
                         .ToArray();
 
-                    descriptors.Add(new()
+                    var descriptor = new AttributeRuleDescriptor
                     {
                         Name = $"Variant{attribute.Id}",
                         DisplayName = attribute.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
@@ -166,7 +162,11 @@ namespace Smartstore.Core.Catalog.Rules
                         ProcessorType = attributeSelectedRuleType,
                         IsComparingSequences = attribute.IsMultipleChoice,
                         SelectList = new LocalRuleValueSelectList(values) { Multiple = true }
-                    });
+                    };
+
+                    descriptor.Metadata["Id"] = attribute.Id;
+
+                    descriptors.Add(descriptor);
                 }
 
                 return descriptors.Cast<RuleDescriptor>();
@@ -174,11 +174,5 @@ namespace Smartstore.Core.Catalog.Rules
 
             return result;
         }
-    }
-
-    public partial class AttributeRuleProviderContext(int attributeId, List<ProductVariantAttribute> attributes = null)
-    {
-        public int AttributeId { get; } = Guard.NotZero(attributeId);
-        public List<ProductVariantAttribute> Attributes { get; } = attributes;
     }
 }

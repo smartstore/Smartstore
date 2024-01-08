@@ -6,6 +6,7 @@ using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
@@ -55,7 +56,7 @@ namespace Smartstore.Core.Checkout.Payment
             IStoreContext storeContext,
             IStoreMappingService storeMappingService,
             PaymentSettings paymentSettings,
-            ICartRuleProvider cartRuleProvider,
+            IRuleProviderFactory ruleProviderFactory,
             IProviderManager providerManager,
             ICacheManager cache,
             IRequestCache requestCache,
@@ -66,7 +67,7 @@ namespace Smartstore.Core.Checkout.Payment
             _storeContext = storeContext;
             _storeMappingService = storeMappingService;
             _paymentSettings = paymentSettings;
-            _cartRuleProvider = cartRuleProvider;
+            _cartRuleProvider = ruleProviderFactory.GetProvider<ICartRuleProvider>(RuleScope.Cart);
             _providerManager = providerManager;
             _cache = cache;
             _requestCache = requestCache;

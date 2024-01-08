@@ -10,24 +10,16 @@ using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Identity.Rules
 {
-    public partial class TargetGroupEvaluatorTask : ITask
+    public partial class TargetGroupEvaluatorTask(
+        SmartDbContext db,
+        ICacheManager cache,
+        IRuleService ruleService,
+        IRuleProviderFactory ruleProviderFactory) : ITask
     {
-        protected readonly SmartDbContext _db;
-        protected readonly IRuleService _ruleService;
-        protected readonly ITargetGroupService _targetGroupService;
-        protected readonly ICacheManager _cache;
-
-        public TargetGroupEvaluatorTask(
-            SmartDbContext db,
-            IRuleService ruleService,
-            ITargetGroupService targetGroupService,
-            ICacheManager cache)
-        {
-            _db = db;
-            _ruleService = ruleService;
-            _targetGroupService = targetGroupService;
-            _cache = cache;
-        }
+        protected readonly SmartDbContext _db = db;
+        protected readonly ICacheManager _cache = cache;
+        protected readonly IRuleService _ruleService = ruleService;
+        protected readonly ITargetGroupService _targetGroupService = ruleProviderFactory.GetProvider<ITargetGroupService>(RuleScope.Customer);
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {

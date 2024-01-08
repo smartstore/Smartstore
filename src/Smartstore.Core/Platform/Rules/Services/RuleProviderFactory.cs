@@ -25,8 +25,6 @@ namespace Smartstore.Core.Rules
                 default:
                     throw new ArgumentOutOfRangeException(nameof(scope), $"Cannot get rule provider for scope {scope}. There is no known provider for this scope.");
             }
-
-            throw new NotImplementedException();
         }
     }
 }

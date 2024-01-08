@@ -11,21 +11,14 @@ namespace Smartstore.Core.Catalog.Rules
     /// <summary>
     /// Updates the system assignments to categories for rules.
     /// </summary>
-    public partial class ProductRuleEvaluatorTask : ITask
+    public partial class ProductRuleEvaluatorTask(
+        SmartDbContext db,
+        IRuleService ruleService,
+        IRuleProviderFactory ruleProviderFactory) : ITask
     {
-        protected readonly SmartDbContext _db;
-        protected readonly IRuleService _ruleService;
-        protected readonly IProductRuleProvider _productRuleProvider;
-
-        public ProductRuleEvaluatorTask(
-            SmartDbContext db,
-            IRuleService ruleService,
-            IProductRuleProvider productRuleProvider)
-        {
-            _db = db;
-            _ruleService = ruleService;
-            _productRuleProvider = productRuleProvider;
-        }
+        protected readonly SmartDbContext _db = db;
+        protected readonly IRuleService _ruleService = ruleService;
+        protected readonly IProductRuleProvider _productRuleProvider = ruleProviderFactory.GetProvider<IProductRuleProvider>(RuleScope.Product);
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {

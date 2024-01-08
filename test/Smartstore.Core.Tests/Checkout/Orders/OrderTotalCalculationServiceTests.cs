@@ -13,6 +13,7 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
@@ -20,6 +21,7 @@ using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Test.Common;
 
@@ -101,17 +103,17 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             };
             _shippingSettings = new ShippingSettings
             {
-                ActiveShippingRateComputationMethodSystemNames = new List<string>
-                {
+                ActiveShippingRateComputationMethodSystemNames =
+                [
                     "FixedRateTestShippingRateComputationMethod"
-                }
+                ]
             };
 
             var giftCardServiceMock = new Mock<IGiftCardService>();
             _giftCardService = giftCardServiceMock.Object;
             giftCardServiceMock
                 .Setup(x => x.GetValidGiftCardsAsync(It.IsAny<int>(), It.IsAny<Customer>()))
-                .ReturnsAsync(new List<AppliedGiftCard>());
+                .ReturnsAsync([]);
 
             var productAttributeMaterializerMock = new Mock<IProductAttributeMaterializer>();
             _productAttributeMaterializer = productAttributeMaterializerMock.Object;
@@ -150,10 +152,13 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators
             _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _priceSettings));
 
+            var ruleProviderFactoryMock = new Mock<IRuleProviderFactory>();
+            ruleProviderFactoryMock.Setup(x => x.GetProvider(RuleScope.Cart, null)).Returns(new Mock<ICartRuleProvider>().Object);
+
             _shippingService = new ShippingService(
                 _productAttributeMaterializer,
                 _checkoutAttributeMaterializer,
-                null,
+                ruleProviderFactoryMock.Object,
                 _shippingSettings,
                 ProviderManager,
                 null,

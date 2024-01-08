@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Catalog.Rules
@@ -30,5 +31,18 @@ namespace Smartstore.Core.Catalog.Rules
         /// <param name="logicalOperator">Rule operator.</param>
         /// <returns><c>true</c> the attribute is active, otherwise <c>false</c>.</returns>
         Task<bool> IsAttributeActiveAsync(AttributeRuleContext context, LogicalRuleOperator logicalOperator = LogicalRuleOperator.And);
+    }
+
+
+    /// <summary>
+    /// Context object provided when instantiating <see cref="IAttributeRuleProvider"/>.
+    /// Only required in case of <see cref="IAttributeRuleProvider"/> at the moment.
+    /// </summary>
+    /// <param name="productId">Identifier of the product.</param>
+    public partial class AttributeRuleProviderContext(int productId)
+    {
+        public int ProductId { get; } = Guard.NotZero(productId);
+        public List<ProductVariantAttribute>? Attributes { get; init; }
+        public ProductBatchContext? BatchContext { get; init; }
     }
 }

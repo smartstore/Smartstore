@@ -4,12 +4,14 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -453,7 +455,7 @@ namespace Smartstore.Web.Controllers
                 var preSelectedValueId = 0;
                 var attributeValues = attribute.IsListTypeAttribute()
                     ? attribute.ProductVariantAttributeValues.OrderBy(x => x.DisplayOrder).ToList()
-                    : new List<ProductVariantAttributeValue>();
+                    : [];
 
                 var attributeModel = new ProductDetailsModel.ProductVariantAttributeModel
                 {
@@ -637,7 +639,7 @@ namespace Smartstore.Web.Controllers
                 model.ProductVariantAttributes.Add(attributeModel);
             }
 
-            if (query.Variants.Any() || query.VariantCombinationId != 0)
+            if (query.Variants.Count > 0 || query.VariantCombinationId != 0)
             {
                 // Apply attribute combination if any.
                 await PrepareProductAttributeCombinationsModelAsync(model, modelContext);
@@ -660,6 +662,11 @@ namespace Smartstore.Web.Controllers
             var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
             var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
             var attributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(product.Id);
+
+            var ruleProvider = _ruleProviderFactory.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id)
+            {
+                BatchContext = modelContext.BatchContext
+            });
 
             var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
             {
@@ -708,7 +715,13 @@ namespace Smartstore.Web.Controllers
 
             foreach (var attribute in model.ProductVariantAttributes)
             {
-                var updatePreselection = selectedValueIds.Any() && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
+                attribute.IsActive = await ruleProvider.IsAttributeActiveAsync(new(attribute.ProductAttribute, selectedValues));
+                if (!attribute.IsActive)
+                {
+                    continue;
+                }
+
+                var updatePreselection = selectedValueIds.Length > 0 && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
 
                 foreach (var value in attribute.Values.Cast<ProductDetailsModel.ProductVariantAttributeValueModel>())
                 {

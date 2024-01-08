@@ -425,8 +425,10 @@ namespace Smartstore.Admin.Controllers
                 .OrderBy(x => x.Pva.DisplayOrder)
                 .ToListAsync();
 
-            var providerContext = new AttributeRuleProviderContext(pva.Id, attributes.Select(x => x.Pva).ToList());
-            var provider = _ruleProviderFactory.Value.GetProvider(RuleScope.ProductAttribute, providerContext) as IAttributeRuleProvider;
+            var provider = _ruleProviderFactory.Value.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id)
+            {
+                Attributes = attributes.Select(x => x.Pva).Where(x => x.Id != pva.Id).ToList()
+            });
 
             var model = new ProductModel.ProductVariantAttributeValueListModel
             {
@@ -521,8 +523,7 @@ namespace Smartstore.Admin.Controllers
                 try
                 {
                     var ruleData = JsonConvert.DeserializeObject<RuleEditItem[]>(model.RawRuleData);
-                    var providerContext = new AttributeRuleProviderContext(pva.Id);
-                    var provider = _ruleProviderFactory.Value.GetProvider(RuleScope.ProductAttribute, providerContext);
+                    var provider = _ruleProviderFactory.Value.GetProvider(RuleScope.ProductAttribute, new AttributeRuleProviderContext(pva.ProductId));
 
                     await _ruleService.Value.ApplyRuleDataAsync(ruleData, provider);
                     await _db.SaveChangesAsync();

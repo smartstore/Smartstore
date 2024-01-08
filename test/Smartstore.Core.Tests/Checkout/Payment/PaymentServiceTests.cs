@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Rules;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
@@ -26,7 +27,7 @@ namespace Smartstore.Core.Tests.Checkout.Payment
         {
             _paymentSettings = new PaymentSettings
             {
-                ActivePaymentMethodSystemNames = new List<string>()
+                ActivePaymentMethodSystemNames = []
             };
 
             _paymentSettings.ActivePaymentMethodSystemNames.Add("Payments.TestMethod1");
@@ -40,12 +41,15 @@ namespace Smartstore.Core.Tests.Checkout.Payment
             var requestCacheMock = new Mock<IRequestCache>();
             _requestCache = requestCacheMock.Object;
 
+            var ruleProviderFactoryMock = new Mock<IRuleProviderFactory>();
+            ruleProviderFactoryMock.Setup(x => x.GetProvider(RuleScope.Cart, null)).Returns(new Mock<ICartRuleProvider>().Object);
+
             _paymentService = new PaymentService(
                 DbContext, 
                 _storeContext, 
                 null, 
-                _paymentSettings, 
-                null, 
+                _paymentSettings,
+                ruleProviderFactoryMock.Object,
                 ProviderManager,
                 NullCache.Instance,
                 _requestCache, 
