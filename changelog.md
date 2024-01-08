@@ -4,6 +4,10 @@
 
 ### New Features
 
+- Updated to **.NET 8**
+  - Faster app startup
+  - Increased overall performance
+  - ~10 % less memory usage after app start
 - #909 Allow to control the product availability based on the existence of an attribute combination.
 - Affiliates
   - #896 Added a cart rule for affiliates.
