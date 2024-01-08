@@ -712,7 +712,9 @@ $img-margin-right: 10px;
     font-weight: 400;
 
     > .note-current-fontname {
-        @include text-truncate;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
 
@@ -738,7 +740,7 @@ $img-margin-right: 10px;
 			    top: 0;
 			    bottom: 0;
 			    width: 3px;
-			    background-color: $warning;
+			    background-color: var(--warning);
 		    }
 	    }
     }
