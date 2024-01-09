@@ -4,6 +4,7 @@ using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules.Impl;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
@@ -15,8 +16,9 @@ namespace Smartstore.Core.Catalog.Rules
         SmartDbContext db,
         IWorkContext workContext,
         IComponentContext componentContext,
-        IRuleService ruleService,
         IRequestCache requestCache,
+        IRuleService ruleService,
+        ICurrencyService currencyService,
         Lazy<IProductService> productService)
         : RuleProviderBase(RuleScope.ProductAttribute), IAttributeRuleProvider
     {
@@ -27,9 +29,12 @@ namespace Smartstore.Core.Catalog.Rules
         private readonly SmartDbContext _db = db;
         private readonly IWorkContext _workContext = workContext;
         private readonly IComponentContext _componentContext = componentContext;
-        private readonly IRuleService _ruleService = ruleService;
         private readonly IRequestCache _requestCache = requestCache;
+        private readonly IRuleService _ruleService = ruleService;
+        private readonly ICurrencyService _currencyService = currencyService;
         private readonly Lazy<IProductService> _productService = productService;
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public IRule<AttributeRuleContext> GetProcessor(RuleExpression expression)
         {
@@ -142,12 +147,36 @@ namespace Smartstore.Core.Catalog.Rules
         {
             var result = await _requestCache.GetAsync(DescriptorsByProductIdKey.FormatInvariant(_ctx.ProductId), async () =>
             {
-                var descriptors = new List<AttributeRuleDescriptor>();
-                var attributeSelectedRuleType = typeof(ProductAttributeSelectedRule);
+                var attributeSelectedRuleType = typeof(ProductAttributeRule);
                 var language = _workContext.WorkingLanguage;
+                var currencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
+
+                var descriptors = new List<AttributeRuleDescriptor>
+                {
+                    new()
+                    {
+                        Name = nameof(PriceAdjustmentRule),
+                        DisplayName = T("Admin.Rules.FilterDescriptor.AttributePriceAdjustment"),
+                        RuleType = RuleType.Money,
+                        ProcessorType = typeof(PriceAdjustmentRule)
+                    },
+                    new()
+                    {
+                        Name = nameof(ProductWeightRule),
+                        DisplayName = T("Admin.Rules.FilterDescriptor.ProductWeight"),
+                        RuleType = RuleType.Money,
+                        ProcessorType = typeof(ProductWeightRule)
+                    }
+                };
+
+                descriptors
+                    .Where(x => x.RuleType == RuleType.Money && x.ProcessorType != typeof(ProductWeightRule))
+                    .Each(x => x.Metadata["postfix"] = currencyCode);
+
+                // List type attributes.
                 var attributes = _ctx.Attributes ?? await _productService.Value.CreateProductBatchContext().Attributes.GetOrLoadAsync(_ctx.ProductId);
 
-                foreach (var attribute in attributes)
+                foreach (var attribute in attributes.Where(x => x.IsListTypeAttribute()))
                 {
                     var values = attribute.ProductVariantAttributeValues
                         .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(x => x.Name, language, true, false) })
@@ -157,7 +186,7 @@ namespace Smartstore.Core.Catalog.Rules
                     {
                         Name = $"Variant{attribute.Id}",
                         DisplayName = attribute.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
-                        //GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
+                        GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
                         RuleType = RuleType.IntArray,
                         ProcessorType = attributeSelectedRuleType,
                         IsComparingSequences = attribute.IsMultipleChoice,
